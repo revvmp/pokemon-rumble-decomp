@@ -44,16 +44,15 @@ public:
                                       const Sound3DParam& rParam,
                                       f32* pValue);
 
-private:
     static void CalcPanDpl2(const math::VEC3& rPos, f32 interiorSize,
                             f32 distance, f32 panRange,
                             f32 frontSpeakerAngle, f32 rearSpeakerAngle,
                             f32 initPan, f32* pPan, f32* pSurroundPan);
     static void CalcPanStereo(const math::VEC3& rPos, f32 interiorSize,
-                              f32 distance, f32 speakerAngle, f32 initPan,
+                              f32 distance, f32 panRange, f32 speakerAngle,
                               f32* pPan, f32* pSurroundPan);
-    static void CalcAngleAndDistance(const math::VEC3& rPos, f32 interiorSize,
-                                     f32 distance, f32* pAngle,
+    static void CalcAngleAndDistance(const math::VEC3& rPos, f32 distance,
+                                     f32 interiorSize, f32* pAngle,
                                      f32* pDistance);
 };
 
