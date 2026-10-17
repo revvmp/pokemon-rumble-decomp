@@ -918,6 +918,16 @@ RVL_SDK/bte/hidh_api.c:
 	.data       start:0x803E2DC0 end:0x803E2ED8
 	.bss        start:0x804ADA38 end:0x804ADE40
 
+RVL_SDK/bte/l2c_main.c:
+	.text       start:0x8032F7B8 end:0x803307E8
+	.data       start:0x803E44F8 end:0x803E47F3
+	.bss        start:0x804ADE40 end:0x804AE628
+
+RVL_SDK/bte/l2c_utils.c:
+	.text       start:0x803307E8 end:0x803326AC
+	.data       start:0x803E47F8 end:0x803E48DF
+	.sdata      start:0x804B8F20 end:0x804B8F2E
+
 RVL_SDK/bte/port_api.c:
 	.text       start:0x803326AC end:0x803326FC
 

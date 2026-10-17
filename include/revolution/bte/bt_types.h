@@ -69,6 +69,12 @@ typedef struct {
 } FLOW_SPEC;
 
 enum {
+    NO_TRAFFIC = 0,
+    BEST_EFFORT = 1,
+    GUARANTEED = 2
+};
+
+enum {
     BT_PSM_RFCOMM = 3,
     BT_PSM_HIDC = 17,
     BT_PSM_HIDI = 19

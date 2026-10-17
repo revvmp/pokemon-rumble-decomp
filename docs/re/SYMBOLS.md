@@ -1554,3 +1554,62 @@ For `wpse-v1` / `main.dol`, [F-416-1](findings/416-snd-axmanager.md) names the 2
 ## NW4R ut ArchiveFontBase and ArchiveFont (#449, #450)
 
 For `wpse-v1` / `main.dol`, [F-449-2](findings/449-ut-resfont-archivefont.md) names the 25 `.text` functions of `ut_ArchiveFontBase.cpp` (`0x80295890–0x80296DC8`) in `nw4r::ut::detail::ArchiveFontBase` and its nested `CachedStreamReader`, the eight functions of `ut_ArchiveFont.cpp` (`0x80296DD0–0x80297710`) in `nw4r::ut::ArchiveFont`, and the vtables `__vt__Q44nw4r2ut6detail15ArchiveFontBase` (`.data` `0x803C6BB8`, 0x60 bytes) and `__vt__Q34nw4r2ut11ArchiveFont` (`.data` `0x803C6C50`, 0x60 bytes). Names are high confidence from the CC0 forecast and Wii News Channel symbol maps and matching code. Outside callees: `CntBit1__Q24nw4r4mathFUl` (`0x802A34A0`), `strchr` (`0x80345F38`), `strstr` (`0x80345F68`). `ArchiveFontBase` layout: `ResFontBase` (0x1C bytes) followed by `mGlyphIndexAdjustArray` (`u16*`) at 0x1C; `ArchiveFont` adds no members. `ConstructContext` is 0x68 bytes with the forecast field layout; `CachedStreamReader` is 0x1C bytes.
+## BTE L2CAP main and utilities (#527)
+
+`l2c_init` was named earlier and now links from `src/RVL_SDK/bte/l2c_main.c`.
+
+| Address | Size | dtk label | Chosen name | Kind | Confidence | Evidence | Source |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `0x804ADE40` | `0x7E8` | `lbl_804ADE40` | `l2cb` | object (tL2C_CB) | high | F-527-1 | `src/RVL_SDK/bte/l2c_main.c` |
+| `0x8032F8CC` | `0x330` | `fn_8032F8CC` | `l2c_rcv_acl_data` | function | high | F-527-1 | `src/RVL_SDK/bte/l2c_main.c` |
+| `0x8032FBFC` | `0xA70` | `fn_8032FBFC` | `process_l2cap_cmd` | static function | high | F-527-1 | `src/RVL_SDK/bte/l2c_main.c` |
+| `0x8033066C` | `0x50` | `fn_8033066C` | `l2c_process_timeout` | function | high | F-527-1 | `src/RVL_SDK/bte/l2c_main.c` |
+| `0x803306BC` | `0x12C` | `fn_803306BC` | `l2c_process_held_packets` | function | high | F-527-1 | `src/RVL_SDK/bte/l2c_main.c` |
+| `0x803307E8` | `0xD4` | `fn_803307E8` | `l2cu_allocate_lcb` | function | high | F-527-1 | `src/RVL_SDK/bte/l2c_utils.c` |
+| `0x803308BC` | `0x100` | `fn_803308BC` | `l2cu_release_lcb` | function | high | F-527-1 | `src/RVL_SDK/bte/l2c_utils.c` |
+| `0x803309BC` | `0x88` | `fn_803309BC` | `l2cu_find_lcb_by_bd_addr` | function | high | F-527-1 | `src/RVL_SDK/bte/l2c_utils.c` |
+| `0x80330A44` | `0x90` | `fn_80330A44` | `l2cu_find_lcb_by_handle` | function | high | F-527-1 | `src/RVL_SDK/bte/l2c_utils.c` |
+| `0x80330AD4` | `0x10` | `fn_80330AD4` | `l2cu_get_conn_role` | function | high | F-527-1 | `src/RVL_SDK/bte/l2c_utils.c` |
+| `0x80330AE4` | `0xC4` | `fn_80330AE4` | `l2cu_build_header` | function | high | F-527-1 | `src/RVL_SDK/bte/l2c_utils.c` |
+| `0x80330BA8` | `0xFC` | `fn_80330BA8` | `l2cu_send_peer_cmd_reject` | function | high | F-527-1 | `src/RVL_SDK/bte/l2c_utils.c` |
+| `0x80330CA4` | `0xC4` | `fn_80330CA4` | `l2cu_send_peer_connect_req` | function | high | F-527-1 | `src/RVL_SDK/bte/l2c_utils.c` |
+| `0x80330D68` | `0xD8` | `fn_80330D68` | `l2cu_send_peer_connect_rsp` | function | high | F-527-1 | `src/RVL_SDK/bte/l2c_utils.c` |
+| `0x80330E40` | `0xC0` | `fn_80330E40` | `l2cu_reject_connection` | function | high | F-527-1 | `src/RVL_SDK/bte/l2c_utils.c` |
+| `0x80330F00` | `0x2F8` | `fn_80330F00` | `l2cu_send_peer_config_req` | function | high | F-527-1 | `src/RVL_SDK/bte/l2c_utils.c` |
+| `0x803311F8` | `0x2F8` | `fn_803311F8` | `l2cu_send_peer_config_rsp` | function | high | F-527-1 | `src/RVL_SDK/bte/l2c_utils.c` |
+| `0x803314F0` | `0x1B4` | `fn_803314F0` | `l2cu_send_peer_config_rej` | function | high | F-527-1 | `src/RVL_SDK/bte/l2c_utils.c` |
+| `0x803316A4` | `0xD4` | `fn_803316A4` | `l2cu_send_peer_disc_req` | function | high | F-527-1 | `src/RVL_SDK/bte/l2c_utils.c` |
+| `0x80331778` | `0xC0` | `fn_80331778` | `l2cu_send_peer_disc_rsp` | function | high | F-527-1 | `src/RVL_SDK/bte/l2c_utils.c` |
+| `0x80331838` | `0x170` | `fn_80331838` | `l2cu_send_peer_echo_req` | function | high | F-527-1 | `src/RVL_SDK/bte/l2c_utils.c` |
+| `0x803319A8` | `0x19C` | `fn_803319A8` | `l2cu_send_peer_echo_rsp` | function | high | F-527-1 | `src/RVL_SDK/bte/l2c_utils.c` |
+| `0x80331B44` | `0xA4` | `fn_80331B44` | `l2cu_send_peer_info_rsp` | function | high | F-527-1 | `src/RVL_SDK/bte/l2c_utils.c` |
+| `0x80331BE8` | `0x10C` | `fn_80331BE8` | `l2cu_allocate_ccb` | function | high | F-527-1 | `src/RVL_SDK/bte/l2c_utils.c` |
+| `0x80331CF4` | `0x1A4` | `fn_80331CF4` | `l2cu_release_ccb` | function | high | F-527-1 | `src/RVL_SDK/bte/l2c_utils.c` |
+| `0x80331E98` | `0x5C` | `fn_80331E98` | `l2cu_find_ccb_by_cid` | function | high | F-527-1 | `src/RVL_SDK/bte/l2c_utils.c` |
+| `0x80331EF4` | `0x4C` | `fn_80331EF4` | `l2cu_allocate_rcb` | function | high | F-527-1 | `src/RVL_SDK/bte/l2c_utils.c` |
+| `0x80331F40` | `0x10` | `fn_80331F40` | `l2cu_release_rcb` | function | high | F-527-1 | `src/RVL_SDK/bte/l2c_utils.c` |
+| `0x80331F50` | `0xB8` | `fn_80331F50` | `l2cu_find_rcb_by_psm` | function | high | F-527-1 | `src/RVL_SDK/bte/l2c_utils.c` |
+| `0x80332008` | `0x148` | `fn_80332008` | `l2cu_process_peer_cfg_req` | function | high | F-527-1 | `src/RVL_SDK/bte/l2c_utils.c` |
+| `0x80332150` | `0x40` | `fn_80332150` | `l2cu_process_peer_cfg_rsp` | function | high | F-527-1 | `src/RVL_SDK/bte/l2c_utils.c` |
+| `0x80332190` | `0x110` | `fn_80332190` | `l2cu_process_our_cfg_req` | function | high | F-527-1 | `src/RVL_SDK/bte/l2c_utils.c` |
+| `0x803322A0` | `0x40` | `fn_803322A0` | `l2cu_process_our_cfg_rsp` | function | high | F-527-1 | `src/RVL_SDK/bte/l2c_utils.c` |
+| `0x803322E0` | `0x6C` | `fn_803322E0` | `l2cu_device_reset` | function | high | F-527-1 | `src/RVL_SDK/bte/l2c_utils.c` |
+| `0x8033234C` | `0x118` | `fn_8033234C` | `l2cu_create_conn` | function | high | F-527-1 | `src/RVL_SDK/bte/l2c_utils.c` |
+| `0x80332464` | `0xD0` | `fn_80332464` | `l2cu_create_conn_after_switch` | function | high | F-527-1 | `src/RVL_SDK/bte/l2c_utils.c` |
+| `0x80332534` | `0x90` | `fn_80332534` | `l2cu_find_lcb_by_state` | function | high | F-527-1 | `src/RVL_SDK/bte/l2c_utils.c` |
+| `0x803325C4` | `0xE8` | `fn_803325C4` | `l2cu_lcb_disconnecting` | function | high | F-527-1 | `src/RVL_SDK/bte/l2c_utils.c` |
+| `0x803118B0` | see `symbols.txt` | `fn_803118B0` | `GKI_remove_from_queue` | function | high | F-527-1 | Not reconstructed (fallback) |
+| `0x80311980` | see `symbols.txt` | `fn_80311980` | `GKI_getfirst` | function | high | F-527-1 | Not reconstructed (fallback) |
+| `0x80311990` | see `symbols.txt` | `fn_80311990` | `GKI_getnext` | function | high | F-527-1 | Not reconstructed (fallback) |
+| `0x8031A534` | see `symbols.txt` | `fn_8031A534` | `btm_acl_removed` | function | high | F-527-1 | Not reconstructed (fallback) |
+| `0x8031A65C` | see `symbols.txt` | `fn_8031A65C` | `BTM_SwitchRole` | function | high | F-527-1 | Not reconstructed (fallback) |
+| `0x8031D6B4` | see `symbols.txt` | `fn_8031D6B4` | `BTM_ReadLocalFeatures` | function | high | F-527-1 | Not reconstructed (fallback) |
+| `0x8031EA7C` | see `symbols.txt` | `fn_8031EA7C` | `BTM_InqDbRead` | function | high | F-527-1 | Not reconstructed (fallback) |
+| `0x80320FB8` | see `symbols.txt` | `fn_80320FB8` | `btm_remove_sco_links` | function | high | F-527-1 | Not reconstructed (fallback) |
+| `0x80321584` | see `symbols.txt` | `fn_80321584` | `btm_is_sco_active_by_bdaddr` | function | high | F-527-1 | Not reconstructed (fallback) |
+| `0x8032320C` | see `symbols.txt` | `fn_8032320C` | `btm_sec_is_bonding` | function | high | F-527-1 | Not reconstructed (fallback) |
+| `0x803236CC` | see `symbols.txt` | `fn_803236CC` | `btm_sec_disconnect` | function | high | F-527-1 | Not reconstructed (fallback) |
+| `0x8032D150` | see `symbols.txt` | `fn_8032D150` | `l2c_csm_execute` | function | high | F-527-1 | Not reconstructed (fallback) |
+| `0x8032EB98` | see `symbols.txt` | `fn_8032EB98` | `l2c_link_timeout` | function | high | F-527-1 | Not reconstructed (fallback) |
+| `0x8032EE14` | see `symbols.txt` | `fn_8032EE14` | `l2c_link_check_send_pkts` | function | high | F-527-1 | Not reconstructed (fallback) |
+| `0x8032F0E0` | see `symbols.txt` | `fn_8032F0E0` | `l2c_link_adjust_allocation` | function | high | F-527-1 | Not reconstructed (fallback) |

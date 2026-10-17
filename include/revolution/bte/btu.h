@@ -33,6 +33,10 @@ enum {
 };
 #define BTU_HCI_RCV_MBOX TASK_MBOX_0
 
+enum {
+    BTU_TTYPE_L2CAP_COMPRESS = 73
+};
+
 #define BTU_CMD_CMPL_TIMEOUT 8
 
 #define BTU_MAX_REG_TIMER 2
