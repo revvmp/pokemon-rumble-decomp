@@ -538,6 +538,11 @@ nw4r/g3d/g3d_draw1mat1shp.cpp:
 	.rodata     start:0x8036C888 end:0x8036C898
 	.sdata2     start:0x804BAC60 end:0x804BAC80
 
+nw4r/g3d/g3d_calcview.cpp:
+	.text       start:0x8025FA00 end:0x80261C7C
+	.rodata     start:0x8036C898 end:0x8036C8B4
+	.sdata2     start:0x804BAC80 end:0x804BAC8C
+
 nw4r/snd/snd_AxManager.cpp:
 	.text       start:0x80271E10 end:0x80273650
 	.ctors      start:0x80352A50 end:0x80352A54
