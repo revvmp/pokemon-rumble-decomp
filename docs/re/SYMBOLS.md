@@ -2149,3 +2149,6 @@ For `wpse-v1` / `main.dol`, [F-381-1](findings/381-ef-emitter-forms-draw-strateg
 ## NW4R g3d Draw1Mat1Shp (#775)
 
 For `wpse-v1` / `main.dol`, [F-775-1](findings/775-g3d-draw1mat1shp.md) confirms the imported names of `nw4r::g3d::detail::LoadMaterial` (`.text` `0x8025ECB0`) and `nw4r::g3d::Draw1Mat1ShpDirectly` (`0x8025F150`) by exact match against CC0 zeldaret/ss. No symbols were renamed. Confidence: high.
+## Issue #544 MetroTRK handlers and console
+
+[F-544-2](findings/544-metrotrk-handlers-console.md) records all 25 original issue functions / 5,896 bytes across three complete source units. The #543-owned message-buffer unit contributes nine functions without duplicate ledger credit. The two new units contain 18 retained functions / 4,368 bytes, including two #545 console helpers. Handler sequence state is a four-byte local at 0x804B9C30 and connection state a four-byte local at 0x804B9C34. Source object sections, final native function addresses, actual source selection and complete frozen DOL identity are verified. [F-544-1](findings/544-metrotrk-protocol-headers.md) records the shared 64-byte reply layout: length 0, command 4, reply error 8, sequence/file-position parameter 12, payload 16. Outside callee names follow paired source relocations and native branch destinations; their sizes, types and splits remain unchanged.

@@ -2012,3 +2012,11 @@ MetroTRK/debugger/embedded/MetroTRK/Portable/msgbuf.c:
 	.text       start:0x8034F86C end:0x80350078
 	.data       start:0x803E64B8 end:0x803E64E0
 	.bss        start:0x804B3AC0 end:0x804B5464
+
+MetroTRK/debugger/embedded/MetroTRK/Portable/msghndlr.c:
+	.text       start:0x80350078 end:0x80350FFC
+	.data       start:0x803E64E0 end:0x803E6548
+	.sbss       start:0x804B9C30 end:0x804B9C38
+
+MetroTRK/debugger/embedded/MetroTRK/Export/mslsupp.c:
+	.text       start:0x80350FFC end:0x80351188
