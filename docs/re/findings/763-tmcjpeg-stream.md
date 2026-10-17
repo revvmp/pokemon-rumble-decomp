@@ -11,3 +11,12 @@ An ordinary static inline MaskBits helper returning the selected low bits reprod
 Changing the byte-writing helper's scalar parameter type, swapping the loop mask/shift operands, adding const to the overflow pointer or declaring the byte register does not change the baseline six/twenty-six differences. Moving the loop's count decrement earlier regresses register allocation and sometimes code size; exchanging the byte-zero/free-eight tail assignments also regresses. The MaskBits helper resolves only the fast routine so far.
 
 The actual Ninja source-object target also compiles this candidate successfully. objdiff reports all nine retained routines including PutBitsFast at 100%, the checked writer at 95.68519%, and both rodata objects at 100% (unit text 98.823235%). Plain default Ninja and explicit frozen verification remain zero with the unit still NonMatching and its original fallback selected.
+
+
+### Further bounded diagnostics
+
+The actual Ninja source object reproduces every frozen native word in nine functions after applying all 22 relocation sites, and the complete nine-byte rodata table is exact. The checked writer alone retains twenty-six differing words. These diagnostics neither change the NonMatching status nor select its source at link time.
+
+All nine pinned Wii compiler variants (0x4201_127, 1.0, 1.0a, 1.0RC1, 1.1, 1.3, 1.5, 1.6 and 1.7) preserve the same nine exact routines and the same twenty-six checked-writer differences for this source form. Compiler-family substitution therefore does not resolve the present register graph. Diagnostic O4,s/O3,p/O3,s/O2,p variants regress other previously matching routines and often change code sizes; the established O4,p flags remain unchanged.
+
+Permuting the overflow-case stores changes otherwise exact byte writers, while changing inline scalar typedef spellings or expanding equivalent flushed assignments does not improve the checked routine. Extracting the loop operation into a second helper adds no improvement; packing the byte OR into a helper regresses the already exact fast writer. The accepted low-bit helper is retained without adding speculative wrappers or flags.
