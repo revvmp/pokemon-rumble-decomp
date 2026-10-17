@@ -440,6 +440,24 @@ nw4r/snd/snd_EnvGenerator.cpp:
 nw4r/snd/snd_ExternalSoundPlayer.cpp:
 	.text       start:0x8027B0D0 end:0x8027B5D8
 
+nw4r/snd/snd_FxBase.cpp:
+	.text       start:0x8027B5E0 end:0x8027B5E4
+
+nw4r/snd/snd_FxChorus.cpp:
+	.text       start:0x8027B5F0 end:0x8027BA08
+	.data       start:0x803C6248 end:0x803C6270
+	.sdata2     start:0x804BAE68 end:0x804BAE88
+
+nw4r/snd/snd_FxDelay.cpp:
+	.text       start:0x8027BA10 end:0x8027BE68
+	.data       start:0x803C6270 end:0x803C6298
+	.sdata2     start:0x804BAE88 end:0x804BAEA0
+
+nw4r/snd/snd_FxReverbStd.cpp:
+	.text       start:0x8027BE70 end:0x8027C3B8
+	.data       start:0x803C6298 end:0x803C62C0
+	.sdata2     start:0x804BAEA0 end:0x804BAEB8
+
 nw4r/ut/ut_list.cpp:
 	.text       start:0x80292D00 end:0x80292F5C
 

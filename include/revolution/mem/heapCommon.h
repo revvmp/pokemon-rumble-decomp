@@ -36,6 +36,10 @@ struct MEMiHeapHead {
 
 typedef MEMiHeapHead* MEMHeapHandle;
 
+static inline u32 MEMGetHeapTotalSize(MEMHeapHandle heap) {
+    return (u32)heap->heapEnd - (u32)heap;
+}
+
 typedef u32 UIntPtr;
 
 static inline UIntPtr GetUIntPtr(const void* ptr) {

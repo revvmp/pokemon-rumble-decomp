@@ -24,7 +24,7 @@ public:
                               SampleFormat format, f32 sampleRate,
                               OutputMode mode) {}
 
-    virtual void OnChangeOutputMode() {}
+    virtual void OnChangeOutputMode();
 
 public:
     NW4R_UT_LINKLIST_NODE_DECL();
