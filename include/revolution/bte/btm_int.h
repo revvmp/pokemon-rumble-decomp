@@ -435,4 +435,17 @@ UINT8 btm_handle_to_acl_index(UINT16 hci_handle);
 void btm_pm_reset(void);
 void btm_pm_sm_alloc(UINT8 ind);
 
+void btm_acl_timeout(TIMER_LIST_ENT *p_tle);
+tBTM_STATUS btm_set_packet_types(tACL_CONN *p, UINT16 pkt_types);
+tACL_CONN *btm_bda_to_acl(BD_ADDR bda);
+void btm_acl_device_down(void);
+#define BTM_ACL_SUPPORTED_PKTS_MASK                                           \
+	(HCI_PKT_TYPES_MASK_DM1 | HCI_PKT_TYPES_MASK_DH1 | HCI_PKT_TYPES_MASK_DM3 \
+	 | HCI_PKT_TYPES_MASK_DH3 | HCI_PKT_TYPES_MASK_DM5                        \
+	 | HCI_PKT_TYPES_MASK_DH5)
+#define BTM_ACL_EXCEPTION_PKTS_MASK                              \
+	(HCI_PKT_TYPES_MASK_NO_2_DH1 | HCI_PKT_TYPES_MASK_NO_3_DH1   \
+	 | HCI_PKT_TYPES_MASK_NO_2_DH3 | HCI_PKT_TYPES_MASK_NO_3_DH3 \
+	 | HCI_PKT_TYPES_MASK_NO_2_DH5 | HCI_PKT_TYPES_MASK_NO_3_DH5)
+enum { TT_DEV_RLNKP	= 4 };
 #endif
