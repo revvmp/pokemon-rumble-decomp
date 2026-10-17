@@ -1,8 +1,8 @@
 # WUD reconstruction
 
-## F-504-4: Complete WUD split and first source functions
+## F-504-4: Complete WUD split and source inventory
 
-Target `wpse-v1`, frozen executable manifest `config/targets/wpse-v1.json`. WUD.c starts with `WUDIsLinkedWBC` at `0x80309FA0` and ends at `0x80310394`, before WUDHidHost.c. Its 86 retained functions total 25,028 function bytes and span issues #504ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¦ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œ#507. #504 owns the first function and therefore the complete file split. The later WUDHidHost.c and debug_msg.c units remain as already established by #507.
+Target `wpse-v1`, frozen executable manifest `config/targets/wpse-v1.json`. WUD.c starts with `WUDIsLinkedWBC` at `0x80309FA0` and ends at `0x80310394`, before WUDHidHost.c. Its 86 retained functions total 25,028 function bytes and span issues #504 through #507. #504 owns the first function and therefore the complete file split. The later WUDHidHost.c and debug_msg.c units remain as already established by #507.
 
 | Section | Start | Exclusive end |
 | --- | --- | --- |
@@ -15,7 +15,7 @@ Target `wpse-v1`, frozen executable manifest `config/targets/wpse-v1.json`. WUD.
 
 The small-BSS range begins at its first word, `0x804B9B28`. The preceding four bytes after the USB unit are alignment padding; including them in WUD's range provoked dtk's eight-byte alignment warning. The corrected range removes the warning, and the full split-only build and frozen DOL verification pass before source registration.
 
-The current source contains 86 retained functions, totaling 25,028 function bytes. The following 85 functions, totaling 23,436 bytes, reproduce every non-relocation instruction word at their exact original sizes with Wii/1.0 and `cflags_sdk`. The device-info importer remains unmatched; the other native bodies reproduce exact non-relocation words.
+All 86 retained native functions, totaling 25,028 bytes, reproduce every instruction and relocation at their original extents with Wii/1.0 and unchanged `cflags_sdk`. [F-504-16](504-wud-importer-match.md) records complete normal source selection, exact linked DOL identity, initialized data and storage acceptance.
 
 | Function | Address | Bytes |
 | --- | --- | --- |
@@ -43,6 +43,7 @@ The current source contains 86 retained functions, totaling 25,028 function byte
 | `__wudStackHandler` | `0x8030BE60` | `0x144` |
 | `__wudEnableStackHandler0` | `0x8030BFB0` | `0x20` |
 | `__wudInitFlushCallback` | `0x8030BFD0` | `0x4C` |
+| `__wudInitDevInfo` | `0x8030C020` | `0x638` |
 | `__wudNandResultCallback` | `0x8030C660` | `0x80` |
 | `__wudNandFlushCallback` | `0x8030C6E0` | `0x18` |
 | `__wudGetDevInfoFromWiiFit` | `0x8030C700` | `0x530` |
@@ -105,7 +106,11 @@ The current source contains 86 retained functions, totaling 25,028 function byte
 | `WUDiSetQueueSizeForHandle` | `0x80310360` | `0x14` |
 | `WUDiSetNotAckNumForHandle` | `0x80310380` | `0x14` |
 
-This diagnostic excludes relocation-bearing words and does not establish matching function acceptance. Whole-unit objdiff is text 99.77785%, data 11.763171%, BSS 100%, sdata 100%, sbss 100% and sdata2 63.636364%. WUD remains `NonMatching`; the final executable continues to link the original WUD object and gains zero linked WUD source-byte credit. The partial-source full build and explicit frozen verification pass. EUART and USB remain accepted source-linked units.
+The actual normal build selects the WUD source object, and full frozen verification passes. All 1,185 paired relocations agree by position, type, operands and destination. The prelink objdiff diagnostics remain text 99.89692%, data 11.763171%, BSS/sdata/sbss 100%, and sdata2 63.636364%; exact final bytes, including initialized data, alignment and stripping, are proved independently in F-504-16. EUART and USB also remain source-linked.
+
+## Historical reconstruction checkpoints
+
+The partial-source counts and earlier retention work below precede F-504-16; they do not describe the final acceptance state.
 
 The implementations reuse the existing typed WUD headers. `_wcb` is the established 0x750-byte controller block at `0x8047C320`. Paired source/target SDA relocations identify the four-byte `sWudInitialized` at `0x804B9B28`, `sWudReadNand` at `0x804B9B2C` and `_linkedWBC` at `0x804B9B40`; no field address is guessed from declaration order. The last is returned by `WUDIsLinkedWBC`. Its weak qualifier follows the licensed newer SDK reference; the target directly establishes its word storage and access, not an original ELF binding.
 
@@ -155,12 +160,11 @@ After rebasing onto #720, a fresh `build/504-source-header-refresh-1/wpse-v1` al
 
 [F-504-15](504-wud-full-initialization.md) adds the final nine native bodies and restores complete initialized-message and small-data layouts. All 86 native extents total 25,028 bytes; 85 bodies / 23,436 bytes have exact non-relocation streams. Their 1,128 relocation entries agree by type, position, instruction opcode/registers and semantic destination. The importer retains 82 differing words; its 57 destination entries agree only as an ordered sequence, not as an instruction-stream proof. Resolved data and a source-selected candidate match every executable byte outside the importer, including final alignment and stripping. The original WUD object remains selected.
 
-## Remaining work
+## Issue acceptance and merge prerequisites
 
-- Resolve the 82 instruction differences in `__wudInitDevInfo` at `0x8030C020`; all native bodies are present, but this routine remains unmatched.
-- The source-selected candidate proves final data, placement and stripping, with all 116 differing bytes confined to the importer. Rerun the full frozen comparison after fixing that function.
-- Complete final relocated-byte comparison for every retained function and all data before marking WUD `Matching`. The current passing frozen build selects the original WUD object and gives it zero linked source credit.
-- Refresh against latest main and the header prerequisite before any merge. KPAD source in #710 and device-state headers in #720 remain separate prerequisites.
+- WUD source matching is complete. Full #504 acceptance also requires the thirteen KPAD functions supplied by #710; #720 has already merged.
+- Audit all forty original #504 functions in their actual source-selected units after the KPAD prerequisite, then run the latest-main configure/Ninja/frozen-verification merge loop.
+- Neighboring #505, #506 and #507 retain their own complete inventories and acceptance audits; source-byte credit is counted once per unit.
 
 ## Provenance
 

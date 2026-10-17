@@ -1,6 +1,6 @@
 # WUD importer alias matching
 
-## F-504-16: Complete source-selected WUD candidate matches
+## F-504-16: Complete WUD source matches the frozen executable
 
 Target `wpse-v1`, frozen manifest `config/targets/wpse-v1.json`. This finding supersedes F-504-15's remaining importer mismatch. Compiler, flags, target metadata, layouts and original artifacts are unchanged.
 
@@ -10,7 +10,13 @@ The actual `all_source` object compiled successfully with Wii/1.0 and unchanged 
 
 The relocation-aware data audit independently confirms all 4,519 emitted data bytes, nine jump-table destinations and the final target alignment byte. Small data, BSS and small BSS retain their complete original layouts. All 340 baseline source objects remain byte-identical. Whole-unit objdiff is diagnostic: text 99.89692%, data 11.763171%, BSS/sdata/sbss 100%, sdata2 63.636364%; coarse data symbols, relocation matching and source-only objects do not replace the exact final comparison.
 
-This initial candidate is based on the existing issue branch. Normal `Matching` selection and final acceptance still require the header prerequisite, rebase onto current main and the full configure/Ninja/frozen-verification merge loop. No linked WUD credit is claimed from the still-`NonMatching` normal configuration at this checkpoint.
+## Normal Matching build
+
+After header prerequisite #720 merged, a fresh normal build selects WUD as `Matching`. `python configure.py --build-dir build/504-wud-matching-current`, full Ninja and explicit frozen verification of `build/504-wud-matching-current/wpse-v1` all exit 0. The actual link inputs select source EUART, USB and WUD objects and exclude their original fallback objects. Their 103 retained functions total 31,264 native bytes, including 86 WUD functions / 25,028 bytes. All 86 WUD final native addresses agree, and the source-only catalogs and standalone clear-device body are absent.
+
+The raw instruction, relocation and initialized-data audit passes for the newly compiled WUD object. All 367 pre-existing `all_source` output objects remain byte-identical to the verified header-prerequisite baseline. This baseline is captured from Ninja's actual source targets rather than a recursive count of possibly stale files. Frozen acceptance compares all 4,094,880 DOL bytes and the sealed reference digest without normalization.
+
+This WUD unit acceptance does not by itself complete #504. The original issue also includes thirteen KPAD functions supplied by #710; final issue inventory and latest-main verification follow that prerequisite. Neighboring #505-#507 acceptance audits add no duplicate unit-byte credit.
 
 ## Rejected approaches
 
