@@ -8,6 +8,7 @@
 #include <revolution/bte/sdp_api.h>
 
 #define SDP_CONTINUATION_LEN 2
+#define SDP_MAX_CONTINUATION_LEN 16
 
 #define SDP_INACT_TIMEOUT 30
 
@@ -29,6 +30,15 @@ enum {
     SDP_STATE_CONN_SETUP,
     SDP_STATE_CFG_SETUP,
     SDP_STATE_CONNECTED
+};
+
+enum {
+    SDP_DISC_WAIT_CONN,
+    SDP_DISC_WAIT_HANDLES,
+    SDP_DISC_WAIT_ATTR,
+    SDP_DISC_WAIT_SEARCH_ATTR,
+    SDP_DISC_WAIT_PASS_THRU,
+    SDP_DISC_WAIT_CANCEL
 };
 
 enum {

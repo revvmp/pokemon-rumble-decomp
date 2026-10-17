@@ -11,6 +11,11 @@ typedef UINT16 tSDP_STATUS;
 #define SDP_INVALID_REQ_SYNTAX 3
 #define SDP_INVALID_PDU_SIZE 4
 #define SDP_INVALID_CONT_STATE 5
+#define SDP_NO_RESOURCES 6
+#define SDP_DI_REG_FAILED 7
+#define SDP_DI_DISC_FAILED 8
+#define SDP_NO_DI_RECORD_FOUND 9
+#define SDP_ERR_ATTR_NOT_PRESENT 10
 #define SDP_ILLEGAL_PARAMETER 11
 #define SDP_NO_RECS_MATCH 0xFFF0
 #define SDP_CONN_FAILED 0xFFF1
@@ -92,5 +97,11 @@ BOOLEAN SDP_AddAttribute(UINT32 handle, UINT16 attr_id, UINT8 attr_type, UINT32 
 tSDP_DISC_ATTR* SDP_FindAttributeInRec(tSDP_DISC_REC* p_rec, UINT16 attr_id);
 tSDP_DISC_REC* SDP_FindServiceInDb(tSDP_DISCOVERY_DB* p_db, UINT16 service_uuid, tSDP_DISC_REC* p_start_rec);
 tSDP_DISC_REC* SDP_FindServiceUUIDInDb(tSDP_DISCOVERY_DB* p_db, tBT_UUID* p_uuid, tSDP_DISC_REC* p_start_rec);
+BOOLEAN SDP_ServiceSearchAttributeRequest(UINT8* p_bd_addr, tSDP_DISCOVERY_DB* p_db, tSDP_DISC_CMPL_CB* p_cb);
+UINT32 SDP_CreateRecord(void);
+BOOLEAN SDP_DeleteRecord(UINT32 handle);
+BOOLEAN SDP_AddServiceClassIdList(UINT32 handle, UINT16 num_services, UINT16* p_service_uuids);
+BOOLEAN SDP_DeleteAttribute(UINT32 handle, UINT16 attr_id);
+UINT8 SDP_SetTraceLevel(UINT8 new_level);
 
 #endif

@@ -40,6 +40,19 @@ void LogMsg_6(UINT32 trace_set_mask, const char* fmt_str, UINT32 p1, UINT32 p2, 
 #define BT_TRACE_2(l, t, m, p1, p2)                                                                                    \
     LogMsg_2(TRACE_CTRL_GENERAL | (l) | TRACE_ORG_STACK | (t), (m), (UINT32)(p1), (UINT32)(p2))
 
+#define BT_TRACE_4(l, t, m, p1, p2, p3, p4)                                                                            \
+    LogMsg_4(TRACE_CTRL_GENERAL | (l) | TRACE_ORG_STACK | (t), (m), (UINT32)(p1), (UINT32)(p2), (UINT32)(p3), (UINT32)(p4))
+
+#define SDP_TRACE_ERROR4(m, p1, p2, p3, p4)                                                                            \
+    {                                                                                                                  \
+        if (sdp_cb.trace_level >= BT_TRACE_LEVEL_ERROR)                                                                \
+            BT_TRACE_4(TRACE_LAYER_SDP, TRACE_TYPE_ERROR, m, p1, p2, p3, p4);                                          \
+    }
+#define SDP_TRACE_API2(m, p1, p2)                                                                                      \
+    {                                                                                                                  \
+        if (sdp_cb.trace_level >= BT_TRACE_LEVEL_API)                                                                  \
+            BT_TRACE_2(TRACE_LAYER_SDP, TRACE_TYPE_API, m, p1, p2);                                                    \
+    }
 #define SDP_TRACE_ERROR0(m)                                                                                            \
     {                                                                                                                  \
         if (sdp_cb.trace_level >= BT_TRACE_LEVEL_ERROR)                                                                \
