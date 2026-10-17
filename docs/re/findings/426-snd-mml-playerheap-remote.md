@@ -24,6 +24,14 @@ The complete allocator owns `.text` `0x8027E0C0–0x8027E210` and `.data` `0x803
 
 The committed split-only baseline passed default configure, plain Ninja, and explicit frozen verification. The source was registered `NonMatching` and compiled with the established Wii/1.1 `cflags_nw4r`; complete object `.text` and `.data` compare at 100%. Selecting that source passed default Ninja, its actual SHA-1 check, and explicit frozen verification. All six functions retain their native final ELF addresses and extents. This accepts the complete unit as `Matching`, with no original-object dependency inside its split.
 
+## Retained NAND stream method cluster
+
+The `.text` split `0x8027E210–0x8027E2A8` contains ten eight-byte `ut::NandFileStream` methods and their natural function alignment. Their native class identity, vtable slots, RTTI reference, original reference order, and the remaining host-unit hypothesis are established in [F-426-3](426-snd-archive-interfaces.md). The original host name `snd_NandSoundArchive.cpp` remains a hypothesis; the retained method identities and native source coverage are independently proven.
+
+The committed original-object baseline passed the actual default DOL target and explicit frozen verification. A faithful pinned archive source context naturally emits all ten weak bodies without forcing helpers or copied instructions. The two unretained nested stream constructor definitions are omitted as documented in F-426-3; no invented SDK overload is added. Other archive and nested stream methods remain faithful reference context and receive no source credit.
+
+The `NonMatching` candidate compiled with the canonical headers and Wii/1.1 `cflags_nw4r`. Complete original-object `.text` and all ten function comparisons are 100%. Selecting the source and generating an actual linker map passed the default DOL target and explicit frozen verification. The map attributes each of the ten native address/extent entries to `snd_NandSoundArchive.o`, with source selection independently established by the Ninja link inputs. It marks the archive's strong functions and its other nested stream functions `UNUSED`. All ten final ELF addresses and eight-byte extents are exact, totaling 80 credited bytes. This accepts the retained split as `Matching`; no original-object definition remains inside that split.
+
 ## Reference provenance
 
 Player heap behavior follows CC0 `zeldaret/ss` at `57a709b2128eb163a18e2969d561c9abb7d1fcee`, `src/nw4r/snd/snd_PlayerHeap.cpp`, adapted to existing canonical headers and the project's source conventions. The source and referenced header have no file-specific license notice overriding the repository CC0 dedication. Reference material is retained outside the checkout. No commented reference source is imported into tracked code.
