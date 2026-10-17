@@ -34,6 +34,8 @@ enum {
 };
 
 #define GKI_BUF2_SIZE 660
+#define GKI_BUF3_SIZE 1800
+#define GKI_MAX_BUF_SIZE GKI_BUF3_SIZE
 
 typedef struct {
     void* p_first;
@@ -42,6 +44,7 @@ typedef struct {
 } BUFFER_Q;
 
 void* GKI_getbuf(UINT16);
+UINT32 GKI_get_tick_count(void);
 void* GKI_getpoolbuf(UINT8 pool_id);
 void GKI_freebuf(void* p_buf);
 void GKI_init_q(BUFFER_Q* p_q);

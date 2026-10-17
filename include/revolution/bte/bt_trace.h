@@ -463,4 +463,10 @@ void LogMsg_6(UINT32 trace_set_mask, const char* fmt_str, UINT32 p1, UINT32 p2, 
             BT_TRACE_6(TRACE_LAYER_BTM, TRACE_TYPE_DEBUG, m, p1, p2, p3, p4, p5, p6); \
     } while (0)
 
+#define BTM_TRACE_DEBUG2(m, p1, p2) \
+    do { \
+        if (btm_cb.trace_level >= BT_TRACE_LEVEL_DEBUG) \
+            BT_TRACE_2(TRACE_LAYER_BTM, TRACE_TYPE_DEBUG, m, p1, p2); \
+    } while (0)
+
 #endif

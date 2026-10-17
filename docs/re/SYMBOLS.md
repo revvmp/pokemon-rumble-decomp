@@ -1797,3 +1797,35 @@ For `wpse-v1` / `main.dol`, [F-302-1](findings/302-nw4hbm-ut.md#f-302-1-ut_tagpr
 | `0x80398150` | `0x10` | `lbl_80398150` | `btm_esco_defaults` | static `.rodata` object | high | F-520-2 | `src/RVL_SDK/bte/btm_sco.c` |
 | `0x8031B0F8` | `0x9C` | `fn_8031B0F8` | `BTM_GetHCIConnHandle` | function, outside unit | high name | F-520-2 | split left to its owning issue |
 | `0x8031BCA4` | `0x220` | `fn_8031BCA4` | `btm_chg_all_acl_pkt_types` | function, outside unit | high name | F-520-2 | split left to its owning issue |
+
+## BTE inquiry, BTM init and power manager, issues 518 and 519
+
+[F-519-1](findings/519-btm-inq-main-pm.md) gives the unit boundaries and [F-519-2](findings/519-btm-inq-main-pm.md#f-519-2-reconstruction) the evidence for these names.
+
+| Address | Size | Old name | Name | Kind | Confidence | Evidence | Source |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `0x8031E2D0` | `0xB0` | `fn_8031E2D0` | `BTM_SetInquiryScanType` | function | high | F-519-2 | `src/RVL_SDK/bte/btm_inq.c` |
+| `0x8031E380` | `0xB0` | `fn_8031E380` | `BTM_SetPageScanType` | function | high | F-519-2 | `src/RVL_SDK/bte/btm_inq.c` |
+| `0x8031E430` | `0x98` | `fn_8031E430` | `BTM_SetInquiryMode` | function | high | F-519-2 | `src/RVL_SDK/bte/btm_inq.c` |
+| `0x8031EE00` | `0x198` | `fn_8031EE00` | `btm_inq_db_reset` | function | high | F-519-2 | `src/RVL_SDK/bte/btm_inq.c` |
+| `0x8031EF98` | `0x4` | `fn_8031EF98` | `btm_inq_db_init` | function | high | F-519-2 | `src/RVL_SDK/bte/btm_inq.c` |
+| `0x8031EF9C` | `0xDC` | `fn_8031EF9C` | `btm_inq_find_bdaddr` | static function | high | F-519-2 | `src/RVL_SDK/bte/btm_inq.c` |
+| `0x8031F078` | `0x104` | `fn_8031F078` | `btm_inq_db_new` | static function | high | F-519-2 | `src/RVL_SDK/bte/btm_inq.c` |
+| `0x8031F17C` | `0xE4` | `fn_8031F17C` | `btm_set_inq_event_filter` | static function | high | F-519-2 | `src/RVL_SDK/bte/btm_inq.c` |
+| `0x8031FB40` | `0xBC` | `fn_8031FB40` | `BTM_PmRegister` | function | high | F-519-2 | `src/RVL_SDK/bte/btm_pm.c` |
+| `0x8031FE84` | `0x78` | `fn_8031FE84` | `btm_pm_reset` | function | high | F-519-2 | `src/RVL_SDK/bte/btm_pm.c` |
+| `0x8031FEFC` | `0x50` | `fn_8031FEFC` | `btm_pm_sm_alloc` | function | high | F-519-2 | `src/RVL_SDK/bte/btm_pm.c` |
+| `0x8031FF4C` | `0x21C` | `fn_8031FF4C` | `btm_pm_compare_modes` | static function | high | F-519-2 | `src/RVL_SDK/bte/btm_pm.c` |
+| `0x80320168` | `0x160` | `fn_80320168` | `btm_pm_get_set_mode` | static function | high | F-519-2 | `src/RVL_SDK/bte/btm_pm.c` |
+| `0x803202C8` | `0x234` | `fn_803202C8` | `btm_pm_snd_md_req` | static function | high | F-519-2 | `src/RVL_SDK/bte/btm_pm.c` |
+| `0x804BB618` | `0x3` | `lbl_804BB618` | `general_inq_lap` | static `.sdata2` object | high | F-519-2 | `src/RVL_SDK/bte/btm_inq.c` |
+| `0x804BB61C` | `0x3` | `lbl_804BB61C` | `limited_inq_lap` | static `.sdata2` object | high | F-519-2 | `src/RVL_SDK/bte/btm_inq.c` |
+| `0x80398140` | `0x9` | `lbl_80398140` | `btm_pm_md_comp_matrix` | `.rodata` object | high | F-519-2 | `src/RVL_SDK/bte/btm_pm.c` |
+| `0x804BB620` | `0x3` | `lbl_804BB620` | `btm_pm_mode_off` | `.sdata2` object | high | F-519-2 | `src/RVL_SDK/bte/btm_pm.c` |
+| `0x804BB624` | `0x3` | `lbl_804BB624` | `btm_pm_mode_msk` | `.sdata2` object | high | F-519-2 | `src/RVL_SDK/bte/btm_pm.c` |
+| `0x804AAD78` | `0x27C4` | `btm_cb` (0x27C8) | `btm_cb` | `.bss` object, size corrected | high | F-519-1 | `src/RVL_SDK/bte/btm_main.c` |
+| `0x80311F40` | see `symbols.txt` | `fn_80311F40` | `GKI_get_tick_count` | function, outside unit | high name | F-519-2 | split left to its owning issue |
+| `0x8031A180` | see `symbols.txt` | `fn_8031A180` | `btm_acl_init` | function, outside unit | high name | F-519-2 | split left to its owning issue |
+| `0x8031A19C` | see `symbols.txt` | `fn_8031A19C` | `btm_handle_to_acl_index` | function, outside unit | high name | F-519-2 | split left to its owning issue |
+| `0x8031C590` | see `symbols.txt` | `fn_8031C590` | `btm_dev_init` | function, outside unit | high name | F-519-2 | split left to its owning issue |
+| `0x8031D6A4` | see `symbols.txt` | `fn_8031D6A4` | `BTM_ReadDeviceClass` | function, outside unit | high name | F-519-2 | split left to its owning issue |
