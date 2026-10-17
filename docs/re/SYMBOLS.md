@@ -528,3 +528,42 @@ The dvd.c tail names __DVDTestAlarm (0x802D6660, 0x20 bytes), __DVDStopMotorAsyn
 ## BTE source storage acceptance (#510)
 
 [F-510-3](findings/510-bte-transport-logging.md#f-510-3-complete-source-linking-and-exact-storage-boundaries) establishes `bte_log_buffer` as a 2000-byte allocation at `0x804A9040`, followed by sixteen bytes of alignment padding. `__BTUInterruptHandlerStack` is 4096 bytes aligned to 32 at `0x804A9820`; `_bte_alarm` follows at `0x804AA820`, size 48, using the shared SDK OSAlarm declaration. `bte_hcisu_h2_cfg` contains two unsigned 16-bit values `0x0A5C`, `0x2101` at `0x804B8EE8`, size four; the following four bytes are padding. The byte `bte_target_mode` and callback `_bte_app_info` occupy `0x804B9B80` and `0x804B9B84`; transport pointers `p_hcisu_if`, `p_hcisu_cfg` occupy `0x804B9B78`, `0x804B9B7C`. These names follow the pinned Petari reference and their storage addresses are confirmed by complete source-linked DOL verification.
+## Issue 540: MSL math and case-insensitive comparison
+
+[F-540-1](findings/540-msl-math.md) records the compiler, source provenance, exact section boundaries and full verification. Names are supported by reference source, instructions, relocations and link order. `w_log.c` is an inferred filename. The `nan` identification additionally follows the reference body and parser call sites in F-540-2. External callees retain their owning issues and original extents.
+
+| Address | Name |
+| --- | --- |
+| `0x80345A7C` | `__fpclassifyd` |
+| `0x80349664` | `__ieee754_acos` |
+| `0x803498FC` | `__ieee754_asin` |
+| `0x80349B54` | `__ieee754_atan2` |
+| `0x80349D84` | `__ieee754_fmod` |
+| `0x8034A104` | `__ieee754_log` |
+| `0x8034A3B8` | `__ieee754_log10` |
+| `0x8034A4CC` | `__ieee754_pow` |
+| `0x8034ACE0` | `__ieee754_rem_pio2` |
+| `0x8034B064` | `__kernel_cos` |
+| `0x8034C82C` | `__kernel_sin` |
+| `0x8034C8EC` | `__kernel_tan` |
+| `0x8034CEB8` | `copysign` |
+| `0x8034D184` | `ldexp` |
+| `0x8034D2F0` | `modf` |
+| `0x8034D3EC` | `sin` |
+| `0x8034D4B8` | `tan` |
+| `0x8034D530` | `acos` |
+| `0x8034D534` | `asin` |
+| `0x8034D538` | `atan2` |
+| `0x8034D53C` | `fmod` |
+| `0x8034D540` | `log` |
+| `0x8034D544` | `log10` |
+| `0x8034D548` | `pow` |
+| `0x8034D54C` | `__ieee754_sqrt` |
+| `0x8034D794` | `nan` |
+| `0x8034D798` | `sqrt` |
+| `0x8034D79C` | `stricmp` |
+| `0x803E6228` | `_current_locale` |
+| `0x804B8FB0` | `__float_nan` |
+| `0x804B9BD0` | `errno` |
+
+The source constants occupy `0x804BBBB8–0x804BBBF8` as five doubles for `ldexp` and one double each for `sin`, `tan`, and `__ieee754_sqrt`. `errno` at `0x804B9BD0` is accessed as a four-byte int; its outside symbol extent is unchanged. `__float_nan` at `0x804B8FB0` is accessed through the reference int-array view as a float; its outside size and type attributes remain unchanged. The locale layout used by `stricmp` is the existing imported MSL declaration. No new structure layouts are introduced.

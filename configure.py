@@ -137,6 +137,12 @@ cflags_runtime = [
 
 RUNTIME_COMPILER = "Wii/1.1"
 
+cflags_msl = [
+    *(flag for flag in cflags_runtime if flag != "-fp_contract on"),
+    "-fp_contract off",
+    "-ipa file",
+]
+
 cflags_sdk = [
     *(flag for flag in cflags_base if flag not in ("-fp_contract on", "-inline auto")),
     "-inline auto,level=3",
@@ -250,6 +256,29 @@ config.libs = [
         cflags_runtime,
         "runtime",
         [Object(Matching, "Runtime/__init_cpp_exceptions.cpp")],
+    ),
+    library(
+        "MSL_C",
+        "Wii/1.1",
+        cflags_msl,
+        "runtime",
+        [
+            Object(Matching, "MSL_C/MSL_Common_Embedded/Math/Double_precision/s_ldexp.c"),
+            Object(Matching, "MSL_C/MSL_Common_Embedded/Math/Double_precision/s_modf.c"),
+            Object(Matching, "MSL_C/MSL_Common_Embedded/Math/Double_precision/s_sin.c"),
+            Object(Matching, "MSL_C/MSL_Common_Embedded/Math/Double_precision/s_tan.c"),
+            Object(Matching, "MSL_C/MSL_Common_Embedded/Math/Double_precision/w_acos.c"),
+            Object(Matching, "MSL_C/MSL_Common_Embedded/Math/Double_precision/w_asin.c"),
+            Object(Matching, "MSL_C/MSL_Common_Embedded/Math/Double_precision/w_atan2.c"),
+            Object(Matching, "MSL_C/MSL_Common_Embedded/Math/Double_precision/w_fmod.c"),
+            Object(Matching, "MSL_C/MSL_Common_Embedded/Math/Double_precision/w_log.c"),
+            Object(Matching, "MSL_C/MSL_Common_Embedded/Math/Double_precision/w_log10.c"),
+            Object(Matching, "MSL_C/MSL_Common_Embedded/Math/Double_precision/w_pow.c"),
+            Object(Matching, "MSL_C/MSL_Common_Embedded/Math/Double_precision/e_sqrt.c"),
+            Object(Matching, "MSL_C/PPC_EABI/SRC/math_ppc.c"),
+            Object(Matching, "MSL_C/MSL_Common_Embedded/Math/Double_precision/w_sqrt.c"),
+            Object(Matching, "MSL_C/extras.c"),
+        ],
     ),
 ]
 
