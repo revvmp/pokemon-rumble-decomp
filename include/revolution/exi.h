@@ -10,7 +10,11 @@ extern "C" {
 typedef void (*EXICallback)(s32 chan, OSContext* context);
 
 BOOL EXIImm(s32 chan, void* buf, s32 len, u32 type, EXICallback callback);
+BOOL EXIImmEx(s32 chan, void* buf, s32 len, u32 mode);
+BOOL EXIDma(s32 chan, void* buf, s32 len, u32 type, EXICallback callback);
 BOOL EXISync(s32 chan);
+u32 EXIClearInterrupts(s32 chan, BOOL exi, BOOL tc, BOOL ext);
+EXICallback EXISetExiCallback(s32 chan, EXICallback exiCallback);
 BOOL EXIAttach(s32 chan, EXICallback extCallback);
 BOOL EXIDetach(s32 chan);
 BOOL EXISelect(s32 chan, u32 dev, u32 freq);

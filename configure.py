@@ -151,6 +151,8 @@ cflags_sdk = [
     "-sdata2 8",
 ]
 
+cflags_sdk_exi = [*("-O3" if flag == "-O4,p" else flag for flag in cflags_sdk), "-func_align 16"]
+
 SDK_COMPILER = "Wii/1.0"
 
 cflags_hbm = [
@@ -270,6 +272,7 @@ config.libs = [
             Object(Matching, "RVL_SDK/os/OSPlayTime.c"),
             Object(Matching, "RVL_SDK/os/__start.c"),
             Object(Matching, "RVL_SDK/os/__ppc_eabi_init.c"),
+            Object(Matching, "RVL_SDK/exi/EXIBios.c", cflags=cflags_sdk_exi),
             Object(Matching, "RVL_SDK/exi/EXIUart.c"),
             Object(Matching, "RVL_SDK/exi/EXICommon.c"),
             Object(Matching, "RVL_SDK/si/SIBios.c"),
