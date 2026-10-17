@@ -48,6 +48,30 @@ void GKI_enqueue_head(BUFFER_Q* p_q, void* p_buf);
 void* GKI_dequeue(BUFFER_Q* p_q);
 BOOLEAN GKI_queue_is_empty(BUFFER_Q* p_q);
 
+#define EVENT_MASK(evt) ((UINT16)(1 << (evt)))
+enum {
+    TASK_MBOX_0 = 0,
+    TASK_MBOX_2 = 2,
+    TASK_MBOX_0_EVT_MASK = 1,
+    TASK_MBOX_2_EVT_MASK = 4,
+    TIMER_0_EVT_MASK = 0x10,
+    TIMER_1_EVT_MASK = 0x20,
+    APPL_EVT_7 = 15
+};
+void GKI_disable(void);
+void GKI_enable(void);
+void* GKI_read_mbox(UINT8 mbox);
+UINT8 GKI_get_taskid(void);
+void GKI_send_msg(UINT8 task_id, UINT8 mbox, void* p_msg);
+void GKI_init_timer_list(TIMER_LIST_Q* p_queue);
+UINT16 GKI_update_timer_list(TIMER_LIST_Q* p_queue, INT32 elapsed);
+void GKI_add_to_timer_list(TIMER_LIST_Q* p_queue, TIMER_LIST_ENT* p_entry);
+void GKI_remove_from_timer_list(TIMER_LIST_Q* p_queue, TIMER_LIST_ENT* p_entry);
+void GKI_start_timer(UINT8 timer, INT32 ticks, BOOLEAN continuous);
+void GKI_stop_timer(UINT8 timer);
+
+#define GKI_MS_TO_TICKS(x) ((x) / 10)
+
 #ifdef __cplusplus
 }
 #endif
