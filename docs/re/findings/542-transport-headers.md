@@ -51,3 +51,7 @@ Scratch compilation with the existing Wii/1.1 MetroTRK policy reproduces all nin
 - The older reference has both a four-argument UART initializer and a leading event-queue mutex field. Target callers and native member accesses prove the three-argument interface and mutex-free queue here; importing either old declaration unchanged misrepresents this ABI.
 - A relocation mask can conceal an incorrect one-instruction function. `EnableMetroTRKInterrupts` is a branch to `EnableEXI2Interrupts`, not an empty return. Pair every relocation target before accepting such a match.
 - Both SDK entry assembly routines retain a trailing unreachable `blr`. The first `InitMetroTRK` survey extent omitted its word at `0x8034E37C`; the BBA routine includes its word at `0x8034E410`. Their owning unit is coordinated with #541.
+
+## Coordinated processor and packet interfaces
+
+The prerequisite also includes the owner-approved complete processor-state declarations and native C/C++ layout probes in [F-541-6](541-processor-state-layout.md). The #543 owner supplies the existing packet-support and message-buffer API declarations from its verified source delivery, including the two-argument request/send exchange. These additive declarations preserve the existing buffer layout and canonical types and let the coordinated #541-#545 consumers include one interface. No source unit is selected by this header delivery and no source-byte credit is claimed.
