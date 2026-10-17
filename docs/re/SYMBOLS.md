@@ -2249,8 +2249,11 @@ For `wpse-v1` / `main.dol`, [F-792-1](findings/792-g3d-calcmaterial-init-fog.md)
 ## Issue #795 sequence sound interface evidence
 
 The canonical SeqSound layout is 0x4B4 bytes: BasicSound 0x110, embedded SeqPlayer at +0x110 (0x164 bytes), temporary handle +0x274, manager +0x278, sequence offset +0x27C, start type +0x280, start offset +0x284, volatile loading/prepared bools +0x288/+0x289, file stream +0x28C, 0x200-byte buffer +0x290, and 0x24-byte SeqLoadTask +0x490. Task is 0x10, TaskManager 0x3C, SoundInstanceManager<SeqSound> 0x28, and SeqFileReader 8 bytes. Original reference names and native method accesses support these declarations; the constructor store order remains unaccepted. See [F-795-1](findings/795-seqsound-interfaces.md).
+
 ## Issue #426: NW4R player heap
 
 `nw4r::snd::detail::PlayerHeap` is 32 bytes: virtual table 0, sound 4, player 8, heap start 12, heap end 16, allocation cursor 20, list node 24. Constructor stores, allocator arithmetic, disposal calls, and vtable `0x803C6598` establish this layout and the eight named functions; see [F-426-1](findings/426-snd-mml-playerheap-remote.md).
 
 `MmlSeqTrack` is `0xD0` bytes, with `SeqTrack` occupying `0xCC` and the parser pointer at `0xCC`. Its vtable at `0x803C6570` retains destructor `0x8027E060` and parser dispatch `0x8027E040`. Constructor `0x8027E000` calls the native sequence-track constructor at `0x80280FB0`; the destructor calls its counterpart at `0x80281050`. Complete interface evidence is in [F-426-2](findings/426-snd-shared-interfaces.md).
+
+`MmlSeqTrackAllocator` is 12 bytes: virtual table 0, parser pointer 4, instance pool 8. Vtable `0x803C6580` retains destructor `0x8027E1D0`, allocation `0x8027E0C0`, release `0x8027E130`, and available count `0x8027E1C0`. Native pool creation proves the `0xD0` element stride, and all six retained functions plus the complete vtable match; see [F-426-1](findings/426-snd-mml-playerheap-remote.md).
