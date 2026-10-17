@@ -43,6 +43,16 @@ extern "C" {
 #define NAND_PERM_ROTH (NAND_ACCESS_READ << 0)
 #define NAND_PERM_WOTH (NAND_ACCESS_WRITE << 0)
 
+typedef struct {
+      u32 signature;
+      u32 flag;
+      u16 iconSpeed;
+      u8 reserved[22];
+      u16 comment[2][32];
+      u8 bannerTexture[(192 * 64 * 2)];
+      u8 iconTexture[8][(48 * 48 * 2)];
+} NANDBanner;
+
 struct NANDCommandBlock;
 
 typedef void (*NANDCallback)(s32 result, struct NANDCommandBlock* block);
@@ -109,7 +119,11 @@ s32 NANDPrivateDelete(const char* path);
 s32 NANDDeleteAsync(const char* path, NANDCallback cb, NANDCommandBlock* block);
 s32 NANDPrivateDeleteAsync(const char* path, NANDCallback cb, NANDCommandBlock* block);
 s32 NANDOpen(const char* path, NANDFileInfo* info, u8 accType);
+s32 NANDPrivateOpen(const char* path, NANDFileInfo* info, u8 accType);
+s32 NANDOpenAsync(const char* path, NANDFileInfo* info, u8 accType, NANDCallback cb, NANDCommandBlock* block);
+s32 NANDPrivateOpenAsync(const char* path, NANDFileInfo* info, u8 accType, NANDCallback cb, NANDCommandBlock* block);
 s32 NANDClose(NANDFileInfo* info);
+s32 NANDCloseAsync(NANDFileInfo* info, NANDCallback cb, NANDCommandBlock* block);
 s32 NANDRead(NANDFileInfo* info, void* buf, u32 length);
 s32 NANDReadAsync(NANDFileInfo* info, void* buf, u32 length, NANDCallback cb, NANDCommandBlock* block);
 s32 NANDWrite(NANDFileInfo* info, const void* buf, u32 length);
@@ -126,6 +140,15 @@ s32 NANDGetStatus(const char* path, NANDStatus* stat);
 s32 NANDPrivateGetStatus(const char* path, NANDStatus* stat);
 s32 NANDPrivateGetStatusAsync(const char* path, NANDStatus* stat, NANDCallback cb, NANDCommandBlock* block);
 s32 NANDGetHomeDirUsageAsync(u32* blocks, u32* inodes, NANDCallback cb, NANDCommandBlock* block);
+
+s32 NANDInit(void);
+s32 NANDChangeDir(const char* path);
+s32 NANDGetCurrentDir(char* path);
+s32 NANDGetHomeDir(char* path);
+s32 NANDPrivateGetTypeAsync(const char* path, u8* type, NANDCallback cb, NANDCommandBlock* block);
+void NANDInitBanner(NANDBanner* banner, u32 flags, const u16* title, const u16* comment);
+s32 NANDSecretGetUsage(const char* path, u32* blocks, u32* inodes);
+s32 NANDCheckAsync(u32 requiredSpace, u32 requiredInodes, u32* answer, NANDCallback cb, NANDCommandBlock* block);
 
 BOOL nandIsInitialized(void);
 s32 nandConvertErrorCode(ISFSError result);
