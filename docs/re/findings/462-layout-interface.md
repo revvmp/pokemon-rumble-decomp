@@ -16,7 +16,7 @@ The vtable at `0x803C6EF8` contains two initial zero words followed by fourteen 
 
 ## Validation
 
-The header branch adds no source unit and claims no reconstructed code. `python configure.py`, `.venv/Scripts/ninja`, and the explicit frozen-manifest verifier exit zero. Existing compiled source-object hashes are unchanged against the pre-header baseline. The standalone layout-constructor probe is diagnostic only and is not linked or committed.
+The header branch adds no source unit and claims no reconstructed code. `python configure.py`, `.venv/Scripts/ninja`, and the explicit frozen-manifest verifier exit zero. Before rebasing, all 342 existing compiled source objects were unchanged against the pre-header baseline. After the #514 integration, 341 still match that baseline; `bta_dm_api.o` changes with the merged source completion on main. The standalone layout-constructor probe is diagnostic only and is not linked or committed.
 
 ## Traps
 
