@@ -135,6 +135,32 @@ The same finding corrects the survey boundary at the end of #483: AIRegisterDMAC
 
 [F-477-1](findings/477-gx-framebuf-light.md) records all 30 function names, code ranges, DOL offset mapping, light-object layout and external dependencies. GXFrameBuf owns 0x802CD440-0x802CDEC0; GXLight owns 0x802CDEC0-0x802CE630. Names are high confidence. Both units remain NonMatching pending external names and complete data/source-link validation.
 
+## Issue 524: BTE HID device and host
+
+| Address | Size | dtk label | Chosen name | Kind | Confidence | Evidence | Source |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `0x80329258` | `0x68` | `fn_80329258` | `HID_DevInit` | function | high | F-524-1 | `src/RVL_SDK/bte/hidd_api.c` |
+| `0x803292C0` | `0xC0` | `fn_803292C0` | `hidd_conn_initiate` | function | high | F-524-1 | `src/RVL_SDK/bte/hidd_conn.c` |
+| `0x80329380` | `0xC8` | `fn_80329380` | `hidd_proc_repage_timeout` | function | high | F-524-1 | `src/RVL_SDK/bte/hidd_mgmt.c` |
+| `0x80329448` | `0x1D8` | `fn_80329448` | `hidd_pm_set_now` | function | high | F-524-1 | `src/RVL_SDK/bte/hidd_pm.c` |
+| `0x80329620` | `0x158` | `fn_80329620` | `hidd_pm_proc_mode_change` | function | high | F-524-1 | `src/RVL_SDK/bte/hidd_pm.c` |
+| `0x80329778` | `0x4C` | `fn_80329778` | `hidd_pm_inact_timeout` | function | high | F-524-1 | `src/RVL_SDK/bte/hidd_pm.c` |
+| `0x803297C4` | `0xC8` | `fn_803297C4` | `HID_HostGetSDPRecord` | function | high | F-524-1 | `src/RVL_SDK/bte/hidh_api.c` |
+| `0x8032988C` | `0x450` | `fn_8032988C` | `hidh_search_callback` | function | high | F-524-1 | `src/RVL_SDK/bte/hidh_api.c` |
+| `0x80329CDC` | `0x44` | `fn_80329CDC` | `HID_HostInit` | function | high | F-524-1 | `src/RVL_SDK/bte/hidh_api.c` |
+| `0x80329D20` | `0x7C` | `fn_80329D20` | `HID_HostRegister` | function | high | F-524-1 | `src/RVL_SDK/bte/hidh_api.c` |
+| `0x80329D9C` | `0xE4` | `fn_80329D9C` | `HID_HostDeregister` | function | high | F-524-1 | `src/RVL_SDK/bte/hidh_api.c` |
+| `0x80329E80` | `0x190` | `fn_80329E80` | `HID_HostAddDev` | function | high | F-524-1 | `src/RVL_SDK/bte/hidh_api.c` |
+| `0x8032A010` | `0xC8` | `fn_8032A010` | `HID_HostRemoveDev` | function | high | F-524-1 | `src/RVL_SDK/bte/hidh_api.c` |
+| `0x8032A0D8` | `0x64` | `fn_8032A0D8` | `HID_HostOpenDev` | function | high | F-524-1 | `src/RVL_SDK/bte/hidh_api.c` |
+| `0x8032A13C` | `0x140` | `fn_8032A13C` | `HID_HostWriteDev` | function | high | F-524-1 | `src/RVL_SDK/bte/hidh_api.c` |
+| `0x8032A27C` | `0xA0` | `fn_8032A27C` | `HID_HostCloseDev` | function | high | F-524-1 | `src/RVL_SDK/bte/hidh_api.c` |
+| `0x8032A31C` | `0x228` | `fn_8032A31C` | `HID_HostSetSecurityLevel` | function | high | F-524-1 | `src/RVL_SDK/bte/hidh_api.c` |
+| `0x804AD8F0` | `0x144` | `lbl_804AD8F0` | `hd_cb` (`tHID_DEV_CTB`) | object | high name, medium file | F-524-1 | `src/RVL_SDK/bte/hidd_mgmt.c` |
+| `0x804ADA38` | `0x404` | `lbl_804ADA38` | `hh_cb` (`tHID_HOST_CTB`) | object | high | F-524-1 | `src/RVL_SDK/bte/hidh_api.c` |
+
+Layouts follow Petari and are confirmed by target accesses: `hd_cb` uses `conn` at 0x10 (timer parameter 0x2C), `idle_tle` 0x34, `pm_params` 0x4C, `curr_pm` 0x6A, `pm_ctrl_busy` 0x6E, `conn_substate` 0x6F, `final_pm` 0x70, `callback` 0xC4, L2CAP configs 0xC8 and 0x104 (0x3C each), `reg_flag` 0x140, `trace_level` 0x141. `hh_cb` has 16 0x34-byte devices, `sdp_busy` 0x380, `sdp_cback` 0x384, `p_sdp_db` 0x388, `sdp_rec` 0x38C (0x74), `reg_flag` 0x400, `trace_level` 0x401.
+
 ## AX command-list output mode (#486)
 
 `__AXClMode` is a global unsigned 32-bit output mode at `.sbss:0x804B98B0`, extent four bytes, formerly `lbl_804B98B0`. It has no file-backed DOL offset. Original spelling and type have high confidence from the AXCL reference, target initialization, setter, command dispatch, and AXAux accesses; see [F-486-1](findings/486-axcl.md). No source implementation is accepted by this symbol-only change.
@@ -279,3 +305,21 @@ Thirteen functions at 0x802EFCD0–0x802F08D8 in `.text`, named from Petari's `a
 Callees renamed outside the block so the units link, identified from the matched call sites: `EXIAttach` `0x802C1470`, `EXIDetach` `0x802C1590`, `OSCancelAlarm` `0x802B3310`, `OSGetWirelessID` `0x802BB590`, `OSSetWirelessID` `0x802BB610`, `VIGetCurrentLine` `0x802C6520`.
 
 `SIControl Si` at `0x803D5260`, size `0x14`: `chan` +0x0 (`s32`), `poll` +0x4, `inputBytes` +0x8, `input` +0xC, `callback` +0x10. `SIPacket`, size `0x20`: `chan`, `output`, `outputBytes`, `input`, `inputBytes`, `callback`, then `fire` (`OSTime`) at +0x18. `DBInterface` at physical `0x40`: `exceptionMask` +0x4, `ExceptionDestination` +0x8. Declarations are in `include/revolution/si.h`, `include/revolution/db.h`, and `src/RVL_SDK/si/SIBios.c`.
+## RVL_SDK OS arena, audio, and cache
+
+All entries target `wpse-v1` `main.dol`, `.text`. File offsets equal runtime address minus `0x80052500` plus `0x27C0`. Names have high confidence from matching SDK routines and observed behavior; see [F-465-1](findings/465-os-arena-audio-cache.md#f-465-1-unit-boundaries-and-recovered-names).
+
+| Address | Size | Previous label | Recovered name | Source |
+| --- | --- | --- | --- | --- |
+| `0x802B3B40` | `0x20` | `fn_802B3B40` | `OSAllocFromMEM1ArenaHi` | `src/RVL_SDK/os/OSArena.c` |
+| `0x802B40A0` | `0x30` | `fn_802B40A0` | `DCStoreRange` | `src/RVL_SDK/os/OSCache.c` |
+| `0x802B4100` | `0x2C` | `fn_802B4100` | `DCStoreRangeNoSync` | `src/RVL_SDK/os/OSCache.c` |
+| `0x802B41D0` | `0xCC` | `fn_802B41D0` | `__LCEnable` | `src/RVL_SDK/os/OSCache.c` |
+| `0x802B42A0` | `0x38` | `fn_802B42A0` | `LCEnable` | `src/RVL_SDK/os/OSCache.c` |
+| `0x802B4310` | `0x24` | `fn_802B4310` | `LCLoadBlocks` | `src/RVL_SDK/os/OSCache.c` |
+| `0x802B4340` | `0x24` | `fn_802B4340` | `LCStoreBlocks` | `src/RVL_SDK/os/OSCache.c` |
+| `0x802B4370` | `0xA0` | `fn_802B4370` | `LCStoreData` | `src/RVL_SDK/os/OSCache.c` |
+| `0x802B4410` | `0xC` | `fn_802B4410` | `LCQueueLength` | `src/RVL_SDK/os/OSCache.c` |
+| `0x802B4420` | `0x14` | `fn_802B4420` | `LCQueueWait` | `src/RVL_SDK/os/OSCache.c` |
+
+`OSContext` follows the reference SDK layout with 8-byte alignment and size `0x2C8`: `gpr[32]` at `0x0`, `cr` `0x80`, `lr` `0x84`, `ctr` `0x88`, `xer` `0x8C`, `fpr[32]` `0x90`, `fpscr_pad` `0x190`, `fpscr` `0x194`, `srr0` `0x198`, `srr1` `0x19C`, `mode` `0x1A0`, `state` `0x1A2`, `gqr[8]` `0x1A4`, `psf_pad` `0x1C4`, `psf[32]` `0x1C8`. This issue directly validates the `srr1` access at `0x19C`; the complete layout is now also established by the neighboring OSContext unit in #466. `OSError` is `u16`; `OSErrorHandler` receives error, context pointer, and variadic arguments. The cache handler's variadic register-save prologue matches exactly. Pointer and `u32` arena parameters use the standard PowerPC integer registers and pointer return in r3.
