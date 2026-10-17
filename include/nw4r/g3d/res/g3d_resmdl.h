@@ -126,7 +126,6 @@ public:
     bool Bind(const ResFile file);
     void Release();
 
-    bool IsOpaque(u32 mat) const;
     u32 GetRevision() const {
         return ref().revision;
     }
@@ -138,6 +137,8 @@ public:
     const char *GetName() const {
         return ofs_to_ptr<const char>(ref().name);
     }
+
+    ResFile GetParent() const;
 
     const u8 *GetResByteCode(const char *pName) const;
     u32 GetResByteCodeNumEntries() const;
@@ -191,25 +192,6 @@ public:
     }
     ResMdlInfo GetResMdlInfo() const {
         return ResMdlInfo(const_cast<ResMdlInfoData *>(&ref().info));
-    }
-
-    class DrawEnumerator {
-        const u8 *drawOpa;
-        const u8 *drawXlu;
-        bool bOpa;
-
-    public:
-        DrawEnumerator(const u8 *pDrawOpa, const u8 *pDrawXlu);
-
-        bool IsValid() const;
-        void MoveNext();
-        u32 GetMatID() const;
-        u32 GetShpID() const;
-        u32 GetNodeID() const;
-    };
-
-    DrawEnumerator ConstructDrawEnumerator() const {
-        return DrawEnumerator(GetResByteCode("DrawOpa"), GetResByteCode("DrawXlu"));
     }
 };
 
