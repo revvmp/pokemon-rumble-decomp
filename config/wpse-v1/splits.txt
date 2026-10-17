@@ -13,6 +13,26 @@ Sections:
 	.sdata2     type:rodata align:32
 	.sbss2      type:bss align:8
 
+RevoEX/net/NETVersion.c:
+	.text       start:0x801770F4 end:0x801770FC
+	.data       start:0x803B9D88 end:0x803B9DC0
+	.sdata      start:0x804B80E0 end:0x804B80E8
+
+RevoEX/net/wireless_macaddr.c:
+	.text       start:0x801770FC end:0x80177100
+
+RevoEX/net/sha1.c:
+	.text       start:0x80177100 end:0x801776CC
+	.sdata2     start:0x804BA320 end:0x804BA328
+	.sbss2      start:0x804BBC00 end:0x804BBC08
+
+RVL_SDK/ncd/ncdsystem.c:
+	.text       start:0x801776CC end:0x801778E4
+	.data       start:0x803B9DC0 end:0x803B9E60
+	.bss        start:0x803E9980 end:0x803E99E0
+	.sdata      start:0x804B80E8 end:0x804B80F0
+	.sbss       start:0x804B90F8 end:0x804B9100
+
 RVL_SDK/cnt/cnt.c:
 	.text       start:0x801778F0 end:0x80178530
 	.rodata     start:0x803667C8 end:0x80366A40

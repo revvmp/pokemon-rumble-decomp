@@ -176,10 +176,26 @@ cflags_nw4r = [
 
 NW4R_COMPILER = "Wii/1.1"
 
+cflags_revoex = [*(flag for flag in cflags_base if flag != "-inline auto"), "-inline auto,deferred"]
+
+REVOEX_COMPILER = "GC/3.0a5.2"
+
 BTE_COMPILER = "GC/3.0a3"
 NDEV_COMPILER = "GC/3.0a3"
 
 config.libs = [
+    library(
+        "RevoEX",
+        REVOEX_COMPILER,
+        cflags_revoex,
+        "sdk",
+        [
+            Object(Matching, "RevoEX/net/NETVersion.c"),
+            Object(Matching, "RevoEX/net/wireless_macaddr.c"),
+            Object(Matching, "RevoEX/net/sha1.c"),
+            Object(Matching, "RVL_SDK/ncd/ncdsystem.c"),
+        ],
+    ),
     library(
         "RVL_SDK.CNT",
         "Wii/1.0",
