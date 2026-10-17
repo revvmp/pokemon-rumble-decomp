@@ -103,3 +103,12 @@ Validated the replacement of the 36 placeholder issues:
 - **Posting.** Issues #37–#545 were posted, skipping pull request numbers #132 and #434, with 507 recorded in the resume state. The poster was stopped and restarted once with a shorter delay. On restart it rebuilt its state from existing titles. A `gh issue list` check found no duplicate titles after the restart or at the end.
 - **Close-out.** The closing script was dry-run and its comments reviewed. It then closed #2–#24, #26–#28 and #30–#34 with links to their replacements, and labelled #463, #472, #488, #495, #534 and #535 `good first issue`. Afterwards `gh issue list` showed 511 open issues: the 507 blocks plus #25, #29, #35 and #36.
 
+
+## Source-file issue re-cut validation
+
+Validated the re-cut of unclaimed library issues on 2026-10-17, against `main` at `dd18b4f0`:
+- **Eligibility.** Of 111 open issues in `area:sdk`, `area:msl-runtime`, `area:hbm`, `area:nw4r` and `area:middleware`, 77 had no assignee and no active claim comment, using the rules of `tools/collab/claim_issue.py`. Their bodies listed 2,135 functions; 187 were in splits linked as `Matching` in `configure.py`. 32 issues whose unmatched functions had no split, reference span or reference link order evidence were left unchanged (#351, #357–#374, #377, #381–#385, #450–#455, #539).
+- **Plan and coverage.** The plan was written to a scratch file before posting. A script checked it: all 1,176 unmatched functions of the 45 issues to supersede were placed, none missing, none extra, none twice, and no source file appeared in two new issues.
+- **Posting.** 48 issues were created, #756–#812 excluding other contributors' numbers, deduplicated by title against all existing issues and paced at 4 seconds. GitHub's GraphQL limit was exhausted after 26; the rest were created through the REST API, resuming from the saved state.
+- **Race.** #380, #401 and #402 were claimed between planning and closing. The closing script re-checked each issue first and skipped them. The three new issues holding only their functions (#771–#773) were closed as duplicates, and #770 was trimmed to its functions from #379.
+- **Close-out.** 42 issues were closed as not planned, each with a comment naming its replacements and the count of its already-matched functions. A final check against the closed issues found 1,088 unmatched functions in 45 open new issues: none missing, none extra, none duplicated, none still listed in an open old issue, and no file in more than one new issue.

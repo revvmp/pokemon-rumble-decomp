@@ -2,7 +2,9 @@
 
 Every workstream is a GitHub issue. Claim work with `tools/collab/claim_issue.py` or by telling Claude Code to take an issue (the `take-issue` skill), as described in [collaboration](COLLABORATION.md). Maintainers keep this file current; contributors do not edit it.
 
-Decomp issues are blocks of about 25 functions in address order, 507 in total. Every function in `config/wpse-v1/symbols.txt` is listed in exactly one issue body, except the already-matched `__init_cpp_exceptions` functions. Regions come from the executable survey in [F-0012](re/FINDINGS.md#f-0012-full-executable-layout-survey) and compilers from [F-0007](re/FINDINGS.md#f-0007-per-library-compiler-identification). Block boundaries are estimates; establishing exact unit boundaries is part of each issue.
+Decomp issues began as blocks of about 25 functions in address order, 507 in total, with every function in `config/wpse-v1/symbols.txt` listed in exactly one issue body, except the already-matched `__init_cpp_exceptions` functions. Regions come from the executable survey in [F-0012](re/FINDINGS.md#f-0012-full-executable-layout-survey) and compilers from [F-0007](re/FINDINGS.md#f-0007-per-library-compiler-identification).
+
+On 2026-10-17 the unclaimed library blocks were re-cut by source file, using the reference file spans of [F-0013](re/FINDINGS.md#f-0013-reference-symbol-maps-name-library-functions-by-size-alignment): 42 block issues were closed and their 1,088 unmatched functions moved to 45 issues of one source file, or of adjacent small files up to about 8 KB of code ([validation](VALIDATION.md#source-file-issue-re-cut-validation)). Blocks with no file evidence, and blocks held by a contributor, were left unchanged. Library tables below list the open issues at that time in address order; block boundaries remain estimates where no file is named.
 
 ## Research and infrastructure
 
@@ -308,256 +310,143 @@ Decomp issues are blocks of about 25 functions in address order, 507 in total. E
 
 ## RVL_SDK
 
-74 issues, 2,223 functions.
+9 open issues, 276 functions.
 
-| Issue | Title | Functions |
-| --- | --- | --- |
-| #286 | RVL_SDK: CNT: 0x801778f0–0x8017852c | 12 |
-| #463 | RVL_SDK (1/73): 0x802b1800–0x802b1a10 | 23 |
-| #464 | RVL_SDK (2/73): 0x802b1a10–0x802b3a38 | 35 |
-| #465 | RVL_SDK (3/73): 0x802b3a40–0x802b46c8 | 37 |
-| #466 | RVL_SDK (4/73): 0x802b46d0–0x802b78f8 | 34 |
-| #467 | RVL_SDK (5/73): 0x802b7900–0x802b98a0 | 35 |
-| #468 | RVL_SDK (6/73): 0x802b98a0–0x802bae2c | 33 |
-| #469 | RVL_SDK (7/73): 0x802bae30–0x802bd088 | 40 |
-| #470 | RVL_SDK (8/73): 0x802bd090–0x802bf1d8 | 39 |
-| #471 | RVL_SDK (9/73): 0x802bf1e0–0x802c23b8 | 39 |
-| #472 | RVL_SDK (10/73): 0x802c23c0–0x802c4218 | 31 |
-| #473 | RVL_SDK (11/73): 0x802c4220–0x802c7344 | 28 |
-| #474 | RVL_SDK (12/73): 0x802c7350–0x802c9908 | 37 |
-| #475 | RVL_SDK (13/73): 0x802c9910–0x802cc624 | 35 |
-| #476 | RVL_SDK (14/73): 0x802cc630–0x802cd434 | 27 |
-| #477 | RVL_SDK (15/73): 0x802cd440–0x802ce624 | 30 |
-| #478 | RVL_SDK (16/73): 0x802ce630–0x802cfb84 | 40 |
-| #479 | RVL_SDK (17/73): 0x802cfb90–0x802d0a54 | 30 |
-| #480 | RVL_SDK (18/73): 0x802d0a60–0x802d1a6c | 25 |
-| #481 | RVL_SDK (19/73): 0x802d1a70–0x802d6658 | 50 |
-| #482 | RVL_SDK (20/73): 0x802d6660–0x802d782c | 30 |
-| #483 | RVL_SDK (21/73): 0x802d7830–0x802d9f24 | 33 |
-| #484 | RVL_SDK (22/73): 0x802d9f30–0x802da7bc | 19 |
-| #485 | RVL_SDK (23/73): 0x802da7c0–0x802db284 | 24 |
-| #486 | RVL_SDK (24/73): 0x802db290–0x802dd2a0 | 35 |
-| #487 | RVL_SDK (25/73): 0x802dd2a0–0x802df184 | 25 |
-| #488 | RVL_SDK (26/73): 0x802df190–0x802e1898 | 36 |
-| #489 | RVL_SDK (27/73): 0x802e18a0–0x802e41bc | 40 |
-| #490 | RVL_SDK (28/73): 0x802e41c0–0x802e5bb4 | 33 |
-| #491 | RVL_SDK (29/73): 0x802e5bc0–0x802e7c44 | 38 |
-| #492 | RVL_SDK (30/73): 0x802e7c50–0x802e9a88 | 39 |
-| #493 | RVL_SDK (31/73): 0x802e9a90–0x802ecfa4 | 29 |
-| #494 | RVL_SDK (32/73): 0x802ecfb0–0x802edb24 | 27 |
-| #495 | RVL_SDK (33/73): 0x802edb30–0x802f08d8 | 29 |
-| #496 | RVL_SDK (34/73): 0x802f08e0–0x802f1318 | 21 |
-| #497 | RVL_SDK (35/73): 0x802f1320–0x802f342c | 31 |
-| #498 | RVL_SDK (36/73): 0x802f3430–0x802f4c40 | 28 |
-| #499 | RVL_SDK (37/73): 0x802f4c40–0x802f6bbc | 24 |
-| #500 | RVL_SDK (38/73): 0x802f6bc0–0x802f8bfc | 23 |
-| #501 | RVL_SDK (39/73): 0x802f8c00–0x802fe620 | 54 |
-| #502 | RVL_SDK (40/73): 0x802fe620–0x803039e0 | 31 |
-| #503 | RVL_SDK (41/73): 0x803039e0–0x803067f4 | 34 |
-| #504 | RVL_SDK (42/73): 0x80306800–0x8030a964 | 40 |
-| #505 | RVL_SDK (43/73): 0x8030a970–0x8030d234 | 24 |
-| #506 | RVL_SDK (44/73): 0x8030d240–0x8030ff44 | 39 |
-| #507 | RVL_SDK (45/73): 0x8030ff50–0x80311314 | 26 |
-| #508 | RVL_SDK (46/73): 0x80311320–0x80312584 | 25 |
-| #509 | RVL_SDK (47/73): 0x80312590–0x80313a54 | 26 |
-| #510 | RVL_SDK (48/73): 0x80313a60–0x80313e34 | 16 |
-| #511 | RVL_SDK (49/73): 0x80313e40–0x8031486c | 25 |
-| #512 | RVL_SDK (50/73): 0x8031486c–0x8031590c | 25 |
-| #513 | RVL_SDK (51/73): 0x8031590c–0x8031694c | 29 |
-| #514 | RVL_SDK (52/73): 0x8031694c–0x80317c3c | 25 |
-| #515 | RVL_SDK (53/73): 0x80317c3c–0x80319bd4 | 29 |
-| #516 | RVL_SDK (54/73): 0x80319bd4–0x8031b73c | 30 |
-| #517 | RVL_SDK (55/73): 0x8031b73c–0x8031d914 | 37 |
-| #518 | RVL_SDK (56/73): 0x8031d914–0x8031ea7c | 22 |
-| #519 | RVL_SDK (57/73): 0x8031ea7c–0x803209f4 | 28 |
-| #520 | RVL_SDK (58/73): 0x803209f4–0x803224d0 | 22 |
-| #521 | RVL_SDK (59/73): 0x803224d0–0x803255f4 | 32 |
-| #522 | RVL_SDK (60/73): 0x803255f4–0x80327880 | 39 |
-| #523 | RVL_SDK (61/73): 0x80327880–0x80328878 | 25 |
-| #524 | RVL_SDK (62/73): 0x80328878–0x8032a544 | 32 |
-| #525 | RVL_SDK (63/73): 0x8032a544–0x8032cf68 | 25 |
-| #526 | RVL_SDK (64/73): 0x8032cf68–0x8032f0e0 | 23 |
-| #527 | RVL_SDK (65/73): 0x8032f0e0–0x803311f8 | 25 |
-| #528 | RVL_SDK (66/73): 0x803311f8–0x803328f8 | 25 |
-| #529 | RVL_SDK (67/73): 0x803328f8–0x80333c74 | 17 |
-| #530 | RVL_SDK (68/73): 0x80333c74–0x80335464 | 24 |
-| #531 | RVL_SDK (69/73): 0x80335464–0x80336ab0 | 25 |
-| #532 | RVL_SDK (70/73): 0x80336ab0–0x8033868c | 27 |
-| #533 | RVL_SDK (71/73): 0x8033868c–0x8033aa00 | 32 |
-| #534 | RVL_SDK (72/73): 0x8033aa00–0x8033e518 | 40 |
-| #535 | RVL_SDK (73/73): 0x8033e520–0x8033f974 | 21 |
+| Issue | Title | Functions | Status |
+| --- | --- | --- | --- |
+| #483 | RVL_SDK (21/73): 0x802d7830–0x802d9f24 | 33 | assigned |
+| #504 | RVL_SDK (42/73): 0x80306800–0x8030a964 | 40 | assigned |
+| #505 | RVL_SDK (43/73): 0x8030a970–0x8030d234 | 24 | assigned |
+| #506 | RVL_SDK (44/73): 0x8030d240–0x8030ff44 | 39 | assigned |
+| #507 | RVL_SDK (45/73): 0x8030ff50–0x80311314 | 26 | assigned |
+| #516 | RVL_SDK (54/73): 0x80319bd4–0x8031b73c | 30 | assigned |
+| #517 | RVL_SDK (55/73): 0x8031b73c–0x8031d914 | 37 | assigned |
+| #518 | RVL_SDK (56/73): 0x8031d914–0x8031ea7c | 22 | assigned |
+| #531 | RVL_SDK (69/73): 0x80335464–0x80336ab0 | 25 | assigned |
 
 ## NW4R
 
-87 issues, 2,376 functions.
+58 open issues, 1,654 functions.
 
-| Issue | Title | Functions |
-| --- | --- | --- |
-| #375 | NW4R: ef (1/11): 0x80225820–0x80226954 | 25 |
-| #376 | NW4R: ef (2/11): 0x80226960–0x80228a14 | 24 |
-| #377 | NW4R: ef (3/11): 0x80228a20–0x8022f4f4 | 21 |
-| #378 | NW4R: ef (4/11): 0x8022f500–0x80234274 | 25 |
-| #379 | NW4R: ef (5/11): 0x80234280–0x80235ca4 | 25 |
-| #380 | NW4R: ef (6/11): 0x80235cb0–0x80238264 | 25 |
-| #381 | NW4R: ef (7/11): 0x80238270–0x8023e0e4 | 26 |
-| #382 | NW4R: ef (8/11): 0x8023e0f0–0x802408b4 | 26 |
-| #383 | NW4R: ef (9/11): 0x802408c0–0x80243034 | 24 |
-| #384 | NW4R: ef (10/11): 0x80243040–0x80247a64 | 25 |
-| #385 | NW4R: ef (11/11): 0x80247a70–0x8024ae80 | 17 |
-| #386 | NW4R: g3d (1/30): 0x8024ae80–0x8024b724 | 19 |
-| #387 | NW4R: g3d (2/30): 0x8024b730–0x8024c584 | 23 |
-| #388 | NW4R: g3d (3/30): 0x8024c590–0x8024d704 | 24 |
-| #389 | NW4R: g3d (4/30): 0x8024d710–0x8024f084 | 28 |
-| #390 | NW4R: g3d (5/30): 0x8024f090–0x8024f764 | 26 |
-| #391 | NW4R: g3d (6/30): 0x8024f770–0x802507d4 | 24 |
-| #392 | NW4R: g3d (7/30): 0x802507e0–0x80251114 | 26 |
-| #393 | NW4R: g3d (8/30): 0x80251120–0x80253a84 | 28 |
-| #394 | NW4R: g3d (9/30): 0x80253a90–0x80255504 | 31 |
-| #395 | NW4R: g3d (10/30): 0x80255510–0x80255e74 | 22 |
-| #396 | NW4R: g3d (11/30): 0x80255e80–0x80256af4 | 23 |
-| #397 | NW4R: g3d (12/30): 0x80256b00–0x80257594 | 23 |
-| #398 | NW4R: g3d (13/30): 0x802575a0–0x80258084 | 24 |
-| #399 | NW4R: g3d (14/30): 0x80258090–0x80258d44 | 26 |
-| #400 | NW4R: g3d (15/30): 0x80258d50–0x80259734 | 24 |
-| #401 | NW4R: g3d (16/30): 0x80259740–0x8025a244 | 26 |
-| #402 | NW4R: g3d (17/30): 0x8025a250–0x8025b694 | 37 |
-| #403 | NW4R: g3d (18/30): 0x8025b6a0–0x8025dd84 | 23 |
-| #404 | NW4R: g3d (19/30): 0x8025dd90–0x8025f9f4 | 21 |
-| #405 | NW4R: g3d (20/30): 0x8025fa00–0x80263274 | 24 |
-| #406 | NW4R: g3d (21/30): 0x80263280–0x802650d4 | 26 |
-| #407 | NW4R: g3d (22/30): 0x802650e0–0x802665f4 | 22 |
-| #408 | NW4R: g3d (23/30): 0x80266600–0x802677c4 | 25 |
-| #409 | NW4R: g3d (24/30): 0x802677d0–0x802685b4 | 25 |
-| #410 | NW4R: g3d (25/30): 0x802685c0–0x80269874 | 23 |
-| #411 | NW4R: g3d (26/30): 0x80269880–0x8026ad34 | 24 |
-| #412 | NW4R: g3d (27/30): 0x8026ad40–0x8026cb74 | 25 |
-| #413 | NW4R: g3d (28/30): 0x8026cb80–0x8026f344 | 25 |
-| #414 | NW4R: g3d (29/30): 0x8026f350–0x80270644 | 25 |
-| #415 | NW4R: g3d (30/30): 0x80270650–0x80271e0c | 35 |
-| #416 | NW4R: snd (1/28): 0x80271e10–0x80273694 | 24 |
-| #417 | NW4R: snd (2/28): 0x802736a0–0x80275874 | 26 |
-| #418 | NW4R: snd (3/28): 0x80275880–0x80276f94 | 21 |
-| #419 | NW4R: snd (4/28): 0x80276fa0–0x80278374 | 26 |
-| #420 | NW4R: snd (5/28): 0x80278380–0x80279244 | 25 |
-| #421 | NW4R: snd (6/28): 0x80279250–0x8027a414 | 27 |
-| #422 | NW4R: snd (7/28): 0x8027a420–0x8027b3f4 | 29 |
-| #423 | NW4R: snd (8/28): 0x8027b400–0x8027c044 | 25 |
-| #424 | NW4R: snd (9/28): 0x8027c050–0x8027cbf4 | 22 |
-| #425 | NW4R: snd (10/28): 0x8027cc00–0x8027e054 | 30 |
-| #426 | NW4R: snd (11/28): 0x8027e060–0x8027e6f4 | 29 |
-| #427 | NW4R: snd (12/28): 0x8027e700–0x8027f924 | 20 |
-| #428 | NW4R: snd (13/28): 0x8027f930–0x80280a84 | 26 |
-| #429 | NW4R: snd (14/28): 0x80280a90–0x80281154 | 21 |
-| #430 | NW4R: snd (15/28): 0x80281160–0x80282cb4 | 25 |
-| #431 | NW4R: snd (16/28): 0x80282cc0–0x80283e94 | 39 |
-| #432 | NW4R: snd (17/28): 0x80283ea0–0x802847b4 | 28 |
-| #433 | NW4R: snd (18/28): 0x802847c0–0x802858e4 | 26 |
-| #435 | NW4R: snd (19/28): 0x802858f0–0x80287f44 | 30 |
-| #436 | NW4R: snd (20/28): 0x80287f50–0x80289014 | 25 |
-| #437 | NW4R: snd (21/28): 0x80289020–0x8028a924 | 26 |
-| #438 | NW4R: snd (22/28): 0x8028a930–0x8028c6e4 | 22 |
-| #439 | NW4R: snd (23/28): 0x8028c6f0–0x8028d0e4 | 25 |
-| #440 | NW4R: snd (24/28): 0x8028d0f0–0x8028d994 | 21 |
-| #441 | NW4R: snd (25/28): 0x8028d9a0–0x8028efb4 | 38 |
-| #442 | NW4R: snd (26/28): 0x8028efc0–0x80290d64 | 24 |
-| #443 | NW4R: snd (27/28): 0x80290d70–0x80291774 | 22 |
-| #444 | NW4R: snd (28/28): 0x80291780–0x80292cf4 | 37 |
-| #445 | NW4R: ut, lyt, math, db (1/18): 0x80292d00–0x80293cc4 | 36 |
-| #446 | NW4R: ut, lyt, math, db (2/18): 0x80293cd0–0x80294594 | 27 |
-| #447 | NW4R: ut, lyt, math, db (3/18): 0x802945a0–0x80294c74 | 26 |
-| #448 | NW4R: ut, lyt, math, db (4/18): 0x80294c80–0x80295464 | 27 |
-| #449 | NW4R: ut, lyt, math, db (5/18): 0x80295470–0x80297594 | 37 |
-| #450 | NW4R: ut, lyt, math, db (6/18): 0x802975a0–0x8029a16c | 36 |
-| #451 | NW4R: ut, lyt, math, db (7/18): 0x8029a170–0x8029c31c | 27 |
-| #452 | NW4R: ut, lyt, math, db (8/18): 0x8029c320–0x802a1944 | 56 |
-| #453 | NW4R: ut, lyt, math, db (9/18): 0x802a1950–0x802a2534 | 23 |
-| #454 | NW4R: ut, lyt, math, db (10/18): 0x802a2540–0x802a2f74 | 27 |
-| #455 | NW4R: ut, lyt, math, db (11/18): 0x802a2f80–0x802a4bb4 | 36 |
-| #456 | NW4R: ut, lyt, math, db (12/18): 0x802a4bc0–0x802a5840 | 23 |
-| #457 | NW4R: ut, lyt, math, db (13/18): 0x802a5840–0x802a6944 | 26 |
-| #458 | NW4R: ut, lyt, math, db (14/18): 0x802a6950–0x802a8098 | 31 |
-| #459 | NW4R: ut, lyt, math, db (15/18): 0x802a80a0–0x802abd4c | 38 |
-| #460 | NW4R: ut, lyt, math, db (16/18): 0x802abd50–0x802aeb30 | 77 |
-| #461 | NW4R: ut, lyt, math, db (17/18): 0x802aeb30–0x802b08f0 | 40 |
-| #462 | NW4R: ut, lyt, math, db (18/18): 0x802b08f0–0x802b1800 | 24 |
+| Issue | Title | Functions | Status |
+| --- | --- | --- | --- |
+| #377 | NW4R: ef (3/11): 0x80228a20–0x8022f4f4 | 21 | blocked |
+| #767 | NW4R: ef: unattributed functions 0x8022f500–0x80230d98 | 4 | blocked |
+| #768 | NW4R: ef: unattributed functions 0x80230da0–0x80231640 | 1 | blocked |
+| #769 | NW4R: ef: ef_particlemanager.cpp | 17 | blocked |
+| #770 | NW4R: ef: unattributed functions 0x80235320–0x80235ca4 | 7 | open |
+| #380 | NW4R: ef (6/11): 0x80235cb0–0x80238264 | 25 | blocked |
+| #381 | NW4R: ef (7/11): 0x80238270–0x8023e0e4 | 26 | assigned |
+| #382 | NW4R: ef (8/11): 0x8023e0f0–0x802408b4 | 26 | open |
+| #383 | NW4R: ef (9/11): 0x802408c0–0x80243034 | 24 | open |
+| #384 | NW4R: ef (10/11): 0x80243040–0x80247a64 | 25 | open |
+| #385 | NW4R: ef (11/11): 0x80247a70–0x8024ae80 | 17 | open |
+| #398 | NW4R: g3d (13/30): 0x802575a0–0x80258084 | 24 | assigned |
+| #399 | NW4R: g3d (14/30): 0x80258090–0x80258d44 | 26 | assigned |
+| #400 | NW4R: g3d (15/30): 0x80258d50–0x80259734 | 24 | assigned |
+| #401 | NW4R: g3d (16/30): 0x80259740–0x8025a244 | 26 | assigned |
+| #402 | NW4R: g3d (17/30): 0x8025a250–0x8025b694 | 37 | assigned |
+| #774 | NW4R: g3d: g3d_state.cpp | 42 | assigned |
+| #775 | NW4R: g3d: g3d_draw1mat1shp.cpp | 2 | open |
+| #776 | NW4R: g3d: g3d_calcview.cpp | 11 | open |
+| #777 | NW4R: g3d: g3d_dcc.cpp, g3d_workmem.cpp, g3d_calcworld.cpp | 9 | open |
+| #778 | NW4R: g3d: g3d_draw.cpp | 13 | open |
+| #779 | NW4R: g3d: g3d_camera.cpp, g3d_basic.cpp, g3d_maya.cpp | 39 | open |
+| #780 | NW4R: g3d: g3d_xsi.cpp, g3d_3dsmax.cpp | 31 | open |
+| #782 | NW4R: g3d: g3d_scnobj.cpp, g3d_scnroot.cpp | 75 | open |
+| #783 | NW4R: g3d: g3d_scnmdlsmpl.cpp | 23 | open |
+| #790 | NW4R: g3d: unattributed functions 0x8026cff0–0x8026d570 | 10 | open |
+| #791 | NW4R: g3d: g3d_scnmdl.cpp | 17 | open |
+| #792 | NW4R: g3d: g3d_scnmdlexpand.cpp, g3d_calcmaterial.cpp, g3d_init.cpp and 2 more | 32 | open |
+| #793 | NW4R: g3d: g3d_light.cpp | 19 | open |
+| #424 | NW4R: snd (9/28): 0x8027c050–0x8027cbf4 | 22 | assigned |
+| #425 | NW4R: snd (10/28): 0x8027cc00–0x8027e054 | 30 | assigned |
+| #426 | NW4R: snd (11/28): 0x8027e060–0x8027e6f4 | 29 | assigned |
+| #794 | NW4R: snd: snd_RemoteSpeaker.cpp, snd_RemoteSpeakerManager.cpp, snd_SeqFile.cpp, snd_SeqPlayer.cpp | 40 | open |
+| #795 | NW4R: snd: snd_SeqSound.cpp, snd_SeqSoundHandle.cpp | 24 | open |
+| #796 | NW4R: snd: snd_SeqTrack.cpp, snd_Sound3DActor.cpp, snd_Sound3DCalculator.cpp | 31 | open |
+| #797 | NW4R: snd: snd_Sound3DEngine.cpp, snd_Sound3DListener.cpp, snd_Sound3DManager.cpp and 3 more | 79 | open |
+| #798 | NW4R: snd: snd_SoundArchivePlayer.cpp | 34 | open |
+| #799 | NW4R: snd: snd_SoundHandle.cpp, snd_SoundHeap.cpp, snd_SoundPlayer.cpp and 4 more | 41 | open |
+| #800 | NW4R: snd: snd_StrmFile.cpp | 9 | open |
+| #801 | NW4R: snd: snd_StrmPlayer.cpp | 45 | open |
+| #802 | NW4R: snd: snd_StrmSound.cpp, snd_StrmSoundHandle.cpp, snd_Task.cpp and 2 more | 35 | open |
+| #803 | NW4R: snd: snd_Voice.cpp | 46 | open |
+| #804 | NW4R: snd: snd_VoiceManager.cpp, snd_Util.cpp | 12 | open |
+| #443 | NW4R: snd (27/28): 0x80290d70–0x80291774 | 22 | assigned |
+| #444 | NW4R: snd (28/28): 0x80291780–0x80292cf4 | 37 | assigned |
+| #806 | NW4R: ut, lyt, math, db: ut_ArchiveFontBase.cpp | 25 | open |
+| #450 | NW4R: ut, lyt, math, db (6/18): 0x802975a0–0x8029a16c | 36 | blocked |
+| #451 | NW4R: ut, lyt, math, db (7/18): 0x8029a170–0x8029c31c | 27 | blocked |
+| #452 | NW4R: ut, lyt, math, db (8/18): 0x8029c320–0x802a1944 | 56 | open |
+| #453 | NW4R: ut, lyt, math, db (9/18): 0x802a1950–0x802a2534 | 23 | open |
+| #454 | NW4R: ut, lyt, math, db (10/18): 0x802a2540–0x802a2f74 | 27 | open |
+| #455 | NW4R: ut, lyt, math, db (11/18): 0x802a2f80–0x802a4bb4 | 36 | open |
+| #807 | NW4R: ut, lyt, math, db: lyt_pane.cpp, lyt_group.cpp | 41 | assigned |
+| #808 | NW4R: ut, lyt, math, db: lyt_arcResourceAccessor.cpp, lyt_bounding.cpp, lyt_drawInfo.cpp and 3 more | 46 | open |
+| #809 | NW4R: ut, lyt, math, db: lyt_layout.cpp, lyt_picture.cpp | 28 | open |
+| #810 | NW4R: ut, lyt, math, db: lyt_window.cpp | 18 | open |
+| #811 | NW4R: ut, lyt, math, db: lyt_material.cpp | 75 | open |
+| #812 | NW4R: ut, lyt, math, db: lyt_animation.cpp | 27 | open |
 
 ## HBM
 
-20 issues, 559 functions.
+9 open issues, 152 functions.
 
-| Issue | Title | Functions |
-| --- | --- | --- |
-| #287 | HBM: homebutton core (1/6): 0x80178530–0x80179124 | 25 |
-| #288 | HBM: homebutton core (2/6): 0x80179130–0x80179d44 | 23 |
-| #289 | HBM: homebutton core (3/6): 0x80179d50–0x8017a6e4 | 26 |
-| #290 | HBM: homebutton core (4/6): 0x8017a6f0–0x8017b394 | 23 |
-| #291 | HBM: homebutton core (5/6): 0x8017b3a0–0x8017ca8c | 34 |
-| #292 | HBM: homebutton core (6/6): 0x8017ca90–0x80186334 | 33 |
-| #293 | HBM: nw4hbm::lyt (1/6): 0x80186340–0x80187300 | 18 |
-| #294 | HBM: nw4hbm::lyt (2/6): 0x80187300–0x801890a8 | 39 |
-| #295 | HBM: nw4hbm::lyt (3/6): 0x801890b0–0x8018c614 | 28 |
-| #296 | HBM: nw4hbm::lyt (4/6): 0x8018c620–0x8018dc14 | 40 |
-| #297 | HBM: nw4hbm::lyt (5/6): 0x8018dc20–0x8018f884 | 30 |
-| #298 | HBM: nw4hbm::lyt (6/6): 0x8018f890–0x80191874 | 17 |
-| #299 | HBM: nw4hbm::ut (1/6): 0x80191880–0x80192a54 | 14 |
-| #300 | HBM: nw4hbm::ut (2/6): 0x80192a60–0x80193d4c | 34 |
-| #301 | HBM: nw4hbm::ut (3/6): 0x80193d50–0x80194398 | 24 |
-| #302 | HBM: nw4hbm::ut (4/6): 0x801943a0–0x80196394 | 39 |
-| #303 | HBM: nw4hbm::ut (5/6): 0x801963a0–0x80197a78 | 25 |
-| #304 | HBM: nw4hbm::ut (6/6): 0x80197a80–0x8019a2c4 | 31 |
-| #305 | HBM: sound (1/2): 0x8019a2d0–0x8019c9c4 | 32 |
-| #306 | HBM: sound (2/2): 0x8019c9d0–0x8019dc48 | 24 |
+| Issue | Title | Functions | Status |
+| --- | --- | --- | --- |
+| #756 | HBM: homebutton core: HBMBase.cpp | 22 | open |
+| #757 | HBM: homebutton core: unattributed functions 0x80181380–0x80183224 | 3 | open |
+| #758 | HBM: homebutton core: unattributed functions 0x80183230–0x80183e44 | 1 | open |
+| #759 | HBM: homebutton core: unattributed functions 0x80183e50–0x80185e00 | 8 | open |
+| #760 | HBM: homebutton core: unattributed functions 0x80185e00–0x80186334 | 3 | open |
+| #295 | HBM: nw4hbm::lyt (3/6): 0x801890b0–0x8018c614 | 28 | open |
+| #296 | HBM: nw4hbm::lyt (4/6): 0x8018c620–0x8018dc14 | 40 | open |
+| #297 | HBM: nw4hbm::lyt (5/6): 0x8018dc20–0x8018f884 | 30 | open |
+| #298 | HBM: nw4hbm::lyt (6/6): 0x8018f890–0x80191874 | 17 | open |
 
 ## Middleware
 
-28 issues, 690 functions.
+26 open issues, 575 functions.
 
-| Issue | Title | Functions |
-| --- | --- | --- |
-| #285 | Middleware: RevoEX (SHA-1) and NCD: 0x801770f4–0x801778e4 | 8 |
-| #348 | Middleware: TMC JPEG (1/2): 0x801f6060–0x801f8dc4 | 25 |
-| #349 | Middleware: TMC JPEG (2/2): 0x801f8dc4–0x801fb030 | 25 |
-| #350 | Middleware: FA file system (1/25): 0x801fb030–0x801fb9c4 | 25 |
-| #351 | Middleware: FA file system (2/25): 0x801fb9d0–0x801fc5a4 | 22 |
-| #352 | Middleware: FA file system (3/25): 0x801fc5b0–0x801fd5c4 | 24 |
-| #353 | Middleware: FA file system (4/25): 0x801fd5d0–0x801ff004 | 26 |
-| #354 | Middleware: FA file system (5/25): 0x801ff010–0x801ffd84 | 25 |
-| #355 | Middleware: FA file system (6/25): 0x801ffd90–0x80204344 | 25 |
-| #356 | Middleware: FA file system (7/25): 0x80204350–0x80206114 | 26 |
-| #357 | Middleware: FA file system (8/25): 0x80206120–0x80208614 | 22 |
-| #358 | Middleware: FA file system (9/25): 0x80208620–0x8020b2d4 | 29 |
-| #359 | Middleware: FA file system (10/25): 0x8020b2e0–0x8020d0d4 | 23 |
-| #360 | Middleware: FA file system (11/25): 0x8020d0e0–0x8020f874 | 25 |
-| #361 | Middleware: FA file system (12/25): 0x8020f880–0x80211d04 | 25 |
-| #362 | Middleware: FA file system (13/25): 0x80211d10–0x80214954 | 26 |
-| #363 | Middleware: FA file system (14/25): 0x80214960–0x80216bf4 | 23 |
-| #364 | Middleware: FA file system (15/25): 0x80216c00–0x8021a1d4 | 26 |
-| #365 | Middleware: FA file system (16/25): 0x8021a1e0–0x8021aa94 | 26 |
-| #366 | Middleware: FA file system (17/25): 0x8021aaa0–0x8021b184 | 26 |
-| #367 | Middleware: FA file system (18/25): 0x8021b190–0x8021b884 | 25 |
-| #368 | Middleware: FA file system (19/25): 0x8021b890–0x8021c344 | 25 |
-| #369 | Middleware: FA file system (20/25): 0x8021c350–0x8021d1f4 | 22 |
-| #370 | Middleware: FA file system (21/25): 0x8021d200–0x8021ddc4 | 28 |
-| #371 | Middleware: FA file system (22/25): 0x8021ddd0–0x8021f3a4 | 28 |
-| #372 | Middleware: FA file system (23/25): 0x8021f3b0–0x80220884 | 17 |
-| #373 | Middleware: FA file system (24/25): 0x80220890–0x80223774 | 28 |
-| #374 | Middleware: FA file system (25/25): 0x80223780–0x80225820 | 35 |
+| Issue | Title | Functions | Status |
+| --- | --- | --- | --- |
+| #762 | Middleware: TMC JPEG: tmcjpeg_encoder.c | 15 | open |
+| #763 | Middleware: TMC JPEG: tmcjpeg_stream.c | 10 | open |
+| #764 | Middleware: TMC JPEG: unattributed functions 0x801f9764–0x801fb030 | 14 | open |
+| #351 | Middleware: FA file system (2/25): 0x801fb9d0–0x801fc5a4 | 22 | blocked |
+| #765 | Middleware: FA: unattributed functions 0x801fc5b0–0x801fc620 | 2 | open |
+| #766 | Middleware: FA: pdm_mbr.c | 2 | open |
+| #355 | Middleware: FA file system (6/25): 0x801ffd90–0x80204344 | 25 | assigned |
+| #356 | Middleware: FA file system (7/25): 0x80204350–0x80206114 | 26 | assigned |
+| #357 | Middleware: FA file system (8/25): 0x80206120–0x80208614 | 22 | open |
+| #358 | Middleware: FA file system (9/25): 0x80208620–0x8020b2d4 | 29 | open |
+| #359 | Middleware: FA file system (10/25): 0x8020b2e0–0x8020d0d4 | 23 | open |
+| #360 | Middleware: FA file system (11/25): 0x8020d0e0–0x8020f874 | 25 | open |
+| #361 | Middleware: FA file system (12/25): 0x8020f880–0x80211d04 | 25 | open |
+| #362 | Middleware: FA file system (13/25): 0x80211d10–0x80214954 | 26 | open |
+| #363 | Middleware: FA file system (14/25): 0x80214960–0x80216bf4 | 23 | open |
+| #364 | Middleware: FA file system (15/25): 0x80216c00–0x8021a1d4 | 26 | open |
+| #365 | Middleware: FA file system (16/25): 0x8021a1e0–0x8021aa94 | 26 | open |
+| #366 | Middleware: FA file system (17/25): 0x8021aaa0–0x8021b184 | 26 | open |
+| #367 | Middleware: FA file system (18/25): 0x8021b190–0x8021b884 | 25 | open |
+| #368 | Middleware: FA file system (19/25): 0x8021b890–0x8021c344 | 25 | open |
+| #369 | Middleware: FA file system (20/25): 0x8021c350–0x8021d1f4 | 22 | open |
+| #370 | Middleware: FA file system (21/25): 0x8021d200–0x8021ddc4 | 28 | open |
+| #371 | Middleware: FA file system (22/25): 0x8021ddd0–0x8021f3a4 | 28 | open |
+| #372 | Middleware: FA file system (23/25): 0x8021f3b0–0x80220884 | 17 | open |
+| #373 | Middleware: FA file system (24/25): 0x80220890–0x80223774 | 28 | open |
+| #374 | Middleware: FA file system (25/25): 0x80223780–0x80225820 | 35 | open |
 
 ## MSL_C and runtime
 
-12 issues, 351 functions.
+6 open issues, 197 functions.
 
-| Issue | Title | Functions |
-| --- | --- | --- |
-| #37 | Init section: startup and runtime memory routines: 0x80004000–0x800046e4 | 11 |
-| #345 | MSL_C: printf and wide printf: 0x801e8de0–0x801ee468 | 29 |
-| #536 | MSL_C and runtime (1/10): 0x8033f974–0x80340b24 | 31 |
-| #537 | MSL_C and runtime (2/10): 0x80340b94–0x80344eb4 | 40 |
-| #538 | MSL_C and runtime (3/10): 0x80344eb4–0x80347904 | 40 |
-| #539 | MSL_C and runtime (4/10): 0x80347904–0x8034d184 | 40 |
-| #540 | MSL_C and runtime (5/10): 0x8034d184–0x8034d83c | 15 |
-| #541 | MSL_C and runtime (6/10): 0x8034d83c–0x8034e37c | 32 |
-| #542 | MSL_C and runtime (7/10): 0x8034e380–0x8034ebd4 | 25 |
-| #543 | MSL_C and runtime (8/10): 0x8034ebd4–0x8034f9cc | 25 |
-| #544 | MSL_C and runtime (9/10): 0x8034f9cc–0x803510d4 | 25 |
-| #545 | MSL_C and runtime (10/10): 0x803510d4–0x803529bc | 38 |
+| Issue | Title | Functions | Status |
+| --- | --- | --- | --- |
+| #345 | MSL_C: printf and wide printf: 0x801e8de0–0x801ee468 | 29 | assigned |
+| #538 | MSL_C and runtime (3/10): 0x80344eb4–0x80347904 | 40 | assigned |
+| #539 | MSL_C and runtime (4/10): 0x80347904–0x8034d184 | 40 | open |
+| #542 | MSL_C and runtime (7/10): 0x8034e380–0x8034ebd4 | 25 | assigned |
+| #544 | MSL_C and runtime (9/10): 0x8034f9cc–0x803510d4 | 25 | assigned |
+| #545 | MSL_C and runtime (10/10): 0x803510d4–0x803529bc | 38 | assigned |
