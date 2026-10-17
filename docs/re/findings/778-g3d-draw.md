@@ -29,3 +29,12 @@ Commands: `python configure.py --build-dir build/778-source-eval`, `.venv/Script
 - A tiny `.text` objdiff mismatch was caused by the fallback call retaining the name `fn_80261D90` while the source used canonical `GetMdlZTemporary`. Both relocations independently decoded to the same native address. Naming that outside callee without changing its split, size or type restores symbol pairing.
 - MSL's sorting templates emit six unused integral constants after the three consumed float constants in the source object's `.sdata2`. These are compile-time template constants and are unreferenced at runtime. The retained native split ends after the third float at `0x804BACA4`; final linked acceptance must prove the unused constants are stripped rather than extending the split over neighboring data.
 - Custom output builds require explicit frozen verification against their actual version directory, because the Ninja SHA-list CHECK still names the default build output; [F-774-1](774-g3d-state-headers.md) records the observed default-path failure.
+
+
+## Combined source acceptance after the shared prerequisite
+
+PR #816 merged as `4da1cdac38490f2d1738b36b5667b00ca94f8eaa`. The complete state and draw implementations are consolidated in PR #831, preserving both original issue inventories independently: 42 state functions / 13,644 bytes and 13 draw functions / 7,772 bytes. The combined delivery contains 55 functions / 21,416 bytes and 554 independently paired relocation sites. No functions or byte credit are counted twice.
+
+A clean `build/774-combined4da/wpse-v1` output was configured after the entry-wise config merge. Plain Ninja and explicit frozen verification of that actual output both exited zero. Both source objects are selected and both fallback objects are excluded from the linker input. All eleven allocated unit sections score 100%; all 55 function addresses and extents and all 37 named data allocations have their native values. All 468 baseline compiled source objects are byte-identical. The six unused draw template constants are absent from the final ELF. Both complete original issue inventories and the main-input preservation audit pass. The actual 4,094,880-byte DOL has SHA-256 `ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da`.
+
+This records the verified combined checkpoint on the merged shared-header base. Final integration repeats the exact-head gate against latest main. The separate draw PR #841 remains draft until the combined merge is confirmed, then becomes superseded without separate completion credit.
