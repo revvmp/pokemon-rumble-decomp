@@ -33,6 +33,9 @@ enum {
     GKI_POOL_ID_3 = 3
 };
 
+#define GKI_SUCCESS 0
+#define GKI_FAILURE 1
+#define GKI_INVALID_TASK 240
 #define GKI_INVALID_POOL 0xFF
 #define GKI_RESTRICTED_POOL 1
 
@@ -67,7 +70,9 @@ enum {
     TASK_MBOX_0 = 0,
     TASK_MBOX_2 = 2,
     TASK_MBOX_0_EVT_MASK = 1,
+    TASK_MBOX_1_EVT_MASK = 2,
     TASK_MBOX_2_EVT_MASK = 4,
+    TASK_MBOX_3_EVT_MASK = 8,
     TIMER_0_EVT_MASK = 0x10,
     TIMER_1_EVT_MASK = 0x20,
     APPL_EVT_7 = 15
@@ -86,6 +91,17 @@ void GKI_stop_timer(UINT8 timer);
 
 #define GKI_MS_TO_TICKS(x) ((x) / 10)
 
+void GKI_init(void);
+void GKI_shutdown(void);
+void GKI_run(void* p_task_id);
+void GKI_exit_task(UINT8 task_id);
+void GKI_delay(UINT32 timeout);
+UINT8 GKI_send_event(UINT8 task_id, UINT16 event);
+void GKI_exception(UINT16 code, char* msg);
+void* GKI_os_malloc(UINT32 size);
+void GKI_os_free(void* p_mem);
+void* GKI_find_buf_start(void* p_user_area);
+UINT8 GKI_set_pool_permission(UINT8 pool_id, UINT8 permission);
 void GKI_sched_lock(void);
 void GKI_sched_unlock(void);
 
