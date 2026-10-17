@@ -69,3 +69,5 @@ The reference free-message-buffer function declares its pointer before the error
 The endian flag is small-data addressed. Compiling the message-buffer unit with small-data threshold zero adds high-address loads and changes several routines. Threshold eight reproduces all retained message-buffer instruction streams and the handler's two local four-byte statics.
 
 A rebase replayed both an obsolete encoding error and its later repair through union-merged shared documents, resurrecting corrupted duplicate rows. Rebuilding the documents from the current main prefix plus only the two owned ledger rows and owned symbol section removes those obsolete entries while preserving every other contribution.
+
+Deleting a merged prerequisite branch automatically closed its still-stacked consumer PR #738. After the consumer branch was rebased and force-pushed, GitHub refused reopening the PR even when the deleted base ref was temporarily restored. The temporary ref was removed, and replacement PR #815 carries the same reviewed change against main. Retarget open consumers before deleting a stacked prerequisite branch.
