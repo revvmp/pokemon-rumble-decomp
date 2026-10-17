@@ -2,6 +2,8 @@
 
 ## F-504-15: All native bodies present; importer matching remains open
 
+The remaining mismatch below was subsequently resolved in [F-504-16](504-wud-importer-match.md). This record preserves the earlier diagnostics and rejected approaches.
+
 Target `wpse-v1`, frozen executable manifest `config/targets/wpse-v1.json`. This pass adds the remaining nine native bodies, totaling 5,124 function bytes. All 86 native extents now total 25,028 bytes with Wii/1.0 and unchanged `cflags_sdk`. This is source coverage, not matching acceptance.
 
 | Added native function | Address | Extent | Current non-relocation result |

@@ -2797,7 +2797,7 @@ static inline WUDDevInfo* __wudGetNewDevInfo(void) {
     if (p->syncType == WUD_SYNC_TYPE_STANDARD) {
         pInfo = __wudGetNewStdDevInfo();
     } else {
-        pInfo = p->smpListTail->devInfo;
+        pInfo = _wcb.smpListTail->devInfo;
     }
     OSRestoreInterrupts(enabled);
     return pInfo;
