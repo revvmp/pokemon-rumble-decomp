@@ -2067,3 +2067,14 @@ Freestyle/classic clamp bounds occupy `0x804B8E44`–`0x804B8E5B`. Train trigger
 ## Issue #515 HID-host reconstruction
 
 [F-515-1](findings/515-hid-host.md) records all 27 owned HID-host function names, exact addresses/sizes, the complete action/API/main unit boundaries, compiler evidence, and the 0x230-byte `bta_hh_cb` layout. It also identifies two #516 helpers in the same main file and the two preceding power callbacks delivered in PR #690. Every compared section of all three HID objects is 100%. New headers retain original SDK names and complete message/device/control-block layouts; callee names outside the block are established by exact call relocations without changing their sizes or splits.
+## F-462-3: NW4R layout utilities
+
+The thirteen functions in 0x802B0C30–0x802B1790 recover original nw4r::lyt::detail resource-name, header, TexCoordAry, vertex-format, alpha, and quad-drawing names. TexCoordAry is eight bytes (capacity0, size1, data pointer4); each four-vector coordinate set is32bytes. The native local coordinate array and guard occupy0x804524F0/32bytes and0x804B9438/1byte. The referenced Layout allocator at0x804B9410 is named without changing its outside-owned size/type/split. See [F-462-3](findings/462-lyt-common.md) for exact inventory and proof.
+
+## NW4R resource accessors (#461, #462)
+
+[F-462-5](findings/462-arc-resource-accessor.md) recovers ResourceAccessor (four bytes), FontRefLink (`0x8C`), ArcResourceLink (`0xA4`), and MultiArcResourceAccessor (`0x1C`) and the fifteen native functions at `0x802B0680–0x802B0C30`. Names are high confidence from CC0 Skyward Sword and exact source matches. ResourceAccessor and MultiArcResourceAccessor vtables occupy twenty bytes at `0x803C7250` and `0x803C7268`; their trailing alignment padding remains outside the split. ArcResourceLink stores ARCHandle at `0x08` and its 128-byte resource-root directory at `0x24`. MultiArcResourceAccessor stores the archive and font lists at `0x04` and `0x10`; FontRefLink stores its 128-byte name at `0x08` and font at `0x88`. Anonymous archive helpers and the directory strings are local to the source unit; they do not replace the similarly named HBM helpers.
+
+## NW4R group animation utility (#462)
+
+[F-462-6](findings/462-group-animation-utility.md) identifies the free `nw4r::lyt::BindAnimation(Group*, AnimTransform*, bool, bool)` at `0x802B1790`, 112 bytes, as the only linked function in `lyt_util.cpp`. It traverses Group's pane list at `0x0C` and calls Pane's virtual at `0x44`. The CC0 Skyward Sword source and exact full source-linked DOL establish high confidence. Together with F-462-3 and F-462-5, all 24 native issue functions / 3,720 code bytes are reconstructed; the shared resource-accessor units add five approved #461 functions / 612 bytes.

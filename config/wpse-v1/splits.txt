@@ -629,6 +629,24 @@ nw4r/lyt/lyt_init.cpp:
 	.data       start:0x803C6E28 end:0x803C6E70
 	.sdata      start:0x804B8A10 end:0x804B8A14
 
+nw4r/lyt/lyt_resourceAccessor.cpp:
+	.text       start:0x802B0680 end:0x802B06D8
+	.data       start:0x803C7250 end:0x803C7264
+
+nw4r/lyt/lyt_arcResourceAccessor.cpp:
+	.text       start:0x802B06E0 end:0x802B0C30
+	.data       start:0x803C7268 end:0x803C727C
+	.sdata      start:0x804B8A20 end:0x804B8A27
+
+nw4r/lyt/lyt_common.cpp:
+	.text       start:0x802B0C30 end:0x802B1790
+	.bss        start:0x804524F0 end:0x80452510
+	.sbss       start:0x804B9438 end:0x804B9439
+	.sdata2     start:0x804BB220 end:0x804BB228
+
+nw4r/lyt/lyt_util.cpp:
+	.text       start:0x802B1790 end:0x802B1800
+
 RVL_SDK/base/PPCArch.c:
 	.text       start:0x802B1800 end:0x802B1A10
 	.data       start:0x803C7280 end:0x803C72B8
