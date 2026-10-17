@@ -11,6 +11,9 @@ DSError TRKInitializeNub(void);
 DSError TRKTerminateNub(void);
 void TRKNubWelcome(void);
 
+BOOL TRKInitializeEndian(void);
+extern BOOL gTRKBigEndian;
+
 #ifdef __cplusplus
 }
 #endif
