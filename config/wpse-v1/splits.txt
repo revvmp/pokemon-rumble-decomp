@@ -613,6 +613,16 @@ nw4r/g3d/dcc/g3d_maya.cpp:
 	.rodata     start:0x8036C8B8 end:0x8036C8F0
 	.sdata2     start:0x804BACE8 end:0x804BACFC
 
+nw4r/g3d/dcc/g3d_xsi.cpp:
+	.text       start:0x80266600 end:0x80267214
+	.rodata     start:0x8036C8F0 end:0x8036C928
+	.sdata2     start:0x804BAD00 end:0x804BAD0C
+
+nw4r/g3d/dcc/g3d_3dsmax.cpp:
+	.text       start:0x80267220 end:0x80267D3C
+	.rodata     start:0x8036C928 end:0x8036C960
+	.sdata2     start:0x804BAD10 end:0x804BAD24
+
 nw4r/g3d/g3d_scnobj.cpp:
 	.text       start:0x80267D40 end:0x802695CC
 	.rodata     start:0x8036C960 end:0x8036C990
