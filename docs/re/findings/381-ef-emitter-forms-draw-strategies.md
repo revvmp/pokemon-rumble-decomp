@@ -60,3 +60,39 @@ New headers `drawstrategy/ef_drawstrategyimpl.h` (from Whippy without comments) 
 ## Traps
 
 - **A boolean argument form can reorder argument evaluation.** `cond ? TRUE : FALSE` and `cond != 0` produce the same two instructions, but CodeWarrior schedules the ternary arguments in a different order. When only two independent argument computations are swapped before a call, try the comparison form.
+
+# F-381-3: NW4R ef billboard strategy, first half
+
+`ef_drawbillboardstrategy.cpp` starts at `0x8023CE00`, the last four functions of #381. Its later functions, from `DrawDirectionalBillboard` at `0x8023E0F0`, are in #382's range. #381 owns the split and object line because it owns the first function. The unit stays `NonMatching` until #382 adds the rest. The five functions written match at 100% in objdiff, and the full DOL verifies with the split.
+
+| Section | Range | Contents |
+| --- | --- | --- |
+| `.text` | `0x8023CE00–0x8023EFA0` | constructor, `Draw`, `DrawNormalBillboard`, `DrawYBillboard`, `DrawDirectionalBillboard`, `InitGraphics`, `GetCalcAheadFunc`, weak `CalcAhead_Speed`, `CalcAhead_EmitterCenter`, `CalcAhead_EmitterDesign`, `CalcAhead_Particle`, `CalcAhead_ParticleBoth` (`0x8023ECE0`), destructor (`0x8023EF60`) |
+| `.data` | `0x803C5680–0x803C569C` | `DrawBillboardStrategy` vtable, seven slots; four bytes of padding precede the directional vtable |
+| `.sdata` | `0x804B8900–0x804B8908` | 32-byte-aligned texture-coordinate table `{0, 1, 0, 0, 1, 0, 1, 1}` |
+| `.sdata2` | `0x804BA988–0x804BA9B4` | `0.0f`, `100.0f`, `1.0f`, `FLT_EPSILON`, `2π/256`, two conversion doubles, `0.5f` |
+
+The directional strategy constructor at `0x8023EFA0` starts the next unit. `lbl_804BA9B0` is now 4 bytes so the `.sdata2` split ends at its last constant, and the vtable symbol is 0x1C.
+
+## Reference and version
+
+The public billboard sources (ogws, forecast, wii-news-channel, veryfat-dungeon) are an older revision. This target matches the newer revision also found in Monster Hunter Tri:
+
+- `Draw` sends `ASSIST_BB_NOROLL` (3) to `DrawNormalBillboard`, which then skips the view roll.
+- Both draw functions start with the inlined `DrawInfo::GetViewMtxCooked`. Here its projection switch compiles as a compare chain.
+- Axis lengths come from `ef::MTXColLen`. The roll uses `math::FSqrt` and `math::FInv`, and its zero test uses the root.
+- `DrawYBillboard` skips particles that are not `NW4R_EF_LS_ACTIVE`. `DrawNormalBillboard` does not.
+- When the particle has no Z rotation, `DrawNormalBillboard` computes the four corners in an inline paired-single `asm` block. Matrix-multiply registers `f0`–`f12` are fixed, and the other values are eight `register` work variables.
+
+The CC0 MH Tri decompilation (debug build) gives the corner instruction sequence and the expression trees of both quad writers. Its C names and asserts were not used.
+
+## Recovered detail
+
+- The register allocation of the corner block depends on how work variables are reused, not on their names. With one variable per value, CodeWarrior merged the rotation and X-axis registers and scheduled the block differently. Eight work variables, each reused the way the target's registers are, match the schedule and every register.
+- The corner array's address register is `r23`, below the rotated branch's vertex temporaries, only when the array is reached through a pointer variable declared with it (`math::VEC3* pVtx = vtx;`) and passed both to the corner block and to the polygon writer. Passing the array directly, or the pointer to only one of them, gives `r29` or perturbs the floating-point registers.
+- `DrawYBillboard` needs `f32 rs, rc;` declared in that order. `DrawNormalBillboard` needs `f32 cr, sr;`, which places the cosine at `sp+0x8` and the sine at `sp+0xC`.
+
+## Traps
+
+- **Inline asm work variables are colored by live range.** A CodeWarrior `asm` block with one `register` variable per value can match every instruction and still differ in floating-point registers and schedule. Find which values share each target register and reuse one work variable for each group, as NW4R's own math asm does.
+- **A local array's address register follows how the array is referenced.** When only the register holding a hoisted stack address differs, try reaching the array through a pointer variable declared with it.
