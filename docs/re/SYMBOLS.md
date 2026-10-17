@@ -2241,3 +2241,6 @@ For `wpse-v1` / `main.dol`, [F-792-1](findings/792-g3d-calcmaterial-init-fog.md)
 ## Issue #518 acceptance inventory
 
 [F-518-3](findings/518-btm-completion-audit.md) reconciles the original 22 functions / 4,456 bytes across the controller tail (nine), discovery file (three), and inquiry prefix (ten). It records each complete source delivery and the exact original addresses/sizes. This audit introduces no new reconstructed bytes or unit rows; existing source naming and provenance stay with F-517-2, F-518-1/F-518-2, and F-519-1/F-519-2.
+## Issue #426 sound archive interfaces
+
+[F-426-3](findings/426-snd-archive-interfaces.md) records the original SoundArchive, SoundArchiveFileReader, archive structures, and NandSoundArchive interfaces. Five archive and 23 reader native instruction matches support the canonical field accesses; headers alone claim no code progress. The byte at offset six of the two Sound3DParam structures is named spatialParameter: its copying and width are proven, but its original name and precise meaning remain unknown. The ten methods at 0x8027E210–0x8027E2A0 are bound to ut::NandFileStream by native vtable 0x803C6988 and RTTI 0x804B93D0. Their original host being snd_NandSoundArchive.cpp remains an explicitly documented hypothesis supported by pinned unit order and natural weak emission.
