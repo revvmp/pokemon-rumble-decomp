@@ -1,6 +1,6 @@
 # F-455-1: NW4R math units and lyt_init
 
-Target: `wpse-v1`, immutable `orig/wpse-v1/main.dol`. Issue #455 owns `.text` `0x802A2F80–0x802A4BB4`. The range from `0x802A3470` holds four NW4R `math` units and `lyt_init.cpp`; all five are `Matching`. The range before it, `0x802A2F80–0x802A3460`, is not reconstructed (see "Remaining work").
+Target: `wpse-v1`, immutable `orig/wpse-v1/main.dol`. Issue #455 owns `.text` `0x802A2F80–0x802A4BB4`. The range from `0x802A3470` holds four NW4R `math` units and `lyt_init.cpp`; all five are `Matching`. The preceding twelve functions are now reconstructed in the debug-print template unit delivered by [F-453-2](453-debug-text-queue.md). [F-455-2](455-complete-inventory-audit.md) audits every issue function across all six Matching units.
 
 ## Units and boundaries
 
@@ -32,9 +32,9 @@ Matching instructions were not enough: two units first linked with their `.sdata
 - `math_triangular`: the target pool is `65536, 0, 32, 64, -64, 128, -128`, so the arctangent helper's `32.0f` is allocated before `Atan2FIdx`'s constants, and no `1.0f` exists. `AtanFIdx` is therefore absent. The helper must be an out-of-line definition placed between `SinCosFIdx` and `Atan2FIdx`. An anonymous-namespace or `static` helper allocates its literal only when inlined, which puts `32.0f` last. The source keeps it as `detail::AtanFIdx_`; the linker discards the out-of-line copy. Its linkage and name are a hypothesis (confidence low).
 - `math_geometry`: the target pool is `0.5f, 0.0f, π/128, 256/360`, while `FRUSTUM::Set(fovy, ...)` alone allocates `TanDeg`'s constants first. Xenoblade forces the order with a dummy literal macro. Here an unlinked `SPHERE::Set(const VEC3*, unsigned int)` is placed before the frustum functions instead; later NW4R headers declare it (TwilitRealm/dusklight `nw4hbm/math/geometry.h`, CC0). Its body (box center times `0.5f`, a maximum squared distance starting at `0.0f`) is a reconstruction that reproduces the pool. The linker discards it together with `PLANE::Set` and `IntersectionAABB`, which are inlined at every use.
 
-## Remaining work
+## Completed remaining prefix
 
-`0x802A2F80–0x802A3460` (`fn_802A3020` to `fn_802A3460`) is not part of these units. It holds MEM expanded-heap wrappers (`MEMSetGroupIDForExpHeap`, `MEMAllocFromExpHeapEx`, and `MEMFreeToExpHeap` on the heap at `.sbss` `0x804B9400`) and `TextWriterBase<char>` calls. No reference with matching sizes was found. It likely continues the unit that starts in #454's range.
+The former unresolved range `0x802A2F80`-`0x802A346C` is the final twelve methods of `DbgPrintBase<wchar_t>`, whose native source file begins at `0x802A1950` in #453. [PR #868](https://github.com/revvmp/pokemon-rumble-decomp/pull/868) reconstructs that entire file, including these methods, and links it as Matching. Direct call evidence identifies `TextWriterBase<wchar_t>`, superseding the earlier char hypothesis and the proposed #454 file start. No issue functions remain as original-object fallbacks. The full inventory and exact executable acceptance are recorded in [F-455-2](455-complete-inventory-audit.md).
 
 ## Traps
 
