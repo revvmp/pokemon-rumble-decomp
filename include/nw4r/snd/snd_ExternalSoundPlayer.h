@@ -3,6 +3,7 @@
 #include <nw4r/types_nw4r.h>
 
 #include <nw4r/snd/snd_BasicSound.h>
+#include <nw4r/snd/snd_SoundHandle.h>
 
 namespace nw4r {
 namespace snd {
@@ -33,6 +34,21 @@ public:
     void RemoveSound(BasicSound* pSound);
 
     bool detail_CanPlaySound(int startPriority);
+
+    template <typename TForEachFunc>
+    TForEachFunc ForEachSound(TForEachFunc pFunc) {
+        BasicSoundExtPlayList::Iterator it = mSoundList.GetBeginIter();
+
+        while (it != mSoundList.GetEndIter()) {
+            BasicSoundExtPlayList::Iterator current = it++;
+
+            SoundHandle handle;
+            handle.detail_AttachSound(&*current);
+            pFunc(handle);
+        }
+
+        return pFunc;
+    }
 
 private:
     BasicSound* GetLowestPrioritySound();

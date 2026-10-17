@@ -34,6 +34,15 @@ public:
     int GetPlayingSoundCount(int actorPlayerId) const;
     void SetPlayableSoundCount(int actorPlayerId, int count);
 
+    template <typename TForEachFunc>
+    TForEachFunc ForEachSound(TForEachFunc pFunc) {
+        for (int i = 0; i < ACTOR_PLAYER_COUNT; i++) {
+            mActorPlayer[i].ForEachSound(pFunc);
+        }
+
+        return pFunc;
+    }
+
     detail::ExternalSoundPlayer* detail_GetActorPlayer(int actorPlayerId) {
         if (actorPlayerId < 0 || actorPlayerId >= ACTOR_PLAYER_COUNT) {
             return nullptr;

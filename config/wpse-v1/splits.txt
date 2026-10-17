@@ -778,6 +778,16 @@ nw4r/snd/snd_SeqTrack.cpp:
 	.data       start:0x803C6660 end:0x803C6670
 	.sdata2     start:0x804BAF20 end:0x804BAF50
 
+nw4r/snd/snd_Sound3DActor.cpp:
+	.text       start:0x80282400 end:0x802827C8
+	.rodata     start:0x8036E160 end:0x8036E178
+	.data       start:0x803C6670 end:0x803C66A0
+	.sdata2     start:0x804BAF50 end:0x804BAF58
+
+nw4r/snd/snd_Sound3DCalculator.cpp:
+	.text       start:0x802827D0 end:0x8028329C
+	.sdata2     start:0x804BAF58 end:0x804BAFA0
+
 nw4r/snd/snd_Sound3DEngine.cpp:
 	.text       start:0x802832A0 end:0x80283630
 	.data       start:0x803C66A0 end:0x803C66C0
