@@ -375,6 +375,7 @@ config.libs = [
             Object(Matching, "Runtime/MWRTTI.cpp", extra_cflags=["-Cpp_exceptions on", "-RTTI on"]),
             Object(Matching, "Runtime/runtime.c"),
             Object(Matching, "Runtime/__init_cpp_exceptions.cpp"),
+            Object(Matching, "Runtime/Gecko_ExceptionPPC.cpp", extra_cflags=["-Cpp_exceptions on", "-RTTI on"]),
         ],
     ),
     library(
