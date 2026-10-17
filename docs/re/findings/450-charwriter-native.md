@@ -106,3 +106,44 @@ Issue #451 remains the TextWriter owner's work beyond those two tails.
 - Matching relocation-masked instructions alone cannot validate TEV colors,
   static fog state, texture cache or callees. Pair every relocation against
   the native target and compare the complete owned non-text sections.
+
+## Original issue rows
+
+| Address | Size | Native unit | Delivery |
+| --- | --- | --- | --- |
+| 802975A0 | 50 | ArchiveFont | previously accepted |
+| 802975F0 | 120 | ArchiveFont | previously accepted |
+| 80297710 | 90 | PairFont | previously accepted |
+| 802977A0 | 40 | PairFont | previously accepted |
+| 802977E0 | 68 | PairFont | previously accepted |
+| 80297850 | 68 | PairFont | previously accepted |
+| 802978C0 | 90 | PairFont | previously accepted |
+| 80297950 | 90 | PairFont | previously accepted |
+| 802979E0 | 90 | PairFont | previously accepted |
+| 80297A70 | E8 | PairFont | previously accepted |
+| 80297B60 | 90 | PairFont | previously accepted |
+| 80297BF0 | 90 | PairFont | previously accepted |
+| 80297C80 | 68 | PairFont | previously accepted |
+| 80297CF0 | 8 | PairFont | previously accepted |
+| 80297D00 | 14 | PairFont | previously accepted |
+| 80297D20 | 68 | PairFont | previously accepted |
+| 80297D90 | C0 | PairFont | previously accepted |
+| 80297E50 | 60 | PairFont | previously accepted |
+| 80297EB0 | A0 | PairFont | previously accepted |
+| 80297F50 | A4 | PairFont | previously accepted |
+| 80298000 | E8 | PairFont | previously accepted |
+| 802980F0 | 118 | PairFont | previously accepted |
+| 80298210 | 108 | PairFont | previously accepted |
+| 80298320 | 84 | PairFont | previously accepted |
+| 802983B0 | 14 | PairFont | previously accepted |
+| 802983D0 | 380 | CharWriter | new source delivery |
+| 80298750 | 40 | CharWriter | new source delivery |
+| 80298790 | 930 | CharWriter | new source delivery |
+| 802990C0 | 9F8 | CharWriter | new source delivery |
+| 80299AC0 | C4 | CharWriter | new source delivery |
+| 80299B90 | 78 | CharWriter | new source delivery |
+| 80299C10 | 60 | CharWriter | new source delivery |
+| 80299C70 | 60 | CharWriter | new source delivery |
+| 80299CD0 | 60 | CharWriter | new source delivery |
+| 80299D30 | 150 | CharWriter | new source delivery |
+| 80299E80 | 2EC | CharWriter | new source delivery |
