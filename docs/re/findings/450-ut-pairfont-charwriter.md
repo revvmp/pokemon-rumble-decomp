@@ -23,7 +23,7 @@ The one addition is the override of the `Font` virtual at offset 0x20 (`0x80297A
 
 | Address | Size | Evidence |
 | --- | --- | --- |
-| `0x802983D0` | `0x380` | constructor; references `mLoadingTexture` (`.bss` `0x804524C8`); initializes a 0x4C-byte object with byte colour fields at 0x8–0x1B and 0x18–0x1B, floats at 0x24–0x34, and words at 0x38 and 0x3C |
+| `0x802983D0` | `0x380` | constructor; references `mLoadingTexture` (`.bss` `0x804524C8`); stores members up to offset 0x48 (byte colour fields from 0x8, floats at 0x24–0x34, words at 0x38, 0x3C, and 0x48), so the class is at least 0x4C bytes |
 | `0x80298750` | `0x40` | destructor |
 | `0x80298790` | `0x930` | `SetupGX`: clears the texture cache, calls `0x80299E80` when colour mapping is set, and otherwise inlines four format-specific GX setups |
 | `0x802990C0` | `0x9F8` | a second setup routine using `GXSetTevColor` and `GXSetTevKColor`, which calls `0x8029A170` and `0x8029A4E0`; no counterpart in the references |
