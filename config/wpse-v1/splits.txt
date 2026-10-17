@@ -29,6 +29,12 @@ RVL_SDK/hbm/HBMAnmController.cpp:
 	.text       start:0x801786E0 end:0x801787F0
 	.data       start:0x803BA018 end:0x803BA060
 
+RVL_SDK/hbm/HBMGUIManager.cpp:
+	.text       start:0x801787F0 end:0x8017A008
+	.rodata     start:0x80366A48 end:0x80366A58
+	.data       start:0x803BA060 end:0x803BA2D0
+	.bss        start:0x803E99E0 end:0x803E99E4
+
 RVL_SDK/base/PPCArch.c:
 	.text       start:0x802B1800 end:0x802B1A10
 	.data       start:0x803C7280 end:0x803C72B8
