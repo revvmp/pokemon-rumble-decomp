@@ -2284,3 +2284,7 @@ The existing canonical `nw4r::snd::detail::WaveArchiveReader` stores its table-b
 ## Issue #443 wave file reader
 
 The existing canonical `WaveFileReader` stores its wave-info pointer at offset 0. Its file-header constructor at `0x802911B0` occupies `0x20` bytes, wave-info constructor at `0x802911D0` occupies `0x8`, ReadWaveInfo at `0x802911E0` occupies `0x1CC`, and const GetWaveDataAddress at `0x802913B0` occupies `0x64`. The latter replaces the survey placeholder with the original reference name; the complete split ends at `0x80291414`. WaveInfo channel parameters have the existing 52-byte stride, including 40-byte ADPCM parameters and 6-byte loop parameters. [F-443-3](findings/443-wave-readers.md) records the target accesses, per-unit compiler setting, native and final-link evidence. No outside extents or layouts change.
+
+## Issue #443 WaveSound
+
+[F-443-4](findings/443-wave-sound.md) records the 0x234-byte WaveSound class: BasicSound base, WsdPlayer at 0x110, temporary special handle at 0x228, manager at 0x22C, prepared flag at 0x230. Its 0x38-byte vtable starts at 0x803C68C8; RuntimeTypeInfo is four bytes at 0x804B93B0, initialized through the ctor entry at 0x80352A68. The first retained WsdPlayer destructor remains at 0x80291490. SoundInstanceManager has MemoryPool/list/mutex fields, size 0x28, with priority node offset 0xF0 from the existing BasicSound layout.
