@@ -6,7 +6,7 @@ Target `wpse-v1`, frozen executable manifest `config/targets/wpse-v1.json`. This
 
 | Added native function | Address | Extent | Current non-relocation result |
 | --- | --- | --- | --- |
-| `__wudInitDevInfo` | `0x8030C020` | `0x638` | 128 instruction differences remain |
+| `__wudInitDevInfo` | `0x8030C020` | `0x638` | 82 instruction differences remain |
 | `__wudNandResultCallback` | `0x8030C660` | `0x80` | Exact |
 | `__wudNandFlushCallback` | `0x8030C6E0` | `0x18` | Exact |
 | `__wudGetDevInfoFromWiiFit` | `0x8030C700` | `0x530` | Exact |
@@ -16,7 +16,7 @@ Target `wpse-v1`, frozen executable manifest `config/targets/wpse-v1.json`. This
 | `WUDInit` | `0x8030D240` | `0x11C` | Exact |
 | `WUDShutdown` | `0x8030D3B0` | `0x220` | Exact |
 
-The actual `all_source` object has 85 exact non-relocation streams / 23,436 function bytes. Across those 85 bodies, all 1,128 relocation entries have matching positions, types and instruction opcodes/registers. Call/callback names and data/BSS destinations agree. Native small-data constants agree by bytes; source-only catalog entries still require final linker stripping. The importer's 57 destinations agree as an ordered relocation sequence, but some occur at different instruction offsets and its 128 differing words remain a matching blocker. No normalized register comparison is accepted as proof. A separate source-selected candidate link isolates the remaining final-byte mismatch to this importer, as recorded below.
+The actual `all_source` object has 85 exact non-relocation streams / 23,436 function bytes. Across those 85 bodies, all 1,128 relocation entries have matching positions, types and instruction opcodes/registers. Call/callback names and data/BSS destinations agree. Native small-data constants agree by bytes; source-only catalog entries still require final linker stripping. The importer's 57 destinations agree as an ordered relocation sequence, but some occur at different instruction offsets and its 82 differing words remain a matching blocker. No normalized register comparison is accepted as proof. A separate source-selected candidate link isolates the remaining final-byte mismatch to this importer, as recorded below.
 
 ## Initialization and recovery behavior
 
@@ -28,7 +28,11 @@ Recovery reads the Wii Fit save, copies 128 pairing bytes and its stored checksu
 
 Device import compacts standard entries, preserves the Balance Board settings slot, imports companion devices and flushes the updated arrays. Its functional source is present at the original `0x638` extent. Diagnostic placement was corrected to precede the Balance Board settings-copy operations, but register-allocation differences remain. Current hypotheses about those differences are not acceptance evidence.
 
-Follow-up scratch compilations tested all 120 orders of the five scalar/pointer declarations, preserving their types and behavior. None improved on the current 128 differing non-relocation words. Moving the zero-address array declaration, using unsigned remaining-count storage, changing the outer index from `int` to `long`, and giving each import branch its own device-pointer scope also left 128 differences. Widening the compacted-device count increased differences to 173; introducing a control-block pointer for its sync/state writes increased differences or changed the function extent. These are rejected approaches, not source changes. Keep the canonical declarations while investigating the inlined allocator and expression lifetimes.
+Follow-up scratch compilations tested all 120 orders of the five scalar/pointer declarations, preserving their types and behavior. None improved on the then-current 128 differing non-relocation words. Moving the zero-address array declaration, using unsigned remaining-count storage, changing the outer index from `int` to `long`, and giving each import branch its own device-pointer scope also left 128 differences. Widening the compacted-device count increased differences to 173; introducing a control-block pointer for its sync/state writes increased differences or changed the function extent. These are rejected approaches, not source changes. Keep the canonical importer declarations.
+
+A subsequent comparison of 64 declaration/initialization forms across the two inlined allocator helpers identified an improvement: declare the result pointer before the control-block pointer in `__wudGetNewDevInfo`. This preserves functional behavior, produces the same native extents and leaves the other 85 functions and all 1,128 paired relocations exact. It reduces importer differences from 128 to 82 non-relocation words. The real source-selected link reduces final differing bytes from 171 to 116, all within the importer. Repeating the 120 importer declaration orders with this helper form gives no further improvement. The source keeps only the verified helper declaration reorder; compiler flags and all external interfaces are unchanged.
+
+Reordering declarations in `__wudGetDevInfoByIndex` or delaying its control-block pointer assignment leaves the importer at 82 differences; some forms regress search preparation. Replacing that helper's pointer with direct global accesses also regresses three other native functions. Early returns from the standard allocator change native extents and regress four callers. Those scratch forms are rejected; keep the original loop, result variable and common return.
 
 `WUDInit` retains the BTA trace setup, optional linked-board initialization hook, alarm setup and dirty-flag clearing. It starts at state 1, without the newer reference's additional device-up wait. Shutdown saves standard devices and optionally companion devices, then starts the existing timed shutdown driver. The clear-control-block routine uses the original typed handle setters, producing the observed unsigned-byte indexing and native unrolling.
 
@@ -46,7 +50,7 @@ Outside functions `BTM_RegisterForDeviceStatusNotif` at `0x8031D6C4` and `BTM_Re
 
 ## Source-selected candidate comparison
 
-A scratch copy of the real link response selects the compiled WUD object in place of its original object, without changing the `NonMatching` setting or normal build artifacts. The actual Wii/1.1 linker and dtk ELF-to-DOL conversion both exit zero. The candidate and frozen DOL are both 4,094,880 bytes. They differ at exactly 171 bytes in 133 instruction words, all inside `__wudInitDevInfo` at `0x8030C020`-`0x8030C658`. Every other executable byte agrees, including the other 85 WUD functions, relocated calls, initialized data, small data and alignment.
+A scratch copy of the real link response selects the compiled WUD object in place of its original object, without changing the `NonMatching` setting or normal build artifacts. The actual Wii/1.1 linker and dtk ELF-to-DOL conversion both exit zero. The candidate and frozen DOL are both 4,094,880 bytes. They differ at exactly 116 bytes in 87 instruction words, all inside `__wudInitDevInfo` at `0x8030C020`-`0x8030C658`. Every other executable byte agrees, including the other 85 WUD functions, relocated calls, initialized data, small data and alignment.
 
 The candidate ELF places all 86 retained WUD functions at their original addresses. Both source-only message catalogs and the standalone `WUDStartClearDevice` body are absent. This proves stripping and placement for this candidate; it does not make the remaining importer acceptable or pass frozen verification.
 
@@ -54,7 +58,7 @@ The candidate comparison also corrected F-504-14's raw-split payload interpretat
 
 ## Validation and acceptance boundary
 
-The real `all_source` target compiles successfully. Full Ninja and explicit frozen verification of `build/504-source-header-refresh-1/wpse-v1` pass with the original WUD object selected. All 340 baseline source objects remain byte-identical. Whole-unit objdiff diagnostics are text 99.7363%, data 11.763171%, BSS 100%, sdata 100%, sbss 100% and sdata2 63.636364%. The data diagnostic uses coarse reference metadata and relocation placeholders; the resolved comparison and candidate DOL establish the initialized data bytes instead.
+The real `all_source` target compiles successfully. Full Ninja and explicit frozen verification of `build/504-source-header-refresh-1/wpse-v1` pass with the original WUD object selected. All 340 baseline source objects remain byte-identical. Whole-unit objdiff diagnostics are text 99.77785%, data 11.763171%, BSS 100%, sdata 100%, sbss 100% and sdata2 63.636364%. The data diagnostic uses coarse reference metadata and relocation placeholders; the resolved comparison and candidate DOL establish the initialized data bytes instead.
 
 WUD remains `NonMatching` and gains zero linked WUD source credit. Resolve the importer and rerun the complete source-selected frozen verification before acceptance. A source-coverage count of 86 does not close #504.
 

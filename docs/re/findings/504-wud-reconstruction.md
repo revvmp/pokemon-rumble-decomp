@@ -105,7 +105,7 @@ The current source contains 86 retained functions, totaling 25,028 function byte
 | `WUDiSetQueueSizeForHandle` | `0x80310360` | `0x14` |
 | `WUDiSetNotAckNumForHandle` | `0x80310380` | `0x14` |
 
-This diagnostic excludes relocation-bearing words and does not establish matching function acceptance. Whole-unit objdiff is text 99.7363%, data 11.763171%, BSS 100%, sdata 100%, sbss 100% and sdata2 63.636364%. WUD remains `NonMatching`; the final executable continues to link the original WUD object and gains zero linked WUD source-byte credit. The partial-source full build and explicit frozen verification pass. EUART and USB remain accepted source-linked units.
+This diagnostic excludes relocation-bearing words and does not establish matching function acceptance. Whole-unit objdiff is text 99.77785%, data 11.763171%, BSS 100%, sdata 100%, sbss 100% and sdata2 63.636364%. WUD remains `NonMatching`; the final executable continues to link the original WUD object and gains zero linked WUD source-byte credit. The partial-source full build and explicit frozen verification pass. EUART and USB remain accepted source-linked units.
 
 The implementations reuse the existing typed WUD headers. `_wcb` is the established 0x750-byte controller block at `0x8047C320`. Paired source/target SDA relocations identify the four-byte `sWudInitialized` at `0x804B9B28`, `sWudReadNand` at `0x804B9B2C` and `_linkedWBC` at `0x804B9B40`; no field address is guessed from declaration order. The last is returned by `WUDIsLinkedWBC`. Its weak qualifier follows the licensed newer SDK reference; the target directly establishes its word storage and access, not an original ELF binding.
 
@@ -153,12 +153,12 @@ After rebasing onto #720, a fresh `build/504-source-header-refresh-1/wpse-v1` al
 
 [F-504-14](504-wud-firmware-patch.md) adds all six retained firmware-patch functions and three target-verified protocol arrays. The original data prefix now reproduces 534 initialized bytes plus six padding bytes. Five earlier bodies now also have exact raw streams. Current totals: 77 native bodies / 19,904 bytes, 66 raw-exact bodies / 13,940 bytes, eleven partial bodies with 69 identical-data address differences.
 
-[F-504-15](504-wud-full-initialization.md) adds the final nine native bodies and restores complete initialized-message and small-data layouts. All 86 native extents total 25,028 bytes; 85 bodies / 23,436 bytes have exact non-relocation streams. Their 1,128 relocation entries agree by type, position, instruction opcode/registers and semantic destination. The importer retains 128 differing words; its 57 destination entries agree only as an ordered sequence, not as an instruction-stream proof. Resolved data and a source-selected candidate match every executable byte outside the importer, including final alignment and stripping. The original WUD object remains selected.
+[F-504-15](504-wud-full-initialization.md) adds the final nine native bodies and restores complete initialized-message and small-data layouts. All 86 native extents total 25,028 bytes; 85 bodies / 23,436 bytes have exact non-relocation streams. Their 1,128 relocation entries agree by type, position, instruction opcode/registers and semantic destination. The importer retains 82 differing words; its 57 destination entries agree only as an ordered sequence, not as an instruction-stream proof. Resolved data and a source-selected candidate match every executable byte outside the importer, including final alignment and stripping. The original WUD object remains selected.
 
 ## Remaining work
 
-- Resolve the 128 instruction differences in `__wudInitDevInfo` at `0x8030C020`; all native bodies are present, but this routine remains unmatched.
-- The source-selected candidate proves final data, placement and stripping, with all 171 differing bytes confined to the importer. Rerun the full frozen comparison after fixing that function.
+- Resolve the 82 instruction differences in `__wudInitDevInfo` at `0x8030C020`; all native bodies are present, but this routine remains unmatched.
+- The source-selected candidate proves final data, placement and stripping, with all 116 differing bytes confined to the importer. Rerun the full frozen comparison after fixing that function.
 - Complete final relocated-byte comparison for every retained function and all data before marking WUD `Matching`. The current passing frozen build selects the original WUD object and gives it zero linked source credit.
 - Refresh against latest main and the header prerequisite before any merge. KPAD source in #710 and device-state headers in #720 remain separate prerequisites.
 

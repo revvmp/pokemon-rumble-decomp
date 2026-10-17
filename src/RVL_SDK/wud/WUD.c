@@ -2791,8 +2791,8 @@ static inline WUDDevInfo* __wudGetNewStdDevInfo(void) {
 }
 
 static inline WUDDevInfo* __wudGetNewDevInfo(void) {
-    WUDCB* p = &_wcb;
     WUDDevInfo* pInfo;
+    WUDCB* p = &_wcb;
     BOOL enabled = OSDisableInterrupts();
     if (p->syncType == WUD_SYNC_TYPE_STANDARD) {
         pInfo = __wudGetNewStdDevInfo();
