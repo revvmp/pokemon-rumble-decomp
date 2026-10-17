@@ -82,6 +82,10 @@ Keep entries concise and actionable. Distinguish confirmed findings from hypothe
 
 - **Negated closing keywords still close issues.** A partial-work pull request automatically closed its unfinished issue because its description contained a negated closing-keyword phrase. Use `Part of` and avoid closing-keyword issue references anywhere in partial-work descriptions; check issue state after merging. See [F-514-2](docs/re/findings/514-bta-dm-api.md#f-514-2-partial-work-issue-closure-keywords).
 
+- **End a `.text` split at the last function's end, not the next alignment boundary.** Ending `arc.c` at the padded 0x802F08E0 made the compiled object 8 bytes short of its split, and `.ctors` moved to 0x803529B8. Ending it at 0x802F08D8 leaves the padding to the next object and matches. See [F-495-1](docs/re/findings/495-arc-unit.md).
+
+- **verify.py checks whatever `main.dol` is on disk.** After a failed link it passed against the previous build's output. Delete `build/wpse-v1/main.dol` or confirm `ninja` exited 0 before trusting a verification result; observed in [F-495-1](docs/re/findings/495-arc-unit.md).
+
 ## Current project state
 
 | Current state | Value |
