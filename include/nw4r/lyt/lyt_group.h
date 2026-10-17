@@ -31,7 +31,7 @@ public:
     bool IsUserAllocated() const { return mbUserAllocated; }
     const char* GetName() const { return mName; }
 
-private:
+protected:
     ut::LinkListNode mLink;
     PaneList mPaneListLink;
     char mName[17];
@@ -39,7 +39,16 @@ private:
     u8 mPadding[2];
 };
 
+class GroupContainer {
+public:
+    GroupContainer() {}
+    ~GroupContainer();
+    void AppendGroup(Group* pGroup);
+    Group* FindGroupByName(const char* pName);
+    ut::LinkList<Group, 4>& GetGroupList() { return mGroupList; }
+protected:
+    ut::LinkList<Group, 4> mGroupList;
+};
 }
 }
-
 #endif

@@ -2200,3 +2200,10 @@ For `wpse-v1` / `main.dol`, [F-383-1](findings/383-ef-free-line-point-strategies
 | --- | --- | --- |
 | NW4R lyt AnimationLink / AnimTransform / AnimResource / Material / DrawInfo | 0x10 / 0x14 / 0x10 / 0x5C / 0x54 bytes | Complete shared storage and native virtual-slot evidence; [F-807-1](findings/807-layout-interfaces.md). |
 | NW4R lyt Size / ResBlockSet / res::MaterialList | 8 / 0x10 / 0xC bytes | Explicit Size copy constructor preserves the native hidden-result-pointer ABI; resource-block pointer order and material count at offset 8 are proven by Window construction; [F-807-1](findings/807-layout-interfaces.md#window-prerequisite-and-size-return-convention). |
+
+## NW4R Pane and Group source (#807)
+
+| Symbol | Native range | Evidence |
+| --- | --- | --- |
+| NW4R lyt Pane vtable | `0x803C6E70–0x803C6EE8` | Complete 0x78-byte table, including SetExtUserDataList slot70 and LoadMtx slot74; typeInfo4 at804B9408. [F-807-2](findings/807-pane-group.md). |
+| NW4R lyt Group / GroupContainer | `0x802A5D00–0x802A605C` | Group size2C and GroupContainer sizeC; five native routines, vtableC at803C6EE8; complete storage in canonical headers. [F-807-2](findings/807-pane-group.md). |
