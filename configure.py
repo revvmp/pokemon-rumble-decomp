@@ -137,7 +137,24 @@ cflags_runtime = [
 
 RUNTIME_COMPILER = "Wii/1.1"
 
+cflags_sdk = [
+    *(flag for flag in cflags_base if flag not in ("-fp_contract on", "-inline auto")),
+    "-inline auto,level=3",
+    "-ipa file",
+    "-sdata 8",
+    "-sdata2 8",
+]
+
+SDK_COMPILER = "Wii/1.0"
+
 config.libs = [
+    library(
+        "RVL_SDK",
+        SDK_COMPILER,
+        cflags_sdk,
+        "sdk",
+        [Object(Matching, "RVL_SDK/base/PPCArch.c")],
+    ),
     library(
         "Runtime.PPCEABI.H",
         RUNTIME_COMPILER,
