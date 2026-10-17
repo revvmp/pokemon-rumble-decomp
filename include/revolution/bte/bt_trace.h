@@ -27,6 +27,7 @@ enum {
 #define TRACE_TYPE_API 0x00000002
 #define TRACE_TYPE_DEBUG 0x00000004
 #define TRACE_LAYER_GAP 0x000E0000
+#define TRACE_LAYER_RFCOMM 0x00090000
 
 void LogMsg_0(UINT32 trace_set_mask, const char* fmt_str);
 void LogMsg_1(UINT32 trace_set_mask, const char* fmt_str, UINT32 p1);
@@ -87,6 +88,37 @@ void LogMsg_6(UINT32 trace_set_mask, const char* fmt_str, UINT32 p1, UINT32 p2, 
     {                                                                                                                  \
         if (sdp_cb.trace_level >= BT_TRACE_LEVEL_EVENT)                                                                \
             BT_TRACE_2(TRACE_LAYER_SDP, TRACE_TYPE_EVENT, m, p1, p2);                                                  \
+    }
+
+#define RFCOMM_TRACE_ERROR0(m)                                                                                         \
+    {                                                                                                                  \
+        if (rfc_cb.trace_level >= BT_TRACE_LEVEL_ERROR)                                                                \
+            BT_TRACE_0(TRACE_LAYER_RFCOMM, TRACE_TYPE_ERROR, m);                                                       \
+    }
+#define RFCOMM_TRACE_ERROR1(m, p1)                                                                                     \
+    {                                                                                                                  \
+        if (rfc_cb.trace_level >= BT_TRACE_LEVEL_ERROR)                                                                \
+            BT_TRACE_1(TRACE_LAYER_RFCOMM, TRACE_TYPE_ERROR, m, p1);                                                   \
+    }
+#define RFCOMM_TRACE_ERROR2(m, p1, p2)                                                                                 \
+    {                                                                                                                  \
+        if (rfc_cb.trace_level >= BT_TRACE_LEVEL_ERROR)                                                                \
+            BT_TRACE_2(TRACE_LAYER_RFCOMM, TRACE_TYPE_ERROR, m, p1, p2);                                               \
+    }
+#define RFCOMM_TRACE_EVENT0(m)                                                                                         \
+    {                                                                                                                  \
+        if (rfc_cb.trace_level >= BT_TRACE_LEVEL_EVENT)                                                                \
+            BT_TRACE_0(TRACE_LAYER_RFCOMM, TRACE_TYPE_EVENT, m);                                                       \
+    }
+#define RFCOMM_TRACE_EVENT1(m, p1)                                                                                     \
+    {                                                                                                                  \
+        if (rfc_cb.trace_level >= BT_TRACE_LEVEL_EVENT)                                                                \
+            BT_TRACE_1(TRACE_LAYER_RFCOMM, TRACE_TYPE_EVENT, m, p1);                                                   \
+    }
+#define RFCOMM_TRACE_DEBUG0(m)                                                                                         \
+    {                                                                                                                  \
+        if (rfc_cb.trace_level >= BT_TRACE_LEVEL_DEBUG)                                                                \
+            BT_TRACE_0(TRACE_LAYER_RFCOMM, TRACE_TYPE_DEBUG, m);                                                       \
     }
 
 #define APPL_TRACE_EVENT0(m)                                                                                     \

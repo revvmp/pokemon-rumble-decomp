@@ -9,6 +9,11 @@ enum {
 };
 
 enum {
+    BTU_TTYPE_RFCOMM_MFC = 11,
+    BTU_TTYPE_RFCOMM_PORT = 12
+};
+
+enum {
     BTU_TTYPE_USER_FUNC = 22
 };
 
