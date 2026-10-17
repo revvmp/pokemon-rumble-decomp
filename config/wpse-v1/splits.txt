@@ -272,6 +272,30 @@ nw4r/ut/ut_PairFont.cpp:
 	.text       start:0x80297710 end:0x802983C4
 	.data       start:0x803C6CB0 end:0x803C6D20
 
+nw4r/math/math_arithmetic.cpp:
+	.text       start:0x802A3470 end:0x802A34F8
+	.sdata2     start:0x804BB110 end:0x804BB118
+
+nw4r/math/math_triangular.cpp:
+	.text       start:0x802A3500 end:0x802A37F8
+	.rodata     start:0x803705F8 end:0x80371608
+	.data       start:0x803C6D20 end:0x803C6E28
+	.sdata2     start:0x804BB118 end:0x804BB134
+
+nw4r/math/math_types.cpp:
+	.text       start:0x802A3800 end:0x802A3CF4
+	.sdata2     start:0x804BB138 end:0x804BB150
+
+nw4r/math/math_geometry.cpp:
+	.text       start:0x802A3D00 end:0x802A4B5C
+	.sdata      start:0x804B8A08 end:0x804B8A0C
+	.sdata2     start:0x804BB150 end:0x804BB160
+
+nw4r/lyt/lyt_init.cpp:
+	.text       start:0x802A4B60 end:0x802A4BB4
+	.data       start:0x803C6E28 end:0x803C6E70
+	.sdata      start:0x804B8A10 end:0x804B8A14
+
 RVL_SDK/base/PPCArch.c:
 	.text       start:0x802B1800 end:0x802B1A10
 	.data       start:0x803C7280 end:0x803C72B8

@@ -1740,3 +1740,39 @@ For `wpse-v1` / `main.dol`, [F-301-1](findings/301-nw4hbm-ut.md#f-301-1-ut_resfo
 | `0x8031C2B8` | `0xB8` | `fn_8031C2B8` | `btm_find_dev_by_handle` | function, outside unit | high name | F-521-5 | split left to its owning issue |
 | `0x8031DB5C` | `0xD0` | `fn_8031DB5C` | `BTM_DeleteStoredLinkKey` | function, outside unit | high name | F-521-5 | split left to its owning issue |
 | `0x8031F7FC` | `0x150` | `fn_8031F7FC` | `btm_initiate_rem_name` | function, outside unit | high name | F-521-5 | split left to its owning issue |
+## NW4R math units and lyt_init (#455)
+
+Evidence: [F-455-1](findings/455-nw4r-math-lyt-init.md).
+
+| Address | Symbol | Size | Confidence | Evidence |
+| --- | --- | --- | --- | --- |
+| `0x802A3470` | `nw4r::math::FrSqrt(f32)` | `0x24` | High | Xenoblade source match |
+| `0x802A34A0` | `nw4r::math::CntBit1(u32)` | `0x58` | High | Name already in symbols; source match |
+| `0x802A3500` | `nw4r::math::SinFIdx(f32)` | `0x70` | High | Xenoblade source and symbol |
+| `0x802A3570` | `nw4r::math::CosFIdx(f32)` | `0x60` | High | Xenoblade source and symbol |
+| `0x802A35D0` | `nw4r::math::SinCosFIdx(f32*, f32*, f32)` | `0x70` | High | Xenoblade source and symbol |
+| `0x802A3640` | `nw4r::math::Atan2FIdx(f32, f32)` | `0x1B8` | High | Xenoblade source and symbol |
+| `0x802A3800` | `nw4r::math::MTX34ToMTX33` | `0x34` | High | Xenoblade symbol |
+| `0x802A3840` | `nw4r::math::MTX34Zero` | `0x20` | High | Xenoblade symbol |
+| `0x802A3860` | `nw4r::math::MTX34Scale` | `0x54` | High | Xenoblade symbol |
+| `0x802A38C0` | `nw4r::math::MTX34Trans` | `0x6C` | High | Xenoblade symbol |
+| `0x802A3930` | `nw4r::math::MTX34RotAxisFIdx` | `0x38` | High | Xenoblade symbol |
+| `0x802A3970` | `nw4r::math::MTX34RotXYZFIdx` | `0x168` | High | Size matches `SUPE01` map (360 bytes); paired-single assembly |
+| `0x802A3AE0` | `nw4r::math::VEC3TransformNormal` | `0x90` | High | Xenoblade symbol |
+| `0x802A3B70` | `nw4r::math::MTX44Identity` | `0x34` | High | Xenoblade symbol |
+| `0x802A3BB0` | `nw4r::math::MTX44Copy` | `0x44` | High | Xenoblade symbol |
+| `0x802A3C00` | `nw4r::math::VEC3TransformCoord(VEC3*, const MTX44*, const VEC3*)` | `0xF4` | Medium | MTX44 transform with divide by w; name follows the MTX34 overload |
+| `0x802A3D00` | `nw4r::math::AABB::Set(const VEC3*, unsigned int)` | `0xBC` | High | Xenoblade source |
+| `0x802A3DC0` | `nw4r::math::AABB::Set(const AABB*, const MTX34*)` | `0x1D8` | High | Xenoblade source; `SUPE01` size |
+| `0x802A3FA0` | `nw4r::math::FRUSTUM::Set(f32, f32, f32, f32, const MTX34&)` | `0xB4` | High | Xenoblade source; `SUPE01` size |
+| `0x802A4060` | `nw4r::math::FRUSTUM::Set(f32, f32, f32, f32, f32, f32, const MTX34&)` | `0x6D8` | High | Xenoblade source |
+| `0x802A4740` | `nw4r::math::IntersectionLine3Plane` | `0x100` | High | `SUPE01` name and size |
+| `0x802A4840` | `nw4r::math::IntersectionRay3Plane` | `0x164` | High | `SUPE01` name and size |
+| `0x802A49B0` | `nw4r::math::FRUSTUM::IntersectAABB_Ex` | `0x1AC` | High | Xenoblade source; `SUPE01` size |
+| `0x802A4B60` | `nw4r::lyt::LytInit()` | `0x54` | High | Petari source; version string |
+| `0x803705F8` | `nw4r::math::detail::gSinCosTbl` | `0x1010` | High | Referenced by `SinFIdx` and the `MTX34RotXYZFIdx` assembly |
+| `0x803C6D20` | anonymous `sArcTanTbl` | `0x108` | High | 33 `{value, delta}` pairs |
+| `0x803C6E28` | LYT version string | `0x46` | High | `NW4R_LYT_Version_` target |
+| `0x804B8A08` | anonymous `sEpsilon` (`0.0001f`) | `0x4` | Medium | Writable `.sdata` tolerance in the plane intersections; name descriptive |
+| `0x804B8A10` | anonymous `NW4R_LYT_Version_` | `0x4` | High | Petari name |
+| `0x804BB148` | `sFIdxRange` `{65536.0f, 65536.0f}` | `0x8` | Medium | Paired load in `MTX34RotXYZFIdx`; name descriptive |

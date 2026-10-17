@@ -404,6 +404,8 @@ inline VEC3* VEC3TransformCoord(VEC3* pOut, const MTX34* pMtx,
     return pOut;
 }
 
+VEC3* VEC3TransformCoord(VEC3* pOut, const MTX44* pMtx, const VEC3* pVec);
+
 MTX33* MTX33Identity(MTX33* pMtx);
 
 MTX33* MTX34ToMTX33(MTX33* pOut, const MTX34* pIn);
