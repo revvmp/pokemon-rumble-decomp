@@ -2292,3 +2292,7 @@ For `wpse-v1` / `main.dol`, [F-444-1](findings/444-snd-wave-player.md) names `Ws
 ## Material and packed layout resources (#808, #811)
 
 [F-811-1](findings/811-material-interfaces.md) records complete canonical Material (5C), TexMap (1C), packed GX records, and material/texture resource layouts with native offsets, sizes, and naming confidence. Existing Material storage and virtual order are preserved. Its companion [F-808-2](findings/808-offset-interface.md) establishes the explicit unsigned-int offset converter parameter; u32 is unsigned long here and gives a different retained template name. These header prerequisites contribute no reconstructed executable-byte credit.
+
+### Issue #812: complete NW4R layout animation
+
+The 27 original functions at `0x802AF0C0–0x802B0674` retain their imported mangled names, independently reproduced by the pinned original C++ interfaces. AnimTransformBasic owns the 36-byte vtable at `0x803C7228`, named `__vt__Q34nw4r3lyt18AnimTransformBasic`; its original forty-byte placeholder included four following alignment bytes. The complete constant pool is `0x804BB200–0x804BB220`. Class/resource layouts and confidence are recorded in [F-812-1](findings/812-animation-interfaces.md), complete unit acceptance in [F-812-2](findings/812-lyt-animation.md). IsSupportedMinorVersion is a descriptive project helper name for the proven minor-version range eight through ten; no recovered spelling is claimed.
