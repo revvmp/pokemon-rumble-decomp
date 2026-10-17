@@ -32,6 +32,7 @@ public:
     void StopAllSound(int frames);
     void PauseAllSound(bool flag, int frames);
     int GetPlayingSoundCount(int actorPlayerId) const;
+    void SetPlayableSoundCount(int actorPlayerId, int count);
 
     detail::ExternalSoundPlayer* detail_GetActorPlayer(int actorPlayerId) {
         if (actorPlayerId < 0 || actorPlayerId >= ACTOR_PLAYER_COUNT) {
