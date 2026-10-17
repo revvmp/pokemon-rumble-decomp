@@ -20,7 +20,7 @@ The `.data` of `ut_Font.cpp` holds the four pointer-to-member constants of `Init
 
 On the branch head, `configure.py`, `ninja` and `tools/verify/verify.py verify` exit 0 with all four units `Matching`. objdiff reports all 14 functions and every `.text` and `.data` section at 100%.
 
-The `ResFont` vtable refers to 18 `ResFontBase` members in #301's block. These are named for linking: the constructor `0x80193D50`, the destructor `0x80193DA0`, `SetResourceBuffer` `0x80193DE0`, and the virtual functions `GetWidth` (`0x80193DF0`) to `GetEncoding` (`0x801941B0`). The names come from xenoblade, whose function list and sizes are identical.
+The `ResFont` vtable refers to 19 `ResFontBase` virtual functions in #301's block. These, and three other members, are named for linking: the constructor `0x80193D50`, the destructor `0x80193DA0`, `SetResourceBuffer` `0x80193DE0`, and the virtual functions `GetWidth` (`0x80193DF0`) to `GetEncoding` (`0x801941B0`). The names come from xenoblade, whose function list and sizes are identical.
 
 ### Traps
 
