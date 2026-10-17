@@ -78,6 +78,9 @@ public:
     bool IsPlayFinished() const {
         return IsActive() && mAxVoice[0][0]->IsPlayFinished();
     }
+    bool IsRun() const {
+        return IsActive() && mAxVoice[0][0]->IsRun();
+    }
 
     void InitParam(int channels, int voices, VoiceCallback pCallback,
                    void* pCallbackArg);
@@ -118,6 +121,9 @@ public:
 
     void SetRemoteOutVolume(int remote, f32 volume);
     void SetVoiceOutParam(int index, const VoiceOutParam& rParam);
+    void SetVoiceOutParamPitchDisableFlag(bool flag) {
+        mVoiceOutParamPitchDisableFlag = flag;
+    }
     void SetRemoteSend(int remote, f32 send);
     void SetRemoteFxSend(int remote, f32 send);
 

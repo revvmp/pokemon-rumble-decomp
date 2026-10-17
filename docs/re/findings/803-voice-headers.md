@@ -18,6 +18,12 @@ The rebuilt DOL directly equals all 4,094,880 frozen reference bytes, SHA-256 `a
 
 The actual repository-only combined source consumer checkpoint is `3924731f` in PR #753, including the four canonical headers and the two owned WaveFile field-use updates. Configure, all_source, normal default Ninja and explicit frozen verification exit 0, without scratch include paths. All seven units, their 52 retained functions and all allocated sections score 100% in objdiff. The independent native audits still pass for all 6,900 bytes, 233 code and 31 vtable/constructor relocations, retained data and final addresses. The separate original #444 inventory remains 37/37 functions / 5,236 native bytes. The two field-use edits stay in the source PR; this header prerequisite contains no source changes.
 
+## Stream-player inline consumers
+
+The same pinned Voice header also supplies the ordinary inline helpers SetVoiceOutParamPitchDisableFlag(bool), assigning the proven flag at 0xA1, and IsRun() const, checking IsActive() before AxVoice::IsRun(). These add no fields, virtual methods or out-of-line retained functions. The separately owned #801 scratch consumer reproduces the complete non-relocated instruction streams of AllocVoices at 0x8028B420 (0xEC bytes) and Start at 0x8028A5D0 (0x354 bytes), including the flag store. This is consumer evidence, not acceptance of unfinished #801.
+
+With these two helpers included, all 468 unchanged baseline source outputs compile again through the actual all_source entry point. Of those objects, 463 remain completely byte-identical; AxManager, Bank, Channel, MmlParser and SeqPlayer differ only in numeric local names in .strtab. Every allocated section, raw RELA entry and symbol value/extent/type/order remains exact. This extends the scoped unchanged-source proof above; the final header head still requires its own latest-main full build and frozen verification.
+
 ## Traps
 
 - Nested and direct aggregate fields can have identical ABI yet compile differently. Here the source's aggregate assignment generated an additional induction pointer only through the nested field. The pinned direct-field declaration, typed original offsets and full native Setup body establish the correction; no arbitrary byte view or synthetic padding is needed.
