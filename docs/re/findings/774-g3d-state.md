@@ -27,6 +27,8 @@ The source uses the canonical `GX_PTTEXMTX0` spelling for the reference's `GX_DU
 
 The earlier placeholder BSS objects included alignment padding and merged ShpState into the preceding TlutState. Actual object sizes separate those allocations. The last normal matrix is `0x24` bytes; the following padding up to `0x80434F80` belongs to the next unit.
 
+Four referenced Fog callees outside this issue receive names only: constructor `0x80270A90`, Init `0x80270AA0`, CopyTo `0x80270B10`, and SetGP `0x80270B90`. The canonical existing Fog header and pinned source give their signatures, and native state-unit branch relocations independently select these exact addresses. Their splits, sizes and types remain unchanged. The compiler folds the empty LightObj destructor with LightSetting's destructor at `0x8025C050`; the existing native LightSetting identity is retained.
+
 ## Validation status
 
 Baseline configure, Ninja and explicit frozen verification passed, with 408 baseline source-object hashes recorded. The shared-header prerequisite also passed on clean head `25caa85d` atop main `dc1408ed`. The eight-section source split is currently NonMatching, and full source-selected acceptance is pending the canonical DCC header prerequisite. The scratch proof above does not by itself mark this source Matching or close the issue.
