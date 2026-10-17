@@ -643,6 +643,7 @@ config.libs = [
         cflags_msl,
         "runtime",
         [
+            Object(Matching, "MSL_C/alloc.c"),
             Object(Matching, "MSL_C/ansi_files.c"),
             Object(Matching, "MSL_C/ansi_fp.c"),
             Object(Matching, "MSL_C/arith.c"),

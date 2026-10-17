@@ -1583,6 +1583,12 @@ Runtime/Gecko_ExceptionPPC.cpp:
 	.bss        start:0x804B3078 end:0x804B31F8
 	.sdata      start:0x804B8FA0 end:0x804B8FA8
 
+MSL_C/alloc.c:
+	.text       start:0x803422E0 end:0x803430E0
+	.rodata     start:0x80398390 end:0x803983A8
+	.bss        start:0x804B31F8 end:0x804B3230
+	.sbss       start:0x804B9BC8 end:0x804B9BD0
+
 MSL_C/ansi_files.c:
 	.text       start:0x803430E0 end:0x803431F0
 	.data       start:0x803E5DD0 end:0x803E5F10
