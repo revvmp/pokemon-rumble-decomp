@@ -111,6 +111,22 @@ RVL_SDK/hbm/nw4hbm/lyt/lyt_layout.cpp:
 	.data       start:0x803BB770 end:0x803BB7C0
 	.bss        start:0x803E9BF0 end:0x803E9BF4
 
+RVL_SDK/hbm/nw4hbm/math/math_triangular.cpp:
+	.text       start:0x80191880 end:0x80191B30
+	.rodata     start:0x80366F00 end:0x80366F24
+	.data       start:0x803BBB00 end:0x803BCC18
+
+RVL_SDK/hbm/nw4hbm/ut/ut_binaryFileFormat.cpp:
+	.text       start:0x80191B30 end:0x80191BA4
+
+RVL_SDK/hbm/nw4hbm/ut/ut_CharStrmReader.cpp:
+	.text       start:0x80191BB0 end:0x80191CD0
+
+RVL_SDK/hbm/nw4hbm/ut/ut_CharWriter.cpp:
+	.text       start:0x80191CD0 end:0x801936CC
+	.rodata     start:0x80366F28 end:0x80366F48
+	.bss        start:0x803E9C18 end:0x803E9C30
+
 RVL_SDK/fa/pf_clib.c:
 	.text       start:0x801FB030 end:0x801FB4C0
 

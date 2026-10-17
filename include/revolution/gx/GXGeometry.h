@@ -19,6 +19,10 @@ void GXBegin(GXPrimitive, GXVtxFmt, u16);
 
 void GXSetTexCoordGen2(GXTexCoordID, GXTexGenType, GXTexGenSrc, u32, GXBool, u32);
 
+static inline void GXSetTexCoordGen(GXTexCoordID dst, GXTexGenType func, GXTexGenSrc src, u32 mtx) {
+    GXSetTexCoordGen2(dst, func, src, mtx, GX_FALSE, GX_PTIDENTITY);
+}
+
 void GXSetNumTexGens(u8);
 void GXInvalidateVtxCache(void);
 
