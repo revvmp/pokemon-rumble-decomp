@@ -104,6 +104,7 @@ public:
     void SetFxSend(AuxBus bus, f32 send);
 
     void SetRemoteOutVolume(int remote, f32 volume);
+    void SetVoiceOutParam(int index, const VoiceOutParam& rParam);
     void SetRemoteSend(int remote, f32 send);
     void SetRemoteFxSend(int remote, f32 send);
 
