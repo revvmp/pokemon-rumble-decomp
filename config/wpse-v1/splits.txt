@@ -33,6 +33,30 @@ RVL_SDK/os/OSContext.c:
 	.text       start:0x802B46D0 end:0x802B4FB0
 	.data       start:0x803C7A28 end:0x803C7C08
 
+RVL_SDK/exi/EXIUart.c:
+	.text       start:0x802C23C0 end:0x802C2700
+	.sbss       start:0x804B9598 end:0x804B95A8
+
+RVL_SDK/exi/EXICommon.c:
+	.text       start:0x802C2700 end:0x802C2890
+
+RVL_SDK/si/SIBios.c:
+	.text       start:0x802C2890 end:0x802C3E90
+	.data       start:0x803D5218 end:0x803D5288
+	.bss        start:0x804537D0 end:0x804539F0
+	.sdata      start:0x804B8AD8 end:0x804B8AE0
+	.sbss       start:0x804B95A8 end:0x804B95B8
+
+RVL_SDK/si/SISamplingRate.c:
+	.text       start:0x802C3E90 end:0x802C3F80
+	.data       start:0x803D5288 end:0x803D5320
+	.sbss       start:0x804B95B8 end:0x804B95C0
+
+RVL_SDK/db/db.c:
+	.text       start:0x802C3F80 end:0x802C4080
+	.data       start:0x803D5320 end:0x803D5338
+	.sbss       start:0x804B95C0 end:0x804B95C8
+
 RVL_SDK/vi/i2c.c:
 	.text       start:0x802C6A30 end:0x802C7350
 	.sdata      start:0x804B8B00 end:0x804B8B08
@@ -123,6 +147,15 @@ RVL_SDK/ipc/ipcMain.c:
 	.text       start:0x802F1230 end:0x802F1320
 	.sbss       start:0x804B99D8 end:0x804B99F0
 
+RVL_SDK/ipc/memory.c:
+	.text       start:0x802F2D10 end:0x802F3248
+	.bss        start:0x804772A0 end:0x80477320
+
+RVL_SDK/ipc/ipcProfile.c:
+	.text       start:0x802F3250 end:0x802F342C
+	.bss        start:0x80477320 end:0x80477420
+	.sbss       start:0x804B9A00 end:0x804B9A08
+
 RVL_SDK/bte/bte_hcisu.c:
 	.text       start:0x80313A60 end:0x80313B30
 	.sbss       start:0x804B9B78 end:0x804B9B80
@@ -140,6 +173,9 @@ RVL_SDK/bte/bte_main.c:
 	.bss        start:0x804A9820 end:0x804AA850
 	.sdata      start:0x804B8EE8 end:0x804B8EF0
 	.sbss       start:0x804B9B80 end:0x804B9B88
+
+RVL_SDK/bte/bta_sys_conn.c:
+	.text       start:0x80314388 end:0x803145DC
 
 RVL_SDK/bte/bta_dm_api.c:
 	.text       start:0x80316D80 end:0x803171EC

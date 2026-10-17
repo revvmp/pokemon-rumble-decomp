@@ -3,7 +3,11 @@
 #include "revolution/gx/GXState.h"
 #include "revolution/gx/shortcut_pe_misc.h"
 #include "revolution/base/PPCArch.h"
-#include "revolution/os.h"
+#include "revolution/os/OSAddress.h"
+#include "revolution/os/OSContext.h"
+#include "revolution/os/OSInterrupt.h"
+#include "revolution/os/OSThread.h"
+#include "revolution/os/OSTime.h"
 #include "private/flipper.h"
 
 
