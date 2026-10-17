@@ -601,6 +601,16 @@ nw4r/g3d/platform/g3d_cpu.cpp:
 	.text       start:0x8025B460 end:0x8025B694
 	.sdata2     start:0x804BAC30 end:0x804BAC34
 
+nw4r/g3d/g3d_state.cpp:
+	.text       start:0x8025B6A0 end:0x8025ECB0
+	.ctors      start:0x80352A4C end:0x80352A50
+	.rodata     start:0x8036C858 end:0x8036C888
+	.data       start:0x803C5EA8 end:0x803C5EC0
+	.bss        start:0x8042F9C0 end:0x80434F64
+	.sdata      start:0x804B8968 end:0x804B8970
+	.sbss       start:0x804B92F8 end:0x804B9318
+	.sdata2     start:0x804BAC38 end:0x804BAC60
+
 nw4r/g3d/g3d_draw1mat1shp.cpp:
 	.text       start:0x8025ECB0 end:0x8025F9F4
 	.rodata     start:0x8036C888 end:0x8036C898
@@ -623,6 +633,11 @@ nw4r/g3d/g3d_calcworld.cpp:
 	.data       start:0x803C5EC0 end:0x803C5EC9
 	.sdata      start:0x804B8970 end:0x804B8978
 	.sdata2     start:0x804BAC90 end:0x804BAC98
+
+nw4r/g3d/g3d_draw.cpp:
+	.text       start:0x80262880 end:0x80264720
+	.sdata      start:0x804B8978 end:0x804B8980
+	.sdata2     start:0x804BAC98 end:0x804BACA4
 
 nw4r/g3d/g3d_camera.cpp:
 	.text       start:0x80264720 end:0x8026561C
@@ -660,6 +675,13 @@ nw4r/g3d/g3d_scnroot.cpp:
 	.data       start:0x803C5F98 end:0x803C6008
 	.sdata      start:0x804B8980 end:0x804B8990
 	.sdata2     start:0x804BAD30 end:0x804BAD34
+
+nw4r/g3d/g3d_scnmdlsmpl.cpp:
+	.text       start:0x8026AFA0 end:0x8026CFEC
+	.rodata     start:0x8036C9A0 end:0x8036C9B4
+	.data       start:0x803C6008 end:0x803C6060
+	.sdata      start:0x804B8990 end:0x804B89A8
+	.sdata2     start:0x804BAD38 end:0x804BAD3C
 
 nw4r/g3d/g3d_scnmdl.cpp:
 	.text       start:0x8026CFF0 end:0x8026F87C
@@ -1024,6 +1046,19 @@ nw4r/lyt/lyt_pane.cpp:
 nw4r/lyt/lyt_group.cpp:
 	.text       start:0x802A5D00 end:0x802A605C
 	.data       start:0x803C6EE8 end:0x803C6EF4
+
+nw4r/lyt/lyt_layout.cpp:
+	.text       start:0x802A6060 end:0x802A7108
+	.data       start:0x803C6EF8 end:0x803C6F38
+	.sbss       start:0x804B9410 end:0x804B9414
+	.sdata2     start:0x804BB180 end:0x804BB188
+
+nw4r/lyt/lyt_picture.cpp:
+	.text       start:0x802A7110 end:0x802A768C
+	.ctors      start:0x80352A88 end:0x80352A8C
+	.data       start:0x803C6F38 end:0x803C6FB4
+	.sbss       start:0x804B9418 end:0x804B941C
+	.sdata2     start:0x804BB188 end:0x804BB18C
 
 nw4r/lyt/lyt_window.cpp:
 	.text       start:0x802A96E0 end:0x802ABC7C
