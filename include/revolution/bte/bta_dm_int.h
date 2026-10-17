@@ -309,4 +309,11 @@ void bta_dm_disable_pm(void);
 
 extern tBTA_DM_RM *p_bta_dm_rm_cfg;
 extern tBTA_DM_COMPRESS *p_bta_dm_compress_cfg;
+void bta_dm_cancel_rmt_name(tBTA_DM_MSG* p_data);
+void bta_dm_signal_strength(tBTA_DM_MSG* p_data);
+void bta_dm_acl_change(tBTA_DM_MSG* p_data);
+void bta_dm_keep_acl(tBTA_DM_MSG* p_data);
+void bta_dm_immediate_disable(void);
+void bta_dm_reset_complete(void* p1);
+void bta_dm_send_hci_reset(tBTA_DM_MSG* p_data);
 #endif

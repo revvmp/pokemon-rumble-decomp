@@ -357,10 +357,10 @@ For `wpse-v1` / `main.dol`, [F-501-1](findings/501-wpad.md#f-501-1-function-iden
 | `0x80315834` | `0x4C` | `bta_dm_search_timer_cback` (local) | `bta_dm_act.c` |
 | `0x80315880` | `0x44` | `bta_dm_free_sdp_db` | `bta_dm_act.c` |
 | `0x803158C4` | `0x48` | `bta_dm_queue_search` | `bta_dm_act.c` |
-| `0x80397EE8` | `0x30` | `bta_service_id_to_uuid_lkup_tbl` | `bta_dm_act.c` `.rodata` |
-| `0x80397F18` | `0x60` | `bta_service_id_to_btm_srv_id_lkup_tbl` | `bta_dm_act.c` `.rodata` |
+| `0x80397EE8` | `0x2E` | `bta_service_id_to_uuid_lkup_tbl` | `bta_dm_act.c` `.rodata` |
+| `0x80397F18` | `0x5C` | `bta_service_id_to_btm_srv_id_lkup_tbl` | `bta_dm_act.c` `.rodata` |
 | `0x80397F78` | `0x18` | `bta_security` | `bta_dm_act.c` `.rodata` |
-| `0x804AA968` | `0x30` | `bta_dm_compress_srvcs` (local) | `bta_dm_act.c` `.bss` |
+| `0x804AA968` | `0x2D` | `bta_dm_compress_srvcs` (local) | `bta_dm_act.c` `.bss` |
 
 The control-block and message offsets that this code checks against the target are listed under the finding's headers section.
 ## RVL_SDK GXMisc and GXGeometry
@@ -1643,3 +1643,45 @@ Names follow the Petari reference and are corroborated by 100% objdiff and full 
 | `0x8032D030` | `0x100` | `fn_8032D030` | `L2CA_SetIdleTimeoutByBdAddr` | function | high | F-525-1 | `src/RVL_SDK/bte/l2c_api.c` |
 | `0x8032D130` | `0x1C` | `fn_8032D130` | `L2CA_SetTraceLevel` | function | high | F-525-1 | `src/RVL_SDK/bte/l2c_api.c` |
 | `0x8032D14C` | `0x4` | `fn_8032D14C` | `L2CA_RegisterCompression` | function | high | F-525-1 | `src/RVL_SDK/bte/l2c_api.c` |
+## Issue 512: complete device-manager action names and extents
+
+The earlier table now records actual table and array symbol sizes rather than their alignment tails. [F-512-5](findings/512-dm-completion.md) records the complete unit, payload boundaries and full source-linked verification.
+
+| Address | Name | Evidence and confidence |
+| --- | --- | --- |
+| `0x8031590C` | `bta_dm_queue_disc` | Pinned reference, exact instructions and final call/callback relocations; high confidence. [F-512-5](findings/512-dm-completion.md). |
+| `0x80315954` | `bta_dm_search_clear_queue` | Pinned reference, exact instructions and final call/callback relocations; high confidence. [F-512-5](findings/512-dm-completion.md). |
+| `0x80315998` | `bta_dm_search_cancel_cmpl` | Pinned reference, exact instructions and final call/callback relocations; high confidence. [F-512-5](findings/512-dm-completion.md). |
+| `0x803159DC` | `bta_dm_search_cancel_transac_cmpl` | Pinned reference, exact instructions and final call/callback relocations; high confidence. [F-512-5](findings/512-dm-completion.md). |
+| `0x80315A38` | `bta_dm_search_cancel_notify` | Pinned reference, exact instructions and final call/callback relocations; high confidence. [F-512-5](findings/512-dm-completion.md). |
+| `0x80315A50` | `bta_dm_find_services` | Pinned reference, exact instructions and final call/callback relocations; high confidence. [F-512-5](findings/512-dm-completion.md). |
+| `0x80315BF0` | `bta_dm_discover_next_device` | Pinned reference, exact instructions and final call/callback relocations; high confidence. [F-512-5](findings/512-dm-completion.md). |
+| `0x80315CD0` | `bta_dm_sdp_callback` | Pinned reference, exact instructions and final call/callback relocations; high confidence. [F-512-5](findings/512-dm-completion.md). |
+| `0x80315D18` | `bta_dm_inq_results_cb` | Pinned reference, exact instructions and final call/callback relocations; high confidence. [F-512-5](findings/512-dm-completion.md). |
+| `0x80315DA8` | `bta_dm_inq_cmpl_cb` | Pinned reference, exact instructions and final call/callback relocations; high confidence. [F-512-5](findings/512-dm-completion.md). |
+| `0x80315DF4` | `bta_dm_service_search_remname_cback` | Pinned reference, exact instructions and final call/callback relocations; high confidence. [F-512-5](findings/512-dm-completion.md). |
+| `0x80315E34` | `bta_dm_remname_cback` | Pinned reference, exact instructions and final call/callback relocations; high confidence. [F-512-5](findings/512-dm-completion.md). |
+| `0x80315EC0` | `bta_dm_disc_remname_cback` | Pinned reference, exact instructions and final call/callback relocations; high confidence. [F-512-5](findings/512-dm-completion.md). |
+| `0x80315F48` | `bta_dm_cancel_rmt_name` | Pinned reference, exact instructions and final call/callback relocations; high confidence. [F-512-5](findings/512-dm-completion.md). |
+| `0x80315F4C` | `bta_dm_authorize_cback` | Pinned reference, exact instructions and final call/callback relocations; high confidence. [F-512-5](findings/512-dm-completion.md). |
+| `0x80316014` | `bta_dm_pinname_cback` | Pinned reference, exact instructions and final call/callback relocations; high confidence. [F-512-5](findings/512-dm-completion.md). |
+| `0x803160D4` | `bta_dm_pin_cback` | Pinned reference, exact instructions and final call/callback relocations; high confidence. [F-512-5](findings/512-dm-completion.md). |
+| `0x80316204` | `bta_dm_link_key_request_cback` | Pinned reference, exact instructions and final call/callback relocations; high confidence. [F-512-5](findings/512-dm-completion.md). |
+| `0x8031620C` | `bta_dm_new_link_key_cback` | Pinned reference, exact instructions and final call/callback relocations; high confidence. [F-512-5](findings/512-dm-completion.md). |
+| `0x803162A8` | `bta_dm_authentication_complete_cback` | Pinned reference, exact instructions and final call/callback relocations; high confidence. [F-512-5](findings/512-dm-completion.md). |
+| `0x8031632C` | `bta_dm_local_addr_cback` | Pinned reference, exact instructions and final call/callback relocations; high confidence. [F-512-5](findings/512-dm-completion.md). |
+| `0x80316354` | `bta_dm_signal_strength` | Pinned reference, exact instructions and final call/callback relocations; high confidence. [F-512-5](findings/512-dm-completion.md). |
+| `0x80316390` | `bta_dm_signal_strength_timer_cback` | Pinned reference, exact instructions and final call/callback relocations; high confidence. [F-512-5](findings/512-dm-completion.md). |
+| `0x80316484` | `bta_dm_acl_change_cback` | Pinned reference, exact instructions and final call/callback relocations; high confidence. [F-512-5](findings/512-dm-completion.md). |
+| `0x803164F4` | `bta_dm_acl_change` | Pinned reference, exact instructions and final call/callback relocations; high confidence. [F-512-5](findings/512-dm-completion.md). |
+| `0x80316774` | `bta_dm_disable_conn_down_timer_cback` | Pinned reference, exact instructions and final call/callback relocations; high confidence. [F-512-5](findings/512-dm-completion.md). |
+| `0x80316790` | `bta_dm_rssi_cback` | Pinned reference, exact instructions and final call/callback relocations; high confidence. [F-512-5](findings/512-dm-completion.md). |
+| `0x803167FC` | `bta_dm_link_quality_cback` | Pinned reference, exact instructions and final call/callback relocations; high confidence. [F-512-5](findings/512-dm-completion.md). |
+| `0x80316868` | `bta_dm_l2cap_server_compress_cback` | Pinned reference, exact instructions and final call/callback relocations; high confidence. [F-512-5](findings/512-dm-completion.md). |
+| `0x8031694C` | `bta_dm_compress_cback` | Pinned reference, exact instructions and final call/callback relocations; high confidence. [F-512-5](findings/512-dm-completion.md). |
+| `0x80316B84` | `bta_dm_rm_cback` | Pinned reference, exact instructions and final call/callback relocations; high confidence. [F-512-5](findings/512-dm-completion.md). |
+| `0x80316C8C` | `bta_dm_keep_acl` | Pinned reference, exact instructions and final call/callback relocations; high confidence. [F-512-5](findings/512-dm-completion.md). |
+| `0x80316D10` | `bta_dm_immediate_disable` | Pinned reference, exact instructions and final call/callback relocations; high confidence. [F-512-5](findings/512-dm-completion.md). |
+| `0x80316D2C` | `bta_dm_reset_complete` | Pinned reference, exact instructions and final call/callback relocations; high confidence. [F-512-5](findings/512-dm-completion.md). |
+| `0x80316D30` | `bta_dm_send_hci_reset` | Pinned reference, exact instructions and final call/callback relocations; high confidence. [F-512-5](findings/512-dm-completion.md). |
+| `0x804BB5F8` | `sServiceAttributeListInitializer` | Four-byte initializer copied into the local attribute list; descriptive name, high boundary confidence. [F-512-5](findings/512-dm-completion.md). |

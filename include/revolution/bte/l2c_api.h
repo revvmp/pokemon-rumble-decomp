@@ -105,4 +105,5 @@ BOOLEAN L2CA_SetIdleTimeoutByBdAddr(BD_ADDR bd_addr, UINT16 timeout);
 void L2CA_RegisterCompression(tL2CA_COMPRESS_CB* p_cb, int);
 
 BOOLEAN L2CA_SetIdleTimeout(UINT16 cid, UINT16 timeout, BOOLEAN is_global);
+UINT8 L2CA_SetDesireRole(UINT8 new_role);
 #endif
