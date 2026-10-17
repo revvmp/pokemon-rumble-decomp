@@ -6,6 +6,8 @@ This prerequisite supplies ScnObj/ScnLeaf, ScnMdlSimple, and ScnMdl declarations
 
 The owner-approved DrawResMdlReplacement and draw-mode interface from PR816, complete AnmObjShp header from PR785, and CalcVtx declaration from PR837 are reused verbatim. These temporary overlapping prerequisites are dropped from this proposal as their canonical deliveries merge; no competing partial AnmObjShp class is introduced. The draw-mode enum retains its original `REDMDL_DRAWMODE_SORT_NONE` spelling. No additions to #777's CalcWorld header are needed.
 
+Coordinating owner #783 independently compiled all 23 ScnMdlSimple functions / 8,148 bytes and paired all 96 text relocation targets with these hierarchy headers unchanged. Its material dispatch calls CalcMaterialDirectly at `0x80270750`; this prerequisite also supplies that original four-argument declaration and its three animation forward declarations. The bounded header follows the same pinned SS reference and is preserved verbatim from the #783 owner's reviewed proposal. No source/split/config ownership is taken from the material unit's #792 owner.
+
 ## Target layout and code evidence
 
 The inheritance is G3dObj (12 bytes), ScnObj (220), ScnLeaf (232), ScnMdlSimple (312), and ScnMdl (392). ScnObj contains three 48-byte matrices beginning at twelve, two 24-byte AABBs beginning at 156, flags at 204, draw priorities at 208–209, callback pointer at 212, callback timing/delete flags at 216–217, and callback operation mask at 218. The compiler supplies ordinary alignment before the callback pointer; no invented padding members are retained. ScnLeaf's scale vector starts at 220.
