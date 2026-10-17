@@ -1975,3 +1975,5 @@ For `wpse-v1` / `main.dol`, [F-295-1](findings/295-nw4hbm-lyt.md#f-295-1-unit-bo
 ### MetroTRK transport and event interfaces (#542)
 
 [F-542-1](findings/542-transport-headers.md) records the complete 0x28-byte communication table at `0x804B3A70` and 0x24-byte event queue at `0x804B3A98`. The queue has count, next index, two 12-byte events and event ID at offsets 0, 4, 8 and 0x20; it has no leading mutex. UART initialization at `0x8034E808` takes three arguments, with the input-pending pointer reference in r5. The existing event type and all offsets remain unchanged. These declarations add no source-byte credit.
+
+Canonical MetroTRK processor and monitor state types for the coordinated #541-#545 interfaces use the target-compiler sizes and native field offsets recorded in [F-541-6](findings/541-processor-state-layout.md). Packet-support and buffer APIs retain the existing 0x88C buffer layout; the verified #543 implementation supplies their declarations. These header prerequisites add no source coverage.
