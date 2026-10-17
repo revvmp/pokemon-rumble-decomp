@@ -5,7 +5,7 @@
 The canonical `lyt_types.h` introduced by #820 declared both
 `detail::ConvertOffsToPtr` overloads with a `u32` offset. This prerequisite
 corrects that parameter to `unsigned int`, retaining the existing pointer
-arithmetic and every other declaration. It takes no source split, object
+arithmetic and every other lyt_types.h declaration. It takes no source split, object
 registration, or reconstructed byte credit from #808 or #811.
 
 The pinned CC0 Skyward Sword reference
