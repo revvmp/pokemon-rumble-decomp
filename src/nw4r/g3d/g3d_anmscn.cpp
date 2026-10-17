@@ -9,7 +9,7 @@ namespace g3d {
 NW4R_G3D_RTTI_DEF(AnmScn);
 NW4R_G3D_RTTI_DEF(AnmScnRes);
 
-inline AnmScn::AnmScn(MEMAllocator *pAllocator) : G3dObj(pAllocator, NULL) {}
+inline AnmScn::AnmScn(MEMAllocator *pAllocator) : G3dObj(pAllocator, nullptr) {}
 
 namespace {
 
@@ -108,7 +108,7 @@ void AnmScn::GetLightSetting(LightSetting *pSetting) {
 
         for (u32 i = 0; i < numLoadableDiffLight; i++) {
             LightObj *pDiffObj = &pLightObjArray[i];
-            LightObj *pSpecObj = NULL;
+            LightObj *pSpecObj = nullptr;
 
             if (pDiffObj->IsEnable()) {
                 continue;
@@ -129,12 +129,12 @@ void AnmScn::GetLightSetting(LightSetting *pSetting) {
 AnmScnRes *AnmScn::Attach(int idx, AnmScnRes *pRes) {
 #pragma unused(idx)
 #pragma unused(pRes)
-    return NULL;
+    return nullptr;
 }
 
 AnmScnRes *AnmScn::Detach(int idx) {
 #pragma unused(idx)
-    return NULL;
+    return nullptr;
 }
 
 AnmScn::~AnmScn() {}
@@ -181,7 +181,7 @@ u32 AnmScnRes::GetCameraMaxRefNumber() const {
 
 AnmScnRes *AnmScnRes::Construct(MEMAllocator *pAllocator, u32 *pSize, ResAnmScn scn, bool cache) {
     if (!scn.IsValid()) {
-        return NULL;
+        return nullptr;
     }
 
     u32 numAmbLight = cache ? scn.GetResAnmAmbLightNumEntries() : 0;
@@ -199,25 +199,25 @@ AnmScnRes *AnmScnRes::Construct(MEMAllocator *pAllocator, u32 *pSize, ResAnmScn 
     u32 cameraOfs = align4(fogOfs + fogSize);
     u32 size = align4(cameraOfs + cameraSize);
 
-    if (pSize != NULL) {
+    if (pSize != nullptr) {
         *pSize = size;
     }
 
-    if (pAllocator == NULL) {
-        return NULL;
+    if (pAllocator == nullptr) {
+        return nullptr;
     }
 
     u8 *pBuffer = reinterpret_cast<u8 *>(Alloc(pAllocator, size));
-    if (pBuffer == NULL) {
-        return NULL;
+    if (pBuffer == nullptr) {
+        return nullptr;
     }
 
     return new (pBuffer) AnmScnRes(
         pAllocator, scn,
-        ambLightSize != 0 ? reinterpret_cast<AmbLightAnmResult *>(pBuffer + sizeof(AnmScnRes)) : NULL,
-        lightSize != 0 ? reinterpret_cast<LightAnmResult *>(pBuffer + lightOfs) : NULL,
-        fogSize != 0 ? reinterpret_cast<FogAnmResult *>(pBuffer + fogOfs) : NULL,
-        cameraSize != 0 ? reinterpret_cast<CameraAnmResult *>(pBuffer + cameraOfs) : NULL
+        ambLightSize != 0 ? reinterpret_cast<AmbLightAnmResult *>(pBuffer + sizeof(AnmScnRes)) : nullptr,
+        lightSize != 0 ? reinterpret_cast<LightAnmResult *>(pBuffer + lightOfs) : nullptr,
+        fogSize != 0 ? reinterpret_cast<FogAnmResult *>(pBuffer + fogOfs) : nullptr,
+        cameraSize != 0 ? reinterpret_cast<CameraAnmResult *>(pBuffer + cameraOfs) : nullptr
     );
 }
 
@@ -233,7 +233,7 @@ AnmScnRes::AnmScnRes(
       mpLightCache(pLightBuf),
       mpFogCache(pFogBuf),
       mpCameraCache(pCameraBuf) {
-    if (pAmbLightBuf != NULL || pLightBuf != NULL || pFogBuf != NULL || pCameraBuf != NULL) {
+    if (pAmbLightBuf != nullptr || pLightBuf != nullptr || pFogBuf != nullptr || pCameraBuf != nullptr) {
         mFlags |= FLAG_CACHE;
     }
 
@@ -288,7 +288,7 @@ void AnmScnRes::G3dProc(u32 task, u32 param, void *pInfo) {
         }
 
         case G3DPROC_DETACH_PARENT: {
-            SetParent(NULL);
+            SetParent(nullptr);
             break;
         }
 
@@ -363,11 +363,11 @@ void AnmScnRes::GetLight(LightObj *pDiff, LightObj *pSpec, u32 refNumber) {
     LightAnmResult *pResult = GetLightResult(&result, refNumber);
 
     if (pResult->flags & LightAnmResult::FLAG_LIGHT_ENABLE) {
-        if (pDiff != NULL) {
+        if (pDiff != nullptr) {
             MakeDiffuseLightObj(pDiff, pResult);
         }
 
-        if (pSpec != NULL) {
+        if (pSpec != nullptr) {
             if (pResult->flags & LightAnmResult::FLAG_SPECULAR_ENABLE) {
                 math::VEC3 dir;
 
@@ -393,11 +393,11 @@ void AnmScnRes::GetLight(LightObj *pDiff, LightObj *pSpec, u32 refNumber) {
             }
         }
     } else {
-        if (pDiff != NULL) {
+        if (pDiff != nullptr) {
             pDiff->Disable();
         }
 
-        if (pSpec != NULL) {
+        if (pSpec != nullptr) {
             pSpec->Disable();
         }
     }
@@ -467,7 +467,7 @@ AmbLightAnmResult *AnmScnRes::GetAmbLightResult(AmbLightAnmResult *pResult, u32 
         return pResult;
     }
 
-    if (mpAmbLightCache != NULL) {
+    if (mpAmbLightCache != nullptr) {
         return &mpAmbLightCache[res.ref().id];
     }
 
@@ -483,7 +483,7 @@ LightAnmResult *AnmScnRes::GetLightResult(LightAnmResult *pResult, u32 refNumber
         return pResult;
     }
 
-    if (mpLightCache != NULL) {
+    if (mpLightCache != nullptr) {
         return &mpLightCache[res.ref().id];
     }
 
@@ -499,7 +499,7 @@ FogAnmResult *AnmScnRes::GetFogResult(FogAnmResult *pResult, u32 refNumber) {
         return pResult;
     }
 
-    if (mpFogCache != NULL) {
+    if (mpFogCache != nullptr) {
         return &mpFogCache[res.ref().id];
     }
 
@@ -515,7 +515,7 @@ CameraAnmResult *AnmScnRes::GetCameraResult(CameraAnmResult *pResult, u32 refNum
         return pResult;
     }
 
-    if (mpCameraCache != NULL) {
+    if (mpCameraCache != nullptr) {
         return &mpCameraCache[res.ref().id];
     }
 
