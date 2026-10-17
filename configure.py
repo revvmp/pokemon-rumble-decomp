@@ -201,6 +201,8 @@ config.libs = [
             Object(Matching, "RVL_SDK/enc/encjapanese.c"),
             Object(Matching, "RVL_SDK/enc/enclatin.c", cflags=cflags_base),
             Object(Matching, "RVL_SDK/enc/encconvert.c", cflags=cflags_base),
+            Object(Matching, "RVL_SDK/enc/encchinese.c"),
+            Object(Matching, "RVL_SDK/enc/enckorean.c"),
             Object(Matching, "RVL_SDK/arc/arc.c"),
             Object(Matching, "RVL_SDK/esp/esp.c"),
             Object(Matching, "RVL_SDK/ipc/ipcMain.c"),

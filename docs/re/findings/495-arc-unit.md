@@ -39,3 +39,28 @@ Observation. The functions from 0x802EDB30 to 0x802EFCD0 (16 functions, `fn_802E
 Interpretation, medium confidence. This is one library that spans issues #493, #494 and #495. F-493-1 later named the helpers at 0x802EA030–0x802EA170 `ENCi*` from wii-ipl's `encutility.c`, which supports RVL_SDK ENC. F-494-1 then split `RVL_SDK/enc/enclatin.c` as ending at 0x802ED700, so the file holding these 16 functions starts between 0x802ED700 and 0x802EDB30, inside #494's block. Under the shared-file rule in [collaboration](../../COLLABORATION.md), a file whose first function lies in an earlier block belongs to that block's issue. Both neighboring issues were unclaimed when this work started and were claimed while it was under review, so these 16 functions remain unsplit and #495 stays open for them.
 
 Next validation step. Agree on the ENC file boundaries with the owners of #493 and #494, then split and reconstruct the remaining functions from the owning issue.
+
+## F-495-3: Chinese and Korean ENC units complete the block
+
+The five context-conversion functions at the start of #495 were reconstructed and linked by #494 in PR #583. This change reconstructs the remaining eleven ENC functions in two distinct files; the thirteen ARC functions remain Matching from F-495-1. This supersedes the unsplit and ownership uncertainty in F-495-2. Every function listed in #495 is now reconstructed and linked.
+
+Target is `wpse-v1`, frozen `config/targets/wpse-v1.json`, original `main.dol` SHA-256 `ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da`. Source provenance: [wii-ipl ENC source](https://github.com/koopthekoopa/wii-ipl/tree/f4c09f4001c5a0b9af734ad1e3f80a54c5e5723c/libs/RVL_SDK/src/enc), pinned revision `f4c09f4001c5a0b9af734ad1e3f80a54c5e5723c`, root CC0-1.0 LICENSE, no additional file-level notice on these files. Comments, unused public wrappers and duplicate weak loaded-flag definitions were omitted. The retained flags belong to `encconvert.c`. Tables remain editable C initializers, with no executable-byte payload.
+
+Both units compile with the existing Wii/1.0 `cflags_sdk`, including file IPA and default 16-byte alignment. `encchinese.c` owns `.text` `0x802EE650–0x802EEEBC` and `.rodata` `0x8037E920–0x80388B68`. `enckorean.c` owns `.text` `0x802EEEC0–0x802EFCD0` and `.rodata` `0x80388B68–0x80397DC0`. The four bytes following the Chinese code belong to the alignment before the next unit.
+
+Evidence: GNU binutils 2.42-2 symbols and relocations, independent byte searches for every source table in the frozen DOL, dtk 1.8.4 splits, objdiff-cli 3.8.2 whole-object comparisons, and full executable verification. Each of the twelve source tables occurs exactly once in the original. `noreloc` marks the table values as integer encoding data, preventing automatic pointer interpretations. No external unit boundaries or expected hashes change.
+
+### Validation
+
+`python configure.py`, `.venv/Scripts/ninja`, and `python tools/verify/verify.py verify --manifest config/targets/wpse-v1.json --reference-dir orig/wpse-v1 --build-dir build/wpse-v1` each exited 0 for the baseline, split-only build and source-linked build.
+
+| Unit | Matching functions | Matching code bytes | Matching data bytes |
+| --- | --- | --- | --- |
+| `encchinese.c` | 5/5 | 2136/2136 | 41544/41544 |
+| `enckorean.c` | 6/6 | 3556/3556 | 62040/62040 |
+
+Every code and data section compares at 100%; the frozen SHA-256 and direct-byte comparison pass. Neighboring #493 still owns the utility and Unicode units.
+
+### Traps
+
+No additional trap emerged beyond F-494-3: preserve explicit Unicode literals, real table sizes, integer-data relocation annotations, and true code ends before alignment padding.

@@ -406,3 +406,36 @@ Target `wpse-v1`, `main.dol`; evidence [F-485-1](findings/485-axaux.md#f-485-1-a
 `ENCContext` has size 16, alignment 4: encoding enum at 0, break enum at 4, multibyte state (`s32`) at 8, unmappable alternative (`u16`) at 12 and invalid alternative (`u16`) at 14. `struct encoding` is 24 bytes: width (`u32`) at 0, seven-bit flag (`BOOL`) at 4 and 16-byte name at 8. `encoding_hash_table_entry` is 32 bytes: 24-byte normalized name at 0, encoding enum at 24 and collision index (`int`) at 28. Encoding values run 0–25, while several original validity checks reject values at or above 24; that observed behavior is preserved.
 
 Japanese data: `enc_tbl_jp_mbtowc` at `0x803718A8` (18,800 bytes), `enc_tbl_jp_wctomb` at `0x80376218` (22,257 bytes), `enc_offset_jp` at `0x8037B910` (512 bytes), and `kana_array` at `0x8037BB10` (126 bytes). Context data: `encoding_array` at `0x8037D690` (624 bytes), `encoding_table` at `0x8037D900` (4,128 bytes). Loaded BOOLs: Japanese `0x804B8D60`, Korean `0x804B8D68`, UHC `0x804B8D6C`, Chinese `0x804B8D70`, each four bytes. These names are taken from the reference source and confirmed by target accesses.
+
+## Issue 495: Chinese and Korean ENC conversions
+
+[F-495-3](findings/495-arc-unit.md#f-495-3-chinese-and-korean-enc-units-complete-the-block) confirms these names from pinned source, exact code/data comparisons and the full source-linked executable. Confidence is high; no new shared structure layouts are introduced.
+
+| Address | Function |
+| --- | --- |
+| `0x802EE650` | `ENCiConvertStringGb2312ToUnicode` |
+| `0x802EE920` | `ENCiConvertStringUnicodeToGb2312` |
+| `0x802EEC20` | `ENCiFindGb2312FromUnicode` |
+| `0x802EED40` | `ENCiFindExKanjiUnicode` |
+| `0x802EEE00` | `ENCiFindExKanjiGBK` |
+| `0x802EEEC0` | `ENCiConvertStringUhcToUnicode` |
+| `0x802EF2C0` | `ENCiConvertStringUnicodeToUhc` |
+| `0x802EF580` | `ENCiConvertUnicodeToUhc` |
+| `0x802EF690` | `ENCiFindEuckrFromUnicode` |
+| `0x802EF7B0` | `ENCiFindKanjiFromUnicode` |
+| `0x802EF8F0` | `ENCiFindUhcFromUnicode` |
+
+| Address | Table | Byte size | Element type |
+| --- | --- | --- | --- |
+| `0x8037E920` | `enc_tbl_cn_mbtowc` | 17672 | `u16` |
+| `0x80382E28` | `enc_tbl_cn_wctomb` | 22365 | `u8` |
+| `0x80388588` | `enc_offset_cn` | 512 | `u16` |
+| `0x80388788` | `enc_tbl_cnex_mbtowc` | 992 | `u16` |
+| `0x80388B68` | `enc_tbl_kr_mbtowc1` | 7520 | `u16` |
+| `0x8038A8C8` | `enc_tbl_kr_mbtowc2` | 9776 | `u16` |
+| `0x8038CEF8` | `enc_tbl_kr_wctomb1` | 10968 | `u8` |
+| `0x8038F9D0` | `enc_tbl_kr_wctomb2` | 15015 | `u8` |
+| `0x80393478` | `enc_offset_kr1` | 512 | `u16` |
+| `0x80393678` | `enc_offset_kr2` | 512 | `u16` |
+| `0x80393878` | `enc_tbl_uhc_mbtowc` | 17644 | `u16` |
+| `0x80397D68` | `enc_offset_uhc` | 88 | `u16` |
