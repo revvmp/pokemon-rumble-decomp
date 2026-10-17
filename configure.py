@@ -691,6 +691,8 @@ config.libs = [
             Object(Matching, "MetroTRK/debugger/embedded/MetroTRK/Processor/ppc/Generic/mpc_7xx_603e.c", extra_cflags=["-sdata 8", "-str reuse,pool,noreadonly"]),
             Object(Matching, "MetroTRK/debugger/embedded/MetroTRK/Portable/msg.c", extra_cflags=["-sdata 8", "-str reuse,pool,noreadonly"]),
             Object(Matching, "MetroTRK/debugger/embedded/MetroTRK/Portable/msgbuf.c", extra_cflags=["-sdata 8", "-str reuse,pool,noreadonly"]),
+            Object(NonMatching, "MetroTRK/debugger/embedded/MetroTRK/Portable/msghndlr.c", extra_cflags=["-sdata 8", "-str reuse,pool,noreadonly"]),
+            Object(NonMatching, "MetroTRK/debugger/embedded/MetroTRK/Export/mslsupp.c", extra_cflags=["-sdata 8"]),
         ],
     ),
 ]
