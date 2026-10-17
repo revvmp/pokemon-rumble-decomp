@@ -117,6 +117,10 @@ public:
         return mGXMemNum.texMap;
     }
 
+    GXColorS10 GetTevColor(u32 index) const {
+        return mTevCols[index];
+    }
+
     void SetTexture(u32 texMapIdx, const TexMap &texMap) {
         GetTexMapAry()[texMapIdx] = texMap;
     }

@@ -29,6 +29,7 @@ public:
     ~CharWriter();
 
     void SetupGX();
+    void SetupGXForDisplayList();
     void EnableLinearFilter(bool atSmall, bool atLarge);
     f32 Print(u16 ch);
 

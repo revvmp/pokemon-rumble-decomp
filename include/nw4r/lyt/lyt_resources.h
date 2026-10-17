@@ -128,7 +128,30 @@ struct TextureList {
     u16 texNum;
     u8 padding[2];
 };
-struct FontList;
+struct FontList {
+    DataBlockHeader blockHeader;
+    u16 fontNum;
+    u8 padding[2];
+};
+struct Font {
+    u32 nameStrOffset;
+    u8 type;
+    u8 padding[3];
+};
+struct TextBox : Pane {
+    u16 textBufBytes;
+    u16 textStrBytes;
+    u16 materialIdx;
+    u16 fontIdx;
+    u8 textPosition;
+    u8 textAlignment;
+    u8 padding[2];
+    u32 textStrOffset;
+    u32 textCols[2];
+    Size fontSize;
+    f32 charSpace;
+    f32 lineSpace;
+};
 struct Material;
 struct MaterialList {
     DataBlockHeader blockHeader;

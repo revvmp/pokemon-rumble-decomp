@@ -22,6 +22,14 @@ typedef void (*GDOverflowCallback)(void);
 
 extern GDLObj* __GDCurrentDL;
 
+static inline void GDSetCurrent(GDLObj* dl) {
+    __GDCurrentDL = dl;
+}
+
+static inline void GDSetCurrOffset(u32 offset) {
+    __GDCurrentDL->ptr = __GDCurrentDL->start + offset;
+}
+
 void GDInitGDLObj(GDLObj* dl, void* start, u32 length);
 void GDFlushCurrToMem(void);
 void GDPadCurr32(void);
