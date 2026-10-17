@@ -4,6 +4,7 @@
 #include <revolution/bte/bt_target.h>
 #include <revolution/bte/bt_types.h>
 #include <revolution/bte/hcidefs.h>
+#include <revolution/bte/sdp_api.h>
 
 #define BTM_SEC_ARRAY_BITS 32
 #define BTM_SEC_MAX_SERVICES 46
@@ -502,6 +503,10 @@ tBTM_STATUS BTM_ReadLinkQuality(BD_ADDR remote_bda, tBTM_CMPL_CB *p_cb);
 void BTM_SendHciReset(tBTM_CMPL_CB *p_cb);
 tBTM_INQ_INFO *BTM_InqDbRead(BD_ADDR p_bda);
 UINT16 BTM_GetHCIConnHandle(BD_ADDR remote_bda);
+void BTM_SetDiscoveryParams(UINT16 num_uuid, tSDP_UUID* p_uuid_list, UINT16 num_attr, UINT16* p_attr_list);
+tBTM_STATUS BTM_StartDiscovery(tBTM_CMPL_CB* p_cmpl_cb, BD_ADDR p_rem_addr);
+tSDP_DISC_REC* BTM_FindAttribute(UINT16 attr_id, tSDP_DISC_REC* p_start_rec);
+tSDP_DISC_REC* BTM_FindService(UINT16 service_uuid, tSDP_DISC_REC* p_start_rec);
 tBTM_STATUS BTM_SetInquiryScanType(UINT16 scan_type);
 tBTM_STATUS BTM_SetPageScanType(UINT16 scan_type);
 tBTM_STATUS BTM_SetInquiryMode(UINT8 mode);

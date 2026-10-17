@@ -1025,6 +1025,9 @@ RVL_SDK/bte/bta_dm_api.c:
 	.text       start:0x80316D80 end:0x803171EC
 	.sdata2     start:0x804BB600 end:0x804BB610
 
+RVL_SDK/bte/btm_discovery.c:
+	.text       start:0x8031DF18 end:0x8031E04C
+
 RVL_SDK/bte/btm_inq.c:
 	.text       start:0x8031E04C end:0x8031FAE4
 	.data       start:0x803E19C0 end:0x803E1BD0

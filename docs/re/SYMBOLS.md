@@ -1839,3 +1839,11 @@ Outside callees named for the link, from their call roles and bodies: `ResMdl::B
 ## HBM sound units (#305, #306)
 
 For `wpse-v1` / `main.dol`, [F-305-1](findings/305-hbm-sound.md#f-305-1-mix-syn-synctrl-synenv-synmix-synpitch-synsample-synvoice-and-seq) names all 56 functions from `0x8019A2D0` to `0x8019DC40` after xenoblade's symbols, which have identical sizes and offsets: `HBMMIX*` and the index allocator (`mix.c`), `HBMSYN*` (`syn.c`), the `__HBMSYN` controller, envelope, mix, pitch, sample and voice helpers, and `HBMSEQ*` (`seq.c`). Data: `__HBMMIXVolumeTable` `0x803BCE78`, `__HBMMIXPanTable` `0x803BD608`, `__HBMMIX_DPL2_front` `0x803BD808`, `__HBMMIX_DPL2_rear` `0x803BD908`, `__HBMSYNn128` `0x803BDA08`, `__HBMSYNVolumeAttenuation` `0x803BDC08`, `__HBMSYNAttackAttnTable` `0x803BDE08`, `__HBMSYNCentsTable` `0x803BDF98`, `__HBMSYNOctavesTableUp` `0x803BE128`, `__HBMSYNSemitonesTableUp` `0x803BE158`, `__HBMSYNSemitonesTableDown` `0x803BE188`, `__HBMSEQMidiEventLength` `0x803BE388`. BSS: `sIndex2IdTable` `0x803E9C60`, `sId2IndexTable` `0x803E9C70`, `__HBMMIXSoundMode` `0x803E9CD0`, `__HBMMIXChannel` `0x803E9CD4`, `__s_HBMMIXChannel` `0x803E9CD8` (16 x 0x64), `__init` `0x803EA318`, `__HBMSYNSynthList` `0x803EA320`, `__HBMSYNVoice` `0x803EA324`, `__s_HBMSYNVoice` `0x803EA328` (16 x 0x4C), `__init` `0x803EA7E8`, `__HBMSEQSequenceList` `0x803EA7F0`, `__init` `0x803EA7F4`. Confidence high: names and sizes match xenoblade, and all nine units match.
+
+## BTE discovery database, issue 518
+
+[F-518-1](findings/518-btm-discovery.md) gives the `btm_discovery.c` boundaries.
+
+| Address | Size | Old name | Name | Kind | Confidence | Evidence | Source |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `0x8031DF90` | `0xB8` | `fn_8031DF90` | `btm_discovery_db_reset` | function | high | F-518-2 | `src/RVL_SDK/bte/btm_discovery.c` |
