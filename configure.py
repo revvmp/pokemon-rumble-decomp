@@ -174,6 +174,7 @@ config.libs = [
             Object(NonMatching, "RVL_SDK/gx/GXPixel.c"),
             Object(NonMatching, "RVL_SDK/gx/GXDisplayList.c"),
             Object(NonMatching, "RVL_SDK/ax/AX.c"),
+            Object(Matching, "RVL_SDK/enc/enclatin.c", cflags=cflags_base),
             Object(NonMatching, "RVL_SDK/esp/esp.c"),
             Object(NonMatching, "RVL_SDK/ipc/ipcMain.c"),
             Object(NonMatching, "RVL_SDK/bte/bte_hcisu.c", cflags=cflags_base),
