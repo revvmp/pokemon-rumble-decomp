@@ -125,6 +125,7 @@ void __VISetCGMS(void);
 void __VISetWSS(void);
 void __VISetClosedCaption(void);
 void __VISetMacrovision(void);
+void __VISetGammaImm(VIGammaObj* gamma);
 void __VISetGamma(void);
 void __VISetGamma1_0(void);
 void __VISetTrapFilter(void);

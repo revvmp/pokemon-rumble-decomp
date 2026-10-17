@@ -89,6 +89,7 @@ void PSVECCrossProduct(const Vec*, const Vec*, Vec*);
 f32 PSVECDistance(const Vec*, const Vec*);
 f32 PSVECSquareDistance(const Vec*, const Vec*);
 
+void C_MTXLightFrustum(Mtx, f32, f32, f32, f32, f32, f32, f32, f32, f32);
 void C_MTXLightPerspective(Mtx m, f32 fovY, f32 aspect, f32 scaleS, f32 scaleT, f32 transS, f32 transT);
 void C_MTXLightOrtho(Mtx m, f32 t, f32 b, f32 l, f32 r, f32 scaleS, f32 scaleT, f32 transS, f32 transT);
 
