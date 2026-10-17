@@ -477,6 +477,14 @@ nw4r/snd/snd_FxReverbStd.cpp:
 	.data       start:0x803C6298 end:0x803C62C0
 	.sdata2     start:0x804BAEA0 end:0x804BAEB8
 
+nw4r/snd/snd_InstancePool.cpp:
+	.text       start:0x8027C3C0 end:0x8027C6A8
+
+nw4r/snd/snd_Lfo.cpp:
+	.text       start:0x8027C6B0 end:0x8027C8B8
+	.rodata     start:0x8036E110 end:0x8036E138
+	.sdata2     start:0x804BAEB8 end:0x804BAEE8
+
 nw4r/ut/ut_list.cpp:
 	.text       start:0x80292D00 end:0x80292F5C
 
