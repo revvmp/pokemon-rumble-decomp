@@ -52,19 +52,37 @@ static f32 kp_rm_acc_max = 3.4f;
 static f32 kp_fs_acc_max = 2.1f;
 
 KPADInsideStatus inside_kpads[4];
+static u8 sKpadInitialized = FALSE;
 static Vec2 Vec2_0 = {0.0f, 0.0f};
 static Mtx kp_fs_rot;
 static f32 kp_fs_revise_deg = 24.0f;
 static f64 sBalanceSampleAverage[4];
 static f64 sBalanceSmoothedWeights[4];
-static u16 sBalanceSampleCount;
-static u8 sBalanceCalibrationState;
-static u8 sBalanceTgcCalibrating;
-static u8 sBalanceCalibrationResult;
-static u8 sBalanceControlSucceeded;
-static u8 sBalanceCommandPending;
+static u16 sBalanceSampleCount = 0;
+static u8 sBalanceCalibrationState = 0;
+static u8 sBalanceTgcCalibrating = FALSE;
+static u8 sBalanceCalibrationResult = 0;
+static u8 sBalanceControlSucceeded = FALSE;
+static u8 sBalanceCommandPending = FALSE;
 
 void KPADiSamplingCallback(s32 chan);
+void KPADiConnectCallback(s32 chan, s32 result);
+
+void KPADSetBtnRepeat(s32 chan, f32 delay_sec, f32 pulse_sec) {
+    KPADInsideStatus* kp = &inside_kpads[chan];
+    if (pulse_sec) {
+        kp->btn_repeat_delay = (u16)(s32)(delay_sec * 200.0f + 0.5f);
+        kp->btn_repeat_pulse = (u16)(s32)(pulse_sec * 200.0f + 0.5f);
+    } else {
+        kp->btn_repeat_delay = KPAD_BTN_NO_RPT_DELAY;
+        kp->btn_repeat_pulse = 0;
+    }
+
+    kp->btn_repeat_time = 0;
+    kp->btn_repeat_next = kp->btn_repeat_delay;
+    kp->btn_cl_repeat_time = 0;
+    kp->btn_cl_repeat_next = kp->btn_repeat_delay;
+}
 
 void KPADSetPosParam(s32 chan, f32 play_radius, f32 sensitivity) {
     inside_kpads[chan].pos_play_radius = play_radius;
@@ -1060,6 +1078,133 @@ void clamp_stick_cross(Vec2* stick, s32 sx, s32 sy, s32 min, s32 max) {
         length = sqrt(length);
         stick->x /= length;
         stick->y /= length;
+    }
+}
+
+void KPADSetObjInterval(f32 interval) {
+    BOOL enabled = OSDisableInterrupts();
+    kp_obj_interval = interval;
+    kp_err_dist_min = interval / 0.383864f;
+    kp_dist_vv1 = interval / 0.383864f;
+    OSRestoreInterrupts(enabled);
+}
+
+static void calc_dpd2pos_scale(KPADInsideStatus* kp) {
+    f32 scale;
+    f32 sx, sy;
+    sx = 1.0f;
+    sy = (f32)KPAD_DPD_RESO_WY / (f32)KPAD_DPD_RESO_WX;
+
+    scale = sqrt(sx * sx + sy * sy);
+
+    if (kp->center_org.x < 0.0f) {
+        sx += kp->center_org.x;
+    } else {
+        sx -= kp->center_org.x;
+    }
+
+    if (kp->center_org.y < 0.0f) {
+        sy += kp->center_org.y;
+    } else {
+        sy -= kp->center_org.y;
+    }
+
+    kp->dpd2pos_scale = scale / ((sx < sy) ? sx : sy);
+}
+
+void KPADReset(void) {
+    s32 chan;
+    KPADSetObjInterval(kp_obj_interval);
+
+    chan = WPAD_MAX_CONTROLLERS - 1;
+    do {
+        if (WPADGetStatus() == WPAD_STATE_SETUP) {
+            WPADStopMotor(chan);
+        }
+        inside_kpads[chan].resetReq = TRUE;
+    } while (--chan >= 0);
+}
+
+void KPADInit(void) {
+    KPADInitEx(NULL, 0);
+}
+
+void KPADInitEx(KPADUnifiedWpadStatus* pBuffer, u32 length) {
+    s32 chan;
+    KPADInsideStatus* kp;
+    u32 index;
+
+    if (!sKpadInitialized) {
+        WPADInit();
+        memset(inside_kpads, 0, sizeof(inside_kpads));
+        kp_err_dist_max = 1.0f + (f32)WPADGetDpdSensitivity();
+        chan = 0;
+        do {
+            kp = &inside_kpads[chan];
+            kp->appConnectCallback = WPADSetConnectCallback(chan, KPADiConnectCallback);
+            kp->appSamplingCallback = WPADSetSamplingCallback(chan, KPADiSamplingCallback);
+            kp->dpdHardwareEnabled = FALSE;
+            sBalanceCommandPending = FALSE;
+            sBalanceControlSucceeded = FALSE;
+            sBalanceCalibrationResult = 0;
+            sBalanceCalibrationState = 0;
+            sBalanceSampleCount = 0;
+            sBalanceTgcCalibrating = FALSE;
+            sBalanceSampleAverage[0] = 0.0;
+            sBalanceSmoothedWeights[0] = 0.0;
+            sBalanceSampleAverage[1] = 0.0;
+            sBalanceSmoothedWeights[1] = 0.0;
+            sBalanceSampleAverage[2] = 0.0;
+            sBalanceSmoothedWeights[2] = 0.0;
+            sBalanceSampleAverage[3] = 0.0;
+            sBalanceSmoothedWeights[3] = 0.0;
+            kp->dpdEnabled = TRUE;
+            kp->dpdCmd = WPADGetDpdFormat(chan);
+            kp->status.dev_type = WPAD_DEV_NOT_FOUND;
+            kp->status.data_format = WPAD_FMT_CORE;
+            kp->dist_org = idist_org;
+            kp->accXY_nrm_hori = iaccXY_nrm_hori;
+            kp->sec_nrm_hori = isec_nrm_hori;
+            kp->center_org = icenter_org;
+            calc_dpd2pos_scale(kp);
+            kp->pos_play_radius = kp->hori_play_radius = kp->dist_play_radius = kp->acc_play_radius = 0.0f;
+            kp->pos_sensitivity = kp->hori_sensitivity = kp->dist_sensitivity = kp->acc_sensitivity = 1.0f;
+            kp->pos_play_mode = kp->hori_play_mode = kp->dist_play_mode = kp->acc_play_mode = KPAD_PLAY_MODE_LOOSE;
+            KPADSetBtnRepeat(chan, 0.0f, 0.0f);
+            kp->buttonProcessingMode = 0;
+            KPADEnableAimingMode(chan);
+            kp->accGravityUpdateReq = TRUE;
+            kp->fsAccRevise = FALSE;
+            if (length && pBuffer) {
+                kp->extraRingCount = length / WPAD_MAX_CONTROLLERS;
+                kp->extraRingBuf = pBuffer + chan * kp->extraRingCount;
+            } else {
+                kp->extraRingCount = 0;
+                kp->extraRingBuf = NULL;
+            }
+            for (index = 0; index < 16; ++index) {
+                kp->uniRingBuf[index].u.core.err = WPAD_ERR_NO_CONTROLLER;
+            }
+            for (index = 0; index < kp->extraRingCount; ++index) {
+                kp->extraRingBuf[index].u.core.err = WPAD_ERR_NO_CONTROLLER;
+            }
+        } while (++chan < WPAD_MAX_CONTROLLERS);
+        WPADSetCallbackByKPAD(TRUE);
+        KPADReset();
+        MTXRowCol(kp_fs_rot, 0, 0) = 1;
+        MTXRowCol(kp_fs_rot, 0, 1) = 0;
+        MTXRowCol(kp_fs_rot, 0, 2) = 0;
+        MTXRowCol(kp_fs_rot, 0, 3) = 0;
+        MTXRowCol(kp_fs_rot, 1, 0) = 0;
+        MTXRowCol(kp_fs_rot, 1, 1) = (f32)cos(MTXDegToRad(kp_fs_revise_deg));
+        MTXRowCol(kp_fs_rot, 1, 2) = (f32)-sin(MTXDegToRad(kp_fs_revise_deg));
+        MTXRowCol(kp_fs_rot, 1, 3) = 0;
+        MTXRowCol(kp_fs_rot, 2, 0) = 0;
+        MTXRowCol(kp_fs_rot, 2, 1) = (f32)sin(MTXDegToRad(kp_fs_revise_deg));
+        MTXRowCol(kp_fs_rot, 2, 2) = (f32)cos(MTXDegToRad(kp_fs_revise_deg));
+        MTXRowCol(kp_fs_rot, 2, 3) = 0;
+        sKpadInitialized = TRUE;
+        OSRegisterVersion(__KPADVersion);
     }
 }
 
