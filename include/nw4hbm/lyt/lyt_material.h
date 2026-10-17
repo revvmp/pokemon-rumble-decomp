@@ -40,7 +40,7 @@ namespace res {
 struct Material {
     char name[NW4R_LYT_MATERIAL_NAME_LEN];
     GXColorS10 tevCols[TEVCOLOR_MAX];
-    GXColor tevKCols[GX_MAX_KCOLOR];
+    ut::Color tevKCols[GX_MAX_KCOLOR];
     MaterialResourceNum resNum;
 };
 
@@ -48,6 +48,7 @@ struct Material {
 
 class Material {
 public:
+    Material();
     Material(const res::Material* pRes, const ResBlockSet& rBlockSet);
     virtual ~Material();
 
