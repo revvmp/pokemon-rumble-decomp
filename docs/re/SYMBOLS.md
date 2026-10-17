@@ -739,3 +739,33 @@ Outside this unit, call sites name `__VISetYUVSEL` (`0x802C7350`), `__VISetFilte
 Original SDK names cover all 35 functions at 0x802DB290-0x802DD2A0; exact object matches and full source-linked verification corroborate them. AXCL owns __AXCommandList at 0x8045C620 and small state at 0x804B9898-0x804B98BC. The table pointer at 0x804B98A4 and release count at 0x804B98A0 have descriptive, behavior-proven names sCompressorTable and sCompressorReleaseFrames; their original spelling is unknown.
 
 AXOut owns the 56-byte AXPROFILE at 0x8045C720, four 180-sample remote buffers at 0x8045C760, 768-byte surround buffer at 0x8045CD00, three 96-word output buffers at 0x8045D000, 80-byte DSPTaskInfo at 0x8045D480, and 64-byte DSP DRAM image at 0x8045D4E0. AXPROFILE has six signed 64-bit timestamps at offsets 0,8,16,24,32,40 and a signed 32-bit voice count at48; its final four bytes are alignment padding. AXSTUDIO at 0x8045D520 has twenty packed s32/s16 sample/depop pairs, total120 bytes. Source declarations retain the original per-channel member names. AXVPB's implementation fragment references shared pointers/counters at 0x804B9950-0x804B996C and cycle tables at 0x803D8578/0x803D85F8 without moving their storage or claiming the later #487 functions. See [F-486-2](findings/486-axcl.md#f-486-2-command-list-output-studio-and-parameter-buffer-reconstruction) for callee evidence and limitations.
+## Issue 493: Product information, WENC and remaining ENC units
+
+[F-493-2 through F-493-4](findings/493-enc-utility-names.md) establish the source units, compiler override and exact verification. Function names have high confidence from the reference implementations, instructions and relocations. Outside functions retain their owning splits and sizes. The previously documented parameter/break helpers keep their names.
+
+| Address | Function |
+| --- | --- |
+| `0x800046B4` | `memset` |
+| `0x802B2E90` | `OSRegisterVersion` |
+| `0x802E9A90` | `__SCF1` |
+| `0x802E9C00` | `SCGetProductArea` |
+| `0x802E9C90` | `SCGetProductGameRegion` |
+| `0x802E9D14` | `WENCGetEncodeData` |
+| `0x802E9FF0` | `ENCiRegisterVersion` |
+| `0x802EA270` | `ENCiConvertStringUnicodeToAscii` |
+| `0x802EA4B0` | `ENCiConvertStringAsciiToUnicode` |
+| `0x802EA690` | `ENCiConvertStringUtf32ToUtf16` |
+| `0x802EA950` | `ENCiConvertStringUtf16ToUtf32` |
+| `0x802EABF0` | `ENCiConvertStringUtf16ToUtf8` |
+| `0x802EAF00` | `ENCiConvertStringUtf8ToUtf16` |
+| `0x802EB220` | `ENCiConvertStringUtf7ToUtf16` |
+| `0x802EB540` | `ENCiConvertStringUtf16ToUtf16` |
+| `0x802EB7C0` | `ENCiConvertUtf8To32` |
+| `0x802EB870` | `ENCiConvertUtf32To8` |
+| `0x80345DDC` | `strcmp` |
+
+`ProductAreaAndStringTbl` at `0x803DC840` contains fourteen five-byte records: signed area byte at 0, four-character array at 1. `ProductGameRegionAndStringTbl` at `0x803DC888` contains six four-byte records: signed game-region byte at 0, three-character array at 1. Their final records use a negative sentinel. The reference keyword strings are `AREA` at `0x804B8D48` and `GAME` at `0x804B8D50`, each five bytes including the terminator.
+
+The existing `WENCInfo` declaration is reused unchanged. The target accesses six signed 32-bit state fields `xn`, `dl`, `qn`, `dn`, `dlh`, `dlq` at offsets 0, 4, 8, 12, 16 and 20. Its existing eight-byte reserved tail is not accessed by this function. The coefficient table at `0x80371868` contains eight doubles; the conversion constant at `0x804BB4F0` is another double.
+
+`__ENCVersion` is a four-byte pointer at `0x804B8D58` to the 70-byte observed version string at `0x803DC8A0`. `encRegistered` is a four-byte BOOL at `0x804B99D0`. `base64_array` is a 128-byte lookup table at `0x803DC8E8`. `ENCiConvertUtf8To32` and `ENCiConvertUtf32To8` are the two emitted private Unicode helpers; other retained helpers inline.

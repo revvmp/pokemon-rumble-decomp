@@ -267,6 +267,26 @@ RVL_SDK/nand/nand.c:
 	.text       start:0x802E4630 end:0x802E5BC0
 	.sdata      start:0x804B8BF0 end:0x804B8BF8
 
+RVL_SDK/sc/scapi_prdinfo.c:
+	.text       start:0x802E9A90 end:0x802E9D14
+	.data       start:0x803DC840 end:0x803DC8A0
+	.sdata      start:0x804B8D48 end:0x804B8D55
+
+RVL_SDK/wenc/wenc.c:
+	.text       start:0x802E9D14 end:0x802E9FEC
+	.rodata     start:0x80371868 end:0x803718A8
+	.sdata2     start:0x804BB4F0 end:0x804BB4F8
+
+RVL_SDK/enc/encutility.c:
+	.text       start:0x802E9FF0 end:0x802EA270
+	.data       start:0x803DC8A0 end:0x803DC8E6
+	.sdata      start:0x804B8D58 end:0x804B8D5C
+	.sbss       start:0x804B99D0 end:0x804B99D4
+
+RVL_SDK/enc/encunicode.c:
+	.text       start:0x802EA270 end:0x802EBAC8
+	.data       start:0x803DC8E8 end:0x803DC968
+
 RVL_SDK/enc/encjapanese.c:
 	.text       start:0x802EBAD0 end:0x802ED118
 	.rodata     start:0x803718A8 end:0x8037BB8E
