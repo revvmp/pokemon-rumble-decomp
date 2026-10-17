@@ -159,7 +159,7 @@ RVL_SDK/esp/esp.c:
 	.sdata      start:0x804B8D80 end:0x804B8D90
 
 RVL_SDK/ipc/ipcMain.c:
-	.text       start:0x802F1230 end:0x802F1320
+	.text       start:0x802F1230 end:0x802F1318
 	.sbss       start:0x804B99D8 end:0x804B99F0
 
 RVL_SDK/ipc/memory.c:
