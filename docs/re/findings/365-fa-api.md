@@ -131,3 +131,7 @@ Together the two units reconstruct eight of #365's 26 functions, 484 of
   therefore take one signed drive argument, unlike the public VF revision's
   two-argument detach. The #363 body owner and #369 caller owner independently
   confirm this contract before canonical publication.
+- Union-merging an older ledger append retained an obsolete neighboring
+  pf_dir row as patch context. Compare the entire final diff to the pinned
+  base and remove that duplicate, retaining the current owner's row and
+  only this issue's two new unit records.
