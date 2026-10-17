@@ -31,3 +31,17 @@ The first split-only check failed at exactly one DOL byte, native 0x802824FB. Re
 The actual project-compiled source object scores 100% in text, data and small-data constants. The two compiler-local constant aliases, @9641 and @9649, pair the source float and conversion double at their proven native addresses; these are compiler-local comparison aliases, not recovered original source variable names. They change no value or extent. The full linker preserves the four original intervening alignment bytes without adding source padding or byte arrays.
 
 An independent actual-output audit checks all thirty-four compiled functions, final native ELF addresses/extents, and source linker-map contributions; all three vtables and both constant payloads have their exact native source-map entries. The generated Ninja link selects the source object and excludes its original fallback. Direct comparison of all 4,094,880 DOL bytes is exact and the frozen verifier passes. SHA-256 remains ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da; scope is the main executable only. Unretained methods and weak duplicates receive no additional credit.
+
+## Canonical prerequisite integration checkpoint
+
+After #837 and #851 merged, the public source stack was restacked onto
+main c39785e81000d8b7ef5c85554564de8565e46e14 with the bounded #864 header
+prerequisite. Compiling the actual production source with only this
+checkout's canonical include tree reproduces all thirty-four native
+functions / 10,172 bytes, all 315 independently resolved relocation targets,
+eighty vtable bytes and twelve constant payload bytes. No pending-interface
+or reference fallback include directory is used. This checkpoint confirms
+that deduplicating the owner-approved #799 and #802 interfaces preserves
+the source reconstruction. A fresh shared-header baseline and complete
+actual source-selected build on the final committed public stack remain
+required; the private full-build evidence above is historical.
