@@ -326,6 +326,36 @@ nw4r/g3d/res/g3d_resanmchr.cpp:
 	.rodata     start:0x8036C6F0 end:0x8036C710
 	.sdata2     start:0x804BAB20 end:0x804BAB40
 
+nw4r/g3d/res/g3d_reslightset.cpp:
+	.text       start:0x80253C80 end:0x80253DEC
+
+nw4r/g3d/res/g3d_resanmamblight.cpp:
+	.text       start:0x80253DF0 end:0x80253EC0
+	.sdata2     start:0x804BAB40 end:0x804BAB50
+
+nw4r/g3d/res/g3d_resanmlight.cpp:
+	.text       start:0x80253EC0 end:0x802542A8
+	.sdata2     start:0x804BAB50 end:0x804BAB60
+
+nw4r/g3d/res/g3d_resanmfog.cpp:
+	.text       start:0x802542B0 end:0x80254410
+	.sdata2     start:0x804BAB60 end:0x804BAB70
+
+nw4r/g3d/res/g3d_resanmcamera.cpp:
+	.text       start:0x80254410 end:0x80254720
+
+nw4r/g3d/res/g3d_resanmscn.cpp:
+	.text       start:0x80254720 end:0x802552AC
+	.data       start:0x803C5940 end:0x803C59E0
+
+nw4r/g3d/res/g3d_resanmshp.cpp:
+	.text       start:0x802552B0 end:0x80255418
+	.sdata2     start:0x804BAB70 end:0x804BAB78
+
+nw4r/g3d/g3d_transform.cpp:
+	.text       start:0x80255420 end:0x80255724
+	.sdata2     start:0x804BAB78 end:0x804BAB7C
+
 nw4r/snd/snd_AxManager.cpp:
 	.text       start:0x80271E10 end:0x80273650
 	.ctors      start:0x80352A50 end:0x80352A54
