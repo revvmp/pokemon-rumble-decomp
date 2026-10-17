@@ -84,6 +84,7 @@ private:
 
     static void* SoundThreadFunc(void* pArg);
     void SoundThreadProc();
+    void FrameProcess();
 
 private:
     OSThread mThread;
