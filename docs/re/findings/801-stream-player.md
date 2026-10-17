@@ -59,6 +59,9 @@ NintendoWare4Ctr implementation is GPL-3.0 and was not imported or adapted.
   type-info declaration reproduces semantics but changes scheduling; the
   pinned nested guard after type-info acquisition reproduces these native
   consumers.
+- Non-relocation instruction identity can hide constant-pool differences.
+  Reconstruct and pair every instruction relocation and verify initialized
+  storage before claiming a matching unit.
 
 ## Shared-header validation
 
@@ -72,6 +75,12 @@ verifier and retained SHA-256
 `ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da`.
 No source unit, split, symbol extent, progress count, or compiler setting is
 changed by this prerequisite.
-- Non-relocation instruction identity can hide constant-pool differences.
-  Reconstruct and pair every instruction relocation and verify initialized
-  storage before claiming a matching unit.
+
+The final integration gate rebases this header-only change onto main
+`ec2e1acd`, after #835 and #843. Configure and plain Ninja against the
+previously clean `build/801-header1` output exit zero; the actual-directory
+frozen verifier passes again, and all 468 prior source objects retain exact
+code, data and relocation targets. No metadata entry or shared-header conflict
+required resolution. The independently coordinated #809 Layout consumer also
+reproduces all 19 retained functions, 4144 instruction bytes and 98 instruction
+relocation targets with this exact header, without publishing a duplicate fix.
