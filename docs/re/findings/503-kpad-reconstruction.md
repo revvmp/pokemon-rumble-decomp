@@ -37,9 +37,9 @@ The one-byte initialized flag is named `sKpadInitialized` at `0x804B9AE4`. `butt
 
 ## Remaining integration work
 
-- Merge prerequisite header pull request #709 before this source pull request.
+- Prerequisite header pull request #709 is merged.
 - Rebase and verify the exact source commit against the latest main before merging.
-- Restore the GitHub Actions billing backstop; failed PR or main checks prohibit merging under the take-issue procedure.
+- Local exact-head verification is the merge gate under the updated take-issue procedure; GitHub CI does not run automatically.
 - #504 retains its non-KPAD scope beginning at `0x803086D0`.
 
 ### Earlier extension-reader investigation
