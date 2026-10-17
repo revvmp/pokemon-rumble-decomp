@@ -63,9 +63,9 @@ typedef struct WUDDevInfo {
     UINT8 subclass;
     UINT8 appID;
     u8 status;
-    s8 UNK_0x5A;
+    s8 pinCodeSubmitted;
     u8 sync_type;
-    u8 UNK_0x5C;
+    u8 linkKeyStorage;
     u8 UNK_0x5D[1];
     tBTA_HH_ATTR_MASK hhAttrMask;
 } WUDDevInfo;
