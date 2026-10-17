@@ -12,9 +12,9 @@ Reference: Petari commit `e0ab141914921726a595573dc48d3f13d0922efe`, `src/RVL_SD
 
 | Section | Runtime range, exclusive end | DOL file offset | Evidence |
 | --- | --- | --- | --- |
-| `.text` | `0x802B2F50`–`0x802B3810` | `0x263210` | All 12 functions in reference order, including the newer final routine; allocator list insertion begins at the end |
-| `.data` | `0x803C7760`–`0x803C7770` | `0x3C3860` | `__OSInitAlarm` passes this 16-byte shutdown registration record to `OSRegisterShutdownFunction` |
-| `.sbss` | `0x804B9488`–`0x804B9490` | No file bytes | The queue head and tail use these two words throughout the unit |
+| `.text` | `0x802B2F50`â€“`0x802B3810` | `0x263210` | All 12 functions in reference order, including the newer final routine; allocator list insertion begins at the end |
+| `.data` | `0x803C7760`â€“`0x803C7770` | `0x3C3860` | `__OSInitAlarm` passes this 16-byte shutdown registration record to `OSRegisterShutdownFunction` |
+| `.sbss` | `0x804B9488`â€“`0x804B9490` | No file bytes | The queue head and tail use these two words throughout the unit |
 
 No other data sections are referenced as unit-owned storage. The split-only build and exact frozen-manifest verifier passed before source registration. Commands used decomp-toolkit 1.8.4, binutils 2.42-2, objdiff-cli 3.8.2, and Wii/1.0 MWCC with the F-0007 SDK flags, including default 16-byte function alignment, `-inline auto,level=3`, `-ipa file`, `-sdata 8`, and `-sdata2 8`.
 
