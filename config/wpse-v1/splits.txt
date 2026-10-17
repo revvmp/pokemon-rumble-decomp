@@ -296,6 +296,20 @@ RVL_SDK/gx/GXPixel.c:
 RVL_SDK/gx/GXDisplayList.c:
 	.text       start:0x802D09E0 end:0x802D0A54
 
+RVL_SDK/gx/GXTransform.c:
+	.text       start:0x802D0A60 end:0x802D1018
+	.sdata2     start:0x804BB3D8 end:0x804BB3E8
+
+RVL_SDK/gx/GXPerf.c:
+	.text       start:0x802D1020 end:0x802D1850
+	.data       start:0x803D6728 end:0x803D6810
+
+RVL_SDK/dvd/dvdfs.c:
+	.text       start:0x802D1850 end:0x802D1A6C
+	.data       start:0x803D6810 end:0x803D6840
+	.sdata      start:0x804B8B80 end:0x804B8B90
+	.sbss       start:0x804B96F8 end:0x804B9710
+
 RVL_SDK/dvd/dvd.c:
 	.text       start:0x802D6660 end:0x802D6694
 
