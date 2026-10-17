@@ -75,6 +75,8 @@ Keep entries concise and actionable. Distinguish confirmed findings from hypothe
 
 - **Game SDK copies differ from Petari's function set.** RVL_SDK `nand.c` here links seven functions Petari lacks and omits others. Identify each function by call pattern and take names from other CC0 decompilations (`yomcube/cmwp-decomp`, `pbr-ret/pbr-decomp`), recording provenance. See [F-490-2](docs/re/findings/490-nand.md#f-490-2-nandc-function-set-differs-from-petari).
 
+- **Packed 4-byte function starts inside the RVL_SDK range mean another compiler.** NdevExi2A (`0x8033EEB4`-`0x8033F974`) matches only GameCube GC/3.0a3 to 3.0a5, not Wii/1.0. Check function alignment before assuming F-0007's per-region compiler. See [F-535-2](docs/re/findings/535-gdtexture-ndevexi2a.md#f-535-2-ndevexi2a-is-built-with-a-gamecube-compiler).
+
 ## Current project state
 
 | Current state | Value |

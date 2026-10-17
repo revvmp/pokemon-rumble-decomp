@@ -147,6 +147,8 @@ cflags_sdk = [
 
 SDK_COMPILER = "Wii/1.0"
 
+NDEV_COMPILER = "GC/3.0a3"
+
 config.libs = [
     library(
         "RVL_SDK.CNT",
@@ -178,6 +180,17 @@ config.libs = [
             Object(NonMatching, "RVL_SDK/bte/bte_init.c", cflags=cflags_base),
             Object(NonMatching, "RVL_SDK/bte/bte_logmsg.c", cflags=cflags_base),
             Object(NonMatching, "RVL_SDK/bte/bte_main.c", cflags=cflags_base),
+            Object(Matching, "RVL_SDK/gd/GDTexture.c"),
+        ],
+    ),
+    library(
+        "NdevExi2A",
+        NDEV_COMPILER,
+        cflags_sdk,
+        "sdk",
+        [
+            Object(Matching, "RVL_SDK/NdevExi2A/DebuggerDriver.c"),
+            Object(Matching, "RVL_SDK/NdevExi2A/exi2.c"),
         ],
     ),
     library(
