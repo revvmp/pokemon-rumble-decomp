@@ -205,6 +205,9 @@ void KPADSetDistParam(s32, f32, f32);
 
 void KPADReset(void);
 s32 KPADRead(s32, KPADStatus[], u32);
+WPADCallback KPADSetConnectCallback(s32 chan, WPADCallback callback);
+void KPADDisableDPD(s32 chan);
+void KPADEnableDPD(s32 chan);
 
 extern KPADInsideStatus inside_kpads[];
 

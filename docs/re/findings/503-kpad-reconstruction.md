@@ -2,7 +2,7 @@
 
 ## F-503-5: Whole-unit split and partial source
 
-KPAD.c owns 33 retained functions and 16,304 function bytes. Its first twenty functions are the KPAD portion of #503; thirteen later functions belong to #504. The first function belongs to #503, so this branch establishes the complete translation-unit split. Neither issue is complete in this partial reconstruction.
+KPAD.c owns 33 retained functions and 16,304 function bytes. Its first twenty functions are the KPAD portion of #503; thirteen later functions belong to #504. The first function belongs to #503, so this branch establishes the complete translation-unit split. Twenty-four functions are now implemented. Neither issue is complete in this partial reconstruction.
 
 | Section | Start | Exclusive end |
 | --- | --- | --- |
@@ -19,18 +19,20 @@ The split-only build and frozen game-DOL verification pass. Source is registered
 
 ## Reconstructed portion
 
-The source implements the first twenty retained functions, covering 8,504 function bytes. Their names follow the CC0 Petari implementation and the corresponding target behavior. Four additional private object helpers, plus acceleration, trigger, and horizon helpers, inline into retained functions.
+The source implements the first twenty retained functions and four later callbacks/control routines, covering 8,796 function bytes. Their names follow the CC0 Petari implementation, reference headers and the corresponding target behavior. Four additional private object helpers, plus acceleration, trigger, and horizon helpers, inline into retained functions.
 
-Nineteen functions, totaling 8,344 function bytes, reproduce every non-relocation instruction word at the exact original size with Wii/1.0 and `cflags_sdk`: the four parameter setters, reset, aiming enable, button repeat, acceleration calculation, acceleration horizon and vertical calculation, acceleration reader, four object-selection routines, DPD-variable calculation, DPD reader, and both stick clamps. This is a partial diagnostic: relocation words, whole sections, missing later functions, and data reconstruction are not accepted by that comparison.
+All twenty-four implemented functions, totaling 8,796 function bytes, reproduce every non-relocation instruction word at the exact original size with Wii/1.0 and `cflags_sdk`: the four parameter setters, reset, aiming enable, button repeat and reader, acceleration calculation, acceleration horizon and vertical calculation, acceleration reader, four object-selection routines, DPD-variable calculation, DPD reader, both stick clamps, application connection-callback registration, both DPD request setters and DPD control completion. This is a partial diagnostic: relocation words, whole sections, missing later functions, and data reconstruction are not accepted by that comparison. Whole-text objdiff is 53.868988%; data remains 0%, BSS 98.039215%, sdata 43.90244%, sbss 30.76923% and sdata2 55.813957%.
 
 The target adds train/guitar handling to button repeat and accepts the guitar acceleration format. Its DPD reader accepts the guitar format only when actual DPD hardware state is enabled. Those version differences, together with [the recovered layout](503-kpad-layout.md), reproduce the nineteen instruction streams without changing compiler policy.
 
-`read_kpad_button` has the original size and behavior structure but still differs in register allocation. Its source preserves extension-reset gating and train/guitar handling. The remaining thirteen retained functions are not implemented: extension-stick/board processing, read wrappers and extended reader, initialization, connection handling, application connection-callback registration, two board callbacks, two DPD request setters, DPD control completion, and sampling. Their original fallback remains visible in the same unit.
+`read_kpad_button` now matches the raw instruction diagnostic after computing the extension-reset-gated classic button word before loading the old held buttons. Its source preserves extension-reset gating and train/guitar handling. The remaining nine retained functions are not implemented: extension-stick/board processing, read wrapper and extended reader, initialization wrapper and extended initializer, connection handling, two board callbacks, and sampling. Their original fallback remains visible in the same unit.
+
+The four newly reconstructed routines are `KPADSetConnectCallback` at `0x80307DE0` (0x58 bytes), `KPADDisableDPD` at `0x80307E80` (0x1C), `KPADEnableDPD` at `0x80307EA0` (0x1C), and `KPADiControlDpdCallback` at `0x80307EC0` (0x94). The connection setter disables interrupts while replacing and returning the application callback. The DPD setters change requested state at 0x556. Completion updates actual hardware state at 0x557 using `WPADIsDpdEnabled`, then clears the issued flag at 0x558; the older Petari completion lacks that hardware-state update. Public declarations are additive and preserve the established shared layout.
 
 ## Remaining acceptance work
 
-- Complete all thirteen later functions, coordinating with #504 under the established KPAD.c ownership.
-- Resolve button-reader register allocation and all relocation/data comparisons.
+- Complete the nine remaining functions, coordinating with #504 under the established KPAD.c ownership.
+- Resolve all relocation/data comparisons.
 - Reconstruct the retained banner/table, complete initialized data, board globals, and constant pool; current source includes only the reference globals needed for the motion portion.
 - Preserve the whole-unit `NonMatching` status until every retained section compares exactly and the source-selected full DOL passes frozen verification.
 
@@ -42,3 +44,4 @@ The motion and pointing algorithms and helper names derive from [Petari KPAD.c a
 
 - **Preserve the inline helper implementations when extracting a partial source.** Omitting `clamp_acc`, `clamp_trigger`, or `calc_horizon` let the C compiler infer external calls and substantially shortened callers. Restoring the actual helpers recovers the original instruction streams; changing compiler flags would have hidden the cause.
 - **Raw instruction comparisons exclude relocation evidence.** The nineteen diagnostic matches do not justify `Matching`; the unit's current objdiff score and explicit fallback remain the acceptance record.
+- **Expression order affects the button-reader registers.** Loading old classic buttons before forming the reset-gated new word produced nine differing instruction words. An explicit new-button temporary computed first reproduces the original registers without changing flags or inserting assembly. This is a local source-order finding, not a compiler-wide rule.
