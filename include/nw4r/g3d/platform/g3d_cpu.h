@@ -60,6 +60,23 @@ inline s16 F32ToS10_5(register f32 f) {
     return x;
 }
 
+inline void SetGQR6_S10_5() {
+    OSSetGQR6(OS_GQR_TYPE_S16, 5);
+}
+inline void SetGQR7_S7_8() {
+    OSSetGQR7(OS_GQR_TYPE_S16, 8);
+}
+
+namespace detail {
+
+inline void Init() {
+    OSInitFastCast();
+    SetGQR6_S10_5();
+    SetGQR7_S7_8();
+}
+
+}
+
 }
 
 namespace DC {
@@ -88,6 +105,10 @@ void Copy32ByteBlocks(void *pDst, const void *pSrc, u32 size);
 void ZeroMemory32ByteBlocks(void *pDst, u32 size);
 void ZeroMemory16ByteBlocks(void *pDst, u32 size);
 
+}
+
+inline void InitFastCast() {
+    fastcast::detail::Init();
 }
 
 }
