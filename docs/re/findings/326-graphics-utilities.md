@@ -63,6 +63,10 @@ The following five candidates reproduce every native instruction after independe
 
 The initializer has the native 476-byte size and all thirty-seven relocation targets agree, but seventeen register-allocation words differ. It is not accepted. These are diagnostic results only: no complete source object, exception-section audit, source-selected DOL, objdiff result or reconstruction credit is claimed.
 
+Repeating the identical source and flags with Wii/1.3 produces the same five exact diagnostic bodies and the same seventeen initializer differences. This does not justify changing the project compiler or flags. The external default-render-mode callee at `0x801B66A0` copies a complete sixty-byte GXRenderModeObj into its first-argument storage; its original return-by-value versus explicit output-parameter declaration remains unproven.
+
+The two 200-byte reset routines construct twenty-byte function-pointer control blocks: common state occupies the first twelve bytes, the owned pointer is at twelve and the deleter at sixteen. Their exception guard has an owned pointer at zero and a reference to the stack deleter at four. The guard destructors at `0x801C85A0` and `0x801C8610` call through that reference only while the owned pointer is nonnull. This is native evidence for an ordinary custom-deleter reset responsibility; the original private guard class name has not been recovered.
+
 Reproduction files are outside the repository at `C:/MassStorage/GitHub/326-graphics-probe.cpp`, `326-compile-graphics.py`, `326-audit-graphics.py` and `326-graphics-proof.json`. The compile driver must exit zero before the audit is run. Native inventory reading aids are in `326-initial-native.json` and `326-tail-native.json`.
 
 ## Traps
