@@ -34,7 +34,6 @@ s32 PFFILE_cdelete(PF_STR* p_path, u32 offset, u32 count, u32* p_count_deleted);
 s32 PFFILE_divide(PF_STR* p_path, PF_STR* p_new_path, u32 offset);
 
 s32 PFFILE_remove(PF_STR* p_path);
-s32 PFFILE_xdivide(PF_STR* p_src, PF_STR* p_dst, u32 offset);
 
 #ifdef __cplusplus
 }
