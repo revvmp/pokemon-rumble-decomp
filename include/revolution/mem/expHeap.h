@@ -62,6 +62,10 @@ void MEMFreeToExpHeap(MEMHeapHandle heap, void* memBlock);
 u32 MEMGetAllocatableSizeForExpHeapEx(MEMHeapHandle heap, int alignment);
 u16 MEMSetGroupIDForExpHeap(MEMHeapHandle heap, u16 groupID);
 
+static inline MEMHeapHandle MEMCreateExpHeap(void* startAddress, u32 size) {
+    return MEMCreateExpHeapEx(startAddress, size, 0);
+}
+
 #ifdef __cplusplus
 }
 #endif

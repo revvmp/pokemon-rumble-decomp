@@ -112,6 +112,35 @@ Its `.data` starts at `0x803BA650` with the version banner, and its `.bss` with 
 
 Both units call `homebutton::HomeButton` members and read its fields, so a complete `HomeButton` header must be reconstructed first. They are left for the following issues.
 
+## F-291-3: HBMCommon.cpp and the HomeButton layout
+
+`RVL_SDK/hbm/HBMCommon.cpp` owns `.text` `0x8017C070`–`0x8017C464` (15 functions), `.data` `0x803BA650`–`0x803BA6A0` (the version banner, `__HBMVersion` at `0x803BA698`, `spAllocator` at `0x803BA69C`) and `.bss` `0x803E9B90`–`0x803E9BA0` (`sAllocator`). The twelve bytes after `HBMCreateInfoEx` are padding before `initgx` (`0x8017C470`), which starts `HBMBase.cpp`. That symbol carries `align:16` so the boundary holds. The banner reads `<< RVL_SDK - HBM 	release build: Mar  3 2009 13:57:36 (0x4201_142) >>`.
+
+This target is the NAND (WiiWare) variant of the library. CC0 Kirby's Epic Yarn (`Swiftshine/key` `7f2a9ab9`, `src/hbm/homebutton/HBMCommon.cpp`) has the same function list in the same order. It gives:
+
+- `HBMAllocMem` and `HBMFreeMem` as C++ functions, matching xenoblade's mangled `HBMAllocMem__FUl`;
+- the extra API functions `HBMGetSelectBtnNum`, `HBMStartBlackOut` and `HBMIsReassignedControllers`;
+- `HBMCreateInfoEx` (`0x8017C430`), which forwards to `HomeButton::createInfoEx`. Key calls this name a guess. Its `HBMDeleteInfoEx` does not exist in this target. The member and type names `mpHBInfoEx` and `HBMDataInfoEx` come from DWARF data that key and robojumper's SDK reconstruction cite.
+
+`HBMCreateSound` calls `HomeButton::getInstance` and ignores the result, as in key. `getInstance` is out of line here (`0x8017CB30`), unlike TP.
+
+The callees named for linking are the `HomeButton` members `createInstance` (`0x8017CA90`), `deleteInstance` (`0x8017CAE0`), `getInstance` (`0x8017CB30`), `create` (`0x8017CB40`), `init` (`0x8017D5F0`), `calc` (`0x8017E0D0`), `draw` (`0x80180680`), `getSelectBtnNum` (`0x80185990`), `setAdjustFlag` (`0x801859B0`), `startBlackOut` (`0x80185BC0`), `update_sound` (`0x80185DB0`) and `createInfoEx` (`0x80185E00`), plus `nw4hbm::lyt::Layout::mspAllocator` (`0x803E9BF0`). Each name was checked against its body: `getSelectBtnNum` returns `mSelectBtnNum` only in state 18. `update_sound` calls `AxSoundMain` and then each controller's `updateSound`. `startBlackOut` sets `mStartBlackOutFlag` and stops every motor. `createInfoEx` stores its argument at `0x8`, builds the multi-archive accessor and the second layout, and creates seven animation controllers.
+
+`homebutton::HomeButton` is 0x828 bytes. The layout is key's NAND layout plus one change. Like xenoblade, and unlike key, this version keeps `WPADInfo mWpadInfo[4]` inside the object, between `mpText` and `mSimpleSyncCallback`, so every later member sits 0x60 bytes further on. The evidence:
+
+- The constructor (`0x8017C630`) stores `mpHBInfo` at `0x4` and clears `mpHBInfoEx` (`0x8`), `mpLayout` (`0x240`), the second layout (`0x244`) and `mpPaneManager` (`0x268`). It constructs `mDrawInfo` at `0x274` and `mFader(30)` at `0x4E0`, whose colour-enable byte at `0x4EC` starts as 1. It creates the alarms at `0x4F0`, `0x5B0` (stride 0x30) and `0x670`, and sets `iVISetBlackFlag` (`0x6A0`).
+- The destructor (`0x8017C740`) frees the members at `0x258`, `0x240`, `0x248`–`0x254` (only when `cursor == 0`), `0x330` (`mAnmNum` entries), `0x488` (15), `0x360` (74), `0x26C`, `0x270`, `0x268` and `0x2C8`–`0x2D4`. It then destroys `mpRemoteSpk` (`0x2D8`), restores the sync callback from `0x214`, and frees `mpLayoutName` (`0xB8`) and `mpAnmName` (`0xBC`).
+- `createInfoEx` writes the accessor and links at `0x25C`–`0x264`, the second font at `0x304` and seven controllers at `0x4C4`. `init` (`0x8017DD30`) writes `mAppVolume` at `0x6AC`, the hooks at `0x6B4` and the reverb at `0x6BC`, whose six parameters end at `0x818`. It also writes the aux callback and context at `0x81C` and `0x820`. `startBlackOut` writes `mFadeOutSeTime` at `0x824`.
+- `0x1B4` is the address passed to `getInfoAsync` for channel 0, and `0x1C8` is its `battery` byte.
+
+A compile-time size check gives `sizeof(HomeButton) == 0x828`, `sizeof(nw4hbm::lyt::DrawInfo) == 0x54` and `sizeof(AXFX_REVERBHI) == 0x160`. Member names follow key and xenoblade. Several are descriptive because key gives no original name: `mPaneCounterEx[2]` (`0x58`, key's `at_0x058`/`at_0x05c`, only cleared in `init`), `mpLayoutEx` (`0x244`), `mpTextEx[10]` (`0x2DC`), `mpResFontEx` (`0x304`), `mpAnmControllerEx[7]` (`0x4C4`) and the fader's `fadeColorEnable_` (`0xC`). The static string tables, `HBMDataInfoEx`'s fields and the member types not used here are left to the `HBMBase.cpp` reconstruction. `HBMDataInfoEx` is declared but not defined, because key's definition contains a four-byte field it cannot name.
+
+Shared headers gained `AXFX_REVERBHI_EXP` and `AXFX_REVERBHI` (CC0 TP layout) in `revolution/axfx.h`, and the SDK inline `MEMCreateExpHeap` in `revolution/mem/expHeap.h`. The public API prototypes and `HBMDataInfoEx` went into `revolution/hbm/HBMBase.h`. `HomeButton` is in `revolution/hbm/homebutton/HBMBase.h`, and `HBMAllocMem`, `HBMFreeMem` and `spAllocator` are in `revolution/hbm/homebutton/HBMCommon.h`.
+
+On the branch head, `configure.py`, `ninja` and `tools/verify/verify.py verify` exit 0 with the unit `Matching`. objdiff reports all 15 functions and `.text`, `.data` and `.bss` at 100%.
+
+`HBMBase.cpp` remains. It runs from `0x8017C470` to about `0x801862B0`, roughly 40 KB of code, and it covers the rest of this block and nearly all of #292. Key's `HBMBase.cpp` is a close CC0 reference, after the `mWpadInfo` change above.
+
 ## Traps
 
 - **Compare chains.** An inline helper returning a `||` of equality tests becomes a bit-mask test (`subi`, `cmplwi`, `slw`, `and.`) instead of the original compare chain. Writing the condition inline, here through `IS_CURSOR_SOUND`, restored the chain and the sizes of four functions.
@@ -119,3 +148,4 @@ Both units call `homebutton::HomeButton` members and read its fields, so a compl
 - **Parenthesized pointer arithmetic.** `stack + memSize - sizeof(Work)` and `stack + (memSize - sizeof(Work))` compile differently. Only the unparenthesized form matches.
 - **Missing `extern "C"` guards.** `revolution/ax.h` and `revolution/ax/AX.h` had none, so C++ callers linked to the mangled `AXInit__Fv`. Both headers now have guards.
 - **Include order.** `HBMBase.h` now includes `mem.h` before `kpad.h`, which `OSThreadQueue` requires.
+- **Library variant.** This HBM is the NAND build, with `mpHBInfoEx` and a second layout, and it keeps `mWpadInfo` in the object. Neither the DVD references (TP, xenoblade) nor key (NAND, without `mWpadInfo`) give the right offsets alone. Map members against the constructor and destructor before reusing a reference header. Evidence: F-291-3.
