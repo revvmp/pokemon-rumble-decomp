@@ -50,7 +50,9 @@ private:
     enum eSeq {
         eSeq_Normal,
         eSeq_Control,
-        eSeq_Cmn
+        eSeq_Cmn,
+        eSeq_Seq3,
+        eSeq_Seq4
     };
 
     class BlackFader {
