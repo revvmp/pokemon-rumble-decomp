@@ -62,8 +62,8 @@ bool WaveFileReader::ReadWaveInfo(WaveInfo* pWaveInfo,
         if (pChannelInfo->adpcmOffset) {
             const AdpcmInfo* pAdpcmInfo = static_cast<const AdpcmInfo*>(
                 ut::AddOffsetToPtr(mWaveInfo, pChannelInfo->adpcmOffset));
-            rChannelParam.adpcmInfo.param = pAdpcmInfo->param;
-            rChannelParam.adpcmInfo.loopParam = pAdpcmInfo->loopParam;
+            rChannelParam.adpcmParam = pAdpcmInfo->param;
+            rChannelParam.adpcmLoopParam = pAdpcmInfo->loopParam;
         }
         rChannelParam.dataAddr = const_cast<void*>(
             GetWaveDataAddress(pChannelInfo, pWaveDataOrigin));
