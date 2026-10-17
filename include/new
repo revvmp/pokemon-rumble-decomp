@@ -1,0 +1,9 @@
+#ifndef MSL_NEW_H
+#define MSL_NEW_H
+#include <stddef.h>
+
+inline void* operator new(size_t, void* pMemory) {
+    return pMemory;
+}
+
+#endif
