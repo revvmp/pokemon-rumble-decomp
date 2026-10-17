@@ -18,8 +18,10 @@ Pending canonical names are reused from their owners: #799 corrects the previous
 
 The pre-split default context containing the approved canonical pending interfaces passed a clean configure --map, plain Ninja and explicit frozen verification. It uses project headers only. The original source baseline has 498 objects; six raw object hashes changed after intervening main header changes and completion of SoundArchivePlayer. All six retain 100% text comparisons, and the complete actual source-linked DOL is byte-identical. Raw object identity is not claimed for this larger header context.
 
-Split-only verification, NonMatching object comparison and actual source-selected acceptance are the next ordered gates. The private interface context is not published and will be discarded after the owner prerequisites reach main. No code credit is claimed at this stage.
+The split-only plain Ninja and explicit frozen verification pass after propagating the proven temporary-handle caller correction described below. The readable source is now registered NonMatching for actual canonical pipeline comparison; full source-selected acceptance is the next gate. The private interface context is not published and will be discarded after the owner prerequisites reach main. No code credit is claimed at this stage.
 
 ## Traps
 
 An imported callee name at the wrong native address is exposed only by paired relocation comparison. Initial masked instruction equality concealed SoundHandle's two attachment variants; use the source owner's proven correction and repeat the actual link, rather than treating the matching masked stream as acceptance.
+
+The first split-only check failed at exactly one DOL byte, native 0x802824FB. Renaming SoundHandle attachment symbols changed ExternalSoundPlayer::ForEachSound's inline call from native C70 to CC0 in the existing Sound3DActor destructor. The root #799 owner confirmed that this temporary handle must call detail_AttachSoundAsTempHandle, accepted the exact one-identifier propagation with its canonical metadata, and required its own full consumer proof. The private context uses that approved correction; the repeated split-only build and frozen verification pass. It is an integration-name propagation issue, not a changed unit boundary.
