@@ -44,7 +44,7 @@ The code is the zeldaret/ss revision (CC0, commit `57a709b2128eb163a18e2969d561c
 
 `MemoryFileStream`'s constructor is defined in the class. Defined out of line, as in zeldaret/ss, the compiler also emits weak `IOStream` and `FileStream` destructors after it, which the target range does not contain. `Seek` is 0x48 bytes; dtk split its trailing unreachable `blr` into `fn_8027CCA4`, which is removed.
 
-The new headers `snd_SoundArchive.h` and `snd_SoundArchiveFile.h` (with `SoundArchiveFileReader`) and `snd_MemorySoundArchive.h` follow zeldaret/ss. The target confirms `SoundArchive` at 0x108 bytes, with `mFileReader` at 0x4 and `mExtFileRoot` from 0x8 (the constructor stores `'/'` and a terminator), and the reader's 0x44 bytes: its constructor clears 0x28 to 0x40 and `Setup` reads the info and symbol offsets and sizes at 0x18, 0x1C, 0x10, and 0x14 of the header copy.
+The new header `snd_MemorySoundArchive.h` follows zeldaret/ss. `snd_SoundArchive.h` and `snd_SoundArchiveFile.h` (with `SoundArchiveFileReader`) are taken unchanged from the #426 interface pull request (#817), so both changes add identical files; this unit matches with them as it did with a direct zeldaret/ss import. The target confirms `SoundArchive` at 0x108 bytes, with `mFileReader` at 0x4 and `mExtFileRoot` from 0x8 (the constructor stores `'/'` and a terminator), and the reader's 0x44 bytes: its constructor clears 0x28 to 0x40 and `Setup` reads the info and symbol offsets and sizes at 0x18, 0x1C, 0x10, and 0x14 of the header copy.
 
 ## Outside symbols
 
