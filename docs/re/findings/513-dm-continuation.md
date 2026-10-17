@@ -1,8 +1,8 @@
 # F-513-1: Device-manager continuation acceptance inventory
 
-Issue #513 owns 29 functions and 4,160 code bytes at `0x8031590C`-`0x8031694C`. Every function lies inside `bta_dm_act.c`, whose first function belongs to #512. The source delivery is [PR #679](https://github.com/revvmp/pokemon-rumble-decomp/pull/679); the complete source and unit boundaries are documented in its F-512-5. This issue audit adds no reconstructed source bytes and does not create another unit or duplicate its ledger row.
+Issue #513 owns 29 functions and 4,160 code bytes at `0x8031590C`-`0x8031694C`. Every function lies inside `bta_dm_act.c`, whose first function belongs to #512. The merged source delivery is [PR #679](https://github.com/revvmp/pokemon-rumble-decomp/pull/679); the complete source and unit boundaries are documented in its F-512-5. This issue audit adds no reconstructed source bytes and does not create another unit or duplicate its ledger row.
 
-The preliminary inventory audit uses the complete source objects from PR #679's verified clean build. Each listed source function has the exact original issue address and size. Default objdiff 3.8.2 reports 100% for every section of the complete action unit. These checks establish coverage in the source delivery; acceptance against current `main` remains pending until that delivery merges and the audit branch completes its own full build and frozen verification.
+The independent inventory audit uses the complete source objects built in this issue's isolated worktree after rebasing onto the merged delivery. Each listed source function has the exact original issue address and size. Default objdiff 3.8.2 reports 100% for every section of the complete action unit. The actual source-selected executable passes the frozen manifest.
 
 | Address | Size | Recovered name |
 | --- | --- | --- |
@@ -40,7 +40,7 @@ Names come from Petari commit `e0ab141914921726a595573dc48d3f13d0922efe`, exact 
 
 ## Acceptance status
 
-Pending: merge PR #679, rebase this audit onto current `main`, compile the real registered-source and full build targets, repeat the original/source whole-object comparison and 29-function inventory, and run the frozen verifier on the actual rebuilt output. Scope is the main game executable only, excluding boot content 6, data contents, and WAD packaging. Final commands and verified head belong in the audit pull request.
+After PR #679 merged, this branch rebased onto current `main`. `python configure.py --no-progress`, `.venv/Scripts/ninja all_source`, `.venv/Scripts/ninja`, the complete original/source `objdiff-cli diff` comparison, the original 29-function address/size audit, and `python tools/verify/verify.py verify --manifest config/targets/wpse-v1.json --reference-dir orig/wpse-v1 --build-dir build/wpse-v1` all exit 0. Every compared section is 100%. The source-selected executable matches frozen SHA-256 `ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da`. Scope is the main game executable only, excluding boot content 6, data contents, and WAD packaging. The pull request records final rebased commands and the exact verified head.
 
 ## Traps
 
