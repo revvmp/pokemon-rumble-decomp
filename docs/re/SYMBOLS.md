@@ -2406,3 +2406,7 @@ The ten `pfk_` function names at `0x8021DFE0` through `0x8021E3D0` are recovered
 ### FA utility conversions, issue 365
 
 [F-365-1](findings/365-fa-api.md) records seven functions at `0x8021A2B0–0x8021A464` and the complete 40-integer table at `0x803C4278–0x803C4318`. All seven names are independently supported by the pinned CC0 Wii Menu FA symbol map; five and `pf_error_to_api_error` also follow pinned CC0 VF source with the established FA prefix convention. Every native function size, both address relocations, full table payload, actual ELF placement and source input are verified. No PF_VOLUME layout or preceding codepage ownership changes.
+
+### FA standard chdir, issue 365
+
+[F-365-2](findings/365-fa-api.md#f-365-2-standard-chdir-wrapper) records original map-supported `pf2_chdir` at `0x8021A5D0`, 80 bytes. The separately owned `PFDIR_chdir` callee at `0x80205980` gains only its evidenced name and one-argument PF_STR pointer declaration; original size/type/split/source coverage are preserved. The native five relocations, actual source-selected unit and entire DOL are exact. No shared record layout changes.

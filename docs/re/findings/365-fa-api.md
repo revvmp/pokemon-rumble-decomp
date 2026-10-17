@@ -80,3 +80,39 @@ any eventual merge.
   and merge return values. The preserving-one helper matches with ordinary
   tests for 1, then nonzero; an equivalent bit expression merges its return
   register and changes six instruction words.
+
+# F-365-2: standard chdir wrapper
+
+`pf_chdir.c` is a separate standard API file in the pinned Wii Menu FA
+split inventory. Its sole native function, `pf2_chdir` at `0x8021A5D0`,
+is exactly 80 bytes and ends at `0x8021A620`. The CC0 Wii Menu VF
+implementation supplies the ordinary source structure: initialize an OEM
+PF_STR, call the directory operation on success, record a string error in
+the volume set otherwise, and convert the return value. The native code
+and established PF_STR/volume-set prefix independently prove this behavior.
+No additional data or state belongs to the unit.
+
+The one directly referenced outside primitive at `0x80205980` is named
+`PFDIR_chdir` and declared in the canonical `pf_dir.h`. It takes one PF_STR
+pointer, unlike the already declared two-argument internal
+PFDIR_p_chdir. Its original range, size, type, source status, and storage
+remain unchanged, and its body receives no source credit here.
+
+The split-only baseline passed plain Ninja and frozen verification before
+source registration. NonMatching registration produced a 100% text
+comparison and passed full verification. With the source selected as
+Matching, plain Ninja, explicit frozen verification, and the independent
+source audit all exit 0. The audit pairs all five relocations, compares all
+80 text bytes, confirms the native ELF address/size and source-only link
+input, rejects unexpected allocated data, and compares the complete DOL.
+Together the two units reconstruct eight of #365's 26 functions, 484 of
+2,088 code bytes. Eighteen functions remain unfinished.
+
+## Traps
+
+- The smaller VF source subset does not identify every FA standard API.
+  Native pointer-sized or counter-sized return values alone can suggest
+  the wrong file operation. The complete pinned FA map and per-file split
+  inventory distinguish cdelete, cinsert, create, chdmod, and chmod before
+  declarations are established. Cross-check each lower native call rather
+  than extrapolating from the public VF subset.
