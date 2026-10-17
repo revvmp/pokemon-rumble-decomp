@@ -480,6 +480,25 @@ nw4r/g3d/g3d_anmscn.cpp:
 	.data       start:0x803C5D68 end:0x803C5E88
 	.sdata2     start:0x804BABF0 end:0x804BAC0C
 
+nw4r/g3d/g3d_obj.cpp:
+	.text       start:0x8025AD00 end:0x8025AE6C
+	.rodata     start:0x8036C838 end:0x8036C848
+	.data       start:0x803C5E88 end:0x803C5EA4
+
+nw4r/g3d/g3d_anmobj.cpp:
+	.text       start:0x8025AE70 end:0x8025AF38
+	.rodata     start:0x8036C848 end:0x8036C858
+	.sdata      start:0x804B8960 end:0x804B8964
+	.sdata2     start:0x804BAC10 end:0x804BAC14
+
+nw4r/g3d/platform/g3d_gpu.cpp:
+	.text       start:0x8025AF40 end:0x8025B460
+	.sdata2     start:0x804BAC18 end:0x804BAC30
+
+nw4r/g3d/platform/g3d_cpu.cpp:
+	.text       start:0x8025B460 end:0x8025B694
+	.sdata2     start:0x804BAC30 end:0x804BAC34
+
 nw4r/snd/snd_AxManager.cpp:
 	.text       start:0x80271E10 end:0x80273650
 	.ctors      start:0x80352A50 end:0x80352A54
