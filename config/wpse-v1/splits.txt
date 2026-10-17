@@ -179,6 +179,14 @@ RVL_SDK/enc/encconvert.c:
 	.data       start:0x803DC968 end:0x803DCA78
 	.sdata      start:0x804B8D68 end:0x804B8D74
 
+RVL_SDK/enc/encchinese.c:
+	.text       start:0x802EE650 end:0x802EEEBC
+	.rodata     start:0x8037E920 end:0x80388B68
+
+RVL_SDK/enc/enckorean.c:
+	.text       start:0x802EEEC0 end:0x802EFCD0
+	.rodata     start:0x80388B68 end:0x80397DC0
+
 RVL_SDK/arc/arc.c:
 	.text       start:0x802EFCD0 end:0x802F08D8
 	.data       start:0x803DCA78 end:0x803DCAE8
