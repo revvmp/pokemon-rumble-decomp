@@ -181,6 +181,12 @@ static void __wudSeekWiiFitCallback(s32 result, NANDCommandBlock* pBlock);
 static void __wudUpdateWiiFitCallback(s32 result, NANDCommandBlock* pBlock);
 static void __wudCloseWiiFitCallback(s32 result, NANDCommandBlock* pBlock);
 
+static SCBtCmpDevInfoArray _spArray;
+static void __wudDeleteFlushCallback(u32 status);
+static void __wudShutdownFlushCallback(u32 result);
+void __wudAppendRuntimePatch(void);
+void __wudInitSub(void);
+
 WUDCB _wcb;
 static WUDDiscResp sWudDiscoveryResponse;
 static s8 sWudDiscoveryRssi;
@@ -777,6 +783,139 @@ static void __wudCloseWiiFit(void)
 	               &sWudWiiFitCommandBlock);
 }
 
+static inline u8 WUDGetConnectable(void) {
+    WUDCB* p = &_wcb;
+    u8 connectable;
+    BOOL enabled = OSDisableInterrupts();
+
+    connectable = p->connectable;
+
+    OSRestoreInterrupts(enabled);
+    return connectable;
+}
+
+static void __wudCheckFirmwareVersion(void) {
+    tBTM_VERSION_INFO version;
+    BTM_ReadLocalVersion(&version);
+
+    DEBUGPrint("hci_version   : %02x\n", version.hci_version);
+    DEBUGPrint("hci_revision  : %04x\n", version.hci_revision);
+
+    DEBUGPrint("lmp_version   : %02x\n", version.lmp_version);
+    DEBUGPrint("lmp_subversion: %04x\n", version.lmp_subversion);
+
+    DEBUGPrint("manufacturer  : %04x\n", version.manufacturer);
+
+    DEBUGPrint(" ==> 2045 firmware ver.002.003.014.%d\n", version.hci_revision & 0xFFF);
+
+    if ((version.hci_revision & 0xFFF) == 167) {
+        __wudAppendRuntimePatch();
+    } else {
+        __wudInitSub();
+    }
+}
+
+static WUDDeleteState __wudDeleteDisallowIncoming(void) {
+    BTA_DmSetVisibility(FALSE, FALSE);
+    return WUD_STATE_DELETE_DISCONNECT_ALL;
+}
+
+static void __wudDeleteCleanupSetting(void) {
+    WUDCB* p_wcb = &_wcb;
+
+    BOOL result = FALSE;
+
+    if (SCCheckStatus() == SC_STATUS_BUSY) {
+        return;
+    }
+
+    memset(&_scArray, 0, sizeof(_scArray));
+    memset(&_spArray, 0, sizeof(_spArray));
+
+    result |= SCSetBtDeviceInfoArray(&_scArray);
+    result |= SCSetBtCmpDevInfoArray(&_spArray);
+
+    if (result) {
+        p_wcb->deleteState = 6;
+        SCFlushAsync(__wudDeleteFlushCallback);
+    } else {
+        p_wcb->deleteState = 8;
+    }
+    return;
+}
+
+static WUDDeleteState __wudDeleteDone(void) {
+    WUDCB* p = &_wcb;
+
+    WUDSetVisibility(FALSE, WUDGetConnectable());
+
+    OSCancelAlarm(&p->alarm);
+    p->deleteState = WUD_STATE_DELETE_START;
+
+    if (p->clearDevCB) {
+        p->clearDevCB(WUD_RESULT_DELETE_COMPLETE);
+    }
+
+    return WUD_STATE_DELETE_START;
+}
+
+static void __wudRemoveDevInfo(BD_ADDR addr) {
+    WUDDevInfo* pInfo;
+    BOOL enabled;
+
+    pInfo = WUDiGetDevInfo(addr);
+    if (!pInfo) {
+        return;
+    }
+
+    enabled = OSDisableInterrupts();
+    memset(pInfo, 0, sizeof(WUDDevInfo));
+    OSRestoreInterrupts(enabled);
+}
+
+static WUDStackState __wudStackGetStoredLinkKey(void) {
+    WUDCB* p = &_wcb;
+
+    if (p->hhFlags == 1) {
+        p->linkKeyState = WUD_STATE_LINK_KEY_READING;
+        BTM_ReadStoredLinkKey(NULL, __wudLinkKeyEventStackCallback);
+    }
+
+    return WUD_STATE_STACK_CHECK_DEVICE_INFO;
+}
+
+static WUDStackState __wudStackDone(void) {
+    WUDCB* p = &_wcb;
+
+    if (p->linkKeyState == WUD_STATE_LINK_KEY_START) {
+        OSCancelAlarm(&p->alarm);
+        __wudCheckFirmwareVersion();
+        return WUD_STATE_STACK_INITIALIZED;
+    }
+
+    return WUD_STATE_STACK_CHECK_DEVICE_INFO;
+}
+
+static void __wudShutdownStoreSetting(void) {
+    BOOL result = sWudReadNand;
+
+    if (SCCheckStatus() != SC_STATUS_BUSY) {
+        result &= SCSetBtDeviceInfoArray(&_scArray);
+        result &= SCSetBtCmpDevInfoArray(&_spArray);
+        if (result) {
+            _wcb.shutdownState = 2;
+            SCFlushAsync(__wudShutdownFlushCallback);
+        } else {
+            _wcb.shutdownState = 3;
+        }
+    }
+}
+
+static void __wudShutdownDone(void) {
+    OSCancelAlarm(&_wcb.alarm);
+    BTA_DisableBluetooth();
+}
+
 #pragma force_active on
 
 BOOL WUDIsLinkedWBC(void) {
@@ -1255,6 +1394,159 @@ static WUDDeleteState WUDiTerminateDevice(void) {
     return WUD_STATE_DELETE_CLEANUP_DATABASE;
 }
 
+static u8 __wudDeleteCleanupDatabase(void)
+{
+	int i;
+
+	WUDCB *p_wcb = &_wcb;
+	WUDDevInfo *p_info;
+
+	if (_WUDGetLinkNumber() != 0)
+		return WUD_STATE_DELETE_CLEANUP_DATABASE;
+
+	for (i = 0; i < WUD_MAX_DEV_ENTRY_FOR_STD; i++)
+	{
+		p_info = &p_wcb->stdDevs[i];
+		if (p_info->status == 1)
+			WUDiRemoveDevice(p_info->devAddr);
+	}
+
+	for (i = 0; i < WUD_MAX_DEV_ENTRY_FOR_SMP; i++)
+	{
+		p_info = &p_wcb->smpDevs[i];
+		if (p_info->status == 1)
+			WUDiRemoveDevice(p_info->devAddr);
+	}
+
+	if (WUDIsLinkedWBC())
+	{
+		if (SCGetProductGameRegion() == WUD_WII_FIT_REGION_JAPAN)
+		{
+			LINK_KEY link_key = {0};
+			__wudPrepareWBCDevInfo(NULL, link_key, NULL);
+
+			return WUD_STATE_WII_FIT_OPEN;
+		}
+		else
+		{
+			return WUD_STATE_DELETE_CLEANUP_SETTING;
+		}
+	}
+	else
+	{
+		return WUD_STATE_DELETE_CLEANUP_SETTING;
+	}
+}
+
+static void __wudDeleteHandler(void)
+{
+	WUDCB *p_wcb = &_wcb;
+
+	p_wcb->syncState = WUD_STATE_SYNC_START;
+
+	switch (p_wcb->deleteState)
+	{
+	case WUD_STATE_DELETE_DISALLOW_INCOMING:
+		p_wcb->deleteState = __wudDeleteDisallowIncoming();
+		break;
+
+	case WUD_STATE_DELETE_DISCONNECT_ALL:
+		p_wcb->deleteState = WUDiTerminateDevice();
+		break;
+
+	case WUD_STATE_DELETE_CLEANUP_DATABASE:
+		p_wcb->deleteState = __wudDeleteCleanupDatabase();
+		break;
+
+	case WUD_STATE_DELETE_CLEANUP_SETTING:
+		__wudDeleteCleanupSetting();
+		break;
+
+	case WUD_STATE_DELETE_DONE:
+		p_wcb->deleteState = __wudDeleteDone();
+		break;
+
+	case WUD_STATE_WII_FIT_OPEN:
+		__wudOpenWiiFitFile();
+		break;
+
+	case WUD_STATE_WII_FIT_SEEK:
+		__wudSeekWiiFitFile();
+		break;
+
+	case WUD_STATE_WII_FIT_UPDATE:
+		__wudUpdateWiiFitFile();
+		break;
+
+	case WUD_STATE_WII_FIT_CLOSE:
+		__wudCloseWiiFit();
+		break;
+
+	case WUD_STATE_DELETE_7:
+		break;
+	}
+}
+
+static void __wudDeleteHandler0(OSAlarm* pAlarm, OSContext* pContext) {
+    OSSwitchFiberEx((u32)pAlarm, (u32)pContext, 0, 0, (u32)__wudDeleteHandler, (u32)sWudHandlerStack + sizeof(sWudHandlerStack));
+}
+
+static WUDStackState __wudStackCheckDeviceInfo(void) {
+    WUDCB* p = &_wcb;
+    WUDDevInfo* pInfo;
+    int i;
+
+    if (p->linkKeyState == WUD_STATE_LINK_KEY_START) {
+        for (i = 0; i < WUD_MAX_DEV_ENTRY; i++) {
+            pInfo = __wudGetDevInfoByIndex(i);
+            if (pInfo->status == 0) {
+                continue;
+            }
+
+            if (pInfo->linkKeyStorage == 1) {
+                p->linkKeyState = WUD_STATE_LINK_KEY_DELETING;
+                BTM_DeleteStoredLinkKey(pInfo->devAddr, __wudLinkKeyEventStackCallback);
+
+                pInfo->linkKeyStorage = 0;
+                return WUD_STATE_STACK_CHECK_DEVICE_INFO;
+            }
+
+            if (pInfo->linkKeyStorage != 3) {
+                __wudRemoveDevInfo(pInfo->devAddr);
+            }
+        }
+
+        return WUD_STATE_STACK_DONE;
+    }
+
+    return WUD_STATE_STACK_CHECK_DEVICE_INFO;
+}
+
+static void __wudStackHandler(void) {
+    WUDCB* p = &_wcb;
+
+    switch (p->stackState) {
+    case WUD_STATE_STACK_GET_STORED_LINK_KEY: {
+        p->stackState = __wudStackGetStoredLinkKey();
+        break;
+    }
+
+    case WUD_STATE_STACK_CHECK_DEVICE_INFO: {
+        p->stackState = __wudStackCheckDeviceInfo();
+        break;
+    }
+
+    case WUD_STATE_STACK_DONE: {
+        p->stackState = __wudStackDone();
+        break;
+    }
+    }
+}
+
+void __wudEnableStackHandler0(OSAlarm* pAlarm, OSContext* pContext) {
+    OSSwitchFiberEx((u32)pAlarm, (u32)pContext, 0, 0, (u32)__wudStackHandler, (u32)sWudHandlerStack + sizeof(sWudHandlerStack));
+}
+
 static void __wudInitFlushCallback(u32 result) {
     WUDCB* p_wcb = &_wcb;
 
@@ -1269,6 +1561,30 @@ static void __wudShutdownFlushCallback(u32 result) {
     WUD_DEBUGPrint("__wudShutdownFlushCallback() : %d, Shutdown: %d\n", result, p_wcb->shutdownState);
 
     p_wcb->shutdownState = 3;
+}
+
+static void __wudShutdownHandler(void) {
+    WUDCB* p = &_wcb;
+
+    switch (p->shutdownState) {
+    case WUD_STATE_SHUTDOWN_STORE_SETTINGS: {
+        __wudShutdownStoreSetting();
+        break;
+    }
+
+    case WUD_STATE_SHUTDOWN_DONE: {
+        __wudShutdownDone();
+        break;
+    }
+
+    case WUD_STATE_SHUTDOWN_FLUSH_SETTINGS: {
+        break;
+    }
+    }
+}
+
+static void __wudShutdownHandler0(OSAlarm* pAlarm, OSContext* pContext) {
+    OSSwitchFiberEx((u32)pAlarm, (u32)pContext, 0, 0, (u32)__wudShutdownHandler, (u32)sWudHandlerStack + sizeof(sWudHandlerStack));
 }
 
 void WUDRegisterAllocator(WUDAllocFunc pAllocFunc, WUDFreeFunc pFreeFunc) {
