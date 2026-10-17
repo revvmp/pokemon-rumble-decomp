@@ -827,7 +827,7 @@ s32 CXSecureUncompressLRC(const void* srcp, u32 srcSize, u8* destp, void* work) 
     pSrc += 4;
 
     while (destCnt < destSize) {
-        u16 val = RCGetData_(pSrc, &info9, &rcState, &readCnt);
+        u32 val = RCGetData_(pSrc, &info9, &rcState, &readCnt);
 
         pSrc += readCnt;
 
