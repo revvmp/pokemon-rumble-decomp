@@ -1847,3 +1847,9 @@ For `wpse-v1` / `main.dol`, [F-305-1](findings/305-hbm-sound.md#f-305-1-mix-syn-
 | Address | Size | Old name | Name | Kind | Confidence | Evidence | Source |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | `0x8031DF90` | `0xB8` | `fn_8031DF90` | `btm_discovery_db_reset` | function | high | F-518-2 | `src/RVL_SDK/bte/btm_discovery.c` |
+
+## NW4R g3d ResMdl (#388)
+
+For `wpse-v1` / `main.dol`, [F-388-1](findings/388-g3d-resmdl.md) names the 32 `nw4r::g3d::ResMdl` functions in `.text` `0x8024D000`–`0x8024E0F8` with their mangled CodeWarrior names: `GetParent` (`0x8024D000`, 0x20 bytes), `GetResByteCode(const char*)`, the `ResNode`, `ResVtxPos`, `ResVtxNrm` and `ResVtxClr` accessors and counts, `GetResVtxTexCoord(int)`, `GetResVtxFurPos(int)`, the `ResMat` and `ResShp` accessors and counts, `Bind`, `Init` and `Terminate`. Subtract `0x8004FD40` for `.text` file offsets. Names are high confidence from the CC0 zeldaret/ss reference and exact matches, except `GetParent`, which is medium confidence from the identical ogws `ResAnmTexPat::GetParent`. `ResMdlData` follows ss: `toResFileData` at 0xC, the dictionaries from `toResByteCodeDic` at 0x10 to `toResShpDic` at 0x38, `toResVtxFurVecDic` at 0x28 and `toResVtxFurPosDic` at 0x2C.
+
+Outside callees named for the link: `ResShp::Init` (`0x8024E280`), `ResShp::Terminate` (`0x8024E610`), `ResMat::Bind` (`0x802506E0`), `ResMat::Init` (`0x802507B0`), and `DCStore(bool)` of `ResVtxPos` (`0x80250E60`), `ResVtxNrm` (`0x80250E80`), `ResVtxClr` (`0x80250EA0`), `ResVtxTexCoord` (`0x80250EC0`), `ResVtxFurVec` (`0x80250EE0`) and `ResVtxFurPos` (`0x80250F00`).
