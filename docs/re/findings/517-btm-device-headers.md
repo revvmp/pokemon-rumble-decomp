@@ -1,6 +1,6 @@
 # F-517-1: BTM device-controller header prerequisite
 
-Issue #517 needs the complete controller reset states and interfaces before its two device source units can be reconstructed. This prerequisite changes canonical headers only and adds no source reconstruction credit. It must merge before the dependent source delivery. The refreshed branch is based on pending PR #696 head `bf90575d272a3164b497027ebb8061321401e7f5`, which includes the merged BTM inquiry/main/power deliveries.
+Issue #517 needs the complete controller reset states and interfaces before its two device source units can be reconstructed. This prerequisite changes canonical headers only and adds no source reconstruction credit. It must merge before the dependent source delivery. The branch follows pending PR #696, which includes the merged BTM inquiry/main/power deliveries. The pull request records its current parent and exact verified head.
 
 ## Target-evidenced reset states
 
@@ -25,7 +25,7 @@ Reference declarations and constants come from Petari commit `e0ab141914921726a5
 
 ## Header acceptance
 
-The initial default-directory baseline captured all 301 existing source objects and preserved their code/data/relocations. After reconciling with the newer main deliveries and rebasing onto the refreshed #696 base, a fresh `build/517-header-refresh-1` probe compiles the exact parent headers, restores the proposed headers, and repeats all-source compilation. All 322 current source objects retain identical code/data section sizes and bytes plus canonical relocation targets. Configure and both all-source passes exit 0. The full Ninja link/CHECK and `python tools/verify/verify.py verify --manifest config/targets/wpse-v1.json --reference-dir orig/wpse-v1 --build-dir build/wpse-v1` then also exit 0. Main game DOL SHA-256 remains `ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da`; scope excludes boot content 6, data contents, and WAD packaging. Final rebased exact-head verification is required before merge once the stack and CI backstops allow it. No frozen manifests, expected hashes, progress inputs, or source-unit selections change.
+The initial default-directory baseline captured all 301 existing source objects and preserved their code/data/relocations. After reconciling with the newer main deliveries and rebasing onto the refreshed #696 base, a fresh `build/517-header-refresh-1` probe compiles the exact parent headers, restores the proposed headers, and repeats all-source compilation. All 322 then-current source objects retain identical code/data section sizes and bytes plus canonical relocation targets. Configure and both all-source passes exit 0. The full Ninja link/CHECK and explicit verification of `build/517-header-refresh-1/wpse-v1` then also exit 0. Main game DOL SHA-256 remains `ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da`; scope excludes boot content 6, data contents, and WAD packaging. Final rebased exact-head verification is required after the dependency merges; local verification is the merge gate under the updated take-issue procedure. No frozen manifests, expected hashes, progress inputs, or source-unit selections change.
 
 ## Traps
 
