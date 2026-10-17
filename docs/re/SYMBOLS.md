@@ -1947,3 +1947,9 @@ For `wpse-v1` / `main.dol`, [F-394-1](findings/394-g3d-resanmscn-transform.md) n
 ## EUART (#504)
 
 [F-504-1](findings/504-euart-usb-wud.md) identifies `EUARTInit` at `0x803086D0` (0xFC), alongside existing `InitializeUART` at `0x803087D0` (0x48) and `WriteUARTN` at `0x80308820` (0x230). Names follow the CC0 SDK reference and proven behavior. The four four-byte states at `0x804B9B08`, `0x804B9B0C`, `0x804B9B10` and `0x804B9B14` are `__EUARTInitialized`, `__EUARTLastErrorCode`, `__EUARTSendStop` and descriptive `__EUARTEnabled`, distinct from EXIUart.c's `Enabled`. The external four-byte frequency constant at `0x804BB288` receives reference name `__EXIFreq` without any split, extent or storage-type change. Text and sbss compare at 100%, and the source-linked DOL passes frozen verification.
+
+## USB transfer unit (#504)
+
+[F-504-2](findings/504-euart-usb-wud.md#f-504-2-usb-translation-unit-and-pooled-string-residual) names `USB_LOG` (`0x80308A50`), `USB_ERR` (`0x80308B00`), `_intrBlkCtrlIsoCb` (`0x80308CC0`), `__LongBlkMsgInt` (`0x803090E0`), `__IntrBlkMsgInt` (`0x80309440`) and `__CtrlMsgInt` (`0x80309960`). Other retained USB public names were already established by callers. Names follow pinned SDK references; private spelling confidence is medium. Behavior and sizes follow target comparison. The private request layout is documented in F-504-2.
+
+`sUsbHeapId` at `0x804B8E78` names this unit's initialized four-byte heap ID, distinct from ISFS's `hId`. `s_usb_err` is the byte at `0x804B8E7C`; `lo` and `hi` are pointers at `0x804B9B18` and `0x804B9B1C`; `s_usb_log` is the single byte at `0x804B9B20`. `usbMessagePool` is a descriptive name for the 0x830-byte compiler string pool at `0x803DE888`. The unit remains NonMatching: five missing strings shift five folded code offsets, and the original USB object remains linked.
