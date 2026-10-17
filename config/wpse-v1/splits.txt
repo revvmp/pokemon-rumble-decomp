@@ -35,6 +35,11 @@ RVL_SDK/hbm/HBMGUIManager.cpp:
 	.data       start:0x803BA060 end:0x803BA2D0
 	.bss        start:0x803E99E0 end:0x803E99E4
 
+RVL_SDK/hbm/HBMController.cpp:
+	.text       start:0x8017A010 end:0x8017AC20
+	.rodata     start:0x80366A58 end:0x80366A68
+	.bss        start:0x803E99E8 end:0x803E9B80
+
 nw4r/ef/ef_draworder.cpp:
 	.text       start:0x80225820 end:0x80225940
 	.data       start:0x803C52D0 end:0x803C52E8

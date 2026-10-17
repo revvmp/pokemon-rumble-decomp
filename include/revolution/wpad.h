@@ -32,6 +32,12 @@ typedef s32 WPADChannel;
 #define WPAD_MOTOR_STOP 0
 #define WPAD_MOTOR_RUMBLE 1
 
+#define WPAD_SPEAKER_OFF 0
+#define WPAD_SPEAKER_ON 1
+#define WPAD_SPEAKER_MUTE 2
+#define WPAD_SPEAKER_UNMUTE 3
+#define WPAD_SPEAKER_PLAY 4
+
 #define WPAD_BUTTON_LEFT 0x0001
 #define WPAD_BUTTON_RIGHT 0x0002
 #define WPAD_BUTTON_DOWN 0x0004
@@ -476,6 +482,8 @@ void WPADDisconnect(s32);
 s32 WPADGetInfoAsync(s32, WPADInfo*, WPADCallback);
 
 BOOL WPADIsSpeakerEnabled(s32);
+u8 WPADGetRadioSensitivity(s32 chan);
+void WPADSetCallbackByKPAD(BOOL isKPAD);
 s32 WPADControlSpeaker(s32, u32, WPADCallback);
 u8 WPADGetSpeakerVolume(void);
 s32 WPADSendStreamData(s32, void*, u16);

@@ -52,6 +52,8 @@ struct OSAlarm {
 #define OSSecondsToTicks(sec) ((sec) * OS_TIMER_CLOCK)
 #define OSMillisecondsToTicks(msec) ((msec) * (OS_TIMER_CLOCK / 1000))
 #define OSMicrosecondsToTicks(usec) (((usec) * (OS_TIMER_CLOCK / 125000)) / 8)
+#define OSTicksToMilliseconds(ticks) ((ticks) / (OS_TIMER_CLOCK / 1000))
+#define OSDiffTick(tick1, tick0) ((s32)(tick1) - (s32)(tick0))
 
 #define OSPhysicalToCached(paddr) ((void*)((u32)(paddr) + 0x80000000))
 #define OSCachedToPhysical(caddr) ((u32)((u8*)(caddr) - 0x80000000))
@@ -75,6 +77,10 @@ void OSCreateAlarm(OSAlarm* alarm);
 void OSSetAlarm(OSAlarm* alarm, OSTime tick, OSAlarmHandler handler);
 void OSSetPeriodicAlarm(OSAlarm* alarm, OSTime start, OSTime period, OSAlarmHandler handler);
 void OSCancelAlarm(OSAlarm* alarm);
+void OSSetAlarmUserData(OSAlarm* alarm, void* data);
+void* OSGetAlarmUserData(const OSAlarm* alarm);
+
+OSTime OSGetTime(void);
 
 __OSInterruptHandler __OSSetInterruptHandler(__OSInterrupt interrupt, __OSInterruptHandler handler);
 OSInterruptMask __OSUnmaskInterrupts(OSInterruptMask mask);

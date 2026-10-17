@@ -194,6 +194,7 @@ config.libs = [
             Object(Matching, "RVL_SDK/hbm/HBMFrameController.cpp"),
             Object(Matching, "RVL_SDK/hbm/HBMAnmController.cpp"),
             Object(Matching, "RVL_SDK/hbm/HBMGUIManager.cpp"),
+            Object(Matching, "RVL_SDK/hbm/HBMController.cpp"),
         ],
     ),
     library(
