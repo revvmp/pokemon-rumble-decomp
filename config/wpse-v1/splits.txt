@@ -1361,7 +1361,7 @@ RVL_SDK/bte/bta_dm_main.c:
 
 RVL_SDK/bte/bta_dm_pm.c:
 	.text       start:0x8031734C end:0x80317D68
-	.data       start:0x803E0828 end:0x803E0874
+	.data       start:0x803E0828 end:0x803E0878
 	.bss        start:0x804AAB18 end:0x804AAB48
 
 RVL_SDK/bte/bta_hh_act.c:
