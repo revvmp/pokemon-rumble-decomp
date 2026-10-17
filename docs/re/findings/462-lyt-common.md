@@ -41,9 +41,9 @@ The split-only full build and explicit frozen verifier pass before object regist
 
 The final linked ELF places all thirteen named functions at their native addresses and sizes, the coordinate array at 0x804524F0 with size 32, and its guard at 0x804B9438 with size one. The actual Ninja link inputs select `src/nw4r/lyt/lyt_common.o` and exclude its original `obj/` counterpart. The source-only TestFileHeader overload, array alpha helper, and Color destructor are real C++ bodies discarded by the linker; they add no native function credit.
 
-## Remaining scope
+## Issue scope integration
 
-The first ten issue functions (`0x802B08F0–0x802B0C30`) continue the Arc resource accessor file whose first functions are in unclaimed #461. That file's split and header ownership have not been taken. The last function at `0x802B1790` is the free `nw4r::lyt::BindAnimation(Group*, AnimTransform*, bool, bool)` declared in Petari `util.h` and called from Layout::BindAnimationAuto; it iterates the group pane list and calls each pane's virtual BindAnimation. Its implementation and supporting interfaces remain fallback work. No completion of #462 is claimed.
+The initial common-unit partial left eleven issue functions in fallback. The user subsequently approved the shared Arc resource-accessor files across #461 and #462; F-462-5 covers the first ten issue functions (`0x802B08F0–0x802B0C30`) and their owning units. F-462-6 covers the final free `nw4r::lyt::BindAnimation(Group*, AnimTransform*, bool, bool)` at `0x802B1790` in `lyt_util.cpp`. The complete issue inventory is recorded there. This common unit itself remains thirteen native functions and 2,832 code bytes; progress from the other units is counted separately.
 
 ## Traps
 

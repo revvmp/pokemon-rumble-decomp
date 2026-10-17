@@ -644,6 +644,9 @@ nw4r/lyt/lyt_common.cpp:
 	.sbss       start:0x804B9438 end:0x804B9439
 	.sdata2     start:0x804BB220 end:0x804BB228
 
+nw4r/lyt/lyt_util.cpp:
+	.text       start:0x802B1790 end:0x802B1800
+
 RVL_SDK/base/PPCArch.c:
 	.text       start:0x802B1800 end:0x802B1A10
 	.data       start:0x803C7280 end:0x803C72B8
