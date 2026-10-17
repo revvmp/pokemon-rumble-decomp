@@ -131,6 +131,8 @@ typedef struct {
     tRFC_MCB rfc_mcb[MAX_BD_CONNECTIONS];
 } tPORT_CB;
 
+void PORT_StartCnf(tRFC_MCB* p_mcb, UINT16 result);
+void PORT_StartInd(tRFC_MCB* p_mcb);
 void PORT_ParNegInd(tRFC_MCB* p_mcb, UINT8 dlci, UINT16 mtu, UINT8 cl, UINT8 k);
 void PORT_ParNegCnf(tRFC_MCB* p_mcb, UINT8 dlci, UINT16 mtu, UINT8 cl, UINT8 k);
 void PORT_DlcEstablishInd(tRFC_MCB* p_mcb, UINT8 dlci, UINT16 mtu);
@@ -141,11 +143,13 @@ void PORT_ControlInd(tRFC_MCB* p_mcb, UINT8 dlci, tPORT_CTRL* p_pars);
 void PORT_ControlCnf(tRFC_MCB* p_mcb, UINT8 dlci, tPORT_CTRL* p_pars);
 void PORT_LineStatusInd(tRFC_MCB* p_mcb, UINT8 dlci, UINT8 line_status);
 void PORT_DlcReleaseInd(tRFC_MCB* p_mcb, UINT8 dlci);
+void PORT_CloseInd(tRFC_MCB* p_mcb);
 void Port_TimeOutCloseMux(tRFC_MCB* p_mcb);
 void PORT_DataInd(tRFC_MCB* p_mcb, UINT8 dlci, BT_HDR* p_buf);
 void PORT_FlowInd(tRFC_MCB* p_mcb, UINT8 dlci, BOOLEAN enable_data);
 void port_rfc_closed(tPORT* p_port, UINT8 res);
 tPORT* port_find_mcb_dlci_port(tRFC_MCB* p_mcb, UINT8 dlci);
+tPORT* port_find_dlci_port(UINT8 dlci);
 
 #ifdef __cplusplus
 }

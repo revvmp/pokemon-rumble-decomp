@@ -1402,3 +1402,32 @@ For `wpse-v1` / `main.dol`, [F-293-1](findings/293-nw4hbm-lyt.md#f-293-1-lyt_ani
 ## Issue 471: OSCrc and OSLaunch
 
 [F-471-3](findings/471-exibios.md#f-471-3-oscrc-and-oslaunch) names `OSCalcCRC32` (`0x802BF9A0`), with its 16-entry nibble table at `.rodata` `0x80371630`. It also names the OSLaunch functions `PackArgs` (`0x802BFAE0`, file-local, a second copy of OSExec's), `__OSCheckCompanyCode`, `__OSCheckTmdSysVersion`, `__OSGetValidTicketIndex`, `__OSLaunchTitle`, `LaunchCommon` and `OSLaunchManualViewer` (`0x802C08D0`), and `OSLaunchNoReturnFlag` (`.sbss` `0x804B9588`, 4 bytes). The OSLaunch names follow Petari, and `OSLaunchManualViewer` comes from its own diagnostic string; confidence is high. `0x804B8AC8` is the one-byte empty panic message, followed by padding. External names recovered from call sites that match the reference: `DVDGetCurrentDiskID` (`0x802D62B0`), `__DVDResetWithNoSpinup` (`0x802D63A0`), `NANDGetHomeDir` (`0x802E6D70`) and `NANDSecretGetUsage` (`0x802E72B0`).
+## BTE RFCOMM L2CAP interface and multiplexer state machine (#530)
+
+`rfc_mx_sm_execute` was named under #532 (F-532-1) and now links from `src/RVL_SDK/bte/rfc_mx_fsm.c`.
+
+| Address | Size | dtk label | Chosen name | Kind | Confidence | Evidence | Source |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `0x803340D0` | `0x7C` | `fn_803340D0` | `rfcomm_l2cap_if_init` | function | high | F-530-1 | `src/RVL_SDK/bte/rfc_l2cap_if.c` |
+| `0x8033414C` | `0x8C` | `fn_8033414C` | `RFCOMM_ConnectInd` | static function | high | F-530-1 | `src/RVL_SDK/bte/rfc_l2cap_if.c` |
+| `0x803341D8` | `0x104` | `fn_803341D8` | `RFCOMM_ConnectCnf` | static function | high | F-530-1 | `src/RVL_SDK/bte/rfc_l2cap_if.c` |
+| `0x803342DC` | `0x108` | `fn_803342DC` | `RFCOMM_ConfigInd` | static function | high | F-530-1 | `src/RVL_SDK/bte/rfc_l2cap_if.c` |
+| `0x803343E4` | `0x108` | `fn_803343E4` | `RFCOMM_ConfigCnf` | static function | high | F-530-1 | `src/RVL_SDK/bte/rfc_l2cap_if.c` |
+| `0x803344EC` | `0x4` | `fn_803344EC` | `RFCOMM_QoSViolationInd` | static function | high | F-530-1 | `src/RVL_SDK/bte/rfc_l2cap_if.c` |
+| `0x803344F0` | `0x124` | `fn_803344F0` | `RFCOMM_DisconnectInd` | static function | high | F-530-1 | `src/RVL_SDK/bte/rfc_l2cap_if.c` |
+| `0x80334614` | `0x2A0` | `fn_80334614` | `RFCOMM_BufDataInd` | static function | high | F-530-1 | `src/RVL_SDK/bte/rfc_l2cap_if.c` |
+| `0x803348B4` | `0x134` | `fn_803348B4` | `RFCOMM_CongestionStatusInd` | static function | high | F-530-1 | `src/RVL_SDK/bte/rfc_l2cap_if.c` |
+| `0x803349E8` | `0x1C` | `fn_803349E8` | `rfc_save_lcid_mcb` | function | high | F-530-1 | `src/RVL_SDK/bte/rfc_l2cap_if.c` |
+| `0x80334A48` | `0x214` | `fn_80334A48` | `rfc_mx_sm_state_idle` | static function | high | F-530-1 | `src/RVL_SDK/bte/rfc_mx_fsm.c` |
+| `0x80334C5C` | `0x1BC` | `fn_80334C5C` | `rfc_mx_sm_state_wait_conn_cnf` | static function | high | F-530-1 | `src/RVL_SDK/bte/rfc_mx_fsm.c` |
+| `0x80334E18` | `0x128` | `fn_80334E18` | `rfc_mx_sm_state_configure` | static function | high | F-530-1 | `src/RVL_SDK/bte/rfc_mx_fsm.c` |
+| `0x80334F40` | `0x174` | `fn_80334F40` | `rfc_mx_sm_sabme_wait_ua` | static function | high | F-530-1 | `src/RVL_SDK/bte/rfc_mx_fsm.c` |
+| `0x803350B4` | `0x120` | `fn_803350B4` | `rfc_mx_sm_state_wait_sabme` | static function | high | F-530-1 | `src/RVL_SDK/bte/rfc_mx_fsm.c` |
+| `0x803351D4` | `0x118` | `fn_803351D4` | `rfc_mx_sm_state_connected` | static function | high | F-530-1 | `src/RVL_SDK/bte/rfc_mx_fsm.c` |
+| `0x803352EC` | `0x178` | `fn_803352EC` | `rfc_mx_sm_state_disc_wait_ua` | static function | high | F-530-1 | `src/RVL_SDK/bte/rfc_mx_fsm.c` |
+| `0x80335464` | `0xF4` | `fn_80335464` | `rfc_mx_conf_cnf` | static function | high | F-530-1 | `src/RVL_SDK/bte/rfc_mx_fsm.c` |
+| `0x80335558` | `0xF0` | `fn_80335558` | `rfc_mx_conf_ind` | static function | high | F-530-1 | `src/RVL_SDK/bte/rfc_mx_fsm.c` |
+| `0x803326FC` | see `symbols.txt` | `fn_803326FC` | `PORT_StartCnf` | function | high | F-530-1 | Not reconstructed (fallback) |
+| `0x8033285C` | see `symbols.txt` | `fn_8033285C` | `PORT_StartInd` | function | high | F-530-1 | Not reconstructed (fallback) |
+| `0x80333404` | see `symbols.txt` | `fn_80333404` | `PORT_CloseInd` | function | high | F-530-1 | Not reconstructed (fallback) |
+| `0x80333DA4` | see `symbols.txt` | `fn_80333DA4` | `port_find_dlci_port` | function | high | F-530-1 | Not reconstructed (fallback) |

@@ -6,7 +6,9 @@
 #define L2CAP_MIN_OFFSET 9
 
 enum {
-    L2CAP_CONN_OK = 0
+    L2CAP_CONN_OK = 0,
+    L2CAP_CONN_PENDING = 1,
+    L2CAP_CONN_NO_RESOURCES = 4
 };
 
 enum {
