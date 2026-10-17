@@ -258,7 +258,7 @@ config.libs = [
             Object(Matching, "RVL_SDK/hbm/nw4hbm/lyt/lyt_drawInfo.cpp"),
             Object(Matching, "RVL_SDK/hbm/nw4hbm/lyt/lyt_group.cpp"),
             Object(Matching, "RVL_SDK/hbm/nw4hbm/lyt/lyt_layout.cpp"),
-            Object(NonMatching, "RVL_SDK/hbm/nw4hbm/lyt/lyt_material.cpp"),
+            Object(Matching, "RVL_SDK/hbm/nw4hbm/lyt/lyt_material.cpp"),
             Object(Matching, "RVL_SDK/hbm/nw4hbm/lyt/lyt_pane.cpp"),
             Object(Matching, "RVL_SDK/hbm/nw4hbm/lyt/lyt_picture.cpp"),
             Object(Matching, "RVL_SDK/hbm/nw4hbm/lyt/lyt_resourceAccessor.cpp"),

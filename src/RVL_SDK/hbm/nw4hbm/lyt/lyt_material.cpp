@@ -223,19 +223,21 @@ u32 GetTexMtxIdx(u32 texMtx) {
 namespace nw4hbm {
 namespace lyt {
 
+Material::Material() {
+    Init();
+    memset(mName, 0, sizeof(mName));
+}
+
 Material::Material(const res::Material* pRes, const ResBlockSet& rBlockSet) {
     Init();
     SetName(pRes->name);
 
     for (int i = 0; i < TEVCOLOR_MAX; i++) {
-        mTevCols[i].r = pRes->tevCols[i].r;
-        mTevCols[i].g = pRes->tevCols[i].g;
-        mTevCols[i].b = pRes->tevCols[i].b;
-        mTevCols[i].a = pRes->tevCols[i].a;
+        mTevCols[i] = pRes->tevCols[i];
     }
 
     for (int i = 0; i < GX_MAX_KCOLOR; i++) {
-        mTevKCols[i] = pRes->tevKCols[i];
+        mTevKCols[i] = pRes->tevKCols[i].ToU32();
     }
 
     u32 resOffs = sizeof(res::Material);
@@ -291,7 +293,14 @@ Material::Material(const res::Material* pRes, const ResBlockSet& rBlockSet) {
         }
 
         TexCoordGen* pTexCoordGens = GetTexCoordGenAry();
-        SetTexCoordGenNum(texCoordGenNum);
+        if (texCoordGenNum) {
+            for (u32 i = mGXMemNum.texCoordGen; i < texCoordGenNum; i++) {
+                pTexCoordGens[i] = TexCoordGen();
+            }
+
+            mGXMemNum.texCoordGen = texCoordGenNum;
+        }
+
         for (int i = 0; i < mGXMemNum.texCoordGen; i++) {
             pTexCoordGens[i] = pResTexCoordGens[i];
         }
