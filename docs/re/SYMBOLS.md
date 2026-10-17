@@ -1431,3 +1431,16 @@ For `wpse-v1` / `main.dol`, [F-293-1](findings/293-nw4hbm-lyt.md#f-293-1-lyt_ani
 | `0x8033285C` | see `symbols.txt` | `fn_8033285C` | `PORT_StartInd` | function | high | F-530-1 | Not reconstructed (fallback) |
 | `0x80333404` | see `symbols.txt` | `fn_80333404` | `PORT_CloseInd` | function | high | F-530-1 | Not reconstructed (fallback) |
 | `0x80333DA4` | see `symbols.txt` | `fn_80333DA4` | `port_find_dlci_port` | function | high | F-530-1 | Not reconstructed (fallback) |
+
+## BTE RFCOMM port utilities (#529)
+
+`port_find_mcb_dlci_port` (F-531-1) and `port_find_dlci_port` (F-530-1) now link from `src/RVL_SDK/bte/port_utils.c`.
+
+| Address | Size | dtk label | Chosen name | Kind | Confidence | Evidence | Source |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `0x80333AF8` | `0x17C` | `fn_80333AF8` | `port_select_mtu` | function | high | F-529-1 | `src/RVL_SDK/bte/port_utils.c` |
+| `0x80333C74` | `0xDC` | `fn_80333C74` | `port_release_port` | function | high | F-529-1 | `src/RVL_SDK/bte/port_utils.c` |
+| `0x80333E2C` | `0x70` | `fn_80333E2C` | `port_flow_control_user` | function | high | F-529-1 | `src/RVL_SDK/bte/port_utils.c` |
+| `0x80333E9C` | `0x68` | `fn_80333E9C` | `port_get_signal_changes` | function | high | F-529-1 | `src/RVL_SDK/bte/port_utils.c` |
+| `0x80333F04` | `0x1CC` | `fn_80333F04` | `port_flow_control_peer` | function | high | F-529-1 | `src/RVL_SDK/bte/port_utils.c` |
+| `0x8031B480` | see `symbols.txt` | `fn_8031B480` | `btm_get_max_packet_size` | function | high | F-529-1 | Not reconstructed (fallback) |
