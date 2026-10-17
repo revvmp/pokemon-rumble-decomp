@@ -406,6 +406,7 @@ config.libs = [
             Object(Matching, "nw4r/g3d/g3d_camera.cpp"),
             Object(Matching, "nw4r/g3d/dcc/g3d_basic.cpp"),
             Object(Matching, "nw4r/g3d/dcc/g3d_maya.cpp"),
+            Object(NonMatching, "nw4r/g3d/g3d_scnmdlsmpl.cpp"),
             Object(Matching, "nw4r/g3d/dcc/g3d_xsi.cpp"),
             Object(Matching, "nw4r/g3d/dcc/g3d_3dsmax.cpp"),
             Object(Matching, "nw4r/g3d/g3d_scnobj.cpp"),
