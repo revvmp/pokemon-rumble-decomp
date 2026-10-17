@@ -71,8 +71,28 @@ accesses pair all 429 text relocations to their actual targets. All forty
 non-text bytes match exactly. No callee address remains inferred or
 unresolved. External scripts are `450-compile-charwriter-probe.py` and
 `450-paired-native.py`, each exit 0. These are diagnostic compiler/native
-checks; actual source selection and complete frozen-link acceptance remain
-required before publishing reconstructed source progress.
+checks. The subsequent split-only, NonMatching, and actual Matching source
+pipelines in the combined layout delivery each exit 0, followed separately
+by explicit frozen verification 0. The actual CharWriter object has all
+thirteen functions and all four sections at 100%. Every final native
+function address and size is exact, as are all 429 actual relocation targets
+and forty data bytes. The real Ninja graph selects the source object and
+excludes its fallback. The complete DOL matches the immutable reference.
+These first acceptance runs use the combined delivery's historical base;
+final latest-main verification remains required before merge.
+
+`450-full-source-audit.py` also checks all 36 original #450 rows at their
+native addresses and sizes, plus source-only selection for ArchiveFont,
+PairFont and CharWriter. The two #451 tails match independently. The existing
+PairFont .data objdiff score is 85.714%, also present in the historical
+unchanged-header baseline: its source object contains 208 bytes, including
+an extra 96-byte weak base Font vtable, versus the native unit's 112 bytes.
+The retained 112 bytes and all 23 pointer relocations were independently
+reconstructed against the frozen-native ELF baseline and are exact. The
+weak base Font vtable resolves at the already canonical 803C6A88. All 23
+PairFont functions are 100%, and the entire DOL remains exact. No existing
+Font/PairFont code is changed or extraneous source-object data claimed as
+new reconstruction. This diagnostic limitation is preserved explicitly.
 
 ## Original inventories and credit
 
@@ -106,6 +126,10 @@ Issue #451 remains the TextWriter owner's work beyond those two tails.
 - Matching relocation-masked instructions alone cannot validate TEV colors,
   static fog state, texture cache or callees. Pair every relocation against
   the native target and compare the complete owned non-text sections.
+- A source object can contain an additional weak base-class vtable that the
+  linker coalesces into another native unit. Keep its diagnostic score
+  visible and independently compare the retained native data and targets;
+  do not rewrite the shared class or count the extra weak data as progress.
 
 ## Original issue rows
 
