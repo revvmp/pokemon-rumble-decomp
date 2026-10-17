@@ -75,7 +75,7 @@ A source file often spans more than one block issue. The issue that owns the fil
 
 ### Game compiler
 
-The game compiler is not yet identified. Before writing game code, check `docs/re/findings/` and the open pull requests for a finding that establishes it. If there is none, establish it on a small function first, compiling with the candidates in F-0007's method, and record a `F-<n>-<k>` finding. Never guess flags.
+Game code is built with Wii/1.1 and `cflags_game` in `configure.py`: exceptions and RTTI on, `-fp_contract off`, `-ipa file`, default 16-byte function alignment ([F-735-1](../../../docs/re/findings/735-game-compiler.md)). Register game units with `GAME_COMPILER` and `cflags_game`. Read that finding's Traps before writing game code. Under `-ipa file`, inline functions are emitted in reverse declaration order, and the game uses by-value `min`/`max` templates. `game/BController.cpp` is the reference example of a matching game unit. If a game function fails under 1.1 with everything else right, try Wii/1.3 before changing flags, and record the result; `-O4,p` versus `-O4,s` and deferred inlining are still unsettled. Never guess flags.
 
 ### Steps
 
