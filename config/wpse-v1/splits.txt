@@ -534,6 +534,12 @@ RVL_SDK/ipc/ipcProfile.c:
 	.bss        start:0x80477320 end:0x80477420
 	.sbss       start:0x804B9A00 end:0x804B9A08
 
+RVL_SDK/fs/fs.c:
+	.text       start:0x802F3430 end:0x802F4C40
+	.data       start:0x803DCAE8 end:0x803DCB10
+	.sdata      start:0x804B8D98 end:0x804B8DA8
+	.sbss       start:0x804B9A08 end:0x804B9A20
+
 RVL_SDK/pad/Padclamp.c:
 	.text       start:0x802F4C40 end:0x802F5288
 	.rodata     start:0x80397DC0 end:0x80397DD8

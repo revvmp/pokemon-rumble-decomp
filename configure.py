@@ -328,6 +328,7 @@ config.libs = [
             Object(Matching, "RVL_SDK/ipc/ipcMain.c"),
             Object(Matching, "RVL_SDK/ipc/memory.c"),
             Object(Matching, "RVL_SDK/ipc/ipcProfile.c"),
+            Object(Matching, "RVL_SDK/fs/fs.c"),
             Object(Matching, "RVL_SDK/pad/Padclamp.c"),
             Object(Matching, "RVL_SDK/pad/Pad.c"),
             Object(NonMatching, "RVL_SDK/wpad/WPAD.c"),

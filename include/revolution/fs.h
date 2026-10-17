@@ -1,6 +1,8 @@
 #ifndef REVOLUTION_FS_H
 #define REVOLUTION_FS_H
 
+#include "private/iosrestypes.h"
+#include "private/iostypes.h"
 #include "revolution/types.h"
 
 #ifdef __cplusplus
@@ -30,17 +32,49 @@ extern "C" {
 
 #define ISFS_INODE_NAMELEN 12
 
-typedef s32 IOSFd;
-typedef u32 IOSUid;
-typedef u16 IOSGid;
-
 typedef s32 ISFSError;
 typedef void (*ISFSCallback)(ISFSError result, void* ctxt);
+
+typedef struct ISFSStats {
+    u32 blockSize;
+    u32 freeBlocks;
+    u32 occupiedBlcocks;
+    u32 badBlocks;
+    u32 reservedBlocks;
+    u32 freeInodes;
+    u32 occupedInodes;
+} ISFSStats;
 
 typedef struct ISFSFileStats {
     u32 size;
     u32 offset;
 } ISFSFileStats;
+
+typedef struct ISFSPathAttrArgs {
+    IOSUid ownerId;
+    IOSGid groupId;
+    u8 path[64];
+    u8 ownerAccess;
+    u8 groupAccess;
+    u8 othersAccess;
+    u8 attr;
+} ISFSPathAttrArgs;
+
+typedef struct ISFSPathsArgs {
+    u8 path1[64];
+    u8 path2[64];
+} ISFSPathsArgs;
+
+ISFSError ISFS_OpenLib(void);
+ISFSError ISFS_ReadDir(const u8* dname, u8* nameList, u32* num);
+ISFSError ISFS_ReadDirAsync(const u8* dname, u8* nameList, u32* num, ISFSCallback cb, void* fsCtxt);
+ISFSError ISFS_GetUsage(const u8* dname, u32* nblocks, u32* ninodes);
+IOSFd ISFS_Open(const u8* fname, u32 access);
+IOSFd ISFS_OpenAsync(const u8* fname, u32 access, ISFSCallback cb, void* fsCtxt);
+ISFSError ISFS_GetFileStatsAsync(IOSFd fd, ISFSFileStats* stats, ISFSCallback cb, void* fsCtxt);
+ISFSError ISFS_Close(IOSFd fd);
+ISFSError ISFS_CloseAsync(IOSFd fd, ISFSCallback cb, void* fsCtxt);
+ISFSError ISFS_ShutdownAsync(ISFSCallback cb, void* fsCtxt);
 
 ISFSError ISFS_CreateDir(const u8* dname, u32 dirAttr, u32 ownerAcc, u32 groupAcc, u32 othersAcc);
 ISFSError ISFS_CreateDirAsync(const u8* dname, u32 dirAttr, u32 ownerAcc, u32 groupAcc, u32 othersAcc, ISFSCallback cb, void* fsCtxt);
