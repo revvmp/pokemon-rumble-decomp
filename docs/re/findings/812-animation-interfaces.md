@@ -45,6 +45,8 @@ The fresh TextBox-inclusive build reproduces the same 477-object baseline result
 
 For final integration onto actual merged #855 (`8a29e94b907f6c7c2fa32c4ce59446c1a9848095`), all Material/TexMap interfaces and the #856 RTTI guard come directly from main. The animation diagnostic now compiles using only this worktree's tracked include tree. The Layout diagnostic likewise uses tracked declarations except the exact #809-owned Picture header from approved commit `516e173e`, isolated as its sole external header prerequisite. Picture source/header ownership remains in #809's source delivery. Both native audits retain their complete counts above. The verified #855 tree is identical to its actual squash snapshot; all 498 existing source objects were captured from that verified build as the current-main control before the final fresh header build.
 
+The final current-main comparison passes for all 498 source objects: 495 are byte-identical and only lyt_common, lyt_pane and lyt_window differ in the already restricted compiler-local constant-name digits in `.strtab`. Every other section byte remains identical. The final native animation and Layout consumer audits pass with their complete instruction, relocation and data inventories. These are interface compatibility results; source acceptance and issue closure remain separate deliveries.
+
 ## Traps
 
 The older animation interfaces drop the disable argument. Retaining only their class names and sizes is insufficient: preserve the proven virtual signatures and native argument forwarding.
