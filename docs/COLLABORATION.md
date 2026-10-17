@@ -73,14 +73,14 @@ Partially matching work is welcome. Keep it `NonMatching` so the build still use
 | `docs/ledger/*.md`, `docs/re/SYMBOLS.md` | Append your rows. `.gitattributes` merges these with git's union driver, so concurrent appends rebase without conflicts. Never rewrite or reorder other contributors' rows. |
 | Maintainer-only | `docs/re/main.elf.i64` (binary, unmergeable), `config/progress.json`, `docs/images/`, the status table in `PROGRESS.md`, `HANDOFF.md`, `WORKSTREAMS.md`, the `AGENTS.md` state table, `config/targets/`, `config/wpse-v1/build.sha1`, `config/toolchain.json`, and vendored `tools/build/`. |
 
-CI regenerates and commits the progress images after every merge to `main`. Maintainers update the shared summaries. Contributors never edit either, so they never conflict on them.
+A maintainer refreshes the progress images by running the CI workflow manually on `main`. Maintainers update the shared summaries. Contributors never edit either, so they never conflict on them.
 
 ## Definition of done
 
 A pull request is ready when all of these hold:
 
 - `python configure.py` and `ninja` succeed from a clean checkout of the branch.
-- Local verification passes on the exact commit being merged, after rebasing onto the latest `main`. The `Build and verify main.dol` CI check must not have failed ([continuous integration](SETUP.md#continuous-integration)). It remains the backstop on every pull request and on `main`.
+- Local verification passes on the exact commit being merged, after rebasing onto the latest `main`. GitHub CI does not run on pull requests or pushes, so this local verification is the only gate ([continuous integration](SETUP.md#continuous-integration)).
 - `python tools/verify/verify.py verify --manifest config/targets/wpse-v1.json --reference-dir orig/wpse-v1 --build-dir build/wpse-v1` exits 0.
 - Every unit marked `Matching` shows 100% in objdiff, and the full DOL still verifies.
 - No comments, docstrings, unit tests, or raw decompiler output were added.

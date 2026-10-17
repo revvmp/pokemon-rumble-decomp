@@ -93,7 +93,7 @@ python tools/verify/verify.py verify --help
 
 ## Continuous integration
 
-`.github/workflows/build.yml` runs on every push to `main`, every pull request, and on demand. On a fresh Windows runner it does the following, with no caching so stale outputs cannot hide failures:
+`.github/workflows/build.yml` runs only on demand (`gh workflow run build.yml --ref main`, or **Run workflow** in the Actions tab). It no longer runs on pushes or pull requests: it was too slow to gate parallel merges, and contributors verify locally before every merge ([collaboration](COLLABORATION.md#definition-of-done)). On a fresh Windows runner it does the following, with no caching so stale outputs cannot hide failures:
 
 1. Acquires the pinned tools with `tools/setup/acquire_tools.py`, failing on any digest mismatch.
 2. Installs ninja 1.13.0, runs `python configure.py` and `ninja`, and verifies `main.dol` against `config/targets/wpse-v1.json`. A build or verification failure fails the check.
@@ -111,4 +111,4 @@ A branch protection rule that blocks direct pushes to `main` must allow github-a
 
 `orig/` is tracked in this private repository, so the runner checks out the originals directly. Never make the repository public while originals are tracked.
 
-To make the check required, a maintainer adds the `Build and verify main.dol` status check to a branch protection rule or ruleset for `main`. Private repositories need a paid GitHub plan for this.
+Do not make the check required: it no longer runs on pull requests.
