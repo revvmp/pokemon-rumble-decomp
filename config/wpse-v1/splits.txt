@@ -120,6 +120,13 @@ RVL_SDK/gx/GXPixel.c:
 RVL_SDK/gx/GXDisplayList.c:
 	.text       start:0x802D09E0 end:0x802D0A60
 
+RVL_SDK/dvd/dvdqueue.c:
+	.text       start:0x802D66A0 end:0x802D6920
+	.bss        start:0x80458F30 end:0x80458F50
+
+RVL_SDK/dvd/dvdidutils.c:
+	.text       start:0x802D7340 end:0x802D7430
+
 RVL_SDK/ax/AX.c:
 	.text       start:0x802DA490 end:0x802DA500
 	.data       start:0x803D8530 end:0x803D8578

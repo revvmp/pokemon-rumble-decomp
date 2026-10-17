@@ -462,3 +462,8 @@ Japanese data: `enc_tbl_jp_mbtowc` at `0x803718A8` (18,800 bytes), `enc_tbl_jp_w
 | `0x80313E40` | `bta_usb_close_evt` | High confidence: pinned Petari correspondence and all twelve target instructions; [F-511-2](findings/511-bte-close-callback.md) |
 
 Signature: `void bta_usb_close_evt(signed char status)`. The existing `_bte_app_info` callback receives unsigned-byte status zero for a nonnegative input and one otherwise. A null callback returns immediately.
+## DVD queue and disc ID (#482)
+
+[F-482-1](findings/482-dvd-queue-id.md) records function addresses, extents, file-offset mapping and reference evidence for the six waiting-queue operations at 0x802D66A0-0x802D6920 and DVDCompareDiskID at 0x802D7340. The queue's existing local WaitingQueue occupies 0x20 BSS bytes at 0x80458F30. Original names are high confidence; all seven functions compile at 100% objdiff. The finding distinguishes target-observed DVDCommandBlock and DVDDiskID members from the remainder of their reference-derived layouts. strncmp at 0x80345EF8 is an external naming dependency left unchanged for its owner.
+
+The dvd.c tail names __DVDTestAlarm (0x802D6660, 0x20 bytes), __DVDStopMotorAsync (0x802D6680, 8 bytes), and __DVDRestartMotor (0x802D6690, 4 bytes) are also restored within #482. Reference order, alarm-pointer comparison followed by the low-level alarm test, constant-success stub and empty restart body support these original names. No dvd.c split or source coverage is claimed.
