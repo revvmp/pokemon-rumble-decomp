@@ -813,6 +813,24 @@ nw4r/lyt/lyt_init.cpp:
 	.data       start:0x803C6E28 end:0x803C6E70
 	.sdata      start:0x804B8A10 end:0x804B8A14
 
+nw4r/lyt/lyt_pane.cpp:
+	.text       start:0x802A4BC0 end:0x802A5CFC
+	.ctors      start:0x80352A84 end:0x80352A88
+	.data       start:0x803C6E70 end:0x803C6EE8
+	.sbss       start:0x804B9408 end:0x804B940C
+	.sdata2     start:0x804BB160 end:0x804BB180
+
+nw4r/lyt/lyt_group.cpp:
+	.text       start:0x802A5D00 end:0x802A605C
+	.data       start:0x803C6EE8 end:0x803C6EF4
+
+nw4r/lyt/lyt_window.cpp:
+	.text       start:0x802A96E0 end:0x802ABC7C
+	.ctors      start:0x80352A90 end:0x80352A94
+	.data       start:0x803C7060 end:0x803C7130
+	.sbss       start:0x804B9428 end:0x804B942C
+	.sdata2     start:0x804BB1A8 end:0x804BB1C0
+
 nw4r/lyt/lyt_resourceAccessor.cpp:
 	.text       start:0x802B0680 end:0x802B06D8
 	.data       start:0x803C7250 end:0x803C7264

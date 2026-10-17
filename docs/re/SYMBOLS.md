@@ -2200,3 +2200,19 @@ For `wpse-v1` / `main.dol`, [F-383-1](findings/383-ef-free-line-point-strategies
 | --- | --- | --- |
 | NW4R lyt AnimationLink / AnimTransform / AnimResource / Material / DrawInfo | 0x10 / 0x14 / 0x10 / 0x5C / 0x54 bytes | Complete shared storage and native virtual-slot evidence; [F-807-1](findings/807-layout-interfaces.md). |
 | NW4R lyt Size / ResBlockSet / res::MaterialList | 8 / 0x10 / 0xC bytes | Explicit Size copy constructor preserves the native hidden-result-pointer ABI; resource-block pointer order and material count at offset 8 are proven by Window construction; [F-807-1](findings/807-layout-interfaces.md#window-prerequisite-and-size-return-convention). |
+
+## NW4R Pane and Group source (#807)
+
+| Symbol | Native range | Evidence |
+| --- | --- | --- |
+| NW4R lyt Pane vtable | `0x803C6E70–0x803C6EE8` | Complete 0x78-byte table, including SetExtUserDataList slot70 and LoadMtx slot74; typeInfo4 at804B9408. [F-807-2](findings/807-pane-group.md). |
+| NW4R lyt Group / GroupContainer | `0x802A5D00–0x802A605C` | Group size2C and GroupContainer sizeC; five native routines, vtableC at803C6EE8; complete storage in canonical headers. [F-807-2](findings/807-pane-group.md). |
+
+## NW4R Window source (#810)
+
+| Type or symbol | Size or native range | Evidence and confidence |
+| --- | --- | --- |
+| Window / Content / Frame | 0x108 / 0x18 / 8 bytes | Pane baseD8, content inflationD8, ContentE8, frame pointer100, frame count104; Color[4] and TexCoordAry in Content; flip byte and material pointer in Frame. High confidence from target constructor/destructor/draw accesses and pinned references; [F-810-1](findings/810-window.md). |
+| Window vtable / typeInfo | `0x803C70A0–0x803C7130` / `0x804B9428–0x804B942C` | Complete native 0x90-byte virtual table; RTTI getterBC60 and initializerBC70 identify the four-byte object and Pane base. High confidence; [F-810-1](findings/810-window.md). |
+| TextureFlipInfo / flipInfos | 10 bytes / `0x803C7060–0x803C709C` | Six texture-coordinate/index records, native bytes and draw accesses agree with pinned reference. Reference spelling retained; target does not establish helper/enum spelling independently. |
+| NW4R ut Color constructor / destructor | `0x8006CDE0` / `0x8005C9A0` | Exact canonical-header non-relocation bodies and sizes12/64; evidenced outside names only, no split/size/type edits or source credit. |
