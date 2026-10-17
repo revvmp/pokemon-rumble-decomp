@@ -158,4 +158,12 @@ enum {
             ((UINT8*)(a))[ijk] = *(p)++;                                                                               \
     } while (FALSE)
 
+#define UINT32_TO_BE_FIELD(p, u32)                                                                                     \
+    do {                                                                                                               \
+        *((UINT8*)(p) + 0) = (UINT8)((u32) >> 24);                                                                     \
+        *((UINT8*)(p) + 1) = (UINT8)((u32) >> 16);                                                                     \
+        *((UINT8*)(p) + 2) = (UINT8)((u32) >> 8);                                                                      \
+        *((UINT8*)(p) + 3) = (UINT8)(u32);                                                                             \
+    } while (FALSE)
+
 #endif

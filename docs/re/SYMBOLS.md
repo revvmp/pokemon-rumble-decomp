@@ -951,3 +951,30 @@ Names, addresses and evidence are listed in [F-536-1](findings/536-runtime.md#re
 
 For `wpse-v1` / `main.dol`, [F-445-1](findings/445-ut-list-streams.md) names 27 `.text` functions from `0x80292D00` to `0x80293DBC` with their mangled CodeWarrior names (`nw4r::ut::List_*`, `detail::LinkListImpl`, `IsValidBinaryFile`, `CharStrmReader::ReadNextChar*`, `IOStream`, `FileStream`, and `FileStream::FilePosition`), including the static initializers `__sinit_\ut_IOStream_cpp` (`0x80293C30`) and `__sinit_\ut_FileStream_cpp` (`0x80293DB0`). It also names the `.sbss` objects `typeInfo__Q34nw4r2ut8IOStream` (`0x804B93B8`, 4 bytes) and `typeInfo__Q34nw4r2ut10FileStream` (`0x804B93C0`, 4 bytes). All names are high confidence from the CC0 ogws reference and exact matches. Subtract `0x8004FD40` for `.text` file offsets. Layouts: `ut::List` is 0xC bytes with its link offset at 0xA; `FileStream::FilePosition` holds the file size at 0 and the position at 4. `IOStream::Write` returns `s32`.
 | `0x802B9F00`-`0x802BAE10` | `OSInitMutex`, `OSLockMutex`, `OSUnlockMutex`, `__OSUnlockAllMutex`, `OSTryLockMutex`, `OSInitCond`, `OSWaitCond`, `OSSignalCond`, `__OSReboot`, `OSGetSaveRegion`, `OSRegisterShutdownFunction`, `__OSCallShutdownFunctions`, `__OSShutdownDevices`, `__OSGetDiscState`, `OSShutdownSystem`, `OSRestart`, `__OSReturnToMenu` (local), `OSReturnToMenu`, `OSReturnToDataManager`, `OSReturnToSetting`, `__OSReturnToMenuForError`, `__OSHotResetForError`, `OSGetResetCode`, `OSResetSystem` | High confidence: matching `OSMutex.c`, `OSReboot.c` and `OSReset.c`. Data: `SaveStart` and `SaveEnd` (`.sbss` `0x804B94E8`, `0x804B94EC`), `bootThisDol` (`0x804B94F0`), `__OSIsReturnToIdle` (`0x804B94F4`), `ShutdownFunctionQueue` (`0x804B94F8`, 8 bytes); [F-468-1](findings/468-os-mutex-reboot-reset.md) |
+
+## BTE SDP API, database and discovery (#533)
+
+Names already recorded elsewhere (`SDP_SetLocalDiRecord`, `SDP_GetLocalDiRecord`, `SDP_AddAttribute`, `SDP_AddUuidSequence`, `sdp_db_*`, `sdp_disc_connected`, `sdp_disc_server_rsp`) are unchanged and now link from these sources.
+
+| Address | Size | dtk label | Chosen name | Kind | Confidence | Evidence | Source |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `0x80338B3C` | `0x378` | `fn_80338B3C` | `SDP_InitDiscoveryDb` | function | high | F-533-1 | `src/RVL_SDK/bte/sdp_api.c` |
+| `0x80338EB4` | `0x5C` | `fn_80338EB4` | `SDP_ServiceSearchRequest` | function | high | F-533-1 | `src/RVL_SDK/bte/sdp_api.c` |
+| `0x80338F10` | `0x64` | `fn_80338F10` | `SDP_ServiceSearchAttributeRequest` | function | high | F-533-1 | `src/RVL_SDK/bte/sdp_api.c` |
+| `0x80338F74` | `0x28` | `fn_80338F74` | `SDP_FindAttributeInRec` | function | high | F-533-1 | `src/RVL_SDK/bte/sdp_api.c` |
+| `0x80338F9C` | `0xCC` | `fn_80338F9C` | `SDP_FindServiceInDb` | function | high | F-533-1 | `src/RVL_SDK/bte/sdp_api.c` |
+| `0x80339068` | `0x108` | `fn_80339068` | `SDP_FindServiceUUIDInDb` | function | high | F-533-1 | `src/RVL_SDK/bte/sdp_api.c` |
+| `0x80339980` | `0x24` | `fn_80339980` | `SDP_SetTraceLevel` | function | high | F-533-1 | `src/RVL_SDK/bte/sdp_api.c` |
+| `0x80339AE0` | `0xD8` | `fn_80339AE0` | `find_uuid_in_seq` | static function | high | F-533-1 | `src/RVL_SDK/bte/sdp_db.c` |
+| `0x80339C54` | `0xE0` | `fn_80339C54` | `SDP_CreateRecord` | function | high | F-533-1 | `src/RVL_SDK/bte/sdp_db.c` |
+| `0x80339D34` | `0x114` | `fn_80339D34` | `SDP_DeleteRecord` | function | high | F-533-1 | `src/RVL_SDK/bte/sdp_db.c` |
+| `0x8033A2B8` | `0x17C` | `fn_8033A2B8` | `SDP_AddServiceClassIdList` | function | high | F-533-1 | `src/RVL_SDK/bte/sdp_db.c` |
+| `0x8033A434` | `0x23C` | `fn_8033A434` | `SDP_DeleteAttribute` | function | high | F-533-1 | `src/RVL_SDK/bte/sdp_db.c` |
+| `0x8033A670` | `0xEC` | `fn_8033A670` | `sdpu_build_uuid_seq` | static function | high | F-533-1 | `src/RVL_SDK/bte/sdp_discovery.c` |
+| `0x8033A75C` | `0x130` | `fn_8033A75C` | `sdp_snd_service_search_req` | static function | high | F-533-1 | `src/RVL_SDK/bte/sdp_discovery.c` |
+| `0x8033AA00` | `0x148` | `fn_8033AA00` | `process_service_search_rsp` | static function | high | F-533-1 | `src/RVL_SDK/bte/sdp_discovery.c` |
+| `0x8033AB48` | `0x2A8` | `fn_8033AB48` | `process_service_attr_rsp` | static function | high | F-533-1 | `src/RVL_SDK/bte/sdp_discovery.c` |
+| `0x8033ADF0` | `0x2D4` | `fn_8033ADF0` | `process_service_search_attr_rsp` | static function | high | F-533-1 | `src/RVL_SDK/bte/sdp_discovery.c` |
+| `0x8033B0C4` | `0x1EC` | `fn_8033B0C4` | `save_attr_seq` | static function | high | F-533-1 | `src/RVL_SDK/bte/sdp_discovery.c` |
+| `0x8033B2B0` | `0xA0` | `fn_8033B2B0` | `add_record` | static function | high | F-533-1 | `src/RVL_SDK/bte/sdp_discovery.c` |
+| `0x8033B350` | `0x598` | `fn_8033B350` | `add_attr` | static function | high | F-533-1 | `src/RVL_SDK/bte/sdp_discovery.c` |
