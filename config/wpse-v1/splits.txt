@@ -489,10 +489,10 @@ RVL_SDK/ai/ai.c:
 	.sbss       start:0x804B9800 end:0x804B983C
 
 RVL_SDK/ax/AX.c:
-	.text       start:0x802DA490 end:0x802DA500
+	.text       start:0x802DA490 end:0x802DA4F8
 	.data       start:0x803D8530 end:0x803D8578
-	.sdata      start:0x804B8BD0 end:0x804B8BD8
-	.sbss       start:0x804B9840 end:0x804B9848
+	.sdata      start:0x804B8BD0 end:0x804B8BD4
+	.sbss       start:0x804B9840 end:0x804B9844
 
 RVL_SDK/ax/AXAlloc.c:
 	.text       start:0x802DA500 end:0x802DA9EC
