@@ -321,6 +321,8 @@ The control-block and message offsets that this code checks against the target a
 
 Names, ranges and evidence for 25 renamed functions and four statics are in [F-476-1](findings/476-gxmisc-gxgeometry.md). Statics, all local to `GXMisc.c`: `FinishQueue` `.sbss` `0x804B96E0` (OSThreadQueue, 8 bytes), `DrawDone` `0x804B96E8` (volatile GXBool), `DrawDoneCB` `0x804B96EC`, `TokenCB` `0x804B96F0`.
 
+External GX names given for the source link, evidence in [F-476-4](findings/476-gxmisc-gxgeometry.md): `__GXSetVCD` `0x802CB930` (0xB0), `__GXCalculateVLim` `0x802CB9E0` (0x12C), `__GXSetVAT` `0x802CC080` (0x80), `__GXSetSUTexRegs` `0x802CF270` (0x164), `__GXUpdateBPMask` `0x802CFB20` (0x4), `__GXSetProjection` `0x802D0A60` (0x44), `__GXSetViewport` `0x802D0DB0` (0x90), `__GXSetMatrixIndex` `0x802D0F90` (0x88). Confidence high; sizes are dtk's and remain with the owning units.
+
 `GXData` (`include/revolution/gx/GXTypes.h`, reached through the `.sdata2` pointer `__GXData`) is 0x600 bytes, 4-byte aligned. Offsets confirmed by target accesses: `vNumNot` 0x0, `bpSentNot` 0x2, `vNum` 0x4, `vLim` 0x6, `lpSize` 0x7C, `ambColor` 0xA8, `matColor` 0xB0, `chanCtrl` 0xB8, `texGenCtrl` 0xC8, `dualTexGenCtrl` 0xE8, `suTs0` 0x108, `peCtrl` 0x22C, `genMode` 0x254, `dlSaveContext` 0x5F9, `abtWaitPECopy` 0x5FA, `dirtyState` 0x5FC. Other fields follow Petari's layout; confidence medium until their units are matched. `GX_DIRTY_*`, `XF_REG_*`, and `PE_REG_*` names in `include/revolution/gx/GXState.h` are descriptive choices, not recovered names.
 ## Issue #497: IPC allocator and profiling
 

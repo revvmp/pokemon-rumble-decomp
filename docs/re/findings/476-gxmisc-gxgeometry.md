@@ -28,6 +28,23 @@ In a local experiment that was not committed, both units were set to `Matching` 
 
 The first source-linked attempt ended GXGeometry's `.text` at the next unit's start, `0x802CD440`. The compiled object ends at `0x802CD434`, and the following auto-split object has 4-byte alignment, so everything after moved 0x10 bytes earlier and verification failed at DOL header byte `0x6F`. Ending the split at the last function's end, `0x802CD434`, leaves the padding in the next auto split and verifies. objdiff reports 100% either way. Confidence high.
 
+## F-476-4: external names and source-linked match
+
+On `main` at `e2105cd`, `OSWakeupThread`, `__GXIsGPFifoReady` and `__GXCleanGPFifo` were already named. The remaining eight labels were renamed in `config/wpse-v1/symbols.txt`:
+
+| Address | dtk size | Name | Evidence |
+| --- | --- | --- | --- |
+| `0x802CB930` | 0xB0 | `__GXSetVCD` | First of the three vertex-format calls in `__GXSetDirtyState`, under the VCD dirty bit; sits in the GXAttr range before `__GXCalculateVLim`, as in Petari `GXAttr.c` |
+| `0x802CB9E0` | 0x12C | `__GXCalculateVLim` | Third vertex-format call, under the vertex-limit condition; follows `__GXSetVCD` in GXAttr |
+| `0x802CC080` | 0x80 | `__GXSetVAT` | Second vertex-format call, under the VAT dirty bit; last GXAttr routine before the one at `0x802CC600` |
+| `0x802CF270` | 0x164 | `__GXSetSUTexRegs` | First call in `__GXSetDirtyState`, under the SU texture-size dirty bit; GXTexture range |
+| `0x802CFB20` | 0x4 | `__GXUpdateBPMask` | Second call in `__GXSetDirtyState`; a single `blr`, matching the empty Wii body in Petari `GXTexture.c` |
+| `0x802D0A60` | 0x44 | `__GXSetProjection` | Last call in `__GXSetDirtyState`, under the projection dirty bit; GXTransform range |
+| `0x802D0DB0` | 0x90 | `__GXSetViewport` | Call under the viewport dirty bit; GXTransform range |
+| `0x802D0F90` | 0x88 | `__GXSetMatrixIndex` | The two calls with `GX_VA_PNMTXIDX` and `GX_VA_TEX4MTXIDX` arguments under the matrix-index dirty bits; GXTransform range |
+
+Both units were then set to `Matching` in `configure.py`. After deleting `build/`, `python configure.py`, `.venv/Scripts/ninja` and `python tools/verify/verify.py verify --manifest config/targets/wpse-v1.json --reference-dir orig/wpse-v1 --build-dir build/wpse-v1` all exited 0 (`PASS main.dol`). Because the source objects now resolve every branch to these names and the linked DOL is byte-identical, each call target is confirmed. The objdiff report shows `GXMisc` 100% (18 functions) and `GXGeometry` 100% (9 functions). Only the names changed; splits and sizes stay with the GXAttr, GXTexture and GXTransform issues. Confidence high.
+
 ## Traps
 
 - **End a split at its last function, not at the next unit.** A GXGeometry split that ended at the next unit's start scored 100% in objdiff, but the source-linked DOL shifted by 0x10 because the next auto split has 4-byte alignment. End `.text` and `.sbss` at the true end of the unit's contents. Evidence: F-476-3.
