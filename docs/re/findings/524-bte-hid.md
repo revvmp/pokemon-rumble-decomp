@@ -51,7 +51,32 @@ With GC/3.0a3 all 17 functions score 100% in objdiff and all `.data` and `.bss` 
 | `0x80339068` | `SDP_FindServiceUUIDInDb` | block containing `0x80339068` |
 | `0x803456E8` | `memcmp` | MSL block containing `0x803456E8` |
 
-Once these names land, switch the five objects to `Matching` and rerun full verification.
+Once these names land, switch the five objects to `Matching` and rerun full verification. Superseded by [F-524-4](#f-524-4-units-linked-from-source-and-matching).
+
+## F-524-4: Units linked from source and matching
+
+This supersedes the `NonMatching` status in F-524-3. #600 (F-522-4) named `GKI_freebuf` and `memcmp`, and #613 (F-534-3) independently named `btu_start_timer`, `btu_stop_timer`, `BTM_SetSecurityLevel`, and `L2CA_ConnectReq` while this work was in progress. The other 10 names are now recorded in `config/wpse-v1/symbols.txt` and `docs/re/SYMBOLS.md`; only the names changed, and splits, sizes, and types stay with their owning issues. Each name is the callee at the matching relocation of a 100% objdiff function, cross-checked against the target function's own references in dtk 1.8.4 assembly and the original DOL:
+
+| Address | Size | Name | Target evidence |
+| --- | --- | --- | --- |
+| `0x80314230` | `0x70` | `btu_start_timer` | Reads `btu_cb` and calls two GKI timer-list routines; called by `hidd_proc_repage_timeout` and the inlined `hidd_pm_start` with the HID timer entries |
+| `0x803142A0` | `0x14` | `btu_stop_timer` | Passes its timer entry and `btu_cb` + 0x40 to the same GKI timer-list removal routine by tail call; called by `HID_HostCloseDev` |
+| `0x8031FBFC` | `0x1D0` | `BTM_SetPowerMode` | Compares a BD address with `memcmp` against `btm_cb` (`0x804AAD78`) device records; called four times by `hidd_pm_set_now` |
+| `0x803217D8` | `0x228` | `BTM_SetSecurityLevel` | Logs `BTM_Sec: application registered` (`0x803E1F10`) and `BTM_SEC_REG[%d]: id %d, is_orig %d, psm 0x%04x, ...` (`+0xE0`) and matches service names with `strncmp`, so Petari's `btm_sec_set_security_level` is inlined; called by `HID_HostSetSecurityLevel` |
+| `0x8032A544` | `0x158` | `hidh_conn_reg` | Logs `HID Control Registration failed` and `HID Interrupt Registration failed` (`0x803E2ED8`, `0x803E2EF8`), uses `hh_cb`, calls `L2CA_Deregister` |
+| `0x8032A69C` | `0xA4` | `hidh_conn_disconnect` | Logs `HID - disconnect` (`0x803E2F1C`), calls `L2CA_DisconnectReq` twice |
+| `0x8032C1C0` | `0x29C` | `hidh_conn_snd_data` | Allocates with `GKI_getpoolbuf`, copies with `memcpy`, frees with `GKI_freebuf` |
+| `0x8032C45C` | `0xFC` | `hidh_conn_initiate` | Logs `HID - Originate failed` (`0x803E303C`), calls `L2CA_ConnectReq` |
+| `0x8032C558` | `0x2C` | `hidh_conn_dereg` | Only two `L2CA_Deregister` calls, for the control and interrupt PSMs |
+| `0x8032C7B0` | `0x234` | `L2CA_ConnectReq` | Logs `L2CA_ConnectReq()  PSM: 0x%04x` (`0x803E33D0`) |
+| `0x80338B3C` | `0x378` | `SDP_InitDiscoveryDb` | Logs `SDP_InitDiscoveryDb Illegal param: p_db 0x%x, len %d, num_uuid %d, num_attr %d` (`0x803E55E0`) and clears the database with `memset`; called by `HID_HostGetSDPRecord` |
+| `0x80338EB4` | `0x5C` | `SDP_ServiceSearchRequest` | Forwards to a single SDP connection routine; called by `HID_HostGetSDPRecord` right after `SDP_InitDiscoveryDb` with `hidh_search_callback` |
+| `0x80338F74` | `0x28` | `SDP_FindAttributeInRec` | Leaf walk of a record's attribute list comparing the 16-bit ID at +4; called by `hidh_search_callback`, including its three inlined `hidh_get_str_attr` copies |
+| `0x80339068` | `0x108` | `SDP_FindServiceUUIDInDb` | Walks discovery records calling an SDP UUID comparison helper; called by `hidh_search_callback` |
+
+The five objects are registered `Matching`. From a deleted `build/`, `python configure.py`, `.venv/Scripts/ninja`, and `python tools/verify/verify.py verify --manifest config/targets/wpse-v1.json --reference-dir orig/wpse-v1 --build-dir build/wpse-v1` all exit 0 with the units linked from source. `build/wpse-v1/report.json` gives 100% fuzzy, 100% matched code, and 100% complete code and data for all five. `hidh_api.c` reports 78.7% matched data only because objdiff scores its 280-byte `.data` string pool as one symbol, which is 99.1% fuzzy from the trailing alignment padding inside the split, as F-524-3 recorded; the linked DOL is byte-identical.
+
+The whole #524 range `0x80328878`–`0x8032A544` is now covered by `Matching` units: `hcicmds.c` (`0x80326B3C`–`0x80329258`, #600) and the five HID units.
 
 ## Provenance
 
