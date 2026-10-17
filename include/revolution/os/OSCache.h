@@ -16,6 +16,7 @@ void DCInvalidateRange(void *, u32);
 
 void DCEnable(void);
 void DCInvalidate(void *, u32);
+
 void DCFlushRange(void *, u32);
 void DCStoreRange(void *, u32);
 void DCFlushRangeNoSync(void *, u32);
@@ -28,6 +29,8 @@ void ICEnable(void);
 
 void LCEnable(void);
 void LCDisable(void);
+void LCLoadBlocks(void *, void *, u32);
+u32 LCQueueLength(void);
 void LCStoreBlocks(void *, void *, u32);
 u32 LCStoreData(void *, void *, u32);
 void LCQueueWait(u32);
