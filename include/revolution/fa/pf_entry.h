@@ -8,7 +8,12 @@
 extern "C" {
 #endif
 
+s32 PFENT_IsNotMatchedEntry(PF_DIR_ENT* p_ent, const u8* buf, PF_STR* p_pattern, u8 attr, u8 attr_required, u8 attr_excluded,
+                            u32* p_num_skipped);
+s32 PFENT_LoadMatchedEntry(PF_DIR_ENT* p_ent, PF_ENT_ITER* p_iter, PF_STR* p_pattern, u8 attr_required, u8 attr_excluded,
+                           u32* p_num_skipped);
 u8 PFENT_CalcCheckSum(PF_DIR_ENT* p_ent);
+s32 PFENT_LoadLFNEntryFieldsFromBuf(PF_DIR_ENT* p_ent, const u8* buf);
 void PFENT_StoreEntryNumericFieldsToBuf(u8* buf, const PF_DIR_ENT* p_ent);
 void PFENT_storeLFNEntryFieldsToBuf(u8* buf, PF_DIR_ENT* p_ent, u8 ord, u8 sum, u32 is_last);
 s32 PFENT_SearchEntry(PF_FFD* p_ffd, PF_DIR_ENT* p_ent, u32 index_search_from, PF_STR* p_pattern, u8 attr_required, u32 is_short_search);
