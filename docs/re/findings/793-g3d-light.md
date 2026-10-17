@@ -12,7 +12,7 @@ The small header prerequisite adds declarations only. `LightSet::GetLightObj(uns
 
 Four SDK declarations are already evidenced by their source-built definitions in `src/RVL_SDK/gx/GXLight.c` and native symbols: `GXInitLightAttnA`, `GXInitLightAttnK`, `GXGetLightPos` and `GXGetLightDir`. They extend the canonical `include/revolution/gx/GXLighting.h`; no duplicate SDK header tree is introduced.
 
-Initial unmodified checkout `8b4844566aa48e167c755dc9607b597fe49958e3` passed `python configure.py`, plain `.venv/Scripts/ninja` and the explicit frozen verifier, each exit 0. Header-baseline and final exact-head evidence will be added after execution. No reconstructed-code credit is claimed by the header prerequisite.
+Initial unmodified checkout `8b4844566aa48e167c755dc9607b597fe49958e3` passed `python configure.py`, plain `.venv/Scripts/ninja` and the explicit frozen verifier, each exit 0. Header candidate `d59fc268b0958daa93d38e59d640076e0ff9cef5` was compared against that parent in a fresh output directory. Both baseline and candidate `all_source` builds exited 0, and all 439 existing source objects retained identical allocated-section sizes and bytes and identical relocation type, offset, addend and target identity. The candidate plain Ninja link exited 0, followed by frozen verification of the actual `build/793-headers-verified/wpse-v1/main.dol`, exit 0. The worktree remained clean. No reconstructed-code credit is claimed by the header prerequisite.
 
 ## Traps
 
