@@ -4,7 +4,7 @@
 
 Issue #345 surveys 29 functions in `0x801E8DE0`–`0x801EE468`. This change reconstructs the independent `MSL_C/wprintf.c` unit: 13 functions, 10,788 function bytes and 84 bytes of inter-function alignment. The narrow formatter remains original-object fallback. Its first eight-byte custom-format callback is at `0x801E8DD0`, inside open neighboring issue #344; permission to own that file's split is pending. No narrow source, split, or object registration is included here, and #345 remains unfinished.
 
-The starting reference is Petari commit `e0ab141914921726a595573dc48d3f13d0922efe`, `libs/MSL_C/source/wprintf.c`, under CC0. Its file contains no separate license notice. `struct lconv` follows that reference's locale header. The reference lacks this target's positional arguments and custom-format extensions; those are reconstructed from target instructions and references. Decompiler views of an external database copy were reading aids only. No decompiler text or original executable bytes are used as source.
+The starting reference is [Petari `src/MSL_C/wprintf.c` at e0ab141914921726a595573dc48d3f13d0922efe](https://github.com/SMGCommunity/Petari/blob/e0ab141914921726a595573dc48d3f13d0922efe/src/MSL_C/wprintf.c), under CC0. Its file contains no separate license notice. `struct lconv` follows that reference's locale header. The reference lacks this target's positional arguments and custom-format extensions; those are reconstructed from target instructions and references. Decompiler views of an external database copy were reading aids only. No decompiler text or original executable bytes are used as source.
 
 ## Compiler and boundaries
 
