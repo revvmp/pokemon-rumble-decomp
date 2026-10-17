@@ -4,6 +4,7 @@
 #include <revolution/fa/pdm.h>
 #include <revolution/fa/pf_cache.h>
 #include <revolution/fa/pf_str.h>
+#include <revolution/os/OSThread.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -86,11 +87,21 @@ typedef struct PF_DIR_ENT {
 #define PF_SFD_STAT_ALLOCATED 0x1
 #define PF_SFD_STAT_OPENED 0x2
 
+typedef struct PF_LOCK {
+    u16 mode;
+    u16 count;
+    u32 wcount;
+    struct PF_FILE* owner;
+    OSSemaphore* resource;
+    OSSemaphore semaphore;
+} PF_LOCK;
+
 typedef struct PF_SFD {
     u32 stat;
     PF_FFD ffd;
     PF_DIR_ENT dir_entry;
-    u8 lock[0x20];
+    PF_LOCK lock;
+    u16 num_handlers;
 } PF_SFD;
 
 typedef struct PF_CURSOR {
