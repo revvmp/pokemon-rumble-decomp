@@ -109,13 +109,16 @@ The combined original scope is ninety-nine survey rows / 14,588 bytes through ni
 
 The entry-aware metadata merge driver correctly combined all ten source commits without conflicts, but its object insertion point placed the five new units before the newly merged MemorySoundArchive/MidiSeqPlayer/MmlParser entries. Review address order even after an automatic entry merge; only the five owned Object lines were relocated after MmlParser, preserving every main entry. This is a concrete insertion-context finding, not evidence that all automatic merges misorder entries.
 
-## Rebase metadata review
+## Shared-reference review
 
-A clean entry-driver rebase can retain unrelated name changes already
-present in an older issue commit. Whole-diff review against current main
-caught HBM startTrigEvent at 0x80183E50 and HomeButtonEventHandler::onEvent
-at 0x80185B00 reverting to survey placeholders. Main's exact entries were
-restored before acceptance, both running candidate builds were stopped,
-and validation restarted from a clean output. Review every changed symbol
-address, including distant imported-library names; DOL identity alone would
-not establish preservation of another owner's names and source interfaces.
+Worktrees share origin/main. During the final gate, another fetch advanced
+that reference from the pinned 2c68fcf9 rebase base to 76b5be1b, which newly
+named HBM startTrigEvent at 0x80183E50 and HomeButtonEventHandler::onEvent at
+0x80185B00. Comparing the candidate against the moving reference initially
+misidentified those upstream additions as old-commit name reversions.
+Two candidate builds were stopped and acceptance restarted; no failed or
+interrupted build was accepted. Rebasing onto 76b5be1b inherited both names
+naturally, leaving exactly six owned sound entries different from main.
+Pin the actual base used for a rebase when reviewing preservation, then
+perform the separate fresh-fetch ancestor gate for newly arrived main.
+This avoids confusing upstream additions with changes in the issue stack.
