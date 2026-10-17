@@ -65,7 +65,8 @@ Partially matching work is welcome. Keep it `NonMatching` so the build still use
 | `config/wpse-v1/splits.txt` | Edit only ranges inside your claimed region. dtk rewrites this file during builds; commit only your own hunks and discard unrelated rewrites. |
 | `config/wpse-v1/symbols.txt` | Rename or adjust only symbols inside your region. Discard unrelated dtk churn. |
 | `configure.py` | Add or change only the object lines for your units, plus a library entry if missing. |
-| `include/` shared headers | Changes to types used outside your area go in a separate small pull request that merges first. |
+| `include/` shared headers | RVL_SDK headers live in `include/revolution/` and `include/private/`, imported from Petari ([D-0013](DECISIONS.md#d-0013-shared-rvl_sdk-headers-come-from-petari)). Look there first and extend the existing header in place; never add SDK headers under `include/RVL_SDK/`, which holds only forwarders. Changes to types used outside your area go in a separate small pull request that merges first. |
+| `config/wpse-v1/symbols.txt` names outside your block | You may rename symbols your units reference, such as callees or data in other blocks, when evidence supports the name, because linking from source needs them. Do not split, resize, or re-type them; that belongs to the owning issue. |
 | `docs/ledger/<area>.md` | Add rows for your own units only. |
 | New findings | One new file per finding in `docs/re/findings/`, named `<issue>-<slug>.md`, with ID `F-<issue>-<n>`. Do not append to `docs/re/FINDINGS.md`. |
 | `AGENTS.md` traps | Maintainer-only. Record traps under a `Traps` heading in your issue's findings file in `docs/re/findings/`; maintainers promote project-wide ones into `AGENTS.md`. |

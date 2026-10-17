@@ -1,8 +1,12 @@
-#include "RVL_SDK/wpad/WPAD.h"
-#include "RVL_SDK/os/OSAlarm.h"
-#include "RVL_SDK/wpad/WUD.h"
+#include "revolution/os.h"
+#include "revolution/os/OSCache.h"
+#include "revolution/os/OSContext.h"
+#include "revolution/os/OSReset.h"
+#include "revolution/os/OSThread.h"
 #include "revolution/sc.h"
 #include "revolution/vi.h"
+#include "revolution/wpad.h"
+#include "revolution/wud/wud.h"
 #include <string.h>
 
 #define ACR_REG(offset) (*(volatile u32*)(0xCD000000 + (offset)))
@@ -16,13 +20,23 @@
 #define WPAD_MANAGE_PERIOD_AFH 60000
 #define WPAD_CMD_RETRY_COUNT 5
 
+#define WPAD_MIN_DPD_SENS 1
+#define WPAD_MAX_DPD_SENS 5
+
+#define WPAD_NOISE_FILTER_ACC 0
+#define WPAD_NOISE_FILTER_DPD 1
+#define WPAD_NOISE_FILTER_EXT 2
+
+#define WPAD_HIDREP_FLAG_RUMBLE 0x01
+#define WPAD_HIDREP_FLAG_ACK 0x02
+
 const char* __WPADVersion = "<< RVL_SDK - WPAD \trelease build: Jun 22 2009 18:33:21 (0x4302_145) >>";
 
 static OSAlarm _wpadManageAlarm;
-WPADControlBlock* __rvl_p_wpadcb[WPAD_MAX_CONTROLLERS];
+WPADControlBlock* _wpdcb[WPAD_MAX_CONTROLLERS];
 static u8 __wpadManageHandlerStack[0x1000] __attribute__((aligned(32)));
 static s8 _wpadHandle2PortTable[WUD_MAX_DEV_ENTRY];
-static WPADControlBlock __rvl_wpadcb[WPAD_MAX_CONTROLLERS];
+static WPADControlBlock _wpd[WPAD_MAX_CONTROLLERS];
 
 static s32 _wpadOnReconnect = -1;
 static u16 _wpad_diff_count_threshold[WPAD_MAX_NOISE_FILTERS] = {6, 4, 6};
@@ -183,11 +197,11 @@ static BOOL OnShutdown(BOOL final, u32 event) {
     BOOL cleanup;
     s32 status = WPADGetStatus();
 
-    if (final != FALSE || status == WPAD_STATUS_NONE) {
+    if (final != FALSE || status == WPAD_STATE_DISABLED) {
         return TRUE;
     }
 
-    if (status == WPAD_STATUS_DISABLED || status == WPAD_STATUS_SETUP || status == WPAD_STATUS_INITIALIZED) {
+    if (status == WPAD_STATE_DISABLING || status == WPAD_STATE_ENABLING || status == WPAD_STATE_ENABLED) {
         return FALSE;
     }
 
@@ -200,12 +214,12 @@ static BOOL OnShutdown(BOOL final, u32 event) {
     case OS_SHUTDOWN_EVENT_FATAL:
         WPADRegisterAllocator(__wpadNoAlloc, __wpadNoFree);
     case OS_SHUTDOWN_EVENT_SHUTDOWN:
-    case OS_SHUTDOWN_EVENT_3:
+    case OS_SHUTDOWN_EVENT_RESERVED:
         cleanup = TRUE;
         break;
-    case OS_SHUTDOWN_EVENT_1:
+    case OS_SHUTDOWN_EVENT_REBOOT:
     case OS_SHUTDOWN_EVENT_RESTART:
-    case OS_SHUTDOWN_EVENT_LAUNCH_APP:
+    case OS_SHUTDOWN_EVENT_LAUNCH:
         cleanup = FALSE;
         break;
     case OS_SHUTDOWN_EVENT_RETURN_TO_MENU:
@@ -224,11 +238,11 @@ static BOOL OnShutdown(BOOL final, u32 event) {
 
 static void __wpadSyncCallback(s32 chan, s32 result) {
     _wpadInfoResult[chan] = result;
-    OSWakeupThread(&__rvl_p_wpadcb[chan]->threadq);
+    OSWakeupThread(&_wpdcb[chan]->threadq);
 }
 
 static s32 __wpadSync(s32 chan) {
-    OSSleepThread(&__rvl_p_wpadcb[chan]->threadq);
+    OSSleepThread(&_wpdcb[chan]->threadq);
     return _wpadInfoResult[chan];
 }
 
@@ -246,7 +260,7 @@ static void __wpadSendDataSub(s32 chan, WPADCommand cmd) {
     u8* data;
     u16 len;
 
-    p_wpd = __rvl_p_wpadcb[chan];
+    p_wpd = _wpdcb[chan];
     rep_id = cmd.command;
     data = cmd.data;
     len = cmd.len;
@@ -263,28 +277,28 @@ static void __wpadSendDataSub(s32 chan, WPADCommand cmd) {
     p_wpd->status = WPAD_ERR_BUSY;
     rumble = p_wpd->motor & _wpadRumbleFlag;
 
-    if (rep_id == WPAD_RPT_SET_RUMBLE) {
+    if (rep_id == WPAD_HIDREP_VIBRATOR) {
         p_wpd->status = status;
-    } else if (rep_id == WPAD_RPT_SPEAKER_DATA) {
+    } else if (rep_id == WPAD_HIDREP_STRM) {
         p_wpd->status = status;
         p_wpd->audioFrames--;
     } else {
         switch (rep_id) {
-        case WPAD_RPT_WRITE_DATA:
+        case WPAD_HIDREP_WRDATA:
             break;
-        case WPAD_RPT_READ_DATA:
+        case WPAD_HIDREP_RDDATA:
             p_wpd->readError = 0;
             p_wpd->readBaseAddr = cmd.readAddr;
             p_wpd->readLength = cmd.readLen;
             p_wpd->readBufPtr = cmd.readBuf;
             break;
-        case WPAD_RPT_REQUEST_STATUS:
+        case WPAD_HIDREP_GETSTAT:
             p_wpd->status = status;
             p_wpd->infoBuf = cmd.info;
             p_wpd->getStatFlag = TRUE;
             break;
         default:
-            data[0] |= WPAD_RPT_FLAG_ACK;
+            data[0] |= WPAD_HIDREP_FLAG_ACK;
             break;
         }
 
@@ -298,7 +312,7 @@ static void __wpadSendDataSub(s32 chan, WPADCommand cmd) {
 
     DEBUGPrint("handle = %d, repid = %02x\n", handle, rep_id);
 
-    p_buf = GKI_getbuf((u8)(len + 18));
+    p_buf = (BT_HDR*)GKI_getbuf((u8)(len + 18));
     p_buf->len = (u8)(len + 1);
     p_buf->offset = 10;
 
@@ -307,16 +321,16 @@ static void __wpadSendDataSub(s32 chan, WPADCommand cmd) {
     memcpy(&report[1], data, len);
 
     if (rumble) {
-        report[1] |= WPAD_RPT_FLAG_RUMBLE;
+        report[1] |= WPAD_HIDREP_FLAG_RUMBLE;
     } else {
-        report[1] &= ~WPAD_RPT_FLAG_RUMBLE;
+        report[1] &= ~WPAD_HIDREP_FLAG_RUMBLE;
     }
 
     BTA_HhSendData(handle, p_buf);
 }
 
 static s32 __wpadSendData(s32 chan, WPADCommand cmd) {
-    WPADControlBlock* p_wpd = __rvl_p_wpadcb[chan];
+    WPADControlBlock* p_wpd = _wpdcb[chan];
     BOOL enabled = OSDisableInterrupts();
     s32 status = p_wpd->getStatFlag ? WPAD_ERR_BUSY : __wpadGetConnectionStatus(chan);
 
@@ -337,7 +351,7 @@ static s32 __wpadSendData(s32 chan, WPADCommand cmd) {
 }
 
 static void __wpadCalcRadioQuality(s32 chan) {
-    WPADControlBlock* p_wpd = __rvl_p_wpadcb[chan];
+    WPADControlBlock* p_wpd = _wpdcb[chan];
     u32 half = 2;
     u16 sense;
 
@@ -527,7 +541,7 @@ static BOOL __wpadIsControllerDataChanged(WPADControlBlock* p_wpd, void* p_curr,
 }
 
 static void __wpadCalcRecalibration(s32 chan, void* p_status) {
-    WPADControlBlock* p_wpd = __rvl_p_wpadcb[chan];
+    WPADControlBlock* p_wpd = _wpdcb[chan];
     WPADCLStatus* status = p_status;
     s8 pressed = 0;
 
@@ -541,7 +555,7 @@ static void __wpadCalcRecalibration(s32 chan, void* p_status) {
     if ((p_wpd->dataFormat == WPAD_FMT_CLASSIC || p_wpd->dataFormat == WPAD_FMT_CLASSIC_ACC ||
          p_wpd->dataFormat == WPAD_FMT_CLASSIC_ACC_DPD) &&
         (status->button == (WPAD_BUTTON_PLUS | WPAD_BUTTON_B | WPAD_BUTTON_A | WPAD_BUTTON_MINUS) ||
-         (status->clButton == (WPAD_BUTTON_CL_A | WPAD_BUTTON_CL_B | WPAD_BUTTON_CL_PLUS | WPAD_BUTTON_CL_MINUS) &&
+         (status->clButton == (WPAD_CL_BUTTON_A | WPAD_CL_BUTTON_B | WPAD_CL_BUTTON_PLUS | WPAD_CL_BUTTON_MINUS) &&
           status->err == WPAD_ERR_NONE)))
     {
         pressed = 1;
@@ -554,7 +568,7 @@ static void __wpadCalcRecalibration(s32 chan, void* p_status) {
 }
 
 static void __wpadCalcControllerData(s32 chan) {
-    WPADControlBlock* p_wpd = __rvl_p_wpadcb[chan];
+    WPADControlBlock* p_wpd = _wpdcb[chan];
     BOOL saver = FALSE;
     BOOL enabled;
     u8 index;
@@ -592,7 +606,7 @@ static void __wpadCalcControllerData(s32 chan) {
 }
 
 static BOOL __wpadProcExtCommand(s32 chan, BOOL success) {
-    WPADControlBlock* p_wpd = __rvl_p_wpadcb[chan];
+    WPADControlBlock* p_wpd = _wpdcb[chan];
     BOOL result = FALSE;
     WPADCommand cmd;
 
@@ -601,7 +615,7 @@ static BOOL __wpadProcExtCommand(s32 chan, BOOL success) {
     }
 
     if (_wpadExtCnt[chan] == WPAD_CMD_RETRY_COUNT && __wpadGetCommand(&p_wpd->extq, &cmd) &&
-        (cmd.command == WPAD_RPT_SET_DATA_REPORT_MODE || p_wpd->infos.attach) &&
+        (cmd.command == WPAD_HIDREP_REPTYPE || p_wpd->infos.attach) &&
         __wpadSendData(chan, cmd) == WPAD_ERR_NONE)
     {
         __wpadPopCommand(&p_wpd->extq);
@@ -614,7 +628,7 @@ static BOOL __wpadProcExtCommand(s32 chan, BOOL success) {
 }
 
 static BOOL __wpadProcCommand(s32 chan, BOOL success) {
-    WPADControlBlock* p_wpd = __rvl_p_wpadcb[chan];
+    WPADControlBlock* p_wpd = _wpdcb[chan];
     WPADCommand cmd;
 
     if (success) {
@@ -632,18 +646,18 @@ static BOOL __wpadProcCommand(s32 chan, BOOL success) {
 static void __wpadRumbleMotor(s32 chan, BOOL success) {
     WPADCommand cmd;
 
-    if (success == TRUE || __wpadGetQueueSize(&__rvl_p_wpadcb[chan]->cmdq) > 0) {
-        __rvl_p_wpadcb[chan]->rumble = FALSE;
+    if (success == TRUE || __wpadGetQueueSize(&_wpdcb[chan]->cmdq) > 0) {
+        _wpdcb[chan]->rumble = FALSE;
     } else if (_wpadRumbleCnt[chan] == WPAD_CMD_RETRY_COUNT) {
-        __rvl_p_wpadcb[chan]->rumble = FALSE;
-        cmd.command = WPAD_RPT_SET_RUMBLE;
+        _wpdcb[chan]->rumble = FALSE;
+        cmd.command = WPAD_HIDREP_VIBRATOR;
         cmd.len = 1;
         cmd.data[0] = 0;
         cmd.callback = NULL;
         __wpadSendDataSub(chan, cmd);
     }
 
-    _wpadRumbleCnt[chan] = __rvl_p_wpadcb[chan]->rumble ? _wpadRumbleCnt[chan] + 1 : 0;
+    _wpadRumbleCnt[chan] = _wpdcb[chan]->rumble ? _wpadRumbleCnt[chan] + 1 : 0;
 }
 
 static void __wpadCalcSystemSettings(void) {
@@ -709,8 +723,8 @@ static void __wpadManageHandler(OSAlarm* alarm, OSContext* context) {
     s32 chan;
     BOOL success;
 
-    if (status != WPAD_STATUS_ENABLED) {
-        if (status == WPAD_STATUS_INITIALIZED && !_wpadInitialized) {
+    if (status != WPAD_STATE_SETUP) {
+        if (status == WPAD_STATE_ENABLED && !_wpadInitialized) {
             _wpadInitialized = TRUE;
             _wpadReconnectWait = 50;
             WUDSetHidConnCallback(__wpadConnectionCallback);
@@ -729,7 +743,7 @@ static void __wpadManageHandler(OSAlarm* alarm, OSContext* context) {
     for (chan = 0; chan < WPAD_MAX_CONTROLLERS; chan++) {
         success = FALSE;
 
-        if (__rvl_p_wpadcb[chan]->used) {
+        if (_wpdcb[chan]->used) {
             success |= __wpadProcExtCommand(chan, success);
             success |= __wpadProcCommand(chan, success);
             __wpadRumbleMotor(chan, success);
@@ -737,8 +751,8 @@ static void __wpadManageHandler(OSAlarm* alarm, OSContext* context) {
             __wpadCalcRadioQuality(chan);
         }
 
-        if (__rvl_p_wpadcb[chan]->extDisconnected && __rvl_p_wpadcb[chan]->extReconnectWait-- < 0) {
-            __rvl_p_wpadcb[chan]->extDisconnected = FALSE;
+        if (_wpdcb[chan]->extDisconnected && _wpdcb[chan]->extReconnectWait-- < 0) {
+            _wpdcb[chan]->extDisconnected = FALSE;
         }
     }
 
@@ -755,7 +769,7 @@ static void __wpadManageHandler0(OSAlarm* alarm, OSContext* context) {
 }
 
 static void __wpadClearControlBlock(s32 chan) {
-    WPADControlBlock* p_wpd = __rvl_p_wpadcb[chan];
+    WPADControlBlock* p_wpd = _wpdcb[chan];
     int i;
 
     p_wpd->infoBuf = NULL;
@@ -854,11 +868,11 @@ static void __wpadInitSub(void) {
     DEBUGPrint("WPADInit()\n");
 
     for (chan = 0; chan < WPAD_MAX_CONTROLLERS; chan++) {
-        __rvl_p_wpadcb[chan] = &__rvl_wpadcb[chan];
+        _wpdcb[chan] = &_wpd[chan];
         _wpadIsUsedChannel[chan] = FALSE;
-        __rvl_p_wpadcb[chan]->connectCallback = NULL;
+        _wpdcb[chan]->connectCallback = NULL;
         __wpadClearControlBlock(chan);
-        OSInitThreadQueue(&__rvl_wpadcb[chan].threadq);
+        OSInitThreadQueue(&_wpd[chan].threadq);
         _wpadExtCnt[chan] = 0;
         _wpadRumbleCnt[chan] = 0;
     }
@@ -926,7 +940,7 @@ s32 WPADGetStatus(void) {
 }
 
 void WPADGetAddress(s32 chan, u8* addr) {
-    WPADControlBlock* p_wpd = __rvl_p_wpadcb[chan];
+    WPADControlBlock* p_wpd = _wpdcb[chan];
     BOOL enabled = OSDisableInterrupts();
     s8 handle = p_wpd->dev_handle;
     u8* devAddr;
@@ -952,7 +966,7 @@ s32 WPADGetInfo(s32 chan, WPADInfo* info) {
 }
 
 static s32 __wpadGetConnectionStatus(s32 chan) {
-    WPADControlBlock* p_wpd = __rvl_p_wpadcb[chan];
+    WPADControlBlock* p_wpd = _wpdcb[chan];
     BOOL enabled = OSDisableInterrupts();
     s32 status = p_wpd->status;
 
@@ -961,7 +975,7 @@ static s32 __wpadGetConnectionStatus(s32 chan) {
 }
 
 static void __wpadDisconnect(s32 chan, BOOL sleep) {
-    WPADControlBlock* p_wpd = __rvl_p_wpadcb[chan];
+    WPADControlBlock* p_wpd = _wpdcb[chan];
     BOOL enabled;
     u8 addr[BD_ADDR_LEN];
 
@@ -985,7 +999,7 @@ static void __wpadDisconnect(s32 chan, BOOL sleep) {
 }
 
 void WPADRecalibrate(s32 chan) {
-    WPADControlBlock* p_wpd = __rvl_p_wpadcb[chan];
+    WPADControlBlock* p_wpd = _wpdcb[chan];
     BOOL enabled = OSDisableInterrupts();
 
     p_wpd->isSetStickOrigin = FALSE;
@@ -1076,7 +1090,7 @@ static u8 __wpadGetDpdSensitivity(void) {
 }
 
 static u8 __wpadGetSensorBarPosition(void) {
-    return SCGetWpadSensorBarPosition() == SC_SENSOR_BAR_TOP ? SC_SENSOR_BAR_TOP : SC_SENSOR_BAR_BOTTOM;
+    return SCGetWpadSensorBarPosition() == WPAD_SENSOR_BAR_POS_TOP ? WPAD_SENSOR_BAR_POS_TOP : WPAD_SENSOR_BAR_POS_BOTTOM;
 }
 
 static u32 __wpadGetMotorMode(void) {
