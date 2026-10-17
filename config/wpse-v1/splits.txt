@@ -508,6 +508,18 @@ RVL_SDK/ipc/ipcProfile.c:
 	.bss        start:0x80477320 end:0x80477420
 	.sbss       start:0x804B9A00 end:0x804B9A08
 
+RVL_SDK/pad/Padclamp.c:
+	.text       start:0x802F4C40 end:0x802F5288
+	.rodata     start:0x80397DC0 end:0x80397DD8
+	.sdata2     start:0x804BB4F8 end:0x804BB500
+
+RVL_SDK/pad/Pad.c:
+	.text       start:0x802F5290 end:0x802F6BBC
+	.data       start:0x803DCB10 end:0x803DCB68
+	.bss        start:0x80477420 end:0x804774E0
+	.sdata      start:0x804B8DA8 end:0x804B8DC8
+	.sbss       start:0x804B9A20 end:0x804B9A50
+
 RVL_SDK/wpad/WPAD.c:
 	.text       start:0x802F6BC0 end:0x802FE650
 	.rodata     start:0x80397DD8 end:0x80397E18

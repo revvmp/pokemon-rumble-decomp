@@ -885,6 +885,33 @@ Names given in `config/wpse-v1/symbols.txt`; evidence in [489-mem-cx-dsp](findin
 | `0x804B8A50` | 4 | `AppGameNameForSysMenu` | `.sdata` static `const char*` |
 | `0x804B9468` | 5 | `GameNameBuffer` | `.sbss` static `char[5]` |
 
+## RVL_SDK PAD (#499)
+
+`wpse-v1` `main.dol`; [F-499-1](findings/499-pad.md). Names follow zeldaret/tp's `Pad.c` and `Padclamp.c`, confirmed by byte-identical linked reconstruction; confidence high. The two clamp-region names are descriptive (medium confidence).
+
+| Address | Size | Name | Kind |
+| --- | --- | --- | --- |
+| `0x802F4C40` | `0x130` | `ClampStick` | static function |
+| `0x802F4D70` | `0x11C` | `ClampCircle` | static function |
+| `0x802F4E90` | `0xF0` | `PADClamp` | function |
+| `0x802F4F80` | `0xE8` | `PADClampCircle` | function |
+| `0x802F5070` | `0xB4` | `PADClamp2` | function |
+| `0x802F5130` | `0xA4` | `PADClampCircle2` | function |
+| `0x802F51E0` | `0xA8` | `PADClampTrigger` | function |
+| `0x802F5290`-`0x802F6B00` | | `UpdateOrigin`, `PADOriginCallback`, `PADOriginUpdateCallback`, `PADProbeCallback`, `PADTypeAndStatusCallback`, `PADReceiveCheckCallback`, `PADReset`, `PADRecalibrate`, `PADInit`, `PADRead`, `PADControlMotor`, `SPEC0_MakeStatus`, `SPEC1_MakeStatus`, `SPEC2_MakeStatus`, `OnShutdown`, `SamplingHandler` | functions in address order |
+| `0x80397DC0` | `0xA` | `MarginClampRegion` | `.rodata` `PADClampRegion`, minimums 30/15/15 |
+| `0x80397DCC` | `0xA` | `NoMarginClampRegion` | `.rodata` `PADClampRegion`, minimums 0 |
+| `0x803DCB58` | `0x10` | `ShutdownFunctionInfo` | `.data` `OSShutdownFunctionInfo`, priority 127 |
+| `0x80477420` | `0x30` | `Origin` | `.bss` `PADStatus[4]` |
+| `0x80477450` | `0x10` | `Type` | `.bss` `u32[4]` |
+| `0x80477460` | `0x10` | `CmdProbeDevice` | `.bss` `u32[4]` |
+| `0x80477470` | `0x30` | `pre_status` in `SPEC2_MakeStatus` | `.bss` function static, unreferenced |
+| `0x804774A0` | `0x30` | `pre_status` in `PADRead` | `.bss` function static |
+| `0x804B8DA8`-`0x804B8DC4` | 4 each | `__PADVersion`, `ResettingChan`, `XPatchBits`, `AnalogMode`, `Spec`, `MakeStatus`, `CmdReadOrigin`, `CmdCalibrate` | `.sdata` |
+| `0x804B9A20`-`0x804B9A48` | 4 each | `recalibrated` in `OnShutdown`, `SamplingCallback`, `__PADSpec`, `BarrelBits`, `PendingBits`, `CheckingBits`, `WaitingBits`, `RecalibrateBits`, `ResettingBits`, `EnabledBits`, `Initialized` | `.sbss` |
+
+`PADStatus` is 0xC bytes in arrays: `button` (u16) 0x0, `stickX` 0x2, `stickY` 0x3, `substickX` 0x4, `substickY` 0x5, `triggerLeft` 0x6, `triggerRight` 0x7, `analogA` 0x8, `analogB` 0x9, `err` (s8) 0xA. `PADClampRegion` is 10 bytes: `minTrigger`, `maxTrigger`, `minStick`, `maxStick`, `xyStick`, `minSubstick`, `maxSubstick`, `xySubstick`, `radStick`, `radSubstick`.
+
 ## RVL_SDK OSAlloc (#464)
 
 `wpse-v1` `main.dol`; [F-464-2](findings/464-os-alloc.md). Names follow Petari's `OSAlloc.c` and are confirmed by byte-identical linked reconstruction; confidence high.
