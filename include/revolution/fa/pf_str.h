@@ -40,6 +40,7 @@ typedef struct PF_VOLUME_SET {
     s32 last_driver_error;
     PF_CHARCODE codeset;
     u32 setting;
+    s32 current_context_id;
 } PF_VOLUME_SET;
 
 extern PF_VOLUME_SET pf_vol_set;
