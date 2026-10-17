@@ -73,6 +73,8 @@ Keep entries concise and actionable. Distinguish confirmed findings from hypothe
 - **OSAlarm extends past the reference source.** The routine at `0x802B3760` still uses AlarmQueue and cancels reserved-tag alarms by user data; OSAlloc starts at `0x802B3810`. Do not end the alarm split at the reference's last accessor. See [F-464-1](docs/re/findings/464-os-alarm.md).
 - **Replacing a unit can remove its trailing alignment padding.** GXTev scored 100% but its source object omitted twelve trailing padding bytes; the next fallback unit began early at four-byte alignment. Preserve the observed next entry alignment (`GXSetFog`, 16 bytes) in symbols before accepting the link. See [F-479-2](docs/re/findings/479-gx.md).
 
+- **Packed 4-byte function starts inside the RVL_SDK range mean another compiler.** NdevExi2A (`0x8033EEB4`-`0x8033F974`) matches only GameCube GC/3.0a3 to 3.0a5, not Wii/1.0. Check function alignment before assuming F-0007's per-region compiler. See [F-535-2](docs/re/findings/535-gdtexture-ndevexi2a.md#f-535-2-ndevexi2a-is-built-with-a-gamecube-compiler).
+
 - **End a split at its last function, not the next unit.** A GXGeometry split ending at the next unit's start scored 100% in objdiff but shifted the DOL by 0x10 when source-linked, because the next auto split has 4-byte alignment. End `.text` (and `.sbss`) at the true end of the unit's contents; see [F-476-3](docs/re/findings/476-gxmisc-gxgeometry.md#f-476-3-split-end-padding).
 
 ## Current project state
