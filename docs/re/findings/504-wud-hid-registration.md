@@ -17,7 +17,7 @@ Registration adds the device address and link key to BTA, and supplies the 217-b
 
 The retained calls identify outside SDK functions `BTA_HhAddDev` at `0x80319718` and `BTA_HhRemoveDev` at `0x803197C0`. Only their names change in metadata; their types, extents and owning splits stay unchanged.
 
-The source now contains 45 of 86 retained WUD functions, totaling 6,936 function bytes. The original 42-function raw audit still proves all 42 non-relocation streams, totaling 4,848 function bytes, exactly. The security callback retains 32 instruction differences; registration and removal retain four and eight folded literal-address differences respectively. Whole-unit diagnostics are text 27.619307%, data 4.8480787%, BSS 37.36787%, sdata 0%, sbss 33.962265% and sdata2 100%. No WUD linked source-byte credit is added.
+At this HID-registration pass, the source contained 45 of 86 retained WUD functions, totaling 6,936 function bytes. The original 42-function raw audit still proves all 42 non-relocation streams, totaling 4,848 function bytes, exactly. The security callback retains 32 instruction differences; registration and removal retain four and eight folded literal-address differences respectively. Whole-unit diagnostics are text 27.619307%, data 4.8480787%, BSS 37.36787%, sdata 0%, sbss 33.962265% and sdata2 100%. No WUD linked source-byte credit is added.
 
 ## Validation
 

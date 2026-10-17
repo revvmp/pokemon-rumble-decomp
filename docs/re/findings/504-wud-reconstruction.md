@@ -15,7 +15,7 @@ Target `wpse-v1`, frozen executable manifest `config/targets/wpse-v1.json`. WUD.
 
 The small-BSS range begins at its first word, `0x804B9B28`. The preceding four bytes after the USB unit are alignment padding; including them in WUD's range provoked dtk's eight-byte alignment warning. The corrected range removes the warning, and the full split-only build and frozen DOL verification pass before source registration.
 
-The current source contains 45 retained functions, totaling 6,936 function bytes. The following 42 functions, totaling 4,848 bytes, reproduce every non-relocation instruction word at their exact original sizes with Wii/1.0 and `cflags_sdk`. The security callback and registration/removal paths are reconstructed separately with remaining differences.
+The current source contains 47 retained functions, totaling 7,756 function bytes. The following 42 functions, totaling 4,848 bytes, reproduce every non-relocation instruction word at their exact original sizes with Wii/1.0 and `cflags_sdk`. The security, registration/removal, search and power paths are reconstructed separately with remaining differences.
 
 | Function | Address | Bytes |
 | --- | --- | --- |
@@ -62,7 +62,7 @@ The current source contains 45 retained functions, totaling 6,936 function bytes
 | `WUDiSetQueueSizeForHandle` | `0x80310360` | `0x14` |
 | `WUDiSetNotAckNumForHandle` | `0x80310380` | `0x14` |
 
-This diagnostic excludes relocation-bearing words and does not establish matching function acceptance. Whole-unit objdiff is text 27.619307%, data 4.8480787%, BSS 37.36787%, sdata 0%, sbss 33.962265% and sdata2 100%. WUD remains `NonMatching`; the final executable continues to link the original WUD object and gains zero linked WUD source-byte credit. The partial-source full build and explicit frozen verification pass. EUART and USB remain accepted source-linked units.
+This diagnostic excludes relocation-bearing words and does not establish matching function acceptance. Whole-unit objdiff is text 30.88493%, data 5.473637%, BSS 40.43443%, sdata 0%, sbss 37.735847% and sdata2 100%. WUD remains `NonMatching`; the final executable continues to link the original WUD object and gains zero linked WUD source-byte credit. The partial-source full build and explicit frozen verification pass. EUART and USB remain accepted source-linked units.
 
 The implementations reuse the existing typed WUD headers. `_wcb` is the established 0x750-byte controller block at `0x8047C320`. Paired source/target SDA relocations identify the four-byte `sWudInitialized` at `0x804B9B28`, `sWudReadNand` at `0x804B9B2C` and `_linkedWBC` at `0x804B9B40`; no field address is guessed from declaration order. The last is returned by `WUDIsLinkedWBC`. Its weak qualifier follows the licensed newer SDK reference; the target directly establishes its word storage and access, not an original ELF binding.
 
@@ -72,7 +72,7 @@ The eight tail routines add 368 function bytes. Paired HA/LO and SDA relocations
 
 Device history addresses records `10 + chan`, clears the complete record for a null address, and otherwise copies the six-byte address. Updating settings writes the array and initiates an asynchronous flush only when the write succeeds, then clears the dirty flag. These bodies follow the pinned key reference using the project's existing typed SC fields. The original relocation accesses establish the flag's byte address rather than a guessed position at the end of `.sbss`.
 
-The target's embedded messages supply the exact private names `__wudSyncFlushCallback`, `__wudDeleteFlushCallback`, `__wudShutdownFlushCallback`, `__wudCleanupStackCallback` and `__wudInitSub`. The device-status and power-manager callback references are also named from the target's messages: `__wudDeviceStatusEventStackCallback` at `0x8030FBA0` and `__wudPowerMangeEventStackCallback` at `0x8030FF50`. Preserve `Mange` exactly. The device-status callback is implemented; the power-manager callback body is not implemented yet. `WUDVendorSpecificCallback` at `0x8030F8F0` and `WUDiRegisterDevice` at `0x8030E3E0` receive reference-based names through relocated callback/call operands; confidence in their original spelling is medium. Existing names established by #507 are retained.
+The target's embedded messages supply the exact private names `__wudSyncFlushCallback`, `__wudDeleteFlushCallback`, `__wudShutdownFlushCallback`, `__wudCleanupStackCallback` and `__wudInitSub`. The device-status and power-manager callback references are also named from the target's messages: `__wudDeviceStatusEventStackCallback` at `0x8030FBA0` and `__wudPowerMangeEventStackCallback` at `0x8030FF50`. Preserve `Mange` exactly. Both device-status and power-manager callback bodies are implemented; their acceptance follows the whole-unit gates. `WUDVendorSpecificCallback` at `0x8030F8F0` and `WUDiRegisterDevice` at `0x8030E3E0` receive reference-based names through relocated callback/call operands; confidence in their original spelling is medium. Existing names established by #507 are retained.
 
 The initialization-flush callback stores state 5, and `WUDIsBusy` requires state 6 in addition to zero sync/delete states and initialized stack state 4. The original store at `0x8030C004` and comparison at `0x8030F104` establish these values directly. They differ from the older reference's values 4 and 5. Source-local descriptive constants `WUD_INIT_FLUSH_COMPLETE` and `WUD_INIT_READY` preserve these proven values without changing the shared header prematurely. The device-status callback logs its original `__wudDeviceStatusEventStackCallback` name and reports a USB fatal error for status 2; this target does not call the newer reference's fatal-error screen helper. These three functions add 272 bytes, all non-relocation words exact.
 
@@ -94,11 +94,13 @@ After rebasing onto #720, a fresh `build/504-source-header-refresh-1/wpse-v1` al
 
 [F-504-6](504-wud-hid-registration.md) records the added 217-byte HID descriptor, exact-size registration/removal functions, their proven Balance Board condition and twelve remaining folded literal-address operands. The descriptor bytes match exactly; WUD remains NonMatching.
 
+[F-504-7](504-wud-search-power.md) adds the exact-size search and power callbacks, seven/five folded data-operand differences, three proven discovery-state bindings and the exact 28-byte authentication-reset payload. The reset helpers naturally inline.
+
 ## Remaining work
 
-- Complete the remaining 41 native functions, including synchronization, the Wii Fit NAND paths, patch handling and Bluetooth event processing.
+- Complete the remaining 39 native functions, including synchronization, the Wii Fit NAND paths, patch handling and Bluetooth event processing.
 - Reconstruct and verify the complete unit data and layouts; the current source defines the controller block, working device, settings and handle arrays, three proven flag words and a dirty byte.
-- Complete the security callback's pooled data/BSS addressing and register allocation and the registration/removal literal offsets, and resolve any further layout or naming needs through shared-header prerequisites. [F-504-5](504-wud-device-state-headers.md) records the two device-member renames in #720 and its unchanged 340-object baseline.
+- Complete the security callback's pooled data/BSS addressing and register allocation and the registration/removal/search/power data offsets, and resolve any further layout or naming needs through shared-header prerequisites. [F-504-5](504-wud-device-state-headers.md) records the two device-member renames in #720 and its unchanged 340-object baseline.
 - Resolve every call, callback, data relocation and folded reference. The current raw-word comparison is deliberately narrower than acceptance.
 - Mark WUD `Matching` only after all retained code and the complete source-selected frozen DOL verify. The source prerequisite for KPAD remains separate in #710.
 

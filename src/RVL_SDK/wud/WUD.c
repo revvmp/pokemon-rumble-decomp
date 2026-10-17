@@ -146,7 +146,15 @@ static u8 _wudWiiRemoteDescriptor[] = {
     0xC0,
 };
 
+static u8 _wudResetAuthCountCmd[] = {
+    (0x00083630) & 0xFF, (0x00083630 >> 8) & 0xFF, (0x00083630 >> 16) & 0xFF, (0x00083630 >> 24) & 0xFF,
+
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
 WUDCB _wcb;
+static WUDDiscResp sWudDiscoveryResponse;
+static s8 sWudDiscoveryRssi;
+static u8 sWudDiscoveryResultCount;
 WUDDevInfo _work;
 SCBtDeviceInfoArray _scArray;
 BD_ADDR_PTR _dev_handle_to_bda[WUD_MAX_DEV_ENTRY];
@@ -234,6 +242,15 @@ static void __wudEnableStack(void) {
 
     OSCreateAlarm(&p->alarm);
     OSSetPeriodicAlarm(&p->alarm, OSGetTime(), OSMillisecondsToTicks(10), __wudEnableStackHandler0);
+}
+
+static void __wudClearDiscoverResult(void) {
+    sWudDiscoveryResultCount = 0;
+    memset(&sWudDiscoveryResponse, 0, sizeof(WUDDiscResp));
+}
+
+static void __wudResetAuthFailCount(void) {
+    BTM_VendorSpecificCommand(0xFC4C, sizeof(_wudResetAuthCountCmd), (u8*)_wudResetAuthCountCmd, NULL);
 }
 
 #pragma force_active on
@@ -1008,12 +1025,113 @@ void __wudSecurityEventStackCallback(tBTA_DM_SEC_EVT event, tBTA_DM_SEC* pData) 
     }
 }
 
+void __wudSearchEventStackCallback(tBTA_DM_SEARCH_EVT event, tBTA_DM_SEARCH* pData) {
+    s32 timeout;
+
+    switch (event) {
+    case BTA_DM_INQ_RES_EVT: {
+        tBTA_DM_INQ_RES* pResp = &pData->inq_res;
+
+        DEBUGPrint("INQUIRY RESULT: %02x:%02x:%02x:%02x:%02x:%02x   %02x%02x%02x   %d\n",
+                   pResp->bd_addr[0], pResp->bd_addr[1], pResp->bd_addr[2],
+                   pResp->bd_addr[3], pResp->bd_addr[4], pResp->bd_addr[5],
+                   pResp->dev_class[0], pResp->dev_class[1], pResp->dev_class[2],
+                   pResp->rssi);
+
+        sWudDiscoveryRssi = pResp->rssi;
+
+        if (_wcb.syncSkipChecks == TRUE || (_wcb.syncSkipChecks == FALSE && _WUDGetLinkNumber() < WUD_MAX_CHANNELS - 1)) {
+            timeout = 6400;
+        } else {
+            timeout = 32768;
+        }
+
+        BTM_WritePageTimeout(timeout);
+        break;
+    }
+
+    case BTA_DM_INQ_CMPL_EVT: {
+        DEBUGPrint("INQUIRY_COMPLETED\n");
+        break;
+    }
+
+    case BTA_DM_DISC_RES_EVT: {
+        tBTA_DM_DISC_RES* dmDiscRes = &pData->disc_res;
+
+        WUD_BDCPY(sWudDiscoveryResponse.devAddr, dmDiscRes->bd_addr);
+        memcpy(sWudDiscoveryResponse.devName, dmDiscRes->bd_name, sizeof(sWudDiscoveryResponse.devName));
+
+        sWudDiscoveryResponse.services = dmDiscRes->services;
+        sWudDiscoveryResultCount++;
+
+        DEBUGPrint("DISCOVER RESULT:  %02x:%02x:%02x:%02x:%02x:%02x   %s (%04x)\n",
+                   sWudDiscoveryResponse.devAddr[0], sWudDiscoveryResponse.devAddr[1], sWudDiscoveryResponse.devAddr[2],
+                   sWudDiscoveryResponse.devAddr[3], sWudDiscoveryResponse.devAddr[4], sWudDiscoveryResponse.devAddr[5],
+                   sWudDiscoveryResponse.devName, sWudDiscoveryResponse.services);
+        break;
+    }
+
+    case BTA_DM_DISC_CMPL_EVT: {
+        DEBUGPrint("DISCOVER COMPLETED\n");
+        _wcb.syncState = WUD_STATE_SYNC_CHECK_SEARCH_RESULT;
+        break;
+    }
+
+    case BTA_DM_SEARCH_CANCEL_CMPL_EVT: {
+        DEBUGPrint("SEARCH CANCEL\n\n");
+        __wudResetAuthFailCount();
+        __wudClearDiscoverResult();
+        _wcb.syncState = WUD_STATE_SYNC_CHECK_SEARCH_RESULT;
+        break;
+    }
+
+    default: {
+        DEBUGPrint("Warning: Search Callback returns invalid event\n");
+        break;
+    }
+    }
+}
+
 void __wudDeviceStatusEventStackCallback(tBTM_DEV_STATUS status) {
     DEBUGPrint("__wudDeviceStatusEventStackCallback\n");
 
     if (status == BTM_DEV_STATUS_CMD_TOUT) {
         OSReport("---- WARNING: USB FATAL ERROR! ----\n");
     }
+}
+
+void __wudPowerMangeEventStackCallback(BD_ADDR bd_addr, tBTM_PM_STATUS status, u16 value, u8 hci_status) {
+    WUDCB* p_wcb = &_wcb;
+    WUDDevInfo* p_info;
+
+    WUD_DEBUGPrint("__wudPowerMangeEventStackCallback\n");
+    WUD_DEBUGPrint("hci_status = %d\n", hci_status);
+
+    p_info = WUDiGetDevInfo(bd_addr);
+    if (p_info == NULL) {
+        if (!memcmp(_work.devAddr, bd_addr, BD_ADDR_LEN)) {
+            p_info = &_work;
+        } else {
+            WUD_DEBUGPrint("Unknown device is connected and changes the connection type!!!!\n");
+            WUD_DEBUGPrint(" addr = %02x:%02x:%02x:%02x:%02x:%02x,  status = %d\n", bd_addr[0], bd_addr[1], bd_addr[2], bd_addr[3], bd_addr[4],
+                           bd_addr[5], status);
+            return;
+        }
+    }
+
+    switch (status) {
+    case BTM_PM_STS_ACTIVE:
+        p_info->status = 8;
+        break;
+    case BTM_PM_STS_SNIFF:
+        p_info->status = 9;
+        break;
+    default:
+
+        break;
+    }
+    WUD_DEBUGPrint(" addr = %02x:%02x:%02x:%02x:%02x:%02x,  status = %d\n", p_info->devAddr[0], p_info->devAddr[1], p_info->devAddr[2],
+                   p_info->devAddr[3], p_info->devAddr[4], p_info->devAddr[5], p_info->status);
 }
 
 BD_ADDR_PTR _WUDGetDevAddr(UINT8 handle) {
