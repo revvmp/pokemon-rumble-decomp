@@ -11,7 +11,7 @@ These rules apply to humans and LLMs throughout the repository.
 - Preserve original `.gitignore` content and use organized section headings there, as explicitly requested. This narrow exception does not permit comments in source or other configuration files.
 - Keep code readable through descriptive names, small functions, explicit data structures, and consistent formatting. Preserve verified ABI and matching constraints; explain any resulting readability tradeoffs in documentation.
 - Do not invent release identifiers, original hashes, symbols, types, compiler versions, flags, addresses, or progress measurements. Record unknowns explicitly until evidence resolves them.
-- By explicit user instruction, all files under `orig/` may be tracked and committed. Keep original files immutable. Outside `orig/`, keep original files, extracted proprietary data, keys, analysis databases, and tool binaries in ignored local paths; do not commit them.
+- By explicit user instruction, all files under `orig/` may be tracked and committed. Keep original files immutable. Outside `orig/`, keep original files, extracted proprietary data, keys, analysis databases, and tool binaries in ignored local paths; do not commit them. The one exception is the shared IDA database `docs/re/main.elf.i64`, tracked by explicit user decision ([D-0012](DECISIONS.md#d-0012-track-the-shared-ida-database)).
 - Never modify reference artifacts or expected hashes to make a reconstruction pass. Different releases get separate target manifests.
 - Do not count copied original executable bytes, embedded machine code, original objects, or assembly fallbacks as decompiled source.
 - Inspect repository status and relevant instructions before editing. Preserve unrelated work.

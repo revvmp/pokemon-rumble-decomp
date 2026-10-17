@@ -66,7 +66,7 @@ Partially matching work is welcome. Keep it `NonMatching` so the build still use
 | `docs/ledger/<area>.md` | Add rows for your own units only. |
 | New findings | One new file per finding in `docs/re/findings/`, named `<issue>-<slug>.md`, with ID `F-<issue>-<n>`. Do not append to `docs/re/FINDINGS.md`. |
 | `AGENTS.md` traps | Contributors may append trap entries at the end of the list. |
-| Maintainer-only | `config/progress.json`, `docs/images/`, the status table in `PROGRESS.md`, `HANDOFF.md`, `WORKSTREAMS.md`, the `AGENTS.md` state table, `config/targets/`, `config/wpse-v1/build.sha1`, `config/toolchain.json`, and vendored `tools/build/`. |
+| Maintainer-only | `docs/re/main.elf.i64` (binary, unmergeable), `config/progress.json`, `docs/images/`, the status table in `PROGRESS.md`, `HANDOFF.md`, `WORKSTREAMS.md`, the `AGENTS.md` state table, `config/targets/`, `config/wpse-v1/build.sha1`, `config/toolchain.json`, and vendored `tools/build/`. |
 
 Maintainers regenerate progress images and update the shared summaries after merging, so contributors never conflict on them.
 

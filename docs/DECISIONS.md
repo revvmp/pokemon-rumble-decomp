@@ -54,6 +54,13 @@ Accepted at the project owner's request. Work is divided into GitHub issues by l
 
 Session-by-session updates to `PROGRESS.md` and `HANDOFF.md` therefore move to pull request descriptions for contributors. See [collaboration](COLLABORATION.md).
 
+## D-0012: Track the shared IDA database
+
+Accepted at the project owner's request. `docs/re/main.elf.i64` is an IDA Pro database of `build/wpse-v1/main.elf` (49,316,513 bytes when first committed), and `*.i64` is no longer ignored. Consequences:
+- Git cannot merge IDA databases. Concurrent edits mean one contributor's work is discarded, so only one person updates the database at a time, coordinated through its owner.
+- Every committed save adds the full database to history.
+- `config/wpse-v1/symbols.txt` remains the authoritative, mergeable source of names. Names recovered in IDA must also be synced there.
+
 ## Future decisions
 
 Use stable identifiers and record status, problem, approach, evidence, consequences, and superseded decisions. Put reverse engineering evidence in `re/` and link it here rather than duplicating it.
