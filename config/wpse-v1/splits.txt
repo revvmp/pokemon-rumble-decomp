@@ -320,6 +320,81 @@ RVL_SDK/fa/pf_api_util.c:
 RVL_SDK/fa/pf_chdir.c:
 	.text       start:0x8021A5D0 end:0x8021A620
 
+RVL_SDK/fa/pf_mkdir.c:
+	.text       start:0x8021B190 end:0x8021B1E0
+
+RVL_SDK/fa/pf_mount.c:
+	.text       start:0x8021B1E0 end:0x8021B208
+
+RVL_SDK/fa/pf_move.c:
+	.text       start:0x8021B210 end:0x8021B28C
+
+RVL_SDK/fa/pf_opendir.c:
+	.text       start:0x8021B290 end:0x8021B2E8
+
+RVL_SDK/fa/pf_readdir.c:
+	.text       start:0x8021B2F0 end:0x8021B314
+
+RVL_SDK/fa/pf_regctx.c:
+	.text       start:0x8021B320 end:0x8021B344
+
+RVL_SDK/fa/pf_remove.c:
+	.text       start:0x8021B350 end:0x8021B3A0
+
+RVL_SDK/fa/pf_rename.c:
+	.text       start:0x8021B3A0 end:0x8021B41C
+
+RVL_SDK/fa/pf_rewinddir.c:
+	.text       start:0x8021B420 end:0x8021B448
+
+RVL_SDK/fa/pf_rmdir.c:
+	.text       start:0x8021B450 end:0x8021B4A0
+
+RVL_SDK/fa/pf_detach.c:
+	.text       start:0x8021B4A0 end:0x8021B4C8
+
+RVL_SDK/fa/pf_seekdir.c:
+	.text       start:0x8021B4D0 end:0x8021B4F4
+
+RVL_SDK/fa/pf_buffering.c:
+	.text       start:0x8021B500 end:0x8021B528
+
+RVL_SDK/fa/pf_setcode.c:
+	.text       start:0x8021B530 end:0x8021B554
+
+RVL_SDK/fa/pf_setencode.c:
+	.text       start:0x8021B560 end:0x8021B584
+
+RVL_SDK/fa/pf_sync.c:
+	.text       start:0x8021B590 end:0x8021B5B8
+
+RVL_SDK/fa/pf_setupfsi.c:
+	.text       start:0x8021B5C0 end:0x8021B5EC
+
+RVL_SDK/fa/pf_setvol.c:
+	.text       start:0x8021B5F0 end:0x8021B64C
+
+RVL_SDK/fa/pf_setclstlink.c:
+	.text       start:0x8021B650 end:0x8021B678
+
+RVL_SDK/fa/pf_settailbuf.c:
+	.text       start:0x8021B680 end:0x8021B6A8
+
+RVL_SDK/fa/pf_telldir.c:
+	.text       start:0x8021B6B0 end:0x8021B6D4
+
+RVL_SDK/fa/pf_unmount.c:
+	.text       start:0x8021B6E0 end:0x8021B708
+
+RVL_SDK/fa/pf_unregctx.c:
+	.text       start:0x8021B710 end:0x8021B734
+
+RVL_SDK/fa/pf_xdivide.c:
+	.text       start:0x8021B740 end:0x8021B7D0
+
+RVL_SDK/fa/pf_w_api_util.c:
+	.text       start:0x8021B7D0 end:0x8021B884
+
 RVL_SDK/fa/pf_kernel.c:
 	.text       start:0x8021DFE0 end:0x8021E414
 	.data       start:0x803C4520 end:0x803C47F0
