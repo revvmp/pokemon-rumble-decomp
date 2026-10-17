@@ -87,3 +87,7 @@ The initial message-buffer catalog included four bytes of following padding in i
 The diagnostic call interfaces differ by file. Message-buffer exhaustion and message-send failure use fixed-argument declarations and generate no variadic-call condition-register instruction. The support file's diagnostics use the variadic interface and do generate it. A variadic declaration in the fixed-call units adds an instruction despite otherwise identical algorithms.
 
 The compiler string flags are cumulative: a later `-str reuse` does not cancel `readonly`. Explicit `noreadonly` selects writable storage, and explicit `pool` retains the target's adjacent support diagnostics without per-string alignment. The support symbol contains 65 payload bytes; its old 72-byte survey size included following padding. Correcting its owned size and string-table classification restores whole-object comparison without adding source padding.
+
+### Imported symbol reconciliation
+
+The D-0014 imported map seed is retained outside the owned units and the proven callee names required by these sources. Native instruction and relocation comparisons establish the canonical pinned-source interfaces `TRKWriteUARTN`, `TRKSuppAccessFile`, `TRKGetFreeBuffer`, and `TRKAppendBuffer`; those spellings supersede imported underscore variants only where the paired source proves the exact target entry. This does not promote unverified map names or change neighboring unit boundaries.

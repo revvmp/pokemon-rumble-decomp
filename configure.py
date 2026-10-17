@@ -733,14 +733,6 @@ config.libs = [
             Object(Matching, "MetroTRK/debugger/embedded/MetroTRK/Portable/mem_TRK.c"),
             Object(Matching, "MetroTRK/debugger/embedded/MetroTRK/Portable/dispatch.c"),
             Object(Matching, "MetroTRK/debugger/embedded/MetroTRK/Os/dolphin/dolphin_trk.c", extra_cflags=["-sdata 8", "-sdata2 8"]),
-        ],
-    ),
-    library(
-        "MetroTRK",
-        "Wii/1.1",
-        cflags_trk,
-        "runtime",
-        [
             Object(Matching, "MetroTRK/debugger/embedded/MetroTRK/Portable/nubinit.c", extra_cflags=["-sdata 8", "-str reuse,pool,noreadonly"]),
             Object(Matching, "MetroTRK/debugger/embedded/MetroTRK/Portable/serpoll.c", extra_cflags=["-sdata 8", "-str reuse,pool,noreadonly"]),
             Object(Matching, "MetroTRK/debugger/embedded/MetroTRK/Portable/string_TRK.c", extra_cflags=["-sdata 8", "-str reuse,pool,noreadonly"]),
@@ -751,6 +743,7 @@ config.libs = [
             Object(Matching, "MetroTRK/debugger/embedded/MetroTRK/Portable/msgbuf.c", extra_cflags=["-sdata 8", "-str reuse,pool,noreadonly"]),
         ],
     ),
+
 ]
 
 config.progress_categories = [
