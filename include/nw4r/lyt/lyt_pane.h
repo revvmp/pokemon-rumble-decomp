@@ -103,6 +103,9 @@ public:
         return visible;
     }
     const res::ExtUserData* GetExtUserData() const;
+    void SetSRTElement(u32 index, f32 value) {
+        reinterpret_cast<f32*>(&mTranslate)[index] = value;
+    }
     void SetName(const char* pName);
     void SetUserData(const char* pUserData);
     const res::ExtUserData* FindExtUserDataByName(const char* pName);

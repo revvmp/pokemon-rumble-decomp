@@ -159,6 +159,70 @@ struct WindowFrame {
     u8 textureFlip;
     u8 padding;
 };
+struct AnimationBlock {
+    DataBlockHeader blockHeader;
+    u16 frameSize;
+    u8 loop;
+    u8 padding1;
+    u16 fileNum;
+    u16 animContNum;
+    u32 animContOffsetsOffset;
+};
+
+struct AnimationTagBlock {
+    DataBlockHeader blockHeader;
+    u16 tagOrder;
+    u16 groupNum;
+    u32 nameOffset;
+    u32 groupsOffset;
+    u16 startFrame;
+    u16 endFrame;
+    u8 flag;
+    u8 padding[3];
+};
+
+struct AnimationShareBlock {
+    DataBlockHeader blockHeader;
+    u32 animShareInfoOffset;
+    u16 shareNum;
+    u8 padding[2];
+};
+
+struct HermiteKey {
+    f32 frame;
+    f32 value;
+    f32 slope;
+};
+
+struct StepKey {
+    f32 frame;
+    u16 value;
+    u16 padding;
+};
+
+struct AnimationInfo {
+    u32 kind;
+    u8 num;
+    u8 padding[3];
+};
+
+struct AnimationTarget {
+    u8 id;
+    u8 target;
+    u8 curveType;
+    u8 padding1;
+    u16 keyNum;
+    u8 padding2[2];
+    u32 keyOffset;
+};
+
+struct AnimationContent {
+    char name[20];
+    u8 num;
+    u8 type;
+    u8 padding[2];
+};
+
 }
 class ResourceAccessor;
 struct ResBlockSet {

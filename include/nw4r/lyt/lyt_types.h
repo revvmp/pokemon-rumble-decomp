@@ -17,6 +17,29 @@ template <typename T> inline T* ConvertOffsToPtr(void* pBase, unsigned int offse
 
 class AnimTransform;
 
+struct AnimationShareInfo {
+    const char *GetTargetGroupName() const {
+        return targetGroupName;
+    }
+    const char *GetSrcPaneName() const {
+        return srcPaneName;
+    }
+
+    char srcPaneName[17];
+    char targetGroupName[17];
+    u8 padding[2];
+};
+
+struct AnimationGroupRef {
+    const char *GetName() const {
+        return name;
+    }
+
+    char name[17];
+    u8 flag;
+    u8 padding[2];
+};
+
 class AnimationLink {
 public:
     inline AnimationLink() : mLink() {

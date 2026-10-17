@@ -1,0 +1,42 @@
+# F-812-1: Layout animation interface prerequisite
+
+## Scope and ownership
+
+Issue #812 owns the complete retained `nw4r/lyt/lyt_animation.cpp` inventory: 27 functions / 5,396 instruction bytes at `0x802AF0C0`–`0x802B0674`. Its first retained functions are the original anonymous-namespace step and Hermite curve evaluators. This prerequisite extends five existing canonical headers with the complete animation interfaces and their resource records. It changes no source, split, object status or decompiled-byte credit.
+
+Existing AnimTransform layout and virtual order, AnimResource storage and all unrelated classes are preserved. The complete Material and TexMap interfaces belong to #808/#811; owner-approved external copies are used only for diagnostic consumers. Layout's additive DeletePrimArray template is reserved for the #809 owner's coordinated proposal. This prerequisite changes none of those three headers.
+
+## Provenance
+
+The primary reference is CC0 zeldaret/ss `787b0b1e9d30e3c1d91ced61350b059ffc5a2411`. Its `src/nw4r/lyt/lyt_animation.cpp` SHA-256 is `c4a9c69ddea04a25075740d6c683e70a35d8a090996b3a4d3f6ea85e47075641`; animation header `ad1195e44faf9c133a5df7079e4a928bbd7885a3a8befe03e1c88059de5d0c37`; resource header `3f98e7b86a04a73c05a98df5ac38a4759d414839392a29a8870bf8af793d2ce7`; type header `599275814fcae16a2b2ab2a3bed89cae6c9bc496cc791cbcb97f122133c22d8f`. The repository LICENSE is CC0 1.0 Universal, SHA-256 `a2010f343487d3f7618affe54f789f5487602331c0a8d03f49e9a7c547cf0499`. No inspected source or header contains a separate license exception.
+
+CC0 Xenoblade `ea25691b2029394ab777bda7060139e517a13cba` supplies an older compatible comparison. Its animation Bind interfaces omit this target's disable parameters, so those declarations are preserved from the existing canonical header and checked against native calls. Reference comments and unused diagnostic stubs are omitted.
+
+## Native layouts
+
+| Type | Size | Storage |
+| --- | --- | --- |
+| AnimTransform | `0x14` | Existing vptr, node at 4, resource pointer at C, frame at 10 |
+| AnimTransformBasic | `0x20` | Existing base, file-resource pointer array at 14, animation-link array at 18, unsigned-short count at 1C |
+| AnimResource | `0x10` | Existing file-header, animation, tag and share pointers at 0/4/8/C |
+| detail::AnimPaneTree | `0x28` | Resource at 0, pane index at 10, link count at 12, nine material indices at 14, material count at 26 |
+
+Native constructors and the complete animation/bind/tree functions reproduce these offsets. The AnimTransformBasic vtable has seven original entries in destructor, two SetResource, two Bind and two Animate order. Its native 36-byte table begins at `0x803C7228`; the four following bytes are outside that object. The complete native constant pool is 32 bytes at `0x804BB200`.
+
+The resource declarations preserve the original field order and types for AnimationBlock (20 bytes), AnimationTagBlock (28), AnimationShareBlock (16), AnimationContent (24), AnimationInfo (8), AnimationTarget (12), StepKey (8), and HermiteKey (12). Group and share references follow the original 20-byte and 36-byte record formats. Existing resource structs and padding remain unchanged.
+
+Pane::SetSRTElement retains the original float-element view of its contiguous translation/rotation/scale/size storage. The existing Pane layout and virtual methods are untouched. TestFileVersion reads the two version bytes and accepts major zero with minor eight through ten. The descriptive helper IsSupportedMinorVersion expresses the separately evaluated minor predicate visible in the native instructions; its name is project terminology, not a recovered symbol.
+
+## Diagnostic and baseline evidence
+
+The complete external source consumer compiled under existing Wii/1.1 NW4R flags. Every one of the 27 original issue functions has its native size and every non-relocation word. The paired audit checks all 67 retained text relocations, all seven vtable entries, every vtable byte and the complete constant pool: 74 relocations and 68 initialized bytes exact. These diagnostics do not establish source-selected linking or source completion.
+
+Before any tracked header change, the untouched baseline passed `python configure.py`, all 484 plain Ninja targets, and explicit frozen verification, all exit zero. SHA-256 values for all 477 compiled source objects were captured. The header proposal must independently pass its real full build, frozen verifier and existing-object comparison before submission.
+
+## Traps
+
+The older animation interfaces drop the disable argument. Retaining only their class names and sizes is insufficient: preserve the proven virtual signatures and native argument forwarding.
+
+Flattening the reference version predicate into one Boolean expression produced a 256-byte AnimResource::Set and changed register allocation. Separating the supported-minor predicate with ordinary inline C++ reproduces the complete native 260-byte function. This is a measured source distinction for this unit, not a general compiler flag rule.
+
+The source compiler object also contains unretained original helpers and a weak base vtable. Source acceptance must check retained function order, final native addresses, actual source-only link inputs and the full frozen artifact; it cannot assume raw object offsets already equal final linked offsets.
