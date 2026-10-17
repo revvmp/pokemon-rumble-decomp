@@ -452,3 +452,10 @@ Japanese data: `enc_tbl_jp_mbtowc` at `0x803718A8` (18,800 bytes), `enc_tbl_jp_w
 | `0x8033E3F0` | `0x10` | `fn_8033E3F0` | `GDFlushCurrToMem` | function | high | F-534-1 | `src/RVL_SDK/gd/GDBase.c` |
 | `0x8033E400` | `0x118` | `fn_8033E400` | `GDPadCurr32` | function | high | F-534-1 | `src/RVL_SDK/gd/GDBase.c` |
 | `0x804B9B9C` | `0x4` | `lbl_804B9B9C` | `overflowcb` | `.sbss` static | high | F-534-1 | `src/RVL_SDK/gd/GDBase.c` |
+## BTE close callback, issue 511
+
+| Address | Name | Evidence |
+| --- | --- | --- |
+| `0x80313E40` | `bta_usb_close_evt` | High confidence: pinned Petari correspondence and all twelve target instructions; [F-511-2](findings/511-bte-close-callback.md) |
+
+Signature: `void bta_usb_close_evt(signed char status)`. The existing `_bte_app_info` callback receives unsigned-byte status zero for a nonnegative input and one otherwise. A null callback returns immediately.

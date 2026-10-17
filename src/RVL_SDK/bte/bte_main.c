@@ -56,3 +56,12 @@ void BTA_CleanUp(BTAAppInfoCallback callback) {
     bte_hcisu_close();
     GKI_shutdown();
 }
+
+void bta_usb_close_evt(signed char status) {
+    if (_bte_app_info) {
+        if (status >= 0)
+            _bte_app_info(0);
+        else
+            _bte_app_info(1);
+    }
+}
