@@ -3,6 +3,11 @@
 
 #define DEBUGPrint WUD_DEBUGPrint
 
+enum {
+    WUD_INIT_FLUSH_COMPLETE = 5,
+    WUD_INIT_READY = 6
+};
+
 WUDCB _wcb;
 WUDDevInfo _work;
 SCBtDeviceInfoArray _scArray;
@@ -94,6 +99,14 @@ static WUDDeleteState WUDiTerminateDevice(void) {
     }
 
     return WUD_STATE_DELETE_CLEANUP_DATABASE;
+}
+
+static void __wudInitFlushCallback(u32 result) {
+    WUDCB* p_wcb = &_wcb;
+
+    WUD_DEBUGPrint("__wudInitFlushCallback() : %d, Init: %d\n", result, p_wcb->initState);
+
+    p_wcb->initState = WUD_INIT_FLUSH_COMPLETE;
 }
 
 static void __wudShutdownFlushCallback(u32 result) {
@@ -433,6 +446,22 @@ void WUDiMoveBottomStdDevInfoPtr(WUDDevInfo* pInfo) {
     OSRestoreInterrupts(enabled);
 }
 
+BOOL WUDIsBusy(void) {
+    WUDCB* p = &_wcb;
+    BOOL enabled;
+
+    enabled = OSDisableInterrupts();
+
+    if (p->syncState == WUD_STATE_SYNC_START && p->deleteState == WUD_STATE_DELETE_START && p->stackState == WUD_STATE_STACK_INITIALIZED &&
+        p->initState == WUD_INIT_READY) {
+        OSRestoreInterrupts(enabled);
+        return FALSE;
+    }
+
+    OSRestoreInterrupts(enabled);
+    return TRUE;
+}
+
 static void __wudCleanupStackCallback(tBTA_STATUS status) {
     WUDCB* p = &_wcb;
 
@@ -443,6 +472,14 @@ static void __wudCleanupStackCallback(tBTA_STATUS status) {
     }
 
     DEBUGPrint("WARNING: USB_CLOSE_FAILURE!\n");
+}
+
+void __wudDeviceStatusEventStackCallback(tBTM_DEV_STATUS status) {
+    DEBUGPrint("__wudDeviceStatusEventStackCallback\n");
+
+    if (status == BTM_DEV_STATUS_CMD_TOUT) {
+        OSReport("---- WARNING: USB FATAL ERROR! ----\n");
+    }
 }
 
 BD_ADDR_PTR _WUDGetDevAddr(UINT8 handle) {
@@ -469,7 +506,6 @@ u8 _WUDGetLinkNumber(void) {
     OSRestoreInterrupts(enabled);
     return num;
 }
-
 
 WUDDevInfo *WUDiGetDiscoverDevice(void)
 {
