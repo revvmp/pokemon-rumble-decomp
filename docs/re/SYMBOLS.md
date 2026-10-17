@@ -224,7 +224,7 @@ Layouts follow Petari and are confirmed by target accesses: `hd_cb` uses `conn` 
 
 ## Issue 467: OSFont, OSInterrupt, OSMessage, OSMemory
 
-Evidence and confidence are in [F-467-2](findings/467-os-font-interrupt-memory.md#f-467-2-names). Every symbol below was renamed in `config/wpse-v1/symbols.txt`.
+Evidence and confidence are in [F-467-2](findings/467-os-font-interrupt-memory.md#f-467-2-names). Every symbol below was renamed in `config/wpse-v1/symbols.txt`. The `OSMemory.c` names now link from `Matching` source ([F-467-6](findings/467-os-font-interrupt-memory.md#f-467-6-osmemoryc-links-from-source)); no new names were needed.
 
 | Address | Size | dtk label | Chosen name | Kind | Confidence | Source |
 | --- | --- | --- | --- | --- | --- | --- |

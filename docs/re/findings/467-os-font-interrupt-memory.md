@@ -44,9 +44,13 @@ The first link attempt that used `OSLink.c` as a source object shifted `.ctors` 
 | `OSLink.c` | 1/1, 100% | yes, verifier passes | none |
 | `OSMessage.c` | 4/4, 100% | yes, verifier passes | none |
 | `OSFont.c` | 13/13 functions, data 100% | yes, verifier passes | none |
-| `OSMemory.c` | 15/15 functions, data 100% | no | Successor split alignment (F-467-4), owned by #468. A source-link attempt shifted `.ctors` by 8 bytes. |
+| `OSMemory.c` | 15/15 functions, data 100% | yes, verifier passes (F-467-6) | none |
 
 The first source-link attempts of `OSFont.c` and `OSMessage.c` failed with undefined external names. The collaboration rules allow naming outside symbols with evidence, so seven outside labels were renamed in `symbols.txt`; their splits, sizes, and types stay with their owning issues. `0x802B40A0` (#465) is `DCStoreRange`: a `dcbst` loop over 32-byte lines with no trailing `sync`, which ExpandFontSheet tail-calls with the sheet and its size. `0x802BB460` (#469) is `__OSReadROM`: it calls `DCInvalidateRange`, `EXILock(0, 1, 0)` and `EXISelect(0, 1, 3)`, as in Petari's OSRtc.c, and ReadFont retries it in 256-byte chunks. `0x802BCF60` (#469) is `OSWakeupThread`: it disables interrupts and walks the queue passed by every OSMessage routine, matching the reference call sites. `0x802BD730`, `0x802BD850`, `0x802BD8C0` and `0x802BD940` (#470) are `OSUTF8to32`, `OSUTF16to32`, `OSUTF32toANSI` and `OSUTF32toSJIS`, from ParseStringW's call order and arguments. The last one rejects values of 0x10000 and above and looks up a halfword table. Confidence high. With these names in place, both units link from source and the verifier passes.
+
+## F-467-6: OSMemory.c links from source
+
+#619 split `OSMutex.c` at `0x802B9F00` with `align:16` (F-468-1), which removes the F-467-4 blocker. With `OSMemory.c` registered as `Matching` and no change to its source, splits, or symbols, `python configure.py`, `.venv/Scripts/ninja` and `python tools/verify/verify.py verify --manifest config/targets/wpse-v1.json --reference-dir orig/wpse-v1 --build-dir build/wpse-v1` all exit 0. objdiff reports 15/15 functions, 1,852/1,852 code bytes and 24/24 data bytes for the unit. No outside symbol needed a new name. Confidence high.
 
 ## Traps
 

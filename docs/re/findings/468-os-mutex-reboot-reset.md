@@ -34,6 +34,10 @@ External names added to `symbols.txt` for the link, from their call roles in thi
 
 `include/revolution/os/OSMutex.h` now includes `OSThread.h` instead of redefining `OSThreadQueue`, and it declares `OSCond` and the condition and try-lock routines. `OSThread.h` gains `__OSPromoteThread` and `__OSGetEffectivePriority`.
 
+## F-468-4: Block completion
+
+The nine `OSMemory.c` functions at the start of this block (`0x802B98A0`–`0x802B9EFC`) now link from source as `Matching` (F-467-6). Every function from `0x802B98A0` to `0x802BAE2C` is therefore in a `Matching`, source-linked unit: `OSMemory.c`, `OSMutex.c`, `OSReboot.c` and `OSReset.c`. `OSReset.c` ends inside this block, so no unit runs into #469. The full build and the frozen-manifest verifier pass.
+
 ## Traps
 
 No new reusable trap. The dead-function string pool (F-286-3) and successor alignment (F-467-4) both applied again.
