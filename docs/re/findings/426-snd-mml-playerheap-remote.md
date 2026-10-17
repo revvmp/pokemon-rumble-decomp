@@ -18,6 +18,12 @@ The complete `snd_MmlSeqTrack.cpp` owns `.text` `0x8027E000–0x8027E0B8` and `.
 
 The source is now `Matching`: complete object `.text` and `.data` are 100% in objdiff. The full source-selected default Ninja build exited 0 and its frozen verification exited 0. The final ELF has all three native addresses and extents, totaling 168 function bytes, including #426's 88-byte destructor. The constructor and parser dispatch from #425 total 80 bytes and are explicitly credited to that neighboring issue. No other #425 unit is claimed complete.
 
+## MML track allocator acceptance
+
+The complete allocator owns `.text` `0x8027E0C0–0x8027E210` and `.data` `0x803C6580–0x803C6598`. Its six retained functions total 300 instruction bytes: allocation, release, pool creation, pool destruction, available-count accessor, and virtual destructor. The original vtable pairs all four virtual slots with those native addresses. `Create` passes the proven `0xD0` track stride; allocation initializes the player and parser through the canonical track interface. `Destroy` and available-count accessors have paired native tail-branch destinations, distinguishing their otherwise similar tiny bodies.
+
+The committed split-only baseline passed default configure, plain Ninja, and explicit frozen verification. The source was registered `NonMatching` and compiled with the established Wii/1.1 `cflags_nw4r`; complete object `.text` and `.data` compare at 100%. Selecting that source passed default Ninja, its actual SHA-1 check, and explicit frozen verification. All six functions retain their native final ELF addresses and extents. This accepts the complete unit as `Matching`, with no original-object dependency inside its split.
+
 ## Reference provenance
 
 Player heap behavior follows CC0 `zeldaret/ss` at `57a709b2128eb163a18e2969d561c9abb7d1fcee`, `src/nw4r/snd/snd_PlayerHeap.cpp`, adapted to existing canonical headers and the project's source conventions. The source and referenced header have no file-specific license notice overriding the repository CC0 dedication. Reference material is retained outside the checkout. No commented reference source is imported into tracked code.
