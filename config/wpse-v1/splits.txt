@@ -24,6 +24,15 @@ RVL_SDK/base/PPCArch.c:
 	.text       start:0x802B1800 end:0x802B1A10
 	.data       start:0x803C7280 end:0x803C72B8
 
+RVL_SDK/os/OSAlarm.c:
+	.text       start:0x802B2F50 end:0x802B3810
+	.data       start:0x803C7760 end:0x803C7770
+	.sbss       start:0x804B9488 end:0x804B9490
+
+RVL_SDK/os/OSContext.c:
+	.text       start:0x802B46D0 end:0x802B4FB0
+	.data       start:0x803C7A28 end:0x803C7C08
+
 RVL_SDK/os/OSFont.c:
 	.text       start:0x802B7900 end:0x802B8C90
 	.data       start:0x803C7F58 end:0x803C8A68
@@ -47,6 +56,45 @@ RVL_SDK/os/OSMemory.c:
 	.data       start:0x803C8A98 end:0x803C8AA8
 	.sbss       start:0x804B94E0 end:0x804B94E8
 
+RVL_SDK/vi/i2c.c:
+	.text       start:0x802C6A30 end:0x802C7350
+	.sdata      start:0x804B8B00 end:0x804B8B08
+	.sbss       start:0x804B9678 end:0x804B9680
+
+RVL_SDK/gx/GXFrameBuf.c:
+	.text       start:0x802CD440 end:0x802CDEC0
+	.sdata2     start:0x804BB300 end:0x804BB310
+
+RVL_SDK/gx/GXLight.c:
+	.text       start:0x802CDEC0 end:0x802CE630
+	.sdata2     start:0x804BB310 end:0x804BB348
+
+RVL_SDK/gx/GXTev.c:
+	.text       start:0x802CFB90 end:0x802D0260
+	.data       start:0x803D6690 end:0x803D6708
+
+RVL_SDK/gx/GXPixel.c:
+	.text       start:0x802D0260 end:0x802D09E0
+	.data       start:0x803D6708 end:0x803D6728
+	.sdata2     start:0x804BB388 end:0x804BB3D8
+
+RVL_SDK/gx/GXDisplayList.c:
+	.text       start:0x802D09E0 end:0x802D0A60
+
+RVL_SDK/ax/AX.c:
+	.text       start:0x802DA490 end:0x802DA500
+	.data       start:0x803D8530 end:0x803D8578
+	.sdata      start:0x804B8BD0 end:0x804B8BD8
+	.sbss       start:0x804B9840 end:0x804B9848
+
+RVL_SDK/esp/esp.c:
+	.text       start:0x802F08E0 end:0x802F1230
+	.sdata      start:0x804B8D80 end:0x804B8D90
+
+RVL_SDK/ipc/ipcMain.c:
+	.text       start:0x802F1230 end:0x802F1320
+	.sbss       start:0x804B99D8 end:0x804B99F0
+
 RVL_SDK/bte/bte_hcisu.c:
 	.text       start:0x80313A60 end:0x80313B30
 	.sbss       start:0x804B9B78 end:0x804B9B80
@@ -58,6 +106,12 @@ RVL_SDK/bte/bte_logmsg.c:
 	.text       start:0x80313B60 end:0x80313D00
 	.bss        start:0x804A9040 end:0x804A9820
 	.sdata      start:0x804B8EE0 end:0x804B8EE8
+
+RVL_SDK/bte/bte_main.c:
+	.text       start:0x80313D00 end:0x80313E70
+	.bss        start:0x804A9820 end:0x804AA850
+	.sdata      start:0x804B8EE8 end:0x804B8EF0
+	.sbss       start:0x804B9B80 end:0x804B9B88
 
 Runtime/__init_cpp_exceptions.cpp:
 	.text       start:0x80340B24 end:0x80340B94
