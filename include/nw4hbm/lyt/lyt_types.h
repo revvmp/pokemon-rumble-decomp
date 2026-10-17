@@ -95,12 +95,8 @@ private:
 
 NW4R_UT_LINKLIST_TYPEDEF_DECL(AnimationLink);
 
-struct AlphaCompare {
-    u8 comp;
-    u8 op;
-    u8 ref0;
-    u8 ref1;
-
+class AlphaCompare {
+public:
     AlphaCompare() {
         Set(GX_ALWAYS, 0, GX_AOP_AND, GX_ALWAYS, 0);
     }
@@ -131,14 +127,16 @@ struct AlphaCompare {
     u8 GetRef1() const {
         return ref1;
     }
+
+private:
+    u8 comp;
+    u8 op;
+    u8 ref0;
+    u8 ref1;
 };
 
-struct BlendMode {
-    u8 type;
-    u8 srcFactor;
-    u8 dstFactor;
-    u8 op;
-
+class BlendMode {
+public:
     BlendMode() {
         Set(GX_BM_BLEND, GX_BL_SRCALPHA, GX_BL_INVSRCALPHA, GX_LO_SET);
     }
@@ -166,14 +164,16 @@ struct BlendMode {
     GXLogicOp GetOp() const {
         return static_cast<GXLogicOp>(op);
     }
+
+private:
+    u8 type;
+    u8 srcFactor;
+    u8 dstFactor;
+    u8 op;
 };
 
-struct ChanCtrl {
-    u8 matSrcCol;
-    u8 matSrcAlp;
-    u8 reserve1;
-    u8 reserve2;
-
+class ChanCtrl {
+public:
     ChanCtrl() : reserve1(0), reserve2(0) {
         Set(GX_SRC_VTX, GX_SRC_VTX);
     }
@@ -189,14 +189,16 @@ struct ChanCtrl {
     GXColorSrc GetAlphaSrc() const {
         return static_cast<GXColorSrc>(matSrcAlp);
     }
+
+private:
+    u8 matSrcCol;
+    u8 matSrcAlp;
+    u8 reserve1;
+    u8 reserve2;
 };
 
-struct IndirectStage {
-    u8 texCoordGen;
-    u8 texMap;
-    u8 scaleS;
-    u8 scaleT;
-
+class IndirectStage {
+public:
     IndirectStage() {
         Set(GX_TEXCOORD0, GX_TEXMAP0, GX_ITS_1, GX_ITS_1);
     }
@@ -224,14 +226,16 @@ struct IndirectStage {
     GXIndTexScale GetScaleT() const {
         return static_cast<GXIndTexScale>(scaleT);
     }
+
+private:
+    u8 texCoordGen;
+    u8 texMap;
+    u8 scaleS;
+    u8 scaleT;
 };
 
-struct TevStageInOp {
-    u8 ab;
-    u8 cd;
-    u8 op;
-    u8 cl;
-
+class TevStageInOp {
+public:
     u8 GetA() const {
         return ab & 0b1111;
     }
@@ -275,20 +279,16 @@ struct TevStageInOp {
         op = _op & 0b1111 | (bias & 0b11) << 4 | (scale & 0b11) << 6;
         cl = clamp & 0b1 | (outReg & 0b11) << 1 | (ksel & 0b11111) << 3;
     }
+
+private:
+    u8 ab;
+    u8 cd;
+    u8 op;
+    u8 cl;
 };
 
-struct TevStage {
-    u8 texCoordGen;
-    u8 colChan;
-    u8 texMap;
-    u8 swapSel;
-    TevStageInOp colIn;
-    TevStageInOp alpIn;
-    u8 indStage;
-    u8 indBiMt;
-    u8 indWrap;
-    u8 indFoAdUtAl;
-
+class TevStage {
+public:
     TevStage() {
         SetOrder(GX_TEXCOORD_NULL, GX_TEXMAP_NULL, GX_COLOR0A0, GX_TEV_SWAP0,
                  GX_TEV_SWAP0);
@@ -464,11 +464,22 @@ struct TevStage {
     GXIndTexAlphaSel GetIndAlphaSel() const {
         return static_cast<GXIndTexAlphaSel>(indFoAdUtAl >> 4 & 0b11);
     }
+
+private:
+    u8 texCoordGen;
+    u8 colChan;
+    u8 texMap;
+    u8 swapSel;
+    TevStageInOp colIn;
+    TevStageInOp alpIn;
+    u8 indStage;
+    u8 indBiMt;
+    u8 indWrap;
+    u8 indFoAdUtAl;
 };
 
-struct TevSwapMode {
-    u8 swap;
-
+class TevSwapMode {
+public:
     void Set(GXTevColorChan r, GXTevColorChan g, GXTevColorChan b,
              GXTevColorChan a) {
 
@@ -487,9 +498,13 @@ struct TevSwapMode {
     GXTevColorChan GetA() const {
         return static_cast<GXTevColorChan>(swap >> 6 & 0b11);
     }
+
+private:
+    u8 swap;
 };
 
-struct TexCoordGen {
+class TexCoordGen {
+public:
     TexCoordGen() : reserve(0) {
         Set(GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY);
     }
@@ -512,6 +527,7 @@ struct TexCoordGen {
         return texMtx;
     }
 
+private:
     u8 texGenType;
     u8 texGenSrc;
     u8 texMtx;
