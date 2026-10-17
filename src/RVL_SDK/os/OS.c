@@ -54,11 +54,11 @@ extern BOOL __OSInReboot;
 #define OS_DVD_DEVICE_CODE (*(vu16*)OSPhysicalToCached(0x30E6))
 
 OSExecParams __OSRebootParams;
-static DVDDriveInfo DriveInfo;
+static DVDDriveInfo DriveInfo ATTRIBUTE_ALIGN(32);
 static DVDCommandBlock DriveBlock;
 
 OSTime __OSStartTime;
-static OSBootInfo* volatile BootInfo;
+static OSBootInfo* BootInfo;
 static u32* BI2DebugFlag;
 static u32 BI2DebugFlagHolder;
 
@@ -455,8 +455,8 @@ static void CheckTargets(void) {
 static void CheckFirmare(void) {
     OSIOSRev ios;
     u32 version;
-    const GXColor bg = {0, 0, 255, 0};
-    const GXColor fg = {255, 255, 255, 0};
+    GXColor bg = {0, 0, 255, 0};
+    GXColor fg = {255, 255, 255, 0};
 
     __OSGetIOSRev(&ios);
 
@@ -517,13 +517,13 @@ void OSInit(void) {
 
         bi2StartAddr = *(void**)OSPhysicalToCached(0xF4);
 
-        if (bi2StartAddr != NULL) {
+        if (bi2StartAddr) {
             BI2DebugFlag = (u32*)((u32)bi2StartAddr + 0xC);
             __PADSpec = *(u32*)((u32)bi2StartAddr + 0x24);
 
             *(u8*)OSPhysicalToCached(0x30E8) = (u8)*BI2DebugFlag;
             *(u8*)OSPhysicalToCached(0x30E9) = (u8)__PADSpec;
-        } else if (BootInfo->arenaHi != NULL) {
+        } else if (BootInfo->arenaHi) {
             BI2DebugFlagHolder = *(u8*)OSPhysicalToCached(0x30E8);
             BI2DebugFlag = &BI2DebugFlagHolder;
             __PADSpec = *(u8*)OSPhysicalToCached(0x30E9);
@@ -533,11 +533,11 @@ void OSInit(void) {
 
         mem1Lo = *(void**)OSPhysicalToCached(0x310C);
 
-        if (mem1Lo == NULL) {
+        if (!mem1Lo) {
             if (OSIsMEM1Region(__ArenaLo)) {
-                mem1Lo = BootInfo->arenaLo == NULL ? (void*)__ArenaLo : BootInfo->arenaLo;
+                mem1Lo = !BootInfo->arenaLo ? (void*)__ArenaLo : BootInfo->arenaLo;
 
-                if (BootInfo->arenaLo == NULL && BI2DebugFlag != NULL && *BI2DebugFlag < 2) {
+                if (!BootInfo->arenaLo && BI2DebugFlag && *BI2DebugFlag < 2) {
                     mem1Lo = (void*)OSRoundUp32B(_stack_addr);
                 }
             } else {
@@ -549,19 +549,19 @@ void OSInit(void) {
 
         mem1Hi = *(void**)OSPhysicalToCached(0x3110);
 
-        if (mem1Hi == NULL) {
-            mem1Hi = BootInfo->arenaHi == NULL ? (void*)__ArenaHi : BootInfo->arenaHi;
+        if (!mem1Hi) {
+            mem1Hi = !BootInfo->arenaHi ? (void*)__ArenaHi : BootInfo->arenaHi;
         }
 
         OSSetMEM1ArenaHi(mem1Hi);
 
         mem2Lo = *(void**)OSPhysicalToCached(0x3124);
 
-        if (mem2Lo != NULL) {
+        if (mem2Lo) {
             if (OSIsMEM2Region(__ArenaLo)) {
                 mem2Lo = (void*)__ArenaLo;
 
-                if (BI2DebugFlag != NULL && *BI2DebugFlag < 2) {
+                if (BI2DebugFlag && *BI2DebugFlag < 2) {
                     mem2Lo = (void*)OSRoundUp32B(_stack_addr);
                 }
             } else if ((u32)mem2Lo >= 0x90000000 && (u32)mem2Lo < 0x90000800) {
@@ -573,7 +573,7 @@ void OSInit(void) {
 
         mem2Hi = *(void**)OSPhysicalToCached(0x3128);
 
-        if (mem2Hi != NULL) {
+        if (mem2Hi) {
             OSSetMEM2ArenaHi(mem2Hi);
         }
 
@@ -599,7 +599,7 @@ void OSInit(void) {
         ReportOSInfo();
         OSRegisterVersion(__OSVersion);
 
-        if (BI2DebugFlag != NULL && *BI2DebugFlag >= 2) {
+        if (BI2DebugFlag && *BI2DebugFlag >= 2) {
             EnableMetroTRKInterrupts();
         }
 

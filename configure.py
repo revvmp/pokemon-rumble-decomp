@@ -236,7 +236,7 @@ config.libs = [
         "sdk",
         [
             Object(Matching, "RVL_SDK/base/PPCArch.c"),
-            Object(NonMatching, "RVL_SDK/os/OS.c"),
+            Object(Matching, "RVL_SDK/os/OS.c"),
             Object(Matching, "RVL_SDK/os/OSAlarm.c"),
             Object(Matching, "RVL_SDK/os/OSAlloc.c"),
             Object(Matching, "RVL_SDK/os/OSArena.c"),
