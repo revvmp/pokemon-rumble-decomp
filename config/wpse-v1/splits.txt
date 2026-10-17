@@ -302,6 +302,14 @@ RVL_SDK/hbm/seq.c:
 	.data       start:0x803BE388 end:0x803BE408
 	.bss        start:0x803EA7F0 end:0x803EA7F8
 
+MSL_C/wprintf.c:
+	extab       start:0x80043478 end:0x800434B8
+	extabindex  start:0x800521DC end:0x8005223C
+	.text       start:0x801EB9F0 end:0x801EE468
+	.data       start:0x803C3198 end:0x803C35D0
+	.sdata      start:0x804B8670 end:0x804B86A0
+	.sdata2     start:0x804BA5B0 end:0x804BA5B8
+
 TMC_JPEG/tmcjpeg.c:
 	.text       start:0x801F6060 end:0x801F62C4
 	.rodata     start:0x803677E8 end:0x80367839
