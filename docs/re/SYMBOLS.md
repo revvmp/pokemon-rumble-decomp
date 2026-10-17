@@ -1716,3 +1716,7 @@ For `wpse-v1` / `main.dol`, [F-300-1](findings/300-nw4hbm-ut.md#f-300-1-ut_font-
 | `0x8031FDCC` | see `symbols.txt` | `fn_8031FDCC` | `BTM_ReadPowerMode` | function | high | F-526-1 | Not reconstructed (fallback) |
 | `0x80321150` | see `symbols.txt` | `fn_80321150` | `btm_sco_acl_removed` | function | high | F-526-1 | Not reconstructed (fallback) |
 | `0x8032206C` | see `symbols.txt` | `fn_8032206C` | `btm_sec_l2cap_access_req` | function | high | F-526-1 | Not reconstructed (fallback) |
+
+## HBM ut ResFontBase unit (#301)
+
+For `wpse-v1` / `main.dol`, [F-301-1](findings/301-nw4hbm-ut.md#f-301-1-ut_resfontbase) names `detail::ResFontBase::FindGlyphIndex(const FontCodeMap*, u16)` (`0x801941C0`), `GetGlyphFromIndex` (`0x80194290`), `__vt__Q46nw4hbm2ut6detail11ResFontBase` (`0x803BCD38`, 0x58 bytes), `__vt__Q36nw4hbm2ut4Font` (`0x803BCD90`, 0x58 bytes) and the weak `Font` destructor `__dt__Q36nw4hbm2ut4FontFv` (`0x8018F1A0`). `ResFontBase` is 0x18 bytes: `Font` (vtable `0x0`, reader `0x4`), `mResource` `0x10`, `mFontInfo` `0x14`. Confidence high: names and sizes match xenoblade's symbols, and the unit matches.

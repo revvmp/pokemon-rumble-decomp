@@ -141,6 +141,10 @@ RVL_SDK/hbm/nw4hbm/ut/ut_ResFont.cpp:
 	.text       start:0x80193A50 end:0x80193D4C
 	.data       start:0x803BCC48 end:0x803BCD28
 
+RVL_SDK/hbm/nw4hbm/ut/ut_ResFontBase.cpp:
+	.text       start:0x80193D50 end:0x80194398
+	.data       start:0x803BCD28 end:0x803BCDE8
+
 RVL_SDK/fa/pf_clib.c:
 	.text       start:0x801FB030 end:0x801FB4C0
 
