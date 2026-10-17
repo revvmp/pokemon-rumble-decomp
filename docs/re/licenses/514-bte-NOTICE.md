@@ -44,3 +44,7 @@ tl;dr this code does not look like bluedroid i know that it does not look like
 bluedroid do not complain to me that it does not look like bluedroid
 
 - muff1nOS
+
+## Completion additions
+
+The completed API and new `src/RVL_SDK/bte/bta_dm_main.c` and `src/RVL_SDK/bte/bta_dm_pm.c` adapt the same pinned Petari commit and corresponding source paths, each Copyright (C) 2003-2012 Broadcom Corporation with changes by muff1n1634, under the full Apache-2.0 license linked above. The prior partial-implementation description is historical: the initializer is now implemented, canonical headers use the SDK aliases, and five unlinked public APIs remain in source. Main and power source retain the reference state tables and helpers; logging and dependencies use project interfaces and comments are recorded in documentation.
