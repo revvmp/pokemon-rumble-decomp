@@ -119,6 +119,11 @@ RVL_SDK/ax/AX.c:
 	.sdata      start:0x804B8BD0 end:0x804B8BD8
 	.sbss       start:0x804B9840 end:0x804B9848
 
+RVL_SDK/ax/AXAux.c:
+	.text       start:0x802DA9F0 end:0x802DB284
+	.bss        start:0x804594A0 end:0x8045C620
+	.sbss       start:0x804B9850 end:0x804B9898
+
 RVL_SDK/axfx/AXFXReverbStdExp.c:
 	.text       start:0x802DF190 end:0x802DFEC0
 	.data       start:0x803DB780 end:0x803DB810
