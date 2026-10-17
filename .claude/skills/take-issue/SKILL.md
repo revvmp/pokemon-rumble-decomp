@@ -1,11 +1,11 @@
 ---
 name: take-issue
-description: Claim an unassigned GitHub issue in this decompilation project and work it to a pull request in an isolated worktree. Use when asked to pick up, take, claim, or work on an issue, or to "grab the next issue", optionally with an issue number or label such as area:sdk or "good first issue".
+description: Claim an unassigned GitHub issue in this decompilation project, work it to a pull request in an isolated worktree, merge it once CI passes, and clean up the worktree. Use when asked to pick up, take, claim, or work on an issue, or to "grab the next issue", optionally with an issue number or label such as area:sdk or "good first issue".
 ---
 
 # Take an issue
 
-Claim exactly one GitHub issue that nobody is assigned to, work it in your own worktree, and hand back through a pull request. All claim logic lives in `tools/collab/claim_issue.py`; never assign or comment on issues by hand.
+Claim exactly one GitHub issue that nobody is assigned to, work it in your own worktree, hand back through a pull request, merge it once CI passes, and clean up. All claim logic lives in `tools/collab/claim_issue.py`; never assign or comment on issues by hand.
 
 ## 1. Check prerequisites
 
@@ -40,9 +40,31 @@ This creates `..\rumble-<n>` from a fresh `origin/main` on the suggested branch,
 In the worktree, read these before changing anything:
 - root `AGENTS.md`: rules, source fidelity standard, and traps
 - `docs/COLLABORATION.md`: unit workflow, shared-file rules, and definition of done
-- the findings the issue cites, at least F-0007 and F-0010 in `docs/re/FINDINGS.md`
+- the findings the issue cites, at least F-0007, F-0010 and F-0012 in `docs/re/FINDINGS.md`, plus any files in `docs/re/findings/`, which may already have established the game compiler, class layouts, or unit boundaries near your block
+
+Trust the issue's `area:` label, not the address. F-0012 shows library code (HBM, NW4R ef/g3d/snd, FA, TMC JPEG, RevoEX, NCD, CNT, MSL printf) inside the game address range, and each library has its own compiler.
 
 ## 5. Work
+
+### Finding names and boundaries
+
+- **Classes.** CodeWarrior RTTI gives class names; vtables in `.data` give each class's virtual methods in order, and constructors store the vtable address. Anonymous-namespace names embed the source file, such as `@unnamed@CPauseMenu_cpp@`.
+- **File ends.** A file ends after its static initializer, listed in the `.ctors` table at 0x803529C0, and after its `shared_ptr` deleters and its cluster of exception type-name strings in `.data`. Game files are linked in groups, roughly in ASCII order of file name.
+- **Script functions.** The binding table at 0x80352EC4–0x80354E14 pairs 669 script-bound functions with their original names (#29). Use those names.
+- **Cross-references.** `powerpc-eabi-objdump -dr` or `readelf -rW` on the split objects in `build/<version>/obj/` shows exactly which strings, data, and functions each function references.
+- **IDA.** For decompiler views, open a copy of `docs/re/main.elf.i64` outside the repository, because headless IDA saves on exit. Never commit the database from an issue branch. Use decompiler output only as a reading aid; never paste it.
+
+Class start addresses and block boundaries in the issue are survey estimates. Correct them with evidence and record the correction in your findings file.
+
+### Files that span several blocks
+
+A source file often spans more than one block issue. The issue that owns the file's first function owns the file's split in `splits.txt`, its `configure.py` object line, and its header with the class declaration. Other block owners add their function bodies to the same source file in address order. They request header or member changes on the owning issue, or in a small header pull request that merges first. If the owner's issue is unclaimed, ask the user before taking on the split yourself. Mention the neighboring issue numbers in your pull request.
+
+### Game compiler
+
+The game compiler is not yet identified. Before writing game code, check `docs/re/findings/` and the open pull requests for a finding that establishes it. If there is none, establish it on a small function first, compiling with the candidates in F-0007's method, and record a `F-<n>-<k>` finding. Never guess flags.
+
+### Steps
 
 - **`kind:decomp` issues.** Follow the unit workflow in `docs/COLLABORATION.md` one translation unit at a time:
   1. Split, then confirm verification still passes.
@@ -63,9 +85,32 @@ Attribution rule: commits and pull requests carry no co-authors. Do not add `Co-
 1. Commit on the issue branch and push it.
 2. Open a pull request with `gh pr create --draft`, using `.github/pull_request_template.md`. Write `Closes #<n>` only if the issue is fully done; otherwise write `Part of #<n>`.
 3. Run the definition-of-done checks and paste the commands with their exit codes into the description.
-4. Mark it ready only when every check passes. Tell the user the pull request link and what remains.
+4. Mark it ready with `gh pr ready <pr>` only when every local check passes.
 
-## 7. Stop or clean up
+## 7. Merge
 
-- To abandon the issue, run `python tools/collab/claim_issue.py release --issue <n> --reason "<why>"`.
-- After the pull request merges, or if the user asks, run `python tools/collab/claim_issue.py remove-worktree --issue <n>`. It removes the junctions before the worktree so the shared tools survive.
+Merge your own pull request once it is ready and the CI check passes. Run these steps from the worktree.
+
+1. **Update.** Bring the branch up to date: `git fetch origin` then `git rebase origin/main`. If the rebase conflicts, resolve only hunks in files you changed for this issue. For `splits.txt`, `symbols.txt` and `configure.py`, keep everyone else's lines and re-apply yours. If you rebased, rebuild, verify, and push with `git push --force-with-lease`.
+2. **Wait for CI.** Run `gh pr checks <pr> --watch --fail-fast`. It must exit 0 with `Build and verify main.dol` passing. If it fails, read the log with `gh run view <run> --log-failed`, fix the cause, push, and wait again.
+3. **Merge.** Run `gh pr merge <pr> --squash --subject "<pull request title> (#<pr>)" --body ""`. The empty body keeps attribution lines out of the merge commit.
+4. **Confirm.** `gh pr view <pr> --json state -q .state` must print `MERGED`. If the description said `Closes #<n>`, confirm the issue closed. If it said `Part of #<n>`, keep the claim while you continue, or release it.
+
+Never merge with a failing, pending, or missing check. Never use `--admin` or any other bypass. Never merge someone else's pull request. Leave the pull request for a maintainer and tell the user instead if any of these hold:
+- it changes a maintainer-only file listed in `docs/COLLABORATION.md`
+- the rebase conflicted in a file outside your claim
+- the user asked to review before merging
+
+## 8. Clean up
+
+After the merge, run these from the main checkout, not the worktree:
+
+```powershell
+python tools/collab/claim_issue.py remove-worktree --issue <n>
+git push origin --delete <branch>
+git branch -D <branch>
+```
+
+`remove-worktree` removes the `tools\local` and `.venv` junctions before the worktree, so the shared tools survive. Squash merges are not ancestors of the branch, so `git branch -d` refuses to delete it; use `-D` only after confirming `MERGED`. Do not pull or otherwise change the main checkout, because other agents and the maintainer may have work in progress there. Tell the user the pull request link, the merge commit, and what remains of the issue.
+
+To abandon the issue instead, run `python tools/collab/claim_issue.py release --issue <n> --reason "<why>"`, then clean up the same way and close the pull request if one is open.

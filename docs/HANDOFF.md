@@ -8,7 +8,7 @@ The dtk-template build in `configure.py` and `tools/build/` reproduces `main.dol
 
 ## Next actions
 
-Work is now parallel: contributors claim GitHub issues listed in [workstreams](WORKSTREAMS.md) and follow [collaboration](COLLABORATION.md). There are 507 per-block decomp issues, each listing the functions it owns. Together they cover every function except the matched `__init_cpp_exceptions` unit; regions are from the executable survey in [F-0012](re/FINDINGS.md#f-0012-full-executable-layout-survey). Maintainers merge pull requests, then update the status table, this handoff, phase state, and progress images.
+Work is now parallel: contributors claim GitHub issues listed in [workstreams](WORKSTREAMS.md) and follow [collaboration](COLLABORATION.md). There are 507 per-block decomp issues, each listing the functions it owns. Together they cover every function except the matched `__init_cpp_exceptions` unit; regions are from the executable survey in [F-0012](re/FINDINGS.md#f-0012-full-executable-layout-survey). Contributors merge their own pull requests once the CI check passes. Maintainers then update the status table, this handoff, phase state, and progress images.
 
 
 1. Finish Phase 4: categorize units as libraries are split so per-category progress becomes meaningful, and reconstruct further units. Prefer libraries with matching reference source: RVL_SDK with Wii/1.0 at default alignment; MSL and Runtime with Wii/1.1 plus `-func_align 4`. Reuse requires license review and provenance in the ledger.

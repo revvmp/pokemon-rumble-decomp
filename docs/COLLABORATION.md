@@ -21,6 +21,8 @@ Work is tracked as GitHub issues. Each decomp issue owns a block of about 25 fun
 
 Compilers and evidence come from [F-0007](re/FINDINGS.md#f-0007-per-library-compiler-identification), and regions from the executable survey in [F-0012](re/FINDINGS.md#f-0012-full-executable-layout-survey). Block boundaries are estimates, not final unit boundaries. Establishing exact boundaries is part of each issue; when a unit crosses into a neighboring block, coordinate on that issue.
 
+A source file can span several block issues. The issue that owns the file's first function owns the file's split, its `configure.py` object line, and its header. Other block owners add their function bodies to the same source file in address order. Changes to the class declaration go through the owning issue or a small header pull request that merges first.
+
 ## Claiming work
 
 Use `tools/collab/claim_issue.py` rather than assigning by hand. It only takes open issues with no assignee and no other active claim comment, re-checks after assigning to detect a simultaneous claim, and posts the claim comment for you.
@@ -52,6 +54,7 @@ Do these steps in order for each translation unit.
 6. **Accept.** When every function matches, change the object to `Matching`, run a full build, and run verification. Only a passing verification makes the unit done; objdiff alone is not enough.
 7. **Record.** Add or update your unit's row in the area ledger. Record recovered names and layouts in [symbols](re/SYMBOLS.md) and new evidence in a findings file.
 8. **Submit.** Open a pull request using the template. One issue per pull request, ideally one to a few units.
+9. **Merge.** When the pull request is ready and the `Build and verify main.dol` check passes, squash-merge it yourself with an empty merge body. Then remove your worktree and branch, as in the `take-issue` skill. Never merge with a failing or pending check or with an admin bypass. Leave pull requests that touch maintainer-only files, or that conflict outside your claim, for a maintainer.
 
 Partially matching work is welcome. Keep it `NonMatching` so the build still uses the original object, and record the remaining differences, suspected causes, and decomp.me scratch links in the ledger row.
 
@@ -68,7 +71,7 @@ Partially matching work is welcome. Keep it `NonMatching` so the build still use
 | `AGENTS.md` traps | Contributors may append trap entries at the end of the list. |
 | Maintainer-only | `docs/re/main.elf.i64` (binary, unmergeable), `config/progress.json`, `docs/images/`, the status table in `PROGRESS.md`, `HANDOFF.md`, `WORKSTREAMS.md`, the `AGENTS.md` state table, `config/targets/`, `config/wpse-v1/build.sha1`, `config/toolchain.json`, and vendored `tools/build/`. |
 
-Maintainers regenerate progress images and update the shared summaries after merging, so contributors never conflict on them.
+Maintainers regenerate progress images and update the shared summaries after pull requests merge, so contributors never conflict on them.
 
 ## Definition of done
 
