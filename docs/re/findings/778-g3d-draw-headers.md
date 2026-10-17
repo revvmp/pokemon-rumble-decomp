@@ -20,7 +20,7 @@ The scratch object's two shuffle statics match native `0x804B8978` and `0x804B89
 
 ## Validation
 
-`python C:/MassStorage/GitHub/778-audit-probe.py`, `778-infer-relocations.py` and `778-audit-native.py` exited zero. The final expanded header proposal must also pass the existing-object comparison, fresh configure/Ninja and explicit frozen verification before becoming ready.
+`python C:/MassStorage/GitHub/778-audit-probe.py`, `778-infer-relocations.py` and `778-audit-native.py` exited zero. On main `994417bc26d0cd0c0f52db7660528fc830ac86bd`, the fresh baseline and expanded proposal both passed configure and Ninja. Explicit frozen verification of `build/774-header-expanded/wpse-v1` passed, its actual DOL equals the original, and all 449 existing compiled source objects retained identical SHA-256 hashes. A second draw probe using only the actual proposed and main include tree also matched all thirteen functions and 103 paired relocation targets. The merge gate repeats against latest main.
 
 ## Traps
 
