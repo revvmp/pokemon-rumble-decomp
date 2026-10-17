@@ -56,9 +56,11 @@ and frozen-artifact verification in the source pull request.
 
 An external compiler layout probe independently confirmed every table size.
 No executable layout shim, unknown field, extra overload, or speculative
-padding was introduced. Unused reference inline Material setters/getters
-were omitted; the retained methods and actual Picture/Animation consumers
-determine the added API surface.
+padding was introduced. Unused reference getters were omitted. The ordinary original inline color
+and render-state setters are required by the retained native Material
+assignment-function definitions as well as the Picture/Animation consumers.
+Their exact signatures and implementations come from the library references;
+no synthetic emitter or ordering helper is used.
 
 ## Validation
 
@@ -81,7 +83,14 @@ the prerequisite pull request.
   harmless. Here only `.strtab` numeric labels changed; native section and
   complete DOL checks remain mandatory.
 - The Skyward Sword scratch source contains a float-ordering helper and an
-  unused empty default-constructor body. Neither is needed for the retained
-  native Material reconstruction. Omit both rather than adding a pool-order
-  shim or an unproved constructor implementation. Preserve the existing
-  canonical constructor declaration.
+  unused empty default-constructor body. Omit both. The independently pinned
+  Petari implementation supplies a real default constructor calling Init
+  and clearing the material name; that implementation preserves the native
+  retained LinkList constructor placement without a placeholder body.
+- Removing the original inline SetTevColor, SetChanControl, SetTevKColor,
+  SetTevSwapMode, SetTexSRT, SetIndirectStage, SetTevStage, SetAlphaCompare,
+  and SetBlendMode definitions delayed CodeWarrior implicit assignment
+  definitions despite all 77 raw function streams matching. Restoring these
+  reference APIs gives all 77 native functions their original order. Whole
+  linking and frozen verification are still required; raw objdiff scores
+  cannot establish this ordering.

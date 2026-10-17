@@ -125,6 +125,42 @@ public:
         GetTexCoordGenAry()[idx] = value;
     }
 
+    void SetTevColor(u32 idx, const GXColorS10 &color) {
+        mTevCols[idx] = color;
+    }
+
+    void SetAlphaCompare(const AlphaCompare &alphaComp) {
+        *GetAlphaComparePtr() = alphaComp;
+    }
+
+    void SetChanControl(u32 idx, const ChanCtrl &chanCtrl) {
+        GetChanCtrlAry()[idx] = chanCtrl;
+    }
+
+    void SetTevKColor(u32 idx, const ut::Color &color) {
+        mTevKCols[idx] = color;
+    }
+
+    void SetTevSwapMode(u32 idx, const TevSwapMode &tevSwapMode) {
+        GetTevSwapAry()[idx] = tevSwapMode;
+    }
+
+    void SetTexSRT(u32 idx, const TexSRT &texSRT) {
+        GetTexSRTAry()[idx] = texSRT;
+    }
+
+    void SetIndirectStage(u32 idx, const IndirectStage &indStage) {
+        GetIndirectStageAry()[idx] = indStage;
+    }
+
+    void SetBlendMode(const BlendMode &blendMode) {
+        *GetBlendModePtr() = blendMode;
+    }
+
+    void SetTevStage(u32 idx, const TevStage &tevStage) {
+        GetTevStageAry()[idx] = tevStage;
+    }
+
     virtual ~Material();
     virtual bool SetupGX(bool bModVtxCol, u8 alpha);
     virtual void BindAnimation(AnimTransform *pAnimTrans);
