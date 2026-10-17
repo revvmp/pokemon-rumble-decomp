@@ -8,12 +8,24 @@
 enum {
     L2CAP_CONN_OK = 0,
     L2CAP_CONN_PENDING = 1,
+    L2CAP_CONN_NO_PSM = 2,
+    L2CAP_CONN_SECURITY_BLOCK = 3,
     L2CAP_CONN_NO_RESOURCES = 4
 };
 
 enum {
-    L2CAP_CFG_OK = 0
+    L2CAP_CFG_OK = 0,
+    L2CAP_CFG_UNACCEPTABLE_PARAMS = 1,
+    L2CAP_CFG_UNKNOWN_OPTIONS = 3
 };
+
+enum {
+    L2CAP_PING_RESULT_OK = 0,
+    L2CAP_PING_RESULT_NO_LINK = 1,
+    L2CAP_PING_RESULT_NO_RESP = 2
+};
+
+typedef void tL2CA_ECHO_RSP_CB(UINT16 result);
 
 typedef struct {
     UINT8 mode;

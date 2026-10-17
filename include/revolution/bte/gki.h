@@ -33,6 +33,8 @@ enum {
     GKI_POOL_ID_3 = 3
 };
 
+#define GKI_BUF2_SIZE 660
+
 typedef struct {
     void* p_first;
     void* p_last;
@@ -47,6 +49,9 @@ void GKI_enqueue(BUFFER_Q* p_q, void* p_buf);
 void GKI_enqueue_head(BUFFER_Q* p_q, void* p_buf);
 void* GKI_dequeue(BUFFER_Q* p_q);
 BOOLEAN GKI_queue_is_empty(BUFFER_Q* p_q);
+void* GKI_remove_from_queue(BUFFER_Q* p_q, void* p_buf);
+void* GKI_getfirst(BUFFER_Q* p_q);
+void* GKI_getnext(void* p_buf);
 
 #define EVENT_MASK(evt) ((UINT16)(1 << (evt)))
 enum {

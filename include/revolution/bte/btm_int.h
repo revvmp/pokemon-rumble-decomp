@@ -277,6 +277,11 @@ void btm_sec_mx_access_request(BD_ADDR bd_addr, UINT16 psm, BOOLEAN is_originato
                                tBTM_SEC_CALLBACK* p_callback, void* p_ref_data);
 void btm_sec_abort_access_req(BD_ADDR bd_addr);
 UINT16 btm_get_max_packet_size(BD_ADDR addr);
+BOOLEAN btm_sec_is_bonding(UINT16 handle);
+void btm_remove_sco_links(BD_ADDR bda);
+void btm_acl_removed(BD_ADDR bda);
+tBTM_STATUS btm_sec_disconnect(UINT16 handle, UINT8 reason);
+BOOLEAN btm_is_sco_active_by_bdaddr(BD_ADDR remote_bda);
 
 void btm_acl_encrypt_change(UINT16 handle, UINT8 status, UINT8 encr_enable);
 void btm_read_remote_version_complete(UINT8* p);
