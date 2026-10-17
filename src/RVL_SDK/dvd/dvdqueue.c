@@ -1,7 +1,4 @@
-#include "RVL_SDK/dvd/dvd.h"
-
-BOOL OSDisableInterrupts(void);
-BOOL OSRestoreInterrupts(BOOL enabled);
+#include "revolution/dvd.h"
 
 typedef struct  {
     DVDCommandBlock* next;

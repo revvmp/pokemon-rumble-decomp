@@ -8,7 +8,7 @@ Target `wpse-v1`, frozen `config/targets/wpse-v1.json`. Evidence uses dtk 1.8.4 
 
 `dvdidutils.c` owns `.text` `0x802D7340`-`0x802D7430`, the single 240-byte `DVDCompareDiskID` function, and no data. Target calls at `0x802D7378` and `0x802D73B0` compare respectively four game-name bytes and two company bytes through `fn_80345EF8`. The reference identifies that callee as `strncmp`. The target's company condition rejects either empty company string, unlike the game-name wildcard condition; the source preserves this behavior.
 
-Both units compile with the existing `cflags_sdk`, Wii/1.0, and default 16-byte function alignment. objdiff reports all seven functions at 100%. `dvdqueue.c` is source-linked as `Matching`; full frozen-manifest verification passes. `dvdidutils.c` remains `NonMatching`: its external `strncmp` name is not present in the target symbol table and renaming `0x80345EF8` belongs to the MSL owner. It continues to link the original object and does not count as source-linked progress. No outside-claim symbols were renamed.
+Both units compile with the existing `cflags_sdk`, Wii/1.0, and default 16-byte function alignment. objdiff reports all seven functions at 100%. `dvdqueue.c` is source-linked as `Matching`; full frozen-manifest verification passes. `dvdidutils.c` is source-linked after restoring the evidenced external `strncmp` name at `0x80345EF8`, permitted by the updated collaboration procedure. Its 0x40-byte target routine compares unsigned bytes up to the supplied count, returns their difference on mismatch, and stops at NUL, confirming the reference call-site identification. Only the name changes; its size, type, split and fallback implementation remain unchanged.
 
 ## Recovered symbols and interfaces
 
@@ -24,7 +24,7 @@ All function names below are high confidence original SDK spellings from referen
 | `0x802D68C0` | `0x60` | `__DVDDequeueWaitingQueue` |
 | `0x802D7340` | `0xF0` | `DVDCompareDiskID` |
 
-The reconstruction-private `include/RVL_SDK/dvd/dvd.h` follows the CC0 reference without modifying shared SDK headers. `DVDCommandBlock` is 0x30 bytes with four-byte alignment: next/prev pointers at 0/4, unsigned command at 8, signed state at 0xC, unsigned offset/length at 0x10/0x14, address pointer at 0x18, transfer sizes at 0x1C/0x20, disk-ID pointer at 0x24, callback at 0x28, and user-data pointer at 0x2C. Only the first two members are accessed by these queue routines; the remainder is reference-derived ABI, not newly independently verified layout.
+The units use imported `include/revolution/dvd.h` and OS declarations per D-0013; the provisional duplicate header was removed. `DVDCommandBlock` is 0x30 bytes with four-byte alignment: next/prev pointers at 0/4, unsigned command at 8, signed state at 0xC, unsigned offset/length at 0x10/0x14, address pointer at 0x18, transfer sizes at 0x1C/0x20, disk-ID pointer at 0x24, callback at 0x28, and user-data pointer at 0x2C. Only the first two members are accessed by these queue routines; the remainder is reference-derived ABI, not newly independently verified layout.
 
 `DVDDiskID` is 0x20 bytes, aligned to four: char gameName[4] at 0, company[2] at 4, unsigned-byte diskNumber/gameVersion at 6/7, streaming fields at 8/9, 14 reserved bytes at 0xA, and unsigned magic words at 0x18/0x1C. The comparison verifies offsets 0, 4, 6, and 7 with signed char extension for the names and unsigned-byte comparison for the version fields. Other fields follow the reference ABI. BOOL is int; queue priority is signed 32-bit long. Callbacks take signed 32-bit result and a block pointer.
 
@@ -38,7 +38,7 @@ This is partial work on #482, not completion of its 30 functions. The first thre
 
 Split-only configure, ninja and frozen-manifest verification exited 0 before source registration. Source compilation reports queue 6/6, disc ID 1/1 functions at 100%; queue BSS 32/32 bytes matches. Full source-linked queue build and independent verification exited 0. Source, symbols, split ownership and documentation were reviewed without adding comments, docstrings or unit tests. No new general tooling trap emerged.
 
-Continue with the MSL owner to name `strncmp` at `0x80345EF8`, then switch the disc-ID object to `Matching` only after another full build and verification. Coordinate the `dvd.c` tail through its owning issue. Investigate the newer DVD error-ring implementation before importing its reference source.
+Coordinate the `dvd.c` tail through its owning issue. Investigate the newer DVD error-ring implementation before importing its reference source.
 
 ## Traps
 

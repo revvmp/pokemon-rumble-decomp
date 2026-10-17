@@ -1,6 +1,5 @@
-#include "RVL_SDK/dvd/dvd.h"
-
-int strncmp(const char* first, const char* second, unsigned long count);
+#include "revolution/dvd.h"
+#include <string.h>
 
 BOOL DVDCompareDiskID(const DVDDiskID* id1, const DVDDiskID* id2) {
     if (id1->gameName[0] && id2->gameName[0] &&
