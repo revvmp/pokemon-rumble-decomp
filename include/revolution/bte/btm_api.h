@@ -9,6 +9,30 @@
 #define BTM_SEC_MAX_SERVICES 46
 #define BTM_SEC_SERVICE_ARRAY_SIZE \
     (((UINT32)BTM_SEC_MAX_SERVICES / BTM_SEC_ARRAY_BITS) + (((UINT32)BTM_SEC_MAX_SERVICES % BTM_SEC_ARRAY_BITS) ? 1 : 0))
+#define BTM_SEC_TRUST_ALL 0xffffffff
+
+#define BTM_SEC_IS_SERVICE_TRUSTED(p, service) \
+    (((((UINT32*)(p))[(((UINT32)(service)) / BTM_SEC_ARRAY_BITS)]) & \
+      (UINT32)(((UINT32)1 << (((UINT32)(service)) % BTM_SEC_ARRAY_BITS)))) \
+         ? TRUE \
+         : FALSE)
+
+#define BTM_SEC_COPY_TRUSTED_DEVICE(p_src, p_dst) \
+    do { \
+        register int trst; \
+        for (trst = 0; trst < BTM_SEC_SERVICE_ARRAY_SIZE; ++trst) \
+            ((UINT32*)(p_dst))[trst] = ((UINT32*)(p_src))[trst]; \
+    } while (FALSE)
+
+#define BTM_COD_MAJOR_CLASS_MASK 0x1f
+
+enum {
+    BTM_COD_MAJOR_PERIPHERAL = 5
+};
+
+enum {
+    BTM_COD_MINOR_KEYBOARD = 1 << 6
+};
 
 typedef UINT8 tBTM_STATUS;
 
@@ -132,7 +156,26 @@ enum {
 };
 
 enum {
-    BTM_SEC_NONE = 0
+    BTM_SEC_MODE_NONE = 1,
+    BTM_SEC_MODE_SERVICE = 2,
+    BTM_SEC_MODE_LINK = 3
+};
+
+enum {
+    BTM_SEC_NONE = 0,
+    BTM_SEC_IN_AUTHORIZE = 1 << 0,
+    BTM_SEC_IN_AUTHENTICATE = 1 << 1,
+    BTM_SEC_IN_ENCRYPT = 1 << 2,
+    BTM_SEC_OUT_AUTHORIZE = 1 << 3,
+    BTM_SEC_OUT_AUTHENTICATE = 1 << 4,
+    BTM_SEC_OUT_ENCRYPT = 1 << 5
+};
+
+enum {
+    BTM_SEC_FLAG_AUTHORIZED = 1 << 0,
+    BTM_SEC_FLAG_AUTHENTICATED = 1 << 1,
+    BTM_SEC_FLAG_ENCRYPTED = 1 << 2,
+    BTM_SEC_FLAG_LKEY_KNOWN = 1 << 4
 };
 
 enum {
@@ -339,6 +382,18 @@ tBTM_STATUS BTM_ClearInqDb(BD_ADDR p_bda);
 BOOLEAN BTM_SecRegister(tBTM_APPL_INFO* p_cb_info);
 BOOLEAN BTM_SecAddRmtNameNotifyCallback(tBTM_RMT_NAME_CALLBACK* p_callback);
 BOOLEAN BTM_SecDeleteRmtNameNotifyCallback(tBTM_RMT_NAME_CALLBACK* p_callback);
+BOOLEAN BTM_SecAddLinkKeyNotifyCallback(tBTM_LINK_KEY_CALLBACK* p_callback);
+BOOLEAN BTM_SecDeleteLinkKeyNotifyCallback(tBTM_LINK_KEY_CALLBACK* p_callback);
+void BTM_SecSetConnectFilterCallback(tBTM_FILTER_CB* p_callback);
+void BTM_SetSecurityMode(UINT8 security_mode);
+void BTM_SetPinType(UINT8 pin_type, PIN_CODE pin_code, UINT8 pin_code_len);
+void BTM_SetPairableMode(BOOLEAN allow_pairing, BOOLEAN connect_only_paired);
+UINT8 BTM_SecClrService(UINT8 service_id);
+tBTM_STATUS BTM_SecUseMasterLinkKey(BOOLEAN use_master_key);
+void BTM_SetMasterKeyCompCback(tBTM_MKEY_CALLBACK* mkey_cback);
+tBTM_STATUS BTM_SecGetDeviceLinkKey(BD_ADDR bd_addr, LINK_KEY link_key);
+tBTM_STATUS BTM_SetEncryption(BD_ADDR bd_addr, tBTM_SEC_CBACK* p_callback, void* p_ref_data);
+tBTM_STATUS BTM_DeleteStoredLinkKey(BD_ADDR bd_addr, tBTM_CMPL_CB* p_cb);
 void BTM_PINCodeReply(BD_ADDR bd_addr, UINT8 res, UINT8 pin_len, UINT8* p_pin, UINT32 trusted_mask[]);
 void BTM_DeviceAuthorized(BD_ADDR bd_addr, UINT8 res, UINT32 trusted_mask[]);
 tBTM_STATUS BTM_SecBond(BD_ADDR bd_addr, UINT8 pin_len, UINT8* p_pin, UINT32 trusted_mask[]);

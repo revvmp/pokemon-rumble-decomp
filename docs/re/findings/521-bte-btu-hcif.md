@@ -105,13 +105,36 @@ The 22 `btm_sec.c` functions in `0x803224D0`–`0x803245D0` are left to the owne
 | `0x803244BC` | `0xE0` | `btm_sec_collision_timeout` | String `btm_sec_collision_timeout()`, high |
 | `0x8032459C` | `0x34` | `btm_read_trusted_mask` | Returns `btm_find_dev` result plus 0x10, high |
 
-#521 therefore cannot close until #520 splits and matches `btm_sec.c`.
+#521 therefore cannot close until #520 splits and matches `btm_sec.c`. Superseded by [F-521-5](#f-521-5-btm_secc-matching).
+
+## F-521-5: btm_sec.c Matching
+
+`btm_sec.c` is split as `.text` `0x8032160C`-`0x803245D0`, `.data` `0x803E1F10`-`0x803E2920` and `.sdata2` `0x804BB628`-`0x804BB62E`, registered `Matching` with GC/3.0a3 (`BTE_COMPILER`, `cflags_sdk`), and linked from source. All 31 surviving functions are 100% in objdiff, as are `.data` and `.sdata2`, and the full DOL verifies. This supersedes the hand-off in [F-521-4](#f-521-4-remaining-btm_secc-functions-in-the-521-block): the 22 functions in `0x803224D0`-`0x803245D0` are reconstructed, so the #521 block is fully covered by `Matching` units.
+
+- **Start.** The file begins at `BTM_SecRegister` (`0x8032160C`), the first function that logs `BTM_Sec: application registered` and stores the 0x18-byte `btm_cb.api`. The two functions before it, `0x80321524` and `btm_is_sco_active_by_bdaddr`, end `btm_sco.c`. Nine `btm_sec.c` functions (`BTM_SecRegister` to `btm_sec_l2cap_access_req`, `0x8032160C`-`0x803224D0`) therefore lie in the #520 block, which owns the split; this change takes the split for both blocks.
+- **Source.** Petari's `btm_sec.c` compiles to the target with its statement order unchanged. Its trace macros become explicit `BTM_TRACE_<level><n>` macros that test `btm_cb.trace_level` (offset `0x27C0`) and log with layer `0x000D0000`, as the target's `cmplwi`/`LogMsg_n` pairs show.
+- **Dead-stripped functions stay in the source.** `.data` is one string pool in source order. It still holds the strings of `BTM_SetSecurityMode`, `BTM_SetEncryption` and `btm_restore_mode`, which have no code in the target, so the whole Petari file is kept and the linker strips the unused functions. `btm_sec_change_link_key`, the `btm_sec_start_*` helpers other than `btm_sec_start_authorization`, and the `btm_sec_find_*` lookups have no out-of-line copy.
+- **String symbols.** The original `.data` symbols grouped several strings (`lbl_803E1F10` 0x98 bytes, `lbl_803E1FA8`, `lbl_803E2110`, `lbl_803E220C` and `lbl_803E26A8`). objdiff then gave the string loads in six functions synthetic relocations to the wrong string and scored them 99.6-99.9% with identical instruction words. Splitting `symbols.txt` at the 50 string starts of the compiled pool, and merging the six one-byte `.sdata2` symbols into the 6-byte `0xFF` address initializer of `btm_sec_mkey_comp_event`, restores 100% without changing any byte.
+
+| Address | Size | Name | Evidence |
+| --- | --- | --- | --- |
+| `0x80321728` | `0xB0` | `BTM_SetPinType` | String `BTM_SetPinType: pin type %d`, high |
+| `0x80322898` | `0x1C` | `btm_sec_init` | 100% match of Petari's function in source order, high |
+| `0x803228B4` | `0x40` | `btm_sec_dev_reset` | Same, high |
+| `0x80323BA0` | `0x74` | `btm_sec_pin_code_request_timeout` | String, high |
+| `0x80323FC0` | `0x3E0` | `btm_sec_execute_procedure` (static) | String `btm_sec_execute_procedure: Required`, high |
+| `0x803243A0` | `0x11C` | `btm_sec_start_authorization` (static) | String `Start authorization`, high |
+| `0x803244BC` | `0xE0` | `btm_sec_collision_timeout` (static) | String, high |
+
+Outside names, from the call sites in the 100% functions: `btm_sec_alloc_dev` `0x8031C198` (`BTM_SecBond`, `btm_sec_l2cap_access_req`, `btm_sec_connected` after `btm_find_dev` fails), `btm_find_dev_by_handle` `0x8031C2B8` (handle lookups in `btm_sec_auth_complete` and seven other handlers), `BTM_DeleteStoredLinkKey` `0x8031DB5C` (`BTM_SecBond`) and `btm_initiate_rem_name` `0x8031F7FC` (`btm_sec_execute_procedure`, `btm_sec_start_authorization`). Their splits are left to the owning issues.
 
 ## Provenance
 
-Sources and headers are rewritten after Petari's BTE files; see [BTE provenance](../licenses/521-bte-NOTICE.md).
+Sources and headers, including `btm_sec.c` (F-521-5), are rewritten after Petari's BTE files; see [BTE provenance](../licenses/521-bte-NOTICE.md).
 
 ## Traps
 
 - **Git Bash `sed -i` drops CRLF.** Editing a CRLF header with `sed -i` in Git Bash rewrote it with LF endings. Use the agent's edit tool, or a script that reads and writes bytes, and check with `file` afterwards.
 - **Compare-tree holes are not cases.** `btu_hcif_process_event` compares event 0x21 and `btu_hcif_hdl_command_complete` compares opcode 0x1404 and branches to the end; these are gaps inside a case range, not missing cases. Petari's `switch`, with no case for them, reproduces the tree.
+- **Grouped string symbols lower objdiff scores of identical code.** `btm_sec.c` scored 99.6-99.9% in six functions whose instruction words all matched, because dtk had grouped several strings into one `.data` symbol. Split the symbols at the compiled object's string starts before looking for code differences; see [F-521-5](#f-521-5-btm_secc-matching).
+- **Git Bash `sed -i` also drops CRLF on sources and `configure.py`.** Check with `file` and restore the endings, or edit with a byte-preserving script.

@@ -63,6 +63,8 @@ BOOLEAN btsnd_hcic_link_key_neg_reply(BD_ADDR bd_addr);
 BOOLEAN btsnd_hcic_pin_code_req_reply(BD_ADDR bd_addr, UINT8 pin_code_len, PIN_CODE pin_code);
 BOOLEAN btsnd_hcic_pin_code_neg_reply(BD_ADDR bd_addr);
 BOOLEAN btsnd_hcic_change_conn_type(UINT16 handle, UINT16 packet_types);
+BOOLEAN btsnd_hcic_change_link_key(UINT16 handle);
+BOOLEAN btsnd_hcic_master_link_key(BOOLEAN key_flag);
 BOOLEAN btsnd_hcic_auth_request(UINT16 handle);
 BOOLEAN btsnd_hcic_set_conn_encrypt(UINT16 handle, BOOLEAN enable);
 BOOLEAN btsnd_hcic_rmt_name_req(BD_ADDR bd_addr, UINT8 page_scan_rep_mode, UINT8 page_scan_mode, UINT16 clock_offset);

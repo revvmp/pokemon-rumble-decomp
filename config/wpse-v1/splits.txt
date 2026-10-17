@@ -934,6 +934,11 @@ RVL_SDK/bte/bta_dm_api.c:
 	.text       start:0x80316D80 end:0x803171EC
 	.sdata2     start:0x804BB600 end:0x804BB610
 
+RVL_SDK/bte/btm_sec.c:
+	.text       start:0x8032160C end:0x803245D0
+	.data       start:0x803E1F10 end:0x803E2920
+	.sdata2     start:0x804BB628 end:0x804BB62E
+
 RVL_SDK/bte/btu_hcif.c:
 	.text       start:0x803245D0 end:0x8032582C
 	.data       start:0x803E2920 end:0x803E29B0
