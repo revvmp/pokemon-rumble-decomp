@@ -461,6 +461,7 @@ config.libs = [
             Object(Matching, "nw4r/snd/snd_SeqPlayer.cpp"),
             Object(Matching, "nw4r/snd/snd_WaveArchive.cpp"),
             Object(Matching, "nw4r/snd/snd_WaveFile.cpp", cflags=[*(flag for flag in cflags_nw4r if flag != "-ipa file"), "-ipa off"]),
+            Object(Matching, "nw4r/snd/snd_WaveSound.cpp"),
             Object(Matching, "nw4r/snd/snd_WsdFile.cpp"),
             Object(Matching, "nw4r/snd/snd_WsdPlayer.cpp"),
             Object(Matching, "nw4r/snd/snd_adpcm.cpp", extra_cflags=["-func_align 4"]),
