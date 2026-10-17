@@ -1,4 +1,4 @@
-# Issue 474: matrix-vector and projection units
+# Issue 474: VI encoder and matrix units
 
 ## F-474-1: unit boundaries and source provenance
 
@@ -8,7 +8,7 @@ Source provenance is Petari commit `e0ab141914921726a595573dc48d3f13d0922efe`, w
 
 Wii/1.0 with existing `cflags_sdk` produces 100% objdiff for all six functions and all projection data. `mtxvec.c` is source-linked and full frozen-manifest verification passes. Its three routines are inline assembly and must be reported separately from reconstructed C coverage; no raw machine-code blobs or original object fallback remain for that unit. PR 556 initially retained `mtx44.c` as `NonMatching` because the external `tan` name was outside the then-permitted scope. Under the updated outside-symbol rule, F-474-4 names that referenced callee and validates linking all 544 C instruction bytes from source. Both matrix units now link with exact full-DOL verification.
 
-The other 31 functions in issue 474 remain original fallbacks, covering vi3in1 and the earlier matrix unit. This partial implementation does not close the issue. Neighboring issue 475 owns the vector functions beginning at `0x802C9910`; issue 473 covers the preceding VI I2C source, with PR 549 documenting those boundaries.
+At the initial partial delivery, 31 functions remained original fallbacks. F-474-5 and F-474-6 complete those functions and supersede that coverage status. Neighboring issue 475 owns the vector functions beginning at `0x802C9910`; issue 473 covers the preceding VI I2C source, with PR 549 documenting those boundaries.
 
 ## Traps
 
@@ -35,3 +35,35 @@ The updated take-issue procedure permits evidenced names for external symbols re
 The projection `.text` split now ends at the final function end `0x802C9908`, leaving the eight alignment bytes before the next vector function to the automatic object. The earlier split included those bytes through `0x802C9910`, which the compiler does not emit at the end of the translation unit. The unit retains its evidenced 16-byte starting alignment.
 
 With these changes and `Object(Matching, "RVL_SDK/mtx/mtx44.c")`, all three projection functions and all 24 data bytes are 100% in objdiff. Configure, ninja and the full frozen-manifest verifier exit 0. The executable links 544 additional C instruction bytes; the prior matrix-vector unit contributes 308 inline-assembly instruction bytes, separately disclosed. Thirty-one issue functions remain original fallbacks. No new trap beyond the already documented trailing-alignment behavior arose.
+
+## F-474-5: complete affine matrix unit
+
+`mtx.c` owns text `0x802C8A80`-`0x802C9588`, eight bytes of `Unit01` at `0x804B8B18`, and 28 scalar bytes at `0x804BB290`. All seventeen functions compare at 100%, and linking the source passes the frozen full-DOL manifest. The seventeen functions contain 2,716 instruction bytes: eleven paired-single inline-assembly routines account for 1,548 bytes; six C routines account for 1,168 bytes. They are separately classified rather than presenting inline assembly as reconstructed C.
+
+The reference is the same pinned CC0 Petari tree as F-474-1. Its absent `PSMTXConcatArray`, `PSMTXRotRad`, and `C_MTXLightFrustum` implementations are supplied from CC0 zeldaret/tww commit `8b93b372dc8e841f12ddfb7e0215626f62b05417`, `src/dolphin/mtx/mtx.c`, omitting debug assertions. Every retained function is checked against this target. `PSMTXInverse` retains the original paired-single inverse algorithm, with target-observed instruction scheduling and reciprocal refinement ordering. No original object bytes are embedded.
+
+`PSMTXIdentity` declares zero and one registers in that order but initializes one first, reproducing both register allocation and scalar order. The final scalar is a four-byte degrees-to-radians value, followed by four bytes of alignment; the previous inferred eight-byte symbol incorrectly included padding. The external names `sin` at `0x8034D3EC`, `cos` at `0x8034CEE4`, `PSVECNormalize` at `0x802C9940`, and `PSVECCrossProduct` at `0x802C9A00` follow reference call sites and target instruction behavior. Only their names change; their sizes, types and splits remain untouched.
+
+## F-474-6: complete VI encoder unit
+
+`vi3in1.c` owns text `0x802C7350`-`0x802C8A7C`, data `0x803D5890`-`0x803D5EA0`, BSS `0x80453B60`-`0x80453B7C`, small data `0x804B8B08`-`0x804B8B18`, and small BSS `0x804B9680`-`0x804B9698`. All fourteen C functions compare at 100%, accounting for 5,868 instruction bytes and 1,620 reported data bytes including padding. All sections compare at 100%, and full-DOL verification passes with this source linked.
+
+The code and tables come from the pinned CC0 Petari `src/RVL_SDK/vi/vi3in1.c`. Original header types and declarations reuse the imported `revolution/vi.h`, extended by neighboring PR 603. `VIGammaObj` is 34 bytes: six u16 coefficients, seven u8 inputs, one byte of alignment, and seven u16 outputs. `VIMacroVisionObj` is 26 bytes. The 31 gamma entries begin at `0x803D5890`; thirteen macrovision tables follow at offset `0x420`, each with 26 bytes and two bytes of inter-object padding. `VIZeroACPType` is the 26-byte zero BSS object. Initialized control bytes and six small-BSS words are individually named from matching reference accesses.
+
+The target additionally retains a sixteen-byte default-gamma wrapper at `0x802C8450` and clears a word at `0x804B9684` at the end of initialization. The wrapper adopts neighboring PR 603's `__VISetGamma1_0` name. `gEncoderState` is descriptive and is not claimed as a recovered original. Only the zeroing behavior of the latter is established; its broader meaning is unknown. Making that word volatile changes the epilogue instruction order; an ordinary external u32 reproduces the observed store and epilogue. The reference YUV routine must be inline-eligible to reproduce initialization's embedded region-selection switch.
+
+The target data also retains `vi3in1.c` and the complete progressive-CGMS diagnostic string after the tables, although the referring debug routine is absent from the executable. These strings are represented as named, force-active diagnostic arrays in the source, preserving readable evidence rather than a machine-code blob. `VIGetDTVStatus` at `0x802C6670` is named from the reference call and the target's DTV-status operation; no external size, type or split changes.
+
+### Completed issue coverage
+
+All 37 original issue functions are source-linked across four units, with no original object fallback inside the issue: 23 C functions / 7,580 instruction bytes and 14 routines containing SDK inline assembly / 1,856 instruction bytes. Total is 9,436 instruction bytes. Callees in neighboring SDK and math-library units may still use their original fallback objects; this does not claim their reconstruction. Configure, ninja, and frozen-manifest full-DOL verification all exit zero. The source report records 37/37 matching functions and 100% data for every owned unit.
+
+## Traps
+
+### Gamma constants can be mistaken for a pointer
+
+The adjacent gamma outputs `0x8000` and `0xA000` form the word `0x8000A000`. Automatic analysis inferred an executable relocation and zeroed those bytes in the relocatable comparison object. The original DOL and CC0 source both establish two scalar u16 outputs. The owned `gammaSet` symbol uses `noreloc` to prevent that false relocation, retaining the original scalar values and making its data comparison exact. Do not copy the relocation placeholder zeros into source.
+
+### Preserve the VI initialization state store without volatile
+
+An added volatile qualifier moved the return-address reload before the saved-register reloads and failed exact comparison despite equivalent observable behavior. A normal externally visible word preserves the target's final zero store and epilogue; the reconstructed name deliberately makes no claim about an unknown higher-level state meaning.

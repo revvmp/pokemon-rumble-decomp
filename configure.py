@@ -215,6 +215,8 @@ config.libs = [
             Object(Matching, "RVL_SDK/db/db.c"),
             Object(Matching, "RVL_SDK/vi/vi.c"),
             Object(NonMatching, "RVL_SDK/vi/i2c.c"),
+            Object(Matching, "RVL_SDK/vi/vi3in1.c"),
+            Object(Matching, "RVL_SDK/mtx/mtx.c"),
             Object(Matching, "RVL_SDK/mtx/mtxvec.c"),
             Object(Matching, "RVL_SDK/mtx/mtx44.c"),
             Object(NonMatching, "RVL_SDK/gx/GXFifo.c"),
