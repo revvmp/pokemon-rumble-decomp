@@ -257,6 +257,15 @@ nw4r/ef/ef_effect.cpp:
 	.data       start:0x803C52E8 end:0x803C5308
 	.sdata2     start:0x804BA5E0 end:0x804BA5E8
 
+nw4r/ef/ef_effectsystem.cpp:
+	.text       start:0x80226550 end:0x80226EFC
+	.ctors      start:0x80352A38 end:0x80352A3C
+	.data       start:0x803C5308 end:0x803C5350
+	.bss        start:0x80423190 end:0x8042F2A8
+	.sdata      start:0x804B88E8 end:0x804B88EC
+	.sbss       start:0x804B92B0 end:0x804B92C0
+	.sdata2     start:0x804BA5E8 end:0x804BA5F0
+
 nw4r/g3d/res/g3d_rescommon.cpp:
 	.text       start:0x8024AE80 end:0x8024B024
 

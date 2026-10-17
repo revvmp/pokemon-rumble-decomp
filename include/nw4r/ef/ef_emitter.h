@@ -34,6 +34,14 @@ struct EmitterInheritSetting {
     u8 weight;
     u8 type;
     u8 flag;
+    u8 alphaFlagPri;
+    u8 alphaFlagSec;
+
+    enum AlphaFlag {
+        ALPHA_FLAG_PRIMARY = (1 << 0),
+        ALPHA_FLAG_SECONDARY = (1 << 1),
+        ALPHA_FLAG_FLICK = (1 << 2),
+    };
 };
 
 class EmitterParameter {
