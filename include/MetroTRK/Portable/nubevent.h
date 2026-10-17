@@ -15,6 +15,9 @@ typedef struct TRKEvent {
     MessageBufferID msgBufID;
 } TRKEvent;
 
+void TRKConstructEvent(TRKEvent* event, NubEventType eventType);
+DSError TRKPostEvent(TRKEvent* event);
+
 BOOL TRKGetNextEvent(TRKEvent* event);
 void TRKDestructEvent(TRKEvent* event);
 

@@ -68,6 +68,73 @@ typedef enum {
     DSMSG_ReplyNAK = 0xFF,
 } MessageCommandID;
 
+typedef enum {
+    DS_Stdin = 0,
+    DS_Stdout = 1,
+    DS_Stderr = 2,
+} DSFileHandle;
+
+typedef enum {
+    DS_IONoError = 0,
+    DS_IOError = 1,
+    DS_IOEOF = 2,
+} DSIOResult;
+
+typedef enum {
+    DSREG_Default = 0,
+    DSREG_FP = 1,
+    DSREG_Extended1 = 2,
+    DSREG_Extended2 = 3,
+} DSMessageRegisterOptions;
+
+typedef enum {
+    DSSTEP_IntoCount = 0x0,
+    DSSTEP_IntoRange = 0x1,
+    DSSTEP_OverCount = 0x10,
+    DSSTEP_OverRange = 0x11,
+} DSMessageStepOptions;
+
+typedef enum {
+    DSREPLY_NoError = 0x0,
+    DSREPLY_Error = 0x1,
+    DSREPLY_PacketSizeError = 0x2,
+    DSREPLY_CWDSError = 0x3,
+    DSREPLY_EscapeError = 0x4,
+    DSREPLY_BadFCS = 0x5,
+    DSREPLY_Overflow = 0x6,
+    DSREPLY_SequenceMissing = 0x7,
+
+    DSREPLY_UnsupportedCommandError = 0x10,
+    DSREPLY_ParameterError = 0x11,
+    DSREPLY_UnsupportedOptionError = 0x12,
+    DSREPLY_InvalidMemoryRange = 0x13,
+    DSREPLY_InvalidRegisterRange = 0x14,
+    DSREPLY_CWDSException = 0x15,
+    DSREPLY_NotStopped = 0x16,
+    DSREPLY_BreakpointsFull = 0x17,
+    DSREPLY_BreakpointConflict = 0x18,
+
+    DSREPLY_OSError = 0x20,
+    DSREPLY_InvalidProcessID = 0x21,
+    DSREPLY_InvalidThreadID = 0x22,
+    DSREPLY_DebugSecurityError = 0x23,
+} DSReplyError;
+
+typedef enum {
+    MEMACCESS_UserMemory = 0,
+    MEMACCESS_DebuggerMemory = 1,
+} MemoryAccessOptions;
+
+enum {
+    DSMSGMEMORY_Segmented = 0x01,
+    DSMSGMEMORY_Extended = 0x02,
+    DSMSGMEMORY_Protected = 0x04,
+    DSMSGMEMORY_Userview = 0x08,
+    DSMSGMEMORY_Space_program = 0x00,
+    DSMSGMEMORY_Space_data = 0x40,
+    DSMSGMEMORY_Space_io = 0x80
+};
+
 typedef int MessageBufferID;
 typedef struct TRKBuffer TRKBuffer;
 
