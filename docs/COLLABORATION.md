@@ -73,7 +73,7 @@ Partially matching work is welcome. Keep it `NonMatching` so the build still use
 | `docs/ledger/*.md`, `docs/re/SYMBOLS.md` | Append your rows. `.gitattributes` merges these with git's union driver, so concurrent appends rebase without conflicts. Never rewrite or reorder other contributors' rows. |
 | Maintainer-only | `docs/re/main.elf.i64` (binary, unmergeable), `config/progress.json`, `docs/images/`, the status table in `PROGRESS.md`, `HANDOFF.md`, `WORKSTREAMS.md`, the `AGENTS.md` state table, `config/targets/`, `config/wpse-v1/build.sha1`, `config/toolchain.json`, and vendored `tools/build/`. |
 
-A maintainer refreshes the progress images by running the CI workflow manually on `main`. Maintainers update the shared summaries. Contributors never edit either, so they never conflict on them.
+After each merge, the merging agent runs `tools/progress/refresh_images.py`, which commits refreshed progress images to `main` only if `main` still matches its verified build. Maintainers update the shared summaries. Contributors never edit either, so they never conflict on them.
 
 ## Definition of done
 

@@ -101,6 +101,8 @@ python tools/verify/verify.py verify --help
 4. Uploads `build/wpse-v1/report.json` and `verification.json` as the `reports` artifact.
 5. On `main` only, renders the progress images and uploads them as the `progress-images` artifact. If they changed, it commits them to `main` as github-actions with the message `DOCS: refresh progress images`. That push does not start another run. Runs on `main` queue one at a time. A run commits only if `main` has not moved since its build, or moved only by image commits; otherwise it skips and the newer run refreshes the images.
 
+Progress images no longer depend on CI. After each merge, `python tools/progress/refresh_images.py`, run from the merging worktree, renders them from that verified build. It pushes a `DOCS: refresh progress images` commit, built with a temporary index on top of `origin/main`, only when `main` differs from the build in nothing but `docs/images/`. Otherwise it skips, and the next merge refreshes them. `--dry-run` renders without pushing.
+
 To preview the images locally after a build, render them into a scratch directory rather than `docs/images/`:
 
 ```powershell

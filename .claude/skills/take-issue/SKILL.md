@@ -137,9 +137,11 @@ Never merge without a passing local verification of the exact head you merge, ru
 - the full build or verification fails after resolving and you cannot find the cause in your own changes
 - the user asked to review before merging
 
-## 8. Clean up
+## 8. Refresh progress images and clean up
 
-After the merge, run these from the main checkout, not the worktree:
+Right after the merge, run `python tools/progress/refresh_images.py` from the worktree, before removing it. It renders the README progress images from the build you just verified and pushes a `DOCS: refresh progress images` commit to `main` only if `origin/main` still has exactly your verified files. If `main` has moved, or the push races another merge, it prints that and exits 0; the next merge refreshes them. It never touches any checkout. Never commit `docs/images/` any other way.
+
+Then run these from the main checkout, not the worktree:
 
 ```powershell
 python tools/collab/claim_issue.py remove-worktree --issue <n>

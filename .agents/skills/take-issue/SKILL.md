@@ -22,6 +22,7 @@ Preserve every rule in the shared procedure:
 - outside symbols: you may name callees or data in other blocks in `symbols.txt` so your link resolves, but leave their splits, sizes, and types to the owning issue
 - traps: do not edit `AGENTS.md`; record traps under a `Traps` heading in your findings file `docs/re/findings/<n>-<slug>.md`
 - file hygiene on Windows: CRLF working copies, explicit UTF-8 without a byte-order mark, and scratch files named with your issue number
+- progress images: right after merging, run `python tools/progress/refresh_images.py` from the worktree before cleanup
 - junction-aware cleanup
 - keeping the local main checkout current with `git pull --ff-only` before claiming and after merging, without ever stashing, resetting, or committing there
 
