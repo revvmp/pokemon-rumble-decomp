@@ -16,6 +16,7 @@ void* malloc(size_t size);
 void free(void* ptr);
 div_t div(int numerator, int denominator);
 void abort(void);
+void exit(int status);
 
 #ifdef __cplusplus
 }

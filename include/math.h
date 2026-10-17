@@ -6,17 +6,21 @@ extern "C" {
 #endif
 
 double pow(double x, double y);
-double acos(double x);
 double ceil(double x);
 double floor(double x);
 double asin(double x);
+double atan(double x);
 double atan2(double y, double x);
+double cos(double x);
+double exp(double x);
 double fmod(double x, double y);
 double log(double x);
 double log10(double x);
 double ldexp(double x, int exponent);
 double frexp(double x, int* exponent);
 double modf(double x, double* integral);
+double scalbn(double x, int exponent);
+float roundf(float x);
 double sin(double x);
 double tan(double x);
 double sqrt(double x);

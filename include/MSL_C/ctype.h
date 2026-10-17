@@ -11,6 +11,10 @@ inline int tolower(int c) {
     return ((c < 0) || (c >= 0x100)) ? c : (int)(_current_locale.ctype_cmpt_ptr->lower_map_ptr[c]);
 }
 
+inline int toupper(int c) {
+    return ((c < 0) || (c >= 0x100)) ? c : (int)(_current_locale.ctype_cmpt_ptr->upper_map_ptr[c]);
+}
+
 #ifdef __cplusplus
 }
 #endif

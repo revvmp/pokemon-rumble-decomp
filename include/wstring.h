@@ -11,6 +11,8 @@ extern "C" {
 wchar_t* wcschr(const wchar_t*, const wchar_t);
 
 int wcscmp(const wchar_t*, const wchar_t*);
+int wcsncmp(const wchar_t*, const wchar_t*, size_t);
+wchar_t* wcscpy(wchar_t*, const wchar_t*);
 wchar_t* wcsncpy(wchar_t*, const wchar_t*, size_t);
 size_t wcslen(const wchar_t*);
 

@@ -20,6 +20,7 @@ typedef struct OSIOSRev {
 } OSIOSRev;
 
 u32 OSGetPhysicalMem2Size(void);
+u32 OSGetConsoleType(void);
 void __OSGetIOSRev(OSIOSRev*);
 
 typedef struct OSAlarm OSAlarm;
