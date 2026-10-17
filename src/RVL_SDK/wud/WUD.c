@@ -53,6 +53,51 @@ static BOOL __wudStopSyncDevice(void)
 	return success;
 }
 
+void __wudEnableStackHandler0(OSAlarm* pAlarm, OSContext* pContext);
+
+static void __wudReverseAddr(BD_ADDR_PTR pDst, BD_ADDR src) {
+    BOOL enabled;
+    int i;
+
+    enabled = OSDisableInterrupts();
+
+    for (i = 0; i < BD_ADDR_LEN; i++) {
+        pDst[i] = src[BD_ADDR_LEN - 1 - i];
+    }
+
+    OSRestoreInterrupts(enabled);
+}
+
+static int __wudSetPinCode(BD_ADDR addr) {
+    BD_ADDR pin;
+    BD_ADDR_PTR pAddr;
+
+    pAddr = _wcb.syncType == WUD_SYNC_TYPE_STANDARD ? _wcb.hostAddr : addr;
+
+    if (_work.sync_type == 4) {
+        WUDiRemoveDevice(_work.devAddr);
+        btm_remove_acl(_work.devAddr);
+    }
+
+    _work.pinCodeSubmitted = 1;
+
+    __wudReverseAddr(pin, pAddr);
+    BTA_DmPinReply(addr, TRUE, BD_ADDR_LEN, pin);
+
+    return 0;
+}
+
+static void __wudEnableStack(void) {
+    WUDCB* p = &_wcb;
+
+    BTA_HhEnable(BTA_SEC_AUTHENTICATE, WUDHidHostCallback);
+
+    p->stackState = WUD_STATE_STACK_GET_STORED_LINK_KEY;
+
+    OSCreateAlarm(&p->alarm);
+    OSSetPeriodicAlarm(&p->alarm, OSGetTime(), OSMillisecondsToTicks(10), __wudEnableStackHandler0);
+}
+
 #pragma force_active on
 
 BOOL WUDIsLinkedWBC(void) {
@@ -594,6 +639,168 @@ static void __wudCleanupStackCallback(tBTA_STATUS status) {
     }
 
     DEBUGPrint("WARNING: USB_CLOSE_FAILURE!\n");
+}
+
+void __wudSecurityEventStackCallback(tBTA_DM_SEC_EVT event, tBTA_DM_SEC* pData) {
+    WUDCB* p = &_wcb;
+    WUDDevInfo* pInfo;
+    u8 i;
+
+    tBTA_DM_ENABLE* pEnable;
+    tBTA_DM_LINK_UP* pLinkUp;
+    tBTA_DM_LINK_DOWN* pLinkDown;
+    tBTA_DM_PIN_REQ* pPinReq;
+    tBTA_DM_AUTH_CMPL* pAuthCmpl;
+
+    DEBUGPrint("__wudCleanupStackCallback: ");
+
+    switch (event) {
+    case BTA_DM_ENABLE_EVT: {
+        pEnable = &pData->enable;
+        WUD_BDCPY(p->hostAddr, pEnable->bd_addr);
+
+        DEBUGPrint("BTA_ENABLE_EVT\n");
+        DEBUGPrint("host : %02x:%02x:%02x:%02x:%02x:%02x\n", p->hostAddr[0], p->hostAddr[1], p->hostAddr[2], p->hostAddr[3], p->hostAddr[4],
+                   p->hostAddr[5]);
+
+        __wudEnableStack();
+        p->libStatus = WUD_LIB_STATUS_2;
+        break;
+    }
+
+    case BTA_DM_DISABLE_EVT: {
+        DEBUGPrint("BTA_DISABLE_EVT\n");
+
+        BTA_CleanUp(__wudCleanupStackCallback);
+        break;
+    }
+
+    case BTA_DM_PIN_REQ_EVT: {
+        pPinReq = &pData->pin_req;
+
+        DEBUGPrint("BTA_DM_PIN_REQ_EVT\n");
+
+        __wudSetPinCode(pPinReq->bd_addr);
+        break;
+    }
+
+    case BTA_DM_AUTH_CMPL_EVT: {
+        pAuthCmpl = &pData->auth_cmpl;
+
+        DEBUGPrint("BTA_DM_AUTH_CMPL_EVT\n");
+
+        DEBUGPrint("  addr : %02x:%02x:%02x:%02x:%02x:%02x\n", pAuthCmpl->bd_addr[0], pAuthCmpl->bd_addr[1], pAuthCmpl->bd_addr[2],
+                   pAuthCmpl->bd_addr[3], pAuthCmpl->bd_addr[4], pAuthCmpl->bd_addr[5]);
+
+        DEBUGPrint("  key  : %02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x\n",
+                   pAuthCmpl->key[0],  pAuthCmpl->key[1],  pAuthCmpl->key[2],  pAuthCmpl->key[3],
+                   pAuthCmpl->key[4],  pAuthCmpl->key[5],  pAuthCmpl->key[6],  pAuthCmpl->key[7],
+                   pAuthCmpl->key[8],  pAuthCmpl->key[9],  pAuthCmpl->key[10], pAuthCmpl->key[11],
+                   pAuthCmpl->key[12], pAuthCmpl->key[13], pAuthCmpl->key[14], pAuthCmpl->key[15]);
+
+        DEBUGPrint("  result = %d\n", pAuthCmpl->key_type);
+
+        if (pAuthCmpl->key_type == HCI_LKEY_TYPE_COMBINATION) {
+            break;
+        }
+
+        pInfo = WUDiGetDevInfo(pAuthCmpl->bd_addr);
+
+        if (WUD_BDCMP(_work.devAddr, pAuthCmpl->bd_addr) == 0) {
+            _work.status = 12;
+
+            if (pInfo == NULL) {
+                pInfo = &_work;
+            }
+        }
+
+        memcpy(pInfo->linkKey, pAuthCmpl->key, LINK_KEY_LEN);
+        break;
+    }
+
+    case BTA_DM_AUTHORIZE_EVT: {
+        DEBUGPrint("BTA_DM_AUTHORIZE_EVT\n");
+        break;
+    }
+
+    case BTA_DM_LINK_UP_EVT: {
+        pLinkUp = &pData->link_up;
+
+        DEBUGPrint("BTA_DM_LINK_UP_EVT\n");
+
+        DEBUGPrint("   addr : %02x:%02x:%02x:%02x:%02x:%02x\n", pLinkUp->bd_addr[0], pLinkUp->bd_addr[1], pLinkUp->bd_addr[2], pLinkUp->bd_addr[3],
+                   pLinkUp->bd_addr[4], pLinkUp->bd_addr[5]);
+
+        pInfo = WUDiGetDevInfo(pLinkUp->bd_addr);
+        if (pInfo == NULL && WUD_BDCMP(pLinkUp->bd_addr, _work.devAddr) == 0) {
+            pInfo = &_work;
+        }
+
+        if (pInfo == NULL || _WUDGetLinkNumber() == WUD_MAX_CHANNELS) {
+            btm_remove_acl(pLinkUp->bd_addr);
+
+            DEBUGPrint("%s --> %02x:%02x:%02x:%02x:%02x:%02x\n", pInfo == NULL ? "not paired" : "4 links exist", pLinkUp->bd_addr[0],
+                       pLinkUp->bd_addr[1], pLinkUp->bd_addr[2], pLinkUp->bd_addr[3], pLinkUp->bd_addr[4], pLinkUp->bd_addr[5]);
+            break;
+        }
+
+        pInfo->status = pInfo->status == 2 ? 12 : 3;
+        p->linkedNum++;
+        break;
+    }
+
+    case BTA_DM_LINK_DOWN_EVT: {
+        pLinkDown = &pData->link_down;
+
+        DEBUGPrint("BTA_DM_LINK_DOWN_EVT\n");
+
+        DEBUGPrint("   addr : %02x:%02x:%02x:%02x:%02x:%02x\n", pLinkDown->bd_addr[0], pLinkDown->bd_addr[1], pLinkDown->bd_addr[2],
+                   pLinkDown->bd_addr[3], pLinkDown->bd_addr[4], pLinkDown->bd_addr[5]);
+
+        DEBUGPrint("result: %d\n", pLinkDown->status);
+
+        pInfo = WUDiGetDevInfo(pLinkDown->bd_addr);
+        if (pInfo != NULL) {
+            pInfo->status = 1;
+            p->linkedNum--;
+
+            if (WUD_BDCMP(_work.devAddr, pLinkDown->bd_addr) == 0) {
+                p->syncState = WUD_STATE_SYNC_ERROR;
+            }
+
+            if (pLinkDown->status == HCI_ERR_PEER_POWER_OFF) {
+                for (i = 0; i < WUD_MAX_CHANNELS; i++) {
+                    if (WUD_BDCMP(_scArray.info[WUD_MAX_DEV_ENTRY_FOR_STD + i].bd_addr, pLinkDown->bd_addr) == 0) {
+                        memset(&_scArray.info[WUD_MAX_DEV_ENTRY_FOR_STD + i], 0, sizeof(SCBtDeviceInfo));
+
+                        sWudSettingsDirty = TRUE;
+                    }
+                }
+            }
+        } else if (WUD_BDCMP(_work.devAddr, pLinkDown->bd_addr) == 0) {
+            p->syncState = WUD_STATE_SYNC_ERROR;
+            p->linkedNum--;
+        } else {
+            DEBUGPrint("this device in not paired\n");
+        }
+
+        if (p->linkedNum <= 255 && p->linkedNum >= 250) {
+            OSReport("WARNING: link num count is reset.\n");
+            p->linkedNum = 0;
+        }
+        break;
+    }
+
+    case BTA_DM_SIG_STRENGTH_EVT: {
+        DEBUGPrint("BTA_DM_SIG_STRENGTH_EVT\n");
+        break;
+    }
+
+    case BTA_DM_BUSY_LEVEL_EVT: {
+        DEBUGPrint("BTA_DM_BUSY_LEVEL_EVT\n");
+        break;
+    }
+    }
 }
 
 void __wudDeviceStatusEventStackCallback(tBTM_DEV_STATUS status) {
