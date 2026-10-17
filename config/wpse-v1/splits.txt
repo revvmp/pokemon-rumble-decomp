@@ -821,6 +821,11 @@ nw4r/snd/snd_Voice.cpp:
 	.data       start:0x803C6880 end:0x803C68B8
 	.sdata2     start:0x804BB028 end:0x804BB05C
 
+nw4r/snd/snd_VoiceManager.cpp:
+	.text       start:0x80290420 end:0x80290BB4
+	.bss        start:0x80452480 end:0x804524A8
+	.sbss       start:0x804B93A8 end:0x804B93AC
+
 nw4r/snd/snd_Util.cpp:
 	.text       start:0x80290BC0 end:0x80291094
 	.rodata     start:0x8036E178 end:0x803705F8
