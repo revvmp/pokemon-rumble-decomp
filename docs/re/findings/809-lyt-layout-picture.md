@@ -67,3 +67,8 @@ Owner #808 reviewed and explicitly approved the exact additive Layout/Pane heade
 ## Native linker names and private initializer scope
 
 Fourteen name-only changes connect the native Layout/Picture identities and their approved TextBox/Bounding callees. Compiler ELF symbol binding marks both anonymous Layout helpers and the generated Picture initializer local. The initializer basename is also used by the HBM private Picture unit, so retain local scope on all three owned private functions rather than exporting a colliding static initializer. No outside size, type or split is changed. Configure, plain default Ninja and explicit frozen verification again exit zero with these names and scopes. Final source-selected gates remain pending.
+
+
+## Complete allocated-section diagnostic
+
+Both actual committed source files were compiled with their own tracked Layout/Pane/Picture declarations and exact owner-approved canonical prerequisite snapshots. Comparing those objects to the verified real split objects reports 100% in every allocated section: Layout text/data/sbss/sdata2 and Picture text/ctors/data/sbss/sdata2, nine sections total. The native29/5480/166 proof also passes after the unused Picture constructor declarations were removed. No source registration, source-selected final link or decompiled credit is inferred from this diagnostic. PR #857 may reuse the exact committed Picture declaration from 516e173e as an explicit external Layout consumer prerequisite; the Picture interface remains owned and delivered by PR #865.
