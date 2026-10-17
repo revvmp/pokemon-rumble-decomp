@@ -1,6 +1,6 @@
 # F-446-1: NW4R ut DvdFileStream, NandFileStream, LockedCache, and Font units
 
-Target: `wpse-v1`, immutable `orig/wpse-v1/main.dol`. Issue #446 owns `.text` `0x80293CD0–0x80294594`, 27 functions. #445 already covered the first three (`FileStream::FilePosition::Append`, `Seek`, and `__sinit_\ut_FileStream_cpp`). This finding reconstructs four further units, covering 23 more functions. The last function, `RomFont::RomFont` at `0x80294540`, opens `ut_RomFont.cpp`, which continues into #447's range and is left for that unit.
+Target: `wpse-v1`, immutable `orig/wpse-v1/main.dol`. Issue #446 owns `.text` `0x80293CD0–0x80294594`, 27 functions. #445 already covered the first three (`FileStream::FilePosition::Append`, `Seek`, and `__sinit_\ut_FileStream_cpp`). This finding reconstructs four further units, covering 23 more functions. The last function, `RomFont::RomFont` at `0x80294540`, opens `ut_RomFont.cpp`, which continues into #447's range; [F-447-1](447-ut-romfont.md) reconstructs it and completes this issue.
 
 ## Units and boundaries
 

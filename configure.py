@@ -226,6 +226,7 @@ config.libs = [
             Object(Matching, "nw4r/ut/ut_NandFileStream.cpp"),
             Object(Matching, "nw4r/ut/ut_LockedCache.cpp"),
             Object(Matching, "nw4r/ut/ut_Font.cpp"),
+            Object(Matching, "nw4r/ut/ut_RomFont.cpp"),
         ],
     ),
     library(

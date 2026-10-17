@@ -49,6 +49,9 @@ public:
     virtual int GetAscent() const = 0;
     virtual int GetDescent() const = 0;
     virtual int GetBaselinePos() const = 0;
+    virtual int GetBaselinePos(u16 ch) const {
+        return GetBaselinePos();
+    }
 
     virtual int GetCellHeight() const = 0;
     virtual int GetCellWidth() const = 0;
@@ -67,6 +70,7 @@ public:
     virtual int GetCharWidth(u16 ch) const = 0;
     virtual CharWidths GetCharWidths(u16 ch) const = 0;
     virtual void GetGlyph(Glyph* pGlyph, u16 ch) const = 0;
+    virtual bool HasGlyph(u16 ch) const = 0;
     virtual FontEncoding GetEncoding() const = 0;
 
     void InitReaderFunc(FontEncoding encode);
