@@ -348,6 +348,11 @@ nw4r/ef/ef_resource.cpp:
 	.ctors      start:0x80352A40 end:0x80352A44
 	.bss        start:0x8042F2D8 end:0x8042F2F8
 
+nw4r/ef/ef_util.cpp:
+	.text       start:0x80235320 end:0x80236298
+	.sdata      start:0x804B88F0 end:0x804B88F8
+	.sdata2     start:0x804BA730 end:0x804BA770
+
 nw4r/ef/ef_handle.cpp:
 	.text       start:0x802362A0 end:0x80236370
 
