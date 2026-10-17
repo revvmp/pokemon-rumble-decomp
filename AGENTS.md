@@ -61,6 +61,8 @@ Keep entries concise and actionable. Distinguish confirmed findings from hypothe
 
 - **Root licenses can have file-level exceptions.** Petari BTE files retain Broadcom Apache-2.0 notices despite its root CC0 license. Inspect each reused file and preserve its specific notices; see [F-510-1](docs/re/findings/510-bte-transport-logging.md#source-provenance-and-reusable-lesson).
 
+- **IPC register declarations affect instruction selection.** A pointer macro produced different instructions from the original indexed loads/stores. Use the evidenced CodeWarrior absolute-address array declaration for ipcMain; see [F-496-1](docs/re/findings/496-esp-ipc-main.md).
+
 ## Current project state
 
 | Current state | Value |

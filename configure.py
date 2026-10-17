@@ -162,6 +162,8 @@ config.libs = [
         "sdk",
         [
             Object(Matching, "RVL_SDK/base/PPCArch.c"),
+            Object(NonMatching, "RVL_SDK/esp/esp.c"),
+            Object(NonMatching, "RVL_SDK/ipc/ipcMain.c"),
             Object(NonMatching, "RVL_SDK/bte/bte_hcisu.c", cflags=cflags_base),
             Object(NonMatching, "RVL_SDK/bte/bte_init.c", cflags=cflags_base),
             Object(NonMatching, "RVL_SDK/bte/bte_logmsg.c", cflags=cflags_base),
