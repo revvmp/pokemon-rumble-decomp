@@ -1,28 +1,16 @@
 #include <revolution/bte/dm_api.h>
-
-void* GKI_getbuf(u16 size);
-void GKI_sched_lock(void);
-void GKI_sched_unlock(void);
-void bta_sys_sendmsg(void* p_msg);
-void bdcpy(BD_ADDR destination, const BD_ADDR source);
-u8 BTM_IsDeviceUp(void);
-u8 BTM_SecAddDevice(BD_ADDR bd_addr, void* p_dev_class, void* p_bd_name, void* p_features, u32* p_trusted_mask, LINK_KEY link_key);
-u8 BTM_SecDeleteDevice(BD_ADDR bd_addr);
-void* memset(void* destination, int value, unsigned long size);
-void* memcpy(void* destination, const void* source, unsigned long size);
-char* strncpy(char* destination, const char* source, unsigned long size);
-extern const u32 bta_service_id_to_btm_srv_id_lkup_tbl[];
+#include <revolution/bte/bd.h>
 
 void BTA_DisableBluetooth(void) {
-    HC_BT_HDR* p_msg;
+    BT_HDR* p_msg;
     if ((p_msg = GKI_getbuf(sizeof *p_msg)) != NULL) {
         p_msg->event = BTA_DM_API_DISABLE_EVT;
         bta_sys_sendmsg(p_msg);
     }
 }
 
-u8 BTA_DmIsDeviceUp(void) {
-    u8 status;
+UINT8 BTA_DmIsDeviceUp(void) {
+    UINT8 status;
     GKI_sched_lock();
     status = BTM_IsDeviceUp();
     GKI_sched_unlock();
@@ -38,9 +26,9 @@ void BTA_DmSetDeviceName(char* p_name) {
     }
 }
 
-void BTA_DmSetVisibility(u8 disc_mode, u8 conn_mode) {
+void BTA_DmSetVisibility(UINT8 disc_mode, UINT8 conn_mode) {
     tBTA_DM_API_SET_VISIBILITY* p_msg;
-    if ((p_msg = GKI_getbuf(BTA_DM_MESSAGE_SIZE)) != NULL) {
+    if ((p_msg = GKI_getbuf(sizeof(tBTA_DM_MSG))) != NULL) {
         p_msg->hdr.event = BTA_DM_API_SET_VISIBILITY_EVT;
         p_msg->disc_mode = disc_mode;
         p_msg->conn_mode = conn_mode;
@@ -48,7 +36,7 @@ void BTA_DmSetVisibility(u8 disc_mode, u8 conn_mode) {
     }
 }
 
-void BTA_DmSearch(tBTA_DM_INQ* p_dm_inq, u32 services, tBTA_DM_SEARCH_CBACK* p_cback) {
+void BTA_DmSearch(tBTA_DM_INQ* p_dm_inq, UINT32 services, tBTA_DM_SEARCH_CBACK* p_cback) {
     tBTA_DM_API_SEARCH* p_msg;
     if ((p_msg = GKI_getbuf(sizeof *p_msg)) != NULL) {
         p_msg->hdr.event = BTA_DM_API_SEARCH_EVT;
@@ -60,14 +48,14 @@ void BTA_DmSearch(tBTA_DM_INQ* p_dm_inq, u32 services, tBTA_DM_SEARCH_CBACK* p_c
 }
 
 void BTA_DmSearchCancel(void) {
-    HC_BT_HDR* p_msg;
+    BT_HDR* p_msg;
     if ((p_msg = GKI_getbuf(sizeof *p_msg)) != NULL) {
         p_msg->event = BTA_DM_API_SEARCH_CANCEL_EVT;
         bta_sys_sendmsg(p_msg);
     }
 }
 
-void BTA_DmPinReply(BD_ADDR bd_addr, u8 accept, u8 pin_len, u8* p_pin) {
+void BTA_DmPinReply(BD_ADDR bd_addr, UINT8 accept, UINT8 pin_len, UINT8* p_pin) {
     tBTA_DM_API_PIN_REPLY* p_msg;
     if ((p_msg = GKI_getbuf(sizeof *p_msg)) != NULL) {
         p_msg->hdr.event = BTA_DM_API_PIN_REPLY_EVT;
@@ -81,11 +69,11 @@ void BTA_DmPinReply(BD_ADDR bd_addr, u8 accept, u8 pin_len, u8* p_pin) {
     }
 }
 
-u8 BTA_DmAddDevice(BD_ADDR bd_addr, LINK_KEY link_key, u32 trusted_mask, u8 is_trusted) {
-    u8 status;
-    u32 trusted_services_mask[2];
-    u8 index = 0;
-    u8 btm_mask_index = 0;
+UINT8 BTA_DmAddDevice(BD_ADDR bd_addr, LINK_KEY link_key, UINT32 trusted_mask, UINT8 is_trusted) {
+    UINT8 status;
+    UINT32 trusted_services_mask[2];
+    UINT8 index = 0;
+    UINT8 btm_mask_index = 0;
     memset(trusted_services_mask, 0, sizeof trusted_services_mask);
     if (is_trusted) {
         for (; trusted_mask != 0 && index < BTA_MAX_SERVICE_ID; ++index) {
@@ -105,8 +93,8 @@ u8 BTA_DmAddDevice(BD_ADDR bd_addr, LINK_KEY link_key, u32 trusted_mask, u8 is_t
         return BTA_FAILURE;
 }
 
-u8 BTA_DmRemoveDevice(BD_ADDR bd_addr) {
-    u8 status;
+UINT8 BTA_DmRemoveDevice(BD_ADDR bd_addr) {
+    UINT8 status;
     GKI_sched_lock();
     status = BTM_SecDeleteDevice(bd_addr);
     GKI_sched_unlock();
@@ -117,7 +105,7 @@ u8 BTA_DmRemoveDevice(BD_ADDR bd_addr) {
 }
 
 void BTA_DmSendHciReset(void) {
-    HC_BT_HDR* p_msg;
+    BT_HDR* p_msg;
     if ((p_msg = GKI_getbuf(sizeof *p_msg)) != NULL) {
         p_msg->event = BTA_DM_API_RESET_HCI;
         bta_sys_sendmsg(p_msg);

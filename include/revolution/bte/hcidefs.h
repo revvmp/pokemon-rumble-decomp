@@ -203,4 +203,26 @@ enum
 	HCI_PAGE_SCAN_ENABLED		= 1 << 1,
 };
 
+enum
+{
+	HCI_DISABLE_ALL_LM_MODES		= 0,
+	HCI_ENABLE_MASTER_SLAVE_SWITCH	= 1 << 0,
+	HCI_ENABLE_HOLD_MODE			= 1 << 1,
+	HCI_ENABLE_SNIFF_MODE			= 1 << 2,
+	HCI_ENABLE_PARK_MODE			= 1 << 3,
+};
+
+enum
+{
+	HCI_PROTO_VERSION_2_0	= 3,
+};
+
+enum
+{
+	HCI_MODE_ACTIVE,
+	HCI_MODE_HOLD,
+	HCI_MODE_SNIFF,
+	HCI_MODE_PARK,
+};
+
 #endif
