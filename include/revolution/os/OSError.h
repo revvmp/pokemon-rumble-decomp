@@ -11,8 +11,13 @@ extern "C" {
 typedef u16 OSError;
 typedef void (*OSErrorHandler)(OSError error, OSContext* pContext, ...);
 
+#define OS_ERROR_PROTECTION 15
+
+extern OSErrorHandler __OSErrorTable[];
+
 OSErrorHandler OSSetErrorHandler(OSError error, OSErrorHandler handler);
 void OSReport(const char* msg, ...);
+void __OSUnhandledException(u8 exception, OSContext* context, u32 dsisr, u32 dar);
 void OSPanic(const char* file, int line, const char* msg, ...);
 
 #ifdef __cplusplus

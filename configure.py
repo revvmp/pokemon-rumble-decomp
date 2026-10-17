@@ -171,6 +171,11 @@ config.libs = [
             Object(Matching, "RVL_SDK/os/OSCache.c"),
 
             Object(NonMatching, "RVL_SDK/os/OSContext.c"),
+            Object(Matching, "RVL_SDK/os/OSFont.c"),
+            Object(Matching, "RVL_SDK/os/OSInterrupt.c"),
+            Object(Matching, "RVL_SDK/os/OSLink.c"),
+            Object(Matching, "RVL_SDK/os/OSMessage.c"),
+            Object(NonMatching, "RVL_SDK/os/OSMemory.c"),
             Object(Matching, "RVL_SDK/os/OSIpc.c"),
             Object(Matching, "RVL_SDK/exi/EXIUart.c"),
             Object(Matching, "RVL_SDK/exi/EXICommon.c"),
