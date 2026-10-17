@@ -39,6 +39,14 @@ A fresh control/proposed build on actual base `ea4ffb474229f4c66f35b85f42af48631
 
 `C:/MassStorage/GitHub/315-latest-header-gate.py`, its log and JSON record this repeat in `build-315-header-latest`. Shared origin/main advanced while the gate ran; the actual base is the verified branch parent. The original header bytes on the later shared ref were independently confirmed identical. Future reproduction records the parent directly rather than a mutable shared ref. This checkpoint does not waive the fresh-main ancestry guard before merge.
 
+## Exact current-main accepted owner control
+
+On actual main `813a7c745d081a82bf86e3ef76d7fbd54fc02e68`, the accepted PR879 owner snapshot `a70262465efb08731e782639dfbb20d1056ac232` supplies the control. An independent empty git diff and byte-identical `git ls-tree -r -z` output establish exact tracked-tree equivalence, including images, with SHA-256 `54e7e8c48313bad4a78eec51d6429bab6b17f2677319bb283083a34789df2b3c`. All 535 declared source-object hashes and every saved linked artifact hash are verified before copying the immutable control under `315-reference/905-control-813a7c74`. The control is reused from its actual successful owner build; no control bytes are inserted into the proposed build.
+
+The proposed branch then runs configure, explicit all_source, plain default Ninja, the actual-directory frozen verifier, and both canonical consumer compiler/audit commands, all exiting zero. Its exact Ninja-declared 535-object set agrees with the control. Every allocated payload, section flag/alignment, raw relocation and normalized symbol attribute is unchanged. Of those, 524 entire object files are identical and eleven differ only in compiler numeric labels. The complete ELF retains the same header/section metadata and all other payloads, with 35 numeric local-symbol spelling changes. The entire DOL is byte-identical. The canonical four-operator consumer independently retains its exact 320 instruction bytes, all targets, 132 exception bytes and both indices.
+
+`315-capture-879-control.py`, `315-proposed-813-gate.py`, their logs, and `315-proposed-813-proof.json` reproduce snapshot validation and the proposed checks. This avoids repeating an already accepted identical control build. The final exact committed-head repeat and fresh-main ancestry guard remain required before merge.
+
 ## Reproduction
 
 Diagnostic source and tools remain outside the checkout:
