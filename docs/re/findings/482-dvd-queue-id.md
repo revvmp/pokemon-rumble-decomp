@@ -36,7 +36,7 @@ This is partial work on #482, not completion of its 30 functions. The first thre
 
 ## Validation and session handoff
 
-Split-only configure, ninja and frozen-manifest verification exited 0 before source registration. Source compilation reports queue 6/6, disc ID 1/1 functions at 100%; queue BSS 32/32 bytes matches. Full source-linked queue build and independent verification exited 0. Source, symbols, split ownership and documentation were reviewed without adding comments, docstrings or unit tests. No new general tooling trap emerged.
+Split-only configure, ninja and frozen-manifest verification exited 0 before source registration. Source compilation reports queue 6/6, disc ID 1/1 functions at 100%; queue BSS 32/32 bytes matches. A clean build after the shared-header migration links both units from source; objdiff marks both complete with 100% functions and data, and the independent full-DOL verifier exits 0. Source, symbols, split ownership and documentation were reviewed without adding comments, docstrings or unit tests. No new general tooling trap emerged.
 
 Coordinate the `dvd.c` tail through its owning issue. Investigate the newer DVD error-ring implementation before importing its reference source.
 
