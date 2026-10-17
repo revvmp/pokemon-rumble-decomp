@@ -92,3 +92,7 @@ is not independently established.
 - Do not infer this TextBox's size from a reference header: its native Init
   constructs a graphics display-list object and stores a buffer beyond the
   reference class's end. Follow all target accesses before declaring it.
+- The reference TexMap header repeats IsCITexelFormat, which already exists
+  in canonical lyt_common.h. A standalone TexMap build hides this until
+  Material includes both headers and compilation rejects the duplicate.
+  Include the canonical common header and reuse its existing helper.
