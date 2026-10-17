@@ -40,11 +40,11 @@ New headers under `include/nw4r/snd/` come from ogws `include/nw4r/snd` at the c
 - Umbrella includes became individual headers (`ut_LinkList.h`, `ut_algorithm.h`, `ut_NonCopyable.h`, `revolution/ax.h`, `ai.h`, `wpad.h`, `os.h`, `limits.h`). `ut_Lock.h` also includes `revolution/os/OSMutex.h`.
 - `snd_Voice.h`, `snd_AxVoice.h`, and `snd_VoiceManager.h` are the 2006 interfaces. Only `VoiceManager::GetInstance`, `UpdateAllVoicesSync`, and the `Voice::SYNC_AX_VE` (8) and `SYNC_AX_MIX` (0x10) flags are verified by this unit; the owners of those units must reconcile the rest with the target.
 
-Shared-header changes: `include/revolution/ax.h` gains `AX_VOICE_STOP`, `AX_PB_LPF_ON`, `AX_PB_BIQUAD_ON`, `AX_SAMPLE_RATE`, `AX_VOICE_MAX`, `AXSetVoiceState`, `AXSetVoiceAddr`, and `AXSetMaxDspCycles`, with the ogws values and signatures. `include/revolution/sc.h` now includes `revolution/os/OSThread.h`, because it declares an `OSThreadQueue` member and failed to compile when included through `wpad.h` alone.
+Shared-header changes: `include/revolution/ax.h` gains `AX_VOICE_STOP`, `AX_PB_LPF_ON`, `AX_PB_BIQUAD_ON`, `AX_SAMPLE_RATE`, and `AX_VOICE_MAX`, with the ogws values; `AXSetVoiceState`, `AXSetVoiceAddr`, and `AXSetMaxDspCycles` were already declared on `main`. `include/revolution/sc.h` now includes `revolution/os/OSThread.h`, because it declares an `OSThreadQueue` member and failed to compile when included through `wpad.h` alone.
 
 ## Outside symbols
 
-Renamed in `symbols.txt` so the unit links: `VoiceManager::GetInstance` `0x80290420` (its body constructs a bool and two link lists, matching the reference layout), `VoiceManager::UpdateAllVoicesSync` `0x80290B40`, `AXSetMaxDspCycles` `0x802DD780` (stores `__AXMaxDspCycles`), and the vtables `BiquadFilterBpf2048` `0x803C61F8`, `Bpf1024` `0x803C6208`, `Bpf512` `0x803C6218`, `Hpf` `0x803C6228`, and `Lpf` `0x803C6238`. The vtable pairing comes from the static initializer, which stores each vtable into the matching filter object in declaration order. Splits and sizes of these symbols are unchanged.
+Renamed in `symbols.txt` so the unit links: `VoiceManager::GetInstance` `0x80290420` (its body constructs a bool and two link lists, matching the reference layout), `VoiceManager::UpdateAllVoicesSync` `0x80290B40`, and the vtables `BiquadFilterBpf2048` `0x803C61F8`, `Bpf1024` `0x803C6208`, `Bpf512` `0x803C6218`, `Hpf` `0x803C6228`, and `Lpf` `0x803C6238`. The vtable pairing comes from the static initializer, which stores each vtable into the matching filter object in declaration order. Splits and sizes of these symbols are unchanged.
 
 ## Remaining work in #416
 
