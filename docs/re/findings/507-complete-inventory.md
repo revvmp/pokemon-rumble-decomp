@@ -37,6 +37,12 @@ Current checkpoint: #719 remains unmerged, and main still selects the original W
 
 The WUD unit starts in #504 and ends at `0x80310394`. Its split, configuration and header remain with that first-function issue. WUDHidHost and WUD debug ownership remains with #507; GKI buffer belongs to #508, whose whole-unit source covers the final seven entries here. No splits, headers, layouts or symbol extents change in this audit.
 
+## Source-prerequisite preview
+
+The branch is stacked on source prerequisite #719 at commit c468b91d96c00fde5388f1bf17ea912b816294d5. A fresh default-path configure and full Ninja both exit 0. Explicit frozen verification of build/wpse-v1 exits 0. The complete issue inventory audit finds all 26 original functions / 4908 native bytes in actual source-selected objects, with original extents and final ELF addresses; every DOL byte agrees with the frozen reference.
+
+This preview does not replace the final main integration gate. After #719 merges, drop the prerequisite history, rebase onto latest main and rerun configure, Ninja, explicit frozen verification and the same complete inventory audit before updating the final issue state. No duplicate source-unit credit is added.
+
 ## Provenance
 
 The prerequisite and existing findings record pinned Petari and Swiftshine/key CC0 source for WUD. GKI retains the Broadcom Apache-2.0 notice documented in the #508 license record. This audit introduces no reused source or declarations.
