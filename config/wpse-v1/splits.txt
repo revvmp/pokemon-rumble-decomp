@@ -221,14 +221,55 @@ RVL_SDK/os/OSTime.c:
 	.text       start:0x802BD060 end:0x802BD730
 	.data       start:0x803C8D10 end:0x803C8D70
 
+RVL_SDK/os/OSUtf.c:
+	.text       start:0x802BD730 end:0x802BD980
+	.data       start:0x803C8D70 end:0x803D4BB0
+
 RVL_SDK/os/OSIpc.c:
 	.text       start:0x802BD980 end:0x802BD9B8
 	.sdata      start:0x804B8AA0 end:0x804B8AA8
 	.sbss       start:0x804B9510 end:0x804B9518
 
+RVL_SDK/os/OSStateTM.c:
+	.text       start:0x802BD9C0 end:0x802BE0C4
+	.data       start:0x803D4BB0 end:0x803D4C78
+	.bss        start:0x80453340 end:0x80453400
+	.sbss       start:0x804B9518 end:0x804B9538
+
 RVL_SDK/os/__start.c:
 	.init       start:0x80004000 end:0x800042F8
 	.sbss       start:0x804B9538 end:0x804B9540
+
+RVL_SDK/os/OSPlayRecord.c:
+	.text       start:0x802BE0D0 end:0x802BE7EC
+	.data       start:0x803D4C78 end:0x803D4CC0
+	.bss        start:0x80453400 end:0x804535F8
+	.sdata      start:0x804B8AA8 end:0x804B8AAC
+	.sbss       start:0x804B9540 end:0x804B9560
+
+RVL_SDK/os/OSStateFlags.c:
+	.text       start:0x802BE7F0 end:0x802BEA08
+	.data       start:0x803D4CC0 end:0x803D4CE8
+	.bss        start:0x80453600 end:0x80453620
+
+RVL_SDK/os/OSNet.c:
+	.text       start:0x802BEA10 end:0x802BEFAC
+	.data       start:0x803D4CE8 end:0x803D4E50
+	.bss        start:0x80453620 end:0x804536E0
+	.sdata      start:0x804B8AB0 end:0x804B8AB4
+	.sbss       start:0x804B9560 end:0x804B9570
+
+RVL_SDK/os/OSNandbootInfo.c:
+	.text       start:0x802BEFB0 end:0x802BF1B8
+	.data       start:0x803D4E50 end:0x803D4E70
+
+RVL_SDK/os/OSPlayTime.c:
+	.text       start:0x802BF1C0 end:0x802BF998
+	.data       start:0x803D4E70 end:0x803D4EB0
+	.bss        start:0x804536E0 end:0x80453710
+	.sdata      start:0x804B8AB8 end:0x804B8AC0
+	.sbss       start:0x804B9570 end:0x804B9588
+	.sdata2     start:0x804BB278 end:0x804BB288
 
 RVL_SDK/os/__ppc_eabi_init.c:
 	.init       start:0x80004300 end:0x80004364
