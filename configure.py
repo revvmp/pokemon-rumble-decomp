@@ -333,6 +333,12 @@ config.libs = [
         "runtime",
         [
             Object(Matching, "Runtime/__mem.c"),
+            Object(Matching, "Runtime/__va_arg.c"),
+            Object(Matching, "Runtime/global_destructor_chain.c"),
+            Object(Matching, "Runtime/NMWException.cpp", extra_cflags=["-Cpp_exceptions on"]),
+            Object(Matching, "Runtime/ptmf.c"),
+            Object(Matching, "Runtime/MWRTTI.cpp", extra_cflags=["-Cpp_exceptions on", "-RTTI on"]),
+            Object(Matching, "Runtime/runtime.c"),
             Object(Matching, "Runtime/__init_cpp_exceptions.cpp"),
         ],
     ),
