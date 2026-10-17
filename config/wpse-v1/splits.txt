@@ -750,6 +750,34 @@ nw4r/snd/snd_SeqPlayer.cpp:
 	.bss        start:0x8044D6E8 end:0x8044D708
 	.sdata2     start:0x804BAF08 end:0x804BAF20
 
+nw4r/snd/snd_SoundHandle.cpp:
+	.text       start:0x80287C70 end:0x80287D60
+
+nw4r/snd/snd_SoundPlayer.cpp:
+	.text       start:0x80287D60 end:0x802888D0
+	.bss        start:0x8044D720 end:0x8044DD30
+	.sbss       start:0x804B9378 end:0x804B9380
+	.sdata2     start:0x804BAFE8 end:0x804BAFF0
+
+nw4r/snd/snd_SoundStartable.cpp:
+	.text       start:0x802888D0 end:0x80288930
+
+nw4r/snd/snd_SoundSystem.cpp:
+	.text       start:0x80288930 end:0x80288CB8
+	.ctors      start:0x80352A60 end:0x80352A64
+	.data       start:0x803C6788 end:0x803C67D0
+	.bss        start:0x8044DD40 end:0x8044E070
+	.sdata      start:0x804B89E8 end:0x804B89EC
+	.sbss       start:0x804B9380 end:0x804B9388
+
+nw4r/snd/snd_SoundThread.cpp:
+	.text       start:0x80288CC0 end:0x802893C0
+	.bss        start:0x8044E070 end:0x8044E418
+	.sbss       start:0x804B9388 end:0x804B9390
+
+nw4r/snd/snd_StrmChannel.cpp:
+	.text       start:0x802893C0 end:0x80289600
+
 nw4r/ut/ut_list.cpp:
 	.text       start:0x80292D00 end:0x80292F5C
 
