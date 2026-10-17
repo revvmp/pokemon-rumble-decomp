@@ -21,6 +21,21 @@ void MtxGetRotation(const math::MTX34& rMtx, math::VEC3* pRot);
 void MtxGetTranslate(const math::MTX34& rMtx, math::VEC3* pTrans);
 void MtxGetScale(const math::MTX34& rMtx, math::VEC3* pScale);
 
+bool Normalize(math::VEC3* pOut, const math::VEC3* pIn);
+
+void _PSSinCosRad(f32* pSinCos, f32 rad);
+void _PSSinCosRad3(f32* pSinCos, f32 x, f32 y, f32 z);
+void PSSinCosRad(f32* pSin, f32* pCos, f32 rad);
+void PSMTX34RotXYZRad(math::MTX34* pMtx, f32 x, f32 y, f32 z);
+
+math::MTX34* MTX34ScaleNonZero(math::MTX34* pOut, const math::MTX34* pIn,
+                               const math::VEC3* pScale);
+math::MTX34* MTX34ScaleNonZero(math::MTX34* pOut, const math::VEC3* pScale,
+                               const math::MTX34* pIn);
+math::MTX34* MTX34ScaleInv(math::MTX34* pOut, const math::MTX34* pIn,
+                           const math::VEC3* pScale);
+f32 MTXColLen(const math::MTX34* pMtx, int col);
+
 }
 }
 
