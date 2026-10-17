@@ -822,6 +822,24 @@ nw4r/snd/snd_MmlParser.cpp:
 	.sbss       start:0x804B9360 end:0x804B9368
 	.sdata2     start:0x804BAEE8 end:0x804BAF08
 
+nw4r/snd/snd_MmlSeqTrack.cpp:
+	.text       start:0x8027E000 end:0x8027E0B8
+	.data       start:0x803C6570 end:0x803C6580
+
+nw4r/snd/snd_MmlSeqTrackAllocator.cpp:
+	.text       start:0x8027E0C0 end:0x8027E210
+	.data       start:0x803C6580 end:0x803C6598
+
+nw4r/snd/snd_NandSoundArchive.cpp:
+	.text       start:0x8027E210 end:0x8027E2A8
+
+nw4r/snd/snd_PlayerHeap.cpp:
+	.text       start:0x8027E2B0 end:0x8027E4CC
+	.data       start:0x803C6598 end:0x803C65A8
+
+nw4r/snd/snd_RemoteSpeaker.cpp:
+	.text       start:0x8027E4D0 end:0x8027EE60
+
 nw4r/snd/snd_RemoteSpeakerManager.cpp:
 	.text       start:0x8027EE60 end:0x8027F0F8
 	.bss        start:0x8044D410 end:0x8044D6E8
