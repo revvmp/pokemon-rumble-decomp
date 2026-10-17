@@ -1,4 +1,4 @@
-#include "RVL_SDK/bte/transport.h"
+#include "revolution/bte/transport.h"
 
 extern void GKI_freebuf(void* p_buffer);
 extern void GKI_send_msg(unsigned char task_id, unsigned char mailbox, void* p_msg);

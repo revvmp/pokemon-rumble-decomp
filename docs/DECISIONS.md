@@ -61,6 +61,20 @@ Accepted at the project owner's request. `docs/re/main.elf.i64` is an IDA Pro da
 - Every committed save adds the full database to history.
 - `config/wpse-v1/symbols.txt` remains the authoritative, mergeable source of names. Names recovered in IDA must also be synced there.
 
+## D-0013: Shared RVL_SDK headers come from Petari
+
+Accepted to stop parallel contributors from writing duplicate and conflicting SDK headers.
+- `include/revolution/` and `include/private/` hold the RVL_SDK headers, laid out as in Petari.
+- Headers that contributors had already adapted and matched against were kept unchanged.
+- Every other Petari RVL_SDK header was imported from Petari commit `e0ab141` (CC0) with comments stripped, 140 files in all. The VF headers were left out because this game has no VF library.
+- `tools/vendor/vendor_strip.py` gained C/C++ support for the stripping. It refuses output whose code differs from the original apart from comments and whitespace.
+
+Consequences:
+- Contributors use and extend these headers in place instead of writing new ones.
+- `include/RVL_SDK/` is deprecated. Its headers moved to `include/revolution/`, leaving one-line forwarding headers so open pull requests keep building. `include/RVL_SDK/gx/GXFifo.h` still differs from `include/revolution/gx/GXFifo.h` and is kept until its unit's owner reconciles them.
+- Remove the forwarders once no open pull request uses the old paths.
+- An imported header may still need adjusting for this game's SDK version; adjust it in place.
+
 ## Future decisions
 
 Use stable identifiers and record status, problem, approach, evidence, consequences, and superseded decisions. Put reverse engineering evidence in `re/` and link it here rather than duplicating it.

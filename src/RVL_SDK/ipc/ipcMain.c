@@ -1,4 +1,4 @@
-#include "RVL_SDK/ipc/ipcMain.h"
+#include "revolution/ipc/ipcMain.h"
 
 #define TRUE 1
 #define FALSE 0

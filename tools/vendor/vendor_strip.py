@@ -51,17 +51,90 @@ def verify_equivalent(original, stripped):
         raise RuntimeError("Stripped source is not equivalent to the original")
 
 
+C_SUFFIXES = {".c", ".h", ".cpp", ".hpp", ".cc", ".inc"}
+
+
+def strip_c_source(source):
+    output = []
+    removed_lines = set()
+    line = 0
+    index = 0
+    length = len(source)
+    while index < length:
+        char = source[index]
+        pair = source[index:index + 2]
+        if char in "\"'":
+            end = index + 1
+            while end < length and source[end] != char:
+                if source[end] == "\\":
+                    end += 1
+                elif source[end] == "\n":
+                    raise ValueError(f"Unterminated literal on line {line + 1}")
+                end += 1
+            output.append(source[index:end + 1])
+            index = end + 1
+        elif pair == "//":
+            end = source.find("\n", index)
+            end = length if end < 0 else end
+            if source[index:end].rstrip().endswith("\\"):
+                raise ValueError(f"Line comment continues onto the next line at line {line + 1}")
+            removed_lines.add(line)
+            index = end
+        elif pair == "/*":
+            end = source.find("*/", index + 2)
+            if end < 0:
+                raise ValueError(f"Unterminated block comment on line {line + 1}")
+            newlines = source.count("\n", index, end + 2)
+            removed_lines.update(range(line, line + newlines + 1))
+            line += newlines
+            output.append("\n" * newlines if newlines else " ")
+            index = end + 2
+        else:
+            if char == "\n":
+                line += 1
+            output.append(char)
+            index += 1
+    original_lines = source.split("\n")
+    kept = []
+    for number, text in enumerate("".join(output).split("\n")):
+        text = text.rstrip()
+        if not text and number in removed_lines and original_lines[number].strip():
+            continue
+        kept.append(text)
+    stripped = "\n".join(kept)
+    while "\n\n\n" in stripped:
+        stripped = stripped.replace("\n\n\n", "\n\n")
+    return stripped.strip("\n") + "\n"
+
+
+def verify_c_equivalent(original, stripped):
+    if strip_c_source(stripped) != stripped:
+        raise RuntimeError("Stripped C source still contains comments")
+    if "".join(strip_c_source(original).split()) != "".join(stripped.split()):
+        raise RuntimeError("Stripped C source is not equivalent to the original")
+
+
 def main():
-    parser = argparse.ArgumentParser(description="Copy Python sources without comments or docstrings.")
+    parser = argparse.ArgumentParser(description="Copy Python or C/C++ sources without comments or docstrings.")
     parser.add_argument("sources", type=Path, nargs="+")
     parser.add_argument("--output-dir", type=Path, required=True)
+    parser.add_argument("--root", type=Path, help="keep each source's path relative to this directory under the output directory")
+    parser.add_argument("--skip-existing", action="store_true", help="leave files that already exist in the output directory untouched")
     args = parser.parse_args()
     try:
         for source_path in args.sources:
+            relative = source_path.relative_to(args.root) if args.root else Path(source_path.name)
+            target = args.output_dir / relative
+            if args.skip_existing and target.exists():
+                print(f"Kept existing {target}")
+                continue
             original = source_path.read_text(encoding="utf-8")
-            stripped = strip_source(original)
-            verify_equivalent(original, stripped)
-            target = args.output_dir / source_path.name
+            if source_path.suffix.lower() in C_SUFFIXES:
+                stripped = strip_c_source(original)
+                verify_c_equivalent(original, stripped)
+            else:
+                stripped = strip_source(original)
+                verify_equivalent(original, stripped)
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_text(stripped, encoding="utf-8", newline="\n")
             print(f"Wrote {target}")

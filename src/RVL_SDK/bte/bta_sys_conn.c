@@ -1,4 +1,4 @@
-#include <RVL_SDK/bte/sys.h>
+#include <revolution/bte/sys.h>
 
 void bta_sys_rm_register(tBTA_SYS_CONN_CBACK* p_cback) {
     bta_sys_cb.prm_cb = p_cback;

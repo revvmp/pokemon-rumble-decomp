@@ -1,5 +1,5 @@
-#include <RVL_SDK/cnt.h>
-#include <RVL_SDK/esp/esp.h>
+#include <revolution/cnt.h>
+#include <revolution/esp/esp.h>
 
 extern void MEMFreeToAllocator(void* pAllocator, void* pBlock);
 extern int DVDClose(CNTFileInfo* pFileInfo);

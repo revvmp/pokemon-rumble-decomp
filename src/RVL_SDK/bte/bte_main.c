@@ -1,4 +1,4 @@
-#include "RVL_SDK/bte/transport.h"
+#include "revolution/bte/transport.h"
 #include "revolution/types.h"
 
 typedef struct OSAlarm OSAlarm;
