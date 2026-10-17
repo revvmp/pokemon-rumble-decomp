@@ -216,6 +216,24 @@ RVL_SDK/ax/AXAux.c:
 	.bss        start:0x804594A0 end:0x8045C620
 	.sbss       start:0x804B9850 end:0x804B9898
 
+RVL_SDK/ax/AXCL.c:
+	.text       start:0x802DB290 end:0x802DBD68
+	.bss        start:0x8045C620 end:0x8045C720
+	.sbss       start:0x804B9898 end:0x804B98BC
+
+RVL_SDK/ax/AXOut.c:
+	.text       start:0x802DBD70 end:0x802DC5A8
+	.bss        start:0x8045C720 end:0x8045D520
+	.sbss       start:0x804B98C0 end:0x804B98FC
+
+RVL_SDK/ax/AXSPB.c:
+	.text       start:0x802DC5B0 end:0x802DC9DC
+	.bss        start:0x8045D520 end:0x8045D598
+	.sbss       start:0x804B9900 end:0x804B9950
+
+RVL_SDK/ax/AXVPB.c:
+	.text       start:0x802DC9E0 end:0x802DD2A0
+
 RVL_SDK/axfx/AXFXReverbStdExp.c:
 	.text       start:0x802DF190 end:0x802DFEC0
 	.data       start:0x803DB780 end:0x803DB810
