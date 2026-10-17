@@ -816,6 +816,11 @@ nw4r/snd/snd_SoundArchive.cpp:
 nw4r/snd/snd_SoundArchiveFile.cpp:
 	.text       start:0x80284200 end:0x80285400
 
+nw4r/snd/snd_Voice.cpp:
+	.text       start:0x8028DBB0 end:0x80290414
+	.data       start:0x803C6880 end:0x803C68B8
+	.sdata2     start:0x804BB028 end:0x804BB05C
+
 nw4r/ut/ut_list.cpp:
 	.text       start:0x80292D00 end:0x80292F5C
 
