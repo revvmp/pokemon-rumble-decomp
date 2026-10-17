@@ -1,12 +1,15 @@
-# F-807-1: interfaces required by Pane and Group
+# F-807-1: interfaces required by Pane, Group, and Window
 
 ## Scope and provenance
 
-Issue #807 owns `lyt_pane.cpp` and `lyt_group.cpp`. Their existing canonical
+Issue #807 owns `lyt_pane.cpp` and `lyt_group.cpp`; issue #810 owns
+`lyt_window.cpp`. Their existing canonical
 headers describe the complete Pane and Group layouts. This prerequisite adds
 the complete storage layouts and required virtual interfaces of their external
 dependencies: DrawInfo (#808), Layout (#809), Material (#811), and animation
-types (#812). It takes no source bodies, source splits, or object registration
+types (#812). Window additionally needs the Material texture-count accessor,
+GetTextureSize declaration, allocator construction templates, and resource
+block declarations. It takes no source bodies, source splits, or object registration
 from those issues. It contributes no reconstructed executable bytes.
 
 Declarations were checked against the CC0 Xenoblade reference at
@@ -15,7 +18,7 @@ Declarations were checked against the CC0 Xenoblade reference at
 `57a709b2128eb163a18e2969d561c9abb7d1fcee`, under `include/nw4r/lyt`.
 The Skyward Sword animation Bind signatures retain the disable argument, as
 the target requires. The Xenoblade signatures omit it and cannot be copied
-unchanged. Only interfaces needed by the owned source are declared; omitted
+unchanged. Only interfaces needed by the owned sources are declared; omitted
 nonvirtual methods can be added by their source owners.
 
 ## Target evidence
@@ -46,6 +49,39 @@ entry point, and explicit frozen verification, all exit 0, with a clean tree.
 The prerequisite branch must also pass those checks after rebasing onto the
 latest main, as recorded in its pull request.
 
+## Window prerequisite and Size return convention
+
+The target Window constructor at `0x802A96E0` passes the resource block and
+ResBlockSet to Material construction. The latter is four pointers, at offsets
+0, 4, 8, and C: texture list, font list, material list, and accessor. MaterialList
+is C bytes with the material count at offset 8. The new canonical resource
+header also records Pane (4C), Group (1C), ExtUserDataList (C), and ExtUserData
+(C), required by the Pane and Group source. Window's own resources remain
+with its source issue. Pane's missing SetExtUserDataList virtual belongs at
+slot 70, before LoadMtx at 74; this ordering is also required by Window's
+native virtual dispatches.
+
+The Size copy constructor is an ABI requirement, not merely a convenience.
+Native GetTextureSize at `0x802AEAC0` consumes a hidden result pointer in r3,
+Material in r4, and texture index in r5. Without an explicit copy constructor,
+Wii/1.1 returns the eight-byte Size in registers and introduces extra stores
+in the Window drawing routines. Adding the reference copy constructor makes
+DrawSelf, DrawFrame, DrawFrame4, and DrawFrame8 reproduce all native
+non-relocation words and exact sizes (472, 1552, 1844, and 3624 bytes).
+All 18 functions in the #810 inventory then match their native instruction
+streams and sizes. Linked relocation and whole-artifact proof remains the
+source pull request's separate acceptance gate.
+
+The expanded header baseline was committed head `e4910aca`, rebased onto
+main `49eaab74`. Configure, full default Ninja, and explicit frozen verifier
+each exited 0 before and after the change. SHA-256 comparisons covered all
+451 existing source objects: 450 were byte-identical. The sole difference,
+lyt_common.o, was reproduced from the captured baseline and inspected by ELF
+section: text, data, relocations, symbol table, section names, and compiler
+metadata were identical. Only four digits in two compiler-generated local
+constant names in the string table changed. Its owned-section objdiff
+comparison remained 100%, and the full immutable DOL still verified.
+
 ## Traps
 
 - Including Layout's allocator header before `lyt_common.h` exposes the SDK
@@ -59,3 +95,6 @@ latest main, as recorded in its pull request.
 - Two four-byte survey functions at `0x802A4FD0` and `0x802A5000` are trailing
   return instructions of the preceding color-element switches, not independent
   source routines. Their ownership and byte coverage remain in Pane.
+- A trivially copyable Size silently selects a different aggregate return
+  convention. Preserve the evidenced explicit copy constructor before
+  diagnosing Window drawing differences as source arithmetic or flags.

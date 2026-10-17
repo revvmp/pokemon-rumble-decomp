@@ -64,6 +64,8 @@ struct Size {
     Size() : width(0.0f), height(0.0f) {}
     Size(f32 w, f32 h) : width(w), height(h) {}
 
+    Size(const Size& rSize) : width(rSize.width), height(rSize.height) {}
+
     f32 width;
     f32 height;
 };

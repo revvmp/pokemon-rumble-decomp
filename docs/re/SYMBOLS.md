@@ -2199,3 +2199,4 @@ For `wpse-v1` / `main.dol`, [F-383-1](findings/383-ef-free-line-point-strategies
 | Type | Size | Evidence |
 | --- | --- | --- |
 | NW4R lyt AnimationLink / AnimTransform / AnimResource / Material / DrawInfo | 0x10 / 0x14 / 0x10 / 0x5C / 0x54 bytes | Complete shared storage and native virtual-slot evidence; [F-807-1](findings/807-layout-interfaces.md). |
+| NW4R lyt Size / ResBlockSet / res::MaterialList | 8 / 0x10 / 0xC bytes | Explicit Size copy constructor preserves the native hidden-result-pointer ABI; resource-block pointer order and material count at offset 8 are proven by Window construction; [F-807-1](findings/807-layout-interfaces.md#window-prerequisite-and-size-return-convention). |

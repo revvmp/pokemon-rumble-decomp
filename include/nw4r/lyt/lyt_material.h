@@ -48,6 +48,7 @@ public:
                                     bool enable);
 
 
+    u8 GetTextureNum() const { return mGXMemNum.texMap; }
     const char* GetName() const { return mName; }
     bool IsUserAllocated() const { return mbUserAllocated; }
 protected:
@@ -67,6 +68,9 @@ protected:
 
 
 };
+namespace detail {
+Size GetTextureSize(Material* pMaterial, u8 index);
+}
 }
 }
 #endif
