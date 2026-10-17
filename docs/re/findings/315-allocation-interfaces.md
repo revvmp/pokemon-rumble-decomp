@@ -33,6 +33,12 @@ The complete baseline contains 517 source objects. All preserve allocated sectio
 
 The complete ELF header, section headers, non-NOBITS payloads and symbol attributes remain unchanged except 35 numeric local-symbol spellings in strtab. NOBITS sections have no file payload. This is not a claim that the entire ELF file has the same hash. Whole main.dol is byte-identical to the control and frozen original, SHA-256 ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da.
 
+## Rebased complete baseline
+
+A fresh control/proposed build on actual base `ea4ffb474229f4c66f35b85f42af48631c1de1b1` contains 532 source objects. Explicit `all_source`, plain default Ninja, and the actual-directory frozen verifier all exit zero for both configurations. All 532 preserve allocated payloads, flags, alignment, raw relocations and normalized symbol attributes; 521 whole files are identical and eleven differ only in numeric local-symbol spellings. The complete linked ELF header/section metadata and all other payloads agree, with the same 35 numeric symbol-name changes. The entire DOL is byte-identical. The canonical operator consumer again proves four bodies/320 instruction bytes, every target, all 132 exception bytes and both indices.
+
+`C:/MassStorage/GitHub/315-latest-header-gate.py`, its log and JSON record this repeat in `build-315-header-latest`. Shared origin/main advanced while the gate ran; the actual base is the verified branch parent. The original header bytes on the later shared ref were independently confirmed identical. Future reproduction records the parent directly rather than a mutable shared ref. This checkpoint does not waive the fresh-main ancestry guard before merge.
+
 ## Reproduction
 
 Diagnostic source and tools remain outside the checkout:
