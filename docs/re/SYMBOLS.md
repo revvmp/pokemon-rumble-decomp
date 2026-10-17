@@ -2410,3 +2410,8 @@ The ten `pfk_` function names at `0x8021DFE0` through `0x8021E3D0` are recovered
 ### FA standard chdir, issue 365
 
 [F-365-2](findings/365-fa-api.md#f-365-2-standard-chdir-wrapper) records original map-supported `pf2_chdir` at `0x8021A5D0`, 80 bytes. The separately owned `PFDIR_chdir` callee at `0x80205980` gains only its evidenced name and one-argument PF_STR pointer declaration; original size/type/split/source coverage are preserved. The native five relocations, actual source-selected unit and entire DOL are exact. No shared record layout changes.
+## F-367-1: Standard FA wrappers
+
+The complete 25-function mapping, original file boundaries and target extents are recorded in [F-367-1](findings/367-fa-standard-wrappers.md). Original names have high confidence from the separate FA symbols and splits in pinned CC0 Wii IPL, corroborated by native lower-callee traces and exact source comparison. All 25 functions contribute 1,608 code bytes, with 75 paired relocations and no allocated data.
+
+`PFWAPI_ParseOpenModeString` at `0x8021B7D0` is the wide parser in its own `pf_w_api_util.c` unit. `pf2_setupfsi` at `0x8021B5C0` forwards public `u32` flags to the lower `u16` parameter, reproducing the explicit native truncation. `PF_CLUSTER` and `PF_TAIL_BUF` are only forwarded opaque C pointers; no storage layout or size is inferred here. Existing canonical volume, file, directory and cache layouts are unchanged.
