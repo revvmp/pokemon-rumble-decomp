@@ -4,7 +4,7 @@ Issue #518 owns 22 functions and 4,456 code bytes at `0x8031D914`-`0x8031EA7C`. 
 
 | File | Owned functions / bytes | Delivery |
 | --- | --- | --- |
-| `btm_devctl.c` | 9 / 1,540 | Pending [PR #702](https://github.com/revvmp/pokemon-rumble-decomp/pull/702), complete controller file owned by #517 |
+| `btm_devctl.c` | 9 / 1,540 | Combined [PR #702](https://github.com/revvmp/pokemon-rumble-decomp/pull/702), complete controller file owned by #517 |
 | `btm_discovery.c` | 3 / 308 | Merged [PR #699](https://github.com/revvmp/pokemon-rumble-decomp/pull/699), commit `baa65d206631b7b869a6632ddfc826d9ead767bf` |
 | `btm_inq.c` | 10 / 2,608 | Merged [PR #698](https://github.com/revvmp/pokemon-rumble-decomp/pull/698), commit `ea37468eba51483c2e13d57ade20ffefb27822d1` |
 
@@ -41,7 +41,7 @@ These are nine controller functions, three discovery functions, and ten inquiry 
 
 ## Acceptance status
 
-The audit branch includes pending PR #702 and the two merged deliveries. After rebasing onto the refreshed controller delivery, `python configure.py --no-progress --build-dir build/518-audit-refresh-1`, `.venv/Scripts/ninja all_source`, `.venv/Scripts/ninja`, all three complete original/source objdiff comparisons, the 22-function / 4,456-byte original inventory audit, and `python tools/verify/verify.py verify --manifest config/targets/wpse-v1.json --reference-dir orig/wpse-v1 --build-dir build/518-audit-refresh-1/wpse-v1` each exit 0. Every compared code/data section is 100%. The actual source-selected DOL matches frozen SHA-256 `ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da`. Final exact-head verification is repeated after dependency #702 merges to main. Scope is the main game executable only, excluding boot content 6, data contents, and WAD packaging. Exact head and commands are recorded in the pull request before merge. Local verification is the merge gate under the updated take-issue procedure.
+PR #702 combines the complete device/controller source and this original-issue acceptance audit with the two earlier merged deliveries. After rebasing onto the refreshed controller delivery, `python configure.py --no-progress --build-dir build/518-audit-refresh-1`, `.venv/Scripts/ninja all_source`, `.venv/Scripts/ninja`, all three complete original/source objdiff comparisons, the 22-function / 4,456-byte original inventory audit, and `python tools/verify/verify.py verify --manifest config/targets/wpse-v1.json --reference-dir orig/wpse-v1 --build-dir build/518-audit-refresh-1/wpse-v1` each exit 0. Every compared code/data section is 100%. The actual source-selected DOL matches frozen SHA-256 `ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da`. The combined PR repeats both original inventories and complete source-linked frozen verification at its final committed head after rebasing onto main. Scope is the main game executable only, excluding boot content 6, data contents, and WAD packaging. Exact head and commands are recorded in the pull request before merge. Local verification is the merge gate under the updated take-issue procedure.
 
 ## Traps
 
