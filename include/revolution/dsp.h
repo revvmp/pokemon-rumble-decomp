@@ -11,9 +11,9 @@ extern "C" {
 typedef void (*DSPCallback)(void*);
 
 typedef struct DSPTaskStruct {
-    u32 state;
+    vu32 state;
     volatile u32 priority;
-    u32 flags;
+    vu32 flags;
     u16* iram_mmem_addr;
     u32 iram_length;
     u32 iram_addr;

@@ -275,6 +275,39 @@ RVL_SDK/mem/mem_heapCommon.c:
 RVL_SDK/mem/mem_expHeap.c:
 	.text       start:0x802E1010 end:0x802E18F0
 
+RVL_SDK/mem/mem_frameHeap.c:
+	.text       start:0x802E18F0 end:0x802E1B70
+
+RVL_SDK/mem/mem_allocator.c:
+	.text       start:0x802E1B70 end:0x802E1BD0
+	.sdata2     start:0x804BB4E8 end:0x804BB4F0
+
+RVL_SDK/mem/mem_list.c:
+	.text       start:0x802E1BD0 end:0x802E1CF0
+
+RVL_SDK/cx/CXStreamingUncompression.c:
+	.text       start:0x802E1CF0 end:0x802E2100
+
+RVL_SDK/cx/CXUncompression.c:
+	.text       start:0x802E2100 end:0x802E23F0
+
+RVL_SDK/cx/CXSecureUncompression.c:
+	.text       start:0x802E23F0 end:0x802E3AE0
+
+RVL_SDK/dsp/dsp.c:
+	.text       start:0x802E3AE0 end:0x802E3D40
+	.data       start:0x803DC210 end:0x803DC290
+	.sdata      start:0x804B8BE8 end:0x804B8BEC
+	.sbss       start:0x804B9988 end:0x804B998C
+
+RVL_SDK/dsp/dsp_debug.c:
+	.text       start:0x802E3D40 end:0x802E3D90
+
+RVL_SDK/dsp/dsp_task.c:
+	.text       start:0x802E3D90 end:0x802E4628
+	.data       start:0x803DC290 end:0x803DC3D0
+	.sbss       start:0x804B9990 end:0x804B99A8
+
 RVL_SDK/nand/nand.c:
 	.text       start:0x802E4630 end:0x802E5BC0
 	.sdata      start:0x804B8BF0 end:0x804B8BF8
