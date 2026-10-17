@@ -6,10 +6,8 @@
 #include <MetroTRK/ppc/Generic/targimpl.h>
 #include <MetroTRK/Os/dolphin/targcont.h>
 #include <MetroTRK/Os/dolphin/target_options.h>
+#include <MetroTRK/Os/dolphin/dolphin_trk.h>
 #include <revolution/os/OSError.h>
-
-void __TRK_reset(void);
-void __TRK_copy_vectors(void);
 
 static BOOL IsTRKConnected;
 static u32 g_CurrentSequence;
