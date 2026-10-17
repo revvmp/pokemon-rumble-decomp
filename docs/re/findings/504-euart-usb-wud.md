@@ -1,5 +1,7 @@
 # Issue 504: EUART, USB and WUD
 
+Current complete issue acceptance is recorded in [F-504-17](504-complete-inventory.md). The checkpoints below preserve the earlier staged reconstruction evidence.
+
 ## F-504-1: EUART unit and source-linked identity
 
 Target `wpse-v1`, frozen executable manifest `config/targets/wpse-v1.json`. The block begins with thirteen KPAD functions reconstructed in #710 under #503's ownership of KPAD.c. The next translation unit is `RVL_SDK/euart/euart.c`.
@@ -77,7 +79,7 @@ The two groups of otherwise unreferenced messages are represented by ordinary co
 
 This produces a 0x82F-byte source data pool identical to the original pool's first 0x82F bytes. The remaining target byte is zero alignment padding supplied by the link. The prior 0x830-byte coarse label conflated 66 actual compiler string objects; objdiff annotated folded references against that entire object and reported argument mismatches despite identical instruction words. Each literal is now recorded separately in symbols.txt using its compiler-produced correspondence name, exact observed address, size and four-byte alignment. Every initializer was compared with the original before recording it. These names are reconstruction compiler labels, not recovered original names. The original bytes and frozen hashes are unchanged.
 
-The corrected initialized-data range is `.sdata` `0x804B8E78`â€“`0x804B8E88`. It includes the six-byte `USB: ` prefix at `0x804B8E80` and its alignment padding. The following five-byte ` %s\n` format at `0x804B8E88` belongs to WUD: original WUD functions at `0x8030ABC0`, `0x8030B9E0` and `0x8030C700` reference it. It remains outside the USB split. The unused reference's `GetStr\n` object must strip rather than being mistaken for that next unit's format string.
+The corrected initialized-data range is `.sdata` `0x804B8E78` through `0x804B8E88`. It includes the six-byte `USB: ` prefix at `0x804B8E80` and its alignment padding. The following five-byte ` %s\n` format at `0x804B8E88` belongs to WUD: original WUD functions at `0x8030ABC0`, `0x8030B9E0` and `0x8030C700` reference it. It remains outside the USB split. The unused reference's `GetStr\n` object must strip rather than being mistaken for that next unit's format string.
 
 The full USB unit is selected as `Matching`, so no original USB object is linked. EUART remains `Matching`; together these units contribute 6,236 source-linked function bytes. Other original-object dependencies, particularly WUD and the separate KPAD prerequisite branch, remain explicit. Issue #504 is still incomplete until its WUD functions and the KPAD prerequisite are accepted. Verification still covers the main game executable only.
 

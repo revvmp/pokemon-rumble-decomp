@@ -15,7 +15,7 @@ Target `wpse-v1`, frozen executable manifest `config/targets/wpse-v1.json`. WUD.
 
 The small-BSS range begins at its first word, `0x804B9B28`. The preceding four bytes after the USB unit are alignment padding; including them in WUD's range provoked dtk's eight-byte alignment warning. The corrected range removes the warning, and the full split-only build and frozen DOL verification pass before source registration.
 
-All 86 retained native functions, totaling 25,028 bytes, reproduce every instruction and relocation at their original extents with Wii/1.0 and unchanged `cflags_sdk`. [F-504-16](504-wud-importer-match.md) records complete normal source selection, exact linked DOL identity, initialized data and storage acceptance.
+All 86 retained native functions, totaling 25,028 bytes, reproduce every instruction and relocation at their original extents with Wii/1.0 and unchanged `cflags_sdk`. [F-504-16](504-wud-importer-match.md) records complete normal source selection, exact linked DOL identity, initialized data and storage acceptance. [F-504-17](504-complete-inventory.md) accepts the complete original #504 inventory: all 40 functions / 16,488 bytes, including the thirteen KPAD prerequisite functions from merged #784.
 
 | Function | Address | Bytes |
 | --- | --- | --- |
@@ -162,8 +162,8 @@ After rebasing onto #720, a fresh `build/504-source-header-refresh-1/wpse-v1` al
 
 ## Issue acceptance and merge prerequisites
 
-- WUD source matching is complete. Full #504 acceptance also requires the thirteen KPAD functions supplied by #710; #720 has already merged.
-- Audit all forty original #504 functions in their actual source-selected units after the KPAD prerequisite, then run the latest-main configure/Ninja/frozen-verification merge loop.
+- WUD source matching and all forty original #504 functions are accepted in [F-504-17](504-complete-inventory.md), including the thirteen KPAD functions supplied by merged prerequisite #784; #720 has already merged.
+- The complete original-inventory, raw-native and source-selection audits pass after the KPAD prerequisite. The latest-main configure/Ninja/frozen-verification loop gates the final merge.
 - Neighboring #505, #506 and #507 retain their own complete inventories and acceptance audits; source-byte credit is counted once per unit.
 
 ## Provenance

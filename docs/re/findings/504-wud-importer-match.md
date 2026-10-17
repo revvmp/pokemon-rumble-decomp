@@ -16,7 +16,7 @@ After header prerequisite #720 merged, a fresh normal build selects WUD as `Matc
 
 The raw instruction, relocation and initialized-data audit passes for the newly compiled WUD object. All 367 pre-existing `all_source` output objects remain byte-identical to the verified header-prerequisite baseline. This baseline is captured from Ninja's actual source targets rather than a recursive count of possibly stale files. Frozen acceptance compares all 4,094,880 DOL bytes and the sealed reference digest without normalization.
 
-This WUD unit acceptance does not by itself complete #504. The original issue also includes thirteen KPAD functions supplied by #710; final issue inventory and latest-main verification follow that prerequisite. Neighboring #505-#507 acceptance audits add no duplicate unit-byte credit.
+The complete issue acceptance is now recorded in [F-504-17](504-complete-inventory.md): KPAD source prerequisite #784 supplies the thirteen KPAD functions, and all 40 original issue functions pass the fresh source-selection, native and resolved full-DOL audits. The earlier #710 draft was superseded by #784. Neighboring #505 through #507 acceptance audits add no duplicate unit-byte credit.
 
 ## Rejected approaches
 
