@@ -1240,6 +1240,21 @@ nw4r/lyt/lyt_window.cpp:
 	.sbss       start:0x804B9428 end:0x804B942C
 	.sdata2     start:0x804BB1A8 end:0x804BB1C0
 
+nw4r/lyt/lyt_bounding.cpp:
+	.text       start:0x802ABC80 end:0x802ABD4C
+	.ctors      start:0x80352A94 end:0x80352A98
+	.data       start:0x803C7130 end:0x803C71A8
+	.sbss       start:0x804B9430 end:0x804B9434
+
+nw4r/lyt/lyt_texMap.cpp:
+	.text       start:0x802AEB30 end:0x802AF000
+	.sdata2     start:0x804BB1E0 end:0x804BB1F4
+
+nw4r/lyt/lyt_drawInfo.cpp:
+	.text       start:0x802AF000 end:0x802AF0C0
+	.data       start:0x803C7218 end:0x803C7224
+	.sdata2     start:0x804BB1F8 end:0x804BB200
+
 nw4r/lyt/lyt_animation.cpp:
 	.text       start:0x802AF0C0 end:0x802B0674
 	.data       start:0x803C7228 end:0x803C724C

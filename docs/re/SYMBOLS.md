@@ -2225,6 +2225,15 @@ For `wpse-v1` / `main.dol`, [F-383-1](findings/383-ef-free-line-point-strategies
 | TextureFlipInfo / flipInfos | 10 bytes / `0x803C7060–0x803C709C` | Six texture-coordinate/index records, native bytes and draw accesses agree with pinned reference. Reference spelling retained; target does not establish helper/enum spelling independently. |
 | NW4R ut Color constructor / destructor | `0x8006CDE0` / `0x8005C9A0` | Exact canonical-header non-relocation bodies and sizes12/64; evidenced outside names only, no split/size/type edits or source credit. |
 
+## NW4R Bounding, TexMap, and DrawInfo (#808)
+
+| Type or symbol | Size or native range | Evidence and confidence |
+| --- | --- | --- |
+| Bounding | 0xD8 bytes / `0x802ABC80–0x802ABD4C` | Complete Pane-derived class with five native functions, vtable78 at803C7130, runtime type4 at804B9430, ctor entry80352A94. High confidence; [F-808-1](findings/808-layout-units.md). |
+| TexMap | 0x1C bytes / `0x802AEB30–0x802AF000` | Image/palette pointers0/4, dimensions8/A, min/maxLOD C/10, bias14, palette count16, packed flags18 including one-bit magFilter. Six native functions and all sections100%; high confidence. |
+| DrawInfo vtable | `0x803C7218–0x803C7224` | Twelve-byte table; constructor802AF000 and destructor802AF080 agree with complete canonical54-byte layout. The next four bytes are alignment padding. |
+| TextBox border metadata | Colors120/124, width128, enabled mask0x10 in byte0x101 | Native border-width and border-color string lookups identify the fields. A GDLObj at12C and buffer pointer13C prove the larger target class; other cache fields remain under investigation. |
+
 ## NW4R g3d ScnObj and ScnRoot (#782)
 
 For `wpse-v1` / `main.dol`, [F-782-1](findings/782-g3d-scnobj-scnroot.md) names the 75 functions in `.text` `0x80267D40`–`0x8026AF9C` with their mangled CodeWarrior names in `config/wpse-v1/symbols.txt`. It corrects `SetPriorityDrawXlu` (`0x80268270`) and `ScnObj::GetTypeName` and `GetTypeObj` (`0x80269590`, `0x802695C0`), and merges `SetBoundingVolume` (`0x80268300`, 0x84) with the former `fn_80268380`. Newly named: `ScnObj::SetMtx`, `GetValueForSortOpa` and `Xlu`, `EnableScnObjCallbackTiming`, `EnableScnObjCallbackExecOp`, `ScnRoot::Construct`, `G3dProc`, `GetCamera`, `SetCurrentCamera`, `GetLightSet`, `SetGlbSettings` and the `ScnObjGather` constructor. Data: `TYPE_NAME` of `ScnObj`, `ScnLeaf`, `ScnGroup` and `ScnRoot` (`.rodata` `0x8036C960`–`0x8036C990`), vtables of `ScnGroup` (`0x803C5F20`), `ScnObj` (`0x803C5F60`, 0x34), `ScnObjGather` (`0x803C5F98`, 0x2C) and `ScnRoot` (`0x803C5FC8`), and `gpCullingFrustum` (`.sbss` `0x804B9318`). Outside: `Fog::Fog(FogData *)` (`0x80270A90`), `Fog::Init` (`0x80270AA0`) and `Fog::SetFogRangeAdjParam` (`0x80270B70`). Confidence: high, from CC0 zeldaret/ss, the call sites and the exact match.
