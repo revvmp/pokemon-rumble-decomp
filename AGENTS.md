@@ -74,6 +74,8 @@ Keep entries concise and actionable. Distinguish confirmed findings from hypothe
 - **Replacing a unit can remove its trailing alignment padding.** GXTev scored 100% but its source object omitted twelve trailing padding bytes; the next fallback unit began early at four-byte alignment. Preserve the observed next entry alignment (`GXSetFog`, 16 bytes) in symbols before accepting the link. See [F-479-2](docs/re/findings/479-gx.md).
 - **BTE units can need a GameCube compiler.** Every Wii compiler, even with `-func_align 4`, scheduled loads and stores differently in 9 of 21 `bta_dm_act.c` functions; GC/3.0a3, 3.0a5 and 3.0a5.2 with `cflags_sdk` match all 21, and `-ipa file` is needed to inline later-defined statics. Sweep GC compilers for each BTE unit; see [F-512-2](docs/re/findings/512-bta-dm-act.md#f-512-2-bta_dm_actc-needs-a-gamecube-compiler).
 
+- **Packed 4-byte function starts inside the RVL_SDK range mean another compiler.** NdevExi2A (`0x8033EEB4`-`0x8033F974`) matches only GameCube GC/3.0a3 to 3.0a5, not Wii/1.0. Check function alignment before assuming F-0007's per-region compiler. See [F-535-2](docs/re/findings/535-gdtexture-ndevexi2a.md#f-535-2-ndevexi2a-is-built-with-a-gamecube-compiler).
+
 ## Current project state
 
 | Current state | Value |

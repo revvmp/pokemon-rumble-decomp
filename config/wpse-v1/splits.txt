@@ -100,6 +100,19 @@ RVL_SDK/bte/bta_dm_act.c:
 	.bss        start:0x804AA968 end:0x804AA998
 	.sdata2     start:0x804BB5F8 end:0x804BB600
 
+RVL_SDK/gd/GDTexture.c:
+	.text       start:0x8033E540 end:0x8033EEB4
+	.sdata      start:0x804B8F48 end:0x804B8F80
+	.sdata2     start:0x804BB640 end:0x804BB648
+
+RVL_SDK/NdevExi2A/DebuggerDriver.c:
+	.text       start:0x8033EEB4 end:0x8033F1E8
+	.sdata      start:0x804B8F80 end:0x804B8F88
+	.sbss       start:0x804B9BA0 end:0x804B9BB8
+
+RVL_SDK/NdevExi2A/exi2.c:
+	.text       start:0x8033F1E8 end:0x8033F974
+
 Runtime/__init_cpp_exceptions.cpp:
 	.text       start:0x80340B24 end:0x80340B94
 	.ctors      start:0x803529C0 end:0x803529C4 rename:.ctors$10
