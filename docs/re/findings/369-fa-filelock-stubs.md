@@ -59,6 +59,7 @@ The full configure, plain Ninja and explicit frozen verifier gate remains pendin
 
 ## Traps
 
+- A body that ignores a register cannot establish its public arity. Actual callers at `0x80210430` and `0x80210480` explicitly pass `NULL` and the file handle, respectively, as a second owner argument to `PF_LockFile`. Its target contract is `s32 PF_LockFile(PF_FILE* p_file, PF_FILE* p_owner)` even though the body never reads the second parameter. The related VF one-argument header is another revision. Recompiling the ordinary two-argument source preserves all 352 file-lock bytes and independently resolved relocations. Native `PF_UnLockFile` callers at `0x8021053C`, `0x80210CCC` and `0x80210D10` supply only the file handle. The bounded native caller audit is `369-filelock-callers.py`; no tracked lock-function prototype or body preceded this correction.
 - Target asynchronous wrapper additions change the standard-stub sequence relative to the pinned FA map. A size-order import would incorrectly name `0x8021CFB0`, which submits command 0 from a supplied command record. Map each command through the actual dispatcher to the narrow callee and verify its public argument contract before assigning an original name.
 - The related VF lock record lacks this target's embedded semaphore. Preserve target `PF_SFD` size `0x29C` and all surrounding offsets; native kernel storage calls, rather than a matching pointer value, establish the semaphore type.
 
