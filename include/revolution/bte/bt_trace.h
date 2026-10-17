@@ -140,6 +140,16 @@ void LogMsg_6(UINT32 trace_set_mask, const char* fmt_str, UINT32 p1, UINT32 p2, 
         if (rfc_cb.trace_level >= BT_TRACE_LEVEL_EVENT)                                                                \
             BT_TRACE_2(TRACE_LAYER_RFCOMM, TRACE_TYPE_EVENT, m, p1, p2);                                               \
     }
+#define RFCOMM_TRACE_EVENT3(m, p1, p2, p3)                                                                             \
+    {                                                                                                                  \
+        if (rfc_cb.trace_level >= BT_TRACE_LEVEL_EVENT)                                                                \
+            BT_TRACE_3(TRACE_LAYER_RFCOMM, TRACE_TYPE_EVENT, m, p1, p2, p3);                                           \
+    }
+#define RFCOMM_TRACE_EVENT4(m, p1, p2, p3, p4)                                                                         \
+    {                                                                                                                  \
+        if (rfc_cb.trace_level >= BT_TRACE_LEVEL_EVENT)                                                                \
+            BT_TRACE_4(TRACE_LAYER_RFCOMM, TRACE_TYPE_EVENT, m, p1, p2, p3, p4);                                       \
+    }
 #define RFCOMM_TRACE_DEBUG0(m)                                                                                         \
     {                                                                                                                  \
         if (rfc_cb.trace_level >= BT_TRACE_LEVEL_DEBUG)                                                                \

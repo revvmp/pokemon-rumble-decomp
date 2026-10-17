@@ -34,6 +34,11 @@ enum {
 };
 
 enum {
+    LINE_STATUS_OVERRUN = 1 << 1,
+    LINE_STATUS_FAILED = 1 << 4
+};
+
+enum {
     RFC_MX_STATE_IDLE = 0,
     RFC_MX_STATE_WAIT_CONN_CNF = 1,
     RFC_MX_STATE_CONFIGURE = 2,
