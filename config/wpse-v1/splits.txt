@@ -141,7 +141,7 @@ RVL_SDK/gx/GXPixel.c:
 	.sdata2     start:0x804BB388 end:0x804BB3D8
 
 RVL_SDK/gx/GXDisplayList.c:
-	.text       start:0x802D09E0 end:0x802D0A60
+	.text       start:0x802D09E0 end:0x802D0A54
 
 RVL_SDK/dvd/dvdqueue.c:
 	.text       start:0x802D66A0 end:0x802D6920
