@@ -833,6 +833,13 @@ nw4r/snd/snd_Util.cpp:
 	.sdata      start:0x804B89F0 end:0x804B89F4
 	.sdata2     start:0x804BB060 end:0x804BB090
 
+nw4r/snd/snd_WsdFile.cpp:
+	.text       start:0x80291820 end:0x80291BE4
+	.sdata2     start:0x804BB090 end:0x804BB094
+
+nw4r/snd/snd_adpcm.cpp:
+	.text       start:0x80292C68 end:0x80292CF4
+
 nw4r/ut/ut_list.cpp:
 	.text       start:0x80292D00 end:0x80292F5C
 

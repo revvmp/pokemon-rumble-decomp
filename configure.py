@@ -468,6 +468,8 @@ config.libs = [
             Object(Matching, "nw4r/snd/snd_RemoteSpeakerManager.cpp"),
             Object(Matching, "nw4r/snd/snd_SeqFile.cpp"),
             Object(Matching, "nw4r/snd/snd_SeqPlayer.cpp"),
+            Object(Matching, "nw4r/snd/snd_WsdFile.cpp"),
+            Object(Matching, "nw4r/snd/snd_adpcm.cpp", extra_cflags=["-func_align 4"]),
             Object(Matching, "nw4r/snd/snd_Voice.cpp"),
             Object(Matching, "nw4r/snd/snd_VoiceManager.cpp"),
             Object(Matching, "nw4r/snd/snd_Util.cpp"),
