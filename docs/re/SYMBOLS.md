@@ -2249,3 +2249,39 @@ For `wpse-v1` / `main.dol`, [F-792-1](findings/792-g3d-calcmaterial-init-fog.md)
 ## Issue #795 sequence sound interface evidence
 
 The canonical SeqSound layout is 0x4B4 bytes: BasicSound 0x110, embedded SeqPlayer at +0x110 (0x164 bytes), temporary handle +0x274, manager +0x278, sequence offset +0x27C, start type +0x280, start offset +0x284, volatile loading/prepared bools +0x288/+0x289, file stream +0x28C, 0x200-byte buffer +0x290, and 0x24-byte SeqLoadTask +0x490. Task is 0x10, TaskManager 0x3C, SoundInstanceManager<SeqSound> 0x28, and SeqFileReader 8 bytes. Original reference names and native method accesses support these declarations; the constructor store order remains unaccepted. See [F-795-1](findings/795-seqsound-interfaces.md).
+
+## Issue #803 sound Voice
+
+[F-803-2](findings/803-snd-voice.md) establishes the complete Voice unit at 0x8028DBB0-0x80290414, including CalcMixParam at 0x8028F730, native size 0xB88. The local nine-entry pan-curve jump table starts at 0x803C6880, followed by the 0x14-byte Voice vtable at 0x803C68A4. Thirteen consumed four-byte constants occupy 0x804BB028-0x804BB05C; numeric local names are correspondence labels only. The last float ends at 0x804BB05C, leaving following alignment padding separate. Target Setup uses SRC_4TAP_AUTO (5), direct ADPCM channel fields and 0x34 channel stride. F-803-1/F-804-1 document the full class and shared-field layout evidence.
+
+## Issue #804 sound Util
+
+[F-804-2](findings/804-snd-util.md) records the complete eight-function unit from CalcPitchRatio at `0x80290BC0` through GetDataRefAddressImpl ending `0x80291094`, including seven #443 functions. The eight editable reference lookup arrays occupy `0x8036E178`-`0x803705F8`, with original/reference table names; SinCos is one 0x404-byte array despite the survey interior label. The three-element pan table is at `0x803C68B8`, native size12, and CalcRandom local unsigned-long state is at `0x804B89F0`, native size4. The twelve floating literals occupy `0x804BB060`-`0x804BB090`; numeric compiler-local labels are reconstruction correspondence labels, with no semantic-original-name claim. Typed original SDA operands and referenced values establish their mapping; complete source-selected artifact identity confirms resolved operands.
+
+## Issue #804 VoiceManager
+
+[F-804-3](findings/804-voice-manager.md) records eleven retained methods at `0x80290420`-`0x80290BB4`. The local manager is 0x1C bytes at `0x8045248C`, preceded by the compiler's 12-byte destructor-chain node at `0x80452480`; the native one-byte initialization guard is at `0x804B93A8`. The typed original address operands establish these destinations. Numeric `@1233` is a compiler correspondence label. Canonical Voice size 0x104, node offset 0xFC and the explicit GetRequiredMemSize(int) parameter are evidenced in F-804-1. All original #804 entries are covered by VoiceManager and CalcPitchRatio from the complete Util unit.
+
+## Issue #443 wave archive reader
+
+The existing canonical `nw4r::snd::detail::WaveArchiveReader` stores its table-block pointer at offset 0 and data-block pointer at offset 4. Its constructor at `0x802910A0` occupies `0x74` bytes; `GetWaveFile(int) const` at `0x80291120` occupies `0x88` bytes. The complete split ends at `0x802911A8`. Names, types and bounds semantics agree with pinned CC0 zeldaret/ss source and the exact native/link evidence in [F-443-2](findings/443-wave-readers.md). No layout changes or outside symbol extents are introduced.
+
+## Issue #443 wave file reader
+
+The existing canonical `WaveFileReader` stores its wave-info pointer at offset 0. Its file-header constructor at `0x802911B0` occupies `0x20` bytes, wave-info constructor at `0x802911D0` occupies `0x8`, ReadWaveInfo at `0x802911E0` occupies `0x1CC`, and const GetWaveDataAddress at `0x802913B0` occupies `0x64`. The latter replaces the survey placeholder with the original reference name; the complete split ends at `0x80291414`. WaveInfo channel parameters have the existing 52-byte stride, including 40-byte ADPCM parameters and 6-byte loop parameters. [F-443-3](findings/443-wave-readers.md) records the target accesses, per-unit compiler setting, native and final-link evidence. No outside extents or layouts change.
+
+## Issue #443 WaveSound
+
+[F-443-4](findings/443-wave-sound.md) records the 0x234-byte WaveSound class: BasicSound base, WsdPlayer at 0x110, temporary special handle at 0x228, manager at 0x22C, prepared flag at 0x230. Its 0x38-byte vtable starts at 0x803C68C8; RuntimeTypeInfo is four bytes at 0x804B93B0, initialized through the ctor entry at 0x80352A68. The first retained WsdPlayer destructor remains at 0x80291490. SoundInstanceManager has MemoryPool/list/mutex fields, size 0x28, with priority node offset 0xF0 from the existing BasicSound layout.
+
+## Issue #444 WsdFile and ADPCM
+
+For `wpse-v1` / `main.dol`, [F-444-1](findings/444-snd-wave-player.md) names `WsdFileReader` constructor (`0x80291820`), `ReadWaveSoundInfo` (`0x802918B0`), `ReadWaveSoundNoteInfo` (`0x802919D0`), and `ReadWaveInfo` (`0x80291AF0`). Its three pointers occupy offsets 0, 4 and 8, size 12. `WaveSoundInfo` is 12 bytes; `WaveSoundNoteInfo` is 20 bytes, including hold at offset 5 and pitch at offset 16. `WsdFile::NoteInfo` is 48 bytes with hold at 8; `WsdFile::WsdInfo` is 32 bytes. `WsdFileDefaultPitch` is the four-byte `1.0f` constant at `0x804BB090`; the former eight-byte survey extent included padding. The decoder `DecodeDspAdpcm` at `0x80292C68` retains its original AXPBADPCM interface and uses an int coefficient index. Confidence high from pinned CC0 references and source-selected exact link verification.
+
+## Issue #444 WsdPlayer
+
+[F-444-3](findings/444-wsd-player.md) establishes the complete 0x118-byte WsdPlayer layout, DisposeCallback vptr at 0xB4, SoundThread::PlayerCallback vptr at 0xC0, active flags at 0xCC, LfoParam at 0xF8 and Channel pointer at 0x114. The original 0x60-byte vtable at 0x803C6900 disambiguates the six adjustment thunks and repeated tiny methods. The weak WsdPlayer destructor remains at 0x80291490 in the preceding #443 WaveSound split. Constants occupy 0x804BB098-0x804BB0C0, preserving target addresses and exact bytes.
+
+## Issue #444 WaveSoundHandle
+
+[F-444-4](findings/444-wave-handle.md) establishes the four-byte handle with WaveSound pointer at offset zero and DetachSound at 0x802917E0, native size 0x38. This unit ends at 0x80291818, before following alignment padding; its unused constructor strips normally. Combined source checkpoint supplies 52 functions / 6,900 native bytes across the seven reader/player/sound/handle/decoder units, with separate original-inventory accounting.

@@ -816,6 +816,50 @@ nw4r/snd/snd_SoundArchive.cpp:
 nw4r/snd/snd_SoundArchiveFile.cpp:
 	.text       start:0x80284200 end:0x80285400
 
+nw4r/snd/snd_Voice.cpp:
+	.text       start:0x8028DBB0 end:0x80290414
+	.data       start:0x803C6880 end:0x803C68B8
+	.sdata2     start:0x804BB028 end:0x804BB05C
+
+nw4r/snd/snd_VoiceManager.cpp:
+	.text       start:0x80290420 end:0x80290BB4
+	.bss        start:0x80452480 end:0x804524A8
+	.sbss       start:0x804B93A8 end:0x804B93AC
+
+nw4r/snd/snd_Util.cpp:
+	.text       start:0x80290BC0 end:0x80291094
+	.rodata     start:0x8036E178 end:0x803705F8
+	.data       start:0x803C68B8 end:0x803C68C4
+	.sdata      start:0x804B89F0 end:0x804B89F4
+	.sdata2     start:0x804BB060 end:0x804BB090
+
+nw4r/snd/snd_WaveArchive.cpp:
+	.text       start:0x802910A0 end:0x802911A8
+
+nw4r/snd/snd_WaveFile.cpp:
+	.text       start:0x802911B0 end:0x80291414
+
+nw4r/snd/snd_WaveSound.cpp:
+	.text       start:0x80291420 end:0x802917DC
+	.ctors      start:0x80352A68 end:0x80352A6C
+	.data       start:0x803C68C8 end:0x803C6900
+	.sbss       start:0x804B93B0 end:0x804B93B4
+
+nw4r/snd/snd_WaveSoundHandle.cpp:
+	.text       start:0x802917E0 end:0x80291818
+
+nw4r/snd/snd_WsdFile.cpp:
+	.text       start:0x80291820 end:0x80291BE4
+	.sdata2     start:0x804BB090 end:0x804BB094
+
+nw4r/snd/snd_WsdPlayer.cpp:
+	.text       start:0x80291BF0 end:0x80292C68
+	.data       start:0x803C6900 end:0x803C6960
+	.sdata2     start:0x804BB098 end:0x804BB0C0
+
+nw4r/snd/snd_adpcm.cpp:
+	.text       start:0x80292C68 end:0x80292CF4
+
 nw4r/ut/ut_list.cpp:
 	.text       start:0x80292D00 end:0x80292F5C
 
