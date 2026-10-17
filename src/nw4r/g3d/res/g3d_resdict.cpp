@@ -1,0 +1,111 @@
+#include <nw4r/g3d/res/g3d_resdict.h>
+
+#include <string.h>
+
+namespace nw4r {
+namespace g3d {
+
+ResDicNodeData* ResDic::Get(const ResName name) const {
+    u32 len = name.GetLength();
+    const char* pName = name.GetName();
+    const ResDicData& r = ref();
+
+    const ResDicNodeData* c = &r.data[0];
+    const ResDicNodeData* x = &r.data[c->idxLeft];
+
+    while (c->ref > x->ref) {
+        c = x;
+
+        u32 wd = x->ref >> 3;
+        u32 pos = x->ref & 7;
+
+        if (wd < len && (pName[wd] >> pos) & 1) {
+            x = &r.data[x->idxRight];
+        } else {
+            x = &r.data[x->idxLeft];
+        }
+    }
+
+    if (name == NW4R_G3D_OFS_TO_RESNAME(&r, x->ofsString)) {
+        return const_cast<ResDicNodeData*>(x);
+    }
+
+    return nullptr;
+}
+
+ResDicNodeData* ResDic::Get(const char* pName, u32 len) const {
+    const ResDicData& r = ref();
+
+    const ResDicNodeData* c = &r.data[0];
+    const ResDicNodeData* x = &r.data[c->idxLeft];
+
+    while (c->ref > x->ref) {
+        c = x;
+
+        u32 wd = x->ref >> 3;
+        u32 pos = x->ref & 7;
+
+        if (wd < len && (pName[wd] >> pos) & 1) {
+            x = &r.data[x->idxRight];
+        } else {
+            x = &r.data[x->idxLeft];
+        }
+    }
+
+    if (x->ofsString != 0 && strcmp(pName, ofs_to_ptr<char>(x->ofsString)) == 0) {
+        return const_cast<ResDicNodeData*>(x);
+    }
+
+    return nullptr;
+}
+
+void* ResDic::operator[](const char* pName) const {
+    if (IsValid() && pName != nullptr) {
+        ResDicNodeData* pNode = Get(pName, strlen(pName));
+
+        if (pNode != nullptr) {
+            return const_cast<void*>(ofs_to_ptr_raw<void>(pNode->ofsData));
+        }
+    }
+
+    return nullptr;
+}
+
+void* ResDic::Find(const char* pName, u32 len) const {
+    if (IsValid()) {
+        ResDicNodeData* pNode = Get(pName, len);
+
+        if (pNode != nullptr) {
+            return const_cast<void*>(ofs_to_ptr_raw<void>(pNode->ofsData));
+        }
+    }
+
+    return nullptr;
+}
+
+void* ResDic::operator[](const ResName name) const {
+    if (IsValid() && name.IsValid()) {
+        ResDicNodeData* pNode = Get(name);
+
+        if (pNode != nullptr) {
+            return const_cast<void*>(ofs_to_ptr_raw<void>(pNode->ofsData));
+        }
+    }
+
+    return nullptr;
+}
+
+s32 ResDic::GetIndex(const ResName name) const {
+    if (IsValid() && name.IsValid()) {
+        ResDicNodeData* pNode = Get(name);
+
+        if (pNode != nullptr) {
+            return pNode - (ref().data + 1);
+        }
+    }
+
+    return NOT_FOUND;
+}
+
+}
+}

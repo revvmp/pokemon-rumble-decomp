@@ -259,6 +259,17 @@ config.libs = [
         ],
     ),
     library(
+        "NW4R.g3d",
+        NW4R_COMPILER,
+        cflags_nw4r,
+        "nw4r",
+        [
+            Object(Matching, "nw4r/g3d/res/g3d_rescommon.cpp"),
+            Object(Matching, "nw4r/g3d/res/g3d_resdict.cpp"),
+            Object(Matching, "nw4r/g3d/res/g3d_resfile.cpp"),
+        ],
+    ),
+    library(
         "NW4R.lyt",
         NW4R_COMPILER,
         cflags_nw4r,
