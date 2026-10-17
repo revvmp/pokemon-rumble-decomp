@@ -12,6 +12,8 @@ A prior readable accessor-based candidate with declarations grouped at the start
 
 Twenty-seven scratch combinations of `u16`, `u32`, and `int` return types for the inline sheet-count, glyph-count and set-count accessors preserve the same minimum of 30 differences. Five scratch conversions of successive accessor-constructor assignments into ordinary member initializers also leave the minimum unchanged. These experiments do not establish different target types or a reason to change the canonical header. No probe header or source has been substituted into the repository.
 
+A separate 108-candidate scratch comparison varies only the local sheet count, glyph count, block count, adjustment size and remaining-size integer types in that same grouped-declaration candidate. It also reaches no fewer than 30 differing words. Combining the earlier grouped declarations with these local type changes therefore supplies no new acceptance evidence.
+
 All probes use the established Wii/1.1 compiler and existing NW4R flags, with repository headers and the generated include directory. The comparison excludes only actual relocation sites and retains local branch displacements. No instruction patch, forced register, assembly replacement, artificial source padding, or compiler-flag change is accepted.
 
 ## Remaining work
