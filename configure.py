@@ -444,6 +444,9 @@ config.libs = [
             Object(Matching, "nw4r/snd/snd_MemorySoundArchive.cpp"),
             Object(Matching, "nw4r/snd/snd_MidiSeqPlayer.cpp"),
             Object(Matching, "nw4r/snd/snd_MmlParser.cpp"),
+            Object(Matching, "nw4r/snd/snd_RemoteSpeakerManager.cpp"),
+            Object(Matching, "nw4r/snd/snd_SeqFile.cpp"),
+            Object(Matching, "nw4r/snd/snd_SeqPlayer.cpp"),
         ],
     ),
     library(
