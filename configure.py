@@ -166,6 +166,10 @@ config.libs = [
         [
             Object(Matching, "RVL_SDK/base/PPCArch.c"),
             Object(NonMatching, "RVL_SDK/os/OSAlarm.c"),
+            Object(Matching, "RVL_SDK/os/OSArena.c"),
+            Object(Matching, "RVL_SDK/os/OSAudioSystem.c"),
+            Object(Matching, "RVL_SDK/os/OSCache.c"),
+
             Object(NonMatching, "RVL_SDK/os/OSContext.c"),
             Object(Matching, "RVL_SDK/os/OSIpc.c"),
             Object(Matching, "RVL_SDK/exi/EXIUart.c"),
@@ -193,8 +197,8 @@ config.libs = [
             Object(NonMatching, "RVL_SDK/nand/nand.c"),
             Object(Matching, "RVL_SDK/enc/enclatin.c", cflags=cflags_base),
             Object(Matching, "RVL_SDK/arc/arc.c"),
-            Object(NonMatching, "RVL_SDK/esp/esp.c"),
-            Object(NonMatching, "RVL_SDK/ipc/ipcMain.c"),
+            Object(Matching, "RVL_SDK/esp/esp.c"),
+            Object(Matching, "RVL_SDK/ipc/ipcMain.c"),
             Object(Matching, "RVL_SDK/ipc/memory.c"),
             Object(Matching, "RVL_SDK/ipc/ipcProfile.c"),
             Object(NonMatching, "RVL_SDK/bte/bte_hcisu.c", cflags=cflags_base),
