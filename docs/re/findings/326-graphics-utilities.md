@@ -67,6 +67,8 @@ Repeating the identical source and flags with Wii/1.3 produces the same five exa
 
 The two 200-byte reset routines construct twenty-byte function-pointer control blocks: common state occupies the first twelve bytes, the owned pointer is at twelve and the deleter at sixteen. Their exception guard has an owned pointer at zero and a reference to the stack deleter at four. The guard destructors at `0x801C85A0` and `0x801C8610` call through that reference only while the owned pointer is nonnull. This is native evidence for an ordinary custom-deleter reset responsibility; the original private guard class name has not been recovered.
 
+A declaration-only extraction from the previously pinned MSL smart-pointer reference, blob `e57966d2bb1331d2b2b21137c9bc389e90c6c573`, confirms the public `template<class Y, class D> void shared_ptr<T>::reset(Y* p, D d)` interface. It also declares move_ptr custom-deleter families. These names do not prove the native private guard's identity, layout or implementation. Restricted implementation algorithms were not imported or used. The filtered extraction is reproducible with the external `326-smart-declarations.py` and its JSON output.
+
 Reproduction files are outside the repository at `C:/MassStorage/GitHub/326-graphics-probe.cpp`, `326-compile-graphics.py`, `326-audit-graphics.py` and `326-graphics-proof.json`. The compile driver must exit zero before the audit is run. Native inventory reading aids are in `326-initial-native.json` and `326-tail-native.json`.
 
 ## Traps
