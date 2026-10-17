@@ -1,15 +1,10 @@
 #include "revolution/os/OSMemory.h"
 #include "private/flipper.h"
 #include "revolution/os/OSAddress.h"
+#include "revolution/os/OSError.h"
 #include "revolution/os/OSCache.h"
 #include "revolution/os/OSInterrupt.h"
 #include "revolution/os/OSReset.h"
-
-typedef u16 OSError;
-typedef void (*OSErrorHandler)(OSError error, OSContext* context, ...);
-
-extern OSErrorHandler __OSErrorTable[];
-void __OSUnhandledException(__OSException exception, OSContext* context, u32 dsisr, u32 dar);
 
 #define OS_MEMORY_CONFIG_KEY 0xBA2CF
 
@@ -56,12 +51,12 @@ static void MEMIntrruptHandler(__OSInterrupt interrupt, OSContext* context) {
     addr = ((u32)(__MEMRegs[0x12] & 0x3FF) << 16) | __MEMRegs[0x11];
     __MEMRegs[0x10] = 0;
 
-    if (__OSErrorTable[__OS_EXCEPTION_MEMORY_PROTECTION]) {
-        __OSErrorTable[__OS_EXCEPTION_MEMORY_PROTECTION](__OS_EXCEPTION_MEMORY_PROTECTION, context, cause, addr);
+    if (__OSErrorTable[OS_ERROR_PROTECTION]) {
+        __OSErrorTable[OS_ERROR_PROTECTION](OS_ERROR_PROTECTION, context, cause, addr);
         return;
     }
 
-    __OSUnhandledException(__OS_EXCEPTION_MEMORY_PROTECTION, context, cause, addr);
+    __OSUnhandledException(OS_ERROR_PROTECTION, context, cause, addr);
 }
 
 static asm void ConfigMEM1_24MB(void) {
