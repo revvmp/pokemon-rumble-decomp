@@ -39,6 +39,16 @@ An original package retained solely as provenance may have its own manifest. Do 
 
 All binaries go in ignored `tools/local/`. Sources and digests are pinned in `config/toolchain.json`; check each digest after download.
 
+The acquisition script downloads every pinned tool, rejects any digest mismatch, extracts the archives, and checks the extracted Wii/1.1 compiler and linker digests. It skips files whose digests already match, and `--offline` only verifies what is present:
+
+```powershell
+python tools/setup/acquire_tools.py
+python -m venv .venv
+.venv/Scripts/python -m pip install ninja==1.13.0
+```
+
+The manual equivalent follows.
+
 ```powershell
 New-Item -ItemType Directory -Force tools/local
 curl.exe -sSfL -o tools/local/dtk.exe https://github.com/encounter/decomp-toolkit/releases/download/v1.8.4/dtk-windows-x86.exe
@@ -78,3 +88,17 @@ python tools/verify/verify.py --help
 python tools/verify/verify.py fingerprint --help
 python tools/verify/verify.py verify --help
 ```
+
+## Continuous integration
+
+`.github/workflows/build.yml` runs on every push to `main`, every pull request, and on demand. On a fresh Windows runner it does the following, with no caching so stale outputs cannot hide failures:
+
+1. Acquires the pinned tools with `tools/setup/acquire_tools.py`, failing on any digest mismatch.
+2. Installs ninja 1.13.0, runs `python configure.py` and `ninja`, and verifies `main.dol` against `config/targets/wpse-v1.json`. A build or verification failure fails the check.
+3. Warns, without failing, when the build rewrites a tracked file such as `config/wpse-v1/symbols.txt`. `.gitattributes` checks out dtk's config files with LF line endings, so a clean build does not rewrite them on Windows.
+4. Uploads `build/wpse-v1/report.json` and `verification.json` as the `reports` artifact.
+5. On `main` only, renders the progress images into the `progress-images` artifact and warns when `docs/images/` is stale. A maintainer commits the refreshed images.
+
+`orig/` is tracked in this private repository, so the runner checks out the originals directly. Never make the repository public while originals are tracked.
+
+To make the check required, a maintainer adds the `Build and verify main.dol` status check to a branch protection rule or ruleset for `main`. Private repositories need a paid GitHub plan for this.

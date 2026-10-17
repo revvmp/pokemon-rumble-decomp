@@ -1,0 +1,3 @@
+config/**/*.txt text eol=lf
+config/**/*.sha1 text eol=lf
+docs/images/*.svg text eol=lf

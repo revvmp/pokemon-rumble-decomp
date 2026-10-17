@@ -75,6 +75,7 @@ Maintainers regenerate progress images and update the shared summaries after mer
 A pull request is ready when all of these hold:
 
 - `python configure.py` and `ninja` succeed from a clean checkout of the branch.
+- The `Build and verify main.dol` check passes on the pull request ([continuous integration](SETUP.md#continuous-integration)).
 - `python tools/verify/verify.py verify --manifest config/targets/wpse-v1.json --reference-dir orig/wpse-v1 --build-dir build/wpse-v1` exits 0.
 - Every unit marked `Matching` shows 100% in objdiff, and the full DOL still verifies.
 - No comments, docstrings, unit tests, or raw decompiler output were added.
