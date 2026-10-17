@@ -12,6 +12,8 @@ The target's complete `TRKBuffer` is `0x88C` bytes: in-use flag at zero, length 
 
 The twelve typed command handlers follow the original protocol values and dispatch jump table at `0x803E6270`; Versions and SupportMask are not retained target cases. The enum retains the reference's protocol command constants, without claiming every command has an implementation in this target. Error enum values and widths follow the canonical interface and exercised native branches. No speculative processor state is declared.
 
+The file-access trap interface uses the original full-width `u32` result, a message-command value, file handle, count pointer and byte-buffer pointer. Its paired call from the #544 file-I/O adapter and native result handling distinguish this result from a narrowed byte. The retained target trap at `0x8034D8F4` and original `ppc/Export/targsupp.h` provide its entry point and ABI; the trap implementation remains in the #541 source pull request.
+
 ## Traps
 
 - Dropping or adding the reference's unused mutex word changes the target ABI. Match the target's `0x88C` buffer stride and independent reset/position accesses before extending message APIs.
