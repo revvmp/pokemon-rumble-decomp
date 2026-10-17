@@ -1,10 +1,10 @@
 # F-778-1: G3D draw shared interfaces
 
-Issue #778 owns all thirteen retained functions in `g3d_draw.cpp`, from `0x80262880` through `0x80264720`, comprising 7,772 function bytes. The header prerequisite is combined with #774 in PR #816 by owner coordination. It adds the original draw replacement structure, public draw entry point, model draw-mode enum and MSL sorting facilities. Main's existing workmem, light, GPU and resource headers are preserved unchanged.
+Issue #778 owns all thirteen retained functions in `g3d_draw.cpp`, from `0x80262880` through `0x80264720`, comprising 7,772 function bytes. The header prerequisite is combined with #774 in PR #816 by owner coordination. It adds the original draw replacement structure, public draw entry point and MSL sorting facilities. Main's existing workmem, scene-object, light, GPU and resource headers are preserved unchanged.
 
 ## Provenance and scope
 
-The source and headers derive from zeldaret/ss commit `787b0b1e9d30e3c1d91ced61350b059ffc5a2411`. The root license is CC0-1.0; each reused file was inspected and has no separate file-level notice. Comments were removed. The bounded `g3d_scnobj.h` currently declares only the original draw-mode enum consumed by the draw source. It does not import unproven scene-object classes or take their source splits.
+The source and headers derive from zeldaret/ss commit `787b0b1e9d30e3c1d91ced61350b059ffc5a2411`. The root license is CC0-1.0; each reused file was inspected and has no separate file-level notice. Comments were removed. External PR #846 supplied the complete canonical `g3d_scnobj.h` during final integration. Its original draw-mode enum is identical to the bounded proposal, so the add/add conflict was resolved by keeping main's complete header unchanged and dropping the duplicate enum-only file. This prerequisite takes no scene-object source splits.
 
 The MSL algorithm header retains the existing find/move/swap definitions and adds the original min_element, selection sort, sort132 and sort templates. The original never_inline attribute on sort132 reproduces the native retained helper. No existing definitions, flags, source registrations or frozen hashes change.
 
@@ -25,3 +25,5 @@ The scratch object's two shuffle statics match native `0x804B8978` and `0x804B89
 ## Traps
 
 The sorting templates emit six unreferenced integral constants into the scratch object after the three float constants. These are not additional native data allocations: final source selection must demonstrate linker removal rather than extending the native split over neighboring data. The source-selected acceptance will record the final retained data extent.
+
+The final header-only diff after that resolution adds three headers and two findings files. A fresh output directory is used for the final gate after the shared-header resolution, as required by the updated entry-wise merge-driver workflow.

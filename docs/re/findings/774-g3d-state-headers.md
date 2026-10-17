@@ -16,7 +16,7 @@ The canonical GPU inline helpers reproduce every retained instruction of the sta
 
 ## Validation
 
-Before and after the original four-header proposal, `python configure.py`, `.venv/Scripts/ninja`, and `python tools/verify/verify.py verify --manifest config/targets/wpse-v1.json --reference-dir orig/wpse-v1 --build-dir build/wpse-v1` all exited 0 on base `ad5aee5c`. All 408 existing source objects retained identical SHA-256 hashes. The final proposal retains main's light/GPU/workmem headers and adds two MSL headers, the bounded draw public header and draw-mode enum. The shared draw prerequisites were folded into the still-unmerged header PR by owner coordination. The merge gate repeats the full build and verifier from a fresh output directory after the add/add resolution.
+Before and after the original four-header proposal, `python configure.py`, `.venv/Scripts/ninja`, and `python tools/verify/verify.py verify --manifest config/targets/wpse-v1.json --reference-dir orig/wpse-v1 --build-dir build/wpse-v1` all exited 0 on base `ad5aee5c`. All 408 existing source objects retained identical SHA-256 hashes. The final proposal retains main's light/GPU/workmem headers and adds two MSL headers and the bounded draw public header, reusing main's complete scene-object header and its identical draw-mode enum. The shared draw prerequisites were folded into the still-unmerged header PR by owner coordination. The merge gate repeats the full build and verifier from a fresh output directory after the add/add resolution.
 
 ## Traps
 
