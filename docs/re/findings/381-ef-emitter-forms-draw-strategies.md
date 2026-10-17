@@ -24,3 +24,39 @@ The sources follow `src/nw4r/ef/` of CC0 `Etrainquandt17/Whippy` (commit `8ee40c
 ## Traps
 
 - **Inline nesting depth changes CodeWarrior loop optimization.** Two `FAbs` definitions that expand to the same `fabs`/`frsp` pair matched every small function but differed in one large loop nest by register allocation, one stack slot and four extra `fabs`. When a large function differs only by register numbering and invariant hoisting, compare the inline call structure of the helpers it uses with the reference, not just their expansions.
+
+# F-381-2: NW4R ef draw strategy builder and DrawStrategyImpl
+
+Two more units follow the emitter forms. Both are `Matching`: objdiff reports 100% for all 17 functions, and the source-linked `main.dol` passes `tools/verify/verify.py`.
+
+| Unit | Section | Range | Contents |
+| --- | --- | --- | --- |
+| `nw4r/ef/ef_drawstrategybuilder.cpp` | `.text` | `0x8023AC40–0x8023ADE0` | `DrawStrategyBuilder::Create` |
+| | `.data` | `0x803C5658–0x803C5668` | `DrawStrategyBuilder` vtable |
+| | `.bss` | `0x8042F2F8–0x8042F918` | seven function-local strategies, 0xE0 each |
+| | `.sbss` | `0x804B92E8–0x804B92F0` | their guard bytes and padding |
+| `nw4r/ef/ef_drawstrategyimpl.cpp` | `.text` | `0x8023ADE0–0x8023CDF8` | 16 functions, from the constructor to `__sinit_\ef_drawstrategyimpl_cpp` |
+| | `.ctors` | `0x80352A48–0x80352A4C` | static initializer entry |
+| | `.data` | `0x803C5668–0x803C5680` | `DrawStrategyImpl` vtable |
+| | `.bss` | `0x8042F918–0x8042F978` | `mXUnitVec`, `mYUnitVec`, `mZUnitVec`, `mZeroVec`, `mIdentityMtx` |
+| | `.sdata2` | `0x804BA958–0x804BA984` | constants |
+
+dtk rejected an `.sbss` end at the last guard byte (`0x804B92EF`) for alignment, so the builder split ends at `0x804B92F0`. dtk had merged `mXUnitVec` and `mYUnitVec` into one 0x18-byte symbol; they are now two 0xC symbols. `lbl_804BA980` is now 4 bytes so the `.sdata2` split can end at the last constant. The billboard strategy (`ef_drawbillboardstrategy.cpp`) starts at `0x8023CE00`.
+
+## Reference
+
+The sources follow Whippy `src/nw4r/ef/ef_drawstrategybuilder.cpp` and `ef_drawstrategyimpl.cpp`. `_InitTexture` and `_SetupACmp` are inlined into their callers; the linker removes the out-of-line copies. Differences from the Whippy source, each confirmed by the target:
+
+- `GXSetFog` takes the colour last. The target passes the four floats in `f1`–`f4` and the colour through a stack pointer in `r4`, matching the project's RVL_SDK prototype `GXSetFog(GXFogType, f32, f32, f32, f32, GXColor)`. `DrawInfo::GetFog` is inlined.
+- `GXSetZMode` takes `(flags & FLAG) != 0` for both flags. The reference's `? TRUE : FALSE` form computes the third argument before the first.
+- `AheadContext::AheadContext` ignores the result of `MTX34Inv`. The reference falls back to `MTX34Identity`, which the target lacks.
+- `GXInitTexObjCI` takes a `GXCITexFmt` in the project's SDK header.
+- `Particle::Draw_GetTextureScaleT` and `Draw_GetTextureTransT` test the reverse flags as `reverse >= TEX_REVERSE_T && reverse <= TEX_REVERSE_ST` and negate with `-scale`, as in the Whippy header. The S variants keep the two-comparison form. The particle units still match.
+
+## Headers
+
+New headers `drawstrategy/ef_drawstrategyimpl.h` (from Whippy without comments) and one header per strategy class. The vtables at `0x803C5680–0x803C5760` fix each strategy's virtual layout: destructor, `Draw`, the two inherited particle-order getters, and `GetCalcAheadFunc` for the billboard, directional, stripe and smooth-stripe strategies. Unlike the Whippy header, `DrawSmoothStripeStrategy` does not override the particle-order getters. Shared-header additions are declarations only: `GXGetVtxDesc` and `GXGetVtxAttrFmt` in `GXGet.h`, and the vertex writers `GXNormal3u8`, `GXNormal3u16`, `GXColor3u8`, `GXTexCoord2s8`, the five `GXTexCoord1` forms, `GXPosition1x16`, `GXNormal1x16`, `GXTexCoord1x16`, `GXColor1x8` and `GXColor1x16` in `GXVert.h`. `EmitterDrawSetting::DirType` gains `DIR_7`, which `AheadContext` treats like `DIR_NO_DESIGN`; the reference name is kept because no behavior distinguishes it yet (low confidence).
+
+## Traps
+
+- **A boolean argument form can reorder argument evaluation.** `cond ? TRUE : FALSE` and `cond != 0` produce the same two instructions, but CodeWarrior schedules the ternary arguments in a different order. When only two independent argument computations are swapped before a call, try the comparison form.
