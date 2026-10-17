@@ -43,14 +43,17 @@ void C_MTXCopy(const Mtx, Mtx);
 void C_MTXOrtho(Mtx44, f32, f32, f32, f32, f32, f32);
 void C_MTXPerspective(Mtx44, f32, f32, f32, f32);
 void C_MTXFrustum(Mtx44, f32, f32, f32, f32, f32, f32);
+void C_MTXLookAt(Mtx, const Vec*, const Vec*, const Vec*);
 
 void PSMTXIdentity(Mtx);
 void PSMTXCopy(const Mtx, Mtx);
 void PSMTXConcat(const Mtx, const Mtx, Mtx);
+void PSMTXConcatArray(const Mtx, const Mtx*, Mtx*, u32);
 void PSMTXMultVecSR(const Mtx, const Vec*, Vec*);
 void PSMTXMultVecArraySR(const Mtx, const Vec*, Vec*, u32);
 
 u32 PSMTXInverse(const Mtx, Mtx);
+u32 PSMTXInvXpose(const Mtx, Mtx);
 
 void PSMTXMultVec(const Mtx, const Vec*, Vec*);
 void PSMTXMultVecArray(const Mtx, const Vec*, Vec*, u32);
@@ -84,6 +87,7 @@ f32 PSVECMag(const Vec*);
 f32 PSVECDotProduct(const Vec*, const Vec*);
 void PSVECCrossProduct(const Vec*, const Vec*, Vec*);
 f32 PSVECDistance(const Vec*, const Vec*);
+f32 PSVECSquareDistance(const Vec*, const Vec*);
 
 void C_MTXLightPerspective(Mtx m, f32 fovY, f32 aspect, f32 scaleS, f32 scaleT, f32 transS, f32 transT);
 void C_MTXLightOrtho(Mtx m, f32 t, f32 b, f32 l, f32 r, f32 scaleS, f32 scaleT, f32 transS, f32 transT);
