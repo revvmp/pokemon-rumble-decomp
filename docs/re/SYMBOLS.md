@@ -2042,8 +2042,6 @@ For `wpse-v1` / `main.dol`, [F-394-1](findings/394-g3d-resanmscn-transform.md) n
 
 ### MetroTRK transport and event interfaces (#542)
 
-[F-542-1](findings/542-transport-headers.md) records the complete 0x28-byte communication table at `0x804B3A70` and 0x24-byte event queue at `0x804B3A98`. The queue has count, next index, two 12-byte events and event ID at offsets 0, 4, 8 and 0x20; it has no leading mutex. UART initialization at `0x8034E808` takes three arguments, with the input-pending pointer reference in r5. The existing event type and all offsets remain unchanged. These declarations add no source-byte credit.
-
 ## MetroTRK Dolphin startup (#541, coordinated with #542)
 
 [F-541-7](findings/541-dolphin-completion.md) proves the complete source-selected unit and all 39 paired relocation targets. `InitMetroTRK` at 0x8034E2E8 has corrected extent 0x98, including its original trailing return; `InitMetroTRK_BBA` at 0x8034E380 has extent 0x94. Both are original SDK assembly. The C functions are `EnableMetroTRKInterrupts` at 0x8034E414/4, `TRKTargetTranslate` at 0x8034E418/0x68, `__TRK_copy_vectors` at 0x8034E480/0x134, `TRKInitializeTarget` at 0x8034E5B4/0x48 and `__TRK_reset` at 0x8034E5FC/0x10. Their names have high confidence from the complete pinned reference, native behavior, paired calls and exact final bytes. The ISR table at 0x803E62E0 is 0x3C bytes and `lc_base` at 0x804B9C08 is four bytes. The following padding belongs to neither object. Processor state layouts and reference-name qualifications are recorded separately in [F-541-6](findings/541-processor-state-layout.md).
