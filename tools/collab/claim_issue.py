@@ -10,6 +10,7 @@ from pathlib import Path
 
 CLAIM_PREFIX = "Claiming"
 RELEASE_PREFIX = "Releasing claim"
+BLOCKED_LABEL = "blocked"
 CLAIM_EXPIRY = timedelta(days=14)
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SHARED_LINKS = (Path("tools") / "local", Path(".venv"))
@@ -77,7 +78,8 @@ def label_names(issue):
 
 
 def open_unassigned(labels):
-    search = ["issue", "list", "--state", "open", "--search", "no:assignee", "--limit", "500", "--json", "number,title,labels"]
+    query = "no:assignee" if BLOCKED_LABEL in labels else f"no:assignee -label:{BLOCKED_LABEL}"
+    search = ["issue", "list", "--state", "open", "--search", query, "--limit", "500", "--json", "number,title,labels"]
     for label in labels:
         search += ["--label", label]
     issues = json.loads(gh(*search))
@@ -120,6 +122,8 @@ def claim_command(args):
         return 0
     gh("issue", "edit", str(number), "--add-assignee", "@me")
     confirmed = fetch_issue(number)
+    if BLOCKED_LABEL in label_names(confirmed):
+        gh("issue", "edit", str(number), "--remove-label", BLOCKED_LABEL)
     if assignee_logins(confirmed) != [user]:
         gh("issue", "edit", str(number), "--remove-assignee", "@me")
         raise RuntimeError(f"Lost the claim race on #{number}: assignees are now {', '.join(assignee_logins(confirmed))}; unassigned self")
@@ -144,6 +148,8 @@ def release_command(args):
     if user not in assignee_logins(issue) and user not in active_claims(issue):
         raise ValueError(f"#{args.issue} is not claimed by {user}")
     gh("issue", "edit", str(args.issue), "--remove-assignee", "@me")
+    if args.blocked:
+        gh("issue", "edit", str(args.issue), "--add-label", BLOCKED_LABEL)
     reason = f" {args.reason}" if args.reason else ""
     gh("issue", "comment", str(args.issue), "--body", f"{RELEASE_PREFIX}.{reason}")
     print(f"Released #{args.issue}")
@@ -228,6 +234,7 @@ def main():
     release = commands.add_parser("release", help="Unassign yourself and post a release comment")
     release.add_argument("--issue", type=int, required=True)
     release.add_argument("--reason")
+    release.add_argument("--blocked", action="store_true", help=f"label the issue {BLOCKED_LABEL!r} so list and --next skip it until someone claims it by number")
     release.set_defaults(action=release_command)
     tree = commands.add_parser("worktree", help="Create ../rumble-<issue> with shared tool junctions")
     tree.add_argument("--issue", type=int, required=True)

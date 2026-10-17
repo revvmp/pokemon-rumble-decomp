@@ -11,7 +11,7 @@ Resolve the procedure's repository paths from the checkout root. Use the user's 
 
 Preserve every rule in the shared procedure:
 
-- claim exclusions
+- claim exclusions, and `release --blocked` when the remaining work lacks evidence or a reference
 - file ownership, including files that span several blocks
 - verification gates
 - attribution rules

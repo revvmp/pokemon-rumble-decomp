@@ -31,7 +31,7 @@ Use `tools/collab/claim_issue.py` rather than assigning by hand. It only takes o
 python tools/collab/claim_issue.py list --label "good first issue"
 python tools/collab/claim_issue.py claim --next --agent "<agent or person>"
 python tools/collab/claim_issue.py claim --issue <n> --agent "<agent or person>"
-python tools/collab/claim_issue.py release --issue <n> --reason "<why>"
+python tools/collab/claim_issue.py release --issue <n> --reason "<why>" [--blocked]
 ```
 
 Claiming rules:
