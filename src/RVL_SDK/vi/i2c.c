@@ -1,4 +1,4 @@
-#include "RVL_SDK/vi/i2c.h"
+#include "revolution/vi/i2c.h"
 
 static volatile u32 __i2c_ident_flag  = 1;
 static volatile u32 __i2c_ident_first = 0;
