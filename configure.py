@@ -487,6 +487,10 @@ config.libs = [
             Object(Matching, "RVL_SDK/bte/utl.c", mw_version="GC/3.0a3", cflags=cflags_sdk),
             Object(Matching, "RVL_SDK/bte/bta_dm_act.c", mw_version="GC/3.0a3", cflags=cflags_sdk),
             Object(NonMatching, "RVL_SDK/bte/bta_dm_api.c", cflags=[*cflags_base, "-func_align 4"]),
+            Object(Matching, "RVL_SDK/bte/bta_hh_act.c", mw_version=BTE_COMPILER, cflags=cflags_sdk),
+            Object(Matching, "RVL_SDK/bte/bta_hh_api.c", mw_version=BTE_COMPILER, cflags=cflags_sdk),
+            Object(Matching, "RVL_SDK/bte/bta_hh_main.c", mw_version=BTE_COMPILER, cflags=cflags_sdk),
+
             Object(Matching, "RVL_SDK/bte/btm_discovery.c", mw_version=BTE_COMPILER),
             Object(Matching, "RVL_SDK/bte/btm_inq.c", mw_version=BTE_COMPILER),
             Object(Matching, "RVL_SDK/bte/btm_main.c", mw_version=BTE_COMPILER),
