@@ -38,6 +38,14 @@ RVL_SDK/vi/i2c.c:
 	.sdata      start:0x804B8B00 end:0x804B8B08
 	.sbss       start:0x804B9678 end:0x804B9680
 
+RVL_SDK/gx/GXFrameBuf.c:
+	.text       start:0x802CD440 end:0x802CDEC0
+	.sdata2     start:0x804BB300 end:0x804BB310
+
+RVL_SDK/gx/GXLight.c:
+	.text       start:0x802CDEC0 end:0x802CE630
+	.sdata2     start:0x804BB310 end:0x804BB348
+
 RVL_SDK/ax/AX.c:
 	.text       start:0x802DA490 end:0x802DA500
 	.data       start:0x803D8530 end:0x803D8578
