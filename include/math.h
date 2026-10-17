@@ -34,6 +34,10 @@ static inline float cosf(float x) {
     return (float)cos(x);
 }
 
+static inline float tanf(float x) {
+    return (float)tan(x);
+}
+
 static inline float powf(float x, float y) {
     return (float)pow(x, y);
 }

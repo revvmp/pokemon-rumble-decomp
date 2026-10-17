@@ -7,8 +7,16 @@
 namespace nw4r {
 namespace ef {
 
+inline f64 FAbs(f64 x) {
+    return __fabs(x);
+}
+
 inline f32 FAbs(f32 x) {
-    return static_cast<f32>(__fabs(x));
+    return FAbs(static_cast<f64>(x));
+}
+
+template <typename T> inline T Max(T a, T b) {
+    return (a > b) ? a : b;
 }
 
 u16 UtlistToArray(const ut::List* pList, void** ppArray, int maxlen);

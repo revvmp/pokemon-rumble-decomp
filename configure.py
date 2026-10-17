@@ -320,6 +320,9 @@ config.libs = [
             Object(Matching, "nw4r/ef/ef_line.cpp"),
             Object(Matching, "nw4r/ef/ef_disc.cpp"),
             Object(Matching, "nw4r/ef/ef_sphere.cpp"),
+            Object(Matching, "nw4r/ef/ef_cylinder.cpp"),
+            Object(Matching, "nw4r/ef/ef_torus.cpp"),
+            Object(Matching, "nw4r/ef/ef_cube.cpp"),
         ],
     ),
     library(
