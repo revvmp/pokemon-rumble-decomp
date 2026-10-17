@@ -2387,3 +2387,5 @@ For `wpse-v1` / `main.dol`, [F-384-1](findings/384-ef-smooth-stripe-strategy.md#
 ## Issue #426: NW4R player heap
 
 `nw4r::snd::detail::PlayerHeap` is 32 bytes: virtual table 0, sound 4, player 8, heap start 12, heap end 16, allocation cursor 20, list node 24. Constructor stores, allocator arithmetic, disposal calls, and vtable `0x803C6598` establish this layout and the eight named functions; see [F-426-1](findings/426-snd-mml-playerheap-remote.md).
+
+`MmlSeqTrack` is `0xD0` bytes, with `SeqTrack` occupying `0xCC` and the parser pointer at `0xCC`. Its vtable at `0x803C6570` retains destructor `0x8027E060` and parser dispatch `0x8027E040`. Constructor `0x8027E000` calls the native sequence-track constructor at `0x80280FB0`; the destructor calls its counterpart at `0x80281050`. Complete interface evidence is in [F-426-2](findings/426-snd-shared-interfaces.md).
