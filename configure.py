@@ -387,6 +387,7 @@ config.libs = [
             Object(Matching, "nw4r/g3d/platform/g3d_gpu.cpp"),
             Object(Matching, "nw4r/g3d/platform/g3d_cpu.cpp"),
             Object(Matching, "nw4r/g3d/g3d_draw1mat1shp.cpp"),
+            Object(NonMatching, "nw4r/g3d/g3d_draw.cpp"),
             Object(Matching, "nw4r/g3d/g3d_calcview.cpp"),
         ],
     ),

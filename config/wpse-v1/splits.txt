@@ -556,6 +556,11 @@ nw4r/g3d/g3d_calcview.cpp:
 	.rodata     start:0x8036C898 end:0x8036C8B4
 	.sdata2     start:0x804BAC80 end:0x804BAC8C
 
+nw4r/g3d/g3d_draw.cpp:
+	.text       start:0x80262880 end:0x80264720
+	.sdata      start:0x804B8978 end:0x804B8980
+	.sdata2     start:0x804BAC98 end:0x804BACA4
+
 nw4r/snd/snd_AxManager.cpp:
 	.text       start:0x80271E10 end:0x80273650
 	.ctors      start:0x80352A50 end:0x80352A54
