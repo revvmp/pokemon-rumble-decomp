@@ -187,6 +187,7 @@ config.libs = [
             Object(NonMatching, "RVL_SDK/gx/GXPixel.c"),
             Object(NonMatching, "RVL_SDK/gx/GXDisplayList.c"),
             Object(NonMatching, "RVL_SDK/ax/AX.c"),
+            Object(NonMatching, "RVL_SDK/ax/AXAux.c"),
             Object(Matching, "RVL_SDK/axfx/AXFXReverbStdExp.c"),
             Object(Matching, "RVL_SDK/axfx/AXFXChorusExp.c"),
             Object(Matching, "RVL_SDK/axfx/AXFXLfoTable.c"),
