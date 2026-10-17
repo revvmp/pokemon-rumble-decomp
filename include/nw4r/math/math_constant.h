@@ -1,0 +1,19 @@
+#ifndef NW4R_MATH_CONSTANT_H
+#define NW4R_MATH_CONSTANT_H
+#include <nw4r/types_nw4r.h>
+
+#define NW4R_MATH_PI 3.141592653589793f
+
+#define NW4R_MATH_LN_2 0.69314718056f
+
+#define NW4R_MATH_INVSQRT3 0.577350258f
+
+#define NW4R_MATH_QNAN (-(0.0f / 0.0f))
+
+#define NW4R_MATH_FLT_MIN 1.175494350e-38f
+
+#define NW4R_MATH_FLT_MAX 3.402823466e+38f
+
+#define NW4R_MATH_FLT_EPSILON 1.192092895e-7f
+
+#endif

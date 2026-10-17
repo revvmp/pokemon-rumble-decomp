@@ -7,6 +7,8 @@ extern "C" {
 
 double pow(double x, double y);
 double acos(double x);
+double ceil(double x);
+double floor(double x);
 double asin(double x);
 double atan2(double y, double x);
 double fmod(double x, double y);
