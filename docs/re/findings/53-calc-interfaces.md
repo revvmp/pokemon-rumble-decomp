@@ -54,6 +54,12 @@ A fresh control/proposed build on `e70743b5fdbef570d06974387bfa4e40838e7d7d` con
 
 `53-check-icalc-latest.py`, `53-icalc-latest-baseline.log`, `53-icalc-latest-baseline.json`, and the latest control ELF/DOL reproduce this checkpoint in `build-53-icalc-latest`. The canonical-only consumer compiler takes `build-53-icalc-latest/wpse-v1/src/game/BController.o` as its explicit Ninja target. Its compiler exits zero before both independent audits repeat the complete 428 native instruction bytes and display RTTI/vtable target proof. The final committed-head repeat and ancestry guard remain separate merge requirements.
 
+## Accepted owner baseline on main 813a7c74
+
+The next rebase inherits main `813a7c745d081a82bf86e3ef76d7fbd54fc02e68` without metadata or header conflicts. The earlier e707 object hashes differ for nineteen inherited outputs and are not used as this base's preservation control. Instead, the accepted PR879 owner snapshot at `a70262465efb08731e782639dfbb20d1056ac232` supplies its complete declared 535-object control and linked artifacts. An independent empty git diff and byte-identical `git ls-tree -r -z` snapshot prove that owner's verified tree is exactly actual main 813a7c74, including images. Every saved object and artifact manifest hash is independently verified before reuse.
+
+Against that exact accepted control, all 535 proposed whole object files and the entire ELF/DOL are byte-identical. Configure, explicit all_source, plain default Ninja and the actual-directory frozen verifier all exit zero. The canonical-only consumer compiles zero before both instruction and RTTI/vtable audits repeat zero. `53-final-icalc-813.py` and its log reproduce this gate using the immutable owner snapshot copied under `315-reference/905-control-813a7c74`. This reuses an independently verified control without rebuilding it or inserting original/control bytes into the proposed build.
+
 ## Reproduction
 
 The following files are outside the checkout in C:/MassStorage/GitHub/53-reference:
