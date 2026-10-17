@@ -83,6 +83,8 @@ public:
     void AddAnimationLink(AnimationLink* pLink);
     math::VEC2 GetVtxPos() const;
     const char* GetName() const { return mName; }
+    Pane* GetParent() const { return mpParent; }
+    PaneList* GetChildList() { return &mChildList; }
     bool IsUserAllocated() const { return mbUserAllocated; }
     bool IsVisible() const { return (mFlag & 1) != 0; }
     void SetVisible(bool visible) {
