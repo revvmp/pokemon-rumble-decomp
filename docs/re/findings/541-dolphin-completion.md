@@ -36,6 +36,8 @@ This completes all 32 #541 functions: 2,644 C/C++ bytes plus 240 original SDK as
 
 The historical partial-work reports in F-541-1, F-541-2, F-541-3, and F-541-5 describe intermediate verified heads. This finding supersedes their remaining-work statements.
 
+The subsequent D-0014 map-name import is preserved throughout the refreshed tree. Three spelling exceptions retain the canonical interfaces from the complete matching MetroTRK reference and coordinated headers: `TRKSetBufferPosition` at `0x8034F99C`, `TRKDoConnect` at `0x80350080`, and the startup unit's `__TRK_reset` at `0x8034E5FC`, in place of map-inferred `TRK_SetBufferPosition`, `TRK_DoConnect`, and `__TRKreset`. The #544 owner approved retaining the two shared callee names. This is the matched-source exception permitted by D-0014; unrelated imported names, scopes, sizes, and types remain intact.
+
 ## Traps
 
 - A comparable compiler can match two functions while changing another in the same unit. Require a whole-unit instruction, relocation, data, and final-link proof before changing its compiler.
