@@ -13,7 +13,7 @@ Target `wpse-v1`, `orig/wpse-v1/main.dol` (manifest `config/targets/wpse-v1.json
 
 `.text` ends at the end of `set_text_ex`. The twelve bytes after it are padding before `lyt_animation.cpp` at `0x80186340`. `.rodata` and `.data` end where `lyt_animation.cpp` begins. The four bytes at `0x803E9BA4` are alignment padding before `sMutex`.
 
-The remaining 15 functions, `update_controller` (`0x80181380`) to `set_text_ex`, belong to #757, #758, #759 and #760. They are not reconstructed yet, so the unit stays `NonMatching`.
+The remaining 15 functions, `update_controller` (`0x80181380`) to `set_text_ex`, were subsequently reconstructed by #757, #758, #759 and #760. PR #900 links the complete unit as `Matching`. The independent [F-756-2 acceptance audit](756-complete-inventory-audit.md) verifies all 22 issue functions and the complete 37-function unit; the measurements below describe the original partial reconstruction.
 
 Reference: CC0 Kirby's Epic Yarn (`Swiftshine/key` `7f2a9ab9`, `src/hbm/homebutton/HBMBase.cpp`), the NAND build of the library. Its function order and member offsets match after the `mWpadInfo` change of F-291-3. This target differs from key as follows:
 
