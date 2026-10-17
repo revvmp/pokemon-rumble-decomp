@@ -12,7 +12,7 @@ extern void OSReport(const char* p_format, ...);
 extern volatile unsigned char bte_target_mode;
 
 void LogMsg(unsigned long trace_set_mask, const char* p_format, ...) {
-    static char bte_log_buffer[2000];
+    static char bte_log_buffer[2000] __attribute__((aligned(32)));
     BTEVaList args;
     __builtin_va_info(&args);
     vsprintf(bte_log_buffer, p_format, args);

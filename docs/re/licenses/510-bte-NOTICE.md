@@ -1,11 +1,12 @@
 # BTE source provenance for issue 510
 
-The reconstruction in `src/RVL_SDK/bte/bte_hcisu.c`, `bte_init.c`, `bte_logmsg.c`, and `include/RVL_SDK/bte/transport.h` adapts reference code and names from Petari commit `e0ab141914921726a595573dc48d3f13d0922efe`. Changes simplify dependencies, remove source comments, use explicit primitive types, and reconstruct the target variadic ABI. The source files are modified from the reference.
+The reconstruction in `src/RVL_SDK/bte/bte_hcisu.c`, `bte_init.c`, `bte_logmsg.c`, `bte_main.c`, and `include/RVL_SDK/bte/transport.h` adapts reference code and names from Petari commit `e0ab141914921726a595573dc48d3f13d0922efe`. Changes simplify dependencies, remove source comments, use explicit primitive types, and reconstruct the target variadic ABI. The source files are modified from the reference.
 
 Petari's root license is CC0 1.0; the BTE reference carries more specific notices. The following copyright and license notices apply to the referenced material:
 
 - `bte_init.c`: Copyright (C) 2000-2012 Broadcom Corporation.
 - `bte_logmsg.c`: Copyright (C) 2001-2012 Broadcom Corporation.
+- `bte_main.c`: Copyright (C) 2009-2012 Broadcom Corporation.
 - `hci.h`: Copyright (C) 2009-2012 Broadcom Corporation.
 - Includes changes by muff1n1634.
 
