@@ -15,7 +15,7 @@ Preserve every rule in the shared procedure:
 - file ownership, including files that span several blocks
 - verification gates
 - attribution rules
-- the merge loop: rebase onto `origin/main`, confirm `git status --porcelain` is empty, verify locally with `configure.py`, `ninja`, and `verify.py`, confirm `main` has not moved, check that the PR's check and `main`'s latest run have not failed, then merge with `--match-head-commit` set to the verified commit, without waiting for GitHub CI
+- the merge loop: rebase onto `origin/main`, confirm `git status --porcelain` is empty, verify locally with `configure.py`, `ninja`, and `verify.py`, confirm `main` has not moved, check that the PR's check and `main`'s latest run have not failed, then merge with `--match-head-commit` set to the verified commit, without waiting for GitHub CI; a run whose job was never started because of a GitHub billing or spending-limit annotation is not a failure
 - the rebase conflict rules: during a rebase, `--ours` is `main` and `--theirs` is your commit; keep both sides in shared files
 - union-merged tables: ledger files and `docs/re/SYMBOLS.md` merge automatically; check afterwards for duplicated or interleaved rows
 - shared headers: use and extend the Petari-derived RVL_SDK headers in `include/revolution/` and `include/private/` (D-0013); never add files under `include/RVL_SDK/`, which only forwards; on an add/add header conflict, keep `main`'s version and add only what you still need
