@@ -89,6 +89,8 @@ Keep entries concise and actionable. Distinguish confirmed findings from hypothe
 
 - **A whole `.bss` extent can include the next unit's padding.** Splitting `mem_heapCommon.c` `.bss` to the next symbol shifted `.sdata` by `-0x20` and failed verification at DOL header byte `0x7F`. End the split at the unit's last object and leave the padding to the following automatic object. See [F-488-1](docs/re/findings/488-axfx-mem-units.md#f-488-1-unit-boundaries-in-0x802df1900x802e18f0).
 
+- **A failed link leaves the old `main.dol` for verification.** `verify.py` printed `PASS` after `ninja` failed to link, because it checked the previous build's DOL. Check the `ninja` exit status first; linking a `Matching` unit also needs every callee renamed from `fn_` in `symbols.txt`. See [F-472-4](docs/re/findings/472-exi-si-db-units.md#f-472-4-verification-can-pass-on-a-stale-maindol).
+
 ## Current project state
 
 | Current state | Value |
