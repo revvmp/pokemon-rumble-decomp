@@ -122,6 +122,10 @@ private:
                                              const void* pBase);
 
 private:
+    static const f32 CALC_LPF_FREQ_INTERCEPT;
+    static const int CALC_LPF_FREQ_TABLE_SIZE = 24;
+    static const u16 CalcLpfFreqTable[CALC_LPF_FREQ_TABLE_SIZE];
+
     static const f32 NoteTable[SEMITONE_MAX];
     static const f32 PitchTable[MICROTONE_MAX];
 
