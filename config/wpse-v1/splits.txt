@@ -288,6 +288,11 @@ RVL_SDK/fa/pf_cache.c:
 RVL_SDK/fa/pf_cluster.c:
 	.text       start:0x80200010 end:0x80201200
 
+RVL_SDK/fa/pf_dir.c:
+	.text       start:0x80201200 end:0x80205CC8
+	.sdata      start:0x804B8858 end:0x804B8874
+	.sdata2     start:0x804BA5B8 end:0x804BA5C0
+
 nw4r/ef/ef_draworder.cpp:
 	.text       start:0x80225820 end:0x80225940
 	.data       start:0x803C52D0 end:0x803C52E8
