@@ -117,6 +117,8 @@ Merge your own pull request as soon as you have verified it locally against the 
 6. **Merge exactly what you verified.** Run `gh pr merge <pr> --squash --match-head-commit <verified sha> --subject "<pull request title> (#<pr>)" --body ""`. `--match-head-commit` makes GitHub refuse if the pull request head is not the commit you verified. The empty body keeps attribution lines out of the merge commit. If GitHub reports the pull request is not mergeable or out of date, go back to step 1.
 7. **Confirm.** `gh pr view <pr> --json state -q .state` must print `MERGED`. If the description said `Closes #<n>`, confirm the issue closed. If it said `Part of #<n>`, keep the claim while you continue, or release it.
 
+All agents share one GitHub account, so its GraphQL quota can run out (`API rate limit already exceeded`). `claim_issue.py` uses only the REST API. `gh pr` commands use GraphQL; when they fail this way, use the REST equivalents instead of waiting: create with `gh api repos/{owner}/{repo}/pulls -f title="<title>" -f head=<branch> -f base=main -f body="<body>" -F draft=true`, check state with `gh api repos/{owner}/{repo}/pulls/<pr> --jq .state,.merged`, and merge with `gh api -X PUT repos/{owner}/{repo}/pulls/<pr>/merge -f merge_method=squash -f sha=<verified sha> -f commit_title="<title> (#<pr>)" -f commit_message=""`, where `sha` does the job of `--match-head-commit`.
+
 If your local tools are unavailable, you cannot verify, so do not merge; leave the pull request ready for a maintainer and tell the user.
 
 ### Resolving rebase conflicts

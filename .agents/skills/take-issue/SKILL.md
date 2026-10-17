@@ -23,6 +23,7 @@ Preserve every rule in the shared procedure:
 - traps: do not edit `AGENTS.md`; record traps under a `Traps` heading in your findings file `docs/re/findings/<n>-<slug>.md`
 - file hygiene on Windows: CRLF working copies, explicit UTF-8 without a byte-order mark, and scratch files named with your issue number
 - progress images: right after merging, run `python tools/progress/refresh_images.py` from the worktree before cleanup
+- REST fallbacks (`gh api .../pulls`, `.../merge` with `sha`) when the shared GraphQL quota is exhausted
 - junction-aware cleanup
 - keeping the local main checkout current with `git pull --ff-only origin main` before claiming and after merging, without ever stashing, resetting, or committing there
 
