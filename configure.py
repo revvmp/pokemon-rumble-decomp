@@ -356,6 +356,7 @@ config.libs = [
         "nw4r",
         [
             Object(Matching, "nw4r/lyt/lyt_init.cpp"),
+            Object(Matching, "nw4r/lyt/lyt_common.cpp"),
         ],
     ),
     library(

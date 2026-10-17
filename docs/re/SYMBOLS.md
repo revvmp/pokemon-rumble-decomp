@@ -2067,3 +2067,6 @@ Freestyle/classic clamp bounds occupy `0x804B8E44`–`0x804B8E5B`. Train trigger
 ## Issue #515 HID-host reconstruction
 
 [F-515-1](findings/515-hid-host.md) records all 27 owned HID-host function names, exact addresses/sizes, the complete action/API/main unit boundaries, compiler evidence, and the 0x230-byte `bta_hh_cb` layout. It also identifies two #516 helpers in the same main file and the two preceding power callbacks delivered in PR #690. Every compared section of all three HID objects is 100%. New headers retain original SDK names and complete message/device/control-block layouts; callee names outside the block are established by exact call relocations without changing their sizes or splits.
+## F-462-3: NW4R layout utilities
+
+The thirteen functions in 0x802B0C30–0x802B1790 recover original nw4r::lyt::detail resource-name, header, TexCoordAry, vertex-format, alpha, and quad-drawing names. TexCoordAry is eight bytes (capacity0, size1, data pointer4); each four-vector coordinate set is32bytes. The native local coordinate array and guard occupy0x804524F0/32bytes and0x804B9438/1byte. The referenced Layout allocator at0x804B9410 is named without changing its outside-owned size/type/split. See [F-462-3](findings/462-lyt-common.md) for exact inventory and proof.
