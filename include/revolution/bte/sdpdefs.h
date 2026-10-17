@@ -2,6 +2,7 @@
 #define RVL_SDK_BTE_SDPDEFS_H
 
 enum {
+    ATTR_ID_BROWSE_GROUP_LIST = 0x0005,
     ATTR_ID_SERVICE_NAME = 0x100,
     ATTR_ID_SERVICE_DESCRIPTION = 0x101,
     ATTR_ID_PROVIDER_NAME = 0x102,
@@ -20,8 +21,17 @@ enum {
 };
 
 enum {
+    UINT_DESC_TYPE = 1,
     TEXT_STR_DESC_TYPE = 4,
     DATA_ELE_SEQ_DESC_TYPE = 6
+};
+
+enum {
+    UUID_SERVCLASS_PUBLIC_BROWSE_GROUP = 0x1002
+};
+
+enum {
+    DI_VENDOR_ID_SOURCE_BTSIG = 1
 };
 
 enum {

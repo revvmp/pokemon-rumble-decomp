@@ -3,7 +3,13 @@
 
 #include <revolution/bte/bt_types.h>
 
-typedef BOOLEAN tL2CA_COMPRESS_CB(BD_ADDR peer_addr, int, int, int, int, int, int, UINT8** p_mem_pool, UINT32* mem_pool_size);
+enum {
+    L2CAP_CONN_OK = 0
+};
+
+enum {
+    L2CAP_CFG_OK = 0
+};
 
 typedef struct {
     UINT8 mode;
@@ -31,7 +37,39 @@ typedef struct {
     UINT16 flags;
 } tL2CAP_CFG_INFO;
 
+typedef void tL2CA_CONNECT_IND_CB(BD_ADDR bd_addr, UINT16 lcid, UINT16 psm, UINT8 id);
+typedef void tL2CA_CONNECT_CFM_CB(UINT16 lcid, UINT16 result);
+typedef void tL2CA_CONNECT_PND_CB(UINT16 lcid);
+typedef void tL2CA_CONFIG_IND_CB(UINT16 lcid, tL2CAP_CFG_INFO* p_cfg);
+typedef void tL2CA_CONFIG_CFM_CB(UINT16 lcid, tL2CAP_CFG_INFO* p_cfg);
+typedef void tL2CA_DISCONNECT_IND_CB(UINT16 lcid, BOOLEAN is_conf_needed);
+typedef void tL2CA_DISCONNECT_CFM_CB(UINT16 lcid, UINT16 result);
+typedef void tL2CA_QOS_VIOLATION_IND_CB(BD_ADDR bd_addr);
+typedef void tL2CA_DATA_IND_CB(UINT16 lcid, BT_HDR* p_buf);
+typedef void tL2CA_CONGESTION_STATUS_CB(UINT16 lcid, BOOLEAN is_congested);
+
+typedef struct {
+    tL2CA_CONNECT_IND_CB* pL2CA_ConnectInd_Cb;
+    tL2CA_CONNECT_CFM_CB* pL2CA_ConnectCfm_Cb;
+    tL2CA_CONNECT_PND_CB* pL2CA_ConnectPnd_Cb;
+    tL2CA_CONFIG_IND_CB* pL2CA_ConfigInd_Cb;
+    tL2CA_CONFIG_CFM_CB* pL2CA_ConfigCfm_Cb;
+    tL2CA_DISCONNECT_IND_CB* pL2CA_DisconnectInd_Cb;
+    tL2CA_DISCONNECT_CFM_CB* pL2CA_DisconnectCfm_Cb;
+    tL2CA_QOS_VIOLATION_IND_CB* pL2CA_QoSViolationInd_Cb;
+    tL2CA_DATA_IND_CB* pL2CA_DataInd_Cb;
+    tL2CA_CONGESTION_STATUS_CB* pL2CA_CongestionStatus_Cb;
+} tL2CAP_APPL_INFO;
+
+typedef BOOLEAN tL2CA_COMPRESS_CB(BD_ADDR peer_addr, int, int, int, int, int, int, UINT8** p_mem_pool, UINT32* mem_pool_size);
+
 UINT16 L2CA_ConnectReq(UINT16 psm, BD_ADDR p_bd_addr);
+void L2CA_Deregister(UINT16 psm);
+BOOLEAN L2CA_ConnectRsp(BD_ADDR p_bd_addr, UINT8 id, UINT16 lcid, UINT16 result, UINT16 status);
+BOOLEAN L2CA_ConfigReq(UINT16 cid, tL2CAP_CFG_INFO* p_cfg);
+BOOLEAN L2CA_ConfigRsp(UINT16 cid, tL2CAP_CFG_INFO* p_cfg);
+BOOLEAN L2CA_DisconnectReq(UINT16 cid);
+BOOLEAN L2CA_DisconnectRsp(UINT16 cid);
 BOOLEAN L2CA_SetIdleTimeoutByBdAddr(BD_ADDR bd_addr, UINT16 timeout);
 void L2CA_RegisterCompression(tL2CA_COMPRESS_CB* p_cb, int);
 

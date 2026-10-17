@@ -64,6 +64,27 @@ typedef struct {
 BOOLEAN SDP_InitDiscoveryDb(tSDP_DISCOVERY_DB* p_db, UINT32 len, UINT16 num_uuid, tSDP_UUID* p_uuid_list, UINT16 num_attr,
                             UINT16* p_attr_list);
 BOOLEAN SDP_ServiceSearchRequest(UINT8* p_bd_addr, tSDP_DISCOVERY_DB* p_db, tSDP_DISC_CMPL_CB* p_cb);
+
+typedef struct t_sdp_di_record {
+    UINT16 vendor;
+    UINT16 vendor_id_source;
+    UINT16 product;
+    UINT16 version;
+    BOOLEAN primary_record;
+    char client_executable_url[SDP_MAX_ATTR_LEN];
+    char service_description[SDP_MAX_ATTR_LEN];
+    char documentation_url[SDP_MAX_ATTR_LEN];
+} tSDP_DI_RECORD;
+
+typedef struct t_sdp_di_get_record {
+    UINT16 spec_id;
+    tSDP_DI_RECORD rec;
+} tSDP_DI_GET_RECORD;
+
+tSDP_STATUS SDP_SetLocalDiRecord(tSDP_DI_RECORD* p_device_info, UINT32* p_handle);
+tSDP_STATUS SDP_GetLocalDiRecord(tSDP_DI_GET_RECORD* p_device_info, UINT32* p_handle);
+BOOLEAN SDP_AddUuidSequence(UINT32 handle, UINT16 attr_id, UINT16 num_uuids, UINT16* p_uuids);
+BOOLEAN SDP_AddAttribute(UINT32 handle, UINT16 attr_id, UINT8 attr_type, UINT32 attr_len, UINT8* p_val);
 tSDP_DISC_ATTR* SDP_FindAttributeInRec(tSDP_DISC_REC* p_rec, UINT16 attr_id);
 tSDP_DISC_REC* SDP_FindServiceInDb(tSDP_DISCOVERY_DB* p_db, UINT16 service_uuid, tSDP_DISC_REC* p_start_rec);
 tSDP_DISC_REC* SDP_FindServiceUUIDInDb(tSDP_DISCOVERY_DB* p_db, tBT_UUID* p_uuid, tSDP_DISC_REC* p_start_rec);

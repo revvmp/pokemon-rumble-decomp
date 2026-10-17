@@ -25,9 +25,14 @@ enum {
 #define TRACE_TYPE_WARNING 0x00000001
 #define TRACE_TYPE_API 0x00000002
 #define TRACE_TYPE_DEBUG 0x00000004
+#define TRACE_LAYER_GAP 0x000E0000
 
 void LogMsg_0(UINT32 trace_set_mask, const char* fmt_str);
 void LogMsg_1(UINT32 trace_set_mask, const char* fmt_str, UINT32 p1);
+void LogMsg_2(UINT32 trace_set_mask, const char* fmt_str, UINT32 p1, UINT32 p2);
+void LogMsg_4(UINT32 trace_set_mask, const char* fmt_str, UINT32 p1, UINT32 p2, UINT32 p3, UINT32 p4);
+void LogMsg_6(UINT32 trace_set_mask, const char* fmt_str, UINT32 p1, UINT32 p2, UINT32 p3, UINT32 p4, UINT32 p5,
+              UINT32 p6);
 
 #define APPL_TRACE_EVENT0(m)                                                                                     \
     {                                                                                                            \
