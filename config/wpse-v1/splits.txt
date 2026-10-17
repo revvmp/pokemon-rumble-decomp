@@ -80,6 +80,13 @@ RVL_SDK/vi/i2c.c:
 	.sdata      start:0x804B8B00 end:0x804B8B08
 	.sbss       start:0x804B9678 end:0x804B9680
 
+RVL_SDK/mtx/mtxvec.c:
+	.text       start:0x802C9590 end:0x802C96E0
+
+RVL_SDK/mtx/mtx44.c:
+	.text       start:0x802C96E0 end:0x802C9910 align:16
+	.sdata2     start:0x804BB2B0 end:0x804BB2C8
+
 RVL_SDK/gx/GXFifo.c:
 	.text       start:0x802CACE0 end:0x802CB6C0
 	.data       start:0x803D60E0 end:0x803D6110
@@ -172,6 +179,14 @@ RVL_SDK/enc/encconvert.c:
 	.data       start:0x803DC968 end:0x803DCA78
 	.sdata      start:0x804B8D68 end:0x804B8D74
 
+RVL_SDK/enc/encchinese.c:
+	.text       start:0x802EE650 end:0x802EEEBC
+	.rodata     start:0x8037E920 end:0x80388B68
+
+RVL_SDK/enc/enckorean.c:
+	.text       start:0x802EEEC0 end:0x802EFCD0
+	.rodata     start:0x80388B68 end:0x80397DC0
+
 RVL_SDK/arc/arc.c:
 	.text       start:0x802EFCD0 end:0x802F08D8
 	.data       start:0x803DCA78 end:0x803DCAE8
@@ -257,6 +272,16 @@ RVL_SDK/bte/hidh_api.c:
 	.text       start:0x803297C4 end:0x8032A544
 	.data       start:0x803E2DC0 end:0x803E2ED8
 	.bss        start:0x804ADA38 end:0x804ADE40
+
+RVL_SDK/tpl/TPL.c:
+	.text       start:0x8033E1B0 end:0x8033E3D0
+	.data       start:0x803E5CC0 end:0x803E5CF0
+	.sdata      start:0x804B8F40 end:0x804B8F48
+	.sdata2     start:0x804BB638 end:0x804BB640
+
+RVL_SDK/gd/GDBase.c:
+	.text       start:0x8033E3D0 end:0x8033E538
+	.sbss       start:0x804B9B98 end:0x804B9BA0
 
 RVL_SDK/gd/GDTexture.c:
 	.text       start:0x8033E540 end:0x8033EEB4

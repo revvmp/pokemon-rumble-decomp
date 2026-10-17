@@ -42,6 +42,7 @@ void C_MTXIdentity(Mtx);
 void C_MTXCopy(const Mtx, Mtx);
 void C_MTXOrtho(Mtx44, f32, f32, f32, f32, f32, f32);
 void C_MTXPerspective(Mtx44, f32, f32, f32, f32);
+void C_MTXFrustum(Mtx44, f32, f32, f32, f32, f32, f32);
 
 void PSMTXIdentity(Mtx);
 void PSMTXCopy(const Mtx, Mtx);
@@ -52,11 +53,12 @@ void PSMTXMultVecArraySR(const Mtx, const Vec*, Vec*, u32);
 u32 PSMTXInverse(const Mtx, Mtx);
 
 void PSMTXMultVec(const Mtx, const Vec*, Vec*);
+void PSMTXMultVecArray(const Mtx, const Vec*, Vec*, u32);
 
 void PSMTXTransApply(const Mtx src, Mtx dst, f32 xT, f32 yT, f32 zT);
 void PSMTXScaleApply(const Mtx, Mtx, f32, f32, f32);
 void PSMTXScale(Mtx, f32, f32, f32);
-void PSMTXRotRad(Mtx m, char axis, f32 rad) ATTRIBUTE_WEAK;
+void PSMTXRotRad(Mtx m, char axis, f32 rad) __attribute__((weak));
 void PSMTXRotAxisRad(Mtx dst, const Vec*, f32);
 void PSMTXRotTrig(Mtx, char, f32, f32);
 
