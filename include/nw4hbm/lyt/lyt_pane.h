@@ -64,9 +64,9 @@ private:
         BIT_LOCATION_ADJUST,
     };
 
+public:
     typedef ut::LinkList<Pane, offsetof(PaneBase, node)> PaneList;
 
-public:
     Pane();
     explicit Pane(const res::Pane* pRes);
     virtual ~Pane();

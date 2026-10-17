@@ -222,6 +222,7 @@ config.libs = [
             Object(Matching, "RVL_SDK/hbm/nw4hbm/lyt/lyt_common.cpp"),
             Object(Matching, "RVL_SDK/hbm/nw4hbm/lyt/lyt_drawInfo.cpp"),
             Object(Matching, "RVL_SDK/hbm/nw4hbm/lyt/lyt_group.cpp"),
+            Object(Matching, "RVL_SDK/hbm/nw4hbm/lyt/lyt_layout.cpp"),
         ],
     ),
     library(

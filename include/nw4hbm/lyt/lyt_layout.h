@@ -58,20 +58,12 @@ public:
     virtual bool Build(const void* pLytBinary,
                        ResourceAccessor* pAccessor);
 
-    virtual AnimTransform* CreateAnimTransform();
-    virtual AnimTransform*
-    CreateAnimTransform(const void* pAnmBinary,
-                        ResourceAccessor* pAccessor);
-    virtual void
-    CreateAnimTransform(const AnimResource& rResource,
-                        ResourceAccessor* pAccessor);
+    virtual AnimTransform* CreateAnimTransform(const void* pAnmBinary,
+                                               ResourceAccessor* pAccessor);
 
     virtual void BindAnimation(AnimTransform* pAnimTrans);
     virtual void UnbindAnimation(AnimTransform* pAnimTrans);
     virtual void UnbindAllAnimation();
-    virtual void
-    BindAnimationAuto(const AnimResource& rResource,
-                     ResourceAccessor* pAccessor);
     virtual void SetAnimationEnable(AnimTransform* pAnimTrans,
                                     bool enable);
 
