@@ -15,7 +15,7 @@ Target `wpse-v1`, frozen executable manifest `config/targets/wpse-v1.json`. WUD.
 
 The small-BSS range begins at its first word, `0x804B9B28`. The preceding four bytes after the USB unit are alignment padding; including them in WUD's range provoked dtk's eight-byte alignment warning. The corrected range removes the warning, and the full split-only build and frozen DOL verification pass before source registration.
 
-The current source contains the following 35 retained functions, totaling 3,808 function bytes. All reproduce every non-relocation instruction word at their exact original sizes with Wii/1.0 and `cflags_sdk`.
+The current source contains the following 42 retained functions, totaling 4,848 function bytes. All reproduce every non-relocation instruction word at their exact original sizes with Wii/1.0 and `cflags_sdk`.
 
 | Function | Address | Bytes |
 | --- | --- | --- |
@@ -32,6 +32,11 @@ The current source contains the following 35 retained functions, totaling 3,808 
 | `WUDGetBufferStatus` | `0x8030D610` | `0x48` |
 | `WUDSetSniffMode` | `0x8030D660` | `0x6C` |
 | `WUDSetSyncSimpleCallback` | `0x8030D6D0` | `0x5C` |
+| `__wudStartSyncDevice` | `0x8030D730` | `0x14C` |
+| `WUDStartFastSyncSimple` | `0x8030D880` | `0x14` |
+| `WUDCancelSyncDevice` | `0x8030D8A0` | `0x90` |
+| `WUDStopSyncSimple` | `0x8030D930` | `0x88` |
+| `WUDSetDisableChannel` | `0x8030D9C0` | `0xE8` |
 | `WUDSetHidRecvCallback` | `0x8030DAB0` | `0x5C` |
 | `WUDSetHidConnCallback` | `0x8030DB10` | `0x5C` |
 | `WUDSetVisibility` | `0x8030DB70` | `0x58` |
@@ -45,6 +50,8 @@ The current source contains the following 35 retained functions, totaling 3,808 
 | `__wudCleanupStackCallback` | `0x8030F140` | `0x34` |
 | `__wudDeviceStatusEventStackCallback` | `0x8030FBA0` | `0x50` |
 | `_WUDGetDevAddr` | `0x80310080` | `0x54` |
+| `_WUDGetQueuedSize` | `0x803100E0` | `0x58` |
+| `_WUDGetNotAckedSize` | `0x80310140` | `0x58` |
 | `_WUDGetLinkNumber` | `0x803101A0` | `0x3C` |
 | `WUDiGetDiscoverDevice` | `0x803101E0` | `0xC` |
 | `WUDSetDeviceHistory` | `0x803101F0` | `0x74` |
@@ -55,7 +62,7 @@ The current source contains the following 35 retained functions, totaling 3,808 
 | `WUDiSetQueueSizeForHandle` | `0x80310360` | `0x14` |
 | `WUDiSetNotAckNumForHandle` | `0x80310380` | `0x14` |
 
-This diagnostic excludes relocation-bearing words and does not establish matching function acceptance. Whole-unit objdiff is text 15.191785%, data 0%, BSS 37.36787%, sdata 0%, sbss 24.528301% and sdata2 100%. WUD remains `NonMatching`; the final executable continues to link the original WUD object and gains zero linked WUD source-byte credit. The partial-source full build and explicit frozen verification pass. EUART and USB remain accepted source-linked units.
+This diagnostic excludes relocation-bearing words and does not establish matching function acceptance. Whole-unit objdiff is text 19.343935%, data 0%, BSS 37.36787%, sdata 0%, sbss 33.962265% and sdata2 100%. WUD remains `NonMatching`; the final executable continues to link the original WUD object and gains zero linked WUD source-byte credit. The partial-source full build and explicit frozen verification pass. EUART and USB remain accepted source-linked units.
 
 The implementations reuse the existing typed WUD headers. `_wcb` is the established 0x750-byte controller block at `0x8047C320`. Paired source/target SDA relocations identify the four-byte `sWudInitialized` at `0x804B9B28`, `sWudReadNand` at `0x804B9B2C` and `_linkedWBC` at `0x804B9B40`; no field address is guessed from declaration order. The last is returned by `WUDIsLinkedWBC`. Its weak qualifier follows the licensed newer SDK reference; the target directly establishes its word storage and access, not an original ELF binding.
 
@@ -69,11 +76,15 @@ The target's embedded messages supply the exact private names `__wudSyncFlushCal
 
 The initialization-flush callback stores state 5, and `WUDIsBusy` requires state 6 in addition to zero sync/delete states and initialized stack state 4. The original store at `0x8030C004` and comparison at `0x8030F104` establish these values directly. They differ from the older reference's values 4 and 5. Source-local descriptive constants `WUD_INIT_FLUSH_COMPLETE` and `WUD_INIT_READY` preserve these proven values without changing the shared header prematurely. The device-status callback logs its original `__wudDeviceStatusEventStackCallback` name and reports a USB fatal error for status 2; this target does not call the newer reference's fatal-error screen helper. These three functions add 272 bytes, all non-relocation words exact.
 
+Seven synchronization/channel/count routines add 1,040 function bytes. Starting synchronization checks the proven ready state through `WUDIsBusy`, stores its target byte at `0x804B9B5D`, initializes the search counters and schedules the original callback `__wudSyncHandler0` at `0x8030B6B0`. Cancellation additionally sets the four-byte abort flag at `0x804B9B30`; stopping alone does not set it. These globals receive descriptive names `sWudSyncTarget` and `sWudAbortSync`. Paired source/target relocations prove all three bindings. The private start/callback spellings follow the pinned key reference with medium confidence. The common stop helper is naturally inlined and absent from the compiled source object; it is outside the force-active region.
+
+The channel and queue-count APIs retain their existing signed-byte public parameter types. The release bounds checks explicitly cast to `UINT8`, matching the target: channel values above 13 return false, and handle values above 15 return zero. Count-array indexing also uses the unsigned-byte value. This reproduces every non-relocation word without changing shared declarations. The channel routine's relocated call identifies `BTM_SetAfhChannels` at `0x8031C840`; only the outside symbol name changes, not its extent, type or split.
+
 The source uses `force_active` only to keep these proven retained private function bodies available for comparison while their callers are unreconstructed. It introduces no dummy callers or placeholder implementations. Recheck natural retention after completing the unit, and retain no unneeded helpers merely to fill the target's shape.
 
 ## Remaining work
 
-- Complete the remaining 51 native functions, including synchronization, the Wii Fit NAND paths, patch handling and Bluetooth event processing.
+- Complete the remaining 44 native functions, including synchronization, the Wii Fit NAND paths, patch handling and Bluetooth event processing.
 - Reconstruct and verify the complete unit data and layouts; the current source defines the controller block, working device, settings and handle arrays, three proven flag words and a dirty byte.
 - Give currently opaque device-state members evidenced names in the shared headers before adding source that uses them. Shared ABI changes require a separate header prerequisite and an existing-object regression comparison.
 - Resolve every call, callback, data relocation and folded reference. The current raw-word comparison is deliberately narrower than acceptance.
@@ -90,3 +101,5 @@ The implemented bodies derive from [Petari WUD.c at e0ab141914921726a595573dc48d
 - **Original message spelling takes precedence over reference helper names.** The target prints `__wudPowerMangeEventStackCallback`; use that spelling instead of silently correcting it to the reference's `PowerManager` name. Other callback names likewise retain the embedded `__wud` prefixes.
 
 - **WUD initialization states vary by SDK revision.** The old reference stores 4 after an initialization flush and checks 5 for readiness; this target stores 5 and checks 6. The newer reference also adds fatal-error behavior absent here. Compare target instructions before importing state values or callback side effects.
+
+- **Signed public parameters can have unsigned release checks.** The WUD queue-count getters and channel exclusion API retain signed-byte declarations, but this target bounds-checks their `UINT8` interpretations. The older reference's signed comparisons added instructions; the newer reference's release cast and target disassembly explain the exact source change.
