@@ -51,6 +51,17 @@ last helpers at 8029A170/8029A4E0 belong to original #451 and are coordinated
 with its TextWriter owner; their source credit belongs to the separate
 complete CharWriter source delivery. No duplicate bytes are counted here.
 
+The complete CharWriter source subsequently passes its actual split-only,
+NonMatching and Matching pipelines, with explicit frozen verification 0
+after each. All thirteen functions and all four sections are 100%; all
+native final positions, 429 actual targets and forty data bytes are exact.
+The actual six-unit source delivery at 9626374226fe96b6f58e1f4c05d5e9889dae43c3
+passes configure, default Ninja and explicit frozen verification on its
+historical base. Its canonical CharWriter header blob is identical to this
+prerequisite's. Original #450's 36 rows and both #451 tails are audited in
+the separate F-450-3 source finding. The final latest-main baseline remains
+a separate required gate for this header prerequisite.
+
 | Interface | Native evidence and naming confidence |
 | --- | --- |
 | Material::GetTevColor | Returns the existing signed-color record by value; original reference API |
@@ -126,6 +137,13 @@ Animation retains all 27 / 5,396, 74 paired targets, its 36-byte vtable and
 32-byte constants. These probes mutate no production source. External
 scripts are `809-reprove-header9a4d.py`, `812-compile-tracked.py`,
 `812-audit-probe.py`, and `812-paired-audit.py`, all exit 0.
+
+After the four private CharWriter declarations, both independent consumers
+repeated their individual audits against the exact final header candidate
+6b26fc71: Layout19/Picture10 retain all instruction/data/relocation evidence,
+and Animation27 retains all 5,396 bytes, 74 targets and 68 data bytes. The
+repeat script is `809-reprove-header6b26.py`; the Animation scripts above
+were rerun unchanged. No global build or production source was mutated.
 
 ## Traps
 
