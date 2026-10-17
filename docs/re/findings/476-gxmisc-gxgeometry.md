@@ -4,7 +4,7 @@
 
 Target `wpse-v1`, `orig/wpse-v1/main.dol` (manifest `config/targets/wpse-v1.json`). Tools: decomp-toolkit 1.8.4, binutils 2.42, objdiff-cli 3.8.2, Wii/1.0 `mwcceppc.exe` with `cflags_sdk` (default 16-byte function alignment, `-inline auto,level=3`, `-ipa file`, `-sdata 8`, `-sdata2 8`).
 
-The 27 functions of the issue form two translation units in the reference order of Petari's CC0 `src/RVL_SDK/gx/GXMisc.c` and `GXGeometry.c` (commit `e0ab141914921726a595573dc48d3f13d0922efe`).
+The 27 functions of the issue form two translation units in the reference order of Petari's CC0 `src/RVL_SDK/gx/GXMisc.c` and `GXGeometry.c` (commit `e0ab141914921726a595573dc48d3f13d0922efe`). They build on the shared GX headers from [F-479-1](479-gx-headers.md), plus Petari's `shortcut_pe_misc.h`, the public `GXManage.h`, `GXCpu2Efb.h`, `GXGeometry.h` and `GXCull.h` declarations, and the private `GXState.h` with dirty-state flags, register indices and internal GX declarations.
 
 | Unit | Section | Range, exclusive end | Evidence |
 | --- | --- | --- | --- |
