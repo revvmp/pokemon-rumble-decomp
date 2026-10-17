@@ -33,8 +33,16 @@ Adaptations use canonical LinkList iterators, release-mode assertion removal, ac
 
 Task and TaskManager declarations come unchanged from merged header prerequisite 844. Voice and VoiceManager declarations are approved exact copies of the issue 803/804 owner's prerequisite 835. TaskThread is an approved exact temporary copy from the issue 802 owner's PR 851. These shared prerequisites retain their owners; copies are deduplicated against canonical main before merging the source. SoundThread gains only its owned private FrameProcess declaration, and SoundSystem and StrmBufferPool receive complete evidenced headers. The existing SoundPlayer and SoundStartable layouts are unchanged.
 
+## F-799-3: Preserve the existing temporary-handle caller
+
+After external Sound3DActor source PR858 landed, the first latest-main integration probe caught a one-byte DOL change at0x802824FB. Its call instruction at0x802824F8 must retain target0x80287C70, the temporary attachment implementation. The inline ForEachSound caller in the existing canonical snd_ExternalSoundPlayer.h used detail_AttachSound, which had previously been imported under the incorrect addressC70. Correcting the owned SoundHandle names makes that unchanged spelling resolve to the general attachment atC0.
+
+The coordinated repair changes only that existing inline call to the already-declared detail_AttachSoundAsTempHandle. It is atomic with the two owned symbol-name corrections. No API signature, class storage, outside source implementation, split or source-credit count changes. Source inspection finds the existing Sound3DActor destructor as the current ForEachSound consumer. The separate798 investigation independently isolated the exact native target and the header call; final combined acceptance requires all affected existing native code and the complete source-linked frozen DOL unchanged.
+
 ## Traps
 
 - A cached directory name does not establish source provenance. An older issue's reference cache contained OGWS-compatible SoundPlayer despite its local naming, producing apparent layout conflicts. Fetching and hashing the actual pinned SS URL recovered the matching target revision. Verify the fetched commit and content before adapting a cached source.
 - PowerPC halfword relocations can begin two bytes into an instruction. A scratch comparator that masked only the raw relocation offset falsely reported differences in GetInstance and SoundThreadFunc. Mask the containing instruction with `(offset - functionStart) // 4 * 4`; retain whole-object, relocation-target and final DOL checks as acceptance gates.
 - Measured data-symbol ends need not be legal automatic split starts. dtk rejects the one-byte guard boundary at 0x804B9379 and the 70-byte banner boundary at 0x803C67CE. Keep actual symbol sizes, split at the required section alignment, and verify the linked padding against the original. The BSS extents exclude the next unit's trailing alignment.
+
+- An imported reference method name can hide a different target revision. Propagating an evidenced owned rename requires checking existing inline callers: the temporary ForEachSound handle must keep its original C70 target, rather than follow the corrected general-attachment name to C0. See F-799-3.

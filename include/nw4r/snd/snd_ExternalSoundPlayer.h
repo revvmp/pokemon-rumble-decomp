@@ -43,7 +43,7 @@ public:
             BasicSoundExtPlayList::Iterator current = it++;
 
             SoundHandle handle;
-            handle.detail_AttachSound(&*current);
+            handle.detail_AttachSoundAsTempHandle(&*current);
             pFunc(handle);
         }
 
