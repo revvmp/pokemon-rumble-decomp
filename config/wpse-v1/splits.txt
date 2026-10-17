@@ -836,6 +836,9 @@ nw4r/snd/snd_Util.cpp:
 nw4r/snd/snd_WaveArchive.cpp:
 	.text       start:0x802910A0 end:0x802911A8
 
+nw4r/snd/snd_WaveFile.cpp:
+	.text       start:0x802911B0 end:0x80291414
+
 nw4r/snd/snd_WsdFile.cpp:
 	.text       start:0x80291820 end:0x80291BE4
 	.sdata2     start:0x804BB090 end:0x804BB094
