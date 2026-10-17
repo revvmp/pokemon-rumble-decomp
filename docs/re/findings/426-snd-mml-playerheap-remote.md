@@ -1,0 +1,24 @@
+# F-426-1: Player heap and remote speaker native units
+
+Target `wpse-v1`, frozen `config/targets/wpse-v1.json`, original `main.dol` SHA-256 `ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da`. Issue #426 owns 29 functions and 1,524 code bytes at `0x8027E060–0x8027E6F4`.
+
+## Player heap boundary and baseline
+
+`snd_PlayerHeap.cpp` owns `.text` `0x8027E2B0–0x8027E4CC` and `.data` `0x803C6598–0x803C65A8`. Its eight native functions are the constructor, destructor, `Create`, `Alloc`, `Clear`, `GetFreeSize`, `AttachSound`, and `DetachSound`. The vtable at `0x803C6598` points to the destructor at `0x8027E2E0` and allocator at `0x8027E3E0`.
+
+Split-only validation used `python configure.py --no-progress --build-dir build/426-playerheap-baseline` (0), `.venv/Scripts/ninja build/426-playerheap-baseline/wpse-v1/main.dol` (0), and `python tools/verify/verify.py verify --manifest config/targets/wpse-v1.json --reference-dir orig/wpse-v1 --build-dir build/426-playerheap-baseline/wpse-v1` (0). The first unrestricted Ninja invocation linked the actual custom DOL successfully but exited 1 at the hardcoded default-path SHA-1 check; the explicit custom-DOL target and independent frozen verifier completed successfully. No expected hash was changed.
+
+The existing canonical `snd_PlayerHeap.h` expresses the observed complete 32-byte layout: vtable at 0, sound at 4, player at 8, heap start at 12, heap end at 16, allocation cursor at 20, and list node at 24. Native `Create`, `Alloc`, `Clear`, attachment functions, and constructor stores establish these offsets. The native `Clear` mutex access agrees with existing `SoundThread` at offset `0x354`.
+
+Readable source probes with Wii/1.1 and existing `cflags_nw4r` reproduce all eight instruction streams after relocation words are excluded. This is preliminary evidence; source selection and full linked verification remain required before acceptance.
+
+## Reference provenance
+
+Player heap behavior follows CC0 `zeldaret/ss` at `57a709b2128eb163a18e2969d561c9abb7d1fcee`, `src/nw4r/snd/snd_PlayerHeap.cpp`, adapted to existing canonical headers and the project's source conventions. The source and referenced header have no file-specific license notice overriding the repository CC0 dedication. Reference material is retained outside the checkout. No commented reference source is imported into tracked code.
+
+Remote speaker probes use the same pinned CC0 project. Its six initial state flags, absent old force-resume flag, and resulting member offsets reproduce this target's constructor and every linked remote-speaker function. The old CC0 `kiwi515/ogws` revision `27fa94a593096eed7442efc4e70981fd52025b9c` has an additional flag and does not describe this target's layout.
+
+## Traps
+
+- A custom build directory does not change `config/wpse-v1/build.sha1`, whose input path remains `build/wpse-v1/main.dol`. Use the actual custom-DOL Ninja target and explicit frozen verifier for the split-only baseline; final acceptance will also execute the full default build. Never accept a stale default-path DOL as evidence for a custom output.
+- The public old MML allocator headers forward-declare `SeqPlayer` in `detail`, while their sequence-track header uses `snd::SeqPlayer`. This reference inconsistency prevents compiling the combined headers without adaptation. It is not evidence that the target uses either interface; validate native calls and complete layouts before importing them.
