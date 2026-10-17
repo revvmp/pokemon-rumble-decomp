@@ -27,6 +27,11 @@ typedef enum {
     PPC_ThermalManagementInterrupt = 0x1700,
 } PPCExceptionID;
 
+typedef enum {
+    VALIDMEM_Readable,
+    VALIDMEM_Writeable,
+} ValidMemoryOptions;
+
 typedef struct Default_PPC {
     u32 GPR[32];
     u32 PC;
@@ -147,10 +152,28 @@ typedef struct TRKState {
     BOOL inputActivated;
     void* inputPendingPtr;
 } TRKState;
+extern Default_PPC gTRKSaveState;
+extern u8 TRKvalue128_temp[16];
 extern TRKState gTRKState;
 
 void TRKSaveExtended1Block(void);
 u32 __TRK_get_MSR(void);
+
+DSError TRKValidMemory32(const void* address, size_t length, ValidMemoryOptions accessMode);
+void __TRK_set_MSR(u32 msr);
+void TRKInterruptHandler(void);
+void TRKPostInterruptEvent(void);
+void TRKSwapAndGo(void);
+void TRKInterruptHandlerEnableInterrupts(void);
+void TRKTargetSetStopped(unsigned int stopped);
+DSError TRKPPCAccessSPR(void* value, u32 spr, BOOL read);
+DSError TRKPPCAccessPairedSingleRegister(void* value, u32 registerNumber, BOOL read);
+DSError TRKPPCAccessFPRegister(void* value, u32 registerNumber, BOOL read);
+void ReadFPSCR(f64* value);
+void WriteFPSCR(f64* value);
+DSError TRKPPCAccessSpecialReg(void* value, u32* accessFunction, BOOL read);
+void TRKTargetSetInputPendingPtr(void* inputPending);
+u32 ConvertAddress(u32 address);
 
 DSError TRKTargetAccessMemory(void* buffer, u32 address, size_t* length, MemoryAccessOptions accessMode, BOOL read);
 DSError TRKTargetAccessDefault(u32 firstRegister, u32 lastRegister, TRKBuffer* buffer, size_t* length, BOOL read);
