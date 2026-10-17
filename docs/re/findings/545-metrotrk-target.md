@@ -24,6 +24,8 @@ The target-implementation file retains 26 C functions / 5,252 instruction bytes 
 
 ## Traps
 
+- Deleting the merged #543 remote branch during cleanup automatically closed the stacked #544 PR738 because that PR still used it as its base. The source branch remained intact. Its owner temporarily restored the base ref, but GitHub refused reopening after the head had been force-pushed; the owner removed that temporary ref and opened replacement PR815 against main. Retarget open dependent PRs before removing a merged source branch.
+
 - Complete object sections can score 100% while function definitions occur in a different physical order. The first target link placed `__TRK_get_MSR` at `0x80352540` instead of `0x80351188`, although every function and paired relocation matched. Native address-order definitions preserve all instruction streams, storage, and relocations and put every object function at its required native offset. Always audit final addresses and the actual DOL.
 - The custom-directory default Ninja CHECK reads the hardcoded `build/wpse-v1/main.dol` in `build.sha1`. In a fresh worktree that file is absent, so CHECK fails after a successful custom link. The actual custom `main.dol` and `all_source` targets plus explicit frozen verification established the candidate link, but final acceptance still requires plain Ninja to exit zero. Use a fresh default build for that complete pipeline. Do not alter the expected hash or use a previous default artifact as evidence.
 
