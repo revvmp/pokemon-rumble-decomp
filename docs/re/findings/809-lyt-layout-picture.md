@@ -72,3 +72,14 @@ Fourteen name-only changes connect the native Layout/Picture identities and thei
 ## Complete allocated-section diagnostic
 
 Both actual committed source files were compiled with their own tracked Layout/Pane/Picture declarations and exact owner-approved canonical prerequisite snapshots. Comparing those objects to the verified real split objects reports 100% in every allocated section: Layout text/data/sbss/sdata2 and Picture text/ctors/data/sbss/sdata2, nine sections total. The native29/5480/166 proof also passes after the unused Picture constructor declarations were removed. No source registration, source-selected final link or decompiled credit is inferred from this diagnostic. PR #857 may reuse the exact committed Picture declaration from 516e173e as an explicit external Layout consumer prerequisite; the Picture interface remains owned and delivered by PR #865.
+
+
+## Complete source-selected acceptance on canonical prerequisites
+
+After rebasing onto merged PR #857 (`cfbc1e48b42ed8a4d2504dd137da2e4a432bd594`), every shared prerequisite is read directly from the tracked canonical include tree. Duplicate primitive-deletion and Layout/Pane additions disappear from this source branch. No external include overlay is used by the actual build. Both objects are first registered NonMatching; fresh output `build/809-source-cfbc/wpse-v1` configure, plain Ninja and explicit frozen verification each exit zero. The actual Ninja-built source objects match all 29 functions / 5,480 bytes, 166 paired relocation sites and all nine allocated sections at 100%.
+
+Switching only those two registrations to Matching then passes configure, plain Ninja and explicit verification of that actual output, all zero. The final executable contains every native function at its exact address and extent, all seven named nontext allocations at their native addresses/extents, both new source objects as link inputs, and neither original fallback object. The complete DOL is byte-identical to the frozen original: 4,094,880 bytes, SHA-256 `ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da`. Independent REST issue-inventory audit covers all original #809 functions, 28 / 5,012 bytes, plus only the separately approved #808 helper, 1 / 468 bytes. No original assembly or raw-byte fallback is introduced.
+
+All 479 historical baseline source objects still preserve allocated section types/flags/sizes/alignments/bytes and canonical relocation targets/addends against their independently verified checkpoint. With the later canonical headers, 351 remain whole-file identical and the others renumber nonallocated compiler metadata. Exact latest-main committed-head verification must still be repeated in the assigned integration window before merge.
+
+Configuration AST comparison against the exact canonical cfbc1e48 base preserves all 498 existing object registrations and all twenty compiler/flag profiles; only the two owned source registrations are added.
