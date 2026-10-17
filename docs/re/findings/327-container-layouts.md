@@ -1,0 +1,21 @@
+# F-327-3: List hierarchy and compressed-pair storage
+
+The native BUI shared-reference list destructor at 0x801C8810 and independent CPath string-list destructor at 0x801AE820 both contain three consecutive checks of the same this-null condition before node destruction. CPath's checks are at 0x801AE848, 0x801AE84C and 0x801AE850 after the list-member address computation at 0x801AE844. This corroborates a shared container structure rather than a BUI-specific guard.
+
+## Declaration evidence and independent implementation
+
+Only class declarations, direct data-member declarations and method signatures were extracted from the public MSL-family list interface in Swiftshine/key, blob ef288c73338dc06514b30d9737fc2fea667fe8fb. Restricted implementation bodies were not read or reused. The declaration establishes list inheriting __list_imp, which inherits __list_deleter. The deleter declares compressed_pair<Allocator, size_t> size_ followed by compressed_pair<node_allocator_type, node_base> end_, where node_allocator_type is allocator<node>. This is supporting interface evidence; it does not establish an exact target implementation or authorize copying reference algorithms.
+
+An independent ordinary three-layer implementation uses the observed native range-unlinking, value destruction, node deallocation and count decrement. Compiler-generated destructor behavior now naturally reproduces all three native null guards. No explicit redundant guard or artificial destructor layer was added beyond the evidenced interface. Its destructor has the correct 220-byte extent, six instruction relocations and only eleven remaining non-relocation word differences, which swap the node and end-pointer registers. Complete target matching remains unproven. The corresponding BUI constructor is currently 152 rather than 148 bytes, so the hierarchy is not ready for canonical source publication.
+
+The compressed-pair diagnostic independently implements empty-base storage selection using pointer-to-member class detection and a sizeof-derived empty-class check. No modern compiler intrinsic or restricted implementation is used. Actual Wii/1.1 native-consumer compilation verifies the empty-first policy for allocator/count and allocator/sentinel storage. The #53 owner independently reused the exact outside header for vector's empty-second capacity/allocator pair: capacity storage is four bytes and the complete pointer/count/capacity vector is twelve bytes. Both policies compile, but neither incomplete container destructor is counted as matching. The other generic policies remain without an independently accepted target consumer.
+
+The #53 declaration-only vector evidence independently identifies its own three layers and pointer/count/capacity layout. It does not imply identical list field names or algorithms. CPath's string ownership bit is the high bit of its capacity word, consistent with the separately investigated wide-string storage; the earlier low-bit reading was incorrect.
+
+## Traps
+
+- Caching the list end pointer and avoiding a redundant live node alias reduces the destructor to the native extent, but eleven register-word differences remain. Adding a separate range-erase call in this diagnostic grows the body to 256 bytes and changes its inlining profile; that variant is not accepted.
+- Giving allocator an explicit empty destructor does not repair the list loop and changes otherwise matching BUI constructor instructions. The original outside allocator probe was restored.
+- An outside header overlay must precede existing include directories when testing additions to an already canonical header. Appending the directory can silently select the existing header. Preserve the sjiswrap/compiler command prefix when inserting options; placing an include option before the compiler executable asks the wrapper to launch that option as a program.
+
+All typed containers and the generic compressed-pair diagnostic remain outside the repository. The seven previously proven BUI leaf/traversal functions and the independent interface-header proofs retain their separate evidence; this finding adds no source-unit completion or byte credit.
