@@ -448,4 +448,14 @@ void btm_acl_device_down(void);
 	 | HCI_PKT_TYPES_MASK_NO_2_DH3 | HCI_PKT_TYPES_MASK_NO_3_DH3 \
 	 | HCI_PKT_TYPES_MASK_NO_2_DH5 | HCI_PKT_TYPES_MASK_NO_3_DH5)
 enum { TT_DEV_RLNKP	= 4 };
+enum { TT_DEV_RESET	= 1 };
+enum { TT_DEV_RLN		= 2 };
+void btm_dev_timeout(TIMER_LIST_ENT *p_tle);
+void btm_sec_free_dev(tBTM_SEC_DEV_REC *p_dev_rec);
+void btm_dev_absent(void);
+void btm_get_hci_buf_size(void);
+void btm_get_local_version(void);
+void btm_get_local_features(void);
+UINT8 btm_get_voice_coding_support(void);
+UINT8 btm_get_hci_version(void);
 #endif

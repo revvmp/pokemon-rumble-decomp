@@ -108,6 +108,8 @@ enum {
     BTM_COD_MINOR_KEYBOARD = 1 << 6
 };
 
+typedef UINT8* DEV_CLASS_PTR;
+
 typedef UINT8 tBTM_STATUS;
 
 enum {
@@ -583,4 +585,49 @@ tBTM_STATUS BTM_SetQoS(BD_ADDR bd, FLOW_SPEC *p_flow, tBTM_CMPL_CB *p_cb);
 UINT8 BTM_SetTraceLevel(UINT8 new_level);
 void BTM_GetAclBufInfo(UINT16 *p_num_avail, UINT16 *p_num_bufs,
                        UINT16 *p_num_queued);
+typedef struct
+{
+	UINT16	opcode;
+	UINT16	param_len;
+	UINT8	param_buf[HCI_COMMAND_SIZE];
+} tBTM_VSC_CMPL;
+enum { BTM_CB_EVT_READ_STORED_LINK_KEYS = 2, BTM_CB_EVT_WRITE_STORED_LINK_KEYS, BTM_CB_EVT_DELETE_STORED_LINK_KEYS };
+typedef struct
+{
+	UINT8	event;
+	UINT8	status;
+	UINT16	max_keys;
+	UINT16	read_keys;
+} tBTM_READ_STORED_LINK_KEY_COMPLETE;
+typedef struct
+{
+	UINT8	event;
+	UINT8	status;
+	UINT8	num_keys;
+} tBTM_WRITE_STORED_LINK_KEY_COMPLETE;
+typedef struct
+{
+	UINT8	event;
+	UINT8	status;
+	UINT16	num_keys;
+} tBTM_DELETE_STORED_LINK_KEY_COMPLETE;
+#define BTM_AFH_NO_CHANNEL	255
+enum { BTM_ESCO_LINK_ONLY_MASK			= BTM_SCO_PKT_TYPES_MASK_EV3
+	                                | BTM_SCO_PKT_TYPES_MASK_EV4
+	                                | BTM_SCO_PKT_TYPES_MASK_EV5 };
+enum { BTM_SCO_PKT_TYPES_MASK_NO_2_EV5	= HCI_ESCO_PKT_TYPES_MASK_NO_2_EV5 };
+enum { BTM_SCO_PKT_TYPES_MASK_NO_2_EV3	= HCI_ESCO_PKT_TYPES_MASK_NO_2_EV3 };
+enum { BTM_SCO_PKT_TYPES_MASK_NO_3_EV5	= HCI_ESCO_PKT_TYPES_MASK_NO_3_EV5 };
+enum { BTM_SCO_PKT_TYPES_MASK_NO_3_EV3	= HCI_ESCO_PKT_TYPES_MASK_NO_3_EV3 };
+tBTM_STATUS BTM_SetAfhChannels(tBTM_AFH_CHANNEL first, tBTM_AFH_CHANNEL last);
+tBTM_STATUS BTM_SetAfhChannelAssessment(BOOLEAN enable_or_disable);
+void BTM_ContinueReset(void);
+tBTM_STATUS BTM_ReadLocalDeviceName(tBTM_CMPL_CB *p_cb);
+tBTM_DEV_STATUS_CB *BTM_RegisterForDeviceStatusNotif(tBTM_DEV_STATUS_CB *p_cb);
+tBTM_STATUS BTM_RegisterForVSEvents(tBTM_VS_EVT_CB *p_cb);
+tBTM_STATUS BTM_WriteVoiceSettings(UINT16 settings);
+tBTM_STATUS BTM_EnableTestMode(void);
+tBTM_STATUS BTM_ReadStoredLinkKey(BD_ADDR bd_addr, tBTM_CMPL_CB *p_cb);
+tBTM_STATUS BTM_WriteStoredLinkKey(UINT8 num_keys, BD_ADDR *bd_addr,
+                                   LINK_KEY *link_key, tBTM_CMPL_CB *p_cb);
 #endif
