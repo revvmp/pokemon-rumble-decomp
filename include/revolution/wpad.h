@@ -26,6 +26,7 @@ typedef s32 WPADChannel;
 #define WPAD_CHAN1 1
 #define WPAD_CHAN2 2
 #define WPAD_CHAN3 3
+#define WPAD_CHAN_INVALID -1
 
 #define WPAD_MAX_CONTROLLERS 4
 
@@ -37,6 +38,13 @@ typedef s32 WPADChannel;
 #define WPAD_SPEAKER_MUTE 2
 #define WPAD_SPEAKER_UNMUTE 3
 #define WPAD_SPEAKER_PLAY 4
+#define WPAD_SPEAKER_REINIT 5
+
+#define WPAD_DPD_DISABLE 0
+
+#define WPAD_BLC_DISABLE 0x00
+#define WPAD_BLC_UPDATE 0x55
+#define WPAD_BLC_ENABLE 0xAA
 
 #define WPAD_BUTTON_LEFT 0x0001
 #define WPAD_BUTTON_RIGHT 0x0002
@@ -76,6 +84,7 @@ typedef s32 WPADChannel;
 #define WPAD_DEV_CORE 0
 #define WPAD_DEV_FREESTYLE 1
 #define WPAD_DEV_CLASSIC 2
+#define WPAD_DEV_BALANCE_CHECKER 3
 #define WPAD_DEV_MPLS 5
 #define WPAD_DEV_MPLS_FREESTYLE 6
 #define WPAD_DEV_MPLS_CLASSIC 7
@@ -303,6 +312,7 @@ typedef struct WPADVSStatus {
     u16 baseline;
     u16 level;
     u8 state;
+    u8 auxData[3];
 } WPADVSStatus;
 
 typedef struct WPADAcc {
@@ -550,6 +560,24 @@ BOOL WPADiPopCommand(WPADCmdQueue*);
 BOOL WPADiPushCommand(WPADCmdQueue*, WPADCommand);
 
 void WPADSetAutoSamplingBuf(s32, void*, u32);
+
+BOOL WPADStartFastSimpleSync(void);
+WPADSyncDeviceCallback WPADSetSimpleSyncCallback(WPADSyncDeviceCallback callback);
+BOOL WPADIsUsedCallbackByKPAD(void);
+BOOL WPADiIsAvailableCmdQueue(WPADCmdQueue* queue, s8 num);
+void WPADEnableMotor(BOOL enable);
+BOOL WPADIsMotorEnabled(void);
+BOOL WPADSaveConfig(SCFlushCallback callback);
+u8 WPADiGetGameType(void);
+const char* WPADiGetGameCode(void);
+void WPADSetSpeakerVolume(u8 volume);
+u32 WPADGetDpdFormat(s32 chan);
+s32 WPADControlBLC(s32 chan, u8 command, WPADCallback callback);
+s32 WPADWriteExtReg(s32 chan, void* p_buf, u16 len, u16 addr, WPADCallback callback);
+BOOL WPADiSendEnableDPD(WPADCmdQueue* queue, BOOL enable, WPADCallback callback);
+BOOL WPADiSendEnableSpeaker(WPADCmdQueue* queue, BOOL enable, WPADCallback callback);
+BOOL WPADiSendMuteSpeaker(WPADCmdQueue* queue, BOOL mute, WPADCallback callback);
+BOOL WPADiSendStreamData(WPADCmdQueue* queue, void* p_buf, u16 len);
 
 #define WPADStartMotor(chan) WPADControlMotor((chan), WPAD_MOTOR_RUMBLE)
 #define WPADStopMotor(chan) WPADControlMotor((chan), WPAD_MOTOR_STOP)

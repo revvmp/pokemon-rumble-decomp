@@ -20,6 +20,8 @@ Every data reference from `0x802F6BC0`–`0x802FE650` resolves to these WPAD-own
 
 `.sbss` `0x804B9A48` belongs to PAD (used at `0x802F5D0C`), and `.sbss` `0x804B9AB0` onward and `.sdata2` `0x804BB508` belong to WPADHIDParser. The split builds byte-identically. Confidence high.
 
+Status partly superseded by [F-501-4](501-wpad.md#f-501-4-header-and-split-changes): the `.text` split ends at `0x802FE648`, the end of the last function, so that the source-linked DOL keeps the following unit's padding.
+
 ## F-500-2: Control block layout and static data
 
 `__wpadClearControlBlock` (`0x802F8720`) and `__wpadInitSub` (`0x802F89A0`) fix the control block layout. Each block is 0x9C0 bytes and 32-byte aligned (`_wpd` at `.bss` `0x80478540`, stride `0x9C0`). The SMG-era layout in Petari's CC0 `WPADControlBlock` holds through `pwrSave` at `0x98E`. After it come `blcBattery` (`0x98F`, cleared to 4), `savedDevType` (`0x990`, 253), the extension-disconnect flag and countdown (`0x991`/`0x992`), a DPD busy byte (`0x994`), and the WPADMem block (`0x998`, 0x14 bytes, used by `0x803039E0`). This version has three noise filters (accelerometer, DPD, extension): the counters are `u16[3]` arrays at `0x8F8` and `0x8FE`, and the `.sdata` thresholds are `{6, 4, 6}` and `{30, 30, 30}`. The extension configuration is a 0x1A-byte union with no Motion Plus calibration, so `extConf` sits at `0x882`.
@@ -40,10 +42,12 @@ Observed compiler behavior:
 - The reconnect countdown keeps `_wpadOnReconnect` in a register across the debug print only when passed as a parameter. A local copy is re-read from memory.
 - `__wpadSendDataSub` returns no value here, unlike the reference, and `__wpadSendData` tests busy status in a separate `if` after sending.
 
+Status: `WPADInit` and `WPADGetInfo` are now named, with the rest of the file, in [F-501-1](501-wpad.md#f-501-1-function-identification-and-names).
+
 ## Traps
 
 - **Partial SDK files drop unreferenced statics.** With `-ipa file`, a WPAD.c holding only one block's static functions compiled to an object without them, because nothing referenced them. Include the real external roots, such as `WPADInit`, and any later helpers the block inlines (F-500-3).
 
 ## F-500-4: Shared header adjustments for this SDK version
 
-Following D-0013, the reconstruction uses the imported Petari headers, adjusted in place. In `include/revolution/wpad.h`, the `WPADControlBlock` layout moves to the 2009 layout of F-500-2: a two-dimensional `rxBuf`, three-filter `diffCount`/`hystCount` arrays, and the trailing balance board, extension, DPD-busy and embedded WPADMem fields. The header also gains formats 10–15, device modes, and the TR, BL and VS status structures, along with the `WPADIsEnabled*`, `WBC*`, `WPADGetInfo`, `WPADRecalibrate`, `WPADiClearMemBlock` and `DEBUGPrint` prototypes. `include/revolution/sc.h` now declares `SCGetBtDpdSensibility` as returning `u8`; Petari had `u32`. The callers in `__wpadInitSub` and `__wpadManageHandler` zero-extend the result before clamping it, which matches only with a `u8` return. Other additions: alarm, app and tick declarations in `include/revolution/os.h`; shutdown event values in `OSReset.h`, following the event codes in Petari OSReset/OSExec; `OSError` in `OSError.h`; `__VIResetRFIdle` in `vi.h`; and two WUD prototypes in `wud/wud.h`.
+Following D-0013, the reconstruction uses the imported Petari headers, adjusted in place. In `include/revolution/wpad.h`, the `WPADControlBlock` layout moves to the 2009 layout of F-500-2: a two-dimensional `rxBuf`, three-filter `diffCount`/`hystCount` arrays, and the trailing balance board, extension, DPD-busy and embedded WPADMem fields. The header also gains formats 10–15, device modes, and the TR, BL and VS status structures, along with the `WPADIsEnabled*`, `WBC*`, `WPADGetInfo`, `WPADRecalibrate`, `WPADiClearMemBlock` and `DEBUGPrint` prototypes. `include/revolution/sc.h` now declares `SCGetBtDpdSensibility` as returning `u8`; Petari had `u32`. The callers in `__wpadInitSub` and `__wpadManageHandler` zero-extend the result before clamping it, which matches only with a `u8` return. #636 later restored Petari's `u32` declaration for the SC unit, so WPAD now casts the result to `u8` instead ([F-501-4](501-wpad.md#f-501-4-header-and-split-changes)). Other additions: alarm, app and tick declarations in `include/revolution/os.h`; shutdown event values in `OSReset.h`, following the event codes in Petari OSReset/OSExec; `OSError` in `OSError.h`; `__VIResetRFIdle` in `vi.h`; and two WUD prototypes in `wud/wud.h`.

@@ -748,7 +748,7 @@ RVL_SDK/pad/Pad.c:
 	.sbss       start:0x804B9A20 end:0x804B9A50
 
 RVL_SDK/wpad/WPAD.c:
-	.text       start:0x802F6BC0 end:0x802FE650
+	.text       start:0x802F6BC0 end:0x802FE648
 	.rodata     start:0x80397DD8 end:0x80397E18
 	.data       start:0x803DCB68 end:0x803DCF90
 	.bss        start:0x804774E0 end:0x8047AC40
