@@ -15,6 +15,7 @@ double fmod(double x, double y);
 double log(double x);
 double log10(double x);
 double ldexp(double x, int exponent);
+double frexp(double x, int* exponent);
 double modf(double x, double* integral);
 double sin(double x);
 double tan(double x);

@@ -375,6 +375,7 @@ config.libs = [
             Object(Matching, "Runtime/MWRTTI.cpp", extra_cflags=["-Cpp_exceptions on", "-RTTI on"]),
             Object(Matching, "Runtime/runtime.c"),
             Object(Matching, "Runtime/__init_cpp_exceptions.cpp"),
+            Object(Matching, "Runtime/Gecko_ExceptionPPC.cpp", extra_cflags=["-Cpp_exceptions on", "-RTTI on"]),
         ],
     ),
     library(
@@ -383,6 +384,11 @@ config.libs = [
         cflags_msl,
         "runtime",
         [
+            Object(Matching, "MSL_C/ansi_files.c"),
+            Object(Matching, "MSL_C/ansi_fp.c"),
+            Object(Matching, "MSL_C/arith.c"),
+            Object(Matching, "MSL_C/buffer_io.c"),
+            Object(Matching, "MSL_C/direct_io.c"),
             Object(Matching, "MSL_C/MSL_Common_Embedded/Math/Double_precision/s_ldexp.c"),
             Object(Matching, "MSL_C/MSL_Common_Embedded/Math/Double_precision/s_modf.c"),
             Object(Matching, "MSL_C/MSL_Common_Embedded/Math/Double_precision/s_sin.c"),
