@@ -153,6 +153,7 @@ struct EmitterDrawSetting {
     u8 mNumTevs;
     u8 mFlagClamp;
     u8 mIndirectTargetStage;
+    u8 mTevTexture[4];
     TevStageColor mTevColor[4];
     TevStageColorOp mTevColorOp[4];
     TevStageAlpha mTevAlpha[4];
@@ -161,6 +162,7 @@ struct EmitterDrawSetting {
     u8 mTevKAlphaSel[4];
     BlendMode mBlendMode;
     ColorInput mColorInput;
+    ColorInput mAlphaInput;
     u8 mZCompareFunc;
     u8 mAlphaFlickType;
     u16 mAlphaFlickCycle;
@@ -171,7 +173,7 @@ struct EmitterDrawSetting {
     s8 mIndTexScaleExp;
     s8 pivotX;
     s8 pivotY;
-    u8 PADDING_0xA3;
+    u8 PADDING_0xAB;
     u8 ptcltype;
     u8 typeOption;
     u8 typeDir;
@@ -179,7 +181,7 @@ struct EmitterDrawSetting {
     u8 typeOption0;
     u8 typeOption1;
     u8 typeOption2;
-    u8 PADDING_0xAB;
+    u8 PADDING_0xB3;
     f32 zOffset;
 };
 

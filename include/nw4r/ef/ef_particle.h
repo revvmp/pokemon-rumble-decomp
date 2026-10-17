@@ -89,6 +89,8 @@ public:
         return &mParameter;
     }
 
+    u8 GetAlphaFlick() const;
+
     void Draw_GetColor(int layer, GXColor* pColorPri, GXColor* pColorSec);
 
     void GetColor(int layer, int index, GXColor* pColor) {

@@ -274,6 +274,19 @@ nw4r/ef/ef_emitter.cpp:
 	.data       start:0x803C5350 end:0x803C5378
 	.sdata2     start:0x804BA5F0 end:0x804BA624
 
+nw4r/ef/ef_particle.cpp:
+	.text       start:0x80231640 end:0x802324A4
+	.data       start:0x803C5578 end:0x803C5590
+	.sdata2     start:0x804BA698 end:0x804BA6E8
+
+nw4r/ef/ef_particlemanager.cpp:
+	.text       start:0x802324B0 end:0x802347B4
+	.ctors      start:0x80352A3C end:0x80352A40
+	.data       start:0x803C5590 end:0x803C55D8
+	.bss        start:0x8042F2A8 end:0x8042F2D8
+	.sbss       start:0x804B92C0 end:0x804B92C4
+	.sdata2     start:0x804BA6E8 end:0x804BA730
+
 nw4r/g3d/res/g3d_rescommon.cpp:
 	.text       start:0x8024AE80 end:0x8024B024
 
