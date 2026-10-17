@@ -329,7 +329,7 @@ RVL_SDK/fa/pf_system.c:
 
 RVL_SDK/fa/pf_stub_std.c:
 	.text       start:0x8021C930 end:0x8021CEB4
-	.data        start:0x803C4318 end:0x803C445C
+	.data       start:0x803C4318 end:0x803C445C
 
 RVL_SDK/fa/pfs_attach.c:
 	.text       start:0x8021CEC0 end:0x8021CF04
