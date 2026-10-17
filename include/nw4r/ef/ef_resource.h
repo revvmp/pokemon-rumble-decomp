@@ -3,13 +3,11 @@
 #include <nw4r/types_nw4r.h>
 
 #include <nw4r/ef/ef_res_emitter.h>
+#include <nw4r/ef/ef_res_texture.h>
 #include <nw4r/ut/ut_list.h>
 
 namespace nw4r {
 namespace ef {
-
-struct TextureData;
-class ResTexture;
 
 struct EffectProject {
     u32 headersize;

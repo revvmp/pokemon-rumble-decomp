@@ -12,6 +12,7 @@ namespace ef {
 
 enum AnimCurveType {
     AC_TYPE_PARTICLE_U8 = 0,
+    AC_TYPE_EMITTER_CHILD = 2,
     AC_TYPE_PARTICLE_F32 = 3,
     AC_TYPE_PARTICLE_ROTATE = 6,
     AC_TYPE_PARTICLE_TEXTURE = 4,
