@@ -84,6 +84,12 @@ RVL_SDK/hbm/HBMCommon.cpp:
 	.data       start:0x803BA650 end:0x803BA6A0
 	.bss        start:0x803E9B90 end:0x803E9BA0
 
+RVL_SDK/hbm/HBMBase.cpp:
+	.text       start:0x8017C470 end:0x80186334
+	.rodata     start:0x80366AA0 end:0x80366E38
+	.data       start:0x803BA6A0 end:0x803BB4E0
+	.bss        start:0x803E9BA0 end:0x803E9BC0
+
 RVL_SDK/hbm/nw4hbm/lyt/lyt_animation.cpp:
 	.text       start:0x80186340 end:0x80186EE8
 	.rodata     start:0x80366E38 end:0x80366E58
