@@ -64,6 +64,10 @@ RVL_SDK/ax/AX.c:
 	.sdata      start:0x804B8BD0 end:0x804B8BD8
 	.sbss       start:0x804B9840 end:0x804B9848
 
+RVL_SDK/enc/enclatin.c:
+	.text       start:0x802ED120 end:0x802ED700
+	.rodata     start:0x8037BB90 end:0x8037D690
+
 RVL_SDK/esp/esp.c:
 	.text       start:0x802F08E0 end:0x802F1230
 	.sdata      start:0x804B8D80 end:0x804B8D90
