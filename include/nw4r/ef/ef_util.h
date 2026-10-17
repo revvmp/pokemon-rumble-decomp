@@ -2,6 +2,7 @@
 #define NW4R_EF_UTIL_H
 #include <nw4r/types_nw4r.h>
 
+#include <nw4r/math/math_types.h>
 #include <nw4r/ut/ut_list.h>
 
 namespace nw4r {
@@ -17,6 +18,10 @@ inline f32 FAbs(f32 x) {
 
 template <typename T> inline T Max(T a, T b) {
     return (a > b) ? a : b;
+}
+
+template <typename T> inline const T& Min(const T& a, const T& b) {
+    return (b < a) ? b : a;
 }
 
 u16 UtlistToArray(const ut::List* pList, void** ppArray, int maxlen);

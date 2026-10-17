@@ -2187,3 +2187,7 @@ For `wpse-v1` / `main.dol`, [F-779-1](findings/779-g3d-camera-basic-maya.md) con
 ## Issue #516 HID utilities and BTM ACL
 
 [F-516-1](findings/516-hid-utils-acl.md) records the complete 30-function issue inventory and 34 retained functions across the two newly reconstructed units. It identifies the two HID main functions from PR #694, six ACL tails in #517, exact data payloads and alignment, and newly declared callback layouts. Existing ACL/control-block structures retain their definitions. All compared retained code/data sections are 100% with GC/3.0a3; outside callees/data receive evidenced names without changing their split, type, or size.
+
+## NW4R ef free, line and point draw strategies (#383)
+
+For `wpse-v1` / `main.dol`, [F-383-1](findings/383-ef-free-line-point-strategies.md) names, with mangled CodeWarrior names and high confidence from the CC0 Whippy reference and exact matches: `DrawQuad(const MTX34&, const _VEC3*, int)` (`0x80241360`), `DrawFreeStrategy::Draw` (`0x802414A0`), `~DrawFreeStrategy` (`0x80241D10`), `DrawLineStrategy::Draw` (`0x80241D90`), `~DrawLineStrategy` (`0x80242340`), `DrawPointStrategy::Draw` (`0x802423C0`), `~DrawPointStrategy` (`0x802427E0`), and the vtables `__vt__Q34nw4r2ef16DrawFreeStrategy` (`0x803C56C0`), `__vt__Q34nw4r2ef16DrawLineStrategy` (`0x803C56D8`) and `__vt__Q34nw4r2ef17DrawPointStrategy` (`0x803C56F0`), 0x18 each.

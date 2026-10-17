@@ -2,10 +2,12 @@
 #define NW4R_EF_DRAW_INFO_H
 #include <nw4r/types_nw4r.h>
 
+#include <nw4r/ef/ef_util.h>
 #include <nw4r/math/math_types.h>
 
 #include <revolution/gx/GXEnum.h>
 #include <revolution/gx/GXStruct.h>
+#include <revolution/gx/GXTransform.h>
 
 namespace nw4r {
 namespace ef {
@@ -61,6 +63,42 @@ public:
     }
     void SetViewMtx(const math::MTX34& rMtx) {
         mViewMtx = rMtx;
+    }
+
+    void GetViewMtxCooked(math::MTX34* pMtx) const {
+        *pMtx = mViewMtx;
+
+        if (mZOffset != 0.0f) {
+            f32 proj[GX_PROJECTION_SZ];
+            GXGetProjectionv(proj);
+
+            switch (static_cast<int>(proj[0])) {
+            case GX_PERSPECTIVE: {
+                math::VEC3 dir;
+                math::VEC3Transform(&dir, &mViewMtx, &mZOffsetOrig);
+
+                if (Normalize(&dir, &dir)) {
+                    if (dir.z >= 0.0f) {
+                        pMtx->_03 += dir.x * mZOffset;
+                        pMtx->_13 += dir.y * mZOffset;
+                        pMtx->_23 += dir.z * mZOffset;
+                    } else {
+                        pMtx->_03 -= dir.x * mZOffset;
+                        pMtx->_13 -= dir.y * mZOffset;
+                        pMtx->_23 -= dir.z * mZOffset;
+                    }
+                } else {
+                    pMtx->_23 += mZOffset;
+                }
+                break;
+            }
+
+            case GX_ORTHOGRAPHIC: {
+                pMtx->_23 += mZOffset;
+                break;
+            }
+            }
+        }
     }
 
     const math::MTX34* GetProjMtx() const {
