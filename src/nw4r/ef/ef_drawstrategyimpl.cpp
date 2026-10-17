@@ -1278,44 +1278,16 @@ Particle* DrawStrategyImpl::GetFirstDrawParticle_YoungersFirst(
     return GetYoungestDrawParticle(pManager);
 }
 
-static inline Particle* GetElderParticleConst(const ParticleManager* pManager,
-                                              Particle* pParticle) {
-    return static_cast<Particle*>(
-        NW4R_UT_LIST_GET_LINK(pManager->mActivityList.mActiveList, pParticle)
-            ->prevObject);
-}
-
-static inline Particle*
-GetYoungerParticleConst(const ParticleManager* pManager, Particle* pParticle) {
-    return static_cast<Particle*>(
-        NW4R_UT_LIST_GET_LINK(pManager->mActivityList.mActiveList, pParticle)
-            ->nextObject);
-}
-
 Particle*
 DrawStrategyImpl::GetNextDrawParticle_EldersFirst(ParticleManager* pManager,
                                                   Particle* pParticle) {
-    pParticle = GetYoungerParticle(pManager, pParticle);
-
-    while (pParticle != nullptr &&
-           pParticle->GetLifeStatus() != ReferencedObject::NW4R_EF_LS_ACTIVE) {
-        pParticle = GetYoungerParticleConst(pManager, pParticle);
-    }
-
-    return pParticle;
+    return GetYoungerDrawParticle(pManager, pParticle);
 }
 
 Particle*
 DrawStrategyImpl::GetNextDrawParticle_YoungersFirst(ParticleManager* pManager,
                                                     Particle* pParticle) {
-    pParticle = GetElderParticle(pManager, pParticle);
-
-    while (pParticle != nullptr &&
-           pParticle->GetLifeStatus() != ReferencedObject::NW4R_EF_LS_ACTIVE) {
-        pParticle = GetElderParticleConst(pManager, pParticle);
-    }
-
-    return pParticle;
+    return GetElderDrawParticle(pManager, pParticle);
 }
 
 DrawStrategyImpl::AheadContext::AheadContext(const math::MTX34& rViewMtx,

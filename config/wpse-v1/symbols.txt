@@ -18418,7 +18418,7 @@ CalcAhead_Speed__Q34nw4r2ef16DrawStrategyImplFPQ34nw4r4math4VEC3PQ44nw4r2ef16Dra
 CalcAhead_EmitterCenter__Q34nw4r2ef16DrawStrategyImplFPQ34nw4r4math4VEC3PQ44nw4r2ef16DrawStrategyImpl12AheadContextPQ34nw4r2ef8Particle = .text:0x8023EAE0; // type:function size:0xBC
 CalcAhead_EmitterDesign__Q34nw4r2ef16DrawStrategyImplFPQ34nw4r4math4VEC3PQ44nw4r2ef16DrawStrategyImpl12AheadContextPQ34nw4r2ef8Particle = .text:0x8023EBA0; // type:function size:0x1C
 CalcAhead_Particle__Q34nw4r2ef16DrawStrategyImplFPQ34nw4r4math4VEC3PQ44nw4r2ef16DrawStrategyImpl12AheadContextPQ34nw4r2ef8Particle = .text:0x8023EBC0; // type:function size:0x118
-fn_8023ECE0 = .text:0x8023ECE0; // type:function size:0x278
+CalcAhead_ParticleBoth__Q34nw4r2ef16DrawStrategyImplFPQ34nw4r4math4VEC3PQ44nw4r2ef16DrawStrategyImpl12AheadContextPQ34nw4r2ef8Particle = .text:0x8023ECE0; // type:function size:0x278
 __dt__Q34nw4r2ef21DrawBillboardStrategyFv = .text:0x8023EF60; // type:function size:0x40
 __ct__Q34nw4r2ef23DrawDirectionalStrategyFv = .text:0x8023EFA0; // type:function size:0x3C
 fn_8023EFE0 = .text:0x8023EFE0; // type:function size:0x138

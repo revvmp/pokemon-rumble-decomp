@@ -1,3 +1,4 @@
+#include <nw4r/db/db_assert.h>
 #include <nw4r/ef/drawstrategy/ef_drawbillboardstrategy.h>
 #include <nw4r/ef/ef_drawinfo.h>
 #include <nw4r/ef/ef_emitter.h>
@@ -12,12 +13,14 @@
 namespace nw4r {
 namespace ef {
 
+static u8 billboard_tex0_u8[] = {0x00, 0x01, 0x00, 0x00, 0x01, 0x00, 0x01, 0x01};
+
 static inline void GXPosition(const math::VEC3& rPos) {
     GXPosition3f32(rPos.x, rPos.y, rPos.z);
 }
 
 static inline void DispPolygon(const math::VEC3& rP, const math::VEC3& rD0,
-                               const math::VEC3& rD1, bool texCoord) {
+                               const math::VEC3& rD1, int texCoord) {
     GXBegin(GX_QUADS, GX_VTXFMT0, 4);
     {
         GXPosition(rP - rD0);
@@ -43,7 +46,7 @@ static inline void DispPolygon(const math::VEC3& rP, const math::VEC3& rD0,
     GXEnd();
 }
 
-static inline void DispPolygon(const math::VEC3* pVtx, bool texCoord) {
+static inline void DispPolygon(const math::VEC3* pVtx, int texCoord) {
     GXBegin(GX_QUADS, GX_VTXFMT0, 4);
     {
         GXPosition(pVtx[0]);
@@ -137,7 +140,7 @@ static inline void DispParticle_Normal(Particle* pParticle,
                                        const math::MTX34& rMtx, f32 vx,
                                        f32 vy, f32 rc, f32 rs, f32 sx, f32 sy,
                                        const math::VEC2& rPivot,
-                                       bool texCoord) {
+                                       int texCoord) {
     math::VEC3 vtx[4];
     math::VEC3* pVtx = vtx;
 
@@ -204,7 +207,7 @@ static inline void DispParticle_YBillboard(Particle* pParticle,
                                            const math::MTX34& rMtx, f32 vx,
                                            f32 vy, f32 rc, f32 rs, f32 sx,
                                            f32 sy, const math::VEC2& rPivot,
-                                           bool texCoord) {
+                                           int texCoord) {
     math::VEC3 rot;
     pParticle->Draw_GetRotate(&rot);
 
@@ -257,6 +260,40 @@ static inline void DispParticle_YBillboard(Particle* pParticle,
         d1.y = -vy_rs * sy;
         d1.z = -vy_rc * sy;
     }
+
+    DispPolygon(p0, d0, d1, texCoord);
+}
+
+static inline void DispParticle_Directional(Particle* pParticle,
+                                            const math::MTX34& rMtx, f32 vx,
+                                            f32 vy, f32 rc, f32 rs, f32 sx,
+                                            f32 sy, f32 stretch,
+                                            const math::VEC2& rPivot,
+                                            int texCoord) {
+    math::VEC3 pos;
+    math::VEC3Transform(&pos, &rMtx, &pParticle->mParameter.mPosition);
+
+    f32 px = rPivot.x;
+    f32 py = rPivot.y;
+
+    f32 vx_rc = vx * rc;
+    f32 vx_rs = vx * rs;
+    f32 vy_rc = vy * rc;
+    f32 vy_rs = vy * rs;
+
+    f32 ox = px - sx * px;
+    f32 oy = sy * (stretch + py - 1.0f) - py;
+
+    math::VEC3 p0(pos.x + (vx_rc * ox + vy_rs * oy),
+                  pos.y + (vx_rs * ox - vy_rc * oy), pos.z);
+
+    f32 vx_rc_sx = vx_rc * sx;
+    f32 vx_rs_sx = vx_rs * sx;
+    f32 vy_rs_sy = stretch * (vy_rs * sy);
+    f32 vy_rc_sy = stretch * (vy_rc * sy);
+
+    math::VEC3 d0(vx_rc_sx - vy_rs_sy, vx_rs_sx + vy_rc_sy, 0.0f);
+    math::VEC3 d1(vx_rc_sx + vy_rs_sy, vx_rs_sx - vy_rc_sy, 0.0f);
 
     DispPolygon(p0, d0, d1, texCoord);
 }
@@ -412,6 +449,146 @@ void DrawBillboardStrategy::DrawYBillboard(const DrawInfo& rInfo,
 
         DispParticle_YBillboard(pParticle, mtx, vx, vy, rc, rs, sx, sy, pivot,
                                 texCoord);
+    }
+}
+
+void DrawBillboardStrategy::DrawDirectionalBillboard(
+    const DrawInfo& rInfo, ParticleManager* pManager) {
+    math::MTX34 viewMtx;
+    rInfo.GetViewMtxCooked(&viewMtx);
+
+    const EmitterDrawSetting& rSetting =
+        *pManager->mResource->GetEmitterDrawSetting();
+
+    InitGraphics(rInfo, pManager);
+
+    int texCoord = mNumTexmap > 0;
+
+    math::VEC2 pivot;
+    pivot.x = rSetting.pivotX / 100.0f;
+    pivot.y = rSetting.pivotY / 100.0f;
+
+    math::MTX34 mtx;
+    pManager->CalcGlobalMtx(&mtx);
+    math::MTX34Mult(&mtx, &viewMtx, &mtx);
+
+    f32 vx = MTXColLen(&mtx, 0);
+    f32 vy = MTXColLen(&mtx, 1);
+
+    AheadContext context(viewMtx, pManager);
+    CalcAheadFunc pCalcAheadFunc = GetCalcAheadFunc(pManager);
+
+    GetFirstDrawParticleFunc pGetFirstFunc = GetGetFirstDrawParticleFunc(
+        rSetting.mFlags & EmitterDrawSetting::FLAG_DRAW_ORDER);
+
+    GetNextDrawParticleFunc pGetNextFunc = GetGetNextDrawParticleFunc(
+        rSetting.mFlags & EmitterDrawSetting::FLAG_DRAW_ORDER);
+
+    bool first = true;
+
+    for (Particle* pParticle = pGetFirstFunc(pManager); pParticle != nullptr;
+         pParticle = pGetNextFunc(pManager, pParticle)) {
+        if (pParticle->GetLifeStatus() != ReferencedObject::NW4R_EF_LS_ACTIVE) {
+            continue;
+        }
+
+        f32 sx = pParticle->Draw_GetSizeX();
+        if (sx < NW4R_MATH_FLT_EPSILON) {
+            continue;
+        }
+
+        f32 sy = pParticle->Draw_GetSizeY();
+        if (sy < NW4R_MATH_FLT_EPSILON) {
+            continue;
+        }
+
+        SetupGP(pParticle, rSetting, rInfo, first, false);
+        first = false;
+
+        math::VEC3 dir;
+        pCalcAheadFunc(&dir, &context, pParticle);
+        math::VEC3TransformNormal(&dir, &mtx, &dir);
+
+        f32 rc, rs;
+        f32 mag = math::FSqrt(dir.x * dir.x + dir.y * dir.y);
+
+        if (mag == 0.0f) {
+            rs = 0.0f;
+            rc = 1.0f;
+        } else {
+            f32 inv = math::FInv(mag);
+            rs = -dir.x * inv;
+            rc = dir.y * inv;
+        }
+
+        f32 stretch = 1.0f;
+        if (rSetting.typeOption0 != 0) {
+            math::VEC3 move;
+            pParticle->GetMoveDir(&move);
+
+            stretch += 0.5f * math::FSqrt(math::VEC3Dot(&move, &move)) / sy;
+        }
+
+        DispParticle_Directional(pParticle, mtx, vx, vy, rc, rs, sx, sy,
+                                 stretch, pivot, texCoord);
+    }
+}
+
+void DrawBillboardStrategy::InitGraphics(const DrawInfo& rInfo,
+                                         ParticleManager* pManager) {
+    NW4R_ASSERT_VALID_PTR(pManager);
+
+    const EmitterDrawSetting& rSetting =
+        *pManager->mResource->GetEmitterDrawSetting();
+
+    Initialize(pManager, rSetting, rInfo);
+
+    GXEnableTexOffsets(GX_TEXCOORD0, TRUE, TRUE);
+
+    GXSetArray(GX_VA_TEX0, billboard_tex0_u8, 2);
+
+    GXClearVtxDesc();
+    GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
+
+    if (mNumTexmap > 0) {
+        GXSetVtxDesc(GX_VA_TEX0, GX_INDEX8);
+    }
+
+    GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
+    GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_U8, 0);
+
+    math::MTX34 ident;
+    math::MTX34Identity(&ident);
+    GXLoadPosMtxImm(ident, GX_PNMTX0);
+    GXSetCurrentMtx(GX_PNMTX0);
+}
+
+DrawStrategyImpl::CalcAheadFunc
+DrawBillboardStrategy::GetCalcAheadFunc(ParticleManager* pManager) {
+    switch (pManager->mResource->GetEmitterDrawSetting()->typeDir) {
+    case EmitterDrawSetting::AHEAD_BB_SPEED: {
+        return CalcAhead_Speed;
+    }
+
+    case EmitterDrawSetting::AHEAD_BB_EMITTER_CENTER: {
+        return CalcAhead_EmitterCenter;
+    }
+
+    case EmitterDrawSetting::AHEAD_BB_EMITTER_DESIGN: {
+        return CalcAhead_EmitterDesign;
+    }
+
+    case EmitterDrawSetting::AHEAD_BB_PARTICLE: {
+        return CalcAhead_Particle;
+    }
+
+    case EmitterDrawSetting::AHEAD_BB_PARTICLE_BOTH: {
+        return CalcAhead_ParticleBoth;
+    }
+
+    default: {
+        return CalcAhead_Speed;
+    }
     }
 }
 
