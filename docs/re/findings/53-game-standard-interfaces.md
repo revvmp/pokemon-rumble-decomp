@@ -115,3 +115,12 @@ identical, with the same eight numeric local-label changes confined to
 - Building only `main.dol` can leave stale diagnostic objects for NonMatching
   units after a rebase. Capture a shared-header baseline after plain Ninja,
   which compiles those diagnostic objects as well as the linked sources.
+
+
+## Refreshed main control at 76b5be1b
+
+PR881 was rebased onto main `76b5be1b` without shared-file conflicts. A fresh same-base original-header control built all 516 source objects through plain Ninja, then the proposed headers rebuilt through the same real entry point. Configure, both Ninja builds and explicit frozen verification exited zero. The control ELF SHA-256 was `43c72dddbc437e6a609fdda9f50bb88d002764489b101f9b39560d9597eb260b`.
+
+All 515 source objects outside msl_thread remain unchanged. The existing two release bodies, their exception records and relocations remain unchanged. The sole emission extension remains the original 64-byte common destructor with eight exception bytes and twelve index bytes, unretained in the final ELF. Whole-DOL SHA-256 remains `ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da`; final ELF sections, header and symbol attributes remain unchanged, with only eight numeric local-label spellings changed in strtab. No additional source bytes are credited.
+
+After allocator PR893 merged, independent wide-string and map-storage diagnostic probes switched from the approved temporary allocator copy to the actual canonical `include/MSL_CPP/allocator.h`. Fresh compilation still reproduces the two wide-string bodies (280 bytes), their three call targets, all 32 exception bytes and both index records; both map-storage constructors still reproduce 24 native bytes apiece. This does not publish either container implementation or resolve their remaining interfaces.
