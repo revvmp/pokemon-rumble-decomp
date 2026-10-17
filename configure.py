@@ -446,6 +446,7 @@ config.libs = [
             Object(Matching, "nw4r/lyt/lyt_layout.cpp"),
             Object(Matching, "nw4r/lyt/lyt_picture.cpp"),
             Object(Matching, "nw4r/lyt/lyt_window.cpp"),
+            Object(Matching, "nw4r/lyt/lyt_material.cpp"),
             Object(Matching, "nw4r/lyt/lyt_bounding.cpp"),
             Object(Matching, "nw4r/lyt/lyt_texMap.cpp"),
             Object(Matching, "nw4r/lyt/lyt_drawInfo.cpp"),

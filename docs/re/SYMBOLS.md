@@ -2444,3 +2444,12 @@ For `wpse-v1` / `main.dol`, [F-73-2](findings/73-cdlgmsgwin.md#f-73-2-cdlgmsgwin
 ## Issue #798 SoundArchivePlayer interface
 
 [F-798-1](findings/798-soundarchiveplayer-interfaces.md) establishes SoundArchivePlayer's complete 0xEC-byte layout: bases at 0/0xC, archive pointer 0x10, callbacks 0x20/0x28, three instance managers 0x44/0x6C/0x94, Mml allocator 0xBC, stream pool 0xC8, parser 0xE0 and setup storage 0xE4/0xE8. Native constructor/update/preparation accesses and the canonical compiler size probe support the original reference members. Callback vtables 0x803C6768/0x803C6778 identify both retained destructors. All 34 retained diagnostic streams/10,172 bytes reproduce initial native words/extents, with relocation and actual source-link acceptance still pending; no code credit is claimed.
+## F-811-2: Native Material source and outside assignments
+
+| Address | Name/type | Evidence | Confidence |
+| --- | --- | --- | --- |
+| `802ABD50` | anonymous `CalcTextureMtx(MTX34*, const TexSRT&)` | Native264bytes, matrix arithmetic and paired relocations | Proven |
+| `802ABE60` | anonymous `SetIndTexMtx(GXIndTexMtxID, const f32 (*)[3])` | Native512bytes, exponent normalization and GX call | Proven |
+| `803C71A8`, `803C71C8`, `803C71E8` | `SetupGX::kColSels`, `SetupGX::kAlpSels`, Material vtable | Complete112data bytes,10paired relocations | Proven |
+| `804BBC10` | `const GXColorS10 DefaultBlackColor` | Native8zero bytes and original SDA2 reference | Proven |
+| `800969A0`, `800969D0` | `VEC2::operator=(const VEC2&)`, `_VEC2::operator=(const _VEC2&)` | Independent48/20byte bodies, paired wrapper+14 branch, unchanged canonical headers | Proven names; no outside ownership change |
