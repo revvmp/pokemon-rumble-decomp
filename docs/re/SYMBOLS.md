@@ -1776,3 +1776,7 @@ Evidence: [F-455-1](findings/455-nw4r-math-lyt-init.md).
 | `0x804B8A08` | anonymous `sEpsilon` (`0.0001f`) | `0x4` | Medium | Writable `.sdata` tolerance in the plane intersections; name descriptive |
 | `0x804B8A10` | anonymous `NW4R_LYT_Version_` | `0x4` | High | Petari name |
 | `0x804BB148` | `sFIdxRange` `{65536.0f, 65536.0f}` | `0x8` | Medium | Paired load in `MTX34RotXYZFIdx`; name descriptive |
+
+## HBM ut TagProcessorBase and TextWriterBase units (#302, #303, #304)
+
+For `wpse-v1` / `main.dol`, [F-302-1](findings/302-nw4hbm-ut.md#f-302-1-ut_tagprocessorbase-and-ut_textwriterbase) names all 95 functions from `0x801943A0` to `0x8019A220` after xenoblade's symbols, which have identical sizes and offsets: `TagProcessorBase<char>` and `<wchar_t>` (constructor, destructor, `Process`, `CalcRect`, `ProcessLinefeed`, `ProcessTab`), `TextWriterBase<char>` (`0x80194E60`–`0x80197800`) and `<wchar_t>` (`0x80197820`–`0x8019A200`), and `__sinit_\ut_TextWriterBase_cpp` (`0x8019A220`). Data: the `TagProcessorBase<wchar_t>` vtable `0x803BCDE8` and RTTI `0x803BCE28`, the `<char>` vtable `0x803BCE30` and RTTI `0x803BCE68`, `mFormatBufferSize` `0x803BCE70`/`0x803BCE74`, `mFormatBuffer` `0x803E9C48`/`0x803E9C50` and `mDefaultTagProcessor` `0x803E9C4C`/`0x803E9C54` (`<char>`/`<wchar_t>`). `TextWriterBase` is 0x60 bytes: `mCharSpace` `0x4C`, `mLineSpace` `0x50`, `mTabWidth` `0x54`, `mDrawFlag` `0x58`, `mTagProcessor` `0x5C`. MSL `vswprintf` is `0x801EE3C0`. Confidence high: names and sizes match xenoblade, and both units match.
