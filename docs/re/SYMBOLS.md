@@ -838,3 +838,6 @@ Names given in `config/wpse-v1/symbols.txt`; evidence in [489-mem-cx-dsp](findin
 | `0x804B9490` | 4 | `HeapArray` | `.sbss` static `HeapDesc*` |
 
 `HeapDesc` is 12 bytes: `long size` at 0x0, free list `Cell*` at 0x4, allocated list `Cell*` at 0x8. `Cell` is a 12-byte header with `prev`, `next` and `long size`; allocations return the cell address plus 32.
+## HBM GUI manager (#287)
+
+[F-287-3](findings/287-hbm-core.md#f-287-3-hbmguimanagercpp-is-one-unit-from-0x801787f0-to-0x8017a008) names the 56 `homebutton::gui` functions at `0x801787F0`–`0x8017A008` (`drawLine_`, `Component::update`, `Manager` and `PaneManager` members, `is_visible`, `PaneComponent::contain`, `draw` and `isVisible`, and the weak inline members they emit), the vtables and RTTI at `0x803BA060`–`0x803BA2D0`, and `PaneManager::suIDCounter` at `0x803E99E0` (4 bytes; was a dtk 8-byte guess). Confidence high: RTTI strings give the classes, vtable slots give the member order, and every function matches. Outside names (nw4hbm list and pane functions, lyt `typeInfo` statics, MEM allocator, GX and PSMTX functions, `operator new`) are recorded in the finding with their addresses. Class layouts are in the finding.
