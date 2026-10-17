@@ -1363,3 +1363,22 @@ NANDCore storage: s_currentDir at 803DC440 (64 bytes), s_homeDir at 8046ECE0 (64
 ## NW4R ut ResFont (#449)
 
 For `wpse-v1` / `main.dol`, [F-449-1](findings/449-ut-resfont-archivefont.md) names the five `.text` functions of `ut_ResFont.cpp` from `0x80295580` to `0x8029588C`: `ResFont::ResFont`, `~ResFont`, `SetResource`, `RemoveResource` (`0x80295770`), and the static `Rebuild` (`0x80295780`), plus `__vt__Q34nw4r2ut7ResFont` (`.data` `0x803C6B58`, 0x60 bytes). High confidence from the CC0 ogws and Petari references and exact matches. `ResFont` adds no members to `ResFontBase`.
+## AI unit (#483, #484)
+
+[F-483-1](findings/483-dvd-ai.md) corroborates the original Petari function and storage names through exact source instructions, register operands and initialized data. The unit starts in #483 at AIRegisterDMACallback; its remaining ten functions are in #484. The timer-calibration locals use descriptive names based on measured elapsed ticks and sample counts.
+
+| Function | Address |
+| --- | --- |
+| `AIRegisterDMACallback` | `0x802D9EE0` |
+| `AIInitDMA` | `0x802D9F30` |
+| `AIStartDMA` | `0x802D9FB0` |
+| `AIGetDMABytesLeft` | `0x802D9FD0` |
+| `AIGetDMAStartAddr` | `0x802D9FE0` |
+| `AIGetDMALength` | `0x802DA000` |
+| `AICheckInit` | `0x802DA010` |
+| `AIInit` | `0x802DA020` |
+| `__AIDHandler` | `0x802DA1A0` |
+| `__AICallbackStackSwitch` | `0x802DA250` |
+| `__AI_SRC_INIT` | `0x802DA2C0` |
+
+Version pointer __AIVersion is at 804B8BC8. Initialization/callback-active flags are four bytes at 804B9800/804B9804; five eight-byte timing values occupy 804B9808–804B9830. Saved stack, callback stack and DMA callback are four-byte pointers at 804B9830/804B9834/804B9838. Source assembly is necessary for __AICallbackStackSwitch because it changes the stack pointer.
