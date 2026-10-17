@@ -496,6 +496,8 @@ config.libs = [
             Object(Matching, "RVL_SDK/wpad/WPADEncrypt.c"),
             Object(Matching, "RVL_SDK/wpad/WPADMem.c"),
             Object(Matching, "RVL_SDK/wpad/debug_msg.c"),
+            Object(Matching, "RVL_SDK/wud/WUDHidHost.c"),
+            Object(Matching, "RVL_SDK/wud/debug_msg.c"),
             Object(Matching, "RVL_SDK/bte/gki_buffer.c", cflags=[*cflags_base, "-ipa file"]),
             Object(Matching, "RVL_SDK/bte/gki_time.c", cflags=[*cflags_base, "-ipa file"]),
             Object(Matching, "RVL_SDK/bte/gki_ppc.c", cflags=[*cflags_base, "-ipa file"]),
