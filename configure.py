@@ -715,6 +715,9 @@ config.libs = [
             Object(Matching, "MetroTRK/gamedev/cust_connection/cc/exi2/GCN/EXI2_GDEV_GCN/main.c", extra_cflags=["-sdata 8"]),
             Object(Matching, "MetroTRK/gamedev/cust_connection/utils/gc/MWCriticalSection_gc.c"),
             Object(Matching, "MetroTRK/gamedev/cust_connection/utils/common/CircleBuffer.c"),
+            Object(Matching, "MetroTRK/debugger/embedded/MetroTRK/Portable/main_TRK.c", extra_cflags=["-sdata 8"]),
+            Object(Matching, "MetroTRK/debugger/embedded/MetroTRK/Portable/mainloop.c", extra_cflags=["-sdata 8"]),
+            Object(Matching, "MetroTRK/debugger/embedded/MetroTRK/Portable/mem_TRK.c"),
         ],
     ),
 ]

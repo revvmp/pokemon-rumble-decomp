@@ -2,7 +2,7 @@
 
 ## F-541-1: GDEV, critical sections and circular buffers
 
-Target `wpse-v1`, frozen executable manifest `config/targets/wpse-v1.json`. Issue #541 contains 32 functions and 2,880 function bytes. This pass reconstructs 17 functions and 1,264 function bytes in three complete C translation units. The preceding MSL wrappers and C++ reference-count release routines, four trap entry points, cache flushing, main loop, polling, dispatch and startup remain outside this delivery. The issue remains incomplete.
+Target `wpse-v1`, frozen executable manifest `config/targets/wpse-v1.json`. Issue #541 contains 32 functions and 2,880 function bytes. This initial pass reconstructs 17 functions and 1,264 function bytes in three complete C translation units. The preceding MSL wrappers and C++ reference-count release routines, four trap entry points, cache flushing, main loop, memory helpers, dispatch and startup are outside this initial pass. [F-541-2](541-main-loop-memory.md) subsequently accepts the main loop and memory helpers. The issue remains incomplete.
 
 | Unit under `MetroTRK/gamedev/cust_connection/` | Text extent | Retained functions / bytes | Other sections |
 | --- | --- | --- | --- |
@@ -70,7 +70,7 @@ Baseline, split-only and source-selected standard configure/build/frozen-verific
 
 ## Remaining work
 
-Fifteen #541 functions and 1,616 function bytes still require acceptance. Preserve the original fallback for these functions, identify the C++ class before reconstructing its release methods, and establish whole source-unit boundaries for MetroTRK startup and polling across #542. This partial delivery does not close #541 or claim reconstruction of the complete debugger.
+This initial pass left fifteen #541 functions and 1,616 function bytes. [F-541-2](541-main-loop-memory.md) accepts four more, leaving eleven functions and 708 bytes. Preserve the original fallback for these functions, identify the C++ class before reconstructing its release methods, and establish whole source-unit boundaries for MetroTRK startup with #542. The later polling functions belong to #543. This partial delivery does not close #541 or claim reconstruction of the complete debugger.
 
 ## Traps
 
