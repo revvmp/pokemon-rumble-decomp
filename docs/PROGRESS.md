@@ -2,20 +2,20 @@
 
 ## Current status
 
-Target `wpse-v1` has identified USA/TMD-version-1 metadata, a frozen package fingerprint, identified main and boot DOLs, and a recursively extracted reference tree. Authenticity and retail revision naming remain unverified. No game toolchain, reconstructed function, or matching game build has been established. Source coverage has no known denominator and is not expressed as a percentage.
+Roadmap Phases 1 to 3 are complete and Phase 4 is active. `python configure.py` and `ninja` rebuild `main.dol` byte for byte from dtk split objects plus one reconstructed source unit, and `tools/verify/verify.py` accepts it against the frozen manifest `config/targets/wpse-v1.json`. Code progress is measured against the objdiff denominator documented in [matching](MATCHING.md#counting-method): 112 of 3,098,940 code bytes and 2 of 17,034 functions are linked from source.
 
 | Milestone | State | Evidence or prerequisite |
 | --- | --- | --- |
 | Repository architecture and workflow | Initialized | `ARCHITECTURE.md`, `PROJECT_RULES.md` |
 | Artifact verifier | Implemented | `tools/verify/verify.py` |
-| Release identification | Metadata identified | WPSE, USA, TMD version 1; F-0001 |
-| Frozen reference manifest | Package frozen | `config/targets/wpse-v1-package.json`; executable acceptance scope pending |
-| Artifact and section inventory | Reference extraction complete for recognized containers | 3,420 files; F-0005; executable coverage and native-resource internals pending |
-| Toolchain identification | Pending | Candidates listed in `re/TOOLCHAIN.md`; none confirmed |
-| Reproducible game build | Pending | Compiler and linker not selected |
-| Source reconstruction | Pending | No reconstructed functions |
-| Exact executable match | Pending | Requires real original and rebuilt artifacts |
-| Full release match | Pending | Requires complete content and packaging coverage |
+| Release identification | Identified | WPSE, USA, TMD version 1; F-0001; retail revision label and acquisition provenance unverified |
+| Frozen reference manifests | Frozen | Package `config/targets/wpse-v1-package.json`; executable `config/targets/wpse-v1.json` (`main.dol`) |
+| Artifact and section inventory | Complete for current scope | F-0005 extraction; both executables' sections in `re/INVENTORY.md`; boot loader role F-0009 |
+| Toolchain identification | Identified per library | RVL_SDK Wii/1.0; MSL and Runtime Wii/1.1 or 1.3 with `-func_align 4`; NW4R Wii/1.0 or 1.1; F-0007 |
+| Reproducible game build | Achieved | Two clean builds byte-identical; F-0010 |
+| Exact executable match | Achieved for `main.dol` | Verified; nearly all code still comes from original split objects |
+| Source reconstruction | Started | 1 of 8,782 units; see ledger |
+| Full release match | Pending | Boot loader, data contents, and WAD packaging outside current scope |
 
 ## Progress images
 
@@ -31,15 +31,41 @@ python tools/progress/progress.py render --phases config/progress.json --output-
 | `docs/images/progress-code.svg` | objdiff report, when given | Matched code, code linked from source, matched functions, matched data, and per-category code; without a report it states that progress is not measured |
 | `docs/images/progress-treemap.svg` | objdiff report, when given | Translation units sized by code bytes and shaded by match percentage in seven bins |
 
-Phase states in `config/progress.json` must agree with the milestone table above and the roadmap gates. States must run done, then at most one active, then pending; the tool rejects anything else. Pass `--report build/<target>/report.json` only after roadmap Phase 4 documents the objdiff denominator in [matching](MATCHING.md); the tool refuses a report with zero total code. Add the treemap to the README at that point. "Matched" means source compiles to identical code; "linked from source" means the final build uses that source rather than an original fallback object. Only the linked figure approaches source coverage, and it still requires the ledger review described in [matching](MATCHING.md).
+Render with the real report after a successful build:
+
+```powershell
+python tools/progress/progress.py render --phases config/progress.json --report build/wpse-v1/report.json --output-dir docs/images
+```
+
+Phase states in `config/progress.json` must agree with the milestone table above and the roadmap gates. States must run done, then at most one active, then pending; the tool rejects anything else. The tool refuses a report with zero total code. Per-category rows appear only when progress categories cover all code; today almost every unit is an uncategorized dtk placeholder. The treemap is opt-in with `--treemap` and stays out of the README until real translation-unit splits replace the 8,781 per-function placeholders, which would otherwise render as noise. "Matched" means source compiles to identical code; "linked from source" means the final build uses that source rather than an original fallback object. Only the linked figure approaches source coverage, and it still requires the ledger review described in [matching](MATCHING.md).
 
 Images use a single blue sequential ramp with separate light and dark steps selected through `prefers-color-scheme`, embed hover titles that work when an SVG is opened directly, and contain no timestamps, so identical inputs produce identical bytes.
 
 ## Reconstruction ledger
 
-No entries yet. For each unit, record target, artifact, address range, source path, confidence, implementation status (`Matching`, `NonMatching`, or `Equivalent`), match evidence, fallback dependencies, and for non-matching units the suspected cause and any decomp.me scratch link. These belong here, not in source comments. Establish function-count and code-size denominators before reporting coverage.
+| Unit | Address ranges | Source | Library and flags | Status | Evidence | Fallbacks |
+| --- | --- | --- | --- | --- | --- | --- |
+| `Runtime/__init_cpp_exceptions.cpp` | `.text` `0x80340B24`–`0x80340B94`; `.ctors$10` `0x803529C0`; `.dtors$10`, `.dtors$15` `0x80352AA0`–`0x80352AA8`; `.sdata` `0x804B8F98` | `src/Runtime/__init_cpp_exceptions.cpp`, follows Petari CC0 source | Runtime.PPCEABI.H, Wii/1.1, `cflags_runtime` with `-func_align 4` | `Matching`, linked | Full `main.dol` verification passed on two clean builds; F-0010 | None in this unit |
+
+All other code comes from original split objects and counts as fallback. For each unit, record target, artifact, address range, source path, confidence, implementation status (`Matching`, `NonMatching`, or `Equivalent`), match evidence, fallback dependencies, and for non-matching units the suspected cause and any decomp.me scratch link. These belong here, not in source comments. Establish function-count and code-size denominators before reporting coverage.
 
 ## Latest session
+
+Completed roadmap Phases 1 to 3 and started Phase 4.
+
+- Acquired and pinned dtk 1.8.4, objdiff-cli 3.8.2, binutils 2.42-2, the CodeWarrior compiler bundle `20251118`, sjiswrap 1.2.2, and ninja 1.13.0. This resolved the earlier dtk provenance question: the user-supplied binary is the official x86 asset (F-0006).
+- Froze the `main.dol` acceptance manifest and recorded both executables' sections. A delegated pass identified the boot content as a NAND loader (F-0009).
+- Measured `.comment` version 15 (F-0008).
+- A second delegated pass identified per-library compilers by masked code search across nine compilers (F-0007). I re-ran its two headline comparisons.
+- Vendored dtk-template as comment-free files in `tools/build/` (D-0007 accepted) and reorganized `tools/` by category (D-0009).
+- Wrote `configure.py`, added the Wii exception runtime split, and reproduced `main.dol` exactly from two clean builds (F-0010).
+- Reconstructed and linked `Runtime/__init_cpp_exceptions.cpp`, and documented the objdiff counting method.
+- Rendered progress images from the real report.
+- Added the source fidelity standard and the source-language decision (D-0010).
+
+New traps are recorded in `AGENTS.md`.
+
+## Earlier session: reference extraction
 
 Pulled `40483bd` (FEAT: Add progress), preserved local extraction changes, and reconciled overlapping documentation with its roadmap and progress tooling. Completed recursive reference extraction: 156 U8 archives, 134 decompressions, 3,420 inventoried files. A fresh second run produced byte-identical outputs for every file. Original WADs and prior extracted contents remain unchanged. See [extraction](re/EXTRACTION.md) and F-0005 for exact commands, tool pins, and validation limits. Native asset formats remain preserved, not converted to editable exports. New traps: 0x40 assets require LZH8 rather than dtk NLZSS, and backslash-bearing U8 names require parent directories to be created before Windows extraction. No source reconstruction or game match is claimed.
 

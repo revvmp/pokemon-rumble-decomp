@@ -2,32 +2,31 @@
 
 ## Current position
 
-Target `wpse-v1`: title ID `0001000157505345`, USA, TMD title version 1. Original root WAD unchanged; identical local copy at `orig/wpse-v1/reference.wad`. Frozen package provenance manifest: `config/targets/wpse-v1-package.json`. Do not fingerprint it again. See `re/FINDINGS.md` F-0001 for offsets, hashes, declared contents, and limitations.
+Target `wpse-v1` (WPSE, USA, TMD title version 1). Roadmap Phases 1 to 3 are complete; Phase 4 is active. Frozen manifests: package `config/targets/wpse-v1-package.json` and executable `config/targets/wpse-v1.json` (`main.dol`). Do not fingerprint either again.
 
-Python 3.14.0 inspection and real verifier fingerprinting succeeded (exit 0); independent SHA-256 checks agreed for both copies. The user extracted contents under `orig/rumble-unidentified/extracted/`; all seven sizes and SHA-1 values match the TMD. No reconstructed source or game build exists. Authenticity and toolchain remain unresolved.
+The dtk-template build in `configure.py` and `tools/build/` reproduces `main.dol` exactly from two clean builds. One unit, `Runtime/__init_cpp_exceptions.cpp`, is reconstructed and linked; everything else is original split objects. Per-library compilers are identified in [F-0007](re/FINDINGS.md#f-0007-per-library-compiler-identification). Code progress is 112 of 3,098,940 bytes; see [counting method](MATCHING.md#counting-method).
 
 ## Next actions
 
-Follow [the roadmap](ROADMAP.md) and [prior art](re/PRIOR_ART.md). Phase 1 remains active: package provenance is frozen and recognized archive extraction is complete, but executable acceptance manifests and full executable coverage/section review are still pending. Do not infer compiler versions from Petari.
-
-1. Use [the extraction guide](re/EXTRACTION.md), [archive index](re/ARCHIVE_INDEX.md), and [inventory](re/wpse-v1-extraction.csv). The successful reference tree is `orig/wpse-v1/extraction/`; both repeated extractions produced 3,420 identical files. Existing destinations are intentionally rejected by the extractor.
-2. Keep the original package, compressed contents, wrappers, and derived native resources. Main executable: `orig/wpse-v1/main.dol` (entry 0x80004050); boot executable: `orig/wpse-v1/boot.dol` (entry 0x81330000). Trace boot-to-main control flow and inspect for embedded code before claiming full code coverage.
-3. Freeze separate executable acceptance manifests after reviewing scope, and finish raw section records. Do not modify or re-fingerprint `config/targets/wpse-v1-package.json`.
-4. Establish input acquisition provenance and the user-supplied dtk binary's download source; these remain unknown. Decoder source acquisition, revisions, and hashes are recorded in F-0005.
-5. Analyze library/compiler evidence, then settle D-0007 open items before adopting a build scaffold. Native BRRES/RSAR, effects, BSP, and PKC resources remain intact for later format-specific work; editable asset conversion is separate from reference extraction.
-
-The incoming `40483bd` commit was pulled with local edits preserved, and its progress tooling and prior-art notes were retained. Code coverage has no measured denominator. Regenerate progress images from real phase/report inputs; never invent an objdiff report.
+1. Finish Phase 4: categorize units as libraries are split so per-category progress becomes meaningful, and reconstruct further units. Prefer libraries with matching reference source: RVL_SDK with Wii/1.0 at default alignment; MSL and Runtime with Wii/1.1 plus `-func_align 4`. Reuse requires license review and provenance in the ledger.
+2. Replace dtk's per-function auto splits with real translation-unit boundaries in `config/wpse-v1/splits.txt`, starting with the library address regions in F-0007. Then enable the treemap with `--treemap` and add it to the README.
+3. For game code, follow the source fidelity standard in root `AGENTS.md`: C++ classes with evidenced names from strings such as `CPauseMenu.cpp`. Record names and layouts in `re/SYMBOLS.md`.
+4. After each change, run the build, run verification, regenerate the progress images, and update the ledger.
+5. Still open: acquisition provenance of the WAD, the boot loader's exact content-loading path, and whether the original linker was Wii/1.1. Native asset formats remain unconverted.
 
 ## Available commands
 
+Prerequisites: tools in `tools/local/` and ninja in `.venv`, as in [setup](SETUP.md#acquire-tools).
+
 ```powershell
-Get-FileHash -Algorithm SHA256 orig/wpse-v1/reference.wad
-.\dtk.exe dol info orig/wpse-v1/main.dol
-python tools/verify/verify.py --help
-python tools/progress/progress.py render --phases config/progress.json --output-dir docs/images
+python configure.py
+.venv/Scripts/ninja
+python tools/verify/verify.py verify --manifest config/targets/wpse-v1.json --reference-dir orig/wpse-v1 --build-dir build/wpse-v1 --report build/wpse-v1/verification.json
+python tools/progress/progress.py render --phases config/progress.json --report build/wpse-v1/report.json --output-dir docs/images
+python tools/reference/extract_reference.py --help
 ```
 
-Recursive extraction and a fresh repeat both exited 0; every recorded output matched byte-for-byte. No game build command exists yet. Follow root `AGENTS.md` and `PROJECT_RULES.md`; all files under `orig/` are eligible for tracking by explicit user instruction; keep tools and extracted contents outside `orig/` ignored, and do not add unit tests, code comments, or docstrings.
+Follow root `AGENTS.md` and `PROJECT_RULES.md`. All files under `orig/` are eligible for tracking by explicit user instruction. Tool binaries stay in ignored `tools/local/`. Do not add unit tests, code comments, or docstrings.
 
 ## Git tracking of originals
 

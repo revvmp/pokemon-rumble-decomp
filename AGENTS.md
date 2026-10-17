@@ -30,6 +30,11 @@ Keep entries concise and actionable. Distinguish confirmed findings from hypothe
 - **Community decomp tooling carries comments.** dtk-template's `configure.py` and `tools/*.py`, used by Petari, are commented, which conflicts with the no-comments rule. Do not vendor them until [D-0007](docs/DECISIONS.md#d-0007-evaluate-the-dtk-template-ecosystem) records a policy. Petari's `NON_MATCHING`, decomp.me, and field-offset comments go in the reconstruction ledger and symbol records instead; see [prior art](docs/re/PRIOR_ART.md#adapting-to-this-projects-rules).
 - **Comparable-project facts are not our facts.** Compiler versions, flags, and library lists from Petari are hypotheses for this game. Keep them out of `config/toolchain.json` until our own evidence confirms them; see [roadmap](docs/ROADMAP.md).
 - **Progress images are committed outputs.** Changing `config/progress.json` or measured progress without rerunning `tools/progress/progress.py` leaves stale README images. Regenerate and commit them together; never hand-edit the SVGs or pass a fabricated report. See [progress images](docs/PROGRESS.md#progress-images).
+- **dtk rewrites `symbols.txt` and `splits.txt`.** `ninja` regenerated `symbols.txt` and dropped a hand-added `force_active` attribute. Keep linker-visible requirements in source (`#pragma force_active on`) or `config.yml`, and review dtk rewrites before committing. See [F-0010](docs/re/FINDINGS.md#f-0010-split-build-reproduces-maindol).
+- **objdiff 100% does not guarantee a link match.** Fuzzy scoring ignores alignment padding. A unit compiled with the Wii default 16-byte function alignment scored 100% but shifted the whole DOL; the runtime needs `-func_align 4`. Mark a unit `Matching` only after full verification passes. See [F-0010](docs/re/FINDINGS.md#f-0010-split-build-reproduces-maindol).
+- **The Wii linker dead-strips `.ctors$10` and `.dtors$15`.** Declare the sections with `#pragma section` and wrap the table entries in `#pragma force_active on`. See [F-0010](docs/re/FINDINGS.md#f-0010-split-build-reproduces-maindol).
+- **Compilers differ per library.** RVL_SDK matches only Wii/1.0 at default alignment. MSL and Runtime need Wii/1.1 or 1.3 with `-func_align 4`. Do not apply one compiler project-wide. See [F-0007](docs/re/FINDINGS.md#f-0007-per-library-compiler-identification).
+- **Shared `build/` is single-writer.** Parallel `configure.py` or `ninja` runs clobber `build.ninja` and outputs. Run parallel investigations in separate scratch directories or worktrees.
 - **Byte identity does not prove source reconstruction.** Copying original executable bytes can satisfy comparison. Review source coverage and fallback dependencies separately before claiming decompilation progress; see [acceptance requirements](docs/MATCHING.md).
 
 - **A WAD boot index is not a game-code inventory.** This package declares seven contents and boot index 6. Inspect and validate all decrypted contents before selecting the main executable; see [F-0001](docs/re/FINDINGS.md#f-0001-wad-container-metadata).
@@ -46,11 +51,11 @@ Keep entries concise and actionable. Distinguish confirmed findings from hypothe
 
 | Current state | Value |
 | --- | --- |
-| Phase | Roadmap Phase 1: reference extraction validated; executable scope review pending |
+| Phase | Roadmap Phase 4: denominator and first source |
 | Active target | `wpse-v1` (USA, TMD title version 1) |
-| Original hashes | Package SHA-256 frozen in `config/targets/wpse-v1-package.json` |
-| Game build entry point | Not implemented |
+| Original hashes | Package `config/targets/wpse-v1-package.json`; executable `config/targets/wpse-v1.json` |
+| Game build entry point | `python configure.py` then `.venv/Scripts/ninja`; see `docs/SETUP.md` |
 | Verification entry point | `python tools/verify/verify.py --help` |
 | Progress images | `python tools/progress/progress.py render --phases config/progress.json --output-dir docs/images` |
 | Extraction entry point | `python tools/reference/extract_reference.py`; see `docs/re/EXTRACTION.md` |
-| Next action | Review executable manifests and boot/main coverage; see `docs/HANDOFF.md` |
+| Next action | Split library translation units and reconstruct sources; see `docs/HANDOFF.md` |

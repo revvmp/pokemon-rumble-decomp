@@ -167,6 +167,12 @@ def human_bytes(value):
     return f"{value} B"
 
 
+def format_share(share):
+    if 0 < share < 0.01:
+        return "<0.01%"
+    return f"{share:.2f}%"
+
+
 def meter_row(y, label, matched, total, unit):
     share = matched / total * 100 if total else 0.0
     track_x = 220
@@ -179,7 +185,7 @@ def meter_row(y, label, matched, total, unit):
     ]
     if fill_width > 0:
         row.append(f'<rect class="fill" x="{track_x}" y="{y}" width="{max(fill_width, 4):.2f}" height="14" rx="4"/>')
-    row.append(text(WIDTH - GUTTER, y + 11, f"{share:.2f}% · {amount}", "label secondary", "end"))
+    row.append(text(WIDTH - GUTTER, y + 11, f"{format_share(share)} · {amount}", "label secondary", "end"))
     return row
 
 
@@ -211,7 +217,7 @@ def render_code(report):
         y += 26
     body.append(text(GUTTER, y + 10, "Matched: source compiles to identical code. Linked: the final build uses that source instead of an original fallback object.", "small secondary"))
     headline = rows[0][1] / rows[0][2] * 100
-    return svg_document(y + 26, f"Code progress: {headline:.2f}% matched code", body)
+    return svg_document(y + 26, f"Code progress: {format_share(headline)} matched code", body)
 
 
 def worst_ratio(row, side):

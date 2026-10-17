@@ -12,7 +12,7 @@ Done. Rules, architecture, living documentation, and the exact artifact verifier
 
 Goal: a frozen manifest for the original package and an extracted, identified main executable.
 
-Current evidence: target wpse-v1, package fingerprint, main/boot DOLs, and recursive reference extraction are established in F-0001 through F-0005. Separate executable acceptance manifests and complete executable scope review remain outstanding; Phase 1 stays active.
+Done. Target `wpse-v1`, package and `main.dol` manifests, recursive extraction, both executables' section records, and the boot loader's role are established in F-0001 to F-0006 and F-0009.
 
 1. Acquire decomp-toolkit into `tools/local/`, recording version, source URL, and binary SHA-256 in [toolchain](re/TOOLCHAIN.md). Petari pins `v1.8.3`.
 2. Run `dtk wad info` and `dtk vfs ls` against the local WAD. [F-0001](re/FINDINGS.md#f-0001-wad-container-metadata) already records title ID `WPSE`, title version 1, seven contents, and boot index 6 from unencrypted metadata. If dtk cannot open a WiiWare WAD, record that as a finding and evaluate another extractor.
@@ -24,6 +24,8 @@ Current evidence: target wpse-v1, package fingerprint, main/boot DOLs, and recur
 Gate: manifests frozen, every content accounted for, and the executable's format and sections recorded.
 
 ## Phase 2: Toolchain and library evidence
+
+Done. Per-library compilers are identified in F-0007, the `.comment` version in F-0008, and a reconstructed runtime unit matches in F-0010.
 
 Goal: known compiler families and versions for at least the runtime and SDK portions.
 
@@ -37,6 +39,8 @@ Gate: at least one library translation unit compiles to identical bytes with a r
 
 ## Phase 3: Splittable build skeleton
 
+Done. Two clean builds reproduce `main.dol` exactly (F-0010). D-0007 is accepted.
+
 Goal: `python configure.py` then `ninja` reproduces the original DOL byte for byte using only split original objects, with acceptance by `tools/verify/verify.py`.
 
 1. Resolve the open items in [D-0007](DECISIONS.md#d-0007-evaluate-the-dtk-template-ecosystem): vendoring policy for dtk-template tooling and its comments, directory mapping, and the relationship between `build.sha1` and our manifests.
@@ -47,6 +51,8 @@ Goal: `python configure.py` then `ninja` reproduces the original DOL byte for by
 Gate: a clean build passes `tools/verify/verify.py verify` against the frozen DOL manifest. This is a build milestone with zero source coverage; every object is still an original fallback. Record that explicitly.
 
 ## Phase 4: Denominator and first source
+
+Active. The denominator is documented in [matching](MATCHING.md#counting-method) and the first unit is linked from source. Remaining: real library translation-unit splits, progress categories, and more reconstructed units.
 
 Goal: measurable progress and the first reconstructed translation units.
 

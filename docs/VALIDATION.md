@@ -43,3 +43,14 @@ The real `tools/reference/extract_reference.py` workflow and a fresh repeat both
 Pulled origin/main commit `40483bd` with `git pull --ff-only origin main` after saving tracked local edits in a named stash. Restored the edits, reconciled five overlapping documentation files, retained the incoming roadmap/progress/prior-art features, and left local changes unstaged. The safety stash named `local extraction work before 40483bd` remains available. No unmerged paths or conflict markers remain; `git diff --check` passed. No commit or push was performed.
 
 Ran `python tools/progress/progress.py render --phases config/progress.json --output-dir docs/images` successfully. The resulting images agree with the incoming images after Windows newline handling: Phase 1 remains active and code progress remains unmeasured. No objdiff report was provided or fabricated.
+
+## Build pipeline validation
+
+Ran on Windows with Python 3.14.2, dtk 1.8.4 x86, objdiff-cli 3.8.2, ninja 1.13.0, and CodeWarrior Wii/1.1 linker. Evidence is in [F-0010](re/FINDINGS.md#f-0010-split-build-reproduces-maindol).
+
+- `python configure.py` exit 0. `ninja` with the exception runtime split exit 0, including dtk's `build.sha1` check.
+- `tools/verify/verify.py fingerprint` sealed `config/targets/wpse-v1.json` (exit 0), and its digest equals F-0003. `verify` passed (exit 0) with all units split, and again with `Runtime/__init_cpp_exceptions.cpp` linked from source.
+- Rejection paths observed during real work: before the runtime split, with 16-byte function alignment, and with dead-stripped table entries, both dtk's check and our verifier failed (exit 1) and reported the first differing offset.
+- Two clean builds, each after deleting `build/wpse-v1`, `build.ninja`, and ninja state, produced identical `main.dol`, `main.elf`, and `report.json` SHA-256 values. Both passed verification.
+- `tools/vendor/vendor_strip.py` vendored seven dtk-template files. Each output was checked to have the same syntax tree as upstream with docstrings removed, and every Python file under `tools/` contains no comment tokens or docstrings.
+- Progress images rendered from the real `build/wpse-v1/report.json` (exit 0) and were inspected in a headless Edge screenshot. `--treemap` without `--report` exits 1 before writing anything.

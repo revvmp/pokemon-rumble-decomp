@@ -127,3 +127,36 @@ Procedure: `powerpc-eabi-strings.exe -a -t x -n 5` and `powerpc-eabi-objdump.exe
 With these, the unit is `Matching` and two consecutive clean builds (build directory, `build.ninja`, and ninja state deleted first) both produced `main.dol` SHA-256 `ad1a5989…53da`, `main.elf` `e235b1f1…0fe2`, and `report.json` `47bae99e…672b`, and both passed verification.
 
 This unit's two functions compile identically under Wii/1.0, Wii/1.0a, Wii/1.1, Wii/1.3, and GC/3.0a5.2, so it does not identify the runtime's original compiler; Wii/1.1 is used for consistency with the linker. Wii/1.1 as the linker is consistent with the evidence but not proven original: with split objects, other Wii linkers were not tried. Source provenance: follows Petari's CC0 `src/Runtime/__init_cpp_exceptions.cpp`; the headers in `include/Runtime/` were written for this project and declare only what this unit uses.
+
+## F-0007: Per-library compiler identification
+
+Build banners in `orig/wpse-v1/main.dol` carry CodeWarrior build codes that correspond to entries in the compiler bundle's `info.txt`: RVL_SDK OS, GX, DVD, AX, PAD, WPAD, KPAD and others `0x4302_145` (Wii/1.0, Ver 4.3 build 145); NW4R EF, G3D, SND, LYT `0x4302_151`, final build Sep 24 2009 (Wii/1.1, build 151); HBM `0x4201_142` (Wii/1.0a); NCD `0x4199_60831` (GC/3.0a5.2). Banner offsets are listed in the [inventory](INVENTORY.md). The banners are hypotheses about the compilers; the experiment below tests them.
+
+Procedure, run by a delegated analysis pass and spot-checked here: 216 CC0 Petari source files (commit `e0ab141`; nw4r ut/lyt/math/db, RVL_SDK libraries, MSL_C, Runtime) were compiled with GC/3.0a3, GC/3.0a5, GC/3.0a5.2, and Wii/1.0RC1, 1.0a, 1.0, 1.1, 1.3, and 1.7, using Petari's per-library flags, and again with `-func_align 4`. Each function's code, with every relocation-bearing instruction word masked, was searched for at 4-byte-aligned offsets in the DOL's `.init` and `.text`. A hit required at least eight unmasked words and one to four locations. Tools: dtk 1.8.4, GNU objdump 2.42, Python 3.14.2. Scripts and full listings are kept in ignored `docs/re/local/wpse-v1/phase2/`.
+
+| Address region (chosen by address) | Matched functions | Result |
+| --- | --- | --- |
+| RVL_SDK `0x802B1800`–`0x8033F900` | 679 | Only Wii/1.0 at default alignment reproduces all 679. Wii/1.0RC1 and 1.0a miss 12, Wii/1.1 and 1.3 miss 17, Wii/1.7 misses 19, GC compilers miss at least 303. |
+| MSL and Runtime `0x8033F900` onward | 98 | Wii/1.1 and Wii/1.3 with `-func_align 4` reproduce all 98. Builds up to Wii/1.0 and Wii/1.7 miss 2, every compiler without `-func_align 4` misses at least 20, GC misses 47. |
+| NW4R `0x80292000`–`0x802B1800` | 129 | None reproduces all. Wii/1.0 and 1.1 reproduce 126, other Wii builds 125, GC 60. |
+| Second lyt/ut copy `0x80186000`–`0x80195000` | 57 | None reproduces all. Wii/1.0RC1 and 1.0a reproduce 55, later Wii builds 51, GC 32. |
+
+Discriminating functions, verified directly here for the first entry of each list:
+- `__CanPushCmdQueue` at `0x802FE530` is reproduced by Wii/1.0. Wii/1.1 inserts a redundant sign extension, offsetting every later word.
+- `__num2dec` at `0x80344180` is reproduced by Wii/1.1 with `-func_align 4`. Wii/1.0 is one word shorter.
+
+Further discriminators:
+- SDK functions that exclude Wii/1.0RC1 and 1.0a: `OSFatal` `0x802B7120`, `GXSetTevColor` `0x802CFD70`, `NANDCreate` `0x802E4630`.
+- SDK functions that exclude Wii/1.1 and later: `UnlockSram` `0x802BB170`, `GXSetIndTexMtx` `0x802CF7A0`, `WPADControlLed` `0x802FA770`.
+- MSL functions that exclude Wii/1.7: `__ieee754_log` `0x8034A104`, `__kernel_rem_pio2` `0x8034B174`.
+
+Function alignment, from start addresses: 16-byte for matched SDK, NW4R, and lyt/ut code; packed 4-byte for MSL and Runtime. `-func_align 4` changes code as well as padding, because Wii compilers insert loop-alignment `nop`s relative to their default layout.
+
+Conclusions:
+- **RVL_SDK:** Wii/1.0 at default alignment, high confidence. This agrees with its banner.
+- **MSL_C and Runtime:** Wii/1.1 or Wii/1.3 with `-func_align 4`, high confidence. 1.1 versus 1.3 is unresolved; GC compilers are excluded.
+- **NW4R:** consistent with Wii/1.0 or 1.1, medium confidence. Petari's 2007 source drifts from the 2009 code. The banner suggests 1.1 but the experiment does not prove it.
+- **Second lyt/ut copy:** consistent with Wii/1.0RC1 or 1.0a. Hypothesis: it is the Home Button Menu's own copy (`nw4hbm::lyt` strings, HBM `0x4201_142` banner); the addresses were not traced.
+- **NCD:** the GC/3.0a5.2 banner was not tested, because no reference source is available.
+
+Caveats: Petari's library sources predate this game's, so a miss does not by itself exclude a compiler, and identical output across compilers is not evidence. Inline and IPA flags were not varied.
