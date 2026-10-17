@@ -8,6 +8,21 @@ extern "C" {
 #endif
 
 #ifdef __MWERKS__
+static inline u8 __OSf32tou8(register f32 in) {
+    f32 a;
+    register f32* ptr = &a;
+    register u8 r;
+    asm {
+        psq_st in, 0(ptr), 1, 2
+        lbz r, 0(ptr)
+    }
+    return r;
+}
+
+static inline void OSf32tou8(register f32* in, volatile register u8* out) {
+    *out = __OSf32tou8(*in);
+}
+
 static inline u16 __OSf32tou16(register f32 in) {
     f32 a;
     register f32* ptr = &a;
