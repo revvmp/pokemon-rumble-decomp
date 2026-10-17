@@ -3,6 +3,8 @@
 
 #include <revolution/bte/bt_types.h>
 
+#define L2CAP_MIN_OFFSET 9
+
 enum {
     L2CAP_CONN_OK = 0
 };
@@ -63,6 +65,7 @@ typedef struct {
 
 typedef BOOLEAN tL2CA_COMPRESS_CB(BD_ADDR peer_addr, int, int, int, int, int, int, UINT8** p_mem_pool, UINT32* mem_pool_size);
 
+BOOLEAN L2CA_Register(UINT16 psm, tL2CAP_APPL_INFO* p_cb_info);
 UINT16 L2CA_ConnectReq(UINT16 psm, BD_ADDR p_bd_addr);
 void L2CA_Deregister(UINT16 psm);
 BOOLEAN L2CA_ConnectRsp(BD_ADDR p_bd_addr, UINT8 id, UINT16 lcid, UINT16 result, UINT16 status);
@@ -70,6 +73,7 @@ BOOLEAN L2CA_ConfigReq(UINT16 cid, tL2CAP_CFG_INFO* p_cfg);
 BOOLEAN L2CA_ConfigRsp(UINT16 cid, tL2CAP_CFG_INFO* p_cfg);
 BOOLEAN L2CA_DisconnectReq(UINT16 cid);
 BOOLEAN L2CA_DisconnectRsp(UINT16 cid);
+UINT8 L2CA_DataWrite(UINT16 cid, BT_HDR* p_data);
 BOOLEAN L2CA_SetIdleTimeoutByBdAddr(BD_ADDR bd_addr, UINT16 timeout);
 void L2CA_RegisterCompression(tL2CA_COMPRESS_CB* p_cb, int);
 

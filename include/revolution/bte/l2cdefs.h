@@ -1,0 +1,6 @@
+#ifndef RVL_SDK_BTE_L2CDEFS_H
+#define RVL_SDK_BTE_L2CDEFS_H
+
+#define L2CAP_DEFAULT_MTU 672
+
+#endif

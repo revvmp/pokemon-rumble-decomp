@@ -17,6 +17,7 @@ enum {
 #define TRACE_CTRL_GENERAL 0x00000000
 #define TRACE_LAYER_NONE 0x00000000
 #define TRACE_ORG_APPL 0x00000500
+#define TRACE_LAYER_SDP 0x000A0000
 #define TRACE_TYPE_EVENT 0x00000003
 
 #define TRACE_LAYER_HID 0x001E0000
@@ -33,6 +34,47 @@ void LogMsg_2(UINT32 trace_set_mask, const char* fmt_str, UINT32 p1, UINT32 p2);
 void LogMsg_4(UINT32 trace_set_mask, const char* fmt_str, UINT32 p1, UINT32 p2, UINT32 p3, UINT32 p4);
 void LogMsg_6(UINT32 trace_set_mask, const char* fmt_str, UINT32 p1, UINT32 p2, UINT32 p3, UINT32 p4, UINT32 p5,
               UINT32 p6);
+
+#define BT_TRACE_0(l, t, m) LogMsg_0(TRACE_CTRL_GENERAL | (l) | TRACE_ORG_STACK | (t), (m))
+#define BT_TRACE_1(l, t, m, p1) LogMsg_1(TRACE_CTRL_GENERAL | (l) | TRACE_ORG_STACK | (t), (m), (UINT32)(p1))
+#define BT_TRACE_2(l, t, m, p1, p2)                                                                                    \
+    LogMsg_2(TRACE_CTRL_GENERAL | (l) | TRACE_ORG_STACK | (t), (m), (UINT32)(p1), (UINT32)(p2))
+
+#define SDP_TRACE_ERROR0(m)                                                                                            \
+    {                                                                                                                  \
+        if (sdp_cb.trace_level >= BT_TRACE_LEVEL_ERROR)                                                                \
+            BT_TRACE_0(TRACE_LAYER_SDP, TRACE_TYPE_ERROR, m);                                                          \
+    }
+#define SDP_TRACE_WARNING0(m)                                                                                          \
+    {                                                                                                                  \
+        if (sdp_cb.trace_level >= BT_TRACE_LEVEL_WARNING)                                                              \
+            BT_TRACE_0(TRACE_LAYER_SDP, TRACE_TYPE_WARNING, m);                                                        \
+    }
+#define SDP_TRACE_WARNING1(m, p1)                                                                                    \
+    {                                                                                                                  \
+        if (sdp_cb.trace_level >= BT_TRACE_LEVEL_WARNING)                                                              \
+            BT_TRACE_1(TRACE_LAYER_SDP, TRACE_TYPE_WARNING, m, p1);                                                    \
+    }
+#define SDP_TRACE_WARNING2(m, p1, p2)                                                                                  \
+    {                                                                                                                  \
+        if (sdp_cb.trace_level >= BT_TRACE_LEVEL_WARNING)                                                              \
+            BT_TRACE_2(TRACE_LAYER_SDP, TRACE_TYPE_WARNING, m, p1, p2);                                                \
+    }
+#define SDP_TRACE_EVENT0(m)                                                                                            \
+    {                                                                                                                  \
+        if (sdp_cb.trace_level >= BT_TRACE_LEVEL_EVENT)                                                                \
+            BT_TRACE_0(TRACE_LAYER_SDP, TRACE_TYPE_EVENT, m);                                                          \
+    }
+#define SDP_TRACE_EVENT1(m, p1)                                                                                        \
+    {                                                                                                                  \
+        if (sdp_cb.trace_level >= BT_TRACE_LEVEL_EVENT)                                                                \
+            BT_TRACE_1(TRACE_LAYER_SDP, TRACE_TYPE_EVENT, m, p1);                                                      \
+    }
+#define SDP_TRACE_EVENT2(m, p1, p2)                                                                                    \
+    {                                                                                                                  \
+        if (sdp_cb.trace_level >= BT_TRACE_LEVEL_EVENT)                                                                \
+            BT_TRACE_2(TRACE_LAYER_SDP, TRACE_TYPE_EVENT, m, p1, p2);                                                  \
+    }
 
 #define APPL_TRACE_EVENT0(m)                                                                                     \
     {                                                                                                            \
