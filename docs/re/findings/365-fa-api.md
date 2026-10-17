@@ -13,6 +13,13 @@ The unit follows CC0 Petari `e0ab141914921726a595573dc48d3f13d0922efe`,
 `src/RVL_SDK/vf/pf_api_util.c` and its associated header. FA's established
 prefix convention removes VF's `VFi` prefix; see
 [F-350-2](350-fa-common.md#f-350-2-unit-boundaries-names-and-remaining-work).
+The CC0 Wii Menu reference `koopthekoopa/wii-ipl` at
+`f4c09f4001c5a0b9af734ad1e3f80a54c5e5723c`, `config/43U/symbols.txt`
+and `splits.txt`, independently names every retained FA utility function
+and establishes the following one-function standard API files. Its
+PFAPI_convertDriverError and PFAPI_convertReturnValue4feof match the two
+extra native functions by order, exact size, and behavior.
+
 The reference's first function, table lookup, return-value conversion,
 pointer conversion, and unmount conversion occur in the same retained
 order. FA retains two additional conversions between them.
@@ -23,9 +30,9 @@ order. FA retains two additional conversions between them.
 | --- | --- | --- | --- |
 | `0x8021A2B0` | `0xB4` | PFAPI_ParseOpenModeString | Reference name; parses r/w/a, optional b and +. |
 | `0x8021A370` | `0x50` | PFAPI_convertError | Reference name; maps positive error codes through the table and maps 4096 to 5. |
-| `0x8021A3C0` | `0x24` | PFAPI_convertErrorStatus | Descriptive name; maps positive errors below 160 to 1 and preserves other values. |
+| `0x8021A3C0` | `0x24` | PFAPI_convertDriverError | Original FA map name; maps positive errors below 160 to 1 and preserves other values. |
 | `0x8021A3F0` | `0x10` | PFAPI_convertReturnValue | Reference name; returns 0 for success and -1 otherwise. |
-| `0x8021A400` | `0x20` | PFAPI_convertReturnValuePreservingOne | Descriptive name; preserves 1, otherwise returns 0 or -1. |
+| `0x8021A400` | `0x20` | PFAPI_convertReturnValue4feof | Original FA map name; preserves 1, otherwise returns 0 or -1. |
 | `0x8021A420` | `0x18` | PFAPI_convertReturnValue2NULL | Reference name; returns the pointer on success and NULL otherwise. |
 | `0x8021A440` | `0x24` | PFAPI_convertReturnValue4unmount | Reference name; preserves 0 and 1, maps other values to -1. |
 

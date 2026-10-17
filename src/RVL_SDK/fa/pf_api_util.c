@@ -64,7 +64,7 @@ int PFAPI_convertError(int err) {
     }
 }
 
-int PFAPI_convertErrorStatus(int err) {
+int PFAPI_convertDriverError(int err) {
     if (err == 0) {
         return 0;
     }
@@ -81,7 +81,7 @@ int PFAPI_convertReturnValue(int err) {
     return -1;
 }
 
-int PFAPI_convertReturnValuePreservingOne(int err) {
+int PFAPI_convertReturnValue4feof(int err) {
     if (err == 1) {
         return 1;
     }
