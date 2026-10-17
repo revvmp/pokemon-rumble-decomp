@@ -98,6 +98,59 @@ typedef struct AXFX_CHORUS_EXP {
     f32 sendGain;
 } AXFX_CHORUS_EXP;
 
+typedef struct AXFX_REVERBHI_EXP {
+    f32* earlyLine[AXFX_STEREO_CHANNEL_MAX];
+    u32 earlyPos[3];
+    u32 earlyLength;
+    u32 earlyMaxLength;
+    f32 earlyCoef[3];
+    f32* preDelayLine[AXFX_STEREO_CHANNEL_MAX];
+    u32 preDelayPos;
+    u32 preDelayLength;
+    u32 preDelayMaxLength;
+    f32* combLine[AXFX_STEREO_CHANNEL_MAX][3];
+    u32 combPos[3];
+    u32 combLength[3];
+    u32 combMaxLength[3];
+    f32 combCoef[3];
+    f32* allpassLine[AXFX_STEREO_CHANNEL_MAX][2];
+    u32 allpassPos[2];
+    u32 allpassLength[2];
+    u32 allpassMaxLength[2];
+    f32* lastAllpassLine[AXFX_STEREO_CHANNEL_MAX];
+    u32 lastAllpassPos[AXFX_STEREO_CHANNEL_MAX];
+    u32 lastAllpassLength[AXFX_STEREO_CHANNEL_MAX];
+    u32 lastAllpassMaxLength[AXFX_STEREO_CHANNEL_MAX];
+    f32 allpassCoef;
+    f32 lastLpfOut[AXFX_STEREO_CHANNEL_MAX];
+    f32 lpfCoef;
+    u32 active;
+    u32 earlyMode;
+    f32 preDelayTimeMax;
+    f32 preDelayTime;
+    u32 fusedMode;
+    f32 fusedTime;
+    f32 coloration;
+    f32 damping;
+    f32 crosstalk;
+    f32 earlyGain;
+    f32 fusedGain;
+    AXFX_BUS* busIn;
+    AXFX_BUS* busOut;
+    f32 outGain;
+    f32 sendGain;
+} AXFX_REVERBHI_EXP;
+
+typedef struct AXFX_REVERBHI {
+    AXFX_REVERBHI_EXP exp;
+    f32 coloration;
+    f32 mix;
+    f32 time;
+    f32 damping;
+    f32 preDelay;
+    f32 crosstalk;
+} AXFX_REVERBHI;
+
 typedef void* (*AXFXAllocHook)(u32 size);
 typedef void (*AXFXFreeHook)(void* block);
 

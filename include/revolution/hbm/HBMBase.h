@@ -101,6 +101,22 @@ typedef struct {
       MEMAllocator* pAllocator;
 } HBMDataInfo;
 
+typedef struct HBMDataInfoEx HBMDataInfoEx;
+
+void HBMCreate(const HBMDataInfo* pHBInfo);
+void HBMDelete(void);
+void HBMInit(void);
+HBMSelectBtnNum HBMCalc(const HBMControllerData* pController);
+void HBMDraw(void);
+HBMSelectBtnNum HBMGetSelectBtnNum(void);
+void HBMSetAdjustFlag(BOOL flag);
+void HBMStartBlackOut(void);
+BOOL HBMIsReassignedControllers(void);
+void HBMCreateSound(void* soundData, void* memBuf, u32 memSize);
+void HBMDeleteSound(void);
+void HBMUpdateSound(void);
+void HBMCreateInfoEx(const HBMDataInfoEx* pHBInfoEx);
+
 #ifdef __cplusplus
 }
 #endif
