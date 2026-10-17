@@ -108,6 +108,7 @@ enum {
 };
 
 enum {
+    BTM_SEC_PROTO_RFCOMM = 3,
     BTM_SEC_PROTO_HID = 6
 };
 

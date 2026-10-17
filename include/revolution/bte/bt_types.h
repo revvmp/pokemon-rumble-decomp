@@ -61,6 +61,7 @@ typedef struct {
 } FLOW_SPEC;
 
 enum {
+    BT_PSM_RFCOMM = 3,
     BT_PSM_HIDC = 17,
     BT_PSM_HIDI = 19
 };
