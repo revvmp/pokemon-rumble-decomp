@@ -2331,3 +2331,7 @@ For `wpse-v1` / `main.dol`, [F-757-1](findings/757-hbm-base-pointer-events.md#f-
 ### Emitter-form vtable extents, issue 380 completion
 
 [F-380-2](findings/380-complete-inventory-audit.md) establishes 12-byte single-method vtables at `0x803C55D8`, `0x803C55E8`, `0x803C55F8`, `0x803C5608`, and `0x803C5618`: two prefix words followed by the virtual Create or Emission pointer. Each prior 16-byte inference included four following alignment bytes. The five owned data splits now end at the actual object end, and all nine issue units have 100% function and section comparisons with exact full-DOL identity. No source coverage is added or double counted by this boundary correction.
+
+## HBM HBMBase.cpp pointer leave event (#758)
+
+For `wpse-v1` / `main.dol`, [F-758-1](findings/758-hbm-base-left-event.md#f-758-1-startleftevent) renames `fn_80183230` to `startLeftEvent__Q210homebutton10HomeButtonFPCQ36nw4hbm3lyt4Pane` (0xC14 bytes), with high confidence from `HomeButtonEventHandler::onEvent` (`0x80185B00`) and key, confirmed by exact match. Its switch jump table is at `.data` `0x803BB3A4`.

@@ -2199,6 +2199,136 @@ void HomeButton::startPointEvent(const nw4hbm::lyt::Pane* pPane, void* pData) {
     }
 }
 
+void HomeButton::startLeftEvent(const nw4hbm::lyt::Pane* pPane) {
+    int anm_no;
+    int btn_no = getPaneNo(pPane);
+
+    if (0 < mPaneCounter[btn_no]) {
+        if (btn_no == mButtonNum + 1 || btn_no == mButtonNum + 9) {
+            mPaneCounter[mButtonNum + 1]--;
+            mPaneCounter[mButtonNum + 9]--;
+        } else {
+            mPaneCounter[btn_no]--;
+        }
+    }
+
+    if (isActive() && btn_no != -1 && !mPaneCounter[btn_no]) {
+        if (mSequence != eSeq_Cmn && btn_no < mButtonNum) {
+            anm_no = findAnimator(btn_no, 2);
+            mpAnmController[anm_no]->start();
+        } else {
+            switch (btn_no - mButtonNum) {
+            case 0:
+                if (mSequence == eSeq_Normal) {
+                    if (isUpBarActive()) {
+                        mpPairGroupAnmController[12]->start();
+                        mBar0AnmRevHold = 12;
+                        mBar0AnmRev = 0;
+                    } else {
+                        mBar0AnmRev = 12;
+                    }
+                }
+                break;
+
+            case 1:
+            case 9:
+                if (mSequence == eSeq_Normal) {
+                    anm_no = findGroupAnimator(5, 3);
+
+                    if (isDownBarActive()) {
+                        mpGroupAnmController[anm_no]->start();
+                        mBar1AnmRevHold = anm_no;
+                        mBar1AnmRev = 0;
+                    } else {
+                        mBar1AnmRev = anm_no;
+                    }
+                } else if (mSequence == eSeq_Control) {
+                    anm_no = findGroupAnimator(5, 20);
+
+                    if (isDownBarActive()) {
+                        mpGroupAnmController[anm_no]->start();
+                        mBar1AnmRevHold = anm_no;
+                        mBar1AnmRev = 0;
+                    } else {
+                        mBar1AnmRev = anm_no;
+                    }
+                }
+                break;
+
+            case 2:
+                if (mSequence == eSeq_Control) {
+                    anm_no = findGroupAnimator(6, 7);
+                    mpGroupAnmController[anm_no]->start();
+                }
+                break;
+
+            case 3:
+                if (mSequence == eSeq_Control) {
+                    anm_no = findGroupAnimator(7, 7);
+                    mpGroupAnmController[anm_no]->start();
+                }
+                break;
+
+            case 4:
+                if (mSequence == eSeq_Control) {
+                    anm_no = findGroupAnimator(8, 7);
+                    mpGroupAnmController[anm_no]->start();
+                }
+                break;
+
+            case 5:
+                if (mSequence == eSeq_Control) {
+                    anm_no = findGroupAnimator(9, 7);
+                    mpGroupAnmController[anm_no]->start();
+                }
+                break;
+
+            case 6:
+                if (mSequence == eSeq_Control) {
+                    anm_no = findGroupAnimator(10, 7);
+                    mpGroupAnmController[anm_no]->start();
+                }
+                break;
+
+            case 7:
+                if (mSequence == eSeq_Cmn || mSequence == eSeq_Seq4) {
+                    anm_no = findGroupAnimator(17, 12);
+                    mpGroupAnmController[anm_no]->start();
+                }
+                break;
+
+            case 8:
+                if (mSequence == eSeq_Cmn || mSequence == eSeq_Seq4) {
+                    anm_no = findGroupAnimator(18, 12);
+                    mpGroupAnmController[anm_no]->start();
+                }
+                break;
+
+            case 10:
+                if (mSequence == eSeq_Seq3) {
+                    mpAnmControllerEx[1]->start();
+
+                    nw4hbm::lyt::Pane* pBtnWarePane = mpLayoutEx->GetRootPane()->FindPaneByName(scBtnWareName[0], true);
+                    pBtnWarePane->SetSize(nw4hbm::lyt::Size(324.0f, 64.0f));
+                }
+                break;
+
+            case 11:
+                if (mSequence == eSeq_Seq3) {
+                    if (isThirdBarActive()) {
+                        mpAnmControllerEx[4]->start();
+                        mBar2AnmRevHold = 4;
+                        mBar2AnmRev = 0;
+                    } else {
+                        mBar2AnmRev = 4;
+                    }
+                }
+                break;
+            }
+        }
+    }
+}
+
 void HomeButton::reset_control() {
     int anm_no;
 
