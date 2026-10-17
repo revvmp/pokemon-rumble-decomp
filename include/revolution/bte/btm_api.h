@@ -115,6 +115,13 @@ enum {
 
 #define BTM_PM_SET_ONLY_ID 0x80
 
+enum {
+    BTM_ACL_MODE_NORMAL = 0,
+    BTM_ACL_MODE_HOLD = 1,
+    BTM_ACL_MODE_SNIFF = 2,
+    BTM_ACL_MODE_PARK = 3
+};
+
 typedef UINT8 tBTM_BD_NAME[BTM_MAX_REM_BD_NAME_LEN + 1];
 
 typedef void tBTM_DEV_STATUS_CB(tBTM_DEV_STATUS status);
@@ -309,6 +316,7 @@ void BTM_PINCodeReply(BD_ADDR bd_addr, UINT8 res, UINT8 pin_len, UINT8* p_pin, U
 void BTM_DeviceAuthorized(BD_ADDR bd_addr, UINT8 res, UINT32 trusted_mask[]);
 tBTM_STATUS BTM_SecBond(BD_ADDR bd_addr, UINT8 pin_len, UINT8* p_pin, UINT32 trusted_mask[]);
 tBTM_STATUS BTM_SetPowerMode(UINT8 pm_id, BD_ADDR remote_bda, tBTM_PM_PWR_MD* p_mode);
+tBTM_STATUS BTM_ReadPowerMode(BD_ADDR remote_bda, tBTM_PM_MODE* p_mode);
 BOOLEAN BTM_SetSecurityLevel(BOOLEAN is_originator, char* p_name, UINT8 service_id, UINT8 sec_level, UINT16 psm,
                              UINT32 mx_proto_id, UINT32 mx_chan_id);
 

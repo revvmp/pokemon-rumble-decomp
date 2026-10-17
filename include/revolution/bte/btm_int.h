@@ -275,9 +275,14 @@ void btm_init(void);
 void btm_discovery_db_init(void);
 void btm_sec_mx_access_request(BD_ADDR bd_addr, UINT16 psm, BOOLEAN is_originator, UINT32 mx_proto_id, UINT32 mx_chan_id,
                                tBTM_SEC_CALLBACK* p_callback, void* p_ref_data);
+tBTM_STATUS btm_sec_l2cap_access_req(BD_ADDR bd_addr, UINT16 psm, UINT16 handle, BOOLEAN is_originator,
+                                     tBTM_SEC_CALLBACK* p_callback);
 void btm_sec_abort_access_req(BD_ADDR bd_addr);
 UINT16 btm_get_max_packet_size(BD_ADDR addr);
 BOOLEAN btm_sec_is_bonding(UINT16 handle);
+tBTM_SEC_DEV_REC* btm_find_dev(BD_ADDR bd_addr);
+void btm_acl_created(BD_ADDR bda, DEV_CLASS dc, BD_NAME bdn, UINT16 hci_handle, UINT8 link_role);
+void btm_sco_acl_removed(BD_ADDR bda);
 void btm_remove_sco_links(BD_ADDR bda);
 void btm_acl_removed(BD_ADDR bda);
 tBTM_STATUS btm_sec_disconnect(UINT16 handle, UINT8 reason);

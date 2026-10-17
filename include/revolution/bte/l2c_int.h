@@ -13,6 +13,13 @@ extern "C" {
 #define L2CAP_MIN_MTU 48
 
 #define L2CAP_LINK_CONNECT_TOUT 60
+#define L2CAP_LINK_CONNECT_TOUT_EXT 120
+#define L2CAP_LINK_DISCONNECT_TOUT 30
+#define L2CAP_LINK_FLOW_CONTROL_TOUT 2
+#define L2CAP_CHNL_CONNECT_TOUT 60
+#define L2CAP_CHNL_CONNECT_TOUT_EXT 120
+#define L2CAP_CHNL_CFG_TOUT 30
+#define L2CAP_CHNL_DISCONNECT_TOUT 30
 #define L2CAP_LINK_ROLE_SWITCH_TOUT 10
 #define L2CAP_ECHO_RSP_TOUT 30
 
@@ -40,7 +47,13 @@ typedef enum {
 } tL2C_LINK_STATE;
 
 enum {
+    L2CEVT_LP_CONNECT_CFM = 0,
+    L2CEVT_LP_CONNECT_CFM_NEG = 1,
+    L2CEVT_LP_CONNECT_IND = 2,
     L2CEVT_LP_DISCONNECT_IND = 3,
+    L2CEVT_LP_QOS_VIOLATION_IND = 6,
+    L2CEVT_SEC_COMP = 7,
+    L2CEVT_SEC_COMP_NEG = 8,
     L2CEVT_L2CAP_CONNECT_REQ = 10,
     L2CEVT_L2CAP_CONNECT_RSP = 11,
     L2CEVT_L2CAP_CONNECT_RSP_PND = 12,
@@ -61,6 +74,11 @@ enum {
     L2CEVT_L2CA_DISCONNECT_RSP = 27,
     L2CEVT_L2CA_DATA_WRITE = 29,
     L2CEVT_TIMEOUT = 30
+};
+
+enum {
+    IB_CFG_DONE = 1 << 0,
+    OB_CFG_DONE = 1 << 1
 };
 
 typedef struct {
@@ -147,16 +165,24 @@ typedef struct {
 extern tL2C_CB l2cb;
 
 void l2c_csm_execute(tL2C_CCB* p_ccb, UINT16 event, void* p_data);
+void forward_peer_data(tL2C_CCB* p_ccb, BT_HDR* p_buf);
 
+void l2c_link_hci_conn_req(BD_ADDR bd_addr);
 BOOLEAN l2c_link_hci_conn_comp(UINT8 status, UINT16 handle, BD_ADDR p_bda);
+void l2c_link_sec_comp(BD_ADDR p_bda, void* p_ref_data, UINT8 status);
 BOOLEAN l2c_link_hci_disc_comp(UINT16 handle, UINT8 reason);
 BOOLEAN l2c_link_hci_qos_violation(UINT16 handle);
 void l2c_link_timeout(tL2C_LCB* p_lcb);
+BOOLEAN l2c_link_send_to_lower(tL2C_LCB* p_lcb, BT_HDR* p_buf);
 void l2c_link_check_send_pkts(tL2C_LCB* p_lcb, tL2C_CCB* p_ccb, BT_HDR* p_buf);
 void l2c_link_adjust_allocation(void);
 void l2c_link_process_num_completed_pkts(UINT8* p);
+void l2c_link_processs_num_bufs(UINT16 num_lm_acl_bufs);
+BT_HDR* l2cap_link_chk_pkt_start(BT_HDR* p_cur_buf);
+BOOLEAN l2cap_link_chk_pkt_end(void);
 void l2c_link_role_changed(BD_ADDR bd_addr, UINT8 new_role);
 void l2c_link_role_change_failed(void);
+void l2c_link_segments_xmitted(BT_HDR* p_msg);
 void l2c_pin_code_request(BD_ADDR bd_addr);
 
 void l2c_init(void);

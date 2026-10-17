@@ -974,6 +974,14 @@ RVL_SDK/bte/l2c_api.c:
 	.text       start:0x8032C584 end:0x8032D150
 	.data       start:0x803E32C0 end:0x803E3A50
 
+RVL_SDK/bte/l2c_csm.c:
+	.text       start:0x8032D150 end:0x8032E62C
+	.data       start:0x803E3A50 end:0x803E4287
+
+RVL_SDK/bte/l2c_link.c:
+	.text       start:0x8032E62C end:0x8032F7B8
+	.data       start:0x803E4288 end:0x803E44F2
+
 RVL_SDK/bte/l2c_main.c:
 	.text       start:0x8032F7B8 end:0x803307E8
 	.data       start:0x803E44F8 end:0x803E47F3
