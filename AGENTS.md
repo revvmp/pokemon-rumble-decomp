@@ -61,6 +61,8 @@ Keep entries concise and actionable. Distinguish confirmed findings from hypothe
 
 - **Root licenses can have file-level exceptions.** Petari BTE files retain Broadcom Apache-2.0 notices despite its root CC0 license. Inspect each reused file and preserve its specific notices; see [F-510-1](docs/re/findings/510-bte-transport-logging.md#source-provenance-and-reusable-lesson).
 
+- **BTE is not built with Wii/1.0.** The HID units match only with GC/3.0a3–3.0a5.2 plus `cflags_sdk`; Wii compilers emit a different `switch` tree, and 4-byte-aligned function starts rule out the Wii default alignment. Check alignment before trusting an issue's compiler label; see [F-524-2](docs/re/findings/524-bte-hid.md#f-524-2-bte-hid-units-use-a-gamecube-30-compiler).
+
 ## Current project state
 
 | Current state | Value |

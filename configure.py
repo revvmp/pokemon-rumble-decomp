@@ -147,6 +147,8 @@ cflags_sdk = [
 
 SDK_COMPILER = "Wii/1.0"
 
+BTE_COMPILER = "GC/3.0a3"
+
 config.libs = [
     library(
         "RVL_SDK.CNT",
@@ -165,6 +167,11 @@ config.libs = [
             Object(NonMatching, "RVL_SDK/bte/bte_hcisu.c", cflags=cflags_base),
             Object(NonMatching, "RVL_SDK/bte/bte_init.c", cflags=cflags_base),
             Object(NonMatching, "RVL_SDK/bte/bte_logmsg.c", cflags=cflags_base),
+            Object(NonMatching, "RVL_SDK/bte/hidd_api.c", mw_version=BTE_COMPILER),
+            Object(NonMatching, "RVL_SDK/bte/hidd_conn.c", mw_version=BTE_COMPILER),
+            Object(NonMatching, "RVL_SDK/bte/hidd_mgmt.c", mw_version=BTE_COMPILER),
+            Object(NonMatching, "RVL_SDK/bte/hidd_pm.c", mw_version=BTE_COMPILER),
+            Object(NonMatching, "RVL_SDK/bte/hidh_api.c", mw_version=BTE_COMPILER),
         ],
     ),
     library(

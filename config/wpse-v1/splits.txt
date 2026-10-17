@@ -36,6 +36,26 @@ RVL_SDK/bte/bte_logmsg.c:
 	.bss        start:0x804A9040 end:0x804A9820
 	.sdata      start:0x804B8EE0 end:0x804B8EE8
 
+RVL_SDK/bte/hidd_api.c:
+	.text       start:0x80329258 end:0x803292C0
+
+RVL_SDK/bte/hidd_conn.c:
+	.text       start:0x803292C0 end:0x80329380
+	.data       start:0x803E2D70 end:0x803E2DA0
+
+RVL_SDK/bte/hidd_mgmt.c:
+	.text       start:0x80329380 end:0x80329448
+	.data       start:0x803E2DA0 end:0x803E2DC0
+	.bss        start:0x804AD8F0 end:0x804ADA38
+
+RVL_SDK/bte/hidd_pm.c:
+	.text       start:0x80329448 end:0x803297C4
+
+RVL_SDK/bte/hidh_api.c:
+	.text       start:0x803297C4 end:0x8032A544
+	.data       start:0x803E2DC0 end:0x803E2ED8
+	.bss        start:0x804ADA38 end:0x804ADE40
+
 Runtime/__init_cpp_exceptions.cpp:
 	.text       start:0x80340B24 end:0x80340B94
 	.ctors      start:0x803529C0 end:0x803529C4 rename:.ctors$10
