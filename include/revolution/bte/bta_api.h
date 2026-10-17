@@ -10,6 +10,9 @@
 extern "C" {
 #endif
 
+#define BTA_SERVICE_NAME_LEN 35
+typedef UINT8 tBTA_SEC;
+
 typedef UINT8 tBTA_STATUS;
 
 enum {

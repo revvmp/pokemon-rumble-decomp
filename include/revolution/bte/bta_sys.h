@@ -12,6 +12,7 @@ enum {
     BTA_ID_SYS = 0,
     BTA_ID_DM = 1,
     BTA_ID_DM_SEARCH = 2,
+    BTA_ID_HH = 23,
     BTA_ID_MAX = 26
 };
 
