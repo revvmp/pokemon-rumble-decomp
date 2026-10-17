@@ -399,6 +399,7 @@ config.libs = [
             Object(Matching, "RVL_SDK/bte/hidd_mgmt.c", mw_version=BTE_COMPILER),
             Object(Matching, "RVL_SDK/bte/hidd_pm.c", mw_version=BTE_COMPILER),
             Object(Matching, "RVL_SDK/bte/hidh_api.c", mw_version=BTE_COMPILER),
+            Object(Matching, "RVL_SDK/bte/port_utils.c", mw_version=BTE_COMPILER),
             Object(Matching, "RVL_SDK/bte/rfc_l2cap_if.c", mw_version=BTE_COMPILER),
             Object(Matching, "RVL_SDK/bte/rfc_mx_fsm.c", mw_version=BTE_COMPILER),
             Object(Matching, "RVL_SDK/bte/rfc_port_fsm.c", mw_version=BTE_COMPILER),

@@ -276,6 +276,7 @@ void btm_discovery_db_init(void);
 void btm_sec_mx_access_request(BD_ADDR bd_addr, UINT16 psm, BOOLEAN is_originator, UINT32 mx_proto_id, UINT32 mx_chan_id,
                                tBTM_SEC_CALLBACK* p_callback, void* p_ref_data);
 void btm_sec_abort_access_req(BD_ADDR bd_addr);
+UINT16 btm_get_max_packet_size(BD_ADDR addr);
 
 void btm_acl_encrypt_change(UINT16 handle, UINT8 status, UINT8 encr_enable);
 void btm_read_remote_version_complete(UINT8* p);

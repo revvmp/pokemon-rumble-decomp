@@ -148,8 +148,17 @@ void Port_TimeOutCloseMux(tRFC_MCB* p_mcb);
 void PORT_DataInd(tRFC_MCB* p_mcb, UINT8 dlci, BT_HDR* p_buf);
 void PORT_FlowInd(tRFC_MCB* p_mcb, UINT8 dlci, BOOLEAN enable_data);
 void port_rfc_closed(tPORT* p_port, UINT8 res);
+tPORT* port_allocate_port(UINT8 dlci, BD_ADDR bd_addr);
+void port_set_defaults(tPORT* p_port);
+void port_select_mtu(tPORT* p_port);
+void port_release_port(tPORT* p_port);
+tRFC_MCB* port_find_mcb(BD_ADDR bd_addr);
 tPORT* port_find_mcb_dlci_port(tRFC_MCB* p_mcb, UINT8 dlci);
 tPORT* port_find_dlci_port(UINT8 dlci);
+tPORT* port_find_port(UINT8 dlci, BD_ADDR bd_addr);
+UINT32 port_flow_control_user(tPORT* p_port);
+UINT32 port_get_signal_changes(tPORT* p_port, UINT8 old_signals, UINT8 signal);
+void port_flow_control_peer(tPORT* p_port, BOOLEAN enable, UINT16 count);
 
 #ifdef __cplusplus
 }

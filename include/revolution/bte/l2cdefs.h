@@ -3,5 +3,6 @@
 
 #define L2CAP_DEFAULT_MTU 672
 #define L2CAP_BASE_APPL_CID 0x0040
+#define L2CAP_PKT_OVERHEAD 4
 
 #endif

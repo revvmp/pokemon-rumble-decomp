@@ -33,6 +33,7 @@ enum {
 void LogMsg_0(UINT32 trace_set_mask, const char* fmt_str);
 void LogMsg_1(UINT32 trace_set_mask, const char* fmt_str, UINT32 p1);
 void LogMsg_2(UINT32 trace_set_mask, const char* fmt_str, UINT32 p1, UINT32 p2);
+void LogMsg_3(UINT32 trace_set_mask, const char* fmt_str, UINT32 p1, UINT32 p2, UINT32 p3);
 void LogMsg_4(UINT32 trace_set_mask, const char* fmt_str, UINT32 p1, UINT32 p2, UINT32 p3, UINT32 p4);
 void LogMsg_6(UINT32 trace_set_mask, const char* fmt_str, UINT32 p1, UINT32 p2, UINT32 p3, UINT32 p4, UINT32 p5,
               UINT32 p6);
@@ -41,6 +42,9 @@ void LogMsg_6(UINT32 trace_set_mask, const char* fmt_str, UINT32 p1, UINT32 p2, 
 #define BT_TRACE_1(l, t, m, p1) LogMsg_1(TRACE_CTRL_GENERAL | (l) | TRACE_ORG_STACK | (t), (m), (UINT32)(p1))
 #define BT_TRACE_2(l, t, m, p1, p2)                                                                                    \
     LogMsg_2(TRACE_CTRL_GENERAL | (l) | TRACE_ORG_STACK | (t), (m), (UINT32)(p1), (UINT32)(p2))
+
+#define BT_TRACE_3(l, t, m, p1, p2, p3)                                                                                \
+    LogMsg_3(TRACE_CTRL_GENERAL | (l) | TRACE_ORG_STACK | (t), (m), (UINT32)(p1), (UINT32)(p2), (UINT32)(p3))
 
 #define BT_TRACE_4(l, t, m, p1, p2, p3, p4)                                                                            \
     LogMsg_4(TRACE_CTRL_GENERAL | (l) | TRACE_ORG_STACK | (t), (m), (UINT32)(p1), (UINT32)(p2), (UINT32)(p3), (UINT32)(p4))
@@ -140,6 +144,17 @@ void LogMsg_6(UINT32 trace_set_mask, const char* fmt_str, UINT32 p1, UINT32 p2, 
     {                                                                                                                  \
         if (rfc_cb.trace_level >= BT_TRACE_LEVEL_DEBUG)                                                                \
             BT_TRACE_0(TRACE_LAYER_RFCOMM, TRACE_TYPE_DEBUG, m);                                                       \
+    }
+
+#define RFCOMM_TRACE_DEBUG1(m, p1)                                                                                     \
+    {                                                                                                                  \
+        if (rfc_cb.trace_level >= BT_TRACE_LEVEL_DEBUG)                                                                \
+            BT_TRACE_1(TRACE_LAYER_RFCOMM, TRACE_TYPE_DEBUG, m, p1);                                                   \
+    }
+#define RFCOMM_TRACE_DEBUG3(m, p1, p2, p3)                                                                             \
+    {                                                                                                                  \
+        if (rfc_cb.trace_level >= BT_TRACE_LEVEL_DEBUG)                                                                \
+            BT_TRACE_3(TRACE_LAYER_RFCOMM, TRACE_TYPE_DEBUG, m, p1, p2, p3);                                           \
     }
 
 #define APPL_TRACE_EVENT0(m)                                                                                     \
