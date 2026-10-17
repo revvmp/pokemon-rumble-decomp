@@ -225,6 +225,18 @@ config.libs = [
         ],
     ),
     library(
+        "RVL_SDK.FA",
+        SDK_COMPILER,
+        cflags_sdk,
+        "sdk",
+        [
+            Object(Matching, "RVL_SDK/fa/pf_clib.c"),
+            Object(Matching, "RVL_SDK/fa/pf_code.c"),
+            Object(Matching, "RVL_SDK/fa/pf_service.c"),
+            Object(NonMatching, "RVL_SDK/fa/pf_str.c"),
+        ],
+    ),
+    library(
         "NW4R.ef",
         NW4R_COMPILER,
         cflags_nw4r,
