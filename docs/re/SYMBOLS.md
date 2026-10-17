@@ -41,7 +41,7 @@ For each shared type or interface record size, alignment, field offsets, paramet
 | `0x802C9780` | `C_MTXPerspective` | `0xEC` |
 | `0x802C9870` | `C_MTXOrtho` | `0x98` |
 
-`Vec` contains single-precision `x`, `y`, `z` at offsets 0, 4, 8, size 12 and alignment 4. `Mtx` is a row-major 3 by 4 single-precision matrix, size 48; `Mtx44` is 4 by 4, size 64. Both have alignment 4. These layouts follow the observed load/store offsets and the CC0 SDK reference. `C_MTXPerspective` calls the matching reference's `tan` at `0x8034D4B8`; the target spelling remains unchanged because the function belongs outside issue 474.
+`Vec` contains single-precision `x`, `y`, `z` at offsets 0, 4, 8, size 12 and alignment 4. `Mtx` is a row-major 3 by 4 single-precision matrix, size 48; `Mtx44` is 4 by 4, size 64. Both have alignment 4. These layouts follow the observed load/store offsets and the CC0 SDK reference. `C_MTXPerspective` calls the matching reference's `tan` at `0x8034D4B8`; the referenced callee is now named `tan` under the updated outside-symbol rule, with its size `0x78`, type and owning split unchanged (F-474-4).
 
 ## Issue 475: GX FIFO
 

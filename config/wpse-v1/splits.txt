@@ -84,7 +84,7 @@ RVL_SDK/mtx/mtxvec.c:
 	.text       start:0x802C9590 end:0x802C96E0
 
 RVL_SDK/mtx/mtx44.c:
-	.text       start:0x802C96E0 end:0x802C9910 align:16
+	.text       start:0x802C96E0 end:0x802C9908 align:16
 	.sdata2     start:0x804BB2B0 end:0x804BB2C8
 
 RVL_SDK/gx/GXFifo.c:
