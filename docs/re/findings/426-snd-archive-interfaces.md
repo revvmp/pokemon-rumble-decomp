@@ -1,6 +1,6 @@
 # F-426-3: Archive interfaces for retained NAND stream methods
 
-Target `wpse-v1`, frozen `config/targets/wpse-v1.json`. This header prerequisite adds the complete canonical `SoundArchive`, `SoundArchiveFileReader`, archive file structures, and `NandSoundArchive` declarations needed by issue #426. It changes no source selection, splits, symbols, or credited code bytes.
+Target `wpse-v1`, frozen `config/targets/wpse-v1.json`. This prerequisite supplies the complete canonical `NandSoundArchive` declaration needed by issue #426. The identical `SoundArchive`, `SoundArchiveFileReader`, and archive file structures arrived on main in PR #786 while this prerequisite was pending; the rebase preserves those canonical headers without duplicate additions. It changes no source selection, splits, symbol configuration, or credited code bytes.
 
 ## Native interface evidence
 
