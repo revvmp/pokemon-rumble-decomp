@@ -226,6 +226,7 @@ config.libs = [
             Object(Matching, "RVL_SDK/hbm/nw4hbm/math/math_triangular.cpp"),
             Object(Matching, "RVL_SDK/hbm/nw4hbm/ut/ut_binaryFileFormat.cpp"),
             Object(Matching, "RVL_SDK/hbm/nw4hbm/ut/ut_CharStrmReader.cpp"),
+            Object(Matching, "RVL_SDK/hbm/nw4hbm/ut/ut_CharWriter.cpp"),
         ],
     ),
     library(
