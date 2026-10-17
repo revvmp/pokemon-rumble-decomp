@@ -1,8 +1,9 @@
 #ifndef HBM_REMOTE_SPK_H
 #define HBM_REMOTE_SPK_H
 
-#include "revolution/arc.h"
 #include "revolution/os.h"
+#include "revolution/os/OSMutex.h"
+#include "revolution/arc.h"
 #include "revolution/wenc.h"
 #include "revolution/wpad.h"
 

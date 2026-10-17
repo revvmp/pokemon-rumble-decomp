@@ -43,6 +43,7 @@ struct OSAlarm {
 #define OSSecondsToTicks(sec) ((sec) * OS_TIMER_CLOCK)
 #define OSMillisecondsToTicks(msec) ((msec) * (OS_TIMER_CLOCK / 1000))
 #define OSMicrosecondsToTicks(usec) (((usec) * (OS_TIMER_CLOCK / 125000)) / 8)
+#define OSNanosecondsToTicks(nsec) (((nsec) * (OS_TIMER_CLOCK / 125000)) / 8000)
 #define OSTicksToMilliseconds(ticks) ((ticks) / (OS_TIMER_CLOCK / 1000))
 #define OSDiffTick(tick1, tick0) ((s32)(tick1) - (s32)(tick0))
 
