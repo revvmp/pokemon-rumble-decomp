@@ -474,6 +474,12 @@ nw4r/g3d/g3d_anmtexpat.cpp:
 	.data       start:0x803C5AF8 end:0x803C5B88
 	.sdata2     start:0x804BABA0 end:0x804BABB0
 
+nw4r/g3d/g3d_anmtexsrt.cpp:
+	.text       start:0x802575E0 end:0x802580CC
+	.rodata     start:0x8036C798 end:0x8036C7C8
+	.data       start:0x803C5B88 end:0x803C5C18
+	.sdata2     start:0x804BABB0 end:0x804BABD0
+
 nw4r/g3d/g3d_anmscn.cpp:
 	.text       start:0x80259780 end:0x8025ACFC
 	.rodata     start:0x8036C818 end:0x8036C838
