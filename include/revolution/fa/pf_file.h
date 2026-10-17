@@ -1,0 +1,17 @@
+#ifndef FA_PF_FILE_H
+#define FA_PF_FILE_H
+
+#include <revolution/fa/pf_volume.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void PFFILE_Cursor_MoveToEnd(PF_FILE* p_file);
+void PFFILE_Cursor_MoveToClusterEnd(PF_FILE* p_file, u32 size);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif
