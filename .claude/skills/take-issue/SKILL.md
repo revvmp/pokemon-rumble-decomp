@@ -1,11 +1,11 @@
 ---
 name: take-issue
-description: Claim an unassigned GitHub issue in this decompilation project, work it to a pull request in an isolated worktree, merge it once CI passes, and clean up the worktree. Use when asked to pick up, take, claim, or work on an issue, or to "grab the next issue", optionally with an issue number or label such as area:sdk or "good first issue".
+description: Claim an unassigned GitHub issue in this decompilation project, work it to a pull request in an isolated worktree, merge it once verified locally against the latest main, and clean up the worktree. Use when asked to pick up, take, claim, or work on an issue, or to "grab the next issue", optionally with an issue number or label such as area:sdk or "good first issue".
 ---
 
 # Take an issue
 
-Claim exactly one GitHub issue that nobody is assigned to, work it in your own worktree, hand back through a pull request, merge it once CI passes, and clean up. All claim logic lives in `tools/collab/claim_issue.py`; never assign or comment on issues by hand.
+Claim exactly one GitHub issue that nobody is assigned to, work it in your own worktree, hand back through a pull request, merge it once it verifies locally against the latest `main`, and clean up. All claim logic lives in `tools/collab/claim_issue.py`; never assign or comment on issues by hand.
 
 ## 1. Check prerequisites
 
