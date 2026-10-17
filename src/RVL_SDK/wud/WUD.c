@@ -5,6 +5,8 @@
 #define WUD_DEV_NAME_IS_WBC(NAME) WUD_DEV_NAME_IS(NAME, "Nintendo RVL-WBC")
 
 #define DEBUGPrint WUD_DEBUGPrint
+#define BT_VSC_NINTENDO_INSTALL_PATCH 0xFC4F
+#define BT_VSC_NINTENDO_WRITE_PATCH 0xFC4C
 #define WUD_WII_FIT_FILE_PATH "/title/00010004/52464e4a/data/RPHealth.dat"
 
 enum {
@@ -156,6 +158,96 @@ static u8 _wudWiiRemoteDescriptor[] = {
 
     0xC0,
 };
+
+static u8 _wudSuperPeekPokeCmd[] =
+{
+	0x05, 0x00, 0x9a, 0x0e,
+	0x00, 0x01, 0x00, 0x00,
+	0x00
+};
+
+static u8 _wudPatchData[] =
+{
+	0x70, 0x99, 0x08, 0x00,
+	0xb4, 0x00, 0x00, 0x00,
+
+	0x88, 0x43, 0xd1, 0x07,
+	0x09, 0x0c, 0x08, 0x43,
+	0xa0, 0x62, 0x19, 0x23,
+	0xdb, 0x01, 0x33, 0x80,
+	0x7c, 0xf7, 0x88, 0xf8,
+	0x28, 0x76, 0x80, 0xf7,
+	0x17, 0xff, 0x43, 0x78,
+	0xeb, 0x70, 0x19, 0x23,
+	0xdb, 0x01, 0x33, 0x87,
+	0x7c, 0xf7, 0xbc, 0xfb,
+	0x0b, 0x60, 0xa3, 0x7b,
+	0x01, 0x49, 0x0b, 0x60,
+	0x90, 0xf7, 0x96, 0xfb,
+	0xd8, 0x1d, 0x08, 0x00,
+	0x00, 0xf0, 0x04, 0xf8,
+	0x00, 0x23, 0x79, 0xf7,
+	0xe3, 0xfa, 0x00, 0x00,
+	0x00, 0xb5, 0x00, 0x23,
+	0x11, 0x49, 0x0b, 0x60,
+	0x1d, 0x21, 0xc9, 0x03,
+	0x0b, 0x60, 0x7d, 0x20,
+	0x00, 0x00, 0x00, 0x00,
+	0xfd, 0xd1, 0x0e, 0x4b,
+	0x0e, 0x4a, 0x13, 0x60,
+	0x47, 0x20, 0x00, 0x21,
+	0x96, 0xf7, 0x96, 0xff,
+	0x46, 0x20, 0x00, 0x21,
+	0x96, 0xf7, 0x92, 0xff,
+	0x0a, 0x4a, 0x13, 0x68,
+	0x0a, 0x48, 0x03, 0x40,
+	0x13, 0x60, 0x0a, 0x4a,
+	0x13, 0x68, 0x0a, 0x48,
+	0x03, 0x40, 0x13, 0x60,
+	0x09, 0x4a, 0x13, 0x68,
+	0x09, 0x48, 0x03, 0x40,
+	0x13, 0x60, 0x00, 0xbd,
+	0x24, 0x80, 0x0e, 0x00,
+	0x81, 0x03, 0x0f, 0xfe,
+	0x5c, 0x00, 0x0f, 0x00,
+	0x60, 0xfc, 0x0e, 0x00,
+	0xfe, 0xff, 0x00, 0x00,
+	0xfc, 0xfc, 0x0e, 0x00,
+	0xff, 0x9f, 0x00, 0x00,
+	0x30, 0xfc, 0x0e, 0x00,
+	0x7f, 0xff, 0x00, 0x00
+};
+
+static WUDPatchList _wudPatchInstallCmd = {
+    7,
+    {
+        {0x20, 0xBC, 0x65, 0x01, 0x00, 0x84, 0x42, 0x09, 0xD2, 0x84, 0x42, 0x09, 0xD1},
+        {0x21, 0x84, 0x5A, 0x00, 0x00, 0x83, 0xF0, 0x74, 0xFF, 0x09, 0x0C, 0x08, 0x43},
+        {0x22, 0x00, 0x61, 0x00, 0x00, 0x83, 0xF0, 0x40, 0xFC, 0x00, 0x00, 0x00, 0x00},
+        {0x23, 0xCC, 0x9F, 0x01, 0x00, 0x6F, 0xF0, 0xE4, 0xFC, 0x03, 0x28, 0x7D, 0xD1},
+        {0x24, 0x3C, 0x62, 0x01, 0x00, 0x28, 0x20, 0x00, 0xE0, 0x60, 0x8D, 0x23, 0x68},
+        {0x25, 0x04, 0x12, 0x01, 0x00, 0x20, 0x1C, 0x20, 0x1C, 0x24, 0xE0, 0xB0, 0x21},
+        {0x26, 0x74, 0x2F, 0x00, 0x00, 0x86, 0xF0, 0x18, 0xFD, 0x21, 0x4F, 0x3B, 0x60}
+    }
+};
+
+static u8 _wudPatchRemoveCmd;
+static u8 _wudInstallNum;
+static u8 _wudPatchNum;
+static u32 _wudPatchAddress;
+static s32 _wudPatchOffset;
+static u32 _wudPatchSize;
+extern BOOL __OSInIPL;
+
+void __wudModuleRebootCallback(void* pData);
+static void __wudInstallPatch(void);
+static void __wudWritePatch(void);
+static void __wudRemovePatch(void);
+static void __wudSuperPeekPoke(void);
+void __wudInstallPatchCallback(tBTM_VSC_CMPL* pData);
+void __wudWritePatchCallback(tBTM_VSC_CMPL* pData);
+void __wudRemovePatchCallback(tBTM_VSC_CMPL* pData);
+void __wudSuperPeekPokeCallback(tBTM_VSC_CMPL* pData);
 
 static u8 _wudResetAuthCountCmd[] = {
     (0x00083630) & 0xFF, (0x00083630 >> 8) & 0xFF, (0x00083630 >> 16) & 0xFF, (0x00083630 >> 24) & 0xFF,
@@ -990,6 +1082,71 @@ static void __wudProcDeleteEvent(void) {
     } else {
         WUDStartClearDevice();
     }
+}
+
+static void __wudModuleReboot(void)
+{
+	DEBUGPrint("Reset again!\n");
+    BTM_DeviceReset(&__wudModuleRebootCallback);
+}
+
+static void __wudInstallPatch(void)
+{
+	u8 num = (_wudPatchNum - _wudInstallNum < WUD_MAX_PATCHES ? _wudPatchNum - _wudInstallNum : WUD_MAX_PATCHES);
+
+	u8 buf[WUD_PATCH_BUFFER_SIZE];
+	buf[offsetof(WUDPatchList, num)] = num;
+	memcpy(&buf[offsetof(WUDPatchList, cmds)],
+	       _wudPatchInstallCmd.cmds[_wudInstallNum].data,
+	       num * sizeof(WUDPatchCmd));
+
+	_wudInstallNum += num;
+    DEBUGPrint("Install the patches\n");
+	BTM_VendorSpecificCommand(BT_VSC_NINTENDO_INSTALL_PATCH,
+	                          (u8)sizeof num + num * sizeof(WUDPatchCmd),
+	                          buf, &__wudInstallPatchCallback);
+}
+
+static void __wudWritePatch(void)
+{
+
+
+	u8 length = (_wudPatchSize - _wudPatchOffset < 255 - sizeof(u32) ? _wudPatchSize - _wudPatchOffset : 255 - sizeof(u32));
+
+	int i;
+	u8 buf[255];
+
+	for (i = 0; i < (int)sizeof(u32); i++)
+		buf[i] = (_wudPatchAddress + _wudPatchOffset) >> (i * 8);
+
+	for (i = 0; i < (s32)length; i++)
+	{
+		buf[(int)sizeof(u32) + i] =
+			_wudPatchData[sizeof(_wudPatchSize) + sizeof(_wudPatchOffset)
+		                  + _wudPatchOffset + i];
+	}
+
+	_wudPatchOffset += length;
+    DEBUGPrint("Download the patch codes [%d]\n", _wudPatchOffset);
+	BTM_VendorSpecificCommand(BT_VSC_NINTENDO_WRITE_PATCH,
+	                          (int)sizeof(u32) + length, buf,
+	                          &__wudWritePatchCallback);
+}
+
+static void __wudRemovePatch(void)
+{
+    DEBUGPrint("RemovePatch\n");
+	BTM_VendorSpecificCommand(BT_VSC_NINTENDO_INSTALL_PATCH,
+	                          sizeof(_wudPatchRemoveCmd), &_wudPatchRemoveCmd,
+	                          &__wudRemovePatchCallback);
+}
+
+static void __wudSuperPeekPoke(void)
+{
+    DEBUGPrint("SuperPeekPoke\n");
+	BTM_VendorSpecificCommand(0xFC0A,
+	                          sizeof _wudSuperPeekPokeCmd, _wudSuperPeekPokeCmd,
+	                          &__wudSuperPeekPokeCallback);
 }
 
 #pragma force_active on
@@ -1864,6 +2021,84 @@ void WUDSetVisibility(u8 disc, u8 conn) {
 
     OSRestoreInterrupts(enabled);
     BTA_DmSetVisibility(disc, conn);
+}
+
+void __wudModuleRebootCallback(void *p1)
+{
+	DEBUGPrint("Initialize the BCM2045 firmware complete.\n");
+    __wudInitSub();
+}
+
+void __wudInstallPatchCallback(tBTM_VSC_CMPL *p1)
+{
+	if ((_wudPatchNum == _wudInstallNum && p1) || !p1)
+		__wudModuleReboot();
+	else
+		__wudInstallPatch();
+}
+
+void __wudWritePatchCallback(tBTM_VSC_CMPL *p1)
+{
+	if (p1)
+	{
+		if (_wudPatchSize == (u32)_wudPatchOffset)
+		{
+			_wudInstallNum = 0;
+			_wudPatchNum = _wudPatchInstallCmd.num;
+			__wudInstallPatch();
+		}
+		else
+		{
+			__wudWritePatch();
+		}
+	}
+	else
+	{
+		__wudModuleReboot();
+	}
+}
+
+void __wudRemovePatchCallback(tBTM_VSC_CMPL *p1)
+{
+    DEBUGPrint("RemovePatch Callback\n");
+	if (p1)
+	{
+		_wudPatchOffset = 0;
+		__wudWritePatch();
+	}
+	else
+	{
+		__wudModuleReboot();
+	}
+}
+
+void __wudSuperPeekPokeCallback(tBTM_VSC_CMPL *p1)
+{
+    DEBUGPrint("SuperPeekPoke Callback\n");
+	__wudRemovePatch();
+}
+
+void __wudAppendRuntimePatch(void)
+{
+    int i;
+    DEBUGPrint("__wudAppendRuntimePatch()\n");
+	_wudPatchSize = 0;
+	_wudPatchAddress = 0;
+
+
+	for (i = 0; i < (int)sizeof(u32); i++)
+	{
+		_wudPatchAddress <<= 8;
+		_wudPatchAddress += _wudPatchData[3 - i];
+
+		_wudPatchSize <<= 8;
+		_wudPatchSize += _wudPatchData[7 - i];
+	}
+
+	if (__OSInIPL)
+		__wudSuperPeekPoke();
+	else
+		__wudRemovePatch();
 }
 
 void __wudInitSub(void) {
