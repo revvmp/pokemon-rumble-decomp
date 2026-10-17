@@ -33,10 +33,42 @@ The compiler folds the original empty LightObj and LightSetting destructors at o
 
 ## Validation status
 
-Baseline configure, Ninja and explicit frozen verification passed, with 408 baseline source-object hashes recorded. The shared-header prerequisite passed its own fresh full build. After the DCC prerequisite merged, the eight-section NonMatching split and the actual registered source compilation passed configure, full Ninja and explicit actual-directory frozen verification in `build/774-source-eval/wpse-v1`. The actual source object independently reproduces all 42 native functions and 451 relocation targets. Full source-selected acceptance remains the next gate.
+Baseline configure, Ninja and explicit frozen verification passed, with 408 initial baseline source-object hashes recorded. The shared-header prerequisite passed its own fresh full build. After the DCC prerequisite merged, the eight-section NonMatching split and the actual registered source compilation passed configure, full Ninja and explicit actual-directory frozen verification in `build/774-source-eval/wpse-v1`.
+
+After selecting the source object, full Ninja and the explicit actual-directory frozen verifier both exited 0. All eight objdiff sections score 100%. The actual source object reproduces all 42 native functions and 451 relocation targets; the final ELF independently confirms every native function address/extent and all 32 named data definitions. The actual Ninja link input includes the compiled state object and excludes its original object. All 438 preexisting source objects from the verified `a63b4b94` baseline remain byte-identical. The 4,094,880-byte DOL matches the frozen executable with SHA-256 `ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da`.
+
+```text
+python configure.py --build-dir build/774-source-eval
+.venv/Scripts/ninja
+python tools/verify/verify.py verify --manifest config/targets/wpse-v1.json --reference-dir orig/wpse-v1 --build-dir build/774-source-eval/wpse-v1
+```
+
+The source is Matching. PR #816 supplies the two canonical MSL headers; final integration must rebase onto that prerequisite and the latest main, repeat the committed-head gate and recheck the complete original #774 inventory before merging.
+
+## State storage and public layouts
+
+| Native address | Size | Original state object |
+| --- | --- | --- |
+| `0x8042F9C0` | `0xC` | sGenMode2 |
+| `0x8042F9CC` | `0x6C` | sTexCoordScale |
+| `0x8042FA40` | `0x104` | sTex |
+| `0x8042FB60` | `0x64` | sTlut |
+| `0x8042FBC4` | `0xC` | sShp |
+| `0x8042FBD0` | `0x20` | sPreTexMtxState |
+| `0x8042FBF0` | `0xC` | sPosNrmArrayState |
+| `0x8042FC00` | `0x800` | sScnDependentTexMtxFuncTable |
+| `0x80430400` | `0x608` | sFogState |
+| `0x80430A08` | `0x2A2C` | sLightState |
+| `0x80433434` | `0x1A34` | sCameraMtxState |
+| `0x80434E68` | `0x3C` | sRenderMode |
+| `0x80434EA8` | `0x98` | IndMtxOpDefault |
+| `0x80434F40` | `0x24` | GetViewNrmMtxPtr local matrix |
+
+IndTexMtxInfo is `0x94`: a u32 flag at zero and three `0x30`-byte matrices at four. IndMtxOpStd is `0x98`: vptr at zero, three validity bytes at four, the constructor-cleared reserved byte at seven and three matrices at eight. Its native vtable order is operator(), destructor, Reset, SetNrmMapMtx. LightState contains LightSetting at zero, current set index at `0x10`, four masks at `0x14`–`0x20`, eight loaded-light indices at `0x24`, 128 LightObj entries at `0x2C`, 128 ambient entries at `0x222C` and 128 twelve-byte light-set records at `0x242C`.
 
 ## Traps
 
 - The exact original MSL find loop is necessary for the native LoadLightSet instruction stream; see F-774-1.
 - This unit owns both normal and small BSS state. Ending the normal BSS split at the next object's aligned start incorrectly includes padding; use the final matrix's actual end.
 - The default Ninja target also compiles registered NonMatching source objects. A missing prerequisite header therefore fails the build even though the final link would select the original object. Wait for the canonical prerequisite rather than substituting a local declaration or claiming a stale DOL verifies the new source.
+- Imported reference names can choose a folded destructor alias. The native constructor-array element size, constructor pointer and destructor pointer prove the consumed class identity; preserve the original declarations and record both aliases rather than reshaping source to fit a survey name.
