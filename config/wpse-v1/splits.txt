@@ -455,6 +455,13 @@ nw4r/ef/ef_drawpointstrategy.cpp:
 	.sdata      start:0x804B8950 end:0x804B8958
 	.sdata2     start:0x804BAA18 end:0x804BAA24
 
+nw4r/ef/ef_drawsmoothstripestrategy.cpp:
+	.text       start:0x80245EF0 end:0x8024AE80
+	.data       start:0x803C5728 end:0x803C5744
+	.bss        start:0x8042F978 end:0x8042F9A8
+	.sbss       start:0x804B92F0 end:0x804B92F4
+	.sdata2     start:0x804BAA60 end:0x804BAA94
+
 nw4r/g3d/res/g3d_rescommon.cpp:
 	.text       start:0x8024AE80 end:0x8024B024
 
