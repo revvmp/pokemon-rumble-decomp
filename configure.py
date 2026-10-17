@@ -231,7 +231,7 @@ config.libs = [
             Object(Matching, "RVL_SDK/hbm/nw4hbm/lyt/lyt_pane.cpp"),
             Object(Matching, "RVL_SDK/hbm/nw4hbm/lyt/lyt_picture.cpp"),
             Object(Matching, "RVL_SDK/hbm/nw4hbm/lyt/lyt_resourceAccessor.cpp"),
-            Object(NonMatching, "RVL_SDK/hbm/nw4hbm/lyt/lyt_textBox.cpp"),
+            Object(Matching, "RVL_SDK/hbm/nw4hbm/lyt/lyt_textBox.cpp"),
             Object(NonMatching, "RVL_SDK/hbm/nw4hbm/lyt/lyt_window.cpp"),
             Object(Matching, "RVL_SDK/hbm/nw4hbm/math/math_triangular.cpp"),
             Object(Matching, "RVL_SDK/hbm/nw4hbm/ut/ut_binaryFileFormat.cpp"),
