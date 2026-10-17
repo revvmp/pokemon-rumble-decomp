@@ -187,3 +187,22 @@ ArchiveFont and PairFont rows receive no new byte credit. This audit
 justifies completing #808, #811 and #450; only the two supplied CharWriter
 tails belong to still-separate #451. Its JSON evidence is preserved outside
 the checkout alongside all native/source audits.
+
+## Subsequent main advances and guarded verification
+
+External PR917 changed EF metadata and source; the required clean rebuild
+at ae33c799 passed all 548 default targets, explicit all_source (541),
+frozen verification, all six native/source audits and original inventories.
+External PR918 then added the FA NAND unit and metadata. Another fresh
+output directory at 68b0af94 passed configure, all 549 default targets,
+explicit all_source (542) and the separate frozen verifier. Both complete
+raw source-object inventories and linked artifacts were captured outside
+the checkout with tracked-tree manifests before the next rebase.
+
+The later main advance through 7036a9be changes only documentation and
+the existing NonMatching ArchiveFontBase source. It changes no metadata,
+headers or owned source, so the next exact committed-head gate reuses the
+clean outputs and recompiles the affected source through the actual default
+pipeline and all_source. Final command results and the exact merge head
+are recorded in PR884. The guard must still reject any later main advance;
+none of the historical proofs authorizes merging an outdated predecessor.
