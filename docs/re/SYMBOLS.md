@@ -2070,3 +2070,7 @@ Freestyle/classic clamp bounds occupy `0x804B8E44`–`0x804B8E5B`. Train trigger
 ## F-462-3: NW4R layout utilities
 
 The thirteen functions in 0x802B0C30–0x802B1790 recover original nw4r::lyt::detail resource-name, header, TexCoordAry, vertex-format, alpha, and quad-drawing names. TexCoordAry is eight bytes (capacity0, size1, data pointer4); each four-vector coordinate set is32bytes. The native local coordinate array and guard occupy0x804524F0/32bytes and0x804B9438/1byte. The referenced Layout allocator at0x804B9410 is named without changing its outside-owned size/type/split. See [F-462-3](findings/462-lyt-common.md) for exact inventory and proof.
+
+## NW4R resource accessors (#461, #462)
+
+[F-462-5](findings/462-arc-resource-accessor.md) recovers ResourceAccessor (four bytes), FontRefLink (`0x8C`), ArcResourceLink (`0xA4`), and MultiArcResourceAccessor (`0x1C`) and the fifteen native functions at `0x802B0680–0x802B0C30`. Names are high confidence from CC0 Skyward Sword and exact source matches. ResourceAccessor and MultiArcResourceAccessor vtables occupy twenty bytes at `0x803C7250` and `0x803C7268`; their trailing alignment padding remains outside the split. ArcResourceLink stores ARCHandle at `0x08` and its 128-byte resource-root directory at `0x24`. MultiArcResourceAccessor stores the archive and font lists at `0x04` and `0x10`; FontRefLink stores its 128-byte name at `0x08` and font at `0x88`. Anonymous archive helpers and the directory strings are local to the source unit; they do not replace the similarly named HBM helpers.
