@@ -693,3 +693,44 @@ The source constants occupy `0x804BBBB8–0x804BBBF8` as five doubles for `ldexp
 ## Issue 482 complete DVD region
 
 [F-482-2/F-482-3](findings/482-dvd-queue-id.md) records the corrected 128-byte DVD error record, callback chain, named NAND buffers and aligned error records, message tables, external linkage names, and explicit dvd.c tail implementation fragment. All 30 owned functions (4404 bytes) are source-linked and match exactly; no preceding dvd.c functions are counted. Target callbacks establish cover at 0x10 and status at 0x14. Detailed symbol addresses, section extents, provenance and neighboring fallbacks are in that finding.
+## RVL_SDK VI (#472)
+
+`wpse-v1` `main.dol`, `.text` file offset is address minus `0x8004FD40`. Names follow the matching RVL_SDK reference source and are confirmed by byte-identical reconstruction in `src/RVL_SDK/vi/vi.c`; confidence high. Evidence: [F-472-5](findings/472-exi-si-db-units.md#f-472-5-vic-unit-and-2009-differences).
+
+| Address | Size | Name | Kind |
+| --- | --- | --- | --- |
+| `0x802C4080` | `0x198` | `OnShutdown` | static function |
+| `0x802C4220` | `0x80C` | `__VIRetraceHandler` | static function |
+| `0x802C4A30` | `0x44` | `VISetPreRetraceCallback` | function |
+| `0x802C4A80` | `0x44` | `VISetPostRetraceCallback` | function |
+| `0x802C4AD0` | `0x118` | `getTiming` | static function |
+| `0x802C4BF0` | `0x200` | `__VIInit` | function |
+| `0x802C4DF0` | `0x548` | `VIInit` | function |
+| `0x802C5340` | `0x54` | `VIWaitForRetrace` | function |
+| `0x802C53A0` | `0x2A8` | `setFbbRegs` | static function |
+| `0x802C5650` | `0xE0` | `setHorizontalRegs` | static function |
+| `0x802C5730` | `0x194` | `setVerticalRegs` | static function |
+| `0x802C58D0` | `0x6CC` | `VIConfigure` | function |
+| `0x802C5FA0` | `0x354` | `VIConfigurePan` | function |
+| `0x802C6300` | `0x114` | `VIFlush` | function |
+| `0x802C6420` | `0x6C` | `VISetNextFrameBuffer` | function |
+| `0x802C6490` | `0x78` | `VISetBlack` | function |
+| `0x802C6510` | `0x8` | `VIGetRetraceCount` | function |
+| `0x802C6610` | `0x60` | `VIGetScanMode` | function |
+| `0x802C6670` | `0x3C` | `VIGetDTVStatus` | function |
+| `0x802C66B0` | `0x234` | `__VIDisplayPositionToXY` | function |
+| `0x802C68F0` | `0xF8` | `VISetTimeToDimming` | function |
+| `0x802C69F0` | `0x14` | `VIResetDimmingCount` | function |
+| `0x802C6A10` | `0x10` | `__VIResetRFIdle` | function |
+| `0x802C6A20` | `0x10` | `__VIResetSIIdle` | function |
+| `0x803D5380` | `0x1A2` | `timing` | `.data` static, 11 `timing_s` of `0x26` bytes |
+| `0x803D5524` | `0x32` | `taps` | `.data` static, 25 `u16` |
+| `0x803D5558`, `0x803D5594`, `0x803D55D0` | `0x3C` each | `GXPal528Prog`, `GXPal528ProgSoft`, `GXPal524ProgAa` | `.data` `GXRenderModeObj` |
+| `0x803D5610` | `0x10` | `ShutdownFunctionInfo` | `.data` static |
+| `0x804539F0`, `0x80453A68` | `0x76` each | `shdwRegs`, `regs` | `.bss` statics |
+| `0x80453AE0` | `0x58` | `HorVer` | `.bss` static `HorVer_s` |
+| `0x80453B38` | `0x28` | `__VIDimmingFlag_DEV_IDLE` | `.bss` static |
+| `0x804B8AE0` | 4 | `__VIVersion` | `.sdata` global |
+| `0x804B95C8`-`0x804B9674` | 4 each, except `changed`, `shdwChanged` and `retraceQueue` 8, `displayOffsetH` and `displayOffsetV` 2 | file and function statics, order in F-472-5 | `.sbss` |
+
+Outside this unit, call sites name `__VISetYUVSEL` (`0x802C7350`), `__VISetFilter4EURGB60` (`0x802C73F0`), `__VISetCGMS` (`0x802C7430`), `__VISetWSS` (`0x802C7490`), `__VISetClosedCaption` (`0x802C7500`), `__VISetMacrovision` (`0x802C7570`), `__VISetGamma1_0` (`0x802C8450`), `__VISetGamma` (`0x802C8460`), `__VISetTrapFilter` (`0x802C8480`), `__VISetRGBOverDrive` (`0x802C84E0`), `VISetRGBModeImm` (`0x802C8570`), `__VISetRevolutionModeSimple` (`0x802C85D0`), `Vdac_Flag_Changed` (`.sbss` `0x804B9680`), `OSWakeupThread` (`0x802BCF60`), `__OSSetVIForceDimming` (`0x802BDDC0`), `SCGetDisplayOffsetH` (`0x802E9640`), `SCGetScreenSaverMode` (`0x802E97A0`), `__shl2i` (`0x803408DC`) and `__DVDStopMotorCommandBlock` (`.bss` `0x80458ED0`). Only names changed; extents and splits stay with their owners.

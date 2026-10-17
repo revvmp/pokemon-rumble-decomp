@@ -287,6 +287,10 @@ DVDDiskID* DVDGetCurrentDiskID(void);
 
 BOOL DVDCheckDiskAsync(DVDCommandBlock*, DVDCBCallback);
 
+extern DVDCommandBlock __DVDStopMotorCommandBlock;
+void __DVDRestartMotor(void);
+BOOL __DVDStopMotorAsync(DVDCommandBlock* block, DVDCBCallback callback);
+
 void __DVDResetWithNoSpinup(void);
 
 s32 DVDGetDriveStatus(void);

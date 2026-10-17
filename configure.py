@@ -213,6 +213,7 @@ config.libs = [
             Object(Matching, "RVL_SDK/si/SIBios.c"),
             Object(Matching, "RVL_SDK/si/SISamplingRate.c"),
             Object(Matching, "RVL_SDK/db/db.c"),
+            Object(Matching, "RVL_SDK/vi/vi.c"),
             Object(NonMatching, "RVL_SDK/vi/i2c.c"),
             Object(Matching, "RVL_SDK/mtx/mtxvec.c"),
             Object(Matching, "RVL_SDK/mtx/mtx44.c"),
