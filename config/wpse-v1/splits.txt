@@ -1773,7 +1773,18 @@ MSL_C/MSL_Common_Embedded/Math/Double_precision/w_sqrt.c:
 	.text       start:0x8034D798 end:0x8034D79C
 
 MSL_C/extras.c:
-	.text       start:0x8034D79C end:0x8034D83C
+	.text       start:0x8034D79C end:0x8034D840
+
+MSL_C/wide_decimal.c:
+	.text       start:0x8034D840 end:0x8034D84C
+
+MSL_CPP/msl_thread.cpp:
+	extab       start:0x80044214 end:0x8004421C
+	extabindex  start:0x800524D0 end:0x800524DC
+	.text       start:0x8034D84C end:0x8034D8F4
+
+MetroTRK/debugger/embedded/MetroTRK/Processor/ppc/Export/targsupp.c:
+	.text       start:0x8034D8F4 end:0x8034D914
 
 MetroTRK/gamedev/cust_connection/cc/exi2/GCN/EXI2_GDEV_GCN/main.c:
 	.text       start:0x8034D914 end:0x8034DB8C
