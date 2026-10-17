@@ -1317,3 +1317,45 @@ For `wpse-v1` / `main.dol`, [F-291-3](findings/291-hbm-axsound.md#f-291-3-hbmcom
 | `asyncRoutine` | `0x802E77C0` |
 
 NANDCore storage: s_currentDir at 803DC440 (64 bytes), s_homeDir at 8046ECE0 (64 bytes), s_shutdownFuncInfo at 803DC480 (16 bytes), s_libState at 804B99A8 (four bytes), __NANDVersion pointer at 804B8BF8. Quota directory table USER_DIR_LIST is at 803DC5B0 (44 bytes). Logging buffers start at 8046ED40/8046EE40/8046EF40; descriptor is at 804B8C30, callback/stage at 804B99B0/804B99B4.
+
+## BTE RFCOMM port state machine and interface (#531)
+
+`rfc_port_sm_execute` and the eight `rfc_process_*` handlers were named under #532 (F-532-1) and now link from `src/RVL_SDK/bte/rfc_port_fsm.c`.
+
+| Address | Size | dtk label | Chosen name | Kind | Confidence | Evidence | Source |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `0x803356D8` | `0x174` | `fn_803356D8` | `rfc_port_sm_state_closed` | static function | high | F-531-1 | `src/RVL_SDK/bte/rfc_port_fsm.c` |
+| `0x8033584C` | `0x19C` | `fn_8033584C` | `rfc_port_sm_sabme_wait_ua` | static function | high | F-531-1 | `src/RVL_SDK/bte/rfc_port_fsm.c` |
+| `0x803359E8` | `0x1BC` | `fn_803359E8` | `rfc_port_sm_term_wait_sec_check` | static function | high | F-531-1 | `src/RVL_SDK/bte/rfc_port_fsm.c` |
+| `0x80335BA4` | `0x150` | `fn_80335BA4` | `rfc_port_sm_orig_wait_sec_check` | static function | high | F-531-1 | `src/RVL_SDK/bte/rfc_port_fsm.c` |
+| `0x80335CF4` | `0x1EC` | `fn_80335CF4` | `rfc_port_sm_opened` | static function | high | F-531-1 | `src/RVL_SDK/bte/rfc_port_fsm.c` |
+| `0x80335EE0` | `0x11C` | `fn_80335EE0` | `rfc_port_sm_disc_wait_ua` | static function | high | F-531-1 | `src/RVL_SDK/bte/rfc_port_fsm.c` |
+| `0x803366BC` | `0x88` | `fn_803366BC` | `rfc_process_l2cap_congestion` | function | high | F-531-1 | `src/RVL_SDK/bte/rfc_port_fsm.c` |
+| `0x80336744` | `0xA4` | `fn_80336744` | `rfc_set_port_state` | static function | high | F-531-1 | `src/RVL_SDK/bte/rfc_port_fsm.c` |
+| `0x803367E8` | `0x2C` | `fn_803367E8` | `RFCOMM_StartRsp` | function | high | F-531-1 | `src/RVL_SDK/bte/rfc_port_if.c` |
+| `0x80336814` | `0x68` | `fn_80336814` | `RFCOMM_DlcEstablishReq` | function | high | F-531-1 | `src/RVL_SDK/bte/rfc_port_if.c` |
+| `0x8033687C` | `0x70` | `fn_8033687C` | `RFCOMM_DlcEstablishRsp` | function | high | F-531-1 | `src/RVL_SDK/bte/rfc_port_if.c` |
+| `0x803368EC` | `0xE0` | `fn_803368EC` | `RFCOMM_ParNegReq` | function | high | F-531-1 | `src/RVL_SDK/bte/rfc_port_if.c` |
+| `0x803369CC` | `0x28` | `fn_803369CC` | `RFCOMM_ParNegRsp` | function | high | F-531-1 | `src/RVL_SDK/bte/rfc_port_if.c` |
+| `0x803369F4` | `0xBC` | `fn_803369F4` | `RFCOMM_PortNegReq` | function | high | F-531-1 | `src/RVL_SDK/bte/rfc_port_if.c` |
+| `0x80336AB0` | `0x20` | `fn_80336AB0` | `RFCOMM_PortNegRsp` | function | high | F-531-1 | `src/RVL_SDK/bte/rfc_port_if.c` |
+| `0x80336AD0` | `0xA4` | `fn_80336AD0` | `RFCOMM_ControlReq` | function | high | F-531-1 | `src/RVL_SDK/bte/rfc_port_if.c` |
+| `0x80336B74` | `0xA4` | `fn_80336B74` | `RFCOMM_FlowReq` | function | high | F-531-1 | `src/RVL_SDK/bte/rfc_port_if.c` |
+| `0x80336C18` | `0x98` | `fn_80336C18` | `RFCOMM_LineStatusReq` | function | high | F-531-1 | `src/RVL_SDK/bte/rfc_port_if.c` |
+| `0x80336CB0` | `0x2C` | `fn_80336CB0` | `RFCOMM_DlcReleaseReq` | function | high | F-531-1 | `src/RVL_SDK/bte/rfc_port_if.c` |
+| `0x80336CDC` | `0x38` | `fn_80336CDC` | `RFCOMM_DataReq` | function | high | F-531-1 | `src/RVL_SDK/bte/rfc_port_if.c` |
+| `0x803224D0` | see `symbols.txt` | `fn_803224D0` | `btm_sec_mx_access_request` | function | high | F-531-1 | Not reconstructed (fallback) |
+| `0x803228F4` | see `symbols.txt` | `fn_803228F4` | `btm_sec_abort_access_req` | function | high | F-531-1 | Not reconstructed (fallback) |
+| `0x803328F8` | see `symbols.txt` | `fn_803328F8` | `PORT_ParNegInd` | function | high | F-531-1 | Not reconstructed (fallback) |
+| `0x80332AA8` | see `symbols.txt` | `fn_80332AA8` | `PORT_ParNegCnf` | function | high | F-531-1 | Not reconstructed (fallback) |
+| `0x80332BAC` | see `symbols.txt` | `fn_80332BAC` | `PORT_DlcEstablishInd` | function | high | F-531-1 | Not reconstructed (fallback) |
+| `0x80332CEC` | see `symbols.txt` | `fn_80332CEC` | `PORT_DlcEstablishCnf` | function | high | F-531-1 | Not reconstructed (fallback) |
+| `0x80332E30` | see `symbols.txt` | `fn_80332E30` | `PORT_PortNegInd` | function | high | F-531-1 | Not reconstructed (fallback) |
+| `0x80332F80` | see `symbols.txt` | `fn_80332F80` | `PORT_PortNegCnf` | function | high | F-531-1 | Not reconstructed (fallback) |
+| `0x80333098` | see `symbols.txt` | `fn_80333098` | `PORT_ControlInd` | function | high | F-531-1 | Not reconstructed (fallback) |
+| `0x80333210` | see `symbols.txt` | `fn_80333210` | `PORT_ControlCnf` | function | high | F-531-1 | Not reconstructed (fallback) |
+| `0x803332D4` | see `symbols.txt` | `fn_803332D4` | `PORT_LineStatusInd` | function | high | F-531-1 | Not reconstructed (fallback) |
+| `0x8033339C` | see `symbols.txt` | `fn_8033339C` | `PORT_DlcReleaseInd` | function | high | F-531-1 | Not reconstructed (fallback) |
+| `0x803334A4` | see `symbols.txt` | `fn_803334A4` | `Port_TimeOutCloseMux` | function | high | F-531-1 | Not reconstructed (fallback) |
+| `0x8033353C` | see `symbols.txt` | `fn_8033353C` | `PORT_DataInd` | function | high | F-531-1 | Not reconstructed (fallback) |
+| `0x80333D50` | see `symbols.txt` | `fn_80333D50` | `port_find_mcb_dlci_port` | function | high | F-531-1 | Not reconstructed (fallback) |

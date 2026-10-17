@@ -753,6 +753,14 @@ RVL_SDK/bte/hidh_api.c:
 	.data       start:0x803E2DC0 end:0x803E2ED8
 	.bss        start:0x804ADA38 end:0x804ADE40
 
+RVL_SDK/bte/rfc_port_fsm.c:
+	.text       start:0x80335648 end:0x803367E8
+	.data       start:0x803E5150 end:0x803E5476
+
+RVL_SDK/bte/rfc_port_if.c:
+	.text       start:0x803367E8 end:0x80336D14
+	.bss        start:0x804AE628 end:0x804AEA40
+
 RVL_SDK/bte/rfc_ts_frames.c:
 	.text       start:0x80336D14 end:0x8033835C
 	.data       start:0x803E5478 end:0x803E554E

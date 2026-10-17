@@ -24,6 +24,33 @@ enum {
     MODEM_SIGNAL_DCD = 1 << 3
 };
 
+enum {
+    RFCOMM_CTRL_BREAK_ASAP = 0,
+    RFCOMM_CTRL_BREAK_IN_SEQ = 1
+};
+
+enum {
+    RFC_RSP_PN = 1 << 0,
+    RFC_RSP_RPN_REPLY = 1 << 1,
+    RFC_RSP_RPN = 1 << 2,
+    RFC_RSP_MSC = 1 << 3,
+    RFC_RSP_RLS = 1 << 4
+};
+
+enum {
+    PORT_STATE_CLOSED = 0,
+    PORT_STATE_OPENING = 1,
+    PORT_STATE_OPENED = 2,
+    PORT_STATE_CLOSING = 3
+};
+
+enum {
+    PORT_CTRL_REQ_SENT = 1 << 0,
+    PORT_CTRL_REQ_CONFIRMED = 1 << 1,
+    PORT_CTRL_IND_RECEIVED = 1 << 2,
+    PORT_CTRL_IND_RESPONDED = 1 << 3
+};
+
 typedef struct {
     TIMER_LIST_ENT tle;
     BUFFER_Q cmd_q;
@@ -104,8 +131,21 @@ typedef struct {
     tRFC_MCB rfc_mcb[MAX_BD_CONNECTIONS];
 } tPORT_CB;
 
+void PORT_ParNegInd(tRFC_MCB* p_mcb, UINT8 dlci, UINT16 mtu, UINT8 cl, UINT8 k);
+void PORT_ParNegCnf(tRFC_MCB* p_mcb, UINT8 dlci, UINT16 mtu, UINT8 cl, UINT8 k);
+void PORT_DlcEstablishInd(tRFC_MCB* p_mcb, UINT8 dlci, UINT16 mtu);
+void PORT_DlcEstablishCnf(tRFC_MCB* p_mcb, UINT8 dlci, UINT16 mtu, UINT16 result);
+void PORT_PortNegInd(tRFC_MCB* p_mcb, UINT8 dlci, tPORT_STATE* p_pars, UINT16 param_mask);
+void PORT_PortNegCnf(tRFC_MCB* p_mcb, UINT8 dlci, tPORT_STATE* p_pars, UINT16 result);
+void PORT_ControlInd(tRFC_MCB* p_mcb, UINT8 dlci, tPORT_CTRL* p_pars);
+void PORT_ControlCnf(tRFC_MCB* p_mcb, UINT8 dlci, tPORT_CTRL* p_pars);
+void PORT_LineStatusInd(tRFC_MCB* p_mcb, UINT8 dlci, UINT8 line_status);
+void PORT_DlcReleaseInd(tRFC_MCB* p_mcb, UINT8 dlci);
+void Port_TimeOutCloseMux(tRFC_MCB* p_mcb);
+void PORT_DataInd(tRFC_MCB* p_mcb, UINT8 dlci, BT_HDR* p_buf);
 void PORT_FlowInd(tRFC_MCB* p_mcb, UINT8 dlci, BOOLEAN enable_data);
 void port_rfc_closed(tPORT* p_port, UINT8 res);
+tPORT* port_find_mcb_dlci_port(tRFC_MCB* p_mcb, UINT8 dlci);
 
 #ifdef __cplusplus
 }

@@ -14,6 +14,10 @@ extern "C" {
 #define RFCOMM_MIN_MTU 23
 #define RFCOMM_MAX_MTU 32767
 
+#define RFC_PORT_T1_TIMEOUT 60
+#define RFC_T2_TIMEOUT 60
+#define RFC_DISC_TIMEOUT 3
+
 #define RFC_MCB_INIT_INACT_TIMER 60
 #define RFC_MCB_RELEASE_INACT_TIMER 2
 
@@ -22,6 +26,12 @@ extern "C" {
 #define RFCOMM_DM_FCS(p_data, cr, dlci) rfc_calc_fcs(3, p_data)
 #define RFCOMM_DISC_FCS(p_data, cr, dlci) rfc_calc_fcs(3, p_data)
 #define RFCOMM_UIH_FCS(p_data, dlci) rfc_calc_fcs(2, p_data)
+
+enum {
+    RFCOMM_SUCCESS = 0,
+    RFCOMM_ERROR = 1,
+    RFCOMM_SECURITY_ERR = 112
+};
 
 enum {
     RFC_MX_STATE_IDLE = 0,
@@ -160,6 +170,21 @@ void rfc_process_nsc(tRFC_MCB* p_mcb, MX_FRAME* p_frame);
 void rfc_process_test_rsp(tRFC_MCB* p_mcb, BT_HDR* p_buf);
 void rfc_process_fcon(tRFC_MCB* p_mcb, BOOLEAN is_command);
 void rfc_process_fcoff(tRFC_MCB* p_mcb, BOOLEAN is_command);
+void rfc_process_l2cap_congestion(tRFC_MCB* p_mcb, BOOLEAN is_congested);
+
+void RFCOMM_StartReq(tRFC_MCB* p_mcb);
+void RFCOMM_StartRsp(tRFC_MCB* p_mcb, UINT16 result);
+void RFCOMM_DlcEstablishReq(tRFC_MCB* p_mcb, UINT8 dlci, UINT16 mtu);
+void RFCOMM_DlcEstablishRsp(tRFC_MCB* p_mcb, UINT8 dlci, UINT16 mtu, UINT16 result);
+void RFCOMM_ParNegReq(tRFC_MCB* p_mcb, UINT8 dlci, UINT16 mtu);
+void RFCOMM_ParNegRsp(tRFC_MCB* p_mcb, UINT8 dlci, UINT16 mtu, UINT8 cl, UINT8 k);
+void RFCOMM_PortNegReq(tRFC_MCB* p_mcb, UINT8 dlci, tPORT_STATE* p_pars);
+void RFCOMM_PortNegRsp(tRFC_MCB* p_mcb, UINT8 dlci, tPORT_STATE* p_pars, UINT16 param_mask);
+void RFCOMM_ControlReq(tRFC_MCB* p_mcb, UINT8 dlci, tPORT_CTRL* p_pars);
+void RFCOMM_FlowReq(tRFC_MCB* p_mcb, UINT8 dlci, UINT8 enable);
+void RFCOMM_LineStatusReq(tRFC_MCB* p_mcb, UINT8 dlci, UINT8 status);
+void RFCOMM_DlcReleaseReq(tRFC_MCB* p_mcb, UINT8 dlci);
+void RFCOMM_DataReq(tRFC_MCB* p_mcb, UINT8 dlci, BT_HDR* p_buf);
 
 void rfc_send_sabme(tRFC_MCB* p_mcb, UINT8 dlci);
 void rfc_send_ua(tRFC_MCB* p_mcb, UINT8 dlci);
