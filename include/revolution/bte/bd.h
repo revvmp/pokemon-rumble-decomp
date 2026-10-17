@@ -7,4 +7,6 @@ void bdcpy(BD_ADDR a, const BD_ADDR b);
 
 int bdcmp(const BD_ADDR a, const BD_ADDR b);
 
+extern const BD_ADDR bd_addr_null;
+
 #endif

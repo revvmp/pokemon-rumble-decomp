@@ -1859,3 +1859,7 @@ For `wpse-v1` / `main.dol`, [F-502-2](findings/502-wpad-hidparser-encrypt.md#f-5
 ## Issue #515 HID-host reconstruction
 
 [F-515-1](findings/515-hid-host.md) records all 27 owned HID-host function names, exact addresses/sizes, the complete action/API/main unit boundaries, compiler evidence, and the 0x230-byte `bta_hh_cb` layout. It also identifies two #516 helpers in the same main file and the two preceding power callbacks delivered in PR #690. Every compared section of all three HID objects is 100%. New headers retain original SDK names and complete message/device/control-block layouts; callee names outside the block are established by exact call relocations without changing their sizes or splits.
+
+## Issue #516 HID utilities and BTM ACL
+
+[F-516-1](findings/516-hid-utils-acl.md) records the complete 30-function issue inventory and 34 retained functions across the two newly reconstructed units. It identifies the two HID main functions from PR #694, six ACL tails in #517, exact data payloads and alignment, and newly declared callback layouts. Existing ACL/control-block structures retain their definitions. All compared retained code/data sections are 100% with GC/3.0a3; outside callees/data receive evidenced names without changing their split, type, or size.
