@@ -1262,3 +1262,6 @@ System storage: `Control` at 8046F040 (0x190 bytes), `ConfBuf` at 8046F1E0 (0x40
 | `0x8032F62C` | `0x6C` | `fn_8032F62C` | `l2c_link_role_change_failed` | function, outside unit | high name | F-521-3 | split left to its owning issue |
 | `0x8032F774` | `0x44` | `fn_8032F774` | `l2c_pin_code_request` | function, outside unit | high name | F-521-3 | split left to its owning issue |
 | `0x804AAD78` | `0x27C8` | `lbl_804AAD78` | `btm_cb` | `.bss` object, outside unit | high name | F-521-3 | split left to its owning issue |
+## NW4R ut ResFontBase (#447, #448, #449)
+
+For `wpse-v1` / `main.dol`, [F-448-1](findings/448-ut-resfontbase.md) names the 29 `.text` functions of `ut_ResFontBase.cpp` from `0x80294C20` to `0x80295578` with their mangled CodeWarrior names in `nw4r::ut::detail::ResFontBase`, including `RemoveResourceBuffer` (`0x80294CD0`), `HasGlyph` (`0x80295110`), `FindGlyphIndex(u16)` (`0x802952A0`), and `GetGlyphFromIndex` (`0x80295470`), plus `__vt__Q44nw4r2ut6detail11ResFontBase` (`.data` `0x803C6AF8`, 0x60 bytes). These names are high confidence from the CC0 ogws and Petari references and exact matches. `ResFontBase` layout (0x1C bytes): `mReadFunc` at 0x4, `mResource` at 0x10, `mFontInfo` at 0x14, `mLastCharCode` (`u16`) at 0x18, `mLastGlyphIndex` (`u16`) at 0x1A; the last two names are descriptive, medium confidence.

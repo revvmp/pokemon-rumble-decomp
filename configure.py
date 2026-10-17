@@ -229,6 +229,7 @@ config.libs = [
             Object(Matching, "nw4r/ut/ut_LockedCache.cpp"),
             Object(Matching, "nw4r/ut/ut_Font.cpp"),
             Object(Matching, "nw4r/ut/ut_RomFont.cpp"),
+            Object(Matching, "nw4r/ut/ut_ResFontBase.cpp"),
         ],
     ),
     library(
