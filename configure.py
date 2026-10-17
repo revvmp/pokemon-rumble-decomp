@@ -166,6 +166,14 @@ cflags_hbm = [
 
 HBM_COMPILER = "Wii/1.0a"
 
+cflags_nw4r = [
+    *(flag for flag in cflags_base if flag != "-fp_contract on"),
+    "-fp_contract off",
+    "-ipa file",
+]
+
+NW4R_COMPILER = "Wii/1.1"
+
 BTE_COMPILER = "GC/3.0a3"
 NDEV_COMPILER = "GC/3.0a3"
 
@@ -186,6 +194,16 @@ config.libs = [
             Object(Matching, "RVL_SDK/hbm/HBMFrameController.cpp"),
             Object(Matching, "RVL_SDK/hbm/HBMAnmController.cpp"),
             Object(Matching, "RVL_SDK/hbm/HBMGUIManager.cpp"),
+        ],
+    ),
+    library(
+        "NW4R.ef",
+        NW4R_COMPILER,
+        cflags_nw4r,
+        "nw4r",
+        [
+            Object(Matching, "nw4r/ef/ef_draworder.cpp"),
+            Object(Matching, "nw4r/ef/ef_effect.cpp"),
         ],
     ),
     library(

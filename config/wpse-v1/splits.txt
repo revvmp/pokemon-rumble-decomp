@@ -35,6 +35,15 @@ RVL_SDK/hbm/HBMGUIManager.cpp:
 	.data       start:0x803BA060 end:0x803BA2D0
 	.bss        start:0x803E99E0 end:0x803E99E4
 
+nw4r/ef/ef_draworder.cpp:
+	.text       start:0x80225820 end:0x80225940
+	.data       start:0x803C52D0 end:0x803C52E8
+
+nw4r/ef/ef_effect.cpp:
+	.text       start:0x80225940 end:0x80226544
+	.data       start:0x803C52E8 end:0x803C5308
+	.sdata2     start:0x804BA5E0 end:0x804BA5E8
+
 RVL_SDK/base/PPCArch.c:
 	.text       start:0x802B1800 end:0x802B1A10
 	.data       start:0x803C7280 end:0x803C72B8
