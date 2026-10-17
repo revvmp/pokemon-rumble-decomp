@@ -227,6 +227,10 @@ config.libs = [
             Object(Matching, "RVL_SDK/hbm/nw4hbm/ut/ut_binaryFileFormat.cpp"),
             Object(Matching, "RVL_SDK/hbm/nw4hbm/ut/ut_CharStrmReader.cpp"),
             Object(Matching, "RVL_SDK/hbm/nw4hbm/ut/ut_CharWriter.cpp"),
+            Object(Matching, "RVL_SDK/hbm/nw4hbm/ut/ut_Font.cpp"),
+            Object(Matching, "RVL_SDK/hbm/nw4hbm/ut/ut_LinkList.cpp"),
+            Object(Matching, "RVL_SDK/hbm/nw4hbm/ut/ut_list.cpp"),
+            Object(Matching, "RVL_SDK/hbm/nw4hbm/ut/ut_ResFont.cpp"),
         ],
     ),
     library(
