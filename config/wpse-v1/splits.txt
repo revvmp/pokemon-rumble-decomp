@@ -327,6 +327,13 @@ RVL_SDK/fa/pf_kernel.c:
 	.text       start:0x8021DFE0 end:0x8021E414
 	.data       start:0x803C4520 end:0x803C47F0
 
+RVL_SDK/fa/nand_drv.c:
+	.text       start:0x8021E420 end:0x8021FFB4
+	.rodata     start:0x8036C440 end:0x8036C460
+	.bss        start:0x804215F8 end:0x80422BE0
+	.sdata      start:0x804B88D8 end:0x804B88E0
+	.sbss       start:0x804B9218 end:0x804B9224
+
 nw4r/ef/ef_draworder.cpp:
 	.text       start:0x80225820 end:0x80225940
 	.data       start:0x803C52D0 end:0x803C52E8

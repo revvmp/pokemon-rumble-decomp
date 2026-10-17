@@ -323,6 +323,7 @@ config.libs = [
             Object(Matching, "RVL_SDK/fa/pf_api_util.c"),
             Object(Matching, "RVL_SDK/fa/pf_chdir.c"),
             Object(Matching, "RVL_SDK/fa/pf_kernel.c"),
+            Object(Matching, "RVL_SDK/fa/nand_drv.c"),
         ],
     ),
     library(
