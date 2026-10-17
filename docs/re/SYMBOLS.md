@@ -873,6 +873,11 @@ Names given in `config/wpse-v1/symbols.txt`; evidence in [489-mem-cx-dsp](findin
 ## HBM controller (#289)
 
 [F-289-1](findings/289-hbm-controller.md#f-289-1-hbmcontrollercpp-spans-0x8017a010-to-0x8017ac20) names the 25 `homebutton::Controller` functions at `0x8017A010`–`0x8017AC20` and its statics `sBatteryFlag` (`0x803E99E8`, 4 bytes; was a dtk 8-byte guess), `sAlarm` (`0x803E99F0`), `sAlarmSoundOff` (`0x803E9AB0`) and `sThis` (`0x803E9B70`). Confidence high: the CC0 key reference gives the names and every function matches. It also names nine WPAD functions and five `RemoteSpk` members called from the unit; the addresses and the `Controller` and `RemoteSpk` layouts are in the finding.
+
+## HBM remote speaker (#290)
+
+[F-290-1](findings/290-hbm-remotespk.md#f-290-1-hbmremotespkcpp-spans-0x8017ac20-to-0x8017b53c) names the 15 `homebutton::RemoteSpk` functions at `0x8017AC20`–`0x8017B53C`, `__vt__Q210homebutton9RemoteSpk` (`0x803BA2D0`), `__RTTI__Q210homebutton9RemoteSpk` (`0x803BA2F8`) and `RemoteSpk::spInstance` (`0x803E9B80`, 4 bytes; was a dtk 8-byte guess). It also names `WPADCanSendStreamData` (`0x802FC730`) and `WPADSendStreamData` (`0x802FC7C0`). Confidence high: RTTI gives the class, the CC0 references give the member names, and every function matches. The `ChanInfo` and `RemoteSpk` layouts are in the finding.
+
 ## NW4R ef draw order and effect (#375)
 
 For `wpse-v1` / `main.dol`, [F-375-1](findings/375-ef-draworder-effect.md) names the 18 functions of `nw4r::ef::DrawOrder` (`0x80225820`, `0x802258B0`, `0x80225930`) and `nw4r::ef::Effect` (`0x80225940`–`0x80226544`) with their mangled CodeWarrior names, and the vtables `__vt__Q34nw4r2ef9DrawOrder` (`.data` `0x803C52D0`, 0x14 bytes) and `__vt__Q34nw4r2ef6Effect` (`.data` `0x803C52E8`, 0x20 bytes). Names are high confidence from the CC0 ogws reference and exact matches, except `Effect::GetFirstEmitter` (`0x802263D0`, 8 bytes), a descriptive name for the active-list head accessor, and `Effect::Calc(u32)`, whose parameter type is inferred from bit tests. Subtract `0x8004FD40` for `.text` file offsets.
