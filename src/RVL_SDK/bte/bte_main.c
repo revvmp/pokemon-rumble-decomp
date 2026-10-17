@@ -1,15 +1,15 @@
 #include "revolution/bte/transport.h"
 #include "revolution/types.h"
+#include "revolution/OS/OSAlarm.h"
 
-typedef struct OSAlarm OSAlarm;
-typedef struct OSContext OSContext;
 typedef void (*BTAAppInfoCallback)(unsigned char status);
 
-extern unsigned char __BTUInterruptHandlerStack[0x1000];
-extern OSAlarm _bte_alarm;
-extern BTAAppInfoCallback _bte_app_info;
+unsigned char __BTUInterruptHandlerStack[0x1000] __attribute__((aligned(32)));
+OSAlarm _bte_alarm __attribute__((aligned(8)));
+BTAAppInfoCallback _bte_app_info;
+volatile unsigned char bte_target_mode;
 extern const tHCI_IF hcisu_h2;
-extern unsigned short bte_hcisu_h2_cfg[2];
+unsigned short bte_hcisu_h2_cfg[2] = {0x0A5C, 0x2101};
 extern volatile int wait4hci;
 
 extern void OSSwitchFiber(unsigned long entry, unsigned long stack);
