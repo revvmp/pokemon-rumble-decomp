@@ -72,6 +72,7 @@ Keep entries concise and actionable. Distinguish confirmed findings from hypothe
 
 - **OSAlarm extends past the reference source.** The routine at `0x802B3760` still uses AlarmQueue and cancels reserved-tag alarms by user data; OSAlloc starts at `0x802B3810`. Do not end the alarm split at the reference's last accessor. See [F-464-1](docs/re/findings/464-os-alarm.md).
 - **Replacing a unit can remove its trailing alignment padding.** GXTev scored 100% but its source object omitted twelve trailing padding bytes; the next fallback unit began early at four-byte alignment. Preserve the observed next entry alignment (`GXSetFog`, 16 bytes) in symbols before accepting the link. See [F-479-2](docs/re/findings/479-gx.md).
+- **BTE units can need a GameCube compiler.** Every Wii compiler, even with `-func_align 4`, scheduled loads and stores differently in 9 of 21 `bta_dm_act.c` functions; GC/3.0a3, 3.0a5 and 3.0a5.2 with `cflags_sdk` match all 21, and `-ipa file` is needed to inline later-defined statics. Sweep GC compilers for each BTE unit; see [F-512-2](docs/re/findings/512-bta-dm-act.md#f-512-2-bta_dm_actc-needs-a-gamecube-compiler).
 
 ## Current project state
 

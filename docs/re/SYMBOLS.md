@@ -77,3 +77,41 @@ The same finding corrects the survey boundary at the end of #483: AIRegisterDMAC
 ## Issue 477: GX framebuffer and lighting
 
 [F-477-1](findings/477-gx-framebuf-light.md) records all 30 function names, code ranges, DOL offset mapping, light-object layout and external dependencies. GXFrameBuf owns 0x802CD440-0x802CDEC0; GXLight owns 0x802CDEC0-0x802CE630. Names are high confidence. Both units remain NonMatching pending external names and complete data/source-link validation.
+
+## Issue 512: BTA device-manager actions
+
+[F-512-1](findings/512-bta-dm-act.md) records the names, ranges and evidence. Renamed in `config/wpse-v1/symbols.txt`, all high confidence:
+
+| Address | Size | Name | Unit |
+| --- | --- | --- | --- |
+| `0x8031486C` | `0xB4` | `ptim_timer_update` | `ptim.c` (split owned by #511) |
+| `0x80314920` | `0xA0` | `ptim_start_timer` | `ptim.c` |
+| `0x803149C0` | `0x40` | `ptim_stop_timer` | `ptim.c` |
+| `0x80314A00` | `0x44` | `utl_freebuf` | `utl.c` |
+| `0x80314A44` | `0x110` | `bta_dm_enable` | `bta_dm_act.c` |
+| `0x80314B54` | `0xB0` | `bta_dm_disable` | `bta_dm_act.c` |
+| `0x80314C04` | `0xBC` | `bta_dm_disable_timer_cback` (local) | `bta_dm_act.c` |
+| `0x80314CC0` | `0x8` | `bta_dm_set_dev_name` | `bta_dm_act.c` |
+| `0x80314CC8` | `0x48` | `bta_dm_set_visibility` | `bta_dm_act.c` |
+| `0x80314D10` | `0x70` | `bta_dm_bond` | `bta_dm_act.c` |
+| `0x80314D80` | `0x9C` | `bta_dm_pin_reply` | `bta_dm_act.c` |
+| `0x80314E1C` | `0xD4` | `bta_dm_auth_reply` | `bta_dm_act.c` |
+| `0x80314EF0` | `0x60` | `bta_dm_search_start` | `bta_dm_act.c` |
+| `0x80314F50` | `0x84` | `bta_dm_search_cancel` | `bta_dm_act.c` |
+| `0x80314FD4` | `0x114` | `bta_dm_discover` | `bta_dm_act.c` |
+| `0x803150E8` | `0x224` | `bta_dm_inq_cmpl` | `bta_dm_act.c` |
+| `0x8031530C` | `0x16C` | `bta_dm_rmt_name` | `bta_dm_act.c` |
+| `0x80315478` | `0x64` | `bta_dm_disc_rmt_name` | `bta_dm_act.c` |
+| `0x803154DC` | `0x268` | `bta_dm_sdp_result` | `bta_dm_act.c` |
+| `0x80315744` | `0x18` | `bta_dm_search_cmpl` | `bta_dm_act.c` |
+| `0x8031575C` | `0x50` | `bta_dm_disc_result` | `bta_dm_act.c` |
+| `0x803157AC` | `0x88` | `bta_dm_search_result` | `bta_dm_act.c` |
+| `0x80315834` | `0x4C` | `bta_dm_search_timer_cback` (local) | `bta_dm_act.c` |
+| `0x80315880` | `0x44` | `bta_dm_free_sdp_db` | `bta_dm_act.c` |
+| `0x803158C4` | `0x48` | `bta_dm_queue_search` | `bta_dm_act.c` |
+| `0x80397EE8` | `0x30` | `bta_service_id_to_uuid_lkup_tbl` | `bta_dm_act.c` `.rodata` |
+| `0x80397F18` | `0x60` | `bta_service_id_to_btm_srv_id_lkup_tbl` | `bta_dm_act.c` `.rodata` |
+| `0x80397F78` | `0x18` | `bta_security` | `bta_dm_act.c` `.rodata` |
+| `0x804AA968` | `0x30` | `bta_dm_compress_srvcs` (local) | `bta_dm_act.c` `.bss` |
+
+The control-block and message offsets that this code checks against the target are listed under the finding's headers section.
