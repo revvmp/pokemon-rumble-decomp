@@ -28,9 +28,16 @@ executable. It reconstructs all 240 bytes in six non-text sections.
 | .sbss | 804B9420-804B9424 | Type information |
 | .sdata2 | 804BB190-804BB1A8 | Native floating-point constants |
 
-This native candidate is diagnostic evidence, not accepted source progress.
-Source selection and full frozen-link verification must also pass before a
-later source pull request claims reconstruction.
+The separate TextBox source tree subsequently passed actual source selection
+and full frozen-link verification: split-only default Ninja 517 targets,
+NonMatching pipeline, and Matching source-link pipeline each exited 0,
+with explicit frozen verification 0 after each. All 23 native final addresses
+and sizes, all seven objdiff sections at 100%, source-only link selection,
+and complete immutable DOL identity were checked by
+`808-textbox-full-source-audit.py`. Independent pairing of the actual compiled
+object passes 156 text plus 33 data relocations and 240 data bytes, with no
+unresolved callee addresses. F-808-5 records this source evidence separately.
+This header prerequisite still contributes no source or byte credit.
 
 | Interface | Native evidence and naming confidence |
 | --- | --- |
