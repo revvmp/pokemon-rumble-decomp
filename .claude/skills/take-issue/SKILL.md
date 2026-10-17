@@ -77,7 +77,7 @@ The game compiler is not yet identified. Before writing game code, check `docs/r
 - **`kind:research` issues.** Produce evidence and record it in `docs/re/findings/<n>-<slug>.md` with ID `F-<n>-<k>`. Open follow-up `kind:decomp` issues only if the user agrees.
 
 Working copies on Windows use CRLF line endings, except the dtk config files and progress SVGs pinned to LF in `.gitattributes`. Scripted string replacements that assume `
-` silently match nothing, so prefer the Edit tool. If you script a write, preserve the file's line endings and pass `encoding="utf-8"` explicitly; the Windows default encoding corrupts characters such as en dashes.
+` silently match nothing, so prefer your agent's file-editing tool (Edit in Claude Code, `apply_patch` in Codex). If you script a write, preserve the file's line endings and pass `encoding="utf-8"` explicitly; the Windows default encoding corrupts characters such as en dashes.
 
 Edit only the files `docs/COLLABORATION.md` allows. Do not touch maintainer-only files, frozen manifests, or expected hashes. Add no comments, docstrings, or unit tests, and never paste decompiler output.
 
