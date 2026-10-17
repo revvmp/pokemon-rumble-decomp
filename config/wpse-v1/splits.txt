@@ -318,6 +318,16 @@ RVL_SDK/os/OSPlayTime.c:
 	.sbss       start:0x804B9570 end:0x804B9588
 	.sdata2     start:0x804BB278 end:0x804BB288
 
+RVL_SDK/os/OSCrc.c:
+	.text       start:0x802BF9A0 end:0x802BFAD4
+	.rodata     start:0x80371630 end:0x80371670
+
+RVL_SDK/os/OSLaunch.c:
+	.text       start:0x802BFAE0 end:0x802C09F4
+	.data       start:0x803D4EB0 end:0x803D51CA
+	.sdata      start:0x804B8AC0 end:0x804B8AC9
+	.sbss       start:0x804B9588 end:0x804B958C
+
 RVL_SDK/os/__ppc_eabi_init.c:
 	.init       start:0x80004300 end:0x80004364
 	.text       start:0x802C0A00 end:0x802C0ABC

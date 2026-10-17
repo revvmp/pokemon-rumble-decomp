@@ -291,6 +291,8 @@ config.libs = [
             Object(Matching, "RVL_SDK/os/OSNet.c"),
             Object(Matching, "RVL_SDK/os/OSNandbootInfo.c"),
             Object(Matching, "RVL_SDK/os/OSPlayTime.c"),
+            Object(Matching, "RVL_SDK/os/OSCrc.c"),
+            Object(Matching, "RVL_SDK/os/OSLaunch.c"),
             Object(Matching, "RVL_SDK/os/__start.c"),
             Object(Matching, "RVL_SDK/os/__ppc_eabi_init.c"),
             Object(Matching, "RVL_SDK/exi/EXIBios.c", cflags=cflags_sdk_exi),
