@@ -426,6 +426,13 @@ config.libs = [
         ],
     ),
     library(
+        "NW4R.db",
+        NW4R_COMPILER,
+        cflags_nw4r,
+        "nw4r",
+        [Object(Matching, "nw4r/db/db_DbgPrintBase.cpp")],
+    ),
+    library(
         "NW4R.math",
         NW4R_COMPILER,
         cflags_nw4r,

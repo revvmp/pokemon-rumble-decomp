@@ -962,6 +962,11 @@ nw4r/ut/ut_PairFont.cpp:
 	.text       start:0x80297710 end:0x802983C4
 	.data       start:0x803C6CB0 end:0x803C6D20
 
+nw4r/db/db_DbgPrintBase.cpp:
+	.text       start:0x802A1950 end:0x802A346C
+	.sbss       start:0x804B93F8 end:0x804B9408
+	.sdata2     start:0x804BB0F8 end:0x804BB10C
+
 nw4r/math/math_arithmetic.cpp:
 	.text       start:0x802A3470 end:0x802A34F8
 	.sdata2     start:0x804BB110 end:0x804BB118
