@@ -19,6 +19,9 @@ typedef UINT8 BD_NAME[BD_NAME_LEN];
 #define PIN_CODE_LEN 16
 typedef UINT8 PIN_CODE[PIN_CODE_LEN];
 
+#define LAP_LEN 3
+typedef UINT8 LAP[LAP_LEN];
+
 #define BD_FEATURES_LEN 8
 typedef UINT8 BD_FEATURES[BD_FEATURES_LEN];
 
@@ -62,5 +65,45 @@ enum {
 
 #define HID_PSM_CONTROL BT_PSM_HIDC
 #define HID_PSM_INTERRUPT BT_PSM_HIDI
+
+#define BT_PASS 0
+
+#define UINT8_TO_STREAM(p, u8)                                                                                         \
+    do {                                                                                                               \
+        *(p)++ = (UINT8)(u8);                                                                                          \
+    } while (FALSE)
+
+#define UINT16_TO_STREAM(p, u16)                                                                                       \
+    do {                                                                                                               \
+        *(p)++ = (UINT8)(u16);                                                                                         \
+        *(p)++ = (UINT8)((u16) >> 8);                                                                                  \
+    } while (FALSE)
+
+#define UINT32_TO_STREAM(p, u32)                                                                                       \
+    do {                                                                                                               \
+        *(p)++ = (UINT8)(u32);                                                                                         \
+        *(p)++ = (UINT8)((u32) >> 8);                                                                                  \
+        *(p)++ = (UINT8)((u32) >> 16);                                                                                 \
+        *(p)++ = (UINT8)((u32) >> 24);                                                                                 \
+    } while (FALSE)
+
+#define REVERSED_ARRAY_TO_STREAM(p, a, len)                                                                            \
+    do {                                                                                                               \
+        register int ijk;                                                                                              \
+        for (ijk = 0; ijk < (len); ++ijk)                                                                              \
+            *(p)++ = (UINT8)(a)[((len) - 1) - ijk];                                                                    \
+    } while (FALSE)
+
+#define ARRAY16_TO_STREAM(p, a) REVERSED_ARRAY_TO_STREAM(p, a, 16)
+#define BDADDR_TO_STREAM(p, a) REVERSED_ARRAY_TO_STREAM(p, a, BD_ADDR_LEN)
+#define DEVCLASS_TO_STREAM(p, a) REVERSED_ARRAY_TO_STREAM(p, a, DEV_CLASS_LEN)
+#define LAP_TO_STREAM(p, a) REVERSED_ARRAY_TO_STREAM(p, a, LAP_LEN)
+
+#define ARRAY_TO_STREAM(p, a, len)                                                                                     \
+    do {                                                                                                               \
+        register int ijk;                                                                                              \
+        for (ijk = 0; ijk < (len); ++ijk)                                                                              \
+            *(p)++ = (UINT8)(a)[ijk];                                                                                  \
+    } while (FALSE)
 
 #endif

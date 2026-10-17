@@ -26,8 +26,24 @@ typedef struct {
     INT32 last_ticks;
 } TIMER_LIST_Q;
 
+enum {
+    GKI_POOL_ID_0 = 0,
+    GKI_POOL_ID_1 = 1,
+    GKI_POOL_ID_2 = 2,
+    GKI_POOL_ID_3 = 3
+};
+
+typedef struct {
+    void* p_first;
+    void* p_last;
+    UINT16 count;
+} BUFFER_Q;
+
 void* GKI_getbuf(UINT16);
+void* GKI_getpoolbuf(UINT8 pool_id);
 void GKI_freebuf(void* p_buf);
+void GKI_enqueue(BUFFER_Q* p_q, void* p_buf);
+void* GKI_dequeue(BUFFER_Q* p_q);
 
 #ifdef __cplusplus
 }

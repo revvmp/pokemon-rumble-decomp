@@ -586,3 +586,106 @@ The source constants occupy `0x804BBBB8–0x804BBBF8` as five doubles for `ldexp
 ## HBM frame and group animation controllers (#287)
 
 [F-287-1](findings/287-hbm-core.md#f-287-1-hbm-compiler-flags-and-first-unit-boundaries) names `homebutton::FrameController::init` (`0x80178530`), `initFrame` (`0x80178570`), `calc` (`0x80178590`), and `homebutton::GroupAnmController`'s constructor (`0x801786E0`), destructor (`0x80178700`) and `do_calc` (`0x80178740`), plus `__RTTI__Q210homebutton15FrameController` (`0x803BA010`), `__vt__Q210homebutton18GroupAnmController` (`0x803BA018`) and `__RTTI__Q210homebutton18GroupAnmController` (`0x803BA058`). Confidence is high: RTTI strings give the classes and every function matches. `FrameController` (0x20 bytes): vtable `0x0`, `mMaxFrame` `0x4`, `mMinFrame` `0x8`, `mCurFrame` `0xC`, `mFrameDelta` `0x10`, `mState` `0x14`, `mAnmType` `0x18`, `mAltFlag` `0x1C`. `GroupAnmController` (0x28 bytes) adds `mpGroup` `0x20` and `mpAnimGroup` `0x24`. The game's global `operator delete` at `0x801B1580` is renamed `__dl__FPv` from its use in every deleting destructor.
+| `0x8032582C` | `0x2C` | `fn_8032582C` | `btu_init_core` | function | high | F-522-1 | `src/RVL_SDK/bte/btu_init.c` |
+| `0x80325858` | `0x4C` | `fn_80325858` | `BTE_Init` | function | high | F-522-1 | `src/RVL_SDK/bte/btu_init.c` |
+| `0x803258A4` | `0xE0` | `fn_803258A4` | `WBT_ExtCreateRecord` | function | high | F-522-1 | `src/RVL_SDK/bte/wbt_ext.c` |
+| `0x80325984` | `0x60` | `fn_80325984` | `GAP_Init` | function | high | F-522-1 | `src/RVL_SDK/bte/gap_api.c` |
+| `0x803259E4` | `0x70` | `fn_803259E4` | `gap_conn_init` | function | high | F-522-1 | `src/RVL_SDK/bte/gap_conn.c` |
+| `0x80325A54` | `0x18C` | `fn_80325A54` | `gap_connect_ind` | static function | high | F-522-1 | `src/RVL_SDK/bte/gap_conn.c` |
+| `0x80325BE0` | `0x1DC` | `fn_80325BE0` | `gap_connect_cfm` | static function | high | F-522-1 | `src/RVL_SDK/bte/gap_conn.c` |
+| `0x80325DBC` | `0x13C` | `fn_80325DBC` | `gap_config_ind` | static function | high | F-522-1 | `src/RVL_SDK/bte/gap_conn.c` |
+| `0x80325EF8` | `0x1EC` | `fn_80325EF8` | `gap_config_cfm` | static function | high | F-522-1 | `src/RVL_SDK/bte/gap_conn.c` |
+| `0x803260E4` | `0x1F8` | `fn_803260E4` | `gap_disconnect_ind` | static function | high | F-522-1 | `src/RVL_SDK/bte/gap_conn.c` |
+| `0x803262DC` | `0x110` | `fn_803262DC` | `gap_data_ind` | static function | high | F-522-1 | `src/RVL_SDK/bte/gap_conn.c` |
+| `0x803263EC` | `0x134` | `fn_803263EC` | `gap_congestion_ind` | static function | high | F-522-1 | `src/RVL_SDK/bte/gap_conn.c` |
+| `0x80326520` | `0x1D8` | `fn_80326520` | `btm_cback` | static function | high | F-522-1 | `src/RVL_SDK/bte/gap_utils.c` |
+| `0x803266F8` | `0xC` | `fn_803266F8` | `gap_btm_cback0` | function | high | F-522-1 | `src/RVL_SDK/bte/gap_utils.c` |
+| `0x80326704` | `0xC` | `fn_80326704` | `gap_btm_cback1` | function | high | F-522-1 | `src/RVL_SDK/bte/gap_utils.c` |
+| `0x80326710` | `0x218` | `fn_80326710` | `gap_find_addr_name_cb` | function | high | F-522-1 | `src/RVL_SDK/bte/gap_utils.c` |
+| `0x80326928` | `0x1B4` | `fn_80326928` | `gap_find_addr_inq_cb` | function | high | F-522-1 | `src/RVL_SDK/bte/gap_utils.c` |
+| `0x80326ADC` | `0x60` | `fn_80326ADC` | `gap_convert_btm_status` | function | high | F-522-1 | `src/RVL_SDK/bte/gap_utils.c` |
+| `0x80326B3C` | `0xA8` | `fn_80326B3C` | `btsnd_hcic_inquiry` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x80326BE4` | `0x60` | `fn_80326BE4` | `btsnd_hcic_inq_cancel` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x80326C44` | `0xC0` | `fn_80326C44` | `btsnd_hcic_per_inq_mode` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x80326D04` | `0xE0` | `fn_80326D04` | `btsnd_hcic_create_conn` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x80326DE4` | `0x88` | `fn_80326DE4` | `btsnd_hcic_disconnect` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x80326E6C` | `0x8C` | `fn_80326E6C` | `btsnd_hcic_add_SCO_conn` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x80326EF8` | `0x60` | `fn_80326EF8` | `btsnd_hcic_accept_conn` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x80326F58` | `0x5C` | `fn_80326F58` | `btsnd_hcic_reject_conn` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x80326FB4` | `0x1A0` | `fn_80326FB4` | `btsnd_hcic_link_key_req_reply` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x80327154` | `0xA0` | `fn_80327154` | `btsnd_hcic_link_key_neg_reply` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x803271F4` | `0x1E4` | `fn_803271F4` | `btsnd_hcic_pin_code_req_reply` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x803273D8` | `0xA0` | `fn_803273D8` | `btsnd_hcic_pin_code_neg_reply` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x80327478` | `0x90` | `fn_80327478` | `btsnd_hcic_change_conn_type` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x80327508` | `0x7C` | `fn_80327508` | `btsnd_hcic_auth_request` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x80327584` | `0x8C` | `fn_80327584` | `btsnd_hcic_set_conn_encrypt` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x80327610` | `0xD8` | `fn_80327610` | `btsnd_hcic_rmt_name_req` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x803276E8` | `0xA0` | `fn_803276E8` | `btsnd_hcic_rmt_name_req_cancel` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x80327788` | `0x7C` | `fn_80327788` | `btsnd_hcic_rmt_features_req` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x80327804` | `0x7C` | `fn_80327804` | `btsnd_hcic_rmt_ver_req` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x80327880` | `0x7C` | `fn_80327880` | `btsnd_hcic_read_rmt_clk_offset` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x803278FC` | `0xFC` | `fn_803278FC` | `btsnd_hcic_setup_esco_conn` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x803279F8` | `0xE8` | `fn_803279F8` | `btsnd_hcic_accept_esco_conn` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x80327AE0` | `0x60` | `fn_80327AE0` | `btsnd_hcic_reject_esco_conn` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x80327B40` | `0xB4` | `fn_80327B40` | `btsnd_hcic_hold_mode` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x80327BF4` | `0xCC` | `fn_80327BF4` | `btsnd_hcic_sniff_mode` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x80327CC0` | `0x84` | `fn_80327CC0` | `btsnd_hcic_exit_sniff_mode` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x80327D44` | `0xB4` | `fn_80327D44` | `btsnd_hcic_park_mode` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x80327DF8` | `0x84` | `fn_80327DF8` | `btsnd_hcic_exit_park_mode` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x80327E7C` | `0xB0` | `fn_80327E7C` | `btsnd_hcic_switch_role` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x80327F2C` | `0x94` | `fn_80327F2C` | `btsnd_hcic_write_policy_set` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x80327FC0` | `0x5C` | `fn_80327FC0` | `btsnd_hcic_reset` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x8032801C` | `0x1BC` | `fn_8032801C` | `btsnd_hcic_set_event_filter` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x803281D8` | `0x74` | `fn_803281D8` | `btsnd_hcic_write_pin_type` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x8032824C` | `0x60` | `fn_8032824C` | `btsnd_hcic_read_stored_key` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x803282AC` | `0x1C0` | `fn_803282AC` | `btsnd_hcic_write_stored_key` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x8032846C` | `0xB0` | `fn_8032846C` | `btsnd_hcic_delete_stored_key` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x8032851C` | `0x140` | `fn_8032851C` | `btsnd_hcic_change_name` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x8032865C` | `0x38` | `fn_8032865C` | `btsnd_hcic_write_page_tout` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x80328694` | `0x30` | `fn_80328694` | `btsnd_hcic_write_scan_enable` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x803286C4` | `0x44` | `fn_803286C4` | `btsnd_hcic_write_pagescan_cfg` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x80328708` | `0x44` | `fn_80328708` | `btsnd_hcic_write_inqscan_cfg` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x8032874C` | `0x74` | `fn_8032874C` | `btsnd_hcic_write_auth_enable` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x803287C0` | `0x74` | `fn_803287C0` | `btsnd_hcic_write_encr_mode` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x80328834` | `0x44` | `fn_80328834` | `btsnd_hcic_write_dev_class` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x80328878` | `0x44` | `fn_80328878` | `btsnd_hcic_write_auto_flush_tout` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x803288BC` | `0xBC` | `fn_803288BC` | `btsnd_hcic_set_host_buf_size` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x80328978` | `0x94` | `fn_80328978` | `btsnd_hcic_write_link_super_tout` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x80328A0C` | `0x70` | `fn_80328A0C` | `btsnd_hcic_write_cur_iac_lap` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x80328A7C` | `0x60` | `fn_80328A7C` | `btsnd_hcic_read_local_ver` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x80328ADC` | `0x5C` | `fn_80328ADC` | `btsnd_hcic_read_local_features` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x80328B38` | `0x28` | `fn_80328B38` | `btsnd_hcic_read_buffer_size` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x80328B60` | `0x60` | `fn_80328B60` | `btsnd_hcic_read_bd_addr` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x80328BC0` | `0x7C` | `fn_80328BC0` | `btsnd_hcic_get_link_quality` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x80328C3C` | `0x78` | `fn_80328C3C` | `btsnd_hcic_read_rssi` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x80328CB4` | `0x420` | `fn_80328CB4` | `btsnd_hcic_set_afh_channels` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x803290D4` | `0x30` | `fn_803290D4` | `btsnd_hcic_write_inqscan_type` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x80329104` | `0x30` | `fn_80329104` | `btsnd_hcic_write_inquiry_mode` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x80329134` | `0x30` | `fn_80329134` | `btsnd_hcic_write_pagescan_type` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x80329164` | `0xF4` | `fn_80329164` | `btsnd_hcic_vendor_spec_cmd` | function | high | F-522-1 | `src/RVL_SDK/bte/hcicmds.c` |
+| `0x804AD540` | `0x3AC` | `lbl_804AD540` | `gap_cb` (`tGAP_CB`) | `.bss` object | high | F-522-1 | `src/RVL_SDK/bte/gap_utils.c` |
+| `0x804BB630` | `0x6` | `lbl_804BB630` | `BT_BD_ANY` | `.sdata2` object | high | F-522-1 | `src/RVL_SDK/bte/btu_init.c` |
+| `0x804AA850` | `0x84` | `lbl_804AA850` | `btu_cb` (`tBTU_CB`) | `.bss` object, outside block | high name | F-522-4 | owned by the `btu_task1.c` block |
+| `0x80311070` | `0xE8` | `fn_80311070` | `GKI_getpoolbuf` | function, outside block | high name | F-522-4 | owning block issue |
+| `0x80311160` | `0x170` | `fn_80311160` | `GKI_freebuf` | function, outside block | high name | F-522-4 | owning block issue |
+| `0x80311590` | `0x13C` | `fn_80311590` | `GKI_enqueue` | function, outside block | high name | F-522-4 | owning block issue |
+| `0x80311810` | `0xA0` | `fn_80311810` | `GKI_dequeue` | function, outside block | high name | F-522-4 | owning block issue |
+| `0x8031DF18` | `0x78` | `fn_8031DF18` | `btm_discovery_db_init` | function, outside block | high name | F-522-4 | owning block issue |
+| `0x8031E91C` | `0xE8` | `fn_8031E91C` | `BTM_ReadRemoteDeviceName` | function, outside block | high name | F-522-4 | owning block issue |
+| `0x8031EB3C` | `0xB8` | `fn_8031EB3C` | `BTM_InqDbFirst` | function, outside block | high name | F-522-4 | owning block issue |
+| `0x8031EBF4` | `0x13C` | `fn_8031EBF4` | `BTM_InqDbNext` | function, outside block | high name | F-522-4 | owning block issue |
+| `0x8031FAE4` | `0x5C` | `fn_8031FAE4` | `btm_init` | function, outside block | high name | F-522-4 | owning block issue |
+| `0x80324B88` | `0x18C` | `fn_80324B88` | `btu_hcif_send_cmd` | function, outside block | high name | F-522-4 | owning block issue |
+| `0x8032C720` | `0x90` | `fn_8032C720` | `L2CA_Deregister` | function, outside block | high name | F-522-4 | owning block issue |
+| `0x8032C9E4` | `0x190` | `fn_8032C9E4` | `L2CA_ConnectRsp` | function, outside block | high name | F-522-4 | owning block issue |
+| `0x8032CB74` | `0xB8` | `fn_8032CB74` | `L2CA_ConfigReq` | function, outside block | high name | F-522-4 | owning block issue |
+| `0x8032CC2C` | `0xD0` | `fn_8032CC2C` | `L2CA_ConfigRsp` | function, outside block | high name | F-522-4 | owning block issue |
+| `0x8032CCFC` | `0xA4` | `fn_8032CCFC` | `L2CA_DisconnectReq` | function, outside block | high name | F-522-4 | owning block issue |
+| `0x8032CDA0` | `0xA4` | `fn_8032CDA0` | `L2CA_DisconnectRsp` | function, outside block | high name | F-522-4 | owning block issue |
+| `0x8032F7B8` | `0x114` | `fn_8032F7B8` | `l2c_init` | function, outside block | high name | F-522-4 | owning block issue |
+| `0x80339170` | `0x360` | `fn_80339170` | `SDP_SetLocalDiRecord` | function, outside block | high name | F-522-4 | owning block issue |
+| `0x803394D0` | `0x4B0` | `fn_803394D0` | `SDP_GetLocalDiRecord` | function, outside block | high name | F-522-4 | owning block issue |
+| `0x80339E48` | `0x398` | `fn_80339E48` | `SDP_AddAttribute` | function, outside block | high name | F-522-4 | owning block issue |
+| `0x8033A1E0` | `0xD8` | `fn_8033A1E0` | `SDP_AddUuidSequence` | function, outside block | high name | F-522-4 | owning block issue |
+| `0x8033B8E8` | `0x1A0` | `fn_8033B8E8` | `sdp_init` | function, outside block | high name | F-522-4 | owning block issue |
+| `0x803456E8` | `0x4C` | `fn_803456E8` | `memcmp` | function, outside block | high name | F-522-4 | owning block issue |

@@ -20,7 +20,11 @@
 
 #define SDP_MAX_UUID_FILTERS 3
 #define SDP_MAX_ATTR_FILTERS 12
+#define SDP_MAX_ATTR_LEN 80
 
 #define PORT_MAX_RFC_PORTS 31
+
+#define L2CAP_MTU_SIZE 1691
+#define GAP_MAX_CONNECTIONS 8
 
 #endif
