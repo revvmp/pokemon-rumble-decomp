@@ -7,6 +7,7 @@
 extern "C" {
 #endif
 
+u32 PFFILE_IsOpened(PF_DIR_ENT* p_ent);
 void PFFILE_Cursor_MoveToEnd(PF_FILE* p_file);
 void PFFILE_Cursor_MoveToClusterEnd(PF_FILE* p_file, u32 size);
 

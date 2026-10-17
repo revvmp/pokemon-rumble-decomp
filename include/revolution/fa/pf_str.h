@@ -23,9 +23,14 @@ typedef struct PF_CHARCODE {
     u32 (*is_unicode_mb_char)(u16 c, u32 mode);
 } PF_CHARCODE;
 
+#define PF_SETTING_CODE_MODE_MASK 0x3
+
 typedef struct PF_VOLUME_SET {
-    u8 state[0x48];
+    u8 state[0x40];
+    s32 last_error;
+    s32 last_driver_error;
     PF_CHARCODE codeset;
+    u32 setting;
 } PF_VOLUME_SET;
 
 extern PF_VOLUME_SET pf_vol_set;

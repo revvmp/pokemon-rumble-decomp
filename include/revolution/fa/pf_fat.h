@@ -13,6 +13,8 @@ s32 PFFAT_GetContinuousSector(PF_FFD* p_ffd, u32 file_sector_index, u32 size, u3
 s32 PFFAT_TraceClustersChain(PF_FFD* p_ffd, u32 start_clst, u32 size, u32* p_target_clst, u32* p_next_clst);
 s32 PFFAT_AllocateContinuousClusters(PF_FFD* p_ffd, u32 size, u32* p_start_cluster, u32* p_last_cluster, u32* p_size);
 s32 PFFAT_WriteValueToSpecifiedCluster(PF_VOLUME* p_vol, u32 cluster, u32 value);
+void PFFAT_InitHint(PF_FAT_HINT* p_hint);
+s32 PFFAT_InitFFD(PF_FFD* p_ffd, PF_FAT_HINT* p_hint, PF_VOLUME* p_vol, u32* p_start_cluster);
 s32 PFFAT_ReadValueToSpecifiedCluster(PF_VOLUME* p_vol, u32 cluster, u32* value);
 u32 PFFAT_GetValueOfEOC2(PF_VOLUME* p_vol);
 
