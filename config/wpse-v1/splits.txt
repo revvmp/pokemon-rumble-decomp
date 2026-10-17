@@ -520,6 +520,11 @@ nw4r/g3d/platform/g3d_cpu.cpp:
 	.text       start:0x8025B460 end:0x8025B694
 	.sdata2     start:0x804BAC30 end:0x804BAC34
 
+nw4r/g3d/g3d_draw1mat1shp.cpp:
+	.text       start:0x8025ECB0 end:0x8025F9F4
+	.rodata     start:0x8036C888 end:0x8036C898
+	.sdata2     start:0x804BAC60 end:0x804BAC80
+
 nw4r/snd/snd_AxManager.cpp:
 	.text       start:0x80271E10 end:0x80273650
 	.ctors      start:0x80352A50 end:0x80352A54

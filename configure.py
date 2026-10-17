@@ -364,6 +364,7 @@ config.libs = [
             Object(Matching, "nw4r/g3d/g3d_anmobj.cpp"),
             Object(Matching, "nw4r/g3d/platform/g3d_gpu.cpp"),
             Object(Matching, "nw4r/g3d/platform/g3d_cpu.cpp"),
+            Object(Matching, "nw4r/g3d/g3d_draw1mat1shp.cpp"),
         ],
     ),
     library(

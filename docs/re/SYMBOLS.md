@@ -2145,3 +2145,7 @@ For `wpse-v1` / `main.dol`, [F-402-1](findings/402-g3d-obj-anmobj-platform.md) n
 
 For `wpse-v1` / `main.dol`, [F-381-1](findings/381-ef-emitter-forms-draw-strategies.md) names, with mangled CodeWarrior names and high confidence from the CC0 Whippy reference and exact matches: `EmitterFormCylinder::EmissionSub` (`0x80238270`), `EmitterFormCylinder::Emission` (`0x802386D0`), `EmitterFormTorus::Emission` (`0x80238A20`), `EmitterFormCube::EmissionSub` (`0x80239060`) and `EmitterFormCube::Emission` (`0x80239390`).
 [F-542-2](findings/542-transport-event-source.md) names `EnableEXI2Interrupts` (`0x8034E85C`), `TRKPollUART` (`0x8034E888`), `TRKReadUARTN` (`0x8034E89C`), `TRKWriteUARTN` (`0x8034E8D8`), `TRKDoNotifyStopped` (`0x8034E9A8`), `TRKPostEvent` (`0x8034EAE8`) and `TRKConstructEvent` (`0x8034EBB4`) from the pinned Petari implementation and exact native code. `gTRKEventQueue` at `0x804B3A98` is 0x24 bytes; the former 0x28-byte estimate included padding. The compiler-generated weak local trap constant `@LOCAL@InitializeProgramEndTrap__Fv@EndofProgramInstruction` at `0x804BBBF8` is four bytes containing `0x00454E44`. These names and storage extents have high confidence from the actual source objects and frozen DOL.
+
+## NW4R g3d Draw1Mat1Shp (#775)
+
+For `wpse-v1` / `main.dol`, [F-775-1](findings/775-g3d-draw1mat1shp.md) confirms the imported names of `nw4r::g3d::detail::LoadMaterial` (`.text` `0x8025ECB0`) and `nw4r::g3d::Draw1Mat1ShpDirectly` (`0x8025F150`) by exact match against CC0 zeldaret/ss. No symbols were renamed. Confidence: high.
