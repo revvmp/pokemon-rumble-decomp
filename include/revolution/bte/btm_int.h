@@ -11,6 +11,8 @@
 #define BTM_SEC_MAX_LINK_KEY_CALLBACKS 2
 #define BTM_SEC_MAX_RMT_NAME_CALLBACKS 2
 #define BTM_DISC_DB_SIZE 4000
+#define BTM_CLOCK_OFFSET_VALID 0x8000
+#define BTM_SEC_INVALID_HANDLE 0xffff
 
 typedef UINT8 tBTM_ACL_SWKEY_STATE;
 typedef UINT8 tBTM_DEV_STATE;
@@ -22,7 +24,32 @@ enum {
 };
 
 typedef UINT8 tBTM_RMT_NAME_ACTIVE_FLAGS;
+
+enum {
+    BTM_RMT_NAME_INACTIVE = 0,
+    BTM_RMT_NAME_EXT = 1 << 0,
+    BTM_RMT_NAME_SEC = 1 << 1,
+    BTM_RMT_NAME_INQ = 1 << 2
+};
+
 typedef UINT8 tBTM_INQ_STATE;
+
+enum {
+    BTM_SEC_AUTHORIZED = BTM_SEC_FLAG_AUTHORIZED,
+    BTM_SEC_AUTHENTICATED = BTM_SEC_FLAG_AUTHENTICATED,
+    BTM_SEC_ENCRYPTED = BTM_SEC_FLAG_ENCRYPTED,
+    BTM_SEC_NAME_KNOWN = 0x08,
+    BTM_SEC_LINK_KEY_KNOWN = BTM_SEC_FLAG_LKEY_KNOWN,
+    BTM_SEC_IN_USE = 0x80
+};
+
+enum {
+    BTM_SEC_STATE_IDLE = 0,
+    BTM_SEC_STATE_AUTHENTICATING = 1,
+    BTM_SEC_STATE_ENCRYPTING = 2,
+    BTM_SEC_STATE_GETTING_NAME = 3,
+    BTM_SEC_STATE_AUTHORIZING = 4
+};
 
 typedef char tBTM_LOC_BD_NAME[BTM_MAX_LOC_BD_NAME_LEN + 1];
 typedef tBTM_SEC_CBACK tBTM_SEC_CALLBACK;
@@ -335,5 +362,13 @@ void btm_sec_link_key_request(BD_ADDR_PTR p_bda);
 void btm_sec_pin_code_request(BD_ADDR_PTR p_bda);
 void btm_sec_update_clock_offset(UINT16 handle, UINT16 clock_offset);
 UINT16 btm_get_acl_disc_reason_code(void);
+tBTM_SEC_DEV_REC* btm_find_dev_by_handle(UINT16 handle);
+tBTM_SEC_DEV_REC* btm_sec_alloc_dev(BD_ADDR bd_addr);
+tBTM_STATUS btm_initiate_rem_name(BD_ADDR remote_bda, tBTM_INQ_INFO* p_cur, UINT8 origin, UINT32 timeout,
+                                  tBTM_CMPL_CB* p_cb);
+void btm_sec_change_link_key(UINT16 handle);
+void btm_sec_init(UINT8 sec_mode);
+void btm_sec_dev_reset(void);
+void btm_sec_pin_code_request_timeout(void);
 
 #endif

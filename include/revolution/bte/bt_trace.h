@@ -329,4 +329,114 @@ void LogMsg_6(UINT32 trace_set_mask, const char* fmt_str, UINT32 p1, UINT32 p2, 
             LogMsg_2(HID_TRACE_MASK(TRACE_TYPE_EVENT), (m), (UINT32)(p1), (UINT32)(p2)); \
     } while (0)
 
+#define TRACE_LAYER_BTM 0x000D0000
+
+#define BTM_TRACE_API3(m, p1, p2, p3) \
+    do { \
+        if (btm_cb.trace_level >= BT_TRACE_LEVEL_API) \
+            BT_TRACE_3(TRACE_LAYER_BTM, TRACE_TYPE_API, m, p1, p2, p3); \
+    } while (0)
+
+#define BTM_TRACE_API4(m, p1, p2, p3, p4) \
+    do { \
+        if (btm_cb.trace_level >= BT_TRACE_LEVEL_API) \
+            BT_TRACE_4(TRACE_LAYER_BTM, TRACE_TYPE_API, m, p1, p2, p3, p4); \
+    } while (0)
+
+#define BTM_TRACE_API6(m, p1, p2, p3, p4, p5, p6) \
+    do { \
+        if (btm_cb.trace_level >= BT_TRACE_LEVEL_API) \
+            BT_TRACE_6(TRACE_LAYER_BTM, TRACE_TYPE_API, m, p1, p2, p3, p4, p5, p6); \
+    } while (0)
+
+#define BTM_TRACE_DEBUG0(m) \
+    do { \
+        if (btm_cb.trace_level >= BT_TRACE_LEVEL_DEBUG) \
+            BT_TRACE_0(TRACE_LAYER_BTM, TRACE_TYPE_DEBUG, m); \
+    } while (0)
+
+#define BTM_TRACE_DEBUG1(m, p1) \
+    do { \
+        if (btm_cb.trace_level >= BT_TRACE_LEVEL_DEBUG) \
+            BT_TRACE_1(TRACE_LAYER_BTM, TRACE_TYPE_DEBUG, m, p1); \
+    } while (0)
+
+#define BTM_TRACE_ERROR0(m) \
+    do { \
+        if (btm_cb.trace_level >= BT_TRACE_LEVEL_ERROR) \
+            BT_TRACE_0(TRACE_LAYER_BTM, TRACE_TYPE_ERROR, m); \
+    } while (0)
+
+#define BTM_TRACE_ERROR1(m, p1) \
+    do { \
+        if (btm_cb.trace_level >= BT_TRACE_LEVEL_ERROR) \
+            BT_TRACE_1(TRACE_LAYER_BTM, TRACE_TYPE_ERROR, m, p1); \
+    } while (0)
+
+#define BTM_TRACE_ERROR3(m, p1, p2, p3) \
+    do { \
+        if (btm_cb.trace_level >= BT_TRACE_LEVEL_ERROR) \
+            BT_TRACE_3(TRACE_LAYER_BTM, TRACE_TYPE_ERROR, m, p1, p2, p3); \
+    } while (0)
+
+#define BTM_TRACE_EVENT0(m) \
+    do { \
+        if (btm_cb.trace_level >= BT_TRACE_LEVEL_EVENT) \
+            BT_TRACE_0(TRACE_LAYER_BTM, TRACE_TYPE_EVENT, m); \
+    } while (0)
+
+#define BTM_TRACE_EVENT1(m, p1) \
+    do { \
+        if (btm_cb.trace_level >= BT_TRACE_LEVEL_EVENT) \
+            BT_TRACE_1(TRACE_LAYER_BTM, TRACE_TYPE_EVENT, m, p1); \
+    } while (0)
+
+#define BTM_TRACE_EVENT2(m, p1, p2) \
+    do { \
+        if (btm_cb.trace_level >= BT_TRACE_LEVEL_EVENT) \
+            BT_TRACE_2(TRACE_LAYER_BTM, TRACE_TYPE_EVENT, m, p1, p2); \
+    } while (0)
+
+#define BTM_TRACE_EVENT3(m, p1, p2, p3) \
+    do { \
+        if (btm_cb.trace_level >= BT_TRACE_LEVEL_EVENT) \
+            BT_TRACE_3(TRACE_LAYER_BTM, TRACE_TYPE_EVENT, m, p1, p2, p3); \
+    } while (0)
+
+#define BTM_TRACE_EVENT5(m, p1, p2, p3, p4, p5) \
+    do { \
+        if (btm_cb.trace_level >= BT_TRACE_LEVEL_EVENT) \
+            BT_TRACE_5(TRACE_LAYER_BTM, TRACE_TYPE_EVENT, m, p1, p2, p3, p4, p5); \
+    } while (0)
+
+#define BTM_TRACE_EVENT6(m, p1, p2, p3, p4, p5, p6) \
+    do { \
+        if (btm_cb.trace_level >= BT_TRACE_LEVEL_EVENT) \
+            BT_TRACE_6(TRACE_LAYER_BTM, TRACE_TYPE_EVENT, m, p1, p2, p3, p4, p5, p6); \
+    } while (0)
+
+#define BTM_TRACE_WARNING0(m) \
+    do { \
+        if (btm_cb.trace_level >= BT_TRACE_LEVEL_WARNING) \
+            BT_TRACE_0(TRACE_LAYER_BTM, TRACE_TYPE_WARNING, m); \
+    } while (0)
+
+#define BTM_TRACE_WARNING1(m, p1) \
+    do { \
+        if (btm_cb.trace_level >= BT_TRACE_LEVEL_WARNING) \
+            BT_TRACE_1(TRACE_LAYER_BTM, TRACE_TYPE_WARNING, m, p1); \
+    } while (0)
+
+#define BTM_TRACE_WARNING3(m, p1, p2, p3) \
+    do { \
+        if (btm_cb.trace_level >= BT_TRACE_LEVEL_WARNING) \
+            BT_TRACE_3(TRACE_LAYER_BTM, TRACE_TYPE_WARNING, m, p1, p2, p3); \
+    } while (0)
+
+#define BTM_TRACE_WARNING6(m, p1, p2, p3, p4, p5, p6) \
+    do { \
+        if (btm_cb.trace_level >= BT_TRACE_LEVEL_WARNING) \
+            BT_TRACE_6(TRACE_LAYER_BTM, TRACE_TYPE_WARNING, m, p1, p2, p3, p4, p5, p6); \
+    } while (0)
+
 #endif

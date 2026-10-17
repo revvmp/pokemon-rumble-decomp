@@ -15,6 +15,7 @@ typedef UINT8 DEV_CLASS[DEV_CLASS_LEN];
 
 #define BD_NAME_LEN 248
 typedef UINT8 BD_NAME[BD_NAME_LEN];
+typedef UINT8* BD_NAME_PTR;
 
 #define PIN_CODE_LEN 16
 typedef UINT8 PIN_CODE[PIN_CODE_LEN];
@@ -76,6 +77,7 @@ enum {
 };
 
 enum {
+    BT_PSM_SDP = 1,
     BT_PSM_RFCOMM = 3,
     BT_PSM_HIDC = 17,
     BT_PSM_HIDI = 19

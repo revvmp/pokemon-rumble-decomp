@@ -1722,3 +1722,21 @@ For `wpse-v1` / `main.dol`, [F-300-1](findings/300-nw4hbm-ut.md#f-300-1-ut_font-
 ## HBM ut ResFontBase unit (#301)
 
 For `wpse-v1` / `main.dol`, [F-301-1](findings/301-nw4hbm-ut.md#f-301-1-ut_resfontbase) names `detail::ResFontBase::FindGlyphIndex(const FontCodeMap*, u16)` (`0x801941C0`), `GetGlyphFromIndex` (`0x80194290`), `__vt__Q46nw4hbm2ut6detail11ResFontBase` (`0x803BCD38`, 0x58 bytes), `__vt__Q36nw4hbm2ut4Font` (`0x803BCD90`, 0x58 bytes) and the weak `Font` destructor `__dt__Q36nw4hbm2ut4FontFv` (`0x8018F1A0`). `ResFontBase` is 0x18 bytes: `Font` (vtable `0x0`, reader `0x4`), `mResource` `0x10`, `mFontInfo` `0x14`. Confidence high: names and sizes match xenoblade's symbols, and the unit matches.
+## BTE security manager, issues 520 and 521
+
+[F-521-5](findings/521-bte-btu-hcif.md#f-521-5-btm_secc-matching) gives the `btm_sec.c` boundaries and the evidence for these names. The 50 strings in `.data` `0x803E1F10`-`0x803E2920` keep `lbl_` names, split at the compiled string starts.
+
+| Address | Size | Old name | Name | Kind | Confidence | Evidence | Source |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `0x80321728` | `0xB0` | `fn_80321728` | `BTM_SetPinType` | function | high | F-521-5 | `src/RVL_SDK/bte/btm_sec.c` |
+| `0x80322898` | `0x1C` | `fn_80322898` | `btm_sec_init` | function | high | F-521-5 | `src/RVL_SDK/bte/btm_sec.c` |
+| `0x803228B4` | `0x40` | `fn_803228B4` | `btm_sec_dev_reset` | function | high | F-521-5 | `src/RVL_SDK/bte/btm_sec.c` |
+| `0x80323BA0` | `0x74` | `fn_80323BA0` | `btm_sec_pin_code_request_timeout` | function | high | F-521-5 | `src/RVL_SDK/bte/btm_sec.c` |
+| `0x80323FC0` | `0x3E0` | `fn_80323FC0` | `btm_sec_execute_procedure` | static function | high | F-521-5 | `src/RVL_SDK/bte/btm_sec.c` |
+| `0x803243A0` | `0x11C` | `fn_803243A0` | `btm_sec_start_authorization` | static function | high | F-521-5 | `src/RVL_SDK/bte/btm_sec.c` |
+| `0x803244BC` | `0xE0` | `fn_803244BC` | `btm_sec_collision_timeout` | static function | high | F-521-5 | `src/RVL_SDK/bte/btm_sec.c` |
+| `0x804BB628` | `0x6` | `lbl_804BB628`-`lbl_804BB62D` | `lbl_804BB628` | `.sdata2` address initializer | high extent | F-521-5 | `btm_sec_mkey_comp_event` local |
+| `0x8031C198` | `0x120` | `fn_8031C198` | `btm_sec_alloc_dev` | function, outside unit | high name | F-521-5 | split left to its owning issue |
+| `0x8031C2B8` | `0xB8` | `fn_8031C2B8` | `btm_find_dev_by_handle` | function, outside unit | high name | F-521-5 | split left to its owning issue |
+| `0x8031DB5C` | `0xD0` | `fn_8031DB5C` | `BTM_DeleteStoredLinkKey` | function, outside unit | high name | F-521-5 | split left to its owning issue |
+| `0x8031F7FC` | `0x150` | `fn_8031F7FC` | `btm_initiate_rem_name` | function, outside unit | high name | F-521-5 | split left to its owning issue |
