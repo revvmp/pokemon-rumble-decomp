@@ -119,6 +119,11 @@ RVL_SDK/ax/AX.c:
 	.sdata      start:0x804B8BD0 end:0x804B8BD8
 	.sbss       start:0x804B9840 end:0x804B9848
 
+RVL_SDK/ax/AXAux.c:
+	.text       start:0x802DA9F0 end:0x802DB284
+	.bss        start:0x804594A0 end:0x8045C620
+	.sbss       start:0x804B9850 end:0x804B9898
+
 RVL_SDK/axfx/AXFXReverbStdExp.c:
 	.text       start:0x802DF190 end:0x802DFEC0
 	.data       start:0x803DB780 end:0x803DB810
@@ -152,9 +157,20 @@ RVL_SDK/nand/nand.c:
 	.text       start:0x802E4630 end:0x802E5BC0
 	.sdata      start:0x804B8BF0 end:0x804B8BF8
 
+RVL_SDK/enc/encjapanese.c:
+	.text       start:0x802EBAD0 end:0x802ED118
+	.rodata     start:0x803718A8 end:0x8037BB8E
+	.sdata      start:0x804B8D60 end:0x804B8D64
+
 RVL_SDK/enc/enclatin.c:
 	.text       start:0x802ED120 end:0x802ED700
 	.rodata     start:0x8037BB90 end:0x8037D690
+
+RVL_SDK/enc/encconvert.c:
+	.text       start:0x802ED700 end:0x802EE64C
+	.rodata     start:0x8037D690 end:0x8037E920
+	.data       start:0x803DC968 end:0x803DCA78
+	.sdata      start:0x804B8D68 end:0x804B8D74
 
 RVL_SDK/arc/arc.c:
 	.text       start:0x802EFCD0 end:0x802F08D8
