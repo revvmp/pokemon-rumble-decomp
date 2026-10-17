@@ -11,5 +11,6 @@
 #define OSCachedToPhysical(caddr) ((u32)((u8*)(caddr) - OS_BASE_CACHED))
 #define OSUncachedToPhysical(ucaddr) ((u32)((u32)(ucaddr) & ~OS_BASE_UNCACHED))
 #define OSRoundUp32B(x) (((u32)(x) + 32 - 1) & ~(32 - 1))
+#define OSRoundDown32B(x) (((u32)(x)) & ~(32 - 1))
 
 #endif
