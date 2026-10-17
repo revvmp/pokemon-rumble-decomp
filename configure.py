@@ -163,6 +163,7 @@ config.libs = [
         [
             Object(Matching, "RVL_SDK/base/PPCArch.c"),
             Object(NonMatching, "RVL_SDK/os/OSAlarm.c"),
+            Object(NonMatching, "RVL_SDK/os/OSContext.c"),
             Object(NonMatching, "RVL_SDK/vi/i2c.c"),
             Object(NonMatching, "RVL_SDK/ax/AX.c"),
             Object(NonMatching, "RVL_SDK/nand/nand.c"),
@@ -171,6 +172,7 @@ config.libs = [
             Object(NonMatching, "RVL_SDK/bte/bte_hcisu.c", cflags=cflags_base),
             Object(NonMatching, "RVL_SDK/bte/bte_init.c", cflags=cflags_base),
             Object(NonMatching, "RVL_SDK/bte/bte_logmsg.c", cflags=cflags_base),
+            Object(NonMatching, "RVL_SDK/bte/bte_main.c", cflags=cflags_base),
         ],
     ),
     library(
