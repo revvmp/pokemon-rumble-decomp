@@ -188,12 +188,6 @@ enum {
 
 enum
 {
-	HCI_ROLE_MASTER	= 0,
-	HCI_ROLE_SLAVE	= 1,
-};
-
-enum
-{
 	HCI_NO_SCAN_ENABLED			= 0,
 	HCI_INQUIRY_SCAN_ENABLED	= 1 << 0,
 	HCI_PAGE_SCAN_ENABLED		= 1 << 1,
