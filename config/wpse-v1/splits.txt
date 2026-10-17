@@ -270,6 +270,12 @@ TMC_JPEG/tmcjpeg_stream.c:
 	.text       start:0x801F9134 end:0x801F9764
 	.rodata     start:0x80368118 end:0x80368121
 
+TMC_JPEG/tmcjpeg_rgba8.c:
+	.text       start:0x801F9764 end:0x801FA424
+
+TMC_JPEG/tmcjpeg_rgb565.c:
+	.text       start:0x801FA424 end:0x801FB030
+
 RVL_SDK/fa/pf_clib.c:
 	.text       start:0x801FB030 end:0x801FB4C0
 
