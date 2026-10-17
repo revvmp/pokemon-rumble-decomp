@@ -2634,24 +2634,24 @@ void HomeButton::startTrigEvent(const nw4hbm::lyt::Pane* pPane) {
                 u16 len;
                 if (mpHBInfo->messageFlag & 1) {
                     for (len = 0; true; len++) {
-                        if (mpTextEx[mpHBInfo->region][len] == L'\xFF1F') {
+                        if (mpTextEx[mpHBInfo->region][0][len] == L'\xFF1F') {
                             break;
                         }
 
-                        if (mpTextEx[mpHBInfo->region][len] == L'?') {
+                        if (mpTextEx[mpHBInfo->region][0][len] == L'?') {
                             break;
                         }
                     }
                 } else {
                     for (len = 0; true; len++) {
-                        if (mpTextEx[mpHBInfo->region][len + 1] == L'"') {
+                        if (mpTextEx[mpHBInfo->region][0][len + 1] == L'"') {
                             break;
                         }
                     }
                 }
 
                 p_text->AllocStringBuffer(len + 1);
-                p_text->SetString(mpTextEx[mpHBInfo->region], 0, ++len);
+                p_text->SetString(mpTextEx[mpHBInfo->region][0], 0, ++len);
                 mpLayout->GetRootPane()->FindPaneByName(scFuncTextPaneName[2], true)->SetVisible(true);
                 p_text->SetFont(mpResFontEx);
                 break;
