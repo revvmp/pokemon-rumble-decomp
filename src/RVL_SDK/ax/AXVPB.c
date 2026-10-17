@@ -1,3 +1,12 @@
+#include <revolution/os.h>
+#include <math.h>
+#define ADDRHI(x) (((u32)(x) >> 16) & 0xFFFF)
+#define ADDRLO(x) ((u32)(x) & 0xFFFF)
+#define AX_SAMPLE_FORMAT_PCM_S16 10
+#define AX_SAMPLE_FORMAT_PCM_S8 25
+#define AX_SAMPLE_FORMAT_DSP_ADPCM 0
+#define AX_SAMPLE_RATE 32000
+#define M_PI 3.14159265358979323846f
 #include "revolution/ax.h"
 #include "revolution/os/OSCache.h"
 #include "string.h"
@@ -60,15 +69,29 @@ typedef struct _AXITD {
     u8 samples[0x40];
 } AXITD;
 
-extern AXPB* __AXPB;
-extern AXITD* __AXITD;
-extern s32 __AXMaxVoices;
-extern s32 __AXNumVoices;
-extern u32 __AXRecDspCycles;
-extern u32 __AXMaxDspCycles;
-extern u32 __AXMixCycles[32];
-extern u32 __AXRmtMixCycles[4];
+static AXPB* __AXPB = NULL;
+static AXPB __s_AXPB[96] ATTRIBUTE_ALIGN(32);
 
+static AXITD* __AXITD = NULL;
+static AXITD __s_AXITD[96] ATTRIBUTE_ALIGN(32);
+
+static AXVPB* __AXVPB = NULL;
+static AXVPB __s_AXVPB[96];
+
+s32 __AXMaxVoices = 0;
+static s32 __AXNumVoices = 0;
+
+static u32 __AXRecDspCycles = 0;
+static u32 __AXMaxDspCycles = 0;
+
+static u32 __AXMixCycles[] = {2,   408,  408,  810,  1404, 1404, 1404, 1404,
+                              408, 816,  816,  1218, 1812, 1812, 1812, 1812,
+                              707, 1115, 1115, 1517, 2111, 2111, 2111, 2111,
+                              707, 1115, 1115, 1517, 2111, 2111, 2111, 2111};
+
+static u32 __AXRmtMixCycles[] = {4, 86, 151, 151};
+
+static void __AXVPBInitCommon(void);
 static u32 __AXGetSrcCycles(u16 select, const AXPBSRC* src);
 
 s32 __AXGetNumVoices(void) {
@@ -377,4 +400,168 @@ static u32 __AXGetSrcCycles(u16 select, const AXPBSRC* src) {
     }
 
     return 605;
+}
+
+void __AXVPBInit(void) {
+    __AXMaxVoices = 96;
+
+    __AXPB = __s_AXPB;
+    __AXITD = __s_AXITD;
+    __AXVPB = __s_AXVPB;
+
+    __AXVPBInitCommon();
+}
+
+static void __AXVPBInitCommon(void) {
+    u32 i;
+    u32* dst;
+
+    __AXMaxDspCycles = OS_BUS_CLOCK / 667;
+    __AXRecDspCycles = 0;
+
+    for (dst = (u32*)__AXPB, i = __AXMaxVoices * (sizeof(AXPB) / sizeof(u32));
+         i > 0; i--) {
+        *dst++ = 0;
+    }
+
+    for (dst = (u32*)__AXITD, i = __AXMaxVoices * (sizeof(AXITD) / sizeof(u32));
+         i > 0; i--) {
+        *dst++ = 0;
+    }
+
+    for (dst = (u32*)__AXVPB, i = __AXMaxVoices * (sizeof(AXVPB) / sizeof(u32));
+         i > 0; i--) {
+        *dst++ = 0;
+    }
+
+    for (i = 0; i < __AXMaxVoices; i++) {
+        AXPB* pb = &__AXPB[i];
+        AXITD* itd = &__AXITD[i];
+        AXVPB* vpb = &__AXVPB[i];
+
+        vpb->index = i;
+        vpb->itdBuffer = itd;
+        __AXSetPBDefault(vpb);
+
+        if (i == __AXMaxVoices - 1) {
+            pb->nextHi = pb->nextLo = 0;
+            vpb->pb.nextHi = vpb->pb.nextLo = 0;
+        } else {
+            vpb->pb.nextHi = ADDRHI((u32)pb + 320);
+            vpb->pb.nextLo = ADDRLO((u32)pb + 320);
+
+            pb->nextHi = ADDRHI((u32)pb + 320);
+            pb->nextLo = ADDRLO((u32)pb + 320);
+        }
+
+        vpb->pb.currHi = ADDRHI(pb);
+        vpb->pb.currLo = ADDRLO(pb);
+
+        pb->currHi = ADDRHI(pb);
+        pb->currLo = ADDRLO(pb);
+
+        vpb->pb.itd.bufferHi = ADDRHI(itd);
+        vpb->pb.itd.bufferLo = ADDRLO(itd);
+
+        pb->itd.bufferHi = ADDRHI(itd);
+        pb->itd.bufferLo = ADDRLO(itd);
+
+        vpb->priority = AX_PRIORITY_MIN;
+        __AXPushFreeStack(vpb);
+    }
+
+    DCFlushRange(__AXPB, __AXMaxVoices * sizeof(AXPB));
+}
+
+void AXSetVoiceState(AXVPB* vpb, u16 state) {
+    BOOL enabled = OSDisableInterrupts();
+
+    if (vpb->pb.state == state) {
+        OSRestoreInterrupts(enabled);
+        return;
+    }
+
+    vpb->pb.state = state;
+    vpb->sync |= AX_PBSYNC_STATE;
+
+    if (state == AX_VOICE_STOP) {
+        vpb->depop = TRUE;
+    }
+
+    OSRestoreInterrupts(enabled);
+}
+
+void AXSetVoiceAddr(AXVPB* vpb, AXPBADDR* addr) {
+    BOOL enabled = OSDisableInterrupts();
+
+    u32* dst = (u32*)&vpb->pb.addr;
+    const u32* src = (u32*)addr;
+
+    *dst = *src;
+    dst++;
+    src++;
+
+    *dst = *src;
+    dst++;
+    src++;
+
+    *dst = *src;
+    dst++;
+    src++;
+
+    *dst = *src;
+
+    switch (addr->format) {
+    case AX_SAMPLE_FORMAT_PCM_S16:
+        dst++;
+        *dst++ = 0;
+        *dst++ = 0;
+        *dst++ = 0;
+        *dst++ = 0;
+        *dst++ = 0;
+        *dst++ = 0;
+        *dst++ = 0;
+        *dst++ = 0;
+        *dst++ = 0x08000000;
+        *dst = 0;
+        break;
+    case AX_SAMPLE_FORMAT_PCM_S8:
+        dst++;
+        *dst++ = 0;
+        *dst++ = 0;
+        *dst++ = 0;
+        *dst++ = 0;
+        *dst++ = 0;
+        *dst++ = 0;
+        *dst++ = 0;
+        *dst++ = 0;
+        *dst++ = 0x01000000;
+        *dst = 0;
+        break;
+    case AX_SAMPLE_FORMAT_DSP_ADPCM:
+    default:
+        break;
+    }
+
+    vpb->sync &= ~(AX_PBSYNC_LOOP_FLAG | AX_PBSYNC_LOOP_ADDR |
+                   AX_PBSYNC_END_ADDR | AX_PBSYNC_CURR_ADDR);
+    vpb->sync |= AX_PBSYNC_ADDR | AX_PBSYNC_ADPCM;
+
+    OSRestoreInterrupts(enabled);
+}
+
+void AXGetLpfCoefs(u16 freq, u16* a, u16* b) {
+    f32 filterTerm = 2.0f - (f32)cos(2 * M_PI * freq / AX_SAMPLE_RATE);
+    f32 pole = (f32)sqrt(filterTerm * filterTerm - 1.0f) - filterTerm;
+
+    *b = 32768 * -pole;
+    *a = 32767 - *b;
+}
+
+void AXSetMaxDspCycles(u32 num) {
+    __AXMaxDspCycles = num;
+}
+
+s32 AXGetMaxVoices(void) {
+    return __AXMaxVoices;
 }

@@ -170,6 +170,52 @@ BOOL AXFXChorusExpSettingsUpdate(AXFX_CHORUS_EXP* chorus);
 void AXFXChorusExpShutdown(AXFX_CHORUS_EXP* chorus);
 void AXFXChorusExpCallback(AXFX_BUS* bus, AXFX_CHORUS_EXP* chorus);
 
+typedef struct AXFX_BUFFERUPDATE {
+    s32* left;
+    s32* right;
+    s32* surround;
+} AXFX_BUFFERUPDATE;
+
+typedef struct AXFX_DELAY_EXP {
+    s32* lineL;
+    s32* lineR;
+    s32* lineS;
+    u32 curPos;
+    u32 length;
+    u32 maxLength;
+    s32 feedbackGain;
+    s32 lastLpfOut[AXFX_STEREO_CHANNEL_MAX];
+    s32 lpfCoef;
+    s32 outGainCalc;
+    s32 sendGainCalc;
+    u32 active;
+    f32 maxDelay;
+    f32 delay;
+    f32 feedback;
+    f32 lpf;
+    AXFX_BUS* busIn;
+    AXFX_BUS* busOut;
+    f32 outGain;
+    f32 sendGain;
+} AXFX_DELAY_EXP;
+
+extern AXFXAllocHook __AXFXAlloc;
+extern AXFXFreeHook __AXFXFree;
+u32 AXFXReverbHiExpGetMemSize(AXFX_REVERBHI_EXP* fx);
+BOOL AXFXReverbHiExpInit(AXFX_REVERBHI_EXP* fx);
+void AXFXReverbHiExpShutdown(AXFX_REVERBHI_EXP* fx);
+void AXFXReverbHiExpCallback(AXFX_BUFFERUPDATE* bus, AXFX_REVERBHI_EXP* fx);
+BOOL AXFXReverbHiInit(AXFX_REVERBHI* fx);
+BOOL AXFXReverbHiShutdown(AXFX_REVERBHI* fx);
+void AXFXReverbHiCallback(void* chans, void* context);
+
+u32 AXFXDelayExpGetMemSize(AXFX_DELAY_EXP* fx);
+BOOL AXFXDelayExpInit(AXFX_DELAY_EXP* fx);
+BOOL AXFXDelayExpSettings(AXFX_DELAY_EXP* fx);
+BOOL AXFXDelayExpSettingsUpdate(AXFX_DELAY_EXP* fx);
+void AXFXDelayExpShutdown(AXFX_DELAY_EXP* fx);
+void AXFXDelayExpCallback(AXFX_BUS* bus, AXFX_DELAY_EXP* fx);
+
 #ifdef __cplusplus
 }
 #endif

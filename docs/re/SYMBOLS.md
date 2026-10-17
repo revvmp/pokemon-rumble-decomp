@@ -1457,3 +1457,36 @@ For `wpse-v1` / `main.dol`, [F-294-1](findings/294-nw4hbm-lyt.md#f-294-1-lyt_bou
 For `wpse-v1` / `main.dol`, [F-350-2](findings/350-fa-common.md#f-350-2-unit-boundaries-names-and-remaining-work) names the FA `.text` functions from `0x801FB030` to `0x801FB920`, in address order: `pf_toupper`, `pf_memcpy`, `pf_memset`, `pf_memcmp`, `pf_strlen`, `pf_strcpy`, `pf_strcmp`, `pf_strncmp`, `pf_w_strlen`, `pf_w_strcpy`, `pf_w_strcmp`, `pf_w_strncmp`, `PFCODE_Combine_Width`, `PFCODE_Divide_Width`, `PF_GET_LE_U16`, `PF_LE16_TO_U16_STR`, `PFSTR_SetCodeMode`, `PFSTR_GetCodeMode`, `PFSTR_SetMarkPos`, `PFSTR_GetStrPos`, `PFSTR_MoveStrPos`, `PFSTR_InitStr`, `PFSTR_StrLen`, `PFSTR_StrNumChar` and `PFSTR_StrCmp`. These are the VF names without the `VFi` prefix, and their confidence is medium. `PFSTR_SetMarkPos` is descriptive.
 
 Data: `pf_valid_fn_char` (`.rodata:0x80368128`, `0x60` bytes) is medium confidence. `pf_vol_set` (`.bss:0x803EB970`) is owned by the FA volume unit; this issue only renames it so the link resolves. In FA, `PF_VOLUME_SET` holds `PF_CHARCODE codeset` at `0x48`. Its six callbacks are `oem2unicode` (`0x48`), `unicode2oem`, `oem_char_width`, `is_oem_mb_char` (`0x54`), `unicode_char_width` (`0x58`) and `is_unicode_mb_char`. The first `0x48` bytes remain opaque. `PF_STR` is `0x10` bytes: `p_head` at 0, `p_tail` at 4, `p_mark` at 8 and `code_mode` at `0xC`.
+## AXVPB completion and expanded effects (#487)
+
+[F-487-1](findings/487-axvpb-effects.md) names the following target functions from pinned SDK references and exact target comparison. Expanded-delay public names and members follow the pinned wii-ipl header; its private __InitParams name follows the reference helper convention and has medium confidence. Its bodies are reconstructed from the target. The AXVPB buffers contain 96 parameter blocks (320 bytes each), ITD buffers (64 bytes each), and voices (360 bytes each). Expanded-delay layout is 0x58 bytes with active at 0x34, max/current delay at 0x38/0x3C and bus pointers at 0x48/0x4C; the findings give every member offset and validation.
+
+| Function | Address |
+| --- | --- |
+| `__AXVPBInit` | `0x802DD2A0` |
+| `__AXVPBInitCommon` | `0x802DD2D0` |
+| `AXSetVoiceState` | `0x802DD560` |
+| `AXSetVoiceAddr` | `0x802DD5D0` |
+| `AXGetLpfCoefs` | `0x802DD6C0` |
+| `AXSetMaxDspCycles` | `0x802DD780` |
+| `AXGetMaxVoices` | `0x802DD790` |
+| `__AXGetCurrentProfile` | `0x802DD7A0` |
+| `AXFXReverbHiInit` | `0x802DD7E0` |
+| `AXFXReverbHiShutdown` | `0x802DD850` |
+| `AXFXReverbHiCallback` | `0x802DD880` |
+| `AXFXReverbHiExpInit` | `0x802DD890` |
+| `AXFXReverbHiExpShutdown` | `0x802DDA30` |
+| `AXFXReverbHiExpCallback` | `0x802DDA90` |
+| `__AllocDelayLine` | `0x802DDFC0` |
+| `__BzeroDelayLines` | `0x802DE140` |
+| `__FreeDelayLine` | `0x802DE270` |
+| `__InitParams (high reverb)` | `0x802DE390` |
+| `AXFXDelayExpGetMemSize` | `0x802DE6C0` |
+| `AXFXDelayExpInit` | `0x802DE6F0` |
+| `AXFXDelayExpSettings` | `0x802DE9C0` |
+| `AXFXDelayExpSettingsUpdate` | `0x802DEB50` |
+| `AXFXDelayExpShutdown` | `0x802DEC60` |
+| `AXFXDelayExpCallback` | `0x802DED10` |
+| `__InitParams` | `0x802DEF90` |
+
+Cycle tables are at 803D8578 (128 bytes) and 803D85F8 (16 bytes). Voice storage starts at 8045D5A0/80464DA0/804665A0 and ends at 8046ECA0; seven small state objects occupy 804B9950–804B996C. The profile flag/index/capacity/pointer occupy 804B9970/804B9974/804B9978/804B997C. Early-size, early-coefficient and filter-size tables start at 803DB5E0/803DB640/803DB6A0, sizes 0x60/0x60/0xE0.

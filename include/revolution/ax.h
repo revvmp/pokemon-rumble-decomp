@@ -398,6 +398,13 @@ void AXSetVoicePriority(AXVPB* vpb, u32 prio);
 
 void __AXServiceVPB(AXVPB* vpb);
 
+void __AXVPBInit(void);
+void AXSetVoiceState(AXVPB* voice, u16 state);
+void AXSetVoiceAddr(AXVPB* voice, AXPBADDR* addr);
+void AXGetLpfCoefs(u16 frequency, u16* a, u16* b);
+void AXSetMaxDspCycles(u32 cycles);
+s32 AXGetMaxVoices(void);
+
 #ifdef __cplusplus
 }
 #endif
