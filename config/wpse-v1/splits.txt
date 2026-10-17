@@ -64,6 +64,12 @@ RVL_SDK/bte/bte_logmsg.c:
 	.bss        start:0x804A9040 end:0x804A9820
 	.sdata      start:0x804B8EE0 end:0x804B8EE8
 
+RVL_SDK/bte/bte_main.c:
+	.text       start:0x80313D00 end:0x80313E70
+	.bss        start:0x804A9820 end:0x804AA850
+	.sdata      start:0x804B8EE8 end:0x804B8EF0
+	.sbss       start:0x804B9B80 end:0x804B9B88
+
 Runtime/__init_cpp_exceptions.cpp:
 	.text       start:0x80340B24 end:0x80340B94
 	.ctors      start:0x803529C0 end:0x803529C4 rename:.ctors$10
