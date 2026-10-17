@@ -80,6 +80,22 @@ The player heap, MML allocator, NAND archive context, and remote-speaker source 
 
 Remote speaker probes use the same pinned CC0 project. Its six initial state flags, absent old force-resume flag, and resulting member offsets reproduce this target's constructor and every linked remote-speaker function. The old CC0 `kiwi515/ogws` revision `27fa94a593096eed7442efc4e70981fd52025b9c` has an additional flag and does not describe this target's layout.
 
+## Entry-aware restack verification
+
+After the entry-aware metadata restack, a fresh build/426-source-entry-driver directory was configured with a linker map. The actual all_source and DOL targets exited 0. Explicit frozen verification and the independent source audit exited 0: all five complete objects retain 100% in every original section, all 29 owned functions / 1,524 bytes and 38 complete-unit functions have their native ELF addresses and extents, actual Ninja and linker-map inputs select these source objects, and the complete immutable DOL is byte-identical.
+
+A separate read-only neighboring-inventory audit uses the forty address/size rows from #794. Each row has the corresponding source object, exact native ELF function address/extent, 100% object .text, and an actual source contribution in the linker map, with whole-DOL identity. This does not claim the other source files, transfer that issue's ownership, or close it.
+
+| #794 coverage | Functions | Code bytes | Contribution |
+| --- | --- | --- | --- |
+| RemoteSpeaker tails | 7 | 1,840 | Supplied by this complete first-owned file |
+| RemoteSpeakerManager | 5 | 640 | Already supplied by main PR836 |
+| SeqFileReader | 3 | 308 | Already supplied by main PR836 |
+| SeqPlayer | 25 | 5,268 | Already supplied by main PR836 |
+| Total | 40 | 8,056 | Read-only coverage audit; issue remains with its owner |
+
+Final source integration still waits for header PR817 and a fresh latest-main default-directory gate. The custom-directory proof here verifies the reviewed source restack without reusing the earlier default-directory output.
+
 ## Traps
 
 - A custom build directory does not change `config/wpse-v1/build.sha1`, whose input path remains `build/wpse-v1/main.dol`. Use the actual custom-DOL Ninja target and explicit frozen verifier for the split-only baseline; final acceptance will also execute the full default build. Never accept a stale default-path DOL as evidence for a custom output.
