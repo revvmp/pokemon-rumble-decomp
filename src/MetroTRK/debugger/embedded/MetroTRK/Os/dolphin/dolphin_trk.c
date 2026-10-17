@@ -115,13 +115,15 @@ u32 TRKTargetTranslate(u32 address) {
             return address;
         }
     }
-if (address < 0x03000000) return address & 0x3FFFFFFF | 0x80000000;
-if ((const void*)address >= (const void*)0x10000000) {
+    if (address < 0x03000000) {
+        return (address & 0x3FFFFFFF) | 0x80000000;
+    }
+    if ((const void*)address >= (const void*)0x10000000) {
         if ((const void*)address < (const void*)0x1C000000) {
             return (address & 0x3FFFFFFF) | 0x90000000;
         }
     }
-return address;
+    return address;
 }
 void TRK_copy_vector(u32 offset) {
     void* destPtr = (void*)TRKTargetTranslate(offset);
