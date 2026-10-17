@@ -51,6 +51,13 @@ typedef union KPADEXStatus {
         f32 ltrigger;
         f32 rtrigger;
     } cl;
+    struct {
+        f64 tgc_weight;
+        f64 weight[4];
+        f64 weight_ave[4];
+        s32 weight_err;
+        s32 tgc_weight_err;
+    } bl;
 } KPADEXStatus;
 
 typedef struct KPADStatus {
@@ -82,6 +89,8 @@ typedef struct KPADUnifiedWpadStatus {
         WPADStatus core;
         WPADFSStatus fs;
         WPADCLStatus cl;
+        WPADTRStatus tr;
+        WPADBLStatus bl;
     } u;
     u8 fmt;
     u8 padding;
@@ -128,7 +137,9 @@ typedef struct {
     s16 valid_objs;
     u8 bufIdx;
     u8 bufCount;
-    KPADUnifiedWpadStatus uniRingBuf[120];
+    KPADUnifiedWpadStatus uniRingBuf[16];
+    KPADUnifiedWpadStatus* extraRingBuf;
+    u32 extraRingCount;
     f32 sec_length;
     Vec2 sec_nrm;
     f32 sec_dist;
@@ -139,7 +150,7 @@ typedef struct {
     Vec2 ah_circle_pos;
     u16 ah_circle_ct;
     u8 dpd_valid2_ct;
-    s8 _fg_4;
+    u8 readLocked;
     u16 btn_repeat_time;
     u16 btn_repeat_next;
     u16 btn_repeat_delay;
@@ -161,11 +172,12 @@ typedef struct {
     f32 dist_vv1;
     f32 err_dist_min;
     WPADSamplingCallback appSamplingCallback;
-    u8 readLocked;
+    WPADCallback appConnectCallback;
     u8 resetReq;
     u8 exResetReq;
-    u8 dpdIssued;
     u8 dpdEnabled;
+    u8 dpdHardwareEnabled;
+    u8 dpdIssued;
     u8 dpdCmd;
     u8 dpdPreCallbackDone;
     u8 dpdPostCallbackDone;
@@ -177,6 +189,8 @@ typedef struct {
     KPADPlayMode hori_play_mode;
     KPADPlayMode dist_play_mode;
     KPADPlayMode acc_play_mode;
+    u32 lastDev;
+    u8 accGravityUpdateReq;
 
 } KPADInsideStatus;
 
