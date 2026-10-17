@@ -3,6 +3,8 @@
 
 #include "revolution/os/OSError.h"
 
+#define OSRoundUp32B(x) (((u32)(x) + 32 - 1) & ~(32 - 1))
+
 #ifdef __cplusplus
 extern "C" {
 #endif
