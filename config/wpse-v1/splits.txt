@@ -1065,6 +1065,14 @@ RVL_SDK/bte/btm_acl.c:
 	.text       start:0x8031A180 end:0x8031BEC4
 	.data       start:0x803E1340 end:0x803E1760
 
+RVL_SDK/bte/btm_dev.c:
+	.text       start:0x8031BEC4 end:0x8031C590
+
+RVL_SDK/bte/btm_devctl.c:
+	.text       start:0x8031C590 end:0x8031DF18
+	.data       start:0x803E1760 end:0x803E19C0
+	.sdata      start:0x804B8F00 end:0x804B8F18
+
 RVL_SDK/bte/btm_discovery.c:
 	.text       start:0x8031DF18 end:0x8031E04C
 

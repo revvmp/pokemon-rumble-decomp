@@ -1863,3 +1863,7 @@ For `wpse-v1` / `main.dol`, [F-502-2](findings/502-wpad-hidparser-encrypt.md#f-5
 ## Issue #516 HID utilities and BTM ACL
 
 [F-516-1](findings/516-hid-utils-acl.md) records the complete 30-function issue inventory and 34 retained functions across the two newly reconstructed units. It identifies the two HID main functions from PR #694, six ACL tails in #517, exact data payloads and alignment, and newly declared callback layouts. Existing ACL/control-block structures retain their definitions. All compared retained code/data sections are 100% with GC/3.0a3; outside callees/data receive evidenced names without changing their split, type, or size.
+
+## Issue #517 BTM device and controller
+
+[F-517-2](findings/517-btm-device-completion.md) records all 37 original issue function addresses/sizes and complete device/controller unit extents. Forty retained functions / 8,276 bytes include nine #518 tails. Existing security-device and controller structures retain their definitions; the header prerequisite in F-517-1 corrects ready value 5 from target instructions. Exact diagnostic/class literal payloads and eight-byte alignment are recorded in symbols and the finding. The ambiguous empty helper candidate at 0x8031E048 is rejected in favor of the existing evidenced `btm_discovery_timeout` name.
