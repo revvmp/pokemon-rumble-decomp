@@ -8,7 +8,14 @@
 
 enum {
     WUD_INIT_FLUSH_COMPLETE = 5,
-    WUD_INIT_READY = 6
+    WUD_INIT_READY = 6,
+    WUD_STATE_WII_FIT_OPEN = 100,
+    WUD_STATE_WII_FIT_SEEK = 101,
+    WUD_STATE_WII_FIT_UPDATE = 102,
+    WUD_STATE_WII_FIT_CLOSE = 103,
+    WUD_WII_FIT_FILE_OFFSET = 0x4AF18,
+    WUD_WII_FIT_WRITE_SIZE = 132,
+    WUD_WII_FIT_REGION_JAPAN = 0
 };
 
 static u8 _wudWiiRemoteDescriptor[] = {
@@ -156,6 +163,7 @@ static u8 _wudResetAuthCountCmd[] = {
 
 static WUDWiiFitPairingInfo sWudWiiFitPairingInfo ATTRIBUTE_ALIGN(32);
 static u32 sWudWiiFitChecksumSeed;
+static u8 sWudNandLocked;
 
 void WUDiMoveTopOfUnusedStdDevice(WUDDevInfo* pInfo);
 
@@ -380,6 +388,10 @@ static void __wudPrepareWBCDevInfo(BD_ADDR devAddr, LINK_KEY linkKey, void* pPro
     memcpy(&sWudWiiFitPairingInfo.checksum, &checksum, sizeof(checksum));
 }
 
+static BOOL __wudIsBusyScCmd(void) {
+    return SCCheckStatus() == SC_STATUS_BUSY ? TRUE : FALSE;
+}
+
 #pragma force_active on
 
 BOOL WUDIsLinkedWBC(void) {
@@ -535,6 +547,142 @@ static u8 __wudSyncVirginStandard(void)
 	WUDiSetDevAddrForHandle(p_info->devHandle, p_info->devAddr);
 
 	return WUD_STATE_SYNC_STORED_LINK_KEY_TO_EEPROM;
+}
+
+static u8 __wudSyncStoredDevInfoToNand(void) {
+    WUDSyncState nextState = WUD_STATE_SYNC_COMPLETE;
+    u8 i;
+    WUDDevInfoList* pIt;
+
+    if (__wudIsBusyScCmd()) {
+        return WUD_STATE_SYNC_STORED_DEV_INFO_TO_NAND;
+    }
+
+    memset(&_scArray.info, 0, sizeof(_scArray.info[0]) * WUD_MAX_DEV_ENTRY_FOR_STD);
+
+    _scArray.num = __wudGetStdDevNumber();
+
+    for (pIt = _wcb.stdListHead, i = 0; pIt; i++, pIt = pIt->next) {
+        WUD_BDCPY(_scArray.info[i].bd_addr, pIt->devInfo->devAddr);
+
+        memcpy(&_scArray.info[i].bd_name, &pIt->devInfo->conf, sizeof(SCDevInfo));
+    }
+
+    DEBUGPrint("%d devices is stored into SC.\n", i);
+
+    if (!SCSetBtDeviceInfoArray(&_scArray)) {
+        return WUD_STATE_SYNC_STORED_DEV_INFO_TO_NAND;
+    }
+
+    nextState = WUD_STATE_SYNC_SC_FLUSH;
+
+    if (WUDIsLinkedWBC() && WUD_DEV_NAME_IS_WBC(_work.conf.devName) &&
+        SCGetProductGameRegion() == WUD_WII_FIT_REGION_JAPAN) {
+        nextState = WUD_STATE_WII_FIT_OPEN;
+    }
+
+    return nextState;
+}
+
+static void __wudOpenWiiFitCallback(s32 result, NANDCommandBlock* pBlock) {
+	if (_wcb.syncState != WUD_STATE_SYNC_START)
+	{
+		_wcb.syncState = result == NAND_RESULT_OK
+		                          ? WUD_STATE_WII_FIT_SEEK
+		                          : WUD_STATE_SYNC_SC_FLUSH;
+	}
+
+	if (_wcb.deleteState != WUD_STATE_DELETE_START)
+	{
+		_wcb.deleteState = result == NAND_RESULT_OK
+		                            ? WUD_STATE_WII_FIT_SEEK
+		                            : WUD_STATE_DELETE_CLEANUP_SETTING;
+	}
+
+	sWudNandLocked = FALSE;
+	DEBUGPrint("NANDOpen. [%d]\n", result);
+}
+
+static void __wudSeekWiiFitCallback(s32 result, NANDCommandBlock* pBlock) {
+	if (_wcb.syncState != WUD_STATE_SYNC_START)
+	{
+		_wcb.syncState = result == WUD_WII_FIT_FILE_OFFSET
+		                          ? WUD_STATE_WII_FIT_UPDATE
+		                          : WUD_STATE_SYNC_SC_FLUSH;
+	}
+
+	if (_wcb.deleteState != WUD_STATE_DELETE_START)
+	{
+		_wcb.deleteState = result == WUD_WII_FIT_FILE_OFFSET
+		                            ? WUD_STATE_WII_FIT_UPDATE
+		                            : WUD_STATE_DELETE_CLEANUP_SETTING;
+	}
+
+	sWudNandLocked = FALSE;
+	DEBUGPrint("NANDSeek. [%d]\n", result);
+}
+
+static void __wudUpdateWiiFitCallback(s32 result, NANDCommandBlock* pBlock) {
+	if (_wcb.syncState != WUD_STATE_SYNC_START)
+	{
+		_wcb.syncState = result == WUD_WII_FIT_WRITE_SIZE
+		                          ? WUD_STATE_WII_FIT_CLOSE
+		                          : WUD_STATE_SYNC_SC_FLUSH;
+	}
+
+	if (_wcb.deleteState != WUD_STATE_DELETE_START)
+	{
+		_wcb.deleteState = result == WUD_WII_FIT_WRITE_SIZE
+		                            ? WUD_STATE_WII_FIT_CLOSE
+		                            : WUD_STATE_DELETE_CLEANUP_SETTING;
+	}
+
+	sWudNandLocked = FALSE;
+	DEBUGPrint("NANDWrite. [%d]\n", result);
+}
+
+static void __wudCloseWiiFitCallback(s32 result, NANDCommandBlock* pBlock) {
+	if (_wcb.syncState != WUD_STATE_SYNC_START)
+		_wcb.syncState = WUD_STATE_SYNC_SC_FLUSH;
+
+	if (_wcb.deleteState != WUD_STATE_DELETE_START)
+		_wcb.deleteState = WUD_STATE_DELETE_CLEANUP_SETTING;
+
+	sWudNandLocked = FALSE;
+	DEBUGPrint("NANDClose. [%d]\n", result);
+}
+
+static u8 __wudSyncDone(void) {
+    WUDCB* p = &_wcb;
+    WUDDevInfo* pInfo;
+    int i;
+    WUDSyncDeviceCallback pSyncCallback;
+
+    if (p->syncSkipChecks) {
+        for (i = 0; i < WUD_MAX_DEV_ENTRY; i++) {
+            pInfo = __wudGetDevInfoByIndex(i);
+
+            if (pInfo->status == 8) {
+                WUDSetSniffMode(pInfo->devAddr, 8);
+                return WUD_STATE_SYNC_DONE;
+            }
+        }
+    }
+
+    OSCancelAlarm(&p->alarm);
+
+    if (!sWudAbortSync) {
+        WUDSetVisibility(FALSE, TRUE);
+    }
+
+    pSyncCallback = p->syncType == WUD_SYNC_TYPE_STANDARD ? p->syncStdCB : p->syncSmpCB;
+
+    if (pSyncCallback) {
+        pSyncCallback(WUD_RESULT_SYNC_DONE, p->syncedNum);
+    }
+
+    DEBUGPrint("Pairing Done\n");
+    return WUD_STATE_SYNC_START;
 }
 
 static void __wudDeleteFlushCallback(u32 status) {
