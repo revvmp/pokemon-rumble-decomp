@@ -4,6 +4,13 @@
 #define DEBUGPrint WUD_DEBUGPrint
 
 WUDCB _wcb;
+WUDDevInfo _work;
+SCBtDeviceInfoArray _scArray;
+BD_ADDR_PTR _dev_handle_to_bda[WUD_MAX_DEV_ENTRY];
+u16 _dev_handle_queue_size[WUD_MAX_DEV_ENTRY];
+u16 _dev_handle_notack_num[WUD_MAX_DEV_ENTRY];
+static u8 sWudSettingsDirty = FALSE;
+
 __declspec(weak) BOOL _linkedWBC = FALSE;
 static BOOL sWudInitialized = FALSE;
 static BOOL sWudReadNand = FALSE;
@@ -463,5 +470,68 @@ u8 _WUDGetLinkNumber(void) {
     return num;
 }
 
+
+WUDDevInfo *WUDiGetDiscoverDevice(void)
+{
+	return &_work;
+}
+
+void WUDSetDeviceHistory(s32 chan, BD_ADDR dev_addr)
+{
+	if (!dev_addr)
+	{
+		memset(&_scArray.info[10 + chan], 0,
+		       sizeof _scArray.info[10 + chan]);
+	}
+	else
+	{
+		WUD_BDCPY(_scArray.info[10 + chan].bd_addr, dev_addr);
+	}
+
+	sWudSettingsDirty = TRUE;
+}
+
+BOOL WUDIsLatestDevice(s32 chan, BD_ADDR devAddr)
+{
+	if (!devAddr)
+		return FALSE;
+
+	if (WUD_BDCMP(_scArray.info[10 + chan].bd_addr, devAddr) == 0)
+		return TRUE;
+	else
+		return FALSE;
+}
+
+void WUDUpdateSCSetting(void)
+{
+	if (!sWudSettingsDirty)
+		return;
+
+	if (SCSetBtDeviceInfoArray(&_scArray))
+	{
+		SCFlushAsync(NULL);
+		sWudSettingsDirty = FALSE;
+	}
+}
+
+void WUDiSetDevAddrForHandle(UINT8 dev_handle, BD_ADDR dev_addr)
+{
+	_dev_handle_to_bda[dev_handle] = dev_addr;
+}
+
+BD_ADDR_PTR WUDiGetDevAddrForHandle(UINT8 dev_handle)
+{
+	return _dev_handle_to_bda[dev_handle];
+}
+
+void WUDiSetQueueSizeForHandle(UINT8 dev_handle, u16 size)
+{
+	_dev_handle_queue_size[dev_handle] = size;
+}
+
+void WUDiSetNotAckNumForHandle(UINT8 dev_handle, u16 count)
+{
+	_dev_handle_notack_num[dev_handle] = count;
+}
 
 #pragma force_active off

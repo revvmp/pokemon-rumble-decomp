@@ -15,7 +15,7 @@ Target `wpse-v1`, frozen executable manifest `config/targets/wpse-v1.json`. WUD.
 
 The small-BSS range begins at its first word, `0x804B9B28`. The preceding four bytes after the USB unit are alignment padding; including them in WUD's range provoked dtk's eight-byte alignment warning. The corrected range removes the warning, and the full split-only build and frozen DOL verification pass before source registration.
 
-The current source contains the following 24 retained functions, totaling 3,168 function bytes. All reproduce every non-relocation instruction word at their exact original sizes with Wii/1.0 and `cflags_sdk`.
+The current source contains the following 32 retained functions, totaling 3,536 function bytes. All reproduce every non-relocation instruction word at their exact original sizes with Wii/1.0 and `cflags_sdk`.
 
 | Function | Address | Bytes |
 | --- | --- | --- |
@@ -43,12 +43,24 @@ The current source contains the following 24 retained functions, totaling 3,168 
 | `__wudCleanupStackCallback` | `0x8030F140` | `0x34` |
 | `_WUDGetDevAddr` | `0x80310080` | `0x54` |
 | `_WUDGetLinkNumber` | `0x803101A0` | `0x3C` |
+| `WUDiGetDiscoverDevice` | `0x803101E0` | `0xC` |
+| `WUDSetDeviceHistory` | `0x803101F0` | `0x74` |
+| `WUDIsLatestDevice` | `0x80310270` | `0x54` |
+| `WUDUpdateSCSetting` | `0x803102D0` | `0x4C` |
+| `WUDiSetDevAddrForHandle` | `0x80310320` | `0x14` |
+| `WUDiGetDevAddrForHandle` | `0x80310340` | `0x14` |
+| `WUDiSetQueueSizeForHandle` | `0x80310360` | `0x14` |
+| `WUDiSetNotAckNumForHandle` | `0x80310380` | `0x14` |
 
-This diagnostic excludes relocation-bearing words and does not establish matching function acceptance. Whole-unit objdiff is text 12.637047%, data 0%, BSS 21.72702%, sdata 0%, sbss 26.086956% and sdata2 100%. WUD remains `NonMatching`; the final executable continues to link the original WUD object and gains zero linked WUD source-byte credit. The partial-source full build and explicit frozen verification pass. EUART and USB remain accepted source-linked units.
+This diagnostic excludes relocation-bearing words and does not establish matching function acceptance. Whole-unit objdiff is text 14.1097975%, data 0%, BSS 37.36787%, sdata 0%, sbss 24.528301% and sdata2 100%. WUD remains `NonMatching`; the final executable continues to link the original WUD object and gains zero linked WUD source-byte credit. The partial-source full build and explicit frozen verification pass. EUART and USB remain accepted source-linked units.
 
 The implementations reuse the existing typed WUD headers. `_wcb` is the established 0x750-byte controller block at `0x8047C320`. Paired source/target SDA relocations identify the four-byte `sWudInitialized` at `0x804B9B28`, `sWudReadNand` at `0x804B9B2C` and `_linkedWBC` at `0x804B9B40`; no field address is guessed from declaration order. The last is returned by `WUDIsLinkedWBC`. Its weak qualifier follows the licensed newer SDK reference; the target directly establishes its word storage and access, not an original ELF binding.
 
 The two small read-only objects are the four-byte `Wii` name initializer at `0x804BB5D8` and the three-byte Bluetooth device class `{0x00, 0x04, 0x48}` at `0x804BB5DC`. Their full seven-byte sequence compares at 100%. They are not a six-byte zero Bluetooth address.
+
+The eight tail routines add 368 function bytes. Paired HA/LO and SDA relocations establish `_work` at `0x8047CB78` (0x60 bytes), `_scArray` at `0x8047CBD8` (0x461 bytes), `_dev_handle_to_bda` at `0x8047D0E0` (0x40 bytes), `_dev_handle_queue_size` at `0x8047E488` (0x20 bytes), `_dev_handle_notack_num` at `0x8047E4A8` (0x20 bytes), and byte flag `sWudSettingsDirty` at `0x804B9B5C`. The 0x461-byte settings array uses the existing `SCBtDeviceInfoArray` layout: one count byte followed by sixteen 70-byte records. Its former coarse 0x468 extent included seven padding bytes. The pointer array consumes only the first 0x40 bytes of its former 0x1A0 record; the remaining 0x160 bytes retain their coarse unnamed record pending reconstruction.
+
+Device history addresses records `10 + chan`, clears the complete record for a null address, and otherwise copies the six-byte address. Updating settings writes the array and initiates an asynchronous flush only when the write succeeds, then clears the dirty flag. These bodies follow the pinned key reference using the project's existing typed SC fields. The original relocation accesses establish the flag's byte address rather than a guessed position at the end of `.sbss`.
 
 The target's embedded messages supply the exact private names `__wudSyncFlushCallback`, `__wudDeleteFlushCallback`, `__wudShutdownFlushCallback`, `__wudCleanupStackCallback` and `__wudInitSub`. The device-status and power-manager callback references are also named from the target's messages: `__wudDeviceStatusEventStackCallback` at `0x8030FBA0` and `__wudPowerMangeEventStackCallback` at `0x8030FF50`. Preserve `Mange` exactly. Their bodies are not implemented yet. `WUDVendorSpecificCallback` at `0x8030F8F0` and `WUDiRegisterDevice` at `0x8030E3E0` receive reference-based names through relocated callback/call operands; confidence in their original spelling is medium. Existing names established by #507 are retained.
 
@@ -56,8 +68,8 @@ The source uses `force_active` only to keep these proven retained private functi
 
 ## Remaining work
 
-- Complete the remaining 62 native functions, including synchronization, settings persistence, the Wii Fit NAND paths, patch handling and Bluetooth event processing.
-- Reconstruct and verify the complete unit data and layouts; the current source defines only the controller block and three proven flag words.
+- Complete the remaining 54 native functions, including synchronization, the Wii Fit NAND paths, patch handling and Bluetooth event processing.
+- Reconstruct and verify the complete unit data and layouts; the current source defines the controller block, working device, settings and handle arrays, three proven flag words and a dirty byte.
 - Give currently opaque device-state members evidenced names in the shared headers before adding source that uses them. Shared ABI changes require a separate header prerequisite and an existing-object regression comparison.
 - Resolve every call, callback, data relocation and folded reference. The current raw-word comparison is deliberately narrower than acceptance.
 - Mark WUD `Matching` only after all retained code and the complete source-selected frozen DOL verify. The source prerequisite for KPAD remains separate in #710.
