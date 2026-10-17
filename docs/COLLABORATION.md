@@ -4,7 +4,7 @@ This guide lets many people and LLM agents work on the decompilation at once wit
 
 ## How work is divided
 
-Work is tracked as GitHub issues, one per workstream. [Workstreams](WORKSTREAMS.md) lists them with their regions. Labels give the area and the kind of work:
+Work is tracked as GitHub issues. Each decomp issue owns a block of about 25 functions in address order, and its body lists every one of them; every function belongs to exactly one issue. [Workstreams](WORKSTREAMS.md) lists them with their regions. Labels give the area and the kind of work:
 
 | Label | Meaning |
 | --- | --- |
@@ -19,7 +19,7 @@ Work is tracked as GitHub issues, one per workstream. [Workstreams](WORKSTREAMS.
 | `kind:research` | Produce evidence, names, or boundaries that unblock decomp issues |
 | `good first issue` | Small, well-bounded regions with reference source |
 
-Compilers and evidence come from [F-0007](re/FINDINGS.md#f-0007-per-library-compiler-identification). Address regions in issues are anchors from matched functions, not final boundaries; establishing exact boundaries is part of each issue.
+Compilers and evidence come from [F-0007](re/FINDINGS.md#f-0007-per-library-compiler-identification), and regions from the executable survey in [F-0012](re/FINDINGS.md#f-0012-full-executable-layout-survey). Block boundaries are estimates, not final unit boundaries. Establishing exact boundaries is part of each issue; when a unit crosses into a neighboring block, coordinate on that issue.
 
 ## Claiming work
 

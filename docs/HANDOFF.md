@@ -8,12 +8,12 @@ The dtk-template build in `configure.py` and `tools/build/` reproduces `main.dol
 
 ## Next actions
 
-Work is now parallel: contributors claim GitHub issues listed in [workstreams](WORKSTREAMS.md) and follow [collaboration](COLLABORATION.md). Maintainers merge pull requests, then update the status table, this handoff, phase state, and progress images.
+Work is now parallel: contributors claim GitHub issues listed in [workstreams](WORKSTREAMS.md) and follow [collaboration](COLLABORATION.md). There are 507 per-block decomp issues, each listing the functions it owns. Together they cover every function except the matched `__init_cpp_exceptions` unit; regions are from the executable survey in [F-0012](re/FINDINGS.md#f-0012-full-executable-layout-survey). Maintainers merge pull requests, then update the status table, this handoff, phase state, and progress images.
 
 
 1. Finish Phase 4: categorize units as libraries are split so per-category progress becomes meaningful, and reconstruct further units. Prefer libraries with matching reference source: RVL_SDK with Wii/1.0 at default alignment; MSL and Runtime with Wii/1.1 plus `-func_align 4`. Reuse requires license review and provenance in the ledger.
-2. Replace dtk's per-function auto splits with real translation-unit boundaries in `config/wpse-v1/splits.txt`, starting with the library address regions in F-0007. Then enable the treemap with `--treemap` and add it to the README.
-3. For game code, follow the source fidelity standard in root `AGENTS.md`: C++ classes with evidenced names from strings such as `CPauseMenu.cpp`. Record names and layouts in `re/SYMBOLS.md`.
+2. Replace dtk's per-function auto splits with real translation-unit boundaries in `config/wpse-v1/splits.txt`, starting with the library address regions in F-0007 and F-0012. Then enable the treemap with `--treemap` and add it to the README.
+3. For game code, follow the source fidelity standard in root `AGENTS.md`: C++ classes with evidenced names from RTTI and strings such as `CPauseMenu.cpp`. Script-bound functions take their original names from the binding table at 0x80352EC4–0x80354E14 (#29). Record names and layouts in `re/SYMBOLS.md`.
 4. After each change, run the build, run verification, regenerate the progress images, and update the ledger.
 5. Still open: acquisition provenance of the WAD, the boot loader's exact content-loading path, and whether the original linker was Wii/1.1. Native asset formats remain unconverted.
 

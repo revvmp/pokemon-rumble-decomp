@@ -2,7 +2,7 @@
 
 ## Current status
 
-Roadmap Phases 1 to 3 are complete and Phase 4 is active. `python configure.py` and `ninja` rebuild `main.dol` byte for byte from dtk split objects plus one reconstructed source unit, and `tools/verify/verify.py` accepts it against the frozen manifest `config/targets/wpse-v1.json`. Code progress is measured against the objdiff denominator documented in [matching](MATCHING.md#counting-method): 112 of 3,098,940 code bytes and 2 of 17,034 functions are linked from source.
+Roadmap Phases 1 to 3 are complete and Phase 4 is active. `python configure.py` and `ninja` rebuild `main.dol` byte for byte from dtk split objects plus one reconstructed source unit, and `tools/verify/verify.py` accepts it against the frozen manifest `config/targets/wpse-v1.json`. Code progress is measured against the objdiff denominator documented in [matching](MATCHING.md#counting-method): 112 of 3,098,940 code bytes and 2 of 13,465 functions are linked from source, excluding alignment padding entries (F-0011).
 
 | Milestone | State | Evidence or prerequisite |
 | --- | --- | --- |
@@ -46,6 +46,16 @@ Images use a single blue sequential ramp with separate light and dark steps sele
 The ledger is kept per area in [ledger](ledger/README.md). It has one linked unit: `Runtime/__init_cpp_exceptions.cpp` in [msl-runtime](ledger/msl-runtime.md). All other code comes from original split objects and counts as fallback.
 
 ## Latest session
+
+Replaced the 36 placeholder issues with 507 per-block decomp issues that together list every function in the executable:
+- Dumped all functions with their string and call references from a copy of the IDA database. Four parallel surveys then mapped `.text` 0x80052500–0x80292000 into source files and libraries (F-0012).
+- The game address range turned out to contain HBM, RevoEX, NCD, CNT, TMC JPEG, FA, MSL printf, and NW4R ef, g3d and snd. Library and game regions were partitioned into blocks of 6–77 functions, mean 26.6, cut at file starts where the survey evidenced them.
+- Each issue body lists every function it owns, its classes or reference files, compiler, and done criteria. Superseded issues were closed with links to their replacements. Infrastructure and research issues #1, #25, #29, #35 and #36 remain.
+- Issue #16, the example run, was released unfinished.
+
+New trap: library code inside the game address range. Validation is in [validation](VALIDATION.md#per-block-issue-set-validation).
+
+## Earlier session: take-issue skill
 
 Added the `take-issue` skill (`.claude/skills/take-issue/SKILL.md`) and `tools/collab/claim_issue.py`, which let any contributor tell an LLM to claim an unassigned issue and work it in an isolated worktree. Read-only and rejection paths are validated; see [validation](VALIDATION.md#issue-claim-tool-validation). No reverse engineering findings.
 

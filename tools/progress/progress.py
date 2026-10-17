@@ -189,6 +189,14 @@ def meter_row(y, label, matched, total, unit):
     return row
 
 
+def function_counts(report):
+    functions = [function for unit in report["units"] for function in unit.get("functions", []) if not function.get("name", "").startswith("pad_")]
+    if not functions:
+        return count(report["measures"], "matched_functions"), count(report["measures"], "total_functions")
+    matched = sum(1 for function in functions if percent(function, "fuzzy_match_percent") >= 100)
+    return matched, len(functions)
+
+
 def render_code(report):
     if report is None:
         body = [
@@ -202,7 +210,7 @@ def render_code(report):
     rows = [
         ("Matched code", count(measures, "matched_code"), count(measures, "total_code"), "bytes"),
         ("Linked from source", count(measures, "complete_code"), count(measures, "total_code"), "bytes"),
-        ("Matched functions", count(measures, "matched_functions"), count(measures, "total_functions"), "items"),
+        ("Matched functions", *function_counts(report), "items"),
         ("Matched data", count(measures, "matched_data"), count(measures, "total_data"), "bytes"),
     ]
     categories = [category for category in report.get("categories", []) if count(category.get("measures", {}), "total_code")]

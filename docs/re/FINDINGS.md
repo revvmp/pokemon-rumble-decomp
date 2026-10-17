@@ -160,3 +160,35 @@ Conclusions:
 - **NCD:** the GC/3.0a5.2 banner was not tested, because no reference source is available.
 
 Caveats: Petari's library sources predate this game's, so a miss does not by itself exclude a compiler, and identical output across compilers is not evidence. Inline and IPA flags were not varied.
+
+## F-0011: objdiff function count includes alignment padding
+
+objdiff-cli 3.8.2 reports `total_functions` 17,034 for `wpse-v1`. Of these, 3,569 are dtk `pad_03_*` symbols. A Python check of `build/wpse-v1/report.json` against `orig/wpse-v1/main.dol` found that every one is zero-filled, none exceeds 12 bytes, and together they total 28,484 bytes. Real functions: 13,454 in `.text` and 11 in `.init`, 13,465 in total, matching the `type:function` entries in `config/wpse-v1/symbols.txt`.
+
+IDA Pro 9.2, run headless with `idat.exe -A -S` on a copy of `docs/re/main.elf.i64`, identifies 13,211 functions. 327 dtk functions are absent from IDA and 73 IDA functions are absent from dtk; the difference is boundary disagreement, not missing code. The tracked database's SHA-256 was unchanged afterwards (`3517119d…ddaa`). dtk's list remains authoritative because the build uses it. Report function progress against 13,465, or exclude `pad_` entries from objdiff counts. Code-byte totals include the padding bytes, about 0.9% of code.
+
+## F-0012: Full executable layout survey
+
+Four parallel surveys covered `.text` 0x80052500–0x80292000. They used relocations from the dtk split objects (`build/wpse-v1/obj`), CodeWarrior RTTI class names, vtables, `.ctors` static initializers, and `shared_ptr` deleters, which each end a source file. Embedded build banners were also used. This corrects F-0003 and the region assumptions behind the first issue set:
+
+- The game region is not all game code. It contains these libraries:
+
+  | Range | Library |
+  | --- | --- |
+  | 0x801770F4–0x801778F0 | RevoEX SHA-1 and NCD |
+  | 0x801778F0–0x80178530 | RVL_SDK CNT |
+  | 0x80178530–0x8019DC50 | HBM: core, private `nw4hbm::lyt` and `nw4hbm::ut`, and an HBM sound block |
+  | 0x801E8DE0–0x801EE470 | MSL printf |
+  | 0x801F6060–0x801FB030 | TMC JPEG |
+  | 0x801FB030–0x80225820 | FA / PrFILE2 |
+  | 0x80225820–0x8024AE80 | NW4R ef |
+  | 0x8024AE80–0x80271E10 | NW4R g3d |
+  | 0x80271E10–0x80292D00 | NW4R snd |
+
+  NW4R ut/lyt/math/db then runs from about 0x80292D00 to 0x802B1800.
+- The printf at 0x801E8DE0 is the only `printf` family in the DOL, not a copy (`__pformatter` 0x801EA6C0, `vsnprintf` 0x801EB700, `sprintf` 0x801EB910, a wide formatter at 0x801ED280). Unlike the packed MSL at 0x8033F900, its functions are 16-byte aligned.
+- Game code is linked in groups, each roughly in ASCII order of file name: B- and C-prefixed classes from 0x80052500 to 0x80131780, then `main.cpp` at about 0x8012B5F0–0x80131780. `CModel` and the G3D extension classes break the order, so files are probably grouped by directory.
+- Script binding name tables at 0x80352EC4–0x80354E14 pair 669 bound game functions with their original names. An in-house script VM (`NPpu`) at 0x8016FC10–0x801770F4 runs them.
+- `nw4r::ut::CntFileStream` at about 0x801AF870–0x801AFC7C is linked inside the game area with its own static initializer.
+
+The partition into decomp issues is kept with the issue set: 53 regions and 507 issues of 6–77 functions, mean 26.6. Every function in `config/wpse-v1/symbols.txt` except the two already-matched `__init_cpp_exceptions` functions is listed in exactly one issue. Region boundaries and class start addresses are survey estimates; establishing exact unit boundaries is part of each issue. [Workstreams](../WORKSTREAMS.md) indexes the issues.
