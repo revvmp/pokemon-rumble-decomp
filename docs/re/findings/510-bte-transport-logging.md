@@ -61,3 +61,23 @@ An incomplete external tHCI_CFG declaration prevented the compiler from using sm
 BTE main external identities, in addition to F-510-1: OSSwitchFiber 0x802B4B20, OSSetPeriodicAlarm 0x802B3280, OSCancelAlarm 0x802B3310, GKI_init 0x80312410, GKI_enable 0x80312650, GKI_run 0x80312550, GKI_delay 0x80312580, GKI_shutdown 0x803124A0, BTE_Init 0x80325858, BTA_DmIsDeviceUp 0x80316E40, btu_task_init 0x80313E70, btu_task_msg_handler 0x80313EB0, hcisu_h2 0x80397E30, and wait4hci 0x804B8EA0. These out-of-region symbols are untouched by this issue; OSSetPeriodicAlarm and OSCancelAlarm are now named by the merged #464 work.
 
 Validation uses the real configure/ninja/report/verifier workflow. The clean-build command and exact result are recorded in the pull request. No frozen manifests or expected hashes changed. Full verification proves the split preserves main.dol using original fallback objects; it does not accept these sources as linked replacements.
+
+
+## F-510-3: Complete source linking and exact storage boundaries
+
+All sixteen issue functions are now accepted in four `Matching` source units. The shared `bte_main.c` also includes the separately coordinated #511 close callback; see [F-511-2](511-bte-close-callback.md). The four units contain 920 instruction bytes: 872 owned by #510 and the 48-byte neighboring callback. Every function compares at 100%, and the final build links all four compiled source objects rather than their split originals.
+
+The transport, stack initializer, logger, and main-unit text ends are respectively `0x80313B30`, `0x80313B5C`, `0x80313CF8`, and `0x80313E70`. Alignment gaps belong to the following objects. `BTUInterruptHandler` needs its observed 16-byte entry alignment when following the compiled logger.
+
+The logger allocation is exactly 2000 bytes (`0x7D0`), ending at `0x804A9810`. The next 16 bytes are alignment padding before the 32-byte-aligned interrupt fiber stack at `0x804A9820`. Correcting the buffer extent and split removes that padding from its data comparison. The main unit defines its 4096-byte fiber stack and the shared SDK `OSAlarm` type, whose target allocation is 48 bytes; it does not model alarm storage as opaque bytes.
+
+The transport configuration has two unsigned 16-bit entries, initialized to `0x0A5C` and `0x2101` from the original `.sdata` bytes at `0x804B8EE8`. Its true four-byte extent ends at `0x804B8EEC`; the next four bytes are alignment padding rather than configuration fields. The incomplete configuration pointer type remains opaque in the transport interface, with the proven four-byte storage view retained in the main unit.
+
+The current collaboration rule permits evidenced external-name recovery needed by a source link. The external identities recorded in F-510-1 and F-510-2 are now named in `symbols.txt`, without changing their splits, sizes, or types. All other issue functions continue under their existing owners.
+
+Validation: `python configure.py`, `.venv/Scripts/ninja`, and the frozen-manifest `tools/verify/verify.py verify` entry point all exit 0 on the accepted commit. The DOL SHA-256 remains `ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da`. The pull request records the final commit and clean-build command results. Earlier fallback-only limitations above describe the prior milestone and are superseded by this acceptance.
+
+## Traps
+
+- Compiled units omit trailing alignment bytes. Replacing the logger moved `BTUInterruptHandler` eight bytes early and the fiber stack sixteen bytes early until their evidenced alignments (16 and 32) were retained. Keep actual object ends separate from the next object's alignment padding; do not enlarge a buffer or configuration merely to absorb it.
+- Wii/1.0 emits these uninitialized small-data definitions in reverse declaration order. Declaring `p_hcisu_cfg` before `p_hcisu_if`, and the application callback before `bte_target_mode`, reproduces the observed `.sbss` addresses. Verify the compiled symbol offsets as well as instruction matches; changing a zero-filled symbol's address changes its callers' SDA instructions.

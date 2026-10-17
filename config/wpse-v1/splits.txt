@@ -230,17 +230,17 @@ RVL_SDK/bte/bte_hcisu.c:
 	.sbss       start:0x804B9B78 end:0x804B9B80
 
 RVL_SDK/bte/bte_init.c:
-	.text       start:0x80313B30 end:0x80313B60
+	.text       start:0x80313B30 end:0x80313B5C
 
 RVL_SDK/bte/bte_logmsg.c:
-	.text       start:0x80313B60 end:0x80313D00
-	.bss        start:0x804A9040 end:0x804A9820
+	.text       start:0x80313B60 end:0x80313CF8
+	.bss        start:0x804A9040 end:0x804A9810
 	.sdata      start:0x804B8EE0 end:0x804B8EE8
 
 RVL_SDK/bte/bte_main.c:
 	.text       start:0x80313D00 end:0x80313E70
 	.bss        start:0x804A9820 end:0x804AA850
-	.sdata      start:0x804B8EE8 end:0x804B8EF0
+	.sdata      start:0x804B8EE8 end:0x804B8EEC
 	.sbss       start:0x804B9B80 end:0x804B9B88
 
 RVL_SDK/bte/bta_sys_conn.c:

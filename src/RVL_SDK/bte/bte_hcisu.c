@@ -3,8 +3,8 @@
 extern void GKI_freebuf(void* p_buffer);
 extern void GKI_send_msg(unsigned char task_id, unsigned char mailbox, void* p_msg);
 
-tHCI_IF* p_hcisu_if;
 tHCI_CFG* p_hcisu_cfg;
+tHCI_IF* p_hcisu_if;
 
 void bte_hcisu_send(HC_BT_HDR* p_msg, unsigned short event) {
     p_msg->event = event;
