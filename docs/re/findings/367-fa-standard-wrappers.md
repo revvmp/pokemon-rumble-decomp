@@ -44,7 +44,44 @@ All source is ordinary C, built with established Wii/1.0 `cflags_sdk` and defaul
 
 Headers declare only the forwarded contracts used here. `PF_CLUSTER_LINK_CONFIG`, `PF_TAIL_BUF` and `PF_VOLUME_CONFIG` remain incomplete pointer-only types because these wrappers neither allocate nor inspect their storage. No size is asserted for these types. The cluster-link pointer uses the same canonical tag as #366's file-level interface: both lower native consumers read two words at offsets 0 and 4 and a halfword at offset 8 in mode 1. No `PF_VOLUME`, `PF_VOLUME_SET`, file, directory or cache member changes. The `PF_STR` and `PF_CHARCODE` declarations are imported by the volume header so its new prototypes compile under direct inclusion by cache and cluster consumers.
 
-The original utility interface is owned by #365 and supplied by prerequisite PR #882. The initial bounded declarations in `8692a6f` were held after review; applying corrective header commit `ab3656a` produces the corrected interface for integration alongside #366's independent declarations. The rejected header revision must not be published alone. The final source merge must use the merged canonical headers and repeat its latest-main gates; an approved scratch header copy is not a substitute for that dependency.
+The original utility interface is owned by #365 and supplied by prerequisite PR #882. The initial bounded declarations in `8692a6f` were held after review; corrective header commits `ab3656a` and `918d53c` supply the revised contracts and original shared divide callee for integration alongside #366's independent declarations. The rejected header revision must not be published alone. The final source merge must use the merged canonical headers and repeat its latest-main gates; an approved scratch header copy is not a substitute for that dependency.
+
+## Lower callee identity
+
+Each referenced lower function or data symbol below exists under this exact original name in the pinned FA map. Native target addresses are independently checked through the source object's relocations and the complete frozen native instruction stream. The FA reference address and extent are evidence from the reference revision, not replacement target metadata. Outside extents and types remain unchanged.
+
+| Original lower name | Native target | Pinned FA reference | Reference extent |
+| --- | --- | --- | --- |
+| `PFSTR_InitStr` | `0x801fb790` | `0x815c6670` | `0x88` |
+| `PFDIR_mkdir` | `0x802057a0` | `0x815d034c` | `0xe0` |
+| `PFDIR_rmdir` | `0x802056f0` | `0x815d029c` | `0xb0` |
+| `PFAPI_convertReturnValue` | `0x8021a3f0` | `0x815e4bb0` | `0x10` |
+| `pf_vol_set` | `0x803eb970` | `0x811781e0` | `0x33800` |
+| `PFAPI_convertReturnValue2NULL` | `0x8021a420` | `0x815e4be0` | `0x18` |
+| `PFAPI_convertReturnValue4unmount` | `0x8021a440` | `0x815e4bf8` | `0x24` |
+| `PFDIR_move` | `0x80205230` | `0x815cfdf0` | `0xe8` |
+| `PFDIR_opendir` | `0x80205320` | `0x815cfed8` | `0x9c` |
+| `PFDIR_readdir` | `0x802054a0` | `0x815d0054` | `0xd0` |
+| `PFDIR_rename` | `0x80205140` | `0x815cfd08` | `0xe8` |
+| `PFDIR_seekdir` | `0x80205640` | `0x815d01ec` | `0xb0` |
+| `PFDIR_telldir` | `0x80205570` | `0x815d0124` | `0xc8` |
+| `PFFILE_remove` | `0x80210960` | `0x815db310` | `0xa8` |
+| `PFFILE_divide` | `0x80211be0` | `0x815dc538` | `0x124` |
+| `PFVOL_mount` | `0x80218260` | `0x815e2a80` | `0x2d0` |
+| `PFVOL_regctx` | `0x80219a30` | `0x815e4220` | `0x12c` |
+| `PFVOL_rmvvol` | `0x80217260` | `0x815e1a9c` | `0x2fc` |
+| `PFVOL_setclstlink` | `0x80218b30` | `0x815e3344` | `0x320` |
+| `PFVOL_setcode` | `0x802199d0` | `0x815e41c4` | `0x5c` |
+| `PFVOL_setencode` | `0x80219ce0` | `0x815e44c4` | `0x20` |
+| `PFVOL_settailbuf` | `0x80219170` | `0x815e397c` | `0x264` |
+| `PFVOL_setupfsi` | `0x80218830` | `0x815e304c` | `0x2f8` |
+| `PFVOL_setvol` | `0x80216c70` | `0x815e14b8` | `0x330` |
+| `PFVOL_setvolcfg` | `0x802193e0` | `0x815e3be0` | `0x368` |
+| `PFVOL_sync` | `0x80218e50` | `0x815e3664` | `0x318` |
+| `PFVOL_unmount` | `0x80218530` | `0x815e2d50` | `0x2fc` |
+| `PFVOL_unregctx` | `0x80219b60` | `0x815e434c` | `0x178` |
+
+Both public `pf2_divide` and `pf2_xdivide` delegate to the same original `PFFILE_divide` at `0x80211BE0`. A draft initially invented a lower `PFFILE_xdivide` name by copying the public prefix. Strict paired-relocation comparison during the wide-wrapper audit rejected that alias; it is absent from the original FA map. The corrected source and canonical header use `PFFILE_divide`. This is another case where equal native addresses do not establish an original name.
 
 ## Validation
 
@@ -53,6 +90,8 @@ On main base `9fdce911`, the first split-only full build and then the complete 2
 The corrected source selection passed `python configure.py --map`, plain `.venv/Scripts/ninja` and the explicit frozen verifier, all with exit 0. The complete original 25-row inventory audit checked each native extent, all 1,608 bytes after independent relocation resolution, all 75 relocation offsets/kinds/targets/addends, the actual source entries in `build.ninja`, each function's final ELF address/size and source contribution in `main.elf.MAP`, every allocated section at 100%, and the entire rebuilt DOL against the unchanged original. It also asserts all 25 original file/function identities against the complete pinned FA sequence, audits each original caller's target and public arity, and checks the exact argument-loading instruction sequences for all five corrected wrappers. The external reproducible audit is `367-audit-complete.py --source-selected`; its evidence is in `367-reference/complete-evidence.json`. Exact committed-head verification after canonical-header integration and the final latest-main rebase remain required before merge.
 
 ## Traps
+
+- Public API spelling is not proof of a lower helper name. The original FA namespace and strict relocation target-name pairing must agree; aliases at the same address cannot substitute for that identity check.
 
 - Byte equality does not prove a forwarding contract. Review rejected revision `70618bcdcbae57339d68ada57938db6ed7e47c77` because five native-exact wrappers had incorrect API identities. The complete pinned FA inventory and actual dispatcher/lower-consumer argument uses establish the following corrections. In particular, the old two-argument bodies left an incoming third register untouched, while the old three-argument body forwarded a register its callee ignored. Neither error necessarily changed generated bytes.
 

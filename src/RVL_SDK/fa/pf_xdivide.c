@@ -10,7 +10,7 @@ int pf2_xdivide(const char* src, const char* dst, u32 offset) {
     err = PFSTR_InitStr(&src_str, (const s8*)src, PF_CODE_MODE_OEM);
     err |= PFSTR_InitStr(&dst_str, (const s8*)dst, PF_CODE_MODE_OEM);
     if (err == 0) {
-        err = PFFILE_xdivide(&src_str, &dst_str, offset);
+        err = PFFILE_divide(&src_str, &dst_str, offset);
     } else {
         pf_vol_set.last_error = err;
     }
