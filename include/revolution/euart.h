@@ -1,7 +1,8 @@
 #ifndef EUART_H
 #define EUART_H
 
-#include <export/UART.h>
+#include "MSL_C/UART.h"
+#include "revolution/types.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -20,6 +21,7 @@ typedef enum {
 	EUART_ERROR_COMM
 } EUARTError;
 
+BOOL EUARTInit(void);
 UARTError InitializeUART(UARTBaudRate);
 UARTError WriteUARTN(const void *, unsigned long);
 
