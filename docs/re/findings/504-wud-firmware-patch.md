@@ -22,12 +22,12 @@ The code decodes a little-endian destination address and length from the patch r
 | Initialized object | Address | Size | Evidence |
 | --- | --- | --- | --- |
 | `_wudSuperPeekPokeCmd` | `0x803DF194` | 9 | Full byte comparison |
-| `_wudPatchData` | `0x803DF1A0` | 188 | Full byte comparison; four-byte target variation |
+| `_wudPatchData` | `0x803DF1A0` | 188 | Relocation-bearing controller word; correction below |
 | `_wudPatchInstallCmd` | `0x803DF25C` | 92 | Seven typed thirteen-byte commands plus count |
 
 These arrays are the SDK's controller-firmware transfer data, consumed by the reconstructed vendor-command transport. They are not PowerPC function bodies or a substitute for reconstructing the WUD executable. Together with the existing descriptor and reset command, the native prefix contains 534 initialized bytes plus six alignment bytes, all exact.
 
-The pinned reference patch record differs from this target at record offsets `0x5C` through `0x5F`: reference `80 01 01 38`, target `00 00 00 00`. The source preserves the observed target values. No expected hashes or manifests change, and the record retains its original 188-byte length. Its little-endian header contains destination `0x00089970` and payload length `0xB4`.
+Correction from [F-504-15](504-wud-full-initialization.md): the pinned reference and frozen DOL agree on bytes `80 01 01 38` at record offsets `0x5C` through `0x5F`. The split object contains zero placeholders and an inferred `R_PPC_ADDR32` relocation to `@etb_80010138`. The earlier conclusion that these zeros were a target payload variation was incorrect and is superseded. The source preserves the reference/frozen-DOL bytes. The record remains 188 bytes, with little-endian destination `0x00089970` and payload length `0xB4`; no manifest or expected hash changes.
 
 Paired operands place `_wudPatchRemoveCmd` at `0x804B9B34`, `_wudInstallNum` at `0x804B9B4D`, `_wudPatchNum` at `0x804B9B4E`, `_wudPatchAddress` at `0x804B9B50`, `_wudPatchOffset` at `0x804B9B54` and `_wudPatchSize` at `0x804B9B58`. These original reference names replace coarse metadata names. Source storage uses the observed byte/word types; final whole small-data layout remains incomplete.
 
@@ -41,10 +41,10 @@ Full Ninja exits zero before explicit frozen verification of `build/504-source-h
 
 ## Provenance
 
-Functional patch transport and controller data follow target-corroborated [Swiftshine/key WUD.c at 7f2a9ab9ad66d8e2f6eac52acc2c01dff0bd03a2](https://github.com/Swiftshine/key/blob/7f2a9ab9ad66d8e2f6eac52acc2c01dff0bd03a2/src/revolution/WPAD/WUD.c), CC0. The typed patch list and retained diagnostics are corroborated by [Petari WUD.c at e0ab141914921726a595573dc48d3f13d0922efe](https://github.com/SMGCommunity/Petari/blob/e0ab141914921726a595573dc48d3f13d0922efe/src/RVL_SDK/wud/WUD.c), CC0 with no file-specific exception found. Target bytes establish the four-byte payload variation. Comments and annotations are removed. No decompiler text is included.
+Functional patch transport and controller data follow target-corroborated [Swiftshine/key WUD.c at 7f2a9ab9ad66d8e2f6eac52acc2c01dff0bd03a2](https://github.com/Swiftshine/key/blob/7f2a9ab9ad66d8e2f6eac52acc2c01dff0bd03a2/src/revolution/WPAD/WUD.c), CC0. The typed patch list and retained diagnostics are corroborated by [Petari WUD.c at e0ab141914921726a595573dc48d3f13d0922efe](https://github.com/SMGCommunity/Petari/blob/e0ab141914921726a595573dc48d3f13d0922efe/src/RVL_SDK/wud/WUD.c), CC0 with no file-specific exception found. The frozen DOL and split relocation explain the controller word corrected in F-504-15. Comments and annotations are removed. No decompiler text is included.
 
 ## Traps
 
-- **Matching headers do not prove matching payloads.** The reference and target patch records have identical address/length headers, but differ at four payload bytes. Compare the entire compiled initialized object before claiming data equality.
+- **Split-data zeros can be relocation placeholders.** At patch-record offset `0x5C`, the split object stores zeros with an inferred address relocation, while the frozen DOL contains `80 01 01 38`. Compare resolved data or the frozen executable before interpreting a raw split-object difference as a payload variation.
 - **An undeclared utility can compile as an external call.** The reference's `MIN` macro is absent from this C include graph, so an unadapted probe emitted undefined `MIN` calls without a syntax error. Explicit ordinary conditional expressions reproduce the target operations; inspect undefined symbols as well as compiler status.
 - **A diagnostic argument can affect code size.** Logging chunk length added a register move and made the write callback four bytes too long. The target logs the updated transfer offset; preserving that value restores the original extent and registers.
