@@ -160,7 +160,6 @@ void TRKSaveExtended1Block(void);
 u32 __TRK_get_MSR(void);
 
 DSError TRKValidMemory32(const void* address, size_t length, ValidMemoryOptions accessMode);
-void TRK_ppc_memcpy(void* destination, const void* source, int count, u32 destinationMSR, u32 sourceMSR);
 void __TRK_set_MSR(u32 msr);
 void TRKInterruptHandler(void);
 void TRKPostInterruptEvent(void);
@@ -174,8 +173,7 @@ void ReadFPSCR(f64* value);
 void WriteFPSCR(f64* value);
 DSError TRKPPCAccessSpecialReg(void* value, u32* accessFunction, BOOL read);
 void TRKTargetSetInputPendingPtr(void* inputPending);
-u32* ConvertAddress(u32 address);
-void GetThreadInfo(u32* threadCount, u32* currentThreadIndex);
+u32 ConvertAddress(u32 address);
 
 DSError TRKTargetAccessMemory(void* buffer, u32 address, size_t* length, MemoryAccessOptions accessMode, BOOL read);
 DSError TRKTargetAccessDefault(u32 firstRegister, u32 lastRegister, TRKBuffer* buffer, size_t* length, BOOL read);

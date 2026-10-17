@@ -18,7 +18,7 @@ enum {
     SPR_FPECR = 1022,
 };
 
-void GetThreadInfo(u32*,u32*);
+static void GetThreadInfo(int*, int*);
 DSError TRKAppendBuffer1_ui32(TRKBuffer*,u32);
 DSError TRKAppendBuffer(TRKBuffer*,const void*,size_t);
 
@@ -88,7 +88,7 @@ void WriteFPSCR(register f64*);
 void ReadFPSCR(register f64*);
 void __TRK_set_MSR(register u32 msr);
 u32 __TRK_get_MSR();
-void TRK_ppc_memcpy(register void* dest, register const void* src, register int n, register u32 destinationMSR, register u32 sourceMSR);
+static void TRK_ppc_memcpy(register void* dest, register const void* src, register int n, register u32 destinationMSR, register u32 sourceMSR);
 
 void TRKRestoreExtended1Block();
 void TRKUARTInterruptHandler();
@@ -387,14 +387,14 @@ DSError TRKTargetInterrupt(TRKEvent* event) {
     return error;
 }
 
-u32* ConvertAddress(u32 addr);
+u32 ConvertAddress(u32 addr);
 DSError TRKTargetAddStopInfo(register TRKBuffer* buffer) {
     DSError error;
     CommandReply reply;
     u32 instruction;
     u32 queueValue;
-    u32 threadCount;
-    u32 currentThread;
+    int threadCount;
+    int currentThread;
     u8 instructions[0x400];
     size_t size;
     int i;
@@ -404,7 +404,7 @@ DSError TRKTargetAddStopInfo(register TRKBuffer* buffer) {
     reply.replyError.r = gTRKCPUState.Default.PC;
     GetThreadInfo(&threadCount, &currentThread);
     *(u32*)(reply.payload + 4) = threadCount;
-    *(u32*)(reply.payload + 8) = *ConvertAddress(0xE4);
+    *(u32*)(reply.payload + 8) = *(u32*)ConvertAddress(0xE4);
     TRKTargetReadInstruction(&instruction, gTRKCPUState.Default.PC);
     reply.parameter.instruction = instruction;
     *(u32*)reply.payload = gTRKCPUState.Extended1.exceptionID & 0xFFFF;
@@ -418,15 +418,15 @@ DSError TRKTargetAddStopInfo(register TRKBuffer* buffer) {
         error = TRKAppendBuffer1_ui32(buffer, gTRKCPUState.Default.XER);
     }
     if (error == DS_NoError) {
-        queueValue = *ConvertAddress(0xD4);
+        queueValue = *(u32*)ConvertAddress(0xD4);
         TRKAppendBuffer1_ui32(buffer, queueValue);
-        queueValue = *ConvertAddress(0xD8);
+        queueValue = *(u32*)ConvertAddress(0xD8);
         TRKAppendBuffer1_ui32(buffer, queueValue);
-        queueValue = *ConvertAddress(0xDC);
+        queueValue = *(u32*)ConvertAddress(0xDC);
         TRKAppendBuffer1_ui32(buffer, queueValue);
-        queueValue = *ConvertAddress(0xE0);
+        queueValue = *(u32*)ConvertAddress(0xE0);
         TRKAppendBuffer1_ui32(buffer, queueValue);
-        queueValue = *ConvertAddress(0xE4);
+        queueValue = *(u32*)ConvertAddress(0xE4);
         error = TRKAppendBuffer1_ui32(buffer, queueValue);
     }
     if (error == DS_NoError) {
@@ -700,7 +700,11 @@ void TRKTargetSetInputPendingPtr(void* ptr) {
     gTRKState.inputPendingPtr = ptr;
 }
 
-void GetThreadInfo(u32* count, u32* currentIndex) {
+u32 ConvertAddress(u32 address) {
+    return address | 0x80000000;
+}
+
+static void GetThreadInfo(int* count, int* currentIndex) {
     int i;
     OSThread* thread;
     *count = 1;
@@ -709,7 +713,7 @@ void GetThreadInfo(u32* count, u32* currentIndex) {
     if (thread == (OSThread*)-1 || thread == NULL || thread == (OSThread*)0x80000000) return;
     for (i = 0; thread != NULL;) {
         if (thread == *(OSThread**)0x800000E4) *currentIndex = i;
-        thread = (OSThread*)((u32)thread->linkActive.next | 0x80000000);
+        thread = (OSThread*)ConvertAddress((u32)thread->linkActive.next);
         i++;
         if (thread == (OSThread*)-1 || thread == NULL || thread == (OSThread*)0x80000000) break;
     }
@@ -996,7 +1000,7 @@ inline void TRKWriteByte(void* address, u8 value) {
     u32 mask = 0xFF << ((3 - offset) * 8);
     *(u32*)aligned = (original & ~mask) | ((value << ((3 - offset) * 8)) & mask);
 }
-void TRK_ppc_memcpy(register void* destination, register const void* source, int count, u32 destinationMSR, u32 sourceMSR) {
+static void TRK_ppc_memcpy(register void* destination, register const void* source, int count, u32 destinationMSR, u32 sourceMSR) {
     u32 savedMSR;
     const u8* src = source;
     u8* dest = destination;
@@ -1015,5 +1019,3 @@ void TRK_ppc_memcpy(register void* destination, register const void* source, int
     }
     __TRK_set_MSR(savedMSR);
 }
-
-u32* ConvertAddress(u32 addr) { return (u32*)(addr | 0x80000000); }
