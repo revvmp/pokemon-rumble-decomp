@@ -159,6 +159,10 @@ typedef struct {
 
 extern tRFC_CB rfc_cb;
 
+void rfcomm_l2cap_if_init(void);
+tRFC_MCB* rfc_find_lcid_mcb(UINT16 lcid);
+void rfc_save_lcid_mcb(tRFC_MCB* p_mcb, UINT16 lcid);
+
 void rfc_mx_sm_execute(tRFC_MCB* p_mcb, UINT16 event, void* p_data);
 void rfc_port_sm_execute(tPORT* p_port, UINT16 event, void* p_data);
 
