@@ -2288,3 +2288,7 @@ The existing canonical `WaveFileReader` stores its wave-info pointer at offset 0
 ## Issue #443 WaveSound
 
 [F-443-4](findings/443-wave-sound.md) records the 0x234-byte WaveSound class: BasicSound base, WsdPlayer at 0x110, temporary special handle at 0x228, manager at 0x22C, prepared flag at 0x230. Its 0x38-byte vtable starts at 0x803C68C8; RuntimeTypeInfo is four bytes at 0x804B93B0, initialized through the ctor entry at 0x80352A68. The first retained WsdPlayer destructor remains at 0x80291490. SoundInstanceManager has MemoryPool/list/mutex fields, size 0x28, with priority node offset 0xF0 from the existing BasicSound layout.
+
+## Issue #444 WaveSoundHandle
+
+[F-444-4](findings/444-wave-handle.md) establishes the four-byte handle with WaveSound pointer at offset zero and DetachSound at 0x802917E0, native size 0x38. This unit ends at 0x80291818, before following alignment padding; its unused constructor strips normally. Combined source checkpoint supplies52 functions/6900 native bytes across the seven reader/player/sound/handle/decoder units, with separate original-inventory accounting.
