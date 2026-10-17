@@ -1,0 +1,869 @@
+#include "revolution/os.h"
+#include "revolution/os/OSThread.h"
+#include "private/flipper.h"
+#include "revolution/base/PPCArch.h"
+#include "revolution/db.h"
+#include "revolution/dvd.h"
+#include "revolution/gx/GXStruct.h"
+#include "revolution/ipc.h"
+#include "revolution/os/OSArena.h"
+#include "revolution/os/OSAudioSystem.h"
+#include "revolution/os/OSBootInfo.h"
+#include "revolution/os/OSCache.h"
+#include "revolution/os/OSException.h"
+#include "revolution/os/OSExecParams.h"
+#include "revolution/os/OSIpc.h"
+#include "revolution/os/OSLink.h"
+#include "revolution/os/OSMemory.h"
+#include "revolution/os/OSPlayRecord.h"
+#include "revolution/os/OSPlayTime.h"
+#include "revolution/os/OSReset.h"
+#include "revolution/os/OSRtc.h"
+#include "revolution/sc.h"
+#include "revolution/si.h"
+#include "Runtime/__ppc_eabi_linker.h"
+#include "string.h"
+
+#define OSIsMEM1Region(addr) (((u32)(addr) & 0x30000000) == 0x00000000)
+#define OSIsMEM2Region(addr) (((u32)(addr) & 0x30000000) == 0x10000000)
+
+void __OSEVStart(void);
+void __OSEVEnd(void);
+void __OSEVSetNumber(void);
+void __DBVECTOR(void);
+void __OSDBINTSTART(void);
+void __OSDBINTEND(void);
+void __OSDBJUMPSTART(void);
+void __OSDBJUMPDEST(void);
+void __OSDBJUMPEND(void);
+
+void EXIInit(void);
+void __OSInitSystemCall(void);
+void __OSInitSTM(void);
+void __OSInitNet(void);
+void EnableMetroTRKInterrupts(void);
+void OSFatal(GXColor fg, GXColor bg, const char* msg);
+
+extern u8 __ArenaHi[];
+extern u8 __ArenaLo[];
+extern u32 __DVDLongFileNameFlag;
+extern u32 __PADSpec;
+extern BOOL __OSInReboot;
+
+#define OS_MINIMUM_IOS_VERSION (*(u32*)OSPhysicalToCached(0x3188))
+#define OS_DVD_DEVICE_CODE (*(vu16*)OSPhysicalToCached(0x30E6))
+
+OSExecParams __OSRebootParams;
+static DVDDriveInfo DriveInfo;
+static DVDCommandBlock DriveBlock;
+
+OSTime __OSStartTime;
+static OSBootInfo* volatile BootInfo;
+static u32* BI2DebugFlag;
+static u32 BI2DebugFlagHolder;
+
+static char GameNameBuffer[5];
+
+static f64 ZeroF;
+static f32 ZeroPS[2];
+
+static __OSExceptionHandler* OSExceptionTable;
+
+static BOOL AreWeInitialized;
+__declspec(weak) BOOL __OSIsGcam;
+BOOL __OSInNandBoot;
+BOOL __OSInIPL;
+
+const char* __OSVersion = "<< RVL_SDK - OS \trelease build: Feb 27 2009 10:04:29 (0x4302_145) >>";
+
+static void OSExceptionInit(void);
+void OSDefaultExceptionHandler(__OSException exception, OSContext* context);
+
+asm void __OSFPRInit(void) {
+    nofralloc
+    mfmsr r3
+    ori r3, r3, 0x2000
+    mtmsr r3
+
+    mfspr r3, 0x398
+    rlwinm. r3, r3, 3, 31, 31
+    beq skipPairedSingleInit
+
+    lis r3, ZeroPS@ha
+    addi r3, r3, ZeroPS@l
+    psq_l fp0, 0(r3), 0, 0
+    ps_mr fp1, fp0
+    ps_mr fp2, fp0
+    ps_mr fp3, fp0
+    ps_mr fp4, fp0
+    ps_mr fp5, fp0
+    ps_mr fp6, fp0
+    ps_mr fp7, fp0
+    ps_mr fp8, fp0
+    ps_mr fp9, fp0
+    ps_mr fp10, fp0
+    ps_mr fp11, fp0
+    ps_mr fp12, fp0
+    ps_mr fp13, fp0
+    ps_mr fp14, fp0
+    ps_mr fp15, fp0
+    ps_mr fp16, fp0
+    ps_mr fp17, fp0
+    ps_mr fp18, fp0
+    ps_mr fp19, fp0
+    ps_mr fp20, fp0
+    ps_mr fp21, fp0
+    ps_mr fp22, fp0
+    ps_mr fp23, fp0
+    ps_mr fp24, fp0
+    ps_mr fp25, fp0
+    ps_mr fp26, fp0
+    ps_mr fp27, fp0
+    ps_mr fp28, fp0
+    ps_mr fp29, fp0
+    ps_mr fp30, fp0
+    ps_mr fp31, fp0
+
+skipPairedSingleInit:
+    lfd fp0, ZeroF
+    fmr fp1, fp0
+    fmr fp2, fp0
+    fmr fp3, fp0
+    fmr fp4, fp0
+    fmr fp5, fp0
+    fmr fp6, fp0
+    fmr fp7, fp0
+    fmr fp8, fp0
+    fmr fp9, fp0
+    fmr fp10, fp0
+    fmr fp11, fp0
+    fmr fp12, fp0
+    fmr fp13, fp0
+    fmr fp14, fp0
+    fmr fp15, fp0
+    fmr fp16, fp0
+    fmr fp17, fp0
+    fmr fp18, fp0
+    fmr fp19, fp0
+    fmr fp20, fp0
+    fmr fp21, fp0
+    fmr fp22, fp0
+    fmr fp23, fp0
+    fmr fp24, fp0
+    fmr fp25, fp0
+    fmr fp26, fp0
+    fmr fp27, fp0
+    fmr fp28, fp0
+    fmr fp29, fp0
+    fmr fp30, fp0
+    fmr fp31, fp0
+
+    mtfsf 0xFF, fp0
+    blr
+}
+
+void __OSGetIOSRev(OSIOSRev* rev) {
+    u32 version = *(u32*)OSPhysicalToUncached(0x3140);
+    u32 buildDate = *(u32*)OSPhysicalToUncached(0x3144);
+
+    rev->reserved = version >> 24 & 0xFF;
+    rev->major = version >> 16 & 0xFF;
+    rev->minor = version >> 8 & 0xFF;
+    rev->micro = version & 0xFF;
+
+    rev->month = (buildDate >> 16 & 0xF) + (buildDate >> 20 & 0xF) * 10;
+    rev->date = (buildDate >> 8 & 0xF) + (buildDate >> 12 & 0xF) * 10;
+    rev->year = (buildDate & 0xF) + (buildDate >> 4 & 0xF) * 10 + 2000;
+}
+
+u32 __OSGetHollywoodRev(void) {
+    return *(u32*)OSPhysicalToCached(0x3138);
+}
+
+u32 OSGetConsoleType(void) {
+    u32 hwRev;
+    u32 gddrSize;
+    OSBootInfo* info = BootInfo;
+
+    if (info == NULL || info->consoleType == 0) {
+        return 0x10000002;
+    }
+
+    hwRev = __OSGetHollywoodRev();
+
+    if (OS_DVD_DEVICE_CODE & 0x8000) {
+        switch (OS_DVD_DEVICE_CODE & ~0x8000) {
+        case 2:
+        case 3:
+        case 0x203:
+            switch (hwRev) {
+            case 0:
+                return 0x10;
+            case 1:
+                return 0x11;
+            case 2:
+                return 0x12;
+            case 0x10:
+                return 0x20;
+            case 0x11:
+                return 0x21;
+            }
+
+            if (hwRev > 0x11) {
+                return 0x21;
+            }
+
+        case 0x202:
+        case 0x201:
+            switch (hwRev) {
+            case 0:
+                return 0x10000010;
+            case 1:
+                return 0x10000011;
+            case 2:
+                return 0x10000012;
+            case 0x10:
+                return 0x10000020;
+            case 0x11:
+                return 0x10000021;
+            }
+
+            if (hwRev > 0x11) {
+                return 0x10000021;
+            }
+
+        case 0x300:
+            return 0x100;
+
+        default:
+            break;
+        }
+    }
+
+    gddrSize = OSGetPhysicalMem2Size();
+
+    switch (hwRev) {
+    case 0:
+        if (gddrSize == 0x4000000) {
+            return 0x10;
+        } else {
+            return 0x10000010;
+        }
+
+    case 1:
+        if (gddrSize == 0x4000000) {
+            return 0x11;
+        } else {
+            return 0x10000011;
+        }
+
+    case 2:
+        if (gddrSize == 0x4000000) {
+            return 0x12;
+        } else {
+            return 0x10000012;
+        }
+
+    case 0x10:
+        if (gddrSize == 0x4000000) {
+            return 0x20;
+        } else {
+            return 0x10000020;
+        }
+
+    case 0x11:
+        if (gddrSize == 0x4000000) {
+            return 0x21;
+        } else {
+            return 0x10000021;
+        }
+    }
+
+    if (hwRev > 0x11) {
+        if (gddrSize == 0x4000000) {
+            return 0x21;
+        } else {
+            return 0x10000021;
+        }
+    }
+
+    return BootInfo->consoleType;
+}
+
+static void MemClear(void* base, u32 size) {
+    void* lastBase = (size > 0x40000) ? (void*)((u32)base + size - 0x40000) : base;
+    DCZeroRange(base, size);
+    DCFlushRange(lastBase, 0x40000);
+}
+
+static void ClearArena(void) NO_INLINE {
+    if (!OSIsRestart()) {
+        MemClear(OSGetArenaLo(), (u32)OSGetArenaHi() - (u32)OSGetArenaLo());
+    } else {
+        if (__OSRebootParams.regionStart == NULL || !OSIsMEM1Region(__OSRebootParams.regionStart)) {
+            MemClear(OSGetArenaLo(), (u32)OSGetArenaHi() - (u32)OSGetArenaLo());
+        } else {
+            if ((u32)OSGetArenaLo() < (u32)__OSRebootParams.regionStart) {
+                if ((u32)OSGetArenaHi() <= (u32)__OSRebootParams.regionStart) {
+                    MemClear(OSGetArenaLo(), (u32)OSGetArenaHi() - (u32)OSGetArenaLo());
+                } else {
+                    MemClear(OSGetArenaLo(), (u32)__OSRebootParams.regionStart - (u32)OSGetArenaLo());
+
+                    if ((u32)OSGetArenaHi() > (u32)__OSRebootParams.regionEnd) {
+                        MemClear(__OSRebootParams.regionEnd, (u32)OSGetArenaHi() - (u32)__OSRebootParams.regionEnd);
+                    }
+                }
+            }
+        }
+    }
+}
+
+static void ClearMEM2Arena(void) NO_INLINE {
+    if (!OSIsRestart()) {
+        MemClear(OSGetMEM2ArenaLo(), (u32)OSGetMEM2ArenaHi() - (u32)OSGetMEM2ArenaLo());
+    } else {
+        if (__OSRebootParams.regionStart == NULL || !OSIsMEM2Region(__OSRebootParams.regionStart)) {
+            MemClear(OSGetMEM2ArenaLo(), (u32)OSGetMEM2ArenaHi() - (u32)OSGetMEM2ArenaLo());
+        } else {
+            if ((u32)OSGetMEM2ArenaLo() < (u32)__OSRebootParams.regionStart) {
+                if ((u32)OSGetMEM2ArenaHi() <= (u32)__OSRebootParams.regionStart) {
+                    MemClear(OSGetMEM2ArenaLo(), (u32)OSGetMEM2ArenaHi() - (u32)OSGetMEM2ArenaLo());
+                } else {
+                    MemClear(OSGetMEM2ArenaLo(), (u32)__OSRebootParams.regionStart - (u32)OSGetMEM2ArenaLo());
+
+                    if ((u32)OSGetMEM2ArenaHi() > (u32)__OSRebootParams.regionEnd) {
+                        MemClear(__OSRebootParams.regionEnd, (u32)OSGetMEM2ArenaHi() - (u32)__OSRebootParams.regionEnd);
+                    }
+                }
+            }
+        }
+    }
+}
+
+static void InquiryCallback(s32 result, DVDCommandBlock* block) {
+    switch (block->state) {
+    case 0:
+        OS_DVD_DEVICE_CODE = (u16)(0x8000 | DriveInfo.deviceCode);
+        break;
+    default:
+        OS_DVD_DEVICE_CODE = 1;
+        break;
+    }
+}
+
+static void ReportOSInfo(void) {
+    u32 consoleType;
+    u32 sysMemSize;
+    OSIOSRev ios;
+
+    OSReport("\nRevolution OS\n");
+    OSReport("Kernel built : %s %s\n", "Feb 27 2009", "10:04:29");
+    OSReport("Console Type : ");
+
+    consoleType = OSGetConsoleType();
+
+    switch (consoleType & 0xF0000000) {
+    case 0:
+        switch (consoleType) {
+        case 0x11:
+            OSReport("Pre-production board 1\n");
+            break;
+        case 0x12:
+            OSReport("Pre-production board 2-1\n");
+            break;
+        case 0x20:
+            OSReport("Pre-production board 2-2\n");
+            break;
+        case 0x100:
+            OSReport("RVA 1\n");
+            break;
+        default:
+            OSReport("Retail %d\n", consoleType);
+            break;
+        }
+        break;
+
+    case 0x10000000:
+        switch (consoleType) {
+        case 0x10000021:
+            OSReport("NDEV 2.1\n");
+            break;
+        case 0x10000020:
+            OSReport("NDEV 2.0\n");
+            break;
+        case 0x10000012:
+            OSReport("NDEV 1.2\n");
+            break;
+        case 0x10000011:
+            OSReport("NDEV 1.1\n");
+            break;
+        case 0x10000010:
+            OSReport("NDEV 1.0\n");
+            break;
+        case 0x10000008:
+            OSReport("Revolution Emulator\n");
+            break;
+        default:
+            OSReport("Emulation platform (%08x)\n", consoleType);
+            break;
+        }
+        break;
+
+    case 0x20000000:
+        OSReport("TDEV-based emulation HW%d\n", (consoleType & ~0xF0000000) - 3);
+        break;
+
+    default:
+        OSReport("%08x\n", consoleType);
+        break;
+    }
+
+    __OSGetIOSRev(&ios);
+    OSReport("Firmware     : %d.%d.%d ", ios.major, ios.minor, ios.micro);
+    OSReport("(%d/%d/%d)\n", ios.month, ios.date, ios.year);
+
+    sysMemSize = OSGetConsoleSimulatedMem1Size() + OSGetConsoleSimulatedMem2Size();
+    OSReport("Memory %d MB\n", sysMemSize / (1024 * 1024));
+    OSReport("MEM1 Arena : 0x%x - 0x%x\n", OSGetMEM1ArenaLo(), OSGetMEM1ArenaHi());
+    OSReport("MEM2 Arena : 0x%x - 0x%x\n", OSGetMEM2ArenaLo(), OSGetMEM2ArenaHi());
+}
+
+static void CheckTargets(void) {
+    switch (*(u8*)OSPhysicalToCached(0x315C)) {
+    case 0x80:
+        break;
+    case 0x81:
+        OSReport("OS ERROR: boot program is not for RVL target. Please use correct boot program.\n");
+        OSPanic(__FILE__, 1153, "Failed to run app");
+        break;
+    default:
+        break;
+    }
+
+    switch (*(u8*)OSPhysicalToCached(0x315D)) {
+    case 0x80:
+        break;
+    case 0x81:
+        OSReport("OS ERROR: apploader[D].img is not for RVL target. Please use correct apploader[D].img.\n");
+        OSPanic(__FILE__, 1171, "Failed to run app");
+        break;
+    default:
+        break;
+    }
+}
+
+static void CheckFirmare(void) {
+    OSIOSRev ios;
+    u32 version;
+    const GXColor bg = {0, 0, 255, 0};
+    const GXColor fg = {255, 255, 255, 0};
+
+    __OSGetIOSRev(&ios);
+
+    version = ios.major << 16 | ios.minor << 8 | ios.micro;
+
+    if (ios.major != (OS_MINIMUM_IOS_VERSION >> 16) || ios.major == (OS_MINIMUM_IOS_VERSION >> 16) && version < OS_MINIMUM_IOS_VERSION) {
+        OSReport("OS ERROR: This firmware is an improper version for this SDK. Please use a correct Firmware.\n");
+        OSFatal(fg, bg,
+                "\n\nERROR #002\nAn error has occurred.\nPress the Eject Button, remove the\nGame Disc, and turn off the power to \nthe console. \nPlease read the Wii Operations Manual \nfor further instructions.\n");
+        OSPanic(__FILE__, 1236, "Failed to run app");
+    }
+}
+
+static void DisableWriteGatherPipe(void) {
+    u32 hid2 = PPCMfhid2();
+    hid2 &= ~0x40000000;
+    PPCMthid2(hid2);
+}
+
+static u8 GetAppType(void) {
+    if (__OSInIPL) {
+        return 0x40;
+    }
+
+    return *(u8*)OSPhysicalToCached(0x3184);
+}
+
+static void __OSRegisterVersion(const char* id) {
+    OSReport("%s\n", id);
+}
+
+void OSInit(void) {
+    void* bi2StartAddr;
+    void* mem1Lo;
+    void* mem1Hi;
+    void* mem2Lo;
+    void* mem2Hi;
+
+    if (AreWeInitialized == FALSE) {
+        AreWeInitialized = TRUE;
+        __OSStartTime = __OSGetSystemTime();
+        OSDisableInterrupts();
+        __OSGetExecParams(&__OSRebootParams);
+
+        PPCMtmmcr0(0);
+        PPCMtmmcr1(0);
+        PPCMtpmc1(0);
+        PPCMtpmc2(0);
+        PPCMtpmc3(0);
+        PPCMtpmc4(0);
+        PPCMthid4(0x83900000);
+        PPCDisableSpeculation();
+        PPCSetFpNonIEEEMode();
+
+        BootInfo = (OSBootInfo*)OSPhysicalToCached(0);
+        BI2DebugFlag = NULL;
+        __DVDLongFileNameFlag = 0;
+
+        bi2StartAddr = *(void**)OSPhysicalToCached(0xF4);
+
+        if (bi2StartAddr != NULL) {
+            BI2DebugFlag = (u32*)((u32)bi2StartAddr + 0xC);
+            __PADSpec = *(u32*)((u32)bi2StartAddr + 0x24);
+
+            *(u8*)OSPhysicalToCached(0x30E8) = (u8)*BI2DebugFlag;
+            *(u8*)OSPhysicalToCached(0x30E9) = (u8)__PADSpec;
+        } else if (BootInfo->arenaHi != NULL) {
+            BI2DebugFlagHolder = *(u8*)OSPhysicalToCached(0x30E8);
+            BI2DebugFlag = &BI2DebugFlagHolder;
+            __PADSpec = *(u8*)OSPhysicalToCached(0x30E9);
+        }
+
+        __DVDLongFileNameFlag = 1;
+
+        mem1Lo = *(void**)OSPhysicalToCached(0x310C);
+
+        if (mem1Lo == NULL) {
+            if (OSIsMEM1Region(__ArenaLo)) {
+                mem1Lo = BootInfo->arenaLo == NULL ? (void*)__ArenaLo : BootInfo->arenaLo;
+
+                if (BootInfo->arenaLo == NULL && BI2DebugFlag != NULL && *BI2DebugFlag < 2) {
+                    mem1Lo = (void*)OSRoundUp32B(_stack_addr);
+                }
+            } else {
+                mem1Lo = (void*)0x80004000;
+            }
+        }
+
+        OSSetMEM1ArenaLo(mem1Lo);
+
+        mem1Hi = *(void**)OSPhysicalToCached(0x3110);
+
+        if (mem1Hi == NULL) {
+            mem1Hi = BootInfo->arenaHi == NULL ? (void*)__ArenaHi : BootInfo->arenaHi;
+        }
+
+        OSSetMEM1ArenaHi(mem1Hi);
+
+        mem2Lo = *(void**)OSPhysicalToCached(0x3124);
+
+        if (mem2Lo != NULL) {
+            if (OSIsMEM2Region(__ArenaLo)) {
+                mem2Lo = (void*)__ArenaLo;
+
+                if (BI2DebugFlag != NULL && *BI2DebugFlag < 2) {
+                    mem2Lo = (void*)OSRoundUp32B(_stack_addr);
+                }
+            } else if ((u32)mem2Lo >= 0x90000000 && (u32)mem2Lo < 0x90000800) {
+                mem2Lo = (void*)0x90000800;
+            }
+
+            OSSetMEM2ArenaLo(mem2Lo);
+        }
+
+        mem2Hi = *(void**)OSPhysicalToCached(0x3128);
+
+        if (mem2Hi != NULL) {
+            OSSetMEM2ArenaHi(mem2Hi);
+        }
+
+        __OSInitIPCBuffer();
+        OSExceptionInit();
+        __OSInitSystemCall();
+        __OSInitAlarm();
+        __OSModuleInit();
+        __OSInterruptInit();
+        __OSContextInit();
+        __OSCacheInit();
+        EXIInit();
+        SIInit();
+        __OSInitSram();
+        __OSThreadInit();
+        __OSInitAudioSystem();
+        DisableWriteGatherPipe();
+
+        if (!__OSInIPL) {
+            __OSInitMemoryProtection();
+        }
+
+        ReportOSInfo();
+        OSRegisterVersion(__OSVersion);
+
+        if (BI2DebugFlag != NULL && *BI2DebugFlag >= 2) {
+            EnableMetroTRKInterrupts();
+        }
+
+        if (!__OSInNandBoot && !__OSInReboot) {
+            ClearArena();
+            ClearMEM2Arena();
+        }
+
+        OSEnableInterrupts();
+        IPCCltInit();
+
+        if (!__OSInNandBoot && !__OSInReboot) {
+            __OSInitSTM();
+            SCInit();
+
+            while (SCCheckStatus() == 1) {
+            }
+
+            __OSInitNet();
+        }
+
+        if (!__OSInIPL) {
+            CheckTargets();
+            CheckFirmare();
+            DVDInit();
+
+            if (__OSIsGcam) {
+                OS_DVD_DEVICE_CODE = (u16)(0x8000 | 0x1000);
+            } else if (!OS_DVD_DEVICE_CODE) {
+                DCInvalidateRange(&DriveInfo, sizeof(DriveInfo));
+                DVDInquiryAsync(&DriveBlock, &DriveInfo, InquiryCallback);
+            }
+
+            if (GetAppType() == 0x80 && !__OSInReboot && !__DVDCheckDevice()) {
+                OSReturnToMenu();
+            }
+        }
+
+        if (!__OSInIPL && !__OSInNandBoot) {
+            __OSInitPlayTime();
+        }
+
+        if (!__OSInIPL && !__OSInNandBoot && !__OSInReboot) {
+            __OSStartPlayRecord();
+        }
+    }
+}
+
+static u32 __OSExceptionLocations[] = {
+    0x100, 0x200, 0x300, 0x400, 0x500, 0x600, 0x700, 0x800, 0x900, 0xC00, 0xD00, 0xF00, 0x1300, 0x1400, 0x1700,
+};
+
+static void OSExceptionInit(void) {
+    __OSException exception;
+    void* destAddr;
+    u32* opCodeAddr;
+    u32 oldOpCode;
+    u8* handlerStart;
+    u32 handlerSize;
+
+    opCodeAddr = (u32*)__OSEVSetNumber;
+    oldOpCode = *opCodeAddr;
+    handlerStart = (u8*)__OSEVStart;
+    handlerSize = (u32)((u8*)__OSEVEnd - (u8*)__OSEVStart);
+    destAddr = (void*)OSPhysicalToCached(0x60);
+
+    if (*(u32*)destAddr == 0) {
+        DBPrintf("Installing OSDBIntegrator\n");
+        memcpy(destAddr, (void*)__OSDBINTSTART, (u32)__OSDBINTEND - (u32)__OSDBINTSTART);
+        DCFlushRangeNoSync(destAddr, (u32)__OSDBINTEND - (u32)__OSDBINTSTART);
+        __sync();
+        ICInvalidateRange(destAddr, (u32)__OSDBINTEND - (u32)__OSDBINTSTART);
+    }
+
+    for (exception = 0; exception < __OS_EXCEPTION_MAX; exception++) {
+        if (BI2DebugFlag != NULL && *BI2DebugFlag >= 2 && __DBIsExceptionMarked(exception)) {
+            DBPrintf(">>> OSINIT: exception %d commandeered by TRK\n", exception);
+            continue;
+        }
+
+        *opCodeAddr = oldOpCode | exception;
+
+        if (__DBIsExceptionMarked(exception)) {
+            DBPrintf(">>> OSINIT: exception %d vectored to debugger\n", exception);
+            memcpy((void*)__DBVECTOR, (void*)__OSDBJUMPSTART, (u32)__OSDBJUMPEND - (u32)__OSDBJUMPSTART);
+        } else {
+            u32* ops = (u32*)__DBVECTOR;
+            int cb;
+
+            for (cb = 0; cb < (u32)__OSDBJUMPEND - (u32)__OSDBJUMPSTART; cb += 4) {
+                *ops++ = 0x60000000;
+            }
+        }
+
+        destAddr = (void*)OSPhysicalToCached(__OSExceptionLocations[exception]);
+        memcpy(destAddr, handlerStart, handlerSize);
+        DCFlushRangeNoSync(destAddr, handlerSize);
+        __sync();
+        ICInvalidateRange(destAddr, handlerSize);
+    }
+
+    OSExceptionTable = OSPhysicalToCached(0x3000);
+
+    for (exception = 0; exception < __OS_EXCEPTION_MAX; exception++) {
+        __OSSetExceptionHandler(exception, OSDefaultExceptionHandler);
+    }
+
+    *opCodeAddr = oldOpCode;
+    DBPrintf("Exceptions initialized...\n");
+}
+
+static asm void __OSDBIntegrator(void) {
+    nofralloc
+entry __OSDBINTSTART
+    li r5, 0x40
+    mflr r3
+    stw r3, 0xC(r5)
+    lwz r3, 0x8(r5)
+    oris r3, r3, 0x8000
+    mtlr r3
+    li r3, 0x30
+    mtmsr r3
+    blr
+entry __OSDBINTEND
+}
+
+static asm void __OSDBJump(void) {
+    nofralloc
+entry __OSDBJUMPSTART
+    bla 0x60
+entry __OSDBJUMPEND
+}
+
+__OSExceptionHandler __OSSetExceptionHandler(__OSException exception, __OSExceptionHandler handler) {
+    __OSExceptionHandler old;
+    old = OSExceptionTable[exception];
+    OSExceptionTable[exception] = handler;
+    return old;
+}
+
+__OSExceptionHandler __OSGetExceptionHandler(__OSException exception) {
+    return OSExceptionTable[exception];
+}
+
+static asm void OSExceptionVector(void) {
+    nofralloc
+entry __OSEVStart
+    mtsprg 0, r4
+    lwz r4, 0xC0
+    stw r3, 12(r4)
+    mfsprg r3, 0
+    stw r3, 16(r4)
+    stw r5, 20(r4)
+    lhz r3, 418(r4)
+    ori r3, r3, 2
+    sth r3, 418(r4)
+    mfcr r3
+    stw r3, 128(r4)
+    mflr r3
+    stw r3, 132(r4)
+    mfctr r3
+entry __OSDBJUMPDEST
+    stw r3, 136(r4)
+    mfxer r3
+    stw r3, 140(r4)
+    mfsrr0 r3
+    stw r3, 408(r4)
+    mfsrr1 r3
+    stw r3, 412(r4)
+    mr r5, r3
+entry __DBVECTOR
+    nop
+    mfmsr r3
+    ori r3, r3, 0x30
+    mtsrr1 r3
+entry __OSEVSetNumber
+    addi r3, 0, 0
+    lwz r4, 0xD4
+    rlwinm. r5, r5, 0, 30, 30
+    bne recover
+    addis r5, 0, OSDefaultExceptionHandler@ha
+    addi r5, r5, OSDefaultExceptionHandler@l
+    mtsrr0 r5
+    rfi
+recover:
+    rlwinm r5, r3, 2, 22, 29
+    lwz r5, 0x3000(r5)
+    mtsrr0 r5
+    rfi
+entry __OSEVEnd
+    nop
+}
+
+asm void OSDefaultExceptionHandler(register __OSException exception, register OSContext* context) {
+    nofralloc
+    stw r0, 0(context)
+    stw r1, 4(context)
+    stw r2, 8(context)
+    stmw r6, 0x18(context)
+    mfspr r0, 0x391
+    stw r0, 0x1A8(context)
+    mfspr r0, 0x392
+    stw r0, 0x1AC(context)
+    mfspr r0, 0x393
+    stw r0, 0x1B0(context)
+    mfspr r0, 0x394
+    stw r0, 0x1B4(context)
+    mfspr r0, 0x395
+    stw r0, 0x1B8(context)
+    mfspr r0, 0x396
+    stw r0, 0x1BC(context)
+    mfspr r0, 0x397
+    stw r0, 0x1C0(context)
+    mfdsisr r5
+    mfdar r6
+    stwu r1, -8(r1)
+    b __OSUnhandledException
+}
+
+void __OSPSInit(void) {
+    PPCMthid2(PPCMfhid2() | 0xA0000000);
+    ICFlashInvalidate();
+    __sync();
+
+    asm {
+        li r3, 0
+        mtspr 0x390, r3
+        mtspr 0x391, r3
+        mtspr 0x392, r3
+        mtspr 0x393, r3
+        mtspr 0x394, r3
+        mtspr 0x395, r3
+        mtspr 0x396, r3
+        mtspr 0x397, r3
+    }
+}
+
+u32 __OSGetDIConfig(void) {
+    return __DIRegs[9] & 0xFF;
+}
+
+void OSRegisterVersion(const char* id) {
+    __OSRegisterVersion(id);
+}
+
+static const char* AppGameNameForSysMenu = "HAEA";
+
+const char* OSGetAppGamename(void) {
+    const char* appNameSrc = (char*)OSPhysicalToCached(0x3194);
+
+    if (__OSInIPL) {
+        appNameSrc = AppGameNameForSysMenu;
+    } else if ((*appNameSrc < '0') || ('9' < *appNameSrc && *appNameSrc < 'A') || ('Z' < *appNameSrc)) {
+        appNameSrc = (char*)OSPhysicalToCached(0x3180);
+    }
+
+    GameNameBuffer[0] = *appNameSrc++;
+    GameNameBuffer[1] = *appNameSrc++;
+    GameNameBuffer[2] = *appNameSrc++;
+    GameNameBuffer[3] = *appNameSrc;
+    GameNameBuffer[4] = 0;
+    return GameNameBuffer;
+}
+
+u8 OSGetAppType(void) {
+    return GetAppType();
+}

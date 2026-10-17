@@ -49,6 +49,7 @@ struct OSAlarm {
 #define OS_INTERRUPT_PI_SI __OS_INTERRUPT_PI_SI
 
 BOOL OSDisableInterrupts(void);
+BOOL OSEnableInterrupts(void);
 BOOL OSRestoreInterrupts(BOOL level);
 
 void OSRegisterVersion(const char* id);

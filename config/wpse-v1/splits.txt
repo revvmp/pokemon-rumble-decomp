@@ -75,6 +75,14 @@ RVL_SDK/base/PPCArch.c:
 	.text       start:0x802B1800 end:0x802B1A10
 	.data       start:0x803C7280 end:0x803C72B8
 
+RVL_SDK/os/OS.c:
+	.text       start:0x802B1A10 end:0x802B2F50
+	.data       start:0x803C72B8 end:0x803C7760
+	.bss        start:0x80452520 end:0x80452590
+	.sdata      start:0x804B8A28 end:0x804B8A58
+	.sbss       start:0x804B9440 end:0x804B9488
+	.sdata2     start:0x804BB228 end:0x804BB230
+
 RVL_SDK/os/OSAlarm.c:
 	.text       start:0x802B2F50 end:0x802B3810
 	.data       start:0x803C7760 end:0x803C7770
