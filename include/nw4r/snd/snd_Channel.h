@@ -89,6 +89,9 @@ public:
     bool IsAutoUpdateSweep() const {
         return mAutoSweep;
     }
+    Voice* GetVoice() const {
+        return mVoice;
+    }
 
     void SetUserVolume(f32 volume) {
         mUserVolume = volume;
@@ -128,6 +131,9 @@ public:
 
     void SetRemoteOutVolume(int remote, f32 volume) {
         mRemoteOutVolume[remote] = volume;
+    }
+    void SetVoiceOutParam(int index, const VoiceOutParam& rParam) {
+        mVoice->SetVoiceOutParam(index, rParam);
     }
 
     void UpdateSweep(int count);
