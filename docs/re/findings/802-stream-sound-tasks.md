@@ -14,7 +14,7 @@ Issue #802 owns 35 functions and 4,160 native code bytes. Five complete retained
 
 Source and headers derive from CC0 `zeldaret/ss` revision `787b0b1e9d30e3c1d91ced61350b059ffc5a2411`. The corresponding five sources and their headers have no separate file-level license notice. Comments and disabled debug checks are removed, specific existing headers replace aggregate includes, C++ null pointers use `nullptr`, and C++03 iterator types replace reference `decltype` syntax. The original ordinary constructors, virtual-method ordering and runtime control flow are preserved.
 
-The complete Task, TaskManager and SoundInstanceManager declarations reuse the owning #795 prerequisite #844, including its correction that removes unavailable release-disabled assertion dependencies. The stream-file declaration reuses #800 / #821. Those exact headers are temporarily staged together until the corresponding PRs merge, then their duplicate dependency commit is dropped. No competing types or source units from those issues are copied.
+The complete Task, TaskManager and SoundInstanceManager declarations reuse the merged owning #795 prerequisite #844, including its correction that removes unavailable release-disabled assertion dependencies. Their temporary copies were dropped on rebase. The stream-file declaration still temporarily reuses the exact #800 / #821 header until that PR merges, when its duplicate dependency is dropped. No competing types or source units from those issues are copied.
 
 The new headers provide complete StrmSound, StrmSoundHandle, TaskThread and StrmPlayer declarations, plus the StrmChannel record required by the embedded player. StrmBufferPool remains a forward declaration; no unrelated #799 class implementation or #801 player source/split is taken. The unretained SoundHandle-taking StrmSoundHandle constructor body and debug-only GetSoundType helper are omitted; neither has native code here. Other unretained reference methods remain available where they require no unrelated interface.
 
@@ -31,6 +31,16 @@ StrmSound owns its 56-byte vtable at `0x803C6848`, four-byte type record at `0x8
 Configure, the original-object split-only Ninja build and the actual-directory frozen verifier exit zero before source selection. All five actual source objects then compile as NonMatching with only project include paths. Every allocated original object section scores 100% in objdiff. A separate audit resolves all 136 instruction relocations to native targets and compares every instruction byte in all 35 functions, all 76 initialized bytes, and actual zero-storage extents.
 
 After source selection, configure, plain Ninja and `tools/verify/verify.py` against `build/wpse-v1` each exit zero. The actual linker selects all five reconstructed objects, with no original fallback for these units. All 35 final ELF function addresses and extents, and all named static-storage addresses and extents, remain native. All 451 baseline source objects preserve their code, data and relocation targets. The complete DOL is byte-identical to the unchanged frozen original, SHA-256 `ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da`.
+
+After deduplicating the merged #844 and #821 header prerequisites, a fresh
+build in `build/802-merge2` repeats configure, Ninja and actual-directory frozen
+verification with exit zero. All 35 native functions, 136 instruction
+relocation targets, 76 initialized bytes, native final ELF addresses/extents,
+five source selections, and 451 unchanged baseline objects pass again. Every
+allocated section of all five actual objects scores 100%. The subsequent
+rebase onto documentation-only main `3c5b190b` and committed-head incremental
+configure, Ninja and frozen-verifier repeat also pass. The stream-channel
+header directly includes `snd_Types.h` for its ADPCM members.
 
 ## Traps
 
