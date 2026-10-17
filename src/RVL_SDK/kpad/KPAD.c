@@ -216,8 +216,9 @@ void read_kpad_button(KPADInsideStatus* kp, u32 dev_type, u32 count, u32 core, u
     sp->release = change_fg & old_fg;
 
     if (dev_type == WPAD_DEV_CLASSIC || dev_type == WPAD_DEV_TRAIN || dev_type == WPAD_DEV_GUITAR) {
+        u32 cl_button = kp->exResetReq ? 0 : cl;
         old_fg = ep->cl.hold & KPAD_BUTTON_MASK;
-        ep->cl.hold = (kp->exResetReq ? 0 : cl) & KPAD_BUTTON_MASK;
+        ep->cl.hold = cl_button & KPAD_BUTTON_MASK;
         change_fg = ep->cl.hold ^ old_fg;
         ep->cl.trig = change_fg & ep->cl.hold;
         ep->cl.release = change_fg & old_fg;
@@ -1050,4 +1051,34 @@ void clamp_stick_cross(Vec2* stick, s32 sx, s32 sy, s32 min, s32 max) {
         stick->x /= length;
         stick->y /= length;
     }
+}
+
+WPADCallback KPADSetConnectCallback(s32 chan, WPADCallback callback) {
+    BOOL enabled = OSDisableInterrupts();
+    WPADCallback previous = inside_kpads[chan].appConnectCallback;
+    inside_kpads[chan].appConnectCallback = callback;
+    OSRestoreInterrupts(enabled);
+    return previous;
+}
+
+void KPADDisableDPD(s32 chan) {
+    inside_kpads[chan].dpdEnabled = FALSE;
+}
+
+void KPADEnableDPD(s32 chan) {
+    inside_kpads[chan].dpdEnabled = TRUE;
+}
+
+void KPADiControlDpdCallback(s32 chan, s32 result) {
+    KPADInsideStatus* kp = &inside_kpads[chan];
+
+    if (result == WPAD_ERR_NONE) {
+        if (kp->dpd_ctrl_callback && !kp->dpdPostCallbackDone) {
+            kp->dpdPostCallbackDone = TRUE;
+            kp->dpd_ctrl_callback(chan, 1);
+            kp->dpdPreCallbackDone = FALSE;
+        }
+    }
+    kp->dpdHardwareEnabled = WPADIsDpdEnabled(chan);
+    kp->dpdIssued = FALSE;
 }
