@@ -124,3 +124,14 @@ PR881 was rebased onto main `76b5be1b` without shared-file conflicts. A fresh sa
 All 515 source objects outside msl_thread remain unchanged. The existing two release bodies, their exception records and relocations remain unchanged. The sole emission extension remains the original 64-byte common destructor with eight exception bytes and twelve index bytes, unretained in the final ELF. Whole-DOL SHA-256 remains `ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da`; final ELF sections, header and symbol attributes remain unchanged, with only eight numeric local-label spellings changed in strtab. No additional source bytes are credited.
 
 After allocator PR893 merged, independent wide-string and map-storage diagnostic probes switched from the approved temporary allocator copy to the actual canonical `include/MSL_CPP/allocator.h`. Fresh compilation still reproduces the two wide-string bodies (280 bytes), their three call targets, all 32 exception bytes and both index records; both map-storage constructors still reproduce 24 native bytes apiece. This does not publish either container implementation or resolve their remaining interfaces.
+
+
+## PR881 all-source bookkeeping supplement
+
+The final --no-progress default build skipped the newly introduced NonMatching C unit pf_entry.c. Its first folder contained 516 compiled source objects. This was a counting limit in the initial final-base control, not a retained-output change. Both original and proposed header controls were repeated with explicit all_source, followed by plain Ninja and actual frozen verification, all exit zero. The corrected complete baseline contains 517 objects: all 516 outside msl_thread preserve their allocated sections and relocation targets. The previously documented unretained common-destructor extension and eight local ELF label differences remain the only changes. The new C unit cannot consume the C++ interfaces; it adds no retained source credit in this header work.
+
+The merged PR881 description records this supplement. Evidence remains in header-all-source-control.log, header-all-source-proposed.log and the corrected standard-header-baseline.json outside the repository.
+
+### Additional trap
+
+When configuring with --no-progress, default Ninja does not necessarily compile newly introduced NonMatching units. For a claim about all existing source objects, explicitly run ninja all_source before each hash capture, then separately run plain Ninja and the actual frozen verifier. A successful retained link alone is insufficient for that broader preservation statement.
