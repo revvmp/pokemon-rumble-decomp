@@ -106,4 +106,56 @@ enum {
             *(p)++ = (UINT8)(a)[ijk];                                                                                  \
     } while (FALSE)
 
+#define UINT8_TO_BE_STREAM(p, u8)                                                                                      \
+    do {                                                                                                               \
+        *(p)++ = (UINT8)(u8);                                                                                          \
+    } while (FALSE)
+
+#define UINT16_TO_BE_STREAM(p, u16)                                                                                    \
+    do {                                                                                                               \
+        *(p)++ = (UINT8)((u16) >> 8);                                                                                  \
+        *(p)++ = (UINT8)(u16);                                                                                         \
+    } while (FALSE)
+
+#define UINT32_TO_BE_STREAM(p, u32)                                                                                    \
+    do {                                                                                                               \
+        *(p)++ = (UINT8)((u32) >> 24);                                                                                 \
+        *(p)++ = (UINT8)((u32) >> 16);                                                                                 \
+        *(p)++ = (UINT8)((u32) >> 8);                                                                                  \
+        *(p)++ = (UINT8)(u32);                                                                                         \
+    } while (FALSE)
+
+#define ARRAY_TO_BE_STREAM(p, a, len)                                                                                  \
+    do {                                                                                                               \
+        register int ijk;                                                                                              \
+        for (ijk = 0; ijk < len; ijk++)                                                                                \
+            *(p)++ = (UINT8)(a)[ijk];                                                                                  \
+    } while (FALSE)
+
+#define BE_STREAM_TO_UINT8(p, u8)                                                                                      \
+    do {                                                                                                               \
+        *(u8) = (UINT8)(*(p));                                                                                         \
+        (p) += 1;                                                                                                      \
+    } while (FALSE)
+
+#define BE_STREAM_TO_UINT16(p, u16)                                                                                    \
+    do {                                                                                                               \
+        *(u16) = (UINT16)(((UINT16)(*(p)) << 8) + (UINT16)(*((p) + 1)));                                               \
+        (p) += 2;                                                                                                      \
+    } while (FALSE)
+
+#define BE_STREAM_TO_UINT32(p, u32)                                                                                    \
+    do {                                                                                                               \
+        *(u32) = ((UINT32)(*((p) + 3)) + ((UINT32)(*((p) + 2)) << 8) + ((UINT32)(*((p) + 1)) << 16) +                  \
+                  ((UINT32)(*(p)) << 24));                                                                             \
+        (p) += 4;                                                                                                      \
+    } while (FALSE)
+
+#define BE_STREAM_TO_ARRAY(p, a, len)                                                                                  \
+    do {                                                                                                               \
+        register int ijk;                                                                                              \
+        for (ijk = 0; ijk < len; ijk++)                                                                                \
+            ((UINT8*)(a))[ijk] = *(p)++;                                                                               \
+    } while (FALSE)
+
 #endif

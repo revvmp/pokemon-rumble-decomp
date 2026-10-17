@@ -5,6 +5,10 @@
 #include <revolution/bte/gki.h>
 
 enum {
+    BTU_TTYPE_SDP = 5
+};
+
+enum {
     BTU_TTYPE_USER_FUNC = 22
 };
 

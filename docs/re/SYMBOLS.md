@@ -853,3 +853,58 @@ Layout: `Effect` is 0xA0 bytes with `mActivityList` at 0x24, the active count at
 ## MSL runtime support, issue 536
 
 Names, addresses and evidence are listed in [F-536-1](findings/536-runtime.md#recovered-names). All are high confidence from reference correspondence with identical instruction streams. `__throw`, `abort` and `__RTTI__Q23std9exception` lie outside the block and were named only so the source link resolves.
+## BTE SDP main, server and utilities (#534)
+
+| Address | Size | dtk label | Chosen name | Kind | Confidence | Evidence | Source |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `0x8033B8E8` | `0x1A0` | `fn_8033B8E8` | `sdp_init` | function | high | F-534-3 | `src/RVL_SDK/bte/sdp_main.c` |
+| `0x8033BA88` | `0xC4` | `fn_8033BA88` | `sdp_connect_ind` | static function | high | F-534-3 | `src/RVL_SDK/bte/sdp_main.c` |
+| `0x8033BB4C` | `0x190` | `fn_8033BB4C` | `sdp_connect_cfm` | static function | high | F-534-3 | `src/RVL_SDK/bte/sdp_main.c` |
+| `0x8033BCDC` | `0x13C` | `fn_8033BCDC` | `sdp_config_ind` | static function | high | F-534-3 | `src/RVL_SDK/bte/sdp_main.c` |
+| `0x8033BE18` | `0x17C` | `fn_8033BE18` | `sdp_config_cfm` | static function | high | F-534-3 | `src/RVL_SDK/bte/sdp_main.c` |
+| `0x8033BF94` | `0xF8` | `fn_8033BF94` | `sdp_disconnect_ind` | static function | high | F-534-3 | `src/RVL_SDK/bte/sdp_main.c` |
+| `0x8033C08C` | `0xD4` | `fn_8033C08C` | `sdp_data_ind` | static function | high | F-534-3 | `src/RVL_SDK/bte/sdp_main.c` |
+| `0x8033C160` | `0x114` | `fn_8033C160` | `sdp_conn_originate` | function | high | F-534-3 | `src/RVL_SDK/bte/sdp_main.c` |
+| `0x8033C274` | `0x9C` | `fn_8033C274` | `sdp_disconnect` | function | high | F-534-3 | `src/RVL_SDK/bte/sdp_main.c` |
+| `0x8033C310` | `0xBC` | `fn_8033C310` | `sdp_disconnect_cfm` | static function | high | F-534-3 | `src/RVL_SDK/bte/sdp_main.c` |
+| `0x8033C3CC` | `0x88` | `fn_8033C3CC` | `sdp_conn_timeout` | function | high | F-534-3 | `src/RVL_SDK/bte/sdp_main.c` |
+| `0x8033C454` | `0x154` | `fn_8033C454` | `sdp_server_handle_client_req` | function | high | F-534-3 | `src/RVL_SDK/bte/sdp_server.c` |
+| `0x8033C5A8` | `0x410` | `fn_8033C5A8` | `process_service_search` | static function | high | F-534-3 | `src/RVL_SDK/bte/sdp_server.c` |
+| `0x8033C9B8` | `0x390` | `fn_8033C9B8` | `process_service_attr_req` | static function | high | F-534-3 | `src/RVL_SDK/bte/sdp_server.c` |
+| `0x8033CD48` | `0x41C` | `fn_8033CD48` | `process_service_search_attr_req` | static function | high | F-534-3 | `src/RVL_SDK/bte/sdp_server.c` |
+| `0x8033D164` | `0x90` | `fn_8033D164` | `sdpu_find_ccb_by_cid` | function | high | F-534-3 | `src/RVL_SDK/bte/sdp_utils.c` |
+| `0x8033D1F4` | `0x74` | `fn_8033D1F4` | `sdpu_allocate_ccb` | function | high | F-534-3 | `src/RVL_SDK/bte/sdp_utils.c` |
+| `0x8033D268` | `0x38` | `fn_8033D268` | `sdpu_release_ccb` | function | high | F-534-3 | `src/RVL_SDK/bte/sdp_utils.c` |
+| `0x8033D2A0` | `0x1D0` | `fn_8033D2A0` | `sdpu_build_attrib_seq` | function | high | F-534-3 | `src/RVL_SDK/bte/sdp_utils.c` |
+| `0x8033D470` | `0x154` | `fn_8033D470` | `sdpu_build_attrib_entry` | function | high | F-534-3 | `src/RVL_SDK/bte/sdp_utils.c` |
+| `0x8033D5C4` | `0x13C` | `fn_8033D5C4` | `sdpu_build_n_send_error` | function | high | F-534-3 | `src/RVL_SDK/bte/sdp_utils.c` |
+| `0x8033D700` | `0x350` | `fn_8033D700` | `sdpu_extract_uid_seq` | function | high | F-534-3 | `src/RVL_SDK/bte/sdp_utils.c` |
+| `0x8033DA50` | `0x250` | `fn_8033DA50` | `sdpu_extract_attr_seq` | function | high | F-534-3 | `src/RVL_SDK/bte/sdp_utils.c` |
+| `0x8033DCA0` | `0xD0` | `fn_8033DCA0` | `sdpu_get_len_from_type` | function | high | F-534-3 | `src/RVL_SDK/bte/sdp_utils.c` |
+| `0x8033DD70` | `0xE0` | `fn_8033DD70` | `sdpu_is_base_uuid` | function | high | F-534-3 | `src/RVL_SDK/bte/sdp_utils.c` |
+| `0x8033DE50` | `0x274` | `fn_8033DE50` | `sdpu_compare_uuid_arrays` | function | high | F-534-3 | `src/RVL_SDK/bte/sdp_utils.c` |
+| `0x8033E0C4` | `0x90` | `fn_8033E0C4` | `sdpu_compare_uuid_with_attr` | function | high | F-534-3 | `src/RVL_SDK/bte/sdp_utils.c` |
+| `0x8033E154` | `0x50` | `fn_8033E154` | `sdpu_sort_attr_list` | function | high | F-534-3 | `src/RVL_SDK/bte/sdp_utils.c` |
+| `0x80398298` | `0x10` | `lbl_80398298` | `sdp_base_uuid` | `.rodata` static | high | F-534-3 | `src/RVL_SDK/bte/sdp_utils.c` |
+| `0x804AEA40` | `0x4634` | `lbl_804AEA40` | `sdp_cb` | `.bss` object (`tSDP_CB`) | high | F-534-3 | `src/RVL_SDK/bte/sdp_main.c` |
+| `0x80311070` | unchanged | `fn_80311070` | `GKI_getpoolbuf` | external function, name only | high | F-534-3 | callee of the SDP units; split left to its owning issue |
+| `0x80311160` | unchanged | `fn_80311160` | `GKI_freebuf` | external function, name only | high | F-534-3 | callee of the SDP units; split left to its owning issue |
+| `0x80314230` | unchanged | `fn_80314230` | `btu_start_timer` | external function, name only | high | F-534-3 | callee of the SDP units; split left to its owning issue |
+| `0x803142A0` | unchanged | `fn_803142A0` | `btu_stop_timer` | external function, name only | high | F-534-3 | callee of the SDP units; split left to its owning issue |
+| `0x803217D8` | unchanged | `fn_803217D8` | `BTM_SetSecurityLevel` | external function, name only | high | F-534-3 | callee of the SDP units; split left to its owning issue |
+| `0x8032C584` | unchanged | `fn_8032C584` | `L2CA_Register` | external function, name only | high | F-534-3 | callee of the SDP units; split left to its owning issue |
+| `0x8032C7B0` | unchanged | `fn_8032C7B0` | `L2CA_ConnectReq` | external function, name only | high | F-534-3 | callee of the SDP units; split left to its owning issue |
+| `0x8032C9E4` | unchanged | `fn_8032C9E4` | `L2CA_ConnectRsp` | external function, name only | high | F-534-3 | callee of the SDP units; split left to its owning issue |
+| `0x8032CB74` | unchanged | `fn_8032CB74` | `L2CA_ConfigReq` | external function, name only | high | F-534-3 | callee of the SDP units; split left to its owning issue |
+| `0x8032CC2C` | unchanged | `fn_8032CC2C` | `L2CA_ConfigRsp` | external function, name only | high | F-534-3 | callee of the SDP units; split left to its owning issue |
+| `0x8032CCFC` | unchanged | `fn_8032CCFC` | `L2CA_DisconnectReq` | external function, name only | high | F-534-3 | callee of the SDP units; split left to its owning issue |
+| `0x8032CDA0` | unchanged | `fn_8032CDA0` | `L2CA_DisconnectRsp` | external function, name only | high | F-534-3 | callee of the SDP units; split left to its owning issue |
+| `0x8032CE44` | unchanged | `fn_8032CE44` | `L2CA_DataWrite` | external function, name only | high | F-534-3 | callee of the SDP units; split left to its owning issue |
+| `0x803399A4` | unchanged | `fn_803399A4` | `sdp_db_service_search` | external function, name only | high | F-534-3 | callee of the SDP units; split left to its owning issue |
+| `0x80339BB8` | unchanged | `fn_80339BB8` | `sdp_db_find_record` | external function, name only | high | F-534-3 | callee of the SDP units; split left to its owning issue |
+| `0x80339C14` | unchanged | `fn_80339C14` | `sdp_db_find_attr_in_rec` | external function, name only | high | F-534-3 | callee of the SDP units; split left to its owning issue |
+| `0x8033A88C` | unchanged | `fn_8033A88C` | `sdp_disc_connected` | external function, name only | high | F-534-3 | callee of the SDP units; split left to its owning issue |
+| `0x8033A8C0` | unchanged | `fn_8033A8C0` | `sdp_disc_server_rsp` | external function, name only | high | F-534-3 | callee of the SDP units; split left to its owning issue |
+| `0x803456E8` | unchanged | `fn_803456E8` | `memcmp` | external function, name only | high | F-534-3 | callee of the SDP units; split left to its owning issue |
+
+`tSDP_CB` is 0x4634 bytes: `l2cap_my_cfg` 0x0 (0x3C), four 0x478-byte `tCONN_CB` entries at 0x3C, `server_db` 0x121C (0x33E8), `reg_info` 0x4604 (0x28), `max_attr_list_size` 0x462C, `max_recs_per_search` 0x462E, `trace_level` 0x4630. In `tCONN_CB`, `timer_entry` is at 0x8, `rem_mtu_size` 0x20, `connection_id` 0x22, `list_len` 0x24, `rsp_list` 0x26 (1000 bytes), `p_cb` 0x414, `disconnect_reason` 0x472, `cont_offset` 0x476. Layouts follow Petari and are confirmed by the 100% code match.

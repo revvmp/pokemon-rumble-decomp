@@ -37,7 +37,31 @@ Unit boundaries from the match:
 
 Conclusion: the BTE SDP units need their own library entry with a GameCube compiler (GC/3.0a3, or a later 3.0a build), high confidence for the code; data layout is untested. F-510-1 found the small BTE transport and logging functions at 100% with Wii/1.0, so the library's compiler must be checked per unit; those functions may compile identically under both. These SDP units are not reconstructed in this change. Petari's BTE files are bluedroid derivatives under the Apache License 2.0, not CC0; reuse them only with notices kept under `docs/re/licenses/`, as F-510-1 does.
 
+## F-534-3: BTE SDP main, server and utility units
+
+Target `wpse-v1`, `orig/wpse-v1/main.dol` (manifest `config/targets/wpse-v1.json`), compared with Petari commit `e0ab141914921726a595573dc48d3f13d0922efe` `src/RVL_SDK/bte/sdp_main.c`, `sdp_server.c` and `sdp_utils.c`. This supersedes the "not reconstructed" note in F-534-2.
+
+Data boundaries come from the references each function makes in the dtk split assembly:
+
+| File | `.text` | Data |
+| --- | --- | --- |
+| `sdp_main.c` | `0x8033B8E8`-`0x8033C454` | `.data` `0x803E5828`-`0x803E5B88` (trace strings; `sdp_discovery.c` data ends at `0x803E5824` with its jump table); `.bss` `0x804AEA40`-`0x804B3074` (`sdp_cb`, 0x4634 bytes) |
+| `sdp_server.c` | `0x8033C454`-`0x8033D164` | `.data` `0x803E5B88`-`0x803E5BC8` |
+| `sdp_utils.c` | `0x8033D164`-`0x8033E1A4` | `.rodata` `0x80398298`-`0x803982A8` (`sdp_base_uuid`); `.data` `0x803E5BC8`-`0x803E5CC0` (four jump tables and two strings) |
+
+Compiled with GC/3.0a3 (`BTE_COMPILER`) and the library `cflags_sdk`, all 28 functions and every data section score 100% in objdiff 3.8.2. With the three objects `Matching` and the 19 external callees named in `symbols.txt` (table in [symbols](../SYMBOLS.md#bte-sdp-main-server-and-utilities-534)), `ninja` exits 0 and `tools/verify/verify.py verify` passes.
+
+Two source details decide the match:
+
+- The SDP status codes must be preprocessor constants, as in bluedroid, not enumerators. With enumerators, `sdp_disconnect_ind`'s `con_state == SDP_STATE_CONNECTED ? SDP_SUCCESS : SDP_CONN_FAILED` compiles to a compare and branch; with `#define` constants GC/3.0a3 emits the target's branchless mask sequence. `include/revolution/bte/sdp_api.h` now defines them as macros.
+- `sdpu_build_attrib_seq` must test `if (p_attr)` first; the reverse test or a conditional expression inverts the target's branch.
+
+dtk inferred `sdp_cb` as 0x4638 bytes including alignment padding; the object is 0x4634 bytes. Ending the `.bss` split at `0x804B3074` and recording size 0x4634 gives 100% `.bss`, and the following `fragmentinfo` keeps its 8-byte-aligned address.
+
 ## Traps
 
+- **Enum constants change conditional-expression code generation in BTE.** Trigger: a ternary between two SDP status enumerators scored 89% with a compare-and-branch. Bluedroid defines the status codes as macros; with `#define` constants GC/3.0a3 emits the target's branchless select. Evidence: F-534-3.
+- **Declaring a function in a shared header can move its definition to another section.** Trigger: adding `strlen` to `include/string.h` moved the weak `strlen` in `Runtime/__mem.c`, which begins with `#pragma section code_type ".init"` and includes that header, from `.text` `0x8033F974` into `.init` at `0x800046E4`; `.init` grew 0x20 bytes and `build.sha1` failed although every unit scored 100%. CodeWarrior places a function in the section active at its first declaration. `sdp_utils.c` declares `strlen` locally instead. Evidence: F-534-3.
+- **A corrupt `.ninja_deps` makes `build.ninja` regenerate forever.** Trigger: `ninja: warning: premature end of file; recovering`, then `manifest 'build.ninja' still dirty after 100 tries`. Deleting `.ninja_deps` and `.ninja_log` in the worktree fixed it; the build then verified. Evidence: F-534-3 session.
 - **BTE SDP is not Wii/1.0.** Trigger: SDP functions at `0x8033A670`–`0x8033E1A4` start at packed 4-byte addresses. Petari's SDP sources match with GC/3.0a3 but four `sdp_utils.c` functions differ under Wii/1.0. Give SDP a GC library entry and carry the Apache-2.0 notices as F-510-1 does. Evidence: F-534-2.
 - **An object that ends before the next function's aligned start moves an auto-split neighbour.** Trigger: GDBase `.text` ending at `0x8033E540` failed `build.sha1`. End the split at the last instruction, `0x8033E538`. Evidence: F-534-1.
