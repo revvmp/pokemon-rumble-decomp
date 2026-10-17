@@ -320,6 +320,53 @@ RVL_SDK/fa/pf_api_util.c:
 RVL_SDK/fa/pf_chdir.c:
 	.text       start:0x8021A5D0 end:0x8021A620
 
+RVL_SDK/fa/pf_stub.c:
+	.text       start:0x8021C4A0 end:0x8021C874
+
+RVL_SDK/fa/pf_system.c:
+	.text       start:0x8021C880 end:0x8021C92C
+	.bss        start:0x8041F170 end:0x80421510
+
+RVL_SDK/fa/pf_stub_std.c:
+	.text       start:0x8021C930 end:0x8021CEB4
+	.data        start:0x803C4318 end:0x803C445C
+
+RVL_SDK/fa/pfs_attach.c:
+	.text       start:0x8021CEC0 end:0x8021CF04
+
+RVL_SDK/fa/pfs_buffering.c:
+	.text       start:0x8021CF10 end:0x8021CF60
+
+RVL_SDK/fa/pfs_chdir.c:
+	.text       start:0x8021CF60 end:0x8021CFAC
+
+RVL_SDK/fa/pfs_create.c:
+	.text       start:0x8021CFB0 end:0x8021CFEC
+
+RVL_SDK/fa/pfs_detach.c:
+	.text       start:0x8021CFF0 end:0x8021D03C
+
+RVL_SDK/fa/pfs_errnum.c:
+	.text       start:0x8021D040 end:0x8021D088
+
+RVL_SDK/fa/pfs_fclose.c:
+	.text       start:0x8021D090 end:0x8021D0DC
+
+RVL_SDK/fa/pfs_fsfirst.c:
+	.text       start:0x8021D0E0 end:0x8021D11C
+
+RVL_SDK/fa/pfs_fsnext.c:
+	.text       start:0x8021D120 end:0x8021D15C
+
+RVL_SDK/fa/pfs_fwrite.c:
+	.text       start:0x8021D160 end:0x8021D19C
+
+RVL_SDK/fa/pfs_getdev.c:
+	.text       start:0x8021D1A0 end:0x8021D1F0
+
+RVL_SDK/fa/pfs_init_prfile2.c:
+	.text       start:0x8021D1F0 end:0x8021D1F4
+
 RVL_SDK/fa/pf_kernel.c:
 	.text       start:0x8021DFE0 end:0x8021E414
 	.data       start:0x803C4520 end:0x803C47F0
