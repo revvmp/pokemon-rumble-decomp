@@ -24,7 +24,6 @@
 #include "Runtime/__ppc_eabi_linker.h"
 #include "string.h"
 
-#define OSPhysicalToUncached(paddr) ((void*)((u32)(paddr) + 0xC0000000))
 #define OSIsMEM1Region(addr) (((u32)(addr) & 0x30000000) == 0x00000000)
 #define OSIsMEM2Region(addr) (((u32)(addr) & 0x30000000) == 0x10000000)
 
