@@ -2422,3 +2422,7 @@ For `wpse-v1` / `main.dol`, [F-385-1](findings/385-ef-smooth-stripe-strategy-sec
 ## Issue #371: NAND-backed disk driver
 
 The complete unit at `0x8021E420` to `0x8021FFB4` contains 18 C functions, all 6,976 instruction bytes and all five sections at 100%. [F-371-2](findings/371-fa-nand-driver.md) records every address, size, chosen descriptive name, parameter evidence, and exact static layout. The private `PFD_NAND_DEVICE` record is `0xF0` bytes with 23 entries; `NANDFileInfo` is at `0x58`, flags at `0xE4`, opaque reserved storage at `0xE8`, and last error at `0xEC`. The inferred record-array symbol was divided at `0x80422BC8` into its proven `0x1590` bytes plus separate semaphore parameter and semaphore objects. The semaphore handle at `0x804B9220` is four bytes; following padding belongs outside this unit. Full source-linked DOL verification passes. Function and member spelling is descriptive; behavior and offsets are proven.
+
+## Issue #355: Cluster deletion acceptance
+
+[F-355-5](findings/355-complete-inventory.md) completes `PFCLUSTER_DeleteChain` at `0x80201050` (432 instruction bytes) and the entire eight-function `pf_cluster.c` unit. Its descriptive name and proven interfaces/layouts are unchanged. A separate available-byte-count local reproduces the native offset/size register assignment. Every function and section is 100%, and the source-linked full executable matches the frozen reference. The same finding records all 25 original issue addresses and sizes across matching cache, cluster, and directory units.

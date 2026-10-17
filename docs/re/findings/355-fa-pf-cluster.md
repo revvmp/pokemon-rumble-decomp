@@ -1,8 +1,8 @@
 # F-355-1: FA `pf_cluster.c`
 
-Target: `wpse-v1`, frozen `orig/wpse-v1/main.dol`. Issue: #355 (partial). Compiler: Wii/1.0 `cflags_sdk` (F-350-1), default 16-byte function alignment.
+Target: `wpse-v1`, frozen `orig/wpse-v1/main.dol`. Issue: #355. Compiler: Wii/1.0 `cflags_sdk` (F-350-1), default 16-byte function alignment.
 
-`pf_cluster.c` follows `pf_cache.c` and occupies `.text` `0x80200010`–`0x80201200`. It has eight functions. Seven are identical. `PFCLUSTER_DeleteChain` is at 99.4%, so the unit is registered `NonMatching` and the build links the original object. `python configure.py`, `.venv/Scripts/ninja` (exit 0) and `python tools/verify/verify.py verify --manifest config/targets/wpse-v1.json --reference-dir orig/wpse-v1 --build-dir build/wpse-v1` pass.
+`pf_cluster.c` follows `pf_cache.c` and occupies `.text` `0x80200010` to `0x80201200`. Its initial seven-function result and remaining register mismatch are historical below. [F-355-5](355-complete-inventory.md) resolves the final mismatch: all eight functions and the complete section are now 100%, the unit is `Matching`, and the full source-linked executable verifies exactly.
 
 ## Boundaries
 
@@ -88,7 +88,9 @@ All of these are in `include/revolution/fa/pf_volume.h`.
 - There is no volume-set range check or `p_file->stat` test. Only the SFD status bits are checked.
 - `PFCLUSTER_AppendCluster` takes three arguments and keeps the sector in a local. It calls `PFFAT_GetSectorAllocated` and then `PFFAT_GetContinuousSector`.
 
-# F-355-2: Remaining `PFCLUSTER_DeleteChain` difference
+# F-355-2: Historical `PFCLUSTER_DeleteChain` difference
+
+Resolved by [F-355-5](355-complete-inventory.md); the failed approaches below remain useful history.
 
 The only difference is register assignment. The target keeps the byte offset (`chain_index * cluster_size`) in `r25` and the clamped size in `r24`. The reconstruction swaps them. These variants did not swap them:
 
