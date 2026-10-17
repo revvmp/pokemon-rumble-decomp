@@ -1575,6 +1575,14 @@ RVL_SDK/bte/bta_hh_main.c:
 	.data       start:0x803E0DA0 end:0x803E1080
 	.bss        start:0x804AAB48 end:0x804AAD78
 
+RVL_SDK/bte/bta_hh_utils.c:
+	.text       start:0x80319DD4 end:0x8031A180
+	.data       start:0x803E1080 end:0x803E1340
+
+RVL_SDK/bte/btm_acl.c:
+	.text       start:0x8031A180 end:0x8031BEC4
+	.data       start:0x803E1340 end:0x803E1760
+
 RVL_SDK/bte/btm_discovery.c:
 	.text       start:0x8031DF18 end:0x8031E04C
 

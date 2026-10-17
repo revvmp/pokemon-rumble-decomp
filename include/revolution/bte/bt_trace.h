@@ -469,4 +469,6 @@ void LogMsg_6(UINT32 trace_set_mask, const char* fmt_str, UINT32 p1, UINT32 p2, 
             BT_TRACE_2(TRACE_LAYER_BTM, TRACE_TYPE_DEBUG, m, p1, p2); \
     } while (0)
 
+enum { BT_READ_TRACE_LEVEL = 0xff };
+
 #endif

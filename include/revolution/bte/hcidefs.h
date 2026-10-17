@@ -4,6 +4,7 @@
 #include <revolution/bte/data_types.h>
 
 typedef UINT8 tHCI_STATUS;
+typedef UINT16 tHCI_LINK_POLICY;
 typedef UINT16 tHCI_HANDLE;
 
 enum {
@@ -274,4 +275,32 @@ enum
 	HCI_MODE_PARK,
 };
 
+#define HCI_DM1_PACKET_SIZE							17
+#define HCI_DH1_PACKET_SIZE							27
+#define HCI_DM3_PACKET_SIZE							121
+#define HCI_DH3_PACKET_SIZE							183
+#define HCI_DM5_PACKET_SIZE							224
+#define HCI_DH5_PACKET_SIZE							339
+#define HCI_EDR2_DH1_PACKET_SIZE					54
+#define HCI_EDR2_DH3_PACKET_SIZE					367
+#define HCI_EDR2_DH5_PACKET_SIZE					679
+#define HCI_EDR3_DH1_PACKET_SIZE					83
+#define HCI_EDR3_DH3_PACKET_SIZE					552
+#define HCI_EDR3_DH5_PACKET_SIZE					1021
+enum { HCI_PKT_TYPES_MASK_NO_2_DH1 = 1 << 1 };
+enum { HCI_PKT_TYPES_MASK_NO_3_DH1 = 1 << 2 };
+enum { HCI_PKT_TYPES_MASK_NO_2_DH3 = 1 << 8 };
+enum { HCI_PKT_TYPES_MASK_NO_3_DH3 = 1 << 9 };
+enum { HCI_PKT_TYPES_MASK_DM3 = 1 << 10 };
+enum { HCI_PKT_TYPES_MASK_DH3 = 1 << 11 };
+enum { HCI_PKT_TYPES_MASK_NO_2_DH5 = 1 << 12 };
+enum { HCI_PKT_TYPES_MASK_NO_3_DH5 = 1 << 13 };
+enum { HCI_PKT_TYPES_MASK_DM5 = 1 << 14 };
+enum { HCI_PKT_TYPES_MASK_DH5 = 1 << 15 };
+#define HCI_HOLD_MODE_SUPPORTED(x)					((x)[0] & (1 << 6))
+#define HCI_SNIFF_MODE_SUPPORTED(x)					((x)[0] & (1 << 7))
+#define HCI_PARK_MODE_SUPPORTED(x)					((x)[1] & (1 << 0))
+#define HCI_DEFAULT_INACT_TOUT						32000
+enum { HCI_ERR_HW_FAILURE							= 3 };
+#define HCI_HANDLE_INVALID	0xffff
 #endif

@@ -2184,3 +2184,6 @@ The 64-byte `CommandReply` retains its existing layout; `parameter.instruction` 
 ## NW4R g3d Camera, basic and Maya (#779)
 
 For `wpse-v1` / `main.dol`, [F-779-1](findings/779-g3d-camera-basic-maya.md) confirms the imported names of the 21 `nw4r::g3d::Camera` members (`.text` `0x80264720`–`0x8026561C`) and the 16 Maya functions (`0x802658F0`–`0x802665F4`) by exact match, and names `detail::dcc::CalcTexMtx_Basic` (`0x80265620`) and `CalcWorldMtx_Basic` (`0x80265780`) in `config/wpse-v1/symbols.txt`. Confidence: high, from CC0 zeldaret/ss and kdc and the exact match.
+## Issue #516 HID utilities and BTM ACL
+
+[F-516-1](findings/516-hid-utils-acl.md) records the complete 30-function issue inventory and 34 retained functions across the two newly reconstructed units. It identifies the two HID main functions from PR #694, six ACL tails in #517, exact data payloads and alignment, and newly declared callback layouts. Existing ACL/control-block structures retain their definitions. All compared retained code/data sections are 100% with GC/3.0a3; outside callees/data receive evidenced names without changing their split, type, or size.

@@ -541,4 +541,46 @@ BOOLEAN BTM_SecAddDevice(BD_ADDR bd_addr, DEV_CLASS dev_class, BD_NAME bd_name,
                          BD_FEATURES features, UINT32 *trusted_mask,
                          LINK_KEY link_key);
 BOOLEAN BTM_SecDeleteDevice(BD_ADDR bd_addr);
+enum { BTM_ACL_PKT_TYPES_MASK_DM1 = HCI_PKT_TYPES_MASK_DM1 };
+enum { BTM_ACL_PKT_TYPES_MASK_DH1 = HCI_PKT_TYPES_MASK_DH1 };
+enum { BTM_ACL_PKT_TYPES_MASK_DM3 = HCI_PKT_TYPES_MASK_DM3 };
+enum { BTM_ACL_PKT_TYPES_MASK_DH3 = HCI_PKT_TYPES_MASK_DH3 };
+enum { BTM_ACL_PKT_TYPES_MASK_DM5 = HCI_PKT_TYPES_MASK_DM5 };
+enum { BTM_ACL_PKT_TYPES_MASK_DH5 = HCI_PKT_TYPES_MASK_DH5 };
+enum { BTM_ACL_PKT_TYPES_MASK_NO_2_DH1 = HCI_PKT_TYPES_MASK_NO_2_DH1 };
+enum { BTM_ACL_PKT_TYPES_MASK_NO_3_DH1 = HCI_PKT_TYPES_MASK_NO_3_DH1 };
+enum { BTM_ACL_PKT_TYPES_MASK_NO_2_DH3 = HCI_PKT_TYPES_MASK_NO_2_DH3 };
+enum { BTM_ACL_PKT_TYPES_MASK_NO_3_DH3 = HCI_PKT_TYPES_MASK_NO_3_DH3 };
+enum { BTM_ACL_PKT_TYPES_MASK_NO_2_DH5 = HCI_PKT_TYPES_MASK_NO_2_DH5 };
+enum { BTM_ACL_PKT_TYPES_MASK_NO_3_DH5 = HCI_PKT_TYPES_MASK_NO_3_DH5 };
+typedef UINT16 tBTM_ACL_PACKET_TYPES;
+typedef UINT8 tBTM_SCN;
+typedef struct
+{
+	tBTM_STATUS	status;
+	tHCI_STATUS	hci_status;
+	BD_ADDR		rem_bda;
+	UINT16		settings;
+} tBTM_LINK_POLICY_RESULTS;
+typedef struct
+{
+	FLOW_SPEC	flow;
+	UINT16		handle;
+	UINT8		status;
+} tBTM_QOS_SETUP_CMPL;
+tBTM_STATUS BTM_GetRole(BD_ADDR remote_bd_addr, UINT8 *p_role);
+tBTM_STATUS BTM_SetLinkPolicy(BD_ADDR remote_bda, UINT16 *settings);
+tBTM_STATUS BTM_ReadLinkPolicy(BD_ADDR remote_bda, tBTM_CMPL_CB *p_cb);
+tBTM_STATUS BTM_SetLinkSuperTout(BD_ADDR remote_bda, UINT16 timeout);
+tBTM_STATUS BTM_SetPacketTypes(BD_ADDR remote_bda, UINT16 pkt_types);
+UINT16 BTM_ReadPacketTypes(BD_ADDR remote_bda);
+UINT16 BTM_ReadClockOffset(BD_ADDR remote_bda);
+UINT8 BTM_AllocateSCN(void);
+BOOLEAN BTM_FreeSCN(UINT8 scn);
+tBTM_STATUS BTM_ReadRemoteVersion(BD_ADDR addr, UINT8 *lmp_version,
+                                  UINT16 *manufacturer, UINT16 *lmp_sub_version);
+tBTM_STATUS BTM_SetQoS(BD_ADDR bd, FLOW_SPEC *p_flow, tBTM_CMPL_CB *p_cb);
+UINT8 BTM_SetTraceLevel(UINT8 new_level);
+void BTM_GetAclBufInfo(UINT16 *p_num_avail, UINT16 *p_num_bufs,
+                       UINT16 *p_num_queued);
 #endif
