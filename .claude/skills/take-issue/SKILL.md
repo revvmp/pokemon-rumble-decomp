@@ -85,9 +85,9 @@ The game compiler is not yet identified. Before writing game code, check `docs/r
 - **`kind:research` issues.** Produce evidence and record it in `docs/re/findings/<n>-<slug>.md` with ID `F-<n>-<k>`. Open follow-up `kind:decomp` issues only if the user agrees.
 
 Working copies on Windows use CRLF line endings, except the dtk config files and progress SVGs pinned to LF in `.gitattributes`. Scripted string replacements that assume `
-` silently match nothing, so prefer your agent's file-editing tool (Edit in Claude Code, `apply_patch` in Codex). If you script a write, preserve the file's line endings and pass `encoding="utf-8"` explicitly; the Windows default encoding corrupts characters such as en dashes.
+` silently match nothing, so prefer your agent's file-editing tool (Edit in Claude Code, `apply_patch` in Codex). If you script a write, preserve the file's line endings and pass `encoding="utf-8"` explicitly; the Windows default encoding corrupts characters such as en dashes. Do not use PowerShell `Set-Content -Encoding utf8` or `Out-File`, which add a byte-order mark.
 
-Edit only the files `docs/COLLABORATION.md` allows. Do not touch maintainer-only files, frozen manifests, or expected hashes. Add no comments, docstrings, or unit tests, and never paste decompiler output.
+Edit only the files `docs/COLLABORATION.md` allows. Do not edit `AGENTS.md`; record any traps you hit under a `Traps` heading in your findings file `docs/re/findings/<n>-<slug>.md`. Do not touch maintainer-only files, frozen manifests, or expected hashes. Add no comments, docstrings, or unit tests, and never paste decompiler output.
 
 ## 6. Hand back
 
@@ -104,9 +104,9 @@ Keep temporary scripts and notes outside the repository in files named with your
 
 Merge your own pull request as soon as you have verified it locally against the latest `main`. You do not wait for GitHub CI. Locally you run the same digest-pinned tools, `configure.py`, `ninja`, and `verify.py` that CI runs. After a rebase onto `origin/main`, your branch head has exactly the files the squash merge will produce, so verifying it locally tests the real merge result. CI still runs on every pull request and on `main` as a backstop. Other agents merge at the same time, so this step is a loop. Run it from the worktree.
 
-1. **Update.** Run `git fetch origin` then `git rebase origin/main`. Resolve any conflicts as described below.
+1. **Update.** Run `git fetch origin` then `git rebase origin/main`. Worktrees share refs, so a concurrent fetch by another agent can fail with `cannot lock ref`; wait a few seconds and retry. Resolve any conflicts as described below.
 2. **Check that everything is committed.** `git status --porcelain` must print nothing. CI builds only committed files, so an uncommitted or untracked source file or header can make a local build pass that would fail for everyone else. Commit it or delete it first.
-3. **Verify locally.** Run `python configure.py`, `.venv/Scripts/ninja`, and `python tools/verify/verify.py verify --manifest config/targets/wpse-v1.json --reference-dir orig/wpse-v1 --build-dir build/wpse-v1`; all must exit 0. After resolving a conflict in `configure.py`, `splits.txt`, `symbols.txt`, or a shared header, delete `build/` first for a clean build. Record the verified commit with `git rev-parse HEAD`.
+3. **Verify locally.** Run `python configure.py`, `.venv/Scripts/ninja`, and `python tools/verify/verify.py verify --manifest config/targets/wpse-v1.json --reference-dir orig/wpse-v1 --build-dir build/wpse-v1`; all must exit 0. Stop at the first non-zero exit. After a failed link, `verify.py` can still pass against the previous `main.dol` left in `build/`. After resolving a conflict in `configure.py`, `splits.txt`, `symbols.txt`, or a shared header, delete `build/` first for a clean build. Record the verified commit with `git rev-parse HEAD`.
 4. **Push.** If the rebase changed anything, run `git push --force-with-lease`.
 5. **Check that `main` has not moved.** Run `git fetch origin` then `git merge-base --is-ancestor origin/main HEAD`. If it exits non-zero, another pull request merged after your verification; go back to step 1. Each iteration is a rebase and an incremental build, which usually takes seconds.
 6. **Check the backstops.** Run `gh pr checks <pr>`. A pending or not-yet-reported check is fine, but if the check for this commit has failed, stop and read it with `gh run view <run> --log-failed`; the clean runner found something your local build did not. Then run `gh run list --branch main --workflow build.yml --limit 1 --json conclusion,headSha`. If the latest completed run on `main` failed, `main` itself is broken. Do not merge on top of it; tell the user.
@@ -122,7 +122,7 @@ When `git rebase` stops, list the conflicted files with `git status`, resolve ea
 - **Files only you changed for this issue,** such as your source and private headers: resolve freely.
 - **`config/wpse-v1/splits.txt` and `config/wpse-v1/symbols.txt`:** take `main`'s version with `git checkout --ours <file>` (during a rebase, "ours" is `main` and "theirs" is your commit), then re-apply only your own unit's ranges and renames. The rebuild may rewrite these files; keep the rewrite only where it touches your ranges.
 - **`configure.py`:** keep every library and object line from `main`. Add your object lines in address order, and reuse an existing library entry rather than creating a second one.
-- **Append-style shared files:** ledger files in `docs/ledger/`, `docs/re/SYMBOLS.md`, and the `AGENTS.md` traps list. Keep both sides: their rows and yours, ordered by address where the file is ordered, with no duplicates.
+- **Append-style shared files:** ledger files in `docs/ledger/` and `docs/re/SYMBOLS.md`. `.gitattributes` gives these git's union merge, so concurrent appends usually rebase with no conflict. Check afterwards that no row was duplicated or interleaved into another row. If a conflict still appears, keep both sides: their rows and yours, ordered by address where the file is ordered, with no duplicates.
 - **Shared headers in `include/`** used by other units: if both sides only added declarations, keep both. If both changed the same declaration differently, stop and leave it for a maintainer.
 
 Never resolve a shared file by taking one side wholesale, which silently drops another contributor's work. After resolving, always rebuild from clean and run verification before pushing. A conflict-free textual merge can still break the link.

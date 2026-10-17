@@ -29,6 +29,8 @@ Aim for the readability of the Super Mario Galaxy decompilation (Petari): source
 
 Read this section before starting work. Before ending every meaningful session, update it with newly discovered traps, failed approaches worth avoiding, and findings that change how future work should proceed. Do not leave reusable knowledge only in chat or a handoff. Each entry must state the trigger or symptom, the verified lesson or workaround, and a link to detailed evidence in `docs/` or `docs/re/` as appropriate.
 
+Contributors working a GitHub issue do not edit this list. They record traps in their issue's findings file in `docs/re/findings/`, under a `Traps` heading. Maintainers review those and promote the ones that apply project-wide, so this list stays short and pull requests do not conflict on it.
+
 Keep entries concise and actionable. Distinguish confirmed findings from hypotheses; do not promote a single unexplained failure into a universal rule. Revise or mark superseded guidance when new evidence changes it, preserving an evidence link. If no new trap or finding emerged, say so in the session's progress update rather than inventing an entry.
 
 - **Matching files can still be the wrong reference.** Identical original and rebuilt files fail if both differ from the frozen manifest. Never refresh expected hashes to fix this; identify the input mismatch. This rejection was exercised during [initialization validation](docs/VALIDATION.md).
