@@ -1819,6 +1819,139 @@ void HomeButton::update(const HBMControllerData* pController) {
     }
 }
 
+void HomeButton::update_controller(int id) {
+    int anm_no;
+
+    if (isActive()) {
+        HBController* pCon = mpController[id]->getController();
+        f32 x = pCon->x * 608.0f / 2.0f;
+        f32 y = pCon->y * 456.0f / 2.0f;
+
+        if (mAdjustFlag) {
+            x *= mpHBInfo->adjust.x;
+            y *= mpHBInfo->adjust.y;
+        }
+
+        mpPaneManager->update(id, x, -y, pCon->trig, pCon->hold, pCon->release, pCon);
+
+        if ((pCon->trig & WPAD_BUTTON_HOME) && isActive()) {
+            if (mSequence == eSeq_Control) {
+                mpPaneManager->update(id, 0.0f, -180.0f, 0, 0, 0, nullptr);
+
+                mpPairGroupAnmController[4]->start();
+
+                mSelectAnmNum = 2;
+                mpPairGroupAnmController[mSelectAnmNum]->start();
+                mpPairGroupAnmController[11]->start();
+
+                mState = 10;
+                mSequence = eSeq_Normal;
+                play_sound(HBMSE_CLOSE_CONTROLLER);
+            } else if (mSequence == eSeq_Normal) {
+                if (mpPairGroupAnmController[3]->isPlaying()) {
+                    mpPairGroupAnmController[3]->stop();
+                }
+
+                if (mpPairGroupAnmController[12]->isPlaying()) {
+                    mpPairGroupAnmController[12]->stop();
+                }
+
+                mSelectBtnNum = HBM_SELECT_HOMEBTN;
+                mSelectAnmNum = 4;
+                mpPairGroupAnmController[mSelectAnmNum]->start();
+
+                mState = 14;
+                play_sound(HBMSE_RETURN_APP);
+            } else if (mSequence == eSeq_Seq3) {
+                if (mpAnmControllerEx[3]->isPlaying()) {
+                    mpAnmControllerEx[3]->stop();
+                }
+
+                if (mpAnmControllerEx[4]->isPlaying()) {
+                    mpAnmControllerEx[4]->stop();
+                }
+
+                mSelectBtnNum = HBM_SELECT_HOMEBTN;
+                mSelectAnmNum = 6;
+                mpAnmControllerEx[mSelectAnmNum]->start();
+
+                mState = 23;
+                play_sound(HBMSE_RETURN_APP);
+            }
+        } else if (mSequence == eSeq_Control && isActive()) {
+            if (pCon->trig & WPAD_BUTTON_MINUS) {
+                if (mVolumeNum > 0) {
+                    mVolumeNum--;
+
+                    anm_no = findGroupAnimator(mVolumeNum + 21, 10);
+                    mpGroupAnmController[anm_no]->stop();
+
+                    anm_no = findGroupAnimator(mVolumeNum + 21, 9);
+                    mpGroupAnmController[anm_no]->start();
+
+                    anm_no = findGroupAnimator(11, 5);
+                    mpGroupAnmController[anm_no]->start();
+
+                    if (mVolumeNum == 0) {
+                        play_sound(HBMSE_VOLUME_MINUS_LIMIT);
+
+                        for (int i = 0; i < WPAD_MAX_CONTROLLERS; i++) {
+                            getController(i)->setSpeakerVol(mVolumeNum / 10.0f);
+                            getController(i)->playSound(1);
+                        }
+                    } else {
+                        play_sound(HBMSE_VOLUME_MINUS);
+
+                        for (int i = 0; i < WPAD_MAX_CONTROLLERS; i++) {
+                            getController(i)->setSpeakerVol(mVolumeNum / 10.0f);
+                            getController(i)->playSound(1);
+                        }
+                    }
+                } else {
+                    play_sound(HBMSE_NOTHING_DONE);
+                }
+            } else if (pCon->trig & WPAD_BUTTON_PLUS) {
+                if (mVolumeNum < 10) {
+                    anm_no = findGroupAnimator(mVolumeNum + 21, 9);
+                    mpGroupAnmController[anm_no]->stop();
+
+                    anm_no = findGroupAnimator(mVolumeNum + 21, 10);
+                    mpGroupAnmController[anm_no]->start();
+
+                    mVolumeNum++;
+
+                    anm_no = findGroupAnimator(12, 5);
+                    mpGroupAnmController[anm_no]->start();
+
+                    if (mVolumeNum == 10) {
+                        play_sound(HBMSE_VOLUME_PLUS_LIMIT);
+
+                        for (int i = 0; i < WPAD_MAX_CONTROLLERS; i++) {
+                            getController(i)->setSpeakerVol(mVolumeNum / 10.0f);
+                            getController(i)->playSound(1);
+                        }
+                    } else {
+                        play_sound(HBMSE_VOLUME_PLUS);
+
+                        for (int i = 0; i < WPAD_MAX_CONTROLLERS; i++) {
+                            getController(i)->setSpeakerVol(mVolumeNum / 10.0f);
+                            getController(i)->playSound(1);
+                        }
+                    }
+                } else {
+                    play_sound(HBMSE_NOTHING_DONE);
+                }
+            }
+        }
+    } else if (mSequence == eSeq_Control && mState == 5 && !mpPairGroupAnmController[mSelectAnmNum]->isPlaying()) {
+        HBController* pCon = mpController[id]->getController();
+
+        if (pCon->trig) {
+            mMsgCount = iReConnectTime;
+        }
+    }
+}
+
 void HomeButton::update_posController(int id) {
     HBController* pCon = mpController[id]->getController();
     nw4hbm::ut::Rect layoutRect = mpLayout->GetLayoutRect();
@@ -1827,6 +1960,243 @@ void HomeButton::update_posController(int id) {
     nw4hbm::math::VEC2 pos(x, y);
 
     mpCursorLayout[id]->GetRootPane()->FindPaneByName(scCursorPaneName, true)->SetTranslate(pos);
+}
+
+void HomeButton::updateTrigPane() {
+    int i;
+
+    switch (mSequence) {
+    case eSeq_Normal:
+        for (i = 0; i < 10; i++) {
+            if (i < 2 || i == 9) {
+                nw4hbm::lyt::Pane* pTouchPane = mpLayout->GetRootPane()->FindPaneByName(scFuncTouchPaneName[i], true);
+                mpPaneManager->getPaneComponentByPane(pTouchPane)->setTriggerTarget(true);
+            } else {
+                nw4hbm::lyt::Pane* pTouchPane = mpLayout->GetRootPane()->FindPaneByName(scFuncTouchPaneName[i], true);
+                mpPaneManager->getPaneComponentByPane(pTouchPane)->setTriggerTarget(false);
+            }
+        }
+        break;
+
+    case eSeq_Control:
+        for (i = 0; i < 10; i++) {
+            if ((i > 0 && i < 7) || i == 9) {
+                nw4hbm::lyt::Pane* pTouchPane = mpLayout->GetRootPane()->FindPaneByName(scFuncTouchPaneName[i], true);
+                mpPaneManager->getPaneComponentByPane(pTouchPane)->setTriggerTarget(true);
+            } else {
+                nw4hbm::lyt::Pane* pTouchPane = mpLayout->GetRootPane()->FindPaneByName(scFuncTouchPaneName[i], true);
+                mpPaneManager->getPaneComponentByPane(pTouchPane)->setTriggerTarget(false);
+            }
+        }
+        break;
+
+    case eSeq_Cmn:
+        for (i = 0; i < 10; i++) {
+            if (i < 7 || i == 9) {
+                nw4hbm::lyt::Pane* pTouchPane = mpLayout->GetRootPane()->FindPaneByName(scFuncTouchPaneName[i], true);
+                mpPaneManager->getPaneComponentByPane(pTouchPane)->setTriggerTarget(false);
+            } else {
+                nw4hbm::lyt::Pane* pTouchPane = mpLayout->GetRootPane()->FindPaneByName(scFuncTouchPaneName[i], true);
+                mpPaneManager->getPaneComponentByPane(pTouchPane)->setTriggerTarget(true);
+            }
+        }
+        break;
+
+    case eSeq_Seq3:
+        for (i = 0; i < 10; i++) {
+            nw4hbm::lyt::Pane* pTouchPane = mpLayout->GetRootPane()->FindPaneByName(scFuncTouchPaneName[i], true);
+            mpPaneManager->getPaneComponentByPane(pTouchPane)->setTriggerTarget(false);
+        }
+
+        for (i = 0; i < 2; i++) {
+            nw4hbm::lyt::Pane* pBtnWarePane = mpLayoutEx->GetRootPane()->FindPaneByName(scBtnWareName[i], true);
+            mpPaneManager->getPaneComponentByPane(pBtnWarePane)->setTriggerTarget(true);
+        }
+        break;
+
+    case eSeq_Seq4:
+        for (i = 0; i < 2; i++) {
+            nw4hbm::lyt::Pane* pBtnWarePane = mpLayoutEx->GetRootPane()->FindPaneByName(scBtnWareName[i], true);
+            mpPaneManager->getPaneComponentByPane(pBtnWarePane)->setTriggerTarget(false);
+        }
+
+        for (i = 0; i < 10; i++) {
+            if (i >= 7 && i != 9) {
+                nw4hbm::lyt::Pane* pTouchPane = mpLayout->GetRootPane()->FindPaneByName(scFuncTouchPaneName[i], true);
+                mpPaneManager->getPaneComponentByPane(pTouchPane)->setTriggerTarget(true);
+            }
+        }
+        break;
+    }
+}
+
+void HomeButton::startPointEvent(const nw4hbm::lyt::Pane* pPane, void* pData) {
+    int anm_no;
+    int btn_no = getPaneNo(pPane);
+    HBController* pCon = static_cast<HBController*>(pData);
+    bool onFlag = false;
+
+    if (isActive() && btn_no != -1 && !mPaneCounter[btn_no]) {
+        if (mSequence != eSeq_Cmn && btn_no < mButtonNum) {
+            anm_no = findAnimator(btn_no, 0);
+            mpAnmController[anm_no]->start();
+
+            if (mSequence == eSeq_Normal) {
+                setForcusSE();
+                onFlag = true;
+            }
+        } else {
+            switch (btn_no - mButtonNum) {
+            case 0:
+                if (mSequence == eSeq_Normal) {
+                    if (isUpBarActive()) {
+                        mpPairGroupAnmController[3]->start();
+                        mBar0AnmRevHold = 3;
+                        mBar0AnmRev = 0;
+                        setForcusSE();
+                        onFlag = true;
+                    } else {
+                        mBar0AnmRev = 3;
+                    }
+                }
+                break;
+
+            case 1:
+            case 9:
+                if (mSequence == eSeq_Normal) {
+                    anm_no = findGroupAnimator(4, 2);
+
+                    if (isDownBarActive()) {
+                        mpGroupAnmController[anm_no]->start();
+                        mBar1AnmRevHold = anm_no;
+                        mBar1AnmRev = 0;
+                        setForcusSE();
+                        onFlag = true;
+                    } else {
+                        mBar1AnmRev = anm_no;
+                    }
+                } else if (mSequence == eSeq_Control) {
+                    anm_no = findGroupAnimator(4, 19);
+
+                    if (isDownBarActive()) {
+                        mpGroupAnmController[anm_no]->start();
+                        mBar1AnmRevHold = anm_no;
+                        mBar1AnmRev = 0;
+                        setForcusSE();
+                        onFlag = true;
+                    } else {
+                        mBar1AnmRev = anm_no;
+                    }
+                }
+                break;
+
+            case 2:
+                if (mSequence == eSeq_Control) {
+                    anm_no = findGroupAnimator(6, 4);
+                    mpGroupAnmController[anm_no]->start();
+                    setForcusSE();
+                    onFlag = true;
+                }
+                break;
+
+            case 3:
+                if (mSequence == eSeq_Control) {
+                    anm_no = findGroupAnimator(7, 4);
+                    mpGroupAnmController[anm_no]->start();
+                    setForcusSE();
+                    onFlag = true;
+                }
+                break;
+
+            case 4:
+                if (mSequence == eSeq_Control) {
+                    anm_no = findGroupAnimator(8, 4);
+                    mpGroupAnmController[anm_no]->start();
+                    setForcusSE();
+                    onFlag = true;
+                }
+                break;
+
+            case 5:
+                if (mSequence == eSeq_Control) {
+                    anm_no = findGroupAnimator(9, 4);
+                    mpGroupAnmController[anm_no]->start();
+                    setForcusSE();
+                    onFlag = true;
+                }
+                break;
+
+            case 6:
+                if (mSequence == eSeq_Control) {
+                    anm_no = findGroupAnimator(10, 4);
+                    mpGroupAnmController[anm_no]->start();
+                    setForcusSE();
+                    onFlag = true;
+                }
+                break;
+
+            case 7:
+                if (mSequence == eSeq_Cmn || mSequence == eSeq_Seq4) {
+                    anm_no = findGroupAnimator(17, 11);
+                    mpGroupAnmController[anm_no]->start();
+                    setForcusSE();
+                    onFlag = true;
+                }
+                break;
+
+            case 8:
+                if (mSequence == eSeq_Cmn || mSequence == eSeq_Seq4) {
+                    anm_no = findGroupAnimator(18, 11);
+                    mpGroupAnmController[anm_no]->start();
+                    setForcusSE();
+                    onFlag = true;
+                }
+                break;
+
+            case 10:
+                if (mSequence == eSeq_Seq3) {
+                    mpAnmControllerEx[0]->start();
+
+                    nw4hbm::lyt::Pane* pBtnWarePane = mpLayoutEx->GetRootPane()->FindPaneByName(scBtnWareName[0], true);
+                    pBtnWarePane->SetSize(nw4hbm::lyt::Size(356.4f, 70.4f));
+
+                    setForcusSE();
+                    onFlag = true;
+                }
+                break;
+
+            case 11:
+                if (mSequence == eSeq_Seq3) {
+                    if (isThirdBarActive()) {
+                        mpAnmControllerEx[3]->start();
+                        mBar2AnmRevHold = 3;
+                        mBar2AnmRev = 0;
+                        setForcusSE();
+                    } else {
+                        mBar2AnmRev = 3;
+                    }
+
+                    setForcusSE();
+                    onFlag = true;
+                }
+                break;
+            }
+        }
+    }
+
+    if (btn_no == mButtonNum + 1 || btn_no == mButtonNum + 9) {
+        mPaneCounter[mButtonNum + 1]++;
+        mPaneCounter[mButtonNum + 9]++;
+    } else {
+        mPaneCounter[btn_no]++;
+    }
+
+    if (onFlag && pCon) {
+        if (!getController(pCon->chan)->isRumbling() && mOnPaneVibWaitFrame[pCon->chan] <= 0.0f) {
+            mOnPaneVibFrame[pCon->chan] = 3.0f;
+            getController(pCon->chan)->startMotor();
+        }
+    }
 }
 
 void HomeButton::reset_control() {
@@ -1926,6 +2296,15 @@ int HomeButton::findGroupAnimator(int pane, int anm) {
     }
 
     return -1;
+}
+
+void HomeButton::setForcusSE() {
+    if (mForcusSEWaitTime <= 2) {
+        return;
+    }
+
+    play_sound(HBMSE_FOCUS);
+    mForcusSEWaitTime = 0;
 }
 
 void HomeButton::setVolume(int vol) {
