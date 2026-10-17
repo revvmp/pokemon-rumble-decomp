@@ -82,6 +82,16 @@ enum {
     BTM_SEC_SERVICE_PBAP = 44
 };
 
+enum {
+    BTM_SEC_NONE = 0
+};
+
+enum {
+    BTM_SEC_PROTO_HID = 6
+};
+
+#define BTM_PM_SET_ONLY_ID 0x80
+
 typedef UINT8 tBTM_BD_NAME[BTM_MAX_REM_BD_NAME_LEN + 1];
 
 typedef void tBTM_DEV_STATUS_CB(tBTM_DEV_STATUS status);
@@ -248,5 +258,8 @@ BOOLEAN BTM_SecDeleteRmtNameNotifyCallback(tBTM_RMT_NAME_CALLBACK* p_callback);
 void BTM_PINCodeReply(BD_ADDR bd_addr, UINT8 res, UINT8 pin_len, UINT8* p_pin, UINT32 trusted_mask[]);
 void BTM_DeviceAuthorized(BD_ADDR bd_addr, UINT8 res, UINT32 trusted_mask[]);
 tBTM_STATUS BTM_SecBond(BD_ADDR bd_addr, UINT8 pin_len, UINT8* p_pin, UINT32 trusted_mask[]);
+tBTM_STATUS BTM_SetPowerMode(UINT8 pm_id, BD_ADDR remote_bda, tBTM_PM_PWR_MD* p_mode);
+BOOLEAN BTM_SetSecurityLevel(BOOLEAN is_originator, char* p_name, UINT8 service_id, UINT8 sec_level, UINT16 psm,
+                             UINT32 mx_proto_id, UINT32 mx_chan_id);
 
 #endif

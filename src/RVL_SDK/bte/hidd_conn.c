@@ -1,6 +1,6 @@
-#include "RVL_SDK/bte/hidd_int.h"
+#include <revolution/bte/hidd_int.h>
 
-#include "RVL_SDK/bte/bt_trace.h"
+#include <revolution/bte/bt_trace.h>
 
 tHID_STATUS hidd_conn_initiate(void) {
     tHID_CONN* p_hcon = &hd_cb.conn;

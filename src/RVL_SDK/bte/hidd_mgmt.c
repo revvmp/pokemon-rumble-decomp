@@ -1,7 +1,7 @@
-#include "RVL_SDK/bte/hidd_int.h"
+#include <revolution/bte/hidd_int.h>
 
-#include "RVL_SDK/bte/bt_trace.h"
-#include "RVL_SDK/bte/btu.h"
+#include <revolution/bte/bt_trace.h>
+#include <revolution/bte/btu.h>
 
 tHID_DEV_CTB hd_cb;
 

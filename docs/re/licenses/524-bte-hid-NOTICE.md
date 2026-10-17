@@ -1,6 +1,6 @@
 # BTE HID source provenance for issue 524
 
-The reconstruction in `src/RVL_SDK/bte/hidd_api.c`, `hidd_conn.c`, `hidd_mgmt.c`, `hidd_pm.c`, `hidh_api.c`, and the headers they include under `include/RVL_SDK/bte/`, adapts reference code, names, and structure layouts from Petari commit `e0ab141914921726a595573dc48d3f13d0922efe` (`src/RVL_SDK/bte/`). Changes remove source comments and the configurable trace macro system, drop dead-stripped functions, reduce headers to the declarations these units use, and rename include paths. The files are modified from the reference.
+The reconstruction in `src/RVL_SDK/bte/hidd_api.c`, `hidd_conn.c`, `hidd_mgmt.c`, `hidd_pm.c`, `hidh_api.c`, the HID headers under `include/revolution/bte/` (`hid_conn.h`, `hidd_api.h`, `hidd_int.h`, `hiddefs.h`, `hidh_api.h`, `hidh_int.h`), and the declarations these units added to the shared `include/revolution/bte/` headers, adapts reference code, names, and structure layouts from Petari commit `e0ab141914921726a595573dc48d3f13d0922efe` (`src/RVL_SDK/bte/`). Changes remove source comments and the configurable trace macro system, drop dead-stripped functions, reduce headers to the declarations these units use, and rename include paths. The files are modified from the reference.
 
 The referenced files carry these notices:
 

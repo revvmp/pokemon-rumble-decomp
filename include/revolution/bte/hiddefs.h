@@ -1,7 +1,7 @@
 #ifndef RVL_SDK_BTE_HIDDEFS_H
 #define RVL_SDK_BTE_HIDDEFS_H
 
-#include "RVL_SDK/bte/sdp_api.h"
+#include <revolution/bte/sdp_api.h>
 
 #define HID_MAX_SVC_NAME_LEN 32
 #define HID_MAX_SVC_DESCR_LEN 32

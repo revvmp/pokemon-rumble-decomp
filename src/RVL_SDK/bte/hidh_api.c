@@ -1,9 +1,9 @@
-#include "RVL_SDK/bte/hidh_int.h"
+#include <revolution/bte/hidh_int.h>
 
-#include "RVL_SDK/bte/bt_trace.h"
-#include "RVL_SDK/bte/btm_api.h"
-#include "RVL_SDK/bte/btu.h"
-#include "RVL_SDK/bte/sdpdefs.h"
+#include <revolution/bte/bt_trace.h>
+#include <revolution/bte/btm_api.h>
+#include <revolution/bte/btu.h>
+#include <revolution/bte/sdpdefs.h>
 
 extern void* memset(void* p_dest, int value, unsigned long count);
 extern void* memcpy(void* p_dest, const void* p_src, unsigned long count);

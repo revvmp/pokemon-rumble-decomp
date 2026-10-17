@@ -1,7 +1,7 @@
 #ifndef RVL_SDK_BTE_HID_CONN_H
 #define RVL_SDK_BTE_HID_CONN_H
 
-#include "RVL_SDK/bte/gki.h"
+#include <revolution/bte/gki.h>
 
 enum {
     HID_CONN_STATE_UNUSED,

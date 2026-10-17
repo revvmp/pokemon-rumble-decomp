@@ -1,7 +1,7 @@
-#include "RVL_SDK/bte/hidd_int.h"
+#include <revolution/bte/hidd_int.h>
 
-#include "RVL_SDK/bte/btm_api.h"
-#include "RVL_SDK/bte/btu.h"
+#include <revolution/bte/btm_api.h>
+#include <revolution/bte/btu.h>
 
 extern void* memcpy(void* p_dest, const void* p_src, unsigned long count);
 
