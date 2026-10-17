@@ -238,6 +238,11 @@ nw4r/g3d/res/g3d_restev.cpp:
 	.rodata     start:0x8036C690 end:0x8036C6F0
 	.data       start:0x803C58C0 end:0x803C58D0
 
+nw4r/g3d/res/g3d_resmat.cpp:
+	.text       start:0x8024F0B0 end:0x80250AFC
+	.data       start:0x803C58D0 end:0x803C5924
+	.sdata2     start:0x804BAA98 end:0x804BAACC
+
 nw4r/snd/snd_AxManager.cpp:
 	.text       start:0x80271E10 end:0x80273650
 	.ctors      start:0x80352A50 end:0x80352A54

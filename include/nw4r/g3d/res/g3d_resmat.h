@@ -559,7 +559,6 @@ public:
     bool Bind(const ResFile file);
     void Release();
 
-    bool IsOpaque() const;
     ResMdl GetParent();
     const ResMdl GetParent() const;
 
