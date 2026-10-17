@@ -1,0 +1,73 @@
+# WUD reconstruction
+
+## F-504-4: Complete WUD split and first source functions
+
+Target `wpse-v1`, frozen executable manifest `config/targets/wpse-v1.json`. WUD.c starts with `WUDIsLinkedWBC` at `0x80309FA0` and ends at `0x80310394`, before WUDHidHost.c. Its 86 retained functions total 25,028 function bytes and span issues #504–#507. #504 owns the first function and therefore the complete file split. The later WUDHidHost.c and debug_msg.c units remain as already established by #507.
+
+| Section | Start | Exclusive end |
+| --- | --- | --- |
+| `.text` | `0x80309FA0` | `0x80310394` |
+| `.data` | `0x803DF0B8` | `0x803E0260` |
+| `.bss` | `0x8047C320` | `0x8047E4C8` |
+| `.sdata` | `0x804B8E88` | `0x804B8EA0` |
+| `.sbss` | `0x804B9B28` | `0x804B9B60` |
+| `.sdata2` | `0x804BB5D8` | `0x804BB5E0` |
+
+The small-BSS range begins at its first word, `0x804B9B28`. The preceding four bytes after the USB unit are alignment padding; including them in WUD's range provoked dtk's eight-byte alignment warning. The corrected range removes the warning, and the full split-only build and frozen DOL verification pass before source registration.
+
+The current source contains the following 24 retained functions, totaling 3,168 function bytes. All reproduce every non-relocation instruction word at their exact original sizes with Wii/1.0 and `cflags_sdk`.
+
+| Function | Address | Bytes |
+| --- | --- | --- |
+| `WUDIsLinkedWBC` | `0x80309FA0` | `0x8` |
+| `App_MEMalloc` | `0x80309FB0` | `0x50` |
+| `App_MEMfree` | `0x8030A000` | `0x50` |
+| `__wudSyncFlushCallback` | `0x8030A050` | `0x78` |
+| `__wudDeleteFlushCallback` | `0x8030B6D0` | `0x58` |
+| `WUDiTerminateDevice` | `0x8030B730` | `0x98` |
+| `__wudShutdownFlushCallback` | `0x8030CD70` | `0x4C` |
+| `WUDRegisterAllocator` | `0x8030D360` | `0x4C` |
+| `WUDGetStatus` | `0x8030D5D0` | `0x3C` |
+| `WUDGetBufferStatus` | `0x8030D610` | `0x48` |
+| `WUDSetSniffMode` | `0x8030D660` | `0x6C` |
+| `WUDSetSyncSimpleCallback` | `0x8030D6D0` | `0x5C` |
+| `WUDSetHidRecvCallback` | `0x8030DAB0` | `0x5C` |
+| `WUDSetHidConnCallback` | `0x8030DB10` | `0x5C` |
+| `WUDSetVisibility` | `0x8030DB70` | `0x58` |
+| `__wudInitSub` | `0x8030E270` | `0x170` |
+| `WUDiGetDevInfo` | `0x8030E6C0` | `0xD8` |
+| `WUDiMoveTopSmpDevInfoPtr` | `0x8030E7A0` | `0x114` |
+| `WUDiMoveBottomSmpDevInfoPtr` | `0x8030E8C0` | `0x114` |
+| `WUDiMoveTopStdDevInfoPtr` | `0x8030EB50` | `0x114` |
+| `WUDiMoveBottomStdDevInfoPtr` | `0x8030EC70` | `0x114` |
+| `__wudCleanupStackCallback` | `0x8030F140` | `0x34` |
+| `_WUDGetDevAddr` | `0x80310080` | `0x54` |
+| `_WUDGetLinkNumber` | `0x803101A0` | `0x3C` |
+
+This diagnostic excludes relocation-bearing words and does not establish matching function acceptance. Whole-unit objdiff is text 12.637047%, data 0%, BSS 21.72702%, sdata 0%, sbss 26.086956% and sdata2 100%. WUD remains `NonMatching`; the final executable continues to link the original WUD object and gains zero linked WUD source-byte credit. The partial-source full build and explicit frozen verification pass. EUART and USB remain accepted source-linked units.
+
+The implementations reuse the existing typed WUD headers. `_wcb` is the established 0x750-byte controller block at `0x8047C320`. Paired source/target SDA relocations identify the four-byte `sWudInitialized` at `0x804B9B28`, `sWudReadNand` at `0x804B9B2C` and `_linkedWBC` at `0x804B9B40`; no field address is guessed from declaration order. The last is returned by `WUDIsLinkedWBC`. Its weak qualifier follows the licensed newer SDK reference; the target directly establishes its word storage and access, not an original ELF binding.
+
+The two small read-only objects are the four-byte `Wii` name initializer at `0x804BB5D8` and the three-byte Bluetooth device class `{0x00, 0x04, 0x48}` at `0x804BB5DC`. Their full seven-byte sequence compares at 100%. They are not a six-byte zero Bluetooth address.
+
+The target's embedded messages supply the exact private names `__wudSyncFlushCallback`, `__wudDeleteFlushCallback`, `__wudShutdownFlushCallback`, `__wudCleanupStackCallback` and `__wudInitSub`. The device-status and power-manager callback references are also named from the target's messages: `__wudDeviceStatusEventStackCallback` at `0x8030FBA0` and `__wudPowerMangeEventStackCallback` at `0x8030FF50`. Preserve `Mange` exactly. Their bodies are not implemented yet. `WUDVendorSpecificCallback` at `0x8030F8F0` and `WUDiRegisterDevice` at `0x8030E3E0` receive reference-based names through relocated callback/call operands; confidence in their original spelling is medium. Existing names established by #507 are retained.
+
+The source uses `force_active` only to keep these proven retained private function bodies available for comparison while their callers are unreconstructed. It introduces no dummy callers or placeholder implementations. Recheck natural retention after completing the unit, and retain no unneeded helpers merely to fill the target's shape.
+
+## Remaining work
+
+- Complete the remaining 62 native functions, including synchronization, settings persistence, the Wii Fit NAND paths, patch handling and Bluetooth event processing.
+- Reconstruct and verify the complete unit data and layouts; the current source defines only the controller block and three proven flag words.
+- Give currently opaque device-state members evidenced names in the shared headers before adding source that uses them. Shared ABI changes require a separate header prerequisite and an existing-object regression comparison.
+- Resolve every call, callback, data relocation and folded reference. The current raw-word comparison is deliberately narrower than acceptance.
+- Mark WUD `Matching` only after all retained code and the complete source-selected frozen DOL verify. The source prerequisite for KPAD remains separate in #710.
+
+## Provenance
+
+The implemented bodies derive from [Petari WUD.c at e0ab141914921726a595573dc48d3f13d0922efe](https://github.com/SMGCommunity/Petari/blob/e0ab141914921726a595573dc48d3f13d0922efe/src/RVL_SDK/wud/WUD.c), CC0, with no file-specific license exception found. C++ convenience includes and comments are removed; the implementations use the project's existing SDK C headers. Target message strings correct the private names. The weak linked-board flag and the wrapper's behavior are corroborated by [Swiftshine/key WUD.c at 7f2a9ab9ad66d8e2f6eac52acc2c01dff0bd03a2](https://github.com/Swiftshine/key/blob/7f2a9ab9ad66d8e2f6eac52acc2c01dff0bd03a2/src/revolution/WPAD/WUD.c), CC0. No decompiler text is included.
+
+## Traps
+
+- **Declaration order is not target small-data order.** A guessed layout from another SDK revision would have put the initialization flags near the end of this unit. Paired target relocations place them at `0x804B9B28` and `0x804B9B2C`; record those observed accesses before naming or defining the remaining globals.
+- **Private bodies may disappear from an incomplete source.** The first partial compile dropped unreferenced static callbacks before comparison. Scoped `force_active` preserves only the actual retained functions while their source callers are missing. Do not create fake callers or count unrelated reference helpers as target functions.
+- **Original message spelling takes precedence over reference helper names.** The target prints `__wudPowerMangeEventStackCallback`; use that spelling instead of silently correcting it to the reference's `PowerManager` name. Other callback names likewise retain the embedded `__wud` prefixes.

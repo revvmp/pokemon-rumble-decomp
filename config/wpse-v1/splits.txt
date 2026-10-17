@@ -1169,6 +1169,14 @@ RVL_SDK/usb/usb.c:
 	.sdata      start:0x804B8E78 end:0x804B8E88
 	.sbss       start:0x804B9B18 end:0x804B9B24
 
+RVL_SDK/wud/WUD.c:
+	.text       start:0x80309FA0 end:0x80310394
+	.data       start:0x803DF0B8 end:0x803E0260
+	.bss        start:0x8047C320 end:0x8047E4C8
+	.sdata      start:0x804B8E88 end:0x804B8EA0
+	.sbss       start:0x804B9B28 end:0x804B9B60
+	.sdata2     start:0x804BB5D8 end:0x804BB5E0
+
 RVL_SDK/wud/WUDHidHost.c:
 	.text       start:0x803103A0 end:0x80310988
 	.data       start:0x803E0260 end:0x803E04F7
