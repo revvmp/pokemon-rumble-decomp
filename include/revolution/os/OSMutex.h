@@ -1,25 +1,11 @@
 #ifndef REVOLUTION_OS_OSMUTEX_H
 #define REVOLUTION_OS_OSMUTEX_H
 
-#include "revolution/types.h"
+#include "revolution/os/OSThread.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-typedef struct OSThread OSThread;
-
-typedef struct OSThreadQueue {
-    OSThread* head;
-    OSThread* tail;
-} OSThreadQueue;
-
-typedef struct OSMutex OSMutex;
-
-typedef struct OSMutexLink {
-    OSMutex* next;
-    OSMutex* prev;
-} OSMutexLink;
 
 struct OSMutex {
     OSThreadQueue queue;
@@ -28,9 +14,19 @@ struct OSMutex {
     OSMutexLink link;
 };
 
+struct OSCond {
+    OSThreadQueue queue;
+};
+
 void OSInitMutex(OSMutex* mutex);
 void OSLockMutex(OSMutex* mutex);
 void OSUnlockMutex(OSMutex* mutex);
+BOOL OSTryLockMutex(OSMutex* mutex);
+void __OSUnlockAllMutex(OSThread* thread);
+
+void OSInitCond(OSCond* cond);
+void OSWaitCond(OSCond* cond, OSMutex* mutex);
+void OSSignalCond(OSCond* cond);
 
 #ifdef __cplusplus
 }
