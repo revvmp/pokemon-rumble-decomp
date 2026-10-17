@@ -85,6 +85,8 @@ Keep entries concise and actionable. Distinguish confirmed findings from hypothe
 
 - **verify.py checks whatever `main.dol` is on disk.** After a failed link it passed against the previous build's output. Delete `build/wpse-v1/main.dol` or confirm `ninja` exited 0 before trusting a verification result; observed in [F-495-1](docs/re/findings/495-arc-unit.md).
 
+- **A whole `.bss` extent can include the next unit's padding.** Splitting `mem_heapCommon.c` `.bss` to the next symbol shifted `.sdata` by `-0x20` and failed verification at DOL header byte `0x7F`. End the split at the unit's last object and leave the padding to the following automatic object. See [F-488-1](docs/re/findings/488-axfx-mem-units.md#f-488-1-unit-boundaries-in-0x802df1900x802e18f0).
+
 ## Current project state
 
 | Current state | Value |
