@@ -135,6 +135,18 @@ cflags_runtime = [
     "-func_align 4",
 ]
 
+cflags_trk = [
+    *(flag for flag in cflags_base if flag not in ("-inline auto", "-str reuse")),
+    "-inline auto",
+    "-str reuse,readonly",
+    "-use_lmw_stmw on",
+    "-sdata 0",
+    "-sdata2 0",
+    "-func_align 4",
+    "-i include/MetroTRK",
+    "-DMETRO_TRK",
+]
+
 RUNTIME_COMPILER = "Wii/1.1"
 
 cflags_msl = [
@@ -663,6 +675,22 @@ config.libs = [
             Object(Matching, "MSL_C/PPC_EABI/SRC/math_ppc.c"),
             Object(Matching, "MSL_C/MSL_Common_Embedded/Math/Double_precision/w_sqrt.c"),
             Object(Matching, "MSL_C/extras.c"),
+        ],
+    ),
+    library(
+        "MetroTRK",
+        "Wii/1.1",
+        cflags_trk,
+        "runtime",
+        [
+            Object(Matching, "MetroTRK/debugger/embedded/MetroTRK/Portable/nubinit.c", extra_cflags=["-sdata 8", "-str reuse,pool,noreadonly"]),
+            Object(Matching, "MetroTRK/debugger/embedded/MetroTRK/Portable/serpoll.c", extra_cflags=["-sdata 8", "-str reuse,pool,noreadonly"]),
+            Object(Matching, "MetroTRK/debugger/embedded/MetroTRK/Portable/string_TRK.c", extra_cflags=["-sdata 8", "-str reuse,pool,noreadonly"]),
+            Object(Matching, "MetroTRK/debugger/embedded/MetroTRK/Portable/support.c", extra_cflags=["-sdata 8", "-str reuse,pool,noreadonly"]),
+            Object(Matching, "MetroTRK/debugger/embedded/MetroTRK/Os/dolphin/targcont.c", extra_cflags=["-sdata 8", "-str reuse,pool,noreadonly"]),
+            Object(Matching, "MetroTRK/debugger/embedded/MetroTRK/Processor/ppc/Generic/mpc_7xx_603e.c", extra_cflags=["-sdata 8", "-str reuse,pool,noreadonly"]),
+            Object(Matching, "MetroTRK/debugger/embedded/MetroTRK/Portable/msg.c", extra_cflags=["-sdata 8", "-str reuse,pool,noreadonly"]),
+            Object(Matching, "MetroTRK/debugger/embedded/MetroTRK/Portable/msgbuf.c", extra_cflags=["-sdata 8", "-str reuse,pool,noreadonly"]),
         ],
     ),
 ]

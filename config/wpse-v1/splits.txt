@@ -1630,3 +1630,35 @@ MSL_C/MSL_Common_Embedded/Math/Double_precision/w_sqrt.c:
 
 MSL_C/extras.c:
 	.text       start:0x8034D79C end:0x8034D83C
+
+MetroTRK/debugger/embedded/MetroTRK/Portable/nubinit.c:
+	.text       start:0x8034EBD4 end:0x8034ED24
+	.data       start:0x803E6428 end:0x803E6448
+	.sbss       start:0x804B9C18 end:0x804B9C1C
+
+MetroTRK/debugger/embedded/MetroTRK/Portable/serpoll.c:
+	.text       start:0x8034ED24 end:0x8034EE6C
+	.sbss       start:0x804B9C20 end:0x804B9C24
+
+MetroTRK/debugger/embedded/MetroTRK/Portable/string_TRK.c:
+	.text       start:0x8034EE6C end:0x8034EE88
+
+MetroTRK/debugger/embedded/MetroTRK/Portable/support.c:
+	.text       start:0x8034EE88 end:0x8034F4AC
+	.data       start:0x803E6448 end:0x803E6490
+
+MetroTRK/debugger/embedded/MetroTRK/Os/dolphin/targcont.c:
+	.text       start:0x8034F4AC end:0x8034F4E0
+
+MetroTRK/debugger/embedded/MetroTRK/Processor/ppc/Generic/mpc_7xx_603e.c:
+	.text       start:0x8034F4E0 end:0x8034F808
+
+MetroTRK/debugger/embedded/MetroTRK/Portable/msg.c:
+	.text       start:0x8034F808 end:0x8034F86C
+	.data       start:0x803E6490 end:0x803E64B8
+	.sbss       start:0x804B9C28 end:0x804B9C2C
+
+MetroTRK/debugger/embedded/MetroTRK/Portable/msgbuf.c:
+	.text       start:0x8034F86C end:0x80350078
+	.data       start:0x803E64B8 end:0x803E64E0
+	.bss        start:0x804B3AC0 end:0x804B5464
