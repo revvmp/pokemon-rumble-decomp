@@ -111,6 +111,6 @@ git push origin --delete <branch>
 git branch -D <branch>
 ```
 
-`remove-worktree` removes the `tools\local` and `.venv` junctions before the worktree, so the shared tools survive. Squash merges are not ancestors of the branch, so `git branch -d` refuses to delete it; use `-D` only after confirming `MERGED`. Do not pull or otherwise change the main checkout, because other agents and the maintainer may have work in progress there. Tell the user the pull request link, the merge commit, and what remains of the issue.
+`remove-worktree` removes the `tools\local` and `.venv` junctions before the worktree, so the shared tools survive. Squash merges are not ancestors of the branch, so `git branch -d` refuses to delete it; use `-D` only after confirming `MERGED`. To look up the merge commit from the main checkout, run `git fetch origin` first; fetching does not touch the working tree. Do not pull or otherwise change the main checkout, because other agents and the maintainer may have work in progress there. Tell the user the pull request link, the merge commit, and what remains of the issue.
 
 To abandon the issue instead, run `python tools/collab/claim_issue.py release --issue <n> --reason "<why>"`, then clean up the same way and close the pull request if one is open.

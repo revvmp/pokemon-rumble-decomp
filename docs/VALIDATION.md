@@ -86,3 +86,12 @@ Validated `.github/workflows/build.yml` and `tools/setup/acquire_tools.py`:
 - **Failing run.** Run 39014932291 on a temporary branch, since deleted, removed `#pragma force_active on` from `src/Runtime/__init_cpp_exceptions.cpp`. The linked `main.dol` failed dtk's `build.sha1` check (`build/wpse-v1/main.dol: FAILED`), the Build step exited 1, Verify was skipped, and the run concluded `failure`.
 
 Not yet exercised: the `main`-only progress image steps, which first run after merge.
+
+## Per-block issue set validation
+
+Validated the replacement of the 36 placeholder issues:
+- **Coverage.** The partition script loaded the 13,465 `type:function` entries in `config/wpse-v1/symbols.txt`. It assigned the 13,463 open functions to 507 blocks across 53 regions and failed on any gap or duplicate; neither occurred. The two matched `__init_cpp_exceptions` functions are excluded.
+- **Rendering.** Dry runs rendered every body. Issue #37's rendered body, title and labels were checked with `gh issue view`.
+- **Posting.** Issues #37–#545 were posted, skipping pull request numbers #132 and #434, with 507 recorded in the resume state. The poster was stopped and restarted once with a shorter delay. On restart it rebuilt its state from existing titles. A `gh issue list` check found no duplicate titles after the restart or at the end.
+- **Close-out.** The closing script was dry-run and its comments reviewed. It then closed #2–#24, #26–#28 and #30–#34 with links to their replacements, and labelled #463, #472, #488, #495, #534 and #535 `good first issue`. Afterwards `gh issue list` showed 511 open issues: the 507 blocks plus #25, #29, #35 and #36.
+

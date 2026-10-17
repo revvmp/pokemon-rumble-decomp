@@ -50,7 +50,7 @@ The ledger is kept per area in [ledger](ledger/README.md). It has one linked uni
 Replaced the 36 placeholder issues with 507 per-block decomp issues that together list every function in the executable:
 - Dumped all functions with their string and call references from a copy of the IDA database. Four parallel surveys then mapped `.text` 0x80052500–0x80292000 into source files and libraries (F-0012).
 - The game address range turned out to contain HBM, RevoEX, NCD, CNT, TMC JPEG, FA, MSL printf, and NW4R ef, g3d and snd. Library and game regions were partitioned into blocks of 6–77 functions, mean 26.6, cut at file starts where the survey evidenced them.
-- Each issue body lists every function it owns, its classes or reference files, compiler, and done criteria. Superseded issues were closed with links to their replacements. Infrastructure and research issues #1, #25, #29, #35 and #36 remain.
+- Each issue body lists every function it owns, its classes or reference files, compiler, and done criteria. Superseded issues were closed with links to their replacements. Research issues #25, #29, #35 and #36 remain. Issue #1 was then completed: CI builds and verifies every push and pull request (see [continuous integration](SETUP.md#continuous-integration)).
 - Issue #16, the example run, was released unfinished.
 
 New trap: library code inside the game address range. Validation is in [validation](VALIDATION.md#per-block-issue-set-validation).
