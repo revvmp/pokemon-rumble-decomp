@@ -59,9 +59,8 @@ public:
 
 protected:
     detail::PaneLinkList mPaneLinkList;
-    char mName[NW4R_LYT_RES_NAME_LEN + 1];
+    char mName[NW4R_LYT_RES_NAME_LEN];
     bool mbUserAllocated;
-    u8 PADDING_0x2A[0x2C - 0x2A];
 
 private:
     void Init();

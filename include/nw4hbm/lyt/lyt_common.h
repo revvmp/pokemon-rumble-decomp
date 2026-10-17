@@ -6,6 +6,7 @@
 #include "nw4hbm/ut.h"
 
 #include "revolution/gx.h"
+#include "revolution/tpl.h"
 
 namespace nw4hbm {
 namespace lyt {
@@ -78,10 +79,8 @@ public:
 
     void Free();
     void Reserve(u8 num);
-    void SetCoord(u32 idx, const math::VEC2* coord);
     void SetSize(u8 num);
     void Copy(const void* pSrc, u8 num);
-    void DrawLine(const math::VEC2 &pos, const Size &size, ut::Color &color);
 
     bool IsEmpty() const {
         return mCap == 0;
@@ -118,12 +117,12 @@ inline const char* GetStrTableStr(const void* pTable, int index) {
 bool TestFileHeader(const res::BinaryFileHeader& rHeader);
 bool TestFileHeader(const res::BinaryFileHeader& rHeader, u32 signature);
 
-bool EqualsResName(const char* pLhs, const char* pRhs);
+bool EqualsPaneName(const char* pLhs, const char* pRhs);
 bool EqualsMaterialName(const char* pLhs, const char* pRhs);
 
 bool IsModulateVertexColor(ut::Color* pColors, u8 glbAlpha);
 
-ut::Color MultipleAlpha(ut::Color color, u8 alpha);
+ut::Color MultipleAlpha(const ut::Color color, u8 alpha);
 void MultipleAlpha(ut::Color* pDst, const ut::Color* pSrc, u8 alpha);
 
 void SetVertexFormat(bool modulate, u8 numCoord);
@@ -132,6 +131,10 @@ void DrawQuad(const math::VEC2& rBase, const Size& rSize, u8 num,
               const TexCoord* pCoords, const ut::Color* pColors);
 void DrawQuad(const math::VEC2& rBase, const Size& rSize, u8 num,
               const TexCoord* pCoords, const ut::Color* pColors, u8 alpha);
+
+void DrawLine(const math::VEC2& rPos, const Size& rSize, ut::Color color);
+
+void InitGXTexObjFromTPL(GXTexObj* pTexObj, TPLPalette* pPalette, u32 id);
 
 }
 }

@@ -218,6 +218,10 @@ config.libs = [
             Object(Matching, "RVL_SDK/hbm/HBMCommon.cpp"),
             Object(Matching, "RVL_SDK/hbm/nw4hbm/lyt/lyt_animation.cpp"),
             Object(Matching, "RVL_SDK/hbm/nw4hbm/lyt/lyt_arcResourceAccessor.cpp"),
+            Object(Matching, "RVL_SDK/hbm/nw4hbm/lyt/lyt_bounding.cpp"),
+            Object(Matching, "RVL_SDK/hbm/nw4hbm/lyt/lyt_common.cpp"),
+            Object(Matching, "RVL_SDK/hbm/nw4hbm/lyt/lyt_drawInfo.cpp"),
+            Object(Matching, "RVL_SDK/hbm/nw4hbm/lyt/lyt_group.cpp"),
         ],
     ),
     library(
