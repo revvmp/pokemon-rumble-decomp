@@ -2,9 +2,9 @@
 
 ## Scope and ownership
 
-Issue #812 owns the complete retained `nw4r/lyt/lyt_animation.cpp` inventory: 27 functions / 5,396 instruction bytes at `0x802AF0C0`–`0x802B0674`. Its first retained functions are the original anonymous-namespace step and Hermite curve evaluators. This prerequisite extends five existing canonical headers with the complete animation interfaces and their resource records. It changes no source, split, object status or decompiled-byte credit.
+Issue #812 owns the complete retained `nw4r/lyt/lyt_animation.cpp` inventory: 27 functions / 5,396 instruction bytes at `0x802AF0C0`–`0x802B0674`. Its first retained functions are the original anonymous-namespace step and Hermite curve evaluators. This prerequisite extends six existing canonical headers with the complete animation interfaces, their resource records and the coordinated primitive-array deletion helper. It changes no source, split, object status or decompiled-byte credit.
 
-Existing AnimTransform layout and virtual order, AnimResource storage and all unrelated classes are preserved. The complete Material and TexMap interfaces belong to #808/#811; owner-approved external copies are used only for diagnostic consumers. Layout's additive DeletePrimArray template is reserved for the #809 owner's coordinated proposal. This prerequisite changes none of those three headers.
+Existing AnimTransform layout and virtual order, AnimResource storage and all unrelated classes are preserved. The complete Material and TexMap interfaces belong to #808/#811; owner-approved external copies are used only for diagnostic consumers, and their headers are unchanged here. Both the #808 source owner and delegated #809 Layout owner approved exact reuse of the six-line header-only `7903932717f2b57dffe26ed4bf147c18b3fbe9d8` contribution: Layout::DeletePrimArray null-checks and frees a primitive array without running element destructors. Native AnimTransformBasic destruction reproduces all 132 bytes with this helper. It changes no Layout storage, virtual order, existing templates or source ownership.
 
 ## Provenance
 
