@@ -374,6 +374,8 @@ config.libs = [
             Object(Matching, "nw4r/snd/snd_FxChorus.cpp"),
             Object(Matching, "nw4r/snd/snd_FxDelay.cpp"),
             Object(Matching, "nw4r/snd/snd_FxReverbStd.cpp"),
+            Object(Matching, "nw4r/snd/snd_InstancePool.cpp"),
+            Object(Matching, "nw4r/snd/snd_Lfo.cpp"),
         ],
     ),
     library(
