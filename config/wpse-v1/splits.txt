@@ -74,6 +74,14 @@ RVL_SDK/os/OSIpc.c:
 	.sdata      start:0x804B8AA0 end:0x804B8AA8
 	.sbss       start:0x804B9510 end:0x804B9518
 
+RVL_SDK/os/__start.c:
+	.init       start:0x80004000 end:0x800042F8
+	.sbss       start:0x804B9538 end:0x804B9540
+
+RVL_SDK/os/__ppc_eabi_init.c:
+	.init       start:0x80004300 end:0x80004364
+	.text       start:0x802C0A00 end:0x802C0ABC
+
 RVL_SDK/exi/EXIUart.c:
 	.text       start:0x802C23C0 end:0x802C2700
 	.sbss       start:0x804B9598 end:0x804B95A8
@@ -330,6 +338,10 @@ RVL_SDK/NdevExi2A/DebuggerDriver.c:
 
 RVL_SDK/NdevExi2A/exi2.c:
 	.text       start:0x8033F1E8 end:0x8033F974
+
+Runtime/__mem.c:
+	.init       start:0x80004364 end:0x800046E4
+	.text       start:0x8033F974 end:0x8033F990
 
 Runtime/__init_cpp_exceptions.cpp:
 	.text       start:0x80340B24 end:0x80340B94
