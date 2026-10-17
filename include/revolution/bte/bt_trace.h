@@ -172,6 +172,34 @@ void LogMsg_6(UINT32 trace_set_mask, const char* fmt_str, UINT32 p1, UINT32 p2, 
     }
 
 #define TRACE_LAYER_L2CAP 0x00080000
+#define BT_TRACE_6(l, t, m, p1, p2, p3, p4, p5, p6) \
+    LogMsg_6(TRACE_CTRL_GENERAL | (l) | TRACE_ORG_STACK | (t), (m), (UINT32)(p1), (UINT32)(p2), (UINT32)(p3), (UINT32)(p4), (UINT32)(p5), \
+             (UINT32)(p6))
+#define L2CAP_TRACE_ERROR1(m, p1) \
+    { \
+        if (l2cb.l2cap_trace_level >= BT_TRACE_LEVEL_ERROR) \
+            BT_TRACE_1(TRACE_LAYER_L2CAP, TRACE_TYPE_ERROR, m, p1); \
+    }
+#define L2CAP_TRACE_API0(m) \
+    { \
+        if (l2cb.l2cap_trace_level >= BT_TRACE_LEVEL_API) \
+            BT_TRACE_0(TRACE_LAYER_L2CAP, TRACE_TYPE_API, m); \
+    }
+#define L2CAP_TRACE_API2(m, p1, p2) \
+    { \
+        if (l2cb.l2cap_trace_level >= BT_TRACE_LEVEL_API) \
+            BT_TRACE_2(TRACE_LAYER_L2CAP, TRACE_TYPE_API, m, p1, p2); \
+    }
+#define L2CAP_TRACE_API3(m, p1, p2, p3) \
+    { \
+        if (l2cb.l2cap_trace_level >= BT_TRACE_LEVEL_API) \
+            BT_TRACE_3(TRACE_LAYER_L2CAP, TRACE_TYPE_API, m, p1, p2, p3); \
+    }
+#define L2CAP_TRACE_API6(m, p1, p2, p3, p4, p5, p6) \
+    { \
+        if (l2cb.l2cap_trace_level >= BT_TRACE_LEVEL_API) \
+            BT_TRACE_6(TRACE_LAYER_L2CAP, TRACE_TYPE_API, m, p1, p2, p3, p4, p5, p6); \
+    }
 #define L2CAP_TRACE_ERROR0(m)                                                                                          \
     {                                                                                                                  \
         if (l2cb.l2cap_trace_level >= BT_TRACE_LEVEL_ERROR)                                                            \
