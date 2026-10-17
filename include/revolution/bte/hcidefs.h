@@ -303,4 +303,36 @@ enum { HCI_PKT_TYPES_MASK_DH5 = 1 << 15 };
 #define HCI_DEFAULT_INACT_TOUT						32000
 enum { HCI_ERR_HW_FAILURE							= 3 };
 #define HCI_HANDLE_INVALID	0xffff
+#define HCI_3_SLOT_PACKETS_SUPPORTED(x)				((x)[0] & (1 << 0))
+#define HCI_5_SLOT_PACKETS_SUPPORTED(x)				((x)[0] & (1 << 1))
+#define HCI_SCO_LINK_SUPPORTED(x)					((x)[1] & (1 << 3))
+#define HCI_HV2_PACKETS_SUPPORTED(x)				((x)[1] & (1 << 4))
+#define HCI_HV3_PACKETS_SUPPORTED(x)				((x)[1] & (1 << 5))
+#define HCI_LMP_U_LAW_SUPPORTED(x)					((x)[1] & (1 << 6))
+#define HCI_LMP_A_LAW_SUPPORTED(x)					((x)[1] & (1 << 7))
+#define HCI_LMP_CVSD_SUPPORTED(x)					((x)[2] & (1 << 0))
+#define HCI_EDR_ACL_2MPS_SUPPORTED(x)				((x)[3] & (1 << 1))
+#define HCI_EDR_ACL_3MPS_SUPPORTED(x)				((x)[3] & (1 << 2))
+#define HCI_ESCO_EV3_SUPPORTED(x)					((x)[3] & (1 << 7))
+#define HCI_ESCO_EV4_SUPPORTED(x)					((x)[4] & (1 << 0))
+#define HCI_ESCO_EV5_SUPPORTED(x)					((x)[4] & (1 << 1))
+#define HCI_LMP_AFH_CAP_SLAVE_SUPPORTED(x)			((x)[4] & (1 << 3))
+#define HCI_LMP_AFH_CLASS_SLAVE_SUPPORTED(x)		((x)[4] & (1 << 4))
+#define HCI_3_SLOT_EDR_ACL_SUPPORTED(x)				((x)[4] & (1 << 7))
+#define HCI_5_SLOT_EDR_ACL_SUPPORTED(x)				((x)[5] & (1 << 0))
+#define HCI_LMP_AFH_CAP_MASTER_SUPPORTED(x)			((x)[5] & (1 << 3))
+#define HCI_LMP_AFH_CLASS_MASTER_SUPPORTED(x)		((x)[5] & (1 << 4))
+#define HCI_EDR_ESCO_2MPS_SUPPORTED(x)				((x)[5] & (1 << 5))
+#define HCI_EDR_ESCO_3MPS_SUPPORTED(x)				((x)[5] & (1 << 6))
+#define HCI_3_SLOT_EDR_ESCO_SUPPORTED(x)			((x)[5] & (1 << 7))
+#define HCI_DEF_INQUIRYSCAN_WINDOW					HCI_MIN_INQUIRYSCAN_WINDOW
+#define HCI_DEF_INQUIRYSCAN_INTERVAL				2048
+#define HCI_DEF_SCAN_TYPE							HCI_SCAN_TYPE_STANDARD
+#define HCI_DEF_PAGESCAN_WINDOW						HCI_MIN_PAGESCAN_WINDOW
+#define HCI_DEF_PAGESCAN_INTERVAL					2048
+enum { HCI_SCAN_TYPE_STANDARD	= 0 };
+#define HCI_NUM_FEATURE_BYTES						8
+#define HCI_COMMAND_SIZE							255
+enum { LMP_COMPID_ZEEVO	= 18 };
+enum { HCI_DO_AUTO_ACCEPT_CONNECT	= 2 };
 #endif
