@@ -845,6 +845,9 @@ nw4r/snd/snd_WaveSound.cpp:
 	.data       start:0x803C68C8 end:0x803C6900
 	.sbss       start:0x804B93B0 end:0x804B93B4
 
+nw4r/snd/snd_WaveSoundHandle.cpp:
+	.text       start:0x802917E0 end:0x80291818
+
 nw4r/snd/snd_WsdFile.cpp:
 	.text       start:0x80291820 end:0x80291BE4
 	.sdata2     start:0x804BB090 end:0x804BB094
