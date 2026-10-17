@@ -34,6 +34,25 @@ A subsequent comparison of 64 declaration/initialization forms across the two in
 
 Reordering declarations in `__wudGetDevInfoByIndex` or delaying its control-block pointer assignment leaves the importer at 82 differences; some forms regress search preparation. Replacing that helper's pointer with direct global accesses also regresses three other native functions. Early returns from the standard allocator change native extents and regress four callers. Those scratch forms are rejected; keep the original loop, result variable and common return.
 
+Extending the allocator comparison to 256 combinations, including separate interrupt-result assignment and null-initialized result pointers, gives no improvement below the accepted 82-word importer result without regressions elsewhere. One late control-block initializer reduces importer differences to 70 but introduces seven differences in each of `__wudSyncVirginStandard` and its inlined copy in `__wudSyncHandler`. Reordering or separating the outer virgin-standard pointer declarations does not remove those regressions. This alternative remains rejected.
+
+An instruction-shape diagnostic that ignores register names leaves four differing positions: importer offsets `0x290`, `0x294`, `0x298` and `0x29C`. The target calls `OSDisableInterrupts` before forming the control-block alias, then saves the interrupt result before reading the sync type. Current source schedules the alias before the call and the sync-type load before saving its result. All remaining raw differences involve register operands. This narrows the next investigation to allocator scheduling and register lifetimes; removing register operands is diagnostic only and does not reduce the 82-word acceptance mismatch.
+
+## Compiler cross-check
+
+The complete current source was compiled with the same SDK flags under six installed compiler versions. The table counts exact non-relocation instruction streams only, using all 86 native functions and their target extents; it does not establish final matching for any alternate compiler. No compiler setting is changed.
+
+| Compiler | Exact raw native bodies | Importer extent / differing non-relocation words | Additional differences |
+| --- | --- | --- | --- |
+| Wii/1.0 | 85 | `0x638` / 82 | None |
+| Wii/1.0a | 84 | `0x638` / 82 | `__wudInitSub`, five words |
+| Wii/1.0RC1 | 84 | `0x638` / 82 | `__wudInitSub`, five words |
+| Wii/1.1 | 82 | `0x638` / 82 | Virgin-standard sync, database cleanup and Wii Fit recovery |
+| Wii/1.3 | 82 | `0x638` / 82 | Same three additional functions as Wii/1.1 |
+| GC/3.0a3 | 55 | `0x630` / 281 | Thirty other native functions |
+
+The measured Wii/1.0 selection remains supported. Later Wii versions leave the importer mismatch unchanged while regressing other bodies; switching compilers is not a remedy for this source.
+
 `WUDInit` retains the BTA trace setup, optional linked-board initialization hook, alarm setup and dirty-flag clearing. It starts at state 1, without the newer reference's additional device-up wait. Shutdown saves standard devices and optionally companion devices, then starts the existing timed shutdown driver. The clear-control-block routine uses the original typed handle setters, producing the observed unsigned-byte indexing and native unrolling.
 
 ## Complete data and storage evidence
