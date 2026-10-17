@@ -462,6 +462,7 @@ config.libs = [
             Object(Matching, "nw4r/snd/snd_FxReverbStd.cpp"),
             Object(Matching, "nw4r/snd/snd_InstancePool.cpp"),
             Object(Matching, "nw4r/snd/snd_Lfo.cpp"),
+            Object(Matching, "nw4r/snd/snd_MmlSeqTrack.cpp"),
             Object(Matching, "nw4r/snd/snd_PlayerHeap.cpp"),
             Object(Matching, "nw4r/snd/snd_MemorySoundArchive.cpp"),
             Object(Matching, "nw4r/snd/snd_MidiSeqPlayer.cpp"),

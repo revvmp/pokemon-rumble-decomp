@@ -16,6 +16,8 @@ Wii/1.1 and existing `cflags_nw4r` reproduce all eight functions and the complet
 
 The complete `snd_MmlSeqTrack.cpp` owns `.text` `0x8027E000–0x8027E0B8` and `.data` `0x803C6570–0x803C6580`: constructor, parser dispatch, and destructor. The first two functions belong to #425; the destructor belongs to #426. The user's explicit whole-file approval is recorded in [F-426-2](426-snd-shared-interfaces.md), whose canonical interfaces merged in PR #754. A fresh default-directory `python configure.py`, plain `.venv/Scripts/ninja`, and explicit frozen verification all exited 0 with this split and the previously accepted player heap source. The vtable pairs the destructor and parser dispatch with their native addresses; constructor and destructor calls identify the sequence-track base interfaces.
 
+The source is now `Matching`: complete object `.text` and `.data` are 100% in objdiff. The full source-selected default Ninja build exited 0 and its frozen verification exited 0. The final ELF has all three native addresses and extents, totaling 168 function bytes, including #426's 88-byte destructor. The constructor and parser dispatch from #425 total 80 bytes and are explicitly credited to that neighboring issue. No other #425 unit is claimed complete.
+
 ## Reference provenance
 
 Player heap behavior follows CC0 `zeldaret/ss` at `57a709b2128eb163a18e2969d561c9abb7d1fcee`, `src/nw4r/snd/snd_PlayerHeap.cpp`, adapted to existing canonical headers and the project's source conventions. The source and referenced header have no file-specific license notice overriding the repository CC0 dedication. Reference material is retained outside the checkout. No commented reference source is imported into tracked code.
