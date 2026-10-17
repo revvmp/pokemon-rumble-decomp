@@ -2140,3 +2140,7 @@ For `wpse-v1` / `main.dol`, [F-402-1](findings/402-g3d-obj-anmobj-platform.md) n
 ## NW4R texture-transform animation (#398, part of #399)
 
 [F-398-1](findings/398-g3d-anmtexsrt.md) records all 24 retained functions in `g3d_anmtexsrt.cpp` (`0x802575E0`–`0x802580CC`): the base and resource implementations of `AnmObjTexSrt`, both `ApplyTexSrtAnmResult` overloads and the corresponding RTTI methods. Names are high confidence from pinned CC0 ss and exact native instruction/relocation comparisons. The base class has binding count at 0x10, binding pointer at 0x14 and size 0x18; the resource class adds FrameCtrl at 0x18, resource at 0x2C and cache pointer at 0x30, size 0x34. The native type-name records at `0x8036C798` and `0x8036C7B0` are 20 and 24 bytes, respectively; four following bytes align the first record. Resource/base vtables at `0x803C5B88`/`0x803C5BD0` each contain 0x48 bytes in the declared virtual order. `CalcTexMtx` at `0x80261D10` receives only its evidenced four-argument mangled name; its extent/type/ownership remain unchanged.
+
+## NW4R ef cylinder, torus and cube emitter forms (#381)
+
+For `wpse-v1` / `main.dol`, [F-381-1](findings/381-ef-emitter-forms-draw-strategies.md) names, with mangled CodeWarrior names and high confidence from the CC0 Whippy reference and exact matches: `EmitterFormCylinder::EmissionSub` (`0x80238270`), `EmitterFormCylinder::Emission` (`0x802386D0`), `EmitterFormTorus::Emission` (`0x80238A20`), `EmitterFormCube::EmissionSub` (`0x80239060`) and `EmitterFormCube::Emission` (`0x80239390`).

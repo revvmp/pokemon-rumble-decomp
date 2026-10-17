@@ -365,6 +365,21 @@ nw4r/ef/ef_sphere.cpp:
 	.data       start:0x803C5618 end:0x803C5628
 	.sdata2     start:0x804BA840 end:0x804BA890
 
+nw4r/ef/ef_cylinder.cpp:
+	.text       start:0x80238270 end:0x80238A20
+	.data       start:0x803C5628 end:0x803C5638
+	.sdata2     start:0x804BA890 end:0x804BA8D4
+
+nw4r/ef/ef_torus.cpp:
+	.text       start:0x80238A20 end:0x8023905C
+	.data       start:0x803C5638 end:0x803C5648
+	.sdata2     start:0x804BA8D8 end:0x804BA920
+
+nw4r/ef/ef_cube.cpp:
+	.text       start:0x80239060 end:0x8023AC3C
+	.data       start:0x803C5648 end:0x803C5658
+	.sdata2     start:0x804BA920 end:0x804BA958
+
 nw4r/g3d/res/g3d_rescommon.cpp:
 	.text       start:0x8024AE80 end:0x8024B024
 

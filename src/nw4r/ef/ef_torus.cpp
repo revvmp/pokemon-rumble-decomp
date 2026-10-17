@@ -1,0 +1,133 @@
+#include <nw4r/ef/emform/ef_torus.h>
+#include <nw4r/ef/ef_emitter.h>
+#include <nw4r/ef/ef_particlemanager.h>
+#include <nw4r/ef/ef_util.h>
+#include <nw4r/math/math_arithmetic.h>
+#include <nw4r/math/math_constant.h>
+
+namespace nw4r {
+namespace ef {
+
+void EmitterFormTorus::Emission(Emitter* pEmitter, ParticleManager* pManager,
+                                int count, u32 flags, f32* pParams, u16 life,
+                                f32 lifeRnd, const math::MTX34* pSpace) {
+    if (count < 1) {
+        return;
+    }
+
+    f32 sizeX, sizeY, sizeZ;
+
+    sizeX = FAbs(pParams[0]) > NW4R_MATH_FLT_EPSILON
+                ? pParams[0]
+                : NW4R_MATH_FLT_EPSILON;
+
+    sizeY = FAbs(pParams[4]) > NW4R_MATH_FLT_EPSILON
+                ? pParams[4]
+                : NW4R_MATH_FLT_EPSILON;
+
+    if (flags & EmitterDesc::EMIT_FLAG_XYZ_SAME_SIZE) {
+        sizeZ = sizeX;
+    } else {
+        sizeZ = FAbs(pParams[5]) > NW4R_MATH_FLT_EPSILON
+                    ? pParams[5]
+                    : NW4R_MATH_FLT_EPSILON;
+    }
+
+    f32 angle = 0.0f;
+    f32 dangle = 0.0f;
+
+    f32 angleOffset;
+    if (flags & EmitterDesc::EMIT_FLAG_18) {
+        angleOffset = pParams[2];
+    } else {
+        angleOffset = pEmitter->mRandom.RandFloat() * NW4R_MATH_PI * 2;
+    }
+
+    if (flags & EmitterDesc::EMIT_FLAG_17) {
+        f32 f = math::FMod(pParams[3] - pParams[2], NW4R_MATH_PI * 2);
+
+        if (f < NW4R_EF_EMIT_ANGLE_MIN || f > NW4R_EF_EMIT_ANGLE_MAX ||
+            pEmitter->mParameter.mEmitEmitDiv == 1) {
+            dangle =
+                (pParams[3] - pParams[2]) / pEmitter->mParameter.mEmitEmitDiv;
+        } else {
+            dangle = (pParams[3] - pParams[2]) /
+                     (pEmitter->mParameter.mEmitEmitDiv - 1);
+        }
+    }
+
+    int loopCount;
+    if (flags & EmitterDesc::EMIT_FLAG_17) {
+        loopCount = count * count;
+    } else {
+        loopCount = count;
+    }
+
+    f32 ringAngle = 0.0f;
+
+    for (int i = 0; i < loopCount; i++) {
+        math::VEC3 pos;
+        math::VEC3 vel;
+
+        f32 inner = (100.0f - pParams[1]) / (100.0f + pParams[1]);
+
+        if (!(flags & EmitterDesc::EMIT_FLAG_17)) {
+            angle = (pParams[3] - pParams[2]) * pEmitter->mRandom.RandFloat();
+            ringAngle = pEmitter->mRandom.RandFloat() * NW4R_MATH_PI * 2;
+        }
+
+        f32 sa, ca;
+        PSSinCosRad(&sa, &ca, angleOffset + angle);
+
+        f32 sr, cr;
+        PSSinCosRad(&sr, &cr, ringAngle);
+
+        pos.x = (inner * cr * sa + sa) * sizeX / (1.0f + inner);
+        pos.y = sizeY * sr;
+        pos.z = (-inner * cr * ca - ca) * sizeZ / (1.0f + inner);
+
+        math::VEC3 fromOrigin = pos;
+        Normalize(&fromOrigin, &fromOrigin);
+
+        math::VEC3 fromYAxis(pos.x, 0.0f, pos.z);
+        Normalize(&fromYAxis, &fromYAxis);
+
+        math::VEC3 normal;
+        if (inner == 0.0f) {
+            normal.x = sizeX * cr * sa;
+            normal.y = sizeY * sr;
+            normal.z = -sizeZ * cr * ca;
+        } else {
+            normal.x = (inner * cr * sa) * sizeX / (1.0f + inner);
+            normal.y = sizeY * sr;
+            normal.z = (-inner * cr * ca) * sizeZ / (1.0f + inner);
+        }
+
+        Normalize(&normal, &normal);
+
+        CalcVelocity(&vel, pEmitter, pos, normal, fromOrigin, fromYAxis);
+
+        pManager->CreateParticle(
+            CalcLife(life, lifeRnd, pEmitter),
+            pos,
+            vel,
+            pSpace,
+            1.0f + pEmitter->mParameter.mVelMomentumRandom *
+                (1.0f / 100.0f) * pEmitter->mRandom.RandFloat(),
+            &pEmitter->mInheritSetting,
+            pEmitter->mpReferenceParticle,
+            pEmitter->mCalcRemain);
+
+        if (flags & EmitterDesc::EMIT_FLAG_17) {
+            if ((i + 1) % count == 0) {
+                angle += dangle;
+                ringAngle = 0.0f;
+            } else {
+                ringAngle += NW4R_MATH_PI * 2 / count;
+            }
+        }
+    }
+}
+
+}
+}
