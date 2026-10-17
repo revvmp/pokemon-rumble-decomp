@@ -174,7 +174,8 @@ protected:
         }
     }
 
-    static void CalcAhead_NoDesign(math::VEC3* pAxisY, AheadContext* pContext) {
+    static void CalcAhead_NoDesign(math::VEC3* pAxisY, AheadContext* pContext,
+                                   Particle* pParticle) {
         *pAxisY = math::VEC3(pContext->mNoDesign.mWorldYAxis);
     }
 
