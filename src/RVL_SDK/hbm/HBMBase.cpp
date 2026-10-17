@@ -3079,4 +3079,118 @@ void HomeButton::fadeout_sound(f32 gain) {
     SetVolumeAllSeq(gain);
 }
 
+void HomeButton::createInfoEx(const HBMDataInfoEx* pHBInfoEx) {
+    mpHBInfoEx = pHBInfoEx;
+    char arcNameBuf[32] = "arc_";
+
+    if (void* pMem = HBMAllocMem(sizeof(nw4hbm::lyt::MultiArcResourceAccessor))) {
+        mpMultiResAccessor = new (pMem) nw4hbm::lyt::MultiArcResourceAccessor();
+    }
+
+    if (void* pMem = HBMAllocMem(sizeof(nw4hbm::lyt::ArcResourceLink))) {
+        mpHBInfoExLink = new (pMem) nw4hbm::lyt::ArcResourceLink();
+    }
+
+    if (void* pMem = HBMAllocMem(sizeof(nw4hbm::lyt::ArcResourceLink))) {
+        mpHBInfoLink = new (pMem) nw4hbm::lyt::ArcResourceLink();
+    }
+
+    mpHBInfoExLink->Set(mpHBInfoEx->layoutBuf, "arc");
+    mpHBInfoLink->Set(mpHBInfo->layoutBuf, "arc");
+    mpMultiResAccessor->Attach(mpHBInfoExLink);
+    mpMultiResAccessor->Attach(mpHBInfoLink);
+
+    if (void* pMem = HBMAllocMem(sizeof(nw4hbm::lyt::Layout))) {
+        mpLayoutEx = new (pMem) nw4hbm::lyt::Layout();
+    }
+
+    void* pLytRes = mpMultiResAccessor->GetResource(0, "arc.brlyt", nullptr);
+    mpLayoutEx->Build(pLytRes, mpMultiResAccessor);
+    void* pBrfnt = mpMultiResAccessor->GetResource(0, REVO_IPL_FONT, nullptr);
+
+    if (void* pMem = HBMAllocMem(sizeof(nw4hbm::ut::ResFont))) {
+        mpResFontEx = new (pMem) nw4hbm::ut::ResFont();
+    }
+
+    mpResFontEx->SetResource(pBrfnt);
+
+    for (int i = 0; i < 7; i++) {
+        arcNameBuf[4] = '\0';
+        strcat(arcNameBuf, scButtonBarMenuName[i]);
+        strcat(arcNameBuf, ".brlan");
+        void* pAnmRes = mpMultiResAccessor->GetResource(0, arcNameBuf, nullptr);
+
+        if (void* pMem = HBMAllocMem(sizeof(GroupAnmController))) {
+            mpAnmControllerEx[i] = new (pMem) GroupAnmController();
+        }
+
+        mpAnmControllerEx[i]->mpAnimGroup = mpLayoutEx->CreateAnimTransform(pAnmRes, mpMultiResAccessor);
+        mpAnmControllerEx[i]->mpGroup = mpLayoutEx->GetGroupContainer()->FindGroupByName(scButtonBarMenuGroupName[i]);
+        nw4hbm::lyt::detail::PaneLinkList& rPaneList = mpAnmControllerEx[i]->mpGroup->GetPaneList();
+
+        for (nw4hbm::lyt::detail::PaneLinkList::Iterator it = rPaneList.GetBeginIter();
+             it != rPaneList.GetEndIter(); ++it) {
+            it->mTarget->BindAnimation(mpAnmControllerEx[i]->mpAnimGroup, false);
+        }
+
+        f32 frameSize = mpAnmControllerEx[i]->mpAnimGroup->GetFrameSize();
+        mpAnmControllerEx[i]->init(FrameController::eAnmType_Forward, frameSize, 0.0f, mpHBInfo->frameDelta);
+    }
+
+    mpPaneManager->addLayoutScene(*mpLayoutEx);
+    nw4hbm::lyt::Pane* pPane = mpLayoutEx->GetRootPane()->FindPaneByName(scBtnWareName[0], true);
+    pPane->SetTranslate(nw4hbm::math::VEC2(-1.33f, -35.0f));
+    set_text_ex();
+}
+
+void HomeButton::destroyInfoEx() {
+    if (!mpMultiResAccessor) {
+        return;
+    }
+
+    mpPaneManager->delLayoutScene(*mpLayoutEx);
+
+    for (int i = 0; i < 7; i++) {
+        mpAnmControllerEx[i]->~GroupAnmController();
+        HBMFreeMem(mpAnmControllerEx[i]);
+        mpAnmControllerEx[i] = nullptr;
+    }
+
+    mpMultiResAccessor->~MultiArcResourceAccessor();
+    HBMFreeMem(mpMultiResAccessor);
+    HBMFreeMem(mpHBInfoExLink);
+    HBMFreeMem(mpHBInfoLink);
+    mpMultiResAccessor = nullptr;
+    mpLayoutEx->~Layout();
+    HBMFreeMem(mpLayoutEx);
+    mpLayoutEx = nullptr;
+    mpResFontEx->~ResFont();
+    HBMFreeMem(mpResFontEx);
+}
+
+void HomeButton::set_text_ex() {
+    int i = 0;
+    int j = 0;
+    int k = 0;
+    bool inString = false;
+    wchar_t* pMessage = static_cast<wchar_t*>(mpHBInfoEx->msgBuf);
+
+    for (; pMessage[i] != L'\0'; i++) {
+        if (pMessage[i] == L'"') {
+            if (!inString) {
+                inString = true;
+                mpTextEx[j][k] = &pMessage[i + 1];
+                j++;
+
+                if (j == 10) {
+                    j = 0;
+                    k++;
+                }
+            } else {
+                inString = false;
+            }
+        }
+    }
+}
+
 }
