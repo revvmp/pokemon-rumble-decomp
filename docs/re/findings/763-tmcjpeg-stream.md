@@ -23,3 +23,6 @@ Permuting the overflow-case stores changes otherwise exact byte writers, while c
 
 
 A further bounded helper-input check varied MaskBits input types without changing the actual source. Signed32-bit bits with unsigned32-bit count preserves nine exact functions and the same26 checked-writer differences. Narrow8/16-bit bit or count parameters regress one previously exact function and leave103/104 checked-writer differences. These ordinary type variants do not recover the checked-writer register allocation; the committed helper keeps its original full-width types, and the unit remains NonMatching.
+
+
+Three further ordinary WriteByte pointer-expression variants were diagnostic only: assigning the postincrement destination first, indexed store plus increment, and a cached pointer reduced the exact count to five, five and seven respectively. The original single `*stream->current++ = value` expression remains necessary. A diagnostic `-inline deferred` compilation retains nine exact functions and the same26 checked-writer differences, so there is no evidence for changing the established `-inline auto` profile. Actual source and configuration remain unchanged.
