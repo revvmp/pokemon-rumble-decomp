@@ -31,7 +31,9 @@ Pane::SetSRTElement retains the original float-element view of its contiguous tr
 
 The complete external source consumer compiled under existing Wii/1.1 NW4R flags. Every one of the 27 original issue functions has its native size and every non-relocation word. The paired audit checks all 67 retained text relocations, all seven vtable entries, every vtable byte and the complete constant pool: 74 relocations and 68 initialized bytes exact. These diagnostics do not establish source-selected linking or source completion.
 
-Before any tracked header change, the untouched baseline passed `python configure.py`, all 484 plain Ninja targets, and explicit frozen verification, all exit zero. SHA-256 values for all 477 compiled source objects were captured. The header proposal must independently pass its real full build, frozen verifier and existing-object comparison before submission.
+Before any tracked header change, the untouched baseline passed `python configure.py`, all 484 plain Ninja targets, and explicit frozen verification, all exit zero. SHA-256 values for all 477 compiled source objects were captured. The header proposal then passed a fresh 484-target plain Ninja build and explicit frozen verification, exit zero. Of the 477 existing source objects, 474 are byte-identical. The remaining lyt_common, lyt_pane and lyt_window objects differ solely in digits within compiler-generated local constant names in `.strtab`; all other section bytes, including code, data, relocations, symbol table and compiler metadata, are identical. An independent comparison validates that exact restriction and exits zero.
+
+The complete animation consumer was also recompiled using these tracked animation headers and only owner-approved pending Material/TexMap/Layout prerequisites. All 27 instruction streams, 74 paired relocations and 68 initialized bytes remain exact. The source delivery must separately prove actual source-object comparison and source-selected full-DOL identity after its prerequisite interfaces integrate.
 
 ## Traps
 
@@ -40,3 +42,5 @@ The older animation interfaces drop the disable argument. Retaining only their c
 Flattening the reference version predicate into one Boolean expression produced a 256-byte AnimResource::Set and changed register allocation. Separating the supported-minor predicate with ordinary inline C++ reproduces the complete native 260-byte function. This is a measured source distinction for this unit, not a general compiler flag rule.
 
 The source compiler object also contains unretained original helpers and a weak base vtable. Source acceptance must check retained function order, final native addresses, actual source-only link inputs and the full frozen artifact; it cannot assume raw object offsets already equal final linked offsets.
+
+Additional header declarations changed three existing objects' compiler-local constant counters. Raw object digests therefore differ even though every section except those digits in `.strtab` is identical. Inspect the actual sections and strings before accepting this distinction; a digest mismatch alone is not permission to overlook code, data or relocation changes. The same behavior was independently observed in [F-807-1](807-layout-interfaces.md).
