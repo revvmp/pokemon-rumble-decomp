@@ -279,6 +279,7 @@ config.libs = [
             Object(Matching, "nw4r/g3d/res/g3d_resmdl.cpp"),
             Object(Matching, "nw4r/g3d/res/g3d_resshp.cpp"),
             Object(Matching, "nw4r/g3d/res/g3d_restev.cpp"),
+            Object(Matching, "nw4r/g3d/res/g3d_resmat.cpp"),
         ],
     ),
     library(
