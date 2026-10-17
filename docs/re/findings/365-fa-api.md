@@ -123,3 +123,11 @@ Together the two units reconstruct eight of #365's 26 functions, 484 of
   owner also approved the signed-drive PFVOL_GetVolumeFromDrvChar declaration
   needed by the independently owned volume_apiadd unit. These declarations
   receive no source credit and require the expanded existing-object gate.
+- An unused argument can survive a native-exact C forwarding wrapper without
+  establishing the original interface. The native dispatcher at 0x8021CBB8
+  supplies only drive in r3 to pf2_detach, leaving r4 as the jump-table case
+  address; the public stub at 0x8021CFF0 likewise submits only drive. The
+  lower PFVOL_detach at 0x80217E00 does not read r4. Both pending interfaces
+  therefore take one signed drive argument, unlike the public VF revision's
+  two-argument detach. The #363 body owner and #369 caller owner independently
+  confirm this contract before canonical publication.

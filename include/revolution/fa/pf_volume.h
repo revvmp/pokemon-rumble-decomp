@@ -217,7 +217,7 @@ s32 PFVOL_getvolcfg(s8 drive, PF_VOLUME_CONFIG* p_config);
 s32 PFVOL_iswriteprotected(s8 drive, u32* p_is_write_protected);
 s32 PFVOL_buffering(s8 drive, u8 mode);
 s32 PFVOL_derrnum(s8 drive);
-s32 PFVOL_detach(s8 drive, u32 mode);
+s32 PFVOL_detach(s8 drive);
 s32 PFVOL_errnum(void);
 
 typedef struct PF_TAIL_BUF PF_TAIL_BUF;
