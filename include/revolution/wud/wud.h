@@ -142,6 +142,12 @@ u16 _WUDGetQueuedSize(s8 handle);
 u16 _WUDGetNotAckedSize(s8 handle);
 u8 _WUDGetLinkNumber(void);
 
+WUDDevInfo* WUDiGetDiscoverDevice(void);
+void WUDiSetDevAddrForHandle(UINT8 handle, BD_ADDR_PTR addr);
+BD_ADDR_PTR WUDiGetDevAddrForHandle(UINT8 handle);
+void WUDiSetQueueSizeForHandle(UINT8 handle, u16 size);
+void WUDiSetNotAckNumForHandle(UINT8 handle, u16 count);
+
 #ifdef __cplusplus
 }
 #endif
