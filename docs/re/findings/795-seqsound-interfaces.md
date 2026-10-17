@@ -4,7 +4,7 @@
 
 Issue #795 covers SeqSound at 0x80280760 through its initializer at 0x80280F50 and the retained SeqSoundHandle::DetachSound at 0x80280F60. This prerequisite supplies complete class interfaces without selecting source, changing splits, or claiming reconstructed code bytes.
 
-The reference is zeldaret/ss commit `57a709b2128eb163a18e2969d561c9abb7d1fcee`, whose sequence sound files identify kiwi515/ogws as their original source. The pinned root license is CC0; the individual inspected files have no overriding license notice. Comments and reference-only scaffolding are omitted under this project's rules. Existing canonical BasicSound, SeqPlayer, FileStream, InstancePool, SDK, and utility interfaces are preserved.
+The reference is zeldaret/ss commit `57a709b2128eb163a18e2969d561c9abb7d1fcee`, whose sequence sound files identify kiwi515/ogws as their original source. The pinned root license is CC0; the individual inspected files have no overriding license notice. Comments and reference-only scaffolding are omitted under this project's rules. Existing canonical BasicSound, SeqPlayer, FileStream, InstancePool, SDK, and utility interfaces are preserved. Main PR836 independently supplied SeqFileReader while this prerequisite was being prepared. Its canonical header is retained in full, with no competing SeqFile declaration; the consumer uses SeqFile::Header for the loaded file pointer.
 
 ## Native layout evidence
 
