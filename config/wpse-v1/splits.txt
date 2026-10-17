@@ -86,6 +86,13 @@ RVL_SDK/gx/GXFifo.c:
 	.bss        start:0x80454200 end:0x80454280
 	.sbss       start:0x804B96C0 end:0x804B96E0
 
+RVL_SDK/gx/GXMisc.c:
+	.text       start:0x802CC630 end:0x802CCE30
+	.sbss       start:0x804B96E0 end:0x804B96F4
+
+RVL_SDK/gx/GXGeometry.c:
+	.text       start:0x802CCE30 end:0x802CD434
+
 RVL_SDK/gx/GXFrameBuf.c:
 	.text       start:0x802CD440 end:0x802CDEC0
 	.sdata2     start:0x804BB300 end:0x804BB310

@@ -12,5 +12,9 @@
 #include "revolution/gx/GXFrameBuf.h"
 #include "revolution/gx/GXDispList.h"
 #include "revolution/gx/GXFifo.h"
+#include "revolution/gx/GXManage.h"
+#include "revolution/gx/GXCpu2Efb.h"
+#include "revolution/gx/GXGeometry.h"
+#include "revolution/gx/GXCull.h"
 
 #endif

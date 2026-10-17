@@ -179,6 +179,8 @@ config.libs = [
             Object(Matching, "RVL_SDK/db/db.c"),
             Object(NonMatching, "RVL_SDK/vi/i2c.c"),
             Object(NonMatching, "RVL_SDK/gx/GXFifo.c"),
+            Object(NonMatching, "RVL_SDK/gx/GXMisc.c"),
+            Object(NonMatching, "RVL_SDK/gx/GXGeometry.c"),
             Object(NonMatching, "RVL_SDK/gx/GXFrameBuf.c"),
             Object(NonMatching, "RVL_SDK/gx/GXLight.c"),
             Object(Matching, "RVL_SDK/gx/GXTev.c"),
