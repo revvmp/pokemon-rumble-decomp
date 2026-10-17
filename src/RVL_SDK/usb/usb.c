@@ -502,6 +502,11 @@ end_async:
     return result;
 }
 
+const char* const gUsbStrippedTransferMessages[] = {
+    "calling short blk transfer fn: buflen = %u limit = %u\n",
+    "calling long blk transfer fn: buflen = %u limit = %u\n"
+};
+
 IOSError IUSB_ReadIntrMsg(IOSFd fd, u32 ep, u32 buflen, char* buf) {
     IOSError rv;
 
@@ -1184,3 +1189,9 @@ IOSError IUSB_DeviceClassInsertionNotifyAsync(const char* path, u8 devClass, USB
 done:
     return rv;
 }
+
+const char* const gUsbStrippedInsertionMessages[] = {
+    "IUSB_RegisterInsertionNotifyWithIdAsync",
+    "%s: Not enough memory\n",
+    "Failed to open %s: %d\n"
+};

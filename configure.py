@@ -529,7 +529,7 @@ config.libs = [
             Object(Matching, "RVL_SDK/wpad/WPADMem.c"),
             Object(Matching, "RVL_SDK/wpad/debug_msg.c"),
             Object(Matching, "RVL_SDK/euart/euart.c"),
-            Object(NonMatching, "RVL_SDK/usb/usb.c"),
+            Object(Matching, "RVL_SDK/usb/usb.c"),
             Object(Matching, "RVL_SDK/wud/WUDHidHost.c"),
             Object(Matching, "RVL_SDK/wud/debug_msg.c"),
             Object(Matching, "RVL_SDK/bte/gki_buffer.c", cflags=[*cflags_base, "-ipa file"]),
