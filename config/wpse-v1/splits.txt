@@ -1134,13 +1134,23 @@ RVL_SDK/bte/utl.c:
 RVL_SDK/bte/bta_dm_act.c:
 	.text       start:0x80314A44 end:0x80316D80
 	.rodata     start:0x80397EE8 end:0x80397F90
-	.data       start:0x803E06E8 end:0x803E0824
+	.data       start:0x803E06E8 end:0x803E0828
 	.bss        start:0x804AA968 end:0x804AA998
 	.sdata2     start:0x804BB5F8 end:0x804BB5FC
 
 RVL_SDK/bte/bta_dm_api.c:
 	.text       start:0x80316D80 end:0x803171EC
 	.sdata2     start:0x804BB600 end:0x804BB610
+
+RVL_SDK/bte/bta_dm_main.c:
+	.text       start:0x803171EC end:0x8031734C
+	.rodata     start:0x80397F90 end:0x803980B8
+	.bss        start:0x804AA998 end:0x804AAB18
+
+RVL_SDK/bte/bta_dm_pm.c:
+	.text       start:0x8031734C end:0x80317D68
+	.data       start:0x803E0828 end:0x803E0874
+	.bss        start:0x804AAB18 end:0x804AAB48
 
 RVL_SDK/bte/btm_discovery.c:
 	.text       start:0x8031DF18 end:0x8031E04C
