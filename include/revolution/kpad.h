@@ -184,7 +184,7 @@ typedef struct {
     u8 aimReq;
     u8 aimEnabled;
     u8 fsAccRevise;
-    u8 padding;
+    u8 buttonProcessingMode;
     KPADPlayMode pos_play_mode;
     KPADPlayMode hori_play_mode;
     KPADPlayMode dist_play_mode;
@@ -195,6 +195,7 @@ typedef struct {
 } KPADInsideStatus;
 
 void KPADInit();
+void KPADInitEx(KPADUnifiedWpadStatus* pBuffer, u32 length);
 
 void KPADSetBtnRepeat(s32, f32, f32);
 void KPADSetSensorHeight(s32, f32);
@@ -202,9 +203,13 @@ void KPADSetAccParam(s32 chan, f32 playRadius, f32 sensitivity);
 void KPADSetPosParam(s32, f32, f32);
 void KPADSetHoriParam(s32, f32, f32);
 void KPADSetDistParam(s32, f32, f32);
+void KPADSetObjInterval(f32 interval);
 
 void KPADReset(void);
 s32 KPADRead(s32, KPADStatus[], u32);
+WPADCallback KPADSetConnectCallback(s32 chan, WPADCallback callback);
+void KPADDisableDPD(s32 chan);
+void KPADEnableDPD(s32 chan);
 
 extern KPADInsideStatus inside_kpads[];
 

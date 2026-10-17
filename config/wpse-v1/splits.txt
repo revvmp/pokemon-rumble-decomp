@@ -1262,6 +1262,14 @@ RVL_SDK/wpad/WPADMem.c:
 RVL_SDK/wpad/debug_msg.c:
 	.text       start:0x80304600 end:0x80304650
 
+RVL_SDK/kpad/KPAD.c:
+	.text       start:0x80304650 end:0x803086C8
+	.data       start:0x803DE828 end:0x803DE888
+	.bss        start:0x8047ACD0 end:0x8047C320
+	.sdata      start:0x804B8DF8 end:0x804B8E78
+	.sbss       start:0x804B9AD0 end:0x804B9B08
+	.sdata2     start:0x804BB568 end:0x804BB5D8
+
 RVL_SDK/wud/WUDHidHost.c:
 	.text       start:0x803103A0 end:0x80310988
 	.data       start:0x803E0260 end:0x803E04F7
