@@ -145,6 +145,40 @@ and Animation27 retains all 5,396 bytes, 74 targets and 68 data bytes. The
 repeat script is `809-reprove-header6b26.py`; the Animation scripts above
 were rerun unchanged. No global build or production source was mutated.
 
+## Final current-main header gate
+
+The final current-main baseline is the exact verified #882 head
+`c7dd9a00978a2e54153e90e1588c4de85cb0a911`. Its complete `all_source`
+inventory contains 534 objects. The baseline was captured read-only after
+the owner's plain Ninja, explicit `all_source`, and frozen verification
+passed. Independent comparison with actual merged main
+`1d16cf44e80e9219de742c53e0969e1298c4982a` finds every tracked file
+identical except the expected progress image. Raw source objects, linked
+DOL/ELF, linker configuration, Ninja file, complete tracked-tree inventory
+and their hashes are preserved outside the repository at
+`808-reference/879-final-baseline-c7dd9a00`.
+
+After a clean rebase, the proposed header head
+`9c387d244a3d2e57a9729120ceccdc8c19767277` built from a fresh output
+directory: `python configure.py`, plain `.venv/Scripts/ninja` (541 targets),
+explicit `.venv/Scripts/ninja all_source`, and the manifest-based frozen
+verifier each exited 0. The Ninja-declared 534-object inventory exactly
+equals the actual object files, and `ninja -n all_source` reports no pending
+work. This explicitly includes NonMatching objects rather than assuming
+the object directory is complete.
+
+`879-header-baseline.py compare` and `control` both exit 0. All 534 objects
+retain every allocated byte, section metadata and relocation. Of these,
+515 are whole-file identical; the other nineteen differ only in strictly
+numeric local `.strtab` identifiers. Recompiling all nineteen with the
+original eight headers reproduces their exact baseline SHA-256 hashes.
+The raw control objects and `control-proof.json` preserve that independent
+check. All eight proposed header files are byte-identical to the earlier
+native-consumer-proved `6b26fc71` definitions; the fresh complete build
+also preserves the now-canonical Layout, Picture, Window and Animation
+source consumers. This header prerequisite changes no source selection,
+split or executable-byte credit.
+
 ## Traps
 
 - An inline Font reader body adds 28 bytes to the native retained line-rect
