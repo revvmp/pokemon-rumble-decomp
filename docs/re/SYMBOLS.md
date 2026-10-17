@@ -885,6 +885,25 @@ Names given in `config/wpse-v1/symbols.txt`; evidence in [489-mem-cx-dsp](findin
 | `0x804B8A50` | 4 | `AppGameNameForSysMenu` | `.sdata` static `const char*` |
 | `0x804B9468` | 5 | `GameNameBuffer` | `.sbss` static `char[5]` |
 
+## RVL_SDK ISFS (#498)
+
+`wpse-v1` `main.dol`; [F-498-1](findings/498-fs.md). Names follow Petari's `fs.c` and `ipcclt.c`, confirmed by byte-identical linked reconstruction; confidence high.
+
+| Address | Size | Name | Kind |
+| --- | --- | --- | --- |
+| `0x802F38E0` | `0x154` | `ISFS_ReadDir` | function |
+| `0x802F3A40` | `0x148` | `ISFS_ReadDirAsync` | function |
+| `0x802F4200` | `0x138` | `ISFS_GetUsage` | function |
+| `0x802F4B10` | `0x4` | `ISFS_Close` | function, tail call to `IOS_Close` |
+| `0x802F4B20` | `0x84` | `ISFS_CloseAsync` | function |
+| `0x802F4BB0` | `0x90` | `ISFS_ShutdownAsync` | function |
+| `0x802F1D30`-`0x802F2840` | | `IOS_CloseAsync`, `IOS_ReadAsync`, `IOS_Read`, `IOS_WriteAsync`, `IOS_Write`, `IOS_SeekAsync`, `IOS_Seek`, `IOS_Ioctl`, `IOS_IoctlvAsync` | IPC client functions in address order (unit not yet split) |
+| `0x804B9A10` | 4 | `_asynCnt` | `.sbss` static |
+| `0x804B9A14` | 4 | `lo` in `ISFS_OpenLib` | `.sbss` function static |
+| `0x804B9A18` | 4 | `hi` in `ISFS_OpenLib` | `.sbss` function static |
+
+`__isfsCtxt` is 0x140 bytes: a 32-byte-aligned 256-byte `ioBuf` at 0x0, `cb` 0x100, `ctxt` 0x104, `func` 0x108, argument union 0x10C.
+
 ## RVL_SDK PAD (#499)
 
 `wpse-v1` `main.dol`; [F-499-1](findings/499-pad.md). Names follow zeldaret/tp's `Pad.c` and `Padclamp.c`, confirmed by byte-identical linked reconstruction; confidence high. The two clamp-region names are descriptive (medium confidence).
