@@ -1008,6 +1008,17 @@ RVL_SDK/wpad/WPADMem.c:
 RVL_SDK/wpad/debug_msg.c:
 	.text       start:0x80304600 end:0x80304650
 
+RVL_SDK/bte/gki_buffer.c:
+	.text       start:0x803109E0 end:0x80311E78
+	.data       start:0x803E04F8 end:0x803E063A
+
+RVL_SDK/bte/gki_time.c:
+	.text       start:0x80311E80 end:0x80312404
+
+RVL_SDK/bte/gki_ppc.c:
+	.text       start:0x80312410 end:0x80312714
+	.bss        start:0x8047E4C8 end:0x804A6FA8
+
 RVL_SDK/bte/hcisu_h2.c:
 	.text       start:0x80312720 end:0x80312DDC
 	.rodata     start:0x80397E30 end:0x80397E44
