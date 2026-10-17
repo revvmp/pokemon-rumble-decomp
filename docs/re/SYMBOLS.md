@@ -1988,3 +1988,60 @@ For `wpse-v1` / `main.dol`, [F-397-1](findings/397-g3d-anmtexpat.md) names 23 fu
 ## NW4R Pane and Group interface prerequisite (#462)
 
 [F-462-4](findings/462-pane-group-interface.md) records `Pane` (`0xD8` bytes), `detail::PaneBase` (`0x0C`), `Group` (`0x2C`), and `detail::PaneLink` (`0x0C`) for the free `nw4r::lyt::BindAnimation(Group*, AnimTransform*, bool, bool)` at `0x802B1790`. The utility walks Group's pane list at `0x0C`, reads PaneLink's target at `0x08`, and dispatches Pane's virtual at `0x44`; the idiomatic C++ function matches all native non-relocation instruction words. Header names and remaining virtual declarations follow CC0 Skyward Sword `57a709b2128eb163a18e2969d561c9abb7d1fcee`; field accesses and the called virtual slot are directly confirmed, while unrelated method bodies remain the responsibility of #456 and #457. No source-coverage credit is claimed by the header prerequisite.
+## MetroTRK communication and circular buffers (#541)
+
+[F-541-1](findings/541-metrotrk-communication.md) establishes all 17 native functions and their source-selected final addresses. Wii/1.0 and Wii/1.1 both reproduce these bodies; Wii/1.1 is selected without claiming uniqueness.
+
+| Address | Extent | Name | Kind | Confidence | Evidence |
+| --- | --- | --- | --- | --- | --- |
+| `0x8034D914` | `0x3C` | `gdev_cc_initialize` | C function | high | F-541-1; reference, calls, exact relocated unit and frozen DOL |
+| `0x8034D950` | `0x8` | `gdev_cc_shutdown` | C function | high | F-541-1; reference, calls, exact relocated unit and frozen DOL |
+| `0x8034D958` | `0x24` | `gdev_cc_open` | C function | high | F-541-1; reference, calls, exact relocated unit and frozen DOL |
+| `0x8034D97C` | `0x8` | `gdev_cc_close` | C function | high | F-541-1; reference, calls, exact relocated unit and frozen DOL |
+| `0x8034D984` | `0xB4` | `gdev_cc_read` | C function | high | F-541-1; reference, calls, exact relocated unit and frozen DOL |
+| `0x8034DA38` | `0x74` | `gdev_cc_write` | C function | high | F-541-1; reference, calls, exact relocated unit and frozen DOL |
+| `0x8034DAAC` | `0x24` | `gdev_cc_pre_continue` | C function | high | F-541-1; reference, calls, exact relocated unit and frozen DOL |
+| `0x8034DAD0` | `0x24` | `gdev_cc_post_stop` | C function | high | F-541-1; reference, calls, exact relocated unit and frozen DOL |
+| `0x8034DAF4` | `0x74` | `gdev_cc_peek` | C function | high | F-541-1; reference, calls, exact relocated unit and frozen DOL |
+| `0x8034DB68` | `0x24` | `gdev_cc_initinterrupts` | C function | high | F-541-1; reference, calls, exact relocated unit and frozen DOL |
+| `0x8034DB8C` | `0x4` | `MWInitializeCriticalSection` | C function | high | F-541-1; reference, calls, exact relocated unit and frozen DOL |
+| `0x8034DB90` | `0x30` | `MWEnterCriticalSection` | C function | high | F-541-1; reference, calls, exact relocated unit and frozen DOL |
+| `0x8034DBC0` | `0x8` | `MWExitCriticalSection` | C function | high | F-541-1; reference, calls, exact relocated unit and frozen DOL |
+| `0x8034DBC8` | `0x8` | `CBGetBytesAvailableForRead` | C function | high | F-541-1; reference, calls, exact relocated unit and frozen DOL |
+| `0x8034DBD0` | `0x24` | `CircleBufferInitialize` | C function | high | F-541-1; reference, calls, exact relocated unit and frozen DOL |
+| `0x8034DBF4` | `0x108` | `CircleBufferWriteBytes` | C function | high | F-541-1; reference, calls, exact relocated unit and frozen DOL |
+| `0x8034DCFC` | `0x108` | `CircleBufferReadBytes` | C function | high | F-541-1; reference, calls, exact relocated unit and frozen DOL |
+| `0x804B3550` | `0x500` | `gRecvBuf` | static storage | high | F-541-1; native access offsets, compiled layout and final relocation proof |
+| `0x804B3A50` | `0x1C` | `gRecvCB` | static storage | high | F-541-1; native access offsets, compiled layout and final relocation proof |
+| `0x804B9BF8` | `0x4` | `gIsInitialized` | static storage | high | F-541-1; native access offsets, compiled layout and final relocation proof |
+
+`CircleBuffer` is 0x1C bytes: read/write/start pointers at 0/4/8, size at 0x0C, signed readable count at 0x10, writable count at 0x14 and unsigned-int interrupt state at 0x18. Four following BSS bytes and four following flag bytes are alignment, not members. Names and types follow the pinned reference and established helper interfaces; final storage placement is verified.
+
+## MetroTRK main loop and memory helpers (#541)
+
+[F-541-2](findings/541-main-loop-memory.md) establishes four more source-selected functions. All final addresses, extents and relocated bytes agree with the frozen DOL; 343 earlier source objects remain unchanged.
+
+| Address | Extent | Name | Kind | Confidence | Evidence |
+| --- | --- | --- | --- | --- | --- |
+| `0x8034DE3C` | `0x3C` | `TRK_main` | C function | high | Original name, reference call order and exact source-linked bytes |
+| `0x8034DE78` | `0xEC` | `TRKNubMainLoop` | C function | high | Original name, reference event branches and exact source-linked bytes |
+| `0x8034DF64` | `0x13C` | `TRK_memcpy` | C function | high | Paired program-end-trap/event-copy callers, native aligned-word copy and exact source-linked bytes |
+| `0x8034E0A0` | `0x128` | `TRK_memset` | C function | high | Reply-buffer callers, native aligned-word fill and exact source-linked bytes |
+| `0x804B9C00` | `0x4` | `TRK_mainError` | static error enum | high | Native SDA stores, compiled object and final ELF placement |
+
+`TRKEvent` is twelve bytes: `eventType` at zero, `eventID` at four, `msgBufID` at eight. Its names and canonical event values follow the reference and match the native event-loop branches/accesses. The opaque `TRKBuffer` declaration introduces no guessed storage. `ReadMemoryByte` and `WriteMemoryByte` are chosen descriptive local-helper names; no original helper identity is asserted.
+
+## MetroTRK dispatcher and cache maintenance (#541)
+
+TRKDispatchMessage at 0x8034E1C8 owns 0x120 text bytes and its 0x6C-byte table at 0x803E6270. Its twelve command handlers and TRKSetBufferPosition are named from paired native calls and protocol table values. The proven TRKBuffer is 0x88C bytes, with isInUse at 0, length at 4, position at 8 and 0x880 data bytes at 0xC; this target has no leading mutex word. TRK_flush_cache at 0x8034DE04 is the matching original 0x38-byte assembly routine. See [F-541-3](findings/541-dispatch-cache.md) for source provenance, native layout evidence and separate assembly accounting.
+
+## MSL shared ownership and remaining #541 wrappers
+
+The native `std::tr1::detail::shared_ptr_deleter_common` RTTI name at 0x803997F4, descriptor at 0x804B5AB8 and base vtable at 0x803997E0 identify release at 0x8034D84C and release_weak at 0x8034D8C4. The complete 12-byte class stores ptrdiff_t use_count_ at 4 and weak_count_ at 8; virtual order is destructor, get_deleter and dispose. Both C++ member implementations and their native exception sections match. strncasecmp at 0x8034D83C extends the already owned extras.c; its target is __msl_strnicmp at 0x803450A4. The original name of the 0x8034D840 decimal wcstol wrapper remains unresolved: wide_string_to_decimal is a descriptive chosen name. TRKAccessFile/OpenFile/CloseFile/PositionFile occupy the four consecutive eight-byte assembly trap entries 0x8034D8F4–0x8034D914. See [F-541-5](findings/541-smart-pointer-traps.md) for provenance, original-name confidence, complete section proof and assembly accounting.
+For `wpse-v1` / `main.dol`, [F-394-1](findings/394-g3d-resanmscn-transform.md) names 31 functions in `.text` `0x80253C80`–`0x80255724` with their mangled CodeWarrior names in `config/wpse-v1/symbols.txt`: `nw4r::g3d::ResLightSet::Bind`; `GetAnmResult` of `ResAnmAmbLight`, `ResAnmLight`, `ResAnmFog`, `ResAnmCamera` and `ResAnmShp`; 21 `ResAnmScn` accessors and `Bind`; and `detail::CalcViewNrmMtx`, `CalcViewTexMtx` and `CalcInvWorldMtx`. Names are high confidence from CC0 zeldaret/ss and the exact match. The `ResAnmScn` accessors absent from ss (`HasResLightSet`, `HasResAnmCamera`, the fog accessors and the `NumEntries` accessors) are medium confidence, named after the ss pattern and placed by their dictionary-name references. Where an `int` and a `u32` index accessor would be byte-identical, the `u32` name is low confidence. The local dictionary names are `ResNameData_LightSet`, `ResNameData_AmbLights`, `ResNameData_Lights`, `ResNameData_Fogs` and `ResNameData_Cameras` at `.data` `0x803C5940`–`0x803C59E0` (0x20 each). `sEpsilon` (`.sdata2` `0x804BAB78`, 4 bytes, `1e-36f`) is a descriptive name.
+
+### MetroTRK transport and event interfaces (#542)
+
+## MetroTRK Dolphin startup (#541, coordinated with #542)
+
+[F-541-7](findings/541-dolphin-completion.md) proves the complete source-selected unit and all 39 paired relocation targets. `InitMetroTRK` at 0x8034E2E8 has corrected extent 0x98, including its original trailing return; `InitMetroTRK_BBA` at 0x8034E380 has extent 0x94. Both are original SDK assembly. The C functions are `EnableMetroTRKInterrupts` at 0x8034E414/4, `TRKTargetTranslate` at 0x8034E418/0x68, `__TRK_copy_vectors` at 0x8034E480/0x134, `TRKInitializeTarget` at 0x8034E5B4/0x48 and `__TRK_reset` at 0x8034E5FC/0x10. Their names have high confidence from the complete pinned reference, native behavior, paired calls and exact final bytes. The ISR table at 0x803E62E0 is 0x3C bytes and `lc_base` at 0x804B9C08 is four bytes. The following padding belongs to neither object. Processor state layouts and reference-name qualifications are recorded separately in [F-541-6](findings/541-processor-state-layout.md).

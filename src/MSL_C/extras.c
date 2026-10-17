@@ -1,6 +1,8 @@
 #include <MSL_C/locale.h>
 #include <stddef.h>
 
+int __msl_strnicmp(const char* s1, const char* s2, size_t count);
+
 inline int tolower_inline(int c) {
     return ((c < 0) || (c >= 0x100)) ? c : (int) (_current_locale.ctype_cmpt_ptr->lower_map_ptr[c]);
 }
@@ -24,4 +26,8 @@ int stricmp(const char *s1, const char *s2) {
             return 0;
         }
     }
+}
+
+int strncasecmp(const char* s1, const char* s2, size_t count) {
+    return __msl_strnicmp(s1, s2, count);
 }
