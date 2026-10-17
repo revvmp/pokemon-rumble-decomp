@@ -570,3 +570,7 @@ The source constants occupy `0x804BBBB8–0x804BBBF8` as five doubles for `ldexp
 ## Issue #479 completion helper
 
 `sqrt` at `0x8034D798` is the outside-block scalar square-root entry called by GXInitFogAdjTable and GXInitSpecularDirHA in the matching SDK references. The name resolves the source relocation; its existing size, type and split remain unchanged. [F-479-3](findings/479-gx.md#f-479-3-full-issue-completion-from-source) records the exact source completion evidence for all thirty owned functions.
+
+## AXAlloc completion (#485)
+
+[F-485-3](findings/485-axaux.md#f-485-3-axalloc-completes-issue-485) records the nine original function names and extents at 0x802DA500-0x802DA9EC, the two 32-entry voice-stack arrays at 0x804593A0 and 0x80459420, and callback-stack pointer at 0x804B9848. Names and existing AXVPB layout have high confidence from pinned ogws source, target accesses and exact source-linked verification. The external __AXSetPBDefault at 0x802DD260 retains its prior extent and split.

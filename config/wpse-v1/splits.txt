@@ -156,6 +156,11 @@ RVL_SDK/ax/AX.c:
 	.sdata      start:0x804B8BD0 end:0x804B8BD8
 	.sbss       start:0x804B9840 end:0x804B9848
 
+RVL_SDK/ax/AXAlloc.c:
+	.text       start:0x802DA500 end:0x802DA9EC
+	.bss        start:0x804593A0 end:0x804594A0
+	.sbss       start:0x804B9848 end:0x804B984C
+
 RVL_SDK/ax/AXAux.c:
 	.text       start:0x802DA9F0 end:0x802DB284
 	.bss        start:0x804594A0 end:0x8045C620
