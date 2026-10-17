@@ -10,10 +10,13 @@ The normal char and wide PrintImpl bodies have the correct extents, 0xA58 and 0x
 
 The display-list implementation remains structurally incomplete. The ordinary candidate retains an oversized 0xD48 CharWriter rendering helper outside the two text loops, leaving those loops at 0x58C and 0x5B0 instead of the native 0x8B0 and 0x8D4. The native display-list primitive helpers and the more restricted inlining pattern require further evidence.
 
+The isolated baseline inherits main ea4ffb474229f4c66f35b85f42af48631c1de1b1. Its complete default-path configure --map, 539-target Ninja build and explicit frozen main.dol verification exit zero. The diagnostic source remains external and unregistered; this baseline verifies the existing project rather than accepting any TextWriter reconstruction.
+
 ## Traps
 
 - Passing the baseline-adjusted glyph position directly as arguments, keeping only one coordinate local, or constructing a const position vector does not reproduce the normal rendering bodies. The four scalar forms retain the 0x310 frame and increase the instruction differences; the vector form grows the body to 0xA64. These variants are diagnostic and were restored.
 - Moving helper definitions after the template implementation does not resolve the normal frame or display-list outlining differences. Changing the three GD primitive helpers between static inline, inline and external definitions likewise leaves the oversized rendering helper. Do not choose linkage solely to force inlining.
 - Disabling IPA emits the expected primitive-helper sizes but shrinks the normal bodies to 0x838/0x85C and the display-list bodies to 0x698/0x6BC. Disabling automatic inlining instead yields normal bodies of 0x854/0x878 and display-list bodies of 0x87C/0x8A0. Neither control justifies a production flag change.
+- The initial custom-path baseline failed at CHECK because the existing SHA-1 input still named build/wpse-v1/main.dol, which did not exist in this new worktree. Returning to the default build path, completing Ninja and independently verifying that actual output resolved the failure. No expected hash, frozen manifest or reference artifact changed.
 
 No function or byte from this investigation is marked Matching. All compiler-option and helper-layout experiments remain outside the repository.
