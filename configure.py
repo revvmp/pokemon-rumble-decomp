@@ -334,6 +334,7 @@ config.libs = [
             Object(Matching, "nw4r/g3d/g3d_transform.cpp"),
             Object(Matching, "nw4r/g3d/g3d_anmvis.cpp"),
             Object(Matching, "nw4r/g3d/g3d_anmclr.cpp"),
+            Object(Matching, "nw4r/g3d/g3d_anmtexpat.cpp"),
         ],
     ),
     library(
