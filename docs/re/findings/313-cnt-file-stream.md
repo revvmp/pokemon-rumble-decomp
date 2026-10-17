@@ -40,6 +40,12 @@ Opening closes a prior owned stream, locks the supplied handle, calls CNTOpen, i
 | .sdata | `0x804B81D8`–`0x804B81F0` |
 | .sbss | `0x804B9130`–`0x804B9134` |
 
+## Separate CPath prefix investigation
+
+The unfinished method at `0x801AEEC0` / `0x1D8` parses device prefixes and returns the remaining path pointer. Independent external scratch source reproduces its entire instruction stream, seven paired call/string relocation sites and complete thirteen-byte literal pool. It recognizes `nand:` / device 1, `dvd:` / device 0, decimal device numbers through 511, case-insensitive drive letters mapped from 512, and UNC / device 539. The preceding default constructor stores unspecified device 540. The names are descriptive, based on the observed branches.
+
+This is an algorithm probe using only the evidenced device field at offset zero. It is not a complete CPath class declaration or source-selected reconstruction. Native CPath also owns a linked list of twelve-byte string objects; the canonical complete list/string interfaces and the earlier survey entries still need investigation. The prefix probe receives no decompilation byte credit and adds no production source or header.
+
 ## Traps
 
 The survey labels this as a library file linked in the game range, but native exception records and CodeWarrior RTTI require the established game flags for this unit. Do not apply the exceptions-disabled NW4R defaults merely because its namespace is nw4r::ut.
@@ -51,3 +57,5 @@ The emitted empty IOStream destructor has identical code to the retained FileStr
 Compiler-generated local names such as `@635` collide across translation units. Never resolve their addresses against unrelated names in a linked ELF; map source-local objects through their owning section or paired relocation evidence.
 
 The compiler's static-initializer symbol contains one literal backslash before the filename. Doubling it in symbols.txt made the initializer's object comparison unmatched even though its bytes were exact. Preserve the actual symbol spelling from the compiled ELF, then regenerate the split and confirm the retained function scores 100%.
+
+For the CPath prefix probe, spelling the lower range bound as `'0' <= pPath[0]` and equivalently for A/a reproduces native signed comparisons. The reversed but mathematically equivalent `pPath[0] >= '0'` makes CodeWarrior fuse narrow ranges, shrinking the body by twelve bytes and changing 87 non-relocation words. A signed-char compiler option did not solve that discrepancy; this evidence does not justify changing game flags.
