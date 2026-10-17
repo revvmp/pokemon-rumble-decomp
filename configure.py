@@ -233,7 +233,7 @@ config.libs = [
             Object(Matching, "RVL_SDK/fa/pf_clib.c"),
             Object(Matching, "RVL_SDK/fa/pf_code.c"),
             Object(Matching, "RVL_SDK/fa/pf_service.c"),
-            Object(NonMatching, "RVL_SDK/fa/pf_str.c"),
+            Object(Matching, "RVL_SDK/fa/pf_str.c"),
         ],
     ),
     library(
