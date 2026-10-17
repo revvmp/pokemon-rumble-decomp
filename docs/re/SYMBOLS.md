@@ -74,6 +74,14 @@ The same finding corrects the survey boundary at the end of #483: AIRegisterDMAC
 
 [F-493-1](findings/493-enc-utility-names.md) establishes `ENCiCheckParameters` (`0x802EA030`, `0xF8` bytes), `ENCiCheckBreakType` (`0x802EA130`, `0x34` bytes), and `ENCiWriteBreakType` (`0x802EA170`, `0x100` bytes), with call signatures, source provenance, confidence and DOL offset mapping. This names-only change enables source linking for the #494 Latin unit; utility functions remain original fallback.
 
+## Issue 477: GX framebuffer and lighting
+
+[F-477-1](findings/477-gx-framebuf-light.md) records all 30 function names, code ranges, DOL offset mapping, light-object layout and external dependencies. GXFrameBuf owns 0x802CD440-0x802CDEC0; GXLight owns 0x802CDEC0-0x802CE630. Names are high confidence. Both units remain NonMatching pending external names and complete data/source-link validation.
+
+## AX command-list output mode (#486)
+
+`__AXClMode` is a global unsigned 32-bit output mode at `.sbss:0x804B98B0`, extent four bytes, formerly `lbl_804B98B0`. It has no file-backed DOL offset. Original spelling and type have high confidence from the AXCL reference, target initialization, setter, command dispatch, and AXAux accesses; see [F-486-1](findings/486-axcl.md). No source implementation is accepted by this symbol-only change.
+
 ## RVL_SDK WPAD (#500)
 
 For `wpse-v1` / `main.dol`, [F-500-1](findings/500-wpad.md) names the 23 functions from `0x802F6BC0` to `0x802F8BFC` in `config/wpse-v1/symbols.txt`. The public `WPADIsEnabled*` getters and the weak `WBC*` defaults are high confidence from strings, call sites, and SDK convention. Static names (`__wpadNoAlloc`, `OnShutdown`, `__wpadSendDataSub`, `__wpadIsControllerDataChanged`, `__wpadManageHandler`, `__wpadClearControlBlock`, `__wpadInitSub` and the rest) are medium confidence, from the 2009 SDK reconstruction cited in F-500-2. The same holds for the WPAD data names: `__WPADVersion` (`.sdata` `0x804B8DC8`), `_wpadOnReconnect`, both noise thresholds, the `.sbss` globals `0x804B9A50`–`0x804B9AA8`, `_wpadManageAlarm` (`.bss` `0x804774E0`), `__rvl_p_wpadcb` (`0x80477510`), `__wpadManageHandlerStack` (`0x80477520`, 0x1000 bytes), `_wpadHandle2PortTable` (`0x80478520`, 16 bytes), `__rvl_wpadcb` (`0x80478540`, 4 x 0x9C0), and `ShutdownFunctionInfo` (`.data` `0x803DCC18`). The control block layout is in `include/RVL_SDK/wpad/WPAD.h`. Offsets and confidence are in F-500-2. The format constant `WPAD_FMT_VSM_EXTENDED` (14) and the VSM status fields after `err` are descriptive placeholders with low confidence.

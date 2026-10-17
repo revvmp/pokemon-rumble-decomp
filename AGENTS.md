@@ -71,6 +71,7 @@ Keep entries concise and actionable. Distinguish confirmed findings from hypothe
 - **PowerShell semicolons do not gate lifecycle steps.** A rejected PR merge still allowed a following release command to execute. Run merge, state confirmation, claim release, and cleanup separately, checking each result; see [the #473 handoff note](docs/re/findings/473-vi-i2c.md#handoff-validation-note).
 
 - **OSAlarm extends past the reference source.** The routine at `0x802B3760` still uses AlarmQueue and cancels reserved-tag alarms by user data; OSAlloc starts at `0x802B3810`. Do not end the alarm split at the reference's last accessor. See [F-464-1](docs/re/findings/464-os-alarm.md).
+- **Replacing a unit can remove its trailing alignment padding.** GXTev scored 100% but its source object omitted twelve trailing padding bytes; the next fallback unit began early at four-byte alignment. Preserve the observed next entry alignment (`GXSetFog`, 16 bytes) in symbols before accepting the link. See [F-479-2](docs/re/findings/479-gx.md).
 
 - **Partial SDK files drop unreferenced statics.** With `-ipa file`, a WPAD.c holding only one block's static functions compiled to an object without them, because nothing referenced them. Include the real external roots, such as `WPADInit`, and any later helpers the block inlines. See [F-500-3](docs/re/findings/500-wpad.md#f-500-3-reconstructed-functions-and-compiler-behavior).
 

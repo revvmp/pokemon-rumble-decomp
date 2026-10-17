@@ -18,6 +18,14 @@ Test-Path tools/local/dtk.exe, .venv/Scripts/ninja.exe
 
 If either check fails, stop and point the user to `docs/SETUP.md`.
 
+Then bring the main checkout up to date, so this skill, `tools/collab/claim_issue.py`, `AGENTS.md`, and the docs you read are current:
+
+```powershell
+git pull --ff-only
+```
+
+Pull only with `--ff-only`, and only while the main checkout is on `main`. It never creates a merge commit, and git refuses rather than overwrite uncommitted changes. If the pull fails, because of local changes, another branch, or another agent's pull holding `.git/index.lock`, do not stash, reset, or commit anything in the main checkout. Retry once after a short wait for a lock; otherwise tell the user and continue. Your worktree is created from a fresh `origin/main` either way. If the pull changed this skill file, re-read it before continuing.
+
 ## 2. Claim
 
 - If the user gave an issue number: `python tools/collab/claim_issue.py claim --issue <n> --agent "<your model and session>"`
@@ -77,7 +85,7 @@ The game compiler is not yet identified. Before writing game code, check `docs/r
 - **`kind:research` issues.** Produce evidence and record it in `docs/re/findings/<n>-<slug>.md` with ID `F-<n>-<k>`. Open follow-up `kind:decomp` issues only if the user agrees.
 
 Working copies on Windows use CRLF line endings, except the dtk config files and progress SVGs pinned to LF in `.gitattributes`. Scripted string replacements that assume `
-` silently match nothing, so prefer the Edit tool. If you script a write, preserve the file's line endings and pass `encoding="utf-8"` explicitly; the Windows default encoding corrupts characters such as en dashes.
+` silently match nothing, so prefer your agent's file-editing tool (Edit in Claude Code, `apply_patch` in Codex). If you script a write, preserve the file's line endings and pass `encoding="utf-8"` explicitly; the Windows default encoding corrupts characters such as en dashes.
 
 Edit only the files `docs/COLLABORATION.md` allows. Do not touch maintainer-only files, frozen manifests, or expected hashes. Add no comments, docstrings, or unit tests, and never paste decompiler output.
 
@@ -128,6 +136,6 @@ git push origin --delete <branch>
 git branch -D <branch>
 ```
 
-`remove-worktree` removes the `tools\local` and `.venv` junctions before the worktree, so the shared tools survive. Squash merges are not ancestors of the branch, so `git branch -d` refuses to delete it; use `-D` only after confirming `MERGED`. To look up the merge commit from the main checkout, run `git fetch origin` first; fetching does not touch the working tree. Do not pull or otherwise change the main checkout, because other agents and the maintainer may have work in progress there. Tell the user the pull request link, the merge commit, and what remains of the issue.
+`remove-worktree` removes the `tools\local` and `.venv` junctions before the worktree, so the shared tools survive. Squash merges are not ancestors of the branch, so `git branch -d` refuses to delete it; use `-D` only after confirming `MERGED`. Then run `git pull --ff-only` in the main checkout so it includes your merged work, with the same rules as in step 1: fast-forward only, and never stash, reset, or commit there. If it fails, tell the user. Other agents and the maintainer may have work in progress in the main checkout; never change it in any other way. Tell the user the pull request link, the merge commit, and what remains of the issue.
 
 To abandon the issue instead, run `python tools/collab/claim_issue.py release --issue <n> --reason "<why>"`, then clean up the same way and close the pull request if one is open.

@@ -98,6 +98,7 @@ Agents follow the same rules as people. These additions keep parallel agents fro
   ```
 
   `orig/` is tracked, so worktrees include the originals. The junctions share the pinned binaries without copying them.
+- **Keep the main checkout current.** The skill, `tools/collab/claim_issue.py`, and the docs are read from the main checkout, so agents run `git pull --ff-only` there before claiming and after merging. They never stash, reset, or commit in it; if the fast-forward fails, they report it and continue.
 - **Remove junctions before removing a worktree.** A recursive delete can follow a junction and erase the shared `tools/local` and `.venv`. Remove the junctions first, then the worktree:
 
   ```powershell
