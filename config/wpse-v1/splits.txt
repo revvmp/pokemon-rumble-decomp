@@ -556,6 +556,19 @@ nw4r/g3d/g3d_calcview.cpp:
 	.rodata     start:0x8036C898 end:0x8036C8B4
 	.sdata2     start:0x804BAC80 end:0x804BAC8C
 
+nw4r/g3d/g3d_camera.cpp:
+	.text       start:0x80264720 end:0x8026561C
+	.sdata2     start:0x804BACA8 end:0x804BACD8
+
+nw4r/g3d/dcc/g3d_basic.cpp:
+	.text       start:0x80265620 end:0x802658E8
+	.sdata2     start:0x804BACD8 end:0x804BACE4
+
+nw4r/g3d/dcc/g3d_maya.cpp:
+	.text       start:0x802658F0 end:0x802665F4
+	.rodata     start:0x8036C8B8 end:0x8036C8F0
+	.sdata2     start:0x804BACE8 end:0x804BACFC
+
 nw4r/snd/snd_AxManager.cpp:
 	.text       start:0x80271E10 end:0x80273650
 	.ctors      start:0x80352A50 end:0x80352A54
