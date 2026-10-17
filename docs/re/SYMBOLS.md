@@ -41,7 +41,7 @@ For each shared type or interface record size, alignment, field offsets, paramet
 | `0x802C9780` | `C_MTXPerspective` | `0xEC` |
 | `0x802C9870` | `C_MTXOrtho` | `0x98` |
 
-`Vec` contains single-precision `x`, `y`, `z` at offsets 0, 4, 8, size 12 and alignment 4. `Mtx` is a row-major 3 by 4 single-precision matrix, size 48; `Mtx44` is 4 by 4, size 64. Both have alignment 4. These layouts follow the observed load/store offsets and the CC0 SDK reference. `C_MTXPerspective` calls the matching reference's `tan` at `0x8034D4B8`; the target spelling remains unchanged because the function belongs outside issue 474.
+`Vec` contains single-precision `x`, `y`, `z` at offsets 0, 4, 8, size 12 and alignment 4. `Mtx` is a row-major 3 by 4 single-precision matrix, size 48; `Mtx44` is 4 by 4, size 64. Both have alignment 4. These layouts follow the observed load/store offsets and the CC0 SDK reference. `C_MTXPerspective` calls the matching reference's `tan` at `0x8034D4B8`; the referenced callee is now named `tan` under the updated outside-symbol rule, with its size `0x78`, type and owning split unchanged (F-474-4).
 
 ## Issue 475: GX FIFO
 
@@ -148,7 +148,7 @@ The same finding corrects the survey boundary at the end of #483: AIRegisterDMAC
 
 ## Issue 477: GX framebuffer and lighting
 
-[F-477-1](findings/477-gx-framebuf-light.md) records all 30 function names, code ranges, DOL offset mapping, light-object layout and external dependencies. GXFrameBuf owns 0x802CD440-0x802CDEC0; GXLight owns 0x802CDEC0-0x802CE630. Names are high confidence. Both units remain NonMatching pending external names and complete data/source-link validation.
+[F-477-1](findings/477-gx-framebuf-light.md) records all 30 function names, code ranges, DOL offset mapping, light-object layout and external dependencies. GXFrameBuf owns 0x802CD440-0x802CDEC0; GXLight owns 0x802CDEC0-0x802CE630. Names are high confidence. Both units are now Matching and linked from source after [F-477-2](findings/477-gx-framebuf-light.md#f-477-2-complete-source-link). Their referenced external names are __GetImageTileCount at 0x802CE760, __cvt_fp2unsigned at 0x8034033C, cos at 0x8034CEE4 and sqrt at 0x8034D798. GXLight constants end at 0x804BB344; 0x804BB344-0x804BB348 is padding, not part of the last float.
 
 ## Issue 524: BTE HID device and host
 
@@ -518,3 +518,8 @@ Japanese data: `enc_tbl_jp_mbtowc` at `0x803718A8` (18,800 bytes), `enc_tbl_jp_w
 | `0x80313E40` | `bta_usb_close_evt` | High confidence: pinned Petari correspondence and all twelve target instructions; [F-511-2](findings/511-bte-close-callback.md) |
 
 Signature: `void bta_usb_close_evt(signed char status)`. The existing `_bte_app_info` callback receives unsigned-byte status zero for a nonnegative input and one otherwise. A null callback returns immediately.
+## DVD queue and disc ID (#482)
+
+[F-482-1](findings/482-dvd-queue-id.md) records function addresses, extents, file-offset mapping and reference evidence for the six waiting-queue operations at 0x802D66A0-0x802D6920 and DVDCompareDiskID at 0x802D7340. The queue's existing local WaitingQueue occupies 0x20 BSS bytes at 0x80458F30. Original names are high confidence; all seven functions compile at 100% objdiff. The finding distinguishes target-observed DVDCommandBlock and DVDDiskID members from the remainder of their reference-derived layouts. The external strncmp at 0x80345EF8 (0x40 bytes) is named from bounded unsigned-byte comparison, NUL stopping and reference call-site evidence; its extent, type and split are unchanged.
+
+The dvd.c tail names __DVDTestAlarm (0x802D6660, 0x20 bytes), __DVDStopMotorAsync (0x802D6680, 8 bytes), and __DVDRestartMotor (0x802D6690, 4 bytes) are also restored within #482. Reference order, alarm-pointer comparison followed by the low-level alarm test, constant-success stub and empty restart body support these original names. No dvd.c split or source coverage is claimed.

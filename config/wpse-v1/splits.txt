@@ -107,7 +107,7 @@ RVL_SDK/mtx/mtxvec.c:
 	.text       start:0x802C9590 end:0x802C96E0
 
 RVL_SDK/mtx/mtx44.c:
-	.text       start:0x802C96E0 end:0x802C9910 align:16
+	.text       start:0x802C96E0 end:0x802C9908 align:16
 	.sdata2     start:0x804BB2B0 end:0x804BB2C8
 
 RVL_SDK/gx/GXFifo.c:
@@ -129,7 +129,7 @@ RVL_SDK/gx/GXFrameBuf.c:
 
 RVL_SDK/gx/GXLight.c:
 	.text       start:0x802CDEC0 end:0x802CE630
-	.sdata2     start:0x804BB310 end:0x804BB348
+	.sdata2     start:0x804BB310 end:0x804BB344
 
 RVL_SDK/gx/GXTev.c:
 	.text       start:0x802CFB90 end:0x802D0260
@@ -142,6 +142,13 @@ RVL_SDK/gx/GXPixel.c:
 
 RVL_SDK/gx/GXDisplayList.c:
 	.text       start:0x802D09E0 end:0x802D0A60
+
+RVL_SDK/dvd/dvdqueue.c:
+	.text       start:0x802D66A0 end:0x802D6920
+	.bss        start:0x80458F30 end:0x80458F50
+
+RVL_SDK/dvd/dvdidutils.c:
+	.text       start:0x802D7340 end:0x802D7430
 
 RVL_SDK/ax/AX.c:
 	.text       start:0x802DA490 end:0x802DA500
