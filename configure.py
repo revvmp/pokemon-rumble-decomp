@@ -502,6 +502,7 @@ config.libs = [
             Object(Matching, "nw4r/snd/snd_RemoteSpeakerManager.cpp"),
             Object(Matching, "nw4r/snd/snd_SeqFile.cpp"),
             Object(Matching, "nw4r/snd/snd_SeqPlayer.cpp"),
+            Object(NonMatching, "nw4r/snd/snd_SeqSound.cpp"),
             Object(Matching, "nw4r/snd/snd_SeqSoundHandle.cpp"),
             Object(Matching, "nw4r/snd/snd_SoundHandle.cpp"),
             Object(Matching, "nw4r/snd/snd_SoundPlayer.cpp"),

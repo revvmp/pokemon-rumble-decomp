@@ -16,6 +16,16 @@ The pinned original-library reference and canonical-only diagnostics are recorde
 
 The reference's explicitly fake pointer cast is excluded. Combined flag declarations, a named two-flag state object, ordinary constructor/body initializer variants, and compiler instruction scheduling do not resolve the difference in isolated diagnostics. Wii 1.0, 1.3, 1.5, 1.6, and 1.7 retain the same four-word constructor difference. Size optimization changes several otherwise exact functions and the constructor extent, so the established Wii/1.1 speed settings remain. These are bounded observations for this unit, not general compiler rules.
 
+## Canonical pipeline candidate
+
+The complete readable SeqSound source is registered NonMatching and compiles through actual Ninja using repository headers only. It uses the canonical DVD_ECANCELED and SEEK_ORIGIN_BEG declarations, omits release-disabled diagnostics, and retains ordinary member initialization. No cast-based initializer, new flag, byte data, or assembly is introduced.
+
+The whole candidate object scores 99.570816% in .text and 100% in .ctors, .data, and .sbss. Twenty-two of twenty-three retained functions score 100%; the constructor scores 94.871796%. A separate strict comparison resolves 61 relocations against the evidenced native symbols and actual SDA bases: all twenty-two other functions are byte-exact at their original addresses, all 84 initialized bytes (80 vtable bytes and four initializer bytes) are exact, and only constructor words +0x50/+0x54/+0x58/+0x5C differ. This is diagnostic placement at original addresses, not a source-selected link of this candidate.
+
+Two destructor relocation-name mismatches were resolved by naming the outside Task destructor at 0x8028D190, size 0x40. The #802 owner confirmed its canonical name, native source proof, and ownership. Only that callee name changes here; its size, type, split, source, and code credit remain with #802.
+
+The actual all_source and DOL build after registration exited 0 and explicit frozen verification passed. The already accepted handle's source-map/native/full-DOL audit also passed. The generated link continues to select the original SeqSound object, so this entire 1,864-byte unit earns no reconstructed-code credit until its constructor and source-selected whole link pass.
+
 ## Traps
 
 Do not promote the initial twenty-two matching instruction streams into source credit while the constructor remains different. The entire SeqSound unit must retain its original fallback until complete object and real source-selected DOL acceptance succeed. The separate handle unit is independently accepted in [F-795-2](795-seqsound-handle.md).
