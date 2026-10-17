@@ -826,3 +826,15 @@ Names given in `config/wpse-v1/symbols.txt`; evidence in [489-mem-cx-dsp](findin
 | `0x804B9990`–`0x804B99A4` | `0x4` each | `lbl_804B9990`… | `__DSP_rude_task_pending`, `__DSP_rude_task`, `__DSP_tmp_task`, `__DSP_last_task`, `__DSP_first_task`, `__DSP_curr_task` | `dsp_task.c` |
 
 `MEMiFrmHeapHead` is 0xC bytes after `MEMiHeapHead`: head allocator `0x0`, tail allocator `0x4`, state list `0x8`. `CXUncompContextHuffman` is 0x220 bytes: `destp` `0x0`, `destCount` `0x4`, `forceDestCount` `0x8`, `treep` `0xC`, `srcTmp` `0x10`, `destTmp` `0x14`, `treeSize` `0x18` (s16), `srcTmpCnt` `0x1A`, `destTmpCnt` `0x1B`, `bitSize` `0x1C`, `headerSize` `0x1D`, `tree[0x200]` `0x20`; offsets proven by `CXInitUncompContextHuffman`, field names from the NITRO/TWL SDK convention (medium confidence). `DSPTaskInfo` `state`, `priority`, and `flags` must be `vu32`; the remaining layout is Petari's.
+
+## RVL_SDK OSAlloc (#464)
+
+`wpse-v1` `main.dol`; [F-464-2](findings/464-os-alloc.md). Names follow Petari's `OSAlloc.c` and are confirmed by byte-identical linked reconstruction; confidence high.
+
+| Address | Size | Name | Kind |
+| --- | --- | --- | --- |
+| `0x802B3810` | `0xB0` | `DLInsert` | static function, `.text` file offset `0x263AD0` |
+| `0x804B8A58` | 4 | `__OSCurrHeap` | `.sdata` global `volatile OSHeapHandle`, initial `-1` |
+| `0x804B9490` | 4 | `HeapArray` | `.sbss` static `HeapDesc*` |
+
+`HeapDesc` is 12 bytes: `long size` at 0x0, free list `Cell*` at 0x4, allocated list `Cell*` at 0x8. `Cell` is a 12-byte header with `prev`, `next` and `long size`; allocations return the cell address plus 32.

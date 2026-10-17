@@ -38,6 +38,11 @@ RVL_SDK/os/OSAlarm.c:
 	.data       start:0x803C7760 end:0x803C7770
 	.sbss       start:0x804B9488 end:0x804B9490
 
+RVL_SDK/os/OSAlloc.c:
+	.text       start:0x802B3810 end:0x802B3A38 align:16
+	.sdata      start:0x804B8A58 end:0x804B8A60
+	.sbss       start:0x804B9490 end:0x804B9498
+
 RVL_SDK/os/OSArena.c:
 	.text       start:0x802B3A40 end:0x802B3B60
 	.sdata      start:0x804B8A60 end:0x804B8A68
