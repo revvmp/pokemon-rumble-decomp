@@ -4,6 +4,7 @@ import os
 import re
 import subprocess
 import sys
+from urllib.parse import quote
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -14,6 +15,7 @@ BLOCKED_LABEL = "blocked"
 CLAIM_EXPIRY = timedelta(days=14)
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SHARED_LINKS = (Path("tools") / "local", Path(".venv"))
+REPO = "repos/{owner}/{repo}"
 
 
 def gh(*args):
@@ -34,9 +36,40 @@ def current_user():
     return gh("api", "user", "--jq", ".login").strip()
 
 
+def api_items(path):
+    output = gh("api", "--paginate", path, "--jq", ".[] | @json")
+    return [json.loads(line) for line in output.splitlines() if line.strip()]
+
+
 def fetch_issue(number):
-    fields = "number,title,state,assignees,labels,body,comments,url"
-    return json.loads(gh("issue", "view", str(number), "--json", fields))
+    issue = json.loads(gh("api", f"{REPO}/issues/{number}"))
+    comments = api_items(f"{REPO}/issues/{number}/comments?per_page=100")
+    return {
+        "number": issue["number"],
+        "title": issue["title"],
+        "state": issue["state"].upper(),
+        "assignees": [{"login": person["login"]} for person in issue.get("assignees") or []],
+        "labels": [{"name": label["name"]} for label in issue.get("labels") or []],
+        "body": issue.get("body") or "",
+        "comments": [{"author": {"login": (comment.get("user") or {}).get("login", "")}, "body": comment.get("body") or "", "createdAt": comment["created_at"]} for comment in comments],
+        "url": issue["html_url"],
+    }
+
+
+def edit_assignee(number, user, add):
+    gh("api", "-X", "POST" if add else "DELETE", f"{REPO}/issues/{number}/assignees", "-f", f"assignees[]={user}")
+
+
+def add_label(number, label):
+    gh("api", "-X", "POST", f"{REPO}/issues/{number}/labels", "-f", f"labels[]={label}")
+
+
+def remove_label(number, label):
+    gh("api", "-X", "DELETE", f"{REPO}/issues/{number}/labels/{quote(label)}")
+
+
+def comment(number, body):
+    gh("api", "-X", "POST", f"{REPO}/issues/{number}/comments", "-f", f"body={body}")
 
 
 def parse_time(text):
@@ -78,11 +111,13 @@ def label_names(issue):
 
 
 def open_unassigned(labels):
-    query = "no:assignee" if BLOCKED_LABEL in labels else f"no:assignee -label:{BLOCKED_LABEL}"
-    search = ["issue", "list", "--state", "open", "--search", query, "--limit", "500", "--json", "number,title,labels"]
-    for label in labels:
-        search += ["--label", label]
-    issues = json.loads(gh(*search))
+    path = f"{REPO}/issues?state=open&assignee=none&per_page=100"
+    if labels:
+        path += "&labels=" + quote(",".join(labels))
+    issues = [issue for issue in api_items(path) if "pull_request" not in issue]
+    issues = [{"number": issue["number"], "title": issue["title"], "labels": [{"name": label["name"]} for label in issue.get("labels") or []]} for issue in issues]
+    if BLOCKED_LABEL not in labels:
+        issues = [issue for issue in issues if BLOCKED_LABEL not in label_names(issue)]
     issues.sort(key=lambda issue: ("good first issue" not in label_names(issue), issue["number"]))
     return issues
 
@@ -120,20 +155,20 @@ def claim_command(args):
     if args.dry_run:
         print(f"Would claim #{number} for {user}: {issue['title']}")
         return 0
-    gh("issue", "edit", str(number), "--add-assignee", "@me")
+    edit_assignee(number, user, True)
     confirmed = fetch_issue(number)
     if BLOCKED_LABEL in label_names(confirmed):
-        gh("issue", "edit", str(number), "--remove-label", BLOCKED_LABEL)
+        remove_label(number, BLOCKED_LABEL)
     if assignee_logins(confirmed) != [user]:
-        gh("issue", "edit", str(number), "--remove-assignee", "@me")
+        edit_assignee(number, user, False)
         raise RuntimeError(f"Lost the claim race on #{number}: assignees are now {', '.join(assignee_logins(confirmed))}; unassigned self")
     agent = f" Agent: {args.agent}." if args.agent else ""
-    gh("issue", "comment", str(number), "--body", f"{CLAIM_PREFIX}.{agent}")
+    comment(number, f"{CLAIM_PREFIX}.{agent}")
     confirmed = fetch_issue(number)
     rivals = sorted(author for author in active_claims(confirmed) if author != user)
     if rivals:
-        gh("issue", "edit", str(number), "--remove-assignee", "@me")
-        gh("issue", "comment", str(number), "--body", f"{RELEASE_PREFIX}: concurrent claim by {', '.join(rivals)}.")
+        edit_assignee(number, user, False)
+        comment(number, f"{RELEASE_PREFIX}: concurrent claim by {', '.join(rivals)}.")
         raise RuntimeError(f"Concurrent claim on #{number} by {', '.join(rivals)}; released")
     print(f"Claimed #{number} for {user}: {confirmed['url']}")
     print(f"Branch suggestion: {branch_name(confirmed)}")
@@ -147,11 +182,11 @@ def release_command(args):
     issue = fetch_issue(args.issue)
     if user not in assignee_logins(issue) and user not in active_claims(issue):
         raise ValueError(f"#{args.issue} is not claimed by {user}")
-    gh("issue", "edit", str(args.issue), "--remove-assignee", "@me")
+    edit_assignee(args.issue, user, False)
     if args.blocked:
-        gh("issue", "edit", str(args.issue), "--add-label", BLOCKED_LABEL)
+        add_label(args.issue, BLOCKED_LABEL)
     reason = f" {args.reason}" if args.reason else ""
-    gh("issue", "comment", str(args.issue), "--body", f"{RELEASE_PREFIX}.{reason}")
+    comment(args.issue, f"{RELEASE_PREFIX}.{reason}")
     print(f"Released #{args.issue}")
     return 0
 
