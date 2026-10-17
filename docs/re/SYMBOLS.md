@@ -1613,3 +1613,7 @@ For `wpse-v1` / `main.dol`, [F-449-2](findings/449-ut-resfont-archivefont.md) na
 | `0x8032EB98` | see `symbols.txt` | `fn_8032EB98` | `l2c_link_timeout` | function | high | F-527-1 | Not reconstructed (fallback) |
 | `0x8032EE14` | see `symbols.txt` | `fn_8032EE14` | `l2c_link_check_send_pkts` | function | high | F-527-1 | Not reconstructed (fallback) |
 | `0x8032F0E0` | see `symbols.txt` | `fn_8032F0E0` | `l2c_link_adjust_allocation` | function | high | F-527-1 | Not reconstructed (fallback) |
+
+## NW4R ut PairFont (#450)
+
+For `wpse-v1` / `main.dol`, [F-450-1](findings/450-ut-pairfont-charwriter.md) names the 23 `.text` functions of `ut_PairFont.cpp` (`0x80297710–0x802983C4`) in `nw4r::ut::PairFont`, including `GetBaselinePos__Q34nw4r2ut8PairFontCFUs` (`0x80297A70`), and `__vt__Q34nw4r2ut8PairFont` (`.data` `0x803C6CC0`, 0x60 bytes). Class and function names follow the Whippy reconstruction and the `Font` interface; high confidence except the `GetBaselinePos(u16)` slot (low). Layout: `mFirst` (`Font*`) at 0x10, `mSecond` (`Font*`) at 0x14, `mAlternateWithFirst` (`bool`) at 0x18; member names medium confidence.
