@@ -16,6 +16,14 @@ An isolated build with only these header additions compiled all 378 registered o
 
 The object comparison is scoped to the isolated baseline above. Later rebases retain the current main source selections and require a passing exact-head local configure, Ninja and frozen-verifier gate before merge. Unrelated main changes are outside the isolated comparison.
 
+## Combined voice and wave-reader prerequisite proof
+
+The final prerequisite also includes F-443-1's two WaveFileReader helper declarations, consolidated from PR #823. All three header diffs were applied together to the unchanged main baseline `177199a89ea445c85e192c939ae91c0ad7a7d78e` in an isolated helper worktree. Before the change, a fresh default configure/full Ninja, explicit frozen verifier and all_source build passed. All 441 actual registered native outputs were saved. None of the three baseline headers differed from the corresponding later main headers before these additions.
+
+After applying exactly the combined three-header candidate, default configure/full Ninja, all_source and explicit frozen verification again exit 0. Of 441 complete objects, 437 are byte-identical. The other four are snd_AxManager.o, snd_Bank.o, snd_BankFile.o and snd_Channel.o; only numeric compiler-local spellings in .strtab differ. Every allocated section, raw RELA entry, symbol value/size/type and symbol order is identical. The complete DOL is directly byte-identical to the same frozen reference. The temporary header changes were restored afterward, returning that worktree to its clean baseline. This comparison establishes combined-header equivalence; later main additions remain subject to the final exact-head full artifact gate.
+
+The prerequisite additionally removes only the obsolete duplicate EUART ledger row that still described acceptance as pending after #719. The accepted F-504-17 row is retained and every other contributor's row remains unchanged. This separate documentation-only cleanup changes no source selection or native artifact.
+
 ## Traps
 
 - **New inline declarations can change only compiler-local strings.** Full object hashes changed for three callers even though their allocated sections, raw relocations and symbol attributes were identical. The change is disclosed rather than called complete object equality; acceptance still requires direct complete-DOL comparison against the frozen artifact.
