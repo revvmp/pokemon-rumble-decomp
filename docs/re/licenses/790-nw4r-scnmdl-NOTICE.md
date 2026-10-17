@@ -1,0 +1,5 @@
+# NW4R ScnMdl source provenance
+
+`src/nw4r/g3d/g3d_scnmdl.cpp` follows CC0 zeldaret/ss commit `787b0b1e9d30e3c1d91ced61350b059ffc5a2411`, raw source SHA-256 `513eaad4285b0a4d0833efba03f72457ba48a2d6f81fc35d8b806f6e8d923326`. The repository LICENSE is CC0 1.0 Universal, SHA-256 `a2010f343487d3f7618affe54f789f5487602331c0a8d03f49e9a7c547cf0499`. The source has no separate file-level license exception.
+
+Reference comments and unretained accessor variants are removed. The target's retained TLUT and texture-coordinate accessors use the same original resource-view/dirty-bit operations as the other retained accessors. Integer visibility flags initialize to zero and boolean failure returns false. Null pointers use nullptr. The reference's placeholder bit24 option is named descriptively BUFOPTION_RESTORE_VTX_ON_DETACH; its observed value and behavior are preserved. Existing and coordinated canonical headers are reused, with full header provenance and target layout evidence in F-790-2. No alternate type tree, embedded opcodes, or original executable fallback is supplied by the source.
