@@ -38,6 +38,8 @@ The historical partial-work reports in F-541-1, F-541-2, F-541-3, and F-541-5 de
 
 The subsequent D-0014 map-name import is preserved throughout the refreshed tree. Three spelling exceptions retain the canonical interfaces from the complete matching MetroTRK reference and coordinated headers: `TRKSetBufferPosition` at `0x8034F99C`, `TRKDoConnect` at `0x80350080`, and the startup unit's `__TRK_reset` at `0x8034E5FC`, in place of map-inferred `TRK_SetBufferPosition`, `TRK_DoConnect`, and `__TRKreset`. The #544 owner approved retaining the two shared callee names. This is the matched-source exception permitted by D-0014; unrelated imported names, scopes, sizes, and types remain intact.
 
+The final integration incorporates merged header prerequisite #739 at `045d6aa985d0771e4f84ff91d8fb49de7ea1368b`, including complete canonical CPU types and packet interfaces. Repeated shared symbol paragraphs from earlier prerequisite commits are removed; main's complete versions of the shared headers and findings are retained. All main source files and configured objects, including the intervening allocation reconstruction, remain present. The fresh final build uses `build/541-merge739` and explicit verification of `build/541-merge739/wpse-v1`.
+
 ## Traps
 
 - A comparable compiler can match two functions while changing another in the same unit. Require a whole-unit instruction, relocation, data, and final-link proof before changing its compiler.
