@@ -28,6 +28,8 @@ Recovery reads the Wii Fit save, copies 128 pairing bytes and its stored checksu
 
 Device import compacts standard entries, preserves the Balance Board settings slot, imports companion devices and flushes the updated arrays. Its functional source is present at the original `0x638` extent. Diagnostic placement was corrected to precede the Balance Board settings-copy operations, but register-allocation differences remain. Current hypotheses about those differences are not acceptance evidence.
 
+Follow-up scratch compilations tested all 120 orders of the five scalar/pointer declarations, preserving their types and behavior. None improved on the current 128 differing non-relocation words. Moving the zero-address array declaration, using unsigned remaining-count storage, changing the outer index from `int` to `long`, and giving each import branch its own device-pointer scope also left 128 differences. Widening the compacted-device count increased differences to 173; introducing a control-block pointer for its sync/state writes increased differences or changed the function extent. These are rejected approaches, not source changes. Keep the canonical declarations while investigating the inlined allocator and expression lifetimes.
+
 `WUDInit` retains the BTA trace setup, optional linked-board initialization hook, alarm setup and dirty-flag clearing. It starts at state 1, without the newer reference's additional device-up wait. Shutdown saves standard devices and optionally companion devices, then starts the existing timed shutdown driver. The clear-control-block routine uses the original typed handle setters, producing the observed unsigned-byte indexing and native unrolling.
 
 ## Complete data and storage evidence
