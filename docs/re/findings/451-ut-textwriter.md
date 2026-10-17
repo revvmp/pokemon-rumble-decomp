@@ -22,6 +22,14 @@ The two normal PrintImpl methods need the original inlined CharWriter rendering 
 
 ## Traps
 
+The next external probe incorporates the reference's ordinary Print, PrintGlyph and texture-loading algorithms with the independently observed per-character baseline and pointer-only texture cache. Both normal PrintImpl sizes become exact (`0xA58` and `0xA7C`), but each still differs in 306 non-relocation words, largely register allocation and stack placement. The candidate places Glyph at stack `0x58` and GXTexObj at `0x70`; native places GXTexObj at `0x58` and Glyph at `0x78`. Its frame is consequently `0x310`, compared with native `0x300`. Size equality is not acceptance.
+
+Adding the ordinary display-list rendering algorithm emits more matching small helpers, bringing masked candidate coverage to 71 / 81 functions and 17,712 bytes. The candidate display-list PrintImpl remains too small because its oversized inlined CharWriter rendering helper is called out of line. Native instead retains GDBegin / GDPosition3f32 / GDColor1u32 / GDTexCoord2s16 as separate `0xBC` / `0x1B4` / `0xA0` / `0xC4` helpers. Its four emitted vertex colors are zero, zero, `0xFFFFFFFF`, `0xFFFFFFFF`, followed by GDEnd. Native texture loading calls GDSetTexImgAttr, GDSetTexCached, GDSetTexLookupMode, GDSetTexCoordScale and GDSetTexImgPtr, with a pointer-only cache update. These are observed operations, not proof of an original declaration or inlining scheme. No production source, SDK header extension, split or matching entry has been added.
+
+Moving helper definitions, defining them inside the class, moving the Glyph or GXTexObj declarations, adding const to coordinate locals, and using a separately named baseline value did not solve the normal bodies. Wii compiler 1.0, 1.1 and 1.3 and the supported deferred-inlining option retained the same discrepancies. These remain isolated diagnostic variants; they do not justify custom production flags or pragmas.
+
+Capstone's PowerPC decoder can stop at quantized paired-single instructions before reaching later calls. Enable skipdata for diagnostic disassembly and continue inspecting original words; otherwise an apparent absence of calls can be a decoder limitation rather than native behavior.
+
 The prior blocked investigation used an older ogws reference and found large layout/printing differences. The pinned SS source already reproduces both complete line-layout and cursor-adjustment methods under the established flags; that older failure does not establish that every public reference lacks the core algorithms.
 
 The original survey divides this source file across two issues and leaves its preceding CharWriter tails in #451. Keep their independent inventories and first-function ownership explicit; never count the neighboring tails or unretained compiler helpers twice.
