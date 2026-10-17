@@ -32,6 +32,10 @@ typedef int BOOL;
 #define TRUE 1
 #define FALSE 0
 
+#if defined(__cplusplus) && !defined(nullptr)
+#define nullptr 0
+#endif
+
 #ifndef NULL
 #ifdef __cplusplus
 #define NULL 0

@@ -153,6 +153,19 @@ cflags_sdk = [
 
 SDK_COMPILER = "Wii/1.0"
 
+cflags_hbm = [
+    *(flag for flag in cflags_base if flag not in ("-RTTI off", "-fp_contract on")),
+    "-lang=c++",
+    "-ipa file",
+    "-fp_contract off",
+    "-func_align 16",
+    "-sdata 0",
+    "-sdata2 0",
+    "-RTTI on",
+]
+
+HBM_COMPILER = "Wii/1.0a"
+
 BTE_COMPILER = "GC/3.0a3"
 NDEV_COMPILER = "GC/3.0a3"
 
@@ -163,6 +176,16 @@ config.libs = [
         cflags_base,
         "sdk",
         [Object(NonMatching, "RVL_SDK/cnt/cnt.c")],
+    ),
+    library(
+        "homebuttonLib",
+        HBM_COMPILER,
+        cflags_hbm,
+        "sdk",
+        [
+            Object(Matching, "RVL_SDK/hbm/HBMFrameController.cpp"),
+            Object(Matching, "RVL_SDK/hbm/HBMAnmController.cpp"),
+        ],
     ),
     library(
         "RVL_SDK",
