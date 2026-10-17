@@ -5,6 +5,7 @@
 #define WUD_DEV_NAME_IS_WBC(NAME) WUD_DEV_NAME_IS(NAME, "Nintendo RVL-WBC")
 
 #define DEBUGPrint WUD_DEBUGPrint
+#define WUD_WII_FIT_FILE_PATH "/title/00010004/52464e4a/data/RPHealth.dat"
 
 enum {
     WUD_INIT_FLUSH_COMPLETE = 5,
@@ -166,6 +167,19 @@ static u32 sWudWiiFitChecksumSeed;
 static u8 sWudNandLocked;
 
 void WUDiMoveTopOfUnusedStdDevice(WUDDevInfo* pInfo);
+
+static NANDFileInfo sWudWiiFitFileInfo;
+static NANDCommandBlock sWudWiiFitCommandBlock;
+static u8 sWudHandlerStack[0x1000] ATTRIBUTE_ALIGN(32);
+
+void __wudSearchEventStackCallback(tBTA_DM_SEARCH_EVT event, tBTA_DM_SEARCH* pData);
+void __wudLinkKeyEventStackCallback(void* pData);
+static void __wudSyncFlushCallback(u32 status);
+static u8 __wudSyncVirginStandard(void);
+static void __wudOpenWiiFitCallback(s32 result, NANDCommandBlock* pBlock);
+static void __wudSeekWiiFitCallback(s32 result, NANDCommandBlock* pBlock);
+static void __wudUpdateWiiFitCallback(s32 result, NANDCommandBlock* pBlock);
+static void __wudCloseWiiFitCallback(s32 result, NANDCommandBlock* pBlock);
 
 WUDCB _wcb;
 static WUDDiscResp sWudDiscoveryResponse;
@@ -329,27 +343,29 @@ static WUDDevInfo* __wudGetOldestStdDevice(void) {
     return _wcb.stdListTail->devInfo;
 }
 
+static inline WUDDevInfo* __wudGetNewStdDevInfo(void) {
+    WUDCB* p = &_wcb;
+    WUDDevInfo* pInfo = NULL;
+    int i;
+    for (i = 0; i < WUD_MAX_DEV_ENTRY_FOR_STD; i++) {
+        if (p->stdDevs[i].status == 0) {
+            DEBUGPrint("new entry index is %d\n", i);
+            pInfo = &p->stdDevs[i];
+            break;
+        }
+    }
+    return pInfo;
+}
+
 static inline WUDDevInfo* __wudGetNewDevInfo(void) {
     WUDCB* p = &_wcb;
     WUDDevInfo* pInfo;
-    BOOL enabled;
-    int i;
-
-    enabled = OSDisableInterrupts();
-
+    BOOL enabled = OSDisableInterrupts();
     if (p->syncType == WUD_SYNC_TYPE_STANDARD) {
-        pInfo = NULL;
-        for (i = 0; i < WUD_MAX_DEV_ENTRY_FOR_STD; i++) {
-            if (p->stdDevs[i].status == 0) {
-                DEBUGPrint("new entry index is %d\n", i);
-                pInfo = &p->stdDevs[i];
-                break;
-            }
-        }
+        pInfo = __wudGetNewStdDevInfo();
     } else {
         pInfo = p->smpListTail->devInfo;
     }
-
     OSRestoreInterrupts(enabled);
     return pInfo;
 }
@@ -390,6 +406,375 @@ static void __wudPrepareWBCDevInfo(BD_ADDR devAddr, LINK_KEY linkKey, void* pPro
 
 static BOOL __wudIsBusyScCmd(void) {
     return SCCheckStatus() == SC_STATUS_BUSY ? TRUE : FALSE;
+}
+
+static u8 __wudGetSmpDevNumber(void) {
+    WUDCB* p = &_wcb;
+    BOOL enabled = OSDisableInterrupts();
+
+    u8 num = p->devSmpNums;
+
+    OSRestoreInterrupts(enabled);
+    return num;
+}
+
+static WUDDevInfo* __wudGetOldestSmpDevice(void) {
+    return _wcb.smpListTail->devInfo;
+}
+
+static BOOL __wudIsBusyLinkKeyCmd(void)
+{
+	return _wcb.linkKeyState != WUD_STATE_LINK_KEY_START ? 1 : 0;
+}
+
+static u8 __wudSyncWaitForStartSearch(void) {
+    WUDCB* p_wcb = &_wcb;
+
+    if (p_wcb->syncLoopNum == 0) {
+        return 14;
+    }
+
+    if ((_WUDGetLinkNumber() == 4) && (__wudGetConnectionNumber() == 4)) {
+        return 14;
+    }
+
+    if (--p_wcb->delayCnt < 0) {
+        return 2;
+    }
+
+    return 29;
+}
+
+static u8 __wudSyncStartSearch(void) {
+    WUDCB* p = &_wcb;
+    tBTA_DM_INQ dm_inq;
+
+    dm_inq.mode = BTM_LIMITED_INQUIRY;
+    dm_inq.max_resps = 1;
+    dm_inq.report_dup = FALSE;
+
+    if (p->syncSkipChecks) {
+        dm_inq.duration = 5 - 2;
+    } else if (p->syncType == WUD_SYNC_TYPE_STANDARD) {
+        dm_inq.duration = _WUDGetLinkNumber() == WUD_MAX_CHANNELS - 1 ? 10 : 5;
+        dm_inq.duration -= p->syncLoopNum;
+    } else {
+        dm_inq.duration = _WUDGetLinkNumber() == WUD_MAX_CHANNELS - 1 ? 10 - 2 : 5 - 2;
+    }
+
+    __wudClearDiscoverResult();
+    BTA_DmSearch(&dm_inq, 0, &__wudSearchEventStackCallback);
+
+    return WUD_STATE_SYNC_WAIT_FOR_SEARCH_RESULT;
+}
+
+static u8 __wudSyncWaitForSearchResult(void) {
+    if (_WUDGetLinkNumber() == WUD_MAX_CHANNELS && __wudGetConnectionNumber() == WUD_MAX_CHANNELS) {
+        DEBUGPrint("Cancel searching because 4 connections exist.\n");
+        BTA_DmSearchCancel();
+
+        return WUD_STATE_SYNC_CANCEL_SEARCH;
+    }
+
+    return WUD_STATE_SYNC_WAIT_FOR_SEARCH_RESULT;
+}
+
+static u8 __wudSyncWaitForIncoming(void) {
+    u8 next = 24;
+
+    if ((_WUDGetLinkNumber() == 4) && (__wudGetConnectionNumber() == 4)) {
+        next = 14;
+    }
+
+    if (--_wcb.incomeCnt < 0) {
+        next = 1;
+    }
+
+    return next;
+}
+
+static u8 __wudSyncIsExistedDevice(void) {
+    WUDDevInfo* pInfo;
+    WUDSyncState nextState = WUD_STATE_SYNC_PREPARE_FOR_UNKNOWN_DEVICE;
+
+    pInfo = WUDiGetDevInfo(sWudDiscoveryResponse.devAddr);
+
+    if (pInfo) {
+        memcpy(&_work, pInfo, sizeof(WUDDevInfo));
+        nextState = WUD_STATE_SYNC_PREPARE_FOR_EXISTED_DEVICE;
+    }
+
+    return nextState;
+}
+
+static u8 __wudSyncPrepareForExistedDevice(void) {
+    WUDDevInfo* pWork = &_work;
+
+    pWork->status = 1;
+
+    switch (pWork->sync_type) {
+    case 0:
+    case 2:
+    case 4:
+    case 5: {
+        if (_wcb.syncType == WUD_SYNC_TYPE_STANDARD) {
+            WUDiMoveBottomStdDevInfoPtr(pWork);
+            WUDiRemoveDevice(pWork->devAddr);
+            return WUD_STATE_SYNC_PREPARE_FOR_UNKNOWN_DEVICE;
+        } else {
+            pWork->sync_type = 4;
+        }
+
+        break;
+    }
+
+    case 1:
+    case 3: {
+        WUDiMoveBottomSmpDevInfoPtr(pWork);
+        WUDiRemoveDevice(_wcb.smpListTail->devInfo->devAddr);
+        return WUD_STATE_SYNC_PREPARE_FOR_UNKNOWN_DEVICE;
+    }
+    }
+
+    return WUD_STATE_SYNC_TRY_CONNECT;
+}
+
+static u8 __wudSyncPrepareForUnknownDevice(void) {
+    WUDDevInfo* pWork = &_work;
+
+    pWork->status = 1;
+    pWork->sync_type = _wcb.syncType == WUD_SYNC_TYPE_STANDARD ? 0 : 1;
+
+    WUD_BDCPY(pWork->devAddr, sWudDiscoveryResponse.devAddr);
+    memcpy(&pWork->conf, sWudDiscoveryResponse.devName, sizeof(SCDevInfo));
+    memset(pWork->linkKey, 0, LINK_KEY_LEN);
+
+    return WUD_STATE_SYNC_TRY_CONNECT;
+}
+
+static u8 __wudSyncRegisterDevice(void) {
+    WUDSyncState nextState;
+
+    switch (_work.sync_type) {
+    case 1: {
+        nextState = WUD_STATE_SYNC_VIRGIN_SIMPLE;
+        break;
+    }
+
+    case 0: {
+        nextState = WUD_STATE_SYNC_VIRGIN_STANDARD;
+        break;
+    }
+
+    case 5: {
+        nextState = WUD_STATE_SYNC_CHANGE_SIMPLE_TO_STANDARD;
+        break;
+    }
+
+    case 3: {
+        nextState = WUD_STATE_SYNC_COMPLETE;
+        break;
+    }
+
+    case 4: {
+        nextState = WUD_STATE_SYNC_STORED_LINK_KEY_TO_EEPROM;
+        break;
+    }
+
+    case 2: {
+        nextState = WUD_STATE_SYNC_STORED_LINK_KEY_TO_EEPROM;
+        break;
+    }
+
+    default: {
+        break;
+    }
+    }
+
+    return nextState;
+}
+
+static u8 __wudSyncVirginSimple(void) {
+    WUDDevInfo* pInfo;
+
+    if (__wudGetSmpDevNumber() == WUD_MAX_DEV_ENTRY_FOR_SMP) {
+        pInfo = __wudGetOldestSmpDevice();
+        WUDiRemoveDevice(pInfo->devAddr);
+    }
+
+    pInfo = __wudGetNewDevInfo();
+    if (!pInfo) {
+        return WUD_STATE_SYNC_ERROR;
+    }
+    if (pInfo->status != 0) {
+        return WUD_STATE_SYNC_ERROR;
+    }
+    memcpy(pInfo, &_work, sizeof(WUDDevInfo));
+
+    WUDiRegisterDevice(pInfo->devAddr);
+    WUDiMoveTopSmpDevInfoPtr(pInfo);
+
+    WUDiSetDevAddrForHandle(pInfo->devHandle, pInfo->devAddr);
+
+    return WUD_STATE_SYNC_COMPLETE;
+}
+
+static u8 __wudSyncChangeSmp2Std(void) {
+    WUDiMoveBottomSmpDevInfoPtr(&_work);
+    WUDiRemoveDevice(_wcb.smpListTail->devInfo->devAddr);
+    return __wudSyncVirginStandard();
+}
+
+static u8 __wudSyncStoredLinkKeyToE2prom(void) {
+    WUDCB* p = &_wcb;
+    WUDDevInfo* pInfo;
+
+    if (__wudIsBusyLinkKeyCmd()) {
+        return WUD_STATE_SYNC_STORED_LINK_KEY_TO_EEPROM;
+    }
+
+    if (WUDIsLinkedWBC() && WUD_DEV_NAME_IS_WBC(_work.conf.devName)) {
+        return WUD_STATE_SYNC_STORED_DEV_INFO_TO_NAND;
+    }
+
+    pInfo = WUDiGetDevInfo(_work.devAddr);
+
+    DEBUGPrint("write stored link key\n");
+
+    DEBUGPrint("addr : %02x:%02x:%02x:%02x:%02x:%02x\n",
+               pInfo->devAddr[0], pInfo->devAddr[1], pInfo->devAddr[2],
+               pInfo->devAddr[3], pInfo->devAddr[4], pInfo->devAddr[5]);
+
+    DEBUGPrint("key  : %02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x\n",
+               pInfo->linkKey[0],  pInfo->linkKey[1],  pInfo->linkKey[2],  pInfo->linkKey[3],
+               pInfo->linkKey[4],  pInfo->linkKey[5],  pInfo->linkKey[6],  pInfo->linkKey[7],
+               pInfo->linkKey[8],  pInfo->linkKey[9],  pInfo->linkKey[10], pInfo->linkKey[11],
+               pInfo->linkKey[12], pInfo->linkKey[13], pInfo->linkKey[14], pInfo->linkKey[15]);
+
+    p->linkKeyState = WUD_STATE_LINK_KEY_WRITING;
+
+    BTM_WriteStoredLinkKey(1, &pInfo->devAddr, &pInfo->linkKey, __wudLinkKeyEventStackCallback);
+
+    return WUD_STATE_SYNC_WAIT_FOR_STORING;
+}
+
+static u8 __wudSyncWaitForStoring(void) {
+    return !__wudIsBusyLinkKeyCmd() ? WUD_STATE_SYNC_STORED_DEV_INFO_TO_NAND : WUD_STATE_SYNC_WAIT_FOR_STORING;
+}
+
+static u8 __wudSyncWaitForReading(void) {
+    WUDSyncState nextState = WUD_STATE_SYNC_WAIT_FOR_READING;
+
+    if (!__wudIsBusyLinkKeyCmd()) {
+        nextState = WUD_STATE_SYNC_VIRGIN_STANDARD;
+        WUDiRemoveDevice(_wcb.pairAddr);
+    }
+
+    return nextState;
+}
+
+static void __wudSyncScFlush(void) {
+    WUDCB* p = &_wcb;
+    BOOL enabled;
+
+    enabled = OSDisableInterrupts();
+    p->syncState = WUD_STATE_SYNC_13;
+    OSRestoreInterrupts(enabled);
+
+    SCFlushAsync(__wudSyncFlushCallback);
+}
+
+static u8 __wudSyncComplete(void) {
+    _wcb.syncedNum++;
+
+    memset(&_work, 0, sizeof(WUDDevInfo));
+
+    return _wcb.syncType == WUD_SYNC_TYPE_STANDARD ? WUD_STATE_SYNC_DONE : WUD_STATE_SYNC_PREPARE_SEARCH;
+}
+
+static u8 __wudSyncError(void) {
+    memset(&_work, 0, sizeof(WUDDevInfo));
+
+    return _wcb.syncType == WUD_SYNC_TYPE_STANDARD ? WUD_STATE_SYNC_DONE : WUD_STATE_SYNC_PREPARE_SEARCH;
+}
+
+static u8 __wudSyncCheckSearchResult(void)
+{
+	u8 nextState = WUD_STATE_SYNC_PREPARE_SEARCH;
+
+	if (sWudDiscoveryResultCount > 0)
+	{
+		if (WUD_DEV_NAME_IS_CNT(sWudDiscoveryResponse.devName))
+			nextState = WUD_STATE_SYNC_IS_EXISTED_DEVICE;
+
+		if (WUDIsLinkedWBC() && WUD_DEV_NAME_IS_WBC(sWudDiscoveryResponse.devName))
+			nextState = WUD_STATE_SYNC_IS_EXISTED_DEVICE;
+
+		if (sWudDiscoveryRssi < _wcb.syncRssi)
+			nextState = WUD_STATE_SYNC_PREPARE_SEARCH;
+	}
+
+	if (_wcb.syncType == WUD_SYNC_TYPE_STANDARD
+	    && nextState == WUD_STATE_SYNC_PREPARE_SEARCH)
+	{
+		nextState = WUD_STATE_SYNC_WAIT_FOR_INCOMING;
+
+		_wcb.incomeCnt = _WUDGetLinkNumber() == 3 ? 200 : 100;
+
+		WUDSetVisibility(FALSE, TRUE);
+	}
+
+	return nextState;
+}
+
+static void __wudOpenWiiFitFile(void)
+{
+	const char *rpHealthFilePath = WUD_WII_FIT_FILE_PATH;
+
+	if (sWudNandLocked)
+		return;
+
+	DEBUGPrint("WbcSaveData: %s\n", rpHealthFilePath);
+	sWudNandLocked = TRUE;
+	NANDOpenAsync(rpHealthFilePath, &sWudWiiFitFileInfo, NAND_ACCESS_WRITE,
+	              &__wudOpenWiiFitCallback, &sWudWiiFitCommandBlock);
+}
+
+static void __wudSeekWiiFitFile(void)
+{
+	if (sWudNandLocked)
+		return;
+
+	sWudNandLocked = TRUE;
+	NANDSeekAsync(&sWudWiiFitFileInfo, WUD_WII_FIT_FILE_OFFSET, NAND_SEEK_SET,
+	              &__wudSeekWiiFitCallback, &sWudWiiFitCommandBlock);
+}
+
+static void __wudUpdateWiiFitFile(void)
+{
+	if (sWudNandLocked)
+		return;
+
+	DEBUGPrint("WBC to WiiFit\n");
+    DEBUGPrint(" %02x %02x %02x %02x %02x %02x\n", sWudWiiFitPairingInfo.devAddr[0], sWudWiiFitPairingInfo.devAddr[1], sWudWiiFitPairingInfo.devAddr[2], sWudWiiFitPairingInfo.devAddr[3], sWudWiiFitPairingInfo.devAddr[4], sWudWiiFitPairingInfo.devAddr[5]);
+    DEBUGPrint(" %02x %02x %02x %02x %02x %02x %02x %02x\n", sWudWiiFitPairingInfo.linkKey[0], sWudWiiFitPairingInfo.linkKey[1], sWudWiiFitPairingInfo.linkKey[2], sWudWiiFitPairingInfo.linkKey[3], sWudWiiFitPairingInfo.linkKey[4], sWudWiiFitPairingInfo.linkKey[5], sWudWiiFitPairingInfo.linkKey[6], sWudWiiFitPairingInfo.linkKey[7]);
+    DEBUGPrint(" %02x %02x %02x %02x %02x %02x %02x %02x\n", sWudWiiFitPairingInfo.linkKey[8], sWudWiiFitPairingInfo.linkKey[9], sWudWiiFitPairingInfo.linkKey[10], sWudWiiFitPairingInfo.linkKey[11], sWudWiiFitPairingInfo.linkKey[12], sWudWiiFitPairingInfo.linkKey[13], sWudWiiFitPairingInfo.linkKey[14], sWudWiiFitPairingInfo.linkKey[15]);
+    DEBUGPrint(" %s\n", sWudWiiFitPairingInfo.devInfo.devName);
+    DEBUGPrint(" %02x%02x%02x%02x\n", ((u8*)&sWudWiiFitPairingInfo.checksum)[0], ((u8*)&sWudWiiFitPairingInfo.checksum)[1], ((u8*)&sWudWiiFitPairingInfo.checksum)[2], ((u8*)&sWudWiiFitPairingInfo.checksum)[3]);
+    sWudNandLocked = TRUE;
+	NANDWriteAsync(&sWudWiiFitFileInfo, &sWudWiiFitPairingInfo,
+	               WUD_WII_FIT_WRITE_SIZE, &__wudUpdateWiiFitCallback,
+	               &sWudWiiFitCommandBlock);
+}
+
+static void __wudCloseWiiFit(void)
+{
+	if (sWudNandLocked)
+		return;
+
+	sWudNandLocked = TRUE;
+	NANDCloseAsync(&sWudWiiFitFileInfo, &__wudCloseWiiFitCallback,
+	               &sWudWiiFitCommandBlock);
 }
 
 #pragma force_active on
@@ -683,6 +1068,151 @@ static u8 __wudSyncDone(void) {
 
     DEBUGPrint("Pairing Done\n");
     return WUD_STATE_SYNC_START;
+}
+
+static void __wudSyncHandler(void) {
+    WUDCB* p = &_wcb;
+
+    switch (p->syncState) {
+    case WUD_STATE_SYNC_PREPARE_SEARCH: {
+        p->syncState = __wudSyncPrepareSearch();
+        break;
+    }
+
+    case WUD_STATE_SYNC_WAIT_FOR_START_SEARCH: {
+        p->syncState = __wudSyncWaitForStartSearch();
+        break;
+    }
+
+    case WUD_STATE_SYNC_START_SEARCH: {
+        p->syncState = __wudSyncStartSearch();
+        break;
+    }
+
+    case WUD_STATE_SYNC_CHECK_SEARCH_RESULT: {
+        p->syncState = __wudSyncCheckSearchResult();
+        break;
+    }
+
+    case WUD_STATE_SYNC_IS_EXISTED_DEVICE: {
+        p->syncState = __wudSyncIsExistedDevice();
+        break;
+    }
+
+    case WUD_STATE_SYNC_PREPARE_FOR_EXISTED_DEVICE: {
+        p->syncState = __wudSyncPrepareForExistedDevice();
+        break;
+    }
+
+    case WUD_STATE_SYNC_PREPARE_FOR_UNKNOWN_DEVICE: {
+        p->syncState = __wudSyncPrepareForUnknownDevice();
+        break;
+    }
+
+    case WUD_STATE_SYNC_TRY_CONNECT: {
+        p->syncState = __wudSyncTryConnect();
+        break;
+    }
+
+    case WUD_STATE_SYNC_REGISTER_DEVICE: {
+        p->syncState = __wudSyncRegisterDevice();
+        break;
+    }
+
+    case WUD_STATE_SYNC_VIRGIN_SIMPLE: {
+        p->syncState = __wudSyncVirginSimple();
+        break;
+    }
+
+    case WUD_STATE_SYNC_VIRGIN_STANDARD: {
+        p->syncState = __wudSyncVirginStandard();
+        break;
+    }
+
+    case WUD_STATE_SYNC_CHANGE_SIMPLE_TO_STANDARD: {
+        p->syncState = __wudSyncChangeSmp2Std();
+        break;
+    }
+
+    case WUD_STATE_SYNC_STORED_LINK_KEY_TO_EEPROM: {
+        p->syncState = __wudSyncStoredLinkKeyToE2prom();
+        break;
+    }
+
+    case WUD_STATE_SYNC_WAIT_FOR_STORING: {
+        p->syncState = __wudSyncWaitForStoring();
+        break;
+    }
+
+    case WUD_STATE_SYNC_STORED_DEV_INFO_TO_NAND: {
+        p->syncState = __wudSyncStoredDevInfoToNand();
+        break;
+    }
+
+    case WUD_STATE_SYNC_SC_FLUSH: {
+        __wudSyncScFlush();
+        break;
+    }
+
+    case WUD_STATE_SYNC_WAIT_FOR_READING: {
+        p->syncState = __wudSyncWaitForReading();
+        break;
+    }
+
+    case WUD_STATE_SYNC_COMPLETE: {
+        p->syncState = __wudSyncComplete();
+        break;
+    }
+
+    case WUD_STATE_SYNC_ERROR: {
+        p->syncState = __wudSyncError();
+        break;
+    }
+
+    case WUD_STATE_SYNC_DONE: {
+        p->syncState = __wudSyncDone();
+        break;
+    }
+
+    case WUD_STATE_SYNC_WAIT_FOR_SEARCH_RESULT: {
+        p->syncState = __wudSyncWaitForSearchResult();
+        break;
+    }
+
+    case WUD_STATE_SYNC_WAIT_FOR_INCOMING: {
+        p->syncState = __wudSyncWaitForIncoming();
+        break;
+    }
+
+    case WUD_STATE_WII_FIT_OPEN:
+        __wudOpenWiiFitFile();
+        break;
+    case WUD_STATE_WII_FIT_SEEK:
+        __wudSeekWiiFitFile();
+        break;
+    case WUD_STATE_WII_FIT_UPDATE:
+        __wudUpdateWiiFitFile();
+        break;
+    case WUD_STATE_WII_FIT_CLOSE:
+        __wudCloseWiiFit();
+        break;
+    case WUD_STATE_SYNC_6:
+    case WUD_STATE_SYNC_13:
+    case WUD_STATE_SYNC_CANCEL_SEARCH: {
+        break;
+    }
+
+    case WUD_STATE_SYNC_11:
+    case WUD_STATE_SYNC_12:
+    default: {
+        DEBUGPrint("WARNING: Illigal status\n");
+        break;
+    }
+    }
+}
+
+void __wudSyncHandler0(OSAlarm* pAlarm, OSContext* pContext) {
+    OSSwitchFiberEx((u32)pAlarm, (u32)pContext, 0, 0, (u32)__wudSyncHandler, (u32)sWudHandlerStack + sizeof(sWudHandlerStack));
 }
 
 static void __wudDeleteFlushCallback(u32 status) {
