@@ -349,7 +349,7 @@ config.libs = [
             Object(Matching, "RVL_SDK/mem/mem_list.c"),
             Object(Matching, "RVL_SDK/cx/CXStreamingUncompression.c"),
             Object(Matching, "RVL_SDK/cx/CXUncompression.c"),
-            Object(NonMatching, "RVL_SDK/cx/CXSecureUncompression.c"),
+            Object(Matching, "RVL_SDK/cx/CXSecureUncompression.c"),
             Object(Matching, "RVL_SDK/dsp/dsp.c"),
             Object(Matching, "RVL_SDK/dsp/dsp_debug.c"),
             Object(Matching, "RVL_SDK/dsp/dsp_task.c"),

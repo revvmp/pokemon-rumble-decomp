@@ -39,7 +39,12 @@ Ten of the eleven `CXSecureUncompression.c` functions match. `CXSecureUncompress
 
 The compiled `dsp.c` `.sdata` is 4 bytes, and its `.sbss` is 4 bytes. Splitting the original 8-byte extents, with the symbols sized `0x8`, made dtk reject the split or shifted later small data by 4 bytes. The splits end at `0x804B8BEC` and `0x804B998C`, with `__DSPVersion` and `__DSP_init_flag` sized `0x4`, so the alignment padding stays in the automatic objects. `dsp_task.c` compiles `.data` `0x13B` bytes and `.text` ending at `0x802E4628`. Its splits end at `0x803DC3D0` and `0x802E4628`, which keeps the 16-byte data gap before NAND's banner at `0x803DC3E0` and the 8-byte text gap before `NANDCreate`. `lbl_803DC290` was resized to `0x140`.
 
+## F-489-5: CXSecureUncompressLRC matched
+
+This supersedes F-489-3. In `CXSecureUncompressLRC`, the decoded symbol `val` must be a `u32` local. The length and offset stay `u16`, and `RCGetData_` still returns `u16`. With a `u16` `val`, Wii/1.0 gives the first inlined range decoder's byte counter the same register as the second one (`r25`). With a `u32` `val`, it shares `r19` with the match length, as in the original. All eleven functions now score 100%. With the unit `Matching`, `ninja` exits 0 and `tools/verify/verify.py verify` passes.
+
 ## Traps
 
 - **A failed dtk split leaves a stale `main.dol`.** When a split range ended inside a symbol, `ninja` failed at the SPLIT step but left the previous link in place. Comparing that DOL showed misleading early differences. Always check `ninja`'s exit status before reading DOL diffs. See F-489-4.
 - **Dead-stripped SDK functions still own data and inlining.** Keep unlinked functions such as `__DSP_add_task` in the source when their strings or inlined bodies appear in the binary. See F-489-2.
+- **The type of a value that receives an inlined result can decide register sharing elsewhere.** Trigger: a range-decoder counter in `CXSecureUncompressLRC` took the wrong register. Declaration order, scope and counter type had no effect; widening the receiving `val` from `u16` to `u32` fixed it. Try widening intermediate locals when only a register assignment differs. Evidence: F-489-5.
