@@ -22,9 +22,43 @@ The 64-byte reply header's proven layout is documented in F-544-1. Read and writ
 
 The connection getter's two-instruction body has many weak masked search hits; its identity additionally follows the load from the connection-state object and the console access helper's outgoing call. Reset and override likewise share their instruction shapes and are distinguished by their reset and exception-vector-copy callees. The outgoing call names are recovered by pairing each source relocation with its actual native branch destination. Outside symbols receive names only; their sizes, types, and splits remain unchanged.
 
-## Validation status
+## Original issue inventory
 
-The handler and console splits were first built with original objects. Configure, Ninja, and explicit verification against `config/targets/wpse-v1.json` each exited zero. Independent source compilation reproduces the native non-relocation instructions for all 13 retained handlers and all five console functions. The complete message-buffer source independently reproduces all 15 retained candidates. Full source-object, data, relocation, final-address, and frozen-artifact acceptance remain required before selecting these two new units as `Matching`.
+| Address | Size | Recovered name | Source file |
+| --- | --- | --- | --- |
+| `0x8034F9CC` | `0xA4` | `TRKAppendBuffer` | `msgbuf.c` |
+| `0x8034FA70` | `0x90` | `TRKReadBuffer` | `msgbuf.c` |
+| `0x8034FB00` | `0xD0` | `TRKAppendBuffer1_ui32` | `msgbuf.c` |
+| `0x8034FBD0` | `0xF4` | `TRKAppendBuffer1_ui64` | `msgbuf.c` |
+| `0x8034FCC4` | `0x64` | `TRKAppendBuffer_ui8` | `msgbuf.c` |
+| `0x8034FD28` | `0xF0` | `TRKAppendBuffer_ui32` | `msgbuf.c` |
+| `0x8034FE18` | `0xE0` | `TRKReadBuffer1_ui64` | `msgbuf.c` |
+| `0x8034FEF8` | `0x98` | `TRKReadBuffer_ui8` | `msgbuf.c` |
+| `0x8034FF90` | `0xE8` | `TRKReadBuffer_ui32` | `msgbuf.c` |
+| `0x80350078` | `0x8` | `GetTRKConnected` | `msghndlr.c` |
+| `0x80350080` | `0x70` | `TRKDoConnect` | `msghndlr.c` |
+| `0x803500F0` | `0x88` | `TRKDoDisconnect` | `msghndlr.c` |
+| `0x80350178` | `0x6C` | `TRKDoReset` | `msghndlr.c` |
+| `0x803501E4` | `0x6C` | `TRKDoOverride` | `msghndlr.c` |
+| `0x80350250` | `0x234` | `TRKDoReadMemory` | `msghndlr.c` |
+| `0x80350484` | `0x210` | `TRKDoWriteMemory` | `msghndlr.c` |
+| `0x80350694` | `0x1FC` | `TRKDoReadRegisters` | `msghndlr.c` |
+| `0x80350890` | `0x2A0` | `TRKDoWriteRegisters` | `msghndlr.c` |
+| `0x80350B30` | `0xC4` | `TRKDoContinue` | `msghndlr.c` |
+| `0x80350BF4` | `0x284` | `TRKDoStep` | `msghndlr.c` |
+| `0x80350E78` | `0xB8` | `TRKDoStop` | `msghndlr.c` |
+| `0x80350F30` | `0xCC` | `TRKDoSetOption` | `msghndlr.c` |
+| `0x80350FFC` | `0x68` | `__read_console` | `mslsupp.c` |
+| `0x80351064` | `0x68` | `__TRK_write_console` | `mslsupp.c` |
+| `0x803510CC` | `0x8` | `__read_file` | `mslsupp.c` |
+
+## Validation
+
+The handler and console splits were first built with original objects. Configure, Ninja, and explicit verification against `config/targets/wpse-v1.json` each exited zero. A fresh source build uses `python configure.py --no-progress --build-dir build/544-source-1`, `.venv/Scripts/ninja all_source`, `.venv/Scripts/ninja`, and explicit frozen verification of `build/544-source-1/wpse-v1`; every command exits zero. Handler `.text`, `.data`, and `.sbss`, console `.text`, and message-buffer `.text`, `.data`, and `.bss` all compare at 100% in complete original/source objdiff comparisons.
+
+The original issue inventory above contains exactly 25 functions / 5,896 bytes. The independent audit confirms their source symbol extents and native final ELF addresses, checks that all three unit inputs in the actual Ninja link are source objects, and directly compares the complete generated DOL with the immutable reference. Frozen SHA-256 is `ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da`. Scope is the main game executable only; boot content 6, data contents, and WAD packaging remain excluded.
+
+These checks accept both new units as `Matching`. The pull request records the final verified head after the #543 source dependency merges and the branch rebases onto current `main`. Message-buffer source receives no duplicate ledger row here. Its nine #544 functions are accepted through the complete file delivered by its owner. The #541 owner approved the canonical Dolphin reset/vector-copy declaration header used by the two retained callers.
 
 ## Traps
 
