@@ -341,12 +341,10 @@ public:
     }
 
     u8* GetPtclTrack(u16 idx) {
-        u8** ppTbl = GetPtclTrackTbl();
-        return ppTbl[idx];
+        return GetPtclTrackTbl()[idx];
     }
     u8* GetEmitTrack(u16 idx) {
-        u8** ppTbl = GetEmitTrackTbl();
-        return ppTbl[idx];
+        return GetEmitTrackTbl()[idx];
     }
 
     void LocateTracks() {
