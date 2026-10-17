@@ -366,3 +366,84 @@ All entries target `wpse-v1` `main.dol`, `.text`. File offsets equal runtime add
 | `0x802B4420` | `0x14` | `fn_802B4420` | `LCQueueWait` | `src/RVL_SDK/os/OSCache.c` |
 
 `OSContext` follows the reference SDK layout with 8-byte alignment and size `0x2C8`: `gpr[32]` at `0x0`, `cr` `0x80`, `lr` `0x84`, `ctr` `0x88`, `xer` `0x8C`, `fpr[32]` `0x90`, `fpscr_pad` `0x190`, `fpscr` `0x194`, `srr0` `0x198`, `srr1` `0x19C`, `mode` `0x1A0`, `state` `0x1A2`, `gqr[8]` `0x1A4`, `psf_pad` `0x1C4`, `psf[32]` `0x1C8`. This issue directly validates the `srr1` access at `0x19C`; the complete layout is now also established by the neighboring OSContext unit in #466. `OSError` is `u16`; `OSErrorHandler` receives error, context pointer, and variadic arguments. The cache handler's variadic register-save prologue matches exactly. Pointer and `u32` arena parameters use the standard PowerPC integer registers and pointer return in r3.
+## RVL_SDK AXAux
+
+Target `wpse-v1`, `main.dol`; evidence [F-485-1](findings/485-axaux.md#f-485-1-axaux-unit-and-reconstruction), confidence high. Functions are original reference names; source `src/RVL_SDK/ax/AXAux.c`, callback interface `include/revolution/ax.h`. Function file offsets equal runtime address minus `0x8004FD40`; BSS has no file payload. Callback pointers and context pointers occupy four bytes. No structures are introduced.
+
+| Runtime address | Extent | Section | Previous label | Recovered name |
+| --- | --- | --- | --- | --- |
+| `0x802DA9F0` | `0x114` | `.text` | `fn_802DA9F0` | `__AXAuxInit` |
+| `0x802DAB10` | `0x34` | `.text` | `fn_802DAB10` | `__AXGetAuxAInput` |
+| `0x802DAB50` | `0x1C` | `.text` | `fn_802DAB50` | `__AXGetAuxAOutput` |
+| `0x802DAB70` | `0x20` | `.text` | `fn_802DAB70` | `__AXGetAuxAInputDpl2` |
+| `0x802DAB90` | `0x20` | `.text` | `fn_802DAB90` | `__AXGetAuxAOutputDpl2R` |
+| `0x802DABB0` | `0x20` | `.text` | `fn_802DABB0` | `__AXGetAuxAOutputDpl2Ls` |
+| `0x802DABD0` | `0x20` | `.text` | `fn_802DABD0` | `__AXGetAuxAOutputDpl2Rs` |
+| `0x802DABF0` | `0x34` | `.text` | `fn_802DABF0` | `__AXGetAuxBInput` |
+| `0x802DAC30` | `0x1C` | `.text` | `fn_802DAC30` | `__AXGetAuxBOutput` |
+| `0x802DAC50` | `0x20` | `.text` | `fn_802DAC50` | `__AXGetAuxBInputDpl2` |
+| `0x802DAC70` | `0x20` | `.text` | `fn_802DAC70` | `__AXGetAuxBOutputDpl2R` |
+| `0x802DAC90` | `0x20` | `.text` | `fn_802DAC90` | `__AXGetAuxBOutputDpl2Ls` |
+| `0x802DACB0` | `0x20` | `.text` | `fn_802DACB0` | `__AXGetAuxBOutputDpl2Rs` |
+| `0x802DACD0` | `0x34` | `.text` | `fn_802DACD0` | `__AXGetAuxCInput` |
+| `0x802DAD10` | `0x1C` | `.text` | `fn_802DAD10` | `__AXGetAuxCOutput` |
+| `0x802DAD30` | `0x3AC` | `.text` | `fn_802DAD30` | `__AXProcessAux` |
+| `0x802DB0E0` | `0x64` | `.text` | `fn_802DB0E0` | `AXRegisterAuxACallback` |
+| `0x802DB150` | `0x64` | `.text` | `fn_802DB150` | `AXRegisterAuxBCallback` |
+| `0x802DB1C0` | `0x64` | `.text` | `fn_802DB1C0` | `AXRegisterAuxCCallback` |
+| `0x802DB230` | `0x14` | `.text` | `fn_802DB230` | `AXGetAuxACallback` |
+| `0x802DB250` | `0x14` | `.text` | `fn_802DB250` | `AXGetAuxBCallback` |
+| `0x802DB270` | `0x14` | `.text` | `fn_802DB270` | `AXGetAuxCCallback` |
+| `0x804594A0` | `0x1200` | `.bss` | `lbl_804594A0` | `__AXBufferAuxA` |
+| `0x8045A6A0` | `0x1200` | `.bss` | `lbl_8045A6A0` | `__AXBufferAuxB` |
+| `0x8045B8A0` | `0xD80` | `.bss` | `lbl_8045B8A0` | `__AXBufferAuxC` |
+| `0x804B9850` | `0x4` | `.sbss` | `lbl_804B9850` | `__AXAuxCpuReadWritePosition` |
+| `0x804B9854` | `0x4` | `.sbss` | `lbl_804B9854` | `__AXAuxDspReadPosition` |
+| `0x804B9858` | `0x4` | `.sbss` | `lbl_804B9858` | `__AXAuxDspWritePosition` |
+| `0x804B985C` | `0x4` | `.sbss` | `lbl_804B985C` | `__AXAuxCDspRead` |
+| `0x804B9860` | `0x4` | `.sbss` | `lbl_804B9860` | `__AXAuxCDspWrite` |
+| `0x804B9864` | `0x4` | `.sbss` | `lbl_804B9864` | `__AXAuxBDspRead` |
+| `0x804B9868` | `0x4` | `.sbss` | `lbl_804B9868` | `__AXAuxBDspWrite` |
+| `0x804B986C` | `0x4` | `.sbss` | `lbl_804B986C` | `__AXAuxADspRead` |
+| `0x804B9870` | `0x4` | `.sbss` | `lbl_804B9870` | `__AXAuxADspWrite` |
+| `0x804B9874` | `0x4` | `.sbss` | `lbl_804B9874` | `__AXContextAuxC` |
+| `0x804B9878` | `0x4` | `.sbss` | `lbl_804B9878` | `__AXContextAuxB` |
+| `0x804B987C` | `0x4` | `.sbss` | `lbl_804B987C` | `__AXContextAuxA` |
+| `0x804B9880` | `0x4` | `.sbss` | `lbl_804B9880` | `__AXCallbackAuxC` |
+| `0x804B9884` | `0x4` | `.sbss` | `lbl_804B9884` | `__AXCallbackAuxB` |
+| `0x804B9888` | `0x4` | `.sbss` | `lbl_804B9888` | `__AXCallbackAuxA` |
+| `0x804B988C` | `0x3` | `.sbss` | `lbl_804B988C` | `__clearAuxC` |
+| `0x804B9890` | `0x3` | `.sbss` | `lbl_804B9890` | `__clearAuxB` |
+| `0x804B9894` | `0x3` | `.sbss` | `lbl_804B9894` | `__clearAuxA` |
+
+## Issue 494: Japanese conversion and encoding contexts
+
+[F-494-3](findings/494-enc-latin.md#f-494-3-japanese-and-context-conversion-units) establishes these names with high confidence from pinned reference source, target relocations, 100% object comparisons and full executable verification. Addresses and extents are for target `wpse-v1`.
+
+| Address | Recovered name |
+| --- | --- |
+| `0x802EBAD0` | `ENCConvertStringSjisToUnicode` |
+| `0x802EBAE0` | `ENCConvertStringUnicodeToSjis` |
+| `0x802EBAF0` | `ENCiConvertStringSjisToUnicode` |
+| `0x802EBE60` | `ENCiConvertStringUnicodeToSjis` |
+| `0x802EC110` | `ENCiConvertStringJisToUnicode` |
+| `0x802EC580` | `ENCiConvertStringUnicodeToJis` |
+| `0x802ECA40` | `ENCiConvertUnicodeToSjis` |
+| `0x802ECB40` | `ENCiFindSjisFromUnicode` |
+| `0x802ECC60` | `ENCiGetEscapeSequence` |
+| `0x802ECDD0` | `ENCiSetEscapeSequence` |
+| `0x802ECED0` | `ENCiGetJisStateFromUnicode` |
+| `0x802ECFB0` | `ENCiConvertSjisKanji3` |
+| `0x802ED700` | `ENCInitContext` |
+| `0x802ED760` | `ENCSetExternalEncoding` |
+| `0x802ED880` | `ENCSetAlternativeCharacter` |
+| `0x802ED8A0` | `ENCConvertToInternalEncoding` |
+| `0x802EDB30` | `ENCConvertFromInternalEncoding` |
+| `0x802EDDD0` | `ENCiGetEncodingTypeFromHashTable` |
+| `0x802EE010` | `ENCGetNextCharacterWidth` |
+| `0x802EE1F0` | `ENCiConvertToInternalEncoding` |
+| `0x802EE4A0` | `ENCiConvertFromInternalEncoding` |
+
+`ENCContext` has size 16, alignment 4: encoding enum at 0, break enum at 4, multibyte state (`s32`) at 8, unmappable alternative (`u16`) at 12 and invalid alternative (`u16`) at 14. `struct encoding` is 24 bytes: width (`u32`) at 0, seven-bit flag (`BOOL`) at 4 and 16-byte name at 8. `encoding_hash_table_entry` is 32 bytes: 24-byte normalized name at 0, encoding enum at 24 and collision index (`int`) at 28. Encoding values run 0–25, while several original validity checks reject values at or above 24; that observed behavior is preserved.
+
+Japanese data: `enc_tbl_jp_mbtowc` at `0x803718A8` (18,800 bytes), `enc_tbl_jp_wctomb` at `0x80376218` (22,257 bytes), `enc_offset_jp` at `0x8037B910` (512 bytes), and `kana_array` at `0x8037BB10` (126 bytes). Context data: `encoding_array` at `0x8037D690` (624 bytes), `encoding_table` at `0x8037D900` (4,128 bytes). Loaded BOOLs: Japanese `0x804B8D60`, Korean `0x804B8D68`, UHC `0x804B8D6C`, Chinese `0x804B8D70`, each four bytes. These names are taken from the reference source and confirmed by target accesses.

@@ -3,8 +3,15 @@
 
 #include <revolution/types.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define ENC_DST_INVALID (-1)
 #define ENC_SRC_UNLIMITED (-1)
+
+#define ENC_CHECK_ENCODING_NOT_FOUND (-1)
+#define ENC_CHECK_ENCODING_MAX_NUM 24
 
 typedef enum ENCResult {
     ENC_OK = 0,
@@ -14,14 +21,77 @@ typedef enum ENCResult {
     ENC_ERR_INVALID_FORMAT = -4,
     ENC_ERR_UNKNOWN_ENCODING = -5,
     ENC_ERR_UNSUPPORTED = -6,
-    ENC_ERR_NOT_LOADED = -7
+
+    ENC_ERR_NOT_LOADED = -7,
 } ENCResult;
+
+typedef enum ENCEncoding {
+    ENC_ENCODING_NONE,
+
+    ENC_ENCODING_US_ASCII,
+    ENC_ENCODING_UTF_8,
+    ENC_ENCODING_UTF_16BE,
+    ENC_ENCODING_UTF_32BE,
+    ENC_ENCODING_ISO_8859_1,
+    ENC_ENCODING_ISO_8859_2,
+    ENC_ENCODING_ISO_8859_3,
+    ENC_ENCODING_ISO_8859_7,
+    ENC_ENCODING_ISO_8859_10,
+    ENC_ENCODING_ISO_8859_15,
+    ENC_ENCODING_ISO_2022_JP,
+    ENC_ENCODING_SHIFT_JIS,
+    ENC_ENCODING_WINDOWS_1252,
+
+    ENC_ENCODING_EUC_KR,
+    ENC_ENCODING_GB2312,
+
+    ENC_ENCODING_UTF_7,
+    ENC_ENCODING_UTF_16,
+    ENC_ENCODING_UTF_16LE,
+    ENC_ENCODING_WINDOWS_1250,
+    ENC_ENCODING_WINDOWS_1253,
+    ENC_ENCODING_MACINTOSH,
+    ENC_ENCODING_X_MAC_GREEK,
+    ENC_ENCODING_X_MAC_CE,
+    ENC_ENCODING_IBM850,
+    ENC_ENCODING_IBM852,
+
+    ENC_MAX_ENCODING
+
+        ,
+    ENC_BAD_MAX_ENCODING = 24,
+} ENCEncoding;
 
 typedef enum ENCBreakType {
     ENC_BR_KEEP,
     ENC_BR_CRLF,
     ENC_BR_CR,
-    ENC_BR_LF
+    ENC_BR_LF,
 } ENCBreakType;
+
+typedef s32 ENCMBState;
+#define ENC_STATE_INITIAL 0
+
+typedef struct ENCContext {
+    ENCEncoding encoding;
+    ENCBreakType brtype;
+    ENCMBState state;
+    u16 nomap;
+    u16 invalid;
+} ENCContext;
+
+#define ENC_INTERNAL_CHAR_WIDTH sizeof(u16)
+
+#define ENC_ENCODING_COUNT 23
+#define ENC_ENCODING_NAME_LENGTH 16
+
+#define ENC_CHECK_NOT_FOUND -1
+
+#define ENC_ALT_STOP 0x0000
+#define ENC_ALT_SKIP 0xFFFF
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
