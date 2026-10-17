@@ -567,3 +567,6 @@ The dvd.c tail names __DVDTestAlarm (0x802D6660, 0x20 bytes), __DVDStopMotorAsyn
 | `0x804B9BD0` | `errno` |
 
 The source constants occupy `0x804BBBB8–0x804BBBF8` as five doubles for `ldexp` and one double each for `sin`, `tan`, and `__ieee754_sqrt`. `errno` at `0x804B9BD0` is accessed as a four-byte int; its outside symbol extent is unchanged. `__float_nan` at `0x804B8FB0` is accessed through the reference int-array view as a float; its outside size and type attributes remain unchanged. The locale layout used by `stricmp` is the existing imported MSL declaration. No new structure layouts are introduced.
+## Issue #479 completion helper
+
+`sqrt` at `0x8034D798` is the outside-block scalar square-root entry called by GXInitFogAdjTable and GXInitSpecularDirHA in the matching SDK references. The name resolves the source relocation; its existing size, type and split remain unchanged. [F-479-3](findings/479-gx.md#f-479-3-full-issue-completion-from-source) records the exact source completion evidence for all thirty owned functions.

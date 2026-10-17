@@ -3,7 +3,7 @@
 #include "revolution/gx/GXTypes.h"
 
 void GXSetFog(GXFogType type, f32 startz, f32 endz, f32 nearz, f32 farz, GXColor color) {
-    u32 fogclr, fog0, fog1, fog3;
+    u32 fogclr, fog0, fog1, fog2, fog3;
     f32 A, B, B_mant, C, a, c;
     u32 B_expn, b_m, a_hex, c_hex;
     u32 fsel, proj;
@@ -51,12 +51,11 @@ void GXSetFog(GXFogType type, f32 startz, f32 endz, f32 nearz, f32 farz, GXColor
         SC_TEV_FOG_PARAM_1_SET_B_MAG(fog1, b_m);
         SC_TEV_FOG_PARAM_1_SET_RID(fog1, 0xEF);
 
+        fog2 = 0;
+        SC_TEV_FOG_PARAM_2_SET_B_SHF(fog2, B_expn + 1);
+        SC_TEV_FOG_PARAM_2_SET_RID(fog2, 0xF0);
         GX_WRITE_RA_REG(fog1);
-
-        fog1 = 0;
-        SC_TEV_FOG_PARAM_2_SET_B_SHF(fog1, B_expn + 1);
-        SC_TEV_FOG_PARAM_2_SET_RID(fog1, 0xF0);
-        GX_WRITE_RA_REG(fog1);
+        GX_WRITE_RA_REG(fog2);
     }
 
     a_hex = (*(u32*)&a);
@@ -90,7 +89,7 @@ void GXSetFog(GXFogType type, f32 startz, f32 endz, f32 nearz, f32 farz, GXColor
 extern double sqrt(double);
 
 void GXInitFogAdjTable(GXFogAdjTable* table, u16 width, const f32 projmtx[4][4]) {
-    f32 nearZSquared, widthFactor, sideX, nearZ, x, factor;
+    f32 widthFactor, sideX, nearZ, x, factor;
     u32 i;
 
     if (projmtx[3][3] == 0.0) {
@@ -102,12 +101,11 @@ void GXInitFogAdjTable(GXFogAdjTable* table, u16 width, const f32 projmtx[4][4])
     }
 
     widthFactor = 2.0f / width;
-    nearZSquared = nearZ * nearZ;
     for (i = 0; i < 10; i++) {
         x = (i + 1) * 32;
         x *= widthFactor;
         x *= sideX;
-        factor = sqrt(1.0f + (x * x) / nearZSquared);
+        factor = sqrt(1.0f + (x * x) / (nearZ * nearZ));
         table->r[i] = (u32)(256.0f * factor) & 0xfff;
     }
 }
