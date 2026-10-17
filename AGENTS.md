@@ -58,6 +58,9 @@ Keep entries concise and actionable. Distinguish confirmed findings from hypothe
 
 - **CodeWarrior SPR names are not Broadway's.** Wii/1.0 inline asm encodes `HID2` as SPR 1011 and rejects `WPAR` and `HID4`. Write numeric SPRs (`0x398`, `0x399`, `0x3F3`) in SDK asm. See [F-463-2](docs/re/findings/463-ppcarch.md#f-463-2-codewarrior-inline-assembler-spr-names).
 
+
+- **End a split at its last function, not the next unit.** A GXGeometry split ending at the next unit's start scored 100% in objdiff but shifted the DOL by 0x10 when source-linked, because the next auto split has 4-byte alignment. End `.text` (and `.sbss`) at the true end of the unit's contents; see [F-476-3](docs/re/findings/476-gxmisc-gxgeometry.md#f-476-3-split-end-padding).
+
 ## Current project state
 
 | Current state | Value |

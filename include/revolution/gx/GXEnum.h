@@ -1,0 +1,254 @@
+#ifndef REVOLUTION_GX_GXENUM_H
+#define REVOLUTION_GX_GXENUM_H
+
+#include "revolution/types.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+typedef u8 GXBool;
+
+#define GX_TRUE ((GXBool)1)
+#define GX_FALSE ((GXBool)0)
+#define GX_ENABLE ((GXBool)1)
+#define GX_DISABLE ((GXBool)0)
+
+typedef enum _GXAttr {
+    GX_VA_PNMTXIDX = 0,
+    GX_VA_TEX0MTXIDX,
+    GX_VA_TEX1MTXIDX,
+    GX_VA_TEX2MTXIDX,
+    GX_VA_TEX3MTXIDX,
+    GX_VA_TEX4MTXIDX,
+    GX_VA_TEX5MTXIDX,
+    GX_VA_TEX6MTXIDX,
+    GX_VA_TEX7MTXIDX,
+    GX_VA_POS = 9,
+    GX_VA_NRM,
+    GX_VA_CLR0,
+    GX_VA_CLR1,
+    GX_VA_TEX0,
+    GX_VA_TEX1,
+    GX_VA_TEX2,
+    GX_VA_TEX3,
+    GX_VA_TEX4,
+    GX_VA_TEX5,
+    GX_VA_TEX6,
+    GX_VA_TEX7,
+    GX_POS_MTX_ARRAY,
+    GX_NRM_MTX_ARRAY,
+    GX_TEX_MTX_ARRAY,
+    GX_LIGHT_ARRAY,
+    GX_VA_NBT,
+    GX_VA_MAX_ATTR,
+    GX_VA_NULL = 0xFF
+} GXAttr;
+
+typedef enum _GXAttrType {
+    GX_NONE = 0,
+    GX_DIRECT,
+    GX_INDEX8,
+    GX_INDEX16
+} GXAttrType;
+
+typedef enum _GXPrimitive {
+    GX_POINTS = 0xB8,
+    GX_LINES = 0xA8,
+    GX_LINESTRIP = 0xB0,
+    GX_TRIANGLES = 0x90,
+    GX_TRIANGLESTRIP = 0x98,
+    GX_TRIANGLEFAN = 0xA0,
+    GX_QUADS = 0x80
+} GXPrimitive;
+
+typedef enum _GXVtxFmt {
+    GX_VTXFMT0 = 0,
+    GX_VTXFMT1,
+    GX_VTXFMT2,
+    GX_VTXFMT3,
+    GX_VTXFMT4,
+    GX_VTXFMT5,
+    GX_VTXFMT6,
+    GX_VTXFMT7,
+    GX_MAX_VTXFMT
+} GXVtxFmt;
+
+typedef enum _GXTexOffset {
+    GX_TO_ZERO,
+    GX_TO_SIXTEENTH,
+    GX_TO_EIGHTH,
+    GX_TO_FOURTH,
+    GX_TO_HALF,
+    GX_TO_ONE,
+    GX_MAX_TEXOFFSET
+} GXTexOffset;
+
+typedef enum _GXTexCoordID {
+    GX_TEXCOORD0 = 0,
+    GX_TEXCOORD1,
+    GX_TEXCOORD2,
+    GX_TEXCOORD3,
+    GX_TEXCOORD4,
+    GX_TEXCOORD5,
+    GX_TEXCOORD6,
+    GX_TEXCOORD7,
+    GX_MAX_TEXCOORD = 8,
+    GX_TEXCOORD_NULL = 0xFF
+} GXTexCoordID;
+
+typedef enum _GXTexMapID {
+    GX_TEXMAP0,
+    GX_TEXMAP1,
+    GX_TEXMAP2,
+    GX_TEXMAP3,
+    GX_TEXMAP4,
+    GX_TEXMAP5,
+    GX_TEXMAP6,
+    GX_TEXMAP7,
+    GX_MAX_TEXMAP,
+    GX_TEXMAP_NULL = 0xFF,
+    GX_TEX_DISABLE = 0x100
+} GXTexMapID;
+
+typedef enum _GXCullMode {
+    GX_CULL_NONE,
+    GX_CULL_FRONT,
+    GX_CULL_BACK,
+    GX_CULL_ALL
+} GXCullMode;
+
+typedef enum _GXCompare {
+    GX_NEVER,
+    GX_LESS,
+    GX_EQUAL,
+    GX_LEQUAL,
+    GX_GREATER,
+    GX_NEQUAL,
+    GX_GEQUAL,
+    GX_ALWAYS
+} GXCompare;
+
+typedef enum _GXAlphaReadMode {
+    GX_READ_00,
+    GX_READ_FF,
+    GX_READ_NONE
+} GXAlphaReadMode;
+
+typedef enum _GXBlendMode {
+    GX_BM_NONE,
+    GX_BM_BLEND,
+    GX_BM_LOGIC,
+    GX_BM_SUBTRACT,
+    GX_MAX_BLENDMODE
+} GXBlendMode;
+
+typedef enum _GXBlendFactor {
+    GX_BL_ZERO,
+    GX_BL_ONE,
+    GX_BL_SRCCLR,
+    GX_BL_INVSRCCLR,
+    GX_BL_SRCALPHA,
+    GX_BL_INVSRCALPHA,
+    GX_BL_DSTALPHA,
+    GX_BL_INVDSTALPHA,
+    GX_BL_DSTCLR = GX_BL_SRCCLR,
+    GX_BL_INVDSTCLR = GX_BL_INVSRCCLR
+} GXBlendFactor;
+
+typedef enum _GXLogicOp {
+    GX_LO_CLEAR,
+    GX_LO_AND,
+    GX_LO_REVAND,
+    GX_LO_COPY,
+    GX_LO_INVAND,
+    GX_LO_NOOP,
+    GX_LO_XOR,
+    GX_LO_OR,
+    GX_LO_NOR,
+    GX_LO_EQUIV,
+    GX_LO_INV,
+    GX_LO_REVOR,
+    GX_LO_INVCOPY,
+    GX_LO_INVOR,
+    GX_LO_NAND,
+    GX_LO_SET
+} GXLogicOp;
+
+typedef enum _GXMiscToken {
+    GX_MT_NULL = 0,
+    GX_MT_XF_FLUSH = 1,
+    GX_MT_DL_SAVE_CONTEXT = 2,
+    GX_MT_ABORT_WAIT_COPYOUT = 3
+} GXMiscToken;
+
+typedef enum _GXPerf0 {
+    GX_PERF0_VERTICES,
+    GX_PERF0_CLIP_VTX,
+    GX_PERF0_CLIP_CLKS,
+    GX_PERF0_XF_WAIT_IN,
+    GX_PERF0_XF_WAIT_OUT,
+    GX_PERF0_XF_XFRM_CLKS,
+    GX_PERF0_XF_LIT_CLKS,
+    GX_PERF0_XF_BOT_CLKS,
+    GX_PERF0_XF_REGLD_CLKS,
+    GX_PERF0_XF_REGRD_CLKS,
+    GX_PERF0_CLIP_RATIO,
+    GX_PERF0_TRIANGLES,
+    GX_PERF0_TRIANGLES_CULLED,
+    GX_PERF0_TRIANGLES_PASSED,
+    GX_PERF0_TRIANGLES_SCISSORED,
+    GX_PERF0_TRIANGLES_0TEX,
+    GX_PERF0_TRIANGLES_1TEX,
+    GX_PERF0_TRIANGLES_2TEX,
+    GX_PERF0_TRIANGLES_3TEX,
+    GX_PERF0_TRIANGLES_4TEX,
+    GX_PERF0_TRIANGLES_5TEX,
+    GX_PERF0_TRIANGLES_6TEX,
+    GX_PERF0_TRIANGLES_7TEX,
+    GX_PERF0_TRIANGLES_8TEX,
+    GX_PERF0_TRIANGLES_0CLR,
+    GX_PERF0_TRIANGLES_1CLR,
+    GX_PERF0_TRIANGLES_2CLR,
+    GX_PERF0_QUAD_0CVG,
+    GX_PERF0_QUAD_NON0CVG,
+    GX_PERF0_QUAD_1CVG,
+    GX_PERF0_QUAD_2CVG,
+    GX_PERF0_QUAD_3CVG,
+    GX_PERF0_QUAD_4CVG,
+    GX_PERF0_AVG_QUAD_CNT,
+    GX_PERF0_CLOCKS,
+    GX_PERF0_NONE
+} GXPerf0;
+
+typedef enum _GXPerf1 {
+    GX_PERF1_TEXELS,
+    GX_PERF1_TX_IDLE,
+    GX_PERF1_TX_REGS,
+    GX_PERF1_TX_MEMSTALL,
+    GX_PERF1_TC_CHECK1_2,
+    GX_PERF1_TC_CHECK3_4,
+    GX_PERF1_TC_CHECK5_6,
+    GX_PERF1_TC_CHECK7_8,
+    GX_PERF1_TC_MISS,
+    GX_PERF1_VC_ELEMQ_FULL,
+    GX_PERF1_VC_MISSQ_FULL,
+    GX_PERF1_VC_MEMREQ_FULL,
+    GX_PERF1_VC_STATUS7,
+    GX_PERF1_VC_MISSREP_FULL,
+    GX_PERF1_VC_STREAMBUF_LOW,
+    GX_PERF1_VC_ALL_STALLS,
+    GX_PERF1_VERTICES,
+    GX_PERF1_FIFO_REQ,
+    GX_PERF1_CALL_REQ,
+    GX_PERF1_VC_MISS_REQ,
+    GX_PERF1_CP_ALL_REQ,
+    GX_PERF1_CLOCKS,
+    GX_PERF1_NONE
+} GXPerf1;
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif
