@@ -3,6 +3,7 @@
 
 #include "revolution/mem.h"
 #include "revolution/kpad.h"
+#include "revolution/gx/GXEnum.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -101,7 +102,15 @@ typedef struct {
       MEMAllocator* pAllocator;
 } HBMDataInfo;
 
-typedef struct HBMDataInfoEx HBMDataInfoEx;
+typedef struct HBMDataInfoEx {
+      void* layoutBuf;
+      void* msgBuf;
+      void* texImage;
+      u32 reserved;
+      u16 texImageWidth;
+      u16 texImageHeight;
+      GXTexFmt texImageFormat;
+} HBMDataInfoEx;
 
 void HBMCreate(const HBMDataInfo* pHBInfo);
 void HBMDelete(void);

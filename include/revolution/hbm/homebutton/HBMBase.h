@@ -19,6 +19,7 @@ class ArcResourceAccessor;
 class ArcResourceLink;
 class Layout;
 class MultiArcResourceAccessor;
+class Pane;
 }
 namespace ut {
 class ResFont;
@@ -96,11 +97,16 @@ public:
     Controller* getController(int chan) { return mpController[chan]; }
     int getVolume();
     HBMSelectBtnNum getSelectBtnNum();
+    const char* getFuncPaneName(int no) { return scFuncTouchPaneName[no]; }
+    const char* getPaneName(int no) { return scBtnName[no]; }
+    const char* getBtnWarePaneName(int no) { return scBtnWareName[no]; }
     bool getReassignedFlag() const { return mReassignedFlag; }
     HomeButtonEventHandler* getEventHandler() const { return mpHomeButtonEventHandler; }
     bool isActive() const;
     bool isUpBarActive() const;
     bool isDownBarActive();
+    bool isThirdBarActive() const;
+    int getPaneNo(const nw4hbm::lyt::Pane* pPane);
 
     void setAdjustFlag(int flag);
     void setEndSimpleSyncFlag(bool flag) { mEndSimpleSyncFlag = flag; }
@@ -120,6 +126,10 @@ public:
     void draw();
     void update(const HBMControllerData* pController);
     void updateTrigPane();
+
+    void startPointEvent(const nw4hbm::lyt::Pane* pPane, void* pData);
+    void startLeftEvent(const nw4hbm::lyt::Pane* pPane);
+    void startTrigEvent(const nw4hbm::lyt::Pane* pPane);
 
     int findAnimator(int pane, int anm);
     int findGroupAnimator(int pane, int anm);
@@ -153,6 +163,7 @@ private:
 
     void set_config();
     void set_text();
+    void set_text_ex();
 
     void calc_fadeoutAnm();
 
@@ -166,6 +177,42 @@ private:
 
     static HomeButton* spHomeButtonObj;
     static OSMutex sMutex;
+
+    static const int scReConnectTime;
+    static const int scReConnectTime2;
+    static const int scPadDrawWaitTime;
+    static const int scGetPadInfoTime;
+    static const int scForcusSEWaitTime;
+    static const f32 scOnPaneVibTime;
+    static const f32 scOnPaneVibWaitTime;
+    static const int scWaitStopMotorTime;
+    static const int scWaitDisConnectTime;
+
+    static const char* scCursorLytName[WPAD_MAX_CONTROLLERS];
+    static const char* scCursorPaneName;
+    static const char* scCursorRotPaneName;
+    static const char* scCursorSRotPaneName;
+
+    static const char* scBtnName[4];
+    static const char* scTxtName[4];
+    static const char* scGrName[8];
+    static const char* scAnimName[3];
+    static const char* scPairGroupAnimName[15];
+    static const char* scPairGroupName[15];
+    static const char* scGroupAnimName[22];
+    static const char* scGroupName[35];
+    static const char* scFuncPaneName[5];
+    static const char* scFuncTouchPaneName[10];
+    static const char* scFuncTextPaneName[3];
+    static const char* scBatteryPaneName[WPAD_MAX_CONTROLLERS][4];
+    static const char* scBtnWareName[2];
+    static const char* scButtonBarMenuName[7];
+    static const char* scButtonBarMenuGroupName[7];
+
+    static const int scSoundHeapSize_but2;
+    static const int scSoundHeapSize_but3;
+    static const int scSoundThreadPrio;
+    static const int scDvdThreadPrio;
 
     eSeq mSequence;
     const HBMDataInfo* mpHBInfo;

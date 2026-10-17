@@ -251,6 +251,7 @@ config.libs = [
             Object(Matching, "RVL_SDK/hbm/HBMRemoteSpk.cpp"),
             Object(Matching, "RVL_SDK/hbm/HBMAxSound.cpp"),
             Object(Matching, "RVL_SDK/hbm/HBMCommon.cpp"),
+            Object(NonMatching, "RVL_SDK/hbm/HBMBase.cpp"),
             Object(Matching, "RVL_SDK/hbm/nw4hbm/lyt/lyt_animation.cpp"),
             Object(Matching, "RVL_SDK/hbm/nw4hbm/lyt/lyt_arcResourceAccessor.cpp"),
             Object(Matching, "RVL_SDK/hbm/nw4hbm/lyt/lyt_bounding.cpp"),
