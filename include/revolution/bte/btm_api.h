@@ -1,9 +1,9 @@
 #ifndef RVL_SDK_BTE_BTM_API_H
 #define RVL_SDK_BTE_BTM_API_H
 
-#include <RVL_SDK/bte/bt_target.h>
-#include <RVL_SDK/bte/bt_types.h>
-#include <RVL_SDK/bte/hcidefs.h>
+#include <revolution/bte/bt_target.h>
+#include <revolution/bte/bt_types.h>
+#include <revolution/bte/hcidefs.h>
 
 #define BTM_SEC_ARRAY_BITS 32
 #define BTM_SEC_MAX_SERVICES 46

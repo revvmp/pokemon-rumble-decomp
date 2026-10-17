@@ -1,7 +1,7 @@
 #ifndef RVL_SDK_BTE_BTA_API_H
 #define RVL_SDK_BTE_BTA_API_H
 
-#include <RVL_SDK/bte/bt_types.h>
+#include <revolution/bte/bt_types.h>
 
 typedef UINT8 tBTA_STATUS;
 

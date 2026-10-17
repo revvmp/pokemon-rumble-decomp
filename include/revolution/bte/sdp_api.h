@@ -1,8 +1,8 @@
 #ifndef RVL_SDK_BTE_SDP_API_H
 #define RVL_SDK_BTE_SDP_API_H
 
-#include <RVL_SDK/bte/bt_target.h>
-#include <RVL_SDK/bte/bt_types.h>
+#include <revolution/bte/bt_target.h>
+#include <revolution/bte/bt_types.h>
 
 typedef UINT16 tSDP_STATUS;
 

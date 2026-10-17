@@ -1,8 +1,8 @@
 #ifndef RVL_SDK_BTE_BTA_SYS_H
 #define RVL_SDK_BTE_BTA_SYS_H
 
-#include <RVL_SDK/bte/bt_types.h>
-#include <RVL_SDK/bte/gki.h>
+#include <revolution/bte/bt_types.h>
+#include <revolution/bte/gki.h>
 
 #define BTA_SYS_EVT_START(id) ((id) << 8)
 

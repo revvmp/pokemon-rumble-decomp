@@ -1,12 +1,12 @@
-#include <RVL_SDK/bte/bd.h>
-#include <RVL_SDK/bte/bt_trace.h>
-#include <RVL_SDK/bte/bta_dm_int.h>
-#include <RVL_SDK/bte/btm_int.h>
-#include <RVL_SDK/bte/btu.h>
-#include <RVL_SDK/bte/gki.h>
-#include <RVL_SDK/bte/l2c_api.h>
-#include <RVL_SDK/bte/sdpdefs.h>
-#include <RVL_SDK/bte/wbt_api.h>
+#include <revolution/bte/bd.h>
+#include <revolution/bte/bt_trace.h>
+#include <revolution/bte/bta_dm_int.h>
+#include <revolution/bte/btm_int.h>
+#include <revolution/bte/btu.h>
+#include <revolution/bte/gki.h>
+#include <revolution/bte/l2c_api.h>
+#include <revolution/bte/sdpdefs.h>
+#include <revolution/bte/wbt_api.h>
 
 static void bta_dm_disable_timer_cback(TIMER_LIST_ENT* p_tle);
 static void bta_dm_search_timer_cback(TIMER_LIST_ENT* p_tle);

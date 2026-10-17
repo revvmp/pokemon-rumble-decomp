@@ -1,5 +1,5 @@
-#include <RVL_SDK/bte/gki.h>
-#include <RVL_SDK/bte/utl.h>
+#include <revolution/bte/gki.h>
+#include <revolution/bte/utl.h>
 
 void utl_freebuf(void** p) {
     if (*p != NULL) {

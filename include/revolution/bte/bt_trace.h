@@ -1,7 +1,7 @@
 #ifndef RVL_SDK_BTE_BT_TRACE_H
 #define RVL_SDK_BTE_BT_TRACE_H
 
-#include <RVL_SDK/bte/data_types.h>
+#include <revolution/bte/data_types.h>
 
 typedef UINT8 tBT_TRACE_LEVEL;
 

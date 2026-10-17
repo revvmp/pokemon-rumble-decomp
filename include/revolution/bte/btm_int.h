@@ -1,11 +1,11 @@
 #ifndef RVL_SDK_BTE_BTM_INT_H
 #define RVL_SDK_BTE_BTM_INT_H
 
-#include <RVL_SDK/bte/bt_target.h>
-#include <RVL_SDK/bte/bt_trace.h>
-#include <RVL_SDK/bte/btm_api.h>
-#include <RVL_SDK/bte/gki.h>
-#include <RVL_SDK/bte/sdp_api.h>
+#include <revolution/bte/bt_target.h>
+#include <revolution/bte/bt_trace.h>
+#include <revolution/bte/btm_api.h>
+#include <revolution/bte/gki.h>
+#include <revolution/bte/sdp_api.h>
 
 #define BTM_MAX_SCN PORT_MAX_RFC_PORTS
 #define BTM_SEC_MAX_LINK_KEY_CALLBACKS 2

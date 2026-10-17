@@ -1,11 +1,11 @@
 #ifndef RVL_SDK_BTE_BTA_DM_INT_H
 #define RVL_SDK_BTE_BTA_DM_INT_H
 
-#include <RVL_SDK/bte/bt_target.h>
-#include <RVL_SDK/bte/bta_api.h>
-#include <RVL_SDK/bte/bta_sys.h>
-#include <RVL_SDK/bte/btm_api.h>
-#include <RVL_SDK/bte/sdp_api.h>
+#include <revolution/bte/bt_target.h>
+#include <revolution/bte/bta_api.h>
+#include <revolution/bte/bta_sys.h>
+#include <revolution/bte/btm_api.h>
+#include <revolution/bte/sdp_api.h>
 
 #define BTA_DM_NUM_PEER_DEVICE 7
 #define BTA_DM_NUM_CONN_SRVS 5

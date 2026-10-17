@@ -1,7 +1,7 @@
 #ifndef RVL_SDK_BTE_BT_TYPES_H
 #define RVL_SDK_BTE_BT_TYPES_H
 
-#include <RVL_SDK/bte/data_types.h>
+#include <revolution/bte/data_types.h>
 
 #define BD_ADDR_LEN 6
 typedef UINT8 BD_ADDR[BD_ADDR_LEN];
