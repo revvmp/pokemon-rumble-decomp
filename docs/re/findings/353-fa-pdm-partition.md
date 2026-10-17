@@ -69,6 +69,8 @@ The function reads sector 0 and composes all four primary entries before it walk
 
 The unit continues into #354's range. Its functions read `PF_VOLUME` fields; for example, the bytes-per-sector shift is at volume offset 0x20, the `PDM_BPB` at the start of the volume. F-351-1 notes that FA's `PF_VOLUME` (stride 0x3F58) has no verified layout yet. These functions are left unsplit and keep their `fn_` names until that layout and the unit's end are established.
 
+Superseded: [F-354-1](354-fa-pf-cache.md) reconstructs the whole unit, `0x801FE250`–`0x80200004`, as `pf_cache.c`. It is `Matching`, and it introduces a `PF_VOLUME` with the cache at `0x1624`.
+
 ## Traps
 
 - **Repeated initialisation can be visible as a second `li`.** Trigger: `pdm_part_get_start_sector` emitted `li r14, 0` twice, for the early store of 0 and again before the primary-entry loop. Assigning `part_cnt = 0` both at the top and directly before the loop reproduces both. Evidence: F-353-1.
