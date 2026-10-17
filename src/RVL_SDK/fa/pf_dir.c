@@ -12,6 +12,7 @@ s32 PFDIR_IsEmptyDirectory(PF_ENT_ITER* p_iter, u32* p_is_empty)
 {
     s32 err;
     u32 index;
+    u8 attr;
 
     if (*p_iter->ffd.p_start_cluster == 1 ||
         (p_iter->ffd.p_vol->bpb.fat_type == PDM_FAT_32 &&
@@ -27,15 +28,16 @@ s32 PFDIR_IsEmptyDirectory(PF_ENT_ITER* p_iter, u32* p_is_empty)
         if (err != 0) {
             return err == 13 ? 0 : err;
         }
-        if (p_iter->buf[0] != PF_ENT_DELETED && (p_iter->buf[11] & PF_ATTR_LFN) != PF_ATTR_LFN &&
-            !(p_iter->buf[11] & PF_ATTR_VOLUME))
-        {
-            if (p_iter->buf[0] == PF_ENT_END) {
-                *p_is_empty = 1;
-            } else {
-                *p_is_empty = 0;
+        if (p_iter->buf[0] != PF_ENT_DELETED) {
+            attr = p_iter->buf[11];
+            if ((attr & PF_ATTR_LFN) != PF_ATTR_LFN && !(attr & PF_ATTR_VOLUME)) {
+                if (p_iter->buf[0] == PF_ENT_END) {
+                    *p_is_empty = 1;
+                } else {
+                    *p_is_empty = 0;
+                }
+                break;
             }
-            break;
         }
     }
     return 0;
@@ -48,7 +50,9 @@ PF_SDD* PFDIR_GetSDD(PF_VOLUME* p_vol, PF_DIR_ENT* p_ent)
 
     p_free = NULL;
     for (i = 0; i < PF_MAX_DIRS; i++) {
-        if (!(p_vol->sdds[i].stat & PF_SDD_STAT_ALLOCATED) || !p_vol->sdds[i].stat & PF_SDD_STAT_OPENED) {
+        if (!(p_vol->sdds[i].stat & PF_SDD_STAT_ALLOCATED) ||
+            ((p_vol->sdds[i].stat & PF_SDD_STAT_ALLOCATED) && !p_vol->sdds[i].stat & PF_SDD_STAT_OPENED))
+        {
             if (p_free == NULL) {
                 p_free = &p_vol->sdds[i];
             }
@@ -292,8 +296,8 @@ s32 PFDIR_p_mkdir(PF_VOLUME* p_vol, PF_STR* p_path, u32 mode, PF_DTA* p_dta)
     PFSTR_SetMarkPos(&file_name, name_buf);
 
     if (p_dta != NULL) {
-        p_dta->reserved[0] = 0;
-        p_dta->reserved[1] = 0;
+        p_dta->p_file = NULL;
+        p_dta->p_dir = NULL;
         p_dta->start_cluster = parent_ent.start_cluster;
         p_dta->p_vol = parent_ent.p_vol;
         p_dta->attr_required = PF_ATTR_DIR;
@@ -1466,4 +1470,787 @@ s32 PFDIR_ChmodEntry(PF_DTA* p_dta, PF_DIR_ENT* p_ent, u32 mode, u8 attr)
         return err;
     }
     return 0;
+}
+
+s32 PFDIR_RemoveEntry(PF_DTA* p_dta, PF_DIR_ENT* p_ent, PF_ENT_ITER* p_iter)
+{
+    s32 err;
+    u32 start_cluster;
+    u32 size;
+    PF_ENT_ITER save_iter;
+    PF_FAT_HINT save_hint;
+    u32 is_empty;
+
+    if (p_ent->attr & PF_ATTR_READONLY) {
+        return 24;
+    }
+
+    if (p_ent->attr & PF_ATTR_DIR) {
+        if (PFVOL_IsCurrentDirCluster(p_ent->p_vol, p_ent->start_cluster) || p_ent->start_cluster == 1 ||
+            (p_ent->p_vol->bpb.fat_type == PDM_FAT_32 && p_ent->start_cluster == p_ent->p_vol->bpb.root_dir_cluster))
+        {
+            return 28;
+        }
+        if (PFDIR_IsOpened(p_ent)) {
+            return 19;
+        }
+
+        save_iter = *p_iter;
+        save_hint = *p_iter->ffd.p_hint;
+        PFFAT_ResetFFD(&p_iter->ffd, &p_ent->start_cluster);
+        err = PFENT_ITER_IteratorInitialize(p_iter, 0);
+        if (err != 0) {
+            return err;
+        }
+        err = PFDIR_IsEmptyDirectory(p_iter, &is_empty);
+        if (err != 0) {
+            return err;
+        }
+        if (!is_empty) {
+            return 29;
+        }
+        *p_iter = save_iter;
+        p_iter->ffd.p_hint = &save_hint;
+        size = 0xFFFFFFFF;
+    } else {
+        if (PFFILE_IsOpened(p_ent)) {
+            return 19;
+        }
+        size = p_ent->file_size;
+    }
+
+    p_ent->num_entry_LFNs = p_dta->num_entry_LFNs;
+    p_ent->ordinal = p_dta->ordinal;
+    p_ent->check_sum = p_dta->check_sum;
+    start_cluster = p_ent->start_cluster;
+    err = PFENT_RemoveEntry(p_ent, p_iter);
+    if (err != 0) {
+        return err;
+    }
+    err = PFFAT_FreeChain(&p_iter->ffd, start_cluster, 0xFFFFFFFF, size);
+    if (err != 0) {
+        return err;
+    }
+    return 0;
+}
+
+s32 PFDIR_OpenFileEntry(PF_DTA* p_dta, PF_DIR_ENT* p_ent, PF_ENT_ITER* p_iter, u32 mode, u8 param)
+{
+    s32 err;
+    s8 name_buf[13];
+
+    if (mode & 0x80000000) {
+        p_ent->num_entry_LFNs = p_dta->num_entry_LFNs;
+        p_ent->ordinal = p_dta->ordinal;
+        p_ent->check_sum = p_dta->check_sum;
+        if (p_iter->buf[12] & 0x18) {
+            VFiPFPATH_getLongNameformShortName(p_ent->short_name, name_buf, p_iter->buf[12]);
+            VFiPFPATH_transformInUnicode(p_ent->long_name, name_buf);
+        } else {
+            err = PFENT_ITER_LoadLongName(p_iter, p_ent);
+            if (err != 0) {
+                return err;
+            }
+        }
+    }
+
+    err = PFFILE_OpenEntry(p_ent, p_iter, param, &p_dta->p_file);
+    if (err != 0) {
+        return err;
+    }
+    p_dta->p_vol->num_opened_files++;
+    return 0;
+}
+
+s32 PFDIR_OpenDirEntryForDTA(PF_DTA* p_dta, PF_DIR_ENT* p_ent, PF_ENT_ITER* p_iter, u32 mode)
+{
+    s32 err;
+    s8 name_buf[13];
+
+    if (mode & 0x80000000) {
+        p_ent->num_entry_LFNs = p_dta->num_entry_LFNs;
+        p_ent->ordinal = p_dta->ordinal;
+        p_ent->check_sum = p_dta->check_sum;
+        if (p_iter->buf[12] & 0x18) {
+            VFiPFPATH_getLongNameformShortName(p_ent->short_name, name_buf, p_iter->buf[12]);
+            VFiPFPATH_transformInUnicode(p_ent->long_name, name_buf);
+        } else {
+            err = PFENT_ITER_LoadLongName(p_iter, p_ent);
+            if (err != 0) {
+                return err;
+            }
+        }
+    }
+
+    err = PFDIR_OpenDirEntry(p_ent, p_iter, &p_dta->p_dir);
+    if (err != 0) {
+        return err;
+    }
+    p_dta->p_vol->num_opened_directories++;
+    return 0;
+}
+
+s32 PFDIR_p_fsexec(PF_DTA* p_dta, u32 mode, u8 param)
+{
+    s32 err;
+    u32 index;
+    PF_DIR_ENT ent;
+    PF_ENT_ITER iter;
+    PF_FFD ffd;
+    PF_FAT_HINT hint;
+    u8 dot_name[11];
+    PF_STR pattern;
+    PF_STR long_name;
+    u32 is_found;
+
+    if ((mode & 6) || (mode & 1) || (mode & 0x10) || (mode & 0x20)) {
+        if ((mode & 6) || (mode & 1) || ((mode & 0x10) && param != 2)) {
+            err = PFVOL_CheckForWrite(p_dta->p_vol);
+            if (err != 0) {
+                return err;
+            }
+        }
+
+        ent.short_name[0] = 0;
+        ent.start_cluster = p_dta->start_cluster;
+        PFFAT_InitFFD(&ffd, &hint, p_dta->p_vol, &ent.start_cluster);
+        iter.ffd = ffd;
+        index = p_dta->index - 1;
+        if (!(mode & 0x80000000)) {
+            index -= p_dta->num_entry_LFNs;
+        }
+        err = PFENT_ITER_IteratorInitialize(&iter, index);
+        if (err != 0) {
+            return err;
+        }
+
+        if (!(mode & 0x80000000)) {
+            if ((p_dta->status & PF_DTA_STAT_OEM_PATTERN) == PF_DTA_STAT_OEM_PATTERN) {
+                err = PFSTR_InitStr(&pattern, p_dta->short_name, PF_CODE_MODE_OEM);
+            } else if ((pf_vol_set.setting & PF_CODE_MODE_UNICODE) == PF_CODE_MODE_UNICODE) {
+                err = PFSTR_InitStr(&pattern, (const s8*)p_dta->w_long_name, PF_CODE_MODE_UNICODE);
+            } else {
+                err = PFSTR_InitStr(&pattern, (const s8*)p_dta->w_short_name, PF_CODE_MODE_UNICODE);
+            }
+            if (err != 0) {
+                return err;
+            }
+            if ((pf_vol_set.setting & PF_CODE_MODE_UNICODE) == PF_CODE_MODE_UNICODE) {
+                PFSTR_SetMarkPos(&pattern, p_dta->long_name);
+            } else {
+                PFSTR_SetMarkPos(&pattern, p_dta->short_name);
+            }
+            err = PFENT_ITER_FindEntry(&iter, &ent, &pattern, 0x7F, 0, &is_found);
+            if (err != 0) {
+                return err;
+            }
+            if ((p_dta->status & PF_DTA_STAT_UNICODE_PATTERN) != PF_DTA_STAT_UNICODE_PATTERN ||
+                (pf_vol_set.setting & PF_CODE_MODE_UNICODE) != PF_CODE_MODE_UNICODE)
+            {
+                if (PFPATH_CmpShortName(ent.short_name, &pattern, 1) != 0) {
+                    return 3;
+                }
+            }
+            err = PFSTR_InitStr(&long_name, p_dta->long_name, PF_CODE_MODE_OEM);
+            if (err != 0) {
+                return err;
+            }
+            PFSTR_SetMarkPos(&long_name, p_dta->long_name);
+            if (PFPATH_CmpLongName(ent.long_name, &long_name) != 0) {
+                return 3;
+            }
+        } else {
+            if (iter.buf[0] == PF_ENT_END || iter.buf[0] == PF_ENT_DELETED) {
+                return 3;
+            }
+            if (!(mode & 0x20) && (iter.buf[11] & 0x18)) {
+                return 3;
+            }
+            if ((mode & 0x20) && (!(iter.buf[11] & PF_ATTR_DIR) || (iter.buf[11] & PF_ATTR_VOLUME))) {
+                return 20;
+            }
+            err = PFENT_ITER_GetEntry(&iter, &ent);
+            if (err != 0) {
+                return err;
+            }
+        }
+
+        PFENT_SetDotEntry(dot_name);
+        if (pf_strncmp(ent.short_name, (const s8*)dot_name, 1) == 0) {
+            return 28;
+        }
+        PFENT_SetDotDotEntry(dot_name);
+        if (pf_strncmp(ent.short_name, (const s8*)dot_name, 2) == 0) {
+            return 28;
+        }
+
+        if (mode & 6) {
+            err = PFDIR_ChmodEntry(p_dta, &ent, mode, param);
+        } else if (mode & 1) {
+            err = PFDIR_RemoveEntry(p_dta, &ent, &iter);
+        } else if (mode & 0x10) {
+            err = PFDIR_OpenFileEntry(p_dta, &ent, &iter, mode, param);
+        } else if (mode & 0x20) {
+            err = PFDIR_OpenDirEntryForDTA(p_dta, &ent, &iter, mode);
+        }
+    } else {
+        return 10;
+    }
+    return err;
+}
+
+void PFDIR_FinalizeAllDirs(PF_VOLUME* p_vol)
+{
+    u16 i;
+
+    for (i = 0; i < PF_MAX_DIRS; i++) {
+        p_vol->sdds[i].stat = 0;
+        PFFAT_FinalizeFFD(&p_vol->sdds[i].ffd);
+    }
+    for (i = 0; i < PF_MAX_DIRS; i++) {
+        p_vol->udds[i].stat &= ~PF_DIR_STAT_ALLOCATED;
+    }
+    p_vol->num_opened_directories = 0;
+}
+
+s32 PFDIR_fsfirst(PF_STR* p_path, u8 attr, PF_DTA* p_dta)
+{
+    PF_VOLUME* p_vol;
+    s32 err;
+
+    p_vol = PFPATH_GetVolumeFromPath(p_path);
+    err = PFVOL_CheckForRead(p_vol);
+    if (err != 0) {
+        pf_vol_set.last_error = err;
+        p_vol->last_error = err;
+        return err;
+    }
+
+    err = PFDIR_p_fsfirst(p_vol, p_path, attr, p_dta);
+    if (err != 0) {
+        p_dta->p_vol = NULL;
+        pf_vol_set.last_error = err;
+        p_vol->last_error = err;
+    }
+    return err;
+}
+
+s32 PFDIR_fsnext(PF_DTA* p_dta)
+{
+    PF_VOLUME* p_vol;
+    s32 err;
+
+    p_vol = p_dta->p_vol;
+    err = PFVOL_CheckForRead(p_vol);
+    if (err != 0) {
+        pf_vol_set.last_error = err;
+        p_vol->last_error = err;
+        return err;
+    }
+
+    err = PFDIR_p_fsnext(p_dta);
+    if (err != 0) {
+        pf_vol_set.last_error = err;
+        p_vol->last_error = err;
+    }
+    return err;
+}
+
+s32 PFDIR_fsexec(PF_DTA* p_dta, u32 mode, u8 param)
+{
+    PF_VOLUME* p_vol;
+    s32 err;
+
+    p_vol = p_dta->p_vol;
+    err = PFVOL_CheckForRead(p_vol);
+    if (err != 0) {
+        pf_vol_set.last_error = err;
+        p_vol->last_error = err;
+        return err;
+    }
+
+    p_vol->cache.signature = NULL;
+    err = PFDIR_p_fsexec(p_dta, mode, param);
+    if (err != 0) {
+        pf_vol_set.last_error = err;
+        p_vol->last_error = err;
+    } else {
+        err = PFCACHE_FlushFATCache(p_vol);
+        if (err != 0) {
+            pf_vol_set.last_error = err;
+            p_vol->last_error = err;
+        }
+    }
+    p_vol->cache.signature = NULL;
+    return err;
+}
+
+s32 PFDIR_fstat(PF_STR* p_path, PF_STAT* p_stat)
+{
+    PF_VOLUME* p_vol;
+    s32 err;
+
+    p_vol = PFPATH_GetVolumeFromPath(p_path);
+    err = PFVOL_CheckForRead(p_vol);
+    if (err != 0) {
+        pf_vol_set.last_error = err;
+        p_vol->last_error = err;
+        return err;
+    }
+
+    err = PFDIR_p_fstat(p_vol, p_path, p_stat);
+    if (err != 0) {
+        pf_vol_set.last_error = err;
+        p_vol->last_error = err;
+    }
+    return err;
+}
+
+s32 PFDIR_rename(PF_STR* p_old_path, PF_STR* p_new_path)
+{
+    PF_VOLUME* p_vol;
+    s32 err;
+
+    p_vol = PFPATH_GetVolumeFromPath(p_old_path);
+    err = PFVOL_CheckForWrite(p_vol);
+    if (err != 0) {
+        pf_vol_set.last_error = err;
+        p_vol->last_error = err;
+        return err;
+    }
+
+    p_vol->cache.signature = NULL;
+    err = PFDIR_p_rename(p_vol, p_old_path, p_new_path);
+    if (err != 0) {
+        pf_vol_set.last_error = err;
+        p_vol->last_error = err;
+    } else {
+        err = PFCACHE_FlushFATCache(p_vol);
+        if (err != 0) {
+            pf_vol_set.last_error = err;
+            p_vol->last_error = err;
+        } else {
+            err = PFCACHE_FlushDataCacheSpecific(p_vol, NULL);
+            if (err != 0) {
+                pf_vol_set.last_error = err;
+                p_vol->last_error = err;
+            }
+        }
+    }
+    p_vol->cache.signature = NULL;
+    return err;
+}
+
+s32 PFDIR_move(PF_STR* p_src_path, PF_STR* p_dst_path)
+{
+    PF_VOLUME* p_vol;
+    s32 err;
+
+    p_vol = PFPATH_GetVolumeFromPath(p_src_path);
+    err = PFVOL_CheckForWrite(p_vol);
+    if (err != 0) {
+        pf_vol_set.last_error = err;
+        p_vol->last_error = err;
+        return err;
+    }
+
+    p_vol->cache.signature = NULL;
+    err = PFDIR_p_move(p_vol, p_src_path, p_dst_path);
+    if (err != 0) {
+        pf_vol_set.last_error = err;
+        p_vol->last_error = err;
+    } else {
+        err = PFCACHE_FlushFATCache(p_vol);
+        if (err != 0) {
+            pf_vol_set.last_error = err;
+            p_vol->last_error = err;
+        } else {
+            err = PFCACHE_FlushDataCacheSpecific(p_vol, NULL);
+            if (err != 0) {
+                pf_vol_set.last_error = err;
+                p_vol->last_error = err;
+            }
+        }
+    }
+    p_vol->cache.signature = NULL;
+    return err;
+}
+
+s32 PFDIR_opendir(PF_STR* p_path, PF_DIR** pp_dir)
+{
+    PF_VOLUME* p_vol;
+    s32 err;
+
+    p_vol = PFPATH_GetVolumeFromPath(p_path);
+    err = PFVOL_CheckForRead(p_vol);
+    if (err != 0) {
+        pf_vol_set.last_error = err;
+        p_vol->last_error = err;
+        return err;
+    }
+
+    err = PFDIR_p_opendir(p_vol, p_path, pp_dir);
+    if (err != 0) {
+        pf_vol_set.last_error = err;
+        p_vol->last_error = err;
+        return err;
+    }
+    p_vol->num_opened_directories++;
+    return err;
+}
+
+s32 PFDIR_closedir(PF_DIR* p_dir)
+{
+    PF_VOLUME* p_vol;
+    s32 err;
+
+    if (p_dir == NULL) {
+        p_vol = NULL;
+    } else {
+        p_vol = p_dir->p_sdd->dir_entry.p_vol;
+    }
+    err = PFVOL_CheckForRead(p_vol);
+    if (err != 0) {
+        pf_vol_set.last_error = err;
+        p_vol->last_error = err;
+        return err;
+    }
+
+    if (!(p_dir->p_sdd->stat & PF_SDD_STAT_ALLOCATED) || !(p_dir->p_sdd->stat & PF_SDD_STAT_OPENED)) {
+        pf_vol_set.last_error = 10;
+        p_vol->last_error = 10;
+        return 10;
+    }
+
+    if (--p_dir->p_sdd->num_handlers == 0) {
+        p_dir->p_sdd->stat &= ~PF_SDD_STAT_ALLOCATED;
+    }
+    p_dir->stat &= ~PF_DIR_STAT_ALLOCATED;
+    p_vol->num_opened_directories--;
+    return 0;
+}
+
+s32 PFDIR_readdir(PF_DIR* p_dir, PF_DIRENT* p_dirent)
+{
+    PF_VOLUME* p_vol;
+    s32 err;
+
+    if (p_dir == NULL) {
+        p_vol = NULL;
+    } else {
+        p_vol = p_dir->p_sdd->dir_entry.p_vol;
+    }
+    err = PFVOL_CheckForWrite(p_vol);
+    if (err != 0) {
+        pf_vol_set.last_error = err;
+        p_vol->last_error = err;
+        return err;
+    }
+
+    if (!(p_dir->p_sdd->stat & PF_SDD_STAT_ALLOCATED) || !(p_dir->p_sdd->stat & PF_SDD_STAT_OPENED)) {
+        pf_vol_set.last_error = 10;
+        p_vol->last_error = 10;
+        return 10;
+    }
+
+    err = PFDIR_p_readdir(p_dir, p_dirent);
+    if (err != 0) {
+        pf_vol_set.last_error = err;
+        p_vol->last_error = err;
+    }
+    return err;
+}
+
+s32 PFDIR_telldir(PF_DIR* p_dir, u32* p_index)
+{
+    PF_VOLUME* p_vol;
+    s32 err;
+
+    if (p_dir == NULL) {
+        p_vol = NULL;
+    } else {
+        p_vol = p_dir->p_sdd->dir_entry.p_vol;
+    }
+    err = PFVOL_CheckForWrite(p_vol);
+    if (err != 0) {
+        pf_vol_set.last_error = err;
+        p_vol->last_error = err;
+        return err;
+    }
+
+    if (!(p_dir->p_sdd->stat & PF_SDD_STAT_ALLOCATED) || !(p_dir->p_sdd->stat & PF_SDD_STAT_OPENED)) {
+        pf_vol_set.last_error = 10;
+        p_vol->last_error = 10;
+        return 10;
+    }
+
+    if (p_dir->cursor.logical_seek_index != 0) {
+        *p_index = p_dir->cursor.logical_seek_index;
+    } else {
+        *p_index = p_dir->cursor.logical_entry_index;
+    }
+    return err;
+}
+
+s32 PFDIR_seekdir(PF_DIR* p_dir, u32 index)
+{
+    PF_VOLUME* p_vol;
+    s32 err;
+
+    if (p_dir == NULL) {
+        p_vol = NULL;
+    } else {
+        p_vol = p_dir->p_sdd->dir_entry.p_vol;
+    }
+    err = PFVOL_CheckForWrite(p_vol);
+    if (err != 0) {
+        pf_vol_set.last_error = err;
+        p_vol->last_error = err;
+        return err;
+    }
+
+    if (!(p_dir->p_sdd->stat & PF_SDD_STAT_ALLOCATED) || !(p_dir->p_sdd->stat & PF_SDD_STAT_OPENED)) {
+        pf_vol_set.last_error = 10;
+        p_vol->last_error = 10;
+        return 10;
+    }
+
+    p_dir->cursor.logical_seek_index = index;
+    return err;
+}
+
+s32 PFDIR_rmdir(PF_STR* p_path)
+{
+    PF_VOLUME* p_vol;
+    s32 err;
+
+    p_vol = PFPATH_GetVolumeFromPath(p_path);
+    err = PFVOL_CheckForWrite(p_vol);
+    if (err != 0) {
+        pf_vol_set.last_error = err;
+        p_vol->last_error = err;
+        return err;
+    }
+
+    p_vol->cache.signature = NULL;
+    err = PFDIR_p_rmdir(p_vol, p_path);
+    if (err != 0) {
+        pf_vol_set.last_error = err;
+        p_vol->last_error = err;
+    } else {
+        err = PFCACHE_FlushFATCache(p_vol);
+        if (err != 0) {
+            pf_vol_set.last_error = err;
+            p_vol->last_error = err;
+        }
+    }
+    p_vol->cache.signature = NULL;
+    return err;
+}
+
+s32 PFDIR_mkdir(PF_STR* p_path)
+{
+    PF_VOLUME* p_vol;
+    s32 err;
+
+    p_vol = PFPATH_GetVolumeFromPath(p_path);
+    err = PFVOL_CheckForWrite(p_vol);
+    if (err != 0) {
+        pf_vol_set.last_error = err;
+        p_vol->last_error = err;
+        return err;
+    }
+
+    p_vol->cache.signature = NULL;
+    err = PFDIR_p_mkdir(p_vol, p_path, 0, NULL);
+    if (err != 0) {
+        pf_vol_set.last_error = err;
+        p_vol->last_error = err;
+    } else {
+        err = PFCACHE_FlushFATCache(p_vol);
+        if (err != 0) {
+            pf_vol_set.last_error = err;
+            p_vol->last_error = err;
+        } else {
+            err = PFCACHE_FlushDataCacheSpecific(p_vol, NULL);
+            if (err != 0) {
+                pf_vol_set.last_error = err;
+                p_vol->last_error = err;
+            }
+        }
+    }
+    p_vol->cache.signature = NULL;
+    return err;
+}
+
+s32 PFDIR_createdir(PF_STR* p_path, u32 mode, PF_DTA* p_dta)
+{
+    PF_VOLUME* p_vol;
+    s32 err;
+
+    p_vol = PFPATH_GetVolumeFromPath(p_path);
+    err = PFVOL_CheckForWrite(p_vol);
+    if (err != 0) {
+        pf_vol_set.last_error = err;
+        p_vol->last_error = err;
+        return err;
+    }
+
+    p_vol->cache.signature = NULL;
+    err = PFDIR_p_mkdir(p_vol, p_path, mode, p_dta);
+    if (err != 0) {
+        pf_vol_set.last_error = err;
+        p_vol->last_error = err;
+    } else {
+        err = PFCACHE_FlushFATCache(p_vol);
+        if (err != 0) {
+            pf_vol_set.last_error = err;
+            p_vol->last_error = err;
+        } else {
+            err = PFCACHE_FlushDataCacheSpecific(p_vol, NULL);
+            if (err != 0) {
+                pf_vol_set.last_error = err;
+                p_vol->last_error = err;
+            }
+        }
+    }
+    p_vol->cache.signature = NULL;
+    return err;
+}
+
+s32 PFDIR_chdir(PF_STR* p_path)
+{
+    PF_VOLUME* p_vol;
+    s32 err;
+
+    p_vol = PFPATH_GetVolumeFromPath(p_path);
+    err = PFVOL_CheckForRead(p_vol);
+    if (err != 0) {
+        pf_vol_set.last_error = err;
+        p_vol->last_error = err;
+        return err;
+    }
+
+    err = PFDIR_p_chdir(p_vol, p_path);
+    if (err != 0) {
+        pf_vol_set.last_error = err;
+        p_vol->last_error = err;
+    } else {
+        PFVOL_SetCurrentVolume(p_vol);
+    }
+    return err;
+}
+
+static s32 PFDIR_p_fchdir(PF_VOLUME* p_vol, PF_DIR* p_dir)
+{
+    s32 err;
+
+    err = PFVOL_SetCurrentDir(p_vol, &p_dir->p_sdd->dir_entry);
+    if (err != 0) {
+        return err;
+    }
+    return 0;
+}
+
+s32 PFDIR_fchdir(PF_DIR* p_dir)
+{
+    PF_VOLUME* p_vol;
+    s32 err;
+
+    if (p_dir == NULL) {
+        p_vol = NULL;
+    } else {
+        p_vol = p_dir->p_sdd->dir_entry.p_vol;
+    }
+    err = PFVOL_CheckForRead(p_vol);
+    if (err != 0) {
+        pf_vol_set.last_error = err;
+        p_vol->last_error = err;
+        return err;
+    }
+
+    if (!(p_dir->p_sdd->stat & PF_SDD_STAT_ALLOCATED) || !(p_dir->p_sdd->stat & PF_SDD_STAT_OPENED)) {
+        pf_vol_set.last_error = 10;
+        p_vol->last_error = 10;
+        return 10;
+    }
+
+    err = PFDIR_p_fchdir(p_vol, p_dir);
+    if (err != 0) {
+        pf_vol_set.last_error = err;
+        p_vol->last_error = err;
+    } else {
+        PFVOL_SetCurrentVolume(p_vol);
+    }
+    return err;
+}
+
+s32 PFDIR_chmod(PF_STR* p_path, u8 attr)
+{
+    PF_VOLUME* p_vol;
+    s32 err;
+
+    p_vol = PFPATH_GetVolumeFromPath(p_path);
+    err = PFVOL_CheckForWrite(p_vol);
+    if (err != 0) {
+        pf_vol_set.last_error = err;
+        p_vol->last_error = err;
+        return err;
+    }
+
+    p_vol->cache.signature = NULL;
+    err = PFDIR_p_chmod(p_vol, p_path, attr);
+    if (err != 0) {
+        pf_vol_set.last_error = err;
+        p_vol->last_error = err;
+    } else {
+        err = PFCACHE_FlushFATCache(p_vol);
+        if (err != 0) {
+            pf_vol_set.last_error = err;
+            p_vol->last_error = err;
+        } else {
+            err = PFCACHE_FlushDataCacheSpecific(p_vol, NULL);
+            if (err != 0) {
+                pf_vol_set.last_error = err;
+                p_vol->last_error = err;
+            }
+        }
+    }
+    p_vol->cache.signature = NULL;
+    return err;
+}
+
+s32 PFDIR_chdmod(PF_STR* p_path, u8 attr)
+{
+    PF_VOLUME* p_vol;
+    s32 err;
+
+    p_vol = PFPATH_GetVolumeFromPath(p_path);
+    err = PFVOL_CheckForWrite(p_vol);
+    if (err != 0) {
+        pf_vol_set.last_error = err;
+        p_vol->last_error = err;
+        return err;
+    }
+
+    p_vol->cache.signature = NULL;
+    err = PFDIR_p_chmod(p_vol, p_path, attr | PF_ATTR_DIR);
+    if (err != 0) {
+        pf_vol_set.last_error = err;
+        p_vol->last_error = err;
+    } else {
+        err = PFCACHE_FlushFATCache(p_vol);
+        if (err != 0) {
+            pf_vol_set.last_error = err;
+            p_vol->last_error = err;
+        } else {
+            err = PFCACHE_FlushDataCacheSpecific(p_vol, NULL);
+            if (err != 0) {
+                pf_vol_set.last_error = err;
+                p_vol->last_error = err;
+            }
+        }
+    }
+    p_vol->cache.signature = NULL;
+    return err;
 }

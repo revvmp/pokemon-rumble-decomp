@@ -182,9 +182,11 @@ typedef struct PF_ENT_ITER {
 } PF_ENT_ITER;
 
 s32 PFVOL_CheckForRead(PF_VOLUME* p_vol);
+s32 PFVOL_CheckForWrite(PF_VOLUME* p_vol);
 s32 PFVOL_IsCurrentDirCluster(PF_VOLUME* p_vol, u32 cluster);
 s32 PFVOL_SetCurrentDir(PF_VOLUME* p_vol, PF_DIR_ENT* p_ent);
 s32 PFVOL_GetCurrentDir(PF_VOLUME* p_vol, PF_DIR_ENT* p_current_dir);
+void PFVOL_SetCurrentVolume(PF_VOLUME* p_vol);
 
 s32 PFDRV_lread(PF_VOLUME* p_vol, u8* buf, u32 sector, u32 num_sector, u32* p_num_success);
 s32 PFDRV_lwrite(PF_VOLUME* p_vol, const u8* buf, u32 sector, u32 num_sector, u32* p_num_success);
