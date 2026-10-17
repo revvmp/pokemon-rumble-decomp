@@ -5,23 +5,12 @@
 #include <nw4r/snd/snd_Types.h>
 
 #include <nw4r/ut/ut_LinkList.h>
-#include <nw4r/ut/ut_algorithm.h>
 
 #include <revolution/ax.h>
-
-#include <limits.h>
 
 namespace nw4r {
 namespace snd {
 namespace detail {
-
-inline int CalcAxvpbDelta(u16 init, u16 target) {
-    return (target - init) / AX_SAMPLES_PER_FRAME;
-}
-
-inline u16 CalcMixVolume(f32 volume) {
-    return ut::Min<u32>(USHRT_MAX, AX_MAX_VOLUME * volume);
-}
 
 class AxVoiceParamBlock {
 public:
@@ -37,23 +26,6 @@ public:
 
     bool IsRun() const {
         return IsAvailable() && mVpb->pb.state == AX_VOICE_RUN;
-    }
-
-    bool IsLpfEnable() const {
-        return IsAvailable() && mVpb->pb.lpf.on == AX_PB_LPF_ON;
-    }
-
-    bool IsBiquadEnable() const {
-        return IsAvailable() && mVpb->pb.biquad.on == AX_PB_BIQUAD_ON;
-    }
-
-    u32 GetCurrentAddress() const {
-        if (!IsAvailable()) {
-            return 0;
-        }
-
-        return (mVpb->pb.addr.currentAddressHi << 16) +
-               mVpb->pb.addr.currentAddressLo;
     }
 
     u32 GetLoopAddress() const {
@@ -72,6 +44,25 @@ public:
 
         return (mVpb->pb.addr.endAddressHi << 16) + mVpb->pb.addr.endAddressLo;
     }
+
+    u32 GetCurrentAddress() const {
+        if (!IsAvailable()) {
+            return 0;
+        }
+
+        return (mVpb->pb.addr.currentAddressHi << 16) +
+               mVpb->pb.addr.currentAddressLo;
+    }
+
+    bool IsLpfEnable() const {
+        return IsAvailable() && mVpb->pb.lpf.on == AX_PB_LPF_ON;
+    }
+
+    bool IsBiquadEnable() const {
+        return IsAvailable() && mVpb->pb.biquad.on == AX_PB_BIQUAD_ON;
+    }
+
+    bool IsRmtIirEnable() const;
 
     void SetVoiceAddr(const AXPBADDR& rAddr) {
         if (IsAvailable()) {
@@ -98,7 +89,6 @@ public:
     }
 
     void Sync();
-    bool IsRmtIirEnable() const;
 
     void Set(AXVPB* pVpb);
     void Clear();
@@ -116,6 +106,8 @@ public:
     void SetVoiceAdpcmLoop(const AXPBADPCMLOOP& rLoop);
     void SetVoiceLpf(const AXPBLPF& rLpf);
     void SetVoiceLpfCoefs(u16 a0, u16 b0);
+    void SetVoiceBiquad(const AXPBBIQUAD& rBiquad);
+    void SetVoiceBiquadCoefs(u16 b0, u16 b1, u16 b2, u16 a1, u16 a2);
     void SetVoiceRmtOn(u16 on);
     void SetVoiceRmtMix(const AXPBRMTMIX& rMix);
     void SetVoiceRmtIIR(const AXPBRMTIIR& rIir);
@@ -144,12 +136,6 @@ public:
 
     typedef void (*AxVoiceCallback)(AxVoice* pDropVoice,
                                     AxVoiceCallbackStatus status, void* pArg);
-
-    enum Format {
-        FORMAT_ADPCM = 0,
-        FORMAT_PCM16 = 10,
-        FORMAT_PCM8 = 25,
-    };
 
     enum VoiceType {
         VOICE_TYPE_NORMAL,
@@ -208,19 +194,15 @@ public:
         mVpb.Sync();
     }
 
-    Format GetFormat() const {
+    SampleFormat GetFormat() const {
         return mFormat;
-    }
-
-    void SetBaseAddress(const void* pBase) {
-        mWaveData = pBase;
     }
 
     f32 GetDspRatio(f32 ratio) const {
         return (ratio * mSampleRate) / AX_SAMPLE_RATE;
     }
 
-    void Setup(const void* pWave, Format fmt, int rate);
+    void Setup(const void* pWave, SampleFormat format, int rate);
 
     bool IsPlayFinished() const;
     void SetLoopStart(const void* pBase, u32 samples);
@@ -247,24 +229,28 @@ public:
     void SetSrc(f32 ratio, bool initial);
     void SetVe(f32 volume, f32 initVolume);
     void SetLpf(u16 freq);
+    void SetBiquad(u8 type, f32 value);
     void SetRemoteFilter(u8 filter);
 
     static u32 GetDspAddressBySample(const void* pBase, u32 samples,
-                                     Format fmt);
-    static u32 GetSampleByDspAddress(const void* pBase, u32 addr, Format fmt);
-    static u32 GetSampleByByte(u32 addr, Format fmt);
+                                     SampleFormat format);
+    static u32 GetSampleByDspAddress(const void* pBase, u32 addr,
+                                     SampleFormat format);
+    static u16 GetAxFormatFromSampleFormat(SampleFormat format);
 
     static void CalcOffsetAdpcmParam(u16* pPredScale, u16* pYN1, u16* pYN2,
                                      u32 offset, const void* pData,
                                      const AdpcmParam& rParam);
 
 private:
+    bool IsNeedNextUpdate(const MixParam& rParam) const;
+
     static void VoiceCallback(void* pArg);
 
 private:
     AxVoiceParamBlock mVpb;
     const void* mWaveData;
-    Format mFormat;
+    SampleFormat mFormat;
     int mSampleRate;
     bool mFirstMixUpdateFlag;
     bool mReserveForFreeFlag;

@@ -11,45 +11,6 @@
 #include "revolution/os/OSCache.h"
 #include "string.h"
 
-#define AX_VOICE_STOP 0
-#define AX_PB_LPF_ON 1
-#define AX_PB_BIQUAD_ON 2
-
-typedef enum {
-    AX_PBSYNC_SELECT = (1 << 0),
-    AX_PBSYNC_MIXER_CTRL = (1 << 1),
-    AX_PBSYNC_STATE = (1 << 2),
-    AX_PBSYNC_TYPE = (1 << 3),
-    AX_PBSYNC_MIX = (1 << 4),
-    AX_PBSYNC_ITD = (1 << 5),
-    AX_PBSYNC_ITD_SHIFT = (1 << 6),
-    AX_PBSYNC_DPOP = (1 << 7),
-    AX_PBSYNC_VE = (1 << 8),
-    AX_PBSYNC_VE_DELTA = (1 << 9),
-    AX_PBSYNC_ADDR = (1 << 10),
-    AX_PBSYNC_LOOP_FLAG = (1 << 11),
-    AX_PBSYNC_LOOP_ADDR = (1 << 12),
-    AX_PBSYNC_END_ADDR = (1 << 13),
-    AX_PBSYNC_CURR_ADDR = (1 << 14),
-    AX_PBSYNC_ADPCM = (1 << 15),
-    AX_PBSYNC_SRC = (1 << 16),
-    AX_PBSYNC_SRC_RATIO = (1 << 17),
-    AX_PBSYNC_ADPCM_LOOP = (1 << 18),
-    AX_PBSYNC_LPF = (1 << 19),
-    AX_PBSYNC_LPF_COEFS = (1 << 20),
-    AX_PBSYNC_BIQUAD = (1 << 21),
-    AX_PBSYNC_BIQUAD_COEFS = (1 << 22),
-    AX_PBSYNC_REMOTE = (1 << 23),
-    AX_PBSYNC_RMT_MIXER_CTRL = (1 << 24),
-    AX_PBSYNC_RMTMIX = (1 << 25),
-    AX_PBSYNC_RMTDPOP = (1 << 26),
-    AX_PBSYNC_RMTSRC = (1 << 27),
-    AX_PBSYNC_RMTIIR = (1 << 28),
-    AX_PBSYNC_RMTIIR_LPF_COEFS = (1 << 29),
-    AX_PBSYNC_RMTIIR_BIQUAD_COEFS = (1 << 30),
-    AX_PBSYNC_ALL = (1 << 31),
-};
-
 #define AX_COPY_PARAMETERS(dst, src, type, n)                                          \
     do {                                                                       \
                                                                                \

@@ -22,6 +22,13 @@ enum OutputLineFlag {
 
 enum AuxBus { AUX_A, AUX_B, AUX_C, AUX_BUS_NUM };
 
+enum SampleFormat {
+    SAMPLE_FORMAT_PCM_S32,
+    SAMPLE_FORMAT_PCM_S16,
+    SAMPLE_FORMAT_PCM_S8,
+    SAMPLE_FORMAT_DSP_ADPCM
+};
+
 enum OutputMode {
     OUTPUT_MODE_STEREO,
     OUTPUT_MODE_SURROUND,
