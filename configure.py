@@ -249,7 +249,10 @@ config.libs = [
         "Wii/1.1",
         [*cflags_sdk, "-fp_contract off"],
         "runtime",
-        [Object(Matching, "MSL_C/wprintf.c")],
+        [
+            Object(Matching, "MSL_C/printf.c"),
+            Object(Matching, "MSL_C/wprintf.c"),
+        ],
     ),
     library(
         "homebuttonLib",
