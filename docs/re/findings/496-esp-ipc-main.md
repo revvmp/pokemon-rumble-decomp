@@ -45,3 +45,10 @@ A fresh isolated checkout rebuilt with `python configure.py` and `.venv/Scripts/
 Direct object comparisons confirm the same remaining relocation-name differences: `ESP_CloseLib` 99.72222%, `ESP_LaunchTitle` 99.86487%, `IPCInit` 99.47369%, and `IPCReInit` 99.44444%. These scores are diagnostics, not acceptance of source linking.
 
 The dependency changes are now prepared by their owners: [PR #555](https://github.com/revvmp/pokemon-rumble-decomp/pull/555) supplies the OS IPC getter names, and [PR #565](https://github.com/revvmp/pokemon-rumble-decomp/pull/565) supplies `IOS_Close` and `IOS_IoctlvReboot`. Both remained open during this validation. After they merge, rebase, change only the two #496 object registrations to `Matching`, and run the complete build, direct object comparisons, and frozen verification before accepting the source. No outside-claim symbols were changed. No new reverse engineering trap emerged.
+
+
+## ESP source-link acceptance
+
+PR #565 merged the two IOS names. With ESP registered as `Matching`, `python configure.py`, `.venv/Scripts/ninja`, and the frozen verifier all exited 0; verification reported `PASS main.dol`. Direct objdiff reports 100% for the complete ESP `.text` and `.sdata` sections and all 14 functions. ESP now contributes 2288 source-linked code bytes and 16 data bytes, without an original-object fallback for that unit.
+
+IPC main remains `NonMatching`: PR #555 was still open and the two OS IPC getters remained automatic symbols on the verified base. Its seven functions and 204 code bytes remain original fallback. The earlier dependency tables and validation paragraphs describe the historical baseline; the IOS blocker is resolved, while the OS getter blocker remains. No new trap emerged.

@@ -195,7 +195,7 @@ config.libs = [
             Object(NonMatching, "RVL_SDK/nand/nand.c"),
             Object(Matching, "RVL_SDK/enc/enclatin.c", cflags=cflags_base),
             Object(Matching, "RVL_SDK/arc/arc.c"),
-            Object(NonMatching, "RVL_SDK/esp/esp.c"),
+            Object(Matching, "RVL_SDK/esp/esp.c"),
             Object(NonMatching, "RVL_SDK/ipc/ipcMain.c"),
             Object(Matching, "RVL_SDK/ipc/memory.c"),
             Object(Matching, "RVL_SDK/ipc/ipcProfile.c"),
