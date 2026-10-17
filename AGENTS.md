@@ -63,6 +63,10 @@ Keep entries concise and actionable. Distinguish confirmed findings from hypothe
 
 - **IPC register declarations affect instruction selection.** A pointer macro produced different instructions from the original indexed loads/stores. Use the evidenced CodeWarrior absolute-address array declaration for ipcMain; see [F-496-1](docs/re/findings/496-esp-ipc-main.md).
 
+- **VI I2C uses a fixed tick conversion.** Petari I2C functions initially differ because its clock macro reads the bus-clock word. This target uses immediate divisor 486; the fixed conversion reproduces all three non-relocation instruction streams. Limit this conclusion to I2C and retain the runtime-helper dependency; see [F-473-1](docs/re/findings/473-vi-i2c.md).
+
+- **PowerShell semicolons do not gate lifecycle steps.** A rejected PR merge still allowed a following release command to execute. Run merge, state confirmation, claim release, and cleanup separately, checking each result; see [the #473 handoff note](docs/re/findings/473-vi-i2c.md#handoff-validation-note).
+
 ## Current project state
 
 | Current state | Value |
