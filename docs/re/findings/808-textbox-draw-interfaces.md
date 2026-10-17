@@ -98,6 +98,16 @@ headers: all 77 functions / 11,188 bytes, 221 text plus ten data relocations,
 and 152 non-text bytes remain exact. This supplies regression evidence only;
 its source credit remains with the separate #811 source delivery.
 
+Independent owners recompiled their actual candidates against the exact
+committed header tree at 9a4d16f4. Layout retains all 19 functions / 4,144
+bytes and 98 paired targets; Picture retains ten / 1,336 and 68 targets.
+All initialized data, constants, and constructor bytes remain exact. Picture
+uses only its own pending canonical header in addition to this tree.
+Animation retains all 27 / 5,396, 74 paired targets, its 36-byte vtable and
+32-byte constants. These probes mutate no production source. External
+scripts are `809-reprove-header9a4d.py`, `812-compile-tracked.py`,
+`812-audit-probe.py`, and `812-paired-audit.py`, all exit 0.
+
 ## Traps
 
 - An inline Font reader body adds 28 bytes to the native retained line-rect
