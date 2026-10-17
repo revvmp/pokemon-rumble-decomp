@@ -106,7 +106,7 @@ RVL_SDK/gx/GXFrameBuf.c:
 
 RVL_SDK/gx/GXLight.c:
 	.text       start:0x802CDEC0 end:0x802CE630
-	.sdata2     start:0x804BB310 end:0x804BB348
+	.sdata2     start:0x804BB310 end:0x804BB344
 
 RVL_SDK/gx/GXTev.c:
 	.text       start:0x802CFB90 end:0x802D0260

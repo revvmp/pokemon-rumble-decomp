@@ -148,7 +148,7 @@ The same finding corrects the survey boundary at the end of #483: AIRegisterDMAC
 
 ## Issue 477: GX framebuffer and lighting
 
-[F-477-1](findings/477-gx-framebuf-light.md) records all 30 function names, code ranges, DOL offset mapping, light-object layout and external dependencies. GXFrameBuf owns 0x802CD440-0x802CDEC0; GXLight owns 0x802CDEC0-0x802CE630. Names are high confidence. Both units remain NonMatching pending external names and complete data/source-link validation.
+[F-477-1](findings/477-gx-framebuf-light.md) records all 30 function names, code ranges, DOL offset mapping, light-object layout and external dependencies. GXFrameBuf owns 0x802CD440-0x802CDEC0; GXLight owns 0x802CDEC0-0x802CE630. Names are high confidence. Both units are now Matching and linked from source after [F-477-2](findings/477-gx-framebuf-light.md#f-477-2-complete-source-link). Their referenced external names are __GetImageTileCount at 0x802CE760, __cvt_fp2unsigned at 0x8034033C, cos at 0x8034CEE4 and sqrt at 0x8034D798. GXLight constants end at 0x804BB344; 0x804BB344-0x804BB348 is padding, not part of the last float.
 
 ## Issue 524: BTE HID device and host
 
