@@ -27,6 +27,14 @@ Independent driver and volume consumers use volume stride0x1FAC, flags at0x1F8C,
 
 Native PFSYS_GetCurrentContextID at0x8021C890 reads pf_vol_set+0x64, and async worker0x8021C550 writes the incoming command context ID there. Context records used by PFVOL_regctx/SetCurrentVolume begin at+0x68; nondefault records1–3 are at+0x70/+0x78/+0x80. These observations explain the volume array start+0x88 without guessed padding. Proposed current_context_id naming is descriptive. Complete full-record source and allocated-data acceptance remain future work.
 
+The final expanded #882 prerequisite passes a fresh default configure/map,
+plain Ninja, explicit report/all_source, and frozen verification on
+ea4ffb4742. All 532 pre-existing objects preserve allocated sections and
+relocations; 531 are whole-file identical. The sole numeric-local .strtab
+difference in pf_dir is independently controlled by reproducing its exact
+original hash with original headers. This accepts only the bounded header
+changes above; complete volume record publication remains future work.
+
 ## Traps
 
 - FA combines the VF reference's partial-page and full-sector data functions into one ReadData and one WriteData. Retain all three explicit offset/alignment cases and the final invalid-offset return; collapsing the logically redundant final offset check removed twenty bytes and failed the native stream. This target-specific source distinction is proven by four complete native scratch matches.

@@ -49,6 +49,15 @@ The final combined declarations compile all twenty-six #366 candidates with 1,54
 
 The original worktree baseline at `6965907bd8c2285c5f9096aed579af63a836c376` passed configure, plain Ninja and explicit frozen verification. An initial header checkpoint passed a fresh 513-target plain Ninja and explicit verification of actual `build/366-headers/wpse-v1`, all exit zero. All 506 existing compiled objects preserve every allocated section's type/flags/size/alignment/bytes and every canonical relocation target/addend; 505 are whole-file identical. The remaining pf_dir.o differs only in its string table, and a separate original-header control compilation reproduces its original whole-file SHA-256 exactly. The complete DOL is unchanged. This initial checkpoint predates the final corrected/expanded declarations: the owning #882 integration repeats its full current committed-head build and baseline gates before merge.
 
+The final #882 integration on ea4ffb4742 repeats the fresh default build,
+actual report, explicit all_source and immutable-DOL verification. Its
+534-object inventory contains the two owned utility/chdir units and all
+532 existing objects. Existing allocated sections and relocations are exact;
+531 whole files are identical and the sole numeric-local pf_dir string-table
+difference reproduces the original hash under an original-header control.
+The final native dispatcher audit also refines detach to one signed-drive
+argument before publication, as recorded in F-365-1's traps.
+
 ## Traps
 
 - A matching instruction stream does not prove a borrowed API name. The VF subset initially mislabeled two #367 wrappers as detach and buffering, colliding with distinct #365 functions. The full pinned FA sequence identifies them as rmvvol and setclstlink; corresponding arities also differ. That header proposal was rejected and reverted before publication. Preserve the full original FA name/file/size order and validate actual forwarded argument registers rather than transferring a nearby VF name solely because bytes match.

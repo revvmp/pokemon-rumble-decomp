@@ -68,7 +68,7 @@ fallback, and compares every byte of the final DOL. Its frozen SHA-256 is
 The exact committed latest-main gate is recorded in the pull request before
 any eventual merge.
 
-## Traps
+## Final prerequisite integration
 
 - The error conversion accepts positive values below 160, but its table is
   160 bytes, not 160 integers. Both the target and the pinned reference
@@ -107,6 +107,22 @@ source audit all exit 0. The audit pairs all five relocations, compares all
 input, rejects unexpected allocated data, and compares the complete DOL.
 Together the two units reconstruct eight of #365's 26 functions, 484 of
 2,088 code bytes. Eighteen functions remain unfinished.
+
+## Traps
+
+The expanded prerequisite's fresh default --map build on pinned main
+ea4ffb4742 passes plain Ninja, explicit report generation, all_source,
+committed-head Ninja, and frozen verification. Both complete source units
+retain 100% allocated sections and every native byte, with all seven
+paired relocations, actual ELF/map addresses, and source-only link inputs.
+The Ninja-declared inventory has 534 source objects. All 532 pre-existing
+objects preserve every allocated section and relocation; 531 are whole-file
+identical. The sole pf_dir difference is numeric local names in .strtab.
+Compiling the same actual source against the original canonical headers
+reproduces its original SHA-256 exactly. All shared metadata outside the
+two owned objects/splits and nine owned symbol names is byte-identical to
+the pinned base. The coordinated declarations and typed PF_LOCK receive
+no extra reconstructed-function credit.
 
 ## Traps
 
