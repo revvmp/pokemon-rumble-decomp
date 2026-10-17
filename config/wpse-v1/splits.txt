@@ -351,6 +351,20 @@ game/NandAsync.cpp:
 	extabindex  start:0x80050730 end:0x8005079C
 	.text       start:0x801B0640 end:0x801B0EE8
 
+game/memory.cpp:
+	extab       start:0x8003822C end:0x80038488
+	extabindex  start:0x8005079C end:0x80050820
+	.text       start:0x801B0EF0 end:0x801B1450
+	.data       start:0x803BF3A8 end:0x803BF3B8
+	.sdata      start:0x804B81F0 end:0x804B81F8
+	.sbss       start:0x804B9138 end:0x804B9140
+
+game/new.cpp:
+	extab       start:0x80038488 end:0x8003850C
+	extabindex  start:0x80050820 end:0x80050838
+	.text       start:0x801B1450 end:0x801B159C
+	.data       start:0x803BF3B8 end:0x803BF3CC
+
 game/QuarterTurn.cpp:
 	extab       start:0x80038DA8 end:0x80038DB0
 	extabindex  start:0x80050A30 end:0x80050A3C
