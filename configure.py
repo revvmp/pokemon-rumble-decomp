@@ -232,6 +232,8 @@ config.libs = [
             Object(Matching, "RVL_SDK/hbm/nw4hbm/ut/ut_list.cpp"),
             Object(Matching, "RVL_SDK/hbm/nw4hbm/ut/ut_ResFont.cpp"),
             Object(Matching, "RVL_SDK/hbm/nw4hbm/ut/ut_ResFontBase.cpp"),
+            Object(Matching, "RVL_SDK/hbm/nw4hbm/ut/ut_TagProcessorBase.cpp"),
+            Object(Matching, "RVL_SDK/hbm/nw4hbm/ut/ut_TextWriterBase.cpp"),
         ],
     ),
     library(
