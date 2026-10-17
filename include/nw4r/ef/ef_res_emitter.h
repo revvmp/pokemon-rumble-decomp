@@ -138,6 +138,12 @@ struct EmitterDrawSetting {
         AHEAD_BB_EMITTER_DESIGN,
         AHEAD_BB_PARTICLE,
         AHEAD_BB_PARTICLE_BOTH,
+
+        AHEAD_ST_SPEED = 0,
+        AHEAD_ST_EMITTER_CENTER,
+        AHEAD_ST_EMITTER_DESIGN,
+        AHEAD_ST_PARTICLE,
+        AHEAD_ST_PARTICLE_BOTH = 6,
     };
 
     enum OptionTypeCommon { TYPE_CMN_NORMAL, TYPE_CMN_CROSS };
