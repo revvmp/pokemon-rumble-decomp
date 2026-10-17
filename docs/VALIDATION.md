@@ -4,7 +4,7 @@ Validation ran with Python 3.14.0 on Windows. These results concern repository t
 
 ## Completed checks
 
-- Parsed `tools/verify.py` and checked that it contains neither comment tokens nor docstrings.
+- Parsed `tools/verify/verify.py` and checked that it contains neither comment tokens nor docstrings.
 - Parsed both JSON configuration files.
 - Checked relative Markdown links resolve to existing files.
 - Confirmed `.gitignore` begins with all original content, including its headings and original game filename exclusion.
@@ -32,14 +32,14 @@ Ran with Python 3.14.2 on Windows. These checks concern repository tooling only.
 - Rendered all three images from a real objdiff `report.json` produced by Petari's public CI (artifact `RMGK01_report`, created 2026-10-15) to confirm the schema, including 64-bit counts serialized as strings and 2,205 units. Output stayed in temporary storage.
 - Rendered a temporary copy of that report with match percentages deterministically varied across all seven bins, then viewed screenshots in headless Microsoft Edge in light and dark color schemes to check shading, legends, labels, and overflow.
 - Confirmed rejection with exit `1` and no output for two active phases, out-of-order phase states, a report with zero total code, a file lacking report structure, and a missing report. Confirmed missing required arguments exit `2`.
-- Confirmed `tools/progress.py` contains no comment tokens or docstrings, and `config/progress.json` parses.
+- Confirmed `tools/progress/progress.py` contains no comment tokens or docstrings, and `config/progress.json` parses.
 
 No external or modified report is committed, and no game progress has been measured.
 
 ## Recursive extraction and incoming-commit integration
 
-The real `tools/extract_reference.py` workflow and a fresh repeat both exited 0. All 3,420 file outputs compared byte-for-byte; F-0005 and [the extraction guide](re/EXTRACTION.md) record content, archive, wrapper, and native-header checks. Existing-output rejection exited 1 before writes. Extractor syntax and the absence of comments/docstrings were checked without unit tests.
+The real `tools/reference/extract_reference.py` workflow and a fresh repeat both exited 0. All 3,420 file outputs compared byte-for-byte; F-0005 and [the extraction guide](re/EXTRACTION.md) record content, archive, wrapper, and native-header checks. Existing-output rejection exited 1 before writes. Extractor syntax and the absence of comments/docstrings were checked without unit tests.
 
 Pulled origin/main commit `40483bd` with `git pull --ff-only origin main` after saving tracked local edits in a named stash. Restored the edits, reconciled five overlapping documentation files, retained the incoming roadmap/progress/prior-art features, and left local changes unstaged. The safety stash named `local extraction work before 40483bd` remains available. No unmerged paths or conflict markers remain; `git diff --check` passed. No commit or push was performed.
 
-Ran `python tools/progress.py render --phases config/progress.json --output-dir docs/images` successfully. The resulting images agree with the incoming images after Windows newline handling: Phase 1 remains active and code progress remains unmeasured. No objdiff report was provided or fabricated.
+Ran `python tools/progress/progress.py render --phases config/progress.json --output-dir docs/images` successfully. The resulting images agree with the incoming images after Windows newline handling: Phase 1 remains active and code progress remains unmeasured. No objdiff report was provided or fabricated.

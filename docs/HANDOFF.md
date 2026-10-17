@@ -23,8 +23,8 @@ The incoming `40483bd` commit was pulled with local edits preserved, and its pro
 ```powershell
 Get-FileHash -Algorithm SHA256 orig/wpse-v1/reference.wad
 .\dtk.exe dol info orig/wpse-v1/main.dol
-python tools/verify.py --help
-python tools/progress.py render --phases config/progress.json --output-dir docs/images
+python tools/verify/verify.py --help
+python tools/progress/progress.py render --phases config/progress.json --output-dir docs/images
 ```
 
 Recursive extraction and a fresh repeat both exited 0; every recorded output matched byte-for-byte. No game build command exists yet. Follow root `AGENTS.md` and `PROJECT_RULES.md`; all files under `orig/` are eligible for tracking by explicit user instruction; keep tools and extracted contents outside `orig/` ignored, and do not add unit tests, code comments, or docstrings.

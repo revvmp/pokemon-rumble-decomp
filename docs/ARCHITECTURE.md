@@ -18,9 +18,11 @@ The project has five boundaries: immutable originals, investigation evidence, re
 | `config/<target>/` | Future section layouts, linker scripts, compilation-unit ordering, asset rules | Only evidence-backed build configuration |
 | `src/` | Reconstructed implementation grouped by confirmed module or subsystem | Source added as reconstruction begins |
 | `include/` | Shared types and interfaces with confirmed ABI | Headers added when established |
-| `tools/` | Extraction orchestration, build support, comparison, progress tooling | Original source; artifact verification, progress images, and reference extraction |
+| `tools/` | Tooling grouped by category: `build/` vendored dtk-template build system, `reference/` extraction, `verify/` acceptance, `progress/` images, `vendor/` vendoring stripper | Original source plus comment-stripped CC0 vendored files ([D-0009](DECISIONS.md#d-0009-organize-tools-by-category)) |
+| `configure.py` | Build entry point; writes `build.ninja` and `objdiff.json` | Original source |
+| `config/wpse-v1/` | dtk `config.yml`, `symbols.txt`, `splits.txt`, `build.sha1` | Build configuration |
 | `config/progress.json` | Roadmap phase states for progress images | Configuration |
-| `docs/images/` | Generated progress images shown in the README | Committed SVG outputs of `tools/progress.py` |
+| `docs/images/` | Generated progress images shown in the README | Committed SVG outputs of `tools/progress/progress.py` |
 | `tools/local/` | Locally acquired compiler and analysis tool binaries | None; ignored |
 | `orig/<target>/` | Untouched reference artifacts and separately identified extraction inputs | All contents eligible for tracking by explicit user instruction |
 | `build/<target>/` | Objects, linked outputs, packaged artifacts, reports | None; ignored |
@@ -40,7 +42,7 @@ Directories for future source and build stages need not exist until their first 
 | Package | Matching payloads and observed container rules | Release package when in scope | Exact package bytes, including metadata |
 | Accept | Frozen manifest, originals, independently built outputs | Verification report and progress evidence | All acceptance gates satisfied |
 
-Manifest fingerprinting, artifact acceptance, progress rendering, and validated reference extraction exist today. Compilation, linking, and packaging commands must be implemented after their requirements are established. The build driver is not yet implemented; the proposed direction is [D-0007](DECISIONS.md#d-0007-evaluate-the-dtk-template-ecosystem), with executable evidence now recorded in F-0003 and policy/integration questions still open.
+Manifest fingerprinting, artifact acceptance, progress rendering, reference extraction, and the dtk-template build ([D-0007](DECISIONS.md#d-0007-evaluate-the-dtk-template-ecosystem)) exist. `python configure.py` and `ninja` compile, split, link, and report; `tools/verify/verify.py` accepts the result. Packaging commands remain unimplemented.
 
 ## Source and interface design
 

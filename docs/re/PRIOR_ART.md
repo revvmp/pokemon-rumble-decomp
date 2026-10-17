@@ -48,11 +48,11 @@ These are documented in Petari's `docs/` and apply to any CodeWarrior-built targ
 
 | Petari practice | Our treatment |
 | --- | --- |
-| `build.sha1` SHA-1 check by dtk | Useful build-time sanity check only. Acceptance remains `tools/verify.py` with frozen SHA-256 manifests and direct byte comparison. |
+| `build.sha1` SHA-1 check by dtk | Useful build-time sanity check only. Acceptance remains `tools/verify/verify.py` with frozen SHA-256 manifests and direct byte comparison. |
 | `NON_MATCHING` and decomp.me links in source comments | Not allowed. Record status, scratch link, and suspected cause per function in the [reconstruction ledger](../PROGRESS.md#reconstruction-ledger). |
 | Doxygen `/* 0x10 */` field-offset comments | Not allowed. Record layouts in [symbols](SYMBOLS.md). |
 | dtk-template `tools/*.py` and `configure.py` contain comments | Conflicts with the no-comments rule. Vendoring requires a recorded decision: strip comments, or a narrow exception for unmodified third-party files. Open item in [D-0007](../DECISIONS.md#d-0007-evaluate-the-dtk-template-ecosystem). |
-| Percentage progress on decomp.dev | Replaced by `tools/progress.py` images. Percentages permitted only once the denominator is established, per [matching](../MATCHING.md). objdiff's report provides a code-byte denominator once splits exist. |
+| Percentage progress on decomp.dev | Replaced by `tools/progress/progress.py` images. Percentages permitted only once the denominator is established, per [matching](../MATCHING.md). objdiff's report provides a code-byte denominator once splits exist. |
 | `NonMatching` objects fall back to split original objects | Matches our model exactly: the build reproduces bytes, while the fallback list tracks what is not yet source. Fallback objects never count as decompiled. |
 | AI-generated decompilation banned | Petari's community policy, not ours. Reusing Petari or ogws headers is license-compatible (CC0 for Petari); check each source project's license before reuse and record provenance. |
 | Private CI container holding originals | Possible later. Current explicit user authorization permits tracking `orig/`; follow [project rules](../PROJECT_RULES.md) for this exception. |

@@ -26,15 +26,24 @@ Accepted from the project requirements. Every meaningful session must keep the t
 
 ## D-0007: Evaluate the dtk-template ecosystem
 
-Proposed. Problem: the build driver, splitting, and diffing approach are undecided, and building them from scratch would duplicate mature community tooling. Approach: adopt the decomp-toolkit, objdiff, ninja, and `configure.py` workflow used by Petari and most GameCube and Wii decompilations, as described in [prior art](re/PRIOR_ART.md) and sequenced in the [roadmap](ROADMAP.md).
+Accepted. The extracted executable is a PowerPC DOL that dtk analyzes (F-0003), and a dtk-template build reproduces it exactly (F-0010). Resolutions of the former open items:
 
-Acceptance gate: evidence that the extracted executable is a PowerPC DOL that dtk can analyze, recorded in findings. F-0003 now satisfies the executable-analysis evidence gate. Adoption remains proposed while the open policy and integration items below are unresolved; this does not establish a compiler or linker configuration.
-
-Open items to settle before vendoring: (1) dtk-template's `configure.py` and `tools/*.py` contain comments, which conflict with D-0002; either strip them or record a narrow exception for unmodified third-party files. (2) Map dtk-template's `config/<GAMEID>/`, `orig/<GAMEID>/`, and `build/` onto our `config/<target>/`, `orig/<target>/`, and `build/<target>/`. (3) dtk's `build.sha1` is a build-time check only; acceptance remains the SHA-256 manifest verified by `tools/verify.py`. (4) Non-matching status and decomp.me links go in the reconstruction ledger rather than source comments.
+1. Vendored dtk-template tooling is copied from upstream commit `95a941f755919ebe50c1725a4ce73524470e7a02` (CC0) by `tools/vendor/vendor_strip.py`, which removes comments and docstrings and verifies the result has the same syntax tree as upstream. The only behavioral adaptation is `tools/build/decompctx.py` resolving the repository root two directories up, because it lives in `tools/build/`. To update, rerun the stripper on a newer upstream checkout and reapply that adaptation.
+2. dtk-template's `config/<GAMEID>/`, `orig/<GAMEID>/`, and `build/<GAMEID>/` map directly onto `config/<target>/`, `orig/<target>/`, and `build/<target>/` with target `wpse-v1`. `configure.py` sets `config.tools_dir` to `tools/build`.
+3. `config/<target>/build.sha1` is dtk's build-time check. Acceptance remains `tools/verify/verify.py` against `config/targets/wpse-v1.json`.
+4. Non-matching status and decomp.me links go in the [reconstruction ledger](PROGRESS.md#reconstruction-ledger), not source comments.
 
 ## D-0008: Generate progress images in repository
 
-Accepted at the project owner's request. The project owner reports that decomp.dev, the hosted progress service used by Petari, is being sunset; this was not independently verified. Progress images are therefore rendered locally by `tools/progress.py` from `config/progress.json` and, once a denominator exists, an objdiff `report.json`, then committed under `docs/images/`. Consequences: no external service, API key, or CI upload is needed; images must be regenerated manually or by future CI when state changes; and code percentages appear only from a real objdiff report, preserving the rule against percentages without a denominator. See [progress images](PROGRESS.md#progress-images).
+Accepted at the project owner's request. The project owner reports that decomp.dev, the hosted progress service used by Petari, is being sunset; this was not independently verified. Progress images are therefore rendered locally by `tools/progress/progress.py` from `config/progress.json` and, once a denominator exists, an objdiff `report.json`, then committed under `docs/images/`. Consequences: no external service, API key, or CI upload is needed; images must be regenerated manually or by future CI when state changes; and code percentages appear only from a real objdiff report, preserving the rule against percentages without a denominator. See [progress images](PROGRESS.md#progress-images).
+
+## D-0009: Organize tools by category
+
+Accepted at the project owner's request. `tools/build/` holds the vendored build system, `tools/reference/` reference extraction, `tools/verify/` acceptance verification, `tools/progress/` progress images, `tools/vendor/` the vendoring stripper, and ignored `tools/local/` acquired binaries. Root `configure.py` remains the build entry point.
+
+## D-0010: Match the original source language and aim for Petari-level fidelity
+
+Accepted at the project owner's request. Each unit is written in the language of its original: C++ for game code, NW4R, and the CodeWarrior runtime, as shown by C++ exception tables and `.cpp` source names in the executable; C for RVL_SDK and MSL. Source must read like clean original code with properly named classes, following the standard in root `AGENTS.md`, while respecting the no-comments rule.
 
 ## Future decisions
 

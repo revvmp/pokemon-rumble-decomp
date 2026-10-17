@@ -7,7 +7,7 @@ Target `wpse-v1` has identified USA/TMD-version-1 metadata, a frozen package fin
 | Milestone | State | Evidence or prerequisite |
 | --- | --- | --- |
 | Repository architecture and workflow | Initialized | `ARCHITECTURE.md`, `PROJECT_RULES.md` |
-| Artifact verifier | Implemented | `tools/verify.py` |
+| Artifact verifier | Implemented | `tools/verify/verify.py` |
 | Release identification | Metadata identified | WPSE, USA, TMD version 1; F-0001 |
 | Frozen reference manifest | Package frozen | `config/targets/wpse-v1-package.json`; executable acceptance scope pending |
 | Artifact and section inventory | Reference extraction complete for recognized containers | 3,420 files; F-0005; executable coverage and native-resource internals pending |
@@ -19,10 +19,10 @@ Target `wpse-v1` has identified USA/TMD-version-1 metadata, a frozen package fin
 
 ## Progress images
 
-The README shows images rendered by `tools/progress.py`, the project's own visualizer. It replaces hosted decomp.dev badges, which the project owner reports are being sunset ([D-0008](DECISIONS.md#d-0008-generate-progress-images-in-repository)). Regenerate and commit the images whenever phase state or measured progress changes:
+The README shows images rendered by `tools/progress/progress.py`, the project's own visualizer. It replaces hosted decomp.dev badges, which the project owner reports are being sunset ([D-0008](DECISIONS.md#d-0008-generate-progress-images-in-repository)). Regenerate and commit the images whenever phase state or measured progress changes:
 
 ```powershell
-python tools/progress.py render --phases config/progress.json --output-dir docs/images
+python tools/progress/progress.py render --phases config/progress.json --output-dir docs/images
 ```
 
 | Image | Source | Shows |
@@ -47,7 +47,7 @@ Roadmap Phase 1 remains active: executable acceptance manifests, full section/co
 
 ## Earlier session: progress images
 
-Added `tools/progress.py` and `config/progress.json` and embedded the roadmap and code progress images in the README; see [progress images](#progress-images) and [D-0008](DECISIONS.md#d-0008-generate-progress-images-in-repository). The code image states that progress is not measured because no objdiff report or denominator exists. Validation is recorded in [validation](VALIDATION.md#progress-image-validation). No reverse engineering findings were produced. New trap recorded in `AGENTS.md`: progress images are committed outputs that go stale unless regenerated.
+Added `tools/progress/progress.py` and `config/progress.json` and embedded the roadmap and code progress images in the README; see [progress images](#progress-images) and [D-0008](DECISIONS.md#d-0008-generate-progress-images-in-repository). The code image states that progress is not measured because no objdiff report or denominator exists. Validation is recorded in [validation](VALIDATION.md#progress-image-validation). No reverse engineering findings were produced. New trap recorded in `AGENTS.md`: progress images are committed outputs that go stale unless regenerated.
 
 ## Earlier session: Petari study
 

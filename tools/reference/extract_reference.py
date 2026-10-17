@@ -68,7 +68,7 @@ def u8_entries(data):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--dtk', type=Path, default=Path('dtk.exe'))
+    parser.add_argument('--dtk', type=Path, default=Path('tools/local/dtk.exe'))
     parser.add_argument('--decoders', type=Path, default=Path('tools/local/vcromclaim'))
     parser.add_argument('--wad', type=Path, default=Path('orig/wpse-v1/reference.wad'))
     parser.add_argument('--output', type=Path, default=Path('orig/wpse-v1/extraction'))

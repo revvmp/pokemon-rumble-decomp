@@ -37,20 +37,20 @@ Gate: at least one library translation unit compiles to identical bytes with a r
 
 ## Phase 3: Splittable build skeleton
 
-Goal: `python configure.py` then `ninja` reproduces the original DOL byte for byte using only split original objects, with acceptance by `tools/verify.py`.
+Goal: `python configure.py` then `ninja` reproduces the original DOL byte for byte using only split original objects, with acceptance by `tools/verify/verify.py`.
 
 1. Resolve the open items in [D-0007](DECISIONS.md#d-0007-evaluate-the-dtk-template-ecosystem): vendoring policy for dtk-template tooling and its comments, directory mapping, and the relationship between `build.sha1` and our manifests.
 2. Generate initial `symbols.txt` and `splits.txt` with `dtk dol config`, store them under `config/<target>/`, and fix analysis errors with `block_relocations` and `add_relocations`.
 3. Set the linker version and `mw_comment_version` from evidence. Handle the exception runtime split, common BSS, and data pooling as described in [prior art](re/PRIOR_ART.md#matching-knowledge-worth-keeping).
 4. Wire the verifier after `ninja`. Run a clean build twice and confirm identical outputs.
 
-Gate: a clean build passes `tools/verify.py verify` against the frozen DOL manifest. This is a build milestone with zero source coverage; every object is still an original fallback. Record that explicitly.
+Gate: a clean build passes `tools/verify/verify.py verify` against the frozen DOL manifest. This is a build milestone with zero source coverage; every object is still an original fallback. Record that explicitly.
 
 ## Phase 4: Denominator and first source
 
 Goal: measurable progress and the first reconstructed translation units.
 
-1. Generate objdiff configuration and report. Use its code-byte and function counts as the denominator, and document the counting method in [matching](MATCHING.md). Then pass the report to `tools/progress.py` and add the treemap image to the README.
+1. Generate objdiff configuration and report. Use its code-byte and function counts as the denominator, and document the counting method in [matching](MATCHING.md). Then pass the report to `tools/progress/progress.py` and add the treemap image to the README.
 2. Start with library code that has matching source in other decompilations, recording provenance and license for every reused header or file.
 3. Use Ghidra or another disassembler for understanding; keep databases in `docs/re/local/`. Use decomp.me scratches for collaboration and record their links in the ledger, never in source.
 4. Mark each object `Matching` only when objdiff shows identity and the full build still passes verification. Record each unit in the [reconstruction ledger](PROGRESS.md#reconstruction-ledger).

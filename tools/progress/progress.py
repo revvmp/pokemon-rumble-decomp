@@ -199,11 +199,11 @@ def render_code(report):
         ("Matched functions", count(measures, "matched_functions"), count(measures, "total_functions"), "items"),
         ("Matched data", count(measures, "matched_data"), count(measures, "total_data"), "bytes"),
     ]
-    for category in report.get("categories", []):
-        category_measures = category.get("measures", {})
-        total = count(category_measures, "total_code")
-        if total:
-            rows.append((f"{category.get('name', category.get('id', '?'))} code", count(category_measures, "matched_code"), total, "bytes"))
+    categories = [category for category in report.get("categories", []) if count(category.get("measures", {}), "total_code")]
+    if sum(count(category["measures"], "total_code") for category in categories) == count(measures, "total_code"):
+        for category in categories:
+            category_measures = category["measures"]
+            rows.append((f"{category.get('name', category.get('id', '?'))} code", count(category_measures, "matched_code"), count(category_measures, "total_code"), "bytes"))
     body = [text(GUTTER, 30, "Code progress", "title")]
     y = 48
     for label, matched, total, unit in rows:
@@ -300,12 +300,14 @@ def write_output(path, content):
 
 
 def render(args):
+    if args.treemap and not args.report:
+        raise ValueError("--treemap requires --report")
     phases = load_phases(args.phases)
     report = load_report(args.report) if args.report else None
     output = args.output_dir
     write_output(output / "progress-roadmap.svg", render_roadmap(phases))
     write_output(output / "progress-code.svg", render_code(report))
-    if report is not None:
+    if args.treemap:
         write_output(output / "progress-treemap.svg", render_treemap(report))
     return 0
 
@@ -317,6 +319,7 @@ def main():
     draw.add_argument("--phases", type=Path, required=True)
     draw.add_argument("--report", type=Path, help="objdiff progress report JSON; omit until a denominator exists")
     draw.add_argument("--output-dir", type=Path, required=True)
+    draw.add_argument("--treemap", action="store_true", help="also write the translation-unit treemap")
     draw.set_defaults(action=render)
     args = parser.parse_args()
     try:

@@ -1,14 +1,63 @@
 {
-  "status": "unidentified",
-  "host_environment": null,
-  "extraction_tools": [],
-  "compiler": null,
-  "assembler": null,
-  "linker": null,
-  "build_driver": null,
-  "compiler_flags": null,
-  "assembler_flags": null,
-  "linker_flags": null,
-  "environment": {},
-  "evidence": []
+  "status": "split-build reproduces main.dol; per-library original compilers partially identified",
+  "host_environment": "Windows x86-64, Python 3.10 or newer, ninja 1.13.0 from PyPI in .venv",
+  "extraction_tools": [
+    {
+      "name": "decomp-toolkit",
+      "version": "1.8.4",
+      "source": "https://github.com/encounter/decomp-toolkit/releases/download/v1.8.4/dtk-windows-x86.exe",
+      "sha256": "a89f8a1ab07cde5af83218da4247dfd535ad17f2fdb69bf361a966eec7b8fe25",
+      "local_path": "tools/local/dtk.exe"
+    }
+  ],
+  "compiler": {
+    "name": "Metrowerks CodeWarrior mwcceppc",
+    "bundle": "https://files.decomp.dev/compilers_20251118.zip",
+    "bundle_sha256": "69b0d4980a2eccea4ae6e70b486714b5190cb6c75e3bc7b8fb5878a8854d0d1c",
+    "local_path": "tools/local/compilers",
+    "runtime_unit_version": "Wii/1.1",
+    "runtime_unit_mwcceppc_sha256": "14f99570099c6ddee35759d7f9f668ee014c460758f89e0cdf2a51f8f4d8fbe5",
+    "per_library_evidence": "docs/re/FINDINGS.md F-0007"
+  },
+  "assembler": {
+    "name": "GNU binutils powerpc-eabi-as",
+    "version": "2.42-2",
+    "source": "https://github.com/encounter/gc-wii-binutils/releases/download/2.42-2/windows-x86_64.zip",
+    "archive_sha256": "bd95bd57607efb45c437e97b77ec199073e242869027eb72196b0720611bb1c1",
+    "local_path": "tools/local/binutils"
+  },
+  "linker": {
+    "name": "Metrowerks CodeWarrior mwldeppc",
+    "version": "Wii/1.1",
+    "sha256": "ad6746c6add523db1893c7351e27c535cf608d539313f8936b02df896bbc5a76",
+    "status": "reproduces main.dol from split objects; original linker version not independently proven"
+  },
+  "build_driver": {
+    "name": "configure.py with vendored dtk-template tooling in tools/build",
+    "upstream": "https://github.com/encounter/dtk-template",
+    "upstream_commit": "95a941f755919ebe50c1725a4ce73524470e7a02",
+    "diff_tool": {
+      "name": "objdiff-cli",
+      "version": "3.8.2",
+      "source": "https://github.com/encounter/objdiff/releases/download/v3.8.2/objdiff-cli-windows-x86_64.exe",
+      "sha256": "36d229ac6ce74a26b47f42cf86ea8e808d8cd834a54aa62d7ed3f47b765d971b"
+    },
+    "sjiswrap": {
+      "version": "1.2.2",
+      "source": "https://github.com/encounter/sjiswrap/releases/download/v1.2.2/sjiswrap-windows-x86.exe",
+      "sha256": "01d50fa1148cfc3c3b16658c6c9b1c0d9f5324cde79ed6c09ef8353af9d63adf"
+    }
+  },
+  "compiler_flags": "configure.py cflags_base and cflags_runtime; runtime adds -func_align 4 (F-0010)",
+  "assembler_flags": "-mgekko --strip-local-absolute",
+  "linker_flags": "-fp hardware -nodefaults",
+  "environment": {
+    "mw_comment_version": 15
+  },
+  "evidence": [
+    "docs/re/FINDINGS.md F-0006",
+    "docs/re/FINDINGS.md F-0007",
+    "docs/re/FINDINGS.md F-0008",
+    "docs/re/FINDINGS.md F-0010"
+  ]
 }

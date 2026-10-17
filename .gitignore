@@ -95,3 +95,11 @@ Thumbs.db
 # Track all original reference files
 !/orig/
 !/orig/**
+
+# Build system outputs
+build.ninja
+.ninja_*
+objdiff.json
+compile_commands.json
+ctx.*
+*.ctx

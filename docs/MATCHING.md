@@ -22,6 +22,12 @@ The manifest is an explicit acceptance list. Extra files in either root are not 
 
 Do not publish percentages before the denominator is known. Runtime behavior and compilation alone cannot prove exact identity. Hash equality cannot prove source reconstruction: copying originals into the output directory can satisfy byte comparison and must never count as decompilation progress.
 
+## Counting method
+
+Code progress is measured by objdiff-cli 3.8.2 through `ninja` (writes `build/<target>/report.json`) over the units defined by dtk 1.8.4's analysis of `config/<target>/symbols.txt` and `splits.txt`. For `wpse-v1` the first clean build measured 3,098,940 code bytes, 17,034 functions, 1,789,960 data bytes, and 8,782 units, of which 8,781 are dtk auto-generated placeholders. The denominator can shift slightly as symbol boundaries are corrected; report the figures from the current report rather than reusing old numbers.
+
+"Matched" counts code whose compiled source is identical to the original split object. "Linked" (objdiff `complete_code`) counts code in units marked `Matching` that the final build links from source; it is the figure that approaches source coverage. objdiff fuzzy percentages ignore inter-function alignment padding; a 100% unit can still break the full link, so a unit is `Matching` only when the full build also passes `tools/verify/verify.py`.
+
 ## Completion gates
 
 1. Release identity and provenance are documented and reference fingerprints frozen.

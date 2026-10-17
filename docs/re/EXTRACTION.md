@@ -30,13 +30,13 @@ The supporting decoder source is [Plombo/vcromclaim](https://github.com/Plombo/v
 ```powershell
 git clone https://github.com/Plombo/vcromclaim.git tools/local/vcromclaim
 git -C tools/local/vcromclaim checkout 6e537af6d314c3d8a6c7353645c137572b37b4b6
-python tools/extract_reference.py
+python tools/reference/extract_reference.py
 ```
 
 Skip clone/checkout when the pinned checkout already exists. The output directory must not exist. To validate a separate extraction without replacing any originals:
 
 ```powershell
-python tools/extract_reference.py --output build/wpse-v1/extraction-repeat --report docs/re/local/wpse-v1/extraction-repeat.json
+python tools/reference/extract_reference.py --output build/wpse-v1/extraction-repeat --report docs/re/local/wpse-v1/extraction-repeat.json
 ```
 
 The script runs actual `dtk wad extract`, `dtk u8 extract --no-decompress`, and `dtk nlzss decompress -o` commands. LZH8 and Huff8 are handled by the supporting decoders because dtk NLZSS rejects the observed 0x40 format. Output directories are separate from inputs; a second run against an existing destination is rejected.

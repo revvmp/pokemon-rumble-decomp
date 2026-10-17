@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "target_id": "wpse-v1",
+  "title": "Pokémon Rumble",
+  "region": "USA (TMD region 1)",
+  "revision": "TMD title version 1; retail revision label unverified",
+  "provenance": "main.dol is content 1 of the wpse-v1 package (config/targets/wpse-v1-package.json) after NLZSS decompression with dtk 1.8.4. See docs/re/FINDINGS.md F-0003 and F-0005.",
+  "scope": "Main game executable main.dol only. Excludes the boot loader content 6, all data contents, and WAD packaging.",
+  "artifacts": [
+    {
+      "path": "main.dol",
+      "kind": "executable",
+      "size": 4094880,
+      "sha256": "ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da"
+    }
+  ]
+}
