@@ -10,7 +10,7 @@ Split-only validation used `python configure.py --no-progress --build-dir build/
 
 The existing canonical `snd_PlayerHeap.h` expresses the observed complete 32-byte layout: vtable at 0, sound at 4, player at 8, heap start at 12, heap end at 16, allocation cursor at 20, and list node at 24. Native `Create`, `Alloc`, `Clear`, attachment functions, and constructor stores establish these offsets. The native `Clear` mutex access agrees with existing `SoundThread` at offset `0x354`.
 
-Readable source probes with Wii/1.1 and existing `cflags_nw4r` reproduce all eight instruction streams after relocation words are excluded. This is preliminary evidence; source selection and full linked verification remain required before acceptance.
+Wii/1.1 and existing `cflags_nw4r` reproduce all eight functions and the complete vtable: objdiff reports `.text` and `.data` 100%. The source-selected custom-DOL Ninja target exited 0 and the explicit frozen verifier exited 0. The final ELF retains every native function address and extent. `Destroy` is inlined into the destructor and has no separately retained native body. Unused weak helper bodies are discarded by the linker.
 
 ## Reference provenance
 
