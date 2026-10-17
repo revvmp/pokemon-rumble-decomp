@@ -291,6 +291,8 @@ config.libs = [
             Object(Matching, "RVL_SDK/gx/GXGeometry.c"),
             Object(Matching, "RVL_SDK/gx/GXFrameBuf.c"),
             Object(Matching, "RVL_SDK/gx/GXLight.c"),
+            Object(Matching, "RVL_SDK/gx/GXTexture.c"),
+            Object(Matching, "RVL_SDK/gx/GXBump.c"),
             Object(Matching, "RVL_SDK/gx/GXTev.c"),
             Object(Matching, "RVL_SDK/gx/GXPixel.c"),
             Object(Matching, "RVL_SDK/gx/GXDisplayList.c"),
