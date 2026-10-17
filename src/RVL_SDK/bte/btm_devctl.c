@@ -227,7 +227,7 @@ void btm_dev_timeout(TIMER_LIST_ENT* p_tle) {
             btm_after_reset_hold_complete();
             break;
 
-        case BTM_DEV_STATE_WAIT_HCI_BUFFER_SIZE:
+        case BTM_DEV_STATE_WAIT_BUF_SIZE:
             btm_get_hci_buf_size();
             break;
 
@@ -272,7 +272,7 @@ void btm_reset_complete(void) {
 }
 
 static void btm_continue_reset(void) {
-    btm_cb.devcb.state = BTM_DEV_STATE_WAIT_HCI_BUFFER_SIZE;
+    btm_cb.devcb.state = BTM_DEV_STATE_WAIT_BUF_SIZE;
     btm_cb.devcb.retry_count = 5;
 
     btm_get_hci_buf_size();
