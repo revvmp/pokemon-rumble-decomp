@@ -13,7 +13,20 @@ namespace g3d {
 void CalcTexMtx(math::MTX34 *pMtx, bool set, const TexSrt &rSrt, TexSrt::Flag flag);
 void CalcTexMtx(math::MTX34 *pMtx, bool set, const TexSrt &rSrt, TexSrt::Flag flag, TexSrt::TexMatrixMode mode);
 
+struct ChrAnmResult;
+
 namespace detail {
+
+namespace dcc {
+bool CalcTexMtx_Basic(math::MTX34 *pMtx, bool set, const TexSrt &rSrt, TexSrt::Flag flag);
+bool CalcTexMtx_Maya(math::MTX34 *pMtx, bool set, const TexSrt &rSrt, TexSrt::Flag flag);
+bool CalcTexMtx_Xsi(math::MTX34 *pMtx, bool set, const TexSrt &rSrt, TexSrt::Flag flag);
+bool CalcTexMtx_3dsmax(math::MTX34 *pMtx, bool set, const TexSrt &rSrt, TexSrt::Flag flag);
+u32 CalcWorldMtx_Basic(math::MTX34 *pMtx, math::VEC3 *pScale, const math::MTX34 *pParentMtx, const math::VEC3 *pParentScale, u32 parentAttr, const ChrAnmResult *pResult);
+u32 CalcWorldMtx_Maya_SSC_Apply(math::MTX34 *pMtx, math::VEC3 *pScale, const math::MTX34 *pParentMtx, const math::VEC3 *pParentScale, u32 parentAttr, const ChrAnmResult *pResult);
+u32 CalcWorldMtx_Xsi(math::MTX34 *pMtx, math::VEC3 *pScale, const math::MTX34 *pParentMtx, const math::VEC3 *pParentScale, u32 parentAttr, const ChrAnmResult *pResult);
+}
+
 
 class WorldMtxAttr {
 public:
