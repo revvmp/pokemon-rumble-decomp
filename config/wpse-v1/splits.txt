@@ -46,6 +46,18 @@ RVL_SDK/gx/GXLight.c:
 	.text       start:0x802CDEC0 end:0x802CE630
 	.sdata2     start:0x804BB310 end:0x804BB348
 
+RVL_SDK/gx/GXTev.c:
+	.text       start:0x802CFB90 end:0x802D0260
+	.data       start:0x803D6690 end:0x803D6708
+
+RVL_SDK/gx/GXPixel.c:
+	.text       start:0x802D0260 end:0x802D09E0
+	.data       start:0x803D6708 end:0x803D6728
+	.sdata2     start:0x804BB388 end:0x804BB3D8
+
+RVL_SDK/gx/GXDisplayList.c:
+	.text       start:0x802D09E0 end:0x802D0A60
+
 RVL_SDK/ax/AX.c:
 	.text       start:0x802DA490 end:0x802DA500
 	.data       start:0x803D8530 end:0x803D8578
