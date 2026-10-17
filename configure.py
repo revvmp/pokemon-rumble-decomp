@@ -403,6 +403,7 @@ config.libs = [
             Object(Matching, "RVL_SDK/arc/arc.c"),
             Object(Matching, "RVL_SDK/esp/esp.c"),
             Object(Matching, "RVL_SDK/ipc/ipcMain.c"),
+            Object(Matching, "RVL_SDK/ipc/ipcclt.c"),
             Object(Matching, "RVL_SDK/ipc/memory.c"),
             Object(Matching, "RVL_SDK/ipc/ipcProfile.c"),
             Object(Matching, "RVL_SDK/fs/fs.c"),

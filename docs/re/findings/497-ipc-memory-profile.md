@@ -25,3 +25,19 @@ Compiler: Wii/1.0 with the established `cflags_sdk`, default 16-byte function al
 ## Traps
 
 The initial source-link attempt failed at DOL offset `0x6F`: `.ctors` and `.dtors` had moved eight bytes despite 100% objdiff. Source objects end at the last function instruction (`memory.c` ends `0x802F3248`, profiling ends `0x802F342C`); including the following alignment gaps in their splits removed original zero padding that the compiler does not emit. Retaining those gaps as automatic padding splits preserves their bytes. This is another instance of the existing warning that objdiff alone does not establish link identity. The remaining 22 client functions need a separate reconstruction pass, including target timeout-related storage absent from the inspected Petari client revision.
+
+# F-497-2: IPC client
+
+`ipcclt.c` owns `.text 0x802F1320–0x802F2D0C`, `.bss 0x804771E0–0x804772A0`, `.sdata 0x804B8D90–0x804B8D98`, and `.sbss 0x804B99F0–0x804B9A00`. The four-byte text gap at `0x802F2D0C` stays automatic padding before `memory.c`.
+
+## Evidence
+
+The target's 22 functions follow the Petari client in order: `strnlen`, `IpcReplyHandler` (`0x802F1350`), `IPCInterruptHandler`, `IPCCltInit`, `IPCCltReInit`, `__ios_Ipc2`, the open, close, read, write, seek and ioctl synchronous and asynchronous wrappers, `__ios_Ioctlv` (`0x802F2700`), `IOS_IoctlvAsync`, `IOS_Ioctlv`, and `IOS_IoctlvReboot`. The only code difference from the inspected Petari revision is the timeout storage noted in F-497-1: after `IPCiProfInit`, target `IPCCltInit` calls `OSCreateAlarm` on the 0x30-byte static `__timeout_alarm` at `0x80477230`. Adding that static between `__responses` and `__rpcBuf` reproduces both the call and the BSS layout. The small-data objects are `__mailboxAck` and `hid` in `.sdata`, then `__relnchFl`, `__relnchRpc`, `__relnchRpcSave`, and the function-local `initialized` flag in `.sbss`.
+
+## Provenance and validation
+
+Source follows CC0 Petari commit `e0ab141914921726a595573dc48d3f13d0922efe`, `src/RVL_SDK/ipc/ipcclt.c`, with comments removed, includes narrowed to the needed shared headers, and the target-derived alarm added. Compiler: Wii/1.0 with `cflags_sdk` and default alignment. objdiff reports 22/22 functions at 100%. The source-linked `ninja` build exits 0 and frozen-manifest verification of `main.dol` passes; final results are recorded in the pull request.
+
+## Traps
+
+None new. The split ends at the last instruction (`0x802F2D0C`), following the F-497-1 trap.
