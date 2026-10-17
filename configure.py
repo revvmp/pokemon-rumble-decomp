@@ -181,9 +181,9 @@ config.libs = [
     library(
         "RVL_SDK.CNT",
         "Wii/1.0",
-        cflags_base,
+        cflags_sdk,
         "sdk",
-        [Object(NonMatching, "RVL_SDK/cnt/cnt.c")],
+        [Object(Matching, "RVL_SDK/cnt/cnt.c")],
     ),
     library(
         "homebuttonLib",

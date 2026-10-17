@@ -221,6 +221,7 @@ BOOL DVDCloseDir(DVDDir*);
 BOOL DVDReadAbsAsyncPrio(DVDCommandBlock*, void*, s32, u32, DVDCBCallback, s32);
 
 s32 DVDConvertPathToEntrynum(const char*);
+void* DVDGetFSTLocation(void);
 
 BOOL DVDInquiryAsync(DVDCommandBlock*, DVDDriveInfo*, DVDCBCallback);
 
