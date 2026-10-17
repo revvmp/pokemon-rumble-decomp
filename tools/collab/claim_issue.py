@@ -216,6 +216,12 @@ def remove_link(link):
         link.unlink()
 
 
+def configure_merge_driver():
+    git("config", "merge.decomp-config.name", "Entry-wise merge of splits.txt, symbols.txt and configure.py")
+    tool = (REPO_ROOT / "tools" / "collab" / "merge_config.py").as_posix()
+    git("config", "merge.decomp-config.driver", f'python "{tool}" %O %A %B %P')
+
+
 def worktree_command(args):
     user = current_user()
     issue = fetch_issue(args.issue)
@@ -229,6 +235,7 @@ def worktree_command(args):
             raise ValueError(f"Missing shared directory {shared}; follow docs/SETUP.md first")
     branch = branch_name(issue)
     git("fetch", "origin", "main")
+    configure_merge_driver()
     git("worktree", "add", str(path), "-b", branch, "origin/main")
     for shared in SHARED_LINKS:
         make_link(path / shared, REPO_ROOT / shared)

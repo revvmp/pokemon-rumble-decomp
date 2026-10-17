@@ -63,6 +63,7 @@ Partially matching work is welcome. Keep it `NonMatching` so the build still use
 | File | Rule |
 | --- | --- |
 | `config/wpse-v1/splits.txt` | Edit only ranges inside your claimed region. dtk rewrites this file during builds; commit only your own hunks and discard unrelated rewrites. |
+| Merging config files | `splits.txt`, `symbols.txt` and `configure.py` use the `decomp-config` merge driver (`tools/collab/merge_config.py`, registered by `claim_issue.py worktree`), which merges independent entries automatically during a rebase. |
 | `config/wpse-v1/symbols.txt` | Rename or adjust only symbols inside your region. Discard unrelated dtk churn. |
 | `configure.py` | Add or change only the object lines for your units, plus a library entry if missing. |
 | `include/` shared headers | RVL_SDK headers live in `include/revolution/` and `include/private/`, imported from Petari ([D-0013](DECISIONS.md#d-0013-shared-rvl_sdk-headers-come-from-petari)). Look there first and extend the existing header in place; never add SDK headers under `include/RVL_SDK/`, which holds only forwarders. Changes to types used outside your area go in a separate small pull request that merges first. |

@@ -112,3 +112,16 @@ Validated the re-cut of unclaimed library issues on 2026-10-17, against `main` a
 - **Posting.** 48 issues were created, #756–#812 excluding other contributors' numbers, deduplicated by title against all existing issues and paced at 4 seconds. GitHub's GraphQL limit was exhausted after 26; the rest were created through the REST API, resuming from the saved state.
 - **Race.** #380, #401 and #402 were claimed between planning and closing. The closing script re-checked each issue first and skipped them. The three new issues holding only their functions (#771–#773) were closed as duplicates, and #770 was trimmed to its functions from #379.
 - **Close-out.** 42 issues were closed as not planned, each with a comment naming its replacements and the count of its already-matched functions. A final check against the closed issues found 1,088 unmatched functions in 45 open new issues: none missing, none extra, none duplicated, none still listed in an open old issue, and no file in more than one new issue.
+
+## Config merge driver validation
+
+Validated `tools/collab/merge_config.py` against the last 60 commits on `main` that touched each config file. Each consecutive pair (A, B) was replayed as parallel work: B was reconstructed as if branched before A, by reverting A's changes out of B, and then merged onto A. The correct result is B itself.
+
+| File | Pairs | Plain `git merge-file` conflicts | Driver conflicts | Driver results differing from B |
+| --- | --- | --- | --- | --- |
+| `config/wpse-v1/symbols.txt` | 59 | 6 | 0 | 0 |
+| `config/wpse-v1/splits.txt` | 59 | 6 | 0 | 0 |
+| `configure.py` | 59 | 6 | 0 | 4, each only a reordering of `Object(...)` lines within one library list |
+
+The `configure.py` reorderings do not affect the build: link order comes from dtk's configuration, which is derived from `splits.txt`. Six real `git rebase` runs in temporary worktrees, with the driver registered through `.gitattributes`, completed without stopping. In every one, `symbols.txt` and `splits.txt` matched B exactly. A first attempt showed the driver must be referenced by absolute path, because older trees being rebased do not contain the tool.
+
