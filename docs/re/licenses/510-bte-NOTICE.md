@@ -50,3 +50,7 @@ tl;dr this code does not look like bluedroid i know that it does not look like
 bluedroid do not complain to me that it does not look like bluedroid
 
 - muff1nOS
+
+## Issue 511 additions
+
+`src/RVL_SDK/bte/bta_sys_conn.c` and `include/RVL_SDK/bte/sys.h` adapt Petari `bta_sys_conn.c`, `bta_sys_int.h`, `bta_sys.h` and `ptim.h` at the same commit. These reference files carry Copyright (C) 2003-2012 Broadcom Corporation, Apache-2.0, and changes by muff1n1634. Changes remove comments, simplify dependencies and primitive type aliases, and retain only target-linked functions. The complete Apache-2.0 text linked above applies to these modifications.
