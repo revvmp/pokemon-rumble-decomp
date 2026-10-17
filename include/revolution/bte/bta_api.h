@@ -3,6 +3,13 @@
 
 #include <revolution/bte/bt_types.h>
 
+#define BTA_DM_PM_NUM_EVTS 9
+#define BTA_DM_PM_PARK_IDX 5
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef UINT8 tBTA_STATUS;
 
 enum {
@@ -77,6 +84,16 @@ enum {
 };
 
 typedef UINT8 tBTA_DM_PM_ACTION;
+enum
+{
+	BTA_DM_PM_NO_ACTION	= 0,
+	BTA_DM_PM_PARK		= 1 << 0,
+	BTA_DM_PM_SNIFF		= 1 << 1,
+	BTA_DM_PM_ACTIVE	= 1 << 2,
+
+	BTA_DM_PM_NO_PREF	= 1 << 4,
+};
+
 
 typedef struct {
     DEV_CLASS dev_class;
@@ -173,5 +190,24 @@ typedef union {
 } tBTA_DM_SEARCH;
 
 typedef void tBTA_DM_SEARCH_CBACK(tBTA_DM_SEARCH_EVT event, tBTA_DM_SEARCH* p_data);
+
+tBTA_STATUS BTA_EnableBluetooth(tBTA_DM_SEC_CBACK *p_cback);
+void BTA_DisableBluetooth(void);
+BOOLEAN BTA_DmIsDeviceUp(void);
+void BTA_DmSetDeviceName(char *p_name);
+void BTA_DmSetVisibility(tBTA_DM_DISC disc_mode, tBTA_DM_CONN conn_mode);
+void BTA_DmSearch(tBTA_DM_INQ *p_dm_inq, tBTA_SERVICE_MASK services,
+                  tBTA_DM_SEARCH_CBACK *p_cback);
+void BTA_DmSearchCancel(void);
+void BTA_DmPinReply(BD_ADDR bd_addr, BOOLEAN accept, UINT8 pin_len,
+                    PIN_CODE p_pin);
+tBTA_STATUS BTA_DmAddDevice(BD_ADDR bd_addr, LINK_KEY link_key,
+                            UINT32 trusted_mask, BOOLEAN is_trusted);
+tBTA_STATUS BTA_DmRemoveDevice(BD_ADDR bd_addr);
+void BTA_DmSendHciReset(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

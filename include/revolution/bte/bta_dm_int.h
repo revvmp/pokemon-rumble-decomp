@@ -53,6 +53,14 @@ enum {
     BTA_DM_DISCOVERY_RESULT_EVT
 };
 
+enum
+{
+	BTA_DM_SEARCH_IDLE,
+	BTA_DM_SEARCH_ACTIVE,
+	BTA_DM_SEARCH_CANCELLING,
+	BTA_DM_DISCOVER_ACTIVE,
+};
+
 typedef UINT8 tBTA_DM_CONN_STATE;
 enum
 {
@@ -157,6 +165,21 @@ typedef struct
 	BD_ADDR			bd_addr;
 } tBTA_DM_ACL_CHANGE;
 
+typedef struct
+{
+	BT_HDR			hdr;
+	BD_ADDR			bd_addr;
+	tBTM_PM_STATUS	status;
+	UINT16			value;
+	tHCI_STATUS		hci_status;
+} tBTA_DM_PM_BTM_STATUS;
+
+typedef struct
+{
+	BT_HDR	hdr;
+	BD_ADDR	bd_addr;
+} tBTA_DM_PM_TIMER;
+
 typedef union {
     BT_HDR hdr;
     tBTA_DM_API_ENABLE enable;
@@ -173,6 +196,8 @@ typedef union {
     tBTA_DM_SDP_RESULT sdp_event;
     tBTA_API_DM_SIG_STRENGTH sig_strength;
     tBTA_DM_ACL_CHANGE acl_change;
+    tBTA_DM_PM_BTM_STATUS pm_status;
+    tBTA_DM_PM_TIMER pm_timer;
 } tBTA_DM_MSG;
 
 typedef struct {
@@ -272,6 +297,25 @@ typedef struct
 	UINT8	mask;
 } tBTA_DM_COMPRESS;
 
+typedef struct
+{
+	UINT8	id;
+	UINT8	app_id;
+	UINT8	spec_idx;
+} tBTA_DM_PM_CFG;
+
+typedef struct
+{
+	tBTA_DM_PM_ACTION	power_mode;
+	UINT16				timeout;
+} tBTA_DM_PM_ACTN;
+
+typedef struct
+{
+	UINT8			allow_mask;
+	tBTA_DM_PM_ACTN	actn_tbl[BTA_DM_PM_NUM_EVTS][2];
+} tBTA_DM_PM_SPEC;
+
 extern const UINT16 bta_service_id_to_uuid_lkup_tbl[];
 extern const UINT32 bta_service_id_to_btm_srv_id_lkup_tbl[];
 extern tBTA_DM_CONNECTED_SRVCS bta_dm_conn_srvcs;
@@ -316,4 +360,12 @@ void bta_dm_keep_acl(tBTA_DM_MSG* p_data);
 void bta_dm_immediate_disable(void);
 void bta_dm_reset_complete(void* p1);
 void bta_dm_send_hci_reset(tBTA_DM_MSG* p_data);
+extern tBTA_DM_PM_CFG *p_bta_dm_pm_cfg;
+extern tBTA_DM_PM_SPEC *p_bta_dm_pm_spec;
+extern tBTM_PM_PWR_MD *p_bta_dm_pm_md;
+BOOLEAN bta_dm_sm_execute(BT_HDR *p_msg);
+BOOLEAN bta_dm_search_sm_execute(BT_HDR *p_msg);
+void bta_dm_pm_btm_status(tBTA_DM_MSG *p_data);
+void bta_dm_pm_timer(tBTA_DM_MSG *p_data);
+
 #endif

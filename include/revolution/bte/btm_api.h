@@ -74,7 +74,34 @@ typedef UINT8 tBTM_ROLE;
 typedef UINT8 tBTM_SCO_TYPE;
 typedef UINT8 tBTM_ESCO_EVT;
 typedef UINT8 tBTM_PM_STATUS;
+enum
+{
+	BTM_PM_STS_ACTIVE	= HCI_MODE_ACTIVE,
+	BTM_PM_STS_HOLD		= HCI_MODE_HOLD,
+	BTM_PM_STS_SNIFF	= HCI_MODE_SNIFF,
+	BTM_PM_STS_PARK		= HCI_MODE_PARK,
+	BTM_PM_STS_SSR		= 4,
+	BTM_PM_STS_PENDING	= 4,
+	BTM_PM_STS_ERROR	= 5,
+};
+
 typedef UINT8 tBTM_PM_MODE;
+enum
+{
+	BTM_PM_REG_SET		= 1 << 0,
+	BTM_PM_REG_NOTIF	= 1 << 1,
+	BTM_PM_DEREG		= 1 << 2,
+};
+
+enum
+{
+	BTM_PM_MD_ACTIVE	= BTM_PM_STS_ACTIVE,
+	BTM_PM_MD_HOLD		= BTM_PM_STS_HOLD,
+	BTM_PM_MD_SNIFF		= BTM_PM_STS_SNIFF,
+	BTM_PM_MD_PARK		= BTM_PM_STS_PARK,
+	BTM_PM_MD_FORCE		= 0x10
+};
+
 typedef UINT8 tBTM_AFH_CHANNEL;
 
 enum {
@@ -326,4 +353,11 @@ tBTM_STATUS BTM_ReadRSSI(BD_ADDR remote_bda, tBTM_CMPL_CB *p_cb);
 tBTM_STATUS BTM_ReadLinkQuality(BD_ADDR remote_bda, tBTM_CMPL_CB *p_cb);
 void BTM_SendHciReset(tBTM_CMPL_CB *p_cb);
 tBTM_INQ_INFO *BTM_InqDbRead(BD_ADDR p_bda);
+tBTM_STATUS BTM_ReadLocalVersion(tBTM_VERSION_INFO *p_vers);
+tBTM_STATUS BTM_PmRegister(UINT8 mask, UINT8 *p_pm_id,
+                           tBTM_PM_STATUS_CBACK *p_cb);
+BOOLEAN BTM_SecAddDevice(BD_ADDR bd_addr, DEV_CLASS dev_class, BD_NAME bd_name,
+                         BD_FEATURES features, UINT32 *trusted_mask,
+                         LINK_KEY link_key);
+BOOLEAN BTM_SecDeleteDevice(BD_ADDR bd_addr);
 #endif

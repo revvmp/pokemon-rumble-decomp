@@ -77,6 +77,9 @@ void GKI_stop_timer(UINT8 timer);
 
 #define GKI_MS_TO_TICKS(x) ((x) / 10)
 
+void GKI_sched_lock(void);
+void GKI_sched_unlock(void);
+
 #ifdef __cplusplus
 }
 #endif
