@@ -42,8 +42,12 @@ On the branch head, `configure.py`, `ninja` and `tools/verify/verify.py verify` 
 - `lyt_picture.cpp`: 11/11 functions 100%. `Matching`.
 - `lyt_resourceAccessor.cpp`: 3/3 functions 100%. `Matching`.
 - `lyt_textBox.cpp`: 17/17 functions 100%, `.rodata` 100%. `Matching`.
-- `lyt_window.cpp`: `.text` 98.8%; 19 of 21 functions are 100%. `DrawFrame` is 92.5% and the constructor 99.2%. `NonMatching`.
-- `lyt_material.cpp`: `.text` 94.7%, `.rodata` and `.data` 100%; 19 of 23 functions are 100%. The constructor is 86.5%, `ReserveGXMem` 96.3%, `SetTexCoordGenNum` 97.6% and `SetupGX` 99.99%. `NonMatching`.
+- `lyt_window.cpp`: `.text` 98.8%; 20 of 21 functions are 100%. `DrawFrame` is 92.5%. `NonMatching`.
+- `lyt_material.cpp`: `.text` 96.5%, `.rodata` and `.data` 100%; 22 of 23 functions are 100%. The constructor is 89.9%. `NonMatching`.
+
+The second pass matched `ReserveGXMem` with the allocation size written as `4 * (matColNum + chanCtrlNum + texCoordGenNum + tevSwapNum + alpCompNum + blendModeNum + indStageNum)` plus the `int`-cast sizes of the larger arrays, as in CC0 `zeldaret/tp` (`libs/revolution/src/homebuttonLib/nw4hbm/lyt/lyt_material.cpp`). `SetTexCoordGenNum`, `SetupGX` and the `Window` constructor matched once their array pointer locals were declared `const` (`TexCoordGen* const`, `TexSRT* const`, `const u32* const`).
+
+In the remaining constructor difference, the original copies each structure (`ChanCtrl`, the material colour, `TevSwapMode`, the `math::VEC2` members of `TexSRT`) with every load followed immediately by its store in one register. The rebuild loads several fields before storing them. `Wii/1.0`, `Wii/1.0RC1`, `Wii/1.1`, GameCube 3.0a3 and 3.0a5.2, `-ipa function`, `-inline deferred`, `-opt nopeephole` and `-schedule off` all score lower than Wii/1.0a with `cflags_hbm`. Setter calls, `u32` indices, literal bounds, an explicit `mAnimList()` initializer and `const` pointer locals did not remove the difference. In `DrawFrame`, the scheduling of the inlined `GetLTTexCoord` table loads differs; a `const` texture size, `const` vertex colours, scoped blocks and a hoisted vertex-colour pointer did not help.
 
 The `.data` sections of the matching units score below 100% in objdiff only from weak RTTI records and vtables; the linked DOL is byte-identical.
 
@@ -52,4 +56,5 @@ Names come from xenoblade's symbols. The code follows CC0 Kirby's Epic Yarn (`Sw
 ## Traps
 
 - **A POD struct assignment is a block move that the scheduler reorders freely.** In the `Material` constructor, the original copies `mTevCols` from the resource with every load followed by its store. The same copy written as `mTevCols[i] = pRes->tevCols[i]` (a C `GXColorS10` assignment) hoists all loads above all stores, and with `SetName` moved it even removes `Init`'s dead stores. Writing the copy member by member restores the serial order. Class types such as `math::VEC3` copy member by member already. Evidence: F-295-3, the remaining constructor difference.
+- **A `const` pointer local can change register allocation.** `Material::SetTexCoordGenNum` (97.6%), `Material::SetupGX` (99.99%) and the `Window` constructor (99.2%) differed only in register numbers. Declaring the array pointer local `const` (`TexCoordGen* const pTexCoordGens`) made each 100%. Try this before reordering declarations when only register numbers differ. Evidence: F-295-3.
 - **Declaration order did not fix `Window::DrawFrame`.** A search over all orders of its five locals left the same scheduling difference. Binding the texture size to a `const Size&` temporary moved the stack slots to the target's positions but did not remove the register differences.

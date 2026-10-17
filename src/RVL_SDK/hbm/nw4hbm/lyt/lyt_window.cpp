@@ -142,7 +142,7 @@ NW4R_UT_RTTI_DEF_DERIVED(Window, Pane);
 Window::Window(const res::Window* pRes, const ResBlockSet& rBlockSet) : Pane(pRes) {
     mContentInflation = pRes->inflation;
 
-    const u32* pMatOffsTbl = detail::ConvertOffsToPtr<u32>(rBlockSet.pMaterialList, sizeof(res::MaterialList));
+    const u32* const pMatOffsTbl = detail::ConvertOffsToPtr<u32>(rBlockSet.pMaterialList, sizeof(res::MaterialList));
 
     {
         const res::WindowContent* pResContent =

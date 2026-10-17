@@ -228,7 +228,10 @@ Material::Material(const res::Material* pRes, const ResBlockSet& rBlockSet) {
     SetName(pRes->name);
 
     for (int i = 0; i < TEVCOLOR_MAX; i++) {
-        mTevCols[i] = pRes->tevCols[i];
+        mTevCols[i].r = pRes->tevCols[i].r;
+        mTevCols[i].g = pRes->tevCols[i].g;
+        mTevCols[i].b = pRes->tevCols[i].b;
+        mTevCols[i].a = pRes->tevCols[i].a;
     }
 
     for (int i = 0; i < GX_MAX_KCOLOR; i++) {
@@ -265,9 +268,9 @@ Material::Material(const res::Material* pRes, const ResBlockSet& rBlockSet) {
         SetTextureNum(texMapNum);
 
         if (texMapNum) {
-            const res::Texture* pTextures = detail::ConvertOffsToPtr<res::Texture>(rBlockSet.pTextureList,
-                                                                                  sizeof(res::TextureList));
-            GXTexObj* pTexObjs = GetTexMapAry();
+            const res::Texture* const pTextures =
+                detail::ConvertOffsToPtr<res::Texture>(rBlockSet.pTextureList, sizeof(res::TextureList));
+            GXTexObj* const pTexObjs = GetTexMapAry();
 
             for (u8 i = 0; i < mGXMemNum.texMap; i++) {
                 const char* pFileName =
@@ -419,12 +422,12 @@ void Material::ReserveGXMem(u8 texMapNum, u8 texSRTNum, u8 texCoordGenNum, u8 te
         InitBitGXNums(&mGXMemNum);
     }
 
-    mpGXMem = Layout::AllocMemory(sizeof(GXTexObj) * texMapNum + sizeof(TexSRT) * texSRTNum +
-                                  sizeof(TexCoordGen) * texCoordGenNum + sizeof(ChanCtrl) * chanCtrlNum +
-                                  sizeof(ut::Color) * matColNum + sizeof(TevSwapMode) * GX_MAX_TEVSWAP * tevSwapNum +
-                                  sizeof(AlphaCompare) * alpCompNum + sizeof(BlendMode) * blendModeNum +
-                                  sizeof(IndirectStage) * indStageNum + sizeof(TexSRT) * indSRTNum +
-                                  sizeof(TevStage) * tevStageNum);
+    mpGXMem = Layout::AllocMemory(4 * (matColNum + chanCtrlNum + texCoordGenNum + tevSwapNum + alpCompNum +
+                                       blendModeNum + indStageNum) +
+                                  static_cast<int>(sizeof(TexSRT)) * texSRTNum +
+                                  static_cast<int>(sizeof(GXTexObj)) * texMapNum +
+                                  static_cast<int>(sizeof(TexSRT)) * indSRTNum +
+                                  static_cast<int>(sizeof(TevStage)) * tevStageNum);
 
     if (!mpGXMem) {
         return;
@@ -584,7 +587,7 @@ void Material::SetTextureNum(u8 num) {
 
 void Material::SetTexCoordGenNum(u8 num) {
     if (num) {
-        TexCoordGen* pTexCoordGens = GetTexCoordGenAry();
+        TexCoordGen* const pTexCoordGens = GetTexCoordGenAry();
 
         for (u32 i = mGXMemNum.texCoordGen; i < num; i++) {
             pTexCoordGens[i] = TexCoordGen();
@@ -778,7 +781,7 @@ bool Material::SetupGX(bool modulate, u8 alpha) {
     }
 
     if (setTexMtx) {
-        TexSRT* pTexSRTs = GetTexSRTAry();
+        TexSRT* const pTexSRTs = GetTexSRTAry();
 
         for (u8 i = 0; i < mGXMemNum.texSRT; i++) {
             if (useTexMtx[i]) {
