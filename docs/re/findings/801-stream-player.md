@@ -43,6 +43,14 @@ references instead identify 0.0 at `0x804BAFF0`, signed conversion at
 dummy function, raw data copy, or speculative compiler option has been added.
 The source is not selected as Matching while this remains unresolved.
 
+The independent Wii symbol maps in
+[`riptl/wii-symbols` at `34d03db117a7e0007ca3ef3c8bc7402dad1c2925`](https://github.com/riptl/wii-symbols/blob/34d03db117a7e0007ca3ef3c8bc7402dad1c2925/symbols/SSQE01.txt)
+identify a real 432-byte `GetFilledBufferPercentage` method immediately before
+the 308-byte `InitParam`, also present in the SC8P01 map. This gives a concrete
+missing-method lead rather than evidence for the reference's dummy function.
+No Wii implementation was found in the inspected CC0 references. A later
+NintendoWare4Ctr implementation is GPL-3.0 and was not imported or adapted.
+
 ## Traps
 
 - A reference optimization override concealed a missing null check in the
