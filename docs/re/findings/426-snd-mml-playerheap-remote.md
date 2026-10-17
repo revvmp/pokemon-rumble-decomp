@@ -108,3 +108,14 @@ The combined original scope is ninety-nine survey rows / 14,588 bytes through ni
 - The public old MML allocator headers forward-declare `SeqPlayer` in `detail`, while their sequence-track header uses `snd::SeqPlayer`. This reference inconsistency prevents compiling the combined headers without adaptation. It is not evidence that the target uses either interface; validate native calls and complete layouts before importing them.
 
 The entry-aware metadata merge driver correctly combined all ten source commits without conflicts, but its object insertion point placed the five new units before the newly merged MemorySoundArchive/MidiSeqPlayer/MmlParser entries. Review address order even after an automatic entry merge; only the five owned Object lines were relocated after MmlParser, preserving every main entry. This is a concrete insertion-context finding, not evidence that all automatic merges misorder entries.
+
+## Rebase metadata review
+
+A clean entry-driver rebase can retain unrelated name changes already
+present in an older issue commit. Whole-diff review against current main
+caught HBM startTrigEvent at 0x80183E50 and HomeButtonEventHandler::onEvent
+at 0x80185B00 reverting to survey placeholders. Main's exact entries were
+restored before acceptance, both running candidate builds were stopped,
+and validation restarted from a clean output. Review every changed symbol
+address, including distant imported-library names; DOL identity alone would
+not establish preservation of another owner's names and source interfaces.
