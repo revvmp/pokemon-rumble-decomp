@@ -148,6 +148,7 @@ cflags_sdk = [
 SDK_COMPILER = "Wii/1.0"
 
 BTE_COMPILER = "GC/3.0a3"
+NDEV_COMPILER = "GC/3.0a3"
 
 config.libs = [
     library(
@@ -184,6 +185,17 @@ config.libs = [
             Object(NonMatching, "RVL_SDK/bte/hidd_mgmt.c", mw_version=BTE_COMPILER),
             Object(NonMatching, "RVL_SDK/bte/hidd_pm.c", mw_version=BTE_COMPILER),
             Object(NonMatching, "RVL_SDK/bte/hidh_api.c", mw_version=BTE_COMPILER),
+            Object(Matching, "RVL_SDK/gd/GDTexture.c"),
+        ],
+    ),
+    library(
+        "NdevExi2A",
+        NDEV_COMPILER,
+        cflags_sdk,
+        "sdk",
+        [
+            Object(Matching, "RVL_SDK/NdevExi2A/DebuggerDriver.c"),
+            Object(Matching, "RVL_SDK/NdevExi2A/exi2.c"),
         ],
     ),
     library(

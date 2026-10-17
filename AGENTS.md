@@ -74,6 +74,7 @@ Keep entries concise and actionable. Distinguish confirmed findings from hypothe
 - **Replacing a unit can remove its trailing alignment padding.** GXTev scored 100% but its source object omitted twelve trailing padding bytes; the next fallback unit began early at four-byte alignment. Preserve the observed next entry alignment (`GXSetFog`, 16 bytes) in symbols before accepting the link. See [F-479-2](docs/re/findings/479-gx.md).
 
 - **BTE is not built with Wii/1.0.** The HID units match only with GC/3.0a3–3.0a5.2 plus `cflags_sdk`; Wii compilers emit a different `switch` tree, and 4-byte-aligned function starts rule out the Wii default alignment. Check alignment before trusting an issue's compiler label; see [F-524-2](docs/re/findings/524-bte-hid.md#f-524-2-bte-hid-units-use-a-gamecube-30-compiler).
+- **Packed 4-byte function starts inside the RVL_SDK range mean another compiler.** NdevExi2A (`0x8033EEB4`-`0x8033F974`) matches only GameCube GC/3.0a3 to 3.0a5, not Wii/1.0. Check function alignment before assuming F-0007's per-region compiler. See [F-535-2](docs/re/findings/535-gdtexture-ndevexi2a.md#f-535-2-ndevexi2a-is-built-with-a-gamecube-compiler).
 
 ## Current project state
 
