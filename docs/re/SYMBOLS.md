@@ -2197,3 +2197,7 @@ For `wpse-v1` / `main.dol`, [F-383-1](findings/383-ef-free-line-point-strategies
 ## Issue #443 wave archive reader
 
 The existing canonical `nw4r::snd::detail::WaveArchiveReader` stores its table-block pointer at offset 0 and data-block pointer at offset 4. Its constructor at `0x802910A0` occupies `0x74` bytes; `GetWaveFile(int) const` at `0x80291120` occupies `0x88` bytes. The complete split ends at `0x802911A8`. Names, types and bounds semantics agree with pinned CC0 zeldaret/ss source and the exact native/link evidence in [F-443-2](findings/443-wave-readers.md). No layout changes or outside symbol extents are introduced.
+
+## Issue #443 wave file reader
+
+The existing canonical `WaveFileReader` stores its wave-info pointer at offset 0. Its file-header constructor at `0x802911B0` occupies `0x20` bytes, wave-info constructor at `0x802911D0` occupies `0x8`, ReadWaveInfo at `0x802911E0` occupies `0x1CC`, and const GetWaveDataAddress at `0x802913B0` occupies `0x64`. The latter replaces the survey placeholder with the original reference name; the complete split ends at `0x80291414`. WaveInfo channel parameters have the existing 52-byte stride, including 40-byte ADPCM parameters and 6-byte loop parameters. [F-443-3](findings/443-wave-readers.md) records the target accesses, per-unit compiler setting, native and final-link evidence. No outside extents or layouts change.

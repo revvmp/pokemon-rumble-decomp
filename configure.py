@@ -455,6 +455,7 @@ config.libs = [
             Object(Matching, "nw4r/snd/snd_SeqFile.cpp"),
             Object(Matching, "nw4r/snd/snd_SeqPlayer.cpp"),
             Object(Matching, "nw4r/snd/snd_WaveArchive.cpp"),
+            Object(Matching, "nw4r/snd/snd_WaveFile.cpp", cflags=[*(flag for flag in cflags_nw4r if flag != "-ipa file"), "-ipa off"]),
         ],
     ),
     library(
