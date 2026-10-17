@@ -353,6 +353,7 @@ config.libs = [
             Object(NonMatching, "nw4r/ef/ef_drawfreestrategy.cpp"),
             Object(Matching, "nw4r/ef/ef_drawlinestrategy.cpp"),
             Object(Matching, "nw4r/ef/ef_drawpointstrategy.cpp"),
+            Object(NonMatching, "nw4r/ef/ef_drawsmoothstripestrategy.cpp"),
         ],
     ),
     library(
