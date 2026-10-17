@@ -289,7 +289,7 @@ config.libs = [
             Object(Matching, "RVL_SDK/mtx/mtx44.c"),
             Object(Matching, "RVL_SDK/mtx/vec.c"),
             Object(NonMatching, "RVL_SDK/gx/GXInit.c"),
-            Object(NonMatching, "RVL_SDK/gx/GXFifo.c"),
+            Object(Matching, "RVL_SDK/gx/GXFifo.c"),
             Object(NonMatching, "RVL_SDK/gx/GXAttr.c"),
             Object(Matching, "RVL_SDK/gx/GXMisc.c"),
             Object(Matching, "RVL_SDK/gx/GXGeometry.c"),
