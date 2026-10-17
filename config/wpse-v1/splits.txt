@@ -29,6 +29,19 @@ RVL_SDK/os/OSAlarm.c:
 	.data       start:0x803C7760 end:0x803C7770
 	.sbss       start:0x804B9488 end:0x804B9490
 
+RVL_SDK/os/OSArena.c:
+	.text       start:0x802B3A40 end:0x802B3B60
+	.sdata      start:0x804B8A60 end:0x804B8A68
+	.sbss       start:0x804B9498 end:0x804B94A0
+
+RVL_SDK/os/OSAudioSystem.c:
+	.text       start:0x802B3B60 end:0x802B4020
+	.data       start:0x803C7770 end:0x803C77F0
+
+RVL_SDK/os/OSCache.c:
+	.text       start:0x802B4020 end:0x802B46C8
+	.data       start:0x803C77F0 end:0x803C7A28
+
 RVL_SDK/os/OSContext.c:
 	.text       start:0x802B46D0 end:0x802B4FB0
 	.data       start:0x803C7A28 end:0x803C7C08
@@ -192,6 +205,26 @@ RVL_SDK/bte/bta_dm_act.c:
 RVL_SDK/bte/bta_dm_api.c:
 	.text       start:0x80316D80 end:0x803171EC
 	.sdata2     start:0x804BB600 end:0x804BB610
+
+RVL_SDK/bte/hidd_api.c:
+	.text       start:0x80329258 end:0x803292C0
+
+RVL_SDK/bte/hidd_conn.c:
+	.text       start:0x803292C0 end:0x80329380
+	.data       start:0x803E2D70 end:0x803E2DA0
+
+RVL_SDK/bte/hidd_mgmt.c:
+	.text       start:0x80329380 end:0x80329448
+	.data       start:0x803E2DA0 end:0x803E2DC0
+	.bss        start:0x804AD8F0 end:0x804ADA38
+
+RVL_SDK/bte/hidd_pm.c:
+	.text       start:0x80329448 end:0x803297C4
+
+RVL_SDK/bte/hidh_api.c:
+	.text       start:0x803297C4 end:0x8032A544
+	.data       start:0x803E2DC0 end:0x803E2ED8
+	.bss        start:0x804ADA38 end:0x804ADE40
 
 RVL_SDK/gd/GDTexture.c:
 	.text       start:0x8033E540 end:0x8033EEB4
