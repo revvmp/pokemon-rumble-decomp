@@ -1,0 +1,81 @@
+# F-808-5: native TextBox source and complete issue inventory
+
+## Source and provenance
+
+Claimed #808 owns the complete native TextBox translation unit beginning at
+0x802A7690. Its ordinary C++ implementation uses the canonical 0x140 class
+from F-808-3 and the bounded drawing interfaces in F-808-4. It contains real
+resource construction/destruction, string allocation and mutation, color
+access, line wrapping and tag processing, cached text rectangles, immediate
+printing, cached GD drawing, and border parsing/drawing.
+
+The older CC0 Skyward Sword source at
+`57a709b2128eb163a18e2969d561c9abb7d1fcee`,
+`src/nw4r/lyt/lyt_textBox.cpp`, supplies original names and the shared
+line-measurement algorithm. Its immediate-only drawing cannot replace the
+target's later caches and border/GD paths. Those paths were reconstructed
+from native accesses, calls, metadata strings, and instructions. IDA on an
+external database copy was a reading aid only; no decompiler output was
+pasted. Inferred names and complete class offsets are distinguished in
+F-808-3/F-808-4.
+
+Init allocates an 8192-byte display-list buffer with the canonical Layout
+allocator. DrawSelf uses immediate printing for a tag processor or strings
+longer than 61 characters, otherwise rebuilding the cached GD list when
+dirty. It draws the eight neighboring border offsets and then the main
+list. Border metadata accepts the native one/two/three/four/six-digit color
+forms and optional second gradient color. SetStringImpl compares copied
+characters and the terminator before invalidating the cache. Rectangle
+calculation compares the current Pane size with the cached Size and stores
+the resulting Rect in its evidenced members.
+
+## Native proof
+
+Canonical-only diagnostic compilation reproduces all 23 retained functions,
+8,108 code bytes and physical retained order. Independent native target
+pairing proves 156 text relocations, 33 data/constructor relocations and all
+240 non-text bytes. F-808-4 gives all seven exact section extents. Actual
+source selection, objdiff, native final addresses and the frozen whole-DOL
+gate must also pass before accepting source progress.
+
+## Complete original #808 inventory reconciliation
+
+The issue's original REST inventory contains exactly 46 address/size rows
+and 11,544 instruction bytes. Every row belongs to exactly one group below;
+survey file labels are superseded by native source boundaries.
+
+| Native unit | Original issue functions | Code bytes | Delivery |
+| --- | --- | --- | --- |
+| Layout first helper, 802A6060 | 1 | 468 | Coordinated #809 source PR865 |
+| TextBox, 802A7690-802A96DC | 23 | 8,108 | This source delivery |
+| Window tail, 802ABC60/802ABC70 | 2 | 20 | Previously merged PR824 |
+| Bounding, 802ABC80-802ABD4C | 5 | 172 | Source PR848 |
+| Material first helpers, 802ABD50/802ABE60 | 2 | 776 | Complete #811 source PR866 |
+| TexMap, 802AEB30-802AF000 | 6 | 1,208 | Source PR848 |
+| DrawInfo, 802AF000-802AF0C0 | 2 | 180 | Source PR848 |
+| ResourceAccessor/ArcResourceAccessor, 802B0680-802B08F0 | 5 | 612 | Previously merged PR734 |
+| Total | 46 | 11,544 | No duplicate byte credit |
+
+The first Layout helper is 468 bytes, the first two Material helpers total
+776, and both corrected whole-file boundaries are owned by #808. Coordinated
+#809 and #811 source deliveries retain their own original inventories and
+explicitly attribute these neighboring functions once. Prior PR734/824
+already supplied seven / 632; their bytes are not newly reconstructed here.
+The external `808-audit-original-inventory.py` reads the actual issue body,
+checks every original address and size, requires the groups to be disjoint,
+and proves the full 46 / 11,544 sum. Integration and closure remain pending
+until all listed source deliveries are canonical and verified together.
+
+## Traps
+
+- The original survey rodata object at 80371608 was 0x28 bytes and sbss type
+  word at 804B9420 was eight. Native code/data prove 0x24 and four; the rest
+  belongs to alignment before the next object. Correct the owned symbols
+  before the split or dtk rejects a split ending inside a surveyed symbol.
+- The four-byte SetString overload at 802A9010 is a real tail branch to
+  SetStringImpl, not a no-op or empty virtual body.
+- Preserve the native two-return buffer accessor and by-value color helper;
+  equivalent-looking rewrites change retained narrowing or copy code.
+- SetStringImpl sets its changed flag before memcpy. A changed terminator
+  independently dirties the cache; comparing only the characters loses
+  native behavior.
