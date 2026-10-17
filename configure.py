@@ -166,6 +166,10 @@ config.libs = [
         [
             Object(Matching, "RVL_SDK/base/PPCArch.c"),
             Object(NonMatching, "RVL_SDK/os/OSAlarm.c"),
+            Object(Matching, "RVL_SDK/os/OSArena.c"),
+            Object(Matching, "RVL_SDK/os/OSAudioSystem.c"),
+            Object(Matching, "RVL_SDK/os/OSCache.c"),
+
             Object(NonMatching, "RVL_SDK/os/OSContext.c"),
             Object(Matching, "RVL_SDK/os/OSIpc.c"),
             Object(Matching, "RVL_SDK/exi/EXIUart.c"),
