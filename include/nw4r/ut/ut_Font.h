@@ -75,9 +75,7 @@ public:
 
     void InitReaderFunc(FontEncoding encode);
 
-    CharStrmReader GetCharStrmReader() const {
-        return CharStrmReader(mReadFunc);
-    }
+    CharStrmReader GetCharStrmReader() const;
 
 private:
     CharStrmReader::ReadFunc mReadFunc;

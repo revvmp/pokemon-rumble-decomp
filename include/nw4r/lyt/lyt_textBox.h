@@ -1,6 +1,7 @@
 #ifndef NW4R_LYT_TEXT_BOX_H
 #define NW4R_LYT_TEXT_BOX_H
 
+#include <nw4r/lyt/lyt_common.h>
 #include <nw4r/lyt/lyt_pane.h>
 #include <revolution/gd/GDBase.h>
 
@@ -39,6 +40,43 @@ public:
     ut::Rect GetTextDrawRect(ut::TextWriterBase<wchar_t>* pWriter) const;
     u16 SetStringImpl(const wchar_t* pString, u16 dstIndex, u32 stringLength);
     const ut::Font* GetFont() const;
+
+    u16 GetStringBufferLength() const {
+        if (mTextBufBytes == 0) {
+            return 0;
+        }
+        return mTextBufBytes / sizeof(wchar_t) - 1;
+    }
+
+    void SetFont(const ut::Font* pFont);
+    f32 GetTextMagH() const;
+    f32 GetTextMagV() const;
+    f32 GetTextAlignMag() const;
+
+    void SetFontSize(const Size& rSize) {
+        mFontSize = rSize;
+        mDrawCacheFlags |= 1;
+    }
+
+    void SetTextColor(u32 index, ut::Color color) {
+        mTextColors[index] = color;
+    }
+
+    u8 GetTextPositionH() const {
+        return detail::GetHorizontalPosition(mTextPosition);
+    }
+
+    u8 GetTextPositionV() const {
+        return detail::GetVerticalPosition(mTextPosition);
+    }
+
+    void SetTextPositionH(u8 value) {
+        detail::SetHorizontalPosition(&mTextPosition, value);
+    }
+
+    void SetTextPositionV(u8 value) {
+        detail::SetVerticalPosition(&mTextPosition, value);
+    }
 
     void SetTagProcessor(ut::TagProcessorBase<wchar_t>* pTagProcessor) {
         mpTagProcessor = pTagProcessor;

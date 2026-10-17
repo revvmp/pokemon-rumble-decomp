@@ -104,6 +104,8 @@ public:
     int VSNPrintf(T* buffer, u32 count, const T* pStr, va_list args);
     f32 VPrintf(const T* pStr, va_list args);
     f32 Print(const T* pStr, int len);
+    f32 PrintMutable(const T* pStr, int len);
+    f32 PrintMutableToDisplayList(const T* pStr, int len);
 
     static T* GetBuffer() {
         return mFormatBuffer;
@@ -134,7 +136,8 @@ private:
     bool CalcLineRectImpl(Rect* pRect, const T** ppStr, int len);
     void CalcStringRectImpl(Rect* pRect, const T* pStr, int len);
 
-    f32 PrintImpl(const T* pStr, int len);
+    f32 PrintImpl(const T* pStr, int len, bool mutableCursor);
+    f32 PrintToDisplayListImpl(const T* pStr, int len, bool mutableCursor);
     f32 AdjustCursor(f32* pX, f32* pY, const T* pStr, int len);
 
 private:
