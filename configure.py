@@ -401,6 +401,9 @@ config.libs = [
             Object(Matching, "nw4r/g3d/dcc/g3d_maya.cpp"),
             Object(Matching, "nw4r/g3d/g3d_scnobj.cpp"),
             Object(Matching, "nw4r/g3d/g3d_scnroot.cpp"),
+            Object(Matching, "nw4r/g3d/g3d_calcmaterial.cpp"),
+            Object(Matching, "nw4r/g3d/g3d_init.cpp"),
+            Object(Matching, "nw4r/g3d/g3d_fog.cpp"),
         ],
     ),
     library(

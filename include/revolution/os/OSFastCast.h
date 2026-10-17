@@ -7,6 +7,11 @@
 extern "C" {
 #endif
 
+#define OS_GQR_TYPE_U8 4
+#define OS_GQR_TYPE_U16 5
+#define OS_GQR_TYPE_S8 6
+#define OS_GQR_TYPE_S16 7
+
 #ifdef __MWERKS__
 static inline u8 __OSf32tou8(register f32 in) {
     f32 a;
@@ -115,6 +120,24 @@ static inline void OSInitFastCast(void) {
     }
 #endif
 }
+
+#ifdef __MWERKS__
+static inline void OSSetGQR6(register u32 type, register u32 scale) {
+    register u32 val = ((scale << 8 | type) << 16) | ((scale << 8) | type);
+
+    asm {
+        mtspr 0x396, val
+    }
+}
+
+static inline void OSSetGQR7(register u32 type, register u32 scale) {
+    register u32 val = ((scale << 8 | type) << 16) | ((scale << 8) | type);
+
+    asm {
+        mtspr 0x397, val
+    }
+}
+#endif
 
 #ifdef __cplusplus
 }

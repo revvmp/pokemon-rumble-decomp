@@ -11,6 +11,7 @@ extern "C" {
 
 void GXSetFog(GXFogType, f32, f32, f32, f32, GXColor);
 void GXSetFogRangeAdj(GXBool, u16, const GXFogAdjTable *);
+void GXInitFogAdjTable(GXFogAdjTable *, u16, const f32[4][4]);
 void GXSetBlendMode(GXBlendMode, GXBlendFactor, GXBlendFactor, GXLogicOp);
 void GXSetColorUpdate(GXBool);
 void GXSetAlphaUpdate(GXBool);

@@ -65,6 +65,8 @@ typedef struct _GXRenderModeObj {
      u8 vfilter[7];
 } GXRenderModeObj;
 
+#define GX_FOG_ADJ_TABLE_SZ 10
+
 typedef struct _GXFogAdjTable {
     u16 r[10];
 } GXFogAdjTable;

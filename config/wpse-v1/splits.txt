@@ -627,6 +627,18 @@ nw4r/g3d/g3d_scnroot.cpp:
 	.sdata      start:0x804B8980 end:0x804B8990
 	.sdata2     start:0x804BAD30 end:0x804BAD34
 
+nw4r/g3d/g3d_calcmaterial.cpp:
+	.text       start:0x80270750 end:0x80270984
+
+nw4r/g3d/g3d_init.cpp:
+	.text       start:0x80270990 end:0x80270A88
+	.data       start:0x803C6150 end:0x803C6196
+	.sdata      start:0x804B89C8 end:0x804B89CC
+
+nw4r/g3d/g3d_fog.cpp:
+	.text       start:0x80270A90 end:0x80270C00
+	.sdata2     start:0x804BAD40 end:0x804BAD44
+
 nw4r/snd/snd_AxManager.cpp:
 	.text       start:0x80271E10 end:0x80273650
 	.ctors      start:0x80352A50 end:0x80352A54
