@@ -388,6 +388,9 @@ config.libs = [
             Object(Matching, "nw4r/g3d/platform/g3d_cpu.cpp"),
             Object(Matching, "nw4r/g3d/g3d_draw1mat1shp.cpp"),
             Object(Matching, "nw4r/g3d/g3d_calcview.cpp"),
+            Object(Matching, "nw4r/g3d/g3d_camera.cpp"),
+            Object(Matching, "nw4r/g3d/dcc/g3d_basic.cpp"),
+            Object(Matching, "nw4r/g3d/dcc/g3d_maya.cpp"),
         ],
     ),
     library(

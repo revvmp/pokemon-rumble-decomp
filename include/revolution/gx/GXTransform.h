@@ -9,6 +9,14 @@ extern "C" {
 #include "revolution/gx/GXStruct.h"
 #include "revolution/types.h"
 
+#define GX_PROJECTION_SZ 7
+#define GX_VIEWPORT_SZ 6
+
+typedef enum {
+    GX_FIELD_EVEN,
+    GX_FIELD_ODD
+} GXInterlaceField;
+
 void GXProject(f32 x, f32 y, f32 z, const f32 pMtx[3][4], const f32* pProjection, const f32* pViewport, f32* pScreenX, f32* pScreenY, f32* pScreenZ);
 
 void GXSetProjection(const f32 mtx[4][4], GXProjectionType type);
@@ -24,6 +32,7 @@ void GXLoadTexMtxImm(const f32 mtx[][4], u32 id, GXTexMtxType type);
 void GXLoadTexMtxIndx(u16 mtx_indx, u32 id, GXTexMtxType type);
 
 void GXSetViewport(f32, f32, f32, f32, f32, f32);
+void GXSetViewportJitter(f32, f32, f32, f32, f32, f32, u32);
 
 void GXSetZScaleOffset(f32, f32);
 
