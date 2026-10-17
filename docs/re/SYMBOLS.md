@@ -261,6 +261,49 @@ Thirteen functions at 0x802EFCD0–0x802F08D8 in `.text`, named from Petari's `a
 ## Issue records
 
 - AXFX ReverbStdExp, ChorusExp, LfoTable, SrcCoef, Hooks, and MEM heapCommon and expHeap (`0x802DF190`–`0x802E18F0`), with the external OS, MEM list, and MSL names they link against: [issue 488 symbols](findings/488-axfx-mem-units.md#symbols).
+
+## Issue 512: BTA device-manager actions
+
+[F-512-1](findings/512-bta-dm-act.md) records the names, ranges and evidence. Renamed in `config/wpse-v1/symbols.txt`, all high confidence:
+
+| Address | Size | Name | Unit |
+| --- | --- | --- | --- |
+| `0x8031486C` | `0xB4` | `ptim_timer_update` | `ptim.c` (split owned by #511) |
+| `0x80314920` | `0xA0` | `ptim_start_timer` | `ptim.c` |
+| `0x803149C0` | `0x40` | `ptim_stop_timer` | `ptim.c` |
+| `0x80314A00` | `0x44` | `utl_freebuf` | `utl.c` |
+| `0x80314A44` | `0x110` | `bta_dm_enable` | `bta_dm_act.c` |
+| `0x80314B54` | `0xB0` | `bta_dm_disable` | `bta_dm_act.c` |
+| `0x80314C04` | `0xBC` | `bta_dm_disable_timer_cback` (local) | `bta_dm_act.c` |
+| `0x80314CC0` | `0x8` | `bta_dm_set_dev_name` | `bta_dm_act.c` |
+| `0x80314CC8` | `0x48` | `bta_dm_set_visibility` | `bta_dm_act.c` |
+| `0x80314D10` | `0x70` | `bta_dm_bond` | `bta_dm_act.c` |
+| `0x80314D80` | `0x9C` | `bta_dm_pin_reply` | `bta_dm_act.c` |
+| `0x80314E1C` | `0xD4` | `bta_dm_auth_reply` | `bta_dm_act.c` |
+| `0x80314EF0` | `0x60` | `bta_dm_search_start` | `bta_dm_act.c` |
+| `0x80314F50` | `0x84` | `bta_dm_search_cancel` | `bta_dm_act.c` |
+| `0x80314FD4` | `0x114` | `bta_dm_discover` | `bta_dm_act.c` |
+| `0x803150E8` | `0x224` | `bta_dm_inq_cmpl` | `bta_dm_act.c` |
+| `0x8031530C` | `0x16C` | `bta_dm_rmt_name` | `bta_dm_act.c` |
+| `0x80315478` | `0x64` | `bta_dm_disc_rmt_name` | `bta_dm_act.c` |
+| `0x803154DC` | `0x268` | `bta_dm_sdp_result` | `bta_dm_act.c` |
+| `0x80315744` | `0x18` | `bta_dm_search_cmpl` | `bta_dm_act.c` |
+| `0x8031575C` | `0x50` | `bta_dm_disc_result` | `bta_dm_act.c` |
+| `0x803157AC` | `0x88` | `bta_dm_search_result` | `bta_dm_act.c` |
+| `0x80315834` | `0x4C` | `bta_dm_search_timer_cback` (local) | `bta_dm_act.c` |
+| `0x80315880` | `0x44` | `bta_dm_free_sdp_db` | `bta_dm_act.c` |
+| `0x803158C4` | `0x48` | `bta_dm_queue_search` | `bta_dm_act.c` |
+| `0x80397EE8` | `0x30` | `bta_service_id_to_uuid_lkup_tbl` | `bta_dm_act.c` `.rodata` |
+| `0x80397F18` | `0x60` | `bta_service_id_to_btm_srv_id_lkup_tbl` | `bta_dm_act.c` `.rodata` |
+| `0x80397F78` | `0x18` | `bta_security` | `bta_dm_act.c` `.rodata` |
+| `0x804AA968` | `0x30` | `bta_dm_compress_srvcs` (local) | `bta_dm_act.c` `.bss` |
+
+The control-block and message offsets that this code checks against the target are listed under the finding's headers section.
+## RVL_SDK GXMisc and GXGeometry
+
+Names, ranges and evidence for 25 renamed functions and four statics are in [F-476-1](findings/476-gxmisc-gxgeometry.md). Statics, all local to `GXMisc.c`: `FinishQueue` `.sbss` `0x804B96E0` (OSThreadQueue, 8 bytes), `DrawDone` `0x804B96E8` (volatile GXBool), `DrawDoneCB` `0x804B96EC`, `TokenCB` `0x804B96F0`.
+
+`GXData` (`include/revolution/gx/GXTypes.h`, reached through the `.sdata2` pointer `__GXData`) is 0x600 bytes, 4-byte aligned. Offsets confirmed by target accesses: `vNumNot` 0x0, `bpSentNot` 0x2, `vNum` 0x4, `vLim` 0x6, `lpSize` 0x7C, `ambColor` 0xA8, `matColor` 0xB0, `chanCtrl` 0xB8, `texGenCtrl` 0xC8, `dualTexGenCtrl` 0xE8, `suTs0` 0x108, `peCtrl` 0x22C, `genMode` 0x254, `dlSaveContext` 0x5F9, `abtWaitPECopy` 0x5FA, `dirtyState` 0x5FC. Other fields follow Petari's layout; confidence medium until their units are matched. `GX_DIRTY_*`, `XF_REG_*`, and `PE_REG_*` names in `include/revolution/gx/GXState.h` are descriptive choices, not recovered names.
 ## Issue #497: IPC allocator and profiling
 
 [F-497-1](findings/497-ipc-memory-profile.md) records target-disassembly and reference-source evidence. High-confidence recovered names: `IOS_Close` at `0x802F1DF0`, `IOS_IoctlvReboot` at `0x802F2A10`, `__iosAlloc` at `0x802F2E40`, `iosAlloc` at `0x802F3040`, `IPCiProfAck` at `0x802F33A0`, and `IPCiProfReply` at `0x802F33B0`. The eight-entry heap table at `0x804772A0` is `__heaps`; each 16-byte record has base pointer at 0, owner at 4, size at 8, and free-list pointer at 12. Allocator and profiling function names and layouts are corroborated by 100% object code/data comparisons. The two client names are behavioral identifications; their functions still link from fallback.
