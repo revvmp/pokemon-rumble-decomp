@@ -26,3 +26,36 @@ Renamed: `CountImpl` (`0x8027C5A0`, previously `fn_`) and the `sinTable` local (
 ## Traps
 
 - **`RoundUp` collides with the MEM SDK macro.** `revolution/mem/heapCommon.h` defines a `RoundUp` macro; if it is included before `nw4r/ut/ut_algorithm.h`, the `ut::RoundUp` templates are macro-expanded. Include `ut_algorithm.h` first, as `snd_InstancePool.cpp` does (also seen in F-423-1).
+
+# F-424-2: NW4R snd MemorySoundArchive unit
+
+`nw4r/snd/snd_MemorySoundArchive.cpp` follows `snd_Lfo.cpp` and ends with the first part of #425's range.
+
+| Section | Range | Contents |
+| --- | --- | --- |
+| `.text` | `0x8027C8D0–0x8027CD70` | constructor, destructor, `Setup`, `detail_GetFileAddress`, `detail_GetWaveDataFileAddress`, `OpenStream`, `OpenExtStream`, `detail_GetRequiredStreamBufferSize`; `MemoryFileStream::Close`, `Read`, `Seek`; weak `FileStream::GetRuntimeTypeInfo` and the `MemoryFileStream` inline virtuals and destructor |
+| `.data` | `0x803C62C0–0x803C6340` | `MemoryFileStream` vtable (0x60) and `MemorySoundArchive` vtable (0x20) |
+
+The unit is `Matching`: objdiff reports 100% code and data for all 20 functions, and the source-linked `main.dol` passes `tools/verify/verify.py`. Compiler and flags are those of F-25-1 (Wii/1.1, `cflags_nw4r`). `Shutdown` is compiled but dead-stripped.
+
+## Reconstruction
+
+The code is the zeldaret/ss revision (CC0, commit `57a709b2128eb163a18e2969d561c9abb7d1fcee`) without changes to code generation. Both vtables confirm its virtual order: `SoundArchive`'s destructor, `detail_GetFileAddress`, `detail_GetWaveDataFileAddress`, `detail_GetRequiredStreamBufferSize`, `OpenStream`, `OpenExtStream`; `MemoryFileStream` overrides `Close`, `Read`, `Seek`, `CanAsync`, `CanRead`, `CanWrite`, `GetSize`, `CanSeek`, `CanCancel`, and `Tell`, and inherits the rest from `ut::IOStream` and `ut::FileStream`. Neither class carries RTTI here: the vtables' first two words are zero, and the stream's `GetRuntimeTypeInfo` slot holds `FileStream`'s.
+
+`MemoryFileStream`'s constructor is defined in the class. Defined out of line, as in zeldaret/ss, the compiler also emits weak `IOStream` and `FileStream` destructors after it, which the target range does not contain. `Seek` is 0x48 bytes; dtk split its trailing unreachable `blr` into `fn_8027CCA4`, which is removed.
+
+The new header `snd_MemorySoundArchive.h` follows zeldaret/ss. `snd_SoundArchive.h` and `snd_SoundArchiveFile.h` (with `SoundArchiveFileReader`) are taken unchanged from the #426 interface pull request (#817), so both changes add identical files; this unit matches with them as it did with a direct zeldaret/ss import. The target confirms `SoundArchive` at 0x108 bytes, with `mFileReader` at 0x4 and `mExtFileRoot` from 0x8 (the constructor stores `'/'` and a terminator), and the reader's 0x44 bytes: its constructor clears 0x28 to 0x40 and `Setup` reads the info and symbol offsets and sizes at 0x18, 0x1C, 0x10, and 0x14 of the header copy.
+
+## Outside symbols
+
+Renamed: six `SoundArchive` functions and four `SoundArchiveFileReader` functions called from this unit (see `docs/re/SYMBOLS.md`), and the game-side weak `IOStream::GetSizeAlign` (`0x801A4DD0`) and `GetBufferAlign` (`0x801A4DE0`) that the `MemoryFileStream` vtable references. Naming those lets the linker discard this unit's weak copies.
+
+## Open: `IOStream::GetOffsetAlign` at `0x8027C8C0`
+
+The 8-byte function before the constructor is the weak `ut::IOStream::GetOffsetAlign`: it fills vtable slot 11 of `MemoryFileStream` and returns 1. No game-side copy exists, so this unit's copy is the one the linker keeps, but the compiler emits it among the trailing weak functions, after `Seek`, not before the constructor. zeldaret/ss has no function between `snd_Lfo.cpp` and the constructor either. A probe shows that a direct reference from a function makes the compiler emit the weak function immediately after that function. The original file therefore probably began with a function, dead-stripped in this game, that called `GetOffsetAlign`, but no reference shows it. The split starts at `0x8027C8D0`, and `0x8027C8C0` stays in the fallback assembly named `GetOffsetAlign__Q34nw4r2ut8IOStreamCFv`, which displaces the unit's weak copy.
+
+## Traps
+
+- **A weak inline can be emitted before a unit's first function.** CodeWarrior emits a weak inline function right after the first function that references it in code, and otherwise among the trailing weak functions. If a weak copy sits before a unit's first function, look for a dead-stripped caller at the head of the original file rather than another source unit.
+- **Out-of-line constructors can emit base destructors.** An out-of-line `MemoryFileStream` constructor emitted weak `IOStream::~IOStream` and `FileStream::~FileStream` after itself; the in-class constructor did not.
+- **Nested-class arguments mangle with their full qualification.** `SoundArchive::GroupInfo*` mangles as `PQ44nw4r3snd12SoundArchive9GroupInfo`, not `PQ34...`; a `Q3` prefix in `symbols.txt` gives undefined-symbol link errors.
