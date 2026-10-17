@@ -38,6 +38,12 @@ RVL_SDK/vi/i2c.c:
 	.sdata      start:0x804B8B00 end:0x804B8B08
 	.sbss       start:0x804B9678 end:0x804B9680
 
+RVL_SDK/gx/GXFifo.c:
+	.text       start:0x802CACE0 end:0x802CB6C0
+	.data       start:0x803D60E0 end:0x803D6110
+	.bss        start:0x80454200 end:0x80454280
+	.sbss       start:0x804B96C0 end:0x804B96E0
+
 RVL_SDK/gx/GXFrameBuf.c:
 	.text       start:0x802CD440 end:0x802CDEC0
 	.sdata2     start:0x804BB300 end:0x804BB310
@@ -63,6 +69,10 @@ RVL_SDK/ax/AX.c:
 	.data       start:0x803D8530 end:0x803D8578
 	.sdata      start:0x804B8BD0 end:0x804B8BD8
 	.sbss       start:0x804B9840 end:0x804B9848
+
+RVL_SDK/enc/enclatin.c:
+	.text       start:0x802ED120 end:0x802ED700
+	.rodata     start:0x8037BB90 end:0x8037D690
 
 RVL_SDK/esp/esp.c:
 	.text       start:0x802F08E0 end:0x802F1230
