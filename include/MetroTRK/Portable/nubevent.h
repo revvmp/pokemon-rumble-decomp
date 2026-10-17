@@ -15,6 +15,17 @@ typedef struct TRKEvent {
     MessageBufferID msgBufID;
 } TRKEvent;
 
+typedef struct TRKEventQueue {
+    int count;
+    int next;
+    TRKEvent events[2];
+    NubEventID eventID;
+} TRKEventQueue;
+
+extern TRKEventQueue gTRKEventQueue;
+
+DSError TRKInitializeEventQueue(void);
+
 void TRKConstructEvent(TRKEvent* event, NubEventType eventType);
 DSError TRKPostEvent(TRKEvent* event);
 

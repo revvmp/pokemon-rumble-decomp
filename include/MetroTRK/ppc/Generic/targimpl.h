@@ -18,6 +18,8 @@ u32 TRKTargetGetPC(void);
 DSError TRKTargetSingleStep(u32 count, BOOL stepOver);
 DSError TRKTargetStepOutOfRange(u32 rangeStart, u32 rangeEnd, BOOL stepOver);
 DSError TRKTargetStop(void);
+DSError TRKTargetAddStopInfo(TRKBuffer* buffer);
+void TRKTargetAddExceptionInfo(TRKBuffer* buffer);
 
 DSError TRKTargetInterrupt(TRKEvent* event);
 DSError TRKTargetSupportRequest(void);
