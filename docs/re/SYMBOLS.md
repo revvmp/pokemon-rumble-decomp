@@ -28,6 +28,21 @@ For each shared type or interface record size, alignment, field offsets, paramet
 
 [F-466-1](findings/466-oscontext.md) records the `wpse-v1` OSContext unit, all five recovered function names and extents, file-offset mapping, and the 0x2C8-byte context ABI. The added `include/revolution/os/OSContext.h` follows the reference layout, with every saved register offset corroborated by target loads and stores. Absolute current-context/FPU-context pointers are at `0x800000D4`/`0x800000D8`. Source and data compare at 100% in objdiff; the external compiler conversion-helper name remains unmodified pending its owner.
 
+## Issue 474: matrix units
+
+[F-474-1](findings/474-matrix.md#f-474-1-unit-boundaries-and-source-provenance) establishes these original SDK names through matching implementations. Confidence is high.
+
+| Address | Name | Size |
+| --- | --- | --- |
+| `0x802C9590` | `PSMTXMultVec` | `0x54` |
+| `0x802C95F0` | `PSMTXMultVecArray` | `0x8C` |
+| `0x802C9680` | `PSMTXMultVecSR` | `0x54` |
+| `0x802C96E0` | `C_MTXFrustum` | `0x9C` |
+| `0x802C9780` | `C_MTXPerspective` | `0xEC` |
+| `0x802C9870` | `C_MTXOrtho` | `0x98` |
+
+`Vec` contains single-precision `x`, `y`, `z` at offsets 0, 4, 8, size 12 and alignment 4. `Mtx` is a row-major 3 by 4 single-precision matrix, size 48; `Mtx44` is 4 by 4, size 64. Both have alignment 4. These layouts follow the observed load/store offsets and the CC0 SDK reference. `C_MTXPerspective` calls the matching reference's `tan` at `0x8034D4B8`; the target spelling remains unchanged because the function belongs outside issue 474.
+
 ## Issue 475: GX FIFO
 
 [F-475-1](findings/475-gxfifo.md) lists all nine functions in `0x802CACE0–0x802CB6C0`, their exact extents and high-confidence original SDK names. The DOL file offset is runtime address minus `0x8004FD40`; source destination is `src/RVL_SDK/gx/GXFifo.c`. `GXSetBreakPtCallback` at `0x802CB450` returns/replaces the callback under interrupt protection. Internal state is 36 bytes; field offsets and the public 128-byte FIFO ABI are recorded in the finding and `include/RVL_SDK/gx/GXFifo.h`.
@@ -447,3 +462,36 @@ Target `wpse-v1`, `main.dol`; evidence [F-485-1](findings/485-axaux.md#f-485-1-a
 `ENCContext` has size 16, alignment 4: encoding enum at 0, break enum at 4, multibyte state (`s32`) at 8, unmappable alternative (`u16`) at 12 and invalid alternative (`u16`) at 14. `struct encoding` is 24 bytes: width (`u32`) at 0, seven-bit flag (`BOOL`) at 4 and 16-byte name at 8. `encoding_hash_table_entry` is 32 bytes: 24-byte normalized name at 0, encoding enum at 24 and collision index (`int`) at 28. Encoding values run 0–25, while several original validity checks reject values at or above 24; that observed behavior is preserved.
 
 Japanese data: `enc_tbl_jp_mbtowc` at `0x803718A8` (18,800 bytes), `enc_tbl_jp_wctomb` at `0x80376218` (22,257 bytes), `enc_offset_jp` at `0x8037B910` (512 bytes), and `kana_array` at `0x8037BB10` (126 bytes). Context data: `encoding_array` at `0x8037D690` (624 bytes), `encoding_table` at `0x8037D900` (4,128 bytes). Loaded BOOLs: Japanese `0x804B8D60`, Korean `0x804B8D68`, UHC `0x804B8D6C`, Chinese `0x804B8D70`, each four bytes. These names are taken from the reference source and confirmed by target accesses.
+
+## Issue 495: Chinese and Korean ENC conversions
+
+[F-495-3](findings/495-arc-unit.md#f-495-3-chinese-and-korean-enc-units-complete-the-block) confirms these names from pinned source, exact code/data comparisons and the full source-linked executable. Confidence is high; no new shared structure layouts are introduced.
+
+| Address | Function |
+| --- | --- |
+| `0x802EE650` | `ENCiConvertStringGb2312ToUnicode` |
+| `0x802EE920` | `ENCiConvertStringUnicodeToGb2312` |
+| `0x802EEC20` | `ENCiFindGb2312FromUnicode` |
+| `0x802EED40` | `ENCiFindExKanjiUnicode` |
+| `0x802EEE00` | `ENCiFindExKanjiGBK` |
+| `0x802EEEC0` | `ENCiConvertStringUhcToUnicode` |
+| `0x802EF2C0` | `ENCiConvertStringUnicodeToUhc` |
+| `0x802EF580` | `ENCiConvertUnicodeToUhc` |
+| `0x802EF690` | `ENCiFindEuckrFromUnicode` |
+| `0x802EF7B0` | `ENCiFindKanjiFromUnicode` |
+| `0x802EF8F0` | `ENCiFindUhcFromUnicode` |
+
+| Address | Table | Byte size | Element type |
+| --- | --- | --- | --- |
+| `0x8037E920` | `enc_tbl_cn_mbtowc` | 17672 | `u16` |
+| `0x80382E28` | `enc_tbl_cn_wctomb` | 22365 | `u8` |
+| `0x80388588` | `enc_offset_cn` | 512 | `u16` |
+| `0x80388788` | `enc_tbl_cnex_mbtowc` | 992 | `u16` |
+| `0x80388B68` | `enc_tbl_kr_mbtowc1` | 7520 | `u16` |
+| `0x8038A8C8` | `enc_tbl_kr_mbtowc2` | 9776 | `u16` |
+| `0x8038CEF8` | `enc_tbl_kr_wctomb1` | 10968 | `u8` |
+| `0x8038F9D0` | `enc_tbl_kr_wctomb2` | 15015 | `u8` |
+| `0x80393478` | `enc_offset_kr1` | 512 | `u16` |
+| `0x80393678` | `enc_offset_kr2` | 512 | `u16` |
+| `0x80393878` | `enc_tbl_uhc_mbtowc` | 17644 | `u16` |
+| `0x80397D68` | `enc_offset_uhc` | 88 | `u16` |
