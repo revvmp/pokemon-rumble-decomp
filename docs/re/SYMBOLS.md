@@ -2249,3 +2249,6 @@ For `wpse-v1` / `main.dol`, [F-792-1](findings/792-g3d-calcmaterial-init-fog.md)
 ## Issue #795 sequence sound interface evidence
 
 The canonical SeqSound layout is 0x4B4 bytes: BasicSound 0x110, embedded SeqPlayer at +0x110 (0x164 bytes), temporary handle +0x274, manager +0x278, sequence offset +0x27C, start type +0x280, start offset +0x284, volatile loading/prepared bools +0x288/+0x289, file stream +0x28C, 0x200-byte buffer +0x290, and 0x24-byte SeqLoadTask +0x490. Task is 0x10, TaskManager 0x3C, SoundInstanceManager<SeqSound> 0x28, and SeqFileReader 8 bytes. Original reference names and native method accesses support these declarations; the constructor store order remains unaccepted. See [F-795-1](findings/795-seqsound-interfaces.md).
+## Issue #426: NW4R player heap
+
+`nw4r::snd::detail::PlayerHeap` is 32 bytes: virtual table 0, sound 4, player 8, heap start 12, heap end 16, allocation cursor 20, list node 24. Constructor stores, allocator arithmetic, disposal calls, and vtable `0x803C6598` establish this layout and the eight named functions; see [F-426-1](findings/426-snd-mml-playerheap-remote.md).
