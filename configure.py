@@ -221,6 +221,8 @@ config.libs = [
             Object(NonMatching, "RVL_SDK/bte/hidd_mgmt.c", mw_version=BTE_COMPILER),
             Object(NonMatching, "RVL_SDK/bte/hidd_pm.c", mw_version=BTE_COMPILER),
             Object(NonMatching, "RVL_SDK/bte/hidh_api.c", mw_version=BTE_COMPILER),
+            Object(Matching, "RVL_SDK/tpl/TPL.c"),
+            Object(Matching, "RVL_SDK/gd/GDBase.c"),
             Object(Matching, "RVL_SDK/gd/GDTexture.c"),
         ],
     ),
