@@ -21,3 +21,7 @@ Split-only build and verifier passed. With the corrected boundary, `python confi
 ## Traps
 
 A first split ending at `0x802BD9C0` scored 100% in objdiff but failed full verification: the source object ends at offset `0x38` and the next fallback unit aligned to 8 bytes, placing its first function at `0x802BD9B8`. Ending the source split at its real last instruction boundary retains the original inter-unit padding in the fallback. This is another instance of the alignment caution in F-0010, not a change to expected hashes.
+
+## Coverage update
+
+[F-470-3](470-os-state-network.md) supersedes the earlier remaining-work status: OSTime is source-linked by #469, and the rest of #470 is now reconstructed and source-linked with full frozen verification. The earlier OSIpc evidence and alignment lesson remain valid.
