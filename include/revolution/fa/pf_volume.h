@@ -3,6 +3,8 @@
 
 #include <revolution/fa/pdm.h>
 #include <revolution/fa/pf_cache.h>
+#include <revolution/fa/pf_str.h>
+#include <revolution/os/OSThread.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -85,11 +87,21 @@ typedef struct PF_DIR_ENT {
 #define PF_SFD_STAT_ALLOCATED 0x1
 #define PF_SFD_STAT_OPENED 0x2
 
+typedef struct PF_LOCK {
+    u16 mode;
+    u16 count;
+    u32 wcount;
+    struct PF_FILE* owner;
+    OSSemaphore* resource;
+    OSSemaphore semaphore;
+} PF_LOCK;
+
 typedef struct PF_SFD {
     u32 stat;
     PF_FFD ffd;
     PF_DIR_ENT dir_entry;
-    u8 lock[0x20];
+    PF_LOCK lock;
+    u16 num_handlers;
 } PF_SFD;
 
 typedef struct PF_CURSOR {
@@ -187,9 +199,44 @@ s32 PFVOL_IsCurrentDirCluster(PF_VOLUME* p_vol, u32 cluster);
 s32 PFVOL_SetCurrentDir(PF_VOLUME* p_vol, PF_DIR_ENT* p_ent);
 s32 PFVOL_GetCurrentDir(PF_VOLUME* p_vol, PF_DIR_ENT* p_current_dir);
 void PFVOL_SetCurrentVolume(PF_VOLUME* p_vol);
+PF_VOLUME* PFVOL_GetVolumeFromDrvChar(s8 drv_char);
 
+u32 PFDRV_IsInserted(PF_VOLUME* p_vol);
 s32 PFDRV_lread(PF_VOLUME* p_vol, u8* buf, u32 sector, u32 num_sector, u32* p_num_success);
 s32 PFDRV_lwrite(PF_VOLUME* p_vol, const u8* buf, u32 sector, u32 num_sector, u32* p_num_success);
+
+typedef struct PF_DEV_INF PF_DEV_INF;
+typedef struct PF_VOL_INF PF_VOL_INF;
+typedef struct PF_VOLUME_CONFIG PF_VOLUME_CONFIG;
+typedef struct PF_CLUSTER_LINK_CONFIG PF_CLUSTER_LINK_CONFIG;
+
+s32 PFVOL_format(s8 drive, u8* p_parameter);
+s32 PFVOL_getdev(s8 drive, PF_DEV_INF* p_info);
+s32 PFVOL_getvol(s8 drive, PF_VOL_INF* p_info);
+s32 PFVOL_getvolcfg(s8 drive, PF_VOLUME_CONFIG* p_config);
+s32 PFVOL_iswriteprotected(s8 drive, u32* p_is_write_protected);
+s32 PFVOL_buffering(s8 drive, u8 mode);
+s32 PFVOL_derrnum(s8 drive);
+s32 PFVOL_detach(s8 drive);
+s32 PFVOL_errnum(void);
+
+typedef struct PF_TAIL_BUF PF_TAIL_BUF;
+s32 PFVOL_mount(s8 drive);
+s32 PFVOL_regctx(void);
+s32 PFVOL_rmvvol(s8 drive);
+s32 PFVOL_setclstlink(s8 drive, u32 mode, PF_CLUSTER_LINK_CONFIG* p_info);
+s32 PFVOL_setcode(PF_CHARCODE* p_codeset);
+s32 PFVOL_setencode(u32 mode);
+s32 PFVOL_settailbuf(s8 drive, u32 size, PF_TAIL_BUF* p_buffer);
+s32 PFVOL_setupfsi(s8 drive, u16 flags);
+s32 PFVOL_setvol(s8 drive, PF_STR* p_name);
+s32 PFVOL_setvolcfg(s8 drive, PF_VOLUME_CONFIG* p_config);
+s32 PFVOL_sync(s8 drive, u32 mode);
+s32 PFVOL_unmount(s8 drive, u32 mode);
+s32 PFVOL_unregctx(void);
+
+struct PF_DRV_TBL;
+s32 PFVOL_attach(struct PF_DRV_TBL* p_driver, const char* path, u32 size);
 
 #ifdef __cplusplus
 }
