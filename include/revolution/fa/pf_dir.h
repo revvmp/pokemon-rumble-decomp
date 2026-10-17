@@ -91,7 +91,6 @@ s32 PFDIR_fsexec(PF_DTA* p_dta, u32 mode, u8 attributes);
 s32 PFDIR_fsfirst(PF_STR* p_path, u8 attributes, PF_DTA* p_dta);
 s32 PFDIR_fsnext(PF_DTA* p_dta);
 s32 PFDIR_fstat(PF_STR* p_path, PF_STAT* p_stat);
-s32 PFDIR_chdir(PF_STR* p_path);
 s32 PFDIR_chdmod(PF_STR* p_path, u8 attributes);
 s32 PFDIR_chmod(PF_STR* p_path, u8 attributes);
 s32 PFDIR_closedir(PF_DIR* p_dir);
