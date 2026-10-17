@@ -731,6 +731,7 @@ config.libs = [
             Object(Matching, "MetroTRK/debugger/embedded/MetroTRK/Portable/mainloop.c", extra_cflags=["-sdata 8"]),
             Object(Matching, "MetroTRK/debugger/embedded/MetroTRK/Portable/mem_TRK.c"),
             Object(Matching, "MetroTRK/debugger/embedded/MetroTRK/Portable/dispatch.c"),
+            Object(NonMatching, "MetroTRK/debugger/embedded/MetroTRK/Os/dolphin/dolphin_trk.c", extra_cflags=["-sdata 8", "-sdata2 8"]),
         ],
     ),
 ]
