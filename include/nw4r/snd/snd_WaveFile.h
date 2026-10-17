@@ -56,7 +56,8 @@ struct InfoBlock {
 
 struct ChannelParam {
     void* dataAddr;
-    AdpcmInfo adpcmInfo;
+    AdpcmParam adpcmParam;
+    AdpcmLoopParam adpcmLoopParam;
 };
 
 struct WaveInfo {
