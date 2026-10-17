@@ -234,6 +234,11 @@ config.libs = [
             Object(Matching, "RVL_SDK/hbm/nw4hbm/ut/ut_ResFontBase.cpp"),
             Object(Matching, "RVL_SDK/hbm/nw4hbm/ut/ut_TagProcessorBase.cpp"),
             Object(Matching, "RVL_SDK/hbm/nw4hbm/ut/ut_TextWriterBase.cpp"),
+            Object(NonMatching, "RVL_SDK/hbm/mix.c"),
+            Object(NonMatching, "RVL_SDK/hbm/syn.c"),
+            Object(NonMatching, "RVL_SDK/hbm/synctrl.c"),
+            Object(NonMatching, "RVL_SDK/hbm/synenv.c"),
+            Object(NonMatching, "RVL_SDK/hbm/synmix.c"),
         ],
     ),
     library(
