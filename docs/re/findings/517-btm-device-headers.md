@@ -1,6 +1,6 @@
 # F-517-1: BTM device-controller header prerequisite
 
-Issue #517 needs the complete controller reset states and interfaces before its two device source units can be reconstructed. This prerequisite changes canonical headers only. It is prepared on pending PR #696, exact base `da28ab53676b8e6b13c06c89da228844ca9c739f`, and adds no source reconstruction credit. It must merge before the dependent source delivery.
+Issue #517 needs the complete controller reset states and interfaces before its two device source units can be reconstructed. This prerequisite changes canonical headers only and adds no source reconstruction credit. It must merge before the dependent source delivery. The refreshed branch is based on pending PR #696 head `bf90575d272a3164b497027ebb8061321401e7f5`, which includes the merged BTM inquiry/main/power deliveries.
 
 ## Target-evidenced reset states
 
@@ -10,12 +10,12 @@ The prior canonical enum had wait-for-reset value 0, wait-after-reset value 1, a
 | --- | --- | --- |
 | 0 | `BTM_DEV_STATE_WAIT_RESET_CMPLT` | Reset retry / completion |
 | 1 | `BTM_DEV_STATE_WAIT_AFTER_RESET` | Post-reset delay |
-| 2 | `BTM_DEV_STATE_WAIT_HCI_BUFFER_SIZE` | Query HCI buffer size |
+| 2 | `BTM_DEV_STATE_WAIT_BUF_SIZE` | Query HCI buffer size |
 | 3 | `BTM_DEV_STATE_WAIT_LOCAL_VERSION` | Query local version |
 | 4 | `BTM_DEV_STATE_WAIT_LOCAL_FEATURES` | Query local features |
 | 5 | `BTM_DEV_STATE_READY` | Device usable |
 
-The three new descriptive names replace Petari's numeric `BTM_DEV_STATE_2`, `_3`, and `_4` names. They are behavioral names, not claimed original spellings. Existing wait values and the `UINT8` state storage type are unchanged. All existing project source objects remain identical after this correction; their current source does not use the ready constant.
+These descriptive names replace Petari's numeric `BTM_DEV_STATE_2`, `_3`, and `_4` names. They are behavioral names, not claimed original spellings. Main already carries the correct complete enum through PR #698 / F-519-2, including `WAIT_BUF_SIZE` and ready value 5. The refreshed prerequisite preserves that definition and changes no existing state value or storage type.
 
 ## Other interfaces
 
@@ -25,10 +25,10 @@ Reference declarations and constants come from Petari commit `e0ab141914921726a5
 
 ## Header acceptance
 
-A default-directory baseline on the exact pending #696 base passes configure, all-source compilation, full Ninja link/CHECK, and the explicit frozen verifier. Before editing headers, a snapshot records code/data section sizes and bytes plus canonical relocation targets for all 301 existing source objects. After installing the candidate, configure and all-source compilation exit 0 and every captured object retains identical code, data, and relocations. The full Ninja link/CHECK and `python tools/verify/verify.py verify --manifest config/targets/wpse-v1.json --reference-dir orig/wpse-v1 --build-dir build/wpse-v1` then also exit 0. Main game DOL SHA-256 remains `ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da`; scope excludes boot content 6, data contents, and WAD packaging. Final rebased exact-head verification is required before merge once the stack and CI backstops allow it. No frozen manifests, expected hashes, progress inputs, or source-unit selections change.
+The initial default-directory baseline captured all 301 existing source objects and preserved their code/data/relocations. After reconciling with the newer main deliveries and rebasing onto the refreshed #696 base, a fresh `build/517-header-refresh-1` probe compiles the exact parent headers, restores the proposed headers, and repeats all-source compilation. All 322 current source objects retain identical code/data section sizes and bytes plus canonical relocation targets. Configure and both all-source passes exit 0. The full Ninja link/CHECK and `python tools/verify/verify.py verify --manifest config/targets/wpse-v1.json --reference-dir orig/wpse-v1 --build-dir build/wpse-v1` then also exit 0. Main game DOL SHA-256 remains `ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da`; scope excludes boot content 6, data contents, and WAD packaging. Final rebased exact-head verification is required before merge once the stack and CI backstops allow it. No frozen manifests, expected hashes, progress inputs, or source-unit selections change.
 
 ## Traps
 
-Adding a public `BTM_VendorSpecificCommand(UINT16, ...)` prototype changed the existing `L2CA_SetAclPriority` caller outside this claim: CodeWarrior added an opcode truncation instruction and rescheduled the call setup, breaking its previously matched bytes. The prototype is excluded from this prerequisite; the forthcoming function definition retains the measured SDK signature in its own source unit. With that declaration absent, all 301 existing source objects retain identical bytes and canonical relocations. A coordinated caller change belongs to its owner; do not alter that caller or widen the callee's evidenced signature to make this header addition pass.
+Adding a public `BTM_VendorSpecificCommand(UINT16, ...)` prototype changed the existing `L2CA_SetAclPriority` caller outside this claim: CodeWarrior added an opcode truncation instruction and rescheduled the call setup, breaking its previously matched bytes. The prototype is excluded from this prerequisite; the forthcoming function definition retains the measured SDK signature in its own source unit. With that declaration absent, both the initial 301-object baseline and refreshed 322-object baseline retain identical bytes and canonical relocations. A coordinated caller change belongs to its owner; do not alter that caller or widen the callee's evidenced signature to make this header addition pass.
 
 A raw four-byte `blr` match suggested the unlinked reference `BTM_ContinueReset` body at `0x8031E048`. Existing evidence already identifies that address as `btm_discovery_timeout`, and it is outside the controller unit's contiguous retained range. Reject the instruction-only candidate and leave the existing symbol unchanged. A unique tiny match inside a limited search window does not establish function identity.
