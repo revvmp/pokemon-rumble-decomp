@@ -20,6 +20,7 @@ s32 PFFAT_FinalizeFFD(PF_FFD* p_ffd);
 s32 PFFAT_InitFFD(PF_FFD* p_ffd, PF_FAT_HINT* p_hint, PF_VOLUME* p_vol, u32* p_start_cluster);
 s32 PFFAT_ReadValueToSpecifiedCluster(PF_VOLUME* p_vol, u32 cluster, u32* value);
 u32 PFFAT_GetValueOfEOC2(PF_VOLUME* p_vol);
+s32 PFFAT_MakeRootDir(PF_VOLUME* p_vol);
 
 #ifdef __cplusplus
 }

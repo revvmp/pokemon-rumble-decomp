@@ -12,6 +12,15 @@ s32 PFPATH_SplitPathWildcard(PF_STR* p_path, PF_STR* p_dir_path, PF_STR* p_filen
 struct PF_VOLUME* PFPATH_GetVolumeFromPath(PF_STR* p_path);
 void PFPATH_CopyPattern(s8* p_pattern, u16* p_w_pattern, PF_STR* p_filename);
 u32 VFiPFPATH_parseShortName(s8* pDest, PF_STR* p_pattern);
+s32 VFiPFPATH_cmpTailSFN(const s8* sfn_name, const s8* pattern);
+s32 VFiPFPATH_parseShortNameNumeric(s8* p_char, u32 count);
+s32 PFPATH_ParseEntryIndex(PF_STR* p_pattern, u32* p_index);
+u32 PFPATH_CheckExtShortNameSignature(PF_STR* p_filename);
+void VFiPFPATH_InitTokenOfPath(PF_STR* p_token, const s8* p_path, u32 code_mode);
+s32 VFiPFPATH_GetNextTokenOfPath(PF_STR* p_token, u32 wildcard);
+u32 PFPATH_MatchFileNameWithPattern(const s8* p_name, PF_STR* p_pattern, u32 is_long_name);
+u32 VFiPFPATH_GetLengthFromShortname(const s8* p_short_name);
+u32 VFiPFPATH_GetLengthFromUnicode(const u16* p_long_name);
 s32 PFPATH_AdjustExtShortName(s8* pName, u32 position);
 s32 VFiPFPATH_transformFromUnicodeToNormal(s8* sDest, const u16* sSrc);
 s32 VFiPFPATH_transformInUnicode(u16* sDestStr, const s8* sSrcStr);
