@@ -541,6 +541,32 @@ RVL_SDK/nand/nand.c:
 	.text       start:0x802E4630 end:0x802E5BB4
 	.sdata      start:0x804B8BF0 end:0x804B8BF8
 
+RVL_SDK/nand/NANDOpenClose.c:
+	.text       start:0x802E5BC0 end:0x802E60CC
+
+RVL_SDK/nand/NANDCore.c:
+	.text       start:0x802E60D0 end:0x802E72AC
+	.rodata     start:0x803716C8 end:0x80371810
+	.data       start:0x803DC3E0 end:0x803DC52F
+	.bss        start:0x8046ECE0 end:0x8046ED20
+	.sdata      start:0x804B8BF8 end:0x804B8C20
+	.sbss       start:0x804B99A8 end:0x804B99AC
+
+RVL_SDK/nand/NANDSecret.c:
+	.text       start:0x802E72B0 end:0x802E7368
+
+RVL_SDK/nand/NANDCheck.c:
+	.text       start:0x802E7370 end:0x802E7654
+	.data       start:0x803DC530 end:0x803DC617
+	.sdata      start:0x804B8C20 end:0x804B8C30
+
+RVL_SDK/nand/NANDLogging.c:
+	.text       start:0x802E7660 end:0x802E7C44
+	.data       start:0x803DC618 end:0x803DC65B
+	.bss        start:0x8046ED40 end:0x8046F040
+	.sdata      start:0x804B8C30 end:0x804B8C34
+	.sbss       start:0x804B99B0 end:0x804B99B8
+
 RVL_SDK/sc/scsystem.c:
 	.text       start:0x802E7C50 end:0x802E95D8
 	.rodata     start:0x80371810 end:0x80371862

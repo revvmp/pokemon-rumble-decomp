@@ -1271,3 +1271,49 @@ For `wpse-v1` / `main.dol`, [F-291-3](findings/291-hbm-axsound.md#f-291-3-hbmcom
 ## Issue 478: GX texture and indirect texturing
 
 [F-478-1](findings/478-gx-texture-bump.md) names all 40 functions in `0x802CE630`-`0x802CFB84`. They come from Petari's CC0 `GXTexture.c` and `GXBump.c`, in the target's order and with matching sizes and bodies; confidence is high. `GXInitTexObjFilter` (`0x802CEBC0`) is not in Petari. It is named after the public RVL SDK function whose two filter fields it writes in `mode0`, using `GX2HWFiltConv`; confidence is medium-high. GXTexture's nine 8-byte static tables (`GXTexMode0Ids` through `HW2GXFiltConv`) occupy `.sdata` `0x804B8B38`-`0x804B8B80`, in declaration order. The `.sdata2` constant `1024.0f` at `0x804BB380` used by `GXSetIndTexMtx` is 4 bytes; `0x804BB384`-`0x804BB388` is padding, so its symbol size is now `0x4`.
+## NAND library units (#491)
+
+[F-491-1](findings/491-nand.md) recovers the following original reference names from pinned Petari/cmwp sources, target instructions, call patterns and data relocations. Confidence is high. The two local quota state names are descriptive rather than recovered original spellings. Existing NANDFileInfo and NANDCommandBlock field accesses agree with the imported declarations. NANDBanner is 0xF0A0 bytes: signature/flag/iconSpeed at 0/4/8, reserved bytes at 0xA, comments at 0x20, banner texture at 0xA0 and icon textures at 0x60A0.
+
+| Function | Address |
+| --- | --- |
+| `nandOpen` | `0x802E5BC0` |
+| `NANDOpen` | `0x802E5CD0` |
+| `NANDPrivateOpen` | `0x802E5D60` |
+| `NANDOpenAsync` | `0x802E5DF0` |
+| `NANDPrivateOpenAsync` | `0x802E5E70` |
+| `nandOpenCallback` | `0x802E5EF0` |
+| `NANDClose` | `0x802E5F70` |
+| `NANDCloseAsync` | `0x802E5FE0` |
+| `nandCloseCallback` | `0x802E6070` |
+| `nandRemoveTailToken` | `0x802E60D0` |
+| `nandGetHeadToken` | `0x802E61B0` |
+| `nandGetRelativeName` | `0x802E6290` |
+| `nandConvertPath` | `0x802E6330` |
+| `nandIsPrivatePath` | `0x802E6470` |
+| `nandIsUnderPrivatePath` | `0x802E64B0` |
+| `nandIsInitialized` | `0x802E6510` |
+| `nandConvertErrorCode` | `0x802E6530` |
+| `nandGenerateAbsPath` | `0x802E66A0` |
+| `NANDInit` | `0x802E6770` |
+| `nandOnShutdown` | `0x802E68A0` |
+| `nandShutdownCallback` | `0x802E6970` |
+| `nandChangeDir` | `0x802E6980` |
+| `NANDChangeDir` | `0x802E6C20` |
+| `nandChangeDirCallback` | `0x802E6C70` |
+| `NANDGetCurrentDir` | `0x802E6CF0` |
+| `NANDGetHomeDir` | `0x802E6D70` |
+| `nandCallback` | `0x802E6DD0` |
+| `nandGetType` | `0x802E6E10` |
+| `NANDPrivateGetTypeAsync` | `0x802E70F0` |
+| `nandGetTypeCallback` | `0x802E7140` |
+| `nandGetHomeDir` | `0x802E71C0` |
+| `NANDInitBanner` | `0x802E71D0` |
+| `NANDSecretGetUsage` | `0x802E72B0` |
+| `NANDCheckAsync` | `0x802E7370` |
+| `nandUserAreaCallback` | `0x802E7420` |
+| `reserveFileDescriptor` | `0x802E7660` |
+| `NANDLoggingAddMessageAsync` | `0x802E76C0` |
+| `asyncRoutine` | `0x802E77C0` |
+
+NANDCore storage: s_currentDir at 803DC440 (64 bytes), s_homeDir at 8046ECE0 (64 bytes), s_shutdownFuncInfo at 803DC480 (16 bytes), s_libState at 804B99A8 (four bytes), __NANDVersion pointer at 804B8BF8. Quota directory table USER_DIR_LIST is at 803DC5B0 (44 bytes). Logging buffers start at 8046ED40/8046EE40/8046EF40; descriptor is at 804B8C30, callback/stage at 804B99B0/804B99B4.
