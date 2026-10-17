@@ -1047,6 +1047,19 @@ nw4r/lyt/lyt_group.cpp:
 	.text       start:0x802A5D00 end:0x802A605C
 	.data       start:0x803C6EE8 end:0x803C6EF4
 
+nw4r/lyt/lyt_layout.cpp:
+	.text       start:0x802A6060 end:0x802A7108
+	.data       start:0x803C6EF8 end:0x803C6F38
+	.sbss       start:0x804B9410 end:0x804B9414
+	.sdata2     start:0x804BB180 end:0x804BB188
+
+nw4r/lyt/lyt_picture.cpp:
+	.text       start:0x802A7110 end:0x802A768C
+	.ctors      start:0x80352A88 end:0x80352A8C
+	.data       start:0x803C6F38 end:0x803C6FB4
+	.sbss       start:0x804B9418 end:0x804B941C
+	.sdata2     start:0x804BB188 end:0x804BB18C
+
 nw4r/lyt/lyt_window.cpp:
 	.text       start:0x802A96E0 end:0x802ABC7C
 	.ctors      start:0x80352A90 end:0x80352A94
