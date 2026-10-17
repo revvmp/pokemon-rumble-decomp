@@ -1,0 +1,14 @@
+{
+  "status": "unidentified",
+  "host_environment": null,
+  "extraction_tools": [],
+  "compiler": null,
+  "assembler": null,
+  "linker": null,
+  "build_driver": null,
+  "compiler_flags": null,
+  "assembler_flags": null,
+  "linker_flags": null,
+  "environment": {},
+  "evidence": []
+}

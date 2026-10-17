@@ -54,3 +54,41 @@ dkms.conf
 # debug information files
 *.dwo
 Pokemon.Rumble.USA.WiiWare.wad
+
+# Project-local inputs and generated output
+/orig/
+/build/
+/tools/local/
+/docs/re/local/
+/.venv/
+
+# Python generated files
+__pycache__/
+*.py[cod]
+
+# Original game containers, payloads, and private material
+*.wad
+*.iso
+*.wbfs
+*.dol
+*.rel
+*.bin
+*.tik
+*.tmd
+*.cert
+*.key
+
+# Local reverse engineering databases
+*.i64
+*.id0
+*.id1
+*.id2
+*.nam
+*.til
+*.gpr
+*.rep/
+
+# Local logs and operating system metadata
+*.log
+.DS_Store
+Thumbs.db
