@@ -1,13 +1,9 @@
-#include "revolution/ax/AXAux.h"
+#include "revolution/ax.h"
+#include "revolution/os.h"
+#include "revolution/os/OSCache.h"
+#include <string.h>
 
 extern u32 __AXClMode;
-BOOL OSDisableInterrupts(void);
-BOOL OSRestoreInterrupts(BOOL enabled);
-void DCInvalidateRange(void* address, u32 length);
-void DCFlushRange(void* address, u32 length);
-void DCFlushRangeNoSync(void* address, u32 length);
-void* memset(void* address, int value, unsigned long length);
-
 #define AX_OUTPUT_DPL2 2
 
 #define AUX_RING_MAX 3

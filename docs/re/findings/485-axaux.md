@@ -14,6 +14,10 @@ After resolving shared-file rebase conflicts while preserving both sides, `pytho
 
 Issue #485 remains partial because the two AXAlloc functions need #484 coordination. No AXAlloc ranges were changed. No additional reverse-engineering trap emerged during dependency integration; F-485-2 remains the reusable finding from this work.
 
-## F-485-2: Function pointer truth tests
+## Traps
+
+### F-485-2: Function pointer truth tests
 
 The project C `NULL` macro expands to `((void*)0)`. With Wii/1.0, comparing an AX callback function pointer against this expression emits a zero-register setup and `cmplw`; the target uses `cmpwi`. In `__AXGetAuxAInput`, the reference spelling produced 0x34 bytes with a different comparison and shared zero store. In `__AXProcessAux`, it also enlarged the function from target 0x3AC to 0x3B8. Testing the function pointer directly (`if (__AXCallbackAuxA)`) and negating it for the zero case produces all target instructions without changing the shared NULL definition. The final 22-function objdiff report confirms the fix; this observation is specific to these Wii/1.0 callback comparisons.
+
+The final integration extends the imported Petari `include/revolution/ax.h` in place with the verified auxiliary API and channel definitions from the cited ogws header. The existing callback typedef is reused. OS/cache and memory declarations come from the imported shared headers; no duplicate auxiliary header remains. This follows D-0013.
