@@ -70,6 +70,8 @@ Keep entries concise and actionable. Distinguish confirmed findings from hypothe
 
 - **OSAlarm extends past the reference source.** The routine at `0x802B3760` still uses AlarmQueue and cancels reserved-tag alarms by user data; OSAlloc starts at `0x802B3810`. Do not end the alarm split at the reference's last accessor. See [F-464-1](docs/re/findings/464-os-alarm.md).
 
+- **Game SDK copies differ from Petari's function set.** RVL_SDK `nand.c` here links seven functions Petari lacks and omits others. Identify each function by call pattern and take names from other CC0 decompilations (`yomcube/cmwp-decomp`, `pbr-ret/pbr-decomp`), recording provenance. See [F-490-2](docs/re/findings/490-nand.md#f-490-2-nandc-function-set-differs-from-petari).
+
 ## Current project state
 
 | Current state | Value |

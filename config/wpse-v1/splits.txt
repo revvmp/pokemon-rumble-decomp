@@ -40,6 +40,10 @@ RVL_SDK/ax/AX.c:
 	.sdata      start:0x804B8BD0 end:0x804B8BD8
 	.sbss       start:0x804B9840 end:0x804B9848
 
+RVL_SDK/nand/nand.c:
+	.text       start:0x802E4630 end:0x802E5BC0
+	.sdata      start:0x804B8BF0 end:0x804B8BF8
+
 RVL_SDK/esp/esp.c:
 	.text       start:0x802F08E0 end:0x802F1230
 	.sdata      start:0x804B8D80 end:0x804B8D90
