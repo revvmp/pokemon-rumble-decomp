@@ -86,6 +86,15 @@ An external audit independently checked:
 The final committed head is revalidated after rebasing onto latest main;
 its exact hash and command exit codes are recorded in the pull request.
 
+After expanding the prerequisite with Window's explicit Size copy constructor
+and complete canonical resource declarations, the source was restacked onto
+header head `96ed0f1d`. The add/add resource-header conflict retained the
+prerequisite's complete definitions. A fresh build directory passed configure,
+default Ninja, explicit frozen verification, and the complete 39-function
+linked-source audit, all exit 0, at source head `8e149556`. Both owned units
+and every section remained 100%; the substantive Size ABI declaration did
+not change their linked bytes.
+
 ## Traps
 
 - Removing the dead-stripped default Pane constructor initially left code
