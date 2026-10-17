@@ -439,3 +439,16 @@ Japanese data: `enc_tbl_jp_mbtowc` at `0x803718A8` (18,800 bytes), `enc_tbl_jp_w
 | `0x80393678` | `enc_offset_kr2` | 512 | `u16` |
 | `0x80393878` | `enc_tbl_uhc_mbtowc` | 17644 | `u16` |
 | `0x80397D68` | `enc_offset_uhc` | 88 | `u16` |
+## RVL_SDK TPL and GDBase
+
+| Address | Size | dtk label | Chosen name | Kind | Confidence | Evidence | Source |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `0x802CE820` | `0x20C` | `fn_802CE820` | `GXInitTexObj` | function | medium-high | F-534-1 | callee of `TPLGetGXTexObjFromPalette` |
+| `0x802CEA80` | `0x104` | `fn_802CEA80` | `GXInitTexObjLOD` | function | medium-high | F-534-1 | callee of `TPLGetGXTexObjFromPalette` |
+| `0x8033E1B0` | `0x118` | `fn_8033E1B0` | `TPLBind` | function | high | F-534-1, `TPL.c` panic string | `src/RVL_SDK/tpl/TPL.c` |
+| `0x8033E2D0` | `0x20` | `fn_8033E2D0` | `TPLGet` | function | high | F-534-1 | `src/RVL_SDK/tpl/TPL.c` |
+| `0x8033E2F0` | `0xE0` | `fn_8033E2F0` | `TPLGetGXTexObjFromPalette` | function | high | F-534-1 | `src/RVL_SDK/tpl/TPL.c` |
+| `0x8033E3D0` | `0x18` | `fn_8033E3D0` | `GDInitGDLObj` | function | high | F-534-1 | `src/RVL_SDK/gd/GDBase.c` |
+| `0x8033E3F0` | `0x10` | `fn_8033E3F0` | `GDFlushCurrToMem` | function | high | F-534-1 | `src/RVL_SDK/gd/GDBase.c` |
+| `0x8033E400` | `0x118` | `fn_8033E400` | `GDPadCurr32` | function | high | F-534-1 | `src/RVL_SDK/gd/GDBase.c` |
+| `0x804B9B9C` | `0x4` | `lbl_804B9B9C` | `overflowcb` | `.sbss` static | high | F-534-1 | `src/RVL_SDK/gd/GDBase.c` |
