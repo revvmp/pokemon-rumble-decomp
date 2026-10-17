@@ -32,9 +32,51 @@ The committed original-object baseline passed the actual default DOL target and 
 
 The `NonMatching` candidate compiled with the canonical headers and Wii/1.1 `cflags_nw4r`. Complete original-object `.text` and all ten function comparisons are 100%. Selecting the source and generating an actual linker map passed the default DOL target and explicit frozen verification. The map attributes each of the ten native address/extent entries to `snd_NandSoundArchive.o`, with source selection independently established by the Ninja link inputs. It marks the archive's strong functions and its other nested stream functions `UNUSED`. All ten final ELF addresses and eight-byte extents are exact, totaling 80 credited bytes. This accepts the retained split as `Matching`; no original-object definition remains inside that split.
 
+## Remote speaker acceptance
+
+The complete `snd_RemoteSpeaker.cpp` owns `.text` `0x8027E4D0–0x8027EE60`, with eleven retained functions / 2,384 instruction bytes. The constructor and the setup, shutdown, and update routines belong to #426 and total 544 bytes. The seven remaining functions total 1,840 bytes; they formerly belonged to #427 and now appear in the successor issue #794. First-function ownership keeps the complete source file and split in #426. This work supplies only those seven overlapping functions, leaving #794's manager, sequence-file, and sequence-player units unfinished. The complete `0xA8` speaker interface and the native alarm, command, codec, and callback accesses are established in F-426-2.
+
+The committed split-only baseline passed the actual default DOL target and explicit frozen verification. The `NonMatching` candidate compiled against the canonical headers, and complete object `.text` plus all eleven retained functions compare at 100%. Selecting the source passed the actual DOL target and explicit frozen verification. The final ELF and actual linker map place all eleven functions at their original addresses and extents in the source object. Additional inlined or unretained helper definitions receive no separate credit.
+
+## Complete issue inventory and source selection
+
+The independent audit checks all five complete original/source object pairs at 100%, all 38 retained native addresses and extents, actual Ninja source inputs, and every source-object contribution in the actual linker map. The whole source-selected DOL equals the immutable original. The original issue contains exactly 29 functions / 1,524 bytes; the five complete units contain 38 functions / 3,444 bytes including the explicitly identified neighboring coverage. The final latest-main default configure, plain Ninja/report, frozen verification, and exact verified head are recorded in the pull request.
+
+| Address | Size | Source unit | Original issue function |
+| --- | --- | --- | --- |
+| `0x8027E060` | `0x58` | `MmlSeqTrack` | `__dt__Q44nw4r3snd6detail11MmlSeqTrackFv` |
+| `0x8027E0C0` | `0x68` | `MmlSeqTrackAllocator` | `AllocTrack__Q44nw4r3snd6detail20MmlSeqTrackAllocatorFPQ44nw4r3snd6detail9SeqPlayer` |
+| `0x8027E130` | `0x68` | `MmlSeqTrackAllocator` | `FreeTrack__Q44nw4r3snd6detail20MmlSeqTrackAllocatorFPQ44nw4r3snd6detail8SeqTrack` |
+| `0x8027E1A0` | `0xC` | `MmlSeqTrackAllocator` | `Create__Q44nw4r3snd6detail20MmlSeqTrackAllocatorFPvUl` |
+| `0x8027E1B0` | `0x8` | `MmlSeqTrackAllocator` | `Destroy__Q44nw4r3snd6detail20MmlSeqTrackAllocatorFPvUl` |
+| `0x8027E1C0` | `0x8` | `MmlSeqTrackAllocator` | `GetAllocatableTrackCount__Q44nw4r3snd6detail20MmlSeqTrackAllocatorCFv` |
+| `0x8027E1D0` | `0x40` | `MmlSeqTrackAllocator` | `__dt__Q44nw4r3snd6detail20MmlSeqTrackAllocatorFv` |
+| `0x8027E210` | `0x8` | `NandSoundArchive` | `GetBufferAlign__Q34nw4r2ut14NandFileStreamCFv` |
+| `0x8027E220` | `0x8` | `NandSoundArchive` | `GetSizeAlign__Q34nw4r2ut14NandFileStreamCFv` |
+| `0x8027E230` | `0x8` | `NandSoundArchive` | `GetOffsetAlign__Q34nw4r2ut14NandFileStreamCFv` |
+| `0x8027E240` | `0x8` | `NandSoundArchive` | `CanCancel__Q34nw4r2ut14NandFileStreamCFv` |
+| `0x8027E250` | `0x8` | `NandSoundArchive` | `CanWrite__Q34nw4r2ut14NandFileStreamCFv` |
+| `0x8027E260` | `0x8` | `NandSoundArchive` | `CanRead__Q34nw4r2ut14NandFileStreamCFv` |
+| `0x8027E270` | `0x8` | `NandSoundArchive` | `CanSeek__Q34nw4r2ut14NandFileStreamCFv` |
+| `0x8027E280` | `0x8` | `NandSoundArchive` | `CanAsync__Q34nw4r2ut14NandFileStreamCFv` |
+| `0x8027E290` | `0x8` | `NandSoundArchive` | `IsBusy__Q34nw4r2ut14NandFileStreamCFv` |
+| `0x8027E2A0` | `0x8` | `NandSoundArchive` | `GetRuntimeTypeInfo__Q34nw4r2ut14NandFileStreamCFv` |
+| `0x8027E2B0` | `0x30` | `PlayerHeap` | `__ct__Q44nw4r3snd6detail10PlayerHeapFv` |
+| `0x8027E2E0` | `0xC4` | `PlayerHeap` | `__dt__Q44nw4r3snd6detail10PlayerHeapFv` |
+| `0x8027E3B0` | `0x30` | `PlayerHeap` | `Create__Q44nw4r3snd6detail10PlayerHeapFPvUl` |
+| `0x8027E3E0` | `0x30` | `PlayerHeap` | `Alloc__Q44nw4r3snd6detail10PlayerHeapFUl` |
+| `0x8027E410` | `0x88` | `PlayerHeap` | `Clear__Q44nw4r3snd6detail10PlayerHeapFv` |
+| `0x8027E4A0` | `0x10` | `PlayerHeap` | `GetFreeSize__Q44nw4r3snd6detail10PlayerHeapCFv` |
+| `0x8027E4B0` | `0x8` | `PlayerHeap` | `AttachSound__Q44nw4r3snd6detail10PlayerHeapFPQ44nw4r3snd6detail10BasicSound` |
+| `0x8027E4C0` | `0xC` | `PlayerHeap` | `DetachSound__Q44nw4r3snd6detail10PlayerHeapFPQ44nw4r3snd6detail10BasicSound` |
+| `0x8027E4D0` | `0x80` | `RemoteSpeaker` | `__ct__Q34nw4r3snd13RemoteSpeakerFv` |
+| `0x8027E550` | `0xC0` | `RemoteSpeaker` | `Setup__Q34nw4r3snd13RemoteSpeakerFPFll_v` |
+| `0x8027E610` | `0xAC` | `RemoteSpeaker` | `Shutdown__Q34nw4r3snd13RemoteSpeakerFPFll_v` |
+| `0x8027E6C0` | `0x34` | `RemoteSpeaker` | `Update__Q34nw4r3snd13RemoteSpeakerFv` |
+
 ## Reference provenance
 
-Player heap behavior follows CC0 `zeldaret/ss` at `57a709b2128eb163a18e2969d561c9abb7d1fcee`, `src/nw4r/snd/snd_PlayerHeap.cpp`, adapted to existing canonical headers and the project's source conventions. The source and referenced header have no file-specific license notice overriding the repository CC0 dedication. Reference material is retained outside the checkout. No commented reference source is imported into tracked code.
+The player heap, MML allocator, NAND archive context, and remote-speaker source follow CC0 `zeldaret/ss` at `57a709b2128eb163a18e2969d561c9abb7d1fcee`, the corresponding `src/nw4r/snd/` units, adapted to existing canonical headers and the project's source conventions. The source and referenced header have no file-specific license notice overriding the repository CC0 dedication. Reference material is retained outside the checkout. No commented reference source is imported into tracked code.
 
 Remote speaker probes use the same pinned CC0 project. Its six initial state flags, absent old force-resume flag, and resulting member offsets reproduce this target's constructor and every linked remote-speaker function. The old CC0 `kiwi515/ogws` revision `27fa94a593096eed7442efc4e70981fd52025b9c` has an additional flag and does not describe this target's layout.
 
