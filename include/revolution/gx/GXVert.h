@@ -64,18 +64,33 @@ __GXCDEF(GXPosition, 2, u16)
 __GXCDEF(GXPosition, 2, s16)
 
 __GXCDEF(GXNormal, 3, f32)
+__GXCDEF(GXNormal, 3, u8)
+__GXCDEF(GXNormal, 3, u16)
 
 __GXCDEF(GXColor, 1, u32)
 __GXCDEF(GXColor, 4, u8)
+__GXCDEF(GXColor, 3, u8)
 
 __GXCDEF(GXTexCoord, 2, u8)
 __GXCDEF(GXTexCoord, 2, u16)
 __GXCDEF(GXTexCoord, 2, s16)
 __GXCDEF(GXTexCoord, 2, f32)
+__GXCDEF(GXTexCoord, 2, s8)
+
+__GXCDEF(GXTexCoord, 1, f32)
+__GXCDEF(GXTexCoord, 1, u8)
+__GXCDEF(GXTexCoord, 1, s8)
+__GXCDEF(GXTexCoord, 1, u16)
+__GXCDEF(GXTexCoord, 1, s16)
 
 __GXCDEFX(GXPosition1x8, 1, u8)
 __GXCDEFX(GXNormal1x8, 1, u8)
 __GXCDEFX(GXTexCoord1x8, 1, u8)
+__GXCDEFX(GXPosition1x16, 1, u16)
+__GXCDEFX(GXNormal1x16, 1, u16)
+__GXCDEFX(GXTexCoord1x16, 1, u16)
+__GXCDEFX(GXColor1x8, 1, u8)
+__GXCDEFX(GXColor1x16, 1, u16)
 
 #ifdef __cplusplus
 }

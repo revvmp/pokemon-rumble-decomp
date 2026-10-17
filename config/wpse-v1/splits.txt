@@ -393,6 +393,19 @@ nw4r/ef/ef_cube.cpp:
 	.data       start:0x803C5648 end:0x803C5658
 	.sdata2     start:0x804BA920 end:0x804BA958
 
+nw4r/ef/ef_drawstrategybuilder.cpp:
+	.text       start:0x8023AC40 end:0x8023ADE0
+	.data       start:0x803C5658 end:0x803C5668
+	.bss        start:0x8042F2F8 end:0x8042F918
+	.sbss       start:0x804B92E8 end:0x804B92F0
+
+nw4r/ef/ef_drawstrategyimpl.cpp:
+	.text       start:0x8023ADE0 end:0x8023CDF8
+	.ctors      start:0x80352A48 end:0x80352A4C
+	.data       start:0x803C5668 end:0x803C5680
+	.bss        start:0x8042F918 end:0x8042F978
+	.sdata2     start:0x804BA958 end:0x804BA984
+
 nw4r/g3d/res/g3d_rescommon.cpp:
 	.text       start:0x8024AE80 end:0x8024B024
 

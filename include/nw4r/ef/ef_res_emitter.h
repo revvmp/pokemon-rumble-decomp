@@ -144,6 +144,7 @@ struct EmitterDrawSetting {
 
     enum DirType {
         DIR_NO_DESIGN = 5,
+        DIR_7 = 7,
     };
 
     u16 mFlags;
