@@ -9,6 +9,19 @@
 extern "C" {
 #endif
 
+typedef struct OSIOSRev {
+    u8 reserved;
+    u8 major;
+    u8 minor;
+    u8 micro;
+    u8 month;
+    u8 date;
+    u16 year;
+} OSIOSRev;
+
+u32 OSGetPhysicalMem2Size(void);
+void __OSGetIOSRev(OSIOSRev*);
+
 typedef s64 OSTime;
 typedef u8 __OSException;
 typedef s16 __OSInterrupt;
