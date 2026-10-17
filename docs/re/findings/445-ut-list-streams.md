@@ -1,6 +1,6 @@
 # F-445-1: NW4R ut list, link list, binary header, character reader, and stream units
 
-Target: `wpse-v1`, immutable `orig/wpse-v1/main.dol`. Issue #445 owns `.text` `0x80292D00–0x80293CC4`. This change reconstructs six of its seven translation units, covering 24 of its 36 functions plus three `FileStream` functions that continue into #446. `ut_TagProcessorBase.cpp` (`0x80293290–0x80293BF0`, twelve functions) remains.
+Target: `wpse-v1`, immutable `orig/wpse-v1/main.dol`. Issue #445 owns `.text` `0x80292D00–0x80293CC4`. Six of its seven translation units are reconstructed here (F-445-1), covering 24 of its 36 functions plus three `FileStream` functions that continue into #446. F-445-2 adds `ut_TagProcessorBase.cpp`, the remaining 12 functions.
 
 ## Units and boundaries
 
@@ -35,11 +35,18 @@ Sources follow ogws `src/nw4r/ut` at commit `f5a1bb5ed7692a9e09e737bc1236f592274
 
 These ut headers come from the same ogws commit, stripped with `tools/vendor/vendor_strip.py`: `ut_LinkList.h`, `ut_NonCopyable.h`, `ut_binaryFileFormat.h`, `ut_CharStrmReader.h`, `ut_IOStream.h`, `ut_FileStream.h`, `ut_RuntimeTypeInfo.h`, and `ut_algorithm.h`. Adaptations: `DECLTYPE` became `__decltype__`, `ASM` became `asm`, and `IOStream::Write` returns `s32`. `ut_list.h` already exists from #375.
 
-## Remaining work in #445
+## F-445-2: TagProcessorBase completes the block
 
-`ut_TagProcessorBase.cpp` occupies `0x80293290–0x80293BF0`: the `char` instantiation from `0x80293290` (constructor, destructor, `Process`, `CalcRect`, `ProcessLinefeed`, `ProcessTab`) and the `wchar_t` instantiation from `0x80293740`. Its vtables are at `.data` `0x803C6974` (`char`) and `0x803C6960` (`wchar_t`). The ogws source matches all twelve functions unchanged. The unit was left out because it needs `TextWriterBase`, `CharWriter`, `Font`, `Color`, and `Rect` headers. Their `printf` helpers need `va_list`, `vsnprintf`, and `vswprintf` declarations, and the project has no MSL C++ or `stdarg.h` headers yet.
+`nw4r/ut/ut_TagProcessorBase.cpp` covers `.text` `0x80293290–0x80293BE4`, `.data` `0x803C6960–0x803C6988`, and `.sdata2` `0x804BB0C0–0x804BB0C8`. The text holds the `char` instantiation from `0x80293290` and the `wchar_t` instantiation from `0x80293740`. Each has a constructor, destructor, `Process`, `CalcRect`, `ProcessLinefeed`, and `ProcessTab`. The data holds the `wchar_t` vtable (`0x803C6960`), then the `char` vtable (`0x803C6974`), and the int-to-float conversion double. All 12 functions match the ogws source unchanged, and the unit is `Matching` with full DOL verification.
+
+The target places `ProcessLinefeed` before `ProcessTab` in both instantiations. CodeWarrior emits explicitly instantiated members in class declaration order, not definition order, so the header declares `ProcessLinefeed` first. Callees renamed for linking: `CharWriter::GetFontWidth` `0x80299C10`, `CharWriter::GetFontHeight` `0x80299C70`, `TextWriterBase<char>::GetLineHeight` `0x8029A8F0`, and `TextWriterBase<wchar_t>::GetLineHeight` `0x8029E420`.
+
+Headers added from ogws, stripped: `ut_TagProcessorBase.h`, `ut_TextWriterBase.h`, `ut_CharWriter.h`, `ut_Font.h`, `ut_Color.h`, and `ut_Rect.h`. `ut_TextWriterBase.h` includes `stdio.h` and `wchar.h` and calls the global `vsnprintf` and `vswprintf`. The math umbrella includes became `math/math_types.h`. `include/stdio.h` gained a `vsnprintf` declaration. A new `include/wchar.h` declares `vswprintf`; it relies on the existing `stdarg.h` and `wchar_t.h`.
+
+With this unit, every function in #445 is in a `Matching` translation unit.
 
 ## Traps
 
 - **An inline helper can change register allocation where a macro does not.** `List_Remove` produced identical instructions with `r5` and `r6` swapped when the link pointer came from a static inline function. The macro expression reproduced the target. Try the reference's macro form before rewriting logic.
+- **Explicit template instantiation follows declaration order.** `TagProcessorBase` member functions were emitted in the class's declaration order. Reorder the declarations, not the definitions, to match function order.
 - **Operand order and an explicit ternary change CodeWarrior's boolean code.** `ch >= 0x81` and `0x81 <= ch` compile differently inside a `? true : false` expression.
