@@ -42,7 +42,7 @@ Observed compiler behavior:
 - The reconnect countdown keeps `_wpadOnReconnect` in a register across the debug print only when passed as a parameter. A local copy is re-read from memory.
 - `__wpadSendDataSub` returns no value here, unlike the reference, and `__wpadSendData` tests busy status in a separate `if` after sending.
 
-Status: `WPADInit` and `WPADGetInfo` are now named, with the rest of the file, in [F-501-1](501-wpad.md#f-501-1-function-identification-and-names).
+Status: `WPADInit` and `WPADGetInfo` are now named, with the rest of the file, in [F-501-1](501-wpad.md#f-501-1-function-identification-and-names). The whole unit is now `Matching` and links from source ([F-501-5](501-wpad.md#f-501-5-source-link-verification)).
 
 ## Traps
 

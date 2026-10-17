@@ -115,6 +115,10 @@ All 80 WPAD.c functions match at 100% in objdiff with Wii/1.0 and `cflags_sdk`. 
 
 The WPAD.c `.text` split now ends at `0x802FE648`, the end of `WPADiGetGameCode`, instead of `0x802FE650`. The next assembly unit is 4-byte aligned, so a split ending at the next unit moved all later code back 8 bytes when linked from source (F-476-3). The other sections already end where the following units' 8-byte alignment puts them. Confidence high.
 
+## F-501-5: Source link verification
+
+With `Object(Matching, "RVL_SDK/wpad/WPAD.c")`, `python configure.py` and `ninja` build `main.dol` from the WPAD source and `tools/verify/verify.py` passes. `build/wpse-v1/report.json` reports 80 of 80 functions and 30,804 of 30,804 code bytes for `main/RVL_SDK/wpad/WPAD`. The unit's `.rodata`, `.data`, `.sdata` and `.sdata2` bytes equal the original apart from trailing alignment padding.
+
 ## Traps
 
 - **Shared header fixes can silently break a NonMatching unit.** #636 corrected `SCGetBtDpdSensibility` to `u32` for SC, which broke two of #500's matched WPAD functions. Nothing failed, because a `NonMatching` unit links the original object. Rerun objdiff on every unit that includes a header you change, or link it from source.
