@@ -1,6 +1,6 @@
 # F-778-2: Complete G3D draw source
 
-Issue #778 owns the complete original `g3d_draw.cpp` translation unit. Its thirteen retained functions occupy `0x80262880`â€“`0x80264720`, totaling 7,772 function bytes. The earlier survey blocks #405/#406 are superseded by this exact source-file inventory and receive no separate completion credit.
+Issue #778 owns the complete original `g3d_draw.cpp` translation unit. Its thirteen retained functions occupy `0x80262880`–`0x80264720`, totaling 7,772 function bytes. The earlier survey blocks #405/#406 are superseded by this exact source-file inventory and receive no separate completion credit.
 
 ## Provenance and source
 
@@ -12,9 +12,9 @@ The shared canonical declarations are supplied by prerequisite PR #816. Main's e
 
 | Section | Native range | Retained contents |
 | --- | --- | --- |
-| `.text` | `0x80262880`â€“`0x80264720` | All thirteen retained functions, including both sort instantiations and sort132 |
-| `.sdata` | `0x804B8978`â€“`0x804B8980` | Two four-byte shuffle statics initialized to -4 |
-| `.sdata2` | `0x804BAC98`â€“`0x804BACA4` | Float constants 0.0f, -2.0f and 1.0f |
+| `.text` | `0x80262880`–`0x80264720` | All thirteen retained functions, including both sort instantiations and sort132 |
+| `.sdata` | `0x804B8978`–`0x804B8980` | Two four-byte shuffle statics initialized to -4 |
+| `.sdata2` | `0x804BAC98`–`0x804BACA4` | Float constants 0.0f, -2.0f and 1.0f |
 
 All function names were already imported from original library evidence. The externally owned accessor at `0x80261D90` is named `GetMdlZTemporary` using the canonical workmem header, the native draw call and independently matching accessor source; its original split, size and type are unchanged.
 
