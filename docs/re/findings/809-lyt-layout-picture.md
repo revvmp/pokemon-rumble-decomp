@@ -22,6 +22,8 @@ The target DynamicCast path includes a null guard missing from main's bounded Ru
 
 ## Traps
 
+- Picture's compiler-generated static initializer shares its basename with the HBM private Picture unit. Preserve the compiler-proven local symbol scope to avoid an exported-name collision; the two anonymous Layout helpers are also local. The native linker-name gate below passes with those scopes.
+
 - New worktrees have no default DOL. A custom-directory Ninja link can produce its actual DOL and then fail the SHA-list CHECK because it still references `build/wpse-v1/main.dol`. The initial custom baseline exited one at that CHECK; it is not a passing baseline. Run the real default build and inspect its successful exit and frozen artifact before proceeding. Never copy an output into the expected path or edit expected hashes.
 - Whole-reference TextBox declarations are too old for this target. Native allocation size and cache-invalidating setter instructions prove a real revision difference. Keep Layout scratch work intact while the owning issue establishes the full canonical type; do not fill the unknown tail with guessed fields or padding.
 - Macro RoundUp/RoundDown from allocator headers can collide with the NW4R algorithm template declarations. Include the canonical algorithm header before the allocator-using Layout header, as the existing consumers do; no compiler flags or alternate algorithm definitions are needed.
@@ -60,3 +62,8 @@ Owner #812 independently repeated the complete nineteen-function Layout consumer
 ## First-owner publication review
 
 Owner #808 reviewed and explicitly approved the exact additive Layout/Pane header diff and complete Layout source on 2026-10-17: resource Layout record, one-argument NewObj, GetParent and GetChildList. All existing class storage, virtual order and templates remain intact. The reviewed native ranges are text 0x802A6060–0x802A7108, data 0x803C6EF8–0x803C6F38, sbss 0x804B9410–0x804B9414 and sdata2 0x804BB180–0x804BB188. The shared first helper stays accounted once under #808. Bounding must use the owner's complete canonical header from commit 273bbc80, already backed by five native methods and a frozen build; no parallel class is introduced.
+
+
+## Native linker names and private initializer scope
+
+Fourteen name-only changes connect the native Layout/Picture identities and their approved TextBox/Bounding callees. Compiler ELF symbol binding marks both anonymous Layout helpers and the generated Picture initializer local. The initializer basename is also used by the HBM private Picture unit, so retain local scope on all three owned private functions rather than exporting a colliding static initializer. No outside size, type or split is changed. Configure, plain default Ninja and explicit frozen verification again exit zero with these names and scopes. Final source-selected gates remain pending.
