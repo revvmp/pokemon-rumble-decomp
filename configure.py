@@ -208,6 +208,20 @@ config.libs = [
         ],
     ),
     library(
+        "NW4R.ut",
+        NW4R_COMPILER,
+        cflags_nw4r,
+        "nw4r",
+        [
+            Object(Matching, "nw4r/ut/ut_list.cpp"),
+            Object(Matching, "nw4r/ut/ut_LinkList.cpp"),
+            Object(Matching, "nw4r/ut/ut_binaryFileFormat.cpp"),
+            Object(Matching, "nw4r/ut/ut_CharStrmReader.cpp"),
+            Object(Matching, "nw4r/ut/ut_IOStream.cpp"),
+            Object(Matching, "nw4r/ut/ut_FileStream.cpp"),
+        ],
+    ),
+    library(
         "RVL_SDK",
         SDK_COMPILER,
         cflags_sdk,
