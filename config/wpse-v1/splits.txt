@@ -1786,6 +1786,9 @@ MetroTRK/gamedev/cust_connection/utils/gc/MWCriticalSection_gc.c:
 MetroTRK/gamedev/cust_connection/utils/common/CircleBuffer.c:
 	.text       start:0x8034DBC8 end:0x8034DE04
 
+MetroTRK/debugger/embedded/MetroTRK/Processor/ppc/Generic/flush_cache.c:
+	.text       start:0x8034DE04 end:0x8034DE3C
+
 MetroTRK/debugger/embedded/MetroTRK/Portable/main_TRK.c:
 	.text       start:0x8034DE3C end:0x8034DE78
 	.sbss       start:0x804B9C00 end:0x804B9C04
@@ -1795,3 +1798,7 @@ MetroTRK/debugger/embedded/MetroTRK/Portable/mainloop.c:
 
 MetroTRK/debugger/embedded/MetroTRK/Portable/mem_TRK.c:
 	.text       start:0x8034DF64 end:0x8034E1C8
+
+MetroTRK/debugger/embedded/MetroTRK/Portable/dispatch.c:
+	.text       start:0x8034E1C8 end:0x8034E2E8
+	.data       start:0x803E6270 end:0x803E62DC

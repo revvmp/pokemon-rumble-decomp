@@ -2030,3 +2030,7 @@ For `wpse-v1` / `main.dol`, [F-397-1](findings/397-g3d-anmtexpat.md) names 23 fu
 | `0x804B9C00` | `0x4` | `TRK_mainError` | static error enum | high | Native SDA stores, compiled object and final ELF placement |
 
 `TRKEvent` is twelve bytes: `eventType` at zero, `eventID` at four, `msgBufID` at eight. Its names and canonical event values follow the reference and match the native event-loop branches/accesses. The opaque `TRKBuffer` declaration introduces no guessed storage. `ReadMemoryByte` and `WriteMemoryByte` are chosen descriptive local-helper names; no original helper identity is asserted.
+
+## MetroTRK dispatcher and cache maintenance (#541)
+
+TRKDispatchMessage at 0x8034E1C8 owns 0x120 text bytes and its 0x6C-byte table at 0x803E6270. Its twelve command handlers and TRKSetBufferPosition are named from paired native calls and protocol table values. The proven TRKBuffer is 0x88C bytes, with isInUse at 0, length at 4, position at 8 and 0x880 data bytes at 0xC; this target has no leading mutex word. TRK_flush_cache at 0x8034DE04 is the matching original 0x38-byte assembly routine. See [F-541-3](findings/541-dispatch-cache.md) for source provenance, native layout evidence and separate assembly accounting.
