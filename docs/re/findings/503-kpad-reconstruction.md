@@ -36,6 +36,12 @@ The four newly reconstructed routines are `KPADSetConnectCallback` at `0x80307DE
 - Reconstruct the retained banner/table, complete initialized data, board globals, and constant pool; current source includes only the reference globals needed for the motion portion.
 - Preserve the whole-unit `NonMatching` status until every retained section compares exactly and the source-selected full DOL passes frozen verification.
 
+### Extension-reader investigation
+
+The uncommitted scratch investigation of `read_kpad_stick` at `0x80306800` establishes additional train, guitar and balance-board paths. Train inputs use the classic status's trigger outputs; guitar inputs also use its two stick vectors. Board output calls `WBCGetBatteryLevel`, `WBCRead` and `WBCGetTGCWeight`, maintaining four-double arrays at `0x8047C2E0` and `0x8047C300`. The smoothing window at `0x804B8E70` is the float 400.0, and the rejection threshold in the constant pool at `0x804BB5A8` is the double -0.5. A 16-bit sample count is at `0x804B9AF8`, calibration state at `0x804B9AFA`, TGC averaging flag at `0x804B9AFB`, and the double TGC result at `0x804B9AF0`. These roles follow accesses and calls; original private variable names remain unrecovered.
+
+The complete scratch candidate still differs in the averaging instruction schedule and address materialization. One source form produced 0x8C4 bytes against the target's 0x8D0; other forms added floating-register saves. Wii/1.0a, 1.1, 1.3 and 0x4201_127 did not resolve that candidate's differences, nor did removing file-level IPA or explicitly disabling contraction. This is evidence about those candidates only. No compiler policy or accepted source coverage is changed by these experiments. The reader remains among the nine unfinished functions.
+
 ## Provenance
 
 The motion and pointing algorithms and helper names derive from [Petari KPAD.c at e0ab141914921726a595573dc48d3f13d0922efe](https://github.com/SMGCommunity/Petari/blob/e0ab141914921726a595573dc48d3f13d0922efe/src/RVL_SDK/kpad/KPAD.c), CC0. Comments are removed, SDK C headers replace the reference's C++ convenience headers, and only the reconstructed portion is retained. Newer-format conditions come from the target instructions. The shared layout's separate provenance is recorded in F-503-4. A copied IDA database outside the repository was used only as a reading aid; no decompiler output is included in source.
