@@ -12,6 +12,8 @@ extern "C" {
 #define LC_MAX_DMA_BLOCKS   (128)
 #define LC_MAX_DMA_BYTES    (LC_MAX_DMA_BLOCKS * 32)
 
+#define OS_CACHE_BASE 0xE0000000
+
 void DCInvalidateRange(void *, u32);
 
 void DCEnable(void);

@@ -108,6 +108,8 @@ s32 NANDDelete(const char* path);
 s32 NANDPrivateDelete(const char* path);
 s32 NANDDeleteAsync(const char* path, NANDCallback cb, NANDCommandBlock* block);
 s32 NANDPrivateDeleteAsync(const char* path, NANDCallback cb, NANDCommandBlock* block);
+s32 NANDOpen(const char* path, NANDFileInfo* info, u8 accType);
+s32 NANDClose(NANDFileInfo* info);
 s32 NANDRead(NANDFileInfo* info, void* buf, u32 length);
 s32 NANDReadAsync(NANDFileInfo* info, void* buf, u32 length, NANDCallback cb, NANDCommandBlock* block);
 s32 NANDWrite(NANDFileInfo* info, const void* buf, u32 length);
