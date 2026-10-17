@@ -19,6 +19,13 @@ private:
         EmitterInheritSetting mInheritSetting;
         Particle* mReferenceParticle;
         EmitterResource* mEmitterResource;
+        math::VEC3 mTranslate;
+        math::VEC3 mExtraTranslate;
+
+        enum Flag {
+            FLAG_TRANSLATE = (1 << 0),
+            FLAG_EXTRA_TRANSLATE = (1 << 1),
+        };
     };
 
 private:
@@ -34,11 +41,15 @@ public:
 
     void AddParticleCreation(const EmitterInheritSetting* pSetting,
                              Particle* pParticle, EmitterResource* pResource,
-                             u16 calcRemain);
+                             u16 calcRemain,
+                             const math::VEC3* pTranslate,
+                             const math::VEC3* pExtraTranslate);
 
     void AddEmitterCreation(const EmitterInheritSetting* pSetting,
                             Particle* pParticle, EmitterResource* pResource,
-                            u16 calcRemain);
+                            u16 calcRemain,
+                            const math::VEC3* pTranslate,
+                            const math::VEC3* pExtraTranslate);
 
     void Execute();
 

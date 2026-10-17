@@ -14,7 +14,9 @@ class DrawInfo;
 class DrawOrderBase;
 class DrawStrategyBuilder;
 class EmitFormBuilder;
+class Emitter;
 class MemoryManagerBase;
+struct EmitterResource;
 
 class EffectSystem {
 private:
@@ -33,9 +35,11 @@ public:
     f32 mProcessCameraFar;
     f32 mProcessCameraNear;
     bool mXFFlushSafe;
+    Emitter* mTmpEmitter;
 
-    static bool mDisplayVersion;
+    static s32 mDisplayVersion;
     static EffectSystem instance;
+    static DrawInfo mSortEffectOperatorZDrawInfo;
 
 public:
     static EffectSystem* GetInstance();
@@ -47,14 +51,19 @@ public:
     bool Closing(Effect* pEffect);
 
     Effect* CreateEffect(const char* pName, u32 groupID, u16 calcRemain);
+    Effect* CreateEffect(EmitterResource* pResource, u32 groupID,
+                         u16 calcRemain);
     u32 RetireEffect(Effect* pEffect);
 
     u32 RetireEffectAll(u32 groupID);
     u32 RetireEmitterAll(u32 groupID);
     u32 RetireParticleAll(u32 groupID);
 
-    void Calc(u32 groupID, bool onlyBillboard);
+    void Calc(u32 groupID, u32 calcFlags);
     void Draw(const DrawInfo& rInfo, u32 groupID);
+
+    void SetProcessCamera(const math::VEC3& rPos, const math::MTX34& rMtx,
+                          f32 near, f32 far);
 
     MemoryManagerBase* GetMemoryManager() const {
         return mMemoryManager;
