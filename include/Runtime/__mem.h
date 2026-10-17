@@ -1,7 +1,7 @@
 #ifndef RUNTIME_MEM_H
 #define RUNTIME_MEM_H
 
-#include <string.h>
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
