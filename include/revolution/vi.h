@@ -16,6 +16,7 @@ extern "C" {
 
 u32 VIGetTvFormat(void);
 u32 VIGetCurrentLine(void);
+void __VIResetRFIdle(void);
 
 #ifdef __cplusplus
 }
