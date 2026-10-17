@@ -4,8 +4,6 @@
 
 int TRKPollUART(void);
 int TRKReadUARTN(void* buffer, u32 count);
-void TRKConstructEvent(TRKEvent* event, NubEventType type);
-DSError TRKPostEvent(TRKEvent* event);
 
 void* gTRKInputPendingPtr;
 

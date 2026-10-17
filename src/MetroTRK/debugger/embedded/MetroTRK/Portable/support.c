@@ -46,7 +46,7 @@ DSError TRKSuppAccessFile(u32 file_handle, u8* data, size_t* count, DSIOResult* 
         }
 
         reply.replyError.r = file_handle;
-        *(u16*)&reply.filePosition = length;
+        *(u16*)&reply.parameter.filePosition = length;
 
         TRKGetFreeBuffer(&bufferId, &buffer);
         error = TRKAppendBuffer_ui8(buffer, (u8*)&reply, 0x40);
@@ -154,7 +154,7 @@ DSError HandleOpenFileSupportRequest(const char* path, u8 replyError, u32* fileH
     reply.commandID.b = DSMSG_OpenFile;
     reply.messageLength = TRK_strlen((const s8*)path) + 0x40 + 1;
     reply.replyError.b = replyError;
-    *(u16*)&reply.filePosition = TRK_strlen((const s8*)path) + 1;
+    *(u16*)&reply.parameter.filePosition = TRK_strlen((const s8*)path) + 1;
     TRKGetFreeBuffer(&bufferId1, &buffer);
     error = TRKAppendBuffer_ui8(buffer, (u8*)&reply, 0x40);
 
@@ -227,7 +227,7 @@ DSError HandlePositionFileSupportRequest(u32 fileHandle, u32* position, u8 seekO
     reply.commandID.b = DSMSG_PositionFile;
     reply.messageLength = 0x40;
     reply.replyError.r = fileHandle;
-    reply.filePosition = *position;
+    reply.parameter.filePosition = *position;
     reply.payload[0] = seekOrigin;
     error = TRKGetFreeBuffer(&bufferId1, &buffer1);
 
