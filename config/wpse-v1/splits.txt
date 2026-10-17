@@ -139,6 +139,15 @@ RVL_SDK/ipc/ipcMain.c:
 	.text       start:0x802F1230 end:0x802F1320
 	.sbss       start:0x804B99D8 end:0x804B99F0
 
+RVL_SDK/ipc/memory.c:
+	.text       start:0x802F2D10 end:0x802F3248
+	.bss        start:0x804772A0 end:0x80477320
+
+RVL_SDK/ipc/ipcProfile.c:
+	.text       start:0x802F3250 end:0x802F342C
+	.bss        start:0x80477320 end:0x80477420
+	.sbss       start:0x804B9A00 end:0x804B9A08
+
 RVL_SDK/bte/bte_hcisu.c:
 	.text       start:0x80313A60 end:0x80313B30
 	.sbss       start:0x804B9B78 end:0x804B9B80
@@ -156,6 +165,9 @@ RVL_SDK/bte/bte_main.c:
 	.bss        start:0x804A9820 end:0x804AA850
 	.sdata      start:0x804B8EE8 end:0x804B8EF0
 	.sbss       start:0x804B9B80 end:0x804B9B88
+
+RVL_SDK/bte/bta_sys_conn.c:
+	.text       start:0x80314388 end:0x803145DC
 
 RVL_SDK/bte/bta_dm_api.c:
 	.text       start:0x80316D80 end:0x803171EC
