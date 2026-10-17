@@ -2,7 +2,7 @@
 
 ## Scope and ownership
 
-The original issue survey is not a source-file boundary. The directional tail at `0x802408C0–0x80241320` belongs to the file whose first function is in #382. That issue is assigned to another contributor; this investigation does not change its source, header, split, or object registration. The existing free, line, and point strategy units retain their established boundaries from F-383-1.
+The original issue survey is not a source-file boundary. The directional tail at `0x802408C0–0x80241320` belongs to the file whose first function is in #382. At this investigation's initial claim, that issue was assigned to another contributor; it subsequently became unassigned. This #383 investigation does not change its source, header, split, or object registration. The existing free, line, and point strategy units retain their established boundaries from F-383-1.
 
 `DrawStripeStrategy` begins with its constructor at `0x80242820`, inside #383. The complete native file continues through its destructor at `0x80245EB0`, ending at `0x80245EF0`, inside #384. #383 therefore owns that whole file's declaration and registration. `DrawSmoothStripeStrategy` starts at `0x80245EF0` and remains outside this claim. No new source registration, matching designation, or progress credit is established by these diagnostic probes.
 
@@ -70,6 +70,8 @@ The ordinary source, with no `dont_inline` region or other instruction-control p
 Current main already includes the corrected three-argument `CalcAhead_NoDesign` declaration. A later prerequisite must preserve that canonical declaration and propose only the activity-count selection and equivalent const-getter forwarding still absent from main, rather than reintroduce a duplicate signature change.
 
 The ordinary candidate was subsequently compiled against a complete tracked-header snapshot of main `f8602abba0f8cd994902ffe8be11fa6c55ff72c5`, retaining only those two bounded shared changes. All 21 functions, 369 text relocations, five vtable targets and 80 data bytes remain exact. A focused original/proposed compilation of all eight existing strategy source files produces 78 functions: 77 are unchanged, and the sole changed function is the eight-byte weak `GetNumDrawParticle` emitted by the NonMatching smooth-stripe object. Its old bytes `a06400404e800020` decode to `lhz r3,0x40(r4); blr`; the proposed bytes `a06400504e800020` decode to `lhz r3,0x50(r4); blr`. The immutable DOL hash was independently checked before reading native `0x80242BA0`, whose complete eight bytes are exactly the proposed sequence. This intentional correction must be identified separately in the future complete baseline audit; it is not an assertion that every existing NonMatching object remains identical.
+
+The complete ordinary source and owned class declaration are now preserved as a draft proposal. The source is deliberately unregistered while the bounded shared prerequisite and split-only build gate remain pending. It is not marked Matching and does not replace fallback bytes in the current link. The proposed final unit ranges are `.text 0x80242820–0x80245EF0`, `.data 0x803C5708–0x803C5724`, and `.sdata2 0x804BAA28–0x804BAA5C`; padding before the following smooth-stripe unit is outside these last owned objects. These ranges require actual split-only verification before registration and full source-selected acceptance.
 
 ## Free strategy diagnostics
 
