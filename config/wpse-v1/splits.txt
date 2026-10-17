@@ -100,6 +100,10 @@ RVL_SDK/bte/bte_main.c:
 	.sdata      start:0x804B8EE8 end:0x804B8EF0
 	.sbss       start:0x804B9B80 end:0x804B9B88
 
+RVL_SDK/bte/bta_dm_api.c:
+	.text       start:0x80316D80 end:0x803171EC
+	.sdata2     start:0x804BB600 end:0x804BB610
+
 RVL_SDK/gd/GDTexture.c:
 	.text       start:0x8033E540 end:0x8033EEB4
 	.sdata      start:0x804B8F48 end:0x804B8F80

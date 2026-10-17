@@ -79,6 +79,8 @@ Keep entries concise and actionable. Distinguish confirmed findings from hypothe
 
 - **Source units can lose trailing alignment before a fallback unit.** When objdiff is 100% but the next function shifts by four bytes, inspect its inferred alignment. ENC Latin needed `align:16` on the following owned symbol to preserve the original boundary; see [F-494-2](docs/re/findings/494-enc-latin.md#f-494-2-alignment-of-the-next-fallback-unit).
 
+- **Negated closing keywords still close issues.** A partial-work pull request automatically closed its unfinished issue because its description contained a negated closing-keyword phrase. Use `Part of` and avoid closing-keyword issue references anywhere in partial-work descriptions; check issue state after merging. See [F-514-2](docs/re/findings/514-bta-dm-api.md#f-514-2-partial-work-issue-closure-keywords).
+
 ## Current project state
 
 | Current state | Value |
