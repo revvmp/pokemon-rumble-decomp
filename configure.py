@@ -162,6 +162,11 @@ config.libs = [
         "sdk",
         [
             Object(Matching, "RVL_SDK/base/PPCArch.c"),
+            Object(NonMatching, "RVL_SDK/os/OSFont.c"),
+            Object(Matching, "RVL_SDK/os/OSInterrupt.c"),
+            Object(Matching, "RVL_SDK/os/OSLink.c"),
+            Object(NonMatching, "RVL_SDK/os/OSMessage.c"),
+            Object(NonMatching, "RVL_SDK/os/OSMemory.c"),
             Object(NonMatching, "RVL_SDK/bte/bte_hcisu.c", cflags=cflags_base),
             Object(NonMatching, "RVL_SDK/bte/bte_init.c", cflags=cflags_base),
             Object(NonMatching, "RVL_SDK/bte/bte_logmsg.c", cflags=cflags_base),

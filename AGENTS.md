@@ -61,6 +61,10 @@ Keep entries concise and actionable. Distinguish confirmed findings from hypothe
 
 - **Root licenses can have file-level exceptions.** Petari BTE files retain Broadcom Apache-2.0 notices despite its root CC0 license. Inspect each reused file and preserve its specific notices; see [F-510-1](docs/re/findings/510-bte-transport-logging.md#source-provenance-and-reusable-lesson).
 
+- **A source object can shift the next split object.** A compiled unit whose code does not end on a 16-byte boundary, such as `OSLink.c` (0x18 bytes) or `OSMemory.c` (ending `0x802B9EFC`), lets a following dtk-split object with 4-byte `.text` alignment move up, and the whole DOL shifts. Add `align:16` to the successor's `.text` split, as done for `OSMessage.c`; Wii/1.0 SDK objects really had 16-byte alignment. See [F-467-4](docs/re/findings/467-os-font-interrupt-memory.md#f-467-4-split-alignment-of-a-successor-object).
+
+- **A partial SDK source can compile to nothing.** If a unit's root routine (here `__OSInitMemoryProtection`) is left out, its static data and static callbacks become unreferenced, and CodeWarrior emits none of them, so objdiff shows no functions. Reconstruct the whole unit, or at least everything reachable from its roots. See [F-467-1](docs/re/findings/467-os-font-interrupt-memory.md#f-467-1-unit-boundaries).
+
 ## Current project state
 
 | Current state | Value |
