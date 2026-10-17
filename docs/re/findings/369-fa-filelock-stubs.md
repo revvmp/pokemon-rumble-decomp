@@ -28,7 +28,7 @@ The issue was open and unassigned when claimed through `tools/collab/claim_issue
 | `0x8021D0E0` | `0x3C` | command 28, identity and record ABI audit pending |
 | `0x8021D120` | `0x3C` | command 29, identity and record ABI audit pending |
 | `0x8021D160` | `0x3C` | command 4, identity and record ABI audit pending |
-| `0x8021D1A0` | `0x50` | command identity and record ABI audit pending |
+| `0x8021D1A0` | `0x50` | command 20, identity and record ABI audit pending |
 | `0x8021D1F0` | `0x4` | narrow initialization tail-call, reconstruction pending |
 
 ## Typed shared-file lock
@@ -61,3 +61,17 @@ The full configure, plain Ninja and explicit frozen verifier gate remains pendin
 
 - Target asynchronous wrapper additions change the standard-stub sequence relative to the pinned FA map. A size-order import would incorrectly name `0x8021CFB0`, which submits command 0 from a supplied command record. Map each command through the actual dispatcher to the narrow callee and verify its public argument contract before assigning an original name.
 - The related VF lock record lacks this target's embedded semaphore. Preserve target `PF_SFD` size `0x29C` and all surrounding offsets; native kernel storage calls, rather than a matching pointer value, establish the semaphore type.
+
+# F-369-2: Complete system-unit scratch match
+
+The complete system unit now compiles externally with exact native extents and independently resolved instruction bytes: `PFSYS_initializeSYS` at `0x8021C880`, 4 bytes; `PFSYS_GetCurrentContextID` at `0x8021C890`, 24 bytes; and `PFSYS_TimeStamp` at `0x8021C8B0`, 124 bytes. The same object emits `pf_sys_set` as exactly `0x23A0` NOBITS bytes aligned to 8, using the typed layout independently proven in F-368-2. No repository storage definition has been added.
+
+Initialization tail-calls `pfstub_init_stub`. The getter copies `pf_vol_set.current_context_id` from offset `0x64` through its output pointer and returns zero. This field is independently stored by the actual worker at `0x8021C5B4`; #363's volume-set investigation also confirms its relation to the context table and volume array. That one proven member is added only in the external probe's temporary interface, pending canonical owner integration.
+
+The timestamp directly calls `OSGetTime` and `OSTicksToCalendarTime`, then copies year, month plus one, day, hour, minute and second, and sets `sys_ms` to 1. Native stores establish 32-bit fields in both `PF_SYS_DATE` and `PF_SYS_TIME`. The related VF source uses the same member names but 16-bit fields and a separate time helper; copying that header would change both the ABI and instructions. The external source instead uses the native-proven fields and actual canonical SDK calendar type.
+
+`369-audit-system.py` checks every instruction, all independently resolved relocation targets, absence of additional allocated sections, and exact BSS size/alignment. With the two lock functions, this gives five of the original 22 issue functions and 484 of 3,624 native bytes in external exact probes. The preceding #368 initializer adds another 20 bytes to the complete shared file-lock proof. None of these probes counts as linked source coverage; source materialization, canonical integration, actual Ninja objects and full frozen verification remain pending.
+
+## Dispatcher identity audit
+
+`369-dispatch-map.py` reads all 81 entries of the actual jump table at `0x803C4318` and resolves each case's direct call to the verified narrow-wrapper inventory. This independently distinguishes command identity from public-stub order: command 0 calls `pf2_create`, 11 calls `pf2_chdir`, 20 calls `pf2_devinf`, 28 calls `pf2_fsfirst`, 29 calls `pf2_fsnext`, and 4 calls `pf2_fwrite`. Consequently the wrappers at `0x8021CF60`, `0x8021CFB0`, `0x8021D0E0`, `0x8021D120` and `0x8021D160` cannot receive the names suggested by blindly following the older FA map's stub sequence. The saved complete table is external `369-reference/standard-dispatch-map.json`; public record ABI and name confidence must be established before source publication.
