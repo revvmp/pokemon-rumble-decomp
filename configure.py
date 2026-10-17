@@ -333,6 +333,7 @@ config.libs = [
             Object(Matching, "nw4r/ef/ef_particle.cpp"),
             Object(NonMatching, "nw4r/ef/ef_particlemanager.cpp"),
             Object(Matching, "nw4r/ef/ef_resource.cpp"),
+            Object(Matching, "nw4r/ef/ef_util.cpp"),
             Object(Matching, "nw4r/ef/ef_handle.cpp"),
             Object(Matching, "nw4r/ef/ef_emitterform.cpp"),
             Object(Matching, "nw4r/ef/ef_creationqueue.cpp"),
