@@ -1,6 +1,7 @@
 #ifndef NW4R_LYT_LAYOUT_H
 #define NW4R_LYT_LAYOUT_H
 #include <nw4r/lyt/lyt_types.h>
+#include <new>
 #include <nw4r/ut/ut_LinkList.h>
 #include <nw4r/ut/ut_Rect.h>
 #include <revolution/mem/allocator.h>
@@ -55,6 +56,11 @@ public:
 
     static void FreeMemory(void* pMemory) {
         MEMFreeToAllocator(mspAllocator, pMemory);
+    }
+
+    template <typename T> static T* NewObj() {
+        void* pMemory = AllocMemory(sizeof(T));
+        return pMemory != nullptr ? new (pMemory) T() : nullptr;
     }
 
     template <typename T> static void DeleteObj(T* pObject) {
