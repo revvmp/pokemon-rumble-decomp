@@ -10,16 +10,16 @@ The memory/new filenames are descriptive hypotheses. No original source-file spe
 
 | Unit | Section | Native range |
 | --- | --- | --- |
-| game/memory.cpp | text | 801B0EF0Ã¢â‚¬â€œ801B1450 |
-| game/memory.cpp | extab | 8003822CÃ¢â‚¬â€œ80038488 |
-| game/memory.cpp | extabindex | 8005079CÃ¢â‚¬â€œ80050820 |
-| game/memory.cpp | data | 803BF3A8Ã¢â‚¬â€œ803BF3B8 |
-| game/memory.cpp | sdata | 804B81F0Ã¢â‚¬â€œ804B81F8 |
-| game/memory.cpp | sbss | 804B9138Ã¢â‚¬â€œ804B9140 |
-| game/new.cpp | text | 801B1450Ã¢â‚¬â€œ801B159C |
-| game/new.cpp | extab | 80038488Ã¢â‚¬â€œ8003850C |
-| game/new.cpp | extabindex | 80050820Ã¢â‚¬â€œ80050838 |
-| game/new.cpp | data | 803BF3B8Ã¢â‚¬â€œ803BF3CC |
+| game/memory.cpp | text | 801B0EF0-801B1450 |
+| game/memory.cpp | extab | 8003822C-80038488 |
+| game/memory.cpp | extabindex | 8005079C-80050820 |
+| game/memory.cpp | data | 803BF3A8-803BF3B8 |
+| game/memory.cpp | sdata | 804B81F0-804B81F8 |
+| game/memory.cpp | sbss | 804B9138-804B9140 |
+| game/new.cpp | text | 801B1450-801B15A0 |
+| game/new.cpp | extab | 80038488-8003850C |
+| game/new.cpp | extabindex | 80050820-80050838 |
+| game/new.cpp | data | 803BF3B8-803BF3CC |
 
 The allocator at `0x803BF3A8` is the canonical sixteen-byte `MEMAllocator`, referencing the two-function table at `0x804B81F0`. Its heap and two parameters are initially zero. Two four-byte private heap handles occupy `0x804B9138` and `0x804B913C`. The native exception-filter string at `0x803BF3B8` is `!std::bad_alloc!`; its seventeen bytes are followed by alignment. The pad vtable begins at `0x803BF3D0`.
 
