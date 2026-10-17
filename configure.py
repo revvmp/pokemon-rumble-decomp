@@ -182,6 +182,7 @@ config.libs = [
             Object(NonMatching, "RVL_SDK/bte/bte_init.c", cflags=cflags_base),
             Object(NonMatching, "RVL_SDK/bte/bte_logmsg.c", cflags=cflags_base),
             Object(NonMatching, "RVL_SDK/bte/bte_main.c", cflags=cflags_base),
+            Object(NonMatching, "RVL_SDK/bte/bta_dm_api.c", cflags=[*cflags_base, "-func_align 4"]),
             Object(Matching, "RVL_SDK/gd/GDTexture.c"),
         ],
     ),
