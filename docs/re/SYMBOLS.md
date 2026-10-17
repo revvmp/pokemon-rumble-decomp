@@ -774,3 +774,55 @@ The existing `WENCInfo` declaration is reused unchanged. The target accesses six
 [F-474-5 and F-474-6](findings/474-matrix.md#f-474-5-complete-affine-matrix-unit) document all 31 newly source-linked functions, original reference names, owned layouts, and C versus inline-assembly coverage. `__VISetGamma1_0` at `0x802C8450` and `gEncoderState` at `0x804B9684` are descriptive names: the former selects gamma 1.0; the latter is proven only to receive zero at initialization's end. Other encoder and matrix names have high confidence from reference correspondence and exact function comparison. `VIGammaObj` is 34 bytes and `VIMacroVisionObj` is 26 bytes. Owned scalar `gammaSet` has `noreloc` because adjacent u16 outputs resemble a pointer.
 
 Referenced outside-issue names, without size/type/split changes: `VIGetDTVStatus` at `0x802C6670`, `PSVECNormalize` at `0x802C9940`, `PSVECCrossProduct` at `0x802C9A00`, `cos` at `0x8034CEE4`, and `sin` at `0x8034D3EC`. Evidence is the pinned matching SDK call sites and corresponding target behavior. This claims no reconstruction coverage for those callees.
+
+## RVL_SDK MEM, CX, and DSP (#489)
+
+Names given in `config/wpse-v1/symbols.txt`; evidence in [489-mem-cx-dsp](findings/489-mem-cx-dsp.md).
+
+| Address | Size | Old name | Name | Unit |
+| --- | --- | --- | --- | --- |
+| `0x802E18F0` | `0x84` | `fn_802E18F0` | `MEMCreateFrmHeapEx` | `mem_frameHeap.c` |
+| `0x802E1980` | `0x30` | `fn_802E1980` | `MEMDestroyFrmHeap` | `mem_frameHeap.c` |
+| `0x802E19B0` | `0x120` | `fn_802E19B0` | `MEMAllocFromFrmHeapEx` | `mem_frameHeap.c` |
+| `0x802E1AD0` | `0xA0` | `fn_802E1AD0` | `MEMFreeToFrmHeap` | `mem_frameHeap.c` |
+| `0x802E1B70` | `0x10` | `fn_802E1B70` | `AllocatorAllocForExpHeap_` (local) | `mem_allocator.c` |
+| `0x802E1B80` | `0x8` | `fn_802E1B80` | `AllocatorFreeForExpHeap_` (local) | `mem_allocator.c` |
+| `0x802E1B90` | `0x10` | `fn_802E1B90` | `MEMAllocFromAllocator` | `mem_allocator.c` |
+| `0x802E1BA0` | `0x10` | `fn_802E1BA0` | `MEMFreeToAllocator` | `mem_allocator.c` |
+| `0x802E1BB0` | `0x1C` | `fn_802E1BB0` | `MEMInitAllocatorForExpHeap` | `mem_allocator.c` |
+| `0x804BB4E8` | `0x8` | `lbl_804BB4E8` | `sAllocatorFunc` (local) | `mem_allocator.c` |
+| `0x802E1CF0` | `0x40` | `fn_802E1CF0` | `CXInitUncompContextHuffman` | `CXStreamingUncompression.c` |
+| `0x802E1D30` | `0x3C8` | `fn_802E1D30` | `CXReadUncompHuffman` | `CXStreamingUncompression.c` |
+| `0x802E2100` | `0x40` | `fn_802E2100` | `CXGetUncompressedSize` | `CXUncompression.c` |
+| `0x802E2140` | `0x14C` | `fn_802E2140` | `CXUncompressLZ` | `CXUncompression.c` |
+| `0x802E2290` | `0x160` | `fn_802E2290` | `CXUncompressHuffman` | `CXUncompression.c` |
+| `0x802E23F0` | `0x170` | `fn_802E23F0` | `CXSecureUncompressRL` | `CXSecureUncompression.c` |
+| `0x802E2560` | `0x220` | `fn_802E2560` | `CXSecureUncompressLZ` | `CXSecureUncompression.c` |
+| `0x802E2780` | `0x1B0` | `fn_802E2780` | `CXiVerifyHuffmanTable_` | `CXSecureUncompression.c` |
+| `0x802E2930` | `0x25C` | `fn_802E2930` | `CXSecureUncompressHuffman` | `CXSecureUncompression.c` |
+| `0x802E2B90` | `0x178` | `fn_802E2B90` | `CXiHuffImportTree` | `CXSecureUncompression.c` |
+| `0x802E2D10` | `0xE8` | `fn_802E2D10` | `CXSecureUnfilterDiff` | `CXSecureUncompression.c` |
+| `0x802E2E00` | `0x1F4` | `fn_802E2E00` | `CXiLHVerifyTable` | `CXSecureUncompression.c` |
+| `0x802E3000` | `0x390` | `fn_802E3000` | `CXSecureUncompressLH` | `CXSecureUncompression.c` |
+| `0x802E3390` | `0x1E8` | `fn_802E3390` | `RCAddCount_` (local) | `CXSecureUncompression.c` |
+| `0x802E3580` | `0x94` | `fn_802E3580` | `RCSearch_` (local) | `CXSecureUncompression.c` |
+| `0x802E3620` | `0x4BC` | `fn_802E3620` | `CXSecureUncompressLRC` | `CXSecureUncompression.c` |
+| `0x802E3AE0` | `0x10` | `fn_802E3AE0` | `DSPCheckMailToDSP` | `dsp.c` |
+| `0x802E3AF0` | `0x10` | `fn_802E3AF0` | `DSPCheckMailFromDSP` | `dsp.c` |
+| `0x802E3B00` | `0x14` | `fn_802E3B00` | `DSPReadMailFromDSP` | `dsp.c` |
+| `0x802E3B20` | `0x14` | `fn_802E3B20` | `DSPSendMailToDSP` | `dsp.c` |
+| `0x802E3B40` | `0xC0` | `fn_802E3B40` | `DSPInit` | `dsp.c` |
+| `0x802E3C00` | `0x8` | `fn_802E3C00` | `DSPCheckInit` | `dsp.c` |
+| `0x802E3C10` | `0x70` | `fn_802E3C10` | `DSPAddTask` | `dsp.c` |
+| `0x802E3C80` | `0xBC` | `fn_802E3C80` | `DSPAssertTask` | `dsp.c` |
+| `0x804B8BE8` | `0x4` | `lbl_804B8BE8` | `__DSPVersion` | `dsp.c` |
+| `0x804B9988` | `0x4` | `lbl_804B9988` | `__DSP_init_flag` (local) | `dsp.c` |
+| `0x802E3D40` | `0x50` | `fn_802E3D40` | `__DSP_debug_printf` | `dsp_debug.c` |
+| `0x802E3D90` | `0x42C` | `fn_802E3D90` | `__DSPHandler` | `dsp_task.c` |
+| `0x802E41C0` | `0x1A4` | `fn_802E41C0` | `__DSP_exec_task` | `dsp_task.c` |
+| `0x802E4370` | `0x18C` | `fn_802E4370` | `__DSP_boot_task` | `dsp_task.c` |
+| `0x802E4500` | `0xA0` | `fn_802E4500` | `__DSP_insert_task` | `dsp_task.c` |
+| `0x802E45A0` | `0x88` | `fn_802E45A0` | `__DSP_remove_task` | `dsp_task.c` |
+| `0x804B9990`–`0x804B99A4` | `0x4` each | `lbl_804B9990`… | `__DSP_rude_task_pending`, `__DSP_rude_task`, `__DSP_tmp_task`, `__DSP_last_task`, `__DSP_first_task`, `__DSP_curr_task` | `dsp_task.c` |
+
+`MEMiFrmHeapHead` is 0xC bytes after `MEMiHeapHead`: head allocator `0x0`, tail allocator `0x4`, state list `0x8`. `CXUncompContextHuffman` is 0x220 bytes: `destp` `0x0`, `destCount` `0x4`, `forceDestCount` `0x8`, `treep` `0xC`, `srcTmp` `0x10`, `destTmp` `0x14`, `treeSize` `0x18` (s16), `srcTmpCnt` `0x1A`, `destTmpCnt` `0x1B`, `bitSize` `0x1C`, `headerSize` `0x1D`, `tree[0x200]` `0x20`; offsets proven by `CXInitUncompContextHuffman`, field names from the NITRO/TWL SDK convention (medium confidence). `DSPTaskInfo` `state`, `priority`, and `flags` must be `vu32`; the remaining layout is Petari's.
