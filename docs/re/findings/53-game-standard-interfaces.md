@@ -94,6 +94,15 @@ explicitly not a whole-ELF-file identity claim. No retained allocation changes.
 
 ## Traps
 
+The current-main repeat uses base `9fdce911`. Plain Ninja on both the
+original-header control and proposed-header candidate includes every diagnostic
+source object. All 505 other source objects preserve their allocated sections
+and normalized relocations; the same bounded common-destructor extension is
+the only change. Canonical-only helpers retain all 176 matching bytes and
+three relocation targets. The full DOL and all allocated ELF content remain
+identical, with the same eight numeric local-label changes confined to
+`.strtab`. Configure, plain Ninja and the explicit frozen verifier exit zero.
+
 - Supplying an ordinary inline base destructor can make an existing source
   object emit another weak definition and its exception records. Prove the
   original retained bodies unchanged, audit the added native definition, and
@@ -103,3 +112,6 @@ explicitly not a whole-ELF-file identity claim. No retained allocation changes.
 - A matching type-identity comparison can use the opposite source operand
   order and still return the same boolean. Only the observed operand order
   reproduces the target argument registers; compare every instruction.
+- Building only `main.dol` can leave stale diagnostic objects for NonMatching
+  units after a rebase. Capture a shared-header baseline after plain Ninja,
+  which compiles those diagnostic objects as well as the linked sources.
