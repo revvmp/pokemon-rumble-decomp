@@ -28,6 +28,21 @@ For each shared type or interface record size, alignment, field offsets, paramet
 
 [F-466-1](findings/466-oscontext.md) records the `wpse-v1` OSContext unit, all five recovered function names and extents, file-offset mapping, and the 0x2C8-byte context ABI. The added `include/revolution/os/OSContext.h` follows the reference layout, with every saved register offset corroborated by target loads and stores. Absolute current-context/FPU-context pointers are at `0x800000D4`/`0x800000D8`. Source and data compare at 100% in objdiff; the external compiler conversion-helper name remains unmodified pending its owner.
 
+## Issue 474: matrix units
+
+[F-474-1](findings/474-matrix.md#f-474-1-unit-boundaries-and-source-provenance) establishes these original SDK names through matching implementations. Confidence is high.
+
+| Address | Name | Size |
+| --- | --- | --- |
+| `0x802C9590` | `PSMTXMultVec` | `0x54` |
+| `0x802C95F0` | `PSMTXMultVecArray` | `0x8C` |
+| `0x802C9680` | `PSMTXMultVecSR` | `0x54` |
+| `0x802C96E0` | `C_MTXFrustum` | `0x9C` |
+| `0x802C9780` | `C_MTXPerspective` | `0xEC` |
+| `0x802C9870` | `C_MTXOrtho` | `0x98` |
+
+`Vec` contains single-precision `x`, `y`, `z` at offsets 0, 4, 8, size 12 and alignment 4. `Mtx` is a row-major 3 by 4 single-precision matrix, size 48; `Mtx44` is 4 by 4, size 64. Both have alignment 4. These layouts follow the observed load/store offsets and the CC0 SDK reference. `C_MTXPerspective` calls the matching reference's `tan` at `0x8034D4B8`; the target spelling remains unchanged because the function belongs outside issue 474.
+
 ## Issue 475: GX FIFO
 
 [F-475-1](findings/475-gxfifo.md) lists all nine functions in `0x802CACE0–0x802CB6C0`, their exact extents and high-confidence original SDK names. The DOL file offset is runtime address minus `0x8004FD40`; source destination is `src/RVL_SDK/gx/GXFifo.c`. `GXSetBreakPtCallback` at `0x802CB450` returns/replaces the callback under interrupt protection. Internal state is 36 bytes; field offsets and the public 128-byte FIFO ABI are recorded in the finding and `include/RVL_SDK/gx/GXFifo.h`.

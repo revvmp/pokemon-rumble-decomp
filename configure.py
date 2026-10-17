@@ -178,6 +178,8 @@ config.libs = [
             Object(Matching, "RVL_SDK/si/SISamplingRate.c"),
             Object(Matching, "RVL_SDK/db/db.c"),
             Object(NonMatching, "RVL_SDK/vi/i2c.c"),
+            Object(Matching, "RVL_SDK/mtx/mtxvec.c"),
+            Object(NonMatching, "RVL_SDK/mtx/mtx44.c"),
             Object(NonMatching, "RVL_SDK/gx/GXFifo.c"),
             Object(NonMatching, "RVL_SDK/gx/GXMisc.c"),
             Object(NonMatching, "RVL_SDK/gx/GXGeometry.c"),
