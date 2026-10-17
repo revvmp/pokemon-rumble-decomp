@@ -717,6 +717,9 @@ nw4r/snd/snd_SeqPlayer.cpp:
 	.bss        start:0x8044D6E8 end:0x8044D708
 	.sdata2     start:0x804BAF08 end:0x804BAF20
 
+nw4r/snd/snd_WaveArchive.cpp:
+	.text       start:0x802910A0 end:0x802911A8
+
 nw4r/ut/ut_list.cpp:
 	.text       start:0x80292D00 end:0x80292F5C
 
