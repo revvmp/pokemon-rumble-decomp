@@ -7,10 +7,10 @@ namespace nw4r {
 namespace lyt {
 
 namespace detail {
-template <typename T> inline const T* ConvertOffsToPtr(const void* pBase, u32 offset) {
+template <typename T> inline const T* ConvertOffsToPtr(const void* pBase, unsigned int offset) {
     return reinterpret_cast<const T*>(reinterpret_cast<u32>(pBase) + offset);
 }
-template <typename T> inline T* ConvertOffsToPtr(void* pBase, u32 offset) {
+template <typename T> inline T* ConvertOffsToPtr(void* pBase, unsigned int offset) {
     return reinterpret_cast<T*>(reinterpret_cast<u32>(pBase) + offset);
 }
 }
