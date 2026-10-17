@@ -10,7 +10,11 @@ extern "C" {
 #include "revolution/types.h"
 
 void GXInitLightAttn(GXLightObj*, f32, f32, f32, f32, f32, f32);
+void GXInitLightAttnA(GXLightObj*, f32, f32, f32);
+void GXInitLightAttnK(GXLightObj*, f32, f32, f32);
 void GXInitLightPos(GXLightObj*, f32, f32, f32);
+void GXGetLightPos(const GXLightObj*, f32*, f32*, f32*);
+void GXGetLightDir(const GXLightObj*, f32*, f32*, f32*);
 void GXInitLightColor(GXLightObj*, GXColor);
 void GXInitLightColor(GXLightObj*, GXColor);
 void GXLoadLightObjImm(const GXLightObj*, GXLightID);
