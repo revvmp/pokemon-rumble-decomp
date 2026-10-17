@@ -2377,3 +2377,7 @@ For `wpse-v1` / `main.dol`, [F-356-1](findings/356-fa-pf-dir-api.md) names the l
 | `HomeButton + 0x2DC`, extent `0x28` | `mpTextEx[10][1]` | Native independent row and language indices and following font pointer at `0x304`; high; header prerequisite #896 |
 
 All three methods compare at 100%; all 37 functions and every section in the completed HBMBase unit compare at 100% and the source-linked DOL verifies. See [F-760-2](findings/760-hbm-extension.md).
+
+## Issue #756: completed first HBMBase block audit
+
+The complete original issue inventory contains 22 functions and 20,124 instruction bytes at `0x8017C470` through `0x80181374`. Every address, size, and existing reconstructed name is confirmed in a fresh objdiff report at 100%. The full native HBMBase unit is source linked and all 37 functions and all sections compare at 100%; frozen executable verification passes. No symbols or class layouts change. See the [complete address inventory and acceptance evidence](findings/756-complete-inventory-audit.md).
