@@ -107,7 +107,7 @@ public:
 
 private:
     bool mIsValidMtx[GX_ITM_2 - GX_ITM_0 + 1];
-    u8 PADDING_0x7;
+    u8 mReserved;
     math::MTX34 mIndMtx[GX_ITM_2 - GX_ITM_0 + 1];
 };
 
