@@ -73,3 +73,16 @@ Ran `tools/collab/claim_issue.py` against the live repository with gh authentica
 - `claim` without a target exited 2.
 
 The worktree layout it creates was validated manually in [collaboration workflow validation](#collaboration-workflow-validation). Not yet exercised: the live assign, comment, race check, and release round trip, because it posts on a real issue.
+
+## Continuous integration validation
+
+Validated `.github/workflows/build.yml` and `tools/setup/acquire_tools.py`:
+- **Acquisition script, locally.**
+  - `--offline` verified the five shared tools and the extracted Wii/1.1 `mwcceppc.exe` and `mwldeppc.exe` digests, exit 0.
+  - A run into an empty directory downloaded and verified everything in 12 seconds, exit 0.
+  - A toolchain copy with a wrong sjiswrap digest exited 1 with a mismatch message and deleted the file.
+- **Clean build, locally.** In a worktree, a clean build with the freshly downloaded tools passed verification. Before `.gitattributes`, it rewrote `config/wpse-v1/symbols.txt` and `splits.txt`; only the line endings changed (CRLF checkout, LF dtk output). After it, no tracked file changed.
+- **Passing run.** Run 39014783107 on pull request #132 succeeded on `windows-latest`. Every digest verified, `PASS main.dol` was printed, and no rewrite warnings were raised. The progress steps were skipped because the run was not on `main`.
+- **Failing run.** Run 39014932291 on a temporary branch, since deleted, removed `#pragma force_active on` from `src/Runtime/__init_cpp_exceptions.cpp`. The linked `main.dol` failed dtk's `build.sha1` check (`build/wpse-v1/main.dol: FAILED`), the Build step exited 1, Verify was skipped, and the run concluded `failure`.
+
+Not yet exercised: the `main`-only progress image steps, which first run after merge.
