@@ -29,6 +29,27 @@ enum {
 
 typedef UINT8 tBTM_DEV_STATUS;
 
+enum {
+    BTM_DEV_STATUS_UP,
+    BTM_DEV_STATUS_DOWN,
+    BTM_DEV_STATUS_CMD_TOUT
+};
+
+enum {
+    BTM_INQ_RESULT_STANDARD,
+    BTM_INQ_RESULT_WITH_RSSI
+};
+
+enum {
+    BTM_ROLE_MASTER = 0,
+    BTM_ROLE_SLAVE = 1,
+    BTM_ROLE_UNDEFINED = 255
+};
+
+enum {
+    BTM_CB_EVT_RETURN_LINK_KEYS = 1
+};
+
 typedef UINT16 tBTM_DISC_MODE;
 
 enum {
@@ -231,6 +252,14 @@ typedef struct {
     UINT16 timeout;
     tBTM_PM_MODE mode;
 } tBTM_PM_PWR_MD;
+
+typedef struct {
+    UINT8 event;
+    UINT8 num_keys;
+} tBTM_RETURN_LINK_KEYS_EVT;
+
+BOOLEAN BTM_IsDeviceUp(void);
+void BTM_DeviceReset(tBTM_CMPL_CB* p_cb);
 
 void BTM_SetDefaultLinkPolicy(UINT16 settings);
 void BTM_SetDefaultLinkSuperTout(UINT16 timeout);

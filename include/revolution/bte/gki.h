@@ -44,7 +44,9 @@ void* GKI_getpoolbuf(UINT8 pool_id);
 void GKI_freebuf(void* p_buf);
 void GKI_init_q(BUFFER_Q* p_q);
 void GKI_enqueue(BUFFER_Q* p_q, void* p_buf);
+void GKI_enqueue_head(BUFFER_Q* p_q, void* p_buf);
 void* GKI_dequeue(BUFFER_Q* p_q);
+BOOLEAN GKI_queue_is_empty(BUFFER_Q* p_q);
 
 #ifdef __cplusplus
 }

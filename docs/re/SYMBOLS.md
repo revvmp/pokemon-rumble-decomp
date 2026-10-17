@@ -1187,3 +1187,78 @@ Names, addresses and evidence are listed in [F-539-1](findings/539-msl-wide-math
 | `SCSetWpadSpeakerVolume` | `0x802E9A80` |
 
 System storage: `Control` at 8046F040 (0x190 bytes), `ConfBuf` at 8046F1E0 (0x4000), `ConfBufForFlush` at 804731E0 (0x4000), `NameAndIDTbl` at 803DC6F0 (37 eight-byte records), and the three path arrays at 80371810/80371820/80371838. `__SCVersion` is the pointer at 804B8C38. Small runtime state occupies 804B99B8–804B99CF; all extents exclude following unit padding.
+
+## BTE HCI event interface, issue 521
+
+[F-521-1](findings/521-bte-btu-hcif.md) gives the `btu_hcif.c` boundaries and [F-521-3](findings/521-bte-btu-hcif.md#f-521-3-external-names) the call-site evidence for the outside names. [F-521-4](findings/521-bte-btu-hcif.md#f-521-4-remaining-btm_secc-functions-in-the-521-block) proposes names for the unnamed `btm_sec.c` functions in the block; they are not applied.
+
+| Address | Size | Old name | Name | Kind | Confidence | Evidence | Source |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `0x803245D0` | `0x5B8` | `fn_803245D0` | `btu_hcif_process_event` | function | high | F-521-1 | `src/RVL_SDK/bte/btu_hcif.c` |
+| `0x80324D14` | `0xDC` | `fn_80324D14` | `btu_hcif_connection_comp_evt` | static function | high | F-521-1 | `src/RVL_SDK/bte/btu_hcif.c` |
+| `0x80324DF0` | `0x8C` | `fn_80324DF0` | `btu_hcif_connection_request_evt` | static function | high | F-521-1 | `src/RVL_SDK/bte/btu_hcif.c` |
+| `0x80324E7C` | `0x100` | `fn_80324E7C` | `btu_hcif_qos_setup_comp_evt` | static function | high | F-521-1 | `src/RVL_SDK/bte/btu_hcif.c` |
+| `0x80324F7C` | `0xE0` | `fn_80324F7C` | `btu_hcif_esco_connection_comp_evt` | static function | high | F-521-1 | `src/RVL_SDK/bte/btu_hcif.c` |
+| `0x8032505C` | `0x158` | `fn_8032505C` | `btu_hcif_hdl_command_complete` | static function | high | F-521-1 | `src/RVL_SDK/bte/btu_hcif.c` |
+| `0x803251B4` | `0x118` | `fn_803251B4` | `btu_hcif_command_complete_evt` | static function | high | F-521-1 | `src/RVL_SDK/bte/btu_hcif.c` |
+| `0x803252CC` | `0x200` | `fn_803252CC` | `btu_hcif_hdl_command_status` | static function | high | F-521-1 | `src/RVL_SDK/bte/btu_hcif.c` |
+| `0x803254CC` | `0x128` | `fn_803254CC` | `btu_hcif_command_status_evt` | static function | high | F-521-1 | `src/RVL_SDK/bte/btu_hcif.c` |
+| `0x803255F4` | `0x158` | `fn_803255F4` | `btu_hcif_cmd_timeout` | function | high | F-521-1 | `src/RVL_SDK/bte/btu_hcif.c` |
+| `0x8032574C` | `0xE0` | `fn_8032574C` | `btu_hcif_link_key_notification_evt` | static function | high | F-521-1 | `src/RVL_SDK/bte/btu_hcif.c` |
+| `0x803116D0` | `0x140` | `fn_803116D0` | `GKI_enqueue_head` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x803119B0` | `0x10` | `fn_803119B0` | `GKI_queue_is_empty` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x8031A878` | `0x170` | `fn_8031A878` | `btm_acl_encrypt_change` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x8031ABE8` | `0x104` | `fn_8031ABE8` | `btm_read_link_policy_complete` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x8031ACEC` | `0x8C` | `fn_8031ACEC` | `btm_read_remote_version_complete` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x8031AD78` | `0x22C` | `fn_8031AD78` | `btm_read_remote_features_complete` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x8031B194` | `0x9C` | `fn_8031B194` | `btm_process_clk_off_comp_evt` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x8031B230` | `0x1F4` | `fn_8031B230` | `btm_acl_role_changed` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x8031B664` | `0xD8` | `fn_8031B664` | `btm_qos_setup_complete` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x8031B9B4` | `0x11C` | `fn_8031B9B4` | `btm_read_rssi_complete` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x8031BAD0` | `0x118` | `fn_8031BAD0` | `btm_read_link_quality_complete` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x8031C6E0` | `0x9C` | `fn_8031C6E0` | `BTM_DeviceReset` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x8031C824` | `0x1C` | `fn_8031C824` | `BTM_IsDeviceUp` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x8031CBC8` | `0x1C4` | `fn_8031CBC8` | `btm_reset_complete` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x8031CD8C` | `0xC8` | `fn_8031CD8C` | `btm_read_hci_buf_size_complete` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x8031CE54` | `0xBC` | `fn_8031CE54` | `btm_read_local_version_complete` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x8031CF10` | `0x4FC` | `fn_8031CF10` | `btm_read_local_features_complete` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x8031D4C4` | `0x8C` | `fn_8031D4C4` | `btm_read_local_name_complete` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x8031D590` | `0x48` | `fn_8031D590` | `btm_read_local_addr_complete` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x8031D7D8` | `0x6C` | `fn_8031D7D8` | `btm_vsc_complete` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x8031D87C` | `0x98` | `fn_8031D87C` | `btm_vendor_specific_evt` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x8031DC2C` | `0x7C` | `fn_8031DC2C` | `btm_read_stored_link_key_complete` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x8031DCA8` | `0x5C` | `fn_8031DCA8` | `btm_write_stored_link_key_complete` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x8031DD04` | `0x68` | `fn_8031DD04` | `btm_delete_stored_link_key_complete` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x8031DD6C` | `0x18C` | `fn_8031DD6C` | `btm_return_link_keys_evt` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x8031DEF8` | `0x20` | `fn_8031DEF8` | `btm_report_device_status` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x8031F260` | `0x220` | `fn_8031F260` | `btm_event_filter_complete` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x8031F480` | `0x278` | `fn_8031F480` | `btm_process_inq_results` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x8031F6F8` | `0x104` | `fn_8031F6F8` | `btm_process_inq_complete` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x8031F94C` | `0x158` | `fn_8031F94C` | `btm_process_remote_name` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x803204FC` | `0xB0` | `fn_803204FC` | `btm_pm_proc_cmd_status` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x803205AC` | `0x228` | `fn_803205AC` | `btm_pm_proc_mode_change` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x803209F4` | `0x18C` | `fn_803209F4` | `btm_sco_chk_pend_unpark` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x80320B80` | `0x1E0` | `fn_80320B80` | `btm_sco_conn_req` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x80320D60` | `0x1A0` | `fn_80320D60` | `btm_sco_connected` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x8032103C` | `0x114` | `fn_8032103C` | `btm_sco_removed` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x803213B0` | `0x104` | `fn_803213B0` | `btm_esco_proc_conn_chg` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x803214B4` | `0x70` | `fn_803214B4` | `btm_is_sco_active` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x8032276C` | `0x12C` | `fn_8032276C` | `btm_sec_conn_req` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x803229A8` | `0x2E8` | `fn_803229A8` | `btm_sec_rmt_name_request_complete` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x80322C90` | `0x344` | `fn_80322C90` | `btm_sec_auth_complete` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x80322FD4` | `0xFC` | `fn_80322FD4` | `btm_sec_mkey_comp_event` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x803230D0` | `0x13C` | `fn_803230D0` | `btm_sec_encrypt_change` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x8032324C` | `0x480` | `fn_8032324C` | `btm_sec_connected` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x80323788` | `0x13C` | `fn_80323788` | `btm_sec_disconnected` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x803238C4` | `0x1AC` | `fn_803238C4` | `btm_sec_link_key_notification` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x80323A70` | `0x130` | `fn_80323A70` | `btm_sec_link_key_request` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x80323C14` | `0x35C` | `fn_80323C14` | `btm_sec_pin_code_request` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x80323F70` | `0x50` | `fn_80323F70` | `btm_sec_update_clock_offset` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x8032E780` | `0x238` | `fn_8032E780` | `l2c_link_hci_conn_comp` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x8032EA6C` | `0xBC` | `fn_8032EA6C` | `l2c_link_hci_disc_comp` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x8032EB28` | `0x70` | `fn_8032EB28` | `l2c_link_hci_qos_violation` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x8032F278` | `0xE4` | `fn_8032F278` | `l2c_link_process_num_completed_pkts` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x8032F5AC` | `0x80` | `fn_8032F5AC` | `l2c_link_role_changed` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x8032F62C` | `0x6C` | `fn_8032F62C` | `l2c_link_role_change_failed` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x8032F774` | `0x44` | `fn_8032F774` | `l2c_pin_code_request` | function, outside unit | high name | F-521-3 | split left to its owning issue |
+| `0x804AAD78` | `0x27C8` | `lbl_804AAD78` | `btm_cb` | `.bss` object, outside unit | high name | F-521-3 | split left to its owning issue |

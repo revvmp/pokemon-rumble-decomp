@@ -32,6 +32,10 @@ All six units match with GC/3.0a3 and `cflags_sdk` (`BTE_COMPILER`, as in F-524-
 
 To link the units from source, these outside symbols were given Petari names in `symbols.txt`, matched by the call sites in the verified functions: `GKI_getpoolbuf` `0x80311070`, `GKI_freebuf` `0x80311160`, `GKI_enqueue` `0x80311590`, `GKI_dequeue` `0x80311810`, `btm_discovery_db_init` `0x8031DF18`, `BTM_ReadRemoteDeviceName` `0x8031E91C`, `BTM_InqDbFirst` `0x8031EB3C`, `BTM_InqDbNext` `0x8031EBF4`, `btm_init` `0x8031FAE4`, `btu_hcif_send_cmd` `0x80324B88`, `L2CA_Deregister` `0x8032C720`, `L2CA_ConnectRsp` `0x8032C9E4`, `L2CA_ConfigReq` `0x8032CB74`, `L2CA_ConfigRsp` `0x8032CC2C`, `L2CA_DisconnectReq` `0x8032CCFC`, `L2CA_DisconnectRsp` `0x8032CDA0`, `l2c_init` `0x8032F7B8`, `SDP_SetLocalDiRecord` `0x80339170`, `SDP_GetLocalDiRecord` `0x803394D0`, `SDP_AddAttribute` `0x80339E48`, `SDP_AddUuidSequence` `0x8033A1E0`, `sdp_init` `0x8033B8E8`, `memcmp` `0x803456E8`, and `btu_cb` `.bss` `0x804AA850`. Their splits and sizes are left to the owning issues. `GKI_freebuf` and `memcmp` are two of the names F-524-3 was waiting for.
 
+## F-522-5: btu_hcif.c tail now Matching
+
+This supersedes the unsplit `btu_hcif.c` row of [F-522-1](#f-522-1-unit-boundaries-and-names). [F-521-1](521-bte-btu-hcif.md#f-521-1-unit-boundaries) splits `btu_hcif.c` as `0x803245D0`–`0x8032582C` and registers it `Matching`; `btu_hcif_cmd_timeout` (`0x803255F4`) and `btu_hcif_link_key_notification_evt` (`0x8032574C`) are 100% in objdiff and the full DOL verifies with the unit linked from source. The whole #522 range `0x803255F4`–`0x80327880` is now covered by `Matching` units: the `btu_hcif.c` tail, `btu_init.c`, `wbt_ext.c`, the three GAP units and the start of `hcicmds.c`.
+
 ## Provenance
 
 Sources and headers are rewritten after Petari's BTE files; see [BTE provenance](../licenses/522-bte-NOTICE.md).
