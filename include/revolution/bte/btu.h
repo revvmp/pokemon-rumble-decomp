@@ -17,6 +17,12 @@ enum {
     BTU_TTYPE_USER_FUNC = 22
 };
 
+enum {
+    BTU_TTYPE_BTU_CMD_CMPL = 60
+};
+
+#define BTU_CMD_CMPL_TIMEOUT 8
+
 #define BTU_MAX_REG_TIMER 2
 #define BTU_MAX_REG_EVENT 6
 #define BTU_DEFAULT_DATA_SIZE 0x2A0
@@ -52,7 +58,9 @@ extern const BD_ADDR BT_BD_ANY;
 
 void btu_start_timer(TIMER_LIST_ENT* p_tle, UINT16 type, UINT32 timeout);
 void btu_stop_timer(TIMER_LIST_ENT* p_tle);
+void btu_hcif_process_event(BT_HDR* p_msg);
 void btu_hcif_send_cmd(BT_HDR* p_buf);
+void btu_hcif_cmd_timeout(void);
 void btu_init_core(void);
 void BTE_Init(void);
 

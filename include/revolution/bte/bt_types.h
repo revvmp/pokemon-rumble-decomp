@@ -27,6 +27,8 @@ typedef UINT8 BD_FEATURES[BD_FEATURES_LEN];
 
 typedef UINT16 tBT_EVT;
 
+#define BT_EVT_TO_LM_HCI_CMD 0x2000
+
 typedef struct {
     tBT_EVT event;
     UINT16 len;
@@ -157,6 +159,37 @@ enum {
         for (ijk = 0; ijk < len; ijk++)                                                                                \
             ((UINT8*)(a))[ijk] = *(p)++;                                                                               \
     } while (FALSE)
+
+#define STREAM_TO_UINT8(p, u8)                                                                                         \
+    do {                                                                                                               \
+        *(u8) = (UINT8)(*(p));                                                                                         \
+        (p) += 1;                                                                                                      \
+    } while (FALSE)
+
+#define STREAM_TO_UINT16(p, u16)                                                                                       \
+    do {                                                                                                               \
+        *(u16) = (UINT16)((UINT16)(*(p)) + ((UINT16)(*((p) + 1)) << 8));                                               \
+        (p) += 2;                                                                                                      \
+    } while (FALSE)
+
+#define STREAM_TO_UINT32(p, u32)                                                                                       \
+    do {                                                                                                               \
+        *(u32) = ((UINT32)(*(p)) + ((UINT32)(*((p) + 1)) << 8) + ((UINT32)(*((p) + 2)) << 16) +                        \
+                  ((UINT32)(*((p) + 3)) << 24));                                                                       \
+        (p) += 4;                                                                                                      \
+    } while (FALSE)
+
+#define REVERSED_STREAM_TO_ARRAY(p, a, len)                                                                            \
+    do {                                                                                                               \
+        register int ijk;                                                                                              \
+        register UINT8* _pa = (UINT8*)(a) + (len) - 1;                                                                 \
+        for (ijk = 0; ijk < (len); ++ijk)                                                                              \
+            *_pa-- = *(p)++;                                                                                           \
+    } while (FALSE)
+
+#define STREAM_TO_ARRAY16(p, a) REVERSED_STREAM_TO_ARRAY(p, a, LINK_KEY_LEN)
+#define STREAM_TO_BDADDR(p, a) REVERSED_STREAM_TO_ARRAY(p, a, BD_ADDR_LEN)
+#define STREAM_TO_DEVCLASS(p, a) REVERSED_STREAM_TO_ARRAY(p, a, DEV_CLASS_LEN)
 
 #define UINT32_TO_BE_FIELD(p, u32)                                                                                     \
     do {                                                                                                               \

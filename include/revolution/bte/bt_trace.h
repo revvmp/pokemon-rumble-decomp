@@ -28,6 +28,7 @@ enum {
 #define TRACE_TYPE_DEBUG 0x00000004
 #define TRACE_LAYER_GAP 0x000E0000
 #define TRACE_LAYER_RFCOMM 0x00090000
+#define TRACE_LAYER_HCI 0x00070000
 
 void LogMsg_0(UINT32 trace_set_mask, const char* fmt_str);
 void LogMsg_1(UINT32 trace_set_mask, const char* fmt_str, UINT32 p1);
@@ -126,6 +127,11 @@ void LogMsg_6(UINT32 trace_set_mask, const char* fmt_str, UINT32 p1, UINT32 p2, 
         if (appl_trace_level >= BT_TRACE_LEVEL_EVENT)                                                            \
             LogMsg_0(TRACE_CTRL_GENERAL | TRACE_LAYER_NONE | TRACE_ORG_APPL | TRACE_TYPE_EVENT, m);           \
     }
+
+#define HCI_TRACE_ERROR0(m) BT_TRACE_0(TRACE_LAYER_HCI, TRACE_TYPE_ERROR, m)
+#define HCI_TRACE_WARNING0(m) BT_TRACE_0(TRACE_LAYER_HCI, TRACE_TYPE_WARNING, m)
+#define HCI_TRACE_WARNING1(m, p1) BT_TRACE_1(TRACE_LAYER_HCI, TRACE_TYPE_WARNING, m, p1)
+#define HCI_TRACE_WARNING2(m, p1, p2) BT_TRACE_2(TRACE_LAYER_HCI, TRACE_TYPE_WARNING, m, p1, p2)
 
 #define HID_TRACE_MASK(type) (TRACE_LAYER_HID | TRACE_ORG_STACK | (type))
 
