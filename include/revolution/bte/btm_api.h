@@ -28,6 +28,7 @@ enum {
 };
 
 typedef UINT8 tBTM_DEV_STATUS;
+typedef UINT8 tBTM_BL_EVENT;
 
 enum {
     BTM_DEV_STATUS_UP,
@@ -259,6 +260,22 @@ typedef struct {
     UINT8 num_keys;
 } tBTM_RETURN_LINK_KEYS_EVT;
 
+typedef struct
+{
+	tBTM_STATUS	status;
+	UINT8		hci_status;
+	INT8		rssi;
+	BD_ADDR		rem_bda;
+} tBTM_RSSI_RESULTS;
+
+typedef struct
+{
+	tBTM_STATUS	status;
+	UINT8		hci_status;
+	UINT8		link_quality;
+	BD_ADDR		rem_bda;
+} tBTM_LINK_QUALITY_RESULTS;
+
 BOOLEAN BTM_IsDeviceUp(void);
 void BTM_DeviceReset(tBTM_CMPL_CB* p_cb);
 
@@ -295,4 +312,10 @@ tBTM_STATUS BTM_SetPowerMode(UINT8 pm_id, BD_ADDR remote_bda, tBTM_PM_PWR_MD* p_
 BOOLEAN BTM_SetSecurityLevel(BOOLEAN is_originator, char* p_name, UINT8 service_id, UINT8 sec_level, UINT16 psm,
                              UINT32 mx_proto_id, UINT32 mx_chan_id);
 
+tBTM_STATUS BTM_SwitchRole(BD_ADDR remote_bd_addr, UINT8 new_role,
+                           tBTM_CMPL_CB *p_cb);
+tBTM_STATUS BTM_ReadRSSI(BD_ADDR remote_bda, tBTM_CMPL_CB *p_cb);
+tBTM_STATUS BTM_ReadLinkQuality(BD_ADDR remote_bda, tBTM_CMPL_CB *p_cb);
+void BTM_SendHciReset(tBTM_CMPL_CB *p_cb);
+tBTM_INQ_INFO *BTM_InqDbRead(BD_ADDR p_bda);
 #endif
