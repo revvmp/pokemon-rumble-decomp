@@ -69,9 +69,13 @@ The ordinary source, with no `dont_inline` region or other instruction-control p
 
 Current main already includes the corrected three-argument `CalcAhead_NoDesign` declaration. A later prerequisite must preserve that canonical declaration and propose only the activity-count selection and equivalent const-getter forwarding still absent from main, rather than reintroduce a duplicate signature change.
 
+The ordinary candidate was subsequently compiled against a complete tracked-header snapshot of main `f8602abba0f8cd994902ffe8be11fa6c55ff72c5`, retaining only those two bounded shared changes. All 21 functions, 369 text relocations, five vtable targets and 80 data bytes remain exact. A focused original/proposed compilation of all eight existing strategy source files produces 78 functions: 77 are unchanged, and the sole changed function is the eight-byte weak `GetNumDrawParticle` emitted by the NonMatching smooth-stripe object. Its old bytes `a06400404e800020` decode to `lhz r3,0x40(r4); blr`; the proposed bytes `a06400504e800020` decode to `lhz r3,0x50(r4); blr`. The immutable DOL hash was independently checked before reading native `0x80242BA0`, whose complete eight bytes are exactly the proposed sequence. This intentional correction must be identified separately in the future complete baseline audit; it is not an assertion that every existing NonMatching object remains identical.
+
 ## Free strategy diagnostics
 
 Recompiling the existing free strategy with the canonical headers reproduces three retained functions exactly and leaves its `Draw` body at 2,132 bytes against the native 2,156. Automatic deferred inlining produces the same result. Diagnostic optimization changes to `-O3,p`, `-O2,p`, and disabled peephole optimization do not repair the function and introduce other differences. No compiler option or shared inline definition was changed in the repository on the strength of these failures.
+
+Three ordinary helper-structure controls also retain the same 2,132-byte mismatch: extracting the four repeated texture-flag tests in `DrawQuad` into a typed inline helper, declaring `CalcLocalTransform` inline, and declaring `InitGraphics` inline. Each preserves the three other exact native functions. These outside-only controls do not establish a repair and are not proposed source changes.
 
 ## Traps
 
