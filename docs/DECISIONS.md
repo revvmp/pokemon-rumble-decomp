@@ -66,7 +66,7 @@ Accepted at the project owner's request. `docs/re/main.elf.i64` is an IDA Pro da
 Accepted to stop parallel contributors from writing duplicate and conflicting SDK headers.
 - `include/revolution/` and `include/private/` hold the RVL_SDK headers, laid out as in Petari.
 - Headers that contributors had already adapted and matched against were kept unchanged.
-- Every other Petari RVL_SDK header was imported from Petari commit `e0ab141` (CC0) with comments stripped, 140 files in all. The VF headers were left out because this game has no VF library.
+- Every other Petari RVL_SDK header was imported from Petari commit `e0ab141` (CC0) with comments stripped, 136 files in all. The VF headers were left out because this game has no VF library.
 - `tools/vendor/vendor_strip.py` gained C/C++ support for the stripping. It refuses output whose code differs from the original apart from comments and whitespace.
 
 Consequences:
