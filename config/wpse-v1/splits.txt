@@ -366,6 +366,35 @@ nw4r/snd/snd_BasicSound.cpp:
 	.sbss       start:0x804B9348 end:0x804B9350
 	.sdata2     start:0x804BADF0 end:0x804BAE00
 
+nw4r/snd/snd_BiquadFilterPreset.cpp:
+	.text       start:0x80279310 end:0x80279750
+	.rodata     start:0x8036C9D8 end:0x8036DE10
+	.data       start:0x803C61F8 end:0x803C6248
+	.sdata2     start:0x804BAE00 end:0x804BAE10
+
+nw4r/snd/snd_Channel.cpp:
+	.text       start:0x80279750 end:0x8027A8E8
+	.bss        start:0x8044D3C8 end:0x8044D3F8
+	.sbss       start:0x804B9350 end:0x804B9358
+	.sdata2     start:0x804BAE10 end:0x804BAE38
+
+nw4r/snd/snd_DisposeCallbackManager.cpp:
+	.text       start:0x8027A8F0 end:0x8027AC7C
+	.bss        start:0x8044D3F8 end:0x8044D410
+	.sbss       start:0x804B9358 end:0x804B9360
+
+nw4r/snd/snd_debug.cpp:
+	.text       start:0x8027AC80 end:0x8027AD00
+	.sdata      start:0x804B89D0 end:0x804B89D8
+
+nw4r/snd/snd_EnvGenerator.cpp:
+	.text       start:0x8027AD00 end:0x8027B0D0
+	.rodata     start:0x8036DE10 end:0x8036E110
+	.sdata2     start:0x804BAE38 end:0x804BAE68
+
+nw4r/snd/snd_ExternalSoundPlayer.cpp:
+	.text       start:0x8027B0D0 end:0x8027B5D8
+
 nw4r/ut/ut_list.cpp:
 	.text       start:0x80292D00 end:0x80292F5C
 
