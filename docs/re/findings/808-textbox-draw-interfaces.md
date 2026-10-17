@@ -39,6 +39,18 @@ object passes 156 text plus 33 data relocations and 240 data bytes, with no
 unresolved callee addresses. F-808-5 records this source evidence separately.
 This header prerequisite still contributes no source or byte credit.
 
+The subsequent helper claim #450 establishes the complete native CharWriter
+unit at 802983D0-8029A78C. Four private static display-list setup declarations
+are added under the same canonical class, with owner approval. They change
+no storage, virtual order, or public API beyond the already evidenced public
+GD setup method. All 13 retained functions / 9,116 instruction bytes and
+physical retained order match using the canonical class. Independent native
+pairing proves 429 text relocation targets and all 40 bytes of bss, sbss and
+sdata2. The names are descriptive inferences from native GX calls. The two
+last helpers at 8029A170/8029A4E0 belong to original #451 and are coordinated
+with its TextWriter owner; their source credit belongs to the separate
+complete CharWriter source delivery. No duplicate bytes are counted here.
+
 | Interface | Native evidence and naming confidence |
 | --- | --- |
 | Material::GetTevColor | Returns the existing signed-color record by value; original reference API |

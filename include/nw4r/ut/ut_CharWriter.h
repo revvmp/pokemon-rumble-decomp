@@ -191,6 +191,10 @@ private:
     static void SetupGXWithColorMapping(Color min, Color max);
     static void SetupGXForI();
     static void SetupGXForRGBA();
+    static void SetupGXForDisplayListDefault();
+    static void SetupGXForDisplayListWithColorMapping();
+    static void SetupGXForDisplayListForI();
+    static void SetupGXForDisplayListForRGBA();
 
     void UpdateVertexColor();
     void PrintGlyph(f32 x, f32 y, f32 z, const Glyph& rGlyph);
