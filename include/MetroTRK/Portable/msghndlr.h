@@ -19,6 +19,7 @@ typedef struct CommandReply {
     union {
         u32 sequence;
         u32 filePosition;
+        u32 instruction;
     } parameter;
     u8 payload[0x30];
 } CommandReply;

@@ -1,0 +1,5 @@
+# Issue #545 MetroTRK source provenance
+
+The processor-target implementation and serial-I/O option sources are adapted from `SMGCommunity/Petari` commit `e0ab141914921726a595573dc48d3f13d0922efe`, under `src/MetroTRK/debugger/embedded/MetroTRK/Processor/ppc/Generic/targimpl.c`, `src/MetroTRK/debugger/embedded/MetroTRK/Os/dolphin/target_options.c`, and `libs/MetroTRK/include/`. Petari's root license is CC0 1.0 Universal. The inspected reference files carry no additional file-specific copyright or license notice.
+
+Reference comments are not retained in source. The ordinary C byte-access implementation, expanded stop reply, thread traversal, target trace/MSR behavior, native storage alignment and order, and compiler revision are independently established from the frozen `wpse-v1` executable in [F-545-1](../findings/545-metrotrk-target.md). Eight processor-access and exception/context routines are legitimate original SDK assembly; their coverage is recorded separately from C/C++ decompilation. Runtime SPR/FPR instruction encoders remain C implementations of the debugger's evidenced dynamic behavior.
