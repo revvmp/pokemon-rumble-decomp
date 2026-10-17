@@ -55,6 +55,16 @@ KPADInsideStatus inside_kpads[4];
 static Vec2 Vec2_0 = {0.0f, 0.0f};
 static Mtx kp_fs_rot;
 static f32 kp_fs_revise_deg = 24.0f;
+static f64 sBalanceSampleAverage[4];
+static f64 sBalanceSmoothedWeights[4];
+static u16 sBalanceSampleCount;
+static u8 sBalanceCalibrationState;
+static u8 sBalanceTgcCalibrating;
+static u8 sBalanceCalibrationResult;
+static u8 sBalanceControlSucceeded;
+static u8 sBalanceCommandPending;
+
+void KPADiSamplingCallback(s32 chan);
 
 void KPADSetPosParam(s32 chan, f32 play_radius, f32 sensitivity) {
     inside_kpads[chan].pos_play_radius = play_radius;
@@ -1053,12 +1063,63 @@ void clamp_stick_cross(Vec2* stick, s32 sx, s32 sy, s32 min, s32 max) {
     }
 }
 
+void KPADiConnectCallback(s32 chan, s32 result) {
+    KPADInsideStatus* kp = &inside_kpads[chan];
+    u32 index;
+
+    if (result == WPAD_ERR_NONE) {
+        kp->lastDev = WPAD_DEV_CORE;
+        kp->accGravityUpdateReq = TRUE;
+        WPADSetCallbackByKPAD(FALSE);
+        WPADSetSamplingCallback(chan, KPADiSamplingCallback);
+        WPADSetCallbackByKPAD(TRUE);
+        kp->dpdHardwareEnabled = FALSE;
+        kp->dpdCmd = 0;
+        if (chan == 3) {
+            sBalanceCommandPending = FALSE;
+            sBalanceControlSucceeded = FALSE;
+            sBalanceCalibrationResult = 0;
+            sBalanceCalibrationState = 0;
+            sBalanceSampleCount = 0;
+            sBalanceTgcCalibrating = FALSE;
+            sBalanceSampleAverage[0] = 0.0;
+            sBalanceSmoothedWeights[0] = 0.0;
+            sBalanceSampleAverage[1] = 0.0;
+            sBalanceSmoothedWeights[1] = 0.0;
+            sBalanceSampleAverage[2] = 0.0;
+            sBalanceSmoothedWeights[2] = 0.0;
+            sBalanceSampleAverage[3] = 0.0;
+            sBalanceSmoothedWeights[3] = 0.0;
+        }
+    } else {
+        for (index = 0; index < 16; ++index) {
+            kp->uniRingBuf[index].u.core.err = WPAD_ERR_NO_CONTROLLER;
+        }
+        for (index = 0; index < kp->extraRingCount; ++index) {
+            kp->extraRingBuf[index].u.core.err = WPAD_ERR_NO_CONTROLLER;
+        }
+    }
+    if (kp->appConnectCallback) {
+        kp->appConnectCallback(chan, result);
+    }
+}
+
 WPADCallback KPADSetConnectCallback(s32 chan, WPADCallback callback) {
     BOOL enabled = OSDisableInterrupts();
     WPADCallback previous = inside_kpads[chan].appConnectCallback;
     inside_kpads[chan].appConnectCallback = callback;
     OSRestoreInterrupts(enabled);
     return previous;
+}
+
+void KPADiBalanceControlCallback(s32 chan, s32 result) {
+    sBalanceControlSucceeded = result == WPAD_ERR_NONE;
+    sBalanceCommandPending = FALSE;
+}
+
+void KPADiBalanceCalibrationCallback(s32 chan, s32 result) {
+    sBalanceCalibrationState = result == WPAD_ERR_NONE;
+    sBalanceCommandPending = FALSE;
 }
 
 void KPADDisableDPD(s32 chan) {
