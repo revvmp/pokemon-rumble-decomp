@@ -21,6 +21,8 @@ Baseline main `76b5be1b85d6d2e6a00db58484d5800b2a83ee71` passes fresh523-target 
 
 ## Volume research, not yet a published layout
 
+Owner-coordinated #369 native file-lock evidence refines the old PF_SFD opaque lock tail without changing any size or following offset. PF_LOCK has u16 mode/count, u32 wcount, PF_FILE* owner, OSSemaphore* resource and embedded OSSemaphore storage, size0x1C; PF_SFD.lock remains at0x27C, with num_handlers at0x298 and total size0x29C. The three file-lock functions independently match all352 native bytes. Native file consumers at0x8020FA38/FA48 export mode/owner;0x802103E4/10458 compare/clear owner;0x8020EBC4 and0x80210814–820 initialize/increment num_handlers. Existing-consumer baseline and full actual frozen verification must repeat on the combined canonical header before acceptance; the earlier516-object checkpoint above covers the three prototypes only.
+
 Independent driver and volume consumers use volume stride0x1FAC, flags at0x1F8C, p_part at0x1FA0 and array base pf_vol_set+0x88. InitModule at0x80215EB0 zeros26 records of0x1FAC bytes. Existing canonical0x3F58 size includes an inflated opaque tail. No record-size change is published until full native field/interface proof and unchanged existing-consumer gates support it.
 
 Native PFSYS_GetCurrentContextID at0x8021C890 reads pf_vol_set+0x64, and async worker0x8021C550 writes the incoming command context ID there. Context records used by PFVOL_regctx/SetCurrentVolume begin at+0x68; nondefault records1–3 are at+0x70/+0x78/+0x80. These observations explain the volume array start+0x88 without guessed padding. Proposed current_context_id naming is descriptive. Complete full-record source and allocated-data acceptance remain future work.
