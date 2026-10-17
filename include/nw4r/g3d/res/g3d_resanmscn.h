@@ -64,8 +64,11 @@ public:
         return GetRevision() == REVISION;
     }
 
+    bool HasResLightSet() const;
     bool HasResAnmAmbLight() const;
     bool HasResAnmLight() const;
+    bool HasResAnmFog() const;
+    bool HasResAnmCamera() const;
 
     ResLightSet GetResLightSet(int idx) const;
     ResLightSet GetResLightSet(u32 idx) const;
@@ -75,16 +78,25 @@ public:
     ResAnmAmbLight GetResAnmAmbLight(const ResName name) const;
     ResAnmAmbLight GetResAnmAmbLight(int idx) const;
     ResAnmAmbLight GetResAnmAmbLight(u32 idx) const;
+    u32 GetResAnmAmbLightNumEntries() const;
 
     ResAnmLight GetResAnmLight(const char *name) const;
     ResAnmLight GetResAnmLight(const ResName name) const;
     ResAnmLight GetResAnmLight(int idx) const;
     ResAnmLight GetResAnmLight(u32 idx) const;
+    u32 GetResAnmLightNumEntries() const;
+
+    ResAnmFog GetResAnmFog(const char *name) const;
+    ResAnmFog GetResAnmFog(const ResName name) const;
+    ResAnmFog GetResAnmFog(int idx) const;
+    ResAnmFog GetResAnmFog(u32 idx) const;
+    u32 GetResAnmFogNumEntries() const;
 
     ResAnmCamera GetResAnmCamera(const char *name) const;
     ResAnmCamera GetResAnmCamera(const ResName name) const;
     ResAnmCamera GetResAnmCamera(int idx) const;
     ResAnmCamera GetResAnmCamera(u32 idx) const;
+    u32 GetResAnmCameraNumEntries() const;
 
     ResLightSet GetResLightSetByRefNumber(u32 refNumber) const;
     ResAnmAmbLight GetResAnmAmbLightByRefNumber(u32 refNumber) const;
