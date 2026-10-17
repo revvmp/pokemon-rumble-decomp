@@ -680,6 +680,20 @@ Runtime/Gecko_ExceptionPPC.cpp:
 	.bss        start:0x804B3078 end:0x804B31F8
 	.sdata      start:0x804B8FA0 end:0x804B8FA8
 
+MSL_C/ansi_files.c:
+	.text       start:0x803430E0 end:0x803431F0
+	.data       start:0x803E5DD0 end:0x803E5F10
+	.bss        start:0x804B3230 end:0x804B3530
+
+MSL_C/arith.c:
+	.text       start:0x80344A70 end:0x80344ACC
+
+MSL_C/buffer_io.c:
+	.text       start:0x80344ACC end:0x80344BAC
+
+MSL_C/direct_io.c:
+	.text       start:0x80344BAC end:0x80344EB4
+
 MSL_C/MSL_Common_Embedded/Math/Double_precision/s_ldexp.c:
 	.text       start:0x8034D184 end:0x8034D2F0
 	.sdata2     start:0x804BBBB8 end:0x804BBBE0
