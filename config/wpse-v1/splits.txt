@@ -230,6 +230,14 @@ nw4r/g3d/res/g3d_resfile.cpp:
 nw4r/g3d/res/g3d_resmdl.cpp:
 	.text       start:0x8024D000 end:0x8024E0F8
 
+nw4r/g3d/res/g3d_resshp.cpp:
+	.text       start:0x8024E100 end:0x8024E9C4
+
+nw4r/g3d/res/g3d_restev.cpp:
+	.text       start:0x8024E9D0 end:0x8024F0A8
+	.rodata     start:0x8036C690 end:0x8036C6F0
+	.data       start:0x803C58C0 end:0x803C58D0
+
 nw4r/snd/snd_AxManager.cpp:
 	.text       start:0x80271E10 end:0x80273650
 	.ctors      start:0x80352A50 end:0x80352A54
