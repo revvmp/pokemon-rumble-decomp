@@ -160,7 +160,12 @@ config.libs = [
         SDK_COMPILER,
         cflags_sdk,
         "sdk",
-        [Object(Matching, "RVL_SDK/base/PPCArch.c")],
+        [
+            Object(Matching, "RVL_SDK/base/PPCArch.c"),
+            Object(NonMatching, "RVL_SDK/bte/bte_hcisu.c", cflags=cflags_base),
+            Object(NonMatching, "RVL_SDK/bte/bte_init.c", cflags=cflags_base),
+            Object(NonMatching, "RVL_SDK/bte/bte_logmsg.c", cflags=cflags_base),
+        ],
     ),
     library(
         "Runtime.PPCEABI.H",

@@ -59,6 +59,8 @@ Keep entries concise and actionable. Distinguish confirmed findings from hypothe
 - **CNT reference headers can describe another ABI revision.** The public RB3 header declares a three-argument `CNTRead`, but this target's read routine at `0x801783B0` consumes an offset in `r6`. Validate signatures against target accesses before importing a reference interface; see [F-286-1](docs/re/findings/286-cnt.md).
 - **CodeWarrior SPR names are not Broadway's.** Wii/1.0 inline asm encodes `HID2` as SPR 1011 and rejects `WPAR` and `HID4`. Write numeric SPRs (`0x398`, `0x399`, `0x3F3`) in SDK asm. See [F-463-2](docs/re/findings/463-ppcarch.md#f-463-2-codewarrior-inline-assembler-spr-names).
 
+- **Root licenses can have file-level exceptions.** Petari BTE files retain Broadcom Apache-2.0 notices despite its root CC0 license. Inspect each reused file and preserve its specific notices; see [F-510-1](docs/re/findings/510-bte-transport-logging.md#source-provenance-and-reusable-lesson).
+
 ## Current project state
 
 | Current state | Value |
