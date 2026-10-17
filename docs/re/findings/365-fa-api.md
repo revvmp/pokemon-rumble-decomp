@@ -116,3 +116,10 @@ Together the two units reconstruct eight of #365's 26 functions, 484 of
   inventory distinguish cdelete, cinsert, create, chdmod, and chmod before
   declarations are established. Cross-check each lower native call rather
   than extrapolating from the public VF subset.
+- Rebased standard-wrapper declarations can duplicate newly reconstructed
+  lower interfaces. Retain the complete canonical PFDIR declarations from
+  main, including its u32 createdir mode, and remove the redundant additions.
+  The public signed mode forwards the same native 32-bit value. The #363
+  owner also approved the signed-drive PFVOL_GetVolumeFromDrvChar declaration
+  needed by the independently owned volume_apiadd unit. These declarations
+  receive no source credit and require the expanded existing-object gate.
