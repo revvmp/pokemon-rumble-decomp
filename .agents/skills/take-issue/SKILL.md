@@ -17,6 +17,11 @@ Preserve every rule in the shared procedure:
 - attribution rules
 - the merge loop: rebase onto `origin/main`, confirm `git status --porcelain` is empty, verify locally with `configure.py`, `ninja`, and `verify.py`, confirm `main` has not moved, check that the PR's check and `main`'s latest run have not failed, then merge with `--match-head-commit` set to the verified commit, without waiting for GitHub CI
 - the rebase conflict rules: during a rebase, `--ours` is `main` and `--theirs` is your commit; keep both sides in shared files
+- union-merged tables: ledger files and `docs/re/SYMBOLS.md` merge automatically; check afterwards for duplicated or interleaved rows
+- shared headers: use and extend the Petari-derived RVL_SDK headers in `include/revolution/` and `include/private/` (D-0013); never add files under `include/RVL_SDK/`, which only forwards; on an add/add header conflict, keep `main`'s version and add only what you still need
+- outside symbols: you may name callees or data in other blocks in `symbols.txt` so your link resolves, but leave their splits, sizes, and types to the owning issue
+- traps: do not edit `AGENTS.md`; record traps under a `Traps` heading in your findings file `docs/re/findings/<n>-<slug>.md`
+- file hygiene on Windows: CRLF working copies, explicit UTF-8 without a byte-order mark, and scratch files named with your issue number
 - junction-aware cleanup
 - keeping the local main checkout current with `git pull --ff-only` before claiming and after merging, without ever stashing, resetting, or committing there
 

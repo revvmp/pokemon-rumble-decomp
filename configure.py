@@ -147,6 +147,7 @@ cflags_sdk = [
 
 SDK_COMPILER = "Wii/1.0"
 
+BTE_COMPILER = "GC/3.0a3"
 NDEV_COMPILER = "GC/3.0a3"
 
 config.libs = [
@@ -165,6 +166,10 @@ config.libs = [
         [
             Object(Matching, "RVL_SDK/base/PPCArch.c"),
             Object(NonMatching, "RVL_SDK/os/OSAlarm.c"),
+            Object(Matching, "RVL_SDK/os/OSArena.c"),
+            Object(Matching, "RVL_SDK/os/OSAudioSystem.c"),
+            Object(Matching, "RVL_SDK/os/OSCache.c"),
+
             Object(NonMatching, "RVL_SDK/os/OSContext.c"),
             Object(Matching, "RVL_SDK/os/OSIpc.c"),
             Object(Matching, "RVL_SDK/exi/EXIUart.c"),
@@ -174,6 +179,8 @@ config.libs = [
             Object(Matching, "RVL_SDK/db/db.c"),
             Object(NonMatching, "RVL_SDK/vi/i2c.c"),
             Object(NonMatching, "RVL_SDK/gx/GXFifo.c"),
+            Object(NonMatching, "RVL_SDK/gx/GXMisc.c"),
+            Object(NonMatching, "RVL_SDK/gx/GXGeometry.c"),
             Object(NonMatching, "RVL_SDK/gx/GXFrameBuf.c"),
             Object(NonMatching, "RVL_SDK/gx/GXLight.c"),
             Object(Matching, "RVL_SDK/gx/GXTev.c"),
@@ -190,8 +197,8 @@ config.libs = [
             Object(NonMatching, "RVL_SDK/nand/nand.c"),
             Object(Matching, "RVL_SDK/enc/enclatin.c", cflags=cflags_base),
             Object(Matching, "RVL_SDK/arc/arc.c"),
-            Object(NonMatching, "RVL_SDK/esp/esp.c"),
-            Object(NonMatching, "RVL_SDK/ipc/ipcMain.c"),
+            Object(Matching, "RVL_SDK/esp/esp.c"),
+            Object(Matching, "RVL_SDK/ipc/ipcMain.c"),
             Object(Matching, "RVL_SDK/ipc/memory.c"),
             Object(Matching, "RVL_SDK/ipc/ipcProfile.c"),
             Object(NonMatching, "RVL_SDK/wpad/WPAD.c"),
@@ -201,6 +208,11 @@ config.libs = [
             Object(NonMatching, "RVL_SDK/bte/bte_main.c", cflags=cflags_base),
             Object(Matching, "RVL_SDK/bte/bta_sys_conn.c", cflags=[*cflags_base, "-func_align 4"]),
             Object(NonMatching, "RVL_SDK/bte/bta_dm_api.c", cflags=[*cflags_base, "-func_align 4"]),
+            Object(NonMatching, "RVL_SDK/bte/hidd_api.c", mw_version=BTE_COMPILER),
+            Object(NonMatching, "RVL_SDK/bte/hidd_conn.c", mw_version=BTE_COMPILER),
+            Object(NonMatching, "RVL_SDK/bte/hidd_mgmt.c", mw_version=BTE_COMPILER),
+            Object(NonMatching, "RVL_SDK/bte/hidd_pm.c", mw_version=BTE_COMPILER),
+            Object(NonMatching, "RVL_SDK/bte/hidh_api.c", mw_version=BTE_COMPILER),
             Object(Matching, "RVL_SDK/gd/GDTexture.c"),
         ],
     ),
