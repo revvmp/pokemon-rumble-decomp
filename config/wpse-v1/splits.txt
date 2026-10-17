@@ -49,6 +49,28 @@ nw4r/ef/ef_effect.cpp:
 	.data       start:0x803C52E8 end:0x803C5308
 	.sdata2     start:0x804BA5E0 end:0x804BA5E8
 
+nw4r/ut/ut_list.cpp:
+	.text       start:0x80292D00 end:0x80292F5C
+
+nw4r/ut/ut_LinkList.cpp:
+	.text       start:0x80292F60 end:0x802930F0
+
+nw4r/ut/ut_binaryFileFormat.cpp:
+	.text       start:0x802930F0 end:0x80293164
+
+nw4r/ut/ut_CharStrmReader.cpp:
+	.text       start:0x80293170 end:0x80293290
+
+nw4r/ut/ut_IOStream.cpp:
+	.text       start:0x80293BF0 end:0x80293C3C
+	.ctors      start:0x80352A6C end:0x80352A70
+	.sbss       start:0x804B93B8 end:0x804B93C0
+
+nw4r/ut/ut_FileStream.cpp:
+	.text       start:0x80293C40 end:0x80293DBC
+	.ctors      start:0x80352A70 end:0x80352A74
+	.sbss       start:0x804B93C0 end:0x804B93C8
+
 RVL_SDK/base/PPCArch.c:
 	.text       start:0x802B1800 end:0x802B1A10
 	.data       start:0x803C7280 end:0x803C72B8
