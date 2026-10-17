@@ -78,6 +78,9 @@ public:
         return ReadWaveInfo(pWaveInfo, nullptr);
     }
     bool ReadWaveInfo(WaveInfo* pWaveInfo, const void* pWaveAddr) const;
+    const void* GetWaveDataAddress(const WaveFile::WaveChannelInfo* pChannelInfo,
+                                 const void* pWaveAddr) const;
+    static SampleFormat GetSampleFormatFromWaveFileFormat(u8 format);
 
 private:
     const WaveFile::WaveInfo* mWaveInfo;
