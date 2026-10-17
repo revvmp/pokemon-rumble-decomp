@@ -717,6 +717,14 @@ nw4r/g3d/g3d_fog.cpp:
 	.text       start:0x80270A90 end:0x80270C00
 	.sdata2     start:0x804BAD40 end:0x804BAD44
 
+nw4r/g3d/g3d_light.cpp:
+	.text       start:0x80270C00 end:0x80271668
+	.sdata2     start:0x804BAD48 end:0x804BAD74
+
+nw4r/g3d/g3d_calcvtx.cpp:
+	.text       start:0x80271670 end:0x80271E0C
+	.sdata2     start:0x804BAD78 end:0x804BAD7C
+
 nw4r/snd/snd_AxManager.cpp:
 	.text       start:0x80271E10 end:0x80273650
 	.ctors      start:0x80352A50 end:0x80352A54
