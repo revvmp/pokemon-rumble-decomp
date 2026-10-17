@@ -313,6 +313,10 @@ RVL_SDK/fa/pf_entry.c:
 	.sdata      start:0x804B8878 end:0x804B8890
 	.sdata2     start:0x804BA5C0 end:0x804BA5C8
 
+RVL_SDK/fa/pf_api_util.c:
+	.text       start:0x8021A2B0 end:0x8021A464
+	.data       start:0x803C4278 end:0x803C4318
+
 RVL_SDK/fa/pf_kernel.c:
 	.text       start:0x8021DFE0 end:0x8021E414
 	.data       start:0x803C4520 end:0x803C47F0
