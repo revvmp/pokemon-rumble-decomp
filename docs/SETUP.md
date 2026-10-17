@@ -99,7 +99,15 @@ python tools/verify/verify.py verify --help
 2. Installs ninja 1.13.0, runs `python configure.py` and `ninja`, and verifies `main.dol` against `config/targets/wpse-v1.json`. A build or verification failure fails the check.
 3. Warns, without failing, when the build rewrites a tracked file such as `config/wpse-v1/symbols.txt`. `.gitattributes` checks out dtk's config files with LF line endings, so a clean build does not rewrite them on Windows.
 4. Uploads `build/wpse-v1/report.json` and `verification.json` as the `reports` artifact.
-5. On `main` only, renders the progress images into the `progress-images` artifact and warns when `docs/images/` is stale. A maintainer commits the refreshed images.
+5. On `main` only, renders the progress images and uploads them as the `progress-images` artifact. If they changed, it commits them to `main` as github-actions with the message `DOCS: refresh progress images`. That push does not start another run. Runs on `main` queue one at a time. A run commits only if `main` has not moved since its build, or moved only by image commits; otherwise it skips and the newer run refreshes the images.
+
+To preview the images locally after a build, render them into a scratch directory rather than `docs/images/`:
+
+```powershell
+python tools/progress/progress.py render --phases config/progress.json --report build/wpse-v1/report.json --output-dir build/progress-images
+```
+
+A branch protection rule that blocks direct pushes to `main` must allow github-actions to push, or the image commit fails with a warning.
 
 `orig/` is tracked in this private repository, so the runner checks out the originals directly. Never make the repository public while originals are tracked.
 

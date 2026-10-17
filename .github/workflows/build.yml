@@ -17,6 +17,8 @@ jobs:
   verify:
     name: Build and verify main.dol
     runs-on: windows-latest
+    permissions:
+      contents: write
     timeout-minutes: 30
     defaults:
       run:
@@ -60,12 +62,35 @@ jobs:
         run: |
           python tools/progress/progress.py render --phases config/progress.json --report build/wpse-v1/report.json --output-dir build/progress-images
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
-          foreach ($image in Get-ChildItem build/progress-images -Filter *.svg) {
-            $committed = Join-Path docs/images $image.Name
-            if (-not (Test-Path $committed) -or (Get-FileHash $committed).Hash -ne (Get-FileHash $image.FullName).Hash) {
-              Write-Output "::warning::docs/images/$($image.Name) is stale; download the progress-images artifact and commit it."
-            }
+
+      - name: Commit refreshed progress images
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          BUILT_SHA: ${{ github.sha }}
+        run: |
+          git fetch --quiet origin main
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          $moved = git diff --name-only $env:BUILT_SHA origin/main | Where-Object { $_ -notlike 'docs/images/*' }
+          if ($moved) {
+            Write-Output "main has newer code than this build; its own run refreshes the images."
+            exit 0
           }
+          git checkout --quiet -B progress-images origin/main
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          Copy-Item build/progress-images/*.svg docs/images/ -Force
+          git add docs/images
+          git diff --cached --quiet
+          if ($LASTEXITCODE -eq 0) {
+            Write-Output "Progress images are already current."
+            exit 0
+          }
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit --quiet -m "DOCS: refresh progress images"
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
+          git push origin HEAD:main
+          if ($LASTEXITCODE) {
+            Write-Output "::warning::main moved during the image refresh; the next run on main refreshes the images."
+          }
+          exit 0
 
       - name: Upload reports
         if: always()

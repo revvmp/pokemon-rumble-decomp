@@ -71,7 +71,7 @@ Partially matching work is welcome. Keep it `NonMatching` so the build still use
 | `AGENTS.md` traps | Contributors may append trap entries at the end of the list. |
 | Maintainer-only | `docs/re/main.elf.i64` (binary, unmergeable), `config/progress.json`, `docs/images/`, the status table in `PROGRESS.md`, `HANDOFF.md`, `WORKSTREAMS.md`, the `AGENTS.md` state table, `config/targets/`, `config/wpse-v1/build.sha1`, `config/toolchain.json`, and vendored `tools/build/`. |
 
-Maintainers regenerate progress images and update the shared summaries after pull requests merge, so contributors never conflict on them.
+CI regenerates and commits the progress images after every merge to `main`. Maintainers update the shared summaries. Contributors never edit either, so they never conflict on them.
 
 ## Definition of done
 
