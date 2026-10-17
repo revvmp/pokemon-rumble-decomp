@@ -329,5 +329,6 @@ void btm_sec_link_key_notification(BD_ADDR_PTR p_bda, UINT8* p_link_key, UINT8 k
 void btm_sec_link_key_request(BD_ADDR_PTR p_bda);
 void btm_sec_pin_code_request(BD_ADDR_PTR p_bda);
 void btm_sec_update_clock_offset(UINT16 handle, UINT16 clock_offset);
+UINT16 btm_get_acl_disc_reason_code(void);
 
 #endif

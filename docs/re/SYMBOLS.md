@@ -1623,3 +1623,23 @@ For `wpse-v1` / `main.dol`, [F-417-1](findings/417-snd-axvoice.md) names the 35 
 
 For `wpse-v1` / `main.dol`, [F-299-1](findings/299-nw4hbm-ut.md#f-299-1-math_triangular-ut_binaryfileformat-ut_charstrmreader-and-ut_charwriter) names 34 functions at `0x80191880`–`0x801936CC` with their mangled CodeWarrior names. They are `nw4hbm::math::SinFIdx`, `CosFIdx` and `Atan2FIdx`, `nw4hbm::ut::IsValidBinaryFile`, the four `CharStrmReader::ReadNextChar*` readers, and 26 `nw4hbm::ut::CharWriter` members from the constructor (`0x80191CD0`) to `SetupGXWithColorMapping` (`0x801933D0`). The data names are `sSinCosTbl__Q36nw4hbm4math29@unnamed@math_triangular_cpp@` (`0x803BBB00`, 0x1010 bytes), `sArcTanTbl__Q36nw4hbm4math29@unnamed@math_triangular_cpp@` (`0x803BCB10`, 0x108 bytes) and `mLoadingTexture__Q36nw4hbm2ut10CharWriter` (`.bss` `0x803E9C20`, 0x10 bytes). `lbl_80366F04` shrinks to 0x20 bytes because its last word is alignment padding. Confidence high: the names and sizes match xenoblade's symbols, and the units match.
 For `wpse-v1` / `main.dol`, [F-418-1](findings/418-snd-axvoicemanager-axfximpl.md) names the nine `.text` functions of `snd_AxVoiceManager.cpp` from `0x80276410` to `0x80276E38` (`nw4r::snd::detail::AxVoiceManager::GetInstance`, the implicit destructor, `GetRequiredMemSize`, `Setup`, `Shutdown`, `AcquireAxVoice`, `FreeAxVoice`, `ReserveForFreeAxVoice`, `FreeAllReservedAxVoice`), its local `instance` (`0x8044D39C`, 0x2C bytes) and guard (`0x804B9338`), and the six functions of `snd_AxfxImpl.cpp` from `0x80276E40` to `0x80277038` (`AxfxImpl::CreateHeap`, `DestroyHeap`, `HookAlloc`, `RestoreAlloc`, `Alloc`, `Free`) with the statics `mCurrentFx` (`0x804B9340`) and `mAllocatedSize` (`0x804B9344`). `AxVoiceManager` is 0x2C bytes: `mActiveVoiceList` 0x0, `mFreeVoiceList` 0xC, `mFreeReservedVoiceList` 0x18, `mInitialized` 0x24, `mVoiceCount` 0x28. `AxfxImpl` is 8 bytes: `mHeap` 0x0, `mAllocCount` 0x4. High confidence from the CC0 ogws and zeldaret/ss references and exact matches.
+## Issue 525: BTE HID host connection and L2CAP API
+
+Names follow the Petari reference and are corroborated by 100% objdiff and full DOL verification ([F-525-1](findings/525-bte-hidh-conn-l2c-api.md)). `hst_reg_info` is the 0x28-byte `tL2CAP_APPL_INFO` at `.rodata 0x80398170`. `btm_get_acl_disc_reason_code` at `0x8031B0E8` (0x10 bytes) returns the `btm_cb` disconnect-reason byte; it is named for the link, and its unit is owned elsewhere.
+
+| Address | Size | dtk label | Chosen name | Kind | Confidence | Evidence | Source |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `0x8032A740` | `0x130` | `fn_8032A740` | `hidh_sec_check_complete_term` | function | high | F-525-1 | `src/RVL_SDK/bte/hidh_conn.c` |
+| `0x8032A870` | `0x258` | `fn_8032A870` | `hidh_l2cif_connect_ind` | function | high | F-525-1 | `src/RVL_SDK/bte/hidh_conn.c` |
+| `0x8032AC14` | `0x214` | `fn_8032AC14` | `hidh_sec_check_complete_orig` | function | high | F-525-1 | `src/RVL_SDK/bte/hidh_conn.c` |
+| `0x8032AE28` | `0x348` | `fn_8032AE28` | `hidh_l2cif_connect_cfm` | function | high | F-525-1 | `src/RVL_SDK/bte/hidh_conn.c` |
+| `0x8032B170` | `0x2A8` | `fn_8032B170` | `hidh_l2cif_config_ind` | function | high | F-525-1 | `src/RVL_SDK/bte/hidh_conn.c` |
+| `0x8032B418` | `0x30C` | `fn_8032B418` | `hidh_l2cif_config_cfm` | function | high | F-525-1 | `src/RVL_SDK/bte/hidh_conn.c` |
+| `0x8032B724` | `0x2C4` | `fn_8032B724` | `hidh_l2cif_disconnect_ind` | function | high | F-525-1 | `src/RVL_SDK/bte/hidh_conn.c` |
+| `0x8032B9E8` | `0x248` | `fn_8032B9E8` | `hidh_l2cif_disconnect_cfm` | function | high | F-525-1 | `src/RVL_SDK/bte/hidh_conn.c` |
+| `0x8032BC30` | `0x1F8` | `fn_8032BC30` | `hidh_l2cif_cong_ind` | function | high | F-525-1 | `src/RVL_SDK/bte/hidh_conn.c` |
+| `0x8032BE28` | `0x398` | `fn_8032BE28` | `hidh_l2cif_data_ind` | function | high | F-525-1 | `src/RVL_SDK/bte/hidh_conn.c` |
+| `0x8032CF68` | `0xC8` | `fn_8032CF68` | `L2CA_SetIdleTimeout` | function | high | F-525-1 | `src/RVL_SDK/bte/l2c_api.c` |
+| `0x8032D030` | `0x100` | `fn_8032D030` | `L2CA_SetIdleTimeoutByBdAddr` | function | high | F-525-1 | `src/RVL_SDK/bte/l2c_api.c` |
+| `0x8032D130` | `0x1C` | `fn_8032D130` | `L2CA_SetTraceLevel` | function | high | F-525-1 | `src/RVL_SDK/bte/l2c_api.c` |
+| `0x8032D14C` | `0x4` | `fn_8032D14C` | `L2CA_RegisterCompression` | function | high | F-525-1 | `src/RVL_SDK/bte/l2c_api.c` |

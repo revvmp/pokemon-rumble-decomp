@@ -5,6 +5,8 @@
 
 #define L2CAP_MIN_OFFSET 9
 
+#define L2C_INVALID_PSM(psm) (((psm) & 0x0101) != 0x0001)
+
 enum {
     L2CAP_CONN_OK = 0,
     L2CAP_CONN_PENDING = 1,
@@ -26,6 +28,17 @@ enum {
 };
 
 typedef void tL2CA_ECHO_RSP_CB(UINT16 result);
+
+enum {
+    L2CAP_DW_FAILED,
+    L2CAP_DW_SUCCESS,
+    L2CAP_DW_CONGESTED
+};
+
+enum {
+    L2CAP_PRIORITY_NORMAL,
+    L2CAP_PRIORITY_HIGH
+};
 
 typedef struct {
     UINT8 mode;
