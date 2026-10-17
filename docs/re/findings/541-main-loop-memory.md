@@ -46,3 +46,7 @@ Remaining #541 addresses are `0x8034D83C`, `0x8034D840`, `0x8034D84C`, `0x8034D8
 
 - **Address adjacency does not establish a subsystem.** The two routines after the main loop are word-based memory helpers, while polling lives later. Trace their loads, stores, return values and callers before selecting a reference file.
 - **Byte-equivalent formulas need not generate the same accesses.** A low-bit mask and a byte-pointer difference describe the same offset but produce different native streams here. Preserve the proven aligned-word operations and pointer arithmetic; a normal byte-copy loop would change the debugger's access widths.
+
+## Subsequent completion
+
+[F-541-7](541-dolphin-completion.md) supersedes the intermediate remaining-work statement above and records the complete source-selected issue, coordinated neighboring functions, and separate original-assembly accounting.

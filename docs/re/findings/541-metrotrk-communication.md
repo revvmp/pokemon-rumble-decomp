@@ -77,3 +77,7 @@ This initial pass left fifteen #541 functions and 1,616 function bytes. [F-541-2
 - **Function identity does not prove native order.** Deferred inlining can emit matching bodies in reverse order. Check source-object offsets and final ELF addresses in addition to objdiff scores.
 - **A 100% BSS score does not prove global placement.** Both layouts contain zero bytes. Check symbol offsets, section extent and final relocations; GDEV needs its buffer before its control block.
 - **The custom build path does not rewrite the frozen check list.** `build.sha1` names `build/wpse-v1/main.dol`. A custom-directory build failed its check because that path was absent. Use the standard entry point and an explicit frozen verification of its actual output; do not modify expected hashes or accept a stale default-path artifact.
+
+## Subsequent completion
+
+[F-541-7](541-dolphin-completion.md) supersedes the intermediate remaining-work statement above and records the complete source-selected issue, coordinated neighboring functions, and separate original-assembly accounting.

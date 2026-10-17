@@ -22,3 +22,7 @@ Commands: `python configure.py`, `.venv/Scripts/ninja`, `python tools/verify/ver
 
 - A reference structure can shift every field while a local expression still compiles to the expected offset. Verify the complete target layout through independent callees before changing a protocol index to compensate for a mismatched reference structure.
 - Original assembly remains assembly. Rebuilding the original cache routine removes its fallback dependency but does not turn those 56 bytes into C decompilation progress.
+
+## Subsequent completion
+
+[F-541-7](541-dolphin-completion.md) supersedes the intermediate remaining-work statement above and records the complete source-selected issue, coordinated neighboring functions, and separate original-assembly accounting.

@@ -36,3 +36,7 @@ The branch now supplies 31 of 32 #541 functions: 2,644 C/C++ function bytes and 
 - Byte-identical C++ text can still omit the native exception tables. Inspect every automatically added section and retain a local, measured exception-support setting.
 - A general header declaration can change unrelated object contents despite being unused. Keep the chosen wide conversion interface local and compare baseline objects after header edits.
 - A one-instruction wrapper or identical trap body cannot be named from a relocation-masked match alone. Require paired callees/callers, complete reference-unit order and independent behavior evidence.
+
+## Subsequent completion
+
+[F-541-7](541-dolphin-completion.md) supersedes the intermediate remaining-work statement above and records the complete source-selected issue, coordinated neighboring functions, and separate original-assembly accounting.
