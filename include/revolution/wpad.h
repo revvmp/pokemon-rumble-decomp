@@ -17,6 +17,7 @@ typedef u8 (*WPADFree)(void* ptr);
 typedef void (*WPADSyncDeviceCallback)(s32 result, s32 num);
 typedef void (*WPADSamplingCallback)(s32 chan);
 typedef void (*WPADFlushCallback)(u32 result);
+typedef void (*WPADInitFunc)(void);
 
 typedef u32 WPADDeviceType;
 typedef s32 WPADChannel;
@@ -88,6 +89,17 @@ typedef s32 WPADChannel;
 #define WPAD_FMT_CLASSIC_ACC 7
 #define WPAD_FMT_CLASSIC_ACC_DPD 8
 #define WPAD_FMT_CORE_ACC_DPD_FULL 9
+#define WPAD_FMT_TRAIN 10
+#define WPAD_FMT_GUITAR 11
+#define WPAD_FMT_BALANCE_CHECKER 12
+#define WPAD_FMT_VSM 13
+#define WPAD_FMT_VSM_EXTENDED 14
+#define WPAD_FMT_DRUM 15
+
+#define WPAD_DEV_MODE_NORMAL 0
+#define WPAD_DEV_MODE_CLASSIC_REDUCED 1
+#define WPAD_DEV_MODE_CLASSIC_EXTENDED 2
+#define WPAD_DEV_MODE_CLASSIC_STANDARD 3
 
 #define WPAD_STATE_DISABLED 0
 #define WPAD_STATE_ENABLING 1
@@ -244,6 +256,49 @@ typedef struct WPADCLStatus {
     u8 clTriggerR;
 } WPADCLStatus;
 
+typedef struct WPADTRStatus {
+    u16 button;
+    s16 accX;
+    s16 accY;
+    s16 accZ;
+    DPDObject obj[4];
+    u8 dev;
+    s8 err;
+    u16 trButton;
+    u8 brake;
+    u8 mascon;
+} WPADTRStatus;
+
+typedef struct WPADBLStatus {
+    u16 button;
+    s16 accX;
+    s16 accY;
+    s16 accZ;
+    DPDObject obj[4];
+    u8 dev;
+    s8 err;
+    u16 press[4];
+    s8 temp;
+    u8 battery;
+} WPADBLStatus;
+
+typedef struct WPADVSStatus {
+    u16 button;
+    s16 accX;
+    s16 accY;
+    s16 accZ;
+    DPDObject obj[4];
+    u8 dev;
+    s8 err;
+    u16 samples[5];
+    u8 sampleCount;
+    u16 prevSamples[5];
+    u8 prevSampleCount;
+    u16 baseline;
+    u16 level;
+    u8 state;
+} WPADVSStatus;
+
 typedef struct WPADAcc {
     s16 x;
     s16 y;
@@ -314,11 +369,21 @@ typedef struct WPADExtConfig {
     };
 } WPADExtConfig;
 
+#define WPAD_MAX_NOISE_FILTERS 3
+
+typedef struct WPADMEMControlBlock {
+    BOOL used;
+    u8* p_buf;
+    u16 len;
+    u32 addr;
+    WPADCallback callback;
+} WPADMEMControlBlock;
+
 typedef struct WPADControlBlock {
     WPADMEMGameInfo gameInfo;
     s32 gameInfoErr[2];
     u8 prBuf[WPAD_RX_DATASIZE] ATTRIBUTE_ALIGN(32);
-    u8 rxBuf[WPAD_RX_DATASIZE * 2] ATTRIBUTE_ALIGN(32);
+    u8 rxBuf[2][WPAD_RX_DATASIZE] ATTRIBUTE_ALIGN(32);
     WPADCmdQueue cmdq;
     WPADCommand cmds[WPAD_COMMAND_CMD_MAX_LEN];
     WPADCmdQueue extq;
@@ -356,12 +421,8 @@ typedef struct WPADControlBlock {
     BOOL oldFw;
     OSThreadQueue threadq;
     OSTime lastUpdateTime;
-    u16 diffCountDpd;
-    u16 hystCountDpd;
-    u16 diffCountAcc;
-    u16 hystCountAcc;
-    u16 diffCountfsAcc;
-    u16 hystCountfsAcc;
+    u16 diffCount[WPAD_MAX_NOISE_FILTERS];
+    u16 hystCount[WPAD_MAX_NOISE_FILTERS];
     OSTime cmdTimer;
     u8 cmdTimeoutAction;
     u8 isSetStickOrigin;
@@ -383,19 +444,33 @@ typedef struct WPADControlBlock {
     u8 infoLocked;
     u8 extEnc;
     u8 pwrSave;
-    u8 padding2;
+    u8 blcBattery;
+    u8 savedDevType;
+    u8 extDisconnected;
+    s16 extReconnectWait;
+    u8 dpdBusy;
+    WPADMEMControlBlock memBlock;
 } WPADControlBlock;
 
-typedef struct WPADMEMControlBlock {
-    BOOL used;
-    u8* p_buf;
-    u16 len;
-    u32 addr;
-    WPADCallback callback;
-} WPADMEMControlBlock;
+void DEBUGPrint(const char* msg, ...);
+
+BOOL WPADIsEnabledVSM(void);
+BOOL WPADIsEnabledTRN(void);
+BOOL WPADIsEnabledGTR(void);
+BOOL WPADIsEnabledDRM(void);
+
+s32 WBCSetupCalibration(void);
+s32 WBCGetCalibrationStatus(void);
+s32 WBCGetBatteryLevel(u8 battery);
+s32 WBCRead(WPADBLStatus* status, f64* weight, s32 size);
+s32 WBCSetZEROPoint(f64* zero, s32 size);
+s32 WBCGetTGCWeight(f64 weight, f64* result, WPADBLStatus* status);
 
 void WPADRegisterAllocator(WPADAlloc, WPADFree);
 u32 WPADGetWorkMemorySize(void);
+s32 WPADGetInfo(s32 chan, WPADInfo* info);
+void WPADRecalibrate(s32 chan);
+void WPADiClearMemBlock(s32 chan);
 
 void WPADDisconnect(s32);
 s32 WPADGetInfoAsync(s32, WPADInfo*, WPADCallback);

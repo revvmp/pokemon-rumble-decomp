@@ -100,6 +100,8 @@ WUDHidRecvCallback WUDSetHidRecvCallback(WUDHidRecvCallback pCallback);
 WUDHidConnCallback WUDSetHidConnCallback(WUDHidConnCallback pCallback);
 
 void WUDSetVisibility(u8 disc, u8 conn);
+void WUDUpdateSCSetting(void);
+void WUDSetDeviceHistory(s32 chan, BD_ADDR_PTR addr);
 u8 WUDGetConnectable(void);
 
 void WUDiGetFirmwareVersion(void);

@@ -33,6 +33,8 @@ struct OSAlarm {
 #define OS_BUS_CLOCK (*(u32*)0x800000F8)
 #define OS_TIMER_CLOCK (OS_BUS_CLOCK / 4)
 
+#define OSTicksToSeconds(ticks) ((ticks) / OS_TIMER_CLOCK)
+#define OSSecondsToTicks(sec) ((sec) * OS_TIMER_CLOCK)
 #define OSMillisecondsToTicks(msec) ((msec) * (OS_TIMER_CLOCK / 1000))
 #define OSMicrosecondsToTicks(usec) (((usec) * (OS_TIMER_CLOCK / 125000)) / 8)
 
@@ -46,11 +48,17 @@ BOOL OSDisableInterrupts(void);
 BOOL OSRestoreInterrupts(BOOL level);
 
 void OSRegisterVersion(const char* id);
+const char* OSGetAppGamename(void);
+u8 OSGetAppType(void);
+
+extern BOOL __OSIsReturnToIdle;
 void OSDumpContext(OSContext* context);
 
 OSTime __OSGetSystemTime(void);
 
+void OSCreateAlarm(OSAlarm* alarm);
 void OSSetAlarm(OSAlarm* alarm, OSTime tick, OSAlarmHandler handler);
+void OSSetPeriodicAlarm(OSAlarm* alarm, OSTime start, OSTime period, OSAlarmHandler handler);
 void OSCancelAlarm(OSAlarm* alarm);
 
 __OSInterruptHandler __OSSetInterruptHandler(__OSInterrupt interrupt, __OSInterruptHandler handler);

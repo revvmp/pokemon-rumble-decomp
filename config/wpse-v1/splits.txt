@@ -232,6 +232,15 @@ RVL_SDK/ipc/ipcProfile.c:
 	.bss        start:0x80477320 end:0x80477420
 	.sbss       start:0x804B9A00 end:0x804B9A08
 
+RVL_SDK/wpad/WPAD.c:
+	.text       start:0x802F6BC0 end:0x802FE650
+	.rodata     start:0x80397DD8 end:0x80397E18
+	.data       start:0x803DCB68 end:0x803DCF90
+	.bss        start:0x804774E0 end:0x8047AC40
+	.sdata      start:0x804B8DC8 end:0x804B8DF8
+	.sbss       start:0x804B9A50 end:0x804B9AB0
+	.sdata2     start:0x804BB500 end:0x804BB508
+
 RVL_SDK/bte/bte_hcisu.c:
 	.text       start:0x80313A60 end:0x80313B30
 	.sbss       start:0x804B9B78 end:0x804B9B80
@@ -286,6 +295,16 @@ RVL_SDK/bte/hidh_api.c:
 	.text       start:0x803297C4 end:0x8032A544
 	.data       start:0x803E2DC0 end:0x803E2ED8
 	.bss        start:0x804ADA38 end:0x804ADE40
+
+RVL_SDK/tpl/TPL.c:
+	.text       start:0x8033E1B0 end:0x8033E3D0
+	.data       start:0x803E5CC0 end:0x803E5CF0
+	.sdata      start:0x804B8F40 end:0x804B8F48
+	.sdata2     start:0x804BB638 end:0x804BB640
+
+RVL_SDK/gd/GDBase.c:
+	.text       start:0x8033E3D0 end:0x8033E538
+	.sbss       start:0x804B9B98 end:0x804B9BA0
 
 RVL_SDK/gd/GDTexture.c:
 	.text       start:0x8033E540 end:0x8033EEB4

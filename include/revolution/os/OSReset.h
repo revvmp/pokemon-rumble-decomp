@@ -23,6 +23,14 @@ extern "C" {
 #define OS_SYSLAUNCH_URL_WC24 "WiiConnect24/Wiiconnect24_index.html"
 #define OS_SYSLAUNCH_URL_UPDATE "Update/Update_index.html"
 
+#define OS_SHUTDOWN_EVENT_FATAL 0
+#define OS_SHUTDOWN_EVENT_REBOOT 1
+#define OS_SHUTDOWN_EVENT_SHUTDOWN 2
+#define OS_SHUTDOWN_EVENT_RESERVED 3
+#define OS_SHUTDOWN_EVENT_RESTART 4
+#define OS_SHUTDOWN_EVENT_RETURN_TO_MENU 5
+#define OS_SHUTDOWN_EVENT_LAUNCH 6
+
 typedef BOOL (*OSShutdownFunction)(BOOL, u32);
 typedef struct OSShutdownFunctionInfo OSShutdownFunctionInfo;
 
