@@ -778,6 +778,34 @@ nw4r/snd/snd_SeqTrack.cpp:
 	.data       start:0x803C6660 end:0x803C6670
 	.sdata2     start:0x804BAF20 end:0x804BAF50
 
+nw4r/snd/snd_Sound3DEngine.cpp:
+	.text       start:0x802832A0 end:0x80283630
+	.data       start:0x803C66A0 end:0x803C66C0
+	.sdata2     start:0x804BAFA0 end:0x804BAFB8
+
+nw4r/snd/snd_Sound3DListener.cpp:
+	.text       start:0x80283630 end:0x80283898
+	.sdata2     start:0x804BAFB8 end:0x804BAFC8
+
+nw4r/snd/snd_Sound3DManager.cpp:
+	.text       start:0x802838A0 end:0x80283B68
+	.ctors      start:0x80352A5C end:0x80352A60
+	.data       start:0x803C66C0 end:0x803C66F8
+	.bss        start:0x8044D708 end:0x8044D720
+	.sdata2     start:0x804BAFC8 end:0x804BAFD0
+
+nw4r/snd/snd_SoundActor.cpp:
+	.text       start:0x80283B70 end:0x80283E08
+	.data       start:0x803C66F8 end:0x803C6718
+	.sdata2     start:0x804BAFD0 end:0x804BAFD8
+
+nw4r/snd/snd_SoundArchive.cpp:
+	.text       start:0x80283E10 end:0x802841F8
+	.data       start:0x803C6718 end:0x803C6738
+
+nw4r/snd/snd_SoundArchiveFile.cpp:
+	.text       start:0x80284200 end:0x80285400
+
 nw4r/ut/ut_list.cpp:
 	.text       start:0x80292D00 end:0x80292F5C
 
