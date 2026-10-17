@@ -12,6 +12,7 @@ extern "C" {
 
 #define PF_STR_POS_HEAD 1
 #define PF_STR_POS_TAIL 2
+#define PF_STR_POS_MARK 3
 
 typedef struct PF_CHARCODE {
     s32 (*oem2unicode)(const s8* oem, u16* unicode);
@@ -45,6 +46,8 @@ s32 PFSTR_InitStr(PF_STR* p_str, const s8* s, u32 code_mode);
 u16 PFSTR_StrLen(PF_STR* p_str);
 u16 PFSTR_StrNumChar(PF_STR* p_str, u32 target);
 s32 PFSTR_StrCmp(const PF_STR* p_str, const s8* s);
+s32 PFSTR_StrNCmp(PF_STR* p_str, const s8* s, u32 target, s32 offset, u16 num);
+void PFSTR_ToUpperNStr(PF_STR* p_str, u16 num, s8* dest);
 
 #ifdef __cplusplus
 }

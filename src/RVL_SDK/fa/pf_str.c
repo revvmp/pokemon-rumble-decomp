@@ -120,3 +120,62 @@ s32 PFSTR_StrCmp(const PF_STR* p_str, const s8* s) {
 
     return ret;
 }
+
+s32 PFSTR_StrNCmp(PF_STR* p_str, const s8* s, u32 target, s32 offset, u16 num) {
+    u16 wc;
+    const u16* wp;
+    const s8* p;
+    s32 ret;
+
+    if (p_str->code_mode == PF_CODE_MODE_OEM || target == PF_STR_POS_MARK) {
+        if (target == PF_STR_POS_HEAD) {
+            p = p_str->p_head + offset;
+        } else if (target == PF_STR_POS_TAIL) {
+            p = p_str->p_tail + offset;
+        } else {
+            p = p_str->p_mark + offset;
+        }
+        ret = pf_strncmp(p, s, num);
+    } else {
+        if (target == PF_STR_POS_HEAD) {
+            wp = (const u16*)p_str->p_head + offset;
+        } else {
+            wp = (const u16*)p_str->p_tail + offset;
+        }
+
+        do {
+            pf_vol_set.codeset.oem2unicode(s, &wc);
+            s++;
+            num--;
+            if (*wp++ != wc || num == 0) {
+                break;
+            }
+        } while (wp[-1] != 0 && wc != 0);
+
+        ret = wp[-1] - wc;
+    }
+
+    return ret;
+}
+
+void PFSTR_ToUpperNStr(PF_STR* p_str, u16 num, s8* dest) {
+    u16 wc;
+    const u16* wp;
+    const s8* p;
+
+    if (p_str->code_mode == PF_CODE_MODE_OEM) {
+        for (p = p_str->p_head; num != 0 && *p != 0; p++, num--) {
+            *dest++ = pf_toupper(*p);
+        }
+    } else {
+        for (wp = (const u16*)p_str->p_head; num != 0 && *wp != 0; num--, wp++) {
+            wc = ('a' <= *wp && *wp <= 'z') ? *wp - ('a' - 'A') : *wp;
+            dest[0] = wc;
+            dest[1] = wc >> 8;
+            dest += sizeof(u16);
+        }
+        *dest = 0;
+    }
+
+    *dest = 0;
+}
