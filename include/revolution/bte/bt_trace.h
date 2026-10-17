@@ -439,4 +439,28 @@ void LogMsg_6(UINT32 trace_set_mask, const char* fmt_str, UINT32 p1, UINT32 p2, 
             BT_TRACE_6(TRACE_LAYER_BTM, TRACE_TYPE_WARNING, m, p1, p2, p3, p4, p5, p6); \
     } while (0)
 
+#define BTM_TRACE_API0(m) \
+    do { \
+        if (btm_cb.trace_level >= BT_TRACE_LEVEL_API) \
+            BT_TRACE_0(TRACE_LAYER_BTM, TRACE_TYPE_API, m); \
+    } while (0)
+
+#define BTM_TRACE_API1(m, p1) \
+    do { \
+        if (btm_cb.trace_level >= BT_TRACE_LEVEL_API) \
+            BT_TRACE_1(TRACE_LAYER_BTM, TRACE_TYPE_API, m, p1); \
+    } while (0)
+
+#define BTM_TRACE_API2(m, p1, p2) \
+    do { \
+        if (btm_cb.trace_level >= BT_TRACE_LEVEL_API) \
+            BT_TRACE_2(TRACE_LAYER_BTM, TRACE_TYPE_API, m, p1, p2); \
+    } while (0)
+
+#define BTM_TRACE_DEBUG6(m, p1, p2, p3, p4, p5, p6) \
+    do { \
+        if (btm_cb.trace_level >= BT_TRACE_LEVEL_DEBUG) \
+            BT_TRACE_6(TRACE_LAYER_BTM, TRACE_TYPE_DEBUG, m, p1, p2, p3, p4, p5, p6); \
+    } while (0)
+
 #endif

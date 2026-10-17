@@ -1782,3 +1782,18 @@ Evidence: [F-455-1](findings/455-nw4r-math-lyt-init.md).
 ## HBM ut TagProcessorBase and TextWriterBase units (#302, #303, #304)
 
 For `wpse-v1` / `main.dol`, [F-302-1](findings/302-nw4hbm-ut.md#f-302-1-ut_tagprocessorbase-and-ut_textwriterbase) names all 95 functions from `0x801943A0` to `0x8019A220` after xenoblade's symbols, which have identical sizes and offsets: `TagProcessorBase<char>` and `<wchar_t>` (constructor, destructor, `Process`, `CalcRect`, `ProcessLinefeed`, `ProcessTab`), `TextWriterBase<char>` (`0x80194E60`–`0x80197800`) and `<wchar_t>` (`0x80197820`–`0x8019A200`), and `__sinit_\ut_TextWriterBase_cpp` (`0x8019A220`). Data: the `TagProcessorBase<wchar_t>` vtable `0x803BCDE8` and RTTI `0x803BCE28`, the `<char>` vtable `0x803BCE30` and RTTI `0x803BCE68`, `mFormatBufferSize` `0x803BCE70`/`0x803BCE74`, `mFormatBuffer` `0x803E9C48`/`0x803E9C50` and `mDefaultTagProcessor` `0x803E9C4C`/`0x803E9C54` (`<char>`/`<wchar_t>`). `TextWriterBase` is 0x60 bytes: `mCharSpace` `0x4C`, `mLineSpace` `0x50`, `mTabWidth` `0x54`, `mDrawFlag` `0x58`, `mTagProcessor` `0x5C`. MSL `vswprintf` is `0x801EE3C0`. Confidence high: names and sizes match xenoblade, and both units match.
+
+## BTE SCO manager, issues 519 and 520
+
+[F-520-1](findings/520-btm-sco.md) gives the `btm_sco.c` boundaries and [F-520-2](findings/520-btm-sco.md#f-520-2-reconstruction) the evidence for these names. The 13 strings in `.data` `0x803E1C10`-`0x803E1F10` keep `lbl_` names, split at the compiled string starts.
+
+| Address | Size | Old name | Name | Kind | Confidence | Evidence | Source |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `0x803207D4` | `0x44` | `fn_803207D4` | `btm_sco_init` | function | high | F-520-2 | `src/RVL_SDK/bte/btm_sco.c` |
+| `0x80320818` | `0x1DC` | `fn_80320818` | `btm_esco_conn_rsp` | static function | high | F-520-2 | `src/RVL_SDK/bte/btm_sco.c` |
+| `0x80320F00` | `0xB8` | `fn_80320F00` | `BTM_RemoveSco` | function | high | F-520-2 | `src/RVL_SDK/bte/btm_sco.c` |
+| `0x80321208` | `0x1A8` | `fn_80321208` | `BTM_ChangeEScoLinkParms` | function | high | F-520-2 | `src/RVL_SDK/bte/btm_sco.c` |
+| `0x80321524` | `0x60` | `fn_80321524` | `btm_num_sco_links_active` | function | high | F-520-2 | `src/RVL_SDK/bte/btm_sco.c` |
+| `0x80398150` | `0x10` | `lbl_80398150` | `btm_esco_defaults` | static `.rodata` object | high | F-520-2 | `src/RVL_SDK/bte/btm_sco.c` |
+| `0x8031B0F8` | `0x9C` | `fn_8031B0F8` | `BTM_GetHCIConnHandle` | function, outside unit | high name | F-520-2 | split left to its owning issue |
+| `0x8031BCA4` | `0x220` | `fn_8031BCA4` | `btm_chg_all_acl_pkt_types` | function, outside unit | high name | F-520-2 | split left to its owning issue |

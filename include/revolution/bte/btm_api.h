@@ -26,6 +26,36 @@
 
 #define BTM_COD_MAJOR_CLASS_MASK 0x1f
 
+#define BTM_INVALID_SCO_INDEX 0xffff
+#define BTM_INVALID_HCI_HANDLE 0xffff
+#define BTM_INVALID_SCO_DISC_REASON 0xffff
+#define BTM_IGNORE_SCO_PKT_TYPE 0
+#define BTM_64KBITS_RATE 0x00001f40
+
+enum {
+    BTM_SCO_PKT_TYPES_MASK_HV1 = HCI_ESCO_PKT_TYPES_MASK_HV1,
+    BTM_SCO_PKT_TYPES_MASK_HV2 = HCI_ESCO_PKT_TYPES_MASK_HV2,
+    BTM_SCO_PKT_TYPES_MASK_HV3 = HCI_ESCO_PKT_TYPES_MASK_HV3,
+    BTM_SCO_PKT_TYPES_MASK_EV3 = HCI_ESCO_PKT_TYPES_MASK_EV3,
+    BTM_SCO_PKT_TYPES_MASK_EV4 = HCI_ESCO_PKT_TYPES_MASK_EV4,
+    BTM_SCO_PKT_TYPES_MASK_EV5 = HCI_ESCO_PKT_TYPES_MASK_EV5,
+    BTM_SCO_LINK_ONLY_MASK = BTM_SCO_PKT_TYPES_MASK_HV1 | BTM_SCO_PKT_TYPES_MASK_HV2 | BTM_SCO_PKT_TYPES_MASK_HV3
+};
+
+enum {
+    BTM_LINK_TYPE_SCO = HCI_LINK_TYPE_SCO,
+    BTM_LINK_TYPE_ESCO = HCI_LINK_TYPE_ESCO
+};
+
+enum {
+    BTM_ESCO_RETRANS_POWER = 1
+};
+
+enum {
+    BTM_ESCO_CHG_EVT = 1,
+    BTM_ESCO_CONN_REQ_EVT
+};
+
 enum {
     BTM_COD_MAJOR_PERIPHERAL = 5
 };
@@ -282,6 +312,12 @@ typedef struct {
 } tBTM_ESCO_PARAMS;
 
 typedef struct {
+    UINT16 max_latency;
+    UINT16 packet_types;
+    UINT8 retrans_effort;
+} tBTM_CHG_ESCO_PARAMS;
+
+typedef struct {
     UINT16 rx_pkt_len;
     UINT16 tx_pkt_len;
     BD_ADDR bd_addr;
@@ -408,6 +444,21 @@ tBTM_STATUS BTM_ReadRSSI(BD_ADDR remote_bda, tBTM_CMPL_CB *p_cb);
 tBTM_STATUS BTM_ReadLinkQuality(BD_ADDR remote_bda, tBTM_CMPL_CB *p_cb);
 void BTM_SendHciReset(tBTM_CMPL_CB *p_cb);
 tBTM_INQ_INFO *BTM_InqDbRead(BD_ADDR p_bda);
+UINT16 BTM_GetHCIConnHandle(BD_ADDR remote_bda);
+tBTM_STATUS BTM_CreateSco(BD_ADDR remote_bda, BOOLEAN is_orig, UINT16 pkt_types, UINT16* p_sco_inx, tBTM_SCO_CB* p_conn_cb,
+                          tBTM_SCO_CB* p_disc_cb);
+tBTM_STATUS BTM_RemoveSco(UINT16 sco_inx);
+tBTM_STATUS BTM_SetScoPacketTypes(UINT16 sco_inx, UINT16 pkt_types);
+UINT16 BTM_ReadScoPacketTypes(UINT16 sco_inx);
+UINT16 BTM_ReadScoDiscReason(void);
+UINT16 BTM_ReadDeviceScoPacketTypes(void);
+UINT16 BTM_ReadScoHandle(UINT16 sco_inx);
+BD_ADDR_PTR BTM_ReadScoBdAddr(UINT16 sco_inx);
+tBTM_STATUS BTM_SetEScoMode(tBTM_SCO_TYPE sco_mode, tBTM_ESCO_PARAMS* p_parms);
+tBTM_STATUS BTM_RegForEScoEvts(UINT16 sco_inx, tBTM_ESCO_CBACK* p_esco_cback);
+tBTM_STATUS BTM_ReadEScoLinkParms(UINT16 sco_inx, tBTM_ESCO_DATA* p_parms);
+tBTM_STATUS BTM_ChangeEScoLinkParms(UINT16 sco_inx, tBTM_CHG_ESCO_PARAMS* p_parms);
+void BTM_EScoConnRsp(UINT16 sco_inx, UINT8 hci_status, tBTM_ESCO_PARAMS* p_parms);
 tBTM_STATUS BTM_ReadLocalVersion(tBTM_VERSION_INFO *p_vers);
 tBTM_STATUS BTM_PmRegister(UINT8 mask, UINT8 *p_pm_id,
                            tBTM_PM_STATUS_CBACK *p_cb);
