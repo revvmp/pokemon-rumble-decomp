@@ -54,7 +54,7 @@ All of these are in `include/revolution/fa/pf_volume.h`.
 | Offset | Field | Evidence |
 | --- | --- | --- |
 | 0x00 | `chain_stamp` | `0x8020C6B0` (InitFFD) and `0x8020C670` (ResetFFD) store 1 here. `0x8020AE80` copies it into the hint's third word. |
-| 0x04 | `reserved` | Not accessed |
+| 0x04 | `start_cluster` | Not accessed in this unit; F-355-4 shows `PFDIR_p_rename` using it as the start-cluster slot, VF's offset 0 |
 | 0x08 | `p_start_cluster` | |
 | 0x0C | `last_cluster` | 8 bytes |
 | 0x14 | `last_access` | 8 bytes |

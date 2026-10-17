@@ -25,8 +25,17 @@ typedef struct PF_CHARCODE {
 
 #define PF_SETTING_CODE_MODE_MASK 0x3
 
+#define PF_MAX_CUR_VOLUMES 4
+
+typedef struct PF_CUR_VOLUME {
+    u32 stat;
+    s32 context_id;
+    struct PF_VOLUME* p_vol;
+} PF_CUR_VOLUME;
+
 typedef struct PF_VOLUME_SET {
-    u8 state[0x40];
+    PF_CUR_VOLUME current_vol[PF_MAX_CUR_VOLUMES];
+    u8 state[0x10];
     s32 last_error;
     s32 last_driver_error;
     PF_CHARCODE codeset;

@@ -2,7 +2,7 @@
 
 Target: `wpse-v1`, frozen `orig/wpse-v1/main.dol`. Issues: #355 and #356 (partial). Compiler: Wii/1.0 `cflags_sdk` (F-350-1), default 16-byte function alignment.
 
-`pf_dir.c` follows `pf_cluster.c` (F-355-1). Its split is `.text` `0x80201200`–`0x80205CC8`, `.sdata` `0x804B8858`–`0x804B8874` and `.sdata2` `0x804BA5B8`–`0x804BA5C0`. The unit is registered `NonMatching`, so the build links the original object. Twelve of its 38 functions are written; ten are identical. `python configure.py`, `.venv/Scripts/ninja` (exit 0) and `python tools/verify/verify.py verify --manifest config/targets/wpse-v1.json --reference-dir orig/wpse-v1 --build-dir build/wpse-v1` pass.
+`pf_dir.c` follows `pf_cluster.c` (F-355-1). Its split is `.text` `0x80201200`–`0x80205CC8`, `.sdata` `0x804B8858`–`0x804B8874` and `.sdata2` `0x804BA5B8`–`0x804BA5C0`. The unit is registered `NonMatching`, so the build links the original object. Twelve of its 38 functions were written here; ten were identical. F-355-4 adds three more and fixes `PFDIR_p_fsnext`, which brings the unit to 15 written, 13 identical. `python configure.py`, `.venv/Scripts/ninja` (exit 0) and `python tools/verify/verify.py verify --manifest config/targets/wpse-v1.json --reference-dir orig/wpse-v1 --build-dir build/wpse-v1` pass.
 
 ## Boundaries
 
@@ -23,11 +23,11 @@ Target: `wpse-v1`, frozen `orig/wpse-v1/main.dol`. Issues: #355 and #356 (partia
 | `PFDIR_p_chmod` | `0x802024A0` | identical |
 | `PFDIR_p_rmdir` | `0x802026E0` | identical |
 | `PFDIR_p_fstat` | `0x80202A10` | identical |
-| `PFDIR_p_fsnext` | `0x80203F30` | 96.7%: the build hoists the constant 999999 into `r29`; the target reloads it |
+| `PFDIR_p_fsnext` | `0x80203F30` | identical since F-355-4. It was 96.7% because the build hoisted the constant 999999 into `r29` |
 | `PFDIR_p_fsfirst` | `0x80204240` | identical |
 | `PFDIR_ChmodEntry` | `0x80204350` | identical |
 
-Not yet written:
+Not yet written (the first two items are written in F-355-4):
 
 - `0x80201950` (directory creation)
 - `0x80202BA0` and `0x80203570` (rename or move)
