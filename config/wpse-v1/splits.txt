@@ -160,12 +160,38 @@ RVL_SDK/gx/GXPixel.c:
 RVL_SDK/gx/GXDisplayList.c:
 	.text       start:0x802D09E0 end:0x802D0A54
 
+RVL_SDK/dvd/dvd.c:
+	.text       start:0x802D6660 end:0x802D6694
+
 RVL_SDK/dvd/dvdqueue.c:
 	.text       start:0x802D66A0 end:0x802D6920
 	.bss        start:0x80458F30 end:0x80458F50
 
+RVL_SDK/dvd/dvderror.c:
+	.text       start:0x802D6920 end:0x802D7338
+	.data       start:0x803D6C50 end:0x803D6C7C
+	.bss        start:0x80458F60 end:0x804591C0
+	.sbss       start:0x804B97B8 end:0x804B97C4
+
 RVL_SDK/dvd/dvdidutils.c:
 	.text       start:0x802D7340 end:0x802D7430
+
+RVL_SDK/dvd/dvdFatal.c:
+	.text       start:0x802D7430 end:0x802D7598
+	.rodata     start:0x80371670 end:0x803716A8
+	.data       start:0x803D6C80 end:0x803D7448
+	.sdata      start:0x804B8BA8 end:0x804B8BB0
+	.sbss       start:0x804B97C8 end:0x804B97CC
+	.sdata2     start:0x804BB3E8 end:0x804BB3EC
+
+RVL_SDK/dvd/dvdDeviceError.c:
+	.text       start:0x802D75A0 end:0x802D782C
+	.rodata     start:0x803716A8 end:0x803716C4
+	.data       start:0x803D7448 end:0x803D75E0
+	.bss        start:0x804591C0 end:0x804591E0
+	.sdata      start:0x804B8BB0 end:0x804B8BB4
+	.sbss       start:0x804B97D0 end:0x804B97D4
+	.sdata2     start:0x804BB3F0 end:0x804BB3F4
 
 RVL_SDK/ax/AX.c:
 	.text       start:0x802DA490 end:0x802DA500

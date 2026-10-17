@@ -689,3 +689,7 @@ The source constants occupy `0x804BBBB8–0x804BBBF8` as five doubles for `ldexp
 | `0x8033A1E0` | `0xD8` | `fn_8033A1E0` | `SDP_AddUuidSequence` | function, outside block | high name | F-522-4 | owning block issue |
 | `0x8033B8E8` | `0x1A0` | `fn_8033B8E8` | `sdp_init` | function, outside block | high name | F-522-4 | owning block issue |
 | `0x803456E8` | `0x4C` | `fn_803456E8` | `memcmp` | function, outside block | high name | F-522-4 | owning block issue |
+
+## Issue 482 complete DVD region
+
+[F-482-2/F-482-3](findings/482-dvd-queue-id.md) records the corrected 128-byte DVD error record, callback chain, named NAND buffers and aligned error records, message tables, external linkage names, and explicit dvd.c tail implementation fragment. All 30 owned functions (4404 bytes) are source-linked and match exactly; no preceding dvd.c functions are counted. Target callbacks establish cover at 0x10 and status at 0x14. Detailed symbol addresses, section extents, provenance and neighboring fallbacks are in that finding.

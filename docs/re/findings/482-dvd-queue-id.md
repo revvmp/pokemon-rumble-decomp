@@ -28,7 +28,7 @@ The units use imported `include/revolution/dvd.h` and OS declarations per D-0013
 
 `DVDDiskID` is 0x20 bytes, aligned to four: char gameName[4] at 0, company[2] at 4, unsigned-byte diskNumber/gameVersion at 6/7, streaming fields at 8/9, 14 reserved bytes at 0xA, and unsigned magic words at 0x18/0x1C. The comparison verifies offsets 0, 4, 6, and 7 with signed char extension for the names and unsigned-byte comparison for the version fields. Other fields follow the reference ABI. BOOL is int; queue priority is signed 32-bit long. Callbacks take signed 32-bit result and a block pointer.
 
-## Remaining issue scope
+## Initial partial-work scope (superseded by F-482-3)
 
 This is partial work on #482, not completion of its 30 functions. The first three functions are `dvd.c` tail routines: `__DVDTestAlarm` at `0x802D6660`, `__DVDStopMotorAsync` at `0x802D6680`, and `__DVDRestartMotor` at `0x802D6690`. Reference order and the reset-alarm comparison establish these names, but the containing unit begins in earlier blocks (#480/#481); no split or source for that unit is added here. Their three symbol names are recovered within this claim; __DVDTestAlarm also supplies the naming dependency recorded by OSAlarm in #464.
 
@@ -49,3 +49,40 @@ A union rebase reintroduced obsolete OSAlarm rows whose legacy encoding differed
 The target callbacks at `0x802D71C0` and `0x802D7250` store the status register at `DVDErrorInfo + 0x14` and cover register at `+0x10`, respectively. The imported older header places status at `+0x10` and reserves the next four bytes. The corrected `cover`/`status` fields retain the record size of 128 bytes and every following offset. The call to `DVDLowPrepareStatusRegister` at `0x802D7290` tests its return with `cmpwi r3,0`; the imported byte-sized `bool` declaration instead compiles to `clrlwi.`. Returning `BOOL` reproduces the instruction. No existing reconstructed source outside this issue accesses these fields or calls this function.
 
 Device-check reconstruction requires the missing `OSIOSRev` declaration and `__OSGetIOSRev`/`OSGetPhysicalMem2Size` prototypes. These are imported from Petari `libs/RVL_SDK/include/revolution/os.h` at the pinned CC0 revision used in F-482-1. The target loads `major` from byte offset 1 after calling `__OSGetIOSRev`, consistent with the eight-byte reference structure. This prerequisite changes no source coverage; remaining implementation validation will be recorded separately.
+
+## F-482-3: Complete issue source linkage
+
+All 30 functions listed in #482, totaling 4,404 function bytes, now compile at 100% objdiff and link from C source. This continuation adds the remaining 23 functions / 3,560 bytes. The existing queue and disc-ID units remain exact. Configure, ninja and the independent frozen-manifest verifier all exit 0 with the six DVD build objects marked Matching. No instruction bytes, assembly fallbacks or original code blobs were introduced into reconstructed source.
+
+### Original units and partial integration
+
+Reference dvd.c begins with DVDInit at 0x802D1B40 and extends through __DVDRestartMotor ending at 0x802D6694. That original unit crosses neighboring #480/#481 and this issue. With explicit maintainer authorization for the minimal prerequisite integration, src/RVL_SDK/dvd/dvd.c currently implements only this issue's three final functions (0x802D6660-0x802D6694). This split is an implementation fragment, not a claim that 0x802D6660 is an original translation-unit boundary. Earlier functions remain original-object fallbacks. The fragment references original ResetAlarm at 0x80458EA0 externally; its storage remains in the earlier fallback range. Future owners should extend this same source and consolidate its split when reconstructing the preceding functions. No neighboring functions count toward this issue's reconstructed total.
+
+| Build object | Text extent | Functions / bytes | Other sections |
+| --- | --- | --- | --- |
+| dvd.c fragment | 802D6660-802D6694 | 3 / 44 | None |
+| dvderror.c | 802D6920-802D7338 | 14 / 2524 | data 803D6C50-803D6C7C; bss 80458F60-804591C0; sbss 804B97B8-804B97C4 |
+| dvdFatal.c | 802D7430-802D7598 | 4 / 340 | rodata 80371670-803716A8; data 803D6C80-803D7448; sdata 804B8BA8-804B8BB0; sbss 804B97C8-804B97CC; sdata2 804BB3E8-804BB3EC |
+| dvdDeviceError.c | 802D75A0-802D782C | 2 / 652 | rodata 803716A8-803716C4; data 803D7448-803D75E0; bss 804591C0-804591E0; sdata 804B8BB0-804B8BB4; sbss 804B97D0-804B97D4; sdata2 804BB3F0-804BB3F4 |
+
+All use Wii/1.0, existing cflags_sdk, default function alignment. All functions compare at 100%; all fatal/device data and error-log BSS/SBSS compare at 100%. The error-log compiler emits 43 bytes of string data, while dtk's aligned split contains 44. Its last zero byte is linker padding, not a missing source object: raw object inspection confirms the first 43 bytes are identical and the complete DOL verifies. Objdiff therefore scores that data section 98.85057%, despite exact linked artifact bytes. Source was not padded artificially to manipulate this score.
+
+### Newer error-log behavior
+
+The target adds an update of __ErrorInfo.nextOffset to (NextOffset + 1) % 7 when NextOffset is zero in cbForNandSeek. CodeWarrior inlines that callback into the write-completion failure path, explaining the corresponding larger function. The target adds cbForPrepareCoverRegister before __DVDStoreErrorCode; it stores cover, requests status, then begins NAND directory creation. F-482-2 records the requisite header corrections merged separately in #595. OSGetTime must be declared as a 64-bit function through OSTime.h; implicit C return typing instead generates a wrong 32-bit division.
+
+NandInfo is 0x8C bytes at 80458F60; NandCb is 0xBC at 80458FEC, followed by 0x18 alignment bytes. __ErrorInfo/__FirstErrorInfo occupy 804590C0/80459140 and each are 128 bytes aligned to 32. ExistFlag, NextOffset and Callback are four-byte objects at 804B97B8/BC/C0. Their declarations and observed ordering reproduce the pooled BSS addressing.
+
+### Messages and device validation
+
+The target contains revised English messages and regional French/Spanish variants compared with Petari. Literal strings were recovered from the target pointer tables, represented as readable Japanese UTF-8 source converted by sjiswrap and Latin-1 escapes where appropriate. They are text assets, not copied executable code. Default/Europe tables each have seven entries; error104 has two. Regions 4/5 select error104 in this target regardless of the older reference's version conditional. Device-check error display is a static helper fully inlined into __DVDCheckDevice; the source object contains exactly the two target functions. The device code performs the original unencrypted-read/report-key checks and preserves volatile completion state.
+
+### External symbol evidence
+
+Only names, not sizes/types/splits, changed for external dependencies: NANDCloseAsync at 802E5FE0 follows the reference call from cbForNandWrite; DVDLowGetCoverRegister/StatusRegister at 802D98C0/D0 match corresponding target stores; DVDLowPrepareCoverRegister/StatusRegister at 802D9A50/9BC0 match callback chains; __DVDLowTestAlarm at 802D9ED0 is the reference alarm-test stub; SCGetProductGameRegion at 802E9C90 supplies the region switch; __div2i at 803405B4 is the emitted signed 64-bit runtime division helper for OSTicksToSeconds. ResetAlarm is named without moving or reconstructing its earlier-unit storage. All names reproduce the pinned reference SDK interfaces, while callback and register behavior is independently observed in this target.
+
+### Continuation traps
+
+A data split ending on a non-four-byte boundary is rejected by dtk. Extending only the split without correcting the inferred string symbol can leave a gap symbol crossing its end. Use the aligned split extent, inspect actual section bytes, and distinguish final linker padding from reconstructed content. Do not add dummy source padding to improve a fuzzy score when exact full verification already proves the link.
+
+The imported aggregate OS header is incomplete. Include OSTime.h/OSCache.h for error logging and OSThread.h before SC for its queue type. Including OSAddress.h together with this aggregate OS header redefines its address macros; the device-check absolute declaration uses the evidenced address directly.
