@@ -57,7 +57,7 @@ DSError TRKSuppAccessFile(u32 file_handle, u8* data, size_t* count, DSIOResult* 
 
         if (error == DS_NoError) {
             if (need_reply) {
-            
+
                 error = TRKRequestSend(buffer, &replyBufferId);
                 if (error == DS_NoError) {
                     replyBuffer = (TRKBuffer*)TRKGetBuffer(replyBufferId);

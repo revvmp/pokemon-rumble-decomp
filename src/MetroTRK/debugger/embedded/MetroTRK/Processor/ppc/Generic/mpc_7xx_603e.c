@@ -1,7 +1,7 @@
 #include <MetroTRK/ppc/Generic/mpc_7xx_603e.h>
 
-typedef struct TRKCPUState TRKCPUState;
-extern TRKCPUState gTRKCPUState;
+typedef struct ProcessorState_PPC_6xx_7xx ProcessorState_PPC;
+extern ProcessorState_PPC gTRKCPUState;
 
 extern u8 gTRKRestoreFlags[9];
 
