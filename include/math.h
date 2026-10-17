@@ -22,6 +22,10 @@ double tan(double x);
 double sqrt(double x);
 double nan(const char* tag);
 
+static inline float sqrtf(float x) {
+    return (float)sqrt(x);
+}
+
 static inline float powf(float x, float y) {
     return (float)pow(x, y);
 }
