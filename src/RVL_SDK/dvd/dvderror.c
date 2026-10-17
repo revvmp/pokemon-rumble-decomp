@@ -3,7 +3,6 @@
 #include "revolution/os/OSTime.h"
 #include "revolution/os/OSCache.h"
 
-u32 DVDLowGetStatusRegister(void);
 s32 NANDCloseAsync(NANDFileInfo*, NANDCallback, NANDCommandBlock*);
 s32 NANDPrivateOpenAsync(const char*, NANDFileInfo*, u8, NANDCallback, NANDCommandBlock*);
 
@@ -176,12 +175,12 @@ void cbForNandCreateDir(s32 result, NANDCommandBlock* block) {
     }
 }
 
-void cbForPrepareStatusRegister(u32 intType) {
+void cbForPrepareControlRegister(u32 intType) {
     if (intType == 1) {
-        __ErrorInfo.status = DVDLowGetStatusRegister();
+        __ErrorInfo.control = DVDLowGetControlRegister();
     }
     else {
-        __ErrorInfo.status = 0xFFFFFFFF;
+        __ErrorInfo.control = 0xFFFFFFFF;
     }
 
     if (NANDPrivateCreateDirAsync("/shared2/test2", 0x3F, 0, cbForNandCreateDir, &NandCb) != 0) {
@@ -191,14 +190,14 @@ void cbForPrepareStatusRegister(u32 intType) {
     }
 }
 
-void cbForPrepareCoverRegister(u32 intType) {
+void cbForPrepareStatusRegister(u32 intType) {
     if (intType == 1) {
-        __ErrorInfo.cover = DVDLowGetCoverRegister();
+        __ErrorInfo.status = DVDLowGetStatusRegister();
     }
     else {
-        __ErrorInfo.cover = 0xFFFFFFFF;
+        __ErrorInfo.status = 0xFFFFFFFF;
     }
-    if (!DVDLowPrepareStatusRegister(cbForPrepareStatusRegister)) {
+    if (!DVDLowPrepareControlRegister(cbForPrepareControlRegister)) {
         if (Callback) {
             Callback(2, NULL);
         }
@@ -209,5 +208,5 @@ void __DVDStoreErrorCode(u32 error, DVDCBCallback callback) {
     __ErrorInfo.error = error;
     __ErrorInfo.dateTime = (u32)OSTicksToSeconds(OSGetTime());
     Callback = callback;
-    DVDLowPrepareCoverRegister(cbForPrepareCoverRegister);
+    DVDLowPrepareStatusRegister(cbForPrepareStatusRegister);
 }
