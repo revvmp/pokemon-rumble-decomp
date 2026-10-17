@@ -2285,3 +2285,7 @@ For `wpse-v1` / `main.dol`, [F-444-1](findings/444-snd-wave-player.md) names `Ws
 ## Issue #444 WaveSoundHandle
 
 [F-444-4](findings/444-wave-handle.md) establishes the four-byte handle with WaveSound pointer at offset zero and DetachSound at 0x802917E0, native size 0x38. This unit ends at 0x80291818, before following alignment padding; its unused constructor strips normally. Combined source checkpoint supplies 52 functions / 6,900 native bytes across the seven reader/player/sound/handle/decoder units, with separate original-inventory accounting.
+
+## Issue #798 SoundArchivePlayer interface
+
+[F-798-1](findings/798-soundarchiveplayer-interfaces.md) establishes SoundArchivePlayer's complete 0xEC-byte layout: bases at 0/0xC, archive pointer 0x10, callbacks 0x20/0x28, three instance managers 0x44/0x6C/0x94, Mml allocator 0xBC, stream pool 0xC8, parser 0xE0 and setup storage 0xE4/0xE8. Native constructor/update/preparation accesses and the canonical compiler size probe support the original reference members. Callback vtables 0x803C6768/0x803C6778 identify both retained destructors. All 34 retained diagnostic streams/10,172 bytes reproduce initial native words/extents, with relocation and actual source-link acceptance still pending; no code credit is claimed.
