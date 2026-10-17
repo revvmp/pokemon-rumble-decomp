@@ -167,6 +167,7 @@ config.libs = [
             Object(NonMatching, "RVL_SDK/os/OSAlarm.c"),
             Object(NonMatching, "RVL_SDK/os/OSContext.c"),
             Object(NonMatching, "RVL_SDK/vi/i2c.c"),
+            Object(NonMatching, "RVL_SDK/gx/GXFifo.c"),
             Object(NonMatching, "RVL_SDK/gx/GXFrameBuf.c"),
             Object(NonMatching, "RVL_SDK/gx/GXLight.c"),
             Object(Matching, "RVL_SDK/gx/GXTev.c"),
