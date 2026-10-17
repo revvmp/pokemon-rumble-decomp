@@ -276,7 +276,7 @@ private:
     nw4hbm::lyt::DrawInfo mDrawInfo;
     Controller* mpController[WPAD_MAX_CONTROLLERS];
     RemoteSpk* mpRemoteSpk;
-    wchar_t* mpTextEx[10];
+    wchar_t* mpTextEx[10][1];
     nw4hbm::ut::ResFont* mpResFontEx;
     GXTexObj mTexObj;
     int mBar2AnmRev;
