@@ -160,20 +160,21 @@ private:
     bool mIsPause;
     bool mIsPausing;
 
-    u8 mSyncFlag;
+    bool mVoiceOutParamPitchDisableFlag;
+
+    u16 mSyncFlag;
     u8 mRemoteFilter;
     u8 mBiquadType;
     int mPriority;
     f32 mPan;
     f32 mSurroundPan;
     f32 mLpfFreq;
+    f32 mBiquadValue;
     int mOutputLineFlag;
     f32 mMainOutVolume;
     f32 mMainSend;
     f32 mFxSend[AUX_BUS_NUM];
     f32 mRemoteOutVolume[WPAD_MAX_CONTROLLERS];
-    f32 mRemoteSend[WPAD_MAX_CONTROLLERS];
-    f32 mRemoteFxSend[WPAD_MAX_CONTROLLERS];
     f32 mPitch;
     f32 mVolume;
     f32 mVeInitVolume;
