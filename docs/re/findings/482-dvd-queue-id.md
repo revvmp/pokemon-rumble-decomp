@@ -39,3 +39,7 @@ This is partial work on #482, not completion of its 30 functions. The first thre
 Split-only configure, ninja and frozen-manifest verification exited 0 before source registration. Source compilation reports queue 6/6, disc ID 1/1 functions at 100%; queue BSS 32/32 bytes matches. Full source-linked queue build and independent verification exited 0. Source, symbols, split ownership and documentation were reviewed without adding comments, docstrings or unit tests. No new general tooling trap emerged.
 
 Continue with the MSL owner to name `strncmp` at `0x80345EF8`, then switch the disc-ID object to `Matching` only after another full build and verification. Coordinate the `dvd.c` tail through its owning issue. Investigate the newer DVD error-ring implementation before importing its reference source.
+
+## Traps
+
+A union rebase reintroduced obsolete OSAlarm rows whose legacy encoding differed from the corrected upstream text. Inspect appended documentation for duplicates even when Git reports no conflict; preserve upstream rows and remove only the redundant additions. Squashing the issue-only delta removed the stale context from subsequent rebases. Worktrees share remote refs: pin the inspected base SHA before history operations, because another worker can advance origin/main between commands.
