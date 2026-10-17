@@ -103,6 +103,8 @@ void WUDSetVisibility(u8 disc, u8 conn);
 void WUDUpdateSCSetting(void);
 void WUDSetDeviceHistory(s32 chan, BD_ADDR_PTR addr);
 u8 WUDGetConnectable(void);
+BOOL WUDIsLatestDevice(s32 chan, BD_ADDR_PTR addr);
+BOOL WUDIsLinkedWBC(void);
 
 void WUDiGetFirmwareVersion(void);
 void WUDiInitSub(void);
