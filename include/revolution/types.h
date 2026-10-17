@@ -26,6 +26,9 @@ typedef volatile f64 vf64;
 
 typedef int BOOL;
 
+#define ATTRIBUTE_ALIGN(num) __attribute__((aligned(num)))
+#define NO_INLINE __attribute__((noinline))
+
 #define TRUE 1
 #define FALSE 0
 
