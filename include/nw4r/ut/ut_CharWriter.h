@@ -130,6 +130,7 @@ public:
     }
 
     void SetFontSize(f32 width, f32 height);
+    void SetFontSize(f32 height);
 
     f32 GetFontWidth() const;
     f32 GetFontHeight() const;
