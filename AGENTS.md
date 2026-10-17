@@ -29,6 +29,8 @@ Aim for the readability of the Super Mario Galaxy decompilation (Petari): source
 
 Read this section before starting work. Before ending every meaningful session, update it with newly discovered traps, failed approaches worth avoiding, and findings that change how future work should proceed. Do not leave reusable knowledge only in chat or a handoff. Each entry must state the trigger or symptom, the verified lesson or workaround, and a link to detailed evidence in `docs/` or `docs/re/` as appropriate.
 
+Contributors working a GitHub issue do not edit this list. They record traps in their issue's findings file in `docs/re/findings/`, under a `Traps` heading. Maintainers review those and promote the ones that apply project-wide, so this list stays short and pull requests do not conflict on it.
+
 Keep entries concise and actionable. Distinguish confirmed findings from hypotheses; do not promote a single unexplained failure into a universal rule. Revise or mark superseded guidance when new evidence changes it, preserving an evidence link. If no new trap or finding emerged, say so in the session's progress update rather than inventing an entry.
 
 - **Matching files can still be the wrong reference.** Identical original and rebuilt files fail if both differ from the frozen manifest. Never refresh expected hashes to fix this; identify the input mismatch. This rejection was exercised during [initialization validation](docs/VALIDATION.md).
@@ -73,8 +75,6 @@ Keep entries concise and actionable. Distinguish confirmed findings from hypothe
 - **OSAlarm extends past the reference source.** The routine at `0x802B3760` still uses AlarmQueue and cancels reserved-tag alarms by user data; OSAlloc starts at `0x802B3810`. Do not end the alarm split at the reference's last accessor. See [F-464-1](docs/re/findings/464-os-alarm.md).
 - **Replacing a unit can remove its trailing alignment padding.** GXTev scored 100% but its source object omitted twelve trailing padding bytes; the next fallback unit began early at four-byte alignment. Preserve the observed next entry alignment (`GXSetFog`, 16 bytes) in symbols before accepting the link. See [F-479-2](docs/re/findings/479-gx.md).
 
-- **Game SDK copies differ from Petari's function set.** RVL_SDK `nand.c` here links seven functions Petari lacks and omits others. Identify each function by call pattern and take names from other CC0 decompilations (`yomcube/cmwp-decomp`, `pbr-ret/pbr-decomp`), recording provenance. See [F-490-2](docs/re/findings/490-nand.md#f-490-2-nandc-function-set-differs-from-petari).
-
 - **Packed 4-byte function starts inside the RVL_SDK range mean another compiler.** NdevExi2A (`0x8033EEB4`-`0x8033F974`) matches only GameCube GC/3.0a3 to 3.0a5, not Wii/1.0. Check function alignment before assuming F-0007's per-region compiler. See [F-535-2](docs/re/findings/535-gdtexture-ndevexi2a.md#f-535-2-ndevexi2a-is-built-with-a-gamecube-compiler).
 
 - **ENC Latin1 includes Windows-1252 mappings.** Replacing its C1 entries with a standards-only ISO-8859-1 table changes target data; preserve the verified source maps shared by both forward conversions. See [F-494-1](docs/re/findings/494-enc-latin.md#reusable-lesson).
@@ -82,6 +82,12 @@ Keep entries concise and actionable. Distinguish confirmed findings from hypothe
 - **Source units can lose trailing alignment before a fallback unit.** When objdiff is 100% but the next function shifts by four bytes, inspect its inferred alignment. ENC Latin needed `align:16` on the following owned symbol to preserve the original boundary; see [F-494-2](docs/re/findings/494-enc-latin.md#f-494-2-alignment-of-the-next-fallback-unit).
 
 - **Negated closing keywords still close issues.** A partial-work pull request automatically closed its unfinished issue because its description contained a negated closing-keyword phrase. Use `Part of` and avoid closing-keyword issue references anywhere in partial-work descriptions; check issue state after merging. See [F-514-2](docs/re/findings/514-bta-dm-api.md#f-514-2-partial-work-issue-closure-keywords).
+
+- **End a `.text` split at the last function's end, not the next alignment boundary.** Ending `arc.c` at the padded 0x802F08E0 made the compiled object 8 bytes short of its split, and `.ctors` moved to 0x803529B8. Ending it at 0x802F08D8 leaves the padding to the next object and matches. See [F-495-1](docs/re/findings/495-arc-unit.md).
+
+- **verify.py checks whatever `main.dol` is on disk.** After a failed link it passed against the previous build's output. Delete `build/wpse-v1/main.dol` or confirm `ninja` exited 0 before trusting a verification result; observed in [F-495-1](docs/re/findings/495-arc-unit.md).
+
+- **A whole `.bss` extent can include the next unit's padding.** Splitting `mem_heapCommon.c` `.bss` to the next symbol shifted `.sdata` by `-0x20` and failed verification at DOL header byte `0x7F`. End the split at the unit's last object and leave the padding to the following automatic object. See [F-488-1](docs/re/findings/488-axfx-mem-units.md#f-488-1-unit-boundaries-in-0x802df1900x802e18f0).
 
 ## Current project state
 

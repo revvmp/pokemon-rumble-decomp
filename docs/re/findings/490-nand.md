@@ -17,3 +17,7 @@ Promoting the unit to `Matching` fails to link with undefined externals whose sy
 ## F-490-4: dsp_task.c starts in the previous block
 
 The issue's first four functions, `0x802E41C0`–`0x802E4630`, are `__DSP_exec_task`, `__DSP_boot_task` (its `__DSP_boot_task()` debug strings at `0x803DC290`), `__DSP_insert_task`, and `__DSP_remove_task`, matching the order of Petari's `dsp_task.c`. The file's first function is `__DSPHandler` at `0x802E3D90` (`0x42C` bytes), which calls `__DSP_exec_task` six times and `__DSP_remove_task` four times and uses the task list globals at `0x804B9990`–`0x804B99A4`. `__DSPHandler` lies in #489's block, so under the collaboration rules #489 owns the `dsp_task.c` split, object line, and header. These four functions were left for coordination with #489. Confidence high.
+
+## Traps
+
+- **Game SDK copies differ from Petari's function set.** RVL_SDK `nand.c` here links seven functions Petari lacks and omits others. Identify each function by call pattern and take names from other CC0 decompilations (`yomcube/cmwp-decomp`, `pbr-ret/pbr-decomp`), recording provenance. See F-490-2.
