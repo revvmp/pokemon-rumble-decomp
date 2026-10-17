@@ -192,4 +192,3 @@ void BTA_HhGetAclQueueInfo(void) {
         bta_sys_sendmsg(p_buf);
     }
 }
-
