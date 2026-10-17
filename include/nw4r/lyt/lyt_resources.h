@@ -47,6 +47,30 @@ struct MaterialList {
     u16 materialNum;
     u8 padding[2];
 };
+struct InflationLRTB {
+    f32 l;
+    f32 r;
+    f32 t;
+    f32 b;
+};
+struct Window : Pane {
+    InflationLRTB inflation;
+    u8 frameNum;
+    u8 padding[3];
+    u32 contentOffset;
+    u32 frameOffsetTableOffset;
+};
+struct WindowContent {
+    u32 vtxCols[4];
+    u16 materialIdx;
+    u8 texCoordNum;
+    u8 padding;
+};
+struct WindowFrame {
+    u16 materialIdx;
+    u8 textureFlip;
+    u8 padding;
+};
 }
 class ResourceAccessor;
 struct ResBlockSet {
