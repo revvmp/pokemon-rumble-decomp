@@ -522,6 +522,17 @@ RVL_SDK/nand/nand.c:
 	.text       start:0x802E4630 end:0x802E5BB4
 	.sdata      start:0x804B8BF0 end:0x804B8BF8
 
+RVL_SDK/sc/scsystem.c:
+	.text       start:0x802E7C50 end:0x802E95D8
+	.rodata     start:0x80371810 end:0x80371862
+	.data       start:0x803DC660 end:0x803DC840
+	.bss        start:0x8046F040 end:0x804771E0
+	.sdata      start:0x804B8C38 end:0x804B8D45
+	.sbss       start:0x804B99B8 end:0x804B99CF
+
+RVL_SDK/sc/scapi.c:
+	.text       start:0x802E95E0 end:0x802E9A88
+
 RVL_SDK/sc/scapi_prdinfo.c:
 	.text       start:0x802E9A90 end:0x802E9D14
 	.data       start:0x803DC840 end:0x803DC8A0

@@ -1140,3 +1140,50 @@ For `wpse-v1` / `main.dol`, [F-447-1](findings/447-ut-romfont.md) names the 26 `
 ## MSL wide-character, console and fdlibm units, issue 539
 
 Names, addresses and evidence are listed in [F-539-1](findings/539-msl-wide-math.md#recovered-names). The math kernel and wrapper names at `0x80349664`, `0x803498FC`, `0x80349B54` and `0x8034D530`-`0x8034D538` replace the issue 540 names; see [F-539-2](findings/539-msl-wide-math.md#f-539-2-correcting-the-math-wrapper-names-from-issue-540). `InitializeUART`, `WriteUARTN`, `__TRK_write_console`, `raise` and `__fpclassifyf` lie outside the block and were named from their call sites so the source link resolves.
+## SC system configuration (#492)
+
+[F-492-2](findings/492-sc.md) identifies `scsystem.c` and `scapi.c` with the pinned Petari source, target SDK banner, instruction comparison and relocation analysis. Names are high confidence original reference names. `SCItem` retains the imported integer storage union, two type bytes, name length, data size, name/data pointers and packed size; target field accesses corroborate this layout. `SCControl` is 0x190 bytes and retains its imported thread queue, NAND file/command storage, reload state, two file/buffer/size arrays and flush state. No field layouts are inferred merely from names.
+
+| Function | Address |
+| --- | --- |
+| `SCInit` | `0x802E7C50` |
+| `SCCheckStatus` | `0x802E7CF0` |
+| `SCReloadConfFileAsync` | `0x802E7E10` |
+| `OpenCallbackFromReload` | `0x802E7F30` |
+| `ReadCallbackFromReload` | `0x802E8000` |
+| `CloseCallbackFromReload` | `0x802E80F0` |
+| `FinishFromReload` | `0x802E8180` |
+| `CloseCallbackFromReloadError` | `0x802E82B0` |
+| `ParseConfBuf` | `0x802E82C0` |
+| `UnpackItem` | `0x802E8510` |
+| `DeleteItemByID` | `0x802E8690` |
+| `CreateItemByID` | `0x802E8830` |
+| `SCFindByteArrayItem` | `0x802E8AB0` |
+| `SCReplaceByteArrayItem` | `0x802E8B90` |
+| `SCFindU8Item` | `0x802E8CC0` |
+| `SCFindS8Item` | `0x802E8DA0` |
+| `SCFindU32Item` | `0x802E8E80` |
+| `SCReplaceU8Item` | `0x802E8F60` |
+| `__SCFlushSyncCallback` | `0x802E9070` |
+| `SCFlushAsync` | `0x802E9080` |
+| `MyNandCallback` | `0x802E92A0` |
+| `SCGetAspectRatio` | `0x802E95E0` |
+| `SCGetDisplayOffsetH` | `0x802E9640` |
+| `SCGetEuRgb60Mode` | `0x802E96C0` |
+| `SCGetIdleMode` | `0x802E9720` |
+| `SCGetLanguage` | `0x802E9730` |
+| `SCGetScreenSaverMode` | `0x802E97A0` |
+| `SCGetSoundMode` | `0x802E9800` |
+| `SCGetCounterBias` | `0x802E9860` |
+| `SCGetBtDeviceInfoArray` | `0x802E98A0` |
+| `SCSetBtDeviceInfoArray` | `0x802E98B0` |
+| `SCGetBtCmpDevInfoArray` | `0x802E98C0` |
+| `SCSetBtCmpDevInfoArray` | `0x802E98D0` |
+| `SCGetBtDpdSensibility` | `0x802E98E0` |
+| `SCGetWpadMotorMode` | `0x802E9950` |
+| `SCSetWpadMotorMode` | `0x802E99B0` |
+| `SCGetWpadSensorBarPosition` | `0x802E99C0` |
+| `SCGetWpadSpeakerVolume` | `0x802E9A20` |
+| `SCSetWpadSpeakerVolume` | `0x802E9A80` |
+
+System storage: `Control` at 8046F040 (0x190 bytes), `ConfBuf` at 8046F1E0 (0x4000), `ConfBufForFlush` at 804731E0 (0x4000), `NameAndIDTbl` at 803DC6F0 (37 eight-byte records), and the three path arrays at 80371810/80371820/80371838. `__SCVersion` is the pointer at 804B8C38. Small runtime state occupies 804B99B8–804B99CF; all extents exclude following unit padding.

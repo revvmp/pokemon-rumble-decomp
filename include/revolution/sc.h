@@ -148,7 +148,6 @@ typedef struct {
     u32 flushSize;
 } SCControl;
 
-s32 SCReloadConfFileAsync(u8*, u32, SCReloadConfFileCallback);
 
 #define SC_LANG_JAPANESE 0u
 #define SC_LANG_ENGLISH 1u
@@ -163,8 +162,6 @@ s32 SCReloadConfFileAsync(u8*, u32, SCReloadConfFileCallback);
 
 u8 SCGetLanguage(void);
 
-u8* __SCGetConfBuf(void);
-u32 __SCGetConfBufSize(void);
 
 void SCInit(void);
 
