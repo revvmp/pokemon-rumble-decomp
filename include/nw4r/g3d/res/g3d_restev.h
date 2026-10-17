@@ -79,8 +79,17 @@ public:
     bool GXGetIndTexOrder(GXIndTexStageID stage, GXTexCoordID *pCoord, GXTexMapID *pMap) const;
     void GXSetIndTexOrder(GXIndTexStageID stage, GXTexCoordID coord, GXTexMapID map);
 
+    void GXSetTevSwapMode(GXTevStageID stage, GXTevSwapSel ras, GXTevSwapSel tex);
+
+    void GXSetTevAlphaIn(GXTevStageID stage, GXTevAlphaArg a, GXTevAlphaArg b, GXTevAlphaArg c, GXTevAlphaArg d);
+    void GXSetTevAlphaOp(GXTevStageID stage, GXTevOp op, GXTevBias bias, GXTevScale scale, GXBool clamp, GXTevRegID reg);
+
+    void GXSetTevKColorSel(GXTevStageID stage, GXTevKColorSel sel);
+
     void GXSetTevColorIn(GXTevStageID stage, GXTevColorArg a, GXTevColorArg b, GXTevColorArg c, GXTevColorArg d);
-    void GXSetTevAlphaIn(GXTevStageID stage, GXTevColorArg a, GXTevColorArg b, GXTevColorArg c, GXTevColorArg d);
+    void GXSetTevColorOp(GXTevStageID stage, GXTevOp op, GXTevBias bias, GXTevScale scale, GXBool clamp, GXTevRegID reg);
+
+    void SetNumTevStages(u8 num);
 
     void CallDisplayList(bool sync) const;
 
