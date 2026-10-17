@@ -20,3 +20,4 @@ This checkpoint supplies 30 functions together with the four WsdFile methods and
 
 - Identical tiny methods and adjustment thunks have several possible instruction matches. Here original vtable entry order, source relocation identity and exact original addresses disambiguate them before acceptance.
 - Weak inline destructor bodies can first be retained in the preceding source file. Keep the evidenced original address and owning split; source-native comparison and full resolved artifact identity must both pass.
+- Added canonical inline declarations change numeric compiler-local counters in otherwise identical source objects. Pair the actual compiled literals through typed original SDA operands, native extents and complete raw values, then repeat the strict relocation and full-artifact audits. Do not reuse counters from a previous header context.
