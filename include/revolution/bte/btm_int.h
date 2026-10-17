@@ -343,6 +343,8 @@ tBTM_STATUS btm_remove_acl(BD_ADDR bd_addr);
 UINT32* btm_read_trusted_mask(BD_ADDR bd_addr);
 void btm_init(void);
 void btm_discovery_db_init(void);
+void btm_discovery_db_reset(void);
+void btm_discovery_timeout(void);
 void btm_sec_mx_access_request(BD_ADDR bd_addr, UINT16 psm, BOOLEAN is_originator, UINT32 mx_proto_id, UINT32 mx_chan_id,
                                tBTM_SEC_CALLBACK* p_callback, void* p_ref_data);
 tBTM_STATUS btm_sec_l2cap_access_req(BD_ADDR bd_addr, UINT16 psm, UINT16 handle, BOOLEAN is_originator,

@@ -95,6 +95,7 @@ tSDP_STATUS SDP_GetLocalDiRecord(tSDP_DI_GET_RECORD* p_device_info, UINT32* p_ha
 BOOLEAN SDP_AddUuidSequence(UINT32 handle, UINT16 attr_id, UINT16 num_uuids, UINT16* p_uuids);
 BOOLEAN SDP_AddAttribute(UINT32 handle, UINT16 attr_id, UINT8 attr_type, UINT32 attr_len, UINT8* p_val);
 tSDP_DISC_ATTR* SDP_FindAttributeInRec(tSDP_DISC_REC* p_rec, UINT16 attr_id);
+tSDP_DISC_REC* SDP_FindAttributeInDb(tSDP_DISCOVERY_DB* p_db, UINT16 attr_id, tSDP_DISC_REC* p_start_rec);
 tSDP_DISC_REC* SDP_FindServiceInDb(tSDP_DISCOVERY_DB* p_db, UINT16 service_uuid, tSDP_DISC_REC* p_start_rec);
 tSDP_DISC_REC* SDP_FindServiceUUIDInDb(tSDP_DISCOVERY_DB* p_db, tBT_UUID* p_uuid, tSDP_DISC_REC* p_start_rec);
 BOOLEAN SDP_ServiceSearchAttributeRequest(UINT8* p_bd_addr, tSDP_DISCOVERY_DB* p_db, tSDP_DISC_CMPL_CB* p_cb);
