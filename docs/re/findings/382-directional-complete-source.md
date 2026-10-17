@@ -14,7 +14,7 @@ The outside candidate rewrites the view-space path as the real `DrawDirectionalS
 
 With Wii/1.1 and the unchanged `cflags_nw4r` options, ordinary source reproduces the complete 1,588-byte non-relocation instruction stream at `0x80240B10`. The same compilation produces exact raw streams for the 152-byte getter, 868-byte `CalcRotate`, 504-byte `CalcLocalTransform`, and the weak copies needed by the view-space path. The fallback axis uses the existing typed static `mXUnitVec` directly, as the native caller does; routing it through the existing accessor introduces a call absent from the target. No instruction-control pragma is used.
 
-These are individual source probes, not source-selected acceptance. Independent relocation pairing, retained-data proof, final native positions and the actual frozen build remain pending. The existing directional registration stays NonMatching; no progress credit is claimed here.
+These are individual source probes, not source-selected acceptance. The first independent paired-target audit checks 21 mapped exact bodies / 4,780 bytes and decodes 142 native text relocation targets, including the complete view-space draw. Every repeated target is consistent. Constants and outside weak helper names remain explicitly decoded associations, rather than recovered original spellings. The static CalcRotate identity is not yet included in this name-based audit. Retained-data proof, complete-unit pairing, final native positions and the actual frozen build remain pending. The existing directional registration stays NonMatching; no progress credit is claimed here.
 
 ## Remaining differences and interface confidence
 
@@ -22,7 +22,7 @@ These are individual source probes, not source-selected acceptance. Independent 
 
 That diagnostic does not establish whether the original source returned a pointer or reference, or conclusively exclude another compiler-level cause for the otherwise unused return register. The pinned Whippy header declares the older interface `void`. No canonical signature change is proposed on this evidence alone. A separate `global_optimizer off` control with the unchanged void interface emits 476 bytes and fails, while changing the draw bodies as well; it is not an accepted compiler option or source pragma.
 
-The reproducible outside tools are `382-compile-complete-probe.py`, `382-view-return-probe.py` and `382-view-optimizer-control.py`. Their inputs and objects are under `382-reference`; none writes source in this worktree.
+The reproducible outside tools are `382-compile-complete-probe.py`, `382-view-return-probe.py` and `382-view-optimizer-control.py`, plus `382-paired-complete-probe.py` and its durable outside `paired-text-native.json`. Their inputs and objects are under `382-reference`; none writes source in this worktree.
 
 ## Traps
 
