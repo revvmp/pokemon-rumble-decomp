@@ -179,6 +179,25 @@ also preserves the now-canonical Layout, Picture, Window and Animation
 source consumers. This header prerequisite changes no source selection,
 split or executable-byte credit.
 
+### Repeated gate after external metadata
+
+The final ancestry guard rejected the preceding head after external #913
+changed FA metadata; no merge followed that failed guard. Both baseline
+and proposal were rebuilt from fresh output directories on actual main
+`e70743b5fdbef570d06974387bfa4e40838e7d7d`. Configure, plain Ninja
+(542 targets), explicit `all_source` and frozen verification exit 0 in
+both isolated worktrees. The proposed code head is
+`59d06b299250da1975f5f3a1393c669c473455e6`.
+
+The repeated complete inventory contains 535 objects: 516 whole-file
+identical, nineteen strictly numeric local `.strtab` differences, and no
+allocated-byte, section-metadata or relocation changes. All nineteen
+original-header controls again reproduce the exact baseline hashes. Raw
+baseline objects, linked artifacts and controls are preserved at
+`808-reference/879-final-baseline-e70743b5`. These results supersede the
+preceding baseline counts; the eight interface definitions remain
+unchanged.
+
 ## Traps
 
 - An inline Font reader body adds 28 bytes to the native retained line-rect
