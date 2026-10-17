@@ -355,11 +355,28 @@ RVL_SDK/mtx/mtx44.c:
 	.text       start:0x802C96E0 end:0x802C9908 align:16
 	.sdata2     start:0x804BB2B0 end:0x804BB2C8
 
+RVL_SDK/mtx/vec.c:
+	.text       start:0x802C9910 end:0x802C9B48 align:16
+	.sdata2     start:0x804BB2C8 end:0x804BB2D4
+
+RVL_SDK/gx/GXInit.c:
+	.text       start:0x802C9B50 end:0x802CACE0 align:16
+	.data       start:0x803D5EA0 end:0x803D60E0
+	.bss        start:0x80453B80 end:0x80454200
+	.sdata      start:0x804B8B20 end:0x804B8B24
+	.sbss       start:0x804B9698 end:0x804B96C0
+	.sdata2     start:0x804BB2D8 end:0x804BB300
+
 RVL_SDK/gx/GXFifo.c:
 	.text       start:0x802CACE0 end:0x802CB6C0
 	.data       start:0x803D60E0 end:0x803D6110
 	.bss        start:0x80454200 end:0x80454280
 	.sbss       start:0x804B96C0 end:0x804B96E0
+
+RVL_SDK/gx/GXAttr.c:
+	.text       start:0x802CB6C0 end:0x802CC624
+	.data       start:0x803D6110 end:0x803D6300
+	.sdata      start:0x804B8B28 end:0x804B8B34
 
 RVL_SDK/gx/GXMisc.c:
 	.text       start:0x802CC630 end:0x802CCE30
