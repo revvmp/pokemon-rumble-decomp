@@ -1961,6 +1961,21 @@ MetroTRK/debugger/embedded/MetroTRK/Os/dolphin/dolphin_trk.c:
 	.data       start:0x803E62E0 end:0x803E631C
 	.sbss       start:0x804B9C08 end:0x804B9C0C
 
+MetroTRK/debugger/embedded/MetroTRK/Os/dolphin/dolphin_trk_glue.c:
+	.text       start:0x8034E60C end:0x8034E9A8
+	.data       start:0x803E6320 end:0x803E6408
+	.bss        start:0x804B3A70 end:0x804B3A98
+	.sbss       start:0x804B9C10 end:0x804B9C18
+	.sdata2     start:0x804BBBF8 end:0x804BBBFC
+
+MetroTRK/debugger/embedded/MetroTRK/Portable/notify.c:
+	.text       start:0x8034E9A8 end:0x8034EA38
+
+MetroTRK/debugger/embedded/MetroTRK/Portable/nubevent.c:
+	.text       start:0x8034EA38 end:0x8034EBD4
+	.data       start:0x803E6408 end:0x803E6428
+	.bss        start:0x804B3A98 end:0x804B3AC0
+
 MetroTRK/debugger/embedded/MetroTRK/Portable/nubinit.c:
 	.text       start:0x8034EBD4 end:0x8034ED24
 	.data       start:0x803E6428 end:0x803E6448
