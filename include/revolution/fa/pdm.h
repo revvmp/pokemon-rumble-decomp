@@ -11,14 +11,21 @@ extern "C" {
 #define PDM_ERR_NOT_BOOT_SECTOR 2
 #define PDM_ERR_NO_PARTITION 3
 #define PDM_ERR_INVALID_BPB 4
+#define PDM_ERR_PARTITION_NOT_FOUND 7
 #define PDM_ERR_TOO_MANY_DISKS 8
+#define PDM_ERR_TOO_MANY_PARTITIONS 0xA
+#define PDM_ERR_INITIALIZED 0xB
+#define PDM_ERR_MOUNTED 0xC
 #define PDM_ERR_NOT_OPENED 0xD
 #define PDM_ERR_NOT_MOUNTED 0xE
+#define PDM_ERR_ACCESS 0xF
 #define PDM_ERR_DISK_OPENED 0x10
 #define PDM_ERR_DISK_MOUNTED 0x11
+#define PDM_ERR_OUT_OF_RANGE 0x12
 #define PDM_ERR_DRIVER 0x15
 
 #define PDM_MAX_DISK 26
+#define PDM_MAX_PARTITION 26
 
 #define PDM_SWAP16(x) ((u16)((((x) >> 8) & 0xFF) | (((x) & 0xFF) << 8)))
 #define PDM_SWAP32(x) ((((x) << 24) | (((x) << 8) & 0xFF0000)) | (((x) >> 24) | (((x) >> 8) & 0xFF00)))
@@ -28,6 +35,11 @@ extern "C" {
 #define PDM_DISK_STATUS_OPEN 0x1
 #define PDM_DISK_STATUS_WRITE_PROTECT 0x2
 #define PDM_DISK_STATUS_INSERTED 0x4
+
+#define PDM_PART_STATUS_OPEN 0x1
+#define PDM_PART_STATUS_MEDIA_CHANGED 0x2
+#define PDM_PART_STATUS_INITIALIZED 0x4
+#define PDM_PART_STATUS_MOUNTED 0x8
 
 #define PDM_MEDIA_ATTR_WRITE_PROTECT 0x1
 
@@ -105,11 +117,29 @@ typedef struct PDM_DISK {
     struct PDM_PARTITION* p_cur_part;
 } PDM_DISK;
 
+typedef void (*PDM_MEDIA_CALLBACK)(struct PDM_PARTITION* p_part);
+
+typedef struct PDM_PART_CALLBACK {
+    PDM_MEDIA_CALLBACK insert;
+    PDM_MEDIA_CALLBACK eject;
+} PDM_PART_CALLBACK;
+
+typedef struct PDM_PARTITION {
+    u32 status;
+    PDM_DISK* p_disk;
+    u32 part_id;
+    u32 start_sector;
+    u32 total_sector;
+    s32 driver_last_error;
+    u32 reserved[2];
+    PDM_PART_CALLBACK callback;
+} PDM_PARTITION;
+
 typedef struct PDM_DISK_SET {
     u16 num_partition;
     u16 num_allocated_disk;
     PDM_DISK disk[PDM_MAX_DISK];
-    u8 partition[0x410];
+    PDM_PARTITION partition[PDM_MAX_PARTITION];
 } PDM_DISK_SET;
 
 typedef struct PDM_FSINFO {
@@ -141,7 +171,23 @@ s32 pdm_disk_finalize(PDM_DISK* p_disk);
 void pdm_disk_notify_media_eject(PDM_DISK* p_disk);
 void pdm_disk_notify_media_insert(PDM_DISK* p_disk);
 
-void pdm_part_set_driver_error_code(struct PDM_PARTITION* p_part, s32 error_code);
+s32 pdm_part_get_start_sector(PDM_PARTITION* p_part);
+u32 pdm_part_chg_ltop(PDM_PARTITION* p_part, u32 lsector, u16 lbps);
+s32 pdm_part_open_partition(PDM_DISK* p_disk, u32 part_id, PDM_PARTITION** pp_part);
+s32 pdm_part_close_partition(PDM_PARTITION* p_part);
+u32 pdm_part_is_initialized(PDM_PARTITION* p_part);
+void pdm_part_set_driver_error_code(PDM_PARTITION* p_part, s32 error_code);
+s32 pdm_part_get_driver_error_code(PDM_PARTITION* p_part);
+s32 pdm_part_get_media_information(PDM_PARTITION* p_part, PDM_DISK_INFO* p_disk_info);
+s32 pdm_part_initialize(PDM_PARTITION* p_part);
+s32 pdm_part_mount(PDM_PARTITION* p_part);
+s32 pdm_part_format(PDM_PARTITION* p_part, const u8* param);
+s32 pdm_part_logical_read(PDM_PARTITION* p_part, u8* buf, u32 lsector, u32 num_sector, u16 bps, u32* p_num_success);
+s32 pdm_part_logical_write(PDM_PARTITION* p_part, const u8* buf, u32 lsector, u32 num_sector, u16 bps, u32* p_num_success);
+s32 pdm_part_unmount(PDM_PARTITION* p_part, u32 mode);
+s32 pdm_part_finalize(PDM_PARTITION* p_part);
+s32 pdm_part_set_callback(PDM_PARTITION* p_part, PDM_PART_CALLBACK* p_callback);
+s32 pdm_part_clear_callback(PDM_PARTITION* p_part);
 void pdm_part_set_change_media_state(PDM_DISK* p_disk, u32 event);
 
 #ifdef __cplusplus
