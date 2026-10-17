@@ -54,7 +54,7 @@ Do these steps in order for each translation unit.
 6. **Accept.** When every function matches, change the object to `Matching`, run a full build, and run verification. Only a passing verification makes the unit done; objdiff alone is not enough.
 7. **Record.** Add or update your unit's row in the area ledger. Record recovered names and layouts in [symbols](re/SYMBOLS.md) and new evidence in a findings file.
 8. **Submit.** Open a pull request using the template. One issue per pull request, ideally one to a few units.
-9. **Merge.** When the pull request is ready and the `Build and verify main.dol` check passes, squash-merge it yourself with an empty merge body. Then remove your worktree and branch, as in the `take-issue` skill. Never merge with a failing or pending check or with an admin bypass. Leave pull requests that touch maintainer-only files, or that conflict outside your claim, for a maintainer.
+9. **Merge.** When the pull request is ready and the `Build and verify main.dol` check passes, squash-merge it yourself with an empty merge body. Then remove your worktree and branch, as in the `take-issue` skill. Never merge with a failing or pending check or with an admin bypass. Merge only if `main` has not moved since the passing check; otherwise rebase, re-run CI, and try again. Resolve conflicts in shared files by keeping both sides, as in the skill's conflict rules. Leave pull requests that touch maintainer-only files, or whose conflicts those rules do not cover, for a maintainer.
 
 Partially matching work is welcome. Keep it `NonMatching` so the build still uses the original object, and record the remaining differences, suspected causes, and decomp.me scratch links in the ledger row.
 
@@ -98,6 +98,7 @@ Agents follow the same rules as people. These additions keep parallel agents fro
   ```
 
   `orig/` is tracked, so worktrees include the originals. The junctions share the pinned binaries without copying them.
+- **Keep the main checkout current.** The skill, `tools/collab/claim_issue.py`, and the docs are read from the main checkout, so agents run `git pull --ff-only` there before claiming and after merging. They never stash, reset, or commit in it; if the fast-forward fails, they report it and continue.
 - **Remove junctions before removing a worktree.** A recursive delete can follow a junction and erase the shared `tools/local` and `.venv`. Remove the junctions first, then the worktree:
 
   ```powershell

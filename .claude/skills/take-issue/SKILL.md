@@ -18,6 +18,14 @@ Test-Path tools/local/dtk.exe, .venv/Scripts/ninja.exe
 
 If either check fails, stop and point the user to `docs/SETUP.md`.
 
+Then bring the main checkout up to date, so this skill, `tools/collab/claim_issue.py`, `AGENTS.md`, and the docs you read are current:
+
+```powershell
+git pull --ff-only
+```
+
+Pull only with `--ff-only`, and only while the main checkout is on `main`. It never creates a merge commit, and git refuses rather than overwrite uncommitted changes. If the pull fails, because of local changes, another branch, or another agent's pull holding `.git/index.lock`, do not stash, reset, or commit anything in the main checkout. Retry once after a short wait for a lock; otherwise tell the user and continue. Your worktree is created from a fresh `origin/main` either way. If the pull changed this skill file, re-read it before continuing.
+
 ## 2. Claim
 
 - If the user gave an issue number: `python tools/collab/claim_issue.py claim --issue <n> --agent "<your model and session>"`
@@ -77,7 +85,7 @@ The game compiler is not yet identified. Before writing game code, check `docs/r
 - **`kind:research` issues.** Produce evidence and record it in `docs/re/findings/<n>-<slug>.md` with ID `F-<n>-<k>`. Open follow-up `kind:decomp` issues only if the user agrees.
 
 Working copies on Windows use CRLF line endings, except the dtk config files and progress SVGs pinned to LF in `.gitattributes`. Scripted string replacements that assume `
-` silently match nothing, so prefer the Edit tool. If you script a write, preserve the file's line endings and pass `encoding="utf-8"` explicitly; the Windows default encoding corrupts characters such as en dashes.
+` silently match nothing, so prefer your agent's file-editing tool (Edit in Claude Code, `apply_patch` in Codex). If you script a write, preserve the file's line endings and pass `encoding="utf-8"` explicitly; the Windows default encoding corrupts characters such as en dashes.
 
 Edit only the files `docs/COLLABORATION.md` allows. Do not touch maintainer-only files, frozen manifests, or expected hashes. Add no comments, docstrings, or unit tests, and never paste decompiler output.
 
@@ -92,16 +100,30 @@ Attribution rule: commits and pull requests carry no co-authors. Do not add `Co-
 
 ## 7. Merge
 
-Merge your own pull request once it is ready and the CI check passes. Run these steps from the worktree.
+Merge your own pull request once it is ready and the CI check passes. Other agents merge into `main` at the same time, so this step is a loop: update, wait for CI, and merge only if `main` has not moved since. Run it from the worktree.
 
-1. **Update.** Bring the branch up to date: `git fetch origin` then `git rebase origin/main`. If the rebase conflicts, resolve only hunks in files you changed for this issue. For `splits.txt`, `symbols.txt` and `configure.py`, keep everyone else's lines and re-apply yours. If you rebased, rebuild, verify, and push with `git push --force-with-lease`.
+1. **Update.** Run `git fetch origin` then `git rebase origin/main`. If nothing conflicts and nothing new came in, go to step 2. Otherwise resolve as described below, rebuild, verify, and push with `git push --force-with-lease`.
 2. **Wait for CI.** Run `gh pr checks <pr> --watch --fail-fast`. It must exit 0 with `Build and verify main.dol` passing. If it fails, read the log with `gh run view <run> --log-failed`, fix the cause, push, and wait again.
-3. **Merge.** Run `gh pr merge <pr> --squash --subject "<pull request title> (#<pr>)" --body ""`. The empty body keeps attribution lines out of the merge commit.
-4. **Confirm.** `gh pr view <pr> --json state -q .state` must print `MERGED`. If the description said `Closes #<n>`, confirm the issue closed. If it said `Part of #<n>`, keep the claim while you continue, or release it.
+3. **Check that `main` has not moved.** Run `git fetch origin` then `git merge-base --is-ancestor origin/main HEAD`. If it exits non-zero, another pull request merged after your CI run and your change was never tested against it; go back to step 1.
+4. **Merge.** Run `gh pr merge <pr> --squash --subject "<pull request title> (#<pr>)" --body ""`. The empty body keeps attribution lines out of the merge commit. If GitHub reports the pull request is not mergeable or out of date, go back to step 1.
+5. **Confirm.** `gh pr view <pr> --json state -q .state` must print `MERGED`. If the description said `Closes #<n>`, confirm the issue closed. If it said `Part of #<n>`, keep the claim while you continue, or release it.
 
-Never merge with a failing, pending, or missing check. Never use `--admin` or any other bypass. Never merge someone else's pull request. Leave the pull request for a maintainer and tell the user instead if any of these hold:
+### Resolving rebase conflicts
+
+When `git rebase` stops, list the conflicted files with `git status`, resolve each one, `git add` it, and run `git rebase --continue`; repeat until the rebase finishes. If you get lost, `git rebase --abort` returns the branch to its state before the rebase, and you can start again. Resolve by file type:
+
+- **Files only you changed for this issue,** such as your source and private headers: resolve freely.
+- **`config/wpse-v1/splits.txt` and `config/wpse-v1/symbols.txt`:** take `main`'s version with `git checkout --ours <file>` (during a rebase, "ours" is `main` and "theirs" is your commit), then re-apply only your own unit's ranges and renames. The rebuild may rewrite these files; keep the rewrite only where it touches your ranges.
+- **`configure.py`:** keep every library and object line from `main`. Add your object lines in address order, and reuse an existing library entry rather than creating a second one.
+- **Append-style shared files:** ledger files in `docs/ledger/`, `docs/re/SYMBOLS.md`, and the `AGENTS.md` traps list. Keep both sides: their rows and yours, ordered by address where the file is ordered, with no duplicates.
+- **Shared headers in `include/`** used by other units: if both sides only added declarations, keep both. If both changed the same declaration differently, stop and leave it for a maintainer.
+
+Never resolve a shared file by taking one side wholesale, which silently drops another contributor's work. After resolving, always rebuild from clean and run verification before pushing. A conflict-free textual merge can still break the link.
+
+Never merge with a failing, pending, or missing check, or with a check that ran before `main` moved. Never use `--admin` or any other bypass. Never merge someone else's pull request. Leave the pull request for a maintainer and tell the user instead if any of these hold:
 - it changes a maintainer-only file listed in `docs/COLLABORATION.md`
-- the rebase conflicted in a file outside your claim
+- a conflict falls outside the cases above, or a shared header declaration conflicts
+- the full build or verification fails after resolving and you cannot find the cause in your own changes
 - the user asked to review before merging
 
 ## 8. Clean up
@@ -114,6 +136,6 @@ git push origin --delete <branch>
 git branch -D <branch>
 ```
 
-`remove-worktree` removes the `tools\local` and `.venv` junctions before the worktree, so the shared tools survive. Squash merges are not ancestors of the branch, so `git branch -d` refuses to delete it; use `-D` only after confirming `MERGED`. To look up the merge commit from the main checkout, run `git fetch origin` first; fetching does not touch the working tree. Do not pull or otherwise change the main checkout, because other agents and the maintainer may have work in progress there. Tell the user the pull request link, the merge commit, and what remains of the issue.
+`remove-worktree` removes the `tools\local` and `.venv` junctions before the worktree, so the shared tools survive. Squash merges are not ancestors of the branch, so `git branch -d` refuses to delete it; use `-D` only after confirming `MERGED`. Then run `git pull --ff-only` in the main checkout so it includes your merged work, with the same rules as in step 1: fast-forward only, and never stash, reset, or commit there. If it fails, tell the user. Other agents and the maintainer may have work in progress in the main checkout; never change it in any other way. Tell the user the pull request link, the merge commit, and what remains of the issue.
 
 To abandon the issue instead, run `python tools/collab/claim_issue.py release --issue <n> --reason "<why>"`, then clean up the same way and close the pull request if one is open.
