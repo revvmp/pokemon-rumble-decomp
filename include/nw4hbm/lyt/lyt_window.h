@@ -76,6 +76,17 @@ class Window : public Pane {
 public:
     NW4R_UT_RTTI_DECL(Window);
 
+protected:
+    struct Content {
+        ut::Color vtxColors[VERTEXCOLOR_MAX];
+        detail::TexCoordAry texCoordAry;
+    };
+
+    struct Frame {
+        u8 textureFlip;
+        Material* pMaterial;
+    };
+
 public:
     Window(const res::Window* pRes, const ResBlockSet& rBlockSet);
     virtual ~Window();
@@ -88,59 +99,24 @@ public:
     virtual u8 GetVtxColorElement(u32 idx) const;
     virtual void SetVtxColorElement(u32 idx, u8 value);
 
-    virtual Material* FindMaterialByName(const char* pName,
-                                         bool recursive);
+    virtual Material* FindMaterialByName(const char* pName, bool recursive);
 
     virtual void UnbindAnimationSelf(AnimTransform* pAnimTrans);
 
-    virtual AnimationLink*
-    FindAnimationLink(AnimTransform* pAnimTrans);
+    virtual AnimationLink* FindAnimationLink(AnimTransform* pAnimTrans);
 
-    virtual void SetAnimationEnable(AnimTransform* pAnimTrans, bool enable,
-                                    bool recursive);
-
-    virtual Material* GetMaterial() const;
+    virtual void SetAnimationEnable(AnimTransform* pAnimTrans, bool enable, bool recursive);
 
     virtual Material* GetContentMaterial() const;
     virtual Material* GetFrameMaterial(u32 idx) const;
 
 protected:
-    struct Frame {
-        u8 textureFlip;
-        Material* pMaterial;
-
-        Frame() : textureFlip(0), pMaterial(NULL) {}
-        ~Frame() {
-            Layout::DeleteObj(pMaterial);
-        }
-    };
-
-    struct Content {
-        ut::Color vtxColors[VERTEXCOLOR_MAX];
-        detail::TexCoordAry texCoordAry;
-    };
-
-protected:
-    virtual void DrawContent(const math::VEC2& rBase,
-                             const WindowFrameSize& rFrameSize,
-                             u8 alpha);
-
-    virtual void DrawFrame(const math::VEC2& rBase, const Frame& rFrame,
-                           const WindowFrameSize& rFrameSize,
-                           u8 alpha);
-
-    virtual void DrawFrame4(const math::VEC2& rBase, const Frame* pFrames,
-                            const WindowFrameSize& rFrameSize,
+    virtual void DrawContent(const math::VEC2& rBase, const WindowFrameSize& rFrameSize, u8 alpha);
+    virtual void DrawFrame(const math::VEC2& rBase, const Frame& rFrame, const WindowFrameSize& rFrameSize, u8 alpha);
+    virtual void DrawFrame4(const math::VEC2& rBase, const Frame* pFrames, const WindowFrameSize& rFrameSize,
                             u8 alpha);
-
-    virtual void DrawFrame8(const math::VEC2& rBase, const Frame* pFrames,
-                            const WindowFrameSize& rFrameSize,
+    virtual void DrawFrame8(const math::VEC2& rBase, const Frame* pFrames, const WindowFrameSize& rFrameSize,
                             u8 alpha);
-
-    void InitContent(u8 texNum);
-    void InitFrame(u8 frameNum);
-
-    void ReserveTexCoord(u8 num);
 
     WindowFrameSize GetFrameSize(u8 frameNum, const Frame* pFrames);
 

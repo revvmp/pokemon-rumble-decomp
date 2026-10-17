@@ -3,7 +3,6 @@
 #include "nw4hbm/types_nw4hbm.h"
 
 #include "nw4hbm/lyt/lyt_common.h"
-#include "nw4hbm/lyt/lyt_texMap.h"
 #include "nw4hbm/lyt/lyt_resources.h"
 #include "nw4hbm/lyt/lyt_types.h"
 
@@ -49,7 +48,6 @@ struct Material {
 
 class Material {
 public:
-    Material();
     Material(const res::Material* pRes, const ResBlockSet& rBlockSet);
     virtual ~Material();
 
@@ -61,13 +59,16 @@ public:
 
     virtual void Animate();
 
-    virtual AnimationLink*
-    FindAnimationLink(AnimTransform* pAnimTrans);
+    virtual AnimationLink* FindAnimationLink(AnimTransform* pAnimTrans);
 
-    virtual void SetAnimationEnable(AnimTransform* pAnimTrans,
-                                    bool enable);
+    virtual void SetAnimationEnable(AnimTransform* pAnimTrans, bool enable);
 
     void AddAnimationLink(AnimationLink* pAnimLink);
+
+    const char* GetName() const {
+        return mName;
+    }
+    void SetName(const char* pName);
 
     GXColorS10 GetTevColor(u32 idx) const {
         return mTevCols[idx];
@@ -104,11 +105,7 @@ public:
         return mGXMemCap.indSRT;
     }
 
-    u8 GetTevStageNum() const {
-        return mGXMemNum.tevStage;
-    }
     void SetTevStageNum(u8 num);
-
     void SetIndStageNum(u8 num);
 
     void SetColorElement(u32 idx, s16 value);
@@ -129,58 +126,37 @@ public:
         return mGXMemCap.blendMode;
     }
 
-    const TexMap* GetTexMapAry() const;
-    TexMap* GetTexMapAry();
-
+    const GXTexObj* GetTexMapAry() const;
     const TexSRT* GetTexSRTAry() const;
-    TexSRT* GetTexSRTAry();
-
     const TexCoordGen* GetTexCoordGenAry() const;
-    TexCoordGen* GetTexCoordGenAry();
-
     const ChanCtrl* GetChanCtrlAry() const;
-    ChanCtrl* GetChanCtrlAry();
-
     const ut::Color* GetMatColAry() const;
-    ut::Color* GetMatColAry();
-
     const TevSwapMode* GetTevSwapAry() const;
-    TevSwapMode* GetTevSwapAry();
-
     const AlphaCompare* GetAlphaComparePtr() const;
-    AlphaCompare* GetAlphaComparePtr();
-
     const BlendMode* GetBlendModePtr() const;
-    BlendMode* GetBlendModePtr();
-
     const IndirectStage* GetIndirectStageAry() const;
-    IndirectStage* GetIndirectStageAry();
-
     const TexSRT* GetIndTexSRTAry() const;
-    TexSRT* GetIndTexSRTAry();
-
     const TevStage* GetTevStageAry() const;
+
+    GXTexObj* GetTexMapAry();
+    TexSRT* GetTexSRTAry();
+    TexCoordGen* GetTexCoordGenAry();
+    ChanCtrl* GetChanCtrlAry();
+    ut::Color* GetMatColAry();
+    TevSwapMode* GetTevSwapAry();
+    AlphaCompare* GetAlphaComparePtr();
+    BlendMode* GetBlendModePtr();
+    IndirectStage* GetIndirectStageAry();
+    TexSRT* GetIndTexSRTAry();
     TevStage* GetTevStageAry();
 
-    const TexMap& GetTexture(u8 idx) const {
-        return GetTexMapAry()[idx];
-    }
-    void GetTexture(GXTexObj* pTexObj, u8 idx) const {
-        GetTexMapAry()[idx].Get(pTexObj);
-    }
-    void SetTexture(u8 idx, const TexMap& rTexMap) {
-        GetTexMapAry()[idx].Set(rTexMap);
-    }
+    void GetTexture(GXTexObj* pTexObj, u8 idx) const;
+    void SetTexture(u8 idx, const GXTexObj& rTexObj);
+    void SetTexture(u8 idx, TPLPalette* pTplRes);
     void SetTextureNoWrap(u8 idx, TPLPalette* pTplRes);
-    void SetTextureNoWrap(u8 idx, const TexMap& rTexMap) {
-        GetTexMapAry()[idx].SetNoWrap(rTexMap);
-    }
 
-    const TexSRT& GetTexSRT(u32 idx) const {
-        return GetTexSRTAry()[idx];
-    }
-    void SetTexSRT(const TexSRT& rTexSRT, u32 idx) {
-        GetTexSRTAry()[idx] = rTexSRT;
+    void SetTexCoordGen(u32 idx, TexCoordGen gen) {
+        GetTexCoordGenAry()[idx] = gen;
     }
 
     void SetTexSRTElement(u32 srt, u32 idx, f32 value) {
@@ -188,36 +164,18 @@ public:
         pArray[idx] = value;
     }
 
-    void SetTexCoordGen(u32 idx, TexCoordGen gen) {
-        GetTexCoordGenAry()[idx] = gen;
-    }
-
-    ut::Color GetMatColor() const {
-        return GetMatColAry()[0];
-    }
-
     void SetIndTexSRTElement(u32 srt, u32 idx, f32 value) {
         f32* const pArray = reinterpret_cast<f32*>(&GetIndTexSRTAry()[srt]);
         pArray[idx] = value;
-    }
-
-    void SetName(const char* pName);
-    const char* GetName() const {
-        return mName;
     }
 
     bool IsUserAllocated() const {
         return mbUserAllocated;
     }
 
-    void ReserveGXMem(u8 texMapNum, u8 texSrtNum, u8 texCoordGenNum,
-                  u8 tevStageNum, bool allocTevSwap, u8 indStageNum,
-                  u8 indSrtNum, bool allocChanCtrl, bool allocMatCol,
-                  bool allocAlpComp, bool allocBlendMode);
-
-protected:
-    static const int MAX_TEX_SRT = (GX_TEXMTX9 - GX_TEXMTX0) / 3 + 1;
-    static const int MAX_IND_SRT = (GX_ITM_2 - GX_ITM_0) + 1;
+    void ReserveGXMem(u8 texMapNum, u8 texSrtNum, u8 texCoordGenNum, u8 tevStageNum, bool allocTevSwap,
+                      u8 indStageNum, u8 indSrtNum, bool allocChanCtrl, bool allocMatCol, bool allocAlpComp,
+                      bool allocBlendMode);
 
 protected:
     char mName[NW4R_LYT_MATERIAL_NAME_LEN];

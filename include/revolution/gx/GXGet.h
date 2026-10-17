@@ -16,7 +16,12 @@ void GXGetTexObjAll(const GXTexObj *, void **, u16 *, u16 *, GXTexFmt *, GXTexWr
 
 void GXGetTexObjLODAll(const GXTexObj *, GXTexFilter *, GXTexFilter *, f32 *, f32 *, f32 *, GXBool *, GXBool *, GXAnisotropy *);
 
+void* GXGetTexObjUserData(const GXTexObj *);
+u16 GXGetTexObjWidth(const GXTexObj *);
+u16 GXGetTexObjHeight(const GXTexObj *);
 GXTexFmt GXGetTexObjFmt(const GXTexObj *);
+GXTexWrapMode GXGetTexObjWrapS(const GXTexObj *);
+GXTexWrapMode GXGetTexObjWrapT(const GXTexObj *);
 GXBool GXGetTexObjMipMap(const GXTexObj *);
 
 #ifdef __cplusplus

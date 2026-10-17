@@ -111,6 +111,43 @@ RVL_SDK/hbm/nw4hbm/lyt/lyt_layout.cpp:
 	.data       start:0x803BB770 end:0x803BB7C0
 	.bss        start:0x803E9BF0 end:0x803E9BF4
 
+RVL_SDK/hbm/nw4hbm/lyt/lyt_material.cpp:
+	.text       start:0x801895E0 end:0x8018C850
+	.rodata     start:0x80366E78 end:0x80366EA8
+	.data       start:0x803BB7C0 end:0x803BB848
+
+RVL_SDK/hbm/nw4hbm/lyt/lyt_pane.cpp:
+	.text       start:0x8018C850 end:0x8018D840
+	.ctors      start:0x803529FC end:0x80352A00
+	.rodata     start:0x80366EA8 end:0x80366EC8
+	.data       start:0x803BB848 end:0x803BB8B0
+	.bss        start:0x803E9BF8 end:0x803E9BFC
+
+RVL_SDK/hbm/nw4hbm/lyt/lyt_picture.cpp:
+	.text       start:0x8018D840 end:0x8018DD94
+	.ctors      start:0x80352A00 end:0x80352A04
+	.rodata     start:0x80366EC8 end:0x80366ECC
+	.data       start:0x803BB8B0 end:0x803BB950
+	.bss        start:0x803E9C00 end:0x803E9C04
+
+RVL_SDK/hbm/nw4hbm/lyt/lyt_resourceAccessor.cpp:
+	.text       start:0x8018DDA0 end:0x8018DDF8
+	.data       start:0x803BB950 end:0x803BB968
+
+RVL_SDK/hbm/nw4hbm/lyt/lyt_textBox.cpp:
+	.text       start:0x8018DE00 end:0x8018F374
+	.ctors      start:0x80352A04 end:0x80352A08
+	.rodata     start:0x80366ED0 end:0x80366EE8
+	.data       start:0x803BB968 end:0x803BBA18
+	.bss        start:0x803E9C08 end:0x803E9C0C
+
+RVL_SDK/hbm/nw4hbm/lyt/lyt_window.cpp:
+	.text       start:0x8018F380 end:0x80191874
+	.ctors      start:0x80352A08 end:0x80352A0C
+	.rodata     start:0x80366EE8 end:0x80366F00
+	.data       start:0x803BBA18 end:0x803BBB00
+	.bss        start:0x803E9C10 end:0x803E9C14
+
 RVL_SDK/hbm/nw4hbm/math/math_triangular.cpp:
 	.text       start:0x80191880 end:0x80191B30
 	.rodata     start:0x80366F00 end:0x80366F24

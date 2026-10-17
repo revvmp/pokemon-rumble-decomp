@@ -21,6 +21,7 @@ void GXInitTexObj(GXTexObj *, void *, u16, u16, GXTexFmt, GXTexWrapMode, GXTexWr
 void GXInitTexObjLOD(GXTexObj *, GXTexFilter, GXTexFilter, f32, f32, f32, GXBool, GXBool, GXAnisotropy);
 void GXInitTexObjCI(GXTexObj *, void *, u16, u16, GXCITexFmt, GXTexWrapMode, GXTexWrapMode, GXBool, u32);
 void GXInitTexObjTlut(GXTexObj *, u32);
+void GXInitTexObjWrapMode(GXTexObj *, GXTexWrapMode, GXTexWrapMode);
 void GXInitTexObjUserData(GXTexObj *, void *);
 void GXInitTexObjFilter(GXTexObj *, GXTexFilter, GXTexFilter);
 

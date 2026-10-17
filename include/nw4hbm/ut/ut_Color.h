@@ -77,7 +77,7 @@ public:
     static const u32 ELEMENT_MIN = 0x00000000;
     static const u32 ELEMENT_MAX = 0xFFFFFFFF;
 
-};
+} ATTRIBUTE_ALIGN(4);
 
 }
 }

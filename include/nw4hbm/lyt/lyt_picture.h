@@ -9,7 +9,6 @@ namespace nw4hbm {
 namespace lyt {
 
 struct ResBlockSet;
-class TexMap;
 
 namespace res {
 
@@ -29,14 +28,10 @@ public:
     NW4R_UT_RTTI_DECL(Picture);
 
 public:
-    Picture(u8 num);
-    Picture(const TexMap& rTexMap);
     Picture(const res::Picture* pRes, const ResBlockSet& rBlockSet);
     virtual ~Picture();
 
     virtual void DrawSelf(const DrawInfo& rInfo);
-
-    void SetTexCoord(u32 idx, const detail::TexCoord coord);
 
     virtual ut::Color GetVtxColor(u32 idx) const;
     virtual void SetVtxColor(u32 idx, ut::Color color);
@@ -44,7 +39,8 @@ public:
     virtual u8 GetVtxColorElement(u32 idx) const;
     virtual void SetVtxColorElement(u32 idx, u8 value);
 
-    virtual void Append(const TexMap& rTexMap);
+    virtual void Append(TPLPalette* pTplRes);
+    virtual void Append(const GXTexObj& rTexObj);
 
 protected:
     ut::Color mVtxColors[VERTEXCOLOR_MAX];
