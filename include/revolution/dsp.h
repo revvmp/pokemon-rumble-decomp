@@ -12,7 +12,7 @@ typedef void (*DSPCallback)(void*);
 
 typedef struct DSPTaskStruct {
     u32 state;
-    u32 priority;
+    volatile u32 priority;
     u32 flags;
     u16* iram_mmem_addr;
     u32 iram_length;
