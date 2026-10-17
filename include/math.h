@@ -30,6 +30,10 @@ static inline float powf(float x, float y) {
     return (float)pow(x, y);
 }
 
+static inline float log10f(float x) {
+    return (float)log10(x);
+}
+
 #ifdef __cplusplus
 }
 #endif
