@@ -60,13 +60,13 @@ survey file labels are superseded by native source boundaries.
 
 | Native unit | Original issue functions | Code bytes | Delivery |
 | --- | --- | --- | --- |
-| Layout first helper, 802A6060 | 1 | 468 | Coordinated #809 source PR865 |
+| Layout first helper, 802A6060 | 1 | 468 | Canonical PR831, including coordinated PR865 |
 | TextBox, 802A7690-802A96DC | 23 | 8,108 | This source delivery |
 | Window tail, 802ABC60/802ABC70 | 2 | 20 | Previously merged PR824 |
-| Bounding, 802ABC80-802ABD4C | 5 | 172 | Source PR848 |
-| Material first helpers, 802ABD50/802ABE60 | 2 | 776 | Complete #811 source PR866 |
-| TexMap, 802AEB30-802AF000 | 6 | 1,208 | Source PR848 |
-| DrawInfo, 802AF000-802AF0C0 | 2 | 180 | Source PR848 |
+| Bounding, 802ABC80-802ABD4C | 5 | 172 | PR884, retaining PR848 source |
+| Material first helpers, 802ABD50/802ABE60 | 2 | 776 | PR884, retaining complete PR866 source |
+| TexMap, 802AEB30-802AF000 | 6 | 1,208 | PR884, retaining PR848 source |
+| DrawInfo, 802AF000-802AF0C0 | 2 | 180 | PR884, retaining PR848 source |
 | ResourceAccessor/ArcResourceAccessor, 802B0680-802B08F0 | 5 | 612 | Previously merged PR734 |
 | Total | 46 | 11,544 | No duplicate byte credit |
 
@@ -77,8 +77,11 @@ explicitly attribute these neighboring functions once. Prior PR734/824
 already supplied seven / 632; their bytes are not newly reconstructed here.
 The external `808-audit-original-inventory.py` reads the actual issue body,
 checks every original address and size, requires the groups to be disjoint,
-and proves the full 46 / 11,544 sum. Integration and closure remain pending
-until all listed source deliveries are canonical and verified together.
+and proves the full 46 / 11,544 sum. The final actual source-selected
+build now includes canonical PR831 and all remaining deliveries in PR884.
+The independent final inventory audit below proves every original row
+against the final linked executable; #808 is complete without duplicate
+credit for inherited source.
 
 ## Traps
 
@@ -98,8 +101,9 @@ until all listed source deliveries are canonical and verified together.
 
 The later combined source branch retains the exact source blobs from PR848
 (Bounding/TexMap/DrawInfo) and PR866 (Material), plus this accepted TextBox.
-Together the five complete units contain 113 retained functions / 20,856
-code bytes. The combined actual default Ninja pipeline and explicit frozen
+Together with the complete CharWriter unit from #450, the six complete
+units contain 126 retained functions / 29,972 newly delivered code bytes
+and 600 allocated non-text bytes. The combined actual default Ninja pipeline and explicit frozen
 verifier exit 0. All five actual objdiff reports, final native function
 positions, source-only link inputs and full immutable DOL equality pass.
 The actual combined TextBox and Material objects repeat their independent
@@ -155,3 +159,31 @@ the combined delivery is canonical and their replacement is confirmed.
 | 802B06D0 | 8 | ResourceAccessor/ArcResourceAccessor |
 | 802B06E0 | CC | ResourceAccessor/ArcResourceAccessor |
 | 802B07B0 | 140 | ResourceAccessor/ArcResourceAccessor |
+
+## Final current-main acceptance
+
+PR884 was restacked onto actual merged header prerequisite PR879 at
+813a7c745d081a82bf86e3ef76d7fbd54fc02e68. Temporary header carriers were
+removed: its include tree is identical to canonical main. Its six source
+files retain their previously reviewed native-proven contents. A fresh
+output directory was used after all merged metadata changes. Configure,
+actual default Ninja (548 targets), explicit all_source, and the separate
+frozen verifier each exited 0 on clean committed source head 058728c7.
+The declared all_source inventory includes 541 compiled source objects.
+
+All six actual-object native/source audits pass: 126 functions / 29,972
+code bytes, every owned section at 100%, exact final native addresses and
+sizes, source link inputs selected and their original fallbacks excluded.
+Actual TextBox, Material and CharWriter objects independently repeat all
+paired text/data targets and initialized-byte proofs with no inferred
+addresses. The complete DOL has the immutable hash recorded above.
+
+The external 884-final-inventory-audit.py reads all three original REST
+issue tables and proves every original #808 row (46 / 11,544), #811 row
+(75 / 10,412) and #450 row (36 / 11,064) once. It checks source-only link
+inputs, exact final function addresses/sizes, and every instruction byte
+against the frozen DOL. The inherited Layout, Window, ResourceAccessor,
+ArchiveFont and PairFont rows receive no new byte credit. This audit
+justifies completing #808, #811 and #450; only the two supplied CharWriter
+tails belong to still-separate #451. Its JSON evidence is preserved outside
+the checkout alongside all native/source audits.

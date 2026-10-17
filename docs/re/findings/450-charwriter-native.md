@@ -171,3 +171,17 @@ Issue #451 remains the TextWriter owner's work beyond those two tails.
 | 80299CD0 | 60 | CharWriter | new source delivery |
 | 80299D30 | 150 | CharWriter | new source delivery |
 | 80299E80 | 2EC | CharWriter | new source delivery |
+
+## Final current-main combined acceptance
+
+PR884's clean current-main source head 058728c7 is based on actual merged
+PR879 at 813a7c74. A fresh output directory, configure, default 548-target
+Ninja, explicit all_source (541 source objects), and separate frozen
+verification all pass. The actual native/source audit and actual-object
+paired-target audit repeat successfully, including all initialized data,
+final native positions and source-only link inputs. The independent
+884-final-inventory-audit.py checks all original #808, #811 and #450 rows
+against the final linked executable and frozen native code with no gaps
+or duplicate credit. F-808-5 records the complete combined acceptance and
+canonical inherited contributions. The existing PairFont diagnostic
+limitation recorded in F-450-3 remains explicit.
