@@ -42,6 +42,19 @@ public:
     };
 
     static const int PRIORITY_MAX = 255;
+    static const int VOICE_PRIORITY_MAX = 31;
+    static const int REMOTE_FILTER_MAX = 127;
+    static const int REMOTE_FILTER_MIN = 0;
+    static const f32 SEND_MAX;
+    static const f32 SEND_MIN;
+    static const f32 BIQUAD_VALUE_MAX;
+    static const f32 BIQUAD_VALUE_MIN;
+    static const f32 PAN_CENTER;
+    static const f32 PAN_RIGHT;
+    static const f32 PAN_LEFT;
+    static const f32 VOLUME_MAX;
+    static const f32 VOLUME_MIN;
+
 
 public:
     Voice();
@@ -124,6 +137,7 @@ public:
     bool CalcAxMix();
     void CalcAxLpf();
     void CalcAxRemoteFilter();
+    void CalcAxBiquadFilter();
 
 private:
     static const int VOICES_MIN = 1;
