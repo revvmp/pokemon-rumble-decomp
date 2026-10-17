@@ -123,6 +123,10 @@ RVL_SDK/mem/mem_heapCommon.c:
 RVL_SDK/mem/mem_expHeap.c:
 	.text       start:0x802E1010 end:0x802E18F0
 
+RVL_SDK/nand/nand.c:
+	.text       start:0x802E4630 end:0x802E5BC0
+	.sdata      start:0x804B8BF0 end:0x804B8BF8
+
 RVL_SDK/enc/enclatin.c:
 	.text       start:0x802ED120 end:0x802ED700
 	.rodata     start:0x8037BB90 end:0x8037D690
