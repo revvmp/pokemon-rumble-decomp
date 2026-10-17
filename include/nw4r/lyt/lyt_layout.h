@@ -90,6 +90,12 @@ public:
         }
     }
 
+    template <typename T> static void DeletePrimArray(T* pArray) {
+        if (pArray != nullptr) {
+            FreeMemory(pArray);
+        }
+    }
+
     template <typename T> static void DeleteObj(T* pObject) {
         if (pObject != nullptr) {
             pObject->~T();
