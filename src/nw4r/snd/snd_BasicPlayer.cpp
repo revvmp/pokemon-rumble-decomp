@@ -1,5 +1,7 @@
 #include <nw4r/snd/snd_BasicPlayer.h>
 
+#include <nw4r/snd/snd_BasicSound.h>
+
 namespace nw4r {
 namespace snd {
 namespace detail {
@@ -38,7 +40,7 @@ void PlayerParamSet::Init() {
     }
 }
 
-BasicPlayer::BasicPlayer() : mId(0xFFFFFFFF) {
+BasicPlayer::BasicPlayer() : mId(BasicSound::INVALID_ID) {
     InitParam();
 }
 

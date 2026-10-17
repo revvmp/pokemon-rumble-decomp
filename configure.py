@@ -292,6 +292,7 @@ config.libs = [
             Object(Matching, "nw4r/snd/snd_Bank.cpp"),
             Object(Matching, "nw4r/snd/snd_BankFile.cpp"),
             Object(Matching, "nw4r/snd/snd_BasicPlayer.cpp"),
+            Object(Matching, "nw4r/snd/snd_BasicSound.cpp"),
         ],
     ),
     library(
