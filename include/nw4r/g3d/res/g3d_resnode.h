@@ -3,6 +3,7 @@
 #include <nw4r/types_nw4r.h>
 
 #include <nw4r/g3d/res/g3d_rescommon.h>
+#include <nw4r/g3d/res/g3d_resuser.h>
 
 #include <nw4r/math/math_types.h>
 
@@ -169,6 +170,8 @@ public:
     ResNode GetPrevSibling() const {
         return ofs_to_obj<ResNode>(ref().toPrevSibling);
     }
+
+    ResUserData GetResUserData();
 
     void EndEdit() {}
 };

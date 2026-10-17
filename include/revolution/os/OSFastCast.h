@@ -53,6 +53,18 @@ static inline void OSf32tos16(register f32* in, volatile register s16* out) {
     *out = __OSf32tos16(*in);
 }
 
+static inline f32 __OSu8tof32(register const u8* arg) {
+    register f32 ret;
+    asm {
+        psq_l ret, 0(arg), 1, 2
+    }
+    return ret;
+}
+
+static inline void OSu8tof32(register const u8* in, volatile register f32* out) {
+    *out = __OSu8tof32(in);
+}
+
 static inline f32 __OSu16tof32(register const u16* arg) {
     register f32 ret;
     asm {

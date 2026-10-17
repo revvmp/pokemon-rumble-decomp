@@ -4,9 +4,63 @@
 
 #include <revolution/os.h>
 #include <revolution/os/OSCache.h>
+#include <revolution/os/OSFastCast.h>
 
 namespace nw4r {
 namespace g3d {
+
+namespace fastcast {
+
+inline f32 U8_0ToF32(const u8 *pPtr) {
+    f32 x;
+    OSu8tof32(pPtr, &x);
+    return x;
+}
+
+inline f32 U16_0ToF32(const u16 *pPtr) {
+    f32 x;
+    OSu16tof32(pPtr, &x);
+    return x;
+}
+
+inline f32 S7_8ToF32(register const s16 *pPtr) {
+    register f32 f;
+
+    asm {
+        psq_l f, 0(pPtr), 1, 7
+    }
+
+    return f;
+}
+
+inline f32 S10_5ToF32(register const s16 *pPtr) {
+    register f32 f;
+
+    asm {
+        psq_l f, 0(pPtr), 1, 6
+    }
+
+    return f;
+}
+
+inline u8 F32ToU8_0(f32 f) {
+    u8 x;
+    OSf32tou8(&f, &x);
+    return x;
+}
+
+inline s16 F32ToS10_5(register f32 f) {
+    s16 x;
+    register s16 *pPtr = &x;
+
+    asm {
+        psq_st f, 0(pPtr), 1, 6
+    }
+
+    return x;
+}
+
+}
 
 namespace DC {
 
