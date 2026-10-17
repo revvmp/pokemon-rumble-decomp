@@ -76,6 +76,15 @@ RVL_SDK/hbm/HBMCommon.cpp:
 	.data       start:0x803BA650 end:0x803BA6A0
 	.bss        start:0x803E9B90 end:0x803E9BA0
 
+RVL_SDK/hbm/nw4hbm/lyt/lyt_animation.cpp:
+	.text       start:0x80186340 end:0x80186EE8
+	.rodata     start:0x80366E38 end:0x80366E58
+	.data       start:0x803BB4E0 end:0x803BB560
+
+RVL_SDK/hbm/nw4hbm/lyt/lyt_arcResourceAccessor.cpp:
+	.text       start:0x80186EF0 end:0x80187520
+	.data       start:0x803BB560 end:0x803BB630
+
 nw4r/ef/ef_draworder.cpp:
 	.text       start:0x80225820 end:0x80225940
 	.data       start:0x803C52D0 end:0x803C52E8

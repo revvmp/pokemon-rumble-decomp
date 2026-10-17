@@ -63,12 +63,8 @@ public:
 
     virtual AnimationLink*
     FindAnimationLink(AnimTransform* pAnimTrans);
-    virtual AnimationLink*
-    FindAnimationLink(const AnimResource& rResource);
 
     virtual void SetAnimationEnable(AnimTransform* pAnimTrans,
-                                    bool enable);
-    virtual void SetAnimationEnable(const AnimResource& rResource,
                                     bool enable);
 
     void AddAnimationLink(AnimationLink* pAnimLink);
@@ -175,6 +171,7 @@ public:
     void SetTexture(u8 idx, const TexMap& rTexMap) {
         GetTexMapAry()[idx].Set(rTexMap);
     }
+    void SetTextureNoWrap(u8 idx, TPLPalette* pTplRes);
     void SetTextureNoWrap(u8 idx, const TexMap& rTexMap) {
         GetTexMapAry()[idx].SetNoWrap(rTexMap);
     }
@@ -223,19 +220,14 @@ protected:
     static const int MAX_IND_SRT = (GX_ITM_2 - GX_ITM_0) + 1;
 
 protected:
+    char mName[NW4R_LYT_MATERIAL_NAME_LEN];
     AnimationLinkList mAnimList;
-
     GXColorS10 mTevCols[TEVCOLOR_MAX];
     ut::Color mTevKCols[GX_MAX_KCOLOR];
-
     detail::BitGXNums mGXMemCap;
     detail::BitGXNums mGXMemNum;
-    void* mpGXMem;
-
-    char mName[NW4R_LYT_MATERIAL_NAME_LEN + 1];
     bool mbUserAllocated;
-
-    u8 PADDING_0x5A[0x5C - 0x5A];
+    void* mpGXMem;
 
 private:
     void Init();

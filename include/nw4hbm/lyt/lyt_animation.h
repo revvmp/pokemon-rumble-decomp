@@ -17,6 +17,28 @@ class ResourceAccessor;
 
 namespace res {
 
+struct StepKey {
+    f32 frame;
+    u16 value;
+    u16 padding;
+};
+
+struct HermiteKey {
+    f32 frame;
+    f32 value;
+    f32 slope;
+};
+
+struct AnimationTarget {
+    u8 id;
+    u8 target;
+    u8 curveType;
+    u8 padding1;
+    u16 keyNum;
+    u8 padding2[2];
+    u32 keysOffset;
+};
+
 struct AnimationBlock {
     DataBlockHeader blockHeader;
     u16 frameSize;
@@ -85,14 +107,11 @@ protected:
 
 class AnimTransform {
 public:
-    AnimTransform();
-    virtual ~AnimTransform();
+    AnimTransform() : mpRes(nullptr), mFrame(0.0f) {}
+    virtual ~AnimTransform() {}
 
     virtual void SetResource(const res::AnimationBlock* pBlock,
                              ResourceAccessor* pAccessor) = 0;
-    virtual void SetResource(const res::AnimationBlock* pBlock,
-                             ResourceAccessor* pAccessor,
-                             u16 animNum) = 0;
 
     virtual void Bind(Pane* pPane, bool recursive) = 0;
     virtual void Bind(Material* pMaterial) = 0;
@@ -136,9 +155,6 @@ public:
 
     virtual void SetResource(const res::AnimationBlock* pBlock,
                              ResourceAccessor* pAccessor);
-    virtual void SetResource(const res::AnimationBlock* pBlock,
-                             ResourceAccessor* pAccessor,
-                             u16 animNum);
 
     virtual void Bind(Pane* pPane, bool recursive);
     virtual void Bind(Material* pMaterial);
