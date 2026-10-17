@@ -1,4 +1,4 @@
-#include "RVL_SDK/ax/AX.h"
+#include "revolution/ax/AX.h"
 
 extern void OSRegisterVersion(const char*);
 extern void __AXAllocInit(void);

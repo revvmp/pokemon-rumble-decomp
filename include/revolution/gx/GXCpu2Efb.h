@@ -1,21 +1,21 @@
-#ifndef REVOLUTION_GX_GXCPU2EFB_H
-#define REVOLUTION_GX_GXCPU2EFB_H
-
-#include "revolution/types.h"
-#include "revolution/gx/GXEnum.h"
+#ifndef GXCPU2EFB_H
+#define GXCPU2EFB_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void GXPokeAlphaMode(GXCompare func, u8 threshold);
-void GXPokeAlphaRead(GXAlphaReadMode mode);
-void GXPokeAlphaUpdate(GXBool updateEnable);
-void GXPokeBlendMode(GXBlendMode type, GXBlendFactor srcFactor, GXBlendFactor dstFactor, GXLogicOp op);
-void GXPokeColorUpdate(GXBool updateEnable);
-void GXPokeDstAlpha(GXBool enable, u8 alpha);
-void GXPokeDither(GXBool dither);
-void GXPokeZMode(GXBool compareEnable, GXCompare func, GXBool updateEnable);
+#include "revolution/gx/GXEnum.h"
+#include "revolution/types.h"
+
+void GXPokeAlphaMode(GXCompare, u8);
+void GXPokeAlphaRead(GXAlphaReadMode);
+void GXPokeAlphaUpdate(GXBool);
+void GXPokeBlendMode(GXBlendMode, GXBlendFactor, GXBlendFactor, GXLogicOp);
+void GXPokeColorUpdate(GXBool);
+void GXPokeDstAlpha(GXBool, u8);
+void GXPokeDither(GXBool);
+void GXPokeZMode(GXBool, GXCompare, GXBool);
 void GXPeekARGB(u16 x, u16 y, u32* color);
 void GXPeekZ(u16 x, u16 y, u32* z);
 

@@ -1,15 +1,15 @@
-#ifndef REVOLUTION_GX_GXCULL_H
-#define REVOLUTION_GX_GXCULL_H
-
-#include "revolution/types.h"
-#include "revolution/gx/GXEnum.h"
+#ifndef GXCULL_H
+#define GXCULL_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void GXSetCullMode(GXCullMode mode);
-void GXSetCoPlanar(GXBool enable);
+#include "revolution/types.h"
+#include "revolution/gx/GXEnum.h"
+
+void GXSetCullMode(GXCullMode);
+void GXSetCoPlanar(GXBool);
 
 #ifdef __cplusplus
 }
