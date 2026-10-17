@@ -27,3 +27,7 @@ In a local experiment that was not committed, both units were set to `Matching` 
 ## F-476-3: split end padding
 
 The first source-linked attempt ended GXGeometry's `.text` at the next unit's start, `0x802CD440`. The compiled object ends at `0x802CD434`, and the following auto-split object has 4-byte alignment, so everything after moved 0x10 bytes earlier and verification failed at DOL header byte `0x6F`. Ending the split at the last function's end, `0x802CD434`, leaves the padding in the next auto split and verifies. objdiff reports 100% either way. Confidence high.
+
+## Traps
+
+- **End a split at its last function, not at the next unit.** A GXGeometry split that ended at the next unit's start scored 100% in objdiff, but the source-linked DOL shifted by 0x10 because the next auto split has 4-byte alignment. End `.text` and `.sbss` at the true end of the unit's contents. Evidence: F-476-3.
