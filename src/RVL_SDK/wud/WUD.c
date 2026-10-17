@@ -8,6 +8,144 @@ enum {
     WUD_INIT_READY = 6
 };
 
+static u8 _wudWiiRemoteDescriptor[] = {
+    0x05, 0x01,
+    0x09, 0x05,
+
+    0xA1, 0x01,
+
+    0x85, 0x10,
+    0x15, 0x00,
+    0x26, 0xFF, 0x00,
+    0x75, 0x08,
+    0x95, 0x01,
+    0x06, 0x00, 0xFF,
+    0x09, 0x01,
+    0x91, 0x00,
+
+    0x85, 0x11,
+    0x95, 0x01,
+    0x09, 0x01,
+    0x91, 0x00,
+
+    0x85, 0x12,
+    0x95, 0x02,
+    0x09, 0x01,
+    0x91, 0x00,
+
+    0x85, 0x13,
+    0x95, 0x01,
+    0x09, 0x01,
+    0x91, 0x00,
+
+    0x85, 0x14,
+    0x95, 0x01,
+    0x09, 0x01,
+    0x91, 0x00,
+
+    0x85, 0x15,
+    0x95, 0x01,
+    0x09, 0x01,
+    0x91, 0x00,
+
+    0x85, 0x16,
+    0x95, 0x15,
+    0x09, 0x01,
+    0x91, 0x00,
+
+    0x85, 0x17,
+    0x95, 0x06,
+    0x09, 0x01,
+    0x91, 0x00,
+
+    0x85, 0x18,
+    0x95, 0x15,
+    0x09, 0x01,
+    0x91, 0x00,
+
+    0x85, 0x19,
+    0x95, 0x01,
+    0x09, 0x01,
+    0x91, 0x00,
+
+    0x85, 0x1A,
+    0x95, 0x01,
+    0x09, 0x01,
+    0x91, 0x00,
+
+    0x85, 0x20,
+    0x95, 0x06,
+    0x09, 0x01,
+    0x81, 0x00,
+
+    0x85, 0x21,
+    0x95, 0x15,
+    0x09, 0x01,
+    0x81, 0x00,
+
+    0x85, 0x22,
+    0x95, 0x04,
+    0x09, 0x01,
+    0x81, 0x00,
+
+    0x85, 0x30,
+    0x95, 0x02,
+    0x09, 0x01,
+    0x81, 0x00,
+
+    0x85, 0x31,
+    0x95, 0x05,
+    0x09, 0x01,
+    0x81, 0x00,
+
+    0x85, 0x32,
+    0x95, 0x0A,
+    0x09, 0x01,
+    0x81, 0x00,
+
+    0x85, 0x33,
+    0x95, 0x11,
+    0x09, 0x01,
+    0x81, 0x00,
+
+    0x85, 0x34,
+    0x95, 0x15,
+    0x09, 0x01,
+    0x81, 0x00,
+
+    0x85, 0x35,
+    0x95, 0x15,
+    0x09, 0x01,
+    0x81, 0x00,
+
+    0x85, 0x36,
+    0x95, 0x15,
+    0x09, 0x01,
+    0x81, 0x00,
+
+    0x85, 0x37,
+    0x95, 0x15,
+    0x09, 0x01,
+    0x81, 0x00,
+
+    0x85, 0x3D,
+    0x95, 0x15,
+    0x09, 0x01,
+    0x81, 0x00,
+
+    0x85, 0x3E,
+    0x95, 0x15,
+    0x09, 0x01,
+    0x81, 0x00,
+
+    0x85, 0x3F,
+    0x95, 0x15,
+    0x09, 0x01,
+    0x81, 0x00,
+
+    0xC0,
+};
+
 WUDCB _wcb;
 WUDDevInfo _work;
 SCBtDeviceInfoArray _scArray;
@@ -438,6 +576,73 @@ void __wudInitSub(void) {
     OSRestoreInterrupts(enable);
 
     WUDSetVisibility(FALSE, TRUE);
+}
+
+void WUDiRegisterDevice(BD_ADDR addr) {
+    WUDCB* p = &_wcb;
+    WUDDevInfo* pInfo;
+    tBTA_STATUS status;
+    BOOL enabled;
+
+    enabled = OSDisableInterrupts();
+    pInfo = WUDiGetDevInfo(addr);
+
+    status = BTA_DmAddDevice(pInfo->devAddr, pInfo->linkKey, 0, FALSE);
+    DEBUGPrint("BTA_DmAddDevice(): %d\n", status);
+
+    if (WUD_DEV_NAME_IS_CNT(pInfo->conf.devName) || (WUD_DEV_NAME_IS(pInfo->conf.devName, "Nintendo RVL-WBC") && WUDIsLinkedWBC())) {
+        tBTA_HH_DEV_DESCR desc;
+        desc.dl_len = sizeof(_wudWiiRemoteDescriptor);
+        desc.dsc_list = _wudWiiRemoteDescriptor;
+
+        DEBUGPrint("BTA_HhAddDev()\n");
+        BTA_HhAddDev(pInfo->devAddr, pInfo->hhAttrMask, pInfo->subclass, pInfo->appID, desc);
+    }
+
+    if (pInfo->sync_type == 0 || pInfo->sync_type == 4 || pInfo->sync_type == 2 || pInfo->sync_type == 5) {
+        p->devNums++;
+    } else {
+        p->devSmpNums++;
+    }
+
+    OSRestoreInterrupts(enabled);
+}
+
+void WUDiRemoveDevice(BD_ADDR addr) {
+    WUDCB* p = &_wcb;
+    WUDDevInfo* pInfo;
+    tBTM_STATUS status;
+    BOOL enabled = OSDisableInterrupts();
+
+    DEBUGPrint("WUDiRemoveDevice : \n");
+
+    pInfo = WUDiGetDevInfo(addr);
+
+    if (pInfo != NULL) {
+        DEBUGPrint(" handle : %d,  addr : %02x:%02x:%02x:%02x:%02x:%02x\n", pInfo->devHandle, pInfo->devAddr[0], pInfo->devAddr[1], pInfo->devAddr[2],
+                   pInfo->devAddr[3], pInfo->devAddr[4], pInfo->devAddr[5]);
+
+        DEBUGPrint("remove device info from database.\n");
+
+        if (WUD_DEV_NAME_IS_CNT(pInfo->conf.devName) || (WUD_DEV_NAME_IS(pInfo->conf.devName, "Nintendo RVL-WBC") && WUDIsLinkedWBC())) {
+            DEBUGPrint("BTA_HhRemoveDev()\n");
+            DEBUGPrint(" handle : %d\n", pInfo->devHandle);
+            BTA_HhRemoveDev(pInfo->devHandle);
+        }
+
+        status = BTA_DmRemoveDevice(pInfo->devAddr);
+        DEBUGPrint("BTA_DmRemoveDevice(): %d\n", status);
+
+        if (pInfo->sync_type == 0 || pInfo->sync_type == 2 || pInfo->sync_type == 4 || pInfo->sync_type == 5) {
+            p->devNums--;
+        } else {
+            p->devSmpNums--;
+        }
+
+        memset(pInfo, 0, sizeof *pInfo);
+    }
+
+    OSRestoreInterrupts(enabled);
 }
 
 WUDDevInfo* WUDiGetDevInfo(BD_ADDR addr) {
