@@ -31,3 +31,30 @@ The reference's `latin1_unicode_array` contains Windows-1252 mappings in its C1 
 The first source-link attempt had 100% code/data objdiff but failed full verification at DOL header offset `0x6F`. `nm -n` showed the next function, originally `0x802ED700`, at `0x802ED6FC`: the source object ends its final 12-byte wrapper without the split original's trailing four bytes, while the next fallback symbol had only inferred four-byte alignment. The later `.ctors`/`.dtors` addresses also shifted.
 
 Setting `align:16` on the owned next-function symbol at `0x802ED700` restores the observed unit boundary. A rebuilt full DOL then passes both dtk SHA-1 and frozen SHA-256/direct-byte comparison. No reference hashes or bytes changed. This does not rename or reconstruct that next function, and no ownership beyond #494 is assumed.
+
+## F-494-3: Japanese and context conversion units
+
+The remaining five functions in #494 belong to `encjapanese.c` and `encconvert.c`. The user authorized completing these shared files across #493–#495. This supersedes the remaining-work statement in F-494-1 for #494; it does not complete the Unicode, utility, Chinese, or Korean conversion units in the neighboring issues.
+
+Source and header provenance is wii-ipl at the same pinned revision as F-494-1, under its CC0-1.0 LICENSE. The consulted ENC files contain no additional file-level license notice. Source comments and unused public functions are omitted. Japanese character literals are explicit Unicode code points, and all conversion tables remain editable C initializers. No executable bytes are embedded.
+
+| Unit | Sections | Compiler | Retained functions |
+| --- | --- | --- | --- |
+| `encjapanese.c` | `.text` `0x802EBAD0–0x802ED118`; `.rodata` `0x803718A8–0x8037BB8E`; `.sdata` `0x804B8D60–0x804B8D64` | Wii/1.0, existing `cflags_sdk`, default alignment | 12 |
+| `encconvert.c` | `.text` `0x802ED700–0x802EE64C`; `.rodata` `0x8037D690–0x8037E920`; `.data` `0x803DC968–0x803DCA78`; `.sdata` `0x804B8D68–0x804B8D74` | Wii/1.0, existing `cflags_base`, default alignment | 9 |
+
+The Japanese unit contains two public Shift JIS wrappers, four private string converters, and six private helpers. The release omits the public JIS wrappers and direct JIS/Shift JIS conversion entry points. Inlining the retained Kanji conversion helpers requires the existing SDK inline level and file IPA settings. The context unit retains initialization, encoding selection, alternative-character selection, both conversion directions, encoding-name hash lookup, next-character width, and two private dispatchers; the other public reference functions are absent.
+
+Evidence: GNU binutils 2.42-2 disassembly and relocation records, independently located source-table bytes in the frozen DOL, and objdiff-cli 3.8.2 comparisons of each entire object. Relocation-bearing instruction words were initially excluded from diagnostic searches, then checked by objdiff and the full link. External callee names were recovered from the matched callers' branch destinations; their source-unit splits remain with their owning issues.
+
+The Japanese forward table is 18,800 bytes at `0x803718A8`, reverse table 22,257 bytes at `0x80376218`, offset table 512 bytes at `0x8037B910`, and kana table 126 bytes at `0x8037BB10`. Seven pointer-like table words were incorrectly relocated by automatic analysis. The two affected arrays now carry `noreloc`; the interior automatic label in the forward table was removed. The corrected original objects and source objects compare at 100% for every code and data section. The four loaded flags are four-byte BOOLs, with the Japanese definition in its own unit and the other three in the context unit.
+
+### Traps
+
+- Compiling a non-ASCII wide character literal under `-enc SJIS` changed the overline comparison into a two-instruction constant sequence. Replacing the literal with its Unicode value `0x203E` restores the target's single immediate comparison and the exact function size. Explicit code points also preserve the other retained Japanese comparisons.
+- Automatic symbol sizes included padding and a spurious interior table boundary. Use source table extents and DOL byte comparisons to establish the real sizes before accepting a data score. The Japanese `.rodata` ends at `0x8037BB8E`; the following two bytes are alignment padding.
+- A helper without an emitted function can still be required by an inlined caller. Removing `ENCiConvertKanjiJisToSjis` left an unresolved call and changed `ENCiConvertStringJisToUnicode`; restoring the helper recovered its 100% comparison. The failed link was not treated as a verification result.
+
+### Source-linked validation
+
+`python configure.py`, `.venv/Scripts/ninja`, and `python tools/verify/verify.py verify --manifest config/targets/wpse-v1.json --reference-dir orig/wpse-v1 --build-dir build/wpse-v1` each exited 0 after the split-only changes, with source registered NonMatching, and with both units linked Matching. The source-linked report records 12/12 functions and 5,620/5,620 code bytes plus 41,706/41,706 data bytes for Japanese conversion, and 9/9 functions and 3,872/3,872 code bytes plus 5,036/5,036 data bytes for context conversion. Every section compares at 100%. The frozen SHA-256 and direct-byte comparison pass; original inputs and expected hashes are unchanged. Together with the previously matched Latin unit, every function listed in #494 is now reconstructed and linked from source.
