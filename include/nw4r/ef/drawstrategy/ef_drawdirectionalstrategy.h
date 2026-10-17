@@ -15,7 +15,10 @@ public:
     virtual CalcAheadFunc GetCalcAheadFunc(ParticleManager* pManager);
 
 private:
+    void InitGraphics(const DrawInfo& rInfo, ParticleManager* pManager);
     void DrawDirectional(const DrawInfo& rInfo, ParticleManager* pManager);
+    void DrawDirectionalBillboard(const DrawInfo& rInfo,
+                                  ParticleManager* pManager);
 };
 
 }

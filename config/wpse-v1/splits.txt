@@ -423,6 +423,13 @@ nw4r/ef/ef_drawbillboardstrategy.cpp:
 	.sdata      start:0x804B8900 end:0x804B8908
 	.sdata2     start:0x804BA988 end:0x804BA9B4
 
+nw4r/ef/ef_drawdirectionalstrategy.cpp:
+	.text       start:0x8023EFA0 end:0x80241320
+	.rodata     start:0x8036C5D0 end:0x8036C630
+	.data       start:0x803C56A0 end:0x803C56BC
+	.sdata      start:0x804B8920 end:0x804B8928
+	.sdata2     start:0x804BA9B8 end:0x804BA9E0
+
 nw4r/ef/ef_drawfreestrategy.cpp:
 	.text       start:0x80241320 end:0x80241D50
 	.rodata     start:0x8036C630 end:0x8036C690
