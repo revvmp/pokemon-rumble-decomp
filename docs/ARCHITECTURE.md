@@ -18,11 +18,11 @@ The project has five boundaries: immutable originals, investigation evidence, re
 | `config/<target>/` | Future section layouts, linker scripts, compilation-unit ordering, asset rules | Only evidence-backed build configuration |
 | `src/` | Reconstructed implementation grouped by confirmed module or subsystem | Source added as reconstruction begins |
 | `include/` | Shared types and interfaces with confirmed ABI | Headers added when established |
-| `tools/` | Extraction orchestration, build support, comparison, progress tooling | Original source; currently artifact verification and progress images |
+| `tools/` | Extraction orchestration, build support, comparison, progress tooling | Original source; artifact verification, progress images, and reference extraction |
 | `config/progress.json` | Roadmap phase states for progress images | Configuration |
 | `docs/images/` | Generated progress images shown in the README | Committed SVG outputs of `tools/progress.py` |
 | `tools/local/` | Locally acquired compiler and analysis tool binaries | None; ignored |
-| `orig/<target>/` | Untouched reference artifacts and separately identified extraction inputs | None; ignored |
+| `orig/<target>/` | Untouched reference artifacts and separately identified extraction inputs | All contents eligible for tracking by explicit user instruction |
 | `build/<target>/` | Objects, linked outputs, packaged artifacts, reports | None; ignored |
 
 Directories for future source and build stages need not exist until their first real files are added. Do not create speculative subsystems. The root README and `AGENTS.md` remain small entry points; `LICENSE` remains at the repository root.
@@ -40,7 +40,7 @@ Directories for future source and build stages need not exist until their first 
 | Package | Matching payloads and observed container rules | Release package when in scope | Exact package bytes, including metadata |
 | Accept | Frozen manifest, originals, independently built outputs | Verification report and progress evidence | All acceptance gates satisfied |
 
-Only manifest fingerprinting and artifact acceptance tooling exist today. Extraction, compilation, linking, and packaging commands must be implemented after their requirements are established. The build driver is not yet implemented; the proposed direction is [D-0007](DECISIONS.md#d-0007-evaluate-the-dtk-template-ecosystem), pending executable evidence.
+Manifest fingerprinting, artifact acceptance, progress rendering, and validated reference extraction exist today. Compilation, linking, and packaging commands must be implemented after their requirements are established. The build driver is not yet implemented; the proposed direction is [D-0007](DECISIONS.md#d-0007-evaluate-the-dtk-template-ecosystem), with executable evidence now recorded in F-0003 and policy/integration questions still open.
 
 ## Source and interface design
 

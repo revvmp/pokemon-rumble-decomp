@@ -56,7 +56,6 @@ dkms.conf
 Pokemon.Rumble.USA.WiiWare.wad
 
 # Project-local inputs and generated output
-/orig/
 /build/
 /tools/local/
 /docs/re/local/
@@ -92,3 +91,7 @@ __pycache__/
 *.log
 .DS_Store
 Thumbs.db
+
+# Track all original reference files
+!/orig/
+!/orig/**

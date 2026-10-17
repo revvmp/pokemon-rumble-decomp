@@ -2,15 +2,15 @@
 
 ## Current status
 
-Project initialization is implemented and a phased [roadmap](ROADMAP.md) exists. Unencrypted WAD metadata has been read ([F-0001](re/FINDINGS.md#f-0001-wad-container-metadata)), but no release is identified, no reference manifest is frozen, and no game toolchain, reconstructed function, or matching game build has been established. Source coverage has no known denominator and is not expressed as a percentage.
+Target `wpse-v1` has identified USA/TMD-version-1 metadata, a frozen package fingerprint, identified main and boot DOLs, and a recursively extracted reference tree. Authenticity and retail revision naming remain unverified. No game toolchain, reconstructed function, or matching game build has been established. Source coverage has no known denominator and is not expressed as a percentage.
 
 | Milestone | State | Evidence or prerequisite |
 | --- | --- | --- |
 | Repository architecture and workflow | Initialized | `ARCHITECTURE.md`, `PROJECT_RULES.md` |
 | Artifact verifier | Implemented | `tools/verify.py` |
-| Release identification | In progress | WAD metadata in F-0001; extraction and provenance pending |
-| Frozen reference manifest | Pending | Target template is unconfigured |
-| Artifact and section inventory | Pending | Identified reference needed |
+| Release identification | Metadata identified | WPSE, USA, TMD version 1; F-0001 |
+| Frozen reference manifest | Package frozen | `config/targets/wpse-v1-package.json`; executable acceptance scope pending |
+| Artifact and section inventory | Reference extraction complete for recognized containers | 3,420 files; F-0005; executable coverage and native-resource internals pending |
 | Toolchain identification | Pending | Candidates listed in `re/TOOLCHAIN.md`; none confirmed |
 | Reproducible game build | Pending | Compiler and linker not selected |
 | Source reconstruction | Pending | No reconstructed functions |
@@ -40,6 +40,12 @@ Images use a single blue sequential ramp with separate light and dark steps sele
 No entries yet. For each unit, record target, artifact, address range, source path, confidence, implementation status (`Matching`, `NonMatching`, or `Equivalent`), match evidence, fallback dependencies, and for non-matching units the suspected cause and any decomp.me scratch link. These belong here, not in source comments. Establish function-count and code-size denominators before reporting coverage.
 
 ## Latest session
+
+Pulled `40483bd` (FEAT: Add progress), preserved local extraction changes, and reconciled overlapping documentation with its roadmap and progress tooling. Completed recursive reference extraction: 156 U8 archives, 134 decompressions, 3,420 inventoried files. A fresh second run produced byte-identical outputs for every file. Original WADs and prior extracted contents remain unchanged. See [extraction](re/EXTRACTION.md) and F-0005 for exact commands, tool pins, and validation limits. Native asset formats remain preserved, not converted to editable exports. New traps: 0x40 assets require LZH8 rather than dtk NLZSS, and backslash-bearing U8 names require parent directories to be created before Windows extraction. No source reconstruction or game match is claimed.
+
+Roadmap Phase 1 remains active: executable acceptance manifests, full section/coverage review, and input provenance still need resolution. Code progress remains unmeasured; no fabricated objdiff report was supplied.
+
+## Earlier session: progress images
 
 Added `tools/progress.py` and `config/progress.json` and embedded the roadmap and code progress images in the README; see [progress images](#progress-images) and [D-0008](DECISIONS.md#d-0008-generate-progress-images-in-repository). The code image states that progress is not measured because no objdiff report or denominator exists. Validation is recorded in [validation](VALIDATION.md#progress-image-validation). No reverse engineering findings were produced. New trap recorded in `AGENTS.md`: progress images are committed outputs that go stale unless regenerated.
 

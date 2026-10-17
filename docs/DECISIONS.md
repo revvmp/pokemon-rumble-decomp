@@ -28,7 +28,7 @@ Accepted from the project requirements. Every meaningful session must keep the t
 
 Proposed. Problem: the build driver, splitting, and diffing approach are undecided, and building them from scratch would duplicate mature community tooling. Approach: adopt the decomp-toolkit, objdiff, ninja, and `configure.py` workflow used by Petari and most GameCube and Wii decompilations, as described in [prior art](re/PRIOR_ART.md) and sequenced in the [roadmap](ROADMAP.md).
 
-Acceptance gate: evidence that the extracted executable is a PowerPC DOL that dtk can analyze, recorded in findings. Until then this is a direction, not a commitment, and nothing may be written to `config/toolchain.json` on its basis.
+Acceptance gate: evidence that the extracted executable is a PowerPC DOL that dtk can analyze, recorded in findings. F-0003 now satisfies the executable-analysis evidence gate. Adoption remains proposed while the open policy and integration items below are unresolved; this does not establish a compiler or linker configuration.
 
 Open items to settle before vendoring: (1) dtk-template's `configure.py` and `tools/*.py` contain comments, which conflict with D-0002; either strip them or record a narrow exception for unmodified third-party files. (2) Map dtk-template's `config/<GAMEID>/`, `orig/<GAMEID>/`, and `build/` onto our `config/<target>/`, `orig/<target>/`, and `build/<target>/`. (3) dtk's `build.sha1` is a build-time check only; acceptance remains the SHA-256 manifest verified by `tools/verify.py`. (4) Non-matching status and decomp.me links go in the reconstruction ledger rather than source comments.
 

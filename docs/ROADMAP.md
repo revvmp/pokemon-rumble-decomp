@@ -12,6 +12,8 @@ Done. Rules, architecture, living documentation, and the exact artifact verifier
 
 Goal: a frozen manifest for the original package and an extracted, identified main executable.
 
+Current evidence: target wpse-v1, package fingerprint, main/boot DOLs, and recursive reference extraction are established in F-0001 through F-0005. Separate executable acceptance manifests and complete executable scope review remain outstanding; Phase 1 stays active.
+
 1. Acquire decomp-toolkit into `tools/local/`, recording version, source URL, and binary SHA-256 in [toolchain](re/TOOLCHAIN.md). Petari pins `v1.8.3`.
 2. Run `dtk wad info` and `dtk vfs ls` against the local WAD. [F-0001](re/FINDINGS.md#f-0001-wad-container-metadata) already records title ID `WPSE`, title version 1, seven contents, and boot index 6 from unencrypted metadata. If dtk cannot open a WiiWare WAD, record that as a finding and evaluate another extractor.
 3. Extract every content to `orig/<target>/` with a recorded command. Identify which content holds the executable. **Hypothesis:** the boot content is a loader and the main DOL lives in another content, possibly compressed, and the largest content is a U8 data archive.
@@ -79,6 +81,6 @@ Gate: the [completion gates](MATCHING.md#completion-gates) for the claimed scope
 
 - **Formatting.** Adopt a `.clang-format` once source exists; Petari's is a reasonable starting point.
 - **Progress images.** Keep `config/progress.json` in step with each gate and regenerate the README images as described in [progress images](PROGRESS.md#progress-images).
-- **CI.** Once a build exists, a private build container holding originals can run configure, build, verification, objdiff reporting, and progress image rendering on every push. Never put originals in the public repository.
+- **CI.** Once a build exists, a private build container holding originals can run configure, build, verification, objdiff reporting, and progress image rendering on every push. Original-file tracking follows the explicit `orig/` exception in [project rules](PROJECT_RULES.md).
 - **Multiple releases.** Other regions or revisions get separate targets and manifests. Use a version define and per-object version matching only after a second release is identified.
 - **Session hygiene.** Follow the [project rules](PROJECT_RULES.md) session workflow and update living documents every session.

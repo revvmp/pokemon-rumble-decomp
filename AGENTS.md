@@ -21,14 +21,25 @@ Keep entries concise and actionable. Distinguish confirmed findings from hypothe
 - **Progress images are committed outputs.** Changing `config/progress.json` or measured progress without rerunning `tools/progress.py` leaves stale README images. Regenerate and commit them together; never hand-edit the SVGs or pass a fabricated report. See [progress images](docs/PROGRESS.md#progress-images).
 - **Byte identity does not prove source reconstruction.** Copying original executable bytes can satisfy comparison. Review source coverage and fallback dependencies separately before claiming decompilation progress; see [acceptance requirements](docs/MATCHING.md).
 
+- **A WAD boot index is not a game-code inventory.** This package declares seven contents and boot index 6. Inspect and validate all decrypted contents before selecting the main executable; see [F-0001](docs/re/FINDINGS.md#f-0001-wad-container-metadata).
+
+- **Content 1 is not directly parseable as DOL.** dtk 1.8.4 panicked on this extracted content; inspect its format before loading. Content 6 parses as the boot DOL. Resolved: content 1 is NLZSS-compressed; use `dtk nlzss decompress` with explicit `-o` to preserve the input. See [F-0003](docs/re/FINDINGS.md#f-0003-main-game-dol-recovered-from-compressed-content-1).
+
+- **Removing `/orig/` alone does not expose its files.** Extension rules still ignore WAD, DOL, and APP files. The user authorized tracking all of `orig/`; final recursive exceptions override these rules. See [tracking guidance](docs/HANDOFF.md#git-tracking-of-originals).
+
+- **Nested .arc.cx files need format inspection.** dtk could list content 5 but could not directly open its Pokemon .arc.cx entry as an archive. Resolved: these files use LZH8 (0x40), which dtk NLZSS rejects. Use the pinned supporting decoder through `tools/extract_reference.py`; see [F-0005](docs/re/FINDINGS.md#f-0005-recursive-reference-extraction-and-repeat-validation).
+
+- **U8 node names can contain backslashes.** On Windows dtk failed to create nested Home Menu sound files until validated parent directories were precreated. Preserve original node names and offsets in the inventory; see [F-0005](docs/re/FINDINGS.md#f-0005-recursive-reference-extraction-and-repeat-validation).
+
 ## Current project state
 
 | Current state | Value |
 | --- | --- |
-| Phase | Roadmap Phase 1: extract and identify |
-| Active target | Not selected; local WAD metadata reads `WPSE` title version 1 (F-0001) |
-| Original hashes | Not recorded |
+| Phase | Roadmap Phase 1: reference extraction validated; executable scope review pending |
+| Active target | `wpse-v1` (USA, TMD title version 1) |
+| Original hashes | Package SHA-256 frozen in `config/targets/wpse-v1-package.json` |
 | Game build entry point | Not implemented |
 | Verification entry point | `python tools/verify.py --help` |
 | Progress images | `python tools/progress.py render --phases config/progress.json --output-dir docs/images` |
-| Next action | Extract the WAD with decomp-toolkit per `docs/ROADMAP.md` Phase 1 |
+| Extraction entry point | `python tools/extract_reference.py`; see `docs/re/EXTRACTION.md` |
+| Next action | Review executable manifests and boot/main coverage; see `docs/HANDOFF.md` |

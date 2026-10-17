@@ -1,10 +1,66 @@
 # Findings
 
+## F-0001: WAD container metadata
+
+Python 3.14.0 inspection of the user-supplied WAD identified title ID `0001000157505345` (`WPSE`), region 1 (USA), TMD title version 1, seven contents, and boot index 6. Game name is user-supplied; authenticity, signatures, acquisition history, and retail revision naming are unverified.
+
+Target `wpse-v1`; preserved copy `orig/wpse-v1/reference.wad`; original root file unchanged. Size 27,330,304 bytes; SHA-256 `3edf8518c33ea03a04a0c519ae586a29e9b40a32327be72623277773ac88f680`. The real verifier fingerprint CLI exited 0 and froze `config/targets/wpse-v1-package.json` for package provenance only. Independent Get-FileHash checks agreed for both copies. No executable acceptance manifest or reconstruction exists.
+
+Inspection procedure: Python standard-library pathlib, struct, hashlib; decode WAD header as big-endian `IHH6I`, align sections to 64 bytes. Certificate offset/size 64/2560; ticket 2624/676; TMD 3328/736; encrypted data 4096/26916864; footer 26920960/409344. Footer ends at EOF. TMD signature type `0x10001`; title ID at TMD+0x18c; region at +0x19c; version/count/boot as three unsigned big-endian shorts at +0x1dc. Content records are `IHHQ20s` at +0x1e4, stride 36.
+
+| Content ID / index | Type | Declared plaintext size | Declared SHA-1 |
+| --- | --- | --- | --- |
+| 00000000 / 0 | 0001 | 409344 | 1a1b1b0f20346e4a8355ab91c00e476d28f06577 |
+| 00000001 / 1 | 0001 | 2004320 | 807ff739b2bcfeb46338783a80147bf613d14948 |
+| 00000002 / 2 | 8001 | 2156800 | 3644384b0cfc920ef620120e8721bf53c85bda27 |
+| 00000003 / 3 | 8001 | 370880 | 096b7bc8616329f32ec0376e438ef5438b0c247a |
+| 00000004 / 4 | 8001 | 112448 | 061a4f1d60aec55f0eff6937d52320199f9bb788 |
+| 00000005 / 5 | 0001 | 21550432 | e7ccc8c9174a611fc994f8c4d10adb3baf06bc32 |
+| 00000006 / 6 | 0001 | 312576 | 8b76b2b6f4b8af0f4132b23a28b79385e1ffb503 |
+
+Format evidence: [WAD](https://wiibrew.org/wiki/WAD_files), [TMD](https://wiibrew.org/wiki/Title_metadata). Metadata observations are confirmed; contents have not been decrypted or hash-validated. Boot index identifies startup content, not necessarily the main game implementation. Next: pin an extractor, validate all content hashes, identify executables and sections, and freeze a separate executable manifest.
+
 Use a stable identifier such as `F-0001` for each entry. Record target, manifest, artifact path and digest, address or file offset, direct observation, exact inspection procedure, tool version, interpretation, confidence, alternatives, affected source or configuration, and next validation step.
 
 Keep facts separate from hypotheses. Mark overturned conclusions superseded and link the replacement rather than silently erasing evidence history. Do not embed proprietary code dumps or assets in this record.
 
-## F-0001: WAD container metadata
+## F-0002: User extraction validated
+
+The user ran the previously supplied dtk WAD extraction command. Inspection found seven .app files plus certificate, ticket, TMD, and trailer under `orig/rumble-unidentified/extracted/`. All seven sizes and Get-FileHash SHA1 results agree with F-0001. The extraction process exit status was not observed. Installed `dtk.exe --version` reports 1.8.4, commit a0c455e46cab58e1d2e0885623f85089ff0499db; acquisition source and tool digest remain unrecorded.
+
+`dtk.exe dol info orig/rumble-unidentified/extracted/00000006.app` exited 0, reporting entry point 0x81330000, .init at 0x81330000 (file 0x500, size 0x658), and .text at 0x81330660 (file 0xB60, size 0x2A8C4). It warned that extab/etabindex could not be located. This confirms a parseable boot DOL, not its role as the main game implementation.
+
+Running the same dol info command on 00000001.app exited 1 with an out-of-range panic at src/util/dol.rs:62. Its first bytes are 11 A0 7B 3E; it must not be treated as a directly loadable DOL without further format investigation. Compression is a hypothesis, not validated here. Do not assume content 1 is an uncompressed main.dol. No reconstructed code or build match was produced.
+
+## F-0003: Main game DOL recovered from compressed content 1
+
+Target `wpse-v1`. Content 1 is NLZSS-compressed: the header starts `11 A0 7B 3E`, declaring 0x3E7BA0 decompressed bytes. The following real commands both exited 0:
+
+```powershell
+.\dtk.exe nlzss decompress orig/rumble-unidentified/extracted/00000001.app -o orig/wpse-v1/main.dol
+.\dtk.exe dol info orig/wpse-v1/main.dol
+```
+
+Always specify `-o`: this tool's help says decompression otherwise overwrites its input. The F-0002 compression hypothesis is now confirmed; its direct-DOL parse failure does not indicate corrupt extraction.
+
+Tool: dtk 1.8.4, commit a0c455e46cab58e1d2e0885623f85089ff0499db, executable SHA-256 `a89f8a1ab07cde5af83218da4247dfd535ad17f2fdb69bf361a966eec7b8fe25`. User supplied the tool; acquisition source remains unverified. Compressed content SHA-256: `fb9057bb9e834d22e3a3eddc817c1cd4590fa0e384944307a87470e644405928`.
+
+Output `orig/wpse-v1/main.dol`: 4,094,880 bytes; SHA-256 `ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da`. Entry point `0x80004050`. Python 3.14.0 independently decoded the big-endian DOL header, checked all ten nonempty section file ranges, and confirmed that the entry lies within a text section. Header text slot 0: offset 0x100, address 0x80004000, size 0x26C0; text slot 1: offset 0x27C0, address 0x80052500, size 0x3004C0. dtk reports slightly smaller logical sizes for some sections; retain the raw header sizes when mapping the file. Full raw layout and dtk report are saved locally at `docs/re/local/wpse-v1/main-dol-layout.json` and `main-dol-info.txt`.
+
+Main-game identification is supported by the large executable, normal startup, and embedded game resources and identifiers: `5:/game2d.arc` at file offset 3765380, `CPauseMenu.cpp` at 3815256, `DEBUG_GetFixedPopPokemonMonsno` at 3828592, and `GetPokemonVoiceId` at 3837064. dtk identifies a candidate `main` at 0x8012BCB0 and reports 4,885 exception-table functions; these are tool-derived analysis results, not an independently established function-count denominator or recovered original symbols. The boot content 6 remains a separate executable; its exact transfer-of-control path has not been traced.
+
+Both root WAD and preserved reference SHA-256 remain equal to F-0001. No expected hashes were changed. No runtime execution, source reconstruction, or compiled match is claimed. Use the decompressed DOL for PowerPC big-endian analysis; further archive/module inventory remains outstanding.
+
+## F-0004: Asset container reconnaissance
+
+Read-only `dtk.exe vfs ls` inspection with the F-0003 tool confirmed that content 5 opens as an archive. Its root includes font.arc.cx, game2d.arc.cx, item.arc.cx, misc.arc.cx, pii_1-151_387-492.arc.cx, post_effect.arc.cx, savebanner.arc.cx, script.arc.cx, title2d.arc.cx, hbm.arc.cx and event, stage, effect, sound, USA, en_US directories. `dtk.exe vfs ls 'orig/rumble-unidentified/extracted/00000005.app:sound'` lists waza_p.brsar. Contents 2, 3, and 4 also list successfully as archives; 3 and 4 expose HomeButtonSe and HomeButton3 respectively. No complete recursive inventory was made.
+
+Direct nested listing of `orig/rumble-unidentified/extracted/00000005.app:pii_1-151_387-492.arc.cx:` fails with 'is not an archive'. Its encoding remains unverified: inspect the header and decompress explicitly if appropriate before opening it as an archive. The suffix alone does not establish the codec. No asset extraction or conversion was performed in this reconnaissance. Preserve compressed originals and separate raw extraction from editable exports.
+
+## Imported metadata observation from 40483bd
+
+The following initial F-0001 observation is preserved as historical evidence from the incoming commit. Its statements about unselected target, missing manifests, and pending extraction are superseded by F-0001 through F-0005 above/below. Its recorded filename and interpreter version belong to that earlier environment, not this session.
+
 
 - **Target:** not yet selected. **Manifest:** none yet.
 - **Artifact:** local file named `Pokemon.Rumble.USA.WiiWare.wad`, 27,330,304 bytes, SHA-256 `3edf8518c33ea03a04a0c519ae586a29e9b40a32327be72623277773ac88f680`. Provenance not yet documented.
@@ -27,3 +83,19 @@ Keep facts separate from hypotheses. Mark overturned conclusions superseded and 
 - **Interpretation (hypotheses):** the `E` in `WPSE` and the `01` group ID are consistent with a North American Nintendo-published title, matching the filename hint, but the region is not confirmed. The footer size equals content 0's size; whether this is meaningful is unknown. Content 0 is commonly the banner in WiiWare titles, and the boot content commonly a loader that starts a main executable stored elsewhere. Content type `0x8001` has not been interpreted. Content roles require decryption and inspection.
 - **Confidence:** high for the raw field values; low for every interpretation.
 - **Next validation:** extract contents with a recorded tool (planned: decomp-toolkit `dtk wad`/`dtk vfs`), confirm each content's format, document provenance, and fingerprint a provenance manifest. See the [roadmap](../ROADMAP.md#phase-1-extract-and-identify).
+
+## F-0005: Recursive reference extraction and repeat validation
+
+Target `wpse-v1`; package and executable fingerprints remain as in F-0001/F-0003. New entry point: `python tools/extract_reference.py`. Full procedure, byte-level checks, tool provenance, directory mapping, and limitations are in [EXTRACTION.md](EXTRACTION.md); machine-readable evidence is in [wpse-v1-extraction.json](wpse-v1-extraction.json), with [CSV](wpse-v1-extraction.csv) and [archive index](ARCHIVE_INDEX.md) for browsing.
+
+Successful output `orig/wpse-v1/extraction/`: 3,420 recorded files, 158,750,916 aggregate bytes (including intermediates and duplicates); 156 U8 archives, 26 NLZSS decompressions, 103 LZH8 decompressions, five Huff8 decompressions, two banner wrappers, six IMD5 wrappers, and four LZ77 tags. All 183 dtk calls exited 0. A fresh second run under `build/wpse-v1/extraction-repeat/` exited 0 and all 3,420 outputs compared byte-for-byte, including identical archive-entry and parent/ancestry records. Local repeat report: `docs/re/local/wpse-v1/extraction-repeat.json`. A repeat invocation against the existing default output exited 1 before mutation, as intended.
+
+Python 3.14.0 drove the real CLI workflow. dtk version, binary digest, and the main DOL are recorded in F-0003. Supporting decoder source was acquired from https://github.com/Plombo/vcromclaim at commit `6e537af6d314c3d8a6c7353645c137572b37b4b6`; `lzh8.py` SHA-256 `ec324292f1b167027b0c4fc70757ab58435ebf3af22051bd17aebaff5a14ff3a`, `huf8.py` SHA-256 `512d4207e0cfb73816728e7d22c8d089af8e342111ece04c254b37a770db2c30`. The extractor enforces tool/source digests before use and adapts the Python 2 decoder interfaces in memory; see extraction documentation. No third-party commented source was vendored into tracked project code.
+
+Confirmed refinements to F-0004: the game's .cx files begin with 0x40 and decode as LZH8, not the NLZSS forms supported by dtk. `dtk nlzss decompress` rejected game2d.arc.cx with Invalid magic number (exit 1). Decoding yields structurally valid U8 archives or native REFF/REFT effect resources. Content 0 and the trailer both contain a valid U8 archive at file offset 0x640, following IMET at 0x80. IMD5 payload lengths and MD5 values validated before unwrapping. All wrapper bytes remain preserved.
+
+A Home Menu sound U8 archive has file-node names containing backslashes (for example wt\HomeButtonSe.wt and midi\00_home_button.mid). The initial validator rejected these; a direct dtk probe failed to create the first file on Windows (exit 1). Normalize relative separators for output, reject absolute/parent traversal, precreate validated parent directories, then use dtk and compare every output to its source slice. Original node names and offsets remain in the JSON. The failed first extraction was moved to ignored `build/wpse-v1/extraction-incomplete/`.
+
+Validation: seven content sizes and SHA-1 values matched the TMD; every U8 file matched its original slice and entry count; all decoded lengths matched their headers; all six IMD5 hashes matched; all recorded file SHA-256 values were independently reread. The 1,581 recognizable native BRRES/RSAR/RLAN/RLYT/RFNT/REFF/REFT headers had exact declared file lengths. Main DOL matches the prior extraction, and `orig/wpse-v1/boot.dol` is a byte-identical convenience copy of content 6. Both original WAD hashes and every prior top-level extracted file remained unchanged.
+
+Native resource internals are not converted or exhaustively parsed. No named .rel, .rso, or .elf files were found; this is not proof of complete code coverage. Game-specific BSP/PKC meanings and the boot/main control flow remain unresolved. No reconstruction, compiler match, or exact game build was produced.

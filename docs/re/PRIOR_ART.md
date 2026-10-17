@@ -18,7 +18,7 @@ Petari is built on [dtk-template](https://github.com/encounter/dtk-template), th
 | [decomp.me](https://decomp.me) | Shared scratches for collaborating on hard functions | not applicable |
 | [decomp.dev](https://decomp.dev) | Hosted progress tracking and badges, fed by CI reports; reported by the project owner to be sunsetting, so this project renders its own images ([D-0008](../DECISIONS.md#d-0008-generate-progress-images-in-repository)) | not applicable |
 
-`dtk` is the important one for us. As documented in its README, it reads WAD containers, U8 and RARC archives, and Yaz0, Yay0, and NLZSS compression through `dtk vfs`, and `dtk wad info|extract|verify` exist. The README lists WAD support under "Wii VC". Whether it handles our WiiWare WAD is unverified; see the [roadmap](../ROADMAP.md#phase-1-extract-and-identify).
+`dtk` is the important one for us. As documented in its README, it reads WAD containers, U8 and RARC archives, and Yaz0, Yay0, and NLZSS compression through `dtk vfs`, and `dtk wad info|extract|verify` exist. The README lists WAD support under "Wii VC". Subsequent local validation confirms dtk 1.8.4 handles this WAD and U8 archives; LZH8/Huff8 need supporting decoders. See F-0005 and [extraction](EXTRACTION.md).
 
 ## Repository mechanics
 
@@ -55,7 +55,7 @@ These are documented in Petari's `docs/` and apply to any CodeWarrior-built targ
 | Percentage progress on decomp.dev | Replaced by `tools/progress.py` images. Percentages permitted only once the denominator is established, per [matching](../MATCHING.md). objdiff's report provides a code-byte denominator once splits exist. |
 | `NonMatching` objects fall back to split original objects | Matches our model exactly: the build reproduces bytes, while the fallback list tracks what is not yet source. Fallback objects never count as decompiled. |
 | AI-generated decompilation banned | Petari's community policy, not ours. Reusing Petari or ogws headers is license-compatible (CC0 for Petari); check each source project's license before reuse and record provenance. |
-| Private CI container holding originals | Possible later. Never commit originals; a private build repository is the only way CI can verify. |
+| Private CI container holding originals | Possible later. Current explicit user authorization permits tracking `orig/`; follow [project rules](../PROJECT_RULES.md) for this exception. |
 
 ## Techniques for a target without a symbol map
 
