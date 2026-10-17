@@ -2231,3 +2231,10 @@ For `wpse-v1` / `main.dol`, [F-792-1](findings/792-g3d-calcmaterial-init-fog.md)
 ## Issue #780 DCC matrix interfaces
 
 [F-780-2](findings/780-g3d-xsi-3dsmax.md) records all 31 original C++ function names, addresses, and sizes in the XSI and 3ds Max DCC files. Canonical `TexSrt` contains Su, Sv, R, Tu, and Tv at offsets 0, 4, 8, 12, and 16; the native functions reproduce all accesses without layout changes. The XSI world calculation reads canonical `ChrAnmResult.flags` at 0, scale at 4, and matrix at 0x1C. [F-780-1](findings/780-g3d-dcc-headers.md) records the five empty-class static WorldMtxAttr helpers and the proven high-bit scale masks. Two seven-entry dispatch tables per file occupy 56 read-only bytes; source constant extents are 12 and 20 bytes with eight-byte alignment. Naming confidence is high because complete pinned source compilation reproduces all retained function streams.
+## Issue #517 BTM device and controller
+
+[F-517-2](findings/517-btm-device-completion.md) records all 37 original issue function addresses/sizes and complete device/controller unit extents. Forty retained functions / 8,276 bytes include nine #518 tails. Existing security-device and controller structures retain their definitions; F-517-1 records ready value 5 from target instructions and preserves the complete reset enum already merged through F-519-2. Exact diagnostic/class literal payloads and eight-byte alignment are recorded in symbols and the finding. The ambiguous empty helper candidate at 0x8031E048 is rejected in favor of the existing evidenced `btm_discovery_timeout` name.
+
+## Issue #518 acceptance inventory
+
+[F-518-3](findings/518-btm-completion-audit.md) reconciles the original 22 functions / 4,456 bytes across the controller tail (nine), discovery file (three), and inquiry prefix (ten). It records each complete source delivery and the exact original addresses/sizes. This audit introduces no new reconstructed bytes or unit rows; existing source naming and provenance stay with F-517-2, F-518-1/F-518-2, and F-519-1/F-519-2.
