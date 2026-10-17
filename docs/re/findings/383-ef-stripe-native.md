@@ -6,6 +6,19 @@ The original issue survey is not a source-file boundary. The directional tail at
 
 `DrawStripeStrategy` begins with its constructor at `0x80242820`, inside #383. The complete native file continues through its destructor at `0x80245EB0`, ending at `0x80245EF0`, inside #384. #383 therefore owns that whole file's declaration and registration. `DrawSmoothStripeStrategy` starts at `0x80245EF0` and remains outside this claim. No new source registration, matching designation, or progress credit is established by these diagnostic probes.
 
+The original #383 table accounts for all 24 functions and 9,976 bytes without treating the neighboring file boundaries as survey boundaries:
+
+| Original inventory group | Functions | Code bytes | Acceptance state |
+| --- | --- | --- | --- |
+| Directional file tail owned by #382 | 7 | 2,612 | Outside this claim's file ownership |
+| Free strategy | 4 | 2,592 | Existing NonMatching unit; `Draw` remains different |
+| Line strategy | 3 | 1,576 | Already Matching before this investigation |
+| Point strategy | 3 | 1,172 | Already Matching before this investigation |
+| First seven retained stripe functions | 7 | 2,024 | Exact individual probe; complete unit acceptance pending |
+| Total | 24 | 9,976 | Issue remains incomplete |
+
+The complete stripe file adds fourteen neighboring #384 functions, 11,884 bytes, beyond its seven original #383 rows. Its complete retained inventory is therefore 21 functions and 13,908 bytes. These neighboring functions must be attributed once, rather than counted again when #384's remaining smooth-stripe work is delivered.
+
 ## Reference evidence
 
 The CC0 Forecast reference at commit `a1f28f8a0d777ebd12953f5c6997ee2decfd07f5` supplies an older ribbon-only implementation. The CC0 News Channel reference at commit `128e3ffbaee9e70bd175c5f66a44fb8430068629` is also ribbon-only and supplies useful member names. Neither implements this target's tube and texture-mapping variants. The CC0 MHTri reference at commit `ac489be692a1273afff8574b2402aecba2ae2b8f` describes the newer tube algorithm in a debug build, but its offset-based helper structures and instruction-control pragmas are reading aids rather than acceptable reconstructed source.
@@ -33,6 +46,8 @@ The target-proven complete nested context adds emitter X axis at `0xBC`, view Z 
 Two bounded shared-interface corrections are independently evidenced, but remain outside-only proposals pending consumer verification. First, native `GetNumDrawParticle` at `0x80242BA0` reads the existing typed `ActivityList::mNumActive` field at manager offset `0x50`, whereas the current canonical helper calls `GetNumActive`, which reads the list's object count at `0x40`. These counts differ during closing transitions. The News Channel reference exposes both accessors; its `GetNumActiveCount` name for the latter field is explicitly inferred rather than established as an original symbol. Second, native and mapped `CalcAhead_NoDesign` has the unused third `Particle*` argument, also present in that reference. The current canonical two-argument declaration emits a distinct weak symbol when its address is taken. The paired native target is `0x802412B0`; a corrected declaration must coalesce with that existing callback rather than retain a duplicate body under the wrong signature.
 
 Changing both shared list-walker manager arguments to mutable pointers shortens the origin callback to the correct size, but leaves nine instruction differences and breaks the other three previously exact callbacks. This is not an accepted shared-header correction. Natural flat and pair-array table forms and signed/unsigned private flush-helper parameter variants leave the tube dispatcher's register permutation unresolved. A complete Wii/1.3 compiler control loses three previously exact routines, retaining only 16 of 21 exact bodies; its origin callback grows to 572 bytes. The candidate therefore retains the established Wii/1.1 compiler and the canonical const walkers, rather than adopting a flag or overload workaround.
+
+The tube dispatcher was subsequently resolved by restoring the resource-accessor structure evidenced in the MHTri debug reference. A single inline accessor for the tube division count is used consistently by all three connection paths and the dispatcher. Its inferred descriptive name is `GetStripeTubeDivide`; no claim is made that the original spelling was recovered. This additional inline level preserves the already exact connection bodies and restores all 1,964 dispatcher bytes, without a compiler flag, pragma, new storage, or competing type. The resulting current probe has 20 exact functions, 13,356 bytes, 360 independently paired text relocations, five exact vtable targets and the same complete 80 initialized bytes. Only the origin-connected ahead callback remains unaccepted. The earlier 19-function result and failed controls above describe the preceding candidate, not a second source-credit contribution.
 
 ## Free strategy diagnostics
 
