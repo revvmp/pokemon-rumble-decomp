@@ -8,7 +8,7 @@
 extern "C" {
 #endif
 
-int pf2_setclstlink(char drive, u32 mode, PF_CLUSTER* p_info);
+int pf2_setclstlink(char drive, u32 mode, PF_CLUSTER_LINK_CONFIG* p_info);
 
 #ifdef __cplusplus
 }

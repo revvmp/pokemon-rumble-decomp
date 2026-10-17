@@ -350,14 +350,11 @@ RVL_SDK/fa/pf_rewinddir.c:
 RVL_SDK/fa/pf_rmdir.c:
 	.text       start:0x8021B450 end:0x8021B4A0
 
-RVL_SDK/fa/pf_detach.c:
+RVL_SDK/fa/pf_rmvvol.c:
 	.text       start:0x8021B4A0 end:0x8021B4C8
 
 RVL_SDK/fa/pf_seekdir.c:
 	.text       start:0x8021B4D0 end:0x8021B4F4
-
-RVL_SDK/fa/pf_buffering.c:
-	.text       start:0x8021B500 end:0x8021B528
 
 RVL_SDK/fa/pf_setcode.c:
 	.text       start:0x8021B530 end:0x8021B554
@@ -366,7 +363,7 @@ RVL_SDK/fa/pf_setencode.c:
 	.text       start:0x8021B560 end:0x8021B584
 
 RVL_SDK/fa/pf_sync.c:
-	.text       start:0x8021B590 end:0x8021B5B8
+	.text       start:0x8021B680 end:0x8021B6A8
 
 RVL_SDK/fa/pf_setupfsi.c:
 	.text       start:0x8021B5C0 end:0x8021B5EC
@@ -375,10 +372,13 @@ RVL_SDK/fa/pf_setvol.c:
 	.text       start:0x8021B5F0 end:0x8021B64C
 
 RVL_SDK/fa/pf_setclstlink.c:
+	.text       start:0x8021B500 end:0x8021B528
+
+RVL_SDK/fa/pf_setvolcfg.c:
 	.text       start:0x8021B650 end:0x8021B678
 
 RVL_SDK/fa/pf_settailbuf.c:
-	.text       start:0x8021B680 end:0x8021B6A8
+	.text       start:0x8021B590 end:0x8021B5B8
 
 RVL_SDK/fa/pf_telldir.c:
 	.text       start:0x8021B6B0 end:0x8021B6D4

@@ -1,5 +1,5 @@
-#ifndef FA_PF_DETACH_H
-#define FA_PF_DETACH_H
+#ifndef FA_PF_RMVVOL_H
+#define FA_PF_RMVVOL_H
 
 #include <revolution/fa/pf_dir.h>
 #include <revolution/fa/pf_volume.h>
@@ -8,7 +8,7 @@
 extern "C" {
 #endif
 
-int pf2_detach(char drive);
+int pf2_rmvvol(char drive);
 
 #ifdef __cplusplus
 }
