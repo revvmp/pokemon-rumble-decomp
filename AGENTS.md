@@ -79,6 +79,12 @@ Keep entries concise and actionable. Distinguish confirmed findings from hypothe
 
 - **Source units can lose trailing alignment before a fallback unit.** When objdiff is 100% but the next function shifts by four bytes, inspect its inferred alignment. ENC Latin needed `align:16` on the following owned symbol to preserve the original boundary; see [F-494-2](docs/re/findings/494-enc-latin.md#f-494-2-alignment-of-the-next-fallback-unit).
 
+- **Negated closing keywords still close issues.** A partial-work pull request automatically closed its unfinished issue because its description contained a negated closing-keyword phrase. Use `Part of` and avoid closing-keyword issue references anywhere in partial-work descriptions; check issue state after merging. See [F-514-2](docs/re/findings/514-bta-dm-api.md#f-514-2-partial-work-issue-closure-keywords).
+
+- **End a `.text` split at the last function's end, not the next alignment boundary.** Ending `arc.c` at the padded 0x802F08E0 made the compiled object 8 bytes short of its split, and `.ctors` moved to 0x803529B8. Ending it at 0x802F08D8 leaves the padding to the next object and matches. See [F-495-1](docs/re/findings/495-arc-unit.md).
+
+- **verify.py checks whatever `main.dol` is on disk.** After a failed link it passed against the previous build's output. Delete `build/wpse-v1/main.dol` or confirm `ninja` exited 0 before trusting a verification result; observed in [F-495-1](docs/re/findings/495-arc-unit.md).
+
 - **End a split at its last function, not the next unit.** A GXGeometry split ending at the next unit's start scored 100% in objdiff but shifted the DOL by 0x10 when source-linked, because the next auto split has 4-byte alignment. End `.text` (and `.sbss`) at the true end of the unit's contents; see [F-476-3](docs/re/findings/476-gxmisc-gxgeometry.md#f-476-3-split-end-padding).
 
 ## Current project state
