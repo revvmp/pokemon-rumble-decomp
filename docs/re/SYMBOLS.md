@@ -1497,3 +1497,16 @@ Cycle tables are at 803D8578 (128 bytes) and 803D85F8 (16 bytes). Voice storage 
 | Address | Size | dtk label | Chosen name | Kind | Confidence | Evidence | Source |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | `0x8033386C` | `0xF8` | `fn_8033386C` | `port_rfc_send_tx_data` | function | high | F-528-1 | `src/RVL_SDK/bte/port_rfc.c` |
+
+## Issue 533: RFCOMM and SDP diagnostic boundaries
+
+| Address | Name | Evidence and confidence |
+| --- | --- | --- |
+| `0x803E55B8` | `sRfcPortClosedMessage` | Sixteen-byte `rfc_port_closed` diagnostic, separated from the preceding timer diagnostic. High boundary confidence; descriptive variable name. [F-533-2](findings/533-sdp-api-db-discovery.md#f-533-2-complete-block-acceptance-after-the-rfcomm-merge). |
+| `0x803E5718` | `sSdpWrongAttributeTypeMessage` | Distinct SDP diagnostic established by literal bytes and source/target references. High boundary confidence; descriptive variable name. [F-533-2](findings/533-sdp-api-db-discovery.md#f-533-2-complete-block-acceptance-after-the-rfcomm-merge). |
+| `0x803E5740` | `sSdpBadAttributeLengthMessage` | Distinct SDP diagnostic established by literal bytes and source/target references. High boundary confidence; descriptive variable name. [F-533-2](findings/533-sdp-api-db-discovery.md#f-533-2-complete-block-acceptance-after-the-rfcomm-merge). |
+| `0x803E5760` | `sSdpDatabaseFullMessage` | Distinct SDP diagnostic established by literal bytes and source/target references. High boundary confidence; descriptive variable name. [F-533-2](findings/533-sdp-api-db-discovery.md#f-533-2-complete-block-acceptance-after-the-rfcomm-merge). |
+| `0x803E5770` | `sSdpBadAttributeTypeOrLengthMessage` | Distinct SDP diagnostic established by literal bytes and source/target references. High boundary confidence; descriptive variable name. [F-533-2](findings/533-sdp-api-db-discovery.md#f-533-2-complete-block-acceptance-after-the-rfcomm-merge). |
+| `0x803E57A0` | `sSdpAttributeNestingMessage` | Distinct SDP diagnostic established by literal bytes and source/target references. High boundary confidence; descriptive variable name. [F-533-2](findings/533-sdp-api-db-discovery.md#f-533-2-complete-block-acceptance-after-the-rfcomm-merge). |
+| `0x803E57BC` | `sSdpBadUuidLengthMessage` | Distinct SDP diagnostic established by literal bytes and source/target references. High boundary confidence; descriptive variable name. [F-533-2](findings/533-sdp-api-db-discovery.md#f-533-2-complete-block-acceptance-after-the-rfcomm-merge). |
+| `0x803E57DC` | `sSdpBadBooleanLengthMessage` | Distinct SDP diagnostic established by literal bytes and source/target references. High boundary confidence; descriptive variable name. [F-533-2](findings/533-sdp-api-db-discovery.md#f-533-2-complete-block-acceptance-after-the-rfcomm-merge). |
