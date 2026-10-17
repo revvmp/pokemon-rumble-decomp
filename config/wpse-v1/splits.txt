@@ -822,6 +822,10 @@ nw4r/snd/snd_MmlParser.cpp:
 	.sbss       start:0x804B9360 end:0x804B9368
 	.sdata2     start:0x804BAEE8 end:0x804BAF08
 
+nw4r/snd/snd_MmlSeqTrack.cpp:
+	.text       start:0x8027E000 end:0x8027E0B8
+	.data       start:0x803C6570 end:0x803C6580
+
 nw4r/snd/snd_PlayerHeap.cpp:
 	.text       start:0x8027E2B0 end:0x8027E4CC
 	.data       start:0x803C6598 end:0x803C65A8
