@@ -22,7 +22,7 @@ Format evidence: [WAD](https://wiibrew.org/wiki/WAD_files), [TMD](https://wiibre
 
 Use a stable identifier such as `F-0001` for each entry. Record target, manifest, artifact path and digest, address or file offset, direct observation, exact inspection procedure, tool version, interpretation, confidence, alternatives, affected source or configuration, and next validation step.
 
-Keep facts separate from hypotheses. Mark overturned conclusions superseded and link the replacement rather than silently erasing evidence history. Do not embed proprietary code dumps or assets in this record.
+New findings from issue-based work go in [findings/](findings/README.md), one file each, rather than in this file. Keep facts separate from hypotheses. Mark overturned conclusions superseded and link the replacement rather than silently erasing evidence history. Do not embed proprietary code dumps or assets in this record.
 
 ## F-0002: User extraction validated
 

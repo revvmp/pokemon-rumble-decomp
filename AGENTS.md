@@ -8,6 +8,10 @@ Prefer end-to-end validation through actual entry points: run the real tooling w
 
 Keep this file and the linked living documents current as required by the project rules. Update this entry point when the active phase, target, or validated build entry point changes. Keep detailed evidence and session history in `docs/`.
 
+## Parallel work
+
+If you were given a GitHub issue, or asked to pick one up, follow the `take-issue` procedure in `.claude/skills/take-issue/SKILL.md`; it applies to every agent, not only Claude. It claims through `tools/collab/claim_issue.py`, which never takes an assigned issue. Then read [collaboration](docs/COLLABORATION.md) and the issue before anything else. Work in your own worktree and branch, edit only the files that guide allows for your claim, and report through the pull request. [Workstreams](docs/WORKSTREAMS.md) lists all issues.
+
 ## Source fidelity standard
 
 Aim for the readability of the Super Mario Galaxy decompilation (Petari): source that looks like plausible original code, not decompiler output. Matching bytes are necessary but not sufficient.
@@ -34,6 +38,7 @@ Keep entries concise and actionable. Distinguish confirmed findings from hypothe
 - **objdiff 100% does not guarantee a link match.** Fuzzy scoring ignores alignment padding. A unit compiled with the Wii default 16-byte function alignment scored 100% but shifted the whole DOL; the runtime needs `-func_align 4`. Mark a unit `Matching` only after full verification passes. See [F-0010](docs/re/FINDINGS.md#f-0010-split-build-reproduces-maindol).
 - **The Wii linker dead-strips `.ctors$10` and `.dtors$15`.** Declare the sections with `#pragma section` and wrap the table entries in `#pragma force_active on`. See [F-0010](docs/re/FINDINGS.md#f-0010-split-build-reproduces-maindol).
 - **Compilers differ per library.** RVL_SDK matches only Wii/1.0 at default alignment. MSL and Runtime need Wii/1.1 or 1.3 with `-func_align 4`. Do not apply one compiler project-wide. See [F-0007](docs/re/FINDINGS.md#f-0007-per-library-compiler-identification).
+- **Worktree junctions can delete shared tools.** Recursive deletion of a worktree may follow `tools\local` and `.venv` junctions. Remove junctions with `cmd /c rmdir` before `git worktree remove`; validated in [collaboration validation](docs/VALIDATION.md#collaboration-workflow-validation).
 - **Shared `build/` is single-writer.** Parallel `configure.py` or `ninja` runs clobber `build.ninja` and outputs. Run parallel investigations in separate scratch directories or worktrees.
 - **Byte identity does not prove source reconstruction.** Copying original executable bytes can satisfy comparison. Review source coverage and fallback dependencies separately before claiming decompilation progress; see [acceptance requirements](docs/MATCHING.md).
 

@@ -39,11 +39,20 @@ Accepted at the project owner's request. The project owner reports that decomp.d
 
 ## D-0009: Organize tools by category
 
-Accepted at the project owner's request. `tools/build/` holds the vendored build system, `tools/reference/` reference extraction, `tools/verify/` acceptance verification, `tools/progress/` progress images, `tools/vendor/` the vendoring stripper, and ignored `tools/local/` acquired binaries. Root `configure.py` remains the build entry point.
+Accepted at the project owner's request. `tools/build/` holds the vendored build system, `tools/reference/` reference extraction, `tools/verify/` acceptance verification, `tools/progress/` progress images, `tools/vendor/` the vendoring stripper, `tools/collab/` issue claiming and worktrees, and ignored `tools/local/` acquired binaries. Root `configure.py` remains the build entry point.
 
 ## D-0010: Match the original source language and aim for Petari-level fidelity
 
 Accepted at the project owner's request. Each unit is written in the language of its original: C++ for game code, NW4R, and the CodeWarrior runtime, as shown by C++ exception tables and `.cpp` source names in the executable; C for RVL_SDK and MSL. Source must read like clean original code with properly named classes, following the standard in root `AGENTS.md`, while respecting the no-comments rule.
+
+## D-0011: Multi-contributor workflow
+
+Accepted at the project owner's request. Work is divided into GitHub issues by library or workstream, with file-level claims inside large issues. Each contributor or agent works in its own branch and worktree. To prevent conflicts:
+- the reconstruction ledger is split into per-area files under `docs/ledger/`
+- new findings are separate files under `docs/re/findings/`, with IDs derived from issue numbers
+- shared summaries, phase state, and progress images are maintainer-only and updated after merge
+
+Session-by-session updates to `PROGRESS.md` and `HANDOFF.md` therefore move to pull request descriptions for contributors. See [collaboration](COLLABORATION.md).
 
 ## Future decisions
 

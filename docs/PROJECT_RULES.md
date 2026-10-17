@@ -26,6 +26,10 @@ These rules apply to humans and LLMs throughout the repository.
 5. Prefer end-to-end validation: invoke real CLI workflows for tooling and real build-to-verification pipelines for reconstructed code, checking exit status, outputs, and exact binary identity. Use syntax checks and runtime observations as appropriate supplements. Exercise relevant failure paths. Do not introduce unit tests, replace the real workflow with mocked internal calls, or report checks that did not run.
 6. Update the living documentation before finishing. State what changed, what was verified, and what remains blocked.
 
+## Multi-contributor work
+
+When several contributors work in parallel, [collaboration](COLLABORATION.md) governs which files each contributor edits. Contributors record session results in their pull request description, area ledger rows, symbol records, and per-issue findings files. Maintainers update the shared summaries, handoff, progress images, and phase state after merging. The living documentation duties below fall to maintainers for shared files and to contributors for their area files.
+
 ## Living documentation contract
 
 Update `docs/PROGRESS.md` and `docs/HANDOFF.md` after every meaningful work session. The handoff must let another human or LLM resume without prior chat history: include exact next actions, commands, prerequisites, unresolved issues, and current evidence. Do not include secrets or private machine-specific paths.

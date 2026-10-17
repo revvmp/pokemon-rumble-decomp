@@ -43,13 +43,23 @@ Images use a single blue sequential ramp with separate light and dark steps sele
 
 ## Reconstruction ledger
 
-| Unit | Address ranges | Source | Library and flags | Status | Evidence | Fallbacks |
-| --- | --- | --- | --- | --- | --- | --- |
-| `Runtime/__init_cpp_exceptions.cpp` | `.text` `0x80340B24`–`0x80340B94`; `.ctors$10` `0x803529C0`; `.dtors$10`, `.dtors$15` `0x80352AA0`–`0x80352AA8`; `.sdata` `0x804B8F98` | `src/Runtime/__init_cpp_exceptions.cpp`, follows Petari CC0 source | Runtime.PPCEABI.H, Wii/1.1, `cflags_runtime` with `-func_align 4` | `Matching`, linked | Full `main.dol` verification passed on two clean builds; F-0010 | None in this unit |
-
-All other code comes from original split objects and counts as fallback. For each unit, record target, artifact, address range, source path, confidence, implementation status (`Matching`, `NonMatching`, or `Equivalent`), match evidence, fallback dependencies, and for non-matching units the suspected cause and any decomp.me scratch link. These belong here, not in source comments. Establish function-count and code-size denominators before reporting coverage.
+The ledger is kept per area in [ledger](ledger/README.md). It has one linked unit: `Runtime/__init_cpp_exceptions.cpp` in [msl-runtime](ledger/msl-runtime.md). All other code comes from original split objects and counts as fallback.
 
 ## Latest session
+
+Added the `take-issue` skill (`.claude/skills/take-issue/SKILL.md`) and `tools/collab/claim_issue.py`, which let any contributor tell an LLM to claim an unassigned issue and work it in an isolated worktree. Read-only and rejection paths are validated; see [validation](VALIDATION.md#issue-claim-tool-validation). No reverse engineering findings.
+
+## Earlier session: parallel work setup
+
+Set up parallel work under D-0011:
+- Wrote [collaboration](COLLABORATION.md), which covers claims, the unit workflow, shared-file rules, the definition of done, and per-agent worktrees.
+- Split the reconstruction ledger into per-area files under `docs/ledger/`, and added a per-issue findings directory and GitHub issue and pull request templates.
+- Created 36 GitHub issues with area and kind labels, indexed in [workstreams](WORKSTREAMS.md). Library issues carry anchor ranges and matched reference files from F-0007.
+- Validated the worktree procedure end to end.
+
+No new reverse engineering findings. New trap: junction-aware worktree removal.
+
+## Earlier session: Phases 1 to 3
 
 Completed roadmap Phases 1 to 3 and started Phase 4.
 

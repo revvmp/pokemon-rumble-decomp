@@ -78,7 +78,6 @@ __pycache__/
 *.key
 
 # Local reverse engineering databases
-*.i64
 *.id0
 *.id1
 *.id2

@@ -8,6 +8,9 @@ The dtk-template build in `configure.py` and `tools/build/` reproduces `main.dol
 
 ## Next actions
 
+Work is now parallel: contributors claim GitHub issues listed in [workstreams](WORKSTREAMS.md) and follow [collaboration](COLLABORATION.md). Maintainers merge pull requests, then update the status table, this handoff, phase state, and progress images.
+
+
 1. Finish Phase 4: categorize units as libraries are split so per-category progress becomes meaningful, and reconstruct further units. Prefer libraries with matching reference source: RVL_SDK with Wii/1.0 at default alignment; MSL and Runtime with Wii/1.1 plus `-func_align 4`. Reuse requires license review and provenance in the ledger.
 2. Replace dtk's per-function auto splits with real translation-unit boundaries in `config/wpse-v1/splits.txt`, starting with the library address regions in F-0007. Then enable the treemap with `--treemap` and add it to the README.
 3. For game code, follow the source fidelity standard in root `AGENTS.md`: C++ classes with evidenced names from strings such as `CPauseMenu.cpp`. Record names and layouts in `re/SYMBOLS.md`.

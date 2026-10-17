@@ -54,3 +54,22 @@ Ran on Windows with Python 3.14.2, dtk 1.8.4 x86, objdiff-cli 3.8.2, ninja 1.13.
 - Two clean builds, each after deleting `build/wpse-v1`, `build.ninja`, and ninja state, produced identical `main.dol`, `main.elf`, and `report.json` SHA-256 values. Both passed verification.
 - `tools/vendor/vendor_strip.py` vendored seven dtk-template files. Each output was checked to have the same syntax tree as upstream with docstrings removed, and every Python file under `tools/` contains no comment tokens or docstrings.
 - Progress images rendered from the real `build/wpse-v1/report.json` (exit 0) and were inspected in a headless Edge screenshot. `--treemap` without `--report` exits 1 before writing anything.
+
+## Collaboration workflow validation
+
+- Ran the documented worktree procedure for real in a new worktree, `../rumble-worktree-test` on branch `worktree-test`:
+  - Created junctions for `tools\local` and `.venv`.
+  - Ran `python configure.py` and `ninja`: the build completed, including the `build.sha1` check.
+  - Ran `tools/verify/verify.py verify`: `PASS`, exit 0.
+- Removed the junctions with `cmd /c rmdir`, then ran `git worktree remove --force` and deleted the branch. Afterward `tools/local/dtk.exe` still hashed to the pinned digest and `.venv` ninja was present.
+- Created 36 GitHub issues and nine `area:` and `kind:` labels with a generator script. The script was dry-run first and the output reviewed. Issue #5's rendered body was checked with `gh issue view`.
+
+## Issue claim tool validation
+
+Ran `tools/collab/claim_issue.py` against the live repository with gh authenticated:
+- `list --label "good first issue"` printed the six expected issues, exit 0.
+- Dry runs selected the right issues: `claim --next` chose #3, `claim --next --label area:nw4r` chose #23, and `claim --issue 5` chose #5. All exited 0 without changing the tracker.
+- These exited 1 with clear messages: claiming non-existent #999, releasing an unclaimed issue, creating a worktree without a claim, and removing a missing worktree.
+- `claim` without a target exited 2.
+
+The worktree layout it creates was validated manually in [collaboration workflow validation](#collaboration-workflow-validation). Not yet exercised: the live assign, comment, race check, and release round trip, because it posts on a real issue.

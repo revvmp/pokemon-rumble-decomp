@@ -18,7 +18,7 @@ The project has five boundaries: immutable originals, investigation evidence, re
 | `config/<target>/` | Future section layouts, linker scripts, compilation-unit ordering, asset rules | Only evidence-backed build configuration |
 | `src/` | Reconstructed implementation grouped by confirmed module or subsystem | Source added as reconstruction begins |
 | `include/` | Shared types and interfaces with confirmed ABI | Headers added when established |
-| `tools/` | Tooling grouped by category: `build/` vendored dtk-template build system, `reference/` extraction, `verify/` acceptance, `progress/` images, `vendor/` vendoring stripper | Original source plus comment-stripped CC0 vendored files ([D-0009](DECISIONS.md#d-0009-organize-tools-by-category)) |
+| `tools/` | Tooling grouped by category: `build/` vendored dtk-template build system, `reference/` extraction, `verify/` acceptance, `progress/` images, `vendor/` vendoring stripper, `collab/` issue claims and worktrees | Original source plus comment-stripped CC0 vendored files ([D-0009](DECISIONS.md#d-0009-organize-tools-by-category)) |
 | `configure.py` | Build entry point; writes `build.ninja` and `objdiff.json` | Original source |
 | `config/wpse-v1/` | dtk `config.yml`, `symbols.txt`, `splits.txt`, `build.sha1` | Build configuration |
 | `config/progress.json` | Roadmap phase states for progress images | Configuration |
