@@ -154,6 +154,12 @@ typedef struct PF_CUR_DIR {
     PF_DIR_ENT dir_entry;
 } PF_CUR_DIR;
 
+typedef struct PF_DIR_TAIL {
+    u32 tracker_size;
+    u32 tracker_buff[1];
+    u32* tracker_bits;
+} PF_DIR_TAIL;
+
 #define PF_MAX_FILES 5
 #define PF_MAX_CUR_DIRS 4
 #define PF_MAX_DIRS 3
@@ -171,7 +177,7 @@ typedef struct PF_VOLUME {
     PF_SECTOR_CACHE cache;
     s8 label[12];
     PF_CUR_DIR current_dir[PF_MAX_CUR_DIRS];
-    u8 tail_entry[0xC];
+    PF_DIR_TAIL tail_entry;
     s32 last_error;
     s32 last_driver_error;
     u32 file_config;
@@ -200,6 +206,7 @@ s32 PFVOL_SetCurrentDir(PF_VOLUME* p_vol, PF_DIR_ENT* p_ent);
 s32 PFVOL_GetCurrentDir(PF_VOLUME* p_vol, PF_DIR_ENT* p_current_dir);
 void PFVOL_SetCurrentVolume(PF_VOLUME* p_vol);
 PF_VOLUME* PFVOL_GetVolumeFromDrvChar(s8 drv_char);
+void PFVOL_LoadVolumeLabelFromBuf(PF_VOLUME* p_vol, const u8* buf);
 
 u32 PFDRV_IsInserted(PF_VOLUME* p_vol);
 s32 PFDRV_lread(PF_VOLUME* p_vol, u8* buf, u32 sector, u32 num_sector, u32* p_num_success);
