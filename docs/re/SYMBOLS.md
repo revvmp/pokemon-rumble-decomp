@@ -2194,3 +2194,9 @@ For `wpse-v1` / `main.dol`, [F-383-1](findings/383-ef-free-line-point-strategies
 ## NW4R character animation objects (#399, coordinated with #398 and #400)
 
 [F-399-1](findings/399-g3d-anmchr.md) identifies all 26 retained methods of `AnmObjChr` and `AnmObjChrRes` at `0x802580D0`–`0x80258D8C`, with the two final base RTTI methods belonging to #400. Complete native class identity, constructors, the two 0x58-byte vtables at `0x803C5C18`/`0x803C5C70`, and all instruction/relocation targets establish the names with high confidence. `AnmObjChr` is 0x18 bytes with count/pointer at 0x10/0x14; `AnmObjChrRes` is 0x34 with `FrameCtrl` at 0x18, resource at 0x2C and cache pointer at 0x30. The base/resource type-name objects at `0x8036C7C8`/`0x8036C7D8` are 0x10/0x14 bytes; the latter's following four bytes are padding. Constants at `0x804BABD0`–`0x804BABE0` retain the compiler-generated local names and proven zero/one/integer-conversion meanings. The shared base destructor at `0x801C5C60` is named from its vtable identity and complete paired native proof; its original split/type/size ownership is unchanged. The source's unretained node/blend classes receive no native-progress credit.
+## NW4R layout dependency interfaces (#807)
+
+| Type | Size | Evidence |
+| --- | --- | --- |
+| NW4R lyt AnimationLink / AnimTransform / AnimResource / Material / DrawInfo | 0x10 / 0x14 / 0x10 / 0x5C / 0x54 bytes | Complete shared storage and native virtual-slot evidence; [F-807-1](findings/807-layout-interfaces.md). |
+| NW4R lyt Size / ResBlockSet / res::MaterialList | 8 / 0x10 / 0xC bytes | Explicit Size copy constructor preserves the native hidden-result-pointer ABI; resource-block pointer order and material count at offset 8 are proven by Window construction; [F-807-1](findings/807-layout-interfaces.md#window-prerequisite-and-size-return-convention). |

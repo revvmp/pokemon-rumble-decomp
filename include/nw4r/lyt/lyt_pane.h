@@ -11,6 +11,14 @@
 namespace nw4r {
 namespace lyt {
 
+enum AnimationOption {
+    ANIMOPTION_SKIP_INVISIBLE = 1
+};
+
+enum AnimTargetPaneColor {
+    ANIMTARGET_PANE_COLOR_ALPHA = 16
+};
+
 class AnimResource;
 class AnimTransform;
 class AnimationLink;
@@ -37,7 +45,7 @@ public:
     Pane(const res::Pane* pBlock);
 
     virtual ~Pane();
-    virtual const ut::detail::RuntimeTypeInfo* GetRuntimeTypeInfo() const;
+    virtual const ut::detail::RuntimeTypeInfo* GetRuntimeTypeInfo() const { return &typeInfo; }
     virtual void CalculateMtx(const DrawInfo& rInfo);
     virtual void Draw(const DrawInfo& rInfo);
     virtual void DrawSelf(const DrawInfo& rInfo);
@@ -62,11 +70,47 @@ public:
     virtual u8 GetMaterialNum() const;
     virtual Material* GetMaterial() const;
     virtual Material* GetMaterial(u32 index) const;
+    virtual void SetExtUserDataList(const res::ExtUserDataList* pList);
     virtual void LoadMtx(const DrawInfo& rInfo);
 
     static ut::detail::RuntimeTypeInfo typeInfo;
 
+    typedef ut::LinkList<Pane, 4> PaneList;
+    void AppendChild(Pane* pChild);
+    void PrependChild(Pane* pChild);
+    void RemoveChild(Pane* pChild);
+    ut::Rect GetPaneRect(const DrawInfo& rInfo) const;
+    void AddAnimationLink(AnimationLink* pLink);
+    math::VEC2 GetVtxPos() const;
+    const char* GetName() const { return mName; }
+    bool IsUserAllocated() const { return mbUserAllocated; }
+    bool IsVisible() const { return (mFlag & 1) != 0; }
+    void SetVisible(bool visible) {
+        mFlag &= ~1;
+        mFlag |= visible ? 1 : 0;
+    }
+    u8 GetAlpha() const { return mAlpha; }
+    bool IsInfluencedAlpha() const { return (mFlag & 2) != 0; }
+    bool IsLocationAdjust() const { return (mFlag & 4) != 0; }
+    bool IsVisibleForDraw() const {
+        bool visible = IsVisible();
+        if (mScale.x == 0.0f || mScale.y == 0.0f) {
+            visible = false;
+        }
+        if (mAlpha == 0 && IsInfluencedAlpha()) {
+            visible = false;
+        }
+        return visible;
+    }
+    const res::ExtUserData* GetExtUserData() const;
+    void SetName(const char* pName);
+    void SetUserData(const char* pUserData);
+    const res::ExtUserData* FindExtUserDataByName(const char* pName);
+
 protected:
+    void Init();
+    void InsertChild(PaneList::Iterator next, Pane* pChild);
+    void CalculateMtxChild(const DrawInfo& rInfo);
     Pane* mpParent;
     ut::LinkList<Pane, 4> mChildList;
     ut::LinkList<AnimationLink, 0> mAnimList;

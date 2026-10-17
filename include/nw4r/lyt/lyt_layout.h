@@ -1,6 +1,7 @@
 #ifndef NW4R_LYT_LAYOUT_H
 #define NW4R_LYT_LAYOUT_H
 #include <nw4r/lyt/lyt_types.h>
+#include <new>
 #include <nw4r/ut/ut_LinkList.h>
 #include <nw4r/ut/ut_Rect.h>
 #include <revolution/mem/allocator.h>
@@ -55,6 +56,38 @@ public:
 
     static void FreeMemory(void* pMemory) {
         MEMFreeToAllocator(mspAllocator, pMemory);
+    }
+
+    template <typename T> static T* NewObj() {
+        void* pMemory = AllocMemory(sizeof(T));
+        return pMemory != nullptr ? new (pMemory) T() : nullptr;
+    }
+
+    template <typename T, typename A, typename B>
+    static T* NewObj(A parameter1, B parameter2) {
+        void* pMemory = AllocMemory(sizeof(T));
+        return pMemory != nullptr ? new (pMemory) T(parameter1, parameter2) : nullptr;
+    }
+
+    template <typename T> static T* NewArray(size_t count) {
+        void* pMemory = AllocMemory(count * sizeof(T));
+        if (pMemory == nullptr) {
+            return nullptr;
+        }
+        T* const pArray = static_cast<T*>(pMemory);
+        for (size_t i = 0; i < count; i++) {
+            new (&pArray[i]) T();
+        }
+        return pArray;
+    }
+
+    template <typename T> static void DeleteArray(T* pArray, size_t count) {
+        if (pArray != nullptr) {
+            for (size_t i = 0; i < count; i++) {
+                pArray[i].~T();
+            }
+            FreeMemory(pArray);
+        }
     }
 
     template <typename T> static void DeleteObj(T* pObject) {
