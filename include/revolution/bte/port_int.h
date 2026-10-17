@@ -131,6 +131,10 @@ typedef struct {
     tRFC_MCB rfc_mcb[MAX_BD_CONNECTIONS];
 } tPORT_CB;
 
+int port_open_continue(tPORT* p_port);
+void port_start_control(tPORT* p_port);
+void port_start_par_neg(tPORT* p_port);
+void port_start_close(tPORT* p_port);
 void PORT_StartCnf(tRFC_MCB* p_mcb, UINT16 result);
 void PORT_StartInd(tRFC_MCB* p_mcb);
 void PORT_ParNegInd(tRFC_MCB* p_mcb, UINT8 dlci, UINT16 mtu, UINT8 cl, UINT8 k);
@@ -147,7 +151,9 @@ void PORT_CloseInd(tRFC_MCB* p_mcb);
 void Port_TimeOutCloseMux(tRFC_MCB* p_mcb);
 void PORT_DataInd(tRFC_MCB* p_mcb, UINT8 dlci, BT_HDR* p_buf);
 void PORT_FlowInd(tRFC_MCB* p_mcb, UINT8 dlci, BOOLEAN enable_data);
+UINT32 port_rfc_send_tx_data(tPORT* p_port);
 void port_rfc_closed(tPORT* p_port, UINT8 res);
+void port_get_credits(tPORT* p_port, UINT8 k);
 tPORT* port_allocate_port(UINT8 dlci, BD_ADDR bd_addr);
 void port_set_defaults(tPORT* p_port);
 void port_select_mtu(tPORT* p_port);

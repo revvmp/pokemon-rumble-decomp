@@ -1490,3 +1490,10 @@ Data: `pf_valid_fn_char` (`.rodata:0x80368128`, `0x60` bytes) is medium confiden
 | `__InitParams` | `0x802DEF90` |
 
 Cycle tables are at 803D8578 (128 bytes) and 803D85F8 (16 bytes). Voice storage starts at 8045D5A0/80464DA0/804665A0 and ends at 8046ECA0; seven small state objects occupy 804B9950–804B996C. The profile flag/index/capacity/pointer occupy 804B9970/804B9974/804B9978/804B997C. Early-size, early-coefficient and filter-size tables start at 803DB5E0/803DB640/803DB6A0, sizes 0x60/0x60/0xE0.
+## BTE RFCOMM port API and port RFCOMM (#528)
+
+`RFCOMM_Init` and the `PORT_*` callbacks were named under earlier issues (F-530-1, F-531-1, F-532-1) and now link from `src/RVL_SDK/bte/port_api.c` and `port_rfc.c`.
+
+| Address | Size | dtk label | Chosen name | Kind | Confidence | Evidence | Source |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `0x8033386C` | `0xF8` | `fn_8033386C` | `port_rfc_send_tx_data` | function | high | F-528-1 | `src/RVL_SDK/bte/port_rfc.c` |

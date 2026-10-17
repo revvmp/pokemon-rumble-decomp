@@ -873,6 +873,13 @@ RVL_SDK/bte/hidh_api.c:
 	.data       start:0x803E2DC0 end:0x803E2ED8
 	.bss        start:0x804ADA38 end:0x804ADE40
 
+RVL_SDK/bte/port_api.c:
+	.text       start:0x803326AC end:0x803326FC
+
+RVL_SDK/bte/port_rfc.c:
+	.text       start:0x803326FC end:0x80333AF8
+	.data       start:0x803E48E0 end:0x803E4C0B
+
 RVL_SDK/bte/port_utils.c:
 	.text       start:0x80333AF8 end:0x803340D0
 	.data       start:0x803E4C10 end:0x803E4D56

@@ -69,6 +69,11 @@ enum {
 };
 
 enum {
+    PORT_ERR_BREAK = 1 << 0,
+    PORT_ERR_OVERRUN = 1 << 1
+};
+
+enum {
     PORT_DTRDSR_ON = 1 << 0,
     PORT_CTSRTS_ON = 1 << 1,
     PORT_RING_ON = 1 << 2,
@@ -112,6 +117,8 @@ typedef struct {
     UINT8 xon_char;
     UINT8 xoff_char;
 } tPORT_STATE;
+
+void RFCOMM_Init(void);
 
 #ifdef __cplusplus
 }
