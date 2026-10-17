@@ -256,4 +256,34 @@ void LogMsg_6(UINT32 trace_set_mask, const char* fmt_str, UINT32 p1, UINT32 p2, 
             LogMsg_1(HID_TRACE_MASK(TRACE_TYPE_ERROR), (m), (UINT32)(p1));                                             \
     } while (0)
 
+#define HIDH_TRACE_WARNING0(m) \
+    do { \
+        if (hh_cb.trace_level >= BT_TRACE_LEVEL_WARNING) \
+            LogMsg_0(HID_TRACE_MASK(TRACE_TYPE_WARNING), (m)); \
+    } while (0)
+
+#define HIDH_TRACE_WARNING1(m, p1) \
+    do { \
+        if (hh_cb.trace_level >= BT_TRACE_LEVEL_WARNING) \
+            LogMsg_1(HID_TRACE_MASK(TRACE_TYPE_WARNING), (m), (UINT32)(p1)); \
+    } while (0)
+
+#define HIDH_TRACE_EVENT0(m) \
+    do { \
+        if (hh_cb.trace_level >= BT_TRACE_LEVEL_EVENT) \
+            LogMsg_0(HID_TRACE_MASK(TRACE_TYPE_EVENT), (m)); \
+    } while (0)
+
+#define HIDH_TRACE_EVENT1(m, p1) \
+    do { \
+        if (hh_cb.trace_level >= BT_TRACE_LEVEL_EVENT) \
+            LogMsg_1(HID_TRACE_MASK(TRACE_TYPE_EVENT), (m), (UINT32)(p1)); \
+    } while (0)
+
+#define HIDH_TRACE_EVENT2(m, p1, p2) \
+    do { \
+        if (hh_cb.trace_level >= BT_TRACE_LEVEL_EVENT) \
+            LogMsg_2(HID_TRACE_MASK(TRACE_TYPE_EVENT), (m), (UINT32)(p1), (UINT32)(p2)); \
+    } while (0)
+
 #endif

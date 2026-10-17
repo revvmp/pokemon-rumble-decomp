@@ -444,6 +444,7 @@ config.libs = [
             Object(Matching, "RVL_SDK/bte/hidd_mgmt.c", mw_version=BTE_COMPILER),
             Object(Matching, "RVL_SDK/bte/hidd_pm.c", mw_version=BTE_COMPILER),
             Object(Matching, "RVL_SDK/bte/hidh_api.c", mw_version=BTE_COMPILER),
+            Object(Matching, "RVL_SDK/bte/hidh_conn.c", mw_version=BTE_COMPILER),
             Object(Matching, "RVL_SDK/bte/l2c_main.c", mw_version=BTE_COMPILER),
             Object(Matching, "RVL_SDK/bte/l2c_utils.c", mw_version=BTE_COMPILER),
             Object(Matching, "RVL_SDK/bte/port_api.c", mw_version=BTE_COMPILER),

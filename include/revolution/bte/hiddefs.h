@@ -7,6 +7,10 @@
 #define HID_MAX_SVC_DESCR_LEN 32
 #define HID_MAX_PROV_NAME_LEN 32
 
+#define HID_GET_TRANS_FROM_HDR(x) (((x) >> 4) & 0x0f)
+#define HID_GET_PARAM_FROM_HDR(x) ((x) & 0x0f)
+#define HID_BUILD_HDR(t, p) (UINT8)(((t) << 4) | ((p) & 0x0f))
+
 typedef UINT8 tHID_STATUS;
 
 enum {
@@ -28,6 +32,38 @@ enum {
     HID_ERR_AUTH_FAILED,
     HID_ERR_SDP_BUSY,
     HID_ERR_INVALID = 0xFF
+};
+
+enum {
+    HID_L2CAP_CONN_FAIL = 1 << 8,
+    HID_L2CAP_REQ_FAIL = 1 << 9,
+    HID_L2CAP_CFG_FAIL = 1 << 10
+};
+
+enum {
+    HID_TRANS_HANDSHAKE = 0,
+    HID_TRANS_CONTROL = 1,
+    HID_TRANS_GET_REPORT = 4,
+    HID_TRANS_SET_REPORT = 5,
+    HID_TRANS_GET_PROTOCOL = 6,
+    HID_TRANS_SET_PROTOCOL = 7,
+    HID_TRANS_GET_IDLE = 8,
+    HID_TRANS_SET_IDLE = 9,
+    HID_TRANS_DATA = 10,
+    HID_TRANS_DATAC = 11
+};
+
+enum {
+    HID_PAR_REP_TYPE_MASK = 0x03
+};
+
+enum {
+    HID_PAR_CONTROL_NOP,
+    HID_PAR_CONTROL_HARD_RESET,
+    HID_PAR_CONTROL_SOFT_RESET,
+    HID_PAR_CONTROL_SUSPEND,
+    HID_PAR_CONTROL_EXIT_SUSPEND,
+    HID_PAR_CONTROL_VIRTUAL_CABLE_UNPLUG
 };
 
 typedef struct desc_info {

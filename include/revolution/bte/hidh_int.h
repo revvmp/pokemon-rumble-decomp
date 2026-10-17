@@ -42,5 +42,6 @@ void hidh_conn_dereg(void);
 tHID_STATUS hidh_conn_initiate(UINT8 dhandle);
 tHID_STATUS hidh_conn_snd_data(UINT8 dhandle, UINT8 trans_type, UINT8 param, UINT16 data, UINT8 rpt_id, BT_HDR* buf);
 tHID_STATUS hidh_conn_disconnect(UINT8 dhandle);
+void hidh_proc_repage_timeout(TIMER_LIST_ENT* p_tle);
 
 #endif
