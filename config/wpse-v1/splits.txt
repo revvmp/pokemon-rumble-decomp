@@ -13,6 +13,14 @@ Sections:
 	.sdata2     type:rodata align:32
 	.sbss2      type:bss align:8
 
+game/BController.cpp:
+	extab       start:0x800066C0 end:0x800066C8
+	extabindex  start:0x80044220 end:0x8004422C
+	.text       start:0x80052500 end:0x800528D8
+	.data       start:0x80399380 end:0x80399440
+	.sdata      start:0x804B5A20 end:0x804B5A40
+	.sdata2     start:0x804B9C60 end:0x804B9C88
+
 RevoEX/net/NETVersion.c:
 	.text       start:0x801770F4 end:0x801770FC
 	.data       start:0x803B9D88 end:0x803B9DC0

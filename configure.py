@@ -196,10 +196,29 @@ cflags_tmcjpeg = [*cflags_base, "-func_align 4", "-use_lmw_stmw on", "-str reuse
 
 TMCJPEG_COMPILER = "Wii/1.0"
 
+cflags_game = [
+    *(flag for flag in cflags_base if flag not in ("-Cpp_exceptions off", "-RTTI off", "-fp_contract on")),
+    "-Cpp_exceptions on",
+    "-RTTI on",
+    "-fp_contract off",
+    "-ipa file",
+]
+
+GAME_COMPILER = "Wii/1.1"
+
 BTE_COMPILER = "GC/3.0a3"
 NDEV_COMPILER = "GC/3.0a3"
 
 config.libs = [
+    library(
+        "Game",
+        GAME_COMPILER,
+        cflags_game,
+        "game",
+        [
+            Object(Matching, "game/BController.cpp"),
+        ],
+    ),
     library(
         "RevoEX",
         REVOEX_COMPILER,
