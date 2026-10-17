@@ -13,7 +13,7 @@
 
 #define DRAM_IMAGE_DSP_ADDR 0x0CD2
 
-#define FUNNY_COPY(dst, src, type, n)                                          \
+#define AX_COPY_PROFILE(dst, src, type, n)                                          \
     do {                                                                       \
                                                                                \
         type* __dst = (type*)dst;                                              \
@@ -126,7 +126,7 @@ u32 __AXOutNewFrame(void) {
 
     current = __AXGetCurrentProfile();
     if (current) {
-        FUNNY_COPY(current, &__AXLocalProfile, u8, sizeof(AXPROFILE));
+        AX_COPY_PROFILE(current, &__AXLocalProfile, u8, sizeof(AXPROFILE));
     }
 
     return cycles;

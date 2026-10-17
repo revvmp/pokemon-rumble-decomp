@@ -40,7 +40,7 @@ void DSPAssertInt(void);
 void DSPInit(void);
 BOOL DSPCheckInit(void);
 DSPTaskInfo* DSPAddTask(DSPTaskInfo* task);
-void DSPAssertTask(DSPTaskInfo* task);
+DSPTaskInfo* DSPAssertTask(DSPTaskInfo* task);
 
 #ifdef __cplusplus
 }
