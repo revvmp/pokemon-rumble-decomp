@@ -253,6 +253,52 @@ static void __wudResetAuthFailCount(void) {
     BTM_VendorSpecificCommand(0xFC4C, sizeof(_wudResetAuthCountCmd), (u8*)_wudResetAuthCountCmd, NULL);
 }
 
+static WUDDevInfo* __wudGetDevInfoByIndex(int idx) {
+    WUDCB* p = &_wcb;
+    WUDDevInfo* pInfo;
+    BOOL enabled;
+
+    enabled = OSDisableInterrupts();
+
+    if ((u32)idx <= WUD_MAX_DEV_ENTRY_FOR_STD - 1) {
+        pInfo = &p->stdDevs[idx];
+    } else {
+        pInfo = &p->smpDevs[idx - WUD_MAX_DEV_ENTRY_FOR_STD];
+    }
+
+    OSRestoreInterrupts(enabled);
+    return pInfo;
+}
+
+static u8 __wudGetConnectionNumber(void) {
+    WUDCB* p = &_wcb;
+    BOOL enabled = OSDisableInterrupts();
+
+    u8 num = p->connectedNum;
+
+    OSRestoreInterrupts(enabled);
+    return num;
+}
+
+static WUDDevInfo* __wudGetWbcDevice(void) {
+    WUDCB* p_wcb = &_wcb;
+    WUDDevInfo* p_info = NULL;
+    WUDDevInfoList* ptr;
+    BOOL enable;
+
+    enable = OSDisableInterrupts();
+    ptr = p_wcb->stdListHead;
+    while (ptr != NULL) {
+        if (!memcmp(ptr->devInfo->conf.devName, "Nintendo RVL-WBC", 16)) {
+            p_info = ptr->devInfo;
+        }
+        ptr = ptr->next;
+    }
+    OSRestoreInterrupts(enable);
+
+    return p_info;
+}
+
 #pragma force_active on
 
 BOOL WUDIsLinkedWBC(void) {
@@ -288,6 +334,74 @@ static void __wudSyncFlushCallback(u32 status) {
     } else {
         p->syncState = WUD_STATE_SYNC_ERROR;
     }
+}
+
+static u8 __wudSyncPrepareSearch(void) {
+    WUDCB* p = &_wcb;
+    int i;
+    WUDDevInfo* pInfo;
+
+    WUDSetVisibility(FALSE, FALSE);
+
+    if (p->syncLoopNum == 0) {
+        return WUD_STATE_SYNC_DONE;
+    }
+
+    if (_WUDGetLinkNumber() == WUD_MAX_CHANNELS && __wudGetConnectionNumber() == WUD_MAX_CHANNELS) {
+        return WUD_STATE_SYNC_DONE;
+    }
+
+    if (p->syncSkipChecks) {
+        for (i = 0; i < WUD_MAX_DEV_ENTRY; i++) {
+            pInfo = __wudGetDevInfoByIndex(i);
+
+            if (pInfo->status == 9) {
+                WUDSetSniffMode(pInfo->devAddr, 0);
+                return WUD_STATE_SYNC_PREPARE_SEARCH;
+            }
+        }
+    }
+
+    if (p->syncLoopNum > 0) {
+        p->syncLoopNum--;
+    }
+
+    p->delayCnt = 50;
+    return WUD_STATE_SYNC_WAIT_FOR_START_SEARCH;
+}
+
+static u8 __wudSyncTryConnect(void) {
+    WUDSyncState nextState = WUD_STATE_SYNC_ERROR;
+
+    if (WUD_DEV_NAME_IS_CNT(sWudDiscoveryResponse.devName)) {
+        _work.status = 2;
+        BTA_HhOpen(_work.devAddr, BTA_HH_PROTO_RPT_MODE, BTA_SEC_AUTHENTICATE);
+        nextState = WUD_STATE_SYNC_6;
+    }
+
+    if (WUDIsLinkedWBC() && WUD_DEV_NAME_IS(sWudDiscoveryResponse.devName, "Nintendo RVL-WBC")) {
+        WUDDevInfo* pInfo = __wudGetWbcDevice();
+
+        if (pInfo != NULL) {
+            DEBUGPrint("Found the registered WBC in database\n");
+
+            if (pInfo->status > 1) {
+                return nextState;
+            }
+
+            if (WUD_BDCMP(sWudDiscoveryResponse.devAddr, pInfo->devAddr) != 0) {
+                DEBUGPrint("Removed WBC data\n");
+                WUDiMoveBottomStdDevInfoPtr(pInfo);
+                WUDiRemoveDevice(pInfo->devAddr);
+            }
+        }
+
+        _work.status = 2;
+        BTA_HhOpen(_work.devAddr, BTA_HH_PROTO_RPT_MODE, BTA_SEC_AUTHENTICATE);
+        nextState = WUD_STATE_SYNC_6;
+    }
+
+    return nextState;
 }
 
 static void __wudDeleteFlushCallback(u32 status) {

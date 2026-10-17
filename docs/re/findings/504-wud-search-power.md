@@ -21,7 +21,7 @@ The power callback `__wudPowerMangeEventStackCallback` at `0x8030FF50` now has i
 
 The older reference's `ASSERT(p_info != NULL)` annotation is not present in this target's power callback. No `ASSERT` macro exists in the current imported C headers. The earlier full-reference probe therefore emitted an undefined function symbol `ASSERT` and produced 0x13C bytes. Omitting that unavailable, target-absent debug annotation gives the exact 0x12C-byte body; it does not remove an original target check.
 
-The current source contains 47 of 86 retained functions, totaling 7,756 function bytes. The 42-function raw audit still proves 4,848 bytes of exact non-relocation streams. The five other bodies have exact sizes and retain 32/4/8/7/5 instruction differences for security/registration/removal/search/power respectively. All 24 differences outside the security callback are proven folded addresses of identical strings or command bytes. The native HID descriptor and reset payload total 245 exact initialized bytes. Whole-unit diagnostics are text 30.88493%, data 5.473637%, BSS 40.43443%, sdata 0%, sbss 37.735847% and sdata2 100%.
+At this search/power pass, the source contained 47 of 86 retained functions, totaling 7,756 function bytes. The 42-function raw audit still proves 4,848 bytes of exact non-relocation streams. The five other bodies have exact sizes and retain 32/4/8/7/5 instruction differences for security/registration/removal/search/power respectively. All 24 differences outside the security callback are proven folded addresses of identical strings or command bytes. The native HID descriptor and reset payload total 245 exact initialized bytes. Whole-unit diagnostics are text 30.88493%, data 5.473637%, BSS 40.43443%, sdata 0%, sbss 37.735847% and sdata2 100%.
 
 ## Validation and remaining work
 
@@ -37,3 +37,5 @@ Functional bodies and reset bytes follow [Petari WUD.c at e0ab141914921726a59557
 
 - **An unavailable C assertion can become an implicit external call.** The full-reference probe compiled `ASSERT` as an undefined function and added sixteen power-callback bytes. Confirm the target's checks and the imported macro definitions before retaining another project's debug annotation.
 - **Controller command byte order is independent of the CPU.** This reset command stores `0x00083630` as four little-endian bytes even on PowerPC. Its byte-array initializer matches; substituting a native big-endian word would change the protocol data.
+
+F-504-8 supersedes this pass's 32-difference security result: the real connection routine restores the original BSS prefix, leaving 22 folded addresses of identical messages. See [the synchronization entry evidence](504-wud-sync-entry.md).
