@@ -35,6 +35,8 @@ An original package retained solely as provenance may have its own manifest. Do 
 
 ## Build and verify
 
+`build.bat` at the repository root runs every step below in order: acquire tools, install ninja, configure, build, and verify. It stops at the first failure. The sections below are the individual commands.
+
 ### Acquire tools
 
 All binaries go in ignored `tools/local/`. Sources and digests are pinned in `config/toolchain.json`; check each digest after download.
