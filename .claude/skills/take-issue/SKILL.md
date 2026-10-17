@@ -18,6 +18,14 @@ Test-Path tools/local/dtk.exe, .venv/Scripts/ninja.exe
 
 If either check fails, stop and point the user to `docs/SETUP.md`.
 
+Then bring the main checkout up to date, so this skill, `tools/collab/claim_issue.py`, `AGENTS.md`, and the docs you read are current:
+
+```powershell
+git pull --ff-only
+```
+
+Pull only with `--ff-only`, and only while the main checkout is on `main`. It never creates a merge commit, and git refuses rather than overwrite uncommitted changes. If the pull fails, because of local changes, another branch, or another agent's pull holding `.git/index.lock`, do not stash, reset, or commit anything in the main checkout. Retry once after a short wait for a lock; otherwise tell the user and continue. Your worktree is created from a fresh `origin/main` either way. If the pull changed this skill file, re-read it before continuing.
+
 ## 2. Claim
 
 - If the user gave an issue number: `python tools/collab/claim_issue.py claim --issue <n> --agent "<your model and session>"`
@@ -128,6 +136,6 @@ git push origin --delete <branch>
 git branch -D <branch>
 ```
 
-`remove-worktree` removes the `tools\local` and `.venv` junctions before the worktree, so the shared tools survive. Squash merges are not ancestors of the branch, so `git branch -d` refuses to delete it; use `-D` only after confirming `MERGED`. To look up the merge commit from the main checkout, run `git fetch origin` first; fetching does not touch the working tree. Do not pull or otherwise change the main checkout, because other agents and the maintainer may have work in progress there. Tell the user the pull request link, the merge commit, and what remains of the issue.
+`remove-worktree` removes the `tools\local` and `.venv` junctions before the worktree, so the shared tools survive. Squash merges are not ancestors of the branch, so `git branch -d` refuses to delete it; use `-D` only after confirming `MERGED`. Then run `git pull --ff-only` in the main checkout so it includes your merged work, with the same rules as in step 1: fast-forward only, and never stash, reset, or commit there. If it fails, tell the user. Other agents and the maintainer may have work in progress in the main checkout; never change it in any other way. Tell the user the pull request link, the merge commit, and what remains of the issue.
 
 To abandon the issue instead, run `python tools/collab/claim_issue.py release --issue <n> --reason "<why>"`, then clean up the same way and close the pull request if one is open.
