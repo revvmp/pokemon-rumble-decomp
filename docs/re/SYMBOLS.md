@@ -841,6 +841,20 @@ Names given in `config/wpse-v1/symbols.txt`; evidence in [489-mem-cx-dsp](findin
 
 `MEMiFrmHeapHead` is 0xC bytes after `MEMiHeapHead`: head allocator `0x0`, tail allocator `0x4`, state list `0x8`. `CXUncompContextHuffman` is 0x220 bytes: `destp` `0x0`, `destCount` `0x4`, `forceDestCount` `0x8`, `treep` `0xC`, `srcTmp` `0x10`, `destTmp` `0x14`, `treeSize` `0x18` (s16), `srcTmpCnt` `0x1A`, `destTmpCnt` `0x1B`, `bitSize` `0x1C`, `headerSize` `0x1D`, `tree[0x200]` `0x20`; offsets proven by `CXInitUncompContextHuffman`, field names from the NITRO/TWL SDK convention (medium confidence). `DSPTaskInfo` `state`, `priority`, and `flags` must be `vu32`; the remaining layout is Petari's.
 
+## RVL_SDK OS (#464)
+
+`wpse-v1` `main.dol`; [F-464-3](findings/464-os.md). Names follow xbret/xenoblade's `OS.c` for the same SDK build. The unit is `NonMatching`; confidence is high for the functions, which compare at 100%, and medium for the statics.
+
+| Address | Size | Name | Kind |
+| --- | --- | --- | --- |
+| `0x802B2E80` | `0x10` | `__OSGetDIConfig` | function, low byte of DI register 9 |
+| `0x802B2EA0` | `0x84` | `OSGetAppGamename` | function |
+| `0x802B2F30` | `0x20` | `OSGetAppType` | function, wraps static `GetAppType` |
+| `0x80452540` | `0x20` | `DriveInfo` | `.bss` static `DVDDriveInfo` |
+| `0x80452560` | `0x30` | `DriveBlock` | `.bss` static `DVDCommandBlock` |
+| `0x804B8A50` | 4 | `AppGameNameForSysMenu` | `.sdata` static `const char*` |
+| `0x804B9468` | 5 | `GameNameBuffer` | `.sbss` static `char[5]` |
+
 ## RVL_SDK OSAlloc (#464)
 
 `wpse-v1` `main.dol`; [F-464-2](findings/464-os-alloc.md). Names follow Petari's `OSAlloc.c` and are confirmed by byte-identical linked reconstruction; confidence high.
