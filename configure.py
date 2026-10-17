@@ -180,6 +180,10 @@ cflags_revoex = [*(flag for flag in cflags_base if flag != "-inline auto"), "-in
 
 REVOEX_COMPILER = "GC/3.0a5.2"
 
+cflags_tmcjpeg = [*cflags_base, "-func_align 4", "-use_lmw_stmw on", "-str reuse,readonly"]
+
+TMCJPEG_COMPILER = "Wii/1.0"
+
 BTE_COMPILER = "GC/3.0a3"
 NDEV_COMPILER = "GC/3.0a3"
 
@@ -243,6 +247,18 @@ config.libs = [
             Object(Matching, "RVL_SDK/hbm/synsample.c"),
             Object(Matching, "RVL_SDK/hbm/synvoice.c"),
             Object(Matching, "RVL_SDK/hbm/seq.c"),
+        ],
+    ),
+    library(
+        "TMC_JPEG",
+        TMCJPEG_COMPILER,
+        cflags_tmcjpeg,
+        "sdk",
+        [
+            Object(Matching, "TMC_JPEG/tmcjpeg.c"),
+            Object(Matching, "TMC_JPEG/tmcjpeg_block.c"),
+            Object(NonMatching, "TMC_JPEG/tmcjpeg_encoder.c"),
+            Object(Matching, "TMC_JPEG/tmcjpeg_huffman.c"),
         ],
     ),
     library(
