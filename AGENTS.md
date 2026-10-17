@@ -77,6 +77,8 @@ Keep entries concise and actionable. Distinguish confirmed findings from hypothe
 
 - **A partial SDK source can compile to nothing.** If a unit's root routine (here `__OSInitMemoryProtection`) is left out, its static data and static callbacks become unreferenced, and CodeWarrior emits none of them, so objdiff shows no functions. Reconstruct the whole unit, or at least everything reachable from its roots. See [F-467-1](docs/re/findings/467-os-font-interrupt-memory.md#f-467-1-unit-boundaries).
 
+- **Packed 4-byte function starts inside the RVL_SDK range mean another compiler.** NdevExi2A (`0x8033EEB4`-`0x8033F974`) matches only GameCube GC/3.0a3 to 3.0a5, not Wii/1.0. Check function alignment before assuming F-0007's per-region compiler. See [F-535-2](docs/re/findings/535-gdtexture-ndevexi2a.md#f-535-2-ndevexi2a-is-built-with-a-gamecube-compiler).
+
 ## Current project state
 
 | Current state | Value |
