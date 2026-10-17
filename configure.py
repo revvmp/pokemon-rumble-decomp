@@ -418,6 +418,7 @@ config.libs = [
             Object(Matching, "nw4r/lyt/lyt_pane.cpp"),
             Object(Matching, "nw4r/lyt/lyt_group.cpp"),
             Object(Matching, "nw4r/lyt/lyt_window.cpp"),
+            Object(Matching, "nw4r/lyt/lyt_material.cpp"),
             Object(Matching, "nw4r/lyt/lyt_resourceAccessor.cpp"),
             Object(Matching, "nw4r/lyt/lyt_arcResourceAccessor.cpp"),
             Object(Matching, "nw4r/lyt/lyt_common.cpp"),

@@ -2293,3 +2293,13 @@ For `wpse-v1` / `main.dol`, [F-444-1](findings/444-snd-wave-player.md) names `Ws
 
 [F-811-1](findings/811-material-interfaces.md) records complete canonical Material (5C), TexMap (1C), packed GX records, and material/texture resource layouts with native offsets, sizes, and naming confidence. Existing Material storage and virtual order are preserved. Its companion [F-808-2](findings/808-offset-interface.md) establishes the explicit unsigned-int offset converter parameter; u32 is unsigned long here and gives a different retained template name. These header prerequisites contribute no reconstructed executable-byte credit.
 Issue #800 establishes the eight-byte `nw4r::snd::detail::StrmFileReader` and twelve-byte `StrmFileLoader`, their complete RSTM layouts, and the native `ReadAdpcmInfo` parameter type from the existing `detail::AdpcmParam`. Nine retained functions at `0x80289600`–`0x80289F84` match all 2,400 instruction bytes and twelve native relocation targets. See [F-800-1](findings/800-stream-file.md) for offsets, provenance and the imported-map signature correction.
+
+## F-811-2: Native Material source and outside assignments
+
+| Address | Name/type | Evidence | Confidence |
+| --- | --- | --- | --- |
+| `802ABD50` | anonymous `CalcTextureMtx(MTX34*, const TexSRT&)` | Native264bytes, matrix arithmetic and paired relocations | Proven |
+| `802ABE60` | anonymous `SetIndTexMtx(GXIndTexMtxID, const f32 (*)[3])` | Native512bytes, exponent normalization and GX call | Proven |
+| `803C71A8`, `803C71C8`, `803C71E8` | `SetupGX::kColSels`, `SetupGX::kAlpSels`, Material vtable | Complete112data bytes,10paired relocations | Proven |
+| `804BBC10` | `const GXColorS10 DefaultBlackColor` | Native8zero bytes and original SDA2 reference | Proven |
+| `800969A0`, `800969D0` | `VEC2::operator=(const VEC2&)`, `_VEC2::operator=(const _VEC2&)` | Independent48/20byte bodies, paired wrapper+14 branch, unchanged canonical headers | Proven names; no outside ownership change |
