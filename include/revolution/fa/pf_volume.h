@@ -50,7 +50,7 @@ typedef struct PF_CLUSTER_LINK {
 
 typedef struct PF_FFD {
     u32 chain_stamp;
-    u32 reserved;
+    u32 start_cluster;
     u32* p_start_cluster;
     PF_LAST_CLUSTER last_cluster;
     PF_LAST_ACCESS last_access;
@@ -134,7 +134,16 @@ typedef struct PF_DIR {
     PF_DIR_CURSOR cursor;
 } PF_DIR;
 
+#define PF_CUR_DIR_STAT_ALLOCATED 0x1
+
+typedef struct PF_CUR_DIR {
+    u32 stat;
+    s32 context_id;
+    PF_DIR_ENT dir_entry;
+} PF_CUR_DIR;
+
 #define PF_MAX_FILES 5
+#define PF_MAX_CUR_DIRS 4
 #define PF_MAX_DIRS 3
 
 typedef struct PF_VOLUME {
@@ -149,7 +158,8 @@ typedef struct PF_VOLUME {
     s32 num_opened_directories;
     PF_SECTOR_CACHE cache;
     s8 label[12];
-    u8 state[0x92C];
+    PF_CUR_DIR current_dir[PF_MAX_CUR_DIRS];
+    u8 tail_entry[0xC];
     s32 last_error;
     s32 last_driver_error;
     u32 file_config;
