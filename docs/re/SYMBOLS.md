@@ -2410,3 +2410,7 @@ The ten `pfk_` function names at `0x8021DFE0` through `0x8021E3D0` are recovered
 ### FA standard chdir, issue 365
 
 [F-365-2](findings/365-fa-api.md#f-365-2-standard-chdir-wrapper) records original map-supported `pf2_chdir` at `0x8021A5D0`, 80 bytes. The separately owned `PFDIR_chdir` callee at `0x80205980` gains only its evidenced name and one-argument PF_STR pointer declaration; original size/type/split/source coverage are preserved. The native five relocations, actual source-selected unit and entire DOL are exact. No shared record layout changes.
+
+### F-369-5: FA system storage and calendar records
+
+`PF_SYSTEM_SET` has size `0x23A0` and alignment8, with `flock_count` at `0x2398`. The complete native-proven typed declaration is shared with #368; only `pf_system.c` defines storage. `PF_SYS_DATE` consists of three native32-bit year/month/day fields, size12; `PF_SYS_TIME` has four32-bit hour/minute/second/millisecond fields, size16. Related VF16-bit calendar records are another ABI. `PF_VOLUME_SET.current_context_id` extends only the existing external prefix at `0x64`, approved by its #363 owner; no volume storage or extent changes. Exact actual-source evidence is [F-369-5](findings/369-fa-filelock-stubs.md#f-369-5-split-baseline-and-independent-system-source).
