@@ -1,8 +1,8 @@
 #ifndef HBM_BASE_H
 #define HBM_BASE_H
 
-#include "revolution/kpad.h"
 #include "revolution/mem.h"
+#include "revolution/kpad.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -40,7 +40,14 @@ enum {
     HBMSE_CONNECTED2,
     HBMSE_CONNECTED3,
     HBMSE_CONNECTED4,
-    HBMSE_END_CONNECT_WINDOW
+    HBMSE_END_CONNECT_WINDOW,
+    HBMSE_MANUAL_OPEN,
+    HBMSE_MANUAL_FOCUS,
+    HBMSE_MANUAL_SELECT,
+    HBMSE_MANUAL_SCROLL,
+    HBMSE_MANUAL_CANCEL,
+    HBMSE_MANUAL_RETURN_APP,
+    HBMSE_MAX
 };
 
 enum {

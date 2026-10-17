@@ -3,6 +3,10 @@
 
 #include "revolution/types.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct _AXPBMIX {
     u16 vL;
     u16 vDeltaL;
@@ -393,5 +397,9 @@ AXVPB* AXAcquireVoice(u32 prio, AXVoiceCallback callback, u32 userContext);
 void AXSetVoicePriority(AXVPB* vpb, u32 prio);
 
 void __AXServiceVPB(AXVPB* vpb);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

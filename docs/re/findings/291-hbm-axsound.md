@@ -1,0 +1,121 @@
+# Issue 291: HBM homebutton core, block 5
+
+## F-291-1: HBMAxSound.cpp spans 0x8017B540 to 0x8017C064
+
+Target `wpse-v1`, `orig/wpse-v1/main.dol` (manifest `config/targets/wpse-v1.json`). The first five functions of this block (`0x8017B3A0`–`0x8017B53C`) end `RVL_SDK/hbm/HBMRemoteSpk.cpp`, matched by #621; see [F-290-1](290-hbm-remotespk.md#f-290-1-hbmremotespkcpp-spans-0x8017ac20-to-0x8017b53c). The next ten form `RVL_SDK/hbm/HBMAxSound.cpp`, the Home Button Menu sequence player built on the `HBMSEQ`, `HBMSYN` and `HBMMIX` sound libraries.
+
+Boundaries:
+
+| Section | Range | Contents |
+| --- | --- | --- |
+| `.text` | `0x8017B540`–`0x8017C064` | 10 functions |
+| `.rodata` | `0x80366A68`–`0x80366A9C` | `WT_FILENAME` (`wt\HomeButtonSe.wt`), `PCM_FILENAME` (`wt\HomeButtonSe.pcm`), floats `0.0f`, `10.0f` and `20.0f` |
+| `.data` | `0x803BA300`–`0x803BA650` | 28 MIDI path strings and the 28-entry `SOUND_FILENAME` table (`0x803BA5E0`) |
+| `.bss` | `0x803E9B88`–`0x803E9B8C` | `sWork`, the work-area pointer (dtk guessed 8 bytes; the object is 4) |
+
+The `.rodata` split ends at the last float. The word at `0x80366A9C` is padding before the next unit's 8-byte-aligned data.
+
+Name evidence: CC0 xenoblade (`xbret/xenoblade`, `config/jp/symbols.txt` and `splits.txt`) lists `RVL_SDK/src/revolution/hbm/HBMAxSound.cpp` with the same ten functions in the same order and sizes. Its symbols give:
+
+- `GetFreePlayer`, `AudioFrameCallback` and `AudioSoundThreadProc`, in a file-scope unnamed namespace;
+- the seven `homebutton` functions;
+- the data names `SOUND_FILENAME`, `WT_FILENAME`, `PCM_FILENAME` and `sWork`.
+
+No reference source exists for this file, so the code was written from the target's instructions. The `HBMSEQ`, `HBMSYN` and `HBMMIX` declarations and layouts come from CC0 dusklight `34a144a4` (`libs/revolution/src/homebuttonLib/sound`). Callee addresses match their call patterns, and every function matches.
+
+The MIDI table has 28 entries, six more than the 22-entry enum in the xenoblade and dusklight headers. The extra entries are the manual sounds `HBMSE_MANUAL_OPEN` through `HBMSE_MANUAL_RETURN_APP` (22–27), named after their file names. `HBMSE_FOCUS`, `HBMSE_MANUAL_FOCUS` and `HBMSE_MANUAL_SCROLL` play on a separate three-player cursor pool with its own active list. All other sounds share a four-player pool. When a pool is full, the oldest active sequence in that list is stopped and reused.
+
+On the branch head, `configure.py`, `ninja` and `tools/verify/verify.py verify` exit 0 with the unit `Matching`, and objdiff reports `.text`, `.rodata`, `.data` and `.bss` at 100%:
+
+| Address | Size | Name |
+| --- | --- | --- |
+| `0x8017B540` | `0x198` | `GetFreePlayer__24@unnamed@HBMAxSound_cpp@Fi` |
+| `0x8017B6E0` | `0x64` | `AudioFrameCallback__24@unnamed@HBMAxSound_cpp@Fv` |
+| `0x8017B750` | `0x240` | `AudioSoundThreadProc__24@unnamed@HBMAxSound_cpp@FPv` |
+| `0x8017B990` | `0x13C` | `PlaySeq__10homebuttonFi` |
+| `0x8017BAD0` | `0x1F4` | `InitAxSound__10homebuttonFPCvPvUl` |
+| `0x8017BCD0` | `0x88` | `ShutdownAxSound__10homebuttonFv` |
+| `0x8017BD60` | `0x4` | `AxSoundMain__10homebuttonFv` |
+| `0x8017BD70` | `0x1C4` | `StopAllSeq__10homebuttonFv` |
+| `0x8017BF40` | `0x120` | `SetVolumeAllSeq__10homebuttonFf` |
+| `0x8017C060` | `0x4` | `SetSoundMode__10homebuttonFUl` |
+
+Outside callees renamed for linking:
+
+| Address | Name |
+| --- | --- |
+| `0x8019A370` | `HBMMIXInit` |
+| `0x8019A570` | `HBMMIXQuit` |
+| `0x8019A590` | `HBMMIXSetSoundMode` |
+| `0x8019B060` | `HBMMIXUpdateSettings` |
+| `0x8019BCD0` | `HBMSYNInit` |
+| `0x8019BDB0` | `HBMSYNQuit` |
+| `0x8019BDD0` | `HBMSYNRunAudioFrame` |
+| `0x8019D7D0` | `HBMSEQInit` |
+| `0x8019D800` | `HBMSEQQuit` |
+| `0x8019D820` | `HBMSEQRunAudioFrame` |
+| `0x8019D9B0` | `HBMSEQAddSequence` |
+| `0x8019DA40` | `HBMSEQRemoveSequence` |
+| `0x8019DAE0` | `HBMSEQSetState` |
+| `0x8019DC30` | `HBMSEQGetState` |
+| `0x8019DC40` | `HBMSEQSetVolume` |
+| `0x802BC3B0` | `OSCreateThread` |
+| `0x802BC8F0` | `OSJoinThread` |
+| `0x802BCA40` | `OSResumeThread` |
+| `0x802DA010` | `AICheckInit` |
+| `0x802DA020` | `AIInit` |
+
+Layout. Member names are descriptive except where xenoblade gives them.
+
+`SeqPlayer` is 0x2E2C bytes:
+
+| Offset | Member |
+| --- | --- |
+| `0x0` | `HBMSEQSEQUENCE` (0x2E1C bytes) |
+| `0x2E1C` | `inUse` |
+| `0x2E20` | `next` |
+| `0x2E24` | `prev` |
+| `0x2E28` | sound number |
+
+`AxSoundWork` is 0x14700 bytes:
+
+| Offset | Member |
+| --- | --- |
+| `0x0` | four players |
+| `0xB8B0` | three cursor players |
+| `0x14334` | player list (head, tail) |
+| `0x1433C` | cursor player list (head, tail) |
+| `0x14344` | a word this unit never accesses (`reserved`) |
+| `0x14348` | previous AX callback |
+| `0x1434C` | ARC handle |
+| `0x14368` | `OSThread` |
+| `0x14680` | message queue |
+| `0x146A0` | four messages |
+| `0x146B0` | thread stack pointer |
+| `0x146B4` | wavetable |
+| `0x146B8` | samples |
+| `0x146BC` | 0x44 bytes this unit never accesses (`padding`) |
+
+`InitAxSound` requires `sizeof(AxSoundWork) + 0x4000` bytes and gives the remainder to the sound thread as its stack. The thread wakes on message 1 from the AX frame callback and exits on message 8.
+
+## F-291-2: remaining functions of this block
+
+`0x8017C070`–`0x8017C46C` is `RVL_SDK/hbm/HBMCommon.cpp`, by xenoblade's split. It holds:
+
+- `HBMAllocMem`, `HBMFreeMem`, `HBMCreate`, `HBMDelete`;
+- `HBMInit`, which registers `__HBMVersion` (`0x803BA698`);
+- `HBMCalc`, `HBMDraw`, `HBMGetSelectBtnNum`, `HBMSetAdjustFlag`, `HBMStartBlackOut`, `HBMIsReassignedControllers`;
+- `HBMCreateSound`, `HBMDeleteSound`, `HBMUpdateSound`;
+- one more one-argument wrapper at `0x8017C430`.
+
+Its `.data` starts at `0x803BA650` with the version banner, and its `.bss` with `sAllocator` at `0x803E9B90`. `0x8017C470` (`initgx`, 0x1B8 bytes as in xenoblade) starts `HBMBase.cpp`, which runs well past this block.
+
+Both units call `homebutton::HomeButton` members and read its fields, so a complete `HomeButton` header must be reconstructed first. They are left for the following issues.
+
+## Traps
+
+- **Compare chains.** An inline helper returning a `||` of equality tests becomes a bit-mask test (`subi`, `cmplwi`, `slw`, `and.`) instead of the original compare chain. Writing the condition inline, here through `IS_CURSOR_SOUND`, restored the chain and the sizes of four functions.
+- **Float constant order.** Float constants are pooled in source order. Writing `10.0f * GainToDecibels(gain)` with an inline helper reorders the pool, and so does an explicit `(f32)log10(gain)`. MSL's inline `log10f`, now in `include/math.h` beside `powf`, gives the original `0.0f`, `10.0f`, `20.0f` order.
+- **Parenthesized pointer arithmetic.** `stack + memSize - sizeof(Work)` and `stack + (memSize - sizeof(Work))` compile differently. Only the unparenthesized form matches.
+- **Missing `extern "C"` guards.** `revolution/ax.h` and `revolution/ax/AX.h` had none, so C++ callers linked to the mangled `AXInit__Fv`. Both headers now have guards.
+- **Include order.** `HBMBase.h` now includes `mem.h` before `kpad.h`, which `OSThreadQueue` requires.
