@@ -8,6 +8,7 @@ typedef UINT16 tSDP_STATUS;
 
 enum {
     SDP_SUCCESS = 0,
+    SDP_ILLEGAL_PARAMETER = 11,
     SDP_NO_RECS_MATCH = 0xFFF0,
     SDP_CONN_FAILED = 0xFFF1,
     SDP_CFG_FAILED = 0xFFF2,
@@ -16,6 +17,12 @@ enum {
     SDP_SECURITY_ERR = 0xFFF6,
     SDP_CONN_REJECTED = 0xFFF7
 };
+
+#define SDP_DISC_ATTR_LEN_MASK 0x0FFF
+#define SDP_DISC_ATTR_TYPE(len_type) ((len_type) >> 12)
+#define SDP_DISC_ATTR_LEN(len_type) ((len_type) & SDP_DISC_ATTR_LEN_MASK)
+
+typedef void tSDP_DISC_CMPL_CB(UINT16 result);
 
 typedef tBT_UUID tSDP_UUID;
 
@@ -54,7 +61,11 @@ typedef struct {
     UINT8* p_free_mem;
 } tSDP_DISCOVERY_DB;
 
+BOOLEAN SDP_InitDiscoveryDb(tSDP_DISCOVERY_DB* p_db, UINT32 len, UINT16 num_uuid, tSDP_UUID* p_uuid_list, UINT16 num_attr,
+                            UINT16* p_attr_list);
+BOOLEAN SDP_ServiceSearchRequest(UINT8* p_bd_addr, tSDP_DISCOVERY_DB* p_db, tSDP_DISC_CMPL_CB* p_cb);
 tSDP_DISC_ATTR* SDP_FindAttributeInRec(tSDP_DISC_REC* p_rec, UINT16 attr_id);
 tSDP_DISC_REC* SDP_FindServiceInDb(tSDP_DISCOVERY_DB* p_db, UINT16 service_uuid, tSDP_DISC_REC* p_start_rec);
+tSDP_DISC_REC* SDP_FindServiceUUIDInDb(tSDP_DISCOVERY_DB* p_db, tBT_UUID* p_uuid, tSDP_DISC_REC* p_start_rec);
 
 #endif

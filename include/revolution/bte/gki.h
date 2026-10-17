@@ -8,6 +8,7 @@ extern "C" {
 #endif
 
 typedef void TIMER_CBACK(void* p_tle);
+typedef UINT32 TIMER_PARAM_TYPE;
 
 typedef struct _tle {
     struct _tle* p_next;

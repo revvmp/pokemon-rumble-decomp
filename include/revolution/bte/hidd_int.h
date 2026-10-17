@@ -1,9 +1,9 @@
 #ifndef RVL_SDK_BTE_HIDD_INT_H
 #define RVL_SDK_BTE_HIDD_INT_H
 
-#include "RVL_SDK/bte/hid_conn.h"
-#include "RVL_SDK/bte/hidd_api.h"
-#include "RVL_SDK/bte/l2c_api.h"
+#include <revolution/bte/hid_conn.h>
+#include <revolution/bte/hidd_api.h>
+#include <revolution/bte/l2c_api.h>
 
 #define HIDD_MAX_CONN_RETRY 15
 

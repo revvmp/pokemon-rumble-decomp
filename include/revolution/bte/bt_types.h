@@ -45,4 +45,22 @@ typedef struct {
     } uu;
 } tBT_UUID;
 
+typedef struct {
+    UINT8 qos_flags;
+    UINT8 service_type;
+    UINT32 token_rate;
+    UINT32 token_bucket_size;
+    UINT32 peak_bandwidth;
+    UINT32 latency;
+    UINT32 delay_variation;
+} FLOW_SPEC;
+
+enum {
+    BT_PSM_HIDC = 17,
+    BT_PSM_HIDI = 19
+};
+
+#define HID_PSM_CONTROL BT_PSM_HIDC
+#define HID_PSM_INTERRUPT BT_PSM_HIDI
+
 #endif

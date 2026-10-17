@@ -1,7 +1,7 @@
 #ifndef RVL_SDK_BTE_HIDD_API_H
 #define RVL_SDK_BTE_HIDD_API_H
 
-#include "RVL_SDK/bte/hiddefs.h"
+#include <revolution/bte/hiddefs.h>
 
 enum {
     HID_DEV_EVT_OPEN,

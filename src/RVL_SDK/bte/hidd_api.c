@@ -1,6 +1,6 @@
-#include "RVL_SDK/bte/hidd_int.h"
+#include <revolution/bte/hidd_int.h>
 
-#include "RVL_SDK/bte/bt_trace.h"
+#include <revolution/bte/bt_trace.h>
 
 extern void* memset(void* p_dest, int value, unsigned long count);
 

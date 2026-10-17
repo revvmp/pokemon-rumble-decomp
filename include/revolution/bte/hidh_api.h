@@ -1,7 +1,7 @@
 #ifndef RVL_SDK_BTE_HIDH_API_H
 #define RVL_SDK_BTE_HIDH_API_H
 
-#include "RVL_SDK/bte/hiddefs.h"
+#include <revolution/bte/hiddefs.h>
 
 enum {
     HID_SDP_NO_SERV_UUID = SDP_ILLEGAL_PARAMETER + 1,

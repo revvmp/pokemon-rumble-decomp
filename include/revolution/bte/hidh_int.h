@@ -1,9 +1,9 @@
 #ifndef RVL_SDK_BTE_HIDH_INT_H
 #define RVL_SDK_BTE_HIDH_INT_H
 
-#include "RVL_SDK/bte/hid_conn.h"
-#include "RVL_SDK/bte/hidh_api.h"
-#include "RVL_SDK/bte/l2c_api.h"
+#include <revolution/bte/hid_conn.h>
+#include <revolution/bte/hidh_api.h>
+#include <revolution/bte/l2c_api.h>
 
 #define HID_HOST_MAX_DEVICES 16
 #define HID_HOST_MAX_CONN_RETRY 0
