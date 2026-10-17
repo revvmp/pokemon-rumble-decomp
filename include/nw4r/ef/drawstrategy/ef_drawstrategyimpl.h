@@ -149,7 +149,8 @@ protected:
     }
 
     static void CalcAhead_EmitterDesign(math::VEC3* pAxisY,
-                                        AheadContext* pContext) {
+                                        AheadContext* pContext,
+                                        Particle* pParticle) {
 
         *pAxisY = pContext->mCommon.mEmitterAxisY;
     }
@@ -237,6 +238,23 @@ protected:
                 ->nextObject);
     }
 
+    static Particle* GetElderParticle(const ParticleManager* pManager,
+                                      Particle* pParticle) {
+
+        return static_cast<Particle*>(
+            NW4R_UT_LIST_GET_LINK(pManager->mActivityList.mActiveList,
+                                  pParticle)
+                ->prevObject);
+    }
+    static Particle* GetYoungerParticle(const ParticleManager* pManager,
+                                        Particle* pParticle) {
+
+        return static_cast<Particle*>(
+            NW4R_UT_LIST_GET_LINK(pManager->mActivityList.mActiveList,
+                                  pParticle)
+                ->nextObject);
+    }
+
     static Particle* GetOldestParticle(ParticleManager* pManager) {
         return static_cast<Particle*>(
             pManager->mActivityList.mActiveList.headObject);
@@ -246,7 +264,7 @@ protected:
             pManager->mActivityList.mActiveList.tailObject);
     }
 
-    static Particle* GetElderDrawParticle(ParticleManager* pManager,
+    static Particle* GetElderDrawParticle(const ParticleManager* pManager,
                                           Particle* pParticle) {
 
         Particle* pIt = GetElderParticle(pManager, pParticle);
@@ -259,7 +277,7 @@ protected:
 
         return pIt;
     }
-    static Particle* GetYoungerDrawParticle(ParticleManager* pManager,
+    static Particle* GetYoungerDrawParticle(const ParticleManager* pManager,
                                             Particle* pParticle) {
 
         Particle* pIt = GetYoungerParticle(pManager, pParticle);
