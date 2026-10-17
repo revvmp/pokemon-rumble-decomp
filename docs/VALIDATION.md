@@ -23,3 +23,15 @@ The synthetic input was `bytes(range(256))` repeated 8,193 times, stored as sepa
 ## Remaining validation
 
 The documented Python 3.10 minimum has not been exercised on a separate interpreter. No real game extraction, compilation, linking, runtime check, executable match, or package match has run. Establish those results from the identified original and real reconstruction before changing their progress status.
+
+## Progress image validation
+
+Ran with Python 3.14.2 on Windows. These checks concern repository tooling only.
+
+- Rendered the committed images with the real CLI from `config/progress.json` without a report: exit `0`. Rendered again to a separate directory and confirmed byte-identical output.
+- Rendered all three images from a real objdiff `report.json` produced by Petari's public CI (artifact `RMGK01_report`, created 2026-10-15) to confirm the schema, including 64-bit counts serialized as strings and 2,205 units. Output stayed in temporary storage.
+- Rendered a temporary copy of that report with match percentages deterministically varied across all seven bins, then viewed screenshots in headless Microsoft Edge in light and dark color schemes to check shading, legends, labels, and overflow.
+- Confirmed rejection with exit `1` and no output for two active phases, out-of-order phase states, a report with zero total code, a file lacking report structure, and a missing report. Confirmed missing required arguments exit `2`.
+- Confirmed `tools/progress.py` contains no comment tokens or docstrings, and `config/progress.json` parses.
+
+No external or modified report is committed, and no game progress has been measured.

@@ -10,8 +10,9 @@ The objective is a readable, reproducible source reconstruction of Pokémon Rumb
 4. [Reverse engineering index](re/README.md): investigation and reconstruction.
 5. [Matching](MATCHING.md): exact verification and completion gates.
 6. [Progress](PROGRESS.md) and [handoff](HANDOFF.md): current state and next actions.
-7. [Decisions](DECISIONS.md): durable project choices and rationale.
-8. [Initialization validation](VALIDATION.md): executed checks and their limits.
+7. [Roadmap](ROADMAP.md): phased plan and gates from extraction to a full match.
+8. [Decisions](DECISIONS.md): durable project choices and rationale.
+9. [Initialization validation](VALIDATION.md): executed checks and their limits.
 
 All narrative documentation belongs here. Reverse engineering methods, observations, artifact inventories, symbol maps, toolchain investigations, and recovered game architecture belong in `docs/re/`. The root README and `AGENTS.md` are discovery entry points only. Executable tooling, build configuration, and reconstructed source live in their designated repository directories rather than among documentation.
 

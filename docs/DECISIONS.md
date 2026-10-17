@@ -24,6 +24,18 @@ Accepted during initialization. Store reference size and SHA-256 in versioned ma
 
 Accepted from the project requirements. Every meaningful session must keep the traps and findings section of root `AGENTS.md` current, with concise actionable lessons linked to detailed evidence. This makes recurring mistakes visible before future work starts. Record when no new lesson emerged rather than inventing one. Prefer end-to-end tests through real tooling and build entry points. End-to-end suites are allowed; unit tests, code comments, and docstrings remain prohibited.
 
+## D-0007: Evaluate the dtk-template ecosystem
+
+Proposed. Problem: the build driver, splitting, and diffing approach are undecided, and building them from scratch would duplicate mature community tooling. Approach: adopt the decomp-toolkit, objdiff, ninja, and `configure.py` workflow used by Petari and most GameCube and Wii decompilations, as described in [prior art](re/PRIOR_ART.md) and sequenced in the [roadmap](ROADMAP.md).
+
+Acceptance gate: evidence that the extracted executable is a PowerPC DOL that dtk can analyze, recorded in findings. Until then this is a direction, not a commitment, and nothing may be written to `config/toolchain.json` on its basis.
+
+Open items to settle before vendoring: (1) dtk-template's `configure.py` and `tools/*.py` contain comments, which conflict with D-0002; either strip them or record a narrow exception for unmodified third-party files. (2) Map dtk-template's `config/<GAMEID>/`, `orig/<GAMEID>/`, and `build/` onto our `config/<target>/`, `orig/<target>/`, and `build/<target>/`. (3) dtk's `build.sha1` is a build-time check only; acceptance remains the SHA-256 manifest verified by `tools/verify.py`. (4) Non-matching status and decomp.me links go in the reconstruction ledger rather than source comments.
+
+## D-0008: Generate progress images in repository
+
+Accepted at the project owner's request. The project owner reports that decomp.dev, the hosted progress service used by Petari, is being sunset; this was not independently verified. Progress images are therefore rendered locally by `tools/progress.py` from `config/progress.json` and, once a denominator exists, an objdiff `report.json`, then committed under `docs/images/`. Consequences: no external service, API key, or CI upload is needed; images must be regenerated manually or by future CI when state changes; and code percentages appear only from a real objdiff report, preserving the rule against percentages without a denominator. See [progress images](PROGRESS.md#progress-images).
+
 ## Future decisions
 
 Use stable identifiers and record status, problem, approach, evidence, consequences, and superseded decisions. Put reverse engineering evidence in `re/` and link it here rather than duplicating it.

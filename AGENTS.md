@@ -1,6 +1,6 @@
 # Agent entry point
 
-Before working, read [project rules](docs/PROJECT_RULES.md), [architecture](docs/ARCHITECTURE.md), [progress](docs/PROGRESS.md), and [handoff](docs/HANDOFF.md). These instructions apply repository-wide. For reverse engineering, also read [the workflow](docs/re/WORKFLOW.md) and relevant [findings](docs/re/FINDINGS.md).
+Before working, read [project rules](docs/PROJECT_RULES.md), [architecture](docs/ARCHITECTURE.md), [roadmap](docs/ROADMAP.md), [progress](docs/PROGRESS.md), and [handoff](docs/HANDOFF.md). These instructions apply repository-wide. For reverse engineering, also read [the workflow](docs/re/WORKFLOW.md), relevant [findings](docs/re/FINDINGS.md), and [prior art](docs/re/PRIOR_ART.md).
 
 Do not add unit tests, code comments, or docstrings. Keep explanations and project documentation in `docs/`, with all reverse engineering documentation in `docs/re/`. Never change original hashes to make a reconstruction pass. Never claim matching or completion without the evidence required by [matching requirements](docs/MATCHING.md).
 
@@ -16,15 +16,19 @@ Keep entries concise and actionable. Distinguish confirmed findings from hypothe
 
 - **Matching files can still be the wrong reference.** Identical original and rebuilt files fail if both differ from the frozen manifest. Never refresh expected hashes to fix this; identify the input mismatch. This rejection was exercised during [initialization validation](docs/VALIDATION.md).
 - **The target template is not a configured release.** Verification rejects its unset identity and hashes. Identify the release and fingerprint a separate target manifest before attempting game verification; see [setup](docs/SETUP.md).
+- **Community decomp tooling carries comments.** dtk-template's `configure.py` and `tools/*.py`, used by Petari, are commented, which conflicts with the no-comments rule. Do not vendor them until [D-0007](docs/DECISIONS.md#d-0007-evaluate-the-dtk-template-ecosystem) records a policy. Petari's `NON_MATCHING`, decomp.me, and field-offset comments go in the reconstruction ledger and symbol records instead; see [prior art](docs/re/PRIOR_ART.md#adapting-to-this-projects-rules).
+- **Comparable-project facts are not our facts.** Compiler versions, flags, and library lists from Petari are hypotheses for this game. Keep them out of `config/toolchain.json` until our own evidence confirms them; see [roadmap](docs/ROADMAP.md).
+- **Progress images are committed outputs.** Changing `config/progress.json` or measured progress without rerunning `tools/progress.py` leaves stale README images. Regenerate and commit them together; never hand-edit the SVGs or pass a fabricated report. See [progress images](docs/PROGRESS.md#progress-images).
 - **Byte identity does not prove source reconstruction.** Copying original executable bytes can satisfy comparison. Review source coverage and fallback dependencies separately before claiming decompilation progress; see [acceptance requirements](docs/MATCHING.md).
 
 ## Current project state
 
 | Current state | Value |
 | --- | --- |
-| Phase | Initialization; reference identification pending |
-| Active target | Not selected |
+| Phase | Roadmap Phase 1: extract and identify |
+| Active target | Not selected; local WAD metadata reads `WPSE` title version 1 (F-0001) |
 | Original hashes | Not recorded |
 | Game build entry point | Not implemented |
 | Verification entry point | `python tools/verify.py --help` |
-| Next action | Identify a local reference release using `docs/SETUP.md` |
+| Progress images | `python tools/progress.py render --phases config/progress.json --output-dir docs/images` |
+| Next action | Extract the WAD with decomp-toolkit per `docs/ROADMAP.md` Phase 1 |

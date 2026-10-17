@@ -1,6 +1,10 @@
 # Artifact and section inventory
 
-No identified reference is available. Inventory completeness is unknown.
+No target is selected yet. Inventory completeness is unknown. Only unencrypted WAD metadata has been read; no content has been decrypted or extracted.
+
+## Observed container
+
+The local WAD's header, ticket, and TMD are recorded in [F-0001](FINDINGS.md#f-0001-wad-container-metadata): title ID `WPSE`, title version 1, seven contents (indices 0 to 6), boot index 6. Content roles, formats, nested files, and acceptance-manifest membership are all unknown until extraction.
 
 ## Artifact records
 
