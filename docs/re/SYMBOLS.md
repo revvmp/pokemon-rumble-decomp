@@ -1051,3 +1051,52 @@ Names, addresses and evidence are listed in [F-537-1](findings/537-msl-io-except
 ## NW4R ut DvdFileStream, NandFileStream, LockedCache, and Font (#446)
 
 For `wpse-v1` / `main.dol`, [F-446-1](findings/446-ut-nand-lockedcache-font.md) names 23 `.text` functions from `0x80293DC0` to `0x80294534` with their mangled CodeWarrior names: `__sinit_\ut_DvdFileStream_cpp`, the `NandFileStream` members and initializer, `nw4r::ut::LC::*` and `__sinit_\ut_LockedCache_cpp`, and `Font::InitReaderFunc`. It also names the ten `NandFileStream` inline virtuals at `0x8027E210–0x8027E2A8` from their vtable slots, `NANDOpen` (`0x802E5CD0`) and `NANDClose` (`0x802E5F70`) from relocation targets, `__vt__Q34nw4r2ut14NandFileStream` (`.data` `0x803C6988`, 0x5C bytes), `typeInfo__Q34nw4r2ut13DvdFileStream` (`.sbss` `0x804B93C8`), `typeInfo__Q34nw4r2ut14NandFileStream` (`.sbss` `0x804B93D0`), and the local `sLCImpl` (`.bss` `0x804524A8`, 0x1C bytes: `bool mIsEnabled` at 0, `OSMutex mMutex` at 4). All names are high confidence from the CC0 ogws reference and exact matches. `NandFileStream` layout: `mFilePosition` at 0x14, `mFileInfo` at 0x1C (`NANDCommandBlock` at 0x1C, `NANDFileInfo` at 0xD8, back pointer at 0x164), then `mCanRead`, `mCanWrite`, `mIsBusy`, `mCloseOnDestroyFlg`, and `mCloseEnableFlg` at 0x168–0x16C.
+## BTE RFCOMM frames and utilities (#532)
+
+| Address | Size | dtk label | Chosen name | Kind | Confidence | Evidence | Source |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `0x80336D14` | `0xB0` | `fn_80336D14` | `rfc_send_sabme` | function | high | F-532-1 | `src/RVL_SDK/bte/rfc_ts_frames.c` |
+| `0x80336DC4` | `0xB0` | `fn_80336DC4` | `rfc_send_ua` | function | high | F-532-1 | `src/RVL_SDK/bte/rfc_ts_frames.c` |
+| `0x80336E74` | `0xC4` | `fn_80336E74` | `rfc_send_dm` | function | high | F-532-1 | `src/RVL_SDK/bte/rfc_ts_frames.c` |
+| `0x80336F38` | `0xB0` | `fn_80336F38` | `rfc_send_disc` | function | high | F-532-1 | `src/RVL_SDK/bte/rfc_ts_frames.c` |
+| `0x80336FE8` | `0x198` | `fn_80336FE8` | `rfc_send_buf_uih` | function | high | F-532-1 | `src/RVL_SDK/bte/rfc_ts_frames.c` |
+| `0x80337180` | `0xE8` | `fn_80337180` | `rfc_send_pn` | function | high | F-532-1 | `src/RVL_SDK/bte/rfc_ts_frames.c` |
+| `0x80337268` | `0x84` | `fn_80337268` | `rfc_send_fcon` | function | high | F-532-1 | `src/RVL_SDK/bte/rfc_ts_frames.c` |
+| `0x803372EC` | `0x84` | `fn_803372EC` | `rfc_send_fcoff` | function | high | F-532-1 | `src/RVL_SDK/bte/rfc_ts_frames.c` |
+| `0x80337370` | `0x120` | `fn_80337370` | `rfc_send_msc` | function | high | F-532-1 | `src/RVL_SDK/bte/rfc_ts_frames.c` |
+| `0x80337490` | `0xB0` | `fn_80337490` | `rfc_send_rls` | function | high | F-532-1 | `src/RVL_SDK/bte/rfc_ts_frames.c` |
+| `0x80337540` | `0x11C` | `fn_80337540` | `rfc_send_rpn` | function | high | F-532-1 | `src/RVL_SDK/bte/rfc_ts_frames.c` |
+| `0x8033765C` | `0xA8` | `fn_8033765C` | `rfc_send_test` | function | high | F-532-1 | `src/RVL_SDK/bte/rfc_ts_frames.c` |
+| `0x80337704` | `0xC0` | `fn_80337704` | `rfc_send_credit` | function | high | F-532-1 | `src/RVL_SDK/bte/rfc_ts_frames.c` |
+| `0x803377C4` | `0x574` | `fn_803377C4` | `rfc_parse_data` | function | high | F-532-1 | `src/RVL_SDK/bte/rfc_ts_frames.c` |
+| `0x80337D38` | `0x624` | `fn_80337D38` | `rfc_process_mx_message` | function | high | F-532-1 | `src/RVL_SDK/bte/rfc_ts_frames.c` |
+| `0x8033835C` | `0x38` | `fn_8033835C` | `rfc_calc_fcs` | function | high | F-532-1 | `src/RVL_SDK/bte/rfc_utils.c` |
+| `0x80338394` | `0x4C` | `fn_80338394` | `rfc_check_fcs` | function | high | F-532-1 | `src/RVL_SDK/bte/rfc_utils.c` |
+| `0x803383E0` | `0x158` | `fn_803383E0` | `rfc_alloc_multiplexer_channel` | function | high | F-532-1 | `src/RVL_SDK/bte/rfc_utils.c` |
+| `0x80338538` | `0x88` | `fn_80338538` | `rfc_release_multiplexer_channel` | function | high | F-532-1 | `src/RVL_SDK/bte/rfc_utils.c` |
+| `0x803385C0` | `0x74` | `fn_803385C0` | `rfc_timer_start` | function | high | F-532-1 | `src/RVL_SDK/bte/rfc_utils.c` |
+| `0x80338634` | `0x58` | `fn_80338634` | `rfc_timer_stop` | function | high | F-532-1 | `src/RVL_SDK/bte/rfc_utils.c` |
+| `0x8033868C` | `0x80` | `fn_8033868C` | `rfc_port_timer_start` | function | high | F-532-1 | `src/RVL_SDK/bte/rfc_utils.c` |
+| `0x8033870C` | `0x58` | `fn_8033870C` | `rfc_port_timer_stop` | function | high | F-532-1 | `src/RVL_SDK/bte/rfc_utils.c` |
+| `0x80338764` | `0xC4` | `fn_80338764` | `rfc_check_mcb_active` | function | high | F-532-1 | `src/RVL_SDK/bte/rfc_utils.c` |
+| `0x80338828` | `0x3C` | `fn_80338828` | `rfcomm_process_timeout` | function | high | F-532-1 | `src/RVL_SDK/bte/rfc_utils.c` |
+| `0x80338864` | `0x54` | `fn_80338864` | `rfc_sec_check_complete` | function | high | F-532-1 | `src/RVL_SDK/bte/rfc_utils.c` |
+| `0x803388B8` | `0x158` | `fn_803388B8` | `rfc_port_closed` | function | high | F-532-1 | `src/RVL_SDK/bte/rfc_utils.c` |
+| `0x80338A10` | `0x8C` | `fn_80338A10` | `rfc_inc_credit` | function | high | F-532-1 | `src/RVL_SDK/bte/rfc_utils.c` |
+| `0x80338A9C` | `0x3C` | `fn_80338A9C` | `rfc_dec_credit` | function | high | F-532-1 | `src/RVL_SDK/bte/rfc_utils.c` |
+| `0x80338AD8` | `0x64` | `fn_80338AD8` | `rfc_check_send_cmd` | function | high | F-532-1 | `src/RVL_SDK/bte/rfc_utils.c` |
+| `0x80398198` | `0x100` | `lbl_80398198` | `rfc_crctable` | static object | high | F-532-1 | `src/RVL_SDK/bte/rfc_utils.c` |
+| `0x804AE628` | `0x418` | `lbl_804AE628` | `rfc_cb` | object (tRFC_CB) | high | F-532-1 | `rfc_port_if.c` (#531) |
+| `0x80310EB0` | `0x14` | `fn_80310EB0` | `GKI_init_q` | function | high | F-532-1 | Not reconstructed (fallback) |
+| `0x8033373C` | `0x130` | `fn_8033373C` | `PORT_FlowInd` | function | high | F-532-1 | Not reconstructed (fallback) |
+| `0x80333964` | `0x194` | `fn_80333964` | `port_rfc_closed` | function | high | F-532-1 | Not reconstructed (fallback) |
+| `0x80334A04` | `0x44` | `fn_80334A04` | `rfc_mx_sm_execute` | function | high | F-532-1 | Not reconstructed (fallback) |
+| `0x80335648` | `0x90` | `fn_80335648` | `rfc_port_sm_execute` | function | high | F-532-1 | Not reconstructed (fallback) |
+| `0x80335FFC` | `0xE8` | `fn_80335FFC` | `rfc_process_pn` | function | high | F-532-1 | Not reconstructed (fallback) |
+| `0x803360E4` | `0x30C` | `fn_803360E4` | `rfc_process_rpn` | function | high | F-532-1 | Not reconstructed (fallback) |
+| `0x803363F0` | `0x16C` | `fn_803363F0` | `rfc_process_msc` | function | high | F-532-1 | Not reconstructed (fallback) |
+| `0x8033655C` | `0x8C` | `fn_8033655C` | `rfc_process_rls` | function | high | F-532-1 | Not reconstructed (fallback) |
+| `0x803365E8` | `0x4` | `fn_803365E8` | `rfc_process_nsc` | function | high | F-532-1 | Not reconstructed (fallback) |
+| `0x803365EC` | `0x8` | `fn_803365EC` | `rfc_process_test_rsp` | function | high | F-532-1 | Not reconstructed (fallback) |
+| `0x803365F4` | `0x64` | `fn_803365F4` | `rfc_process_fcon` | function | high | F-532-1 | Not reconstructed (fallback) |
+| `0x80336658` | `0x64` | `fn_80336658` | `rfc_process_fcoff` | function | high | F-532-1 | Not reconstructed (fallback) |

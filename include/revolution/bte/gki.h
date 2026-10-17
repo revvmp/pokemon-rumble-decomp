@@ -42,6 +42,7 @@ typedef struct {
 void* GKI_getbuf(UINT16);
 void* GKI_getpoolbuf(UINT8 pool_id);
 void GKI_freebuf(void* p_buf);
+void GKI_init_q(BUFFER_Q* p_q);
 void GKI_enqueue(BUFFER_Q* p_q, void* p_buf);
 void* GKI_dequeue(BUFFER_Q* p_q);
 

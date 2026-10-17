@@ -628,6 +628,16 @@ RVL_SDK/bte/hidh_api.c:
 	.data       start:0x803E2DC0 end:0x803E2ED8
 	.bss        start:0x804ADA38 end:0x804ADE40
 
+RVL_SDK/bte/rfc_ts_frames.c:
+	.text       start:0x80336D14 end:0x8033835C
+	.data       start:0x803E5478 end:0x803E554E
+	.sdata      start:0x804B8F30 end:0x804B8F3F
+
+RVL_SDK/bte/rfc_utils.c:
+	.text       start:0x8033835C end:0x80338B3C
+	.rodata     start:0x80398198 end:0x80398298
+	.data       start:0x803E5550 end:0x803E55DA
+
 RVL_SDK/bte/sdp_api.c:
 	.text       start:0x80338B3C end:0x803399A4
 	.data       start:0x803E55E0 end:0x803E5630
