@@ -19518,7 +19518,7 @@ FreeTrack__Q44nw4r3snd6detail20MmlSeqTrackAllocatorFPQ44nw4r3snd6detail8SeqTrack
 Create__Q44nw4r3snd6detail20MmlSeqTrackAllocatorFPvUl = .text:0x8027E1A0; // type:function size:0xC
 Destroy__Q44nw4r3snd6detail20MmlSeqTrackAllocatorFPvUl = .text:0x8027E1B0; // type:function size:0x8
 GetAllocatableTrackCount__Q44nw4r3snd6detail20MmlSeqTrackAllocatorCFv = .text:0x8027E1C0; // type:function size:0x8
-fn_8027E1D0 = .text:0x8027E1D0; // type:function size:0x40
+__dt__Q44nw4r3snd6detail20MmlSeqTrackAllocatorFv = .text:0x8027E1D0; // type:function size:0x40
 GetBufferAlign__Q34nw4r2ut14NandFileStreamCFv = .text:0x8027E210; // type:function size:0x8
 GetSizeAlign__Q34nw4r2ut14NandFileStreamCFv = .text:0x8027E220; // type:function size:0x8
 GetOffsetAlign__Q34nw4r2ut14NandFileStreamCFv = .text:0x8027E230; // type:function size:0x8
@@ -27671,7 +27671,7 @@ lbl_803C6340 = .data:0x803C6340; // type:object size:0x27 data:string
 jumptable_803C6368 = .data:0x803C6368; // type:object size:0x1F4 scope:local
 __vt__Q44nw4r3snd6detail9MmlParser = .data:0x803C6560; // type:object size:0x10
 __vt__Q44nw4r3snd6detail11MmlSeqTrack = .data:0x803C6570; // type:object size:0x10
-lbl_803C6580 = .data:0x803C6580; // type:object size:0x18
+__vt__Q44nw4r3snd6detail20MmlSeqTrackAllocator = .data:0x803C6580; // type:object size:0x18
 __vt__Q44nw4r3snd6detail10PlayerHeap = .data:0x803C6598; // type:object size:0x10
 __vt__Q44nw4r3snd6detail9SeqPlayer = .data:0x803C65A8; // type:object size:0x68
 lbl_803C6610 = .data:0x803C6610; // type:object size:0x38
