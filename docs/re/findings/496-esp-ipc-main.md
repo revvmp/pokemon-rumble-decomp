@@ -37,3 +37,11 @@ No outside-claim symbols were edited. After the owning issues rename these symbo
 `python configure.py`, `.venv/Scripts/ninja`, and `python tools/verify/verify.py verify --manifest config/targets/wpse-v1.json --reference-dir orig/wpse-v1 --build-dir build/wpse-v1` each exited 0 after both splits and source registration. Direct `objdiff-cli diff` comparisons were also run for both units. Existing unrelated exception-table warnings remain.
 
 No source fallback was removed and #496 remains incomplete until the four external names are available and both units pass source-linked verification.
+
+## Follow-up validation at main 16ccc0a
+
+A fresh isolated checkout rebuilt with `python configure.py` and `.venv/Scripts/ninja`; both exited 0. The frozen verifier with `--report build/wpse-v1/verification.json` exited 0 and reported `PASS main.dol`. The project report still measures 21/21 functions, 2492/2492 code bytes and 40/40 data bytes matched, with neither unit source-linked.
+
+Direct object comparisons confirm the same remaining relocation-name differences: `ESP_CloseLib` 99.72222%, `ESP_LaunchTitle` 99.86487%, `IPCInit` 99.47369%, and `IPCReInit` 99.44444%. These scores are diagnostics, not acceptance of source linking.
+
+The dependency changes are now prepared by their owners: [PR #555](https://github.com/revvmp/pokemon-rumble-decomp/pull/555) supplies the OS IPC getter names, and [PR #565](https://github.com/revvmp/pokemon-rumble-decomp/pull/565) supplies `IOS_Close` and `IOS_IoctlvReboot`. Both remained open during this validation. After they merge, rebase, change only the two #496 object registrations to `Matching`, and run the complete build, direct object comparisons, and frozen verification before accepting the source. No outside-claim symbols were changed. No new reverse engineering trap emerged.
