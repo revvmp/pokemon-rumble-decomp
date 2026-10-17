@@ -1,7 +1,7 @@
 #ifndef RVL_SDK_BTE_DATA_TYPES_H
 #define RVL_SDK_BTE_DATA_TYPES_H
 
-#include <MSL_C/string.h>
+#include <string.h>
 
 #define BCM_STRNCPY_S(dst, dst_size, src, count) strncpy(dst, src, count)
 
