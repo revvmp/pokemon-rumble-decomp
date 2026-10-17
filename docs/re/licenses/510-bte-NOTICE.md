@@ -54,3 +54,7 @@ bluedroid do not complain to me that it does not look like bluedroid
 ## Issue 511 additions
 
 `src/RVL_SDK/bte/bta_sys_conn.c` and `include/RVL_SDK/bte/sys.h` adapt Petari `bta_sys_conn.c`, `bta_sys_int.h`, `bta_sys.h` and `ptim.h` at the same commit. These reference files carry Copyright (C) 2003-2012 Broadcom Corporation, Apache-2.0, and changes by muff1n1634. Changes remove comments, simplify dependencies and primitive type aliases, and retain only target-linked functions. The complete Apache-2.0 text linked above applies to these modifications.
+
+## Issue 512 additions
+
+`src/RVL_SDK/bte/bta_dm_act.c`, `src/RVL_SDK/bte/utl.c` and the headers `bd.h`, `bt_target.h`, `bt_trace.h`, `bt_types.h`, `bta_api.h`, `bta_dm_int.h`, `bta_sys.h`, `btm_api.h`, `btm_int.h`, `btu.h`, `data_types.h`, `gki.h`, `hcidefs.h`, `l2c_api.h`, `sdp_api.h`, `sdpdefs.h`, `utl.h` and `wbt_api.h` in `include/revolution/bte/` (where `data_types.h` and `gki.h` already existed and were extended in place) adapt the same-named Petari BTE files at commit `e0ab141914921726a595573dc48d3f13d0922efe`. These files carry Copyright (C) 2000-2012 Broadcom Corporation, Apache-2.0, and changes by muff1n1634. The changes remove comments, keep only the declarations these units use, restore bluedroid integer typedefs and the `APPL_TRACE_EVENT0` macro form, and keep only the linked functions and the static helpers they inline. The complete Apache-2.0 text linked above applies to these modifications.

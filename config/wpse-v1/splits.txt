@@ -208,6 +208,16 @@ RVL_SDK/bte/bte_main.c:
 RVL_SDK/bte/bta_sys_conn.c:
 	.text       start:0x80314388 end:0x803145DC
 
+RVL_SDK/bte/utl.c:
+	.text       start:0x80314A00 end:0x80314A44
+
+RVL_SDK/bte/bta_dm_act.c:
+	.text       start:0x80314A44 end:0x80316D80
+	.rodata     start:0x80397EE8 end:0x80397F90
+	.data       start:0x803E06E8 end:0x803E0828
+	.bss        start:0x804AA968 end:0x804AA998
+	.sdata2     start:0x804BB5F8 end:0x804BB600
+
 RVL_SDK/bte/bta_dm_api.c:
 	.text       start:0x80316D80 end:0x803171EC
 	.sdata2     start:0x804BB600 end:0x804BB610
