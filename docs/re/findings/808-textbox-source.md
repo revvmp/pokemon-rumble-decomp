@@ -96,6 +96,17 @@ until all listed source deliveries are canonical and verified together.
 
 ## Original inventory rows
 
+The later combined source branch retains the exact source blobs from PR848
+(Bounding/TexMap/DrawInfo) and PR866 (Material), plus this accepted TextBox.
+Together the five complete units contain 113 retained functions / 20,856
+code bytes. The combined actual default Ninja pipeline and explicit frozen
+verifier exit 0. All five actual objdiff reports, final native function
+positions, source-only link inputs and full immutable DOL equality pass.
+The actual combined TextBox and Material objects repeat their independent
+paired-target/data proofs with no inferred addresses. This consolidation
+does not create additional byte credit; PR848/866 remain provenance until
+the combined delivery is canonical and their replacement is confirmed.
+
 | Address | Size | Native unit |
 | --- | --- | --- |
 | 802A6060 | 1D4 | Layout |
