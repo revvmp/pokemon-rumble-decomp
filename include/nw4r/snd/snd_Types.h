@@ -36,6 +36,23 @@ enum OutputMode {
     OUTPUT_MODE_MONO
 };
 
+struct VoiceOutParam {
+    VoiceOutParam()
+        : volume(1.0f),
+          pitch(1.0f),
+          pan(0.0f),
+          surroundPan(0.0f),
+          fxSend(0.0f),
+          lpf(0.0f) {}
+
+    f32 volume;
+    f32 pitch;
+    f32 pan;
+    f32 surroundPan;
+    f32 fxSend;
+    f32 lpf;
+};
+
 struct SoundParam {
     f32 volume;
     f32 pitch;

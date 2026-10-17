@@ -187,6 +187,19 @@ nw4r/snd/snd_AxfxImpl.cpp:
 	.text       start:0x80276E40 end:0x80277038
 	.sbss       start:0x804B9340 end:0x804B9348
 
+nw4r/snd/snd_Bank.cpp:
+	.text       start:0x80277040 end:0x802772B8
+	.sdata2     start:0x804BADC0 end:0x804BADE0
+
+nw4r/snd/snd_BankFile.cpp:
+	.text       start:0x802772C0 end:0x80277980
+	.sdata2     start:0x804BADE0 end:0x804BADE8
+
+nw4r/snd/snd_BasicPlayer.cpp:
+	.text       start:0x80277980 end:0x80277BC0
+	.data       start:0x803C6198 end:0x803C61C0
+	.sdata2     start:0x804BADE8 end:0x804BADF0
+
 nw4r/ut/ut_list.cpp:
 	.text       start:0x80292D00 end:0x80292F5C
 
