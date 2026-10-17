@@ -359,3 +359,35 @@ Target `wpse-v1`, `main.dol`; evidence [F-485-1](findings/485-axaux.md#f-485-1-a
 | `0x804B988C` | `0x3` | `.sbss` | `lbl_804B988C` | `__clearAuxC` |
 | `0x804B9890` | `0x3` | `.sbss` | `lbl_804B9890` | `__clearAuxB` |
 | `0x804B9894` | `0x3` | `.sbss` | `lbl_804B9894` | `__clearAuxA` |
+
+## Issue 494: Japanese conversion and encoding contexts
+
+[F-494-3](findings/494-enc-latin.md#f-494-3-japanese-and-context-conversion-units) establishes these names with high confidence from pinned reference source, target relocations, 100% object comparisons and full executable verification. Addresses and extents are for target `wpse-v1`.
+
+| Address | Recovered name |
+| --- | --- |
+| `0x802EBAD0` | `ENCConvertStringSjisToUnicode` |
+| `0x802EBAE0` | `ENCConvertStringUnicodeToSjis` |
+| `0x802EBAF0` | `ENCiConvertStringSjisToUnicode` |
+| `0x802EBE60` | `ENCiConvertStringUnicodeToSjis` |
+| `0x802EC110` | `ENCiConvertStringJisToUnicode` |
+| `0x802EC580` | `ENCiConvertStringUnicodeToJis` |
+| `0x802ECA40` | `ENCiConvertUnicodeToSjis` |
+| `0x802ECB40` | `ENCiFindSjisFromUnicode` |
+| `0x802ECC60` | `ENCiGetEscapeSequence` |
+| `0x802ECDD0` | `ENCiSetEscapeSequence` |
+| `0x802ECED0` | `ENCiGetJisStateFromUnicode` |
+| `0x802ECFB0` | `ENCiConvertSjisKanji3` |
+| `0x802ED700` | `ENCInitContext` |
+| `0x802ED760` | `ENCSetExternalEncoding` |
+| `0x802ED880` | `ENCSetAlternativeCharacter` |
+| `0x802ED8A0` | `ENCConvertToInternalEncoding` |
+| `0x802EDB30` | `ENCConvertFromInternalEncoding` |
+| `0x802EDDD0` | `ENCiGetEncodingTypeFromHashTable` |
+| `0x802EE010` | `ENCGetNextCharacterWidth` |
+| `0x802EE1F0` | `ENCiConvertToInternalEncoding` |
+| `0x802EE4A0` | `ENCiConvertFromInternalEncoding` |
+
+`ENCContext` has size 16, alignment 4: encoding enum at 0, break enum at 4, multibyte state (`s32`) at 8, unmappable alternative (`u16`) at 12 and invalid alternative (`u16`) at 14. `struct encoding` is 24 bytes: width (`u32`) at 0, seven-bit flag (`BOOL`) at 4 and 16-byte name at 8. `encoding_hash_table_entry` is 32 bytes: 24-byte normalized name at 0, encoding enum at 24 and collision index (`int`) at 28. Encoding values run 0–25, while several original validity checks reject values at or above 24; that observed behavior is preserved.
+
+Japanese data: `enc_tbl_jp_mbtowc` at `0x803718A8` (18,800 bytes), `enc_tbl_jp_wctomb` at `0x80376218` (22,257 bytes), `enc_offset_jp` at `0x8037B910` (512 bytes), and `kana_array` at `0x8037BB10` (126 bytes). Context data: `encoding_array` at `0x8037D690` (624 bytes), `encoding_table` at `0x8037D900` (4,128 bytes). Loaded BOOLs: Japanese `0x804B8D60`, Korean `0x804B8D68`, UHC `0x804B8D6C`, Chinese `0x804B8D70`, each four bytes. These names are taken from the reference source and confirmed by target accesses.
