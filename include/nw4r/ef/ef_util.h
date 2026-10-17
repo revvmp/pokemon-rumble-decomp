@@ -7,6 +7,10 @@
 namespace nw4r {
 namespace ef {
 
+inline f32 FAbs(f32 x) {
+    return static_cast<f32>(__fabs(x));
+}
+
 u16 UtlistToArray(const ut::List* pList, void** ppArray, int maxlen);
 
 math::VEC3& Rotation2VecY(const math::VEC3& rRot, math::VEC3* pVec);
