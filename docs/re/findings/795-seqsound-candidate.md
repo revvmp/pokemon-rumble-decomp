@@ -29,3 +29,5 @@ The actual all_source and DOL build after registration exited 0 and explicit fro
 ## Traps
 
 Do not promote the initial twenty-two matching instruction streams into source credit while the constructor remains different. The entire SeqSound unit must retain its original fallback until complete object and real source-selected DOL acceptance succeed. The separate handle unit is independently accepted in [F-795-2](795-seqsound-handle.md).
+
+Temporary header variants must be included explicitly before canonical headers; placing a modified overlay later on the include search path does not exercise its declarations. The corrected explicit-header repeat leaves five constructor differences with either flag made ordinary, five with both ordinary, and four with volatile byte flags; prepared/byte variants also change another previously exact stream. The canonical volatile bool declarations remain unchanged.
