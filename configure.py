@@ -135,6 +135,18 @@ cflags_runtime = [
     "-func_align 4",
 ]
 
+cflags_trk = [
+    *(flag for flag in cflags_base if flag not in ("-inline auto", "-str reuse")),
+    "-inline auto",
+    "-str reuse,readonly",
+    "-use_lmw_stmw on",
+    "-sdata 0",
+    "-sdata2 0",
+    "-func_align 4",
+    "-i include/MetroTRK",
+    "-DMETRO_TRK",
+]
+
 RUNTIME_COMPILER = "Wii/1.1"
 
 cflags_msl = [
@@ -692,6 +704,17 @@ config.libs = [
             Object(Matching, "MSL_C/PPC_EABI/SRC/math_ppc.c"),
             Object(Matching, "MSL_C/MSL_Common_Embedded/Math/Double_precision/w_sqrt.c"),
             Object(Matching, "MSL_C/extras.c"),
+        ],
+    ),
+    library(
+        "MetroTRK",
+        "Wii/1.1",
+        cflags_trk,
+        "runtime",
+        [
+            Object(Matching, "MetroTRK/gamedev/cust_connection/cc/exi2/GCN/EXI2_GDEV_GCN/main.c", extra_cflags=["-sdata 8"]),
+            Object(Matching, "MetroTRK/gamedev/cust_connection/utils/gc/MWCriticalSection_gc.c"),
+            Object(Matching, "MetroTRK/gamedev/cust_connection/utils/common/CircleBuffer.c"),
         ],
     ),
 ]

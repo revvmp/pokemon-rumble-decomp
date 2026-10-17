@@ -1988,3 +1988,31 @@ For `wpse-v1` / `main.dol`, [F-397-1](findings/397-g3d-anmtexpat.md) names 23 fu
 ## NW4R Pane and Group interface prerequisite (#462)
 
 [F-462-4](findings/462-pane-group-interface.md) records `Pane` (`0xD8` bytes), `detail::PaneBase` (`0x0C`), `Group` (`0x2C`), and `detail::PaneLink` (`0x0C`) for the free `nw4r::lyt::BindAnimation(Group*, AnimTransform*, bool, bool)` at `0x802B1790`. The utility walks Group's pane list at `0x0C`, reads PaneLink's target at `0x08`, and dispatches Pane's virtual at `0x44`; the idiomatic C++ function matches all native non-relocation instruction words. Header names and remaining virtual declarations follow CC0 Skyward Sword `57a709b2128eb163a18e2969d561c9abb7d1fcee`; field accesses and the called virtual slot are directly confirmed, while unrelated method bodies remain the responsibility of #456 and #457. No source-coverage credit is claimed by the header prerequisite.
+## MetroTRK communication and circular buffers (#541)
+
+[F-541-1](findings/541-metrotrk-communication.md) establishes all 17 native functions and their source-selected final addresses. Wii/1.0 and Wii/1.1 both reproduce these bodies; Wii/1.1 is selected without claiming uniqueness.
+
+| Address | Extent | Name | Kind | Confidence | Evidence |
+| --- | --- | --- | --- | --- | --- |
+| `0x8034D914` | `0x3C` | `gdev_cc_initialize` | C function | high | F-541-1; reference, calls, exact relocated unit and frozen DOL |
+| `0x8034D950` | `0x8` | `gdev_cc_shutdown` | C function | high | F-541-1; reference, calls, exact relocated unit and frozen DOL |
+| `0x8034D958` | `0x24` | `gdev_cc_open` | C function | high | F-541-1; reference, calls, exact relocated unit and frozen DOL |
+| `0x8034D97C` | `0x8` | `gdev_cc_close` | C function | high | F-541-1; reference, calls, exact relocated unit and frozen DOL |
+| `0x8034D984` | `0xB4` | `gdev_cc_read` | C function | high | F-541-1; reference, calls, exact relocated unit and frozen DOL |
+| `0x8034DA38` | `0x74` | `gdev_cc_write` | C function | high | F-541-1; reference, calls, exact relocated unit and frozen DOL |
+| `0x8034DAAC` | `0x24` | `gdev_cc_pre_continue` | C function | high | F-541-1; reference, calls, exact relocated unit and frozen DOL |
+| `0x8034DAD0` | `0x24` | `gdev_cc_post_stop` | C function | high | F-541-1; reference, calls, exact relocated unit and frozen DOL |
+| `0x8034DAF4` | `0x74` | `gdev_cc_peek` | C function | high | F-541-1; reference, calls, exact relocated unit and frozen DOL |
+| `0x8034DB68` | `0x24` | `gdev_cc_initinterrupts` | C function | high | F-541-1; reference, calls, exact relocated unit and frozen DOL |
+| `0x8034DB8C` | `0x4` | `MWInitializeCriticalSection` | C function | high | F-541-1; reference, calls, exact relocated unit and frozen DOL |
+| `0x8034DB90` | `0x30` | `MWEnterCriticalSection` | C function | high | F-541-1; reference, calls, exact relocated unit and frozen DOL |
+| `0x8034DBC0` | `0x8` | `MWExitCriticalSection` | C function | high | F-541-1; reference, calls, exact relocated unit and frozen DOL |
+| `0x8034DBC8` | `0x8` | `CBGetBytesAvailableForRead` | C function | high | F-541-1; reference, calls, exact relocated unit and frozen DOL |
+| `0x8034DBD0` | `0x24` | `CircleBufferInitialize` | C function | high | F-541-1; reference, calls, exact relocated unit and frozen DOL |
+| `0x8034DBF4` | `0x108` | `CircleBufferWriteBytes` | C function | high | F-541-1; reference, calls, exact relocated unit and frozen DOL |
+| `0x8034DCFC` | `0x108` | `CircleBufferReadBytes` | C function | high | F-541-1; reference, calls, exact relocated unit and frozen DOL |
+| `0x804B3550` | `0x500` | `gRecvBuf` | static storage | high | F-541-1; native access offsets, compiled layout and final relocation proof |
+| `0x804B3A50` | `0x1C` | `gRecvCB` | static storage | high | F-541-1; native access offsets, compiled layout and final relocation proof |
+| `0x804B9BF8` | `0x4` | `gIsInitialized` | static storage | high | F-541-1; native access offsets, compiled layout and final relocation proof |
+
+`CircleBuffer` is 0x1C bytes: read/write/start pointers at 0/4/8, size at 0x0C, signed readable count at 0x10, writable count at 0x14 and unsigned-int interrupt state at 0x18. Four following BSS bytes and four following flag bytes are alignment, not members. Names and types follow the pinned reference and established helper interfaces; final storage placement is verified.
