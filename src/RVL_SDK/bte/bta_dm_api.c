@@ -1,4 +1,4 @@
-#include <RVL_SDK/bte/dm_api.h>
+#include <revolution/bte/dm_api.h>
 
 void* GKI_getbuf(u16 size);
 void GKI_sched_lock(void);

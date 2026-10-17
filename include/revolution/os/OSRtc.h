@@ -1,16 +1,41 @@
-#ifndef REVOLUTION_OS_OSRTC_H
-#define REVOLUTION_OS_OSRTC_H
+#ifndef OSRTC_H
+#define OSRTC_H
 
 #include "revolution/types.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+typedef struct OSSram {
+    u16 checkSum;
+    u16 checkSumInv;
+    u32 ead0;
+    u32 ead1;
+    u32 counterBias;
+    s8 displayOffsetH;
+    u8 ntd;
+    u8 language;
+    u8 flags;
+} OSSram;
 
-BOOL __OSReadROM(void* buffer, s32 length, s32 offset);
+typedef struct OSSramEx {
+    u8 flashID[2][12];
+    u32 wirelessKeyboardID;
+    u16 wirelessPadID[4];
+    u8 dvdErrorCode;
+    u8 _pad;
+    u8 flashIDCheckSum[2];
+    u16 gbs;
+    u8 _pad1[2];
+} OSSramEx;
 
-#ifdef __cplusplus
-}
-#endif
+u16 OSGetGbsMode(void);
+void OSSetGbsMode(u16);
+
+u16 OSGetWirelessID(s32);
+void OSSetWirelessID(s32, u16);
+
+BOOL __OSReadROM(void *, s32, s32);
+BOOL __OSGetRTCFlags(u32 *);
+BOOL __OSClearRTCFlags(void);
+
+void __OSInitSram(void);
 
 #endif

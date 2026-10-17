@@ -64,6 +64,11 @@ Trust the issue's `area:` label, not the address. F-0012 shows library code (HBM
 
 Class start addresses and block boundaries in the issue are survey estimates. Correct them with evidence and record the correction in your findings file.
 
+### Headers and outside symbols
+
+- **Headers.** RVL_SDK headers already exist in `include/revolution/` and `include/private/`, imported from Petari. Include and extend those rather than writing new ones, and never add files under `include/RVL_SDK/`, which only forwards to the new paths.
+- **Outside symbols.** If your unit calls or references symbols in another block, you may give them evidenced names in `symbols.txt` so the link resolves. Leave their splits, sizes, and types to the owning issue.
+
 ### Files that span several blocks
 
 A source file often spans more than one block issue. The issue that owns the file's first function owns the file's split in `splits.txt`, its `configure.py` object line, and its header with the class declaration. Other block owners add their function bodies to the same source file in address order. They request header or member changes on the owning issue, or in a small header pull request that merges first. If the owner's issue is unclaimed, ask the user before taking on the split yourself. Mention the neighboring issue numbers in your pull request.
