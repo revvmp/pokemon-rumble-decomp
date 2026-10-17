@@ -574,3 +574,12 @@ The source constants occupy `0x804BBBB8–0x804BBBF8` as five doubles for `ldexp
 ## AXAlloc completion (#485)
 
 [F-485-3](findings/485-axaux.md#f-485-3-axalloc-completes-issue-485) records the nine original function names and extents at 0x802DA500-0x802DA9EC, the two 32-entry voice-stack arrays at 0x804593A0 and 0x80459420, and callback-stack pointer at 0x804B9848. Names and existing AXVPB layout have high confidence from pinned ogws source, target accesses and exact source-linked verification. The external __AXSetPBDefault at 0x802DD260 retains its prior extent and split.
+## Init section startup, issue 37
+
+| Address | Name | Evidence |
+| --- | --- | --- |
+| `0x80004000`-`0x80004250` | `__check_pad3`, `__set_debug_bba`, `__get_debug_bba`, `__start`, `__init_registers`, `__init_data` | High confidence: existing names confirmed by matching `__start.c`; [F-37-1](findings/37-init-section.md) |
+| `0x804B9538` | `Debug_BBA` | `u8` static, one byte, high confidence; [F-37-1](findings/37-init-section.md) |
+| `0x800030E4` | `Pad3Button` | `u16` low-memory pad state, fixed-address declaration in `__start.c`; masked with `0xEEF` |
+| `0x80004300`-`0x802C0A70` | `__init_hardware`, `__flush_cache`, `__init_user`, `__init_cpp`, `exit` | High confidence: matching `__ppc_eabi_init.c` |
+| `0x80004364`-`0x8033F974` | `memcpy`, `__fill_mem`, `memset`, `strlen` | High confidence: matching `__mem.c` |

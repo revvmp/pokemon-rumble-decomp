@@ -4,3 +4,6 @@ hash: fd9a2c00c97e420a42355e2c27f3dc0ebbd3d8f9
 symbols: config/wpse-v1/symbols.txt
 splits: config/wpse-v1/splits.txt
 mw_comment_version: 15
+block_relocations:
+- source: .text:0x802B25D8
+- source: .text:0x802B264C

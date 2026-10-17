@@ -183,6 +183,8 @@ config.libs = [
             Object(Matching, "RVL_SDK/os/OSMessage.c"),
             Object(NonMatching, "RVL_SDK/os/OSMemory.c"),
             Object(Matching, "RVL_SDK/os/OSIpc.c"),
+            Object(Matching, "RVL_SDK/os/__start.c"),
+            Object(Matching, "RVL_SDK/os/__ppc_eabi_init.c"),
             Object(Matching, "RVL_SDK/exi/EXIUart.c"),
             Object(Matching, "RVL_SDK/exi/EXICommon.c"),
             Object(Matching, "RVL_SDK/si/SIBios.c"),
@@ -256,7 +258,10 @@ config.libs = [
         RUNTIME_COMPILER,
         cflags_runtime,
         "runtime",
-        [Object(Matching, "Runtime/__init_cpp_exceptions.cpp")],
+        [
+            Object(Matching, "Runtime/__mem.c"),
+            Object(Matching, "Runtime/__init_cpp_exceptions.cpp"),
+        ],
     ),
     library(
         "MSL_C",
