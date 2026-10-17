@@ -36,6 +36,16 @@ RVL_SDK/bte/bte_logmsg.c:
 	.bss        start:0x804A9040 end:0x804A9820
 	.sdata      start:0x804B8EE0 end:0x804B8EE8
 
+RVL_SDK/bte/utl.c:
+	.text       start:0x80314A00 end:0x80314A44
+
+RVL_SDK/bte/bta_dm_act.c:
+	.text       start:0x80314A44 end:0x80316D80
+	.rodata     start:0x80397EE8 end:0x80397F90
+	.data       start:0x803E06E8 end:0x803E0828
+	.bss        start:0x804AA968 end:0x804AA998
+	.sdata2     start:0x804BB5F8 end:0x804BB600
+
 Runtime/__init_cpp_exceptions.cpp:
 	.text       start:0x80340B24 end:0x80340B94
 	.ctors      start:0x803529C0 end:0x803529C4 rename:.ctors$10

@@ -165,6 +165,8 @@ config.libs = [
             Object(NonMatching, "RVL_SDK/bte/bte_hcisu.c", cflags=cflags_base),
             Object(NonMatching, "RVL_SDK/bte/bte_init.c", cflags=cflags_base),
             Object(NonMatching, "RVL_SDK/bte/bte_logmsg.c", cflags=cflags_base),
+            Object(NonMatching, "RVL_SDK/bte/utl.c", mw_version="GC/3.0a3", cflags=cflags_sdk),
+            Object(NonMatching, "RVL_SDK/bte/bta_dm_act.c", mw_version="GC/3.0a3", cflags=cflags_sdk),
         ],
     ),
     library(
