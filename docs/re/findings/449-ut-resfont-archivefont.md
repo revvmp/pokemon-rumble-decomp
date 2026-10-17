@@ -52,3 +52,24 @@ Function and class names come from the symbol maps of two CC0 decompilations tha
 
 - **A prototype can move a function into another code section.** Declaring `strlen` in `string.h` put `__mem.c`'s weak `strlen` into `.init`, because the declaration preceded `#pragma section code_type ".text"`. Check `.init` size first when an unrelated header change shifts the whole DOL.
 - **Masking branch targets hides loop-shape differences.** A diff script that replaced every branch target with a placeholder reported `IncludeName` as identical while objdiff showed one mismatched entry branch. Compare function-relative branch offsets.
+
+# F-449-3: Accessor-based GLGR reconstruction
+
+The remaining `ConstructOpAnalyzeGLGR` body now uses the existing `FontGlyphGroupsAcs` interface from the pinned CC0 Wii News Channel source recorded above. This removes the hand-expanded glyph-group offset calculations and the declaration ordering inherited from the forecast reconstruction. No header, ABI, split, symbol, compiler setting, or matching status changes.
+
+With Wii/1.1 and the existing `cflags_nw4r`, the function remains 0x3C0 bytes. `objdiff-cli` reports 99.291664%, up from 98.75%; the other 24 functions and `.data` remain 100%. A direct comparison against the immutable DOL at `0x80295FD0` finds 32 differing non-relocation instruction words, down from 52. This comparison retains function-relative branch offsets and masks only the object's actual relocation words. The differing words assign registers differently; this is not an exact match, and the unit remains `NonMatching`.
+
+The target keeps `pFileTop` in `r25`, `bodySize` in `r26`, and the block header in `r19`. The first remaining difference is the block-end destination at function offset `0xD4`: target `r24`, reconstruction `r28`. At `0x1B8` the target consumes that block end, then reuses `r24` for `numSheet` at `0x1BC`. Later live values also differ: target glyph-group data `r29`, glyphs per sheet `r31`, adjustment-table size `r30`, sheet-flag stride `r28`, and adjustment-table pointer `r22`. The new source assigns those values `r30`, `r24`, `r22`, `r29`, and `r31`, respectively. These observations locate the remaining register allocation problem; they do not establish its cause.
+
+## Investigations that did not establish a solution
+
+- Wii compiler versions 1.0RC1, 1.0a, 1.0, 1.1, 1.3, 1.5, and 1.7 generate identical code for both GLGR source forms and preserve the other 24 matches. GameCube 3.0a5.2 changes eight additional functions and shortens GLGR by four bytes.
+- Scalar type combinations, equivalent allocation/alignment expressions, count-read order, loop scopes and counters, and inlined stream-copy local declarations did not improve the accessor version. Reproducing the reference's nested target-buffer struct, mutable temporary stream pointers, and one-element trailing glyph-group array also left the same 32 words different. None of those header changes is retained.
+- Hoisting and permuting outer local declarations reached 30 differing words, but retained artificial declaration ordering; the clearer 32-word accessor version is kept. This does not justify another blind declaration-order search.
+- Alternative optimization and inlining flags either leave the same result or regress already matching functions. In particular, disabling common-subexpression elimination reduces GLGR's word count but breaks nine functions. No flag change is retained.
+
+The full build still selects the original `ut_ArchiveFontBase` object. A passing frozen-DOL verification therefore proves that this partial reconstruction preserves the build, not that the GLGR function is reconstructed exactly. Issue #449 remains unfinished and gains no source-coverage credit from this change.
+
+## Traps
+
+- **A smaller register diff can regress the unit.** Disabling common-subexpression elimination reduced GLGR's differing-word count while breaking nine functions. Compare every function in the object before treating a compiler experiment as evidence for a setting change.

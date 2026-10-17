@@ -190,11 +190,10 @@ ArchiveFontBase::ConstructOpAnalyzeFileHeader(ConstructContext* pContext,
 ArchiveFontBase::ConstructResult
 ArchiveFontBase::ConstructOpAnalyzeGLGR(ConstructContext* pContext,
                                         CachedStreamReader* pStream) {
-    BinaryFileHeader* pHeader =
-        reinterpret_cast<BinaryFileHeader*>(pContext->pCurrent);
-    u32 bodySize = pContext->header.size - sizeof(BinaryBlockHeader);
+    u8* pFileTop = pContext->pCurrent;
+    const u32 bodySize = pContext->header.size - sizeof(BinaryBlockHeader);
 
-    if (pHeader->signature != SIGNATURE) {
+    if (reinterpret_cast<BinaryFileHeader*>(pFileTop)->signature != SIGNATURE) {
         return CONSTRUCT_ERROR;
     }
 
@@ -206,84 +205,65 @@ ArchiveFontBase::ConstructOpAnalyzeGLGR(ConstructContext* pContext,
         return CONSTRUCT_ERROR;
     }
 
-    u8* pBlock = reinterpret_cast<u8*>(pHeader + 1);
-    u32 totalSize = sizeof(BinaryFileHeader) + pContext->header.size;
-    u8* pBlockEnd = pBlock + pContext->header.size;
+    BinaryBlockHeader* pBlockHeader =
+        reinterpret_cast<BinaryBlockHeader*>(pFileTop + sizeof(BinaryFileHeader));
+    const u32 dataSize = pContext->header.size + sizeof(BinaryFileHeader);
+    u8* pBlockEnd = reinterpret_cast<u8*>(pBlockHeader) + pContext->header.size;
 
-    memcpy(pBlock, &pContext->header, sizeof(BinaryBlockHeader));
-    pStream->CopyTo(pBlock + sizeof(BinaryBlockHeader), bodySize);
+    memcpy(pBlockHeader, &pContext->header, sizeof(BinaryBlockHeader));
+    pStream->CopyTo(pBlockHeader + 1, bodySize);
 
-    if (!IsValidResource(pHeader, totalSize)) {
+    if (!IsValidResource(pFileTop, dataSize)) {
         return CONSTRUCT_ERROR;
     }
 
-    const FontGlyphGroupsBlock* pGLGR =
-        reinterpret_cast<FontGlyphGroupsBlock*>(pHeader + 1);
+    FontGlyphGroupsAcs gg(pFileTop);
+    const u16 numSheet = gg.GetNumSheet();
+    const int glyphsPerSheet = gg.GetGlyphsPerSheet();
+    const u32 numBlocks = reinterpret_cast<BinaryFileHeader*>(pFileTop)->dataBlocks;
+    const int sizeAdjustTable = (RoundUp)(numSheet * sizeof(u16), 4);
 
-    u32 sizeSheetsOfs = RoundUp(sizeof(BinaryFileHeader) +
-                                    offsetof(FontGlyphGroupsBlock, body) +
-                                    offsetof(FontGlyphGroups, nameOffsets) +
-                                    pGLGR->body.numSet * sizeof(u16),
-                                4);
-    u32 sizeCWDHOfs =
-        RoundUp(sizeSheetsOfs + pGLGR->body.numSheet * sizeof(u32), 4);
-    u32 sizeCMAPOfs =
-        RoundUp(sizeCWDHOfs + pGLGR->body.numCWDH * sizeof(u32), 4);
-    u32 useSheetsOfs =
-        RoundUp(sizeCMAPOfs + pGLGR->body.numCMAP * sizeof(u32), 4);
+    const u32 remain = pContext->GetRemain();
+    u16* pAdjustTable = static_cast<u16*>((RoundDown)(pFileTop + remain - sizeAdjustTable, 2));
 
-    u32 sheetBytes = ((pGLGR->body.numSheet + 31) / 32) * sizeof(u32);
-    const u32* pUseSheets =
-        static_cast<const u32*>(AddOffsetToPtr(pHeader, useSheetsOfs));
-
-    u16 numSheet = pGLGR->body.numSheet;
-    u16 glyphsPerSheet = pGLGR->body.glyphsPerSheet;
-    u16 numBlocks = pHeader->dataBlocks;
-
-    u32 adjustSize = RoundUp(numSheet * sizeof(u16), 4);
-
-    u16* pAdjust = reinterpret_cast<u16*>(
-        (reinterpret_cast<u32>(pHeader) + pContext->GetRemain() - adjustSize) &
-        ~1);
-
-    if (pContext->GetRemain() <
-        adjustSize + (pBlockEnd - reinterpret_cast<u8*>(pHeader))) {
+    if (remain < (pBlockEnd - pFileTop) + sizeAdjustTable) {
         return CONSTRUCT_ERROR;
     }
 
-    for (int i = 0; i < pGLGR->body.numSheet; i++) {
-        pAdjust[i] = 0;
+    for (int i = 0; i < gg.GetNumSheet(); i++) {
+        pAdjustTable[i] = 0;
     }
 
-    for (int set = 0; set < pGLGR->body.numSet; set++) {
-        const char* pSetName = static_cast<const char*>(
-            AddOffsetToPtr(pHeader, pGLGR->body.nameOffsets[set]));
+    for (int setNo = 0; setNo < gg.GetNumSet(); setNo++) {
+        const char* pSetName = gg.GetSetName(setNo);
 
-        if (IsNullString(pContext->pGlyphGroups) ||
-            IncludeName(pContext->pGlyphGroups, pSetName)) {
+        if (pContext->pGlyphGroups[0] != '\0' && !IncludeName(pContext->pGlyphGroups, pSetName)) {
+            continue;
+        }
 
-            for (int sheet = 0; sheet < pGLGR->body.numSheet; sheet++) {
-                if (IsBitOn(pUseSheets, sheet + set * sheetBytes * 8)) {
-                    pAdjust[sheet] = 1;
-                }
+        for (int sheetNo = 0; sheetNo < gg.GetNumSheet(); sheetNo++) {
+            if (gg.IsUseSheet(setNo, sheetNo)) {
+                pAdjustTable[sheetNo] = 1;
             }
         }
     }
 
-    u16 adjust = 0;
-    for (int i = 0; i < pGLGR->body.numSheet; i++) {
-        if (pAdjust[i] == 1) {
-            pAdjust[i] = adjust;
-        } else {
-            pAdjust[i] = ADJUST_OFFSET_SHEET_NOT_LOADED;
-            adjust += pGLGR->body.glyphsPerSheet;
+    {
+        u32 adjust = 0;
+
+        for (int i = 0; i < gg.GetNumSheet(); i++) {
+            if (pAdjustTable[i] == 1) {
+                pAdjustTable[i] = adjust;
+            } else {
+                pAdjustTable[i] = ADJUST_OFFSET_SHEET_NOT_LOADED;
+                adjust += gg.GetGlyphsPerSheet();
+            }
         }
     }
 
     u16* pDst = reinterpret_cast<u16*>(pContext->pCurrent);
-    pContext->Advance(adjustSize);
-    u16* pAdjustEnd = pAdjust + numSheet;
-    memmove(pDst, pAdjust, (pAdjustEnd - pAdjust) * sizeof(u16));
+    pContext->Advance(sizeAdjustTable);
+    memmove(pDst, pAdjustTable, ((pAdjustTable + numSheet) - pAdjustTable) * sizeof(u16));
 
     pContext->pGlyphIndexAdjustArray = pDst;
     pContext->numSheets = numSheet;
