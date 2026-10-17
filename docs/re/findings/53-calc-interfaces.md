@@ -48,6 +48,12 @@ All 517 existing source objects are whole-file byte-identical between the accept
 
 The whole DOL matches the original frozen SHA-256 ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da. No expected hash changes.
 
+## Rebased complete baseline
+
+A fresh control/proposed build on `e70743b5fdbef570d06974387bfa4e40838e7d7d` contains 535 compiled source objects. Both configurations explicitly run `all_source`, plain default Ninja, and the actual-directory frozen verifier, all exiting zero. All 535 whole object files and the complete ELF/DOL remain byte-identical. The proposed headers are saved and restored as the exact committed copies, without depending on a mutable outside overlay.
+
+`53-check-icalc-latest.py`, `53-icalc-latest-baseline.log`, `53-icalc-latest-baseline.json`, and the latest control ELF/DOL reproduce this checkpoint in `build-53-icalc-latest`. The canonical-only consumer compiler takes `build-53-icalc-latest/wpse-v1/src/game/BController.o` as its explicit Ninja target. Its compiler exits zero before both independent audits repeat the complete 428 native instruction bytes and display RTTI/vtable target proof. The final committed-head repeat and ancestry guard remain separate merge requirements.
+
 ## Reproduction
 
 The following files are outside the checkout in C:/MassStorage/GitHub/53-reference:
