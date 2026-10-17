@@ -17,6 +17,15 @@ RVL_SDK/base/PPCArch.c:
 	.text       start:0x802B1800 end:0x802B1A10
 	.data       start:0x803C7280 end:0x803C72B8
 
+RVL_SDK/wpad/WPAD.c:
+	.text       start:0x802F6BC0 end:0x802FE650
+	.rodata     start:0x80397DD8 end:0x80397E18
+	.data       start:0x803DCB68 end:0x803DCF90
+	.bss        start:0x804774E0 end:0x8047AC40
+	.sdata      start:0x804B8DC8 end:0x804B8DF8
+	.sbss       start:0x804B9A50 end:0x804B9AB0
+	.sdata2     start:0x804BB500 end:0x804BB508
+
 Runtime/__init_cpp_exceptions.cpp:
 	.text       start:0x80340B24 end:0x80340B94
 	.ctors      start:0x803529C0 end:0x803529C4 rename:.ctors$10

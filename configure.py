@@ -153,7 +153,10 @@ config.libs = [
         SDK_COMPILER,
         cflags_sdk,
         "sdk",
-        [Object(Matching, "RVL_SDK/base/PPCArch.c")],
+        [
+            Object(Matching, "RVL_SDK/base/PPCArch.c"),
+            Object(NonMatching, "RVL_SDK/wpad/WPAD.c"),
+        ],
     ),
     library(
         "Runtime.PPCEABI.H",
