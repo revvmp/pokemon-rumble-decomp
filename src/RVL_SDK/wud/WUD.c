@@ -1,5 +1,8 @@
 #include "revolution/wud.h"
 #include <string.h>
+#include "private/wud/WUDWiiFit.h"
+
+#define WUD_DEV_NAME_IS_WBC(NAME) WUD_DEV_NAME_IS(NAME, "Nintendo RVL-WBC")
 
 #define DEBUGPrint WUD_DEBUGPrint
 
@@ -151,6 +154,11 @@ static u8 _wudResetAuthCountCmd[] = {
 
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
+static WUDWiiFitPairingInfo sWudWiiFitPairingInfo ATTRIBUTE_ALIGN(32);
+static u32 sWudWiiFitChecksumSeed;
+
+void WUDiMoveTopOfUnusedStdDevice(WUDDevInfo* pInfo);
+
 WUDCB _wcb;
 static WUDDiscResp sWudDiscoveryResponse;
 static s8 sWudDiscoveryRssi;
@@ -288,7 +296,7 @@ static WUDDevInfo* __wudGetWbcDevice(void) {
 
     enable = OSDisableInterrupts();
     ptr = p_wcb->stdListHead;
-    while (ptr != NULL) {
+    while (ptr) {
         if (!memcmp(ptr->devInfo->conf.devName, "Nintendo RVL-WBC", 16)) {
             p_info = ptr->devInfo;
         }
@@ -297,6 +305,79 @@ static WUDDevInfo* __wudGetWbcDevice(void) {
     OSRestoreInterrupts(enable);
 
     return p_info;
+}
+
+static u8 __wudGetStdDevNumber(void) {
+    WUDCB* p = &_wcb;
+    BOOL enabled = OSDisableInterrupts();
+
+    u8 num = p->devNums;
+
+    OSRestoreInterrupts(enabled);
+    return num;
+}
+
+static WUDDevInfo* __wudGetOldestStdDevice(void) {
+    return _wcb.stdListTail->devInfo;
+}
+
+static inline WUDDevInfo* __wudGetNewDevInfo(void) {
+    WUDCB* p = &_wcb;
+    WUDDevInfo* pInfo;
+    BOOL enabled;
+    int i;
+
+    enabled = OSDisableInterrupts();
+
+    if (p->syncType == WUD_SYNC_TYPE_STANDARD) {
+        pInfo = NULL;
+        for (i = 0; i < WUD_MAX_DEV_ENTRY_FOR_STD; i++) {
+            if (p->stdDevs[i].status == 0) {
+                DEBUGPrint("new entry index is %d\n", i);
+                pInfo = &p->stdDevs[i];
+                break;
+            }
+        }
+    } else {
+        pInfo = p->smpListTail->devInfo;
+    }
+
+    OSRestoreInterrupts(enabled);
+    return pInfo;
+}
+
+static u32 __wudCalcWiiFitCrc2(void *data_, u32 length_, u32 crc)
+{
+	u16 *data = data_;
+	u32 crcHi = (u16)(crc >> 16);
+	u16 crcLo = (u16)crc;
+
+	u32 i;
+	u32 length = length_ / sizeof *data;
+	for (i = 0; i < length; ++i, ++data)
+	{
+		crcHi += *data;
+		crcLo += ~*data;
+	}
+
+	return (u16)crcHi << 16 | crcLo;
+}
+
+static void __wudPrepareWBCDevInfo(BD_ADDR devAddr, LINK_KEY linkKey, void* pProfile) {
+    u32 checksum;
+
+    if (devAddr) {
+        memcpy(sWudWiiFitPairingInfo.devAddr, devAddr, BD_ADDR_LEN);
+    }
+    if (linkKey) {
+        memcpy(sWudWiiFitPairingInfo.linkKey, linkKey, LINK_KEY_LEN);
+    }
+    if (pProfile) {
+        memcpy(&sWudWiiFitPairingInfo.devInfo, pProfile, sizeof(SCDevInfo));
+    }
+
+    checksum = __wudCalcWiiFitCrc2(&sWudWiiFitPairingInfo, 128, sWudWiiFitChecksumSeed);
+    memcpy(&sWudWiiFitPairingInfo.checksum, &checksum, sizeof(checksum));
 }
 
 #pragma force_active on
@@ -402,6 +483,58 @@ static u8 __wudSyncTryConnect(void) {
     }
 
     return nextState;
+}
+
+static u8 __wudSyncVirginStandard(void)
+{
+	WUDCB *p_wcb = &_wcb;
+	WUDDevInfo *p_info;
+
+	if (WUDIsLinkedWBC() && WUD_DEV_NAME_IS_CNT(_work.conf.devName))
+	{
+		p_info = __wudGetWbcDevice();
+
+		if (p_info && __wudGetStdDevNumber() == WUD_MAX_DEV_ENTRY_FOR_STD)
+		{
+			p_info = p_wcb->stdListTail->prev->devInfo;
+			WUDiMoveBottomStdDevInfoPtr(p_info);
+			WUDiRemoveDevice(p_info->devAddr);
+		}
+	}
+
+	if (__wudGetStdDevNumber() == WUD_MAX_DEV_ENTRY_FOR_STD)
+	{
+		p_info = __wudGetOldestStdDevice();
+		WUDiRemoveDevice(p_info->devAddr);
+	}
+
+	p_info = __wudGetNewDevInfo();
+
+	if (!p_info)
+		return WUD_STATE_SYNC_ERROR;
+
+	if (p_info->status != 0)
+		return WUD_STATE_SYNC_ERROR;
+
+	memcpy(p_info, &_work, sizeof *p_info);
+	WUDiRegisterDevice(p_info->devAddr);
+	WUDiMoveTopStdDevInfoPtr(p_info);
+
+	if (WUDIsLinkedWBC() && WUD_DEV_NAME_IS_WBC(p_info->conf.devName))
+	{
+		WUDiMoveTopOfUnusedStdDevice(p_info);
+
+		memset(&_scArray.info[14], 0, sizeof _scArray.info[14]);
+		WUD_BDCPY(&_scArray.info[14].bd_addr, p_info->devAddr);
+		memcpy(&_scArray.info[14].bd_name, p_info, sizeof _scArray.info[14].bd_name);
+
+		memcpy(&((WUDWiiFitConfigProfile*)_scArray.info[14].bd_name)->linkKey, p_info->linkKey, LINK_KEY_LEN);
+		__wudPrepareWBCDevInfo(p_info->devAddr, p_info->linkKey, p_info);
+	}
+
+	WUDiSetDevAddrForHandle(p_info->devHandle, p_info->devAddr);
+
+	return WUD_STATE_SYNC_STORED_LINK_KEY_TO_EEPROM;
 }
 
 static void __wudDeleteFlushCallback(u32 status) {

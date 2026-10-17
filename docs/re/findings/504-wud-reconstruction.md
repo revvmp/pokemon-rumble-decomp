@@ -15,7 +15,7 @@ Target `wpse-v1`, frozen executable manifest `config/targets/wpse-v1.json`. WUD.
 
 The small-BSS range begins at its first word, `0x804B9B28`. The preceding four bytes after the USB unit are alignment padding; including them in WUD's range provoked dtk's eight-byte alignment warning. The corrected range removes the warning, and the full split-only build and frozen DOL verification pass before source registration.
 
-The current source contains 49 retained functions, totaling 8,468 function bytes. The following 43 functions, totaling 5,192 bytes, reproduce every non-relocation instruction word at their exact original sizes with Wii/1.0 and `cflags_sdk`. The security, registration/removal, search and power paths are reconstructed separately with remaining differences.
+The current source contains 50 retained functions, totaling 9,356 function bytes. The following 43 functions, totaling 5,192 bytes, reproduce every non-relocation instruction word at their exact original sizes with Wii/1.0 and `cflags_sdk`. The security, registration/removal, search and power paths are reconstructed separately with remaining differences.
 
 | Function | Address | Bytes |
 | --- | --- | --- |
@@ -63,7 +63,7 @@ The current source contains 49 retained functions, totaling 8,468 function bytes
 | `WUDiSetQueueSizeForHandle` | `0x80310360` | `0x14` |
 | `WUDiSetNotAckNumForHandle` | `0x80310380` | `0x14` |
 
-This diagnostic excludes relocation-bearing words and does not establish matching function acceptance. Whole-unit objdiff is text 33.757233%, data 5.473637%, BSS 47.058823%, sdata 0%, sbss 37.735847% and sdata2 100%. WUD remains `NonMatching`; the final executable continues to link the original WUD object and gains zero linked WUD source-byte credit. The partial-source full build and explicit frozen verification pass. EUART and USB remain accepted source-linked units.
+This diagnostic excludes relocation-bearing words and does not establish matching function acceptance. Whole-unit objdiff is text 37.301422%, data 5.473637%, BSS 66.66667%, sdata 0%, sbss 45.28302% and sdata2 100%. WUD remains `NonMatching`; the final executable continues to link the original WUD object and gains zero linked WUD source-byte credit. The partial-source full build and explicit frozen verification pass. EUART and USB remain accepted source-linked units.
 
 The implementations reuse the existing typed WUD headers. `_wcb` is the established 0x750-byte controller block at `0x8047C320`. Paired source/target SDA relocations identify the four-byte `sWudInitialized` at `0x804B9B28`, `sWudReadNand` at `0x804B9B2C` and `_linkedWBC` at `0x804B9B40`; no field address is guessed from declaration order. The last is returned by `WUDIsLinkedWBC`. Its weak qualifier follows the licensed newer SDK reference; the target directly establishes its word storage and access, not an original ELF binding.
 
@@ -99,11 +99,13 @@ After rebasing onto #720, a fresh `build/504-source-header-refresh-1/wpse-v1` al
 
 [F-504-8](504-wud-sync-entry.md) adds exact raw search preparation, exact-size connection attempts, the naturally restored BSS prefix and the reduced security diagnostic. All 51 differing operands across the six partial bodies resolve to identical data.
 
+[F-504-9](504-wud-standard-pairing.md) adds exact-size standard pairing, four folded addresses to identical data, the typed Wii Fit workspace/settings views and its exact checksum stream. The pairing workspace and following handle array reproduce their original BSS positions. All 55 differing operands across seven partial bodies resolve to identical data.
+
 ## Remaining work
 
-- Complete the remaining 37 native functions, including synchronization, the Wii Fit NAND paths, patch handling and Bluetooth event processing.
+- Complete the remaining 36 native functions, including synchronization, the Wii Fit NAND paths, patch handling and Bluetooth event processing.
 - Reconstruct and verify the complete unit data and layouts; the current source defines the controller block, working device, settings and handle arrays, three proven flag words and a dirty byte.
-- Complete the six partial bodies' pooled data addresses and the unit's remaining data layout, and resolve any further layout or naming needs through shared-header prerequisites. [F-504-5](504-wud-device-state-headers.md) records the two device-member renames in #720 and its unchanged 340-object baseline.
+- Complete the seven partial bodies' pooled data addresses and the unit's remaining data layout, and resolve any further layout or naming needs through shared-header prerequisites. [F-504-5](504-wud-device-state-headers.md) records the two device-member renames in #720 and its unchanged 340-object baseline.
 - Resolve every call, callback, data relocation and folded reference. The current raw-word comparison is deliberately narrower than acceptance.
 - Mark WUD `Matching` only after all retained code and the complete source-selected frozen DOL verify. The source prerequisite for KPAD remains separate in #710.
 
