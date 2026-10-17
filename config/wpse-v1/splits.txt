@@ -445,6 +445,12 @@ RVL_SDK/dvd/dvdDeviceError.c:
 	.sbss       start:0x804B97D0 end:0x804B97D4
 	.sdata2     start:0x804BB3F0 end:0x804BB3F4
 
+RVL_SDK/ai/ai.c:
+	.text       start:0x802D9EE0 end:0x802DA48C
+	.data       start:0x803D84E8 end:0x803D852D
+	.sdata      start:0x804B8BC8 end:0x804B8BCC
+	.sbss       start:0x804B9800 end:0x804B983C
+
 RVL_SDK/ax/AX.c:
 	.text       start:0x802DA490 end:0x802DA500
 	.data       start:0x803D8530 end:0x803D8578
