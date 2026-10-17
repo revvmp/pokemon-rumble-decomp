@@ -43,3 +43,9 @@ Coordinate the `dvd.c` tail through its owning issue. Investigate the newer DVD 
 ## Traps
 
 A union rebase reintroduced obsolete OSAlarm rows whose legacy encoding differed from the corrected upstream text. Inspect appended documentation for duplicates even when Git reports no conflict; preserve upstream rows and remove only the redundant additions. Squashing the issue-only delta removed the stale context from subsequent rebases. Worktrees share remote refs: pin the inspected base SHA before history operations, because another worker can advance origin/main between commands.
+
+## F-482-2: Shared header prerequisites for the remaining DVD functions
+
+The target callbacks at `0x802D71C0` and `0x802D7250` store the status register at `DVDErrorInfo + 0x14` and cover register at `+0x10`, respectively. The imported older header places status at `+0x10` and reserves the next four bytes. The corrected `cover`/`status` fields retain the record size of 128 bytes and every following offset. The call to `DVDLowPrepareStatusRegister` at `0x802D7290` tests its return with `cmpwi r3,0`; the imported byte-sized `bool` declaration instead compiles to `clrlwi.`. Returning `BOOL` reproduces the instruction. No existing reconstructed source outside this issue accesses these fields or calls this function.
+
+Device-check reconstruction requires the missing `OSIOSRev` declaration and `__OSGetIOSRev`/`OSGetPhysicalMem2Size` prototypes. These are imported from Petari `libs/RVL_SDK/include/revolution/os.h` at the pinned CC0 revision used in F-482-1. The target loads `major` from byte offset 1 after calling `__OSGetIOSRev`, consistent with the eight-byte reference structure. This prerequisite changes no source coverage; remaining implementation validation will be recorded separately.
