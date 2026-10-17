@@ -1,7 +1,23 @@
 #ifndef RVL_SDK_CNT_H
 #define RVL_SDK_CNT_H
 
-typedef struct CNTHandle CNTHandle;
+typedef struct CNTHandle {
+    union {
+        struct {
+            void* archiveStart;
+            unsigned char archiveMetadata[24];
+            int descriptor;
+            void* allocator;
+        } nand;
+        struct {
+            unsigned int index;
+            int rootDirectory;
+            int currentDirectory;
+            unsigned char reserved[24];
+        } dvd;
+    } content;
+    unsigned char type;
+} CNTHandle;
 
 typedef struct CNTFileInfo {
     union {
@@ -24,6 +40,9 @@ typedef struct CNTFileInfo {
 
 void CNTInit(void);
 int CNTShutdown(void);
+int CNTReleaseHandle(CNTHandle* pHandle);
+int CNTReadAt(CNTFileInfo* pFileInfo, void* pBuffer, int length, int offset);
+int CNTClose(CNTFileInfo* pFileInfo);
 unsigned int CNTGetLength(const CNTFileInfo* pFileInfo);
 
 #endif
