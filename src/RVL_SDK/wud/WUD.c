@@ -187,6 +187,9 @@ static void __wudShutdownFlushCallback(u32 result);
 void __wudAppendRuntimePatch(void);
 void __wudInitSub(void);
 
+static BOOL __wudStartSyncDevice(u8 syncType, s8 syncLoopNum, u8 target, BOOL fast);
+static void __wudDeleteHandler0(OSAlarm* pAlarm, OSContext* pContext);
+
 WUDCB _wcb;
 static WUDDiscResp sWudDiscoveryResponse;
 static s8 sWudDiscoveryRssi;
@@ -914,6 +917,79 @@ static void __wudShutdownStoreSetting(void) {
 static void __wudShutdownDone(void) {
     OSCancelAlarm(&_wcb.alarm);
     BTA_DisableBluetooth();
+}
+
+static inline BOOL WUDStartClearDevice(void) {
+    WUDCB* p = &_wcb;
+    BOOL success;
+    BOOL enabled;
+    u32 libStatus;
+
+    success = FALSE;
+    DEBUGPrint("WUDStartClearDevice()\n");
+
+    enabled = OSDisableInterrupts();
+    libStatus = p->libStatus;
+
+    OSRestoreInterrupts(enabled);
+
+    if (libStatus == WUD_LIB_STATUS_3 && !WUDIsBusy()) {
+        enabled = OSDisableInterrupts();
+
+        p->deleteState = WUD_STATE_DELETE_DISALLOW_INCOMING;
+
+        OSCreateAlarm(&p->alarm);
+        OSSetPeriodicAlarm(&p->alarm, OSGetTime(), OSMillisecondsToTicks(20), __wudDeleteHandler0);
+
+        OSRestoreInterrupts(enabled);
+
+        success = TRUE;
+    }
+
+    return success;
+}
+
+static void __wudProcSyncEvent(void) {
+    WUDCB* p_wcb = &_wcb;
+    WUDSyncDeviceCallback callback;
+    BOOL enable;
+
+    WUD_DEBUGPrint("__wudProcSyncEvent()\n");
+
+    if (!WUDIsBusy()) {
+        enable = OSDisableInterrupts();
+        callback = p_wcb->syncStdCB;
+        OSRestoreInterrupts(enable);
+
+        if (callback) {
+            callback(0, 0);
+        } else {
+            __wudStartSyncDevice(WUD_SYNC_TYPE_STANDARD, 3, 0, FALSE);
+        }
+    }
+}
+
+static void __wudProcDeleteEvent(void) {
+    WUDCB* p = &_wcb;
+    WUDClearDeviceCallback pClearCallback;
+    s32 result;
+    BOOL enabled;
+
+    DEBUGPrint("__wudProcDeleteEvent()\n");
+    enabled = OSDisableInterrupts();
+
+    pClearCallback = p->clearDevCB;
+    result = WUDIsBusy() ? -1
+                           :
+                           WUD_RESULT_DELETE_WAITING;
+
+    OSRestoreInterrupts(enabled);
+
+    if (pClearCallback) {
+        pClearCallback(result);
+    } else {
+        WUDStartClearDevice();
+    }
 }
 
 #pragma force_active on
@@ -2004,6 +2080,70 @@ void WUDiMoveBottomSmpDevInfoPtr(WUDDevInfo* pInfo) {
     OSRestoreInterrupts(enabled);
 }
 
+void WUDiMoveTopOfDisconnectedSmpDevice(WUDDevInfo *dev_info)
+{
+	WUDCB *p_wcb = &_wcb;
+	int i;
+
+	BOOL intrStatus = OSDisableInterrupts();
+
+	WUDDevInfoList *p_list;
+	for (i = 0; i < WUD_MAX_DEV_ENTRY_FOR_SMP; i++)
+	{
+		if (WUD_BDCMP(p_wcb->smpList[i].devInfo->devAddr, dev_info->devAddr)
+		    != 0)
+		{
+			continue;
+		}
+
+		for (p_list = p_wcb->smpListHead; p_list; p_list = p_list->next)
+		{
+			if (WUD_BDCMP(p_list->devInfo->devAddr, dev_info->devAddr) == 0)
+				continue;
+
+			if (p_list->devInfo->status != 1 && p_list->devInfo->status != 0)
+				continue;
+
+			if (WUD_BDCMP(p_wcb->smpListHead->devInfo->devAddr,
+			              p_wcb->smpList[i].devInfo->devAddr)
+			    == 0)
+			{
+				if (p_list == p_wcb->smpListHead->next)
+					break;
+
+				p_wcb->smpListHead = p_wcb->smpList[i].next;
+			}
+			else
+			{
+				p_wcb->smpList[i].prev->next = p_wcb->smpList[i].next;
+			}
+
+			p_wcb->smpList[i].next->prev = p_wcb->smpList[i].prev;
+
+			if (p_list != p_wcb->smpListHead)
+			{
+				p_wcb->smpList[i].prev = p_list->prev;
+				p_wcb->smpList[i].next = p_list;
+
+				p_list->prev->next = &p_wcb->smpList[i];
+				p_list->prev = &p_wcb->smpList[i];
+			}
+			else
+			{
+				p_wcb->smpList[i].prev = p_list;
+				p_wcb->smpList[i].next = p_list->next;
+
+				p_list->next->prev = &p_wcb->smpList[i];
+				p_list->next = &p_wcb->smpList[i];
+			}
+
+			break;
+		}
+	}
+
+	OSRestoreInterrupts(intrStatus);
+}
+
 void WUDiMoveTopStdDevInfoPtr(WUDDevInfo* pInfo) {
     WUDCB* p = &_wcb;
     BOOL enabled;
@@ -2074,6 +2214,147 @@ void WUDiMoveBottomStdDevInfoPtr(WUDDevInfo* pInfo) {
     }
 
     OSRestoreInterrupts(enabled);
+}
+
+void WUDiMoveTopOfDisconnectedStdDevice(WUDDevInfo *devInfo)
+{
+	WUDCB *p_wcb = &_wcb;
+	int i;
+
+	BOOL intrStatus = OSDisableInterrupts();
+
+	WUDDevInfoList *p_list;
+	for (i = 0; i < WUD_MAX_DEV_ENTRY_FOR_STD; i++)
+	{
+		if (WUD_BDCMP(p_wcb->stdList[i].devInfo->devAddr, devInfo->devAddr)
+		    != 0)
+		{
+			continue;
+		}
+
+		for (p_list = p_wcb->stdListHead; p_list; p_list = p_list->next)
+		{
+			if (WUD_BDCMP(p_list->devInfo->devAddr, devInfo->devAddr) == 0)
+				continue;
+
+			if (p_list->devInfo->status != 1 && p_list->devInfo->status != 0
+			    && (WUD_DEV_NAME_IS_CNT(p_list->devInfo->conf.devName)
+			        || !WUDIsLinkedWBC()))
+			{
+				continue;
+			}
+
+			if (WUD_BDCMP(p_wcb->stdListHead->devInfo->devAddr,
+			              p_wcb->stdList[i].devInfo->devAddr)
+			    == 0)
+			{
+				if (p_list == p_wcb->stdListHead->next)
+					break;
+
+				p_wcb->stdListHead = p_wcb->stdList[i].next;
+			}
+			else
+			{
+				p_wcb->stdList[i].prev->next = p_wcb->stdList[i].next;
+			}
+
+			p_wcb->stdList[i].next->prev = p_wcb->stdList[i].prev;
+
+			if (p_list != p_wcb->stdListHead)
+			{
+				p_wcb->stdList[i].prev = p_list->prev;
+				p_wcb->stdList[i].next = p_list;
+
+				p_list->prev->next = &p_wcb->stdList[i];
+				p_list->prev = &p_wcb->stdList[i];
+			}
+			else
+			{
+				p_wcb->stdList[i].prev = p_list;
+				p_wcb->stdList[i].next = p_list->next;
+
+				p_list->next->prev = &p_wcb->stdList[i];
+				p_list->next = &p_wcb->stdList[i];
+			}
+
+			break;
+		}
+	}
+
+	OSRestoreInterrupts(intrStatus);
+}
+
+void WUDiMoveTopOfUnusedStdDevice(WUDDevInfo *dev_info)
+{
+	WUDCB *p_wcb = &_wcb;
+	int i;
+
+	BOOL intrStatus = OSDisableInterrupts();
+
+	WUDDevInfoList *p_list;
+	for (i = 0; i < WUD_MAX_DEV_ENTRY_FOR_STD; i++)
+	{
+		if (WUD_BDCMP(p_wcb->stdList[i].devInfo->devAddr, dev_info->devAddr)
+		    != 0)
+		{
+			continue;
+		}
+
+		for (p_list = p_wcb->stdListHead; p_list; p_list = p_list->next)
+		{
+			if (WUD_BDCMP(p_list->devInfo->devAddr, dev_info->devAddr) == 0)
+				continue;
+
+			if (p_list->devInfo->status != 0 && p_list != p_wcb->stdListTail)
+				continue;
+
+			if (WUD_BDCMP(p_wcb->stdListHead->devInfo->devAddr,
+			              p_wcb->stdList[i].devInfo->devAddr)
+			    == 0)
+			{
+				if (p_list == p_wcb->stdListHead->next)
+					break;
+
+				p_wcb->stdListHead = p_wcb->stdList[i].next;
+			}
+			else
+			{
+				p_wcb->stdList[i].prev->next = p_wcb->stdList[i].next;
+			}
+
+			p_wcb->stdList[i].next->prev = p_wcb->stdList[i].prev;
+
+			if (p_list == p_wcb->stdListTail && p_list->devInfo->status != 0)
+			{
+				p_wcb->stdList[i].prev = p_list;
+				p_wcb->stdList[i].next = NULL;
+
+				p_list->next = &p_wcb->stdList[i];
+
+				p_wcb->stdListTail = &p_wcb->stdList[i];
+			}
+			else if (p_list != p_wcb->stdListHead)
+			{
+				p_wcb->stdList[i].prev = p_list->prev;
+				p_wcb->stdList[i].next = p_list;
+
+				p_list->prev->next = &p_wcb->stdList[i];
+				p_list->prev = &p_wcb->stdList[i];
+			}
+			else
+			{
+				p_wcb->stdList[i].prev = p_list;
+				p_wcb->stdList[i].next = p_list->next;
+
+				p_list->next->prev = &p_wcb->stdList[i];
+				p_list->next = &p_wcb->stdList[i];
+			}
+
+			break;
+		}
+	}
+
+	OSRestoreInterrupts(intrStatus);
 }
 
 BOOL WUDIsBusy(void) {
@@ -2333,11 +2614,159 @@ void __wudSearchEventStackCallback(tBTA_DM_SEARCH_EVT event, tBTA_DM_SEARCH* pDa
     }
 }
 
+void WUDVendorSpecificCallback(UINT8 len, UINT8* pData) {
+#pragma unused(len)
+
+    u8 event = pData[0];
+    WUDCB* p = &_wcb;
+
+    switch (event) {
+    case WUD_VSE_INITIATE_PAIRING: {
+
+        __wudProcSyncEvent();
+        break;
+    }
+
+    case WUD_VSE_DELETE_ALL_KEYS: {
+
+        __wudProcDeleteEvent();
+        break;
+    }
+
+    case WUD_VSE_SI_PORT_STATUS: {
+
+        p->serialPortStatus = pData[1];
+        break;
+    }
+
+    case WUD_VSE_WATCH_DOG_RESET_HW: {
+
+
+        OSPanic("WUD.c", 5342, "MODULE FATAL ERROR\n");
+        break;
+    }
+    }
+}
+
 void __wudDeviceStatusEventStackCallback(tBTM_DEV_STATUS status) {
     DEBUGPrint("__wudDeviceStatusEventStackCallback\n");
 
     if (status == BTM_DEV_STATUS_CMD_TOUT) {
         OSReport("---- WARNING: USB FATAL ERROR! ----\n");
+    }
+}
+
+void __wudLinkKeyEventStackCallback(void* p1) {
+    tBTM_BD_ADDR_LINK_KEY_PAIR* pPair;
+    WUDCB* p = &_wcb;
+    WUDDevInfo* pInfo;
+    int i;
+
+    tBTM_STORED_LINK_KEYS_EVT* pData = p1;
+    tBTM_READ_STORED_LINK_KEY_COMPLETE* pRead;
+    tBTM_WRITE_STORED_LINK_KEY_COMPLETE* pWrite;
+    tBTM_DELETE_STORED_LINK_KEY_COMPLETE* pDelete;
+    tBTM_RETURN_LINK_KEYS_EVT* pReturn;
+
+    switch (pData->event) {
+    case BTM_CB_EVT_RETURN_LINK_KEYS: {
+        pReturn = p1;
+
+        DEBUGPrint("BTM_CB_EVT_RETURN_LINK_KEYS\n");
+
+        pPair = (tBTM_BD_ADDR_LINK_KEY_PAIR*)(pReturn + 1);
+        i = 0;
+
+        while (i < pReturn->num_keys) {
+            pInfo = WUDiGetDevInfo(pPair->bd_addr);
+
+            DEBUGPrint("BD_ADDR:  %02x:%02x:%02x:%02x:%02x:%02x\n", pPair->bd_addr[0], pPair->bd_addr[1], pPair->bd_addr[2], pPair->bd_addr[3],
+                       pPair->bd_addr[4], pPair->bd_addr[5]);
+
+            DEBUGPrint("LINKKEY: %02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x\n",
+                       pPair->link_key[0],  pPair->link_key[1],  pPair->link_key[2],  pPair->link_key[3],
+                       pPair->link_key[4],  pPair->link_key[5],  pPair->link_key[6],  pPair->link_key[7],
+                       pPair->link_key[8],  pPair->link_key[9],  pPair->link_key[10], pPair->link_key[11],
+                       pPair->link_key[12], pPair->link_key[13], pPair->link_key[14], pPair->link_key[15]);
+
+            if (!pInfo) {
+                DEBUGPrint("this device is not stored in NAND\n");
+
+                pInfo = __wudGetNewDevInfo();
+
+                if (!pInfo) {
+                    for (i = 0; i < WUD_MAX_DEV_ENTRY_FOR_SMP; i++) {
+                        if (p->smpDevs[i].status == 0) {
+                            pInfo = &p->smpDevs[i];
+                            break;
+                        }
+                    }
+                }
+
+                if (pInfo) {
+                    pInfo->linkKeyStorage = 1;
+                    pInfo->status = 1;
+
+                    WUD_BDCPY(pInfo->devAddr, pPair->bd_addr);
+                    memcpy(pInfo->linkKey, pPair->link_key, LINK_KEY_LEN);
+                }
+            } else {
+                WUD_BDCPY(pInfo->devAddr, pPair->bd_addr);
+                memcpy(pInfo->linkKey, pPair->link_key, LINK_KEY_LEN);
+
+                if (pInfo->linkKeyStorage == 2) {
+                    pInfo->linkKeyStorage = 3;
+                }
+
+                WUD_BDCPY(p->pairAddr, pPair->bd_addr);
+                DEBUGPrint("   LAST: %02x:%02x:%02x:%02x:%02x:%02x\n", p->pairAddr[0], p->pairAddr[1], p->pairAddr[2], p->pairAddr[3], p->pairAddr[4],
+                           p->pairAddr[5]);
+            }
+
+            pPair++;
+            i++;
+        }
+
+        break;
+    }
+
+    case BTM_CB_EVT_READ_STORED_LINK_KEYS: {
+        pRead = p1;
+
+        DEBUGPrint("BTM_CB_EVT_READ_STORED_LINK_KEYS\n");
+        DEBUGPrint("  status: %d  max_keys: %d  num_keys: %d\n", pRead->status, pRead->max_keys, pRead->read_keys);
+
+        p->linkKeyState = WUD_STATE_LINK_KEY_START;
+        break;
+    }
+
+    case BTM_CB_EVT_WRITE_STORED_LINK_KEYS: {
+        pWrite = p1;
+
+        DEBUGPrint("BTM_CB_EVT_WRITE_STORED_LINK_KEYS\n");
+        DEBUGPrint("  status: %d  num_keys: %d\n", pWrite->status, pWrite->num_keys);
+
+        p->linkKeyState = WUD_STATE_LINK_KEY_START;
+        break;
+    }
+
+    case BTM_CB_EVT_DELETE_STORED_LINK_KEYS: {
+        pDelete = p1;
+
+        DEBUGPrint("BTM_CB_EVT_DELETE_STORED_LINK_KEYS\n");
+        DEBUGPrint("  status: %d  num_keys: %d\n", pDelete->status, pDelete->num_keys);
+
+        if (pDelete->num_keys == 0) {
+            DEBUGPrint("WARNING: no entry is deleted\n");
+        }
+
+        p->linkKeyState = WUD_STATE_LINK_KEY_START;
+        break;
+    }
+
+    default: {
+        OSPanic("WUD.c", 5498, "Unknown event\n");
+    }
     }
 }
 
