@@ -306,6 +306,13 @@ config.libs = [
             Object(Matching, "nw4r/g3d/res/g3d_resmat.cpp"),
             Object(Matching, "nw4r/g3d/res/g3d_resvtx.cpp"),
             Object(Matching, "nw4r/g3d/res/g3d_restex.cpp"),
+            Object(Matching, "nw4r/g3d/res/g3d_resnode.cpp"),
+            Object(Matching, "nw4r/g3d/res/g3d_resanm.cpp"),
+            Object(Matching, "nw4r/g3d/res/g3d_resanmvis.cpp"),
+            Object(Matching, "nw4r/g3d/res/g3d_resanmclr.cpp"),
+            Object(Matching, "nw4r/g3d/res/g3d_resanmtexpat.cpp"),
+            Object(Matching, "nw4r/g3d/res/g3d_resanmtexsrt.cpp"),
+            Object(Matching, "nw4r/g3d/res/g3d_resanmchr.cpp"),
         ],
     ),
     library(

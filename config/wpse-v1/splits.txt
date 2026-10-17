@@ -298,6 +298,34 @@ nw4r/g3d/res/g3d_resvtx.cpp:
 nw4r/g3d/res/g3d_restex.cpp:
 	.text       start:0x80250F20 end:0x8025112C
 
+nw4r/g3d/res/g3d_resnode.cpp:
+	.text       start:0x80251130 end:0x80251460
+	.sdata2     start:0x804BAAD0 end:0x804BAAE0
+
+nw4r/g3d/res/g3d_resanm.cpp:
+	.text       start:0x80251460 end:0x802516A4
+	.sdata2     start:0x804BAAE0 end:0x804BAAF8
+
+nw4r/g3d/res/g3d_resanmvis.cpp:
+	.text       start:0x802516B0 end:0x802517D0
+	.sdata2     start:0x804BAAF8 end:0x804BAB08
+
+nw4r/g3d/res/g3d_resanmclr.cpp:
+	.text       start:0x802517D0 end:0x8025193C
+	.sdata2     start:0x804BAB08 end:0x804BAB18
+
+nw4r/g3d/res/g3d_resanmtexpat.cpp:
+	.text       start:0x80251940 end:0x80251D00
+
+nw4r/g3d/res/g3d_resanmtexsrt.cpp:
+	.text       start:0x80251D00 end:0x80252114
+	.sdata2     start:0x804BAB18 end:0x804BAB20
+
+nw4r/g3d/res/g3d_resanmchr.cpp:
+	.text       start:0x80252120 end:0x80253C7C
+	.rodata     start:0x8036C6F0 end:0x8036C710
+	.sdata2     start:0x804BAB20 end:0x804BAB40
+
 nw4r/snd/snd_AxManager.cpp:
 	.text       start:0x80271E10 end:0x80273650
 	.ctors      start:0x80352A50 end:0x80352A54

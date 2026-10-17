@@ -1925,3 +1925,7 @@ For `wpse-v1` / `main.dol`, [F-392-1](findings/392-g3d-resvtx-restex.md) names 1
 ## F-462-1: NW4R Layout interface
 
 `nw4r::lyt::Layout` is 32 bytes: vptr at 0, animation list at 4, root pane at 0x10, group container at 0x14, and width/height at 0x18/0x1C. Its vtable at 0x803C6EF8 has fourteen methods, including BindAnimationAuto before SetAnimationEnable. The reference origin byte is absent. See [F-462-1](findings/462-layout-interface.md) for native constructor and vtable evidence.
+
+## NW4R g3d ResNode and resource animations (#393, part of #394)
+
+For `wpse-v1` / `main.dol`, [F-393-1](findings/393-g3d-resnode-resanm.md) names 30 functions in `.text` `0x80251130`–`0x80253C7C` with their mangled CodeWarrior names in `config/wpse-v1/symbols.txt`: `nw4r::g3d::ResNode::PatchChrAnmResult`, `CalcChrAnmResult` and `GetResUserData`; `detail::GetResKeyFrameAnmResult` and `detail::GetResColorAnmResult`; `GetAnmResult` of `ResAnmVis`, `ResAnmClr`, `ResAnmTexPat`, `ResAnmTexSrt` and `ResAnmChr`; the local `SearchFrame` of `g3d_resanmtexpat.cpp`; the local `g3d_resanmchr.cpp` helpers `GetAnmScale`, `GetAnmRotation`, `GetAnmTranslation`, the eight `GetAnmResult_*` variants and the weak `CalcAnimationFVS` instances for `ResAnmChrFVS96Data`, `ResAnmChrFVS48Data` and `ResAnmChrFVS32Data`; and `ChrAnmResult::GetRotTrans`, `GetMtx` and `SetRotTrans`. The local function table `gGetAnmResultTable` is `.rodata` `0x8036C6F0` (0x20). Names are high confidence from CC0 zeldaret/ss and the exact match; `ResNode::GetResUserData` reads `ResNodeData::toResUserData` at 0x6C.
