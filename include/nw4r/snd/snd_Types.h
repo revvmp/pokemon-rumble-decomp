@@ -54,13 +54,28 @@ struct VoiceOutParam {
 };
 
 struct SoundParam {
+    SoundParam()
+        : volume(1.0f),
+          pitch(1.0f),
+          pan(0.0f),
+          surroundPan(0.0f),
+          fxSend(0.0f),
+          lpf(0.0f),
+          biquadFilterValue(0.0f),
+          biquadFilterType(0),
+          priority(0),
+          userData(0) {}
+
     f32 volume;
     f32 pitch;
     f32 pan;
     f32 surroundPan;
     f32 fxSend;
     f32 lpf;
+    f32 biquadFilterValue;
+    int biquadFilterType;
     int priority;
+    u32 userData;
 };
 
 namespace detail {

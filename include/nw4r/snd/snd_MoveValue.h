@@ -33,6 +33,10 @@ public:
         return mOrigin + mCounter * (mTarget - mOrigin) / mFrame;
     }
 
+    TTime GetRemainingTime() const {
+        return IsFinished() ? 0 : mFrame - mCounter;
+    }
+
     void Update() {
         if (mCounter < mFrame) {
             mCounter++;

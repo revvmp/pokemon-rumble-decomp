@@ -145,7 +145,7 @@ private:
 
 private:
     AxVoice* mAxVoice[CHANNEL_MAX][VOICES_MAX];
-    SoundParam mVoiceOutParam[VOICES_MAX];
+    VoiceOutParam mVoiceOutParam[VOICES_MAX];
     int mChannelCount;
     int mVoiceOutCount;
 
