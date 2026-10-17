@@ -2,7 +2,7 @@
 
 ## Scope and status
 
-Issue #315 inventories twenty entries from `0x801B0EF0` through `0x801B15F0`. The first twelve form a game memory unit ending at `0x801B1450`; four global allocation operators follow through `0x801B15A0`. The last four are callbacks belonging to the following pad unit, whose first function is therefore owned by #315, rather than a standalone four-function unit. No reconstructed source is selected by this change. These splits retain original objects and earn no source credit.
+Issue #315 inventories twenty entries from `0x801B0EF0` through `0x801B15F0`. The first twelve form a game memory unit ending at `0x801B1450`; four global allocation operators follow through `0x801B15A0`. The last four are callbacks belonging to the following pad unit, whose first function is therefore owned by #315, rather than a standalone four-function unit. The initial split retained original objects. F-315-3 below records subsequent source acceptance of the four allocation operators; the memory unit remains NonMatching and the pad unit remains original.
 
 The memory/new filenames are descriptive hypotheses. No original source-file spelling has been recovered. The pinned KooShnoo reference has an empty `src/placeholder/pad.cpp`, so it supplies no implementation.
 
@@ -66,7 +66,7 @@ The original-only split was verified in the isolated `rumble-315` worktree:
 - `.venv/Scripts/ninja`: 0, `315-original-split-ninja6.log`.
 - `python tools/verify/verify.py verify --manifest config/targets/wpse-v1.json --reference-dir orig/wpse-v1 --build-dir build/wpse-v1`: 0, frozen main.dol.
 
-No expected hash changed. No original bytes were copied into reconstructed source. No unit has been marked Matching.
+No expected hash changed. No original bytes were copied into reconstructed source. At that initial split checkpoint no unit was marked Matching. The later source checkpoint is recorded below.
 
 ## Traps
 
@@ -75,3 +75,34 @@ No expected hash changed. No original bytes were copied into reconstructed sourc
 - The bad_alloc string ends at an unaligned address. dtk rejects the automatic data fragment beginning at `0x803BF3C9`; the original-only split includes its observed four-byte alignment to `0x803BF3CC` instead.
 - Masking relocation words conceals semantically wrong callees. The first initialization candidate called the low arena allocator; actual target pairing proved the native call uses the high allocator.
 - A failed compile leaves an old diagnostic object on disk. Only audit after the compiler exits zero; rejected declaration experiments do not supply new matching evidence.
+
+## F-315-3: source-linked global allocation operators
+
+### Accepted scope
+
+The actual game pipeline now selects `src/game/new.cpp` as Matching under Wii/1.1 and `cflags_game`. Its four functions contain 320 native instruction bytes: scalar new at `0x801B1450` (136), array new at `0x801B14E0` (152), scalar delete at `0x801B1580` (16), and array delete at `0x801B1590` (16). Both retained terminal BLRs are included. The seventeen-byte exception-filter string and ordinary linker alignment reproduce the native twenty-byte data extent without fabricated padding in source.
+
+`src/game/memory.cpp` is registered NonMatching. Eleven of its twelve functions reproduce all 1136 instruction bytes, paired call/data targets, 456 exception bytes, and their native index entries. The allocation callback at `0x801B0EF0` remains 132 bytes against native 144, with two exception regions against three. Its complete 1280-byte native unit remains selected from the original split object, and earns no reconstructed-source credit. The four following pad callbacks also remain original. Issue #315 is partial.
+
+The source uses descriptive `GameMemory` namespace and function names because no original namespace or filename spelling was recovered. The canonical sixteen-byte `MEMAllocator` and eight-byte callback table describe the actual private objects; two private four-byte heap handles occupy the observed SDA slots. The complete public interface is in `include/game/Memory.h`. Existing `__sys_alloc` and `__sys_free` spellings are retained.
+
+### Actual object and exception proof
+
+The actual Ninja-produced `build/wpse-v1/src/game/new.o` reproduces every instruction, all relocation targets, all 132 exception bytes, and both exception indices against the frozen native addresses. The standalone canonical-header proof is supplemented by `315-audit-actual-new.py` and `315-audit-actual-memory.py` outside the repository. These scripts audit objects produced by the real build rather than substitute diagnostic objects.
+
+Objdiff reports all four new/delete functions and its text, data, and exception indices at 100%. Its exception-section fuzzy score is 87.878784%, because the native semantic filter symbol `stdBadAllocExceptionName` and the compiler's numeric local label have different names. Explicit relocation pairing resolves both to the same native address and proves all 132 exception bytes. No numeric compiler label was forced into metadata to improve the fuzzy score. This limitation is separate from the complete source-linked DOL comparison, which passes.
+
+The declaration prerequisite is F-315-2, published separately in PR905: standard `bad_alloc` and `new_handler` declarations, plus the native compiler nothrow attributes on malloc/free. This source branch temporarily carries that exact bounded prerequisite until it merges; it introduces no second interface.
+
+### End-to-end validation
+
+The isolated managed source checkout is `C:/Users/brand/.codex/worktrees/315-source/pokemon-rumble-decomp`. After rebasing the original-only split onto `af72e095`, a fresh original-only configure, plain Ninja, and explicit frozen verifier all exited 0. Both units were then registered NonMatching; `ninja all_source`, plain Ninja, the actual object audits, and the frozen verifier exited 0. Finally only the new unit was selected Matching, and plain Ninja and the actual frozen verifier exited 0 again.
+
+Ninja's actual input graph for `main.elf` contains `src/game/new.o` and `obj/game/memory.o`. Thus the accepted operators are source-linked while the incomplete memory unit retains original fallback. Logs outside the repository are `315-managed-original-split.log`, `315-managed-nonmatching-full.log`, and `315-managed-new-matching.log`. The committed-head repeat is recorded in the pull request.
+
+No original hash changed. The four accepted functions earn 320 code bytes; the eleven diagnostic memory matches, linker alignment, exception records, external new-handler storage, and original pad functions earn no additional code credit.
+
+### Traps
+
+- An exception section can have a lower objdiff fuzzy score solely because an equivalent relocation uses a compiler-generated local name. Preserve meaningful metadata and prove the actual target addresses and complete linked artifact rather than renaming symbols to numeric compiler labels.
+- A source registration is not source selection. Inspect the real Ninja input graph to distinguish a NonMatching compiled diagnostic from the original object used in the link.

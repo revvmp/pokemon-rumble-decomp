@@ -217,6 +217,8 @@ config.libs = [
         "game",
         [
             Object(Matching, "game/BController.cpp"),
+            Object(NonMatching, "game/memory.cpp"),
+            Object(Matching, "game/new.cpp"),
             Object(Matching, "game/VideoTiming.cpp"),
             Object(Matching, "game/FaAsync.cpp"),
             Object(Matching, "game/NandAsync.cpp"),
