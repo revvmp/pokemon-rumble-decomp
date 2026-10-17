@@ -512,6 +512,35 @@ Runtime/__mem.c:
 	.init       start:0x80004364 end:0x800046E4
 	.text       start:0x8033F974 end:0x8033F990
 
+Runtime/__va_arg.c:
+	.text       start:0x8033F990 end:0x8033FA58
+
+Runtime/global_destructor_chain.c:
+	.text       start:0x8033FA58 end:0x8033FAB8
+	.sbss       start:0x804B9BB8 end:0x804B9BBC
+
+Runtime/NMWException.cpp:
+	extab       start:0x80044150 end:0x80044190
+	extabindex  start:0x80052434 end:0x80052464
+	.text       start:0x8033FAB8 end:0x8034003C
+	.sdata      start:0x804B8F88 end:0x804B8F90
+
+Runtime/ptmf.c:
+	.text       start:0x8034003C end:0x80340094
+	.rodata     start:0x803982A8 end:0x803982B4
+
+Runtime/MWRTTI.cpp:
+	extab       start:0x80044190 end:0x800441A0
+	extabindex  start:0x80052464 end:0x8005247C
+	.text       start:0x80340094 end:0x8034033C
+	.rodata     start:0x803982B8 end:0x80398310
+	.data       start:0x803E5CF0 end:0x803E5D18
+	.sdata      start:0x804B8F90 end:0x804B8F98
+
+Runtime/runtime.c:
+	.text       start:0x8034033C end:0x80340B24
+	.rodata     start:0x80398310 end:0x80398328
+
 Runtime/__init_cpp_exceptions.cpp:
 	.text       start:0x80340B24 end:0x80340B94
 	.ctors      start:0x803529C0 end:0x803529C4 rename:.ctors$10
