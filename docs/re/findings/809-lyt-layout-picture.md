@@ -1,0 +1,29 @@
+# F-809-1: Layout and Picture source boundaries and native probes
+
+Issue #809 lists 28 retained functions / 5,012 bytes: eighteen Layout functions starting at `0x802A6240` and ten Picture functions at `0x802A7110`–`0x802A768C`. The actual Layout unit begins with the 468-byte SetTagProcessorImpl helper at `0x802A6060`, owned by #808. Owner #808 approved exclusive coordinated whole-Layout preparation here, retaining ownership and requiring exact range/header review before publication. This delivery must use Part of #808 for that helper, and never count its source twice or close the remaining #808 inventory prematurely.
+
+## References and canonical interfaces
+
+The original Layout/Picture source and headers are from CC0 zeldaret/ss `787b0b1e9d30e3c1d91ced61350b059ffc5a2411`; root license and file-level notices were inspected. Original library reference code is diagnostic evidence, not proof that another revision's class layout applies here. Existing canonical Layout is 0x20 and must remain unchanged in storage and virtual order. Owner-approved external Material and Animation overlays from #808/#812 are used only for scratch probes until their bounded canonical prerequisites merge.
+
+Picture's speculative unused one-argument constructor body in the reference is omitted from the candidate. The retained resource constructor, destructor, Append, color accessors, drawing, type-info accessor and static initializer all have direct native proof. The original typed Size equality helper is needed; it compares width and height. Canonical Material texture APIs are coordinated with the owner rather than redeclared locally.
+
+## Complete Picture probe
+
+All ten retained Picture functions / 1,336 bytes match every native instruction after applying 38 independently decoded text relocations. Thirty vtable and constructor-table relocations also match, for 68 paired sites total. All 124 native vtable bytes at `0x803C6F38` and the float at `0x804BB188` match. Four-byte typeInfo storage is at `0x804B9418`; the constructor-table pointer at `0x80352A88` targets the native twelve-byte initializer at `0x802A7680`. The unit's text ends at `0x802A768C`, not the next aligned function start.
+
+The canonical compiled Pane is 0xD8; Picture's four colors begin at 0xD8 and its eight-byte TexCoordAry at 0xE8, giving a 0xF0 class. The matching constructor and all consumed member accesses, plus Layout's matching Picture allocation immediate, establish those offsets. This is scratch instruction/data evidence; source-selected split/link/frozen acceptance is still required before Matching.
+
+## Layout probe and remaining evidence
+
+Sixteen of nineteen whole-Layout functions currently match all non-relocation instruction words and sizes, including the 0x360-byte Build and 0x29C-byte BindAnimationAuto. The 0x20 class storage is unchanged. The first helper and SetTagProcessor each require the target's newer TextBox interface; BuildPaneObj differs in one immediate, allocating native TextBox size 0x140 rather than the reference header's 0x104. Native SetTagProcessor stores its pointer at 0xF8 and sets flag 0x8 in the word at 0x104. Owner #808 independently established the same newer class evidence and is investigating its remaining semantic members. No guessed padding, substitute class or storage shim is introduced.
+
+The target DynamicCast path includes a null guard missing from main's bounded RuntimeTypeInfo template. A diagnostic additive null guard restores the corresponding first native sequence, but a canonical shared-header change awaits complete consumer proof, baseline comparison and owner/root approval. Additive Pane parent/child-list accessors, one-argument Layout NewObj and primitive DeletePrimArray helpers are kept in scratch pending the same review. Owner #812 independently verified its native animation destructor with the original DeletePrimArray helper.
+
+## Traps
+
+- New worktrees have no default DOL. A custom-directory Ninja link can produce its actual DOL and then fail the SHA-list CHECK because it still references `build/wpse-v1/main.dol`. The initial custom baseline exited one at that CHECK; it is not a passing baseline. Run the real default build and inspect its successful exit and frozen artifact before proceeding. Never copy an output into the expected path or edit expected hashes.
+- Whole-reference TextBox declarations are too old for this target. Native allocation size and cache-invalidating setter instructions prove a real revision difference. Keep Layout scratch work intact while the owning issue establishes the full canonical type; do not fill the unknown tail with guessed fields or padding.
+- Macro RoundUp/RoundDown from allocator headers can collide with the NW4R algorithm template declarations. Include the canonical algorithm header before the allocator-using Layout header, as the existing consumers do; no compiler flags or alternate algorithm definitions are needed.
+
+The subsequent real default baseline (`python configure.py`, plain Ninja and explicit frozen verification of `build/wpse-v1`) each exited zero on main `7a1a3b81`; 479 baseline source-object digests were captured before source/header edits.
