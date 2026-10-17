@@ -121,6 +121,10 @@ nw4r/ut/ut_ResFontBase.cpp:
 	.text       start:0x80294C20 end:0x80295578
 	.data       start:0x803C6AE8 end:0x803C6B58
 
+nw4r/ut/ut_ResFont.cpp:
+	.text       start:0x80295580 end:0x8029588C
+	.data       start:0x803C6B58 end:0x803C6BB8
+
 RVL_SDK/base/PPCArch.c:
 	.text       start:0x802B1800 end:0x802B1A10
 	.data       start:0x803C7280 end:0x803C72B8

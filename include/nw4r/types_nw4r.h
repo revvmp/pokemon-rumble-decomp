@@ -14,6 +14,10 @@
 
 #define NW4R_VERSION(major, minor) ((major & 0xFF) << 8 | minor & 0xFF)
 
+#define FOURCC(c0, c1, c2, c3)                                                 \
+    (u32)((c0 & 0xFF) << 24 | (c1 & 0xFF) << 16 | (c2 & 0xFF) << 8 |           \
+          (c3 & 0xFF))
+
 #define NW4R_LIB_VERSION(NAME, ORIGINAL_DATE, ORIGINAL_TIME, ORIGINAL_CWCC)    \
     const char* NW4R_##NAME##_Version_ =                                       \
         "<< NW4R    - " #NAME " \tfinal   build: " ORIGINAL_DATE               \

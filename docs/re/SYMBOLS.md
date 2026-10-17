@@ -1359,3 +1359,7 @@ NANDCore storage: s_currentDir at 803DC440 (64 bytes), s_homeDir at 8046ECE0 (64
 | `0x803334A4` | see `symbols.txt` | `fn_803334A4` | `Port_TimeOutCloseMux` | function | high | F-531-1 | Not reconstructed (fallback) |
 | `0x8033353C` | see `symbols.txt` | `fn_8033353C` | `PORT_DataInd` | function | high | F-531-1 | Not reconstructed (fallback) |
 | `0x80333D50` | see `symbols.txt` | `fn_80333D50` | `port_find_mcb_dlci_port` | function | high | F-531-1 | Not reconstructed (fallback) |
+
+## NW4R ut ResFont (#449)
+
+For `wpse-v1` / `main.dol`, [F-449-1](findings/449-ut-resfont-archivefont.md) names the five `.text` functions of `ut_ResFont.cpp` from `0x80295580` to `0x8029588C`: `ResFont::ResFont`, `~ResFont`, `SetResource`, `RemoveResource` (`0x80295770`), and the static `Rebuild` (`0x80295780`), plus `__vt__Q34nw4r2ut7ResFont` (`.data` `0x803C6B58`, 0x60 bytes). High confidence from the CC0 ogws and Petari references and exact matches. `ResFont` adds no members to `ResFontBase`.
