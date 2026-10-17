@@ -1,6 +1,8 @@
 #ifndef MSL_C_LOCALE_H
 #define MSL_C_LOCALE_H
 
+#include <wchar_t.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -15,6 +17,9 @@ struct _loc_ctype_cmpt {
     const unsigned short* ctype_map_ptr;
     const unsigned char* upper_map_ptr;
     const unsigned char* lower_map_ptr;
+    const unsigned short* wctype_map_ptr;
+    const wchar_t* wupper_map_ptr;
+    const wchar_t* wlower_map_ptr;
 };
 
 struct __locale {

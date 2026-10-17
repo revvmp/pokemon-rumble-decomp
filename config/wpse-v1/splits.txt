@@ -814,6 +814,112 @@ MSL_C/buffer_io.c:
 MSL_C/direct_io.c:
 	.text       start:0x80344BAC end:0x80344EB4
 
+MSL_C/wcstoul.c:
+	.text       start:0x80348C64 end:0x8034916C
+
+MSL_C/wmem.c:
+	.text       start:0x8034916C end:0x80349238
+
+MSL_C/wscanf.c:
+	.text       start:0x80349238 end:0x803492C8
+
+MSL_C/wstring.c:
+	.text       start:0x803492C8 end:0x803493E4
+
+MSL_C/wchar_io.c:
+	.text       start:0x803493E4 end:0x8034945C
+
+MSL_C/uart_console_io_gcn.c:
+	.text       start:0x8034945C end:0x80349534
+	.sbss       start:0x804B9BD8 end:0x804B9BDC
+
+MSL_C/abort_exit_ppc_eabi.c:
+	.text       start:0x80349534 end:0x80349568
+	.sbss       start:0x804B9BE0 end:0x804B9BE8
+
+MSL_C/math_sun.c:
+	.text       start:0x80349568 end:0x80349664
+	.sdata2     start:0x804BB6D8 end:0x804BB6F8
+
+MSL_C/MSL_Common_Embedded/Math/Double_precision/e_asin.c:
+	.text       start:0x80349664 end:0x803498FC
+	.sdata2     start:0x804BB6F8 end:0x804BB780
+
+MSL_C/MSL_Common_Embedded/Math/Double_precision/e_atan2.c:
+	.text       start:0x803498FC end:0x80349B54
+	.sdata2     start:0x804BB780 end:0x804BB7D8
+
+MSL_C/MSL_Common_Embedded/Math/Double_precision/e_exp.c:
+	.text       start:0x80349B54 end:0x80349D84
+	.rodata     start:0x80398FB0 end:0x80398FE0
+	.sdata2     start:0x804BB7D8 end:0x804BB850
+
+MSL_C/MSL_Common_Embedded/Math/Double_precision/e_fmod.c:
+	.text       start:0x80349D84 end:0x8034A104
+	.rodata     start:0x80398FE0 end:0x80398FF0
+
+MSL_C/MSL_Common_Embedded/Math/Double_precision/e_log.c:
+	.text       start:0x8034A104 end:0x8034A3B8
+	.sbss       start:0x804B9BE8 end:0x804B9BF0
+	.sdata2     start:0x804BB850 end:0x804BB8D0
+
+MSL_C/MSL_Common_Embedded/Math/Double_precision/e_log10.c:
+	.text       start:0x8034A3B8 end:0x8034A4CC
+	.sbss       start:0x804B9BF0 end:0x804B9BF8
+	.sdata2     start:0x804BB8D0 end:0x804BB900
+
+MSL_C/MSL_Common_Embedded/Math/Double_precision/e_pow.c:
+	.text       start:0x8034A4CC end:0x8034ACE0
+	.rodata     start:0x80398FF0 end:0x80399020
+	.sdata2     start:0x804BB900 end:0x804BBA10
+
+MSL_C/MSL_Common_Embedded/Math/Double_precision/e_rem_pio2.c:
+	.text       start:0x8034ACE0 end:0x8034B064
+	.rodata     start:0x80399020 end:0x803991A8
+	.sdata2     start:0x804BBA10 end:0x804BBA68
+
+MSL_C/MSL_Common_Embedded/Math/Double_precision/k_cos.c:
+	.text       start:0x8034B064 end:0x8034B174
+	.sdata2     start:0x804BBA68 end:0x804BBAB0
+
+MSL_C/MSL_Common_Embedded/Math/Double_precision/k_rem_pio2.c:
+	.text       start:0x8034B174 end:0x8034C82C
+	.rodata     start:0x803991A8 end:0x803991F8
+	.sdata2     start:0x804BBAB0 end:0x804BBAF0
+
+MSL_C/MSL_Common_Embedded/Math/Double_precision/k_sin.c:
+	.text       start:0x8034C82C end:0x8034C8EC
+	.sdata2     start:0x804BBAF0 end:0x804BBB28
+
+MSL_C/MSL_Common_Embedded/Math/Double_precision/k_tan.c:
+	.text       start:0x8034C8EC end:0x8034CB3C
+	.rodata     start:0x803991F8 end:0x80399260
+	.sdata2     start:0x804BBB28 end:0x804BBB60
+
+MSL_C/MSL_Common_Embedded/Math/Double_precision/s_atan.c:
+	.text       start:0x8034CB3C end:0x8034CD6C
+	.rodata     start:0x80399260 end:0x803992F8
+	.sdata2     start:0x804BBB60 end:0x804BBB88
+
+MSL_C/MSL_Common_Embedded/Math/Double_precision/s_ceil.c:
+	.text       start:0x8034CD6C end:0x8034CEB8
+	.sdata2     start:0x804BBB88 end:0x804BBB98
+
+MSL_C/MSL_Common_Embedded/Math/Double_precision/s_copysign.c:
+	.text       start:0x8034CEB8 end:0x8034CEE4
+
+MSL_C/MSL_Common_Embedded/Math/Double_precision/s_cos.c:
+	.text       start:0x8034CEE4 end:0x8034CFAC
+	.sdata2     start:0x804BBB98 end:0x804BBBA0
+
+MSL_C/MSL_Common_Embedded/Math/Double_precision/s_floor.c:
+	.text       start:0x8034CFAC end:0x8034D0FC
+	.sdata2     start:0x804BBBA0 end:0x804BBBB0
+
+MSL_C/MSL_Common_Embedded/Math/Double_precision/s_frexp.c:
+	.text       start:0x8034D0FC end:0x8034D184
+	.sdata2     start:0x804BBBB0 end:0x804BBBB8
+
 MSL_C/MSL_Common_Embedded/Math/Double_precision/s_ldexp.c:
 	.text       start:0x8034D184 end:0x8034D2F0
 	.sdata2     start:0x804BBBB8 end:0x804BBBE0
@@ -829,13 +935,13 @@ MSL_C/MSL_Common_Embedded/Math/Double_precision/s_tan.c:
 	.text       start:0x8034D4B8 end:0x8034D530
 	.sdata2     start:0x804BBBE8 end:0x804BBBF0
 
-MSL_C/MSL_Common_Embedded/Math/Double_precision/w_acos.c:
+MSL_C/MSL_Common_Embedded/Math/Double_precision/w_asin.c:
 	.text       start:0x8034D530 end:0x8034D534
 
-MSL_C/MSL_Common_Embedded/Math/Double_precision/w_asin.c:
+MSL_C/MSL_Common_Embedded/Math/Double_precision/w_atan2.c:
 	.text       start:0x8034D534 end:0x8034D538
 
-MSL_C/MSL_Common_Embedded/Math/Double_precision/w_atan2.c:
+MSL_C/MSL_Common_Embedded/Math/Double_precision/w_exp.c:
 	.text       start:0x8034D538 end:0x8034D53C
 
 MSL_C/MSL_Common_Embedded/Math/Double_precision/w_fmod.c:

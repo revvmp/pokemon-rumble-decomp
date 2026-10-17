@@ -12,9 +12,9 @@ int __fpclassifyd(double value);
 int __signbitf(float value);
 int __signbitd(double value);
 double copysign(double value, double sign);
-double __ieee754_acos(double value);
 double __ieee754_asin(double value);
 double __ieee754_atan2(double y, double x);
+double __ieee754_exp(double value);
 double __ieee754_fmod(double value, double divisor);
 double __ieee754_log(double value);
 double __ieee754_log10(double value);
@@ -24,6 +24,7 @@ double __kernel_sin(double value, double tail, int hasTail);
 double __kernel_cos(double value, double tail);
 double __kernel_tan(double value, double tail, int reciprocal);
 int __ieee754_rem_pio2(double value, double* remainder);
+int __kernel_rem_pio2(double* x, double* y, int exponent, int count, int precision, const int* ipio2);
 
 extern int __float_nan[];
 extern int __float_huge[];
