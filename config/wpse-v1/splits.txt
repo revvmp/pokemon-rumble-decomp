@@ -140,6 +140,10 @@ nw4r/snd/snd_AxManager.cpp:
 	.sbss       start:0x804B9320 end:0x804B9338
 	.sdata2     start:0x804BAD80 end:0x804BAD98
 
+nw4r/snd/snd_AxVoice.cpp:
+	.text       start:0x80273650 end:0x80276404
+	.sdata2     start:0x804BAD98 end:0x804BADC0
+
 nw4r/ut/ut_list.cpp:
 	.text       start:0x80292D00 end:0x80292F5C
 
