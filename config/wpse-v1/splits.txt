@@ -38,6 +38,12 @@ RVL_SDK/vi/i2c.c:
 	.sdata      start:0x804B8B00 end:0x804B8B08
 	.sbss       start:0x804B9678 end:0x804B9680
 
+RVL_SDK/gx/GXFifo.c:
+	.text       start:0x802CACE0 end:0x802CB6C0
+	.data       start:0x803D60E0 end:0x803D6110
+	.bss        start:0x80454200 end:0x80454280
+	.sbss       start:0x804B96C0 end:0x804B96E0
+
 RVL_SDK/gx/GXFrameBuf.c:
 	.text       start:0x802CD440 end:0x802CDEC0
 	.sdata2     start:0x804BB300 end:0x804BB310
@@ -64,6 +70,10 @@ RVL_SDK/ax/AX.c:
 	.sdata      start:0x804B8BD0 end:0x804B8BD8
 	.sbss       start:0x804B9840 end:0x804B9848
 
+RVL_SDK/enc/enclatin.c:
+	.text       start:0x802ED120 end:0x802ED700
+	.rodata     start:0x8037BB90 end:0x8037D690
+
 RVL_SDK/esp/esp.c:
 	.text       start:0x802F08E0 end:0x802F1230
 	.sdata      start:0x804B8D80 end:0x804B8D90
@@ -89,6 +99,10 @@ RVL_SDK/bte/bte_main.c:
 	.bss        start:0x804A9820 end:0x804AA850
 	.sdata      start:0x804B8EE8 end:0x804B8EF0
 	.sbss       start:0x804B9B80 end:0x804B9B88
+
+RVL_SDK/bte/bta_dm_api.c:
+	.text       start:0x80316D80 end:0x803171EC
+	.sdata2     start:0x804BB600 end:0x804BB610
 
 RVL_SDK/bte/hidd_api.c:
 	.text       start:0x80329258 end:0x803292C0
