@@ -24,7 +24,50 @@
             ((UINT32*)(p_dst))[trst] = ((UINT32*)(p_src))[trst]; \
     } while (FALSE)
 
+#define BTM_COD_SERVICE_CLASS_LO_B 0x00e0
 #define BTM_COD_MAJOR_CLASS_MASK 0x1f
+#define BTM_COD_MINOR_CLASS_MASK 0xfc
+
+#define BTM_GET_COD_MINOR_CLASS(pd, mn) \
+    do { \
+        *(mn) = (pd)[2] & BTM_COD_MINOR_CLASS_MASK; \
+    } while (FALSE)
+
+#define BTM_GET_COD_MAJOR_CLASS(pd, mj) \
+    do { \
+        *(mj) = (pd)[1] & BTM_COD_MAJOR_CLASS_MASK; \
+    } while (FALSE)
+
+#define BTM_GET_COD_SERVICE_CLASS(pd, sv) \
+    do { \
+        *(sv) = (pd)[0]; \
+        *(sv) <<= 8; \
+        *(sv) += (pd)[1] & BTM_COD_SERVICE_CLASS_LO_B; \
+    } while (FALSE)
+
+#define MAKE_COD_FROM_FIELDS(pd, mn, mj, sv) \
+    do { \
+        (pd)[2] = (mn); \
+        (pd)[1] = (mj) + ((sv) & BTM_COD_SERVICE_CLASS_LO_B); \
+        (pd)[0] = (sv) >> 8; \
+    } while (FALSE)
+
+#define BTM_INQ_RES_IGNORE_RSSI 0x7f
+
+#define BTM_INQUIRY_INACTIVE 0
+#define BTM_LIMITED_INQUIRY_ACTIVE 0x01
+#define BTM_GENERAL_INQUIRY_ACTIVE 0x02
+#define BTM_PERIODIC_INQUIRY_ACTIVE 0x04
+
+enum {
+    BTM_CLR_INQUIRY_FILTER = 0,
+    BTM_FILTER_COND_DEVICE_CLASS = HCI_FILTER_COND_DEVICE_CLASS,
+    BTM_FILTER_COND_BD_ADDR = HCI_FILTER_COND_BD_ADDR
+};
+
+enum {
+    BTM_COD_SERVICE_LMTD_DISCOVER = 1 << 5
+};
 
 #define BTM_INVALID_SCO_INDEX 0xffff
 #define BTM_INVALID_HCI_HANDLE 0xffff
@@ -78,7 +121,9 @@ enum {
     BTM_DEVICE_TIMEOUT,
     BTM_BAD_VALUE_RET,
     BTM_ERR_PROCESSING,
-    BTM_NOT_AUTHORIZED
+    BTM_NOT_AUTHORIZED,
+    BTM_DEV_RESET,
+    BTM_CMD_STORED
 };
 
 typedef UINT8 tBTM_DEV_STATUS;
@@ -89,6 +134,18 @@ enum {
     BTM_DEV_STATUS_DOWN,
     BTM_DEV_STATUS_CMD_TOUT
 };
+
+enum {
+    BTM_GENERAL_INQUIRY,
+    BTM_LIMITED_INQUIRY
+};
+
+enum {
+    BTM_SCAN_TYPE_STANDARD,
+    BTM_SCAN_TYPE_INTERLACED
+};
+
+typedef UINT8 tBTM_INQ_RESULT_TYPE;
 
 enum {
     BTM_INQ_RESULT_STANDARD,
@@ -445,6 +502,19 @@ tBTM_STATUS BTM_ReadLinkQuality(BD_ADDR remote_bda, tBTM_CMPL_CB *p_cb);
 void BTM_SendHciReset(tBTM_CMPL_CB *p_cb);
 tBTM_INQ_INFO *BTM_InqDbRead(BD_ADDR p_bda);
 UINT16 BTM_GetHCIConnHandle(BD_ADDR remote_bda);
+tBTM_STATUS BTM_SetInquiryScanType(UINT16 scan_type);
+tBTM_STATUS BTM_SetPageScanType(UINT16 scan_type);
+tBTM_STATUS BTM_SetInquiryMode(UINT8 mode);
+UINT16 BTM_ReadDiscoverability(UINT16* p_window, UINT16* p_interval);
+UINT16 BTM_ReadConnectability(UINT16* p_window, UINT16* p_interval);
+tBTM_INQ_INFO* BTM_InqFirstResult(void);
+tBTM_INQ_INFO* BTM_InqNextResult(tBTM_INQ_INFO* p_cur);
+UINT8 BTM_ReadNumInqDbEntries(void);
+tBTM_STATUS BTM_InquiryRegisterForChanges(tBTM_INQ_DB_CHANGE_CB* p_cb);
+void BTM_SetInquiryFilterCallback(tBTM_FILTER_CB* p_callback);
+UINT8* BTM_ReadDeviceClass(void);
+tBTM_STATUS BTM_PmRegister(UINT8 mask, UINT8* p_pm_id, tBTM_PM_STATUS_CBACK* p_cb);
+BOOLEAN BTM_IsPowerManagerOn(void);
 tBTM_STATUS BTM_CreateSco(BD_ADDR remote_bda, BOOLEAN is_orig, UINT16 pkt_types, UINT16* p_sco_inx, tBTM_SCO_CB* p_conn_cb,
                           tBTM_SCO_CB* p_disc_cb);
 tBTM_STATUS BTM_RemoveSco(UINT16 sco_inx);

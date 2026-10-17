@@ -13,6 +13,14 @@
 #define BTM_DISC_DB_SIZE 4000
 #define BTM_CLOCK_OFFSET_VALID 0x8000
 #define BTM_SEC_INVALID_HANDLE 0xffff
+#define BTM_EXT_RMT_NAME_TIMEOUT 40
+#define BTM_PM_REC_NOT_USED 0
+#define BTM_MIN_INQUIRY_LENGTH 1
+#define BTM_MAX_INQUIRY_LENGTH HCI_MAX_INQUIRY_LENGTH
+#define BTM_PER_INQ_MIN_MIN_PERIOD HCI_PER_INQ_MIN_MIN_PERIOD
+#define BTM_PER_INQ_MAX_MIN_PERIOD HCI_PER_INQ_MAX_MIN_PERIOD
+#define BTM_PER_INQ_MIN_MAX_PERIOD HCI_PER_INQ_MIN_MAX_PERIOD
+#define BTM_PER_INQ_MAX_MAX_PERIOD HCI_PER_INQ_MAX_MAX_PERIOD
 
 #define BTM_SCO_SUPPORTED_PKTS_MASK \
     (HCI_ESCO_PKT_TYPES_MASK_HV1 | HCI_ESCO_PKT_TYPES_MASK_HV2 | HCI_ESCO_PKT_TYPES_MASK_HV3 | HCI_ESCO_PKT_TYPES_MASK_EV3 | \
@@ -24,12 +32,25 @@
 #define BTM_ESCO_2_SCO(escotype) ((UINT16)(((escotype) & BTM_ESCO_PKT_TYPE_MASK) << 5))
 
 typedef UINT8 tBTM_ACL_SWKEY_STATE;
+
+enum {
+    BTM_ACL_SWKEY_STATE_IDLE,
+    BTM_ACL_SWKEY_STATE_MODE_CHANGE,
+    BTM_ACL_SWKEY_STATE_ENCRYPTION_OFF,
+    BTM_ACL_SWKEY_STATE_SWITCHING,
+    BTM_ACL_SWKEY_STATE_ENCRYPTION_ON,
+    BTM_ACL_SWKEY_STATE_IN_PROGRESS
+};
+
 typedef UINT8 tBTM_DEV_STATE;
 
 enum {
-    BTM_DEV_STATE_WAIT_RESET_CMPLT,
-    BTM_DEV_STATE_WAIT_AFTER_RESET,
-    BTM_DEV_STATE_READY
+    BTM_DEV_STATE_WAIT_RESET_CMPLT = 0,
+    BTM_DEV_STATE_WAIT_AFTER_RESET = 1,
+    BTM_DEV_STATE_WAIT_BUF_SIZE = 2,
+    BTM_DEV_STATE_WAIT_LOCAL_VERSION = 3,
+    BTM_DEV_STATE_WAIT_LOCAL_FEATURES = 4,
+    BTM_DEV_STATE_READY = 5
 };
 
 typedef UINT8 tBTM_RMT_NAME_ACTIVE_FLAGS;
@@ -42,6 +63,19 @@ enum {
 };
 
 typedef UINT8 tBTM_INQ_STATE;
+
+enum {
+    BTM_INQ_INACTIVE_STATE = 0,
+    BTM_INQ_CLR_FILT_STATE = 1,
+    BTM_INQ_SET_FILT_STATE = 2,
+    BTM_INQ_ACTIVE_STATE = 3,
+    BTM_INQ_REMNAME_STATE = 4
+};
+
+enum {
+    BTM_PM_ST_ACTIVE = BTM_PM_STS_ACTIVE,
+    BTM_PM_ST_PENDING = BTM_PM_STS_PENDING
+};
 
 enum {
     BTM_SEC_AUTHORIZED = BTM_SEC_FLAG_AUTHORIZED,
@@ -388,5 +422,15 @@ void btm_route_sco_data(BT_HDR* p_msg);
 tBTM_SCO_TYPE btm_read_def_esco_mode(tBTM_ESCO_PARAMS* p_parms);
 UINT8 btm_num_sco_links_active(void);
 BOOLEAN btm_is_any_sco_active(void);
+void btm_acl_init(void);
+void btm_dev_init(void);
+void btm_inq_db_init(void);
+void btm_inq_db_reset(void);
+void btm_clr_inq_db(BD_ADDR p_bda);
+void btm_inq_check_ageing(void);
+void btm_inq_rmt_name_failed(void);
+UINT8 btm_handle_to_acl_index(UINT16 hci_handle);
+void btm_pm_reset(void);
+void btm_pm_sm_alloc(UINT8 ind);
 
 #endif
