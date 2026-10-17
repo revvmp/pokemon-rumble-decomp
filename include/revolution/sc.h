@@ -215,7 +215,7 @@ s8 SCGetDisplayOffsetH(void);
 s8 SCGetProductArea(void);
 u8 SCGetScreenSaverMode(void);
 
-u8 SCGetBtDpdSensibility(void);
+u32 SCGetBtDpdSensibility(void);
 u8 SCGetWpadSensorBarPosition(void);
 u8 SCGetWpadMotorMode(void);
 u8 SCGetWpadSpeakerVolume(void);
