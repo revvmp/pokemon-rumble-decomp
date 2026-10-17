@@ -206,6 +206,8 @@ config.libs = [
             Object(NonMatching, "RVL_SDK/bte/bte_logmsg.c", cflags=cflags_base),
             Object(NonMatching, "RVL_SDK/bte/bte_main.c", cflags=cflags_base),
             Object(Matching, "RVL_SDK/bte/bta_sys_conn.c", cflags=[*cflags_base, "-func_align 4"]),
+            Object(NonMatching, "RVL_SDK/bte/utl.c", mw_version="GC/3.0a3", cflags=cflags_sdk),
+            Object(NonMatching, "RVL_SDK/bte/bta_dm_act.c", mw_version="GC/3.0a3", cflags=cflags_sdk),
             Object(NonMatching, "RVL_SDK/bte/bta_dm_api.c", cflags=[*cflags_base, "-func_align 4"]),
             Object(NonMatching, "RVL_SDK/bte/hidd_api.c", mw_version=BTE_COMPILER),
             Object(NonMatching, "RVL_SDK/bte/hidd_conn.c", mw_version=BTE_COMPILER),
