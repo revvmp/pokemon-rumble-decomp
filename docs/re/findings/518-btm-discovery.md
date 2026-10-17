@@ -20,7 +20,7 @@ Covers the `btm_discovery.c` part of issue #518 (`0x8031D914`-`0x8031EA7C`). The
 
 ## Remaining work in #518
 
-The 12 `btm_devctl.c` functions in `0x8031D914`-`0x8031DF18` belong to the `btm_devctl.c` split, which starts in #517.
+The nine `btm_devctl.c` functions in `0x8031D914`-`0x8031DF18` belong to the `btm_devctl.c` split, which starts in #517. Their complete delivery and the original issue's acceptance inventory are recorded in [F-518-3](518-btm-completion-audit.md).
 
 ## Provenance
 
