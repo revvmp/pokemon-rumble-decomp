@@ -81,6 +81,26 @@ nw4r/ut/ut_FileStream.cpp:
 	.ctors      start:0x80352A70 end:0x80352A74
 	.sbss       start:0x804B93C0 end:0x804B93C8
 
+nw4r/ut/ut_DvdFileStream.cpp:
+	.text       start:0x80293DC0 end:0x80293DCC
+	.ctors      start:0x80352A74 end:0x80352A78
+	.sbss       start:0x804B93C8 end:0x804B93D0
+
+nw4r/ut/ut_NandFileStream.cpp:
+	.text       start:0x80293DD0 end:0x802942AC
+	.ctors      start:0x80352A78 end:0x80352A7C
+	.data       start:0x803C6988 end:0x803C69E4
+	.sbss       start:0x804B93D0 end:0x804B93D8
+
+nw4r/ut/ut_LockedCache.cpp:
+	.text       start:0x802942B0 end:0x80294488
+	.ctors      start:0x80352A7C end:0x80352A80
+	.bss        start:0x804524A8 end:0x804524C4
+
+nw4r/ut/ut_Font.cpp:
+	.text       start:0x80294490 end:0x80294534
+	.data       start:0x803C69E8 end:0x803C6A18
+
 RVL_SDK/base/PPCArch.c:
 	.text       start:0x802B1800 end:0x802B1A10
 	.data       start:0x803C7280 end:0x803C72B8
