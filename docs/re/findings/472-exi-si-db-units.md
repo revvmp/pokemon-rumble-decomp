@@ -35,3 +35,25 @@ Wii/1.0 compiling C names function-local statics `@LOCAL@<function>__<mangled si
 ## F-472-4: Verification can pass on a stale `main.dol`
 
 With all five units first marked `Matching`, the link failed on undefined `EXIAttach`, `EXIDetach`, `OSCancelAlarm`, `OSGetWirelessID`, `OSSetWirelessID`, and `VIGetCurrentLine`, because those callees still carried `fn_` names. `ninja` exited 1, but `tools/verify/verify.py verify` then printed `PASS main.dol` because the previous `main.dol` was still on disk. Renaming the six callees in `symbols.txt` fixed the link; the identities follow from the matched call sites. Check the `ninja` exit status before running verification.
+
+## F-472-5: `vi.c` unit and 2009 differences
+
+`RVL_SDK/vi/vi.c` covers `.text` `0x802C4080`-`0x802C6A30`, `.data` `0x803D5338`-`0x803D5890`, `.bss` `0x804539F0`-`0x80453B60`, `.sdata` `0x804B8AE0`-`0x804B8B00` and `.sbss` `0x804B95C8`-`0x804B9678`. The split alone verified. With the unit `Matching`, all 25 linked functions and the `.data`, `.bss`, `.sdata` and `.sbss` sections compare at 100% in objdiff-cli 3.8.2, and the full DOL verifies.
+
+Boundaries: `OnShutdown` opens the text, and `__VIResetSIIdle` ends exactly at `i2c.c`'s `0x802C6A30`. The `vi3in1.c` code from `0x802C7350` owns `.data` from `0x803D5890`, `.bss` from `0x80453B60`, `.sdata` from `0x804B8B08` and `.sbss` from `0x804B9680`.
+
+Differences from Petari's 2007 `vi.c` needed for the match, each read from the target:
+- Banner `<< RVL_SDK - VI \trelease build: Feb 27 2009 10:04:46 (0x4302_145) >>`.
+- `OnShutdown` calls `__VISetGamma1_0` for events 0 and 4-6 before returning `TRUE`. That function at `0x802C8450` passes `gammaSet + 340`, entry 10 (`VI_GM_1_0`) of the 34-byte `VIGammaObj` table, to `__VISetGammaImm`. The name is the one used by the CC0 wii-ipl and pbr decompilations.
+- `__VIResetSIIdle` follows `__VIResetRFIdle`. `VIResetDimmingCount` inlines `__VIResetDev0Idle` and returns `TRUE`.
+- The `VIConfigure` panic line is 2651.
+- `encoderType` is never written, so `VIInit` has no encoder query.
+
+Static layout follows declaration order. Explicitly initialized `.sbss` statics come first in declaration order. Function statics follow in definition order: `OnShutdown`'s `count`, the retrace handler's `DimmingON_Pending` and `DimmingOFF_Pending`, then `PrintDebugPalCaution`'s `message`. Uninitialized statics come last in reverse declaration order. The `.bss` arrays are also emitted in reverse declaration order: declaring `__VIDimmingFlag_DEV_IDLE`, `HorVer`, `regs`, `shdwRegs` places `shdwRegs` first. The wii-ipl declaration order reproduces the `.sbss` layout exactly. CodeWarrior gives function statics after the first an `@n` suffix, for example `@LOCAL@__VIRetraceHandler__FsP9OSContext@old_tvtype@0`. These names must appear exactly so in `symbols.txt` for objdiff to pair them.
+
+`symbols.txt` needed three structural edits inside the unit. The 8-byte `changed` and `shdwChanged` replace separate 4-byte halves. The merged `0xEC` object at `0x803D5524` is split into `taps` and the three render modes. The `0x154` string object at `0x803D56F4` is split into its seven `OSReport` and `OSPanic` strings, so that the string-relative `addi` operands pair.
+
+### Traps
+
+- **A merged string object scores below 100% with identical bytes.** dtk merges adjacent string literals into one object, and objdiff then reports each string-relative `addi` as an argument mismatch. Split the object at each literal in `symbols.txt` before judging the function.
+- **dtk refuses overlapping symbols after a resize.** Widening a symbol to 8 bytes fails the split with `Symbol ... overlaps with symbol lbl_...`. Delete the inner label too.

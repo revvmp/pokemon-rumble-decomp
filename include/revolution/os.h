@@ -79,6 +79,8 @@ void OSCancelAlarm(OSAlarm* alarm);
 __OSInterruptHandler __OSSetInterruptHandler(__OSInterrupt interrupt, __OSInterruptHandler handler);
 OSInterruptMask __OSUnmaskInterrupts(OSInterruptMask mask);
 
+BOOL __OSSetVIForceDimming(BOOL isEnabled, u32 yShift, u32 xShift);
+
 u16 OSGetWirelessID(s32 chan);
 void OSSetWirelessID(s32 chan, u16 id);
 
