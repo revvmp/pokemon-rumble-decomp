@@ -27,6 +27,8 @@ typedef struct MEMiFrmHeapHead {
     MEMiFrmHeapState* pState;
 } MEMiFrmHeapHead;
 
+#define MEM_FRM_HEAP_MIN_SIZE (sizeof(MEMiHeapHead) + sizeof(MEMiFrmHeapHead))
+
 MEMHeapHandle MEMCreateFrmHeapEx(void* startAddress, u32 size, u16 optFlag);
 void* MEMDestroyFrmHeap(MEMHeapHandle heap);
 void* MEMAllocFromFrmHeapEx(MEMHeapHandle heap, u32 size, int alignment);

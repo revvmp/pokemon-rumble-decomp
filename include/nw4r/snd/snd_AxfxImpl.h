@@ -10,6 +10,8 @@ namespace snd {
 namespace detail {
 
 struct AxfxImpl {
+    static const u32 HEAP_SIZE_MIN = MEM_FRM_HEAP_MIN_SIZE + 32;
+
     MEMiHeapHead* mHeap;
     u32 mAllocCount;
 
@@ -17,6 +19,14 @@ struct AxfxImpl {
 
     bool CreateHeap(void* pBuffer, u32 size);
     void DestroyHeap();
+
+    u32 GetHeapTotalSize() {
+        if (mHeap == NULL) {
+            return 0;
+        }
+
+        return MEMGetHeapTotalSize(mHeap);
+    }
 
     void HookAlloc(AXFXAllocHook* pAllocHook, AXFXFreeHook* pFreeHook);
     u32 RestoreAlloc(AXFXAllocHook allocHook, AXFXFreeHook freeHook);

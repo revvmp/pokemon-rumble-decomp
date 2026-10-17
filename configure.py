@@ -366,6 +366,10 @@ config.libs = [
             Object(Matching, "nw4r/snd/snd_debug.cpp"),
             Object(Matching, "nw4r/snd/snd_EnvGenerator.cpp"),
             Object(Matching, "nw4r/snd/snd_ExternalSoundPlayer.cpp"),
+            Object(Matching, "nw4r/snd/snd_FxBase.cpp"),
+            Object(Matching, "nw4r/snd/snd_FxChorus.cpp"),
+            Object(Matching, "nw4r/snd/snd_FxDelay.cpp"),
+            Object(Matching, "nw4r/snd/snd_FxReverbStd.cpp"),
         ],
     ),
     library(
