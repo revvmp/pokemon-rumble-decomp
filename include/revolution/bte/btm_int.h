@@ -14,6 +14,15 @@
 #define BTM_CLOCK_OFFSET_VALID 0x8000
 #define BTM_SEC_INVALID_HANDLE 0xffff
 
+#define BTM_SCO_SUPPORTED_PKTS_MASK \
+    (HCI_ESCO_PKT_TYPES_MASK_HV1 | HCI_ESCO_PKT_TYPES_MASK_HV2 | HCI_ESCO_PKT_TYPES_MASK_HV3 | HCI_ESCO_PKT_TYPES_MASK_EV3 | \
+     HCI_ESCO_PKT_TYPES_MASK_EV4 | HCI_ESCO_PKT_TYPES_MASK_EV5)
+#define BTM_SCO_EXCEPTION_PKTS_MASK \
+    (HCI_ESCO_PKT_TYPES_MASK_NO_2_EV3 | HCI_ESCO_PKT_TYPES_MASK_NO_3_EV3 | HCI_ESCO_PKT_TYPES_MASK_NO_2_EV5 | \
+     HCI_ESCO_PKT_TYPES_MASK_NO_3_EV5)
+#define BTM_ESCO_PKT_TYPE_MASK (HCI_ESCO_PKT_TYPES_MASK_HV1 | HCI_ESCO_PKT_TYPES_MASK_HV2 | HCI_ESCO_PKT_TYPES_MASK_HV3)
+#define BTM_ESCO_2_SCO(escotype) ((UINT16)(((escotype) & BTM_ESCO_PKT_TYPE_MASK) << 5))
+
 typedef UINT8 tBTM_ACL_SWKEY_STATE;
 typedef UINT8 tBTM_DEV_STATE;
 
@@ -370,5 +379,14 @@ void btm_sec_change_link_key(UINT16 handle);
 void btm_sec_init(UINT8 sec_mode);
 void btm_sec_dev_reset(void);
 void btm_sec_pin_code_request_timeout(void);
+void btm_chg_all_acl_pkt_types(BOOLEAN entering_sco);
+void btm_sco_init(void);
+void btm_set_sco_ind_cback(tBTM_SCO_IND_CBACK* sco_ind_cb);
+void btm_accept_sco_link(UINT16 sco_inx, tBTM_ESCO_PARAMS* p_setup, tBTM_SCO_CB* p_conn_cb, tBTM_SCO_CB* p_disc_cb);
+void btm_reject_sco_link(UINT16 sco_inx);
+void btm_route_sco_data(BT_HDR* p_msg);
+tBTM_SCO_TYPE btm_read_def_esco_mode(tBTM_ESCO_PARAMS* p_parms);
+UINT8 btm_num_sco_links_active(void);
+BOOLEAN btm_is_any_sco_active(void);
 
 #endif
