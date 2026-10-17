@@ -572,7 +572,7 @@ config.libs = [
             Object(NonMatching, "nw4r/ut/ut_ArchiveFontBase.cpp"),
             Object(Matching, "nw4r/ut/ut_ArchiveFont.cpp"),
             Object(Matching, "nw4r/ut/ut_PairFont.cpp"),
-            Object(NonMatching, "nw4r/ut/ut_CharWriter.cpp"),
+            Object(Matching, "nw4r/ut/ut_CharWriter.cpp"),
         ],
     ),
     library(
