@@ -92,16 +92,30 @@ Attribution rule: commits and pull requests carry no co-authors. Do not add `Co-
 
 ## 7. Merge
 
-Merge your own pull request once it is ready and the CI check passes. Run these steps from the worktree.
+Merge your own pull request once it is ready and the CI check passes. Other agents merge into `main` at the same time, so this step is a loop: update, wait for CI, and merge only if `main` has not moved since. Run it from the worktree.
 
-1. **Update.** Bring the branch up to date: `git fetch origin` then `git rebase origin/main`. If the rebase conflicts, resolve only hunks in files you changed for this issue. For `splits.txt`, `symbols.txt` and `configure.py`, keep everyone else's lines and re-apply yours. If you rebased, rebuild, verify, and push with `git push --force-with-lease`.
+1. **Update.** Run `git fetch origin` then `git rebase origin/main`. If nothing conflicts and nothing new came in, go to step 2. Otherwise resolve as described below, rebuild, verify, and push with `git push --force-with-lease`.
 2. **Wait for CI.** Run `gh pr checks <pr> --watch --fail-fast`. It must exit 0 with `Build and verify main.dol` passing. If it fails, read the log with `gh run view <run> --log-failed`, fix the cause, push, and wait again.
-3. **Merge.** Run `gh pr merge <pr> --squash --subject "<pull request title> (#<pr>)" --body ""`. The empty body keeps attribution lines out of the merge commit.
-4. **Confirm.** `gh pr view <pr> --json state -q .state` must print `MERGED`. If the description said `Closes #<n>`, confirm the issue closed. If it said `Part of #<n>`, keep the claim while you continue, or release it.
+3. **Check that `main` has not moved.** Run `git fetch origin` then `git merge-base --is-ancestor origin/main HEAD`. If it exits non-zero, another pull request merged after your CI run and your change was never tested against it; go back to step 1.
+4. **Merge.** Run `gh pr merge <pr> --squash --subject "<pull request title> (#<pr>)" --body ""`. The empty body keeps attribution lines out of the merge commit. If GitHub reports the pull request is not mergeable or out of date, go back to step 1.
+5. **Confirm.** `gh pr view <pr> --json state -q .state` must print `MERGED`. If the description said `Closes #<n>`, confirm the issue closed. If it said `Part of #<n>`, keep the claim while you continue, or release it.
 
-Never merge with a failing, pending, or missing check. Never use `--admin` or any other bypass. Never merge someone else's pull request. Leave the pull request for a maintainer and tell the user instead if any of these hold:
+### Resolving rebase conflicts
+
+When `git rebase` stops, list the conflicted files with `git status`, resolve each one, `git add` it, and run `git rebase --continue`; repeat until the rebase finishes. If you get lost, `git rebase --abort` returns the branch to its state before the rebase, and you can start again. Resolve by file type:
+
+- **Files only you changed for this issue,** such as your source and private headers: resolve freely.
+- **`config/wpse-v1/splits.txt` and `config/wpse-v1/symbols.txt`:** take `main`'s version with `git checkout --ours <file>` (during a rebase, "ours" is `main` and "theirs" is your commit), then re-apply only your own unit's ranges and renames. The rebuild may rewrite these files; keep the rewrite only where it touches your ranges.
+- **`configure.py`:** keep every library and object line from `main`. Add your object lines in address order, and reuse an existing library entry rather than creating a second one.
+- **Append-style shared files:** ledger files in `docs/ledger/`, `docs/re/SYMBOLS.md`, and the `AGENTS.md` traps list. Keep both sides: their rows and yours, ordered by address where the file is ordered, with no duplicates.
+- **Shared headers in `include/`** used by other units: if both sides only added declarations, keep both. If both changed the same declaration differently, stop and leave it for a maintainer.
+
+Never resolve a shared file by taking one side wholesale, which silently drops another contributor's work. After resolving, always rebuild from clean and run verification before pushing. A conflict-free textual merge can still break the link.
+
+Never merge with a failing, pending, or missing check, or with a check that ran before `main` moved. Never use `--admin` or any other bypass. Never merge someone else's pull request. Leave the pull request for a maintainer and tell the user instead if any of these hold:
 - it changes a maintainer-only file listed in `docs/COLLABORATION.md`
-- the rebase conflicted in a file outside your claim
+- a conflict falls outside the cases above, or a shared header declaration conflicts
+- the full build or verification fails after resolving and you cannot find the cause in your own changes
 - the user asked to review before merging
 
 ## 8. Clean up

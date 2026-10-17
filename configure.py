@@ -149,14 +149,31 @@ SDK_COMPILER = "Wii/1.0"
 
 config.libs = [
     library(
+        "RVL_SDK.CNT",
+        "Wii/1.0",
+        cflags_base,
+        "sdk",
+        [Object(NonMatching, "RVL_SDK/cnt/cnt.c")],
+    ),
+    library(
         "RVL_SDK",
         SDK_COMPILER,
         cflags_sdk,
         "sdk",
         [
             Object(Matching, "RVL_SDK/base/PPCArch.c"),
+            Object(NonMatching, "RVL_SDK/os/OSAlarm.c"),
+            Object(NonMatching, "RVL_SDK/os/OSContext.c"),
+            Object(NonMatching, "RVL_SDK/vi/i2c.c"),
             Object(NonMatching, "RVL_SDK/gx/GXMisc.c"),
             Object(NonMatching, "RVL_SDK/gx/GXGeometry.c"),
+            Object(NonMatching, "RVL_SDK/ax/AX.c"),
+            Object(NonMatching, "RVL_SDK/esp/esp.c"),
+            Object(NonMatching, "RVL_SDK/ipc/ipcMain.c"),
+            Object(NonMatching, "RVL_SDK/bte/bte_hcisu.c", cflags=cflags_base),
+            Object(NonMatching, "RVL_SDK/bte/bte_init.c", cflags=cflags_base),
+            Object(NonMatching, "RVL_SDK/bte/bte_logmsg.c", cflags=cflags_base),
+            Object(NonMatching, "RVL_SDK/bte/bte_main.c", cflags=cflags_base),
         ],
     ),
     library(

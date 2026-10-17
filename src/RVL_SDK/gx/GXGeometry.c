@@ -1,6 +1,7 @@
 #include "revolution/gx.h"
 #include "revolution/gx/GXRegs.h"
-#include "revolution/gx/GXTypes.h"
+#include "revolution/gx/GXState.h"
+
 
 inline void __GXSetAmbMat(u32 amState) {
     if (amState & GX_DIRTY_AMB_COLOR0) {
@@ -141,7 +142,7 @@ void __GXSetDirtyState(void) {
             __GXSetProjection();
         }
 
-        XF_SENT();
+        XF_SENT()
     }
 
     gx->dirtyState = 0;
@@ -172,28 +173,28 @@ void __GXSendFlushPrim(void) {
         GX_WRITE_U32(0);
     }
 
-    XF_SENT();
+    XF_SENT()
 }
 
 void GXSetLineWidth(u8 width, GXTexOffset texOffsets) {
     SC_SU_LPSIZE_SET_LSIZE(gx->lpSize, width);
     SC_SU_LPSIZE_SET_LTOFF(gx->lpSize, texOffsets);
     GX_WRITE_RA_REG(gx->lpSize);
-    BP_SENT();
+    BP_SENT()
 }
 
 void GXSetPointSize(u8 pointSize, GXTexOffset texOffsets) {
     SC_SU_LPSIZE_SET_PSIZE(gx->lpSize, pointSize);
     SC_SU_LPSIZE_SET_PTOFF(gx->lpSize, texOffsets);
     GX_WRITE_RA_REG(gx->lpSize);
-    BP_SENT();
+    BP_SENT()
 }
 
 void GXEnableTexOffsets(GXTexCoordID coord, GXBool lineEnable, GXBool pointEnable) {
     SC_SU_TS0_SET_LF(gx->suTs0[coord], lineEnable);
     SC_SU_TS0_SET_PF(gx->suTs0[coord], pointEnable);
     GX_WRITE_RA_REG(gx->suTs0[coord]);
-    BP_SENT();
+    BP_SENT()
 }
 
 void GXSetCullMode(GXCullMode mode) {
@@ -211,10 +212,10 @@ void GXSetCoPlanar(GXBool enable) {
     reg = SU_SSMASK(0x80000, 0xFE);
     GX_WRITE_RA_REG(reg);
     GX_WRITE_RA_REG(gx->genMode);
-    BP_SENT();
+    BP_SENT()
 }
 
 void __GXSetGenMode(void) {
     GX_WRITE_RA_REG(gx->genMode);
-    BP_SENT();
+    BP_SENT()
 }

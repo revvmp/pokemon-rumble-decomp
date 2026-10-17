@@ -1,13 +1,16 @@
-#ifndef REVOLUTION_GX_GXTYPES_H
-#define REVOLUTION_GX_GXTYPES_H
+#ifndef GXTYPES_H
+#define GXTYPES_H
 
-#include "revolution/types.h"
 #include "revolution/gx/GXEnum.h"
 #include "revolution/gx/GXStruct.h"
+#include "revolution/types.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define PHY_ADDR_MASK ~((~0x3FFF) << 16)
+#define GX_PHY_ADDR(a) ((u32)a & PHY_ADDR_MASK)
 
 typedef struct _GXData {
     u16 vNumNot;
@@ -62,8 +65,8 @@ typedef struct _GXData {
     GXTexRegion TexRegions1[8];
     GXTexRegion TexRegions2[8];
     GXTlutRegion TlutRegions[20];
-    GXTexRegion* (*texRegionCallback)(const GXTexObj* texObj, GXTexMapID id);
-    GXTlutRegion* (*tlutRegionCallback)(u32 tlutName);
+    GXTexRegion* (*texRegionCallback)(const GXTexObj*, GXTexMapID);
+    GXTlutRegion* (*tlutRegionCallback)(u32 tlut_name);
     GXAttrType nrmType;
     GXBool hasNrms;
     GXBool hasBiNrms;
@@ -93,49 +96,84 @@ typedef struct _GXData {
 } GXData;
 
 extern GXData* const __GXData;
-
 #define gx __GXData
 
-#define GX_DIRTY_SU_TEX 0x00000001
-#define GX_DIRTY_BP_MASK 0x00000002
-#define GX_DIRTY_GEN_MODE 0x00000004
-#define GX_DIRTY_VCD 0x00000008
-#define GX_DIRTY_VAT 0x00000010
-#define GX_DIRTY_AMB_COLOR0 0x00000100
-#define GX_DIRTY_AMB_COLOR1 0x00000200
-#define GX_DIRTY_MAT_COLOR0 0x00000400
-#define GX_DIRTY_MAT_COLOR1 0x00000800
-#define GX_DIRTY_AMB_MAT 0x00000F00
-#define GX_DIRTY_CHAN_CTRL 0x0000F000
-#define GX_DIRTY_TEX_GEN 0x00FF0000
-#define GX_DIRTY_NUM_COLORS 0x01000000
-#define GX_DIRTY_NUM_TEX_GENS 0x02000000
-#define GX_DIRTY_MTX_IDX 0x04000000
-#define GX_DIRTY_PROJECTION 0x08000000
-#define GX_DIRTY_VIEWPORT 0x10000000
+#ifdef _DEBUG
+extern GXBool __GXinBegin;
+#endif
 
-#define GX_DIRTY_LIGHT_CHAN (GX_DIRTY_NUM_COLORS | GX_DIRTY_CHAN_CTRL)
-#define GX_DIRTY_TEX_GENS (GX_DIRTY_NUM_TEX_GENS | GX_DIRTY_TEX_GEN)
 
-void __GXSetDirtyState(void);
-void __GXSendFlushPrim(void);
-void __GXSetGenMode(void);
-void __GXSetSUTexRegs(void);
-void __GXUpdateBPMask(void);
-void __GXSetVCD(void);
-void __GXSetVAT(void);
-void __GXCalculateVLim(void);
-void __GXSetMatrixIndex(GXAttr matIdxAttr);
-void __GXSetViewport(void);
-void __GXSetProjection(void);
-void __GXAbort(void);
-GXBool __GXIsGPFifoReady(void);
-void __GXCleanGPFifo(void);
-void __GXInitRevisionBits(void);
-void __GXPEInit(void);
+#define CHECK_IN_BGN(func) ASSERTMSG(!__GXinBegin, "'" #func "' is not allowed between GXBegin/GXEnd")
+
+#define BP_SENT() gx->bpSentNot = GX_FALSE;
+#define XF_SENT() gx->bpSentNot = GX_TRUE;
+
+extern void __GXFlushTextureState();
+extern void __GXAbort();
+extern void __GXSetTmemConfig(u32);
+
+extern void __GetImageTileCount(GXTexFmt fmt, u16 wd, u16 ht, u32* rowTiles, u32* colTiles, u32* cmpTiles);
+
+typedef struct __GXLightObjInt_struct {
+    u32 reserved[3];
+    u32 Color;
+    f32 a[3];
+    f32 k[3];
+    f32 lpos[3];
+    f32 ldir[3];
+} GXLightObjInt;
+
+typedef struct __GXTexObjInt_struct {
+    u32 mode0;
+    u32 mode1;
+    u32 image0;
+    u32 image3;
+    void* userData;
+    GXTexFmt fmt;
+    u32 tlutName;
+    u16 loadCnt;
+    u8 loadFmt;
+    u8 flags;
+} GXTexObjInt;
+
+typedef struct __GXTexRegionInt_struct {
+    u32 image1;
+    u32 image2;
+    u16 sizeEven;
+    u16 sizeOdd;
+    u8 is32bMipmap;
+    u8 isCached;
+} GXTexRegionInt;
+
+typedef struct __GXTlutObjInt_struct {
+    u32 tlut;
+    u32 loadTlut0;
+    u16 numEntries;
+} GXTlutObjInt;
+
+typedef struct __GXTlutRegionInt_struct {
+    u32 loadTlut1;
+    GXTlutObjInt tlutObj;
+} GXTlutRegionInt;
+
+#define GX_SETUP_LIGHT(l, p)                                                                                                                         \
+    GXLightObjInt* l;                                                                                                                                \
+    l = (GXLightObjInt*)p;
+
+#define GX_SETUP_TEXOBJ(l, p) GXTexObjInt* l = (GXTexObjInt*)p;
+
+#define GX_SETUP_ALL_TEXOBJS(l, p, m, q)                                                                                                             \
+    GXTexObjInt* l = (GXTexObjInt*)p;                                                                                                                \
+    GXTexRegionInt* m = (GXTexRegionInt*)q;
+
+#define GX_SETUP_TLUTOBJ(l, p) GXTlutObjInt* l = (GXTlutObjInt*)p;
+
+#define GX_SETUP_TREGOBJ(l, p) GXTexRegionInt* l = (GXTexRegionInt*)p;
+
+#define GX_SETUP_TLUTREGOBJ(l, p) GXTlutRegionInt* l = (GXTlutRegionInt*)p;
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif
+#endif  

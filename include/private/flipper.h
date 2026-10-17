@@ -12,6 +12,4 @@ vu32 __SIRegs[0x40] : 0xCD006400;
 vu32 __EXIRegs[0x10] : 0xCD006800;
 vu32 __AIRegs[0x8] : 0xCD006C00;
 
-#define PI_REG_CPABT 6
-
 #endif

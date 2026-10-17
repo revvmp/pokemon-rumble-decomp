@@ -56,8 +56,21 @@ Keep entries concise and actionable. Distinguish confirmed findings from hypothe
 
 - **U8 node names can contain backslashes.** On Windows dtk failed to create nested Home Menu sound files until validated parent directories were precreated. Preserve original node names and offsets in the inventory; see [F-0005](docs/re/FINDINGS.md#f-0005-recursive-reference-extraction-and-repeat-validation).
 
+- **CNT reference headers can describe another ABI revision.** The public RB3 header declares a three-argument `CNTRead`, but this target's read routine at `0x801783B0` consumes an offset in `r6`. Validate signatures against target accesses before importing a reference interface; see [F-286-1](docs/re/findings/286-cnt.md).
 - **CodeWarrior SPR names are not Broadway's.** Wii/1.0 inline asm encodes `HID2` as SPR 1011 and rejects `WPAR` and `HID4`. Write numeric SPRs (`0x398`, `0x399`, `0x3F3`) in SDK asm. See [F-463-2](docs/re/findings/463-ppcarch.md#f-463-2-codewarrior-inline-assembler-spr-names).
 
+- **An incomplete external type can prevent SDA addressing.** BTA_Init used a two-instruction address load for opaque tHCI_CFG, adding an instruction. A proven four-byte unsigned-short storage view restored small-data addressing and 100% function comparison; retain unknown field names as opaque. See [F-510-2](docs/re/findings/510-bte-transport-logging.md#f-510-2-complete-main-unit-split-and-remaining-three-functions).
+
+- **Root licenses can have file-level exceptions.** Petari BTE files retain Broadcom Apache-2.0 notices despite its root CC0 license. Inspect each reused file and preserve its specific notices; see [F-510-1](docs/re/findings/510-bte-transport-logging.md#source-provenance-and-reusable-lesson).
+- **An issue boundary can divide SDK static state.** Linking the proposed #484 AI split exposed a callback reference from the preceding #483 function. That function is AIRegisterDMACallback, so #483 owns the AI split. Inspect preceding references; split-only byte identity does not establish a source-unit boundary. See [F-484-1](docs/re/findings/484-ai.md).
+
+- **IPC register declarations affect instruction selection.** A pointer macro produced different instructions from the original indexed loads/stores. Use the evidenced CodeWarrior absolute-address array declaration for ipcMain; see [F-496-1](docs/re/findings/496-esp-ipc-main.md).
+
+- **VI I2C uses a fixed tick conversion.** Petari I2C functions initially differ because its clock macro reads the bus-clock word. This target uses immediate divisor 486; the fixed conversion reproduces all three non-relocation instruction streams. Limit this conclusion to I2C and retain the runtime-helper dependency; see [F-473-1](docs/re/findings/473-vi-i2c.md).
+
+- **PowerShell semicolons do not gate lifecycle steps.** A rejected PR merge still allowed a following release command to execute. Run merge, state confirmation, claim release, and cleanup separately, checking each result; see [the #473 handoff note](docs/re/findings/473-vi-i2c.md#handoff-validation-note).
+
+- **OSAlarm extends past the reference source.** The routine at `0x802B3760` still uses AlarmQueue and cancels reserved-tag alarms by user data; OSAlloc starts at `0x802B3810`. Do not end the alarm split at the reference's last accessor. See [F-464-1](docs/re/findings/464-os-alarm.md).
 
 - **End a split at its last function, not the next unit.** A GXGeometry split ending at the next unit's start scored 100% in objdiff but shifted the DOL by 0x10 when source-linked, because the next auto split has 4-byte alignment. End `.text` (and `.sbss`) at the true end of the unit's contents; see [F-476-3](docs/re/findings/476-gxmisc-gxgeometry.md#f-476-3-split-end-padding).
 

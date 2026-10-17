@@ -1,9 +1,11 @@
 #include "revolution/gx.h"
 #include "revolution/gx/GXRegs.h"
-#include "revolution/gx/GXTypes.h"
+#include "revolution/gx/GXState.h"
+#include "revolution/gx/shortcut_pe_misc.h"
 #include "revolution/base/PPCArch.h"
 #include "revolution/os.h"
 #include "private/flipper.h"
+
 
 static GXDrawSyncCallback TokenCB;
 static GXDrawDoneCallback DrawDoneCB;
@@ -81,9 +83,9 @@ void __GXAbort(void) {
         __GXAbortWaitPECopyDone();
     }
 
-    __PIRegs[PI_REG_CPABT] = 1;
+    __PIRegs[PI_REG_CPABT / 4] = 1;
     __GXAbortWait(200);
-    __PIRegs[PI_REG_CPABT] = 0;
+    __PIRegs[PI_REG_CPABT / 4] = 0;
     __GXAbortWait(20);
 }
 
@@ -110,7 +112,7 @@ void GXSetDrawSync(u16 token) {
     GX_WRITE_RA_REG(reg);
     GXFlush();
     OSRestoreInterrupts(enabled);
-    BP_SENT();
+    BP_SENT()
 }
 
 void GXSetDrawDone(void) {
@@ -123,7 +125,7 @@ void GXSetDrawDone(void) {
     GXFlush();
     DrawDone = GX_FALSE;
     OSRestoreInterrupts(enabled);
-    BP_SENT();
+    BP_SENT()
 }
 
 void GXWaitDrawDone(void) {
@@ -143,7 +145,7 @@ void GXDrawDone(void) {
 
 void GXPixModeSync(void) {
     GX_WRITE_RA_REG(gx->peCtrl);
-    BP_SENT();
+    BP_SENT()
 }
 
 void GXTexModeSync(void) {
@@ -151,7 +153,7 @@ void GXTexModeSync(void) {
 
     reg = TX_LOADBLOCK3(0, 0, 0x63);
     GX_WRITE_RA_REG(reg);
-    BP_SENT();
+    BP_SENT()
 }
 
 void GXPokeAlphaMode(GXCompare func, u8 threshold) {
