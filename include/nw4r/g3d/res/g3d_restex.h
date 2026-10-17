@@ -37,6 +37,7 @@ class ResTex : public ResCommon<ResTexData> {
 public:
     static const u32 SIGNATURE = 'TEX0';
     static const int REVISION = 3;
+    static const int COMPATIBLE_REVISION = 1;
 
 public:
     NW4R_G3D_RESOURCE_FUNC_DEF(ResTex);
