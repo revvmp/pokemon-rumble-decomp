@@ -7,6 +7,16 @@
 #include <revolution/bte/btm_api.h>
 #include <revolution/bte/sdp_api.h>
 
+#define BTA_COPY_DEVICE_CLASS(coddst, codsrc)				\
+	do														\
+	{														\
+		((UINT8 *)(coddst))[0] = ((UINT8 *)(codsrc))[0];	\
+		((UINT8 *)(coddst))[1] = ((UINT8 *)(codsrc))[1];	\
+		((UINT8 *)(coddst))[2] = ((UINT8 *)(codsrc))[2];	\
+	} while (FALSE)
+
+#define BTA_ALL_APP_ID 255
+
 #define BTA_DM_NUM_PEER_DEVICE 7
 #define BTA_DM_NUM_CONN_SRVS 5
 #define BTA_DM_NUM_COMPRESS_SRVS 5
@@ -44,7 +54,19 @@ enum {
 };
 
 typedef UINT8 tBTA_DM_CONN_STATE;
+enum
+{
+	BTA_DM_CONNECTED	= 1,
+	BTA_DM_UNPAIRING	= 2,
+};
+
 typedef UINT8 tBTA_DM_COMPRESS_STATE;
+enum
+{
+	BTA_COMPRESS_STATE_0	= 0,
+	BTA_COMPRESS_STATE_1	= 1,
+};
+
 
 typedef struct {
     BT_HDR hdr;
@@ -118,6 +140,23 @@ typedef struct {
     UINT16 sdp_result;
 } tBTA_DM_SDP_RESULT;
 
+typedef struct
+{
+	BT_HDR					hdr;
+	tBTA_SIG_STRENGTH_MASK	mask;
+	UINT16					period;
+	BOOLEAN					start;
+} tBTA_API_DM_SIG_STRENGTH;
+
+typedef struct
+{
+	BT_HDR			hdr;
+	tBTM_BL_EVENT	event;
+	UINT8			busy_level;
+	BOOLEAN			is_new;
+	BD_ADDR			bd_addr;
+} tBTA_DM_ACL_CHANGE;
+
 typedef union {
     BT_HDR hdr;
     tBTA_DM_API_ENABLE enable;
@@ -132,6 +171,8 @@ typedef union {
     tBTA_DM_DISC_RESULT disc_result;
     tBTA_DM_INQUIRY_CMPL inq_cmpl;
     tBTA_DM_SDP_RESULT sdp_event;
+    tBTA_API_DM_SIG_STRENGTH sig_strength;
+    tBTA_DM_ACL_CHANGE acl_change;
 } tBTA_DM_MSG;
 
 typedef struct {
@@ -217,6 +258,20 @@ typedef struct {
     UINT16 link_timeout;
 } tBTA_DM_CFG;
 
+typedef struct
+{
+	UINT8	id;
+	UINT8	app_id;
+	UINT8	cfg;
+} tBTA_DM_RM;
+
+typedef struct
+{
+	UINT8	id;
+	UINT8	app_id;
+	UINT8	mask;
+} tBTA_DM_COMPRESS;
+
 extern const UINT16 bta_service_id_to_uuid_lkup_tbl[];
 extern const UINT32 bta_service_id_to_btm_srv_id_lkup_tbl[];
 extern tBTA_DM_CONNECTED_SRVCS bta_dm_conn_srvcs;
@@ -252,4 +307,6 @@ void bta_dm_search_cancel_notify(tBTA_DM_MSG* p_data);
 void bta_dm_init_pm(void);
 void bta_dm_disable_pm(void);
 
+extern tBTA_DM_RM *p_bta_dm_rm_cfg;
+extern tBTA_DM_COMPRESS *p_bta_dm_compress_cfg;
 #endif
