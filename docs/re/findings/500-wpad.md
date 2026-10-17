@@ -39,3 +39,7 @@ Observed compiler behavior:
 - `__wpadGetDpdSensitivity` needs a `u32` local for its clamp. A `u8` local re-extends after each assignment.
 - The reconnect countdown keeps `_wpadOnReconnect` in a register across the debug print only when passed as a parameter. A local copy is re-read from memory.
 - `__wpadSendDataSub` returns no value here, unlike the reference, and `__wpadSendData` tests busy status in a separate `if` after sending.
+
+## Traps
+
+- **Partial SDK files drop unreferenced statics.** With `-ipa file`, a WPAD.c holding only one block's static functions compiled to an object without them, because nothing referenced them. Include the real external roots, such as `WPADInit`, and any later helpers the block inlines (F-500-3).

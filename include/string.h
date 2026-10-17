@@ -1,14 +1,14 @@
-#ifndef MSL_STRING_H
-#define MSL_STRING_H
+#ifndef _STRING_H
+#define _STRING_H
+
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef unsigned long size_t;
-
-void* memcpy(void* dst, const void* src, size_t n);
-void* memset(void* dst, int val, size_t n);
+void* memset(void* dst, int value, size_t count);
+void* memcpy(void* dst, const void* src, size_t count);
 
 #ifdef __cplusplus
 }

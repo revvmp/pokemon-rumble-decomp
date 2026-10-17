@@ -29,6 +29,8 @@ Aim for the readability of the Super Mario Galaxy decompilation (Petari): source
 
 Read this section before starting work. Before ending every meaningful session, update it with newly discovered traps, failed approaches worth avoiding, and findings that change how future work should proceed. Do not leave reusable knowledge only in chat or a handoff. Each entry must state the trigger or symptom, the verified lesson or workaround, and a link to detailed evidence in `docs/` or `docs/re/` as appropriate.
 
+Contributors working a GitHub issue do not edit this list. They record traps in their issue's findings file in `docs/re/findings/`, under a `Traps` heading. Maintainers review those and promote the ones that apply project-wide, so this list stays short and pull requests do not conflict on it.
+
 Keep entries concise and actionable. Distinguish confirmed findings from hypotheses; do not promote a single unexplained failure into a universal rule. Revise or mark superseded guidance when new evidence changes it, preserving an evidence link. If no new trap or finding emerged, say so in the session's progress update rather than inventing an entry.
 
 - **Matching files can still be the wrong reference.** Identical original and rebuilt files fail if both differ from the frozen manifest. Never refresh expected hashes to fix this; identify the input mismatch. This rejection was exercised during [initialization validation](docs/VALIDATION.md).
@@ -85,7 +87,7 @@ Keep entries concise and actionable. Distinguish confirmed findings from hypothe
 
 - **verify.py checks whatever `main.dol` is on disk.** After a failed link it passed against the previous build's output. Delete `build/wpse-v1/main.dol` or confirm `ninja` exited 0 before trusting a verification result; observed in [F-495-1](docs/re/findings/495-arc-unit.md).
 
-- **Partial SDK files drop unreferenced statics.** With `-ipa file`, a WPAD.c holding only one block's static functions compiled to an object without them, because nothing referenced them. Include the real external roots, such as `WPADInit`, and any later helpers the block inlines. See [F-500-3](docs/re/findings/500-wpad.md#f-500-3-reconstructed-functions-and-compiler-behavior).
+- **A whole `.bss` extent can include the next unit's padding.** Splitting `mem_heapCommon.c` `.bss` to the next symbol shifted `.sdata` by `-0x20` and failed verification at DOL header byte `0x7F`. End the split at the unit's last object and leave the padding to the following automatic object. See [F-488-1](docs/re/findings/488-axfx-mem-units.md#f-488-1-unit-boundaries-in-0x802df1900x802e18f0).
 
 ## Current project state
 
