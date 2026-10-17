@@ -187,6 +187,7 @@ config.libs = [
             Object(Matching, "RVL_SDK/axfx/AXFXHooks.c"),
             Object(Matching, "RVL_SDK/mem/mem_heapCommon.c"),
             Object(Matching, "RVL_SDK/mem/mem_expHeap.c"),
+            Object(NonMatching, "RVL_SDK/nand/nand.c"),
             Object(Matching, "RVL_SDK/enc/enclatin.c", cflags=cflags_base),
             Object(Matching, "RVL_SDK/arc/arc.c"),
             Object(NonMatching, "RVL_SDK/esp/esp.c"),
