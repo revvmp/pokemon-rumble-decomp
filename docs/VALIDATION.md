@@ -64,6 +64,14 @@ Ran on Windows with Python 3.14.2, dtk 1.8.4 x86, objdiff-cli 3.8.2, ninja 1.13.
 - Removed the junctions with `cmd /c rmdir`, then ran `git worktree remove --force` and deleted the branch. Afterward `tools/local/dtk.exe` still hashed to the pinned digest and `.venv` ninja was present.
 - Created 36 GitHub issues and nine `area:` and `kind:` labels with a generator script. The script was dry-run first and the output reviewed. Issue #5's rendered body was checked with `gh issue view`.
 
+## Codex skill port validation
+
+The Claude skill inventory contained one skill, `.claude/skills/take-issue/SKILL.md`. Added `.agents/skills/take-issue/SKILL.md` with name and description frontmatter and a relative link to that unchanged shared procedure. Repository placement follows the [official skill documentation](https://developers.openai.com/codex/skills/).
+
+Reviewed the adapter for preservation of the shared claim, isolation, verification, merge, and cleanup workflow. No issue was claimed or GitHub state changed.
+
+Attempted the skill-creator `quick_validate.py` CLI, reference-path check, and `git diff --check`, but shell startup failed with `helper_unknown_error: setup refresh had errors`. A retry failed at the same boundary. These checks and discovery in a fresh Codex session remain unverified. When shell execution is available, run the validator against `.agents/skills/take-issue`, confirm its relative link resolves, and run `git diff --check`. No game build was needed for instruction-only changes. The pre-existing modification to `docs/re/main.elf.i64` was not edited by this session.
+
 ## Issue claim tool validation
 
 Ran `tools/collab/claim_issue.py` against the live repository with gh authenticated:

@@ -19,6 +19,14 @@ Work is now parallel: contributors claim GitHub issues listed in [workstreams](W
 
 ## Available commands
 
+## Repository skills
+
+The current Claude skill, `take-issue`, is also exposed to Codex through `.agents/skills/take-issue/SKILL.md`. Invoke it in Codex with `$take-issue`, optionally naming an issue or area label, or ask to pick up an issue. The Codex entry point loads `.claude/skills/take-issue/SKILL.md`, which remains the single authoritative procedure. Edit that shared file for workflow changes and update both descriptions if the trigger changes. No global installation or Windows symlink is required.
+
+Validation and its limits are recorded in [validation](VALIDATION.md#codex-skill-port-validation).
+
+## Build and verification commands
+
 Prerequisites: tools in `tools/local/` and ninja in `.venv`, as in [setup](SETUP.md#acquire-tools).
 
 ```powershell

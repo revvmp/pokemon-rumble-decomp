@@ -10,6 +10,8 @@ Keep this file and the linked living documents current as required by the projec
 
 ## Parallel work
 
+Codex discovers the repository skill at [`.agents/skills/take-issue/SKILL.md`](.agents/skills/take-issue/SKILL.md), which loads the shared Claude procedure below. Maintain the workflow in one place; see [skill setup](docs/HANDOFF.md#repository-skills).
+
 If you were given a GitHub issue, or asked to pick one up, follow the `take-issue` procedure in `.claude/skills/take-issue/SKILL.md`; it applies to every agent, not only Claude. It claims through `tools/collab/claim_issue.py`, which never takes an assigned issue. Then read [collaboration](docs/COLLABORATION.md) and the issue before anything else. Work in your own worktree and branch, edit only the files that guide allows for your claim, and report through the pull request. [Workstreams](docs/WORKSTREAMS.md) lists all issues.
 
 ## Source fidelity standard

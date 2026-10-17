@@ -47,6 +47,10 @@ The ledger is kept per area in [ledger](ledger/README.md). It has one linked uni
 
 ## Latest session
 
+Exposed the existing `take-issue` Claude skill to Codex through a repository-local `.agents/skills/take-issue/SKILL.md` entry point that loads the shared procedure. Updated agent navigation and handoff usage. See [validation](VALIDATION.md#codex-skill-port-validation) for checks and limits. No new reverse engineering findings or observed tooling traps emerged; measured progress is unchanged.
+
+## Earlier session: per-block issues
+
 Replaced the 36 placeholder issues with 507 per-block decomp issues that together list every function in the executable:
 - Dumped all functions with their string and call references from a copy of the IDA database. Four parallel surveys then mapped `.text` 0x80052500–0x80292000 into source files and libraries (F-0012).
 - The game address range turned out to contain HBM, RevoEX, NCD, CNT, TMC JPEG, FA, MSL printf, and NW4R ef, g3d and snd. Library and game regions were partitioned into blocks of 6–77 functions, mean 26.6, cut at file starts where the survey evidenced them.
