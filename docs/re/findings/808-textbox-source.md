@@ -34,9 +34,23 @@ the resulting Rect in its evidenced members.
 Canonical-only diagnostic compilation reproduces all 23 retained functions,
 8,108 code bytes and physical retained order. Independent native target
 pairing proves 156 text relocations, 33 data/constructor relocations and all
-240 non-text bytes. F-808-4 gives all seven exact section extents. Actual
-source selection, objdiff, native final addresses and the frozen whole-DOL
-gate must also pass before accepting source progress.
+240 non-text bytes. F-808-4 gives all seven exact section extents.
+
+The actual split-only pipeline built 517 targets and exited 0, followed by
+explicit frozen verification 0. The NonMatching source pipeline and explicit
+verifier also exited 0. After selecting Matching source, the actual default
+Ninja pipeline and explicit frozen verifier again exited 0. Objdiff reports
+all 23 functions and all seven owned sections at 100%. Every function's final
+linked address and size equals the native inventory. Ninja's real main.elf
+input graph selects src/nw4r/lyt/lyt_textBox.o and excludes its original
+fallback. The full main.dol is byte-identical to the frozen reference, SHA-256
+`ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da`.
+The actual compiled source object also passes the independent paired audit
+with no unresolved or inferred callee addresses. External commands
+`808-textbox-full-source-audit.py` and `808-textbox-paired-native.py
+build/wpse-v1/src/nw4r/lyt/lyt_textBox.o` exit 0.
+This first source-selected proof is based on 7f00715b plus the bounded header
+prerequisite. Final latest-main verification remains required before merge.
 
 ## Complete original #808 inventory reconciliation
 
@@ -79,3 +93,54 @@ until all listed source deliveries are canonical and verified together.
 - SetStringImpl sets its changed flag before memcpy. A changed terminator
   independently dirties the cache; comparing only the characters loses
   native behavior.
+
+## Original inventory rows
+
+| Address | Size | Native unit |
+| --- | --- | --- |
+| 802A6060 | 1D4 | Layout |
+| 802A7690 | 288 | TextBox |
+| 802A7920 | 1A8 | TextBox |
+| 802A7AD0 | 2CC | TextBox |
+| 802A7DA0 | 8 | TextBox |
+| 802A7DB0 | 1E8 | TextBox |
+| 802A7FA0 | 14 | TextBox |
+| 802A7FC0 | 3C | TextBox |
+| 802A8000 | 18 | TextBox |
+| 802A8020 | 18 | TextBox |
+| 802A8040 | 58 | TextBox |
+| 802A80A0 | A08 | TextBox |
+| 802A8AB0 | 3E0 | TextBox |
+| 802A8E90 | C8 | TextBox |
+| 802A8F60 | 4C | TextBox |
+| 802A8FB0 | 5C | TextBox |
+| 802A9010 | 4 | TextBox |
+| 802A9020 | 110 | TextBox |
+| 802A9130 | 8 | TextBox |
+| 802A9140 | 84 | TextBox |
+| 802A91D0 | 308 | TextBox |
+| 802A94E0 | 1D4 | TextBox |
+| 802A96C0 | 8 | TextBox |
+| 802A96D0 | C | TextBox |
+| 802ABC60 | 8 | Window |
+| 802ABC70 | C | Window |
+| 802ABC80 | 3C | Bounding |
+| 802ABCC0 | 58 | Bounding |
+| 802ABD20 | 4 | Bounding |
+| 802ABD30 | 8 | Bounding |
+| 802ABD40 | C | Bounding |
+| 802ABD50 | 108 | Material |
+| 802ABE60 | 200 | Material |
+| 802AEB30 | EC | TexMap |
+| 802AEC20 | 1C | TexMap |
+| 802AEC40 | 14C | TexMap |
+| 802AED90 | 70 | TexMap |
+| 802AEE00 | 124 | TexMap |
+| 802AEF30 | D0 | TexMap |
+| 802AF000 | 74 | DrawInfo |
+| 802AF080 | 40 | DrawInfo |
+| 802B0680 | 40 | ResourceAccessor/ArcResourceAccessor |
+| 802B06C0 | 10 | ResourceAccessor/ArcResourceAccessor |
+| 802B06D0 | 8 | ResourceAccessor/ArcResourceAccessor |
+| 802B06E0 | CC | ResourceAccessor/ArcResourceAccessor |
+| 802B07B0 | 140 | ResourceAccessor/ArcResourceAccessor |
