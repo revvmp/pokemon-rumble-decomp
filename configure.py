@@ -149,6 +149,13 @@ SDK_COMPILER = "Wii/1.0"
 
 config.libs = [
     library(
+        "RVL_SDK.CNT",
+        "Wii/1.0",
+        cflags_base,
+        "sdk",
+        [Object(NonMatching, "RVL_SDK/cnt/cnt.c")],
+    ),
+    library(
         "RVL_SDK",
         SDK_COMPILER,
         cflags_sdk,
