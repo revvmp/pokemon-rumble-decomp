@@ -75,7 +75,10 @@ int PFAPI_convertErrorStatus(int err) {
 }
 
 int PFAPI_convertReturnValue(int err) {
-    return (-err | err) >> 31;
+    if (err == 0) {
+        return 0;
+    }
+    return -1;
 }
 
 int PFAPI_convertReturnValuePreservingOne(int err) {
