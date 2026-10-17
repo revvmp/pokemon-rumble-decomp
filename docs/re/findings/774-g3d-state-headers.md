@@ -1,6 +1,6 @@
 # F-774-1: G3D state and draw interface prerequisite
 
-The source-file issue #774 owns `g3d_state.cpp` at `0x8025B6A0`â€“`0x8025ECB0`. This prerequisite adds the missing MSL algorithms without taking any neighboring source splits. Main imported the canonical light and GPU headers during this work, so both add/add conflicts were resolved by retaining main's headers unchanged. The light implementation is tracked separately by #793.
+The source-file issue #774 owns `g3d_state.cpp` at `0x8025B6A0`–`0x8025ECB0`. This prerequisite adds the missing MSL algorithms without taking any neighboring source splits. Main imported the canonical light and GPU headers during this work, so both add/add conflicts were resolved by retaining main's headers unchanged. The light implementation is tracked separately by #793.
 
 ## Provenance
 
