@@ -14,10 +14,32 @@ Petari's CC0 `src/RVL_SDK/nand/nand.c` (commit `e0ab141`) supplies the bodies, b
 
 Promoting the unit to `Matching` fails to link with undefined externals whose symbols are unnamed in `config/wpse-v1/symbols.txt` and belong to other issues: `nandCallback` (`0x802E6DD0`), `nandGetHomeDir` (`0x802E71C0`), `nandGetRelativeName` (`0x802E6290`), and `nandIsUnderPrivatePath` (`0x802E64B0`) in #491; `ISFS_CreateDir` (`0x802F36E0`), `ISFS_CreateDirAsync` (`0x802F37E0`), `ISFS_GetAttr` (`0x802F3B90`), `ISFS_GetAttrAsync` (`0x802F3CF0`), `ISFS_Delete` (`0x802F3E30`), `ISFS_DeleteAsync` (`0x802F3F10`), `ISFS_Rename` (`0x802F3FE0`), `ISFS_RenameAsync` (`0x802F40F0`), `ISFS_GetUsageAsync` (`0x802F4340`), `ISFS_CreateFile` (`0x802F4470`), `ISFS_CreateFileAsync` (`0x802F4570`), `ISFS_GetFileStats` (`0x802F4800`), `ISFS_Seek` (`0x802F48D0`), `ISFS_SeekAsync` (`0x802F48E0`), `ISFS_Read` (`0x802F4970`), `ISFS_ReadAsync` (`0x802F4990`), `ISFS_Write` (`0x802F4A40`), and `ISFS_WriteAsync` (`0x802F4A60`) in #498; `strcat` (`0x80345D64`) and `strcmp` (`0x80345DDC`) in #538. The ISFS addresses follow the function order of Petari's `fs.c`, with the unlisted `ISFS_GetUsageAsync` between `ISFS_GetUsage` and `ISFS_CreateFile`. The unit stays `NonMatching` until those names land.
 
+Status superseded by F-490-5: the names are now in `symbols.txt` and the unit links from source.
+
 ## F-490-4: dsp_task.c starts in the previous block
 
 The issue's first four functions, `0x802E41C0`–`0x802E4630`, are `__DSP_exec_task`, `__DSP_boot_task` (its `__DSP_boot_task()` debug strings at `0x803DC290`), `__DSP_insert_task`, and `__DSP_remove_task`, matching the order of Petari's `dsp_task.c`. The file's first function is `__DSPHandler` at `0x802E3D90` (`0x42C` bytes), which calls `__DSP_exec_task` six times and `__DSP_remove_task` four times and uses the task list globals at `0x804B9990`–`0x804B99A4`. `__DSPHandler` lies in #489's block, so under the collaboration rules #489 owns the `dsp_task.c` split, object line, and header. These four functions were left for coordination with #489. Confidence high.
 
+## F-490-5: outside symbols named and nand.c links from source
+
+Supersedes the status of F-490-3. Evidence comes from the dtk 1.8.4 split assembly `build/wpse-v1/asm/auto_03_802E5BC0_text.s`, `auto_03_802F342C_text.s` and `auto_03_80342164_text.s`, and from `powerpc-eabi-nm -u` on the compiled `nand.o`, whose 29 undefined references other than `_savegpr_27` and `_restgpr_27` are exactly the 23 names below plus the already named `nandIsPrivatePath`, `nandIsInitialized`, `nandConvertErrorCode`, `nandGenerateAbsPath`, `sprintf` and `strcmp`. Names are given in `config/wpse-v1/symbols.txt` only; sizes and splits stay with the owning issues.
+
+NANDCore (#491), in Petari `NANDCore.c` order around the named `nandConvertPath`, `nandIsPrivatePath`, `nandIsInitialized` and `nandConvertErrorCode`:
+
+- `nandGetRelativeName` (`0x802E6290`): compares the path with `"/"` (`0x804B8BFC`), copies `""` if equal, otherwise scans back to the last `'/'` and copies the tail. Called once, from `nandMove`.
+- `nandIsUnderPrivatePath` (`0x802E64B0`): `strncmp(path, "/shared2/", 9)` (`0x803DC49C`) and a non-zero byte at index 9; it directly follows `nandIsPrivatePath`.
+- `nandCallback` (`0x802E6DD0`): converts the ISFS result with `nandConvertErrorCode` and calls the block's callback at offset 0x4. Its address is passed as the ISFS callback 11 times.
+- `nandGetHomeDir` (`0x802E71C0`): returns the address of the home directory buffer at `0x8046ECE0`; three callers, including `NANDGetHomeDirUsageAsync`.
+
+ISFS (#498): the functions follow Petari `fs.c` order after the named `ISFS_OpenLib` and `_isfsFuncCb`, with `ISFS_Open` and `ISFS_OpenAsync` named at their expected places. The ioctl numbers passed in r4 confirm each pair: `ISFS_CreateDir`/`Async` 3, `ISFS_ReadDir`/`Async` 4 (not named, unused here), `ISFS_GetAttr`/`Async` 6, `ISFS_Delete`/`Async` 7, `ISFS_Rename`/`Async` 8, `ISFS_GetUsage`/`ISFS_GetUsageAsync` 12 through `IOS_Ioctlv` and `IOS_IoctlvAsync`, `ISFS_CreateFile`/`Async` 9, and `ISFS_GetFileStats` 11 with an 8-byte output. Synchronous variants call the synchronous ioctl at `0x802F25D0`, asynchronous ones `IOS_IoctlAsync` with `_isfsFuncCb`. `ISFS_Seek` (`0x802F48D0`) is a 4-byte tail branch to the IOS seek at `0x802F23A0`; `ISFS_SeekAsync` passes `_isfsFuncCb` to the IOS async seek. `ISFS_Read` and `ISFS_Write` check for a non-null, 32-byte-aligned buffer, return -101 otherwise, and tail-branch to the IOS read and write; their async variants follow each. `ISFS_GetUsageAsync` is absent from Petari but takes its name from the `ISFS_GetUsage` pairing; confidence medium. All other ISFS names high.
+
+MSL (#538): `strcat` (`0x80345D64`, `0x2C` bytes) seeks the destination terminator and copies the source including its terminator. It sits between `strncpy`'s slot at `0x80345D20`, after the named `strcpy`, and `strncat`'s slot before the named `strcmp`, the MSL `string.c` order. Confidence high.
+
+Linking from source also needs the `.text` split to end at `0x802E5BB4`, the compiled extent, not `0x802E5BC0`. With the old end the 16-byte-aligned source object was 12 bytes shorter than the split, and the following `.balign 4` assembly moved back by 12 bytes, so every branch into `NANDOpenClose.c` and later code differed (first difference at DOL offset `0xE3897`). The 12 padding bytes before `nandOpen` now stay in the next assembly unit, as in F-465-2. This corrects F-490-1's `.text` end.
+
+With these names and `Object(Matching, "RVL_SDK/nand/nand.c")`, a clean build (deleted `build/`) gives `configure.py` 0, `ninja` 0, and `verify.py verify` PASS for `main.dol`; objdiff reports 29/29 functions and 100% code and data for `main/RVL_SDK/nand/nand`. With `dsp_task.c` already `Matching` (#605, covering F-490-4), the whole #490 range `0x802E41C0`–`0x802E5BB4` is now linked from matching source. Confidence high.
+
 ## Traps
 
 - **Game SDK copies differ from Petari's function set.** RVL_SDK `nand.c` here links seven functions Petari lacks and omits others. Identify each function by call pattern and take names from other CC0 decompilations (`yomcube/cmwp-decomp`, `pbr-ret/pbr-decomp`), recording provenance. See F-490-2.
+- **A split that includes trailing alignment padding breaks the link.** The source object ends at its last function, so the next assembly unit, aligned to 4, moves back. End `.text` splits at the compiled extent. See F-490-5.

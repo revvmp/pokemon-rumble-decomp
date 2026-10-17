@@ -426,7 +426,7 @@ RVL_SDK/dsp/dsp_task.c:
 	.sbss       start:0x804B9990 end:0x804B99A8
 
 RVL_SDK/nand/nand.c:
-	.text       start:0x802E4630 end:0x802E5BC0
+	.text       start:0x802E4630 end:0x802E5BB4
 	.sdata      start:0x804B8BF0 end:0x804B8BF8
 
 RVL_SDK/sc/scapi_prdinfo.c:

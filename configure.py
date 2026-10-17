@@ -305,7 +305,7 @@ config.libs = [
             Object(Matching, "RVL_SDK/dsp/dsp.c"),
             Object(Matching, "RVL_SDK/dsp/dsp_debug.c"),
             Object(Matching, "RVL_SDK/dsp/dsp_task.c"),
-            Object(NonMatching, "RVL_SDK/nand/nand.c"),
+            Object(Matching, "RVL_SDK/nand/nand.c"),
             Object(Matching, "RVL_SDK/sc/scapi_prdinfo.c"),
             Object(Matching, "RVL_SDK/wenc/wenc.c", mw_version="GC/3.0a5.2", extra_cflags=["-func_align 4"]),
             Object(Matching, "RVL_SDK/enc/encutility.c"),

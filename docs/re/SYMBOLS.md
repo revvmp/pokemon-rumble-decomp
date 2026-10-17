@@ -144,6 +144,36 @@ The same finding corrects the survey boundary at the end of #483: AIRegisterDMAC
 
 `NANDCommandBlock` follows Petari's layout. Offsets confirmed by this unit: `callback` 0x4, `status` 0x14, `attr` 0x20, `ownerAcc` 0x24, `groupAcc` 0x28, `othersAcc` 0x2C. `NANDStatus`: `ownerId` 0x0, `groupId` 0x4, `attribute` 0x6, `permission` 0x7. `NANDFileInfo.fileDescriptor` is at 0x0. `ISFSFileStats`: `size` 0x0, `offset` 0x4. Remaining fields are unverified for this game; confidence medium.
 
+## RVL_SDK nand outside symbols (#490)
+
+Names only, so `nand.c` links from source; splits, sizes and types stay with the owning issues. Evidence in [F-490-5](findings/490-nand.md#f-490-5-outside-symbols-named-and-nandc-links-from-source).
+
+| Address | Size | dtk label | Chosen name | Kind | Confidence | Evidence | Owner |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `0x802E6290` | `0x98` | `fn_802E6290` | `nandGetRelativeName` | function | high | F-490-5 | #491 |
+| `0x802E64B0` | `0x58` | `fn_802E64B0` | `nandIsUnderPrivatePath` | function | high | F-490-5 | #491 |
+| `0x802E6DD0` | `0x3C` | `fn_802E6DD0` | `nandCallback` | function | high | F-490-5 | #491 |
+| `0x802E71C0` | `0xC` | `fn_802E71C0` | `nandGetHomeDir` | function | high | F-490-5 | #491 |
+| `0x802F36E0` | `0xF4` | `fn_802F36E0` | `ISFS_CreateDir` | function | high | F-490-5 | #498 |
+| `0x802F37E0` | `0xF4` | `fn_802F37E0` | `ISFS_CreateDirAsync` | function | high | F-490-5 | #498 |
+| `0x802F3B90` | `0x158` | `fn_802F3B90` | `ISFS_GetAttr` | function | high | F-490-5 | #498 |
+| `0x802F3CF0` | `0x134` | `fn_802F3CF0` | `ISFS_GetAttrAsync` | function | high | F-490-5 | #498 |
+| `0x802F3E30` | `0xD8` | `fn_802F3E30` | `ISFS_Delete` | function | high | F-490-5 | #498 |
+| `0x802F3F10` | `0xD0` | `fn_802F3F10` | `ISFS_DeleteAsync` | function | high | F-490-5 | #498 |
+| `0x802F3FE0` | `0x104` | `fn_802F3FE0` | `ISFS_Rename` | function | high | F-490-5 | #498 |
+| `0x802F40F0` | `0x104` | `fn_802F40F0` | `ISFS_RenameAsync` | function | high | F-490-5 | #498 |
+| `0x802F4340` | `0x124` | `fn_802F4340` | `ISFS_GetUsageAsync` | function | medium | F-490-5 | #498 |
+| `0x802F4470` | `0xF4` | `fn_802F4470` | `ISFS_CreateFile` | function | high | F-490-5 | #498 |
+| `0x802F4570` | `0xF4` | `fn_802F4570` | `ISFS_CreateFileAsync` | function | high | F-490-5 | #498 |
+| `0x802F4800` | `0xD0` | `fn_802F4800` | `ISFS_GetFileStats` | function | high | F-490-5 | #498 |
+| `0x802F48D0` | `0x4` | `fn_802F48D0` | `ISFS_Seek` | function | high | F-490-5 | #498 |
+| `0x802F48E0` | `0x8C` | `fn_802F48E0` | `ISFS_SeekAsync` | function | high | F-490-5 | #498 |
+| `0x802F4970` | `0x20` | `fn_802F4970` | `ISFS_Read` | function | high | F-490-5 | #498 |
+| `0x802F4990` | `0xA4` | `fn_802F4990` | `ISFS_ReadAsync` | function | high | F-490-5 | #498 |
+| `0x802F4A40` | `0x20` | `fn_802F4A40` | `ISFS_Write` | function | high | F-490-5 | #498 |
+| `0x802F4A60` | `0xA4` | `fn_802F4A60` | `ISFS_WriteAsync` | function | high | F-490-5 | #498 |
+| `0x80345D64` | `0x2C` | `fn_80345D64` | `strcat` | function | high | F-490-5 | #538 |
+
 ## ENC utility dependencies (#493)
 
 [F-493-1](findings/493-enc-utility-names.md) establishes `ENCiCheckParameters` (`0x802EA030`, `0xF8` bytes), `ENCiCheckBreakType` (`0x802EA130`, `0x34` bytes), and `ENCiWriteBreakType` (`0x802EA170`, `0x100` bytes), with call signatures, source provenance, confidence and DOL offset mapping. This names-only change enables source linking for the #494 Latin unit; utility functions remain original fallback.
