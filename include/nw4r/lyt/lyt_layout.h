@@ -22,6 +22,15 @@ struct ResBlockSet;
 
 typedef ut::LinkList<AnimTransform, 4> AnimTransformList;
 
+namespace res {
+struct Layout {
+    DataBlockHeader blockheader;
+    u8 originType;
+    u8 padding[3];
+    Size layoutSize;
+};
+}
+
 class Layout {
 public:
     Layout();
@@ -63,6 +72,11 @@ public:
         return pMemory != nullptr ? new (pMemory) T() : nullptr;
     }
 
+    template <typename T, typename A> static T* NewObj(A parameter) {
+        void* pMemory = AllocMemory(sizeof(T));
+        return pMemory != nullptr ? new (pMemory) T(parameter) : nullptr;
+    }
+
     template <typename T, typename A, typename B>
     static T* NewObj(A parameter1, B parameter2) {
         void* pMemory = AllocMemory(sizeof(T));
@@ -86,6 +100,12 @@ public:
             for (size_t i = 0; i < count; i++) {
                 pArray[i].~T();
             }
+            FreeMemory(pArray);
+        }
+    }
+
+    template <typename T> static void DeletePrimArray(T* pArray) {
+        if (pArray != nullptr) {
             FreeMemory(pArray);
         }
     }

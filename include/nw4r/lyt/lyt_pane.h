@@ -83,6 +83,8 @@ public:
     void AddAnimationLink(AnimationLink* pLink);
     math::VEC2 GetVtxPos() const;
     const char* GetName() const { return mName; }
+    Pane* GetParent() const { return mpParent; }
+    PaneList* GetChildList() { return &mChildList; }
     bool IsUserAllocated() const { return mbUserAllocated; }
     bool IsVisible() const { return (mFlag & 1) != 0; }
     void SetVisible(bool visible) {
@@ -103,6 +105,9 @@ public:
         return visible;
     }
     const res::ExtUserData* GetExtUserData() const;
+    void SetSRTElement(u32 index, f32 value) {
+        reinterpret_cast<f32*>(&mTranslate)[index] = value;
+    }
     void SetName(const char* pName);
     void SetUserData(const char* pUserData);
     const res::ExtUserData* FindExtUserDataByName(const char* pName);

@@ -51,6 +51,14 @@ enum VerticalPosition {
 
 namespace detail {
 
+inline bool IsSupportedMinorVersion(u32 version) { return version >= 8 && version <= 10; }
+inline bool TestFileVersion(const res::BinaryFileHeader& rHeader) {
+ u32 majorVersion = (rHeader.version >> 8) & 0xFF;
+ u32 minorVersion = rHeader.version & 0xFF;
+ return majorVersion == 0 && IsSupportedMinorVersion(minorVersion);
+}
+
+
 inline u8 GetVtxColorElement(const ut::Color* pColors, u32 idx) {
     return reinterpret_cast<const u8*>(&pColors[idx / 4])[idx % 4];
 }
