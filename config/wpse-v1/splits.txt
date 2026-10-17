@@ -80,6 +80,25 @@ RVL_SDK/os/OSContext.c:
 	.text       start:0x802B46D0 end:0x802B4FB0
 	.data       start:0x803C7A28 end:0x803C7C08
 
+RVL_SDK/os/OSError.c:
+	.text       start:0x802B4FB0 end:0x802B56EC
+	.data       start:0x803C7C08 end:0x803C7EE8
+	.bss        start:0x80452590 end:0x804525D4
+	.sdata      start:0x804B8A68 end:0x804B8A6E
+
+RVL_SDK/os/OSExec.c:
+	.text       start:0x802B56F0 end:0x802B6CD0
+	.data       start:0x803C7EE8 end:0x803C7F58
+	.bss        start:0x804525E0 end:0x80452600
+	.sdata      start:0x804B8A70 end:0x804B8A7B
+	.sbss       start:0x804B94A0 end:0x804B94B4
+
+RVL_SDK/os/OSFatal.c:
+	.text       start:0x802B6CD0 end:0x802B78F8
+	.bss        start:0x80452600 end:0x804528D4
+	.sdata      start:0x804B8A80 end:0x804B8A84
+	.sdata2     start:0x804BB230 end:0x804BB270
+
 RVL_SDK/os/OSFont.c:
 	.text       start:0x802B7900 end:0x802B8C90
 	.data       start:0x803C7F58 end:0x803C8A68

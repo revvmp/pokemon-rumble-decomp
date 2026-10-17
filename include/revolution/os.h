@@ -2,8 +2,8 @@
 #define REVOLUTION_OS_H
 
 #include "revolution/os/OSError.h"
-
-#define OSRoundUp32B(x) (((u32)(x) + 32 - 1) & ~(32 - 1))
+#include "revolution/os/OSAddress.h"
+#include "revolution/os/OSInterrupt.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -21,15 +21,6 @@ typedef struct OSIOSRev {
 
 u32 OSGetPhysicalMem2Size(void);
 void __OSGetIOSRev(OSIOSRev*);
-
-typedef s64 OSTime;
-typedef u8 __OSException;
-typedef s16 __OSInterrupt;
-typedef u32 OSInterruptMask;
-
-typedef struct OSContext OSContext;
-
-typedef void (*__OSInterruptHandler)(__OSInterrupt interrupt, OSContext* context);
 
 typedef struct OSAlarm OSAlarm;
 typedef void (*OSAlarmHandler)(OSAlarm* alarm, OSContext* context);
@@ -55,11 +46,7 @@ struct OSAlarm {
 #define OSTicksToMilliseconds(ticks) ((ticks) / (OS_TIMER_CLOCK / 1000))
 #define OSDiffTick(tick1, tick0) ((s32)(tick1) - (s32)(tick0))
 
-#define OSPhysicalToCached(paddr) ((void*)((u32)(paddr) + 0x80000000))
-#define OSCachedToPhysical(caddr) ((u32)((u8*)(caddr) - 0x80000000))
-
-#define OS_INTERRUPT_PI_SI 20
-#define OS_INTERRUPTMASK_PI_SI 0x800
+#define OS_INTERRUPT_PI_SI __OS_INTERRUPT_PI_SI
 
 BOOL OSDisableInterrupts(void);
 BOOL OSRestoreInterrupts(BOOL level);
