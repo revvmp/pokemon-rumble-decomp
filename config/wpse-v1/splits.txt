@@ -1008,6 +1008,19 @@ RVL_SDK/wpad/WPADMem.c:
 RVL_SDK/wpad/debug_msg.c:
 	.text       start:0x80304600 end:0x80304650
 
+RVL_SDK/bte/hcisu_h2.c:
+	.text       start:0x80312720 end:0x80312DDC
+	.rodata     start:0x80397E30 end:0x80397E44
+	.data       start:0x803E0640 end:0x803E06AB
+	.bss        start:0x804A6FA8 end:0x804A6FCC
+	.sdata2     start:0x804BB5E0 end:0x804BB5F0
+
+RVL_SDK/bte/uusb_ppc.c:
+	.text       start:0x80312DE0 end:0x80313A54
+	.bss        start:0x804A6FE0 end:0x804A9040
+	.sdata      start:0x804B8EA0 end:0x804B8EB0
+	.sbss       start:0x804B9B60 end:0x804B9B78
+
 RVL_SDK/bte/bte_hcisu.c:
 	.text       start:0x80313A60 end:0x80313B30
 	.sbss       start:0x804B9B78 end:0x804B9B80

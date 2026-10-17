@@ -33,6 +33,9 @@ enum {
     GKI_POOL_ID_3 = 3
 };
 
+#define GKI_INVALID_POOL 0xFF
+#define GKI_RESTRICTED_POOL 1
+
 #define GKI_BUF2_SIZE 660
 #define GKI_BUF3_SIZE 1800
 #define GKI_MAX_BUF_SIZE GKI_BUF3_SIZE
@@ -47,6 +50,9 @@ void* GKI_getbuf(UINT16);
 UINT32 GKI_get_tick_count(void);
 void* GKI_getpoolbuf(UINT8 pool_id);
 void GKI_freebuf(void* p_buf);
+UINT16 GKI_get_buf_size(void* p_buf);
+UINT8 GKI_create_pool(UINT16 size, UINT16 count, UINT8 permission, void* p_mem_pool);
+void GKI_delete_pool(UINT8 pool_id);
 void GKI_init_q(BUFFER_Q* p_q);
 void GKI_enqueue(BUFFER_Q* p_q, void* p_buf);
 void GKI_enqueue_head(BUFFER_Q* p_q, void* p_buf);

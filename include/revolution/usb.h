@@ -1,7 +1,8 @@
 #ifndef USB_H
 #define USB_H
 
-#include "revolution.h"
+#include "revolution/types.h"
+#include "private/iostypes.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -480,6 +480,8 @@ config.libs = [
             Object(Matching, "RVL_SDK/wpad/WPADEncrypt.c"),
             Object(Matching, "RVL_SDK/wpad/WPADMem.c"),
             Object(Matching, "RVL_SDK/wpad/debug_msg.c"),
+            Object(Matching, "RVL_SDK/bte/hcisu_h2.c", cflags=cflags_base),
+            Object(Matching, "RVL_SDK/bte/uusb_ppc.c", cflags=cflags_base),
             Object(Matching, "RVL_SDK/bte/bte_hcisu.c", cflags=cflags_base),
             Object(Matching, "RVL_SDK/bte/bte_init.c", cflags=cflags_base),
             Object(Matching, "RVL_SDK/bte/bte_logmsg.c", cflags=cflags_base),

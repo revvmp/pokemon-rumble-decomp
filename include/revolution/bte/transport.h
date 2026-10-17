@@ -8,7 +8,10 @@ typedef struct {
     unsigned short layer_specific;
 } HC_BT_HDR;
 
-typedef struct tHCI_CFG tHCI_CFG;
+typedef struct tHCI_CFG {
+    unsigned short vid;
+    unsigned short pid;
+} tHCI_CFG;
 
 typedef struct {
     void (*init)(unsigned char, unsigned char, unsigned short);
@@ -24,5 +27,6 @@ void bte_hcisu_send(HC_BT_HDR* p_msg, unsigned short event);
 void bte_hcisu_task(unsigned long parameter);
 void bte_hcisu_close(void);
 void bta_ci_hci_msg_handler(void* p_data);
+void bta_usb_close_evt(signed char status);
 
 #endif
