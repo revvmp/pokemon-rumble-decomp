@@ -24,6 +24,7 @@ public:
     enum Flag {
         FLAG_MTX_INHERIT_SCALE = (1 << 0),
         FLAG_MTX_INHERIT_ROT = (1 << 1),
+        FLAG_MTX_INHERIT_PIVOT = (1 << 2),
     };
 
     struct ParticleModifier {
@@ -145,6 +146,10 @@ public:
 
     void SetMtxDirty() {
         mMtxDirty = true;
+
+        if (smMtxInvId == static_cast<u16>(mObjectID)) {
+            smMtxInvId = -1;
+        }
     }
 
     static void ModifierTravFunc_SetSimpleLightType(void* pObject,

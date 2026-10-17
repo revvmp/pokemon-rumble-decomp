@@ -197,6 +197,12 @@ struct EmitterDesc {
 
         CMN_FLAG_DISABLE_CALC = (1 << 9),
 
+        CMN_FLAG_INHERIT_PTCL_PIVOT = (1 << 10),
+        CMN_FLAG_EMIT_INHERIT_PIVOT = (1 << 11),
+
+        CMN_FLAG_PTCL_EMIT_INHERIT_SCALE = (1 << 12),
+        CMN_FLAG_PTCL_EMIT_INHERIT_ROT = (1 << 13),
+
         CMN_FLAG_RELOCATED = (1 << 30),
     };
 

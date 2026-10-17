@@ -48,7 +48,8 @@ class EmitterParameter {
 public:
     enum InheritFlag {
         INHERIT_FLAG_SCALE = (1 << 0),
-        INHERIT_FLAG_ROT = (1 << 1)
+        INHERIT_FLAG_ROT = (1 << 1),
+        INHERIT_FLAG_PIVOT = (1 << 2),
     };
 
 public:
@@ -102,13 +103,11 @@ public:
     Emitter* mParent;
     Particle* mpReferenceParticle;
     EmitterInheritSetting mInheritSetting;
+    math::VEC3 mGlobalTranslate;
+    math::VEC3 mPrevGlobalTranslate;
 
 protected:
     bool mMtxDirty;
-
-public:
-    math::VEC3 mGlobalTranslate;
-    math::VEC3 mPrevGlobalTranslate;
 
 public:
     math::MTX34 mMtx;
@@ -126,7 +125,7 @@ public:
     virtual Emitter* CreateEmitter(EmitterResource* pResource,
                                    EmitterInheritSetting* pSetting,
                                    Particle* pParticle,
-                                   u16 calcRemain);
+                                   u16 calcRemain, math::VEC3* pTranslate);
 
     virtual void CalcEmitter();
     virtual void CalcParticle();
@@ -142,13 +141,14 @@ public:
     void UpdateDatas(EmitterResource* pResource);
     bool InitializeDatas(EmitterResource* pResource, Effect* pEffect);
 
-    void CreateEmitterTmp(EmitterResource* pResource,
+    bool CreateEmitterTmp(EmitterResource* pResource,
                           EmitterInheritSetting* pSetting, Particle* pParticle,
-                          u16 calcRemain);
+                          u16 calcRemain, math::VEC3* pTranslate);
 
     ParticleManager* FindParticleManager(EmitterResource* pResource,
                                          bool inheritS, bool inheritR,
-                                         s8 inheritT, u8 weight);
+                                         s8 inheritT, bool inheritPivot,
+                                         u8 weight);
 
     void Emission(ParticleManager* pManager, const math::MTX34* pSpace);
 
@@ -165,7 +165,7 @@ public:
 
     static math::MTX34* RestructMatrix(math::MTX34* pResult, math::MTX34* pOrig,
                                        bool inheritS, bool inheritR,
-                                       s8 inheritT);
+                                       s8 inheritT, bool inheritPivot);
 
     bool GetFlagDisableCalc() const {
         return mParameter.mComFlags & EmitterDesc::CMN_FLAG_DISABLE_CALC;

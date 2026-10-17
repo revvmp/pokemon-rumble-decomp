@@ -266,6 +266,11 @@ nw4r/ef/ef_effectsystem.cpp:
 	.sbss       start:0x804B92B0 end:0x804B92C0
 	.sdata2     start:0x804BA5E8 end:0x804BA5F0
 
+nw4r/ef/ef_emitter.cpp:
+	.text       start:0x80226F00 end:0x802290A0
+	.data       start:0x803C5350 end:0x803C5378
+	.sdata2     start:0x804BA5F0 end:0x804BA624
+
 nw4r/g3d/res/g3d_rescommon.cpp:
 	.text       start:0x8024AE80 end:0x8024B024
 
