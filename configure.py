@@ -259,6 +259,8 @@ config.libs = [
         [
             Object(Matching, "nw4r/snd/snd_AxManager.cpp"),
             Object(Matching, "nw4r/snd/snd_AxVoice.cpp"),
+            Object(Matching, "nw4r/snd/snd_AxVoiceManager.cpp"),
+            Object(Matching, "nw4r/snd/snd_AxfxImpl.cpp"),
         ],
     ),
     library(

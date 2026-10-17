@@ -160,6 +160,15 @@ nw4r/snd/snd_AxVoice.cpp:
 	.text       start:0x80273650 end:0x80276404
 	.sdata2     start:0x804BAD98 end:0x804BADC0
 
+nw4r/snd/snd_AxVoiceManager.cpp:
+	.text       start:0x80276410 end:0x80276E38
+	.bss        start:0x8044D390 end:0x8044D3C8
+	.sbss       start:0x804B9338 end:0x804B9340
+
+nw4r/snd/snd_AxfxImpl.cpp:
+	.text       start:0x80276E40 end:0x80277038
+	.sbss       start:0x804B9340 end:0x804B9348
+
 nw4r/ut/ut_list.cpp:
 	.text       start:0x80292D00 end:0x80292F5C
 
