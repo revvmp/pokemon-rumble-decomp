@@ -45,3 +45,8 @@ The first link attempt that used `OSLink.c` as a source object shifted `.ctors` 
 | `OSMessage.c` | 4/4, 100% | no | `OSWakeupThread` at `0x802BCF60` is still `fn_802BCF60` (owner #469) |
 | `OSFont.c` | 13/13 functions, data 100% | no | `__OSReadROM` `0x802BB460` (#469); `OSUTF8to32`, `OSUTF16to32`, `OSUTF32toANSI`, `OSUTF32toSJIS` `0x802BD730`–`0x802BD940` (#470); `DCStoreRange` `0x802B40A0` (#465). A source-link attempt failed with exactly these undefined names. |
 | `OSMemory.c` | 15/15 functions, data 100% | no | Successor split alignment (F-467-4), owned by #468. A source-link attempt shifted `.ctors` by 8 bytes. |
+
+## Traps
+
+- **A source object can shift the next split object.** If a compiled unit's code does not end on a 16-byte boundary, as with `OSLink.c` (0x18 bytes) or `OSMemory.c` (ending `0x802B9EFC`), a following dtk-split object with 4-byte `.text` alignment moves up and the whole DOL shifts. Add `align:16` to the successor's `.text` split, as done for `OSMessage.c`. The original Wii/1.0 SDK objects did have 16-byte alignment. See F-467-4.
+- **A partial SDK source can compile to nothing.** If a unit's root routine is left out (here `__OSInitMemoryProtection`), its static data and static callbacks are no longer referenced, CodeWarrior emits none of them, and objdiff reports no functions. Reconstruct everything reachable from the unit's roots. See F-467-1.

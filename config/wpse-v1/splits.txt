@@ -93,9 +93,43 @@ RVL_SDK/ax/AX.c:
 	.sdata      start:0x804B8BD0 end:0x804B8BD8
 	.sbss       start:0x804B9840 end:0x804B9848
 
+RVL_SDK/axfx/AXFXReverbStdExp.c:
+	.text       start:0x802DF190 end:0x802DFEC0
+	.data       start:0x803DB780 end:0x803DB810
+	.sdata2     start:0x804BB478 end:0x804BB4B8
+
+RVL_SDK/axfx/AXFXChorusExp.c:
+	.text       start:0x802DFEC0 end:0x802E09E0
+	.sdata2     start:0x804BB4B8 end:0x804BB4E8
+
+RVL_SDK/axfx/AXFXLfoTable.c:
+	.text       start:0x802E09E0 end:0x802E09F0
+	.data       start:0x803DB810 end:0x803DBA10
+
+RVL_SDK/axfx/AXFXSrcCoef.c:
+	.text       start:0x802E09F0 end:0x802E0A10
+	.data       start:0x803DBA10 end:0x803DC210
+
+RVL_SDK/axfx/AXFXHooks.c:
+	.text       start:0x802E0A10 end:0x802E0A60
+	.sdata      start:0x804B8BE0 end:0x804B8BE8
+
+RVL_SDK/mem/mem_heapCommon.c:
+	.text       start:0x802E0A60 end:0x802E1010
+	.bss        start:0x8046ECA0 end:0x8046ECC8
+	.sbss       start:0x804B9980 end:0x804B9988
+
+RVL_SDK/mem/mem_expHeap.c:
+	.text       start:0x802E1010 end:0x802E18F0
+
 RVL_SDK/enc/enclatin.c:
 	.text       start:0x802ED120 end:0x802ED700
 	.rodata     start:0x8037BB90 end:0x8037D690
+
+RVL_SDK/arc/arc.c:
+	.text       start:0x802EFCD0 end:0x802F08D8
+	.data       start:0x803DCA78 end:0x803DCAE8
+	.sdata      start:0x804B8D78 end:0x804B8D80
 
 RVL_SDK/esp/esp.c:
 	.text       start:0x802F08E0 end:0x802F1230

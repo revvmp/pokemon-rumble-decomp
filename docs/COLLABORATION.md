@@ -68,7 +68,8 @@ Partially matching work is welcome. Keep it `NonMatching` so the build still use
 | `include/` shared headers | Changes to types used outside your area go in a separate small pull request that merges first. |
 | `docs/ledger/<area>.md` | Add rows for your own units only. |
 | New findings | One new file per finding in `docs/re/findings/`, named `<issue>-<slug>.md`, with ID `F-<issue>-<n>`. Do not append to `docs/re/FINDINGS.md`. |
-| `AGENTS.md` traps | Contributors may append trap entries at the end of the list. |
+| `AGENTS.md` traps | Maintainer-only. Record traps under a `Traps` heading in your issue's findings file in `docs/re/findings/`; maintainers promote project-wide ones into `AGENTS.md`. |
+| `docs/ledger/*.md`, `docs/re/SYMBOLS.md` | Append your rows. `.gitattributes` merges these with git's union driver, so concurrent appends rebase without conflicts. Never rewrite or reorder other contributors' rows. |
 | Maintainer-only | `docs/re/main.elf.i64` (binary, unmergeable), `config/progress.json`, `docs/images/`, the status table in `PROGRESS.md`, `HANDOFF.md`, `WORKSTREAMS.md`, the `AGENTS.md` state table, `config/targets/`, `config/wpse-v1/build.sha1`, `config/toolchain.json`, and vendored `tools/build/`. |
 
 CI regenerates and commits the progress images after every merge to `main`. Maintainers update the shared summaries. Contributors never edit either, so they never conflict on them.
