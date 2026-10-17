@@ -95,6 +95,7 @@ public:
     void SetSurroundPan(f32 pan);
 
     void SetLpfFreq(f32 freq);
+    void SetBiquadFilter(int type, f32 value);
     void SetRemoteFilter(int filter);
     void SetOutputLine(int flag);
 

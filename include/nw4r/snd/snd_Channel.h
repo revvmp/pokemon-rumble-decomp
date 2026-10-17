@@ -40,6 +40,7 @@ public:
     void Update(bool periodic);
     void Start(const WaveInfo& rInfo, int length, u32 offset);
     void Release();
+    void NoteOff();
     void Stop();
 
     void SetAttack(int attack) {
@@ -130,6 +131,7 @@ public:
     }
 
     void UpdateSweep(int count);
+    void SetBiquadFilter(int type, f32 value);
     void SetSweepParam(f32 pitch, int time, bool autoUpdate);
     f32 GetSweepValue() const;
 
