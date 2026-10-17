@@ -67,3 +67,5 @@ The reference memory handlers omit a surrounding initial-error check that the ta
 The reference free-message-buffer function declares its pointer before the error and index. The target needs error, index, pointer declaration order. This reproduces its complete 0x9C-byte body; the reporting call uses a nonvariadic declaration in that unit, while option diagnostics in the handler use the canonical variadic reporting declaration.
 
 The endian flag is small-data addressed. Compiling the message-buffer unit with small-data threshold zero adds high-address loads and changes several routines. Threshold eight reproduces all retained message-buffer instruction streams and the handler's two local four-byte statics.
+
+A rebase replayed both an obsolete encoding error and its later repair through union-merged shared documents, resurrecting corrupted duplicate rows. Rebuilding the documents from the current main prefix plus only the two owned ledger rows and owned symbol section removes those obsolete entries while preserving every other contribution.
