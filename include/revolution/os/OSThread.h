@@ -30,6 +30,16 @@ struct OSThreadLink {
     OSThread* prev;
 };
 
+typedef struct OSSemaphore {
+    volatile s32 count;
+    OSThreadQueue queue;
+} OSSemaphore;
+
+void OSInitSemaphore(OSSemaphore* semaphore, s32 count);
+s32 OSWaitSemaphore(OSSemaphore* semaphore);
+s32 OSTryWaitSemaphore(OSSemaphore* semaphore);
+s32 OSSignalSemaphore(OSSemaphore* semaphore);
+
 struct OSMutexQueue {
     OSMutex* head;
     OSMutex* tail;

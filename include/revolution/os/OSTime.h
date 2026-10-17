@@ -28,6 +28,7 @@ OSTick OSGetTick(void);
 OSTime __OSGetSystemTime(void);
 OSTime __OSTimeToSystemTime(OSTime);
 void OSTicksToCalendarTime(OSTime, OSCalendarTime*);
+OSTime OSCalendarTimeToTicks(const OSCalendarTime*);
 
 #ifdef __MWERKS__
 vu32 OS_BUS_CLOCK_SPEED : 0x800000F8;
