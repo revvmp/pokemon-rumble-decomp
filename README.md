@@ -24,11 +24,13 @@ You need Windows 10 or 11 and access to this private repository. The original ga
 4. Run the build:
 
    ```
-   build.bat
+   .\build.bat
    ```
 
+   This works in both PowerShell and Command Prompt.
+
    The first run downloads the pinned compilers and tools into `tools/local/` and checks each one's digest. It then builds the game and compares the result with the original.
-5. The last line should read `Build succeeded: build\wpse-v1\main.dol matches the original.` Run `build.bat` again after every change.
+5. The last line should read `Build succeeded: build\wpse-v1\main.dol matches the original.` Run `.\build.bat` again after every change.
 
 If a step fails, see the [setup guide](docs/SETUP.md) for the commands `build.bat` runs and what each one checks.
 
