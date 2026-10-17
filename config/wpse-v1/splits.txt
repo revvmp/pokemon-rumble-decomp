@@ -211,6 +211,14 @@ TMC_JPEG/tmcjpeg_huffman.c:
 	.text       start:0x801F8968 end:0x801F8DC4
 	.rodata     start:0x80367868 end:0x80367A18
 
+TMC_JPEG/tmcjpeg_quant.c:
+	.text       start:0x801F8DC4 end:0x801F9134
+	.rodata     start:0x80367A18 end:0x80368118
+
+TMC_JPEG/tmcjpeg_stream.c:
+	.text       start:0x801F9134 end:0x801F9764
+	.rodata     start:0x80368118 end:0x80368121
+
 RVL_SDK/fa/pf_clib.c:
 	.text       start:0x801FB030 end:0x801FB4C0
 

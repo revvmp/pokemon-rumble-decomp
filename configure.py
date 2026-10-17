@@ -259,6 +259,8 @@ config.libs = [
             Object(Matching, "TMC_JPEG/tmcjpeg_block.c"),
             Object(NonMatching, "TMC_JPEG/tmcjpeg_encoder.c"),
             Object(Matching, "TMC_JPEG/tmcjpeg_huffman.c"),
+            Object(Matching, "TMC_JPEG/tmcjpeg_quant.c"),
+            Object(NonMatching, "TMC_JPEG/tmcjpeg_stream.c"),
         ],
     ),
     library(
