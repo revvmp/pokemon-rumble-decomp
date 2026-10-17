@@ -205,6 +205,11 @@ void LogMsg_6(UINT32 trace_set_mask, const char* fmt_str, UINT32 p1, UINT32 p2, 
         if (l2cb.l2cap_trace_level >= BT_TRACE_LEVEL_ERROR)                                                            \
             BT_TRACE_0(TRACE_LAYER_L2CAP, TRACE_TYPE_ERROR, m);                                                        \
     }
+#define L2CAP_TRACE_ERROR2(m, p1, p2)                                                                                  \
+    {                                                                                                                  \
+        if (l2cb.l2cap_trace_level >= BT_TRACE_LEVEL_ERROR)                                                            \
+            BT_TRACE_2(TRACE_LAYER_L2CAP, TRACE_TYPE_ERROR, m, p1, p2);                                                \
+    }
 #define L2CAP_TRACE_WARNING0(m)                                                                                        \
     {                                                                                                                  \
         if (l2cb.l2cap_trace_level >= BT_TRACE_LEVEL_WARNING)                                                          \
@@ -230,6 +235,11 @@ void LogMsg_6(UINT32 trace_set_mask, const char* fmt_str, UINT32 p1, UINT32 p2, 
         if (l2cb.l2cap_trace_level >= BT_TRACE_LEVEL_WARNING)                                                          \
             BT_TRACE_5(TRACE_LAYER_L2CAP, TRACE_TYPE_WARNING, m, p1, p2, p3, p4, p5);                                  \
     }
+#define L2CAP_TRACE_EVENT1(m, p1)                                                                                      \
+    {                                                                                                                  \
+        if (l2cb.l2cap_trace_level >= BT_TRACE_LEVEL_EVENT)                                                            \
+            BT_TRACE_1(TRACE_LAYER_L2CAP, TRACE_TYPE_EVENT, m, p1);                                                    \
+    }
 #define L2CAP_TRACE_API1(m, p1)                                                                                        \
     {                                                                                                                  \
         if (l2cb.l2cap_trace_level >= BT_TRACE_LEVEL_API)                                                              \
@@ -239,6 +249,11 @@ void LogMsg_6(UINT32 trace_set_mask, const char* fmt_str, UINT32 p1, UINT32 p2, 
     {                                                                                                                  \
         if (l2cb.l2cap_trace_level >= BT_TRACE_LEVEL_DEBUG)                                                            \
             BT_TRACE_1(TRACE_LAYER_L2CAP, TRACE_TYPE_DEBUG, m, p1);                                                    \
+    }
+#define L2CAP_TRACE_DEBUG6(m, p1, p2, p3, p4, p5, p6)                                                                  \
+    {                                                                                                                  \
+        if (l2cb.l2cap_trace_level >= BT_TRACE_LEVEL_DEBUG)                                                            \
+            BT_TRACE_6(TRACE_LAYER_L2CAP, TRACE_TYPE_DEBUG, m, p1, p2, p3, p4, p5, p6);                                \
     }
 
 #define APPL_TRACE_EVENT0(m)                                                                                     \

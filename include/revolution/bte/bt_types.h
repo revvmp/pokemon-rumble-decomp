@@ -36,6 +36,7 @@ enum {
     BT_EVT_MASK = 0xFF00
 };
 #define BT_EVT_TO_LM_HCI_CMD 0x2000
+#define BT_EVT_TO_LM_HCI_ACL 0x2100
 
 typedef struct {
     tBT_EVT event;

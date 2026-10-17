@@ -37,6 +37,15 @@ enum {
 };
 
 enum {
+    L2CAP_CONN_TIMEOUT = 0xEEEE
+};
+
+enum {
+    L2CAP_DISC_OK = 0,
+    L2CAP_DISC_TIMEOUT = 0xEEEE
+};
+
+enum {
     L2CAP_PKT_CONTINUE = 1,
     L2CAP_PKT_START = 2
 };

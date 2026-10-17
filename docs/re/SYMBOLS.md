@@ -1689,3 +1689,30 @@ The earlier table now records actual table and array symbol sizes rather than th
 ## HBM ut font and list units (#300)
 
 For `wpse-v1` / `main.dol`, [F-300-1](findings/300-nw4hbm-ut.md#f-300-1-ut_font-ut_linklist-ut_list-and-ut_resfont) names `Font::InitReaderFunc` (`0x801936D0`), `List_Init` (`0x801938E0`), and `ResFont`'s constructor (`0x80193A50`), destructor (`0x80193A90`), `SetResource` (`0x80193AF0`) and `Rebuild` (`0x80193C40`). The data names are `__vt__Q36nw4hbm2ut7ResFont` (`0x803BCC48`), `__RTTI__Q36nw4hbm2ut7ResFont` (`0x803BCCC8`), `__RTTI__Q46nw4hbm2ut6detail11ResFontBase` (`0x803BCD00`) and `__RTTI__Q36nw4hbm2ut4Font` (`0x803BCD20`). The callees named for linking are the `detail::ResFontBase` constructor (`0x80193D50`), destructor (`0x80193DA0`), `SetResourceBuffer` (`0x80193DE0`), and the 19 virtual functions `GetWidth` (`0x80193DF0`) through `GetEncoding` (`0x801941B0`), in vtable order. Confidence high: the names and sizes match xenoblade's symbols, and the units match.
+## BTE L2CAP channel state machine and link (#526)
+
+`l2c_csm_execute`, `l2c_link_hci_conn_comp`, `l2c_link_hci_disc_comp`, `l2c_link_hci_qos_violation`, `l2c_link_timeout`, `l2c_link_check_send_pkts`, `l2c_link_adjust_allocation`, `l2c_link_process_num_completed_pkts`, `l2c_link_role_changed`, `l2c_link_role_change_failed`, `l2c_link_segments_xmitted` and `l2c_pin_code_request` were named earlier and now link from `src/RVL_SDK/bte/l2c_csm.c` and `l2c_link.c`.
+
+| Address | Size | dtk label | Chosen name | Kind | Confidence | Evidence | Source |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `0x8032D19C` | `0x294` | `fn_8032D19C` | `l2c_csm_closed` | static function | high | F-526-1 | `src/RVL_SDK/bte/l2c_csm.c` |
+| `0x8032D430` | `0x170` | `fn_8032D430` | `l2c_csm_orig_w4_sec_comp` | static function | high | F-526-1 | `src/RVL_SDK/bte/l2c_csm.c` |
+| `0x8032D5A0` | `0x168` | `fn_8032D5A0` | `l2c_csm_term_w4_sec_comp` | static function | high | F-526-1 | `src/RVL_SDK/bte/l2c_csm.c` |
+| `0x8032D708` | `0x244` | `fn_8032D708` | `l2c_csm_w4_l2cap_connect_rsp` | static function | high | F-526-1 | `src/RVL_SDK/bte/l2c_csm.c` |
+| `0x8032D94C` | `0x1D8` | `fn_8032D94C` | `l2c_csm_w4_l2ca_connect_rsp` | static function | high | F-526-1 | `src/RVL_SDK/bte/l2c_csm.c` |
+| `0x8032DB24` | `0x3C8` | `fn_8032DB24` | `l2c_csm_config` | static function | high | F-526-1 | `src/RVL_SDK/bte/l2c_csm.c` |
+| `0x8032DEEC` | `0x25C` | `fn_8032DEEC` | `l2c_csm_open` | static function | high | F-526-1 | `src/RVL_SDK/bte/l2c_csm.c` |
+| `0x8032E148` | `0x1E4` | `fn_8032E148` | `l2c_csm_w4_l2cap_disconnect_rsp` | static function | high | F-526-1 | `src/RVL_SDK/bte/l2c_csm.c` |
+| `0x8032E32C` | `0x15C` | `fn_8032E32C` | `l2c_csm_w4_l2ca_disconnect_rsp` | static function | high | F-526-1 | `src/RVL_SDK/bte/l2c_csm.c` |
+| `0x8032E488` | `0x1A4` | `fn_8032E488` | `forward_peer_data` | function | high | F-526-1 | `src/RVL_SDK/bte/l2c_csm.c` |
+| `0x8032E62C` | `0x154` | `fn_8032E62C` | `l2c_link_hci_conn_req` | function | high | F-526-1 | `src/RVL_SDK/bte/l2c_link.c` |
+| `0x8032E9B8` | `0xB4` | `fn_8032E9B8` | `l2c_link_sec_comp` | function | high | F-526-1 | `src/RVL_SDK/bte/l2c_link.c` |
+| `0x8032ED0C` | `0x108` | `fn_8032ED0C` | `l2c_link_send_to_lower` | function | high | F-526-1 | `src/RVL_SDK/bte/l2c_link.c` |
+| `0x8032F35C` | `0x14` | `fn_8032F35C` | `l2c_link_processs_num_bufs` | function | high | F-526-1 | `src/RVL_SDK/bte/l2c_link.c` |
+| `0x8032F370` | `0x1D0` | `fn_8032F370` | `l2cap_link_chk_pkt_start` | function | high | F-526-1 | `src/RVL_SDK/bte/l2c_link.c` |
+| `0x8032F540` | `0x6C` | `fn_8032F540` | `l2cap_link_chk_pkt_end` | function | high | F-526-1 | `src/RVL_SDK/bte/l2c_link.c` |
+| `0x8031A220` | see `symbols.txt` | `fn_8031A220` | `btm_acl_created` | function | high | F-526-1 | Not reconstructed (fallback) |
+| `0x8031C370` | see `symbols.txt` | `fn_8031C370` | `btm_find_dev` | function | high | F-526-1 | Not reconstructed (fallback) |
+| `0x8031FDCC` | see `symbols.txt` | `fn_8031FDCC` | `BTM_ReadPowerMode` | function | high | F-526-1 | Not reconstructed (fallback) |
+| `0x80321150` | see `symbols.txt` | `fn_80321150` | `btm_sco_acl_removed` | function | high | F-526-1 | Not reconstructed (fallback) |
+| `0x8032206C` | see `symbols.txt` | `fn_8032206C` | `btm_sec_l2cap_access_req` | function | high | F-526-1 | Not reconstructed (fallback) |
