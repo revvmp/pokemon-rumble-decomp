@@ -248,6 +248,15 @@ config.libs = [
         ],
     ),
     library(
+        "NW4R.snd",
+        NW4R_COMPILER,
+        cflags_nw4r,
+        "nw4r",
+        [
+            Object(Matching, "nw4r/snd/snd_AxManager.cpp"),
+        ],
+    ),
+    library(
         "NW4R.ut",
         NW4R_COMPILER,
         cflags_nw4r,

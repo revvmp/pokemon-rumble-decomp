@@ -133,6 +133,13 @@ nw4r/ef/ef_effect.cpp:
 	.data       start:0x803C52E8 end:0x803C5308
 	.sdata2     start:0x804BA5E0 end:0x804BA5E8
 
+nw4r/snd/snd_AxManager.cpp:
+	.text       start:0x80271E10 end:0x80273650
+	.ctors      start:0x80352A50 end:0x80352A54
+	.bss        start:0x8044CF80 end:0x8044D390
+	.sbss       start:0x804B9320 end:0x804B9338
+	.sdata2     start:0x804BAD80 end:0x804BAD98
+
 nw4r/ut/ut_list.cpp:
 	.text       start:0x80292D00 end:0x80292F5C
 

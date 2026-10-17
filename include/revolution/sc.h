@@ -4,6 +4,7 @@
 #include "revolution/bte.h"
 #include "revolution/nand.h"
 #include "revolution/os.h"
+#include "revolution/os/OSThread.h"
 
 #ifdef __cplusplus
 extern "C" {

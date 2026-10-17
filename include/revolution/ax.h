@@ -379,7 +379,12 @@ s32 AXRmtAdvancePtr(s32 num);
 #define AX_PRIORITY_FREE 0
 #define AX_PRIORITY_MIN 1
 #define AX_PRIORITY_MAX 31
+#define AX_VOICE_STOP 0
 #define AX_VOICE_RUN 1
+#define AX_PB_LPF_ON 1
+#define AX_PB_BIQUAD_ON 2
+#define AX_SAMPLE_RATE 32000
+#define AX_VOICE_MAX 96
 
 AXVPB* __AXGetStackHead(u32 prio);
 void __AXServiceCallbackStack(void);
