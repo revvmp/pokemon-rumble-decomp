@@ -86,6 +86,26 @@ s32 PFDIR_fchdir(PF_DIR* p_dir);
 s32 PFDIR_chmod(PF_STR* p_path, u8 attr);
 s32 PFDIR_chdmod(PF_STR* p_path, u8 attr);
 
+s32 PFDIR_fchdir(PF_DIR* p_dir);
+s32 PFDIR_fsexec(PF_DTA* p_dta, u32 mode, u8 attributes);
+s32 PFDIR_fsfirst(PF_STR* p_path, u8 attributes, PF_DTA* p_dta);
+s32 PFDIR_fsnext(PF_DTA* p_dta);
+s32 PFDIR_fstat(PF_STR* p_path, PF_STAT* p_stat);
+s32 PFDIR_chdir(PF_STR* p_path);
+s32 PFDIR_chdmod(PF_STR* p_path, u8 attributes);
+s32 PFDIR_chmod(PF_STR* p_path, u8 attributes);
+s32 PFDIR_closedir(PF_DIR* p_dir);
+s32 PFDIR_createdir(PF_STR* p_path, s32 mode, PF_DTA* p_dta);
+
+s32 PFDIR_mkdir(PF_STR* p_path);
+s32 PFDIR_move(PF_STR* p_src, PF_STR* p_dst);
+s32 PFDIR_opendir(PF_STR* p_path, PF_DIR** pp_dir);
+s32 PFDIR_readdir(PF_DIR* p_dir, PF_DIRENT* p_entry);
+s32 PFDIR_rename(PF_STR* p_src, PF_STR* p_dst);
+s32 PFDIR_seekdir(PF_DIR* p_dir, u32 offset);
+s32 PFDIR_rmdir(PF_STR* p_path);
+s32 PFDIR_telldir(PF_DIR* p_dir, u32* p_offset);
+
 #ifdef __cplusplus
 }
 #endif
