@@ -2291,4 +2291,4 @@ The existing canonical `WaveFileReader` stores its wave-info pointer at offset 0
 
 ## Issue #444 WaveSoundHandle
 
-[F-444-4](findings/444-wave-handle.md) establishes the four-byte handle with WaveSound pointer at offset zero and DetachSound at 0x802917E0, native size 0x38. This unit ends at 0x80291818, before following alignment padding; its unused constructor strips normally. Combined source checkpoint supplies52 functions/6900 native bytes across the seven reader/player/sound/handle/decoder units, with separate original-inventory accounting.
+[F-444-4](findings/444-wave-handle.md) establishes the four-byte handle with WaveSound pointer at offset zero and DetachSound at 0x802917E0, native size 0x38. This unit ends at 0x80291818, before following alignment padding; its unused constructor strips normally. Combined source checkpoint supplies 52 functions / 6,900 native bytes across the seven reader/player/sound/handle/decoder units, with separate original-inventory accounting.
