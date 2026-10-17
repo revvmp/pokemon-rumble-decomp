@@ -409,6 +409,84 @@ RVL_SDK/fa/pf_api_util.c:
 RVL_SDK/fa/pf_chdir.c:
 	.text       start:0x8021A5D0 end:0x8021A620
 
+RVL_SDK/fa/pf_fadjust.c:
+	.text       start:0x8021AAA0 end:0x8021AAC4
+
+RVL_SDK/fa/pf_fappend.c:
+	.text       start:0x8021AAD0 end:0x8021AAF8
+
+RVL_SDK/fa/pf_fchdir.c:
+	.text       start:0x8021AB00 end:0x8021AB24
+
+RVL_SDK/fa/pf_fclose.c:
+	.text       start:0x8021AB30 end:0x8021AB54
+
+RVL_SDK/fa/pf_fconcat.c:
+	.text       start:0x8021AB60 end:0x8021ABDC
+
+RVL_SDK/fa/pf_feof.c:
+	.text       start:0x8021ABE0 end:0x8021AC04
+
+RVL_SDK/fa/pf_ferror.c:
+	.text       start:0x8021AC10 end:0x8021AC34
+
+RVL_SDK/fa/pf_finfo.c:
+	.text       start:0x8021AC40 end:0x8021AC64
+
+RVL_SDK/fa/pf_flock.c:
+	.text       start:0x8021AC70 end:0x8021AC98
+
+RVL_SDK/fa/pf_fopen.c:
+	.text       start:0x8021ACA0 end:0x8021AD3C
+
+RVL_SDK/fa/pf_format.c:
+	.text       start:0x8021AD40 end:0x8021AD68
+
+RVL_SDK/fa/pf_fread.c:
+	.text       start:0x8021AD70 end:0x8021AD98
+
+RVL_SDK/fa/pf_fseek.c:
+	.text       start:0x8021ADA0 end:0x8021ADC4
+
+RVL_SDK/fa/pf_fsetclstlink.c:
+	.text       start:0x8021ADD0 end:0x8021ADF4
+
+RVL_SDK/fa/pf_fsexec.c:
+	.text       start:0x8021AE00 end:0x8021AE24
+
+RVL_SDK/fa/pf_fsfirst.c:
+	.text       start:0x8021AE30 end:0x8021AEA4
+
+RVL_SDK/fa/pf_fsnext.c:
+	.text       start:0x8021AEB0 end:0x8021AED4
+
+RVL_SDK/fa/pf_fstat.c:
+	.text       start:0x8021AEE0 end:0x8021AF40
+
+RVL_SDK/fa/pf_fsync.c:
+	.text       start:0x8021AF40 end:0x8021AF64
+
+RVL_SDK/fa/pf_fwrite.c:
+	.text       start:0x8021AF70 end:0x8021AF98
+
+RVL_SDK/fa/pf_getdev.c:
+	.text       start:0x8021AFA0 end:0x8021AFC8
+
+RVL_SDK/fa/pf_getvol.c:
+	.text       start:0x8021AFD0 end:0x8021AFF8
+
+RVL_SDK/fa/pf_getvolcfg.c:
+	.text       start:0x8021B000 end:0x8021B028
+
+RVL_SDK/fa/pf_init_prfile2.c:
+	.text       start:0x8021B030 end:0x8021B070
+
+RVL_SDK/fa/pf_insert.c:
+	.text       start:0x8021B070 end:0x8021B138
+
+RVL_SDK/fa/pf_iswriteprotected.c:
+	.text       start:0x8021B140 end:0x8021B184
+
 RVL_SDK/fa/pf_kernel.c:
 	.text       start:0x8021DFE0 end:0x8021E414
 	.data       start:0x803C4520 end:0x803C47F0
