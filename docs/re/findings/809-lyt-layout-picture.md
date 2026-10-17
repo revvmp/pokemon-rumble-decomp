@@ -27,3 +27,8 @@ The target DynamicCast path includes a null guard missing from main's bounded Ru
 - Macro RoundUp/RoundDown from allocator headers can collide with the NW4R algorithm template declarations. Include the canonical algorithm header before the allocator-using Layout header, as the existing consumers do; no compiler flags or alternate algorithm definitions are needed.
 
 The subsequent real default baseline (`python configure.py`, plain Ninja and explicit frozen verification of `build/wpse-v1`) each exited zero on main `7a1a3b81`; 479 baseline source-object digests were captured before source/header edits.
+
+
+## Primitive Layout deletion prerequisite
+
+The first-owner review approved the exact six-line DeletePrimArray template added in commit `7903932717f2b57dffe26ed4bf147c18b3fbe9d8`: null-check the pointer and call existing FreeMemory, without invoking element destructors. Existing Layout API, storage and virtual order are unchanged. Owner #812 independently matches its full native 84-byte AnimTransformBasic destructor with this helper. Configure, plain default Ninja and frozen verification all pass with the actual tracked helper. Of 479 baseline source objects, 476 are whole-file identical; the remaining three renumber compiler-local metadata. Every allocated section's type, flags, size, alignment and bytes and every canonical relocation target/addend are unchanged in all 479 objects. The prerequisite is folded into shared header PR #857 with owner/root approval, so the later Layout source must drop its duplicate after that merge.
