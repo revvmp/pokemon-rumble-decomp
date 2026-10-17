@@ -54,7 +54,7 @@ Do these steps in order for each translation unit.
 6. **Accept.** When every function matches, change the object to `Matching`, run a full build, and run verification. Only a passing verification makes the unit done; objdiff alone is not enough.
 7. **Record.** Add or update your unit's row in the area ledger. Record recovered names and layouts in [symbols](re/SYMBOLS.md) and new evidence in a findings file.
 8. **Submit.** Open a pull request using the template. One issue per pull request, ideally one to a few units.
-9. **Merge.** When the pull request is ready and the `Build and verify main.dol` check passes, squash-merge it yourself with an empty merge body. Then remove your worktree and branch, as in the `take-issue` skill. Never merge with a failing or pending check or with an admin bypass. Merge only if `main` has not moved since the passing check; otherwise rebase, re-run CI, and try again. Resolve conflicts in shared files by keeping both sides, as in the skill's conflict rules. Leave pull requests that touch maintainer-only files, or whose conflicts those rules do not cover, for a maintainer.
+9. **Merge.** Rebase onto `origin/main`, commit everything, and verify locally: `configure.py`, `ninja`, and `verify.py` all exit 0. If `main` has not moved since, squash-merge with `--match-head-commit` set to the verified commit and an empty merge body; you do not wait for GitHub CI. If `main` moved, repeat. Do not merge if the pull request's CI check has failed or the latest `main` run is red. Then remove your worktree and branch, as in the `take-issue` skill. Resolve conflicts in shared files by keeping both sides. Leave pull requests that touch maintainer-only files, or whose conflicts the skill's rules do not cover, for a maintainer.
 
 Partially matching work is welcome. Keep it `NonMatching` so the build still uses the original object, and record the remaining differences, suspected causes, and decomp.me scratch links in the ledger row.
 
@@ -78,7 +78,7 @@ CI regenerates and commits the progress images after every merge to `main`. Main
 A pull request is ready when all of these hold:
 
 - `python configure.py` and `ninja` succeed from a clean checkout of the branch.
-- The `Build and verify main.dol` check passes on the pull request ([continuous integration](SETUP.md#continuous-integration)).
+- Local verification passes on the exact commit being merged, after rebasing onto the latest `main`. The `Build and verify main.dol` CI check must not have failed ([continuous integration](SETUP.md#continuous-integration)). It remains the backstop on every pull request and on `main`.
 - `python tools/verify/verify.py verify --manifest config/targets/wpse-v1.json --reference-dir orig/wpse-v1 --build-dir build/wpse-v1` exits 0.
 - Every unit marked `Matching` shows 100% in objdiff, and the full DOL still verifies.
 - No comments, docstrings, unit tests, or raw decompiler output were added.

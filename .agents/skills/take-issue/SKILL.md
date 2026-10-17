@@ -1,6 +1,6 @@
 ---
 name: take-issue
-description: Claim an unassigned GitHub issue in this decompilation project, work in an isolated worktree, deliver a verified pull request, resolve rebase conflicts, merge it once CI passes, and clean up the worktree. Use when asked to pick up, take, claim, or work on an issue, optionally by number or area label.
+description: Claim an unassigned GitHub issue in this decompilation project, work in an isolated worktree, deliver a verified pull request, resolve rebase conflicts, merge it once verified locally against the latest main, and clean up the worktree. Use when asked to pick up, take, claim, or work on an issue, optionally by number or area label.
 ---
 
 # Take an issue
@@ -15,7 +15,7 @@ Preserve every rule in the shared procedure:
 - file ownership, including files that span several blocks
 - verification gates
 - attribution rules
-- the merge loop: re-check that `main` has not moved since the passing CI run before merging
+- the merge loop: rebase onto `origin/main`, confirm `git status --porcelain` is empty, verify locally with `configure.py`, `ninja`, and `verify.py`, confirm `main` has not moved, check that the PR's check and `main`'s latest run have not failed, then merge with `--match-head-commit` set to the verified commit, without waiting for GitHub CI
 - the rebase conflict rules: during a rebase, `--ours` is `main` and `--theirs` is your commit; keep both sides in shared files
 - junction-aware cleanup
 - keeping the local main checkout current with `git pull --ff-only` before claiming and after merging, without ever stashing, resetting, or committing there
