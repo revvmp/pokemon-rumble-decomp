@@ -4,7 +4,7 @@
 
 Issue #794 was claimed through the collaboration helper after it became unassigned. Its forty functions contain 8,056 instruction bytes from 0x8027E700 through 0x80280758. This audit adds no source, metadata, or reconstructed-byte credit. It checks source delivered by PR #836 and the complete RemoteSpeaker unit owned by #426 in PR #829.
 
-The independent candidate contains main c4e4aff7 plus the bounded #829 source dependency. Closure requires repeating the checks after that dependency is in actual main. Earlier read-only scratch results are supplemental; they do not establish this claim's acceptance.
+The independent candidate contains main c4e4aff7 plus the bounded #829 source dependency. The #425 and #794 owners subsequently agreed to consolidate their completion audits into source PR #829. Closure now requires all three original inventories to pass on the same committed source-selected merge candidate after its final rebase onto actual main. Earlier read-only scratch results are supplemental; they do not establish this claim's acceptance.
 
 ## Complete inventory
 
@@ -69,4 +69,4 @@ The freshly retrieved claimed issue supplies the authoritative inventory. Each r
 
 ## Traps
 
-A complete scratch audit did not authorize closing an assigned issue. The helper initially refused #794 while assigned. Its later legitimate helper claim, independent worktree, fresh complete inventory, actual source-selected build and final post-dependency gate are required for closure. Frozen executable identity alone permits original fallbacks, so every inventory function separately requires the real source input and map contribution.
+A complete scratch audit did not authorize closing an assigned issue. The helper initially refused #794 while assigned. Its later legitimate helper claim, independent worktree, fresh complete inventory, actual source-selected build and final consolidated committed-head gate are required for closure. Frozen executable identity alone permits original fallbacks, so every inventory function separately requires the real source input and map contribution.

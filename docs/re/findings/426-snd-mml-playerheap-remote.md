@@ -94,7 +94,13 @@ A separate read-only neighboring-inventory audit uses the forty address/size row
 | SeqPlayer | 25 | 5,268 | Already supplied by main PR836 |
 | Total | 40 | 8,056 | Read-only coverage audit; issue remains with its owner |
 
-Final source integration still waits for header PR817 and a fresh latest-main default-directory gate. The custom-directory proof here verifies the reviewed source restack without reusing the earlier default-directory output.
+Header PR817 is now merged. The earlier custom-directory proof verifies the reviewed source restack without reusing an old default output. Final consolidated acceptance repeats the complete default-directory pipeline and all three original inventories after rebasing onto actual main.
+
+## Consolidated issue inventories
+
+The helper later legitimately claimed #794 after it became unassigned, and its independent isolated build and complete forty-function audit are recorded in [F-794-2](794-snd-complete-inventory.md). The separate #425 owner supplied the independent original inventory and data evidence in [F-425-2](425-complete-inventory.md). Both owners agreed to retain these bounded audits in PR #829 and close the three issues only after the same final committed tree passes every inventory.
+
+The combined original scope is ninety-nine survey rows / 14,588 bytes through ninety-eight real native functions: #425 has thirty rows / 5,008 bytes through twenty-nine functions, #426 has twenty-nine functions / 1,524 bytes, and #794 has forty functions / 8,056 bytes. The #425 survey row at 0x8027CCA4 is the trailing unreachable instruction of Seek at 0x8027CC60 and is checked as its own subextent without counting another native function. New source-byte credit remains the five independently reconstructed complete units; the audits add no duplicate implementation credit.
 
 ## Traps
 
