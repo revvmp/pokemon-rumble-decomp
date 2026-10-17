@@ -1685,3 +1685,7 @@ The earlier table now records actual table and array symbol sizes rather than th
 | `0x80316D2C` | `bta_dm_reset_complete` | Pinned reference, exact instructions and final call/callback relocations; high confidence. [F-512-5](findings/512-dm-completion.md). |
 | `0x80316D30` | `bta_dm_send_hci_reset` | Pinned reference, exact instructions and final call/callback relocations; high confidence. [F-512-5](findings/512-dm-completion.md). |
 | `0x804BB5F8` | `sServiceAttributeListInitializer` | Four-byte initializer copied into the local attribute list; descriptive name, high boundary confidence. [F-512-5](findings/512-dm-completion.md). |
+
+## HBM ut font and list units (#300)
+
+For `wpse-v1` / `main.dol`, [F-300-1](findings/300-nw4hbm-ut.md#f-300-1-ut_font-ut_linklist-ut_list-and-ut_resfont) names `Font::InitReaderFunc` (`0x801936D0`), `List_Init` (`0x801938E0`), and `ResFont`'s constructor (`0x80193A50`), destructor (`0x80193A90`), `SetResource` (`0x80193AF0`) and `Rebuild` (`0x80193C40`). The data names are `__vt__Q36nw4hbm2ut7ResFont` (`0x803BCC48`), `__RTTI__Q36nw4hbm2ut7ResFont` (`0x803BCCC8`), `__RTTI__Q46nw4hbm2ut6detail11ResFontBase` (`0x803BCD00`) and `__RTTI__Q36nw4hbm2ut4Font` (`0x803BCD20`). The callees named for linking are the `detail::ResFontBase` constructor (`0x80193D50`), destructor (`0x80193DA0`), `SetResourceBuffer` (`0x80193DE0`), and the 19 virtual functions `GetWidth` (`0x80193DF0`) through `GetEncoding` (`0x801941B0`), in vtable order. Confidence high: the names and sizes match xenoblade's symbols, and the units match.
