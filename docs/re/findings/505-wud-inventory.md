@@ -35,6 +35,12 @@ Current checkpoint: the source prerequisite remains unmerged. The normal main bu
 
 The target's source boundary continues through `0x80310394`; the survey end `0x8030D234` is only this issue's last function end. The unit's split, configuration and header remain with #504. The issue's 24 functions include synchronization and deletion dispatchers, settings flush callbacks, stack initialization, native device import, NAND recovery and control-block clearing.
 
+## Source-prerequisite preview
+
+The branch is stacked on source prerequisite #719 at commit c468b91d96c00fde5388f1bf17ea912b816294d5. A fresh default-path configure and full Ninja both exit 0. Explicit frozen verification of build/wpse-v1 exits 0. The complete issue inventory audit finds all 24 original functions / 10308 native bytes in actual source-selected objects, with original extents and final ELF addresses; every DOL byte agrees with the frozen reference.
+
+This preview does not replace the final main integration gate. After #719 merges, drop the prerequisite history, rebase onto latest main and rerun configure, Ninja, explicit frozen verification and the same complete inventory audit before updating the final issue state. No duplicate source-unit credit is added.
+
 ## Provenance
 
 The source prerequisite records pinned Petari and Swiftshine/key CC0 provenance, target operands and exact matching evidence in its F-504 findings. This audit adds no reference source or declarations.
