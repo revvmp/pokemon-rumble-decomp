@@ -38,7 +38,7 @@ AXSTUDIO* __AXGetStudio(void) {
 
 void __AXDepopFadeMain(s32* all, s32* value, s16* depop) {
     if (*all / AX_SAMPLES_PER_FRAME != 0) {
-        
+
         s32 avg = *all / AX_SAMPLES_PER_FRAME;
 
         if (avg > DEPOP_MAX) {
@@ -61,7 +61,7 @@ void __AXDepopFadeMain(s32* all, s32* value, s16* depop) {
 
 void __AXDepopFadeRmt(s32* all, s32* value, s16* depop) {
     if (*all / AX_SAMPLES_PER_FRAME_RMT != 0) {
-        
+
         s32 avg = *all / AX_SAMPLES_PER_FRAME_RMT;
 
         if (avg > DEPOP_MAX) {
