@@ -329,6 +329,42 @@ nw4r/ef/ef_resource.cpp:
 	.ctors      start:0x80352A40 end:0x80352A44
 	.bss        start:0x8042F2D8 end:0x8042F2F8
 
+nw4r/ef/ef_handle.cpp:
+	.text       start:0x802362A0 end:0x80236370
+
+nw4r/ef/ef_emitterform.cpp:
+	.text       start:0x80236370 end:0x80236904
+	.sdata2     start:0x804BA770 end:0x804BA79C
+
+nw4r/ef/ef_creationqueue.cpp:
+	.text       start:0x80236910 end:0x80236D54
+
+nw4r/ef/ef_emform.cpp:
+	.text       start:0x80236D60 end:0x80236E38
+	.ctors      start:0x80352A44 end:0x80352A48
+	.data       start:0x803C55D8 end:0x803C55E8
+	.sbss       start:0x804B92C8 end:0x804B92E4
+
+nw4r/ef/ef_point.cpp:
+	.text       start:0x80236E40 end:0x80237188
+	.data       start:0x803C55E8 end:0x803C55F8
+	.sdata2     start:0x804BA7A0 end:0x804BA7D0
+
+nw4r/ef/ef_line.cpp:
+	.text       start:0x80237190 end:0x802374C8
+	.data       start:0x803C55F8 end:0x803C5608
+	.sdata2     start:0x804BA7D0 end:0x804BA7F8
+
+nw4r/ef/ef_disc.cpp:
+	.text       start:0x802374D0 end:0x80237A04
+	.data       start:0x803C5608 end:0x803C5618
+	.sdata2     start:0x804BA7F8 end:0x804BA840
+
+nw4r/ef/ef_sphere.cpp:
+	.text       start:0x80237A10 end:0x80238264
+	.data       start:0x803C5618 end:0x803C5628
+	.sdata2     start:0x804BA840 end:0x804BA890
+
 nw4r/g3d/res/g3d_rescommon.cpp:
 	.text       start:0x8024AE80 end:0x8024B024
 

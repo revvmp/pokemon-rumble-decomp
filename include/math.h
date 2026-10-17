@@ -30,6 +30,10 @@ static inline float sqrtf(float x) {
     return (float)sqrt(x);
 }
 
+static inline float cosf(float x) {
+    return (float)cos(x);
+}
+
 static inline float powf(float x, float y) {
     return (float)pow(x, y);
 }
