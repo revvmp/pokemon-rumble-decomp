@@ -17,7 +17,7 @@ The pinned [Petari WUD.c at e0ab141914921726a595573dc48d3f13d0922efe](https://gi
 
 ## Validation
 
-The header is compiled through the actual `all_source` entry point before and after the rename. SHA-256 comparisons show all 358 pre-existing compiled source objects are byte-identical after the rename. A full Ninja build and explicit frozen executable verification check the final DOL. The final evidence records the object count and verified commit in the pull request description. No compiler flag, original byte, expected digest, member type, offset or structure extent changes.
+The header is compiled through the actual `all_source` entry point before and after the rename. SHA-256 comparisons show all 358 pre-existing compiled source objects are byte-identical after the rename on main `beeb2d31`. A full Ninja build and explicit frozen executable verification check the final DOL. The final evidence records the object count and verified commit in the pull request description. No compiler flag, original byte, expected digest, member type, offset or structure extent changes.
 
 ## Traps
 
