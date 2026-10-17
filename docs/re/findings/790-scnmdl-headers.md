@@ -2,11 +2,13 @@
 
 ## Scope
 
-This prerequisite supplies ScnObj/ScnLeaf, ScnMdlSimple, and ScnMdl declarations required by the complete ScnMdl source unit shared by #790 and #791. It changes no source unit, split, object status, or decompilation credit. Existing canonical G3dObj, resource views, math structures, and animation base classes remain unchanged.
+This prerequisite supplies ScnMdlSimple and ScnMdl declarations required by the complete ScnMdl source unit shared by #790 and #791. Merged PR846 supplies the complete canonical ScnObj/ScnLeaf header, which is preserved unchanged; the temporary duplicate proposed here is removed. This prerequisite changes no source unit, split, object status, or decompilation credit. Existing canonical G3dObj, resource views, math structures, and animation base classes remain unchanged.
 
 The owner-approved DrawResMdlReplacement and draw-mode interface from PR816, complete AnmObjShp header from PR785, and CalcVtx declaration from PR837 are reused verbatim. These temporary overlapping prerequisites are dropped from this proposal as their canonical deliveries merge; no competing partial AnmObjShp class is introduced. The draw-mode enum retains its original `REDMDL_DRAWMODE_SORT_NONE` spelling. No additions to #777's CalcWorld header are needed.
 
 Coordinating owner #783 independently compiled all 23 ScnMdlSimple functions / 8,148 bytes and paired all 96 text relocation targets with these hierarchy headers unchanged. Its material dispatch calls CalcMaterialDirectly at `0x80270750`; this prerequisite also supplies that original four-argument declaration and its three animation forward declarations. The bounded header follows the same pinned SS reference and is preserved verbatim from the #783 owner's reviewed proposal. No source/split/config ownership is taken from the material unit's #792 owner.
+
+After PR846 merged, both consumers were re-proved against main's full ScnObj header: all 27 ScnMdl functions and all 23 ScnMdlSimple functions retain their exact native instruction streams. The Simple owner also paired all 112 code/vtable relocation targets and all four initialized native data sections. No additions to main's ScnObj header were needed.
 
 ## Target layout and code evidence
 
