@@ -257,6 +257,27 @@ config.libs = [
         ],
     ),
     library(
+        "NW4R.lyt",
+        NW4R_COMPILER,
+        cflags_nw4r,
+        "nw4r",
+        [
+            Object(Matching, "nw4r/lyt/lyt_init.cpp"),
+        ],
+    ),
+    library(
+        "NW4R.math",
+        NW4R_COMPILER,
+        cflags_nw4r,
+        "nw4r",
+        [
+            Object(Matching, "nw4r/math/math_arithmetic.cpp"),
+            Object(Matching, "nw4r/math/math_triangular.cpp"),
+            Object(Matching, "nw4r/math/math_types.cpp"),
+            Object(Matching, "nw4r/math/math_geometry.cpp"),
+        ],
+    ),
+    library(
         "NW4R.snd",
         NW4R_COMPILER,
         cflags_nw4r,

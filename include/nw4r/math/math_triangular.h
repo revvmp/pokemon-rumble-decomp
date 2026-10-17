@@ -19,6 +19,20 @@
 namespace nw4r {
 namespace math {
 
+namespace detail {
+
+struct SinCosSample {
+    f32 sin_val;
+    f32 cos_val;
+    f32 sin_delta;
+    f32 cos_delta;
+};
+
+extern const SinCosSample gSinCosTbl[];
+
+}
+
+
 f32 SinFIdx(f32 fidx);
 
 inline f32 SinIdx(u16 idx) {
