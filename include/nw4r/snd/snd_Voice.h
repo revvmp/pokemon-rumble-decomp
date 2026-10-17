@@ -42,6 +42,19 @@ public:
     };
 
     static const int PRIORITY_MAX = 255;
+    static const int VOICE_PRIORITY_MAX = 31;
+    static const int REMOTE_FILTER_MAX = 127;
+    static const int REMOTE_FILTER_MIN = 0;
+    static const f32 SEND_MAX;
+    static const f32 SEND_MIN;
+    static const f32 BIQUAD_VALUE_MAX;
+    static const f32 BIQUAD_VALUE_MIN;
+    static const f32 PAN_CENTER;
+    static const f32 PAN_RIGHT;
+    static const f32 PAN_LEFT;
+    static const f32 VOLUME_MAX;
+    static const f32 VOLUME_MIN;
+
 
 public:
     Voice();
@@ -64,6 +77,9 @@ public:
     }
     bool IsPlayFinished() const {
         return IsActive() && mAxVoice[0][0]->IsPlayFinished();
+    }
+    bool IsRun() const {
+        return IsActive() && mAxVoice[0][0]->IsRun();
     }
 
     void InitParam(int channels, int voices, VoiceCallback pCallback,
@@ -105,6 +121,9 @@ public:
 
     void SetRemoteOutVolume(int remote, f32 volume);
     void SetVoiceOutParam(int index, const VoiceOutParam& rParam);
+    void SetVoiceOutParamPitchDisableFlag(bool flag) {
+        mVoiceOutParamPitchDisableFlag = flag;
+    }
     void SetRemoteSend(int remote, f32 send);
     void SetRemoteFxSend(int remote, f32 send);
 
@@ -124,6 +143,7 @@ public:
     bool CalcAxMix();
     void CalcAxLpf();
     void CalcAxRemoteFilter();
+    void CalcAxBiquadFilter();
 
 private:
     static const int VOICES_MIN = 1;
@@ -160,20 +180,21 @@ private:
     bool mIsPause;
     bool mIsPausing;
 
-    u8 mSyncFlag;
+    bool mVoiceOutParamPitchDisableFlag;
+
+    u16 mSyncFlag;
     u8 mRemoteFilter;
     u8 mBiquadType;
     int mPriority;
     f32 mPan;
     f32 mSurroundPan;
     f32 mLpfFreq;
+    f32 mBiquadValue;
     int mOutputLineFlag;
     f32 mMainOutVolume;
     f32 mMainSend;
     f32 mFxSend[AUX_BUS_NUM];
     f32 mRemoteOutVolume[WPAD_MAX_CONTROLLERS];
-    f32 mRemoteSend[WPAD_MAX_CONTROLLERS];
-    f32 mRemoteFxSend[WPAD_MAX_CONTROLLERS];
     f32 mPitch;
     f32 mVolume;
     f32 mVeInitVolume;
