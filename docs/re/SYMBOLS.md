@@ -175,6 +175,16 @@ The same finding corrects the survey boundary at the end of #483: AIRegisterDMAC
 | `0x8032A31C` | `0x228` | `fn_8032A31C` | `HID_HostSetSecurityLevel` | function | high | F-524-1 | `src/RVL_SDK/bte/hidh_api.c` |
 | `0x804AD8F0` | `0x144` | `lbl_804AD8F0` | `hd_cb` (`tHID_DEV_CTB`) | object | high name, medium file | F-524-1 | `src/RVL_SDK/bte/hidd_mgmt.c` |
 | `0x804ADA38` | `0x404` | `lbl_804ADA38` | `hh_cb` (`tHID_HOST_CTB`) | object | high | F-524-1 | `src/RVL_SDK/bte/hidh_api.c` |
+| `0x8031FBFC` | `0x1D0` | `fn_8031FBFC` | `BTM_SetPowerMode` | function, outside block | high name | F-524-4 | owning block issue |
+| `0x8032A544` | `0x158` | `fn_8032A544` | `hidh_conn_reg` | function, outside block | high name | F-524-4 | owning block issue |
+| `0x8032A69C` | `0xA4` | `fn_8032A69C` | `hidh_conn_disconnect` | function, outside block | high name | F-524-4 | owning block issue |
+| `0x8032C1C0` | `0x29C` | `fn_8032C1C0` | `hidh_conn_snd_data` | function, outside block | high name | F-524-4 | owning block issue |
+| `0x8032C45C` | `0xFC` | `fn_8032C45C` | `hidh_conn_initiate` | function, outside block | high name | F-524-4 | owning block issue |
+| `0x8032C558` | `0x2C` | `fn_8032C558` | `hidh_conn_dereg` | function, outside block | high name | F-524-4 | owning block issue |
+| `0x80338B3C` | `0x378` | `fn_80338B3C` | `SDP_InitDiscoveryDb` | function, outside block | high name | F-524-4 | owning block issue |
+| `0x80338EB4` | `0x5C` | `fn_80338EB4` | `SDP_ServiceSearchRequest` | function, outside block | high name | F-524-4 | owning block issue |
+| `0x80338F74` | `0x28` | `fn_80338F74` | `SDP_FindAttributeInRec` | function, outside block | high name | F-524-4 | owning block issue |
+| `0x80339068` | `0x108` | `fn_80339068` | `SDP_FindServiceUUIDInDb` | function, outside block | high name | F-524-4 | owning block issue |
 
 Layouts follow Petari and are confirmed by target accesses: `hd_cb` uses `conn` at 0x10 (timer parameter 0x2C), `idle_tle` 0x34, `pm_params` 0x4C, `curr_pm` 0x6A, `pm_ctrl_busy` 0x6E, `conn_substate` 0x6F, `final_pm` 0x70, `callback` 0xC4, L2CAP configs 0xC8 and 0x104 (0x3C each), `reg_flag` 0x140, `trace_level` 0x141. `hh_cb` has 16 0x34-byte devices, `sdp_busy` 0x380, `sdp_cback` 0x384, `p_sdp_db` 0x388, `sdp_rec` 0x38C (0x74), `reg_flag` 0x400, `trace_level` 0x401.
 
