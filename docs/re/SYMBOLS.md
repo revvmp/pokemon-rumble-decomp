@@ -1913,3 +1913,7 @@ For `wpse-v1` / `main.dol`, [F-392-1](findings/392-g3d-resvtx-restex.md) names 1
 ## Issue #514 completion
 
 [F-514-4](findings/514-dm-completion.md) supersedes the earlier NonMatching API status: all eleven retained API wrappers, two state-machine dispatchers, and eight power functions are source-linked with GC/3.0a3 and compare at 100%. Its address inventory accepts all 25 #514 functions and identifies the two trailing #515 callbacks. Main owns `bta_dm_search_cb` (0x7C) and `bta_dm_cb` (0x104); power owns `bta_dm_conn_srvcs` (0x2E). Static registration pairs, action/state tables, exact diagnostic lengths, and alignment are recorded there. Canonical declarations now live under `include/revolution/bte/`; the legacy API header forwards to them. The preceding action data split extends to 0x803E0828 to contain its original five-byte alignment gap; actual symbols and string payload sizes do not change.
+
+## F-462-1: NW4R Layout interface
+
+`nw4r::lyt::Layout` is 32 bytes: vptr at 0, animation list at 4, root pane at 0x10, group container at 0x14, and width/height at 0x18/0x1C. Its vtable at 0x803C6EF8 has fourteen methods, including BindAnimationAuto before SetAnimationEnable. The reference origin byte is absent. See [F-462-1](findings/462-layout-interface.md) for native constructor and vtable evidence.
