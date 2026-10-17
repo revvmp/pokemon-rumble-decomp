@@ -206,7 +206,6 @@ void __AXSetPBDefault(AXVPB* vpb);
 #define AX_SAMPLES_PER_FRAME_RMT 18
 #define AX_FRAME_SIZE (AX_SAMPLES_PER_FRAME * AX_SAMPLE_DEPTH_BYTES)
 
-
 typedef enum {
     AX_STEREO_L,
     AX_STEREO_R,
@@ -223,7 +222,6 @@ typedef enum {
 
     AX_DPL2_MAX
 } AXDPL2Channel;
-
 
 void __AXAuxInit(void);
 void __AXGetAuxAInput(void** out);
@@ -248,6 +246,132 @@ void AXGetAuxACallback(AXAuxCallback* callback, void** context);
 void AXGetAuxBCallback(AXAuxCallback* callback, void** context);
 void AXGetAuxCCallback(AXAuxCallback* callback, void** context);
 
+#define AX_MAX_VOLUME 32768
+#define AX_CL_SIZE 128
+
+typedef enum {
+    AX_OUTPUT_STEREO,
+    AX_OUTPUT_SURROUND,
+    AX_OUTPUT_DPL2
+} AXOutputMode;
+
+extern const u16 __AXCompressorTable[];
+
+AXPB* __AXGetPBs(void);
+u32 __AXGetCommandListCycles(void);
+void* __AXGetCommandListAddress(void);
+void __AXNextFrame(void* surround, void* lr, void* rmt);
+void __AXClInit(void);
+void AXSetMode(u32 mode);
+u16 AXGetAuxAReturnVolume(void);
+u16 AXGetAuxBReturnVolume(void);
+u16 AXGetAuxCReturnVolume(void);
+void AXSetMasterVolume(u16 volume);
+void AXSetAuxAReturnVolume(u16 volume);
+void AXSetAuxBReturnVolume(u16 volume);
+void AXSetAuxCReturnVolume(u16 volume);
+
+#pragma pack(push, 1)
+typedef struct _AXSTUDIO {
+    s32 L;
+    s16 dL;
+
+    s32 R;
+    s16 dR;
+
+    s32 S;
+    s16 dS;
+
+    s32 AuxAL;
+    s16 dAuxAL;
+
+    s32 AuxAR;
+    s16 dAuxAR;
+
+    s32 AuxAS;
+    s16 dAuxAS;
+
+    s32 AuxBL;
+    s16 dAuxBL;
+
+    s32 AuxBR;
+    s16 dAuxBR;
+
+    s32 AuxBS;
+    s16 dAuxBS;
+
+    s32 AuxCL;
+    s16 dAuxCL;
+
+    s32 AuxCR;
+    s16 dAuxCR;
+
+    s32 AuxCS;
+    s16 dAuxCS;
+
+    s32 Main0;
+    s16 dMain0;
+
+    s32 Aux0;
+    s16 dAux0;
+
+    s32 Main1;
+    s16 dMain1;
+
+    s32 Aux1;
+    s16 dAux1;
+
+    s32 Main2;
+    s16 dMain2;
+
+    s32 Aux2;
+    s16 dAux2;
+
+    s32 Main3;
+    s16 dMain3;
+
+    s32 Aux3;
+    s16 dAux3;
+} AXSTUDIO;
+#pragma pack(pop)
+
+AXSTUDIO* __AXGetStudio(void);
+void __AXDepopFadeMain(s32* all, s32* value, s16* depop) __attribute__((noinline));
+void __AXDepopFadeRmt(s32* all, s32* value, s16* depop) __attribute__((noinline));
+void __AXPrintStudio(void);
+void __AXSPBInit(void);
+void __AXDepopVoice(AXPB* pb);
+
+#define AX_RMT_MAX 4
+
+typedef void (*AXOutCallback)(void);
+typedef void (*AXExceedCallback)(u32 cycles);
+typedef struct _AXPROFILE {
+    s64 timeBegin;
+    s64 timeProcessAuxBegin;
+    s64 timeProcessAuxEnd;
+    s64 timeUserFrameBegin;
+    s64 timeUserFrameEnd;
+    s64 timeEnd;
+    s32 numVoices;
+} AXPROFILE;
+
+extern u16 axDspSlave[];
+extern u16 axDspSlaveLength;
+extern u16 axDspInitVector;
+extern u16 axDspResumeVector;
+void __AXSyncPBs(u32 baseCycles);
+s32 __AXGetNumVoices(void);
+AXPROFILE* __AXGetCurrentProfile(void);
+u32 __AXOutNewFrame(void);
+void __AXOutAiCallback(void);
+void __AXOutInitDSP(void);
+void __AXOutInit(u32 mode);
+AXOutCallback AXRegisterCallback(AXOutCallback callback);
+s32 AXRmtGetSamplesLeft(void);
+s32 AXRmtGetSamples(s32 chan, s16* out, s32 num);
+s32 AXRmtAdvancePtr(s32 num);
+
 #define AX_PRIORITY_FREE 0
 #define AX_PRIORITY_MIN 1
 #define AX_PRIORITY_MAX 31
@@ -267,5 +391,7 @@ AXVPB* __AXPopStackFromBottom(u32 prio);
 void AXFreeVoice(AXVPB* vpb);
 AXVPB* AXAcquireVoice(u32 prio, AXVoiceCallback callback, u32 userContext);
 void AXSetVoicePriority(AXVPB* vpb, u32 prio);
+
+void __AXServiceVPB(AXVPB* vpb);
 
 #endif

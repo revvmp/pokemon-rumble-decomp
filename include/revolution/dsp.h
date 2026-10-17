@@ -38,6 +38,9 @@ u32 DSPReadMailFromDSP(void);
 void DSPSendMailToDSP(u32);
 void DSPAssertInt(void);
 void DSPInit(void);
+BOOL DSPCheckInit(void);
+DSPTaskInfo* DSPAddTask(DSPTaskInfo* task);
+DSPTaskInfo* DSPAssertTask(DSPTaskInfo* task);
 
 #ifdef __cplusplus
 }
