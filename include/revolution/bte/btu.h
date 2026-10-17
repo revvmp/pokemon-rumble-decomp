@@ -21,6 +21,18 @@ enum {
     BTU_TTYPE_BTU_CMD_CMPL = 60
 };
 
+enum {
+    BTU_TTYPE_BTM_DEV_CTL = 1,
+    BTU_TTYPE_L2CAP_LINK = 2,
+    BTU_TTYPE_L2CAP_CHNL = 3,
+    BTU_TTYPE_L2CAP_HOLD = 4,
+    BTU_TTYPE_BTM_DISCOVERY = 8,
+    BTU_TTYPE_BTM_ACL = 9,
+    BTU_TTYPE_BTM_RMT_NAME = 10,
+    BTU_TTYPE_HID_HOST_REPAGE_TO = 66
+};
+#define BTU_HCI_RCV_MBOX TASK_MBOX_0
+
 #define BTU_CMD_CMPL_TIMEOUT 8
 
 #define BTU_MAX_REG_TIMER 2
@@ -55,6 +67,9 @@ typedef struct {
 
 extern tBTU_CB btu_cb;
 extern const BD_ADDR BT_BD_ANY;
+
+void btu_task_init(void);
+void btu_task_msg_handler(void);
 
 void btu_start_timer(TIMER_LIST_ENT* p_tle, UINT16 type, UINT32 timeout);
 void btu_stop_timer(TIMER_LIST_ENT* p_tle);

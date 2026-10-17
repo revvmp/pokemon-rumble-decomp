@@ -827,8 +827,26 @@ RVL_SDK/bte/bte_main.c:
 	.sdata      start:0x804B8EE8 end:0x804B8EEC
 	.sbss       start:0x804B9B80 end:0x804B9B88
 
+RVL_SDK/bte/btu_task1.c:
+	.text       start:0x80313E70 end:0x803142B4
+	.bss        start:0x804AA850 end:0x804AA8D4
+	.sdata      start:0x804B8EF0 end:0x804B8EF8
+	.sbss       start:0x804B9B88 end:0x804B9B90
+
+RVL_SDK/bte/bd.c:
+	.text       start:0x803142B4 end:0x80314388
+
 RVL_SDK/bte/bta_sys_conn.c:
 	.text       start:0x80314388 end:0x803145DC
+
+RVL_SDK/bte/bta_sys_main.c:
+	.text       start:0x803145DC end:0x80314820
+	.data       start:0x803E06B0 end:0x803E06E5
+	.bss        start:0x804AA8D8 end:0x804AA964
+	.sbss       start:0x804B9B90 end:0x804B9B91
+
+RVL_SDK/bte/ptim.c:
+	.text       start:0x80314820 end:0x80314A00
 
 RVL_SDK/bte/utl.c:
 	.text       start:0x80314A00 end:0x80314A44
