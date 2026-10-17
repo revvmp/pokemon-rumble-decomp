@@ -11,7 +11,7 @@ Target `wpse-v1`, `orig/wpse-v1/main.dol` (manifest `config/targets/wpse-v1.json
 
 `l2c_csm.c` starts at `l2c_csm_execute` (`0x8032D150`, already named). Its `.data` starts with that function's nine-entry jump table at `0x803E3A50`, whose entries point into `l2c_csm_execute`, followed by `L2CAP - st: CLOSED evt: %d`. It ends with `L2CAP - cannot send buffer, offset: %d`, used by `forward_peer_data`. `l2c_link.c` starts at `l2c_link_hci_conn_req` (`0x8032E62C`, `L2CAP failed to allocate LCB`). It ends at `l2c_pin_code_request`, right before `l2c_init` (F-527-1). Its strings end at `L2CAP - rcvd segment complete, unknown handle: %d`. The four bytes of padding before `l2c_main.c` data at `0x803E44F8` are left outside the split.
 
-Everything before `0x8032D150` and `0x803E3A50` in this issue's block belongs to `l2c_api.c`: `L2CA_SetIdleTimeout` (`0x8032CF68`) and the three functions after it, plus their strings. The first `l2c_api.c` function is in #525's block, so that split belongs to #525 and is not handled here.
+Everything before `0x8032D150` and `0x803E3A50` in this issue's block belongs to `l2c_api.c`: `L2CA_SetIdleTimeout` (`0x8032CF68`) and the three functions after it, plus their strings. The first `l2c_api.c` function is in #525's block, so that split belongs to #525. Pull request #680 for #525 has matched it, so every function in this block is now in a matching unit.
 
 Petari's `l2c_link_get_decompressed_pkt` and `l2c_link_pkts_rcvd` have no strings and would be dead-stripped. Nothing in the binary shows whether this build contained them, so the source omits them. Petari passes `0` to `pL2CA_ConnectPnd_Cb`, and the target code loads the same constant.
 
