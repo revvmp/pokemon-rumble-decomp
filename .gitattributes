@@ -5,3 +5,4 @@ docs/images/*.svg text eol=lf
 docs/ledger/*.md merge=union
 docs/ledger/README.md merge
 docs/re/SYMBOLS.md merge=union
+docs/re/*.tsv text eol=lf

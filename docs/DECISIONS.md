@@ -75,6 +75,15 @@ Consequences:
 - Remove the forwarders once no open pull request uses the old paths.
 - An imported header may still need adjusting for this game's SDK version; adjust it in place.
 
+## D-0014: Import library names from reference symbol maps
+
+Accepted to stop contributors from naming the same outside callees one by one and conflicting over the renames. `tools/re/import_reference_symbols.py` aligns ordered function and data sizes in each library range against pinned public symbol maps and renames only `fn_`, `lbl_` and `dtor_` placeholders, never a real name, and never to a name already in use. Its method and measured accuracy are [F-0013](re/FINDINGS.md#f-0013-reference-symbol-maps-name-library-functions-by-size-alignment); its sources and licenses are in [reference symbol map sources](re/licenses/reference-symbol-maps.md).
+
+- High- and medium-confidence names are applied; low-confidence names are reported only.
+- Every applied name is recorded with its tier, method and sources in `docs/re/reference-symbols.tsv`, and derived file spans in `docs/re/reference-files.tsv`.
+- An imported name is evidence of medium strength. A contributor whose matched source or code evidence shows a different name or signature renames the symbol and notes it in their findings file.
+- Maintainers rerun the tool after new references or revisions appear. It only touches placeholders, so a rerun does not undo contributor names.
+
 ## Future decisions
 
 Use stable identifiers and record status, problem, approach, evidence, consequences, and superseded decisions. Put reverse engineering evidence in `re/` and link it here rather than duplicating it.

@@ -92,6 +92,8 @@ Keep entries concise and actionable. Distinguish confirmed findings from hypothe
 
 - **A failed link leaves the old `main.dol` for verification.** `verify.py` printed `PASS` after `ninja` failed to link, because it checked the previous build's DOL. Check the `ninja` exit status first; linking a `Matching` unit also needs every callee renamed from `fn_` in `symbols.txt`. See [F-472-4](docs/re/findings/472-exi-si-db-units.md#f-472-4-verification-can-pass-on-a-stale-maindol).
 
+- **Imported library names can carry the wrong signature.** About 1,260 library placeholders were renamed from public symbol maps (D-0014); their mangled names come from the reference revision, so a matched unit can fail to link on a signature such as `snd::PanMode` versus this target's `snd::detail::PanMode`. Rename the symbol to your source's name when code evidence disagrees, and check `docs/re/reference-symbols.tsv` for the tier and sources. See [F-0013](docs/re/FINDINGS.md#f-0013-reference-symbol-maps-name-library-functions-by-size-alignment).
+
 ## Current project state
 
 | Current state | Value |

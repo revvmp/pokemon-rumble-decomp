@@ -192,3 +192,31 @@ Four parallel surveys covered `.text` 0x80052500–0x80292000. They used relocat
 - `nw4r::ut::CntFileStream` at about 0x801AF870–0x801AFC7C is linked inside the game area with its own static initializer.
 
 The partition into decomp issues is kept with the issue set: 53 regions and 507 issues of 6–77 functions, mean 26.6. Every function in `config/wpse-v1/symbols.txt` except the two already-matched `__init_cpp_exceptions` functions is listed in exactly one issue. Region boundaries and class start addresses are survey estimates; establishing exact unit boundaries is part of each issue. [Workstreams](../WORKSTREAMS.md) indexes the issues.
+
+## F-0013: Reference symbol maps name library functions by size alignment
+
+`tools/re/import_reference_symbols.py` names placeholder library symbols from seven public symbol maps ([sources and licenses](licenses/reference-symbol-maps.md)): xenoblade `jp`, Skyward Sword `SOUE01`, Twilight Princess Wii `RZDE01_02`, Kirby's Return to Dream Land `S72E01`, Wii Sports `RSPE01_01`, Super Mario Galaxy `RMGE01`, and the 20 retail debug maps of riptl/wii-symbols. Method:
+
+- For each library range of F-0012 (RVL_SDK including BTE and NdevExi2A, MSL/Runtime/TRK, NW4R ef, g3d, snd and ut/lyt/math/db, HBM with `nw4hbm`, RevoEX/NCD, TMC JPEG, FA), our functions in address order are aligned with each reference's functions of the same library. dtk references are filtered by source path from their `splits.txt`; the path-less retail maps by name (for example, `nw4r` in the mangled name for NW4R, unmangled C names for the SDK).
+- A seed is a maximal run of at least three consecutive exact size matches, contiguous in the reference and inside one reference source file, worth at least 30 bits. Each distinct size in the run counts once, at `-log2` of its frequency among our functions in that range, so runs of repeated small sizes do not qualify. A run is rejected when another run on a nearby diagonal, within 64 entries and with at least half its score, overlaps it on either side; this removes off-by-one shifts through repeated accessor patterns.
+- Inside each reference file, gaps before, between and after seeds are filled from runs of at least three matches that are unique in both windows and contain two distinct sizes. A unique size is accepted only in a gap closed by seeds of the same file on both sides, at the same offset from either end.
+- Votes from all references are combined. A symbol is renamed only if its current name is a `fn_`, `lbl_` or `dtor_` placeholder, every reference gives the same base name, and the name is not already used. Reference placeholders, `@` and `$` names are ignored. When references give the same base name with different mangled signatures, the name with the most independent games wins, then the reference order in the tool (18 functions).
+
+Confidence: **high** is a seed supported by at least two games (the four Mario Kart Wii regional maps count as one game); **medium** is a single-game seed, a closed-gap unique size, or a gap run supported by two games; **low** is a single-game gap run, which is reported but not applied. Measured against names already present on `main` at `4e5d89da` (contributor names from matched source and evidence), the same procedure gives:
+
+| Tier | Agree | Disagree | Agreement |
+| --- | --- | --- | --- |
+| high | 2,232 | 8 | 99.6% |
+| medium | 384 | 9 | 97.7% |
+| low (not applied) | 45 | 6 | 88% |
+
+References disagreed on 31 more already-named functions. Disagreements are revision differences, such as `__OSCancelAlarmsForUserData` where the 2010–2011 maps have `__OSCancelInternalAlarms`, `WBCRead` against `WBCReadDummy`, and `NANDTell` against `NANDGetLength`, or shifts between equal-sized neighbors that a later revision reordered (`ResFile::HasResAnm*`, `NandFileStream::GetSize`). Data objects were aligned the same way within each data section; 41 already-named objects agreed and none disagreed.
+
+Applied at `4e5d89da`: 1,261 renames, 965 high and 296 medium. Functions: 119 SDK, 85 MSL/Runtime/TRK, 68 HBM and `nw4hbm`, 85 NW4R ef, 328 g3d, 363 snd, 189 ut/lyt/math/db, and 7 FA (`VFiPFPATH_*` from the retail maps). Data: 12 MSL, 4 HBM, 1 SDK. The references contributing most were Skyward Sword, xenoblade, Kirby and the Wii Sports Resort, Wii Party and Mario Party 9 retail maps. `python configure.py`, `ninja` and `tools/verify/verify.py verify` passed, and dtk's rewrite of `symbols.txt` changed only the renamed names.
+
+Limitations:
+- Mangled names carry the reference revision's signature. The 2009 target can differ: `SetPanMode` takes `snd::detail::PanMode` here but `snd::PanMode` in Skyward Sword. A contributor whose source mangles differently renames the symbol to the source's name.
+- Names of functions the target revision replaced can be wrong even inside a long run when both have the same size. Rename on contrary evidence from code; the per-symbol record in [reference-symbols.tsv](reference-symbols.tsv) gives tier, method, run length and sources.
+- FA, TMC JPEG, CNT, RevoEX and the 16-byte-aligned printf have few or no public maps.
+
+The same alignment gives each reference source file's first and last mapped function on our addresses. [reference-files.tsv](reference-files.tsv) lists 226 consolidated spans by file name, with the references, the number of mapped functions, whether the file's own first and last functions were mapped, and overlapping spans. A span is evidence for a unit boundary, not a split: verify it against `.ctors`, alignment padding and data references before splitting.
