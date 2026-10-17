@@ -1972,3 +1972,6 @@ For `wpse-v1` / `main.dol`, [F-295-1](findings/295-nw4hbm-lyt.md#f-295-1-unit-bo
 ### MSL allocation pools (#537)
 
 [F-537-2](findings/537-allocator.md) records all ten allocator functions and exact pool layouts. `Block_subBlock` starts at `0x803422E0`; `malloc` is `0x80342F10`, correcting the earlier tentative `__pool_free` identification, and `free` is `0x80342FB0`. The six `fix_pool_sizes` words start at `0x80398390`. `get_malloc_pool` owns 0x38-byte static storage at `0x804B31F8` and a one-byte initialization flag at `0x804B9BC8`; its internal pool view is 0x34 bytes. All names come from the pinned matching CC0 reference. The required outside callee names `__sys_alloc` (`0x801B1370`) and `__sys_free` (`0x801B13F0`) preserve their existing boundaries and attributes.
+### MetroTRK transport and event interfaces (#542)
+
+[F-542-1](findings/542-transport-headers.md) records the complete 0x28-byte communication table at `0x804B3A70` and 0x24-byte event queue at `0x804B3A98`. The queue has count, next index, two 12-byte events and event ID at offsets 0, 4, 8 and 0x20; it has no leading mutex. UART initialization at `0x8034E808` takes three arguments, with the input-pending pointer reference in r5. The existing event type and all offsets remain unchanged. These declarations add no source-byte credit.
