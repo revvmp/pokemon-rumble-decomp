@@ -56,3 +56,7 @@ Once these names land, switch the five objects to `Matching` and rerun full veri
 ## Provenance
 
 Sources and headers are rewritten for this project after Petari's BTE files, which carry Broadcom Apache-2.0 notices and changes by muff1n1634; see [BTE provenance](../licenses/524-bte-hid-NOTICE.md).
+
+## Traps
+
+- **BTE is not built with Wii/1.0.** The HID units match only with GC/3.0a3–3.0a5.2 plus `cflags_sdk`; Wii compilers emit a different `switch` tree, and 4-byte-aligned function starts rule out the Wii default alignment. Check alignment before trusting an issue's compiler label; see [F-524-2](#f-524-2-bte-hid-units-use-a-gamecube-30-compiler).
