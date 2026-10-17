@@ -39,8 +39,14 @@ Task explicitly includes its existing NonCopyable base declaration. TaskManager 
 
 Before editing shared headers, the isolated all_source build and actual custom-directory DOL build exited 0, and explicit frozen verification passed. After the header additions and DVD declaration correction, the same build again exited 0 and frozen verification passed. All 445 existing source objects have exactly the same SHA-256 digests before and after the change. Header consumer and native compiler layout diagnostics also exited 0. Final latest-main acceptance uses a fresh default-directory configure, plain Ninja, actual progress report, and explicit frozen verifier before merging.
 
+## Canonical-only consumer check
+
+An integration consumer exposed that the reference fallback include tree concealed an unavailable NW4RAssert.hpp include in SoundInstanceManager. The canonical header removes that include and the original release-disabled Assert/Check invocations, including the unused debug warning expression; all actual runtime statements remain. No substitute SDK header, debug interface, or no-op macro is introduced. Both diagnostic drivers now use only the repository include directory, with no reference or overlay include search path, and omit the same release-disabled diagnostic calls in their read-only source consumers. SeqSound/Handle still compile with 23 of 24 initial native streams exact, while TaskManager twelve and SeqFileReader three streams remain exact.
+
 ## Traps
 
 The pinned SS and Xenoblade SeqSound constructors explicitly label a pointer-cast flag initializer as fake matching. The natural constructor has four store-order differences here. Importing that fake expression would satisfy bytes without meeting source fidelity; the source reconstruction must resolve the constructor independently or leave it unaccepted.
 
 A missing SDK cancellation alias can conceal a wrong existing numeric declaration. The trigger here is the native -3 comparison versus canonical -6. Use the pinned original enum plus native instruction evidence, then verify all existing source outputs and the frozen executable; do not place a private literal or compatibility macro in reconstructed library source.
+
+A diagnostic fallback reference include directory can conceal missing canonical dependencies even when existing-source Ninja succeeds. Remove all reference include search paths for the final consumer proof; future integration of a new template instantiation can expose headers unused by the existing build.

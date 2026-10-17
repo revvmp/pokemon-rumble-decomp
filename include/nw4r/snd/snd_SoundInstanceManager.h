@@ -12,8 +12,6 @@
 
 #include <revolution/os/OSMutex.h>
 
-#include <nw4r/NW4RAssert.hpp>
-
 namespace nw4r { namespace snd { namespace detail
 {
 
@@ -26,7 +24,6 @@ namespace nw4r { namespace snd { namespace detail
 
         u32 Create(void *buffer, u32 size)
         {
-            NW4RAssertPointerNonnull_Line(67, buffer);
 
             ut::detail::AutoLock<OSMutex> lock(mMutex);
 
@@ -35,7 +32,6 @@ namespace nw4r { namespace snd { namespace detail
 
         void Destroy(void *buffer, u32 size)
         {
-            NW4RAssertPointerNonnull_Line(86, buffer);
 
             ut::detail::AutoLock<OSMutex> lock(mMutex);
 
@@ -68,15 +64,6 @@ namespace nw4r { namespace snd { namespace detail
 
                 OSUnlockMutex(&mMutex);
 
-                NW4RCheckMessage_Line(133,
-                    !Debug_GetWarningFlag(
-                        Debug_GetDebugWarningFlagFromSoundType(
-                            sound->GetSoundType())),
-                    "Sound (id:%d) is stopped for not enough %s sound "
-                    "instance.",
-                    sound->GetId(),
-                    Debug_GetSoundTypeString(sound->GetSoundType()));
-
                 sound->Stop(0);
 
                 OSLockMutex(&mMutex);
@@ -88,7 +75,6 @@ namespace nw4r { namespace snd { namespace detail
 
         void Free(Sound *sound)
         {
-            NW4RAssertPointerNonnull_Line(158, sound);
 
             ut::detail::AutoLock<OSMutex> lock(mMutex);
 
