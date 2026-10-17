@@ -720,6 +720,9 @@ nw4r/snd/snd_SeqPlayer.cpp:
 nw4r/snd/snd_WaveArchive.cpp:
 	.text       start:0x802910A0 end:0x802911A8
 
+nw4r/snd/snd_WaveFile.cpp:
+	.text       start:0x802911B0 end:0x80291414
+
 nw4r/ut/ut_list.cpp:
 	.text       start:0x80292D00 end:0x80292F5C
 
