@@ -5,7 +5,7 @@ description: Claim an unassigned GitHub issue in this decompilation project, wor
 
 # Take an issue
 
-Run `git pull --ff-only` in the main checkout first, so you read the current procedure; if it fails, tell the user and continue. Then read and follow the complete [shared take-issue procedure](../../../.claude/skills/take-issue/SKILL.md) before running any claim or worktree command. That file is the authoritative workflow for both Claude and Codex; do not maintain a second copy here.
+Run `git pull --ff-only origin main` in the main checkout first, so you read the current procedure; if it fails, tell the user and continue. Then read and follow the complete [shared take-issue procedure](../../../.claude/skills/take-issue/SKILL.md) before running any claim or worktree command. That file is the authoritative workflow for both Claude and Codex; do not maintain a second copy here.
 
 Resolve the procedure's repository paths from the checkout root. Use the user's issue number or labels as the procedure directs, and identify the agent as Codex with the actual model and session identity when available. Do not invent an identity.
 
@@ -24,6 +24,6 @@ Preserve every rule in the shared procedure:
 - file hygiene on Windows: CRLF working copies, explicit UTF-8 without a byte-order mark, and scratch files named with your issue number
 - progress images: right after merging, run `python tools/progress/refresh_images.py` from the worktree before cleanup
 - junction-aware cleanup
-- keeping the local main checkout current with `git pull --ff-only` before claiming and after merging, without ever stashing, resetting, or committing there
+- keeping the local main checkout current with `git pull --ff-only origin main` before claiming and after merging, without ever stashing, resetting, or committing there
 
 Loading this skill to inspect or edit it does not request an issue claim.
