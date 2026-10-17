@@ -134,7 +134,7 @@ void SoundThread::FrameProcess() {
                                        { it->OnUpdateFrameSoundThread(); })
 
         ChannelManager::GetInstance().UpdateAllChannel();
-    
+
 
         (void)Util::CalcRandom();
         VoiceManager::GetInstance().UpdateAllVoices();
