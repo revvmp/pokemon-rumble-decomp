@@ -246,6 +246,7 @@ config.libs = [
             Object(NonMatching, "game/ScriptCamera.cpp"),
             Object(NonMatching, "game/NPpuVM.cpp"),
             Object(NonMatching, "game/NPpuLibrary.cpp"),
+            Object(Matching, "game/CFiber.cpp"),
             Object(Matching, "game/luckyhelper.cpp"),
         ],
     ),

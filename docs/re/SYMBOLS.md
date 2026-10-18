@@ -2807,3 +2807,18 @@ The new `detail::ParticleField`, `detail::ParticlePostFieldTransform`, and `deta
 | --- | --- | --- | --- | --- |
 | lucky number digits (`u16[5]` in `ScriptBinding_GetLuckyNumber`) | `0x0`–`0x6` | four base-10000 digits, most significant first | `u16` | `0x80139770` stores them from successive divisions by 10000; `0x801768E0` |
 | lucky number digits | `0x8` | check value | `u16` | `0x80139770` stores the result of `0x80176C60` |
+## Game CFiber (#307)
+
+[F-307-2](findings/307-cfiber.md#f-307-2-cfiber-layout) and [F-307-3](findings/307-cfiber.md#f-307-3-functions) name, in `.text`: `CFiber::Initialize()` `0x8019E110`, `~CFiber()` `0x8019E180`, `Start(const std::tr1::function<void()>&, u32)` `0x8019E320`, `Resume()` `0x8019E460`, `ThreadMain(void*)` `0x8019E9C0`, and the free functions `TerminateFiber(int)` `0x8019E5A0`, `YieldFiber()` `0x8019E770` (#314) and `YieldFiberStarted()` `0x8019E890`; the vtable `__vt__6CFiber` `0x803BE468`, type info `0x804B8100` and `CFiber::sCurrent` `0x804B9120`. Outside the unit, for the link: `std::tr1::function<void()>::~function` `0x80070400`, the `std::tr1::bad_function_call` destructor `0x800E1A50`, `what` `0x800E1810`, vtable `0x803A89F0` and type info `0x804B7030`, the `shared_ptr_deleter<unsigned char, void (*)(void *) throw()>` destructor `0x800BE770`, `get_deleter` `0x800BE3A0`, `dispose` `0x800BE3F0`, vtable `0x803A42AC` and type info `0x804B6940`, and the `shared_ptr_holder<unsigned char, void (*)(void *) throw()>` destructor `0x800BE5D0` (all high: the compiler emits these names for the same calls and data). `CFiber` (0x370 bytes) and `CFiber::Terminated` are RTTI and throw-type names; method and member names other than `YieldFiber` are descriptive (medium).
+
+| Class | Offset | Member | Type | Evidence |
+| --- | --- | --- | --- | --- |
+| `CFiber` | `0x0` | `mFlags` | `u32` | Started, finished, terminating and running bits |
+| `CFiber` | `0x4` | `mStack` | `std::tr1::shared_ptr<u8>` | `Start`, `Resume` |
+| `CFiber` | `0xC` | `mOnSuspend` | `std::tr1::function<void()>` | `YieldFiber` |
+| `CFiber` | `0x18` | `mOnResume` | `std::tr1::function<void()>` | `YieldFiber` |
+| `CFiber` | `0x24` | `mMutex` | `OSMutex` | `Initialize`, `Resume`, `ThreadMain` |
+| `CFiber` | `0x3C` | `mResumeCond` | `OSCond` | `Resume` signals, `YieldFiber` waits |
+| `CFiber` | `0x44` | `mSuspendCond` | `OSCond` | `YieldFiber` and `ThreadMain` signal, `Resume` waits |
+| `CFiber` | `0x50` | `mThread` | `OSThread` | `Start`, `Resume` |
+| `CFiber` | `0x368` | vptr | | Vtable `0x803BE468` |

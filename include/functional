@@ -1,0 +1,78 @@
+#ifndef _FUNCTIONAL
+#define _FUNCTIONAL
+
+#include <exception>
+#include <revolution/types.h>
+
+namespace std {
+namespace tr1 {
+
+class bad_function_call : public exception {
+public:
+    virtual const char* what() const throw() { return "bad_function_call"; }
+};
+
+template <typename Signature> class function;
+
+namespace detail {
+
+template <typename Signature> class function_base;
+
+template <typename R> class function_base<R (*)()> {
+public:
+    virtual ~function_base() {}
+    virtual function_base* clone() const = 0;
+    virtual function_base* clone(void* pBuffer) const = 0;
+    virtual R operator()() = 0;
+};
+
+}
+
+template <typename R> class function<R()> {
+    typedef detail::function_base<R (*)()> base;
+
+    struct bool_type {
+        int dummy_;
+    };
+
+public:
+    typedef R result_type;
+
+    function() : f_(nullptr) {}
+    function(const function& r) : f_(nullptr) {
+        if (r.f_ != nullptr) {
+            if (r.f_ == r.local()) {
+                f_ = r.f_->clone(buf_);
+            } else {
+                f_ = r.f_->clone();
+            }
+        }
+    }
+    ~function() {
+        if (f_ == local()) {
+            f_->~base();
+        } else if (f_ != nullptr) {
+            delete f_;
+        }
+    }
+
+    operator int bool_type::*() const { return f_ != nullptr ? &bool_type::dummy_ : nullptr; }
+
+    R operator()() const {
+        if (f_ == nullptr) {
+            throw bad_function_call();
+        }
+        return (*f_)();
+    }
+
+private:
+    base* local() const { return reinterpret_cast<base*>(const_cast<char*>(buf_)); }
+
+    base* f_;
+    char buf_[8];
+};
+
+}
+}
+
+#endif
