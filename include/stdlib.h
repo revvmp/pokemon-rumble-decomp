@@ -12,8 +12,8 @@ typedef struct div_t {
     int rem;
 } div_t;
 
-void* malloc(size_t size);
-void free(void* ptr);
+void* malloc(size_t size) __attribute__((nothrow));
+void free(void* ptr) __attribute__((nothrow));
 div_t div(int numerator, int denominator);
 unsigned long strtoul(const char* str, char** end, int base);
 void abort(void);
