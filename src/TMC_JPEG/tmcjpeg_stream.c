@@ -134,11 +134,12 @@ static void PutBitsFast(TMCJPEGStream* stream, u32 bits, s32 count)
 
 void TMCJPEGStreamPutBits(TMCJPEGStream* stream, u32 bits, s32 count)
 {
+    const u8* masks = sBitMask;
     s32 byte = *stream->current;
     s32 free = stream->bitsFree;
 
     while (count > free) {
-        byte |= MaskBits((s32)bits >> (count - free), free);
+        byte |= ((s32)bits >> (count - free)) & masks[free];
         WriteByte(stream, byte);
         if (byte == 0xFF) {
             WriteByte(stream, 0);
