@@ -1,37 +1,218 @@
 #ifndef _VECTOR
 #define _VECTOR
 
+#include <algorithm>
 #include <MSL_CPP/allocator.h>
+#include <MSL_CPP/compressed_pair.h>
+#include <MSL_CPP/msl_utility.h>
+#include <stdexcept>
 
 namespace std {
 
-template <typename T, typename Allocator = allocator<T> > class vector {
+static inline void __throw_vector_length_error() {
+    throw length_error("vector length error");
+}
+
+template <typename T, typename Allocator> class __vec_deleter {
+public:
+    typedef unsigned long size_type;
+    typedef typename Metrowerks::compressed_pair<size_type, Allocator>::second_param allocator_param;
+    typedef Metrowerks::int2type<Metrowerks::is_POD<T>::value> pod_type;
+
+    __vec_deleter() : data_(nullptr), size_(0), capacity_() {}
+    explicit __vec_deleter(allocator_param a) : data_(nullptr), size_(0), capacity_(0, a) {}
+    ~__vec_deleter();
+
+    void clear() { erase_at_end(size_, pod_type()); }
+
+    T* data_;
+    size_type size_;
+    Metrowerks::compressed_pair<size_type, Allocator> capacity_;
+
+protected:
+    void erase_at_end(size_type n, Metrowerks::int2type<false>) {
+        T* p = data_ + size_;
+        size_ -= n;
+        for (; n != 0; --n) {
+            --p;
+            capacity_.second().destroy(p);
+        }
+    }
+    void erase_at_end(size_type n, Metrowerks::int2type<true>) { size_ -= n; }
+
+private:
+    __vec_deleter(const __vec_deleter&);
+    __vec_deleter& operator=(const __vec_deleter&);
+};
+
+template <typename T, typename Allocator> __vec_deleter<T, Allocator>::~__vec_deleter() {
+    if (data_) {
+        clear();
+        capacity_.second().deallocate(data_, capacity_.first());
+    }
+}
+
+template <typename T, typename Allocator> class __vec_split_buffer : public __vec_deleter<T, Allocator&> {
+    typedef __vec_deleter<T, Allocator&> base;
+
+public:
+    typedef typename base::size_type size_type;
+    typedef typename base::pod_type pod_type;
+
+    explicit __vec_split_buffer(Allocator& a) : base(a), start_(0) {}
+    ~__vec_split_buffer() {
+        T* first = begin();
+        for (T* p = first + this->size_; p > first;) {
+            --p;
+            this->capacity_.second().destroy(p);
+        }
+        this->size_ = 0;
+    }
+
+    T* begin() { return this->data_ + start_; }
+    T* end() { return begin() + this->size_; }
+
+    void construct_at_end(size_type n, pod_type) {
+        for (T* p = end(); n != 0; --n, ++p) {
+            this->capacity_.second().construct(p, T());
+            ++this->size_;
+        }
+    }
+
+    void construct_at_front(T* pFirst, T* pLast, pod_type) {
+        for (T* p = begin(); pLast > pFirst;) {
+            --p;
+            --pLast;
+            this->capacity_.second().construct(p, *pLast);
+            --start_;
+            ++this->size_;
+        }
+    }
+
+    size_type start_;
+};
+
+template <typename T, typename Allocator, bool IsPOD> class __vec_constructor : public __vec_deleter<T, Allocator> {
+    typedef __vec_deleter<T, Allocator> base;
+
+public:
+    typedef typename base::size_type size_type;
+    typedef typename base::pod_type pod_type;
+
+    __vec_constructor() {}
+    explicit __vec_constructor(size_type n) {
+        if (n != 0) {
+            allocate(n, pod_type());
+            construct_at_end(n, pod_type());
+        }
+    }
+
+    size_type max_size() const { return size_type(-1) / sizeof(T); }
+
+protected:
+    void allocate(size_type n, pod_type) {
+        if (n > max_size()) {
+            __throw_vector_length_error();
+        }
+        this->data_ = this->capacity_.second().allocate(n);
+        this->capacity_.first() = n;
+    }
+
+    void construct_at_end(size_type n, pod_type) {
+        for (T* p = this->data_ + this->size_; n != 0; --n, ++p) {
+            this->capacity_.second().construct(p, T());
+            ++this->size_;
+        }
+    }
+
+    size_type grow_by(size_type n) {
+        size_type capacity = this->capacity_.first();
+        n = this->size_ + n - capacity;
+        if (n > max_size() - capacity) {
+            __throw_vector_length_error();
+        }
+        size_type result;
+        if (capacity < max_size() / 3) {
+            result = capacity + max((capacity + 1) * 3 / 5, n);
+        } else if (capacity < max_size() / 3 * 2) {
+            result = capacity + max((capacity + 1) / 2, n);
+        } else {
+            result = max_size();
+        }
+        return result;
+    }
+    size_type grow_by(size_type n, pod_type) { return grow_by(n); }
+
+    void append_realloc(size_type n) {
+        __vec_split_buffer<T, Allocator> buffer(this->capacity_.second());
+        size_type capacity = grow_by(n);
+        if (capacity > max_size()) {
+            __throw_vector_length_error();
+        }
+        buffer.data_ = buffer.capacity_.second().allocate(capacity);
+        buffer.capacity_.first() = capacity;
+        buffer.start_ = this->size_;
+        buffer.construct_at_end(n, pod_type());
+        buffer.construct_at_front(this->data_, this->data_ + this->size_, pod_type());
+        swap(buffer, pod_type());
+    }
+
+    void append(size_type n, pod_type) {
+        size_type capacity = this->capacity_.first();
+        if (n > capacity || this->size_ > capacity - n) {
+            grow_by(n, pod_type());
+        } else {
+            construct_at_end(n, pod_type());
+            return;
+        }
+        append_realloc(n);
+    }
+
+    void swap(__vec_deleter<T, Allocator&>& r, pod_type) {
+        size_type capacity = this->capacity_.first();
+        this->capacity_.first() = r.capacity_.first();
+        r.capacity_.first() = capacity;
+        T* data = this->data_;
+        this->data_ = r.data_;
+        r.data_ = data;
+        size_type size = this->size_;
+        this->size_ = r.size_;
+        r.size_ = size;
+    }
+};
+
+template <typename T, typename Allocator = allocator<T> >
+class vector : private __vec_constructor<T, Allocator, Metrowerks::is_POD<T>::value> {
+    typedef __vec_constructor<T, Allocator, Metrowerks::is_POD<T>::value> base;
+
 public:
     typedef T value_type;
     typedef T* iterator;
     typedef const T* const_iterator;
-    typedef unsigned long size_type;
+    typedef typename base::size_type size_type;
+    typedef typename base::pod_type pod_type;
 
-    vector() : data_(nullptr), size_(0), capacity_(0) {}
-    explicit vector(size_type n);
-    ~vector();
+    vector() {}
+    explicit vector(size_type n) : base(n) {}
+    ~vector() {}
 
+    void resize(size_type n) {
+        size_type size = this->size_;
+        if (n > size) {
+            this->append(n - size, pod_type());
+        } else if (n < size) {
+            this->erase_at_end(size - n, pod_type());
+        }
+    }
 
-    void resize(size_type n);
-
-    iterator begin() { return data_; }
-    const_iterator begin() const { return data_; }
-    iterator end() { return data_ + size_; }
-    const_iterator end() const { return data_ + size_; }
-    size_type size() const { return size_; }
-    bool empty() const { return size_ == 0; }
-    T& operator[](size_type i) { return data_[i]; }
-    const T& operator[](size_type i) const { return data_[i]; }
-
-private:
-    T* data_;
-    size_type size_;
-    size_type capacity_;
+    iterator begin() { return this->data_; }
+    const_iterator begin() const { return this->data_; }
+    iterator end() { return this->data_ + this->size_; }
+    const_iterator end() const { return this->data_ + this->size_; }
+    size_type size() const { return this->size_; }
+    bool empty() const { return this->size_ == 0; }
+    T& operator[](size_type i) { return this->data_[i]; }
+    const T& operator[](size_type i) const { return this->data_[i]; }
 };
 
 }

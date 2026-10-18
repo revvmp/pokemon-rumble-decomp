@@ -91,6 +91,8 @@ public:
     };
 
     struct ObjEntry {
+        ObjEntry() : mFlags(0) {}
+
         u32 mFlags;
         u16 mNext;
         u16 mPrev;
@@ -130,6 +132,8 @@ public:
         }
     }
     void EnableCalc(bool enable);
+    void RequestPause();
+    void RequestResume();
     CShadowCamera* GetShadowCamera();
 
 private:

@@ -151,3 +151,19 @@ BWorld::BWorld(const Desc& rDesc) :
     SetFlag(FLAG_SOUND_LISTENER, rDesc.IsSoundListenerEnable());
 }
 #pragma dont_inline reset
+
+void BWorld::EnableCalc(bool enable) {
+    if (!enable) {
+        mFlags |= FLAG_CALC_DISABLED;
+    } else {
+        mFlags &= ~FLAG_CALC_DISABLED;
+    }
+}
+
+void BWorld::RequestPause() {
+    mFlags = (mFlags & ~FLAG_RESUME_REQUESTED) | FLAG_PAUSE_REQUESTED;
+}
+
+void BWorld::RequestResume() {
+    mFlags = (mFlags & ~FLAG_PAUSE_REQUESTED) | FLAG_RESUME_REQUESTED;
+}
