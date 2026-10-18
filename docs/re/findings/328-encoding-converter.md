@@ -91,6 +91,12 @@ Strict comparison validates all 208 owned instruction bytes and ten actual code 
 
 This is bounded native evidence for the #327 owner's complete UI source. It does not select another source unit, supply a complete generic smart-pointer header, or establish completion of the original #328 inventory.
 
+## F-328-4: focused UI getter
+
+The native routine at `0x801C9CF0`, size `0x70`, returns the object pointer from a temporary shared value obtained by locking the weak member at `this + 0x4C`. The temporary releases its control reference before returning the raw pointer. Reusing the #327 owner's complete BUI diagnostic layout and weak-lock model, an outside-only `CUIManager : BUI` diagnostic with this weak member reproduces the body `return mFocusedUI.lock().get();` exactly. `GetFocusedUI` and `mFocusedUI` are descriptive names. The neighboring constructor at `0x801C9680` corroborates an additional eight-byte weak member after the `0x4C`-byte BUI base and initializes both words to zero.
+
+`python C:/MassStorage/GitHub/328-probe-manager.py` and `python C:/MassStorage/GitHub/328-strict-manager.py` both exit 0. The owned getter has 112 exact bytes and three actual code targets. Including the independently checked existing shared-pointer destructor, the diagnostic proves six code sites, two exception records, 104 exception/index bytes and four exception relocation targets. No duplicate destructor credit is claimed. This does not establish the complete manager virtual interface or authorize a competing canonical BUI/manager header; those remain coordinated with the #327 first owner.
+
 ## Traps
 
 - For this narrow Shift-JIS character parameter, `0x8100 <= value` and `0xE000 <= value` retain the native direct comparisons. Reversing the lower comparisons to `value >= ...` enables range fusion and changes seven instruction words. Controlled signed/unsigned literal probes showed that literal signedness was not the cause. Preserve ordinary relational operand spelling before considering type or compiler changes.
