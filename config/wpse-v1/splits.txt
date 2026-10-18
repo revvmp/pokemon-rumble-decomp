@@ -336,6 +336,12 @@ nw4r/ut/ut_CntFileStream.cpp:
 	.sdata      start:0x804B81D8 end:0x804B81F0
 	.sbss       start:0x804B9130 end:0x804B9134
 
+game/QuarterTurn.cpp:
+	extab       start:0x80038DA8 end:0x80038DB0
+	extabindex  start:0x80050A30 end:0x80050A3C
+	.text       start:0x801B64B0 end:0x801B6508
+	.sdata2     start:0x804BA3B8 end:0x804BA3C4
+
 MSL_C/printf.c:
 	extab       start:0x80043418 end:0x80043478
 	extabindex  start:0x8005214C end:0x800521DC

@@ -4,7 +4,7 @@
 
 The original #318 inventory has 23 functions and 5,648 code bytes, from `0x801B64B0` through the CModel constructor at `0x801B7AA0`. The survey title does not establish a source-file boundary. The constructor alone does not establish the complete CModel class or translation unit; later methods and nested animation classes extend into neighboring inventories.
 
-This checkpoint changes documentation only. No function is source-selected, no progress is credited, and no source-unit boundary is accepted. The isolated worktree started at `fb63a24627e72e30f4f48badb7e1b1b82cb04bef`. Native comparisons read the frozen original DOL without changing its manifest.
+The initial native checkpoint was documentation only. The branch now proposes a bounded split for the first two functions; its split-only full-build verification is pending. No function is source-selected and no progress is credited. The isolated worktree started at `fb63a24627e72e30f4f48badb7e1b1b82cb04bef`. Native comparisons read the frozen original DOL without changing its manifest.
 
 ## Compiler and reproducibility
 
@@ -28,7 +28,7 @@ The signed-angle audit intentionally fails on its four unresolved words. Its pos
 
 ## Exact instruction consumers
 
-Every relocation in the accepted consumers is resolved to its actual native callee or constant address before comparison. No relocation-bearing instruction is ignored. The 11 exact diagnostic functions account for 3,096 owned code bytes; this is an inventory of experiments, not decompilation credit.
+Every relocation in the accepted consumers is resolved to its actual native callee or constant address before comparison. No relocation-bearing instruction is ignored. The 13 exact diagnostic functions account for 3,544 owned code bytes; this is an inventory of experiments, not decompilation credit.
 
 | Native address | Bytes | Proven behavior | Descriptive diagnostic name |
 | --- | --- | --- | --- |
@@ -40,6 +40,8 @@ Every relocation in the accepted consumers is resolved to its actual native call
 | `0x801B66A0` | 1,176 | Select SDK render template, adjust horizontal width and center it | ChooseDefaultRenderMode |
 | `0x801B6B40` | 148 | Maximum display dimensions for a VI TV mode | GetDisplaySize |
 | `0x801B6BE0` | 140 | Safe display dimensions for TV mode and aspect setting | GetSafeDisplaySize |
+| `0x801B6C70` | 224 | Decompress an LZ buffer into shared MEM2 storage and flush it | DecompressLZ |
+| `0x801B6D50` | 224 | Decompress a Huffman buffer into shared MEM2 storage and flush it | DecompressHuffman |
 | `0x801B6E30` | 356 | Recursive exponentiation by squaring, positive integer exponent | PositiveIntegerPower |
 | `0x801B6FA0` | 732 | Zero, negative and positive integer exponent wrapper | IntegerPower |
 | `0x801B7310` | 104 | Reduce a floating angle modulo 360, adjusting a negative result | NormalizePositiveAngle |
@@ -48,7 +50,17 @@ The names are descriptive. They have not been recovered from original symbols an
 
 The power routine uses ordinary recursion and signed division/remainder. The existing compiler naturally inlines four recursive levels into the 356-byte body, and the signed wrapper naturally emits 732 bytes. There is no manual recursion expansion.
 
-Nine retained exception entries belonging to these consumers reproduce 72 native extab bytes and nine 12-byte extabindex records. The two remaining exact leaf consumers have no exception records. Constant relocations are paired with the demonstrated native values and addresses; a complete unit-wide constant/data extent is not yet accepted.
+Eleven retained exception entries belonging to these consumers reproduce 152 native extab bytes and eleven 12-byte extabindex records. The two remaining exact leaf consumers have no exception records. Constant relocations are paired with the demonstrated native values and addresses; a complete unit-wide constant/data extent is not yet accepted.
+
+The decompression driver is `318-decompression-probe.cpp`, compiled by `318-compile-probe.py 318-decompression-probe` and audited by `318-audit-decompression.py`. Both 224-byte bodies and all 18 relocations are exact. Embedded RTTI at `0x803A42C0`, reached through the native control vtable at `0x803A42AC` and RTTI record `0x804B6940`, identifies `shared_ptr_deleter<unsigned char, void (*)(void *) throw()>`. The ordinary current canonical `shared_ptr<u8>` custom-deleter constructor is therefore used without altering the standard headers. The helper's private name is not recovered from this evidence.
+
+The current canonical header also emits six matching outside support functions: the 108-byte custom guard, 132-byte shared destructor, 64-byte common destructor, 76-byte get_deleter, 20-byte dispose and 64-byte control destructor. Their actual targets and exception records are independently paired, including the native guard at `0x800BE5D0` and shared destructor at `0x800657E0`. They receive no owned-byte credit here. The two owned consumers each have 40 exact extab bytes, including both destructor callbacks. This result does not validate unrelated default-deleter construction policies.
+
+## F-318-2: Bounded quarter-turn unit proposal
+
+The isolated `318-quarter-turn-probe.cpp` uses the canonical NW4R SinDeg and CosDeg helpers, with ordinary quarter-turn inputs. `318-audit-quarter-turn.py` proves both resolved bodies, the complete 88-byte text extent from `0x801B64B0` to `0x801B6508`, and the entire 12-byte constant pool from `0x804BA3B8` to `0x804BA3C4`. The exception entry is eight bytes at `0x80038DA8`, with its index at `0x80050A30`. No initialized data, RTTI or zero-initialized storage is emitted by this isolated unit.
+
+The next aspect helpers begin at `0x801B6510`, with their float pool starting at `0x804BA3C8`. Combining the two groups into one source moves the latter constants four bytes early; the native gap instead agrees with the following unit's alignment. These complete section comparisons support the bounded proposal. `QuarterTurn.cpp` and its function names are descriptive; no original filename or spelling is claimed. Full split-only verification remains required before registering its source.
 
 ## Render-mode interface remains unresolved
 
@@ -62,7 +74,7 @@ Ordinary value-return consumer forms remain unaccepted: branch-local value initi
 
 The signed-angle routine at `0x801B7280` now has the correct 136-byte extent but retains four arithmetic/register words. Its positive-angle sibling is exact, including the original ordering of floating comparisons and boolean materialization. Neither NaN behavior nor comparison operand order may be changed merely to obtain a score.
 
-The decompression routines at `0x801B6C70` and `0x801B6D50` use a shared result, MEM2 allocation and a function-pointer deleter. Their faithful generic smart-pointer construction still needs full code, target and exception acceptance against current canonical templates. The later list, callback and CModel animation helpers require complete evidenced class interfaces and unit-boundary work. They are not counted by the table above.
+The later list, callback and CModel animation helpers require complete evidenced class interfaces and unit-boundary work. They are not counted by the table above. The utility unit's complete initialized data, retained support selection, original source boundary and full linked artifact remain unaccepted.
 
 ## Traps
 
