@@ -50,6 +50,38 @@ They fail to match and generally damage the otherwise matching DrawFrame4
 and DrawFrame8 streams. No probe changed production source, compiler flags,
 metadata, or matching status. The remaining cause is unresolved.
 
+## F-297-2: resumed owner controls and texture-origin locals
+
+The released clean issue worktree was reused with its prior owner's approval
+after a fresh helper claim. The neighboring #298 owner approved independent
+Window investigation and eventual acceptance of its separate original inventory
+in the same first-owned unit. The canonical source remains unchanged and
+NonMatching.
+
+On the current canonical source, `unitdiff.py` identifies 20 of 21 retained
+functions as exact. The first-quad `DrawFrame` gap remains 52 non-relocation
+words. Const color arrays, const setup results, explicit white initialization,
+direct word-assignment Color constructors, and explicit inline hints retain the
+gap. Widening the setup-result local or moving color construction across the
+texture-size call changes the function size and is rejected. Splitting chained
+coordinate assignments damages the previously exact callers.
+
+Naming the two unsigned-byte texture origins inside the existing left-top
+coordinate helper reduces `DrawFrame` to ten differing words at the unchanged
+1,500-byte size. It also increases `DrawFrame4` and `DrawFrame8` by four bytes
+and damages their instruction streams. This is a rejected diagnostic candidate,
+not a unit match or evidence for changing production source. Const-reference,
+signed-int, and unsigned-int origin locals also fail the complete caller check.
+The cause remains unresolved; native byte conversions and alias behavior merit
+further investigation.
+
+The command is `297-probe-owned-window.py`, with distinct outputs in
+`297-reference/owned/`. In particular,
+`297-owned-coordinate-origins.cpp/.o/.json` preserves the ten-word candidate;
+the base snapshot and all earlier #298 proofs remain intact. These diagnostics
+exclude relocation words and do not substitute for the required complete
+source-selected, relocation, data, and frozen artifact acceptance gates.
+
 ## Traps
 
 - The first-quadrant mismatch does not establish that the shared coordinate
