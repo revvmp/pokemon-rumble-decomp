@@ -38,3 +38,24 @@ RTTI at `0x804B5A68`–`0x804B5AA0` names `BModelObj`, `BSoundSource`, `BKDTreeL
 - **Template emission order depends on definition placement.** Symptom: MSL template functions sit at the end of the original unit. Define those members out of class and non-inline.
 - **Repeated `this` checks reveal destructor layering.** Symptom: a destructor with several null checks of the same pointer. Model each check as a separate wrapper class destructor.
 - **The `BModelObj` `.text` split stops before shared helpers.** Ending at `0x8005AC6C` also verifies, but the helpers after `0x8005AAA0` serve BWorld and other units; the split ends at `0x8005AA98`.
+
+# F-39-2: Model setup, outline detection and root scale
+
+`SetModel` (`0x80053840`, vtable slot 0x54), `IsOutlineModel` (`0x800536B0`) and `SetModelScaleDirect` (`0x80055980`, slot 0x70) match, with the weak `shared_ptr_deleter_common` destructor (`0x80055BB0`) emitted after the first function that constructs a deleter. The `shared_ptr_deleter<AnmObjChrRootScale, void (*)(G3dObj*)>` members (`0x8005A0E0`, `0x8005A130`, `0x8005A8D0`) and the construction guard destructor (`0x8005A6A0`) match at the end of the unit.
+
+- `SetModel` takes a flag word: bits 0–1 select the model type (1 shadow, 2 outline), bit 2 sizes the model with its model scale. Outline is only set when `IsOutlineModel` accepts the model. A model with draw priority 0 gets translucent priority 50.
+- `IsOutlineModel` reads the user data of root node 0. An integer entry `OUTLINED` (`.data` `0x80399440`) equal to 0 rejects the model; otherwise the model needs a `ScnMdl` with at least one material and a valid copied material accessor. The user-data entry layout used is size at 0, data offset at 4, type at 0xC (0 integer). The field at 8 is unnamed in evidence and is recorded as `numData` with low confidence.
+- `SetModelScaleDirect` keeps the existing `AnmObjChrRootScale` when the model has one. Otherwise it constructs one from the default allocator (`0x801B1360`, returns `.data` `0x803BF3A8`) and owns it through `shared_ptr` with the deleter function at `0x801C7540`, a tail call to `G3dObj::Destroy`.
+
+## Code-generation rules from F-39-2
+
+- `shared_ptr(Y*, D)` in this MSL protects the pointer with a guard holding the pointer and a reference to the deleter. The guard is cleared after the control block is allocated, which leaves a dead `bctrl` after the branch.
+- The control block stores a function-pointer deleter after the pointer. Its constructor takes the deleter by reference and its storage takes it by value; that places the deleter load after the vtable store and before the pointer store.
+- `reset(p, d)` written as `shared_ptr(p, d).swap(*this)` reproduces the release of the previous control block without a retain.
+- A scale test against 1.0 must read the member just stored (`mModelScale.x`), which produces the `frsp` before each compare. Testing the parameter does not.
+- `IsOutlineModel` is not inlined into `SetModel` only when the copied material accessor is a named local.
+
+## Traps from F-39-2
+
+- **A named local can stop inlining.** Symptom: a static helper is inlined into its caller and the caller grows by the helper's size. Returning `CopiedMatAccess(...).IsValid()` directly let the helper inline; a named local kept it out of line and matched both functions.
+- **Deleter parameter passing moves one load.** Symptom: the only difference in a control-block construction is where the deleter is loaded. Take it by reference in the control block and by value in the storage.
