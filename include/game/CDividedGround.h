@@ -30,7 +30,7 @@ public:
     virtual ~CDividedGround();
 
     virtual void Calc();
-    virtual BWorldObjOwner* GetOwner() const;
+    virtual CPpuEngine* GetPpuEngine() const;
     virtual void OnEnterWorld();
     virtual void OnLeaveWorld();
     virtual void UpdateVisible();

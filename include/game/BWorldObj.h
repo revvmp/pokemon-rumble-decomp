@@ -9,6 +9,7 @@
 class BWorld;
 class BWorldObjEffect;
 class BWorldObjOwner;
+class CPpuEngine;
 class IDrawLayer;
 
 typedef std::set<std::tr1::shared_ptr<IDrawLayer> > DrawLayerSet;
@@ -38,7 +39,7 @@ public:
     virtual nw4r::math::VEC3 GetSize() { return nw4r::math::VEC3(0.0f, 0.0f, 0.0f); }
     virtual nw4r::math::VEC3 GetPosition() { return mPosition; }
     virtual void SetVisible(bool visible);
-    virtual BWorldObjOwner* GetOwner() const { return nullptr; }
+    virtual CPpuEngine* GetPpuEngine() const { return nullptr; }
     virtual BWorldObjEffect* GetEffect() const { return nullptr; }
     virtual void SetEffectEnable(bool enable) {}
     virtual DrawLayerSet* GetDrawLayers() { return nullptr; }

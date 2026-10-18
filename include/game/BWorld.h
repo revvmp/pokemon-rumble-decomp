@@ -145,6 +145,7 @@ public:
     void SetCurrentCamera(const std::tr1::shared_ptr<BWorldCamera>& camera);
     BWorldCamera* GetCurrentCamera();
     nw4r::g3d::Camera GetG3dCamera();
+    nw4r::g3d::ScnRoot* GetScnRoot() const { return mScnRoot.get(); }
     void SetOutlineAlpha(u8 alpha);
     void SetOutlineWidth(int width);
     bool AddGround(std::tr1::shared_ptr<BWorldObj> obj);
