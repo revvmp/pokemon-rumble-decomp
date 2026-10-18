@@ -1,5 +1,12 @@
 #include <game/BWorld.h>
 
+#include <game/AnmObjChrRootScale.h>
+#include <game/CKDTree.h>
+#include <game/EffectGroupID.h>
+#include <game/Memory.h>
+#include <game/WorkBuffer.h>
+#include <nw4r/ef/ef_resource.h>
+#include <nw4r/g3d/g3d_state.h>
 #include <revolution/gx.h>
 
 BWorld::Desc::Desc() :
@@ -65,19 +72,82 @@ void BWorld::TextureState::Save(nw4r::ef::ResTexture texture) {
 }
 
 void BWorld::TextureState::Restore() {
-    nw4r::ef::ResTexture texture(mTexture);
-    if (!texture.IsValid()) {
+    if (!mTexture.IsValid()) {
         return;
     }
 
-    texture.SetWidth(mWidth);
-    texture.SetHeight(mHeight);
-    texture.SetFormat(mFormat);
-    texture.SetMipmap(mMipmap);
-    texture.SetTexture(mpTexture);
+    mTexture.SetWidth(mWidth);
+    mTexture.SetHeight(mHeight);
+    mTexture.SetFormat(mFormat);
+    mTexture.SetMipmap(mMipmap);
+    mTexture.SetTexture(mpTexture);
     if (mHasTlut) {
-        texture.SetTlutFormat(mTlutFormat);
-        texture.SetTlutEntries(mTlutEntries);
-        texture.SetTlut(mpTlut);
+        mTexture.SetTlutFormat(mTlutFormat);
+        mTexture.SetTlutEntries(mTlutEntries);
+        mTexture.SetTlut(mpTlut);
     }
 }
+
+#pragma dont_inline on
+BWorld::BWorld(const Desc& rDesc) :
+    mFlags(0),
+    mLastObjHandle(0),
+    mPendingFrames(0),
+    mDrawType(rDesc.GetDrawType()),
+    mObjEntries(rDesc.GetObjectCapacity()),
+    mObjHead(nullptr),
+    mObjTail(nullptr),
+    mModelTree(new CKDTree<BModelObj>) {
+    EnableCalc(true);
+
+    mScnRoot.reset(nw4r::g3d::ScnRoot::Construct(GetDefaultAllocator(), nullptr, 0x10, rDesc.GetScnObjCapacity()),
+                   DestroyG3dObj);
+    mOutlineGroup.reset(nw4r::g3d::ScnGroup::Construct(GetDefaultAllocator(), nullptr, rDesc.GetOutlineCapacity()),
+                        DestroyG3dObj);
+    mModelGroup.reset(nw4r::g3d::ScnGroup::Construct(GetDefaultAllocator(), nullptr, rDesc.GetModelCapacity()),
+                      DestroyG3dObj);
+
+    if (rDesc.GetEffectCapacity() != 0) {
+        u32 groupID = AllocEffectGroupID();
+        if (groupID != EFFECT_GROUP_INVALID) {
+            mEffectData.reset(new EffectData);
+            mEffectData->mGroupID = groupID;
+            mEffectData->mPauseGroupID = AllocEffectGroupID();
+            mEffectData->mLastHandle = 0;
+            mEffectData->mEffects.resize(rDesc.GetEffectCapacity());
+            mEffectData->mCaptureEnable = false;
+            mEffectData->mCaptureGroupID = EFFECT_GROUP_INVALID;
+
+            if (rDesc.IsCaptureEnable()) {
+                nw4r::ef::ResTexture texture = nw4r::ef::Resource::GetInstance()->FindTexture("dummy_capture", nullptr);
+                if (texture.IsValid()) {
+                    const GXRenderModeObj* pRenderMode = nw4r::g3d::G3DState::GetRenderModeObj();
+                    mEffectData->mCaptureTexture.Init(GetWorkBuffer(0)->GetBuffer(), GetWorkBuffer(0)->GetSize(),
+                                                      pRenderMode->fbWidth, pRenderMode->efbHeight, GX_TF_RGB565,
+                                                      GX_CLAMP, GX_LINEAR);
+                    mEffectData->mTextureState.Save(nw4r::ef::ResTexture(texture));
+                    texture.SetWidth(mEffectData->mCaptureTexture.GetWidth());
+                    texture.SetHeight(mEffectData->mCaptureTexture.GetHeight());
+                    texture.SetFormat(mEffectData->mCaptureTexture.GetFormat());
+                    texture.SetMipmap(false);
+                    texture.SetTexture(mEffectData->mCaptureTexture.GetBuffer());
+                    mEffectData->mCaptureEnable = true;
+                    mEffectData->mCaptureGroupID = AllocEffectGroupID();
+                }
+            }
+        }
+    }
+
+    if (mDrawType == DRAW_TYPE_OUTLINE || mDrawType == DRAW_TYPE_OUTLINE_ALPHA) {
+        mOutlineData.reset(new OutlineData);
+        const GXRenderModeObj* pRenderMode = nw4r::g3d::G3DState::GetRenderModeObj();
+        mOutlineData->mTexture.Init(GetWorkBuffer(0)->GetBuffer(), GetWorkBuffer(0)->GetSize(), pRenderMode->fbWidth,
+                                    pRenderMode->efbHeight, GX_TF_I8, GX_CLAMP, GX_NEAR);
+        mOutlineData->mWidth = 1;
+        mOutlineData->mAlpha = 0xFF;
+        mOutlineData->mColor = 0xFF000000;
+    }
+
+    SetFlag(FLAG_SOUND_LISTENER, rDesc.IsSoundListenerEnable());
+}
+#pragma dont_inline reset

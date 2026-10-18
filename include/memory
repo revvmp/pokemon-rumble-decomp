@@ -165,7 +165,7 @@ private:
 
     shared_ptr(T* p, detail::shared_ptr_deleter_common* s) : ptr_(p), s_(s) { s_->retain(); }
     template <typename Y, typename U> void enable_from_this(const enable_shared_from_this<Y>* pBase, U* p);
-    void enable_from_this(...) {}
+    void enable_from_this(const void*, const void*) {}
 
     T* ptr_;
     detail::shared_ptr_deleter_common* s_;
