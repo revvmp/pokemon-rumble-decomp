@@ -347,6 +347,8 @@ config.libs = [
             Object(Matching, "RVL_SDK/fa/pf_cache.c"),
             Object(Matching, "RVL_SDK/fa/pf_cluster.c"),
             Object(Matching, "RVL_SDK/fa/pf_dir.c"),
+            Object(Matching, "RVL_SDK/fa/pf_fat12.c"),
+            Object(Matching, "RVL_SDK/fa/pf_fat16.c"),
             Object(Matching, "RVL_SDK/fa/pf_sector.c"),
             Object(Matching, "RVL_SDK/fa/pf_path.c"),
             Object(Matching, "RVL_SDK/fa/pf_volume.c"),
