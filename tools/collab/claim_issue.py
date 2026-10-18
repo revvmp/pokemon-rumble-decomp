@@ -4,6 +4,7 @@ import os
 import re
 import subprocess
 import sys
+from concurrent.futures import ThreadPoolExecutor
 from urllib.parse import quote
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -16,6 +17,12 @@ CLAIM_EXPIRY = timedelta(days=14)
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SHARED_LINKS = (Path("tools") / "local", Path(".venv"))
 REPO = "repos/{owner}/{repo}"
+LINK_PATTERN = re.compile(r"\b(close[sd]?|fix(?:e[sd])?|resolve[sd]?|part of)\s+#(\d+)", re.IGNORECASE)
+ISSUE_REF = re.compile(r"#(\d+)\b")
+BRANCH_ISSUE = re.compile(r"^(?:[\w.-]+/)?(\d+)-")
+SOURCE_NAME = re.compile(r"\b\w+\.(?:cpp|cxx|cc|c|hpp|h)\b")
+CLASS_NAME = re.compile(r"\b[A-Za-z_]\w*[a-z][A-Z]\w*\b")
+ADDRESS = re.compile(r"0x[0-9a-fA-F]{8}")
 
 
 def gh(*args):
@@ -152,6 +159,7 @@ def claim_command(args):
     user = current_user()
     issue = choose_issue(args, user)
     number = issue["number"]
+    warn_related(issue)
     if args.dry_run:
         print(f"Would claim #{number} for {user}: {issue['title']}")
         return 0
@@ -259,6 +267,122 @@ def remove_worktree_command(args):
     return 0
 
 
+def open_pulls():
+    return api_items(f"{REPO}/pulls?state=open&per_page=100")
+
+
+def pull_files(number):
+    return [item["filename"] for item in api_items(f"{REPO}/pulls/{number}/files?per_page=100")]
+
+
+def pull_files_map(pulls):
+    numbers = [pull["number"] for pull in pulls]
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        return dict(zip(numbers, pool.map(pull_files, numbers)))
+
+
+def linked_issue(pull):
+    match = LINK_PATTERN.search(pull.get("body") or "")
+    if not match:
+        return ""
+    verb = "Part of" if match.group(1).lower().startswith("part") else "Closes"
+    return f"{verb} #{match.group(2)}"
+
+
+def pull_issue_numbers(pull):
+    numbers = {int(number) for number in ISSUE_REF.findall(f"{pull.get('title', '')} {pull.get('body') or ''}")}
+    branch = BRANCH_ISSUE.match(pull["head"]["ref"])
+    if branch:
+        numbers.add(int(branch.group(1)))
+    return numbers
+
+
+def title_keys(title):
+    keys = {Path(name).stem.lower() for name in SOURCE_NAME.findall(title)}
+    keys.update(word.lower() for word in CLASS_NAME.findall(title))
+    keys.update(address.lower() for address in ADDRESS.findall(title))
+    return {key for key in keys if len(key) >= 4}
+
+
+def related_pulls(issue, pulls):
+    number = issue["number"]
+    neighbors = {number - 1, number, number + 1}
+    keys = title_keys(issue["title"])
+    related = []
+    for pull in pulls:
+        reasons = [f"#{ref}" for ref in sorted(pull_issue_numbers(pull) & neighbors)]
+        text = f"{pull['title']} {pull.get('body') or ''} {pull['head']['ref']}".lower()
+        reasons += [key for key in sorted(keys) if key in text]
+        if reasons:
+            related.append((pull, reasons))
+    return related
+
+
+def auto_merged(paths, cwd=REPO_ROOT):
+    if not paths:
+        return set()
+    result = subprocess.run(["git", "check-attr", "merge", "--stdin"], cwd=cwd, input="".join(f"{path}\n" for path in paths).encode("utf-8"), capture_output=True)
+    merged = set()
+    for line in result.stdout.decode("utf-8").splitlines():
+        path, _, value = line.rpartition(": merge: ")
+        if value in ("union", "decomp-config"):
+            merged.add(path)
+    return merged
+
+
+def file_list(names, limit=8):
+    shown = ", ".join(names[:limit])
+    return f"{shown} and {len(names) - limit} more" if len(names) > limit else shown
+
+
+def print_pull_line(pull, detail):
+    state = "draft" if pull.get("draft") else "ready"
+    print(f"  #{pull['number']:<4} {state:<5} {pull['head']['ref']}  {pull['title']}")
+    print(f"        {detail}")
+
+
+def warn_related(issue):
+    try:
+        related = related_pulls(issue, open_pulls())
+    except RuntimeError as error:
+        print(f"WARNING: could not check open pull requests: {error}", file=sys.stderr)
+        return
+    if related:
+        print(f"Open pull requests that may overlap #{issue['number']}:")
+        for pull, reasons in related:
+            print_pull_line(pull, f"matches {', '.join(reasons)}")
+
+
+def overlap_command(args):
+    cwd = Path.cwd()
+    branch = git("rev-parse", "--abbrev-ref", "HEAD", cwd=cwd).strip()
+    pulls = [pull for pull in open_pulls() if pull["head"]["ref"] != branch]
+    found = 0
+    if args.issue is not None:
+        issue = fetch_issue(args.issue)
+        for pull, reasons in related_pulls(issue, pulls):
+            found += 1
+            print_pull_line(pull, f"matches {', '.join(reasons)}")
+    if args.issue is None or args.paths:
+        paths = args.paths or [line for line in git("diff", "--name-only", f"{args.base}...HEAD", cwd=cwd).splitlines() if line]
+        ignored = set() if args.all_files else auto_merged(paths, cwd)
+        wanted = set(paths) - ignored
+        if ignored:
+            print(f"Ignoring {len(ignored)} automatically merged file(s): {', '.join(sorted(ignored))}")
+        for number, files in pull_files_map(pulls).items():
+            shared = sorted(wanted & set(files))
+            if shared:
+                found += 1
+                pull = next(pull for pull in pulls if pull["number"] == number)
+                print_pull_line(pull, f"shares {file_list(shared)}")
+        print(f"Checked {len(wanted)} file(s) against {len(pulls)} open pull request(s)")
+    if found:
+        print(f"WARNING: {found} open pull request overlap(s); coordinate before opening or merging yours")
+        return 1 if args.strict else 0
+    print("No overlapping open pull requests")
+    return 0
+
+
 def main():
     parser = argparse.ArgumentParser(description="Claim GitHub issues and prepare isolated worktrees for parallel work.")
     commands = parser.add_subparsers(dest="command", required=True)
@@ -284,6 +408,13 @@ def main():
     untree = commands.add_parser("remove-worktree", help="Remove junctions, then the worktree")
     untree.add_argument("--issue", type=int, required=True)
     untree.set_defaults(action=remove_worktree_command)
+    overlap = commands.add_parser("overlap", help="Warn about open pull requests touching this branch's files, the given paths, or the given issue")
+    overlap.add_argument("--base", default="origin/main", help="compare HEAD with this base (default origin/main)")
+    overlap.add_argument("--paths", nargs="+", help="check these repository paths instead of the branch diff")
+    overlap.add_argument("--issue", type=int, help="list open pull requests referencing this issue, its neighbors, or names from its title")
+    overlap.add_argument("--all-files", action="store_true", help="include files merged automatically by union or decomp-config")
+    overlap.add_argument("--strict", action="store_true", help="exit 1 when any overlap is found")
+    overlap.set_defaults(action=overlap_command)
     args = parser.parse_args()
     try:
         return args.action(args)
