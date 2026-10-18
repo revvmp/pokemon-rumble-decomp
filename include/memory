@@ -36,23 +36,14 @@ template <typename T, typename D = std::detail::default_delete<T> > class move_p
         int dummy_;
     };
 
-    struct Storage : public D {
-        explicit Storage(T* p) : mPtr(p) {}
-        T* mPtr;
-    };
-
 public:
     template <typename Y>
     explicit move_ptr(Y* p, typename restrict_to<is_convertible<Y*, T*>::value, nat>::type = nat()) : ptr_(p) {}
-    ~move_ptr() {
-        if (ptr_.mPtr) {
-            ptr_(ptr_.mPtr);
-        }
-    }
-    T* get() const { return ptr_.mPtr; }
+    ~move_ptr();
+    T* get() const { return ptr_.first(); }
     T* release() {
-        T* p = ptr_.mPtr;
-        ptr_.mPtr = nullptr;
+        T* p = ptr_.first();
+        ptr_.first() = nullptr;
         return p;
     }
 
@@ -60,8 +51,14 @@ private:
     move_ptr(const move_ptr&);
     move_ptr& operator=(const move_ptr&);
 
-    Storage ptr_;
+    compressed_pair<T*, D> ptr_;
 };
+
+template <typename T, typename D> move_ptr<T, D>::~move_ptr() {
+    if (ptr_.first()) {
+        ptr_.second()(ptr_.first());
+    }
+}
 }
 
 namespace std {
@@ -121,7 +118,9 @@ public:
             s_->retain();
         }
     }
-    template <typename Y> shared_ptr(const shared_ptr<Y>& r) : ptr_(r.ptr_), s_(r.s_) {
+    template <typename Y>
+    shared_ptr(const shared_ptr<Y>& r, typename Metrowerks::restrict_to<Metrowerks::is_convertible<Y*, T*>::value>::type* = nullptr) :
+        ptr_(r.ptr_), s_(r.s_) {
         if (s_) {
             s_->retain();
         }
