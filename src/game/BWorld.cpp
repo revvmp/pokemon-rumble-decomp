@@ -152,6 +152,27 @@ BWorld::BWorld(const Desc& rDesc) :
 }
 #pragma dont_inline reset
 
+BWorld::~BWorld() {
+    for (std::vector<ObjEntry>::iterator it = mObjEntries.begin(); it != mObjEntries.end(); ++it) {
+        RemoveObject(it->mObj);
+    }
+
+    if (mEffectData) {
+        RemoveAllEffects(true);
+        if (mEffectData->mCaptureEnable) {
+            mEffectData->mTextureState.Restore();
+        }
+        if (mEffectData->mCaptureGroupID != EFFECT_GROUP_INVALID) {
+            FreeEffectGroupID(mEffectData->mCaptureGroupID);
+        }
+        if (mEffectData->mPauseGroupID != EFFECT_GROUP_INVALID) {
+            FreeEffectGroupID(mEffectData->mPauseGroupID);
+        }
+        FreeEffectGroupID(mEffectData->mGroupID);
+        mEffectData.reset();
+    }
+}
+
 void BWorld::EnableCalc(bool enable) {
     if (!enable) {
         mFlags |= FLAG_CALC_DISABLED;
