@@ -12,8 +12,8 @@ The complete symbol map and `config/43U/splits.txt` from CC0 Wii IPL, pinned to 
 | `fa/driver/pfd_cmn.c` | `0x80222E90–0x80222FA8` | one function, `pfd_get_media_drv_char` | First-owned #373; external investigation pending |
 | `fa/driver/msc_drv.c` | `0x80222FB0–0x80222FC4` | two functions, 20 bytes | First-owned #373; split prepared; complete external candidate exact |
 | `fa/msc/puh_msc.c` | `0x80222FD0–0x80223248` | four functions | First-owned #373; native interfaces under investigation |
-| `fa/msc/puh_msc_cmd.c` | `0x80223250–0x8022362C` | one function | First-owned #373; complete SCSI sense switch under investigation |
-| `fa/msc/puh_msc_blk.c` | `0x80223630–0x80223E64` | first three functions in #373; eight further functions in #374 | First-owned #373; preserve unclaimed #374 body scope until legitimate ownership or cooperation |
+| `fa/msc/puh_msc_cmd.c` | `0x80223250–0x8022362C` | one function | First-owned #373; complete external readable switch exact |
+| `fa/msc/puh_msc_blk.c` | `0x80223630–0x80223E64` | first three functions in #373; eight further functions in #374 | Same agent legitimately claimed #374; complete external object exact; private unconsumed record types remain under review |
 
 The old reference includes `usbh_msc_set_thread_priority` between write and command submission; this target does not. Native code and actual issue rows establish the target inventory, rather than importing the old sequence wholesale. The separate SD common helper is not part of the older `sd_drv.c` span. Pending PR #931 currently includes it in the proposed SD split; that difference is recorded for coordination before any shared-boundary edit.
 
@@ -32,3 +32,16 @@ This commit prepares only the split and names. The split-only actual configure/p
 - Text and zero-filled section sizes can hide swapped local objects. Declaring insertion before ejection emitted their small-data symbols in reversed order under this compiler. The ordinary reversed declaration order restores insertion at zero and ejection at four; the audit checks both real offsets and the resolved SDA targets. This is an observed property of this candidate, not a universal declaration-order rule.
 - Original source spans separate the common SD helper and the two-function MSC bridge from the neighboring driver units. A block's contiguous addresses or an earlier broad proposed split do not establish one original source file. Preserve the first owner's work and coordinate a bounded correction with file-map and native evidence.
 - Preserve recovered misspellings: both SD and MSC registration names use `registar_callback`. Earlier descriptive `set_callback` spellings in external #370 probes were rejected before tracked implementation publication; corrected names retain all native instructions.
+
+# F-373-2: Readable SCSI sense translator and shared block-unit proof
+
+The independently authored SCSI sense translator is a plain C switch over the signed 24-bit combination of three input bytes. Native branch execution establishes 38 explicit code/result pairs, with a separate key `4`, additional-sense code `0x40` fallback returning 24 for every qualifier; all other codes return 39. Cases appear in result order. No reference implementation or decompiler output supplies the body. `373-probe-scsi-sense.py` checks the native-derived cases, compiles the candidate with unchanged Wii/1.0 SDK flags, and compares every byte of its complete 988-byte `.text`, function extent and absence of other allocated sections or relocations. All comparisons pass against the unchanged frozen DOL. External `373-reference/scsi-sense-evidence.json` retains the full mapping and proof.
+
+The complete cooperating block-unit candidate contains 11 functions, 2,040 instruction bytes, 60 internal padding bytes, 32 initialized data bytes, 384 BSS bytes and four small-data BSS bytes. All section payloads, starts, extents and 66 independently resolved relocation targets match. Its first three functions contribute exactly 308 instruction bytes to #373; the remaining eight contribute 1,732 bytes to the separately claimed #374. No duplicate byte credit is assigned. Detailed consumed member offsets, whole-unit proof and source-fidelity limitations are recorded in [F-374-5](374-fa-sdi-usb.md#f-374-5-complete-original-inventory-text-proof).
+
+The private block-device record's unconsumed ranges are still diagnostic byte views; their original types have not been recovered. The block candidate therefore remains outside tracked implementation pending interface review. The sense translator also remains external until its split-only baseline and actual source registration gates can run. Neither external result establishes linked source coverage or whole-issue completion. The original #373 inventory still includes externally owned SD tails and other unresolved units.
+
+## Traps
+
+- The translator's final comparison is unsigned. A signed literal in the otherwise identical readable switch changes exactly the native `cmplwi` to `cmpwi`. The unsigned literal reflects the observed comparison; its complete object then matches without compiler-flag changes.
+- Constant propagation across a linear listing is insufficient for branch-derived switch facts: one branch can replace a register used as a different constant base on another path. Collect comparison facts through concrete native branch execution and iterate newly discovered boundary values before asserting an exhaustive case table.
