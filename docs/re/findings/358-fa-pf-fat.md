@@ -2,7 +2,7 @@
 
 Target: `wpse-v1`, frozen `orig/wpse-v1/main.dol`. Issues: #358, and the last #357 function. Compiler: Wii/1.0 `cflags_sdk` (F-350-1), default 16-byte function alignment.
 
-All 16 functions of `pf_entry_iterator.c` (`.text` `0x802076D0`–`0x802095D4`, `.sdata` `0x804B8878`–`0x804B8890`) are identical to the target, and the unit is `Matching` and linked. objdiff reports 100% for code and data. `PFENT_ITER_DoFindEntry` (#357) became identical once `PFENT_ITER_MoveTo` and `PFENT_ITER_Advance` were in the file, as F-357-2 predicted.
+All 16 functions of `pf_entry_iterator.c` (`.text` `0x802076D0`–`0x802095D4`, `.sdata` `0x804B8878`–`0x804B8890`) are identical to the target, and the unit is `Matching` and linked. All 16 functions and the text section report 100%. The current data comparison has 22 exact source bytes followed by two target zero padding bytes, so its prelink data score is 95.652176%; the source-selected full DOL remains exact. See [F-358-3](358-sector-registers.md) for the explicit padding audit. `PFENT_ITER_DoFindEntry` (#357) became identical once `PFENT_ITER_MoveTo` and `PFENT_ITER_Advance` were in the file, as F-357-2 predicted.
 
 | Address | Name | Confidence | Notes |
 | --- | --- | --- | --- |
@@ -28,7 +28,7 @@ The fifth argument of `PFENT_ITER_FindEntry` and `PFENT_ITER_FindEntryOfPath` is
 - The `.text` start is the first routine after `pf_entry_iterator.c` (F-356-2). The end is the end of `PFFAT_GetValueOfEOC2`, VF's last `pf_fat.c` function. `0x8020C730` starts the FAT12 entry routines (`pf_fat12.c`).
 - The only data object is VF's `fat_special_values` table, 60 bytes (three entries of `bad`, `eoc1`, `eoc2`, `fat0_mask` and `fat1`). Only this range reads it. The four bytes after it are alignment padding. The symbol was resized from `0x40` to `0x3C`, and `lbl_803681C8` gets `align:8` so the next object keeps its address.
 
-17 functions, all of #358's range, are written. 16 are identical:
+17 functions, all of #358's range, are written. All 17 are now identical after [F-358-3](358-sector-registers.md); the following table records their identities:
 
 | Address | Name | Confidence | Notes |
 | --- | --- | --- | --- |
@@ -47,12 +47,12 @@ The fifth argument of `PFENT_ITER_FindEntry` and `PFENT_ITER_FindEntryOfPath` is
 | `0x8020AD90` | `PFFAT_GetClusterAllocatedInChain` | medium, VF | |
 | `0x8020AE80` | `PFFAT_GetClusterSpecified` | medium, VF | Also copies `chain_stamp` into the hint |
 | `0x8020B010` | `PFFAT_GetClusterAllocated` | medium, VF | Four arguments, no cluster count |
-| `0x8020B130` | `PFFAT_GetSector` | medium, VF | 99.5%: see below |
+| `0x8020B130` | `PFFAT_GetSector` | medium, VF | Exact after F-358-3 |
 | `0x8020B290` | `PFFAT_GetSectorSpecified` | medium, VF | No argument checks |
 
 `ReadFATEntry`, `ReadFATEntryPage`, `WriteFATEntry`, `WriteFATEntryPage`, `UpdateClusterLink`, `ClearClusterLink`, `UpdateFATEntry`, `AllocateChain`, `GetNumberOfCluster`, `GetNumberOfAllocatedCluster` and `GetSectorInRootDirRegion` are static inline helpers. The FA page routines take `PF_CACHE_PAGE*`, not VF's `PF_CACHE_PAGE**`.
 
-`PFFAT_GetSector` differs only in two registers: the target keeps `sectors_per_cluster` in `r7` and the first quotient in `r8`, and the build swaps them. Declaration order, statement order, operand order, temporaries, branch order, structure of the root-directory helper and Wii/1.1 and 1.3 all give the same swap or worse.
+Historical result, superseded by F-358-3: `PFFAT_GetSector` differed only in two registers: the target keeps `sectors_per_cluster` in `r7` and the first quotient in `r8`, and the build swaps them. Declaration order, statement order, operand order, temporaries, branch order, structure of the root-directory helper and Wii/1.1 and 1.3 all give the same swap or worse.
 
 Callees named for the link: `PFFAT_GetBeforeChain` (`0x8020BB30`) and `PFFAT_RefreshFSINFO` (`0x8020C0C0`), VF names, medium; `PFSEC_ReadFAT` (`0x80214EC0`) and `PFSEC_WriteFAT` (`0x80215290`), VF names by their place next to `PFSEC_ReadData` and `PFSEC_WriteData`, medium; and the twelve FAT entry routines from `0x8020C730` to `0x8020D7A0`, which `main` had already named `PFFAT12_ReadFATEntry`, `PFFAT12_WriteFATEntry`, `PFFAT12_WriteFATEntryWithBuf`, `PFFAT12_ReadFATEntryWithBuf` and the same for FAT16 and FAT32. The dispatch by FAT type and the page argument agree with those names. FAT12 takes `u16` cluster and value.
 
