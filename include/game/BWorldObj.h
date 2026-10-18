@@ -11,11 +11,7 @@ class BWorldObjEffect;
 class BWorldObjOwner;
 class IDrawLayer;
 
-class DrawLayerSet : public std::set<std::tr1::shared_ptr<IDrawLayer> > {
-public:
-    DrawLayerSet() {}
-    ~DrawLayerSet() {}
-};
+typedef std::set<std::tr1::shared_ptr<IDrawLayer> > DrawLayerSet;
 
 class BWorldObj : public ICalc, public std::tr1::enable_shared_from_this<BWorldObj> {
 public:
@@ -26,6 +22,8 @@ public:
 
     enum TypeFlag {
         TYPE_WORLD_OBJ = 1 << 0,
+        TYPE_CAMERA = 1 << 1,
+        TYPE_SHADOW_CAMERA = 1 << 2,
         TYPE_MODEL_OBJ = 1 << 5
     };
 
@@ -51,8 +49,14 @@ public:
     bool IsVisible() const { return mState & STATE_VISIBLE; }
     BWorld* GetWorld() const { return mWorld; }
     u32 GetId() const { return mId; }
+    u32 GetType() const { return mType; }
+
+    void Pause();
 
 protected:
+    friend class BWorld;
+
+
     u32 mState;
     u32 mType;
     BWorld* mWorld;
@@ -63,5 +67,13 @@ protected:
     nw4r::math::VEC3 mPosition;
     nw4r::math::VEC3 mScale;
 };
+
+template <typename T, typename U> bool IsKindOf(const std::tr1::shared_ptr<U>& rObj) {
+    return rObj && (rObj->GetType() & T::TYPE);
+}
+
+template <typename T, typename U> std::tr1::shared_ptr<T> DynamicCast(const std::tr1::shared_ptr<U>& rObj) {
+    return IsKindOf<T>(rObj) ? std::tr1::static_pointer_cast<T>(rObj) : std::tr1::shared_ptr<T>();
+}
 
 #endif

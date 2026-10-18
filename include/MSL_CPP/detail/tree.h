@@ -121,7 +121,14 @@ void tree_imp<T, Compare, Allocator>::destroy(node* pNode) {
     ::operator delete(pNode);
 }
 
-template <typename T, typename Compare, typename Allocator> class tree : public tree_imp<T, Compare, Allocator> {
+template <typename T, typename Compare, typename Allocator>
+class red_black_tree : public tree_imp<T, Compare, Allocator> {
+public:
+    red_black_tree() {}
+    ~red_black_tree() {}
+};
+
+template <typename T, typename Compare, typename Allocator> class tree : public red_black_tree<T, Compare, Allocator> {
 public:
     tree() {}
     ~tree() {}

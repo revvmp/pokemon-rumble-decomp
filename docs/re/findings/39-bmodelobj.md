@@ -24,7 +24,7 @@ RTTI at `0x804B5A68`–`0x804B5AA0` names `BModelObj`, `BSoundSource`, `BKDTreeL
 - A `VEC3` returned by value from a non-const member reproduces the original word-copy store order. The const form orders the stores differently, so `GetSize` and `GetPosition` are non-const.
 - The `neg`/`or`/`srwi` test of a `shared_ptr` comes from a pointer-to-data-member `unspecified_bool_type` conversion. An `operator bool` gives `cmpwi`.
 - In-class inline functions are emitted right after the first function that uses them. Out-of-class non-inline template members, as in MSL, are emitted at the end of the unit. This places `tree_imp::destroy`, `allocator::destroy` and the `shared_ptr` destructors late in the original.
-- The original `BModelObj` destructor checks `this` four times around the draw-layer set. That pattern is reproduced only by a `DrawLayerSet` class wrapping `std::set`, which wraps `tree`, which wraps `tree_imp`, each with its own destructor.
+- The original `BModelObj` destructor checks `this` four times around the draw-layer set. The `BWorld` set of removed objects shows the same four checks, so the fourth level belongs to the MSL `set` itself: `set` holds a `tree`, which derives from `red_black_tree`, which derives from `tree_imp`, each with its own destructor. `DrawLayerSet` is a typedef of that `set` ([F-45-1](45-bworld-cameras.md)). An earlier version of this finding modeled it as a wrapper class.
 - `tree_imp::destroy` checks children at the call sites, destroys the value through `this->Allocator::destroy` and frees with `::operator delete`. A temporary allocator and `delete` destroy the value twice.
 
 ## Status

@@ -60,14 +60,7 @@ public:
     typedef typename base::pod_type pod_type;
 
     explicit __vec_split_buffer(Allocator& a) : base(a), start_(0) {}
-    ~__vec_split_buffer() {
-        T* first = begin();
-        for (T* p = first + this->size_; p > first;) {
-            --p;
-            this->capacity_.second().destroy(p);
-        }
-        this->size_ = 0;
-    }
+    ~__vec_split_buffer();
 
     T* begin() { return this->data_ + start_; }
     T* end() { return begin() + this->size_; }
@@ -91,6 +84,15 @@ public:
 
     size_type start_;
 };
+
+template <typename T, typename Allocator> __vec_split_buffer<T, Allocator>::~__vec_split_buffer() {
+    T* first = begin();
+    for (T* p = first + this->size_; p > first;) {
+        --p;
+        this->capacity_.second().destroy(p);
+    }
+    this->size_ = 0;
+}
 
 template <typename T, typename Allocator, bool IsPOD> class __vec_constructor : public __vec_deleter<T, Allocator> {
     typedef __vec_deleter<T, Allocator> base;

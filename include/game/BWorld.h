@@ -134,9 +134,25 @@ public:
     void EnableCalc(bool enable);
     void RequestPause();
     void RequestResume();
+    BWorldCamera* GetCamera(int index);
+    bool AddCamera(std::tr1::shared_ptr<BWorldCamera> camera, u32 index);
+    void SetCamera(std::tr1::shared_ptr<BWorldCamera> camera, u32 index);
+    int AddCamera(std::tr1::shared_ptr<BWorldCamera> camera);
+    int AttachCamera(std::tr1::shared_ptr<BWorldCamera> camera);
+    void RemoveCamera(const std::tr1::shared_ptr<BWorldCamera>& camera);
+    void ClearCamera(u32 index);
+    CShadowCamera* GetShadowCamera();
+    void SetCurrentCamera(const std::tr1::shared_ptr<BWorldCamera>& camera);
+    BWorldCamera* GetCurrentCamera();
+    nw4r::g3d::Camera GetG3dCamera();
+    void SetOutlineAlpha(u8 alpha);
+    void SetOutlineWidth(int width);
+    bool AddGround(std::tr1::shared_ptr<BWorldObj> obj);
+    void SetGround(std::tr1::shared_ptr<BWorldObj> obj);
+    bool Add(std::tr1::shared_ptr<BWorldObj> obj);
+    bool AddObject(std::tr1::shared_ptr<BWorldObj> obj);
     void RemoveObject(std::tr1::shared_ptr<BWorldObj> obj);
     void RemoveAllEffects(bool retire);
-    CShadowCamera* GetShadowCamera();
 
 private:
     u32 mFlags;
