@@ -119,3 +119,29 @@ The transport allocates exactly 60 bytes at four-byte alignment. Its consumed pr
 
 - Both native MSC senders explicitly load a third zero argument before calling `uhf_ker_send_message`, while the pinned partial reference declares only two parameters. The retained callee ignores the incoming third register and independently sets the OS nonblocking flag. Preserve a three-argument caller contract with an unused options parameter rather than dropping an observed argument based on a nearby revision's header. No canonical kernel header has been published by this checkpoint.
 - An allocation extent does not establish semantic fields throughout that extent. The sender proves a consumed prefix and a fixed transport allocation; it does not justify inventing two additional words at the tail of the message record.
+
+# F-374-5: Complete original-inventory text proof
+
+`374-audit-external-inventory.py` now asserts every original #374 address and extent against the complete current issue body: all 35 original rows and 8,172 instruction bytes have exact external native text and actual target comparisons. The collaborating #373 initialization row is explicitly excluded from #374's count. This remains diagnostic coverage: no source is selected, no full pipeline has run, and no issue completion or newly linked bytes are claimed.
+
+The two final retained transfer functions, `uhf_msc_blk_pread` at `0x80223800` (504 bytes) and `uhf_msc_blk_pwrite` at `0x80223A00` (492 bytes), reproduce their complete streams and actual callees. They preserve the three-byte SCSI sense result, direct versus bounce-buffer paths, block-size division, the actual sixteen-bit transfer chunk, completion accounting, and media notification/error paths. The three other #374 lifecycle/state routines and the sender are independently exact. The read-only buffer-reference diagnostic also records every directly recognized device-table address construction; it is a reference inventory aid, not an exhaustive alias proof.
+
+## Complete shared block object
+
+`374-probe-usb-block-whole.py` assembles the eleven independently proven functions in native order, including the three first-owned #373 functions and eight #374 tails. It exits 0 with all actual starts/extents, all 66 text/data relocation targets and every allocated payload exact:
+
+| Section | Native start | Actual extent |
+| --- | --- | --- |
+| `.text` | `0x80223630` | `0x834`: 2,040 instruction bytes and 60 internal padding bytes |
+| `.data` | `0x803C5260` | `0x20`: eight typed PDM driver function pointers |
+| `.bss` | `0x80422E40` | `0x180`: eight records at the actual 48-byte stride |
+| `.sbss` | `0x804B9280` | `0x4`: the bounce-buffer pointer |
+
+The record's consumed fields are a disk pointer at zero, total block count at `0x14`, block size at `0x18`, and status at `0x24`. The external candidate represents unconsumed ranges `0x04`–`0x13`, `0x1C`–`0x23`, and `0x28`–`0x2F` as private byte views. Their physical bounds follow from actual accesses, array stride and allocated extent; original field types or meaning inside those ranges remain unproven. That representation is explicitly a source-fidelity review item, not recovered original semantic fields. No canonical record containing those views has been published by this checkpoint.
+
+The pinned public THPConv tree also exposes an MSC interface, but its larger public hardware-device record is distinct from this private FA wrapper record. It supplies no evidence for filling the wrapper's unconsumed ranges. Its restrictive Nintendo notice was inspected; no implementation or header text was imported into this reconstruction.
+
+## Traps
+
+- Narrow the native block chunk in each arm of the minimum expression before passing it to the sixteen-bit USB API. Narrowing only after a wider conditional introduces an extra instruction and changes the full extent; the original reference/compiler configuration does not establish a generic minimum helper here.
+- The block-unit text ends at `0x80223E64`; twelve alignment bytes precede SDI at `0x80223E70` and belong outside the text split. Likewise the four-byte bounce-buffer object ends at `0x804B9284`; the next SDI small-BSS start is aligned to `0x804B9288`.
