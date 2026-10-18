@@ -54,11 +54,11 @@ The fifth argument of `PFENT_ITER_FindEntry` and `PFENT_ITER_FindEntryOfPath` is
 
 `PFFAT_GetSector` differs only in two registers: the target keeps `sectors_per_cluster` in `r7` and the first quotient in `r8`, and the build swaps them. Declaration order, statement order, operand order, temporaries, branch order, structure of the root-directory helper and Wii/1.1 and 1.3 all give the same swap or worse.
 
-Callees named for the link: `PFFAT_GetBeforeChain` (`0x8020BB30`) and `PFFAT_RefreshFSINFO` (`0x8020C0C0`), VF names, medium; `PFSEC_ReadFAT` (`0x80214EC0`) and `PFSEC_WriteFAT` (`0x80215290`), VF names by their place next to `PFSEC_ReadData` and `PFSEC_WriteData`, medium; and the twelve FAT entry routines `PFFAT12_ReadFATEntry` (`0x8020C730`), `PFFAT12_WriteFATEntry` (`0x8020C8D0`), `PFFAT12_WriteFATEntryPage` (`0x8020CA90`), `PFFAT12_ReadFATEntryPage` (`0x8020CD50`), and the same four for FAT16 (`0x8020CFC0`, `0x8020D0E0`, `0x8020D1A0`, `0x8020D2B0`) and FAT32 (`0x8020D420`, `0x8020D550`, `0x8020D660`, `0x8020D7A0`). Each is identified by the FAT type it is dispatched for and whether it is called with a page. FAT12 takes `u16` cluster and value. Medium.
+Callees named for the link: `PFFAT_GetBeforeChain` (`0x8020BB30`) and `PFFAT_RefreshFSINFO` (`0x8020C0C0`), VF names, medium; `PFSEC_ReadFAT` (`0x80214EC0`) and `PFSEC_WriteFAT` (`0x80215290`), VF names by their place next to `PFSEC_ReadData` and `PFSEC_WriteData`, medium; and the twelve FAT entry routines from `0x8020C730` to `0x8020D7A0`, which `main` had already named `PFFAT12_ReadFATEntry`, `PFFAT12_WriteFATEntry`, `PFFAT12_WriteFATEntryWithBuf`, `PFFAT12_ReadFATEntryWithBuf` and the same for FAT16 and FAT32. The dispatch by FAT type and the page argument agree with those names. FAT12 takes `u16` cluster and value.
 
 ## Layouts
 
-`PF_VOLUME` after `fsi_flag` (`0x1F90`): `cluster_link` (`PF_CLUSTER_LINK_VOL`, 12 bytes) at `0x1F94`, `p_part` at `0x1FA0` and `p_callback` at `0x1FA4`, VF's order. `PFFAT_ReadFATSector` calls `p_callback(last_driver_error)` after a driver error 4096. The opaque tail now starts at `0x1FA8`; the structure size is unchanged.
+`PFFAT_ReadFATSector` calls `PF_VOLUME.p_callback` (`0x1FA4`) with `last_driver_error` after a driver error 4096, which agrees with the layout already in `pf_volume.h`.
 
 ## Traps
 
