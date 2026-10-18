@@ -40,8 +40,39 @@ Eight functions compile identically with the game profile and are renamed for ob
 
 The remaining functions need the implementation object (`0x408` bytes), whose members include `CPiiListFilterSort` (#173), `CFiber` (#307), `CUIManager` (#327/#328), `CUIPiiSpec` (#217), `CUIPlayerID` (#218), `CUIList` and the `IDlgMsgWin` interface (#73 to #81). Their headers do not exist yet.
 
+## F-82-3: Implementation object and remaining dependencies
+
+`Show` allocates `CDlgPiiListImpl` (RTTI name `@unnamed@CDlgPiiList_cpp@::CDlgPiiListImpl`, 0x408 bytes) and constructs every member inline. The table records the observed layout; member names are not yet chosen.
+
+| Offset | Size | Contents | Evidence |
+| --- | --- | --- | --- |
+| 0x0 | 4 | Player index, the first `Show` argument | Stored from `r27`; passed to the script manager's slot 0x64 |
+| 0x4 | 4 | List type, the second `Show` argument | Returned by `GetType` `0x8008EE40`; type 1 adds the player's second list |
+| 0x8 | 4 | Result, initially 0 | `Close` stores 1 |
+| 0xC, 0xD | 1 each | Flags, initially false | |
+| 0x10 | 0xC | `vector<shared_ptr<CUIPiiListItem> >` | Filled by `0x8008A5C0` from a list of Pii data |
+| 0x1C | 0x20 | `CPiiListFilterSort` by value | Constructor `0x800E5D00`, destructor `0x800E5D20` |
+| 0x3C | 8 | `shared_ptr<CUIManager>` | `new` 0x54, constructor `0x801C9680` |
+| 0x44 | 8 | `shared_ptr<BUILayout>`, root layout | `new` 0x134, constructor `0x801C9EE0` |
+| 0x4C | 8 | `shared_ptr<CUIPiiSpec>` | `new` 0x188, constructor `0x8011DCF0` |
+| 0x54 | 8 | `shared_ptr<CUIPiiList>` | `new` 0x180, `CUIList` constructor `0x801DA120`, then vtable `0x8039E2A8` |
+| 0x5C | 8 | `shared_ptr<CUIPlayerID>` | `new` 0x13C, constructor `0x8011F800` |
+| 0x64 to 0x7C | 4 × 8 | Four `shared_ptr<BUILayout>` | Bound to the help, title, remote-memory and saving animations |
+| 0x84 | 8 | `shared_ptr<IDlgMsgWin>`, initially empty | Forwarded `Calc`, `CalcMtx`, `CalcView` and `Draw` when set |
+| 0x90 | 0x370 | `CFiber` by value | Inline constructor, then `0x8019E110`; destructor `0x8019E180` |
+| 0x400 | 1 | Flag, initially false | |
+
+`CFiber` (RTTI `CFiber`, vtable `0x803BE468` with only the destructor) is fully observable from #307's code: state flags at 0 (bit 0 started, bit 1 finished, bit 2 cancelled, bit 3 running), the stack as `shared_ptr<unsigned char>` with a `void (*)(void*) throw()` deleter at 4 (`Start` allocates it 32-byte aligned through `0x801B10D0`), two `function<void()>` hooks at 0xC and 0x18 that the yield routine `0x8019E5A0` calls before suspending and after resuming, an `OSMutex` at 0x24, two `OSCond` at 0x3C and 0x44, an 8-byte-aligned `OSThread` at 0x50, and the vtable pointer at 0x368. `Start` is `0x8019E320`, the resume routine `0x8019E460`, and the current fiber is the static word `0x804B9120`. The dialog starts its fiber with `CDlgPiiListImpl::Run` (`0x8008C0E0`) and a 0x8000-byte stack.
+
+`CPiiListFilterSort` (#173) is only partly observable. Its constructor zeroes 0x0, 0x10 and the `shared_ptr` at 0x14, and stores -1 at 0x1C; 0x4 to 0xF are left uninitialized. The filter routine `0x800E5DB0` reads the filter kind at 0 (1 and 2 test bit `[4]` of two Pii attribute masks, 3 compares `[8]`, 4 compares or excludes by `[0xC]`), and the sort routine `0x800E62F0` indexes a seven-entry comparator table by 0x10. Apart from the constructor and destructor, no access to the `shared_ptr` at 0x14 or the word at 0x1C was found in the `0x800E5620`–`0x800ECBE0` filter, sort and menu routines or in the `CDlgPiiList` and `CDlgPiiSelector` code, so their types and names are not yet recoverable. Every `CDlgPiiListImpl` function, and every `CDlgPiiList` virtual except the eight already matched, depends on that layout.
+
+The rest of the file instantiates MSL TR1 machinery whose names come from RTTI at `0x8039E6E0`, `0x8039EC70`, `0x8039EE58` and `0x8039F1C0`: `std::tr1::function`, `detail::function_base<void (*)(...)>`, `detail::function_imp<Signature, detail::bound_func<void, detail::mem_fn_N<...>, tuple<...> >, bool, bool>`, the ten-element `tuple` padded with `nat`, and `placeholders::detail::ph<1>`. A `function<void()>` stores its implementation pointer at 0 with an 8-byte buffer at 4; bound member functions are heap allocated through the out-of-line constructor at `0x8008FC50`, which first applies the variadic emptiness test at `0x80070700`. The implementation virtuals are destructor, `clone` (`new` copy), clone-into-buffer (placement copy) and the call, which dispatches through `__ptmf_scall`. Show and the layout routine also use `vector`, `wstring` concatenation (`0x8008FD30`) and `list` iteration. None of these library templates exists in the repository yet. The same dependency blocks #73 to #81 ([F-73-3](73-cdlgmsgwin.md#f-73-3-every-function-depends-on-the-games-standard-library)).
+
+The automatic code at `0x80091360`–`0x80092EB0` (#88 to #91) builds `CUIPiiListItem` vectors from a Pii set and list for `CDlgPiiSelector`. It calls the vector destructor `0x8008A450` and the `shared_ptr` destructor `0x8008F4B0` that `CDlgPiiList.cpp` emits, which places it in a later translation unit. It has no data, strings or RTTI, so it has no recoverable file name, and it depends on the same `set`, `list` and `vector` templates.
+
 ## Traps
 
 - **The next file starts with its factory, not its constructor.** `0x80092EB0` looks like a free helper of the dialog list, but it constructs and destroys the `CDlgPiiSelector` object. Do not end any split before it at the survey estimate `0x80092F6C`.
 - **Code between two files is not automatically the earlier file's.** The first split ran to `0x80092EB0` and verified, but nothing in `CDlgPiiList.cpp` references `0x80091360`–`0x80092EB0`. A split that only verifies does not prove ownership; check references before extending a unit to the next known start (F-82-2).
+- **A by-value member can block a whole class.** `CPiiListFilterSort` sits by value inside `CDlgPiiListImpl`, and no access to two of its members has been found, so no evidence names them. Check by-value member layouts before planning a reconstruction around the class that contains them (F-82-3).
 - **ICalcDraw slot names are fixed on main.** Slots 2 and 3 are `CalcMtx` and `CalcView` (#906); overrides in this file must use those names.
