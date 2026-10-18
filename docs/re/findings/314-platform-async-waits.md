@@ -8,7 +8,7 @@ The first four functions are timing wrappers at `0x801AFC80`, `0x801AFC90`, `0x8
 
 The external `314-reference/video-timing.cpp` probe and `314-audit-video.py` independently prove all four function sizes, 72 instruction bytes and three SDK call targets under the game compiler. Initializing the rate with the conditional expression preserves the native lifetime; initializing it to 60 before calling the SDK introduces a saved register and eight extra bytes. No compiler override is needed.
 
-The callback at `0x801AFCF0` and ten wrappers through `0x801B0638` use PrFILE2 asynchronous commands. Their command work area is `0x170` bytes, followed by an `OSSemaphore` at `0x170` and signed result at `0x17C`. The callback stores the result before signaling the semaphore. The #369 owner independently proves a typed 64-byte common command at work-area offset four, and the attach API stores a NAND backing-file record at `0x11C`, with a 78-byte path and size at `0x16C`. At the initial diagnostic checkpoint, the intervening storage was unresolved. Subsequent independent #370 evidence establishes the actual public opaque work-area contract; its separately owned header prerequisite is tracked in #920. This bounded activity-header prerequisite adds no FA declaration, guessed storage or PrFILE2 implementation.
+The callback at `0x801AFCF0` and ten wrappers through `0x801B0638` use PrFILE2 asynchronous commands. Their command work area is `0x170` bytes, followed by an `OSSemaphore` at `0x170` and signed result at `0x17C`. The callback stores the result before signaling the semaphore. The first partial delivery left this SDK ABI unresolved. The independently authored public work-area contract and exact additional consumer proof are now recorded in F-314-4 and owner prerequisite F-370-1.
 
 The final callback and nine wrappers use the existing canonical `NANDCommandBlock`, whose size is `0xBC`. A derived wait context appends `OSSemaphore` at `0xBC` and signed result at `0xC8`, giving size `0xCC`. This exactly accounts for the native stack and callback offsets without redefining an SDK structure.
 
@@ -56,7 +56,31 @@ The existing Game library registers both with Wii/1.1 and unchanged `cflags_game
 
 All 524 compiled source objects from the unchanged baseline remain identical as complete files; the candidate adds only the two owned source objects. The source names, wrapper names, context/member names, `CScopedActivity`, and `YieldFiber` are descriptive, with medium spelling confidence and high confidence in their native behavior and ABI. No reference implementation was copied. No compiler flag, original hash, expected artifact, maintainer-only progress state, or neighboring source ownership changes.
 
-This delivers 14 of the original 25 functions / 2,220 of 4,528 instruction bytes. The 11 PrFILE2 entries / 2,308 bytes remain automatic fallbacks. Their incomplete outer SDK command layout is not concealed by an arbitrary storage array, and the pull request uses a partial-work issue reference.
+This first delivery selected 14 of the original 25 functions / 2,220 of 4,528 instruction bytes. It retained the 11 PrFILE2 entries / 2,308 bytes as automatic fallbacks and used a partial-work issue reference. The additional consumer proof below supersedes the initial layout limitation; actual source selection still requires its own full build and frozen verification.
+
+## F-314-4: Typed FA asynchronous consumers
+
+The #370 owner independently reconstructed and approved the canonical public `revolution/fa.h` interface in PR #920. F-370-1 records native caller/callee evidence, public ABI provenance and the restricted reference's license limitation. No restricted implementation or header text is imported here. The public command explicitly contains a user pointer, seventy opaque `u32` SDK work words and `FANandInfo`, rather than exposing guessed internal fields. This documented SDK work-area contract independently explains the native `0x170` size and the backing-file record at `0x11C`, with size at `0x16C`. No internal volatile qualifier is introduced.
+
+The complete `FaWaitContext` derives from canonical `FACommandBlock`, appending `mSemaphore` at `0x170` and signed `mResult` at `0x17C`, for size `0x180`. The ordinary callback stores the result then signals the semaphore. All ten wrappers preserve the same submission-failure, fiber-yield, completion and exception-wait behavior as the NAND wrappers. SDK `FAFile`, `FADta` and `FADrvTbl` aliases retain the actual canonical PrFILE2 types; no alternate ABI or guessed opaque object layout is introduced by the consumers.
+
+| Address | Size | Native SDK operation |
+| --- | --- | --- |
+| `0x801AFCF0` | `0xC` | Completion callback |
+| `0x801AFD00` | `0xF0` | `FAAttachAsync` |
+| `0x801AFDF0` | `0xD8` | `FAMountAsync` |
+| `0x801AFED0` | `0xE8` | `FAUnmountAsync` |
+| `0x801AFFC0` | `0xF8` | `FACreateAsync` |
+| `0x801B00C0` | `0xF8` | `FAFwriteAsync` |
+| `0x801B01C0` | `0xF8` | `FAFsfirstAsync` |
+| `0x801B02C0` | `0xD8` | `FAFsnextAsync` |
+| `0x801B03A0` | `0xD8` | `FARemoveAsync` |
+| `0x801B0480` | `0xD8` | `FAMkdirAsync` |
+| `0x801B0560` | `0xD8` | `FARmdirAsync` |
+
+Compiling the actual `src/game/FaAsync.cpp` with only its tracked include tree and the exact owner-approved temporary header reproduces all eleven functions / 2,308 instruction bytes and 115 independently paired text relocation targets. The strict external `314-audit-fa.py` also verifies all ten exception records at `0x80037C88`–`0x80037F80`, all ten indices at `0x800506B8`–`0x80050730`, 880 combined exception/index bytes and 40 independently paired table/index relocation targets. Compilation and audit exit zero. The producer owner independently repeated the same real consumer proof against its tracked canonical header. The header content is preserved unchanged and will be deduplicated after its separate prerequisite merges.
+
+This completes individual native reconstruction evidence for all 25 original entries / 4,528 instruction bytes, with 218 text and 78 exception/index relocation targets and 1,692 exception/index bytes. It does not replace the remaining required split-only, NonMatching, Matching, source-selected link, baseline-control and exact committed-head frozen gates.
 
 ## Traps
 

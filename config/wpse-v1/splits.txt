@@ -341,6 +341,11 @@ game/VideoTiming.cpp:
 	extabindex  start:0x800506AC end:0x800506B8
 	.text       start:0x801AFC80 end:0x801AFCE8
 
+game/FaAsync.cpp:
+	extab       start:0x80037C88 end:0x80037F80
+	extabindex  start:0x800506B8 end:0x80050730
+	.text       start:0x801AFCF0 end:0x801B0638
+
 game/NandAsync.cpp:
 	extab       start:0x80037F80 end:0x8003822C
 	extabindex  start:0x80050730 end:0x8005079C
