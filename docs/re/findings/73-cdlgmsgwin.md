@@ -9,7 +9,7 @@ The range holds two translation units. Neither starts where the issue survey est
 | Unit | `extab` | `extabindex` | `.text` | `.data` | `.sdata` | `.sdata2` |
 | --- | --- | --- | --- | --- | --- | --- |
 | `CDlgMsgWin.cpp` | `0x8000FBC8`–`0x80010218` | `0x80045D68`–`0x80046368` | `0x80084D40`–`0x80088C18` | `0x8039DB40`–`0x8039DED8` | `0x804B61A8`–`0x804B6358` | `0x804B9DD0`–`0x804B9DE0` |
-| Formatter helper unit, file name unknown | `0x80010218`–`0x800102D0` | `0x80046368`–`0x800463B0` | `0x80088C20`–`0x800896D8` | `0x8039DED8`–`0x8039DF80` | `0x804B6358`–`0x804B6368` | none observed |
+| Formatter helper unit, file name unknown | `0x80010218`–`0x800102D0` | `0x80046368`–`0x800463B0` | `0x80088C20`–`0x800896D8` | `0x8039DED8`–`0x8039DF80` | `0x804B6358`–`0x804B6360` | none observed |
 
 `CDlgPiiList.cpp` (#82) follows at `0x800896E0`; its deleter vtable is at `.data` `0x8039DF80` and its type info at `.sdata` `0x804B6368`.
 
