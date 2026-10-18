@@ -52,3 +52,55 @@ The source follows the structure of the CC0 MH Tri decompilation (InusualZ/mhtri
 
 - **Out-of-line weak inlines can come back when unrelated helpers become inline members.** `ConnectNone` calls `GetDrawOrder`, `GetStripeTexmapType`, `Vertex()`, `math::FInv`, `GetNumDrawParticle` and `GXEnd` out of line in the target, although `DrawSection_BSpline` inlines `FInv`. With the frame computation written inline in `CalcVertex`, the rebuild inlined all of them into `ConnectNone` (0%). After the frame code moved into the inline members `CalcAxisMtx` and `CalcRotateMtx`, the rebuild called them out of line exactly as the target does, with no pragma. The mechanism is not established; when a target calls trivial inlines out of line, first rebuild the earlier functions of the file with the original helper structure before reaching for `dont_inline`.
 - **Return-slot parameters in a debug reference mean return by value.** An output pointer that a debug decompilation passes before `self` is the hidden return slot. Return the object by value.
+
+# F-384-3: complete smooth-stripe iterator consumer probe
+
+The existing canonical smooth-stripe source was independently compiled
+without changing its implementations, types, layout or established Wii/1.1
+NW4R flags. The baseline reproduces the recorded Origin mismatch:
+text99.928696%, Origin97.391304%, with all four data sections100%.
+The #383 owner supplied a bounded shared-header proposal: the existing
+const GetElderParticle and GetYoungerParticle overloads forward to their
+already existing nonconst overloads. No overload, member or signature is
+added. The nonconst implementation uses the same list links and reads
+without mutating the manager. This is a target-supported equivalent
+implementation; original source spelling is not recovered.
+
+With only those two forwarding changes in an external diagnostic include
+overlay, the unchanged whole source scores100% in all five allocated
+sections. An independent strict audit resolves all513 text relocations and
+reproduces every byte of all28 retained functions /20,196 bytes. The28-byte
+vtable and52-byte constant payload are exact, including five vtable
+relocations; BSS48 and small BSS4 extents are unchanged. The source emits
+thirteen additional weak functions whose retained copies belong to other
+units. These receive no source-byte or function credit, and diagnostic
+comparison does not substitute for an actual source-selected full link.
+
+This differs from the failed F-385-2 probe that added new nonconst
+DrawStrategy overloads and changed unrelated overload resolution. It also
+preserves main's already corrected GetNumActive implementation; the older
+proposal's direct-field hunk is unnecessary. Shared-header publication is
+coordinated with the #383 owner, who will prove its existing consumers
+before the source-selection gate. The smooth unit remains NonMatching.
+#384's fourteen stripe functions remain in the #383-owned complete stripe
+unit; its source and interface changes stay with that owner.
+
+## Traps
+
+- A whole-object score can include compiler-emitted weak duplicates that
+  are discarded in the real link. Enumerate native retained functions and
+  resolve their relocations independently; count only the retained28 here,
+  then prove the final ELF/map/source selection and full frozen DOL.
+- A const-forward implementation and a newly added nonconst overload are
+  different changes. The former preserves the existing overload set;
+  the latter can silently change every caller's selected implementation.
+
+# F-384-4: coordinated source-selected acceptance and native helper order
+
+The complete source-selected proof is recorded in [F-383-4](383-ef-stripe-native.md#f-383-4-source-selected-stripe-and-coordinated-smooth-stripe-acceptance). The #384 first-function owner approved the exact `Vertex()` declaration with its unchanged empty inline definition after the first `ConnectNone` body. This preserves every #385 body and all existing source provenance. It is inferred from native weak emission, not claimed as uniquely recovered original source placement.
+
+The actual complete link verifies all 28 retained Smooth functions / 20,196 bytes / 513 text relocations, initialized vtable28 and constants52, BSS48/SBSS4, exact final ELF/map positions and source-only inputs. Together with the #383-owned complete Stripe unit, the strict original #384 audit covers all25 rows /18,856 bytes. The 13 discarded weak copies have no credit; source #385 is already canonical and receives no duplicate reconstruction claim or automatic closure.
+
+## Traps
+
+- Earlier per-function and paired-target proofs did not establish weak constructor placement. The first real source-selected CHECK failed because `Vertex()` appeared before `DrawSectionEnd_BSpline`. Keep retained layout and actual final source-selected addresses as mandatory gates even when every section scores100%.
