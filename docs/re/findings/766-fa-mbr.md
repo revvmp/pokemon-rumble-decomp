@@ -34,3 +34,33 @@ The remaining difference is the scheduler's choice between independent byte load
 
 - Comparing only changed-byte counts can hide invalid source transformations. An output helper used for both fields introduced an extra count-array zero store; a return helper removed the native start-array zero store. Require the exact native function extent and preserve both stores before interpreting a probe's difference count.
 - A library-relative name does not prove an identical API revision. The public VF validator has a disk parameter and an MBR structure, while the FA target accepts a total-sector count directly. Inspect native accesses and callers before adapting that reference.
+
+# F-766-3: Context and scheduling diagnostics
+
+A third investigation kept both source functions, interfaces and production compiler flags unchanged. The actual generated Ninja compile command was redirected only to issue-specific temporary input/output files. Direct ELF text comparison gives 20 unequal 32-bit instruction words in the 336-byte validator, with the 276-byte checker byte-identical. This raw word count differs from objdiff's 21 aligned diff rows; those measurements must not be interchanged.
+
+The following additional diagnostics produced no exact candidate and no improvement over F-766-1's eighteen-word result:
+
+| Diagnostic | Candidates | Result |
+| --- | --- | --- |
+| Ordinary C register hints on parameters and loop index | 16 | Same baseline text |
+| Nested shift/multiply little-endian expressions with unsigned type variants | 24 | No improvement; native-size forms retain 20 unequal words |
+| Both arrays grouped in one local struct, both field orders and three element types | 12 | 612-byte unit, 77 unequal words |
+| Shared success/error exits, return temporaries and equivalent condition forms | 72 | Best native-size result remains 20 unequal words |
+| Documented optimization levels and speed/space ordering | 9 | Best remains baseline; space selection produces 628-byte text |
+| Scheduler, individual optimization and processor diagnostics | 14 | No improvement; disabling scheduling produces 628-byte text |
+| Packed input words with endian conversion, offsets and const views | 18 | 596 or 708 bytes; different instruction selection |
+| Paired inline partition readers, all parameter orders and output staging | 48 | Same baseline text |
+| Equivalent zero stores and small memset diagnostics | 8 | No improvement; memset introduces additional code |
+| Ordinary byte term order, independently of qualifiers | 24 | No improvement |
+| IPA, inline policy and multiple-register-save diagnostics | 6 | Same baseline text |
+| Materialized validation flags of four ordinary integer types | 12 | 644-byte text; unsuitable |
+
+No flag diagnostic justifies a production configuration change. In particular, `-ipa off`, `-ipa function`, disabled inlining, deferred automatic inlining, `-use_lmw_stmw on` and `-opt all` all leave the baseline text unchanged. Processor 740 and 750 also reproduce the same baseline. None recovers the target's first-loop register graph.
+
+The public VF bodies already surveyed in F-766-1 still have another interface. The target FA reader idiom remains unidentified; repeating byte-expression permutations or these context changes has no demonstrated benefit. The issue remains open with the original object linked and no additional source credit. The next useful evidence is the target FA implementation or an independently supported reader structure that produces the native graph.
+
+## Traps
+
+- **Aligned diff rows and native instruction-word differences are different metrics.** The current baseline has 21 aligned objdiff rows but 20 unequal native words, confined to offsets `0x4C` through `0x9C`. Compare exact extents and raw words before claiming improvement; preserve the separately exact boot-sector checker as well.
+- **Compilation failure is not a negative binary result.** A volatile-parameter diagnostic conflicts with the existing public prototype and fails compilation. Its 24 attempted expression orders are excluded from the successful candidate counts above and establish no code-generation result. No volatile qualifier is added to production source.
