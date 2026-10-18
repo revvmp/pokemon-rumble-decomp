@@ -188,6 +188,16 @@ game/ScriptCamera.cpp:
 	.sdata      start:0x804B79A8 end:0x804B79B8
 	.sdata2     start:0x804BA1B8 end:0x804BA1E8
 
+game/SaveData.cpp:
+	extab       start:0x80032AA8 end:0x80033D8C
+	extabindex  start:0x8004FA7C end:0x8004FD94
+	.text       start:0x8015EEB0 end:0x8016CB18
+	.ctors      start:0x803529F4 end:0x803529F8
+	.data       start:0x803B73E0 end:0x803B7D90
+	.bss        start:0x803E9900 end:0x803E9910
+	.sdata      start:0x804B7AC8 end:0x804B7B10
+	.sbss       start:0x804B90B8 end:0x804B90D8
+
 game/NPpuVM.cpp:
 	extab       start:0x80034D94 end:0x80034EBC
 	extabindex  start:0x8004FDC4 end:0x8004FF14
