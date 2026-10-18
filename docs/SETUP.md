@@ -83,7 +83,7 @@ python tools/re/unitdiff.py <unit or source path> [--function <name>] [--all] [-
 
 It accepts an `objdiff.json` unit name (`main/game/BController`, `game/BController`, `BController`) or a source path, runs `ninja` for that unit's object only, and summarizes `objdiff-cli diff` per section and per function. Rows are marked `|` for an argument mismatch, `r` for a replaced instruction, `<` for an instruction only in the original, and `>` for one only in the rebuilt object. A `Matching` claim still needs the full build and verification.
 
-Pull request housekeeping tools are in `tools/collab/`: `claim_issue.py overlap` warns about open pull requests that change the same files as your branch, and `stale.py` lists idle, unmerged, and overlapping pull requests; see [collaboration](COLLABORATION.md#claiming-work).
+To merge an issue branch, run `python tools/collab/land.py --issue <n>` from its worktree; it loops rebase, build, verification, push, and squash merge until the merge lands on the latest `main`, then refreshes the progress images. `--dry-run` performs only the local steps. Worktrees made by `claim_issue.py worktree` start from a seeded `build/` (`tools/collab/build_seed.py`), so their first build is incremental; see [collaboration](COLLABORATION.md#working-with-llm-agents). Pull request housekeeping tools are in `tools/collab/`: `claim_issue.py overlap` warns about open pull requests that change the same files as your branch, and `stale.py` lists idle, unmerged, and overlapping pull requests; see [collaboration](COLLABORATION.md#claiming-work).
 
 ### Verify
 

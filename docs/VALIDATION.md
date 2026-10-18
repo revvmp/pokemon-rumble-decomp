@@ -147,3 +147,23 @@ Validated on 2026-10-17 in scratch worktrees with ninja 1.13.0, timed with `Meas
 - **Seeded worktree, forward.** A new worktree at `origin/main` `82571e1d`, one commit later, was seeded by `build_seed.py apply` in 7.4 s. `configure.py` and `ninja` then took 3.1 s (report and progress only), verification passed, and `main.dol` and `main.elf` matched the clean build. Touching `include/game/IController.h` made `ninja -n` schedule `BController.o`, and `ninja -t deps` listed headers under the new worktree, confirming the `.ninja_deps` path rewrite.
 - **Seeded worktree, across config changes.** The same seed applied to a new worktree at `6201b187` touched 44 changed files. `ninja` reran the split and `configure.py`, compiled 77 steps, and finished in 91 s against 126 s cold; verification passed with the frozen `main.dol` hash.
 - **Failure modes.** `apply` with an empty seed directory, and with a seed whose `.ninja_deps` was corrupt, printed `Build seed not used (...); the first build will be a full build.`, exited 1, and left no `build/`, `.ninja_log`, or `.ninja_deps`. In a seeded worktree, a source change that broke compilation made `ninja` exit 2; with `main.dol` deleted first, verification failed with exit 1 on the missing file instead of passing on a stale DOL.
+
+## Landing tool validation
+
+Validated `tools/collab/land.py` on 2026-10-17 in a scratch worktree `..\rumble-99999` on branch `maint/land-validation`, created from `origin/main~3` with one scratch commit adding a file under `docs/`, and seeded with `build_seed.py apply`. No real issue pull request was touched; `--pr 950`, an already merged pull request, stood in for read-only lookups.
+
+| Command | Exit | Time | Result |
+| --- | --- | --- | --- |
+| `land.py --issue 99999 --pr 950 --dry-run` | 0 | 137 s | Round 1 rebased onto `dfd85b51`, built (ninja 62 s), verified, stored a seed, and found `main` had moved; round 2 rebased onto `b4205e4a`, built (43 s), verified, and printed the push and squash merge it would make. `refresh_images.py --dry-run` skipped because the branch differs from `main`. |
+| same, with an untracked file | 1 | | Stopped before building: uncommitted or untracked files. |
+| same, after committing a source change that does not compile | 1 | 2.1 s | `ninja` exited 2; `land.py` printed the log tail and did not run verification. `main.dol` had been deleted first, so no stale DOL remained. |
+| same, on a branch from `origin/main~6` editing a line `main` later changed | 1 | | Rebase stopped; `land.py` listed `docs/SETUP.md` and left the rebase in progress for `git rebase --abort`. |
+| `land.py --issue 99999 --pr 950 --cleanup`, run inside the worktree | 1 | | Refused, naming the main checkout command. |
+| `land.py --issue 99999` (no dry run) | 1 | 60 s | Rebased onto `2402fd31`, built (41.5 s), verified, really pushed `f78bb9b8` to `origin/maint/land-validation` (`git ls-remote` confirmed), then stopped: no open pull request for the branch. |
+| `land.py --issue 99999 --pr 950 --dry-run --cleanup`, from the main checkout | 0 | 56 s | Resolved `..\rumble-99999` from the issue number, ran one round (ninja 38 s), and printed the four cleanup commands. |
+| simulated docs-only move of `main` (a script wrapping `rebase` and `contains_main`) | 0 | | Round 2 printed `main moved only in docs/; reusing the build verified at 22661eab` and re-ran only `verify.py`. |
+| `land.py --issue 99999 --pr 950 --cleanup-only`, from the main checkout | 0 | | `remove-worktree`, remote branch deletion, `git branch -D`, and `git pull --ff-only` each exited 0; the worktree and remote branch were gone and `tools\local\dtk.exe` survived. |
+
+The REST pull request lookup by branch was checked read-only against an open pull request: `find_pr` returned #953 with `draft` true for its branch. The merge call itself, `gh pr ready`, and the image push were not exercised, because no throwaway pull request was available; they use the same REST merge request (`sha` pinned to the verified commit) as the manual fallback in the `take-issue` skill. `refresh_images.py --min-interval` was checked with `--dry-run`: with the last image commit 15 minutes old it printed that it was skipping and exited 0; with `--min-interval 0` and `--min-interval 10` it rendered and reported the images current.
+
+Before these changes, the skill told agents to delete `build/` whenever a config file merged during a rebase; with 93 of 143 recent `main` commits touching one, most rounds were cold builds of 2 to 9 minutes. Each round now costs an incremental build of about 40 to 60 s, dominated by the link, and a new worktree's first build drops from a cold build to the changes since the newest seed (3 s when only headers and docs changed).
