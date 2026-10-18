@@ -153,3 +153,12 @@ Independent inspection of the three actual callees confirms the consumer's check
 ## Traps
 
 - A callee's constants are caller-specific. Recheck the actual argument preparation rather than transferring a nearby consumer's fixed flags or allocation parameters. Native offsets and predicates can corroborate an incomplete interface without proving the rest of its class layout.
+
+
+# F-326-6: reference extraction limitation
+
+A later attempt to select declarations from the pinned vector reference used a semicolon-and-parenthesis line filter. That condition also selected several statements inside inline function bodies. The extraction was stopped; those statements are not used as source-reconstruction evidence or copied algorithms. No vector implementation was changed from that output. The accepted native constructor, indexing and swap diagnostics described above predate this extraction and remain independently authored. Further reference extraction must select explicit class/template declarations or independently bounded declaration regions, rather than assuming a statement-shaped line is a declaration. The resize and destructor remain unaccepted.
+
+## Traps
+
+- A lexical line filter cannot distinguish a function declaration from a call inside an inline body merely by parentheses and a terminating semicolon. Review the extractor's selection conditions before treating its output as declaration-only evidence, and disclose accidental body exposure separately from accepted reconstruction evidence.
