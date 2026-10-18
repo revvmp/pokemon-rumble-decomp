@@ -35,3 +35,13 @@ This is partial work on #767: its four bodies are reconstructed, but acceptance 
 - Express the repeated `-2.0f * dot` terms at the quadratic roots. Introducing a separately live negative-dot local swaps scratch registers in sphere and cylinder. Explicit `math::VEC3Scale` calls preserve the native inline work-register allocation where nested `operator*=` instantiation differs. All of these candidates were checked against exact instruction words, not accepted from score alone.
 - The native dispatcher evaluates the option argument once before its shape switch. A small inline `GetTypePosition` helper preserves that interface; spelling six independent option accesses in the caller emits extra loads. The helper itself has no retained native body and earns no extra credit.
 - Do not omit the no-reflection/no-stop transformation path merely because it is absent from a nearby revision's source. The target contains two real matrix-vector calls in that else branch.
+
+# F-767-2: Original issue inventory accepted from source
+
+PR #1004 supplied the final #768 routine and accepted the complete post-field unit from source. This supersedes F-767-1's partial status. Independent closure validation uses the original issue body, not the candidate source's function list: its four rows at `8022F500/640`, `8022FB40/7E8`, `80230330/65C`, and `80230990/408` all resolve to the source-selected native bodies, totalling 6,284 instruction bytes.
+
+The audit also verifies the entire containing unit: fourteen functions and 13,880 instruction bytes, exactly 13,968 bytes of text including native alignment, all 56 constant bytes, and all 333 paired resolved text relocation targets. Every named function has its original native address, size and `ef_postfield.o` map contribution. Ninja selects the source object and excludes the original object. The rebuilt complete DOL equals the immutable original and passes the frozen-manifest verifier.
+
+Closure changes documentation only. The four routines were delivered in #1003 and accepted through #1004; they receive no second source credit. #767 is complete. The separate animation routines in #377 remain open.
+
+Validation: configure with map, actual Ninja link after removing only the old DOL, frozen-manifest verification, unitdiff, and the independent original-inventory/ELF/relocation/map/dependency audit all exit 0. The official landing procedure repeats these gates after rebasing onto latest main. No new trap was found during this closure audit.
