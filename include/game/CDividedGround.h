@@ -35,7 +35,13 @@ public:
     virtual void OnLeaveWorld();
     virtual void UpdateVisible();
 
+    void LoadAttr(const char* pName, u32 flags);
+
 private:
+    void LoadAttr(const StageID* pStageID, int stageNo, const char* pName, u32 flags);
+
+    static const char* FindIndexSuffix(const char* pName);
+
     std::tr1::shared_ptr<CPpuEngine> mPpuEngine;
     const StageID* mStageID;
     int mStageNo;
