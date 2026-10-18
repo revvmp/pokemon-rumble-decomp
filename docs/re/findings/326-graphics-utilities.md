@@ -103,6 +103,8 @@ The #327 header owner independently corrected the generic utility. Its exact can
 
 An additional independent vector consumer using the same exact header confirms four-byte `compressed_pair<size_t, allocator<T>>` storage and a complete twelve-byte vector extent, exercising the second-empty policy. Its destructor remains 196 bytes against the native 204-byte routine and is explicitly unaccepted. The call-traits correction does not resolve that separate vector algorithm or exception-lifetime question.
 
+Initializing the base's capacity pair to zero and naturally allocating an array of vectors emits the real constructor callback. That callback reproduces all twenty native instruction bytes at `0x801C7BD0`, with no relocations or artificial deleting-flag parameter. This confirms zero initialization of storage, count and capacity through the authentic three-layer class hierarchy. It does not establish the destructor or resize body. `326-audit-vector-layout.py` records the constructor and physical-layout proof in the same layout JSON.
+
 The existing declaration-only vector reference further exposes __vec_deleter's default constructor, explicit constructor taking allocator_param, destructor, `void clear()` and `size_type grow_by(size_type n)`. Its allocator_param aliases the capacity pair's second_param. No get_allocator helper is declared on that base in this revision. An invented allocator-return helper is therefore not introduced merely to obtain the missing stack byte; the native destructor and #326 resize operation still need faithful container-source proof.
 
 ## Reproduction and limits
