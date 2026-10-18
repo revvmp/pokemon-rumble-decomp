@@ -111,6 +111,14 @@ game/CGameEnding.cpp:
 	.sbss       start:0x804B8FF8 end:0x804B9000
 	.sdata2     start:0x804B9E68 end:0x804B9E70
 
+game/CNoticeDisplay.cpp:
+	extab       start:0x8001F948 end:0x80020CC0
+	extabindex  start:0x800497E8 end:0x80049B60
+	.text       start:0x800CF8A0 end:0x800D4B50
+	.data       start:0x803A5840 end:0x803A6BD0
+	.sdata      start:0x804B6CD8 end:0x804B6E80
+	.sdata2     start:0x804B9FB0 end:0x804B9FC0
+
 game/ScriptCamera.cpp:
 	extab       start:0x8002DE28 end:0x8002E278
 	extabindex  start:0x8004D07C end:0x8004D520
