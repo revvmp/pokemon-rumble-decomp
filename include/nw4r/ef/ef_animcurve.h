@@ -22,6 +22,9 @@ void AnimCurveExecuteTexture(u8* pCmdList, Particle* pParticle, u32 tick,
 void AnimCurveExecuteChild(u8* pCmdList, Particle* pParticle, u32 tick,
                            u16 seed, u32 life);
 
+void AnimCurveExecuteBakedU8(u8* pCmdList, u8* pTarget, u32 tick, u32 life);
+void AnimCurveExecuteBakedF32(u8* pCmdList, f32* pTarget, u32 tick, u32 life);
+
 }
 }
 
