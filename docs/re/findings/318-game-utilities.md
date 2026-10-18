@@ -4,7 +4,7 @@
 
 The original #318 inventory has 23 functions and 5,648 code bytes, from `0x801B64B0` through the CModel constructor at `0x801B7AA0`. The survey title does not establish a source-file boundary. The constructor alone does not establish the complete CModel class or translation unit; later methods and nested animation classes extend into neighboring inventories.
 
-The initial native checkpoint was documentation only. The branch now proposes a bounded split for the first two functions; its split-only full-build verification is pending. No function is source-selected and no progress is credited. The isolated worktree started at `fb63a24627e72e30f4f48badb7e1b1b82cb04bef`. Native comparisons read the frozen original DOL without changing its manifest.
+The initial native checkpoint was documentation only. The bounded first two functions have passed split-only full verification and their source is registered NonMatching for actual-object comparison. No function is source-selected and no progress is credited. The isolated worktree started at `fb63a24627e72e30f4f48badb7e1b1b82cb04bef`. Native comparisons read the frozen original DOL without changing its manifest.
 
 ## Compiler and reproducibility
 
@@ -60,9 +60,11 @@ The current canonical header also emits six matching outside support functions: 
 
 The isolated `318-quarter-turn-probe.cpp` uses the canonical NW4R SinDeg and CosDeg helpers, with ordinary quarter-turn inputs. `318-audit-quarter-turn.py` proves both resolved bodies, the complete 88-byte text extent from `0x801B64B0` to `0x801B6508`, and the entire 12-byte constant pool from `0x804BA3B8` to `0x804BA3C4`. The exception entry is eight bytes at `0x80038DA8`, with its index at `0x80050A30`. No initialized data, RTTI or zero-initialized storage is emitted by this isolated unit.
 
-The next aspect helpers begin at `0x801B6510`, with their float pool starting at `0x804BA3C8`. Combining the two groups into one source moves the latter constants four bytes early; the native gap instead agrees with the following unit's alignment. These complete section comparisons support the bounded proposal. `QuarterTurn.cpp` and its function names are descriptive; no original filename or spelling is claimed. Full split-only verification remains required before registering its source.
+The next aspect helpers begin at `0x801B6510`, with their float pool starting at `0x804BA3C8`. Combining the two groups into one source moves the latter constants four bytes early; the native gap instead agrees with the following unit's alignment. These complete section comparisons support the bounded proposal. `QuarterTurn.cpp` and its function names are descriptive; no original filename or spelling is claimed.
 
 The initial split attempt was rejected because the automatic `lbl_804BA3C0` symbol covered eight bytes, merging the demonstrated four-byte `1.0f` with the following four zero bytes. The exact source pool ends at `0x804BA3C4`. The owned symbol extent is corrected to four bytes; the following alignment bytes are left outside the source split. No outside symbol size or original artifact is changed.
+
+At `1d8155cc`, rebased onto `82571e1d`, the fresh split-only configure, full default Ninja, explicit all_source and actual-directory frozen verifier all exit zero. Ninja compiled the current game NonMatching sources too. The next step registers the source NonMatching and compares the actual compiler object before source selection.
 
 ## Render-mode interface remains unresolved
 
