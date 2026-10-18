@@ -241,19 +241,13 @@ protected:
 
     static Particle* GetElderParticle(const ParticleManager* pManager,
                                       Particle* pParticle) {
-
-        return static_cast<Particle*>(
-            NW4R_UT_LIST_GET_LINK(pManager->mActivityList.mActiveList,
-                                  pParticle)
-                ->prevObject);
+        return GetElderParticle(const_cast<ParticleManager*>(pManager),
+                                pParticle);
     }
     static Particle* GetYoungerParticle(const ParticleManager* pManager,
                                         Particle* pParticle) {
-
-        return static_cast<Particle*>(
-            NW4R_UT_LIST_GET_LINK(pManager->mActivityList.mActiveList,
-                                  pParticle)
-                ->nextObject);
+        return GetYoungerParticle(const_cast<ParticleManager*>(pManager),
+                                  pParticle);
     }
 
     static Particle* GetOldestParticle(ParticleManager* pManager) {

@@ -65,7 +65,7 @@ public:
         mViewMtx = rMtx;
     }
 
-    void GetViewMtxCooked(math::MTX34* pMtx) const {
+    const math::MTX34& GetViewMtxCooked(math::MTX34* pMtx) const {
         *pMtx = mViewMtx;
 
         if (mZOffset != 0.0f) {
@@ -99,6 +99,7 @@ public:
             }
             }
         }
+        return *pMtx;
     }
 
     const math::MTX34* GetProjMtx() const {
