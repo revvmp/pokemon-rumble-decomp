@@ -126,11 +126,7 @@ public:
             s_->retain();
         }
     }
-    ~shared_ptr() throw() {
-        if (s_) {
-            s_->release();
-        }
-    }
+    ~shared_ptr() throw();
 
     shared_ptr& operator=(const shared_ptr& r) {
         shared_ptr(r).swap(*this);
@@ -162,6 +158,7 @@ public:
 private:
     template <typename Y> friend class shared_ptr;
     template <typename Y> friend class weak_ptr;
+    template <typename Y, typename U> friend shared_ptr<Y> static_pointer_cast(const shared_ptr<U>& r);
 
     shared_ptr(T* p, detail::shared_ptr_deleter_common* s) : ptr_(p), s_(s) { s_->retain(); }
     template <typename Y, typename U> void enable_from_this(const enable_shared_from_this<Y>* pBase, U* p);
@@ -186,11 +183,7 @@ public:
             s_->attach_weak();
         }
     }
-    ~weak_ptr() {
-        if (s_) {
-            s_->release_weak();
-        }
-    }
+    ~weak_ptr();
 
     weak_ptr& operator=(const weak_ptr& r) {
         weak_ptr(r).swap(*this);
@@ -213,18 +206,7 @@ public:
 
     long use_count() const { return s_ ? s_->use_count() : 0; }
     bool expired() const { return !s_ || s_->use_count() == 0; }
-    shared_ptr<T> lock() const {
-        if (expired()) {
-            return shared_ptr<T>();
-        }
-        shared_ptr<T> locked;
-        if (s_->use_count() != 0) {
-            locked.ptr_ = ptr_;
-            locked.s_ = s_;
-            locked.s_->retain();
-        }
-        return locked;
-    }
+    shared_ptr<T> lock() const;
 
 private:
     template <typename Y> friend class shared_ptr;
@@ -260,6 +242,35 @@ shared_ptr<T>::shared_ptr(const weak_ptr<Y>& r) : ptr_(nullptr), s_(nullptr) {
         throw bad_weak_ptr();
     }
     swap(locked);
+}
+
+template <typename T> shared_ptr<T>::~shared_ptr() throw() {
+    if (s_) {
+        s_->release();
+    }
+}
+
+template <typename T> weak_ptr<T>::~weak_ptr() {
+    if (s_) {
+        s_->release_weak();
+    }
+}
+
+template <typename T> shared_ptr<T> weak_ptr<T>::lock() const {
+    if (expired()) {
+        return shared_ptr<T>();
+    }
+    shared_ptr<T> locked;
+    if (s_->use_count() != 0) {
+        locked.ptr_ = ptr_;
+        locked.s_ = s_;
+        locked.s_->retain();
+    }
+    return locked;
+}
+
+template <typename T, typename U> shared_ptr<T> static_pointer_cast(const shared_ptr<U>& r) {
+    return r.s_ ? shared_ptr<T>(static_cast<T*>(r.ptr_), r.s_) : shared_ptr<T>();
 }
 
 template <typename T>
