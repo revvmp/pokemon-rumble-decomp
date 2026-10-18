@@ -2,7 +2,7 @@ config/**/*.txt text eol=lf
 config/**/*.sha1 text eol=lf
 docs/images/*.svg text eol=lf
 *.bat text eol=crlf
-docs/ledger/*.md merge=union
+docs/ledger/*.md merge=decomp-config
 docs/ledger/README.md merge
 docs/re/SYMBOLS.md merge=union
 docs/re/*.tsv text eol=lf

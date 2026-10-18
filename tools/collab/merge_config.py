@@ -188,14 +188,23 @@ def object_key(line):
     return match["path"] if match else None
 
 
-def resolve_hunk(base, ours, theirs):
+def ledger_key(line):
+    if not line.startswith("| ") or line.startswith("| ---") or line.startswith("| Unit |"):
+        return None
+    cells = [cell.strip() for cell in line.strip().strip("|").split("|")]
+    if len(cells) < 3:
+        return None
+    return cells[2] if "src/" in cells[2] else cells[0]
+
+
+def resolve_hunk(base, ours, theirs, key_of=object_key):
     lines = base + ours + theirs
-    if lines and all(object_key(line) for line in lines if line.strip()):
-        base_map = {object_key(line): line for line in base if line.strip()}
-        ours_map = {object_key(line): line for line in ours if line.strip()}
-        theirs_map = {object_key(line): line for line in theirs if line.strip()}
+    if lines and all(key_of(line) for line in lines if line.strip()):
+        base_map = {key_of(line): line for line in base if line.strip()}
+        ours_map = {key_of(line): line for line in ours if line.strip()}
+        theirs_map = {key_of(line): line for line in theirs if line.strip()}
         merged = []
-        for key in ordered_union([object_key(line) for line in ours if line.strip()], [object_key(line) for line in theirs if line.strip()]):
+        for key in ordered_union([key_of(line) for line in ours if line.strip()], [key_of(line) for line in theirs if line.strip()]):
             chosen, conflict = pick(base_map.get(key), ours_map.get(key), theirs_map.get(key))
             if conflict:
                 if ours_map.get(key) is None or theirs_map.get(key) is None:
@@ -210,7 +219,7 @@ def resolve_hunk(base, ours, theirs):
     return None
 
 
-def merge_lines(base_path, ours_path, theirs_path):
+def merge_lines(base_path, ours_path, theirs_path, key_of=object_key, union=False):
     text = diff3(base_path, ours_path, theirs_path)
     output = []
     conflicts = 0
@@ -225,7 +234,10 @@ def merge_lines(base_path, ours_path, theirs_path):
         elif line.startswith("=======") and state == "base":
             state = "theirs"
         elif line.startswith(">>>>>>> theirs") and state == "theirs":
-            resolved = resolve_hunk(hunk["base"], hunk["ours"], hunk["theirs"])
+            blank = any(not line.strip() for line in hunk["base"] + hunk["ours"] + hunk["theirs"])
+            resolved = None if union and blank else resolve_hunk(hunk["base"], hunk["ours"], hunk["theirs"], key_of)
+            if resolved is None and union:
+                resolved = hunk["ours"] + [line for line in hunk["theirs"] if line not in hunk["ours"]]
             if resolved is None:
                 conflicts += 1
                 output += ["<<<<<<< ours", *hunk["ours"], "=======", *hunk["theirs"], ">>>>>>> theirs"]
@@ -240,7 +252,7 @@ def merge_lines(base_path, ours_path, theirs_path):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Git merge driver for splits.txt, symbols.txt and configure.py that merges independent entries automatically.")
+    parser = argparse.ArgumentParser(description="Git merge driver for splits.txt, symbols.txt, configure.py and ledger tables that merges independent entries automatically.")
     parser.add_argument("base")
     parser.add_argument("ours")
     parser.add_argument("theirs")
@@ -255,11 +267,14 @@ def main():
             merged, conflicts = merge_symbols(base_text, ours_text, theirs_text)
         elif name == "splits.txt":
             merged, conflicts = merge_splits(base_text, ours_text, theirs_text)
+        elif Path(args.path).parent.name == "ledger":
+            merged, conflicts = merge_lines(args.base, args.ours, args.theirs, ledger_key, union=True)
         else:
             merged, conflicts = merge_lines(args.base, args.ours, args.theirs)
     except (OSError, UnicodeDecodeError, ValueError) as error:
         print(f"{DRIVER}: {args.path}: {error}; falling back to a text merge", file=sys.stderr)
-        return subprocess.run(["git", "merge-file", "-L", "ours", "-L", "base", "-L", "theirs", args.ours, args.base, args.theirs]).returncode
+        union = ["--union"] if Path(args.path).parent.name == "ledger" else []
+        return subprocess.run(["git", "merge-file", *union, "-L", "ours", "-L", "base", "-L", "theirs", args.ours, args.base, args.theirs]).returncode
     write(args.ours, merged, newline)
     if conflicts:
         print(f"{DRIVER}: {args.path}: {conflicts} entr{'y' if conflicts == 1 else 'ies'} changed differently on both sides; resolve the markers by hand", file=sys.stderr)

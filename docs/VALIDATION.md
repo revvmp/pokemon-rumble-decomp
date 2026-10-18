@@ -125,6 +125,8 @@ Validated `tools/collab/merge_config.py` against the last 60 commits on `main` t
 
 The `configure.py` reorderings do not affect the build: link order comes from dtk's configuration, which is derived from `splits.txt`. Six real `git rebase` runs in temporary worktrees, with the driver registered through `.gitattributes`, completed without stopping. In every one, `symbols.txt` and `splits.txt` matched B exactly. A first attempt showed the driver must be referenced by absolute path, because older trees being rebased do not contain the tool.
 
+Ledger tables (`docs/ledger/*.md`) moved from union merge to the same driver on 2026-10-17, after union merges brought back a superseded `pf_dir.c` row three times. Rows are keyed by source path, or by unit name when no source exists; hunks containing blank lines or unkeyed text fall back to union. Replaying the real case, a branch from `74cd685c` that adds a row next to `pf_dir.c`, merged onto `aacc0169` where #899 rewrote that row: `git merge-file --union` produced two `pf_dir.c` rows, and the driver produced exactly one, `aacc0169`'s, plus the added row, with no other line differing from `aacc0169`. A real `git rebase` in a scratch repository with the driver registered through `.gitattributes` completed with exit 0, the same single row, and a clean status.
+
 ## Unit diff and pull request overlap tool validation
 
 Validated on 2026-10-17 in a worktree off `main` at `fb63a246`, after one full build (`ninja` exit 0, 128 s):

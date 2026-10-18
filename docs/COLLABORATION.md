@@ -75,7 +75,7 @@ Partially matching work is welcome. Keep it `NonMatching` so the build still use
 | `docs/ledger/<area>.md` | Add rows for your own units only. |
 | New findings | One new file per finding in `docs/re/findings/`, named `<issue>-<slug>.md`, with ID `F-<issue>-<n>`. Do not append to `docs/re/FINDINGS.md`. |
 | `AGENTS.md` traps | Maintainer-only. Record traps under a `Traps` heading in your issue's findings file in `docs/re/findings/`; maintainers promote project-wide ones into `AGENTS.md`. |
-| `docs/ledger/*.md`, `docs/re/SYMBOLS.md` | Append your rows. `.gitattributes` merges these with git's union driver, so concurrent appends rebase without conflicts. Never rewrite or reorder other contributors' rows. |
+| `docs/ledger/*.md`, `docs/re/SYMBOLS.md` | Append your rows. Ledger tables merge through the `decomp-config` driver, keyed by source path or unit name, so concurrent appends rebase without conflicts and an updated row replaces its old version; `SYMBOLS.md` uses git's union driver. Never rewrite or reorder other contributors' rows. |
 | Maintainer-only | `docs/re/main.elf.i64` (binary, unmergeable), `config/progress.json`, `docs/images/`, the status table in `PROGRESS.md`, `HANDOFF.md`, `WORKSTREAMS.md`, the `AGENTS.md` state table, `config/targets/`, `config/wpse-v1/build.sha1`, `config/toolchain.json`, and vendored `tools/build/`. |
 
 After each merge, the merging agent runs `tools/progress/refresh_images.py`, which commits refreshed progress images to `main` only if `main` still matches its verified build and the last image commit is at least 60 minutes old. Maintainers update the shared summaries. Contributors never edit either, so they never conflict on them.

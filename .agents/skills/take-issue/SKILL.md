@@ -18,7 +18,7 @@ Preserve every rule in the shared procedure:
 - the merge loop, run with `python tools/collab/land.py --issue <n>` from the worktree: rebase onto `origin/main`, confirm `git status --porcelain` is empty, delete `build/wpse-v1/main.dol`, verify locally with `configure.py`, `ninja`, and `verify.py`, confirm `main` has not moved, then merge with the verified commit as the required head; GitHub CI no longer runs, so local verification is the only gate. Keep the manual steps as the fallback
 - the `decomp-config` merge driver for `splits.txt`, `symbols.txt` and `configure.py`, with by-hand resolution only for the entries it marks
 - the rebase conflict rules: during a rebase, `--ours` is `main` and `--theirs` is your commit; keep both sides in shared files
-- union-merged tables: ledger files and `docs/re/SYMBOLS.md` merge automatically; check afterwards for duplicated or interleaved rows
+- auto-merged tables: ledger rows merge by unit through `decomp-config`, so an edited row replaces its old version; `docs/re/SYMBOLS.md` uses union merge; check afterwards for duplicated or interleaved rows
 - shared headers: use and extend the Petari-derived RVL_SDK headers in `include/revolution/` and `include/private/` (D-0013); never add files under `include/RVL_SDK/`, which only forwards; on an add/add header conflict, keep `main`'s version and add only what you still need
 - outside symbols: you may name callees or data in other blocks in `symbols.txt` so your link resolves, but leave their splits, sizes, and types to the owning issue
 - traps: do not edit `AGENTS.md`; record traps under a `Traps` heading in your findings file `docs/re/findings/<n>-<slug>.md`
