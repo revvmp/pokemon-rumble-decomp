@@ -229,6 +229,7 @@ config.libs = [
             Object(NonMatching, "game/CDlgCollection.cpp"),
             Object(NonMatching, "game/CDlgInfo.cpp"),
             Object(NonMatching, "game/CDlgPiiList.cpp"),
+            Object(Matching, "game/EncodingConverter.cpp"),
             Object(NonMatching, "game/memory.cpp"),
             Object(Matching, "game/new.cpp"),
             Object(Matching, "game/QuarterTurn.cpp"),
