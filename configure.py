@@ -217,6 +217,7 @@ config.libs = [
         "game",
         [
             Object(Matching, "game/BController.cpp"),
+            Object(NonMatching, "game/CDlgPiiList.cpp"),
         ],
     ),
     library(

@@ -21,6 +21,15 @@ game/BController.cpp:
 	.sdata      start:0x804B5A20 end:0x804B5A40
 	.sdata2     start:0x804B9C60 end:0x804B9C88
 
+game/CDlgPiiList.cpp:
+	extab       start:0x800102D0 end:0x80012F68
+	extabindex  start:0x800463B0 end:0x80046AD0
+	.text       start:0x800896E0 end:0x80092EB0
+	.data       start:0x8039DF80 end:0x8039F518
+	.sdata      start:0x804B6360 end:0x804B64A8
+	.sbss       start:0x804B8FD8 end:0x804B8FE0
+	.sdata2     start:0x804B9DE0 end:0x804B9DF0
+
 RevoEX/net/NETVersion.c:
 	.text       start:0x801770F4 end:0x801770FC
 	.data       start:0x803B9D88 end:0x803B9DC0
