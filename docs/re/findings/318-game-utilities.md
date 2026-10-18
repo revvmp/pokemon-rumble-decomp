@@ -84,6 +84,8 @@ The canonical declaration in `include/game/RenderMode.h` returns `GXRenderModeOb
 
 This accepts the typed declaration and paired caller ABI, not the producer's complete source unit. The producer and six graphics consumers remain diagnostic until their owned units are reconstructed, selected and verified through the full link. No extra source byte credit is assigned here. The header's existing-object preservation gate uses the verified preheader snapshot at `b5f2d7eb`, containing all 552 registered source objects and linked/report artifact hashes.
 
+At `944c4c81`, configure, explicit all_source, plain Ninja after deleting only the old main.dol and actual-directory frozen verification all exit zero. Every one of the 552 registered source objects remains whole-file identical to that preheader control, with the same source-object inventory. The complete ELF, DOL and report also remain byte-identical. Header SHA-256 is `ce4c39e3a4546c1337f42282860bc3641ca8153ad39cc0b565812838434e77c3`; the outside reproducibility record is `318-render-header-preservation-proof.json`.
+
 ## Remaining work
 
 The original inventory is accounted for as follows. Only the first two entries are linked reconstructed source. The diagnostic column does not imply source selection.
