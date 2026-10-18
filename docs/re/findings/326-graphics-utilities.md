@@ -71,6 +71,8 @@ A declaration-only extraction from the previously pinned MSL smart-pointer refer
 
 Reproduction files are outside the repository at `C:/MassStorage/GitHub/326-graphics-probe.cpp`, `326-compile-graphics.py`, `326-audit-graphics.py` and `326-graphics-proof.json`. The compile driver must exit zero before the audit is run. Native inventory reading aids are in `326-initial-native.json` and `326-tail-native.json`.
 
+The exact observed BController Ninja command, target and source-head provenance are retained in `C:/MassStorage/GitHub/326-game-command.json`. The compile drivers consume those captured compiler arguments so their reproduction does not depend on keeping the earlier #315 header worktree alive. Repeating the graphics, smart-pointer and vector-constructor checks from that captured command preserves their results.
+
 ## Traps
 
 - The decompiler omits some register arguments when its inferred prototype is wrong. Native `0x802D07B0` is GXSetZMode and consumes three arguments, including GX_LEQUAL; a one-argument interpretation loses eight instructions bytes and calls the wrong API. Canonical symbols and actual native call preparation establish the interface.
