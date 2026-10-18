@@ -55,7 +55,7 @@ inline f32 CosRad(f32 rad) {
 }
 
 inline f32 TanFIdx(f32 fidx) {
-    return tan(NW4R_MATH_FIDX_TO_RAD(fidx));
+    return tanf(NW4R_MATH_FIDX_TO_RAD(fidx));
 }
 inline f32 TanDeg(f32 deg) {
     return TanFIdx(NW4R_MATH_DEG_TO_FIDX(deg));

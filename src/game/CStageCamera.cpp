@@ -6,12 +6,6 @@
 #include <nw4r/g3d/g3d_light.h>
 #include <nw4r/math/math_triangular.h>
 
-static nw4r::math::VEC3 Transform(const nw4r::math::MTX34& rMtx, const nw4r::math::VEC3& rVec) {
-    nw4r::math::VEC3 result;
-    nw4r::math::VEC3Transform(&result, &rMtx, &rVec);
-    return result;
-}
-
 CStageCamera::CStageCamera(u32 type) : BWorldCamera(type | TYPE), mReserved(0) {}
 
 CStageCamera::~CStageCamera() {}
