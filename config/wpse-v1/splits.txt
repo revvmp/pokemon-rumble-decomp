@@ -246,6 +246,37 @@ RVL_SDK/hbm/seq.c:
 	.data       start:0x803BE388 end:0x803BE408
 	.bss        start:0x803EA7F0 end:0x803EA7F8
 
+game/RenderPrimitive.cpp:
+	extab       start:0x8003BB54 end:0x8003BB74
+	extabindex  start:0x80051024 end:0x80051054
+	.text       start:0x801C5810 end:0x801C5B48
+	.sdata2     start:0x804BA468 end:0x804BA478
+
+game/AnmObjChrGroup.cpp:
+	extab       start:0x8003BB74 end:0x8003BC00
+	extabindex  start:0x80051054 end:0x80051108
+	.text       start:0x801C5B50 end:0x801C67EC
+	.rodata     start:0x80366FD8 end:0x80366FEC
+	.data       start:0x803BFE88 end:0x803BFF82
+	.sdata      start:0x804B82C8 end:0x804B82E8
+	.sdata2     start:0x804BA478 end:0x804BA480
+
+game/AnmObjChrOverride.cpp:
+	extab       start:0x8003BC00 end:0x8003BC20
+	extabindex  start:0x80051108 end:0x80051138
+	.text       start:0x801C67F0 end:0x801C6A7C
+	.rodata     start:0x80366FF0 end:0x80367008
+	.data       start:0x803BFF88 end:0x803C0030
+	.sdata      start:0x804B82E8 end:0x804B82F0
+
+game/AnmObjChrRootScale.cpp:
+	extab       start:0x8003BC20 end:0x8003BC40
+	extabindex  start:0x80051138 end:0x80051168
+	.text       start:0x801C6A80 end:0x801C6DAC
+	.rodata     start:0x80367008 end:0x80367020
+	.data       start:0x803C0030 end:0x803C00D8
+	.sdata      start:0x804B82F0 end:0x804B82F8
+
 TMC_JPEG/tmcjpeg.c:
 	.text       start:0x801F6060 end:0x801F62C4
 	.rodata     start:0x803677E8 end:0x80367839

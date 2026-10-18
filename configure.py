@@ -217,6 +217,10 @@ config.libs = [
         "game",
         [
             Object(Matching, "game/BController.cpp"),
+            Object(NonMatching, "game/RenderPrimitive.cpp"),
+            Object(NonMatching, "game/AnmObjChrGroup.cpp"),
+            Object(NonMatching, "game/AnmObjChrOverride.cpp"),
+            Object(NonMatching, "game/AnmObjChrRootScale.cpp"),
         ],
     ),
     library(
