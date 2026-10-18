@@ -1,4 +1,5 @@
 #include <nw4r/ef/ef_postfield.h>
+#include <nw4r/ef/ef_particlemanagerfield.h>
 #include <nw4r/ef/ef_particle.h>
 #include <nw4r/ef/ef_effect.h>
 #include <nw4r/ef/ef_effectsystem.h>
@@ -949,6 +950,189 @@ int crossCheck(const math::MTX34& rMtx, const math::MTX34& rInverseMtx,
             pWorldHit, nullptr);
     }
     return 1;
+}
+
+int CalcPostFieldParticle(Particle* pParticle,
+                          const detail::ParticlePostFieldTransform* pTransform,
+                          PostFieldInfo* pInfo, EmitterResource* pResource,
+                          const math::MTX34* pEmitterMtx,
+                          const math::MTX34* pManagerInverseMtx,
+                          const math::VEC3* pPrevPosition,
+                          math::VEC3 positionOffset, math::VEC3* pVelocity,
+                          bool* pKilled) {
+    math::MTX34 matrix;
+    math::MTX34 rotation;
+    math::MTX34 rotationOnly;
+    math::MTX34 inverse;
+    math::MTX34 inverseRotation;
+    u8 state;
+    u8 previousState;
+    f32 speedSq;
+    int bounce;
+
+    math::MTX34Identity(&matrix);
+    MTX34ScaleNonZero(&matrix, &pTransform->mScale, &matrix);
+    PSMTX34RotXYZRad(&rotation, pTransform->mRotate.x,
+                    pTransform->mRotate.y, pTransform->mRotate.z);
+    math::MTX34Mult(&matrix, &rotation, &matrix);
+    math::MTX34Trans(&matrix, &pTransform->mTranslate, &matrix);
+    if (pInfo->mFlags & 1) {
+        math::VEC3 emitterPosition(pEmitterMtx->_03, pEmitterMtx->_13, pEmitterMtx->_23);
+        math::MTX34Trans(&matrix, &emitterPosition, &matrix);
+    }
+    math::MTX34Mult(&matrix, pManagerInverseMtx, &matrix);
+    rotationOnly = matrix;
+    rotationOnly._03 = 0.0f;
+    rotationOnly._13 = 0.0f;
+    rotationOnly._23 = 0.0f;
+    math::MTX34Inv(&inverse, &matrix);
+    inverseRotation = inverse;
+    inverseRotation._03 = 0.0f;
+    inverseRotation._13 = 0.0f;
+    inverseRotation._23 = 0.0f;
+    math::VEC3 localPosition;
+    math::VEC3 localNext;
+    math::VEC3 localVelocity;
+    math::VEC3Transform(&localPosition, &inverse, pPrevPosition);
+    state = GetTypePosition(pInfo->mShape, localPosition, pInfo->mOption);
+    previousState = pParticle->mParameter.mCollisionStatus;
+    pParticle->mParameter.mCollisionStatus = state;
+    speedSq = math::VEC3LenSq(pVelocity);
+    switch (pInfo->mSpeedMode) {
+    case 1:
+        if (speedSq > pInfo->mSpeedLimit * pInfo->mSpeedLimit) {
+            Normalize(pVelocity, pVelocity);
+            math::VEC3Scale(pVelocity, pVelocity, pInfo->mSpeedLimit);
+        }
+        break;
+    case 2:
+        if (speedSq > pInfo->mSpeedLimit * pInfo->mSpeedLimit) {
+            *pKilled = true;
+        }
+        break;
+    }
+    if (*pKilled) {
+        return 1;
+    }
+    if (pParticle->mTick < pInfo->mStartAge) {
+        return 1;
+    }
+    if (pInfo->mFlags == 0) {
+        return 1;
+    }
+    switch (static_cast<u32>(pInfo->mCollisionMode)) {
+    case 1:
+        if (state != 2) {
+            return 1;
+        }
+    case 2:
+        if (pInfo->mCollisionMode == 2 && state != 3) {
+            return 1;
+        }
+        if (pInfo->mFlags & 8) {
+            positionOffset.x *= pInfo->mCollisionScale.x;
+            positionOffset.y *= pInfo->mCollisionScale.y;
+            positionOffset.z *= pInfo->mCollisionScale.z;
+            pVelocity->x *= pInfo->mCollisionScale.x;
+            pVelocity->y *= pInfo->mCollisionScale.y;
+            pVelocity->z *= pInfo->mCollisionScale.z;
+            switch (pInfo->mSpeedMode) {
+            case 1:
+                if (math::VEC3LenSq(pVelocity) > pInfo->mSpeedLimit * pInfo->mSpeedLimit) {
+                    Normalize(pVelocity, pVelocity);
+                    math::VEC3Scale(pVelocity, pVelocity, pInfo->mSpeedLimit);
+                }
+                break;
+            case 2:
+                if (math::VEC3LenSq(pVelocity) > pInfo->mSpeedLimit * pInfo->mSpeedLimit) {
+                    *pKilled = true;
+                }
+                break;
+            }
+        }
+        if (pInfo->mFlags & 0x40) {
+            *pKilled = true;
+        }
+        if ((pInfo->mFlags & 16) && pResource != nullptr) {
+            pParticle->mParticleManager->mManagerEM->mManagerEF->mManagerES->mCreationQueue.AddParticleCreation(
+                &pInfo->mInheritSetting, pParticle, pResource, pParticle->mCalcRemain,
+                nullptr, nullptr);
+        }
+        if ((pInfo->mFlags & 32) && pResource != nullptr) {
+            pParticle->mParticleManager->mManagerEM->mManagerEF->mManagerES->mCreationQueue.AddEmitterCreation(
+                &pInfo->mInheritSetting, pParticle, pResource, pParticle->mCalcRemain,
+                nullptr, nullptr);
+        }
+        return 1;
+    }
+    localNext.x = pPrevPosition->x + pParticle->mParameter.mMomentum * (positionOffset.x + pVelocity->x);
+    localNext.y = pPrevPosition->y + pParticle->mParameter.mMomentum * (positionOffset.y + pVelocity->y);
+    localNext.z = pPrevPosition->z + pParticle->mParameter.mMomentum * (positionOffset.z + pVelocity->z);
+    math::VEC3Transform(&localNext, &inverse, &localNext);
+    math::VEC3Transform(&localVelocity, &inverseRotation, pVelocity);
+    for (bounce = 0; bounce < 5; bounce++) {
+        math::VEC3 hit(0.0f, 0.0f, 0.0f);
+        math::VEC3 worldHit(0.0f, 0.0f, 0.0f);
+        math::VEC3 nextPosition(0.0f, 0.0f, 0.0f);
+        math::VEC3 nextVelocity(0.0f, 0.0f, 0.0f);
+        int collided;
+        if (math::VEC3DistSq(&localPosition, &localNext) < 1.4210855e-14f) {
+            collided = 0;
+        } else {
+            collided = crossCheck(matrix, rotationOnly, pInfo, pResource, pParticle,
+                                  localPosition, localNext, localVelocity,
+                                  pKilled, &hit, &worldHit, &nextPosition, &nextVelocity);
+        }
+        if (collided != 0) {
+            pParticle->mParameter.mPosition = nextPosition;
+            pParticle->mParameter.mVelocity = nextVelocity;
+            pParticle->mParameter.mCollisionStatus |= 0x80;
+            if (*pKilled) {
+                return 0;
+            }
+            state = 1;
+            localPosition = hit;
+            math::VEC3Transform(&localNext, &inverse, &nextPosition);
+            math::VEC3Transform(&localVelocity, &inverseRotation, &nextVelocity);
+        } else {
+            if (bounce == 0) {
+                if (pParticle->mTick > pInfo->mStartAge &&
+                    ((previousState == 2 && (state == 3 || state == 1)) ||
+                     (previousState == 3 && static_cast<u8>(state + 255) <= 1))) {
+                    if (pInfo->mFlags & 0x40) {
+                        *pKilled = true;
+                    }
+                    if ((pInfo->mFlags & 16) && pResource != nullptr) {
+                        pParticle->mParticleManager->mManagerEM->mManagerEF->mManagerES->mCreationQueue.AddParticleCreation(
+                            &pInfo->mInheritSetting, pParticle, pResource, pParticle->mCalcRemain,
+                            nullptr, nullptr);
+                    }
+                    if ((pInfo->mFlags & 32) && pResource != nullptr) {
+                        pParticle->mParticleManager->mManagerEM->mManagerEF->mManagerES->mCreationQueue.AddEmitterCreation(
+                            &pInfo->mInheritSetting, pParticle, pResource, pParticle->mCalcRemain,
+                            nullptr, nullptr);
+                    }
+                }
+                return 1;
+            }
+            switch (pInfo->mSpeedMode) {
+            case 1:
+                if (math::VEC3LenSq(&pParticle->mParameter.mVelocity) > pInfo->mSpeedLimit * pInfo->mSpeedLimit) {
+                    Normalize(&pParticle->mParameter.mVelocity, &pParticle->mParameter.mVelocity);
+                    math::VEC3Scale(&pParticle->mParameter.mVelocity, &pParticle->mParameter.mVelocity, pInfo->mSpeedLimit);
+                }
+                break;
+            case 2:
+                if (math::VEC3LenSq(&pParticle->mParameter.mVelocity) > pInfo->mSpeedLimit * pInfo->mSpeedLimit) {
+                    *pKilled = true;
+                }
+                break;
+            }
+            return 0;
+        }
+    }
+    *pKilled = true;
+    return 0;
 }
 
 }

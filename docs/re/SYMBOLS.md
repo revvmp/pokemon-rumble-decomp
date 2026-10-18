@@ -2840,3 +2840,7 @@ The inferred `GetTypePositionSphere` at `8022DFB0` has the same `const math::VEC
 ## Issue #767: post-field collision dispatch ABI
 
 The existing `crossCheck` mangling is retained. Native arguments after the two matrix references, PostFieldInfo pointer, resource pointer and particle pointer are previous/current position references, velocity by value, bool killed output, and local-hit/world-hit/result-position/result-velocity pointers. The canonical declaration parameter labels from #377 are provisional; its reference/value types are correct. The source definition now uses the proven argument meanings. Creation queues use mCalcRemain at particle E2. All four #767 bodies/6284 instruction bytes are exact candidates, awaiting #768 for source-linked whole-unit acceptance; see [F-767-1](findings/767-postfield-crossings.md).
+
+## Issue #768: complete post-field particle step
+
+The descriptive CalcPostFieldParticle ABI from #769 now has a complete exact source-linked definition at 80230DA0/2208 bytes. The existing transform type is36 bytes (scale/rotation/translation vectors), PostFieldInfo remains72 bytes, and all14 post-field functions/13880 C++ instruction bytes and56 constant bytes are accepted as one unit; see [F-768-1](findings/768-postfield-particle.md). Particle tickDC,calcRemainE2,momentumC4,collision status9D,velocityA0 andpositionAC accesses all resolve through canonical members. This acceptance covers the nine #377 and four #767 routines once, while #377 animation remains unaccepted.
