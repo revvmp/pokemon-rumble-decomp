@@ -138,6 +138,14 @@ game/CPpuEngine.cpp:
 	.sbss       start:0x804B9048 end:0x804B9068
 	.sdata2     start:0x804BA0D0 end:0x804BA0D8
 
+game/CStageCamera.cpp:
+	extab       start:0x80029534 end:0x800295E8
+	extabindex  start:0x8004BEAC end:0x8004BF0C
+	.text       start:0x801128C0 end:0x80112EE8
+	.data       start:0x803ADF30 end:0x803ADFC8
+	.sdata      start:0x804B7380 end:0x804B7388
+	.sdata2     start:0x804BA108 end:0x804BA128
+
 game/ScriptCamera.cpp:
 	extab       start:0x8002DE28 end:0x8002E278
 	extabindex  start:0x8004D07C end:0x8004D520
