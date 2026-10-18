@@ -576,6 +576,7 @@ config.libs = [
             Object(Matching, "nw4r/g3d/dcc/g3d_3dsmax.cpp"),
             Object(Matching, "nw4r/g3d/g3d_scnobj.cpp"),
             Object(Matching, "nw4r/g3d/g3d_scnroot.cpp"),
+            Object(NonMatching, "nw4r/g3d/g3d_scngroupex.cpp"),
             Object(Matching, "nw4r/g3d/g3d_calcmaterial.cpp"),
             Object(Matching, "nw4r/g3d/g3d_init.cpp"),
             Object(Matching, "nw4r/g3d/g3d_fog.cpp"),

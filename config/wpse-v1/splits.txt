@@ -1300,6 +1300,12 @@ nw4r/g3d/g3d_scnmdl.cpp:
 	.rodata     start:0x8036C9B8 end:0x8036C9C4
 	.data       start:0x803C6060 end:0x803C60A8
 
+nw4r/g3d/g3d_scngroupex.cpp:
+	.text       start:0x8026F880 end:0x8027074C
+	.rodata     start:0x8036C9C8 end:0x8036C9D8
+	.data       start:0x803C60A8 end:0x803C6150
+	.sdata      start:0x804B89A8 end:0x804B89C8
+
 nw4r/g3d/g3d_calcmaterial.cpp:
 	.text       start:0x80270750 end:0x80270984
 
