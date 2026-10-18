@@ -57,7 +57,24 @@ These audits do not close either issue. Their original functions must reside in 
 
 ## Acceptance boundary
 
-These are individual native proofs. They do not establish source-selected linking, a new Matching designation, issue completion, or measured progress. The proposed header still requires a current-main full existing-source comparison, actual `all_source` and default Ninja builds, and explicit frozen verification before it can be marked ready. Every existing Matching output must remain exact; any intended NonMatching difference must be identified precisely rather than omitted from the comparison.
+The initial complete preservation gate verifies committed head `6d88a0d06cc6bd428e6eadb1ca1af849f1ae740b` after rebasing onto actual PR #919. The independently preserved control is `705972f8b0e61db58f5a3add1ff9e3331b85dae1`, whose complete tracked tree equals the accepted merge. Every raw control object, linked artifact and tracked-tree manifest hash was revalidated before use. A fresh output directory avoids retaining prior metadata or source objects.
+
+| Actual command or comparison | Exit | Result |
+| --- | --- | --- |
+| `python configure.py --map --no-progress` | 0 | Fresh configured build |
+| `.venv/Scripts/ninja all_source -j16` | 0 | All 551 declared source objects compiled |
+| `.venv/Scripts/ninja -j16` | 0 | Actual LINK, DOL and frozen CHECK succeeded |
+| Plain Ninja and explicit `all_source` repeats | 0 | Both report no work |
+| Explicit `tools/verify/verify.py verify` with frozen manifest and reference | 0 | Frozen DOL SHA-256 unchanged |
+| Complete 551-object preservation comparison | 0 | 544 whole files identical; six only numeric local-name strings; one bounded NonMatching correction |
+| Six original-header recompilation controls | 0 | Each reproduces its exact old whole-object SHA-256 |
+| Fresh complete retained native audits | 0 | Actual built Smooth 28/20,196/513; Stripe 21/13,908/369 plus five data pointers; completed directional 23/5,556/152 |
+
+The six string-table-only objects are Billboard, Directional, Free, Line, Point and DrawStrategyImpl. All their section metadata, allocated bytes and relocation sections are unchanged. The sole allocated-code exception is the measured Smooth origin change, 564 to 552 bytes, with four fewer zero alignment bytes. Its other 40 emitted function bodies, initialized data and canonical nontext relocations remain unchanged. This preserves every existing Matching source output; it does not claim the NonMatching object unchanged.
+
+All 15 allocated final ELF sections are also identical to the control. The whole ELF file has changed symbol-name metadata, so whole-file ELF identity is not claimed. The actual final DOL remains `ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da`. Complete commands, checked exit codes, raw comparison, original-header controls and native outputs are preserved under `383-reference/header-global-20261017-180457`. The operational driver is `383-run-header-gate.py`; it contains no merge action.
+
+These header and diagnostic proofs do not establish source-selected Stripe/Smooth acceptance, a new Matching designation, issue completion, or measured progress. Subsequent rebases still require the exact-head current-main gates before merging. The supported no-progress build defers only the whole-project aggregate report; the actual report must be generated after merging, before the normal progress-image refresh.
 
 After this prerequisite merges, coordinated PR #908 can register and verify the complete stripe source and accept the unchanged smooth-stripe source through its #384 owner. That source delivery must independently prove actual source-only link inputs, final native addresses, full frozen DOL identity, and the original #384 inventory of 25 functions and 18,856 bytes. Header publication alone carries no reconstruction credit.
 
