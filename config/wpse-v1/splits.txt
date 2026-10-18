@@ -111,6 +111,14 @@ game/CGameEnding.cpp:
 	.sbss       start:0x804B8FF8 end:0x804B9000
 	.sdata2     start:0x804B9E68 end:0x804B9E70
 
+game/ScriptCamera.cpp:
+	extab       start:0x8002DE28 end:0x8002E278
+	extabindex  start:0x8004D07C end:0x8004D520
+	.text       start:0x80131780 end:0x801352EC
+	.ctors      start:0x803529F0 end:0x803529F4
+	.data       start:0x803B65A0 end:0x803B66C8
+	.sdata      start:0x804B79A8 end:0x804B79B8
+
 game/NPpuVM.cpp:
 	extab       start:0x80034D94 end:0x80034EBC
 	extabindex  start:0x8004FDC4 end:0x8004FF14
