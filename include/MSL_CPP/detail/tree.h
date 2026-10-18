@@ -2,6 +2,7 @@
 #define MSL_CPP_DETAIL_TREE_H
 
 #include <MSL_CPP/allocator.h>
+#include <utility>
 
 
 namespace std {
@@ -64,6 +65,23 @@ inline void tree_rotate_right(tree_node_base* x, tree_node_base*& root) {
 
 template <typename Node> void tree_balance_after_insert(Node* x, Node* root);
 
+void tree_balance_for_erase(tree_node_base* z, tree_node_base* root);
+
+inline tree_node_base* tree_next(tree_node_base* x) {
+    if (x->right_ != nullptr) {
+        x = x->right_;
+        while (x->left_ != nullptr) {
+            x = x->left_;
+        }
+    } else {
+        while (x != x->parent()->left_) {
+            x = x->parent();
+        }
+        x = x->parent();
+    }
+    return x;
+}
+
 template <typename T, typename Compare, typename Allocator> class tree_imp : private Allocator {
 public:
     typedef T value_type;
@@ -75,6 +93,9 @@ public:
 
     class iterator {
     public:
+        iterator() {}
+        iterator(tree_node_base* pNode) : node_(pNode) {}
+
         tree_node_base* node_;
     };
     typedef iterator const_iterator;
@@ -98,6 +119,38 @@ public:
         }
     }
 
+    pair<iterator, bool> insert(const value_type& rValue);
+
+    iterator find(const value_type& rValue) {
+        tree_node_base* pResult = end_node();
+        tree_node_base* pNode = root_;
+        while (pNode != nullptr) {
+            if (!Compare()(static_cast<node*>(pNode)->value_, rValue)) {
+                pResult = pNode;
+                pNode = pNode->left_;
+            } else {
+                pNode = pNode->right_;
+            }
+        }
+        if (pResult == end_node() || Compare()(rValue, static_cast<node*>(pResult)->value_)) {
+            pResult = end_node();
+        }
+        return iterator(pResult);
+    }
+
+    void erase(iterator position) {
+        tree_node_base* pNode = position.node_;
+        if (pNode == begin_) {
+            begin_ = tree_next(pNode);
+        }
+        tree_balance_for_erase(pNode, root_);
+        this->Allocator::destroy(&static_cast<node*>(pNode)->value_);
+        ::operator delete(pNode);
+        --size_;
+    }
+
+    tree_node_base* end_node() { return reinterpret_cast<tree_node_base*>(&root_); }
+
     tree_node_base* find_leaf(const value_type& rValue, node*& rpPred, bool& rLeft, bool& rLeftmost);
     node* insert_node_at(tree_node_base* pParent, bool left, bool leftmost, const value_type& rValue);
 
@@ -108,6 +161,18 @@ private:
     tree_node_base* root_;
     tree_node_base* begin_;
 };
+
+template <typename T, typename Compare, typename Allocator>
+pair<typename tree_imp<T, Compare, Allocator>::iterator, bool> tree_imp<T, Compare, Allocator>::insert(const value_type& rValue) {
+    node* pPred;
+    bool left;
+    bool leftmost;
+    tree_node_base* pParent = find_leaf(rValue, pPred, left, leftmost);
+    if (pPred == nullptr || Compare()(pPred->value_, rValue)) {
+        return pair<iterator, bool>(iterator(insert_node_at(pParent, left, leftmost, rValue)), true);
+    }
+    return pair<iterator, bool>(iterator(pPred), false);
+}
 
 template <typename T, typename Compare, typename Allocator>
 void tree_imp<T, Compare, Allocator>::destroy(node* pNode) {

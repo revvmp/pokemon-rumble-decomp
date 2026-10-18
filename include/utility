@@ -1,0 +1,19 @@
+#ifndef _UTILITY
+#define _UTILITY
+
+namespace std {
+
+template <typename T1, typename T2> struct pair {
+    typedef T1 first_type;
+    typedef T2 second_type;
+
+    pair() : first(), second() {}
+    pair(const T1& rFirst, const T2& rSecond) : first(rFirst), second(rSecond) {}
+
+    T1 first;
+    T2 second;
+};
+
+}
+
+#endif
