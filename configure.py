@@ -248,6 +248,8 @@ config.libs = [
             Object(NonMatching, "game/NPpuVM.cpp"),
             Object(NonMatching, "game/NPpuLibrary.cpp"),
             Object(Matching, "game/CFiber.cpp"),
+            Object(NonMatching, "game/CMsgRes.cpp"),
+            Object(NonMatching, "game/Message.cpp"),
             Object(Matching, "game/luckyhelper.cpp"),
         ],
     ),
