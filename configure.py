@@ -218,7 +218,7 @@ config.libs = [
         [
             Object(Matching, "game/BController.cpp"),
             Object(Matching, "game/VideoTiming.cpp"),
-            Object(NonMatching, "game/FaAsync.cpp"),
+            Object(Matching, "game/FaAsync.cpp"),
             Object(Matching, "game/NandAsync.cpp"),
             Object(Matching, "nw4r/ut/ut_CntFileStream.cpp"),
             Object(NonMatching, "game/BModelObj.cpp"),
