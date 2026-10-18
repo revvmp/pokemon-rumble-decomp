@@ -38,6 +38,8 @@ The FAT32 and initialization sources are now registered NonMatching. Actual Ninj
 
 The complete file source is also registered NonMatching. The real unitdiff.py command reproduces44/45 exact functions and the same three GetSFD register differences against the actual Ninja object. Its text-section percentage rounds to100%; the individual function remains99.82%, and the strict whole-object audit exits1 after resolving all355 sites. No section-level rounded score substitutes for exact native comparison, and none of these NonMatching units earns source-selected credit.
 
+The FAT32 and initialization units subsequently passed their source-selected full build and are recorded as Matching in [F-360-3](360-fa-fat32.md). The file unit remains NonMatching. The temporary canonical-header dependency and the final latest-main merge gate are still pending; no original block issue is complete through this partial delivery.
+
 The remaining descriptor helper gap is unchanged across Wii1.0a,1.0RC1,0x4201_127,1.1 and1.3 with the established SDK flags: each reproduces the same44 other functions and the same five differences. The bounded command360-probe-file-compilers.py records file-compilers-proof.json. These results do not establish a different compiler or justify changing configuration. Repeated-field versus cached status, the complete redundant reference predicate, explicit pointer increment in the loop body, logical-negation spelling and signed loop indices also failed to resolve the gap. Retain the measured checkpoint rather than treating these equivalent forms as accepted source.
 
 ## Traps
