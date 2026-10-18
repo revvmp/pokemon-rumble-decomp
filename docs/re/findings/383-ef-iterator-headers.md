@@ -45,6 +45,14 @@ Same-command original/proposed controls for directional, free, line and point co
 
 The outside outputs are under `382-reference/const-reference-return`: `provenance.json`, `caller-control.json`, `paired-native.json`, `stripe-smooth-consumers.json`, `stripe-paired-native.json` and `smooth-forward-paired-native.json`. Reproducers are `382-reference-return-proof.py`, `382-paired-reference-return.py` and `383-reference-return-consumers.py`. The expected additional NonMatching difference is precisely the existing directional helper becoming native-exact; every existing Matching object must still preserve its allocated bytes and relocations.
 
+## Original inventory limits
+
+Complete diagnostic joins read the original issue tables rather than inferred recut filenames. `383-audit-original-diagnostics.py` checks all 24 original #383 rows and 9,976 bytes: 23 rows and 7,820 bytes are individually exact, with only the 2,156-byte native Free draw still different. Six inherited accepted Line/Point rows and 2,748 bytes are not new work. Free's other three rows, 436 bytes, and its initialized tables, vtable and constants are independently exact against immutable accepted-source objects and the frozen executable.
+
+With the reference-return candidate, `382-audit-original-diagnostics.py` checks all 26 original #382 rows and 10,072 bytes: 25 rows and 6,668 bytes are individually exact, with only the 3,404-byte native directional draw still different. Nine inherited accepted Billboard rows and 3,724 bytes receive no new credit. Its accepted object payloads and targets are checked independently; the complete directional source still requires its own source-selected acceptance.
+
+These audits do not close either issue. Their original functions must reside in complete Matching translation units. The remaining directional draw therefore also prevents accepting its seven exact neighboring #383 rows in isolation; the free draw prevents complete Free-unit acceptance. Stripe's final source-selected gate remains pending separately. The outside outputs are `383-reference/original383-diagnostic-audit.json` and `382-reference/const-reference-return/original382-diagnostic-audit.json`.
+
 ## Acceptance boundary
 
 These are individual native proofs. They do not establish source-selected linking, a new Matching designation, issue completion, or measured progress. The proposed header still requires a current-main full existing-source comparison, actual `all_source` and default Ninja builds, and explicit frozen verification before it can be marked ready. Every existing Matching output must remain exact; any intended NonMatching difference must be identified precisely rather than omitted from the comparison.
