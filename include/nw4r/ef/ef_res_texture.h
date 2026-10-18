@@ -41,6 +41,42 @@ public:
     TextureData* ptr() {
         return mData;
     }
+
+    const TextureData* ptr() const {
+        return mData;
+    }
+
+    void SetWidth(u16 width) {
+        mData->width = width;
+    }
+
+    void SetHeight(u16 height) {
+        mData->height = height;
+    }
+
+    void SetFormat(u8 format) {
+        mData->format = format;
+    }
+
+    void SetMipmap(u8 mipmap) {
+        mData->mipmap = mipmap;
+    }
+
+    void SetTexture(u8* pTexture) {
+        mData->texture = pTexture;
+    }
+
+    void SetTlutFormat(u8 format) {
+        mData->tlutFormat = format;
+    }
+
+    void SetTlutEntries(u16 entries) {
+        mData->tlutEntries = entries;
+    }
+
+    void SetTlut(u8* pTlut) {
+        mData->tlut = pTlut;
+    }
 };
 
 }
