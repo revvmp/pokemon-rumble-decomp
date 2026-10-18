@@ -3,6 +3,7 @@ import os
 import subprocess
 import sys
 import tempfile
+import time
 from pathlib import Path
 
 
@@ -23,6 +24,7 @@ def main():
     parser.add_argument("--remote", default="origin")
     parser.add_argument("--branch", default="main")
     parser.add_argument("--dry-run", action="store_true", help="render and report, but do not push")
+    parser.add_argument("--min-interval", type=float, default=60, metavar="MINUTES", help="skip unless the last image refresh on the branch is at least this old (default: 60; 0 always refreshes)")
     args = parser.parse_args()
 
     root = Path(git("rev-parse", "--show-toplevel", cwd=Path.cwd()).stdout.strip())
@@ -36,6 +38,11 @@ def main():
     moved = [name for name in git("diff", "--name-only", "HEAD", remote_ref, cwd=root).stdout.splitlines() if name and not name.startswith(f"{IMAGE_DIR}/")]
     if moved:
         print(f"{remote_ref} differs from this build in {len(moved)} file(s); the next merge refreshes the images.")
+        return 0
+    last = git("log", "-1", "--format=%ct", f"--grep=^{MESSAGE}$", remote_ref, cwd=root).stdout.strip()
+    age = time.time() - int(last) if last else None
+    if age is not None and age < args.min_interval * 60:
+        print(f"The last image refresh on {remote_ref} is {int(age // 60)} minute(s) old, under --min-interval {args.min_interval}; skipping.")
         return 0
 
     with tempfile.TemporaryDirectory() as scratch:

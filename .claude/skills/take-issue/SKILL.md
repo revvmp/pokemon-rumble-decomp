@@ -144,7 +144,7 @@ Never merge without a passing local verification of the exact head you merge, ru
 
 ## 8. Refresh progress images and clean up
 
-Right after the merge, run `python tools/progress/refresh_images.py` from the worktree, before removing it. It renders the README progress images from the build you just verified and pushes a `DOCS: refresh progress images` commit to `main` only if `origin/main` still has exactly your verified files. If `main` has moved, or the push races another merge, it prints that and exits 0; the next merge refreshes them. It never touches any checkout. Never commit `docs/images/` any other way.
+Right after the merge, run `python tools/progress/refresh_images.py` from the worktree, before removing it. It renders the README progress images from the build you just verified and pushes a `DOCS: refresh progress images` commit to `main` only if `origin/main` still has exactly your verified files and the last image commit is at least 60 minutes old. If `main` has moved, the interval has not passed, or the push races another merge, it prints that and exits 0; a later merge refreshes them. It never touches any checkout. Never commit `docs/images/` any other way.
 
 Then run these from the main checkout, not the worktree:
 
