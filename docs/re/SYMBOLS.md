@@ -2728,3 +2728,6 @@ For `wpse-v1` / `main.dol`, [F-92-2](findings/92-cdlgpiiselector-construction.md
 | `CPpuEngine` | `0xAC` | `mPPD` | `std::tr1::shared_ptr<CPPD>` | `SetPPD` from `ScriptBinding_NewPPD` |
 | `CPpuEngine` | `0xB4`, `0xB8` | `mCachedPPDValue`, `mCachedPPD` | `int`, `std::tr1::weak_ptr<CPPD>` | `0x80100F70` |
 | `CPpuEngine` | `0xC0` | vptr | | constructor; slots `~CPpuEngine` (0x1C) and `Calc` (0x20) |
+## Game CMultiRanking split (#158)
+
+[F-158-2](findings/158-cmultiranking-split.md#f-158-2-class-shape-and-the-helper-at-0x800cd730) names `GetNodePosition(shared_ptr<BModelObj>, const char*)` `0x800CD730` (`GetNodePosition__FQ33std3tr122shared_ptr<9BModelObj>PCc`; name descriptive, low; behaviour high). `CMultiRanking` (RTTI `0x804B6CA0`, original) derives from `IMultiRanking` (RTTI `0x804B6CA8`, original) and `IGameMap`; it is 0x144 bytes, its vtable is `0x803A563C` and its deleter vtable `0x803A55B8`. The shared pointer array at 0x40 holds four `BModelObj` (high); the other member types are not yet recorded.
