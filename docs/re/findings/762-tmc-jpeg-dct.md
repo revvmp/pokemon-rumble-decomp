@@ -1,3 +1,23 @@
+# F-762-2: Row-pass order matches both DCTs
+
+The encoder is `Matching`. All fifteen functions of `TMC_JPEG/tmcjpeg_encoder.c` are identical to the original in objdiff (7,436/7,436 code bytes), and the full DOL verifies with the unit linked from source. This supersedes the remaining differences in F-762-1 below.
+
+The ten-word remainder in each DCT's column pass was caused by the row pass. Register colouring of the column-pass temporaries depends on the order in which the shared temporaries are first assigned in the row pass, not only on their declaration order or on the column pass itself. The source that matches both functions is:
+
+- Row pass: `tmp10`, `tmp11`, `tmp13`, `tmp12`, so both sums before both differences.
+- Column pass: `tmp10`, `tmp13`, `tmp11`, `tmp12`, the order of the IJG fast DCT.
+- Declarations in natural order (`work`, `tmp0`–`tmp7`, `tmp10`–`tmp16`, `z1`–`z13`, `p`, `i`), except that `tmp14` comes directly after `work` in both functions. With `tmp14` in its natural place the unsigned DCT still matches but the signed DCT differs in 15 words.
+
+This replaced the earlier hill-climbed declaration orders with an ordered list, so the source is also more readable. The search used a scratch hill-climb over the declaration order and the statement orders of both passes, rejecting any move that changed which assignment each use reads. It reached zero from the old source in under 2,000 compiles; a second search then minimised the distance from the natural order while keeping zero differences. Earlier searches had held the row pass fixed, which is why they stalled at ten words.
+
+## Validation
+
+`python configure.py`, `.venv/Scripts/ninja` and `python tools/verify/verify.py verify --manifest config/targets/wpse-v1.json --reference-dir orig/wpse-v1 --build-dir build/wpse-v1` all exited 0 after deleting the old `main.dol`. `python tools/re/unitdiff.py src/TMC_JPEG/tmcjpeg_encoder.c` reports 15/15 functions at 100%.
+
+## Traps
+
+- **Row-pass statement order changes column-pass registers.** Trigger: a two-pass function with shared temporaries that has only register differences in its second loop, which no reordering of that loop fixes. Search the first loop's statement order as well. Evidence: F-762-2.
+
 # F-762-1: Encoder column-pass temporary scheduling
 
 Target: `wpse-v1`, immutable `orig/wpse-v1/main.dol`. Issue #762 owns all fifteen functions of `TMC_JPEG/tmcjpeg_encoder.c`, `.text` `0x801F6C5C–0x801F8968`, 7,436 code bytes. The established split and Wii/1.0 `cflags_tmcjpeg` configuration from [F-348-1](348-tmc-jpeg.md) are unchanged.
