@@ -2912,3 +2912,16 @@ The retained8022CA10 routine is descriptively named detail::CreateCurveChild, co
 ## Game CPauseMenu (#167)
 
 [F-167-1](findings/167-cpausemenu-split.md) splits `game/CPauseMenu.cpp` (file name original, from the allocation-failure string and the `@unnamed@CPauseMenu_cpp@` RTTI). [F-167-2](findings/167-cpausemenu-split.md#f-167-2-classes) records `@unnamed@CPauseMenu_cpp@::CPauseMenu` (0x5B8 bytes, vtable `0x803A7B24`, base `IPauseMenu` with vtable `0x803A7C18` and type info `0x804B6F60`): `shared_ptr` members at 0x4, 0xC, 0x14, 0x1C, 0x24 and 0x3A0, `bool` 0x2C (returned by slot 5), `CFiber` 0x30, `CaptureTexture` 0x3A8, `bool` 0x3D5 (capture request) and two 0xE8-byte layout objects at 0x3D8 and 0x4C0 (high, from the destructor `0x800DC770` and the overrides `Calc` `0x800DC2A0`, `CalcMtx` `0x800DC230`, `CalcView` `0x800DC1C0`, `Draw` `0x800DC120`). `@unnamed@CPauseMenu_cpp@::CPauseMenuInput` (vtable `0x803A7B8C`) implements the seven `IUIInput` slots `0x800DC4B0` to `0x800DC350` by forwarding to the object returned by `0x80124A50` and mapping button bit 0x100 to 0x10. Member names are not recovered; all functions keep their address labels.
+
+## Game save data (#276)
+
+[F-276-1](findings/276-savedata.md#f-276-1-unit-boundaries) to [F-276-3](findings/276-savedata.md#f-276-3-functions) split `game/SaveData.cpp` (`.text` `0x8015EEB0`–`0x8016CB18`) and name, in `.text`: `WriteBanner(int)` `0x8015EEB0`, `Save(int)` `0x8015FA80`, the `list<shared_ptr<FileList>>` destructor `0x8015F9A0`, `SerializeStruct<T>` and `SerializeVector<T>` instances `0x801601A0`–`0x801613F0`, `SaveData::GetSlotData` `0x801603B0` and the `SlotData` getters `0x80160CB0`–`0x80160D10` (descriptive, low to medium; template and class names from RTTI where stated). Data: `sVectorTypes` of `SaveData` `.sdata` `0x804B7AC8`, `SlotData` `.data` `0x803B73E0`, and of `SD_PiiPersonalData`, `SD_BattleRoyalData`, `SD_StatisticValue`, `SD_PiiCollectionData`, `UsedPassword` `.sbss` `0x804B90B8`–`0x804B90C8`; `sSaveData` `.sbss` `0x804B90D0`. Outside: `ShowSystemMessage` `0x801E09B0`, `gEmptyText` `0x804B5C48`, `FormatString` `0x800721A0`, `LoadFileList` `0x80127CF0`, `LoadResourceFileList` `0x80072DD0` (low) and the `shared_ptr_deleter<NANDBanner, void (*)(void*) throw()>` vtable `0x803B7878` (high).
+
+| Class | Offset | Member | Type | Evidence |
+| --- | --- | --- | --- | --- |
+| `SlotData` | `0x8` | `mData` | `SlotData::Data` (0x1300, 8-aligned) | `SerializeStruct<SlotData>` copy source |
+| `SlotData` | `0x18` | `mData.mMapRecords` | `CMapRecord[3][5][8][10]` | F-141 |
+| `SlotData` | `0x1308`–`0x1350` | `mPiiPersonalData`, `mPiiCollectionData`, `mBattleRoyalData`, `mStatisticValue1` to `3`, `mUsedPassword` | `std::vector` | Getters `0x80160CB0`–`0x80160D10` |
+| `SaveData` | `0x4` | `mData.mCurrentSlot` | `u8` | `GetSaveData(-1)` |
+| `SaveData` | `0x8` | `mData.mSlotDigests` | `u32[3][5]` | Digest array passed by `Save` |
+| `SaveData` | `0x44` | `mSlotData` | `std::vector<SlotData>` | `GetSaveData`, getter `0x801603B0` |

@@ -3,6 +3,10 @@
 
 #include <revolution/types.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void* NETMemCpy(void*, const void*, u32);
 void* NETMemSet(void*, int, u32);
 
@@ -24,5 +28,9 @@ typedef struct NETSHA1Context {
 void NETSHA1Init(NETSHA1Context* context);
 void NETSHA1Update(NETSHA1Context* context, const void* input, u32 length);
 void NETSHA1GetDigest(NETSHA1Context* context, void* digest);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

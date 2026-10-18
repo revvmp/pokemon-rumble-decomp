@@ -43,6 +43,8 @@ extern "C" {
 #define NAND_PERM_ROTH (NAND_ACCESS_READ << 0)
 #define NAND_PERM_WOTH (NAND_ACCESS_WRITE << 0)
 
+#define NAND_BANNER_FLAG_NOTCOPY 0x00000001
+
 typedef struct {
       u32 signature;
       u32 flag;
