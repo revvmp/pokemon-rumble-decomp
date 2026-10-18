@@ -71,6 +71,8 @@ protected:
     nw4r::math::VEC3 mScale;
 };
 
+std::tr1::shared_ptr<BWorldObj> Lock(std::tr1::weak_ptr<BWorldObj> obj);
+
 template <typename T, typename U> bool IsKindOf(const U* pObj) {
     return pObj != nullptr && (pObj->GetType() & T::TYPE);
 }

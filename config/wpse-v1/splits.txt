@@ -102,6 +102,25 @@ game/CDlgPiiSelector.cpp:
 	.sbss       start:0x804B8FE0 end:0x804B8FE8
 	.sdata2     start:0x804B9DF0 end:0x804B9E20
 
+game/CDropPii.cpp:
+	extab       start:0x80014E20 end:0x80015000
+	extabindex  start:0x8004794C end:0x80047970
+	.text       start:0x8009FD40 end:0x800A0148
+	.data       start:0x803A1020 end:0x803A1108
+	.sdata      start:0x804B6598 end:0x804B65A0
+
+game/CEffect.cpp:
+	extab       start:0x80015000 end:0x80015608
+	extabindex  start:0x80047970 end:0x80047B2C
+	.text       start:0x800A0150 end:0x800A3B08
+	.ctors      start:0x803529CC end:0x803529D0
+	.rodata     start:0x80352B18 end:0x80352B90
+	.data       start:0x803A1108 end:0x803A14E8
+	.bss        start:0x803E65F0 end:0x803E6600
+	.sdata      start:0x804B65A0 end:0x804B6628
+	.sbss       start:0x804B8FE8 end:0x804B8FF8
+	.sdata2     start:0x804B9E20 end:0x804B9E58
+
 game/CGameEnding.cpp:
 	extab       start:0x80015CA0 end:0x80016838
 	extabindex  start:0x80047BEC end:0x80047D3C

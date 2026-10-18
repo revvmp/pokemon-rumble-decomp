@@ -24,4 +24,10 @@ inline void* operator new(size_t, void* pMemory) {
 
 inline void operator delete(void*, void*) {}
 
+inline void* operator new[](size_t, void* pMemory) {
+    return pMemory;
+}
+
+inline void operator delete[](void*, void*) {}
+
 #endif
