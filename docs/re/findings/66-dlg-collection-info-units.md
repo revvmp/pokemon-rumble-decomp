@@ -50,7 +50,9 @@ The remaining vtables are `shared_ptr_deleter` instantiations (destructor, `get_
 
 ## Source status
 
-No source is committed. A matching unit needs byte-exact `std::tr1` `shared_ptr`, `weak_ptr`, `enable_shared_from_this`, `function`, `bind`/`mem_fn`, `std::vector` and tree-based container instantiations (`CDlgCollection.cpp` holds the `tree::insert length error` string at `0x8039C434`), plus the `BUI`, `BUILayout`, `CUIList`, `CUIManager` and `IUIListItem` interfaces, because each unit emits its own weak copies of those templates. None of these exists in the repository; the BUI and container work is in progress under #327 and #53 (PRs #890, #906, #919). The weak `weak_ptr` destructor at `0x8007DAD0` that BUI's constructor reuses (F-327-1) lies in `CDlgCollection.cpp`.
+No source is committed. A matching unit needs byte-exact `std::tr1` `shared_ptr`, `weak_ptr`, `enable_shared_from_this`, `function`, `bind`/`mem_fn`, `std::vector` and tree-based container instantiations (`CDlgCollection.cpp` holds the `tree::insert length error` string at `0x8039C434`), plus the `BUI`, `BUILayout`, `CUIList`, `CUIManager` and `IUIListItem` interfaces, because each unit emits its own weak copies of those templates. None of these exists in the repository; the BUI and container work is in progress under #327 and #53 (PRs #890, #906, #919). The standard-library code is inlined into game functions, not only emitted as weak templates. The `CDlgCollectionItem` constructor at `0x8007A5C0` copies a wide-character range into a vector and, on overflow, builds `std::length_error("vector length error")` inline: `strlen`, an array allocation, a `shared_ptr_deleter<char[]>` control block (vtable `0x803998B4`), `strcpy` and `__throw`. Matching even one game function therefore needs MSL-exact `stdexcept` and `vector` headers. No public MSL C++ implementation is available to the project, and the independent list and vector reconstructions in F-327-3 do not yet match.
+
+The weak `weak_ptr` destructor at `0x8007DAD0` that BUI's constructor reuses (F-327-1) lies in `CDlgCollection.cpp`.
 
 ## Traps
 
