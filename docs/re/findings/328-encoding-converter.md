@@ -91,14 +91,33 @@ Strict comparison validates all 208 owned instruction bytes and ten actual code 
 
 This is bounded native evidence for the #327 owner's complete UI source. It does not select another source unit, supply a complete generic smart-pointer header, or establish completion of the original #328 inventory.
 
-## F-328-4: focused UI getter
+## F-328-4: complete manager interface and bounded native bodies
 
-The native routine at `0x801C9CF0`, size `0x70`, returns the object pointer from a temporary shared value obtained by locking the weak member at `this + 0x4C`. The temporary releases its control reference before returning the raw pointer. Reusing the #327 owner's complete BUI diagnostic layout and weak-lock model, an outside-only `CUIManager : BUI` diagnostic with this weak member reproduces the body `return mFocusedUI.lock().get();` exactly. `GetFocusedUI` and `mFocusedUI` are descriptive names. The neighboring constructor at `0x801C9680` corroborates an additional eight-byte weak member after the `0x4C`-byte BUI base and initializes both words to zero.
+The native routine at `0x801C9CF0`, size `0x70`, returns the object pointer from a temporary shared value obtained by locking the weak member at `this + 0x4C`. The temporary releases its control reference before returning the raw pointer. Reusing the #327 owner's complete BUI diagnostic layout and weak-lock model, an outside-only `CUIManager : BUI` diagnostic with this weak member reproduces the body `return mFocusedUI.lock().get();` exactly. `GetFocusedUI` and `mFocusedUI` are descriptive names. The neighboring constructor at `0x801C9680` corroborates an additional eight-byte weak member after the `0x4C`-byte BUI base and initializes both words to zero. Its ordinary body sets the manager flag with `mFlags |= 1`; the empty derived destructor naturally destroys the weak member and BUI base.
 
-`python C:/MassStorage/GitHub/328-probe-manager.py` and `python C:/MassStorage/GitHub/328-strict-manager.py` both exit 0. The owned getter has 112 exact bytes and three actual code targets. Including the independently checked existing shared-pointer destructor, the diagnostic proves six code sites, two exception records, 104 exception/index bytes and four exception relocation targets. No duplicate destructor credit is claimed. This does not establish the complete manager virtual interface or authorize a competing canonical BUI/manager header; those remain coordinated with the #327 first owner.
+The complete native manager vtable at `0x803C02DC` contains 44 bytes: RTTI, a null word, destructor, four draw/calc forwarders, GetManager, and the inherited OnAttached, OnDetached and OnInput methods. Its RTTI name is `CUIManager`. GetManager returns `this`. The focused-input dispatcher at `0x801C9D60` is nonvirtual; the vtable retains BUI's OnInput at `0x801C92A0`. Treating the dispatcher as an override would match its standalone instructions but produce an incorrect class interface.
+
+The ordinary validation helper at `0x801C9770` locks the weak member, preserves it when its target reports this manager, and otherwise resets it. The focused-input dispatcher invokes that validation, locks the current target, and forwards input only when the target's input flag (mask `0x4`) is set. Using the canonical existing safe-bool declaration, rather than a direct bool conversion, reproduces both exact native instruction streams and their sizes. IsInputEnabled and DispatchFocusedInput are descriptive names for proven behavior.
+
+| Native entry | Size | Outside candidate |
+| --- | --- | --- |
+| `0x801C9680` | `0x54` | Constructor, owned by #327 |
+| `0x801C96E0` | `0x74` | Destructor, owned by #327 |
+| `0x801C9760` | `4` | GetManager, owned by #327 |
+| `0x801C9770` | `0xD4` | ValidateFocusedUI, owned by #327 |
+| `0x801C9CF0` | `0x70` | GetFocusedUI |
+| `0x801C9D60` | `0x140` | DispatchFocusedInput |
+| `0x801C9EA0` through `0x801C9ED0` | Four entries of `4` | Calc, PrepareDraw, DrawBefore and Draw forwarders |
+
+`python C:/MassStorage/GitHub/328-probe-manager.py` and `python C:/MassStorage/GitHub/328-strict-manager.py` both exit 0. All ten manager bodies match: six owned #328 entries / 448 bytes and four neighboring #327 entries / 416 bytes. Including independently checked existing 132-byte shared-pointer and 96-byte weak-pointer destructors, strict comparison proves 33 actual code sites, seven exception records, 448 exception/index bytes and eighteen exception relocation targets. The complete 44-byte vtable and all ten pointer targets also match. Existing helpers receive no duplicate credit, and the neighboring entries remain attributed to #327.
+
+The first owner approved contributing these native-proven bodies to its eventual whole source unit. The candidate remains outside the repository pending interface review: its BUI diagnostic makes the evidenced flags protected for the derived constructor and adds the descriptive input-bit getter. It changes no canonical BUI/manager header, split or source registration. Complete UI file acceptance still depends on the remaining list, callback and shared-pointer implementation evidence.
+
+An independent second variant uses actual canonical `include/game/ICalc.h` and `ICalcDraw.h` unchanged, rather than locally redeclaring those classes. It consistently adapts the descriptive PrepareDraw and DrawBefore hooks to canonical CalcMtx and CalcView. `328-probe-manager.py --canonical-bases` and `328-strict-canonical-manager.py` both exit zero with the same ten exact manager bodies, 33 code sites, 448 exception/index bytes, eighteen exception targets and complete vtable. Separate original/canonical objects and proof records are preserved, together with SHA-256 hashes of the exact canonical header snapshots. This source adaptation respects the shared interface and requires no conflicting declaration prerequisite.
 
 ## Traps
 
 - For this narrow Shift-JIS character parameter, `0x8100 <= value` and `0xE000 <= value` retain the native direct comparisons. Reversing the lower comparisons to `value >= ...` enables range fusion and changes seven instruction words. Controlled signed/unsigned literal probes showed that literal signedness was not the cause. Preserve ordinary relational operand spelling before considering type or compiler changes.
 - A local-static declaration is an executable initialization point. Moving the second member-pointer table's declaration before the first assignment changes 26 instruction words, even though function size and eventual field values agree. Interleave each declaration with its corresponding assignment as the native control flow requires.
 - Whole-function instruction equality can hide the wrong physical constant order. Independently compare each data target and initialized section before accepting the source.
+- A standalone method's exact instructions do not establish whether it is virtual. The manager's focused-input dispatcher matched even with an incorrect override declaration; independently validating every native vtable slot caught that mistake before any shared header was published.
