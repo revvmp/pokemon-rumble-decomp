@@ -125,3 +125,15 @@ Validated `tools/collab/merge_config.py` against the last 60 commits on `main` t
 
 The `configure.py` reorderings do not affect the build: link order comes from dtk's configuration, which is derived from `splits.txt`. Six real `git rebase` runs in temporary worktrees, with the driver registered through `.gitattributes`, completed without stopping. In every one, `symbols.txt` and `splits.txt` matched B exactly. A first attempt showed the driver must be referenced by absolute path, because older trees being rebased do not contain the tool.
 
+## Unit diff and pull request overlap tool validation
+
+Validated on 2026-10-17 in a worktree off `main` at `fb63a246`, after one full build (`ninja` exit 0, 128 s):
+- **`tools/re/unitdiff.py`, matching unit.** `BController` reported `.text` 984/984 at 100% and 19/19 functions at 100% (848/848 code bytes); dtk `gap_` padding symbols are excluded. `game/BController.cpp` and `main/game/BController` resolved to the same unit.
+- **Non-matching unit.** `src/TMC_JPEG/tmcjpeg_stream.c` reported `.text` 98.82%, 9/10 functions at 100%, and `TMCJPEGStreamPutBits` at 95.69% with its first six differing rows, starting with the original's `li r11, 0x1` against the rebuilt `lis r11, sBitMask@ha`. `--function TMCJPEGStreamPutBits` printed all rows. `--json` wrote objdiff-cli's JSON unchanged, with `left` and `right` keys.
+- **Partial unit.** `CDlgPiiList` listed its 8 diffed functions, summarized 122 target functions not yet in source (30,100 bytes), and listed source-only functions.
+- **Errors.** An unknown unit and an unknown `--function` each exited 1 with a message.
+- **Timings,** wall clock including Python start-up: after touching the source, 0.77–0.81 s for `BController`, 0.71 s for `tmcjpeg_stream`, and 0.80–1.08 s for `CDlgPiiList`; with the object up to date, 0.23–0.57 s.
+- **`claim_issue.py overlap`.** Against 28 open pull requests, `--paths src/RVL_SDK/fa/pf_system.c configure.py --strict` ignored the `decomp-config` file `configure.py`, listed #895 and #915 as sharing `pf_system.c`, and exited 1; without `--strict` it exited 0. `--issue 326` listed #946, #932, #941 and #890 by issue and neighbor references. A branch with no files shared with open pull requests reported none, exit 0. A full run fetching every pull request's files took 4.8 s.
+- **`claim` warning.** `claim --issue 359 --dry-run` listed #947 and #935 as referencing neighbor #360 before printing `Would claim`; `claim --issue 343 --dry-run` listed #940 (#344). Dry runs change nothing.
+- **`tools/collab/stale.py`.** Listed 28 open pull requests with 18 flagged (idle drafts, ready pull requests unmerged for over 30 minutes, docs-only drafts) and two overlapping pairs, #887 and #895 (51 files) and #895 and #915 (6 files), in 4.7 s. It makes only REST GET requests.
+

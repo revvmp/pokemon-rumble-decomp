@@ -75,6 +75,16 @@ python configure.py
 
 The first run analyzes `orig/wpse-v1/main.dol`, may rewrite `config/wpse-v1/symbols.txt` and `splits.txt`, compiles units listed in `configure.py`, links `build/wpse-v1/main.dol`, checks `config/wpse-v1/build.sha1`, and writes the objdiff report `build/wpse-v1/report.json`. Add `--map` to `configure.py` for a linker map. Review any `symbols.txt` or `splits.txt` rewrite before committing; dtk drops attributes it does not preserve.
 
+To iterate on one unit without linking, after one full build has split the original objects:
+
+```powershell
+python tools/re/unitdiff.py <unit or source path> [--function <name>] [--all] [--json] [--no-build]
+```
+
+It accepts an `objdiff.json` unit name (`main/game/BController`, `game/BController`, `BController`) or a source path, runs `ninja` for that unit's object only, and summarizes `objdiff-cli diff` per section and per function. Rows are marked `|` for an argument mismatch, `r` for a replaced instruction, `<` for an instruction only in the original, and `>` for one only in the rebuilt object. A `Matching` claim still needs the full build and verification.
+
+Pull request housekeeping tools are in `tools/collab/`: `claim_issue.py overlap` warns about open pull requests that change the same files as your branch, and `stale.py` lists idle, unmerged, and overlapping pull requests; see [collaboration](COLLABORATION.md#claiming-work).
+
 ### Verify
 
 ```powershell

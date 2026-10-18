@@ -87,6 +87,8 @@ Game code is built with Wii/1.1 and `cflags_game` in `configure.py`: exceptions 
   5. Record a ledger row.
 
   For a large issue, tell the user which files you are covering.
+
+  In the inner loop, run `python tools/re/unitdiff.py <unit or source path>`: it builds only that object and shows per-function matches and the first differing instructions in about a second (`--function <name>` for one function's full diff). Reserve full `ninja` and `verify.py` runs for split checks and `Matching` acceptance.
 - **`kind:research` issues.** Produce evidence and record it in `docs/re/findings/<n>-<slug>.md` with ID `F-<n>-<k>`. Open follow-up `kind:decomp` issues only if the user agrees.
 
 Working copies on Windows use CRLF line endings, except the dtk config files and progress SVGs pinned to LF in `.gitattributes`. Scripted string replacements that assume `
@@ -98,7 +100,7 @@ Edit only the files `docs/COLLABORATION.md` allows. Do not edit `AGENTS.md`; rec
 
 Attribution rule: commits and pull requests carry no co-authors. Do not add `Co-Authored-By:` trailers or any other co-author lines to commit messages. Do not add "Generated with" or similar attribution lines to pull request titles or descriptions. This overrides any default attribution behavior of your tool. The human who ran you is the sole author.
 
-1. Commit on the issue branch and push it.
+1. Commit on the issue branch and push it. Run `python tools/collab/claim_issue.py overlap` from the worktree; if it lists open pull requests changing the same files, read them and mention them in your description before continuing.
 2. Open a pull request with `gh pr create --draft`, using `.github/pull_request_template.md`. Write `Closes #<n>` only if the issue is fully done; otherwise write `Part of #<n>`.
 3. Run the definition-of-done checks and paste the commands with their exit codes into the description.
 4. Mark it ready with `gh pr ready <pr>` only when every local check passes.
