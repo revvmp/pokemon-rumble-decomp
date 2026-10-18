@@ -3,6 +3,24 @@
 
 namespace Metrowerks {
 namespace detail {
+template <class T, bool Small> struct CallTraitsSize {
+    typedef const T param_type;
+};
+
+template <class T> struct CallTraitsSize<T, false> { typedef const T& param_type; };
+
+template <class T> struct CallTraitsStorage : CallTraitsSize<T, sizeof(T) <= sizeof(void*)> {};
+
+template <class T> struct CallTraitsStorage<T*> { typedef T* param_type; };
+
+template <class T> struct CallTraitsStorage<T&> { typedef T& param_type; };
+}
+
+template <class T> struct call_traits {
+    typedef typename detail::CallTraitsStorage<T>::param_type param_type;
+};
+
+namespace detail {
 template <class T> struct IsClass {
     template <class U> static char Probe(int U::*);
     template <class U> static long Probe(...);
@@ -21,7 +39,7 @@ template <class First, class Second> class CompressedPairStorage<First, Second, 
     Second mSecond;
 public:
     CompressedPairStorage() : mFirst(), mSecond() {}
-    CompressedPairStorage(const First& rFirst, const Second& rSecond) : mFirst(rFirst), mSecond(rSecond) {}
+    CompressedPairStorage(typename call_traits<First>::param_type rFirst, typename call_traits<Second>::param_type rSecond) : mFirst(rFirst), mSecond(rSecond) {}
     First& first() { return mFirst; }
     const First& first() const { return mFirst; }
     Second& second() { return mSecond; }
@@ -31,7 +49,7 @@ template <class First, class Second> class CompressedPairStorage<First, Second, 
     Second mSecond;
 public:
     CompressedPairStorage() : mSecond() {}
-    CompressedPairStorage(const First& rFirst, const Second& rSecond) : First(rFirst), mSecond(rSecond) {}
+    CompressedPairStorage(typename call_traits<First>::param_type rFirst, typename call_traits<Second>::param_type rSecond) : First(rFirst), mSecond(rSecond) {}
     First& first() { return *this; }
     const First& first() const { return *this; }
     Second& second() { return mSecond; }
@@ -41,7 +59,7 @@ template <class First, class Second> class CompressedPairStorage<First, Second, 
     First mFirst;
 public:
     CompressedPairStorage() : mFirst() {}
-    CompressedPairStorage(const First& rFirst, const Second& rSecond) : Second(rSecond), mFirst(rFirst) {}
+    CompressedPairStorage(typename call_traits<First>::param_type rFirst, typename call_traits<Second>::param_type rSecond) : Second(rSecond), mFirst(rFirst) {}
     First& first() { return mFirst; }
     const First& first() const { return mFirst; }
     Second& second() { return *this; }
@@ -50,7 +68,7 @@ public:
 template <class First, class Second> class CompressedPairStorage<First, Second, 3> : private First, private Second {
 public:
     CompressedPairStorage() {}
-    CompressedPairStorage(const First& rFirst, const Second& rSecond) : First(rFirst), Second(rSecond) {}
+    CompressedPairStorage(typename call_traits<First>::param_type rFirst, typename call_traits<Second>::param_type rSecond) : First(rFirst), Second(rSecond) {}
     First& first() { return *this; }
     const First& first() const { return *this; }
     Second& second() { return *this; }
@@ -68,8 +86,10 @@ template <class First, class Second>
 class compressed_pair : private detail::CompressedPairStorage<First, Second, detail::PairStorageKind<First, Second>::value> {
     typedef detail::CompressedPairStorage<First, Second, detail::PairStorageKind<First, Second>::value> Storage;
 public:
+    typedef typename call_traits<First>::param_type first_param;
+    typedef typename call_traits<Second>::param_type second_param;
     compressed_pair() {}
-    compressed_pair(const First& rFirst, const Second& rSecond) : Storage(rFirst, rSecond) {}
+    compressed_pair(first_param rFirst, second_param rSecond) : Storage(rFirst, rSecond) {}
     First& first() { return Storage::first(); }
     const First& first() const { return Storage::first(); }
     Second& second() { return Storage::second(); }
