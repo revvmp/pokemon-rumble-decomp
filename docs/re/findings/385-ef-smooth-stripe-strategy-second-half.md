@@ -1,6 +1,6 @@
 # F-385-1: NW4R ef smooth stripe strategy, second half
 
-Target: `wpse-v1`, immutable `orig/wpse-v1/main.dol`. #385 (`0x80247A70–0x8024AE80`) is the rest of `nw4r/ef/ef_drawsmoothstripestrategy.cpp`, which #384 split and registered ([F-384-1](384-ef-smooth-stripe-strategy.md)). The file ends at `0x8024AE80`, where `g3d_rescommon.cpp` starts; no unit boundary moves. All 17 functions of this range are now in the source file. 16 match at 100% in objdiff; `CalcAhead_ParticleBoth_Origin` scores 97.4%. The unit therefore stays `NonMatching` (27 of 28 functions at 100%, all four data sections at 100%), and the full DOL passes `tools/verify/verify.py`.
+Target: `wpse-v1`, immutable `orig/wpse-v1/main.dol`. The initial diagnostic reconstruction below is historical. [F-385-3](385-complete-inventory.md) independently accepts all 17 original issue functions / 13,224 bytes after PR #908's coordinated shared-interface and source-selection acceptance. All 28 retained functions and all five sections of the containing unit are now 100%; actual source-only ELF/map contributions and the full frozen DOL verify exactly. No additional #385 function body is rewritten by the acceptance audit.
 
 ## Names
 
@@ -38,7 +38,9 @@ The structure follows the CC0 MH Tri debug decompilation (InusualZ/mhtri-decomp 
 - **`Draw` inlines `InitGraphics`, the ribbon dispatch `DrawSmoothStripe`, the `AheadContextStripe` constructor and `CalcAxisMtx`.** The four edge vectors are function-local statics in `.bss` `0x8042F978–0x8042F9A8`, guarded in `.sbss`. The type-option `switch` lists `default` before the tube case; the tube flush flag is a `bool` set by an `if`, which places its computation before the argument setup. The view-mode test uses `typeOption == ASSIST_ST_BILLBOARD` (2); the cross test `ASSIST_ST_CROSS` (1).
 - **Field roles.** `typeOption0` is the tube side count, `typeOption1` the curve subdivision count (0 means 1), `typeOption2` bits 0–2 the connection type, bits 3–5 the initial previous-axis choice and bits 6–7 the texture mapping. `typeDir` selects the ahead function (`AHEAD_ST_*`, 6 for both neighbours). `EmitterDrawSetting::FLAG_CLIP_DISABLE` (bit 3) forces the flush strip. The tube flush also tests `EffectSystem::mXFFlushSafe` through the first particle's manager, emitter and effect. `AheadContextStripe::mTrigonometric` is at `+0xD4`. Enum names are descriptive (low confidence).
 
-## Remaining difference
+## Historical remaining difference
+
+Resolved by the accepted shared getter-forwarding implementation in F-384-3/F-384-4; see [F-385-3](385-complete-inventory.md).
 
 `CalcAhead_ParticleBoth_Origin` (`0x8024AC10`, 0x228) is 97.4%. Its body is identical to the other `ParticleBoth` functions apart from the emitter-centre fallback, and the only difference is in the two inlined neighbour searches: the target loads the list's link offset once before each search loop (`lhz r3` for the elder loop, `lhz r6` again for the younger loop), while the rebuild reloads it inside each loop. `DrawStripeStrategy`'s copy at `0x80245C80` has the same shape. Tested without success, each compiled alone with the unit's flags:
 
