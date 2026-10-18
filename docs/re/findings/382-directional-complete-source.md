@@ -31,3 +31,5 @@ The reproducible outside tools are `382-compile-complete-probe.py`, `382-view-re
 - **A raw stream match does not establish a retained object's final identity.** Pair relocation targets and inspect actual source-selected linked outputs before accepting a unit or crediting neighboring rows.
 
 - **Local names repeat across translation units.** A global name-to-address dictionary selected the Free file's later matrix DrawQuad and initially omitted the directional copy. Restrict local identity to the native owned unit before mapping callers. The corrected audit maps all 24 native functions and pairs the 22 exact bodies; CalcRotate was already included.
+
+- **An explicit outer inline declaration does not solve the switch difference.** The outside-only 382-outer-inline-probe.py keeps every compiler option unchanged. Marking DrawDirectional inline removes its retained body and expands it into the router, contrary to the native call. Marking the virtual Free Draw inline leaves the same 2,132-byte mismatch. Neither declaration is proposed canonically.
