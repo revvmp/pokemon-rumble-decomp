@@ -81,6 +81,34 @@ inline math::MTX34 DrawStripeStrategy::CalcRotateMtx(Particle* pParticle,
 
 }
 
+inline void DrawStripeStrategy::DrawParticle(
+    AheadContextStripe* pContext, int flags, Particle* pParticle, CalcAheadStripeFunc pCalcAheadFunc,
+    const math::VEC3& rPos, const math::VEC3& rRight, const math::VEC3& rLeft,
+    f32 pivot, f32 texV) {
+
+    if (pParticle == nullptr) {
+        pParticle = GetYoungestDrawParticle(pContext->mCommon.mParticleManager);
+    }
+
+    math::MTX34 drawMtx;
+    math::VEC3 dir;
+    math::VEC3 p0;
+    math::VEC3 p1;
+
+    pCalcAheadFunc(&dir, pContext, pParticle);
+
+    math::MTX34 dirMtx = CalcAxisMtx(pContext, flags, pParticle, dir, rPos);
+    math::MTX34 locMtx = CalcRotateMtx(pParticle, pivot);
+
+    math::MTX34Mult(&drawMtx, &dirMtx, &locMtx);
+
+    math::VEC3Transform(&p0, &drawMtx, &rRight);
+    math::VEC3Transform(&p1, &drawMtx, &rLeft);
+
+    DrawVertexPair(p0, p1, texV, flags);
+}
+
+
 void DrawStripeStrategy::DrawStripe(AheadContextStripe* pContext, int flags,
                                     const math::VEC3& rRight,
                                     const math::VEC3& rLeft) {
@@ -165,34 +193,6 @@ void DrawStripeStrategy::DrawStripe(AheadContextStripe* pContext, int flags,
 
     GXEnd();
 }
-
-void DrawStripeStrategy::DrawParticle(
-    AheadContextStripe* pContext, int flags, Particle* pParticle, CalcAheadStripeFunc pCalcAheadFunc,
-    const math::VEC3& rPos, const math::VEC3& rRight, const math::VEC3& rLeft,
-    f32 pivot, f32 texV) {
-
-    if (pParticle == nullptr) {
-        pParticle = GetYoungestDrawParticle(pContext->mCommon.mParticleManager);
-    }
-
-    math::MTX34 drawMtx;
-    math::VEC3 dir;
-    math::VEC3 p0;
-    math::VEC3 p1;
-
-    pCalcAheadFunc(&dir, pContext, pParticle);
-
-    math::MTX34 dirMtx = CalcAxisMtx(pContext, flags, pParticle, dir, rPos);
-    math::MTX34 locMtx = CalcRotateMtx(pParticle, pivot);
-
-    math::MTX34Mult(&drawMtx, &dirMtx, &locMtx);
-
-    math::VEC3Transform(&p0, &drawMtx, &rRight);
-    math::VEC3Transform(&p1, &drawMtx, &rLeft);
-
-    DrawVertexPair(p0, p1, texV, flags);
-}
-
 
 void DrawStripeStrategy::CalcVertexTube(VertexTube* pDst,
     AheadContextStripe* pContext, int flags, Particle* pParticle,

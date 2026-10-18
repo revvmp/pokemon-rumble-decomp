@@ -64,7 +64,7 @@ public:
         math::VEC3 pos1;
         f32 texT;
 
-        Vertex() {}
+        Vertex();
         Vertex(const math::VEC3& rPos0, const math::VEC3& rPos1, f32 _texT)
             : pos0(rPos0), pos1(rPos1), texT(_texT) {}
     };

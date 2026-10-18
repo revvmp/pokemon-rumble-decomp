@@ -337,6 +337,8 @@ void DrawSmoothStripeStrategy::DrawSmoothStripe_BSpline_ConnectNone(
     GXEnd();
 }
 
+inline DrawSmoothStripeStrategy::Vertex::Vertex() {}
+
 void DrawSmoothStripeStrategy::DrawSmoothStripe_BSpline_ConnectRing(
     AheadContextStripe* pContext, int numDivide, int flags,
     const math::VEC3& rEdge0, const math::VEC3& rEdge1) {

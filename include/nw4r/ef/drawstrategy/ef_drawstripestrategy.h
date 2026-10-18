@@ -31,7 +31,7 @@ public:
     virtual void Draw(const DrawInfo& rInfo, ParticleManager* pManager);
     virtual CalcAheadFunc GetCalcAheadFunc(ParticleManager* pManager);
     void DrawStripe(AheadContextStripe*, int, const math::VEC3&, const math::VEC3&);
-    void DrawParticle(AheadContextStripe*, int, Particle*, CalcAheadStripeFunc,
+    inline void DrawParticle(AheadContextStripe*, int, Particle*, CalcAheadStripeFunc,
                       const math::VEC3&, const math::VEC3&, const math::VEC3&, f32, f32);
     void CalcVertexTube(VertexTube*, AheadContextStripe*, int, Particle*,
                         CalcAheadStripeFunc, f32, f32, f32);
