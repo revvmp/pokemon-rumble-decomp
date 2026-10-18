@@ -2939,3 +2939,33 @@ The retained8022CA10 routine is descriptively named detail::CreateCurveChild, co
 ## Game CDropPii and CEffect (#113)
 
 [F-113-2](findings/113-cdroppii-ceffect.md#f-113-2-classes) records `CEffect` (0x8C bytes, vtable `0x803A13C4`, bases `ICalc` and `enable_shared_from_this<CEffect>` at 4): flags 0xC, `BWorld*` 0x10, handle 0x14, `Param` 0x18 (0x14 bytes: `EffectInfo*`, enable flag, `u16` emit span and life or `f32` scale, `f32` radius and height), `Handle<Effect>` 0x2C, local `MTX34` 0x34, position 0x64, follow and target `weak_ptr<BWorldObj>` 0x70 and 0x84, target position 0x78 (high from code; member names descriptive). `EffectInfo` (0x18 bytes, table `0x803550E0`): index, name, node name, target node name, type, capture-group flag (medium). `nw4r::ef::MemoryManager` (0x3C bytes, vtable `0x803A11C0`, game-defined in `CEffect.cpp`), `MemoryManagerTmp<T>` (0x24 bytes, vptr at 0x20) and `@unnamed@CEffect_cpp@::EmitterWithParam` (0x168 bytes, `Param` at 0x154) are named from RTTI; their member names are descriptive. Function names: `InitializeEffect` `0x800A0150`, `FinalizeEffect` `0x800A0960`, `CEffect::Create` overloads `0x800A0DB0`–`0x800A19B0`, `Finalize` `0x800A1C40` (from `effFinalize`), `PrevEmissionLife` and `PrevEmissionLifeFollow` `0x800A12F0`, `0x800A1350` are descriptive except where noted; outside the block `BWorld::GetEffectGroupID` `0x80060C10`, `GetCaptureEffectGroupID` `0x80060C60`, `RemoveOldestEffect` `0x80061750`, `Lock(weak_ptr<BWorldObj>)` `0x8006A370` (descriptive) and `RandReal` `0x8019E010` (from `ScriptBinding_RandReal`).
+
+## Game BWorldLightSet and motion programs (#51)
+
+[F-51-5](findings/51-bworldlightset-unit.md#f-51-5-complete-source-selected-light-animation-unit) proves all 27 retained functions and allocated storage. BWorldLightSet and its nested CMotionProgram are original RTTI spellings. The 0x68-byte owner derives from the canonical 0x48-byte BWorldObj, preserves inherited virtual order, and overrides the destructor, Calc, SetPosition, OnEnterWorld and OnLeaveWorld.
+
+| Owner offset | Declaration | Evidence and confidence |
+| --- | --- | --- |
+|0x48|`u32 mReserved`|Uninitialized four-byte opaque storage; purpose and original type unknown|
+|0x4C|`u32 mNextMotionID`|Initialized 1; incremented while skipping zero; high behavior confidence|
+|0x50|`shared_ptr<CFileData> mAnmFile`|Two-word resource-file handle; high|
+|0x58|`MotionList mMotionPrograms`|Size at 0x58, previous/next sentinel links at 0x5C/0x60; high|
+|0x64|`f32 mMotionFrame`|Floating arithmetic and per-motion frame pointer; high|
+
+The native motion allocation is 0x38 bytes:
+
+| Motion offset | Declaration | Evidence and confidence |
+| --- | --- | --- |
+|0x00|`u32 mFlags`|Created 1, queued 2, playing 4, looped 8, stopped 32, paused 64; state mask 0x3E; loop count in upper 16 bits; high|
+|0x04|`u32 mId`|Nonzero owner-generated identifier; high|
+|0x08|`f32 mStartFrame`|Negative means carry current time when played directly, or zero when reached as a queued request; high|
+|0x0C|`f32 mRate`|Frame-step multiplier and surplus-time divisor; high|
+|0x10|`u32 mReservedState`|Four-byte zero store; further semantics and original signedness unknown|
+|0x14|`std::string mName`|Twelve-byte assigned name and native string destruction; high|
+|0x20|`u32 mReserved`|Uninitialized four-byte opaque storage; purpose and original type unknown|
+|0x24|`f32* mpCurrentFrame`|Points to owner 0x64; script frame query dereferences it while playing/looped; high|
+|0x28|`nw4r::g3d::ResAnmScn mResource`|Scene lookup and policy/length accesses; high|
+|0x2C|`shared_ptr<AnmScnRes> mAnimation`|Two-word handle with DestroyG3dObj deleter; high|
+|0x34|`int mLength`|Resource frame count, signed conversion and script query; high|
+
+Member spellings are descriptive. Reserved words preserve unknown storage without claiming a recovered meaning or original type. Public method names follow behavior and corresponding script bindings. Private file-handle Load and ApplyFrame are reconstruction helpers with no retained symbol. Mutable MotionPtr reference signatures are supported by exact pointer reloads in the 496-byte factory and all wrapper comparisons. Own vtables are0x8039A208 and0x8039A160; own RTTI records are0x804B5B98/0x804B5BA0/0x804B5BA8. Outside names preserve existing sizes, types, bodies and split ownership: canonical LoadResourceFile0x80066930, scene-animation holder destructor0x80065980 and vtable0x80399A88, and CShadowCamera::SelectLight0x8010D7D0.
