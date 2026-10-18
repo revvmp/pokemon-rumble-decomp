@@ -1,5 +1,7 @@
 # F-763-1: TMC JPEG bit-stream register allocation
 
+The initial diagnostics below are historical. [F-763-2](763-mask-table-base.md) recovers the checked loop's native mask-table base and reduces its resolved instruction-word difference from 26 to 23. The unit still has nine of ten exact functions, remains NonMatching, and the issue remains incomplete.
+
 The complete ten-function stream unit is already split at text 0x801F9134–0x801F9764 and rodata 0x80368118–0x80368121. It remains NonMatching while the checked writer differs. Established Wii/1.0 cflags_tmcjpeg are unchanged. The existing source was reconstructed for this binary; no additional external code is imported. See [F-348-1](348-tmc-jpeg.md) and [F-349-1](349-tmc-jpeg.md) for the prior unit and type evidence.
 
 A fresh baseline configure, plain default Ninja (505 targets) and explicit frozen verification each exit zero. The source tree is clean before reconstruction edits. The original baseline reproduces six differing instruction words in PutBitsFast and twenty-six in TMCJPEGStreamPutBits when only relocation operand bits are excluded. Whole relocation instructions must not be ignored, because their register operands are part of this mismatch.
