@@ -12,7 +12,7 @@ The complete volume callback field at0x1FA4 uses the approved pending #912 volum
 
 ## Commands and results
 
-The outside candidate uses the actual Wii/1.0 pf_dir Ninja compile command, with the approved header overlay and outside output paths only. `359-probe-fat16.py` compiles successfully, and `359-strict-fat16.py` exits0 for all4 functions/1092 code bytes/1120 text bytes/14 actual targets. The split-only metadata checkpoint currently has no source registration and no completed full-build gate.
+The outside candidate uses the actual Wii/1.0 pf_dir Ninja compile command, with the approved header overlay and outside output paths only. `359-probe-fat16.py` compiles successfully, and `359-strict-fat16.py` exits0 for all4 functions/1092 code bytes/1120 text bytes/14 actual targets. The committed split-only checkpoint5edc7349 passed configure, incremental default Ninja, explicit all_source, plain no-work Ninja and the actual frozen verifier, all exit0. Its551 declared source objects and linked artifacts were captured independently; no source is registered for FAT16 yet. Only the previous main.dol was removed before linking, as the updated skill requires.
 
 ## Traps
 
