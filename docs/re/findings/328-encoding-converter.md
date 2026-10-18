@@ -2,7 +2,7 @@
 
 ## Scope and ownership
 
-The original #328 inventory contains 25 functions and 3,964 native code bytes. Its first sixteen functions continue the #327-owned UI file; that owner approved coordinated body work while retaining the canonical UI and generic-library interfaces. The functions at `0x801CA180` and `0x801CA240` are the archive-font wrapper destructor and construction path. Those depend on shared ownership and an incompletely recovered CFileData interface, and are not accepted here.
+The original #328 inventory contains 25 functions and 3,964 native code bytes. Its first fifteen functions continue the #327-owned UI file; that owner approved coordinated body work while retaining the canonical UI and generic-library interfaces. The functions at `0x801CA130`, `0x801CA180` and `0x801CA240` are the archive-font wrapper constructor, destructor and resource construction path. Those depend on shared ownership and an incompletely recovered CFileData interface, and are not accepted here.
 
 The final seven functions, `0x801CA450` through `0x801CA87C`, form a separate encoding-converter unit. Its initialization references local member-function tables and encoding-name strings; its six following methods reference only its own fields and the canonical ENC interface. Its data follows the preceding archive-font type-name cluster and ends before the next layout strings. The reconstruction uses the descriptive class name `CEncodingConverter`; neither that name nor the descriptive method names are claimed as original spelling.
 
@@ -39,9 +39,9 @@ The native selection order is preserved exactly: use Identity when both selected
 | `extabindex` | `0x800513CC`–`0x80051414` | Six exact native indices |
 | `.data` | `0x803C0480`–`0x803C0530` | Two member-pointer arrays, Identity/bridge pointer constants, three strings and four name pointers |
 | `.sdata` | `0x804B8340`–`0x804B8346` | Native `UTF-8` string including terminator |
-| `.sbss` | `0x804B94B8`–`0x804B94BA` | Two independently accessed one-byte local-static guards |
+| `.sbss` | `0x804B9178`–`0x804B917A` | Two independently accessed one-byte local-static guards |
 
-The independent Wii/1.1 candidate uses the established game flags without overrides and includes the existing `revolution/enc.h`. All seven instruction streams and sizes match. Strict proof independently resolves all 38 code relocation sites, preserves the other instruction bits, and checks their actual native targets. All 182 initialized bytes and ten data relocation sites match. The six exception records and indices match all 120 bytes and twelve relocation targets. The two guard accesses identify separate byte objects; the old imported `ParseString` four-byte label at `0x804B94B8` misidentified these guards and their following alignment padding.
+The independent Wii/1.1 candidate uses the established game flags without overrides and includes the existing `revolution/enc.h`. All seven instruction streams and sizes match. Strict proof independently resolves all 38 code relocation sites, preserves the other instruction bits, and checks their actual native targets. All 182 initialized bytes and ten data relocation sites match. The six exception records and indices match all 120 bytes and twelve relocation targets. The two guard accesses identify separate byte objects at `0x804B9178` and `0x804B9179`, using the actual native ELF `_SDA_BASE_` of `0x804BDA20`. The second previous automatic symbol included six following padding bytes; the real guard has size one. OSFont's correctly named four-byte ParseString object at `0x804B94B8` remains unchanged. The split-stage correction below supersedes the earlier erroneous guard addresses.
 
 The encoding-name array is an ordinary anonymous-namespace object defined after Initialize, with a preceding declaration. This reproduces the native order of the two member-pointer constants before the name literals. A local-static name array emitted the same strings before those constants, and failed the strict data/target comparison despite all seven instruction streams matching. No target bytes are embedded in the candidate.
 
@@ -55,7 +55,7 @@ The following commands ran from the isolated #328 worktree and wrote only issue-
 | `python C:/MassStorage/GitHub/328-audit-converter.py` | 0 | All seven sizes and non-relocation instruction streams exact |
 | `python C:/MassStorage/GitHub/328-strict-converter.py` | 0 | Seven functions, 1,032 bytes, 38 code targets, 182 initialized bytes, ten data targets, six exception records, 120 exception/index bytes and twelve exception targets exact |
 
-No full configure/Ninja/frozen-artifact verification has run for the staged split. The whole original inventory remains incomplete; no completion or source byte credit is claimed at this checkpoint.
+The first actual split-stage Ninja rejected the earlier erroneous guard range before compilation or linking; the correction below is now staged for repeat validation. The whole original inventory remains incomplete; no completion or source byte credit is claimed at this checkpoint.
 
 ## Provenance and naming confidence
 
@@ -117,7 +117,15 @@ An independent second variant uses actual canonical `include/game/ICalc.h` and `
 
 A stronger third variant also removes every outside shared_ptr, weak_ptr, enable_shared_from_this and bad_weak_ptr declaration, including the diagnostic control-header overlay. It uses the actual unchanged canonical `memory`, shared control and deleter headers, alongside both canonical calculation interfaces. `328-probe-canonical-memory-manager.py` and `328-strict-full-canonical-manager.py` exit zero with the same complete code, exception and vtable proof. Its five canonical input SHA-256 values and separate object are preserved. The remaining BUI/list/auto_ptr declaration diagnostics are explicitly separate from these existing shared interfaces; no generic header reconstruction is claimed here.
 
+## F-328-5: split-stage guard-address correction
+
+The first real seeded split-stage Ninja exited 1: the proposed guards at `0x804B94B8` overlapped the canonical OSFont split. The outside strict audit had used an incorrect hardcoded r13 base, `0x804BDD60`. The native ELF actually declares `_SDA_BASE_ = 0x804BDA20`; displacements `-0x48A8` and `-0x48A7` therefore resolve to `0x804B9178` and `0x804B9179`. The old address/OSFont-misattribution claim was wrong. No source object had been registered or accepted, and no full-artifact success was claimed.
+
+The corrected audit derives both small-data bases directly from the native ELF symbols and again passes all seven instruction streams, all 38 actual code targets, all initialized data and exception records. The converter split now owns only the two actual guard bytes through `0x804B917A`. Canonical OSFont metadata and its ParseString name are restored exactly to main. The native one-byte guard at `0x804B9179` is distinguished from its six subsequent alignment bytes. The repeat split/source pipeline remains required; successful outside comparison still does not establish source selection.
+
 ## Traps
+
+- Derive r13/r2 bases from the actual native ELF symbols. A wrong hardcoded r13 base made a relocation audit accept mislocated guards; the real split overlap check rejected them before source registration.
 
 - For this narrow Shift-JIS character parameter, `0x8100 <= value` and `0xE000 <= value` retain the native direct comparisons. Reversing the lower comparisons to `value >= ...` enables range fusion and changes seven instruction words. Controlled signed/unsigned literal probes showed that literal signedness was not the cause. Preserve ordinary relational operand spelling before considering type or compiler changes.
 - A local-static declaration is an executable initialization point. Moving the second member-pointer table's declaration before the first assignment changes 26 instruction words, even though function size and eventual field values agree. Interleave each declaration with its corresponding assignment as the native control flow requires.
