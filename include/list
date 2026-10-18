@@ -109,6 +109,42 @@ public:
     void push_back(const T& x) { insert(end(), x); }
     void clear() { base::clear(); }
 
+    void pop_front() { erase(begin()); }
+
+    iterator erase(iterator position) {
+        node_base* pNode = position.node_;
+        node_base* pNext = pNode->next_;
+        pNode->prev_->next_ = pNext;
+        pNext->prev_ = pNode->prev_;
+        Allocator().destroy(static_cast<node*>(pNode)->value());
+        this->size_.second().deallocate(static_cast<node*>(pNode), 1);
+        --this->size_.first();
+        return iterator(pNext);
+    }
+
+    void swap(list& rOther) {
+        if (this != &rOther) {
+            size_type size = this->size_.first();
+            this->size_.first() = rOther.size_.first();
+            rOther.size_.first() = size;
+            node_base tail = this->tail_;
+            this->tail_ = rOther.tail_;
+            rOther.tail_ = tail;
+            if (this->size_.first() != 0) {
+                this->tail_.prev_->next_ = &this->tail_;
+                this->tail_.next_->prev_ = &this->tail_;
+            } else {
+                this->tail_.init();
+            }
+            if (rOther.size_.first() != 0) {
+                rOther.tail_.prev_->next_ = &rOther.tail_;
+                rOther.tail_.next_->prev_ = &rOther.tail_;
+            } else {
+                rOther.tail_.init();
+            }
+        }
+    }
+
     iterator insert(iterator position, const T& x) {
         node* pNode = this->size_.second().allocate(1);
         Allocator().construct(pNode->value(), x);
