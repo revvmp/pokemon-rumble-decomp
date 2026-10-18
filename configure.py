@@ -396,6 +396,7 @@ config.libs = [
             Object(NonMatching, "RVL_SDK/fa/pf_entry_iterator.c"),
             Object(NonMatching, "RVL_SDK/fa/pf_fat32.c"),
             Object(NonMatching, "RVL_SDK/fa/pf_fatfs.c"),
+            Object(NonMatching, "RVL_SDK/fa/pf_file.c"),
             Object(Matching, "RVL_SDK/fa/pf_api_util.c"),
             Object(Matching, "RVL_SDK/fa/pf_chdir.c"),
             Object(Matching, "RVL_SDK/fa/pf_kernel.c"),
