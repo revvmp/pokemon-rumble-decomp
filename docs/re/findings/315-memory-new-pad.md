@@ -25,7 +25,7 @@ The allocator at `0x803BF3A8` is the canonical sixteen-byte `MEMAllocator`, refe
 
 The two delete functions at `0x801B1580` and `0x801B1590` each retain sixteen instruction bytes. IDA's twelve-byte body estimate omits an unreachable `blr`, but the frozen DOL and ordinary compiled operator bodies both contain `0x4E800020` at `0x801B158C` and `0x801B159C`. These are retained instructions, not zero alignment padding. The new unit ends at the next callback, `0x801B15A0`. An initial twelve-byte extent experiment was rejected after this full-byte comparison.
 
-The late small-data word at `0x804B9BC0` is referenced as the global new-handler function pointer by both allocation operators. Its neighboring four bytes are not yet identified. This patch names and bounds the pointer but leaves its definition in the original automatic object; attributing it to the early game new unit creates an ordering cycle. Marking the split common converts its definition to ordinary BSS and violates the actual SDA relocation, so that attempt was rejected.
+The late small-data word at `0x804B9BC0` is referenced as the global new-handler function pointer by both allocation operators. Its neighboring four bytes are not yet identified. This patch only names the outside object, preserving main's original eight-byte symbol extent and attributes, and leaves its definition in the original automatic object; attributing it to the early game new unit creates an ordering cycle. Marking the split common converts its definition to ordinary BSS and violates the actual SDA relocation, so that attempt was rejected.
 
 ## Native behavior and diagnostic reconstruction
 
@@ -106,3 +106,8 @@ No original hash changed. The four accepted functions earn 320 code bytes; the e
 
 - An exception section can have a lower objdiff fuzzy score solely because an equivalent relocation uses a compiler-generated local name. Preserve meaningful metadata and prove the actual target addresses and complete linked artifact rather than renaming symbols to numeric compiler labels.
 - A source registration is not source selection. Inspect the real Ninja input graph to distinguish a NonMatching compiled diagnostic from the original object used in the link.
+
+
+## Post-905 preparation
+
+The source branch rebases onto main after confirmed PR905, dropping its duplicate temporary allocation-header prerequisite and preserving the complete merged header findings. The entry-wise metadata merge retains the newly added BModelObj fallback unit. Review restores the outside new-handler symbol's original eight-byte extent; only its name changes, while the source consumes its demonstrated four-byte function-pointer word. The owned memory/new object lines follow the existing game units in native address order. A fresh output build is required after this metadata rebase; earlier source-selected verification is historical and is not a current-main gate.
