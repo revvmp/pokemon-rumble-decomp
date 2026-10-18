@@ -2758,3 +2758,14 @@ For `wpse-v1` / `main.dol`, [F-92-2](findings/92-cdlgpiiselector-construction.md
 | `BWorldCamera` | `0x64` | `mMotionFrame` | `f32` | `0x80067550`, `0x800677C0` |
 | `CStageCamera` | `0x68` | `mReserved` | `u32` | constructor only (low) |
 | `CStageCamera` | `0x6C` | `mEngine` | `std::tr1::shared_ptr<CPpuEngine>` | `LoadScript`, `Calc`, `OnLeaveWorld`, `GetPpuEngine`, destructor |
+## Game NPpu VM third block and library (#283)
+
+[F-283-2](findings/283-nppu-library.md#f-283-2-identities-of-the-24-functions) names, in `.text`, with the mangled names the source produces: `NPpu::CEngine::ToString` `0x801738D0`, `ToWString` `0x801739E0`, `ToStdString` `0x80173AF0`, `ToStdWString` `0x80173E70`, `GetThrown` `0x801741F0`, `AllocString` `0x80174210`, `AllocWString` `0x801743B0`; `NPpu::ToUnicode` `0x80174B30` and `NPpu::ToSjis` `0x80174C50`; `Format(CEngine*, int, const wchar_t*)` `0x80175090` and `Format(CEngine*, int, const char*)` `0x801753B0`; the natives `ScriptBinding_GetThrownValue` `0x80174D70` through `ScriptBinding_SetInitialDebugLevel` `0x80175010` and `ScriptBinding_Printf` `0x801756C0` now carry their C++ mangling (`__FPQ24NPpu7CEngine`). Outside the block, for the link: MSL `basic_string<char>::reserve` `0x8006D8B0`, `basic_string<wchar_t>::reserve` `0x80082020`, and the `replace(size_type, size_type, const T*, const T*, forward_iterator_tag)` instances `0x80067F70` (`char`) and `0x80082260` (`wchar_t`) (template names medium). Statics in `.sbss`: `CEngine::sGCMark` `0x804B90E0` and `sGCAllocCount` `0x804B90E4`. All names are descriptive.
+
+| Type | Offset | Member | Type | Evidence |
+| --- | --- | --- | --- | --- |
+| `NPpu::SGCString<T>` | `0x0` | `mString` | `std::basic_string<T>` | `AllocString`, collector |
+| `NPpu::SGCString<T>` | `0xC` | `mMark` | `int` | stamped with `sGCMark`; collector compares it |
+| `NPpu::SGCStringRef<T>` | `0x0`, `0x4` | `mKey`, `mString` | `const T*`, `SGCString<T>*` | set element, ordered by `mKey` (`find_leaf` `0x80174AD0`) |
+| `std::basic_string<T>` | `0x0` | long flag (bit 31), capacity (bits 0–30) or short size (byte 0, 7 bits) | bitfields | `reserve` `0x8006D8B0` |
+| `std::basic_string<T>` | `0x4`, `0x8` | long size, long data; short characters from 1 (`char`) or 2 (`wchar_t`) | | `c_str` inlines |

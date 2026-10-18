@@ -1,5 +1,6 @@
 #include <game/NPpuVM.h>
 
+#include <revolution/enc.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -248,8 +249,10 @@ const SNativeFunction* CEnvironment::GetNative(int index) const {
 }
 
 int CEngine::sNextID = 1;
-std::set<char*>* CEngine::sStrings;
-std::set<wchar_t*>* CEngine::sWStrings;
+int CEngine::sGCMark;
+int CEngine::sGCAllocCount;
+std::set<SGCStringRef<char> >* CEngine::sStrings;
+std::set<SGCStringRef<wchar_t> >* CEngine::sWStrings;
 std::set<CEngine*>* CEngine::sInstances;
 
 CEngine::CEngine() : mID(sNextID++), mCode(nullptr), mEnv(nullptr), mState(0) {
@@ -280,10 +283,10 @@ CEngine::~CEngine() {
 
 void CEngine::Init(CCode* pCode, CEnvironment* pEnv, int frameCapacity, int baseCount, int handlerCapacity) {
     if (sStrings == nullptr) {
-        sStrings = new std::set<char*>;
+        sStrings = new std::set<SGCStringRef<char> >;
     }
     if (sWStrings == nullptr) {
-        sWStrings = new std::set<wchar_t*>;
+        sWStrings = new std::set<SGCStringRef<wchar_t> >;
     }
     if (sInstances == nullptr) {
         sInstances = new std::set<CEngine*>;
@@ -1444,8 +1447,66 @@ const wchar_t* CEngine::ToWString(const CValue& rValue) const {
     return sBuffer;
 }
 
+inline std::wstring ToUnicode(const std::string& rString) {
+    s32 size;
+    ENCConvertStringSjisToUnicode(nullptr, &size, reinterpret_cast<const u8*>(rString.c_str()), nullptr);
+    wchar_t* pBuffer = static_cast<wchar_t*>(__alloca((size + 1) * sizeof(wchar_t)));
+    pBuffer[size] = L'\0';
+    ENCConvertStringSjisToUnicode(reinterpret_cast<u16*>(pBuffer), &size, reinterpret_cast<const u8*>(rString.c_str()), nullptr);
+    return std::wstring(pBuffer);
+}
+
+inline std::string ToSjis(const std::wstring& rString) {
+    s32 size;
+    ENCConvertStringUnicodeToSjis(nullptr, &size, reinterpret_cast<const u16*>(rString.c_str()), nullptr);
+    char* pBuffer = static_cast<char*>(__alloca(size + 1));
+    pBuffer[size] = '\0';
+    ENCConvertStringUnicodeToSjis(reinterpret_cast<u8*>(pBuffer), &size, reinterpret_cast<const u16*>(rString.c_str()), nullptr);
+    return std::string(pBuffer);
+}
+
+std::string CEngine::ToStdString(const CValue& rValue) const {
+    if (rValue.IsString()) {
+        return std::string(ToString(rValue));
+    }
+    if (rValue.IsWString()) {
+        std::wstring string(ToWString(rValue));
+        return ToSjis(string);
+    }
+    return std::string("");
+}
+
+std::wstring CEngine::ToStdWString(const CValue& rValue) const {
+    if (rValue.IsWString()) {
+        return std::wstring(ToWString(rValue));
+    }
+    if (rValue.IsString()) {
+        std::string string(ToString(rValue));
+        return ToUnicode(string);
+    }
+    return std::wstring(L"");
+}
+
 void CEngine::GetThrown(CValue& rValue) const {
     rValue = mThrown;
+}
+
+const char* CEngine::AllocString(const std::string& rString) {
+    sGCAllocCount++;
+    SGCString<char>* pString = new SGCString<char>;
+    pString->mString = rString;
+    pString->mMark = sGCMark;
+    sStrings->insert(SGCStringRef<char>(pString->mString.c_str(), pString));
+    return pString->mString.c_str();
+}
+
+const wchar_t* CEngine::AllocWString(const std::wstring& rString) {
+    sGCAllocCount++;
+    SGCString<wchar_t>* pString = new SGCString<wchar_t>;
+    pString->mString = rString;
+    pString->mMark = sGCMark;
+    sWStrings->insert(SGCStringRef<wchar_t>(pString->mString.c_str(), pString));
+    return pString->mString.c_str();
 }
 
 }
