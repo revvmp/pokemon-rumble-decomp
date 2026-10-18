@@ -1003,6 +1003,15 @@ nw4r/ef/ef_emitter.cpp:
 	.data       start:0x803C5350 end:0x803C5378
 	.sdata2     start:0x804BA5F0 end:0x804BA624
 
+nw4r/ef/ef_animcurve.cpp:
+	.text       start:0x802290A0 end:0x8022DFAC
+	.data       start:0x803C5378 end:0x803C5578
+	.sdata2     start:0x804BA628 end:0x804BA660
+
+nw4r/ef/ef_postfield.cpp:
+	.text       start:0x8022DFB0 end:0x80231640
+	.sdata2     start:0x804BA660 end:0x804BA698
+
 nw4r/ef/ef_particle.cpp:
 	.text       start:0x80231640 end:0x802324A4
 	.data       start:0x803C5578 end:0x803C5590
