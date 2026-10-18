@@ -2,6 +2,7 @@
 #define _FUNCTIONAL
 
 #include <exception>
+#include <new>
 #include <revolution/types.h>
 
 namespace std {
@@ -26,6 +27,29 @@ public:
     virtual R operator()() = 0;
 };
 
+template <typename Signature, typename F, bool IsMemberPointer, bool IsReferenceWrapper> class function_imp;
+
+template <typename R, typename F> class function_imp<R (*)(), F, false, false> : public function_base<R (*)()> {
+    typedef function_base<R (*)()> base;
+
+public:
+    explicit function_imp(const F& f) : f_(f) {}
+    virtual base* clone() const { return new function_imp(*this); }
+    virtual base* clone(void* pBuffer) const { return new (pBuffer) function_imp(*this); }
+    virtual R operator()() { return f_(); }
+
+private:
+    F f_;
+};
+
+template <typename F> bool is_null(const F&) {
+    return false;
+}
+
+template <typename F> bool is_null(F* p) {
+    return p == nullptr;
+}
+
 }
 
 template <typename R> class function<R()> {
@@ -39,6 +63,16 @@ public:
     typedef R result_type;
 
     function() : f_(nullptr) {}
+    template <typename F> function(F f) : f_(nullptr) {
+        if (!detail::is_null(f)) {
+            typedef detail::function_imp<R (*)(), F, false, false> imp;
+            if (sizeof(imp) <= sizeof(buf_)) {
+                f_ = new (buf_) imp(f);
+            } else {
+                f_ = new imp(f);
+            }
+        }
+    }
     function(const function& r) : f_(nullptr) {
         if (r.f_ != nullptr) {
             if (r.f_ == r.local()) {

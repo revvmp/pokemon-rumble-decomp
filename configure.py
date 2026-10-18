@@ -251,6 +251,7 @@ config.libs = [
             Object(NonMatching, "game/CMsgRes.cpp"),
             Object(NonMatching, "game/Message.cpp"),
             Object(Matching, "game/luckyhelper.cpp"),
+            Object(NonMatching, "game/sound.cpp"),
         ],
     ),
     library(

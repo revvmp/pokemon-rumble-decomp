@@ -7,13 +7,6 @@
 #include <revolution/types.h>
 
 namespace std {
-namespace detail {
-template <typename T> struct default_delete {
-    default_delete() {}
-    void operator()(T* pObject) const { delete pObject; }
-};
-}
-
 namespace tr1 {
 namespace detail {
 
