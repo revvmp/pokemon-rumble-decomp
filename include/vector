@@ -6,10 +6,11 @@
 #include <MSL_CPP/compressed_pair.h>
 #include <MSL_CPP/msl_utility.h>
 #include <stdexcept>
+#include <string.h>
 
 namespace std {
 
-static inline void __throw_vector_length_error() {
+inline void __throw_vector_length_error() {
     throw length_error("vector length error");
 }
 
@@ -19,11 +20,27 @@ public:
     typedef typename Metrowerks::compressed_pair<size_type, Allocator>::second_param allocator_param;
     typedef Metrowerks::int2type<Metrowerks::is_POD<T>::value> pod_type;
 
-    __vec_deleter() : data_(nullptr), size_(0), capacity_() {}
-    explicit __vec_deleter(allocator_param a) : data_(nullptr), size_(0), capacity_(0, a) {}
+    __vec_deleter() : data_(nullptr), size_(0), capacity_(0) {}
+    explicit __vec_deleter(allocator_param a);
     ~__vec_deleter();
 
     void clear() { erase_at_end(size_, pod_type()); }
+
+    size_type& cap() { return capacity_.first(); }
+    Allocator& alloc() { return capacity_.second(); }
+    const Allocator& alloc() const { return capacity_.second(); }
+    size_type max_size() const { return alloc().max_size(); }
+
+    void allocate(size_type n);
+    void allocate(size_type n, pod_type);
+
+    void construct_at_end(T* pFirst, T* pLast) { construct_at_end(pFirst, pLast, pod_type()); }
+    void construct_at_end(T* pFirst, T* pLast, Metrowerks::int2type<true>) {
+        ptrdiff_t n = pLast - pFirst;
+        memcpy(data_ + size_, pFirst, n * sizeof(T));
+        memset(pFirst, 0, n * sizeof(T));
+        size_ += n;
+    }
 
     T* data_;
     size_type size_;
@@ -111,7 +128,42 @@ public:
 
     size_type max_size() const { return size_type(-1) / sizeof(T); }
 
+    T* begin() { return this->data_; }
+    T* end() { return this->data_ + this->size_; }
+    size_type size() const { return this->size_; }
+    T& back() { return this->data_[this->size_ - 1]; }
+
+    void reserve(size_type n) {
+        if (n > this->cap()) {
+            reallocate(n);
+        }
+    }
+
+    void push_back(const T& x) { push_back(x, pod_type()); }
+    void pop_back() { pop_back(pod_type()); }
+    void clear() { clear(pod_type()); }
+
 protected:
+    void reallocate(size_type n);
+
+    void push_back(const T& x, Metrowerks::int2type<true>) {
+        if (this->size_ < this->cap()) {
+            ++this->size_;
+            back() = x;
+        } else {
+            push_back_realloc(x);
+        }
+    }
+
+    void push_back_realloc(const T& x) { push_back_realloc(x, pod_type()); }
+    void push_back_realloc(const T& x, Metrowerks::int2type<true>) {
+        reallocate(grow_by(1));
+        this->data_[this->size_++] = x;
+    }
+
+    void pop_back(Metrowerks::int2type<true>) { --this->size_; }
+    void clear(Metrowerks::int2type<true>) { this->size_ = 0; }
+
     void allocate(size_type n, pod_type) {
         if (n > max_size()) {
             __throw_vector_length_error();
@@ -183,6 +235,32 @@ protected:
     }
 };
 
+template <typename T, typename Allocator, bool IsPOD>
+void __vec_constructor<T, Allocator, IsPOD>::reallocate(size_type n) {
+    base buffer(this->alloc());
+    buffer.allocate(n);
+    buffer.construct_at_end(begin(), end());
+    clear();
+    std::swap(this->cap(), buffer.cap());
+    std::swap(this->data_, buffer.data_);
+    std::swap(this->size_, buffer.size_);
+}
+
+template <typename T, typename Allocator>
+__vec_deleter<T, Allocator>::__vec_deleter(allocator_param a) : data_(nullptr), size_(0), capacity_(0, a) {}
+
+template <typename T, typename Allocator> void __vec_deleter<T, Allocator>::allocate(size_type n) {
+    allocate(n, pod_type());
+}
+
+template <typename T, typename Allocator> void __vec_deleter<T, Allocator>::allocate(size_type n, pod_type) {
+    if (n > max_size()) {
+        __throw_vector_length_error();
+    }
+    data_ = alloc().allocate(n, 0);
+    cap() = n;
+}
+
 template <typename T, typename Allocator = allocator<T> >
 class vector : private __vec_constructor<T, Allocator, Metrowerks::is_POD<T>::value> {
     typedef __vec_constructor<T, Allocator, Metrowerks::is_POD<T>::value> base;
@@ -215,6 +293,31 @@ public:
     bool empty() const { return this->size_ == 0; }
     T& operator[](size_type i) { return this->data_[i]; }
     const T& operator[](size_type i) const { return this->data_[i]; }
+};
+
+template <typename T, typename Allocator> class __vec_pointer : public __vec_constructor<void*, allocator<void*>, true> {
+    typedef __vec_constructor<void*, allocator<void*>, true> base;
+
+public:
+    void push_back(T* const& x) { base::push_back(reinterpret_cast<void* const&>(x)); }
+};
+
+template <typename T, typename Allocator> class vector<T*, Allocator> : private __vec_pointer<T, Allocator> {
+    typedef __vec_pointer<T, Allocator> base;
+
+public:
+    typedef T* value_type;
+    typedef unsigned long size_type;
+
+    vector() {}
+    ~vector() {}
+
+    using base::size;
+
+    void reserve(size_type n) { base::reserve(n); }
+    void push_back(T* const& x) { base::push_back(x); }
+    T*& back() { return reinterpret_cast<T*&>(base::back()); }
+    void pop_back() { base::pop_back(); }
 };
 
 }

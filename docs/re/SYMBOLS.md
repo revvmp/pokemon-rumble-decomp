@@ -2884,3 +2884,22 @@ The descriptive CalcPostFieldParticle ABI from #769 now has a complete exact sou
 | `SoundWork` | `0x598` | `mSpareHandle` | `nw4r::snd::SoundHandle` | Constructor and destructor only (low) |
 | `CFileData` | `0x10` | `mSize` | `u32` | `ARCGetLength` store `0x8019F0C0` |
 | `CFileData` | `0x1C` | `mData` | `void*` | `ARCGetStartAddrInMem` store `0x8019F0B4` |
+## Game script camera adjustment (#235)
+
+[F-235-1](findings/235-script-camera-adjust.md#f-235-1-methodcamadjustpos-and-its-helper-class) and [F-235-2](findings/235-script-camera-adjust.md#f-235-2-pointer-vectors-share-one-void-implementation) name, in `.text`: the file-local `ProjectToHeight` `0x80133F00`, `method_camAdjustPos` `0x80134000` (original), `CCameraAdjuster::Init` `0x80134150`, `Adjust` `0x80134370`, `AdjustPii` `0x80134890`, `GetPosition`, `GetDepth`, `IsClipped` `0x80134CA0`–`0x80134CC0` and the constructor `0x80134D60` (descriptive, medium); `BWorld::GetGround` `0x80134310`, `BWorldObj::GetWorld` `0x80134360`, `CPlayerPii::GetPositionHistory` `0x80134B00`; the `vector<CPlayerPii*>`, `__vec_pointer`, `__vec_constructor<void*>`, `__vec_deleter<void*>`, `deque<VEC3>` and ring-buffer instances `0x80134710`–`0x80134C80`, `0x80134DB0`–`0x80134EB0`, `0x80135150`, `0x801351A0` and `0x80135230`; the `shared_ptr_deleter<CStageCamera>` members `0x80134F40`, `0x80134F90`, `0x801351D0`, `default_delete<CStageCamera>::operator()` `0x80135100`, its `second` accessors `0x80135130` and `0x80135140`, and `__sinit_\ScriptCamera_cpp` `0x801352A0`. Outside the unit: `CPlayer::IsJoined` `0x80092980` (low), `CPlayer::GetPii` `0x800F8320` (medium), `CDividedGround::IsOutOfBounds` `0x80075FB0` (low), `VEC3::operator*(f32)` `0x8009CA60`, the shared pointer-vector and deque helpers listed in F-235-2, and in `.sdata` `__RTTI__Q43std3tr16detail25shared_ptr_deleter_common` `0x804B5AB8` (high, referenced by every `shared_ptr_deleter` base list). `lbl_804BA1E0` is resized to 4 bytes.
+
+| Class | Offset | Member | Type | Evidence |
+| --- | --- | --- | --- | --- |
+| `CCameraAdjuster` | `0x00` | `mViewMtx` | `nw4r::math::MTX34` | `Init`, `AdjustPii` |
+| `CCameraAdjuster` | `0x30` | `mInvViewMtx` | `nw4r::math::MTX34` | `Init`, `Adjust`, `AdjustPii` |
+| `CCameraAdjuster` | `0x60` | `mTopSlope`, `mBottomSlope`, `mLeftSlope`, `mRightSlope` | `f32` | `Init`, `AdjustPii` |
+| `CCameraAdjuster` | `0x70` | `mTopLimit`, `mBottomLimit`, `mLeftLimit`, `mRightLimit` | `f32` | slopes times the margin; `AdjustPii` |
+| `CCameraAdjuster` | `0x80` | `mMaxDepth` | `f32` | `Init`, `AdjustPii` |
+| `CCameraAdjuster` | `0x84` | `mDepth` | `f32` | `AdjustPii`, `GetDepth` |
+| `CCameraAdjuster` | `0x88` | `mCount` | `int` | `Adjust` |
+| `CCameraAdjuster` | `0x8C` | `mSum` | `nw4r::math::VEC3` | `Adjust` |
+| `CCameraAdjuster` | `0x98` | `mClipped` | `bool` | `AdjustPii`, `IsClipped` |
+| `CCameraAdjuster` | `0x9C` | `mPosition` | `nw4r::math::VEC3` | `Adjust`, `GetPosition` |
+| `CCameraAdjuster` | `0xA8` | `mGround` | `CDividedGround*` | `Init`, `AdjustPii` |
+| `CPlayerPii` | `0x14C` | `mPlayerNo` | `int` | constructor argument (low) |
+| `CPlayerPii` | `0x150` | `mPositionHistory` | `std::deque<nw4r::math::VEC3>` | `GetPositionHistory`, `Adjust` (medium) |
