@@ -2490,3 +2490,16 @@ For `wpse-v1` / `main.dol`, [F-39-2](findings/39-bmodelobj.md#f-39-2-model-setup
 ## Issue #366 FA standard wrappers
 
 [F-366-1](findings/366-fa-standard-wrappers.md) records all twenty-six original FA public names and one-function source boundaries at `0x8021AAA0–0x8021B184`. Original spelling/file order and extents agree with pinned IPL `f4c09f4001c5a0b9af734ad1e3f80a54c5e5723c`; every actual source instruction and all 71 callee/data relocation targets match this executable. Each wrapper has its own public header. The functions forward existing native PF_FILE, PF_DIR, PF_DTA and PF_STAT types; no existing record layout changes. PF_VOL_INF, PF_VOLUME_CONFIG and PF_CLUSTER_LINK_CONFIG are documented descriptive opaque forwarding tags, not recovered original spellings or invented storage layouts. The shared declarations are the owner-coordinated #882 prerequisite.
+
+
+## Game-linked CNT stream wrapper (313)
+
+`nw4r::ut::CNTHandleWithMutex` and `nw4r::ut::CntFileStream` are original names embedded in the executable. The standalone unit begins at `0x801AF780`, before the survey's stream-constructor boundary `0x801AF870`, and ends at `0x801AFC7C`. It uses the established game compiler and exception/RTTI flags despite its NW4R namespace. See [F-313-1](findings/313-cnt-file-stream.md).
+
+| Type | Members in order | Confidence |
+| --- | --- | --- |
+| CNTHandleWithMutex, `0x44` bytes | initialized boolean `0`; OSMutex `4`; CNTHandle `0x1C` | High: constructor, initializer, release and stream call sites |
+| CntFileStream, `0x68` bytes | FileStream base `0`; FilePosition `0x14`; CNTHandleWithMutex pointer `0x1C`; CNTFileInfo `0x20`; close-on-destroy boolean `0x64`; close-enable boolean `0x65` | High: all retained methods and virtual table |
+| CNTHandleWithMutex::ScopedLock, `4` bytes | handle reference `0` | High layout/behavior; nested type name is descriptive |
+
+The class virtual order follows canonical IOStream/FileStream. The derived table is `0x803BF2E0`; CodeWarrior RTTI for CntFileStream, FileStream and IOStream occupies `0x804B81D8`–`0x804B81F0`. CntFileStream's independent NW4R RuntimeTypeInfo object is `0x804B9130`, initialized to reference FileStream::typeInfo at `0x804B93C0`. `Init` and private member names are descriptive; class names and canonical inherited method names are original.
