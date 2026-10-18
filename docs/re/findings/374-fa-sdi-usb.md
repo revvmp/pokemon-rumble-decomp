@@ -84,3 +84,24 @@ The canonical-header owner was asked in [PR #931](https://github.com/revvmp/poke
 - Retaining a shared initialized error variable across early fatal branches emitted twenty extra bytes in each async transfer. Ordinary early returns for invalid heap/state restore the actual control flow; this is a source-structure finding, not a compiler flag change.
 - Initialization pointer checks written as `pointer == NULL` caused the compiler to retain a shared zero register and use register comparisons. Ordinary `!pointer` checks reproduce all actual instructions under the same unchanged SDK flags. Both controls have the same 372-byte extent, so extent agreement alone does not establish a match.
 - `ISD_UnregisterDeviceIntrHandler` has a genuinely 32-byte-aligned local response buffer, confirmed by its dynamic stack alignment and actual buffer address. Preserve that local alignment rather than changing the whole translation unit's function alignment.
+
+# F-374-3: Complete external SDI object comparison
+
+The final geometry candidate closes the remaining instruction differences with ordinary CSD evaluation: calculate sector size before total capacity, then combine the masked lower sector-size bits with the upper bit. All twenty retained functions now compare exactly under unchanged SDK Wii/1.0 flags. The earlier declaration-order and mask controls remain failed diagnostic evidence, not acceptance claims.
+
+Removing the reference-only unretained `ISD_ProbeCard` and ordering the retained data-width helper after card-register reading restores every original function start in a single complete object. `374-probe-sdi-whole.py` then `374-audit-sdi-whole-allocated.py` both exit 0. The latter independently resolves all 231 text relocations, compares complete text including padding, compares literal and initialized data directly, and checks the exact NOBITS storage extents.
+
+| Section | Native start | Actual source extent | Result |
+| --- | --- | --- | --- |
+| `.text` | `0x80223E70` | `0x15AC` | Exact 5,548 bytes, including 5,448 instruction bytes and 100 internal padding bytes |
+| `.data` | `0x803C5280` | `0x50` | Exact reset diagnostic and three device-path strings |
+| `.bss` | `0x80422FC0` | `0x80` | Mutex at zero, paths at `0x20`, exact allocation/alignment |
+| `.sdata` | `0x804B88E0` | `0x4` | Exact signed heap identifier initialized to -1 |
+| `.sbss` | `0x804B9288` | `0x20` | Exact seven globals and function-static heap-base pointer |
+
+Whole issue external coverage is now 27 of 35 original rows and 6,440 of 8,172 instruction bytes; the eight USB block tails remain. The complete SDI candidate still uses the isolated reference-shaped header overlay. Actual canonical-header adaptation, split-only baseline, real Ninja-built objects, source-input/MAP checks, objdiff and frozen full-DOL gates remain required before source acceptance. No source is registered or linked by this documentation checkpoint.
+
+## Traps
+
+- The inferred existing `__sdHeapId` symbol extent of eight bytes includes four trailing alignment bytes. The actual source object is a four-byte signed heap identifier with eight-byte section alignment. Preserve the following object's alignment rather than adding storage to the variable.
+- The final SDI function ends at `0x8022541C`; the next memory function starts at `0x80225420`. Those four external alignment bytes do not belong to the SDI text split.
