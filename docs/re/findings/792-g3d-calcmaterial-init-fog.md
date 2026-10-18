@@ -19,7 +19,7 @@ Sources come from CC0 zeldaret/ss `57a709b2128eb163a18e2969d561c9abb7d1fcee`, st
 
 ss's `g3d_scnproc.cpp` and `g3d_tmem.cpp` are absent from this executable.
 
-The remaining range in this issue, `.text` `0x8026F880–0x8027074C`, belongs to `ScnGroupEx`: `0x8026F890` references the type name `ScnGroupEx` at `0x8036C9C8`. ss, Petari, Whippy, kdc and xenoblade do not implement `g3d_scngroupex.cpp`, so it is left blocked with no reference.
+The remaining range in this issue, `.text` `0x8026F880–0x8027074C`, belongs to `ScnGroupEx`: `0x8026F890` references the type name `ScnGroupEx` at `0x8036C9C8`. ss, Petari, Whippy, kdc and xenoblade do not implement `g3d_scngroupex.cpp`, so the initial investigation left it blocked with no reference. Superseded by [F-792-2](792-scngroupex.md): independent reconstruction identifies the group and both gather helpers and accepts all 24 remaining functions with an exact source-selected DOL.
 
 Evidence: `python configure.py` exit 0; `.venv/Scripts/ninja` exit 0 after deleting `build/wpse-v1/main.dol`; objdiff 100% for all three units; `tools/verify/verify.py verify` PASS for `main.dol`.
 
