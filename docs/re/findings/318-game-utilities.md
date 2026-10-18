@@ -4,7 +4,7 @@
 
 The original #318 inventory has 23 functions and 5,648 code bytes, from `0x801B64B0` through the CModel constructor at `0x801B7AA0`. The survey title does not establish a source-file boundary. The constructor alone does not establish the complete CModel class or translation unit; later methods and nested animation classes extend into neighboring inventories.
 
-The initial native checkpoint was documentation only. The bounded first two functions have passed split-only full verification and their source is registered NonMatching for actual-object comparison. No function is source-selected and no progress is credited. The isolated worktree started at `fb63a24627e72e30f4f48badb7e1b1b82cb04bef`. Native comparisons read the frozen original DOL without changing its manifest.
+The bounded first two functions are reconstructed, source-selected and verified against the frozen DOL: two owned functions and 76 code bytes. The remaining 21 original issue entries, totaling 5,572 code bytes, are incomplete. Diagnostic results below do not add to this accepted source coverage. The isolated worktree started at `fb63a24627e72e30f4f48badb7e1b1b82cb04bef`. Native comparisons read the frozen original DOL without changing its manifest.
 
 ## Compiler and reproducibility
 
@@ -66,6 +66,10 @@ The initial split attempt was rejected because the automatic `lbl_804BA3C0` symb
 
 At `1d8155cc`, rebased onto `82571e1d`, the fresh split-only configure, full default Ninja, explicit all_source and actual-directory frozen verifier all exit zero. Ninja compiled the current game NonMatching sources too. The next step registers the source NonMatching and compares the actual compiler object before source selection.
 
+At `004028e7`, the actual registered NonMatching source compiles with the real pipeline; both functions and all four sections score 100%. The strict quarter-turn driver also accepts the actual `build/wpse-v1/src/game/QuarterTurn.o`, resolving every instruction target and comparing the complete text, float pool and exception records. At `e80e4464`, selecting that source as Matching passes configure, the real default link, the SHA-1 build check, explicit all_source, a separate plain Ninja invocation and actual-directory frozen verification. The linked DOL SHA-256 remains `ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da`.
+
+The generated Ninja graph explicitly lists `build/wpse-v1/src/game/QuarterTurn.o` as linked, replacing the original fallback for this unit. No force-active source pragma, hand padding, raw executable bytes or flag change is needed. A full frozen-DOL scan also finds incoming branches to SinQuarterTurn at `0x8009816C`, `0x8009A314`, `0x800B0768`, and to OneMinusCosQuarterTurn at `0x8009917C`, `0x80099CD4`; the incomplete IDA view missed these references. The names remain descriptive rather than recovered original spellings.
+
 ## Render-mode interface remains unresolved
 
 An ordinary `GXRenderModeObj` value return with a local mode reproduces every byte of the 1,176-byte producer and all 23 relocations. Its exception record is also exact. The choices reference the actual SDK templates at `0x803D6300`, `0x803D633C`, `0x803D63B4`, `0x803D63F0` and `0x803D642C`; the remaining calls pair with VIGetScanMode, VIGetTvFormat, SCGetEuRgb60Mode, GetDisplaySize and SCGetAspectRatio.
@@ -74,7 +78,37 @@ The sole native code caller found so far is the graphics initializer at `0x801C6
 
 Ordinary value-return consumer forms remain unaccepted: branch-local value initialization emits 592 bytes, branch-local const-reference binding emits 480, and a const reference bound through the conditional operator emits 884. These measurements explain the current limitation; none is accepted or used to force a declaration. The complete producer/caller relationship must be explained before adding a canonical render-mode interface or selecting either unit as Matching.
 
+A further outside experiment takes the address of the returned temporary within the SetRenderModeObj full expression. CodeWarrior accepts this extension with two `not an lvalue` warnings, and the complete six-function graphics consumer then reproduces all 1,904 code bytes, 132 targets, 48 extab bytes and initialized data. This demonstrates a possible ABI explanation, but no evidence establishes that nonstandard source form as original. It is not published, source-selected or used to override the unresolved canonical interface.
+
 ## Remaining work
+
+The original inventory is accounted for as follows. Only the first two entries are linked reconstructed source. The diagnostic column does not imply source selection.
+
+| Address | Bytes | Source selected | Diagnostic status |
+| --- | --- | --- | --- |
+| `0x801B64B0` | 20 | Yes | Complete actual object and frozen link |
+| `0x801B64D0` | 56 | Yes | Complete actual object and frozen link |
+| `0x801B6510` | 116 | No | Resolved native instructions and EH exact |
+| `0x801B6590` | 68 | No | Resolved native leaf exact |
+| `0x801B65E0` | 180 | No | Resolved native instructions and EH exact |
+| `0x801B66A0` | 1176 | No | Exact producer; interface/caller source unresolved |
+| `0x801B6B40` | 148 | No | Resolved native instructions and EH exact |
+| `0x801B6BE0` | 140 | No | Resolved native instructions and EH exact |
+| `0x801B6C70` | 224 | No | Current canonical custom shared consumer exact |
+| `0x801B6D50` | 224 | No | Current canonical custom shared consumer exact |
+| `0x801B6E30` | 356 | No | Recursive consumer and EH exact |
+| `0x801B6FA0` | 732 | No | Recursive consumer and EH exact |
+| `0x801B7280` | 136 | No | Four instruction words differ |
+| `0x801B7310` | 104 | No | Resolved native instructions and EH exact |
+| `0x801B7380` | 60 | No | Yield loop and flag mask inspected; class unresolved |
+| `0x801B73C0` | 12 | No | Animation-program flag access; class unresolved |
+| `0x801B73D0` | 216 | No | Animation callback and bad_function_call path inspected |
+| `0x801B74B0` | 220 | No | Shared-value list destructor; templates incomplete |
+| `0x801B7590` | 492 | No | CModel nested partial-animation destructor inspected |
+| `0x801B7780` | 12 | No | Animation resource access; class unresolved |
+| `0x801B7790` | 676 | No | Animation resource construct/bind path inspected |
+| `0x801B7A40` | 84 | No | Animation length/override selection inspected |
+| `0x801B7AA0` | 196 | No | CModel constructor and two base vptrs inspected |
 
 The signed-angle routine at `0x801B7280` now has the correct 136-byte extent but retains four arithmetic/register words. Its positive-angle sibling is exact, including the original ordering of floating comparisons and boolean materialization. Neither NaN behavior nor comparison operand order may be changed merely to obtain a score.
 
