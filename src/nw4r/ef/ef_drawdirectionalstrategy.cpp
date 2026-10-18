@@ -333,6 +333,121 @@ void DrawDirectionalStrategy::DrawDirectional(const DrawInfo& rInfo,
     }
 }
 
+void DrawDirectionalStrategy::DrawDirectionalBillboard(
+    const DrawInfo& rInfo, ParticleManager* pManager) {
+    InitGraphics(rInfo, pManager);
+    const EmitterDrawSetting& rSetting = *pManager->mResource->GetEmitterDrawSetting();
+    math::MTX34 viewMtx;
+    rInfo.GetViewMtxCooked(&viewMtx);
+    AheadContext context(viewMtx, pManager);
+    CalcAheadFunc pCalcAhead = GetCalcAheadFunc(pManager);
+    int texCoord = mNumTexmap != 0;
+    math::MTX34 posMtx;
+    math::MTX34 managerMtx;
+    pManager->CalcGlobalMtx(&managerMtx);
+    math::MTX34Mult(&posMtx, &viewMtx, &managerMtx);
+    GXLoadPosMtxImm(mIdentityMtx, GX_PNMTX0);
+    f32 scaleX = MTXColLen(&posMtx, 0);
+    f32 scaleY = MTXColLen(&posMtx, 1);
+    f32 scaleZ = MTXColLen(&posMtx, 2);
+    for (Particle* pIt = GetYoungestParticle(pManager);
+         pIt != nullptr && pIt->mPrevAxis.x > 1.0f;
+         pIt = GetElderParticle(pManager, pIt)) {
+        pIt->mPrevAxis = mZeroVec;
+    }
+    f32 pivotX = rSetting.pivotX / 100.0f;
+    f32 pivotY = rSetting.pivotY / 100.0f;
+    GetFirstDrawParticleFunc pGetFirst = GetGetFirstDrawParticleFunc(
+        rSetting.mFlags & EmitterDrawSetting::FLAG_DRAW_ORDER);
+    GetNextDrawParticleFunc pGetNext = GetGetNextDrawParticleFunc(
+        rSetting.mFlags & EmitterDrawSetting::FLAG_DRAW_ORDER);
+    bool first = true;
+    for (Particle* pParticle = pGetFirst(pManager); pParticle != nullptr;
+         pParticle = pGetNext(pManager, pParticle)) {
+        f32 sx = pParticle->Draw_GetSizeX();
+        if (sx < NW4R_MATH_FLT_EPSILON) {
+            continue;
+        }
+        f32 sy = pParticle->Draw_GetSizeY();
+        if (sy < NW4R_MATH_FLT_EPSILON) {
+            continue;
+        }
+        f32 stretch = 1.0f;
+        if (rSetting.typeOption0 != 0) {
+            math::VEC3 move;
+            pParticle->GetMoveDir(&move);
+            stretch += 0.5f * math::FSqrt(math::VEC3Dot(&move, &move)) / sy;
+        }
+        SetupGP(pParticle, rSetting, rInfo, first, false);
+        first = false;
+        math::MTX34 rotateMtx = CalcRotate(pParticle, rSetting.typeAxis);
+        math::MTX34 localMtx = CalcLocalTransform(rSetting.typeOption1,
+            pivotX, pivotY, sx, sy, stretch, rotateMtx);
+        math::VEC3 axisX;
+        math::VEC3 axisY;
+        math::VEC3 axisZ;
+        math::VEC3 ahead;
+        pCalcAhead(&ahead, &context, pParticle);
+        math::VEC3TransformNormal(&ahead, &posMtx, &ahead);
+        axisY = ahead;
+        Normalize(&axisY);
+        axisX = math::VEC3(ahead.y, -ahead.x, 0.0f);
+        if (Normalize(&axisX)) {
+            axisZ = math::VEC3(-ahead.x * ahead.z, -ahead.y * ahead.z,
+                ahead.x * ahead.x + ahead.y * ahead.y);
+        } else {
+            math::VEC3Cross(&axisX, &ahead, &pParticle->mPrevAxis);
+            if (!Normalize(&axisX)) {
+                axisX = mXUnitVec;
+            }
+            math::VEC3Cross(&axisZ, &axisX, &ahead);
+        }
+        Normalize(&axisZ);
+        pParticle->mPrevAxis = axisZ;
+        math::VEC3 pos;
+        math::VEC3Transform(&pos, &posMtx, &pParticle->mParameter.mPosition);
+        math::MTX34 frameMtx(scaleX * axisX.x, scaleY * axisY.x, scaleZ * axisZ.x, pos.x,
+            scaleX * axisX.y, scaleY * axisY.y, scaleZ * axisZ.y, pos.y,
+            scaleX * axisX.z, scaleY * axisY.z, scaleZ * axisZ.z, pos.z);
+        math::MTX34 drawMtx;
+        math::MTX34Mult(&drawMtx, &frameMtx, &localMtx);
+        math::VEC3 center(drawMtx._03, drawMtx._13, drawMtx._23);
+        math::VEC3 edge0(drawMtx._00 + drawMtx._01,
+            drawMtx._10 + drawMtx._11, drawMtx._20 + drawMtx._21);
+        math::VEC3 edge1(drawMtx._00 - drawMtx._01,
+            drawMtx._10 - drawMtx._11, drawMtx._20 - drawMtx._21);
+        DrawQuad(center, edge0, edge1, texCoord);
+        if (rSetting.typeOption == EmitterDrawSetting::TYPE_CMN_CROSS) {
+            math::VEC3 edge2(drawMtx._01 + drawMtx._02,
+                drawMtx._11 + drawMtx._12, drawMtx._21 + drawMtx._22);
+            math::VEC3 edge3(drawMtx._01 - drawMtx._02,
+                drawMtx._11 - drawMtx._12, drawMtx._21 - drawMtx._22);
+            DrawQuad(center, edge2, edge3, texCoord);
+        }
+    }
+}
+
+DrawStrategyImpl::CalcAheadFunc
+DrawDirectionalStrategy::GetCalcAheadFunc(ParticleManager* pManager) {
+    switch (pManager->mResource->GetEmitterDesc()->drawSetting.typeDir) {
+    case 0:
+        return CalcAhead_Speed;
+    case 1:
+        return CalcAhead_EmitterCenter;
+    case 2:
+        return CalcAhead_EmitterDesign;
+    case 3:
+        return CalcAhead_Particle;
+    case 5:
+    case 7:
+        return CalcAhead_NoDesign;
+    case 6:
+        return CalcAhead_ParticleBoth;
+    default:
+        return CalcAhead_Speed;
+    }
+}
+
 void DrawDirectionalStrategy::InitGraphics(const DrawInfo& rInfo,
                                            ParticleManager* pManager) {
     NW4R_ASSERT_VALID_PTR(pManager);
