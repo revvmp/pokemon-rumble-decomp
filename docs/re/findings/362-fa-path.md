@@ -4,7 +4,7 @@
 
 The first three original #362 entries are PFFILE_cinsert/cdelete/combine at80211D10/11E10/11F10 and belong to the preceding file unit. This issue owns the path unit's first function, PFPATH_DoSplitPath at80211FE0. The complete path unit also supplies four original #363 tails at80214960/149C0/14CD0/14E50, ending80214EB8. These neighboring inventories remain distinct; no issue is complete without every original row's source-selected proof.
 
-No path split, source selection or matching ledger row is published by this diagnostic checkpoint. Its complete-source audit deliberately exits nonzero while any function differs.
+No path split, source selection or matching ledger row is published by this diagnostic checkpoint. Its complete-source audit rejects any differing function.
 
 ## Pinned references
 
@@ -20,7 +20,9 @@ This revision supplies the actual three-argument matching wrapper and complete16
 
 ## Diagnostic progress
 
-Ordinary C probes with unchanged established Wii/1.0 SDK flags reproduce24 of27 path functions, including all independently resolved relocation targets and both initialized allocations:42-byte sdata payload at804B8890 and10-byte sdata2 payload at804BA5C8. Every function currently has the native size. The incomplete functions are GetNextCharOfPattern, recursive DoMatchFileNameWithPattern and public MatchFileNameWithPattern; their inlined character-classification streams still differ. The complete gate remains failed, not partially accepted as matching source.
+Ordinary C probes with unchanged established Wii/1.0 SDK flags reproduce all27 path functions, including every independently resolved relocation target and both initialized allocations:42-byte sdata payload at804B8890 and10-byte sdata2 payload at804BA5C8. Every function has the native size and instruction stream. The complete diagnostic audit exits0. This per-function proof is not yet an actual source-selected link or acceptance of either issue's original inventory.
+
+The final three differences shared character conversion. An independent review of GetNextCharOfPattern established the ordinary constant-left comparison `'a' <= wc`, which preserves the target's separate range comparisons instead of the compiler's subtraction-based range fold. The same source expression in both short-name and long-name helpers reproduces the recursive and public matching callers completely. The pattern's two-byte OEM output also uses two explicit byte stores, with the zero-high-byte branch first, matching the target accesses rather than a borrowed halfword type-pun. These changes require neither an extra helper nor optimization flags.
 
 The native revision omits several guards present in the references. Each removal was checked directly against its native function. GetVolumeFromPath also omits the VF empty-length precheck, and both short-name copy directions omit reference overflow/empty-name error exits. The current-context and configuration field accesses use the independently proven complete volume proposal pending canonical integration, with no guessed offset casts.
 
@@ -34,3 +36,5 @@ Wii1.0a/1.0RC1/1.1/1.3 and GC3.0a3/3.0a5/3.0a5.2 comparisons did not improve the
 - A matching function size is insufficient. Five initial functions had native sizes but differing instruction streams; the whole path gate continues to reject mismatches and audits every relocation.
 - Preserve native guard behavior and output widths independently of borrowed names. The target-specific signed32 character-operation argument is a source finding, while the iterator index remains16 bits.
 - Primary source text containing full-width character literals needs an explicit encoding strategy when probing CodeWarrior. ASCII Unicode codepoint constants avoid accidental multibyte-source interpretation; code generation still requires complete native proof.
+- CodeWarrior can produce different range-check streams for equivalent operand orders. Here the original-looking constant-left lower bound reproduces all three formerly differing character callers; do not compensate with flags or generated assembly.
+- A halfword cast over a byte array can hide the original byte order. The native pattern routine explicitly stores the high and low bytes separately; preserve those accesses and verify its complete callers.
