@@ -242,6 +242,7 @@ config.libs = [
             Object(NonMatching, "game/CMultiRanking.cpp"),
             Object(NonMatching, "game/CPpuEngine.cpp"),
             Object(NonMatching, "game/CNoticeDisplay.cpp"),
+            Object(NonMatching, "game/CPauseMenu.cpp"),
             Object(NonMatching, "game/CPiiListFilterSort.cpp"),
             Object(Matching, "game/CStageCamera.cpp"),
             Object(NonMatching, "game/ScriptCamera.cpp"),
