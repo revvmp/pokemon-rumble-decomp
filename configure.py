@@ -245,6 +245,16 @@ config.libs = [
         [Object(Matching, "RVL_SDK/cnt/cnt.c")],
     ),
     library(
+        "MSL_C.Printf",
+        "Wii/1.1",
+        [*cflags_sdk, "-fp_contract off"],
+        "runtime",
+        [
+            Object(Matching, "MSL_C/printf.c"),
+            Object(Matching, "MSL_C/wprintf.c"),
+        ],
+    ),
+    library(
         "homebuttonLib",
         HBM_COMPILER,
         cflags_hbm,
