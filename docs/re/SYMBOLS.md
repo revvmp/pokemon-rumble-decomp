@@ -2925,3 +2925,7 @@ The retained8022CA10 routine is descriptively named detail::CreateCurveChild, co
 | `SaveData` | `0x4` | `mData.mCurrentSlot` | `u8` | `GetSaveData(-1)` |
 | `SaveData` | `0x8` | `mData.mSlotDigests` | `u32[3][5]` | Digest array passed by `Save` |
 | `SaveData` | `0x44` | `mSlotData` | `std::vector<SlotData>` | `GetSaveData`, getter `0x801603B0` |
+
+### Issue #377 curve-time API provenance
+
+`AnimCurveCalcTime(u8*,u32,u32)` and `AnimCurveCalcFrameStep(u8*,u32,u32)` are public names from the pinned CC0 Forecast and News references in [F-377-3](findings/377-curves-postfields.md). Neither has a retained address in this target's eight-function animation inventory. Their definitions before the executors produce the exact 56-byte native constant section; no new target symbol, address or code coverage is claimed. Source-only linker stripping remains an acceptance requirement.

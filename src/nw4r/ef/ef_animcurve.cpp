@@ -45,6 +45,20 @@ static u8 sHighestChannel[256] = {
     128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128, 128,
 };
 
+f32 AnimCurveCalcTime(u8* pCmdList, u32 tick, u32 life) {
+    u16 frame;
+    u32 loop;
+    return detail::CalcTime(reinterpret_cast<const AnimCurveHeader*>(pCmdList),
+                             tick, life, frame, loop);
+}
+
+u16 AnimCurveCalcFrameStep(u8* pCmdList, u32 tick, u32 life) {
+    u32 loop;
+    bool final;
+    return detail::CalcFrameStep(reinterpret_cast<const AnimCurveHeader*>(pCmdList),
+                                  tick, life, loop, final);
+}
+
 void AnimCurveExecuteU8(u8* pCmdList, u8* pTarget, u32 tick, u16 seed, u32 life) {
 
     if (pCmdList[0] == 0xAB) {
@@ -76,7 +90,7 @@ void AnimCurveExecuteU8(u8* pCmdList, u8* pTarget, u32 tick, u16 seed, u32 life)
     u32 stride = (count + 0xD) & ~1;
     detail::SplitCurveResource(pCmdList, &pHeader, &pKeys, &pRanges, &pRandomTable, &pNameTable);
     u32 rstride = count * 2;
-    detail::CalcCurveFrame(life, pHeader, tick, &frame, &frameF32, &divL);
+    frameF32 = detail::CalcTime(pHeader, tick, life, frame, divL);
     divH = divL;
 
     const u8* pKeyData = pKeys + 4;
@@ -302,7 +316,7 @@ void AnimCurveExecuteF32(u8* pCmdList, f32* pTarget, u32 tick, u16 seed, u32 lif
     BOOL exact;
 
     detail::SplitCurveResource(pCmdList, &pHeader, &pKeys, &pRanges, &pRandomTable, &pNameTable);
-    detail::CalcCurveFrame(life, pHeader, tick, &frame, &frameF32, &divL);
+    frameF32 = detail::CalcTime(pHeader, tick, life, frame, divL);
     divH = divL;
 
     u8 end = sHighestChannel[mask];
@@ -497,7 +511,7 @@ void AnimCurveExecuteRotate(u8* pCmdList, f32* pTarget, u32 tick, u16 seed, u32 
     BOOL exact;
 
     detail::SplitCurveResource(pCmdList, &pHeader, &pKeys, &pRanges, &pRandomTable, &pNameTable);
-    detail::CalcCurveFrame(life, pHeader, tick, &frame, &frameF32, &divL);
+    frameF32 = detail::CalcTime(pHeader, tick, life, frame, divL);
     divH = divL;
 
     u8 end = sHighestChannel[mask];
@@ -726,22 +740,20 @@ void AnimCurveExecuteRotate(u8* pCmdList, f32* pTarget, u32 tick, u16 seed, u32 
 
 void AnimCurveExecuteTexture(u8* pCmdList, Particle* pParticle, u32 tick, u16 seed, u32 life) {
 
-    const AnimCurveHeader* pHeader;
-    const u8* pKeys;
-    const u8* pRanges;
-    const u8* pRandomTable;
-    const u8* pNameTable;
-    f32 frameF32;
     u32 resDiv;
     s32 idx;
     detail::TextureCurveKey keyValue;
     u16 frame;
-    u8 final;
+    bool final;
     u32 ch;
     TextureData** pChannel;
 
-    detail::SplitCurveResource(pCmdList, &pHeader, &pKeys, &pRanges, &pRandomTable, &pNameTable);
-    detail::CalcCurveIndex(life, pHeader, tick, &frame, &frameF32, &resDiv, &final);
+    const AnimCurveHeader* pHeader = reinterpret_cast<const AnimCurveHeader*>(pCmdList);
+    const u8* pKeys = pCmdList + sizeof(AnimCurveHeader);
+    const u8* pRanges = pKeys + pHeader->keyTable;
+    const u8* pRandomTable = pRanges + pHeader->rangeTable;
+    const u8* pNameTable = pRandomTable + pHeader->randomTable;
+    frame = detail::CalcFrameStep(pHeader, tick, life, resDiv, final);
 
     switch (pHeader->kindType) {
     case 'h':
@@ -843,19 +855,18 @@ void AnimCurveExecuteChild(u8* pCmdList, Particle* pParticle, u32 tick, u16 seed
     const u8* pRanges;
     const u8* pRandomTable;
     const u8* pNameTable;
-    f32 frameF32;
     u32 divA;
     u32 divB;
     s32 idx;
     u16 tickA;
     u16 tickB;
-    u8 finalA;
-    u8 finalB;
+    bool finalA = false;
+    bool finalB;
     const detail::ChildCurveKey* pEntry;
 
     detail::SplitCurveResource(pCmdList, &pHeader, &pKeys, &pRanges, &pRandomTable, &pNameTable);
-    detail::CalcCurveIndex(life, pHeader, tick, &tickA, &frameF32, &divA, &finalA);
-    detail::CalcCurveIndex(life, pHeader, tick + 1, &tickB, &frameF32, &divB, &finalB);
+    tickA = detail::CalcFrameStep(pHeader, tick, life, divA, finalA);
+    tickB = detail::CalcFrameStep(pHeader, tick + 1, life, divB, finalB);
 
     const detail::ChildCurveKey* pKeyData = ((const detail::ChildCurveKeys*)pKeys)->mEntry;
     u32 div;
@@ -996,7 +1007,7 @@ void AnimCurveExecuteBakedU8(u8* pCmdList, u8* pTarget, u32 tick, u32 life) {
         if (count <= 1) {
             frame = 0;
         } else {
-            u8 flags = pHeader->processFlag;
+            u32 flags = pHeader->processFlag;
             u32 infiniteLoop = flags & AnimCurveHeader::PROC_FLAG_INFLOOP;
             if (infiniteLoop == 0 && pHeader->loopCount <= 1) {
                 if (!(flags & AnimCurveHeader::PROC_FLAG_FITTING)) {
@@ -1084,7 +1095,7 @@ void AnimCurveExecuteBakedF32(u8* pCmdList, f32* pTarget, u32 tick, u32 life) {
         if (count <= 1) {
             frame = 0;
         } else {
-            u8 flags = pHeader->processFlag;
+            u32 flags = pHeader->processFlag;
             u32 infiniteLoop = flags & AnimCurveHeader::PROC_FLAG_INFLOOP;
             if (infiniteLoop == 0 && pHeader->loopCount <= 1) {
                 if (!(flags & AnimCurveHeader::PROC_FLAG_FITTING)) {
