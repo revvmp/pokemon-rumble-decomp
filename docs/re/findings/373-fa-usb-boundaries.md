@@ -11,7 +11,7 @@ The complete symbol map and `config/43U/splits.txt` from CC0 Wii IPL, pinned to 
 | `fa/driver/sd_drv.c` | starts `0x8021FFC0`; last SD function ends `0x80222E84` | 17 functions in #373; first function belongs to external #372 | Preserve #372 ownership and pending PR #931; no shared split/header edits here |
 | `fa/driver/pfd_cmn.c` | `0x80222E90–0x80222FA8` | one function, `pfd_get_media_drv_char` | First-owned #373; external investigation pending |
 | `fa/driver/msc_drv.c` | `0x80222FB0–0x80222FC4` | two functions, 20 bytes | First-owned #373; split prepared; complete external candidate exact |
-| `fa/msc/puh_msc.c` | `0x80222FD0–0x80223248` | four functions | First-owned #373; native interfaces under investigation |
+| `fa/msc/puh_msc.c` | `0x80222FD0–0x80223248` | four functions | First-owned #373; complete external object exact; diagnostic command-payload view remains under review |
 | `fa/msc/puh_msc_cmd.c` | `0x80223250–0x8022362C` | one function | First-owned #373; complete external readable switch exact |
 | `fa/msc/puh_msc_blk.c` | `0x80223630–0x80223E64` | first three functions in #373; eight further functions in #374 | Same agent legitimately claimed #374; complete external object exact; private unconsumed record types remain under review |
 
@@ -45,3 +45,18 @@ The private block-device record's unconsumed ranges are still diagnostic byte vi
 
 - The translator's final comparison is unsigned. A signed literal in the otherwise identical readable switch changes exactly the native `cmplwi` to `cmpwi`. The unsigned literal reflects the observed comparison; its complete object then matches without compiler-flag changes.
 - Constant propagation across a linear listing is insufficient for branch-derived switch facts: one branch can replace a register used as a different constant base on another path. Collect comparison facts through concrete native branch execution and iterate newly discovered boundary values before asserting an exhaustive case table.
+
+# F-373-3: Complete USB command API diagnostic object
+
+`373-probe-api-whole.py` compiles all four retained command API functions together under unchanged Wii/1.0 SDK flags. The complete object matches 632 `.text` bytes, including four internal padding bytes, 12 `.sbss` bytes, every function extent and all 18 independently resolved relocation targets. `usbh_msc_read10` and `usbh_msc_write10` each retain 128 instruction bytes; local `_uhf_msc_api_send_message` retains 364 and `uhf_msc_get_message_id` retains eight. The complete unit ends at `0x80223248`, before the next unit's alignment. The original reference's thread-priority API is absent from this target.
+
+Actual field accesses and the pinned original map establish `st_uhs_msc_status` at `0x804B9270`, `st_uhs_msc_msgid` at `0x804B9274`, and `uhg_msc_memid` at `0x804B9278`, each four bytes. This ends the unit's small-data storage at `0x804B927C`; the following four alignment bytes do not belong to the heap handle. The compiler emits the three declarations in reverse storage order in this candidate, and the audit checks each emitted offset rather than accepting only a zero-filled total extent.
+
+Both transfer APIs clear a 40-byte command payload, require status 1, place the device, sense buffer, data buffer, block and 16-bit transfer count at the native positions, and submit the original read/write operation value. The diagnostic source represents the payload explicitly as ten words and its count slot as a halfword view. This is a native protocol view, not a claim that all original private record members and types are recovered. The sender allocates 60 bytes, consumes the proven 52-byte prefix consisting of operation, semaphore, result pointer and copied payload, then performs the native send/wait/delete paths. The unconsumed trailing allocation bytes are not assigned invented members. Its error result is `-12`, whereas the related #374 block sender returns `-1`.
+
+External `373-reference/api-whole-evidence.json` preserves the complete proof. Across the callback bridge, command API, sense translator and first three shared block functions, 10 original #373 functions and 1,944 native instruction bytes now have exact external candidates. The first-owned common helper and external #372 SD contribution remain outside that count. No new source registration, linked source credit or whole-issue completion is claimed.
+
+## Traps
+
+- The actual command and block senders both pass a third zero argument to `uhf_ker_send_message`; a related reference declares only two arguments because its retained callee does not use the extra incoming register. Preserve the actual caller contract rather than deleting an unused argument to match the reference declaration.
+- Distinguish original retained objects from alignment: the four-byte heap handle's inferred eight-byte metadata extent includes the next unit's padding. Whole-unit storage and each emitted symbol offset must agree with actual accesses and the following unit boundary.
