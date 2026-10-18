@@ -1,5 +1,6 @@
 #include <game/NPpuVM.h>
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <wchar.h>
@@ -1395,6 +1396,56 @@ bool CEngine::Unwind() {
         PopFrame();
     }
     return false;
+}
+
+void CEngine::SetID(int id) {
+    mID = id;
+}
+
+void CEngine::SetNextID(int id) {
+    sNextID = id;
+}
+
+const char* CEngine::ToString(const CValue& rValue) const {
+    static char sBuffer[32];
+
+    if (rValue.mType == CValue::TYPE_STRING) {
+        return mCode->mStrings[rValue.mIndex];
+    }
+    if (rValue.mType == CValue::TYPE_STRING_PTR) {
+        return rValue.mString;
+    }
+    if (rValue.IsInt()) {
+        snprintf(sBuffer, sizeof(sBuffer), "%d", rValue.ToInt());
+    } else if (rValue.mType == CValue::TYPE_FLOAT) {
+        snprintf(sBuffer, sizeof(sBuffer), "%g", rValue.ToFloat());
+    } else {
+        sBuffer[0] = '\0';
+    }
+    return sBuffer;
+}
+
+const wchar_t* CEngine::ToWString(const CValue& rValue) const {
+    static wchar_t sBuffer[32];
+
+    if (rValue.mType == CValue::TYPE_WSTRING) {
+        return mCode->mWStrings[rValue.mIndex];
+    }
+    if (rValue.mType == CValue::TYPE_WSTRING_PTR) {
+        return rValue.mWString;
+    }
+    if (rValue.IsInt()) {
+        swprintf(sBuffer, 32, L"%d", rValue.ToInt());
+    } else if (rValue.mType == CValue::TYPE_FLOAT) {
+        swprintf(sBuffer, 32, L"%g", rValue.ToFloat());
+    } else {
+        sBuffer[0] = L'\0';
+    }
+    return sBuffer;
+}
+
+void CEngine::GetThrown(CValue& rValue) const {
+    rValue = mThrown;
 }
 
 }

@@ -198,6 +198,9 @@ public:
     bool Reset();
     bool Call(CValue* pResult, int pc, int argCount, const CValue* pArgs);
     void Interrupt(const CValue& rValue);
+    const char* ToString(const CValue& rValue) const;
+    const wchar_t* ToWString(const CValue& rValue) const;
+    void GetThrown(CValue& rValue) const;
 
     CEnvironment* GetEnvironment() const { return mEnv; }
     State GetState() const { return static_cast<State>(mState); }
@@ -240,8 +243,9 @@ public:
         }
     }
 
-private:
     u32 Fetch() { return mCode->mCode[mPC++]; }
+
+private:
     void OnLineBegin() {}
     void OnLineEnd() {}
     void PushFrame(int baseIndex);
