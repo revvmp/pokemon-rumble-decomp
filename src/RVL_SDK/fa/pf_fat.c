@@ -952,7 +952,7 @@ s32 PFFAT_GetSector(PF_FFD* p_ffd, u32 file_sector_index, u32 mode, u32 size, u3
     chain_index = file_sector_index >> p_vol->bpb.log2_sectors_per_cluster;
     if (mode == 2) {
         num_divide = size / p_vol->bpb.bytes_per_sector;
-        num_remaind = size % p_vol->bpb.bytes_per_sector != 0;
+        num_remaind = (size - num_divide * p_vol->bpb.bytes_per_sector) != 0;
         num_cluster = (num_divide + num_remaind) / p_vol->bpb.sectors_per_cluster;
         num_cluster += (num_divide + num_remaind) % p_vol->bpb.sectors_per_cluster != 0;
         err = PFFAT_GetClusterAllocated(p_ffd, chain_index, num_cluster, &cluster);
