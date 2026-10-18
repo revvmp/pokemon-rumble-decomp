@@ -78,6 +78,16 @@ These header and diagnostic proofs do not establish source-selected Stripe/Smoot
 
 After this prerequisite merges, coordinated PR #908 can register and verify the complete stripe source and accept the unchanged smooth-stripe source through its #384 owner. That source delivery must independently prove actual source-only link inputs, final native addresses, full frozen DOL identity, and the original #384 inventory of 25 functions and 18,856 bytes. Header publication alone carries no reconstruction credit.
 
+## Incremental 577-object preservation checkpoint
+
+After workflow update `ccfd461c`, the build directory was retained through metadata rebases. At committed head `77372015fca6f3a8210507a3c22d447b30bc2d2b`, configure, explicit `all_source`, default Ninja, explicit frozen verification, no-work repeats and all retained native audits exited 0. Only the prior `main.dol` was removed before Ninja.
+
+The independent actual PR #897 control is `bef39d01891f7a6d20a3ca06c55faddc99f901f9`, whose complete tracked tree is identical to actual merge `b4205e4acd00b5129ec9ce0a99a092a918ee8853`. Its declared and present inventories both contain 577 source objects, and `ninja -n all_source` reports no work. Raw objects, linked artifacts and the tracked tree were captured independently under `383-reference/current-main-b4205e4a-control` and their manifest hashes revalidated.
+
+The complete comparison passes: 570 whole objects are identical, the same six objects differ only in numeric local-name strings, and the sole allocated-code exception remains the measured NonMatching Smooth origin correction. Six same-command original-header controls reproduce the exact old whole-object hashes. All 15 allocated final ELF sections and the complete frozen DOL remain identical; whole-file ELF identity is not claimed. The proposed tree differs from this control only in the two reviewed headers and this findings file.
+
+Commands, exit codes, native results, object comparison, original-header controls and linked-section confirmation are preserved in `383-reference/header-global-20261017-181659`. This is a historical checkpoint: later PRs #904 and #954 advanced main, so it does not establish the final latest-main merge gate.
+
 ## Traps
 
 An older diagnostic header included a direct particle-count access to correct an earlier canonical accessor. PR #917 has since corrected that accessor itself. Reapplying the historical hunk would unnecessarily change canonical source structure. Start from current main and retain only the two iterator-body changes.
