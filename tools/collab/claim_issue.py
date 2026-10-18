@@ -9,6 +9,8 @@ from urllib.parse import quote
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+import build_seed
+
 
 CLAIM_PREFIX = "Claiming"
 RELEASE_PREFIX = "Releasing claim"
@@ -248,6 +250,8 @@ def worktree_command(args):
     for shared in SHARED_LINKS:
         make_link(path / shared, REPO_ROOT / shared)
     print(f"Worktree {path} on branch {branch}")
+    if args.seed:
+        build_seed.seed_worktree(path)
     return 0
 
 
@@ -404,6 +408,7 @@ def main():
     release.set_defaults(action=release_command)
     tree = commands.add_parser("worktree", help="Create ../rumble-<issue> with shared tool junctions")
     tree.add_argument("--issue", type=int, required=True)
+    tree.add_argument("--no-seed", dest="seed", action="store_false", help="skip copying the newest verified build seed into build/")
     tree.set_defaults(action=worktree_command)
     untree = commands.add_parser("remove-worktree", help="Remove junctions, then the worktree")
     untree.add_argument("--issue", type=int, required=True)

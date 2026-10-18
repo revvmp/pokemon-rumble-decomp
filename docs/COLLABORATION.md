@@ -104,7 +104,9 @@ Agents follow the same rules as people. These additions keep parallel agents fro
   New-Item -ItemType Junction -Path ..\rumble-<issue>\.venv -Target (Resolve-Path .venv)
   ```
 
-  `orig/` is tracked, so worktrees include the originals. The junctions share the pinned binaries without copying them.
+  `orig/` is tracked, so worktrees include the originals. The junctions share the pinned binaries without copying them. `claim_issue.py worktree` does all of this for you.
+- **Seeded builds.** A cold build compiles every unit and takes minutes. `claim_issue.py worktree` copies the newest verified build from `..\rumble-build-seed` into the new worktree with `tools/collab/build_seed.py apply`. It rewrites the absolute header paths in `.ninja_deps` to the new worktree, backdates tracked files, and touches the files that differ from the seed's commit, so `ninja` rebuilds exactly what changed. Seeds are written only by `build_seed.py store`, which refuses unless `build/wpse-v1/seed-commit` names `HEAD`, the tree is clean, and `ninja -n` has nothing to build; `build_seed.py record` writes that file after a passing verification. The three newest seeds are kept. If no seed is usable, the worktree gets no `build/` and the first build is a full build. Never store a seed from the main checkout while another agent may be building there.
+- **Do not wipe `build/`.** `ninja` regenerates `build.ninja` and reruns the split when `configure.py`, `splits.txt`, or `symbols.txt` change, so incremental builds after a rebase are exact. Delete only `build/wpse-v1/main.dol` before building, so a failed link cannot leave an old DOL for `verify.py`.
 - **Keep the main checkout current.** The skill, `tools/collab/claim_issue.py`, and the docs are read from the main checkout, so agents run `git pull --ff-only origin main` there before claiming and after merging. They never stash, reset, or commit in it; if the fast-forward fails, they report it and continue.
 - **Remove junctions before removing a worktree.** A recursive delete can follow a junction and erase the shared `tools/local` and `.venv`. Remove the junctions first, then the worktree:
 
