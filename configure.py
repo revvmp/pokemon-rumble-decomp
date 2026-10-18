@@ -983,6 +983,7 @@ config.libs = [
             Object(Matching, "MSL_C/arith.c"),
             Object(Matching, "MSL_C/buffer_io.c"),
             Object(Matching, "MSL_C/direct_io.c"),
+            Object(Matching, "MSL_C/wstrtold.c"),
             Object(Matching, "MSL_C/wcstoul.c"),
             Object(Matching, "MSL_C/wmem.c"),
             Object(Matching, "MSL_C/wscanf.c"),
