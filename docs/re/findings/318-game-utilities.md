@@ -62,6 +62,8 @@ The isolated `318-quarter-turn-probe.cpp` uses the canonical NW4R SinDeg and Cos
 
 The next aspect helpers begin at `0x801B6510`, with their float pool starting at `0x804BA3C8`. Combining the two groups into one source moves the latter constants four bytes early; the native gap instead agrees with the following unit's alignment. These complete section comparisons support the bounded proposal. `QuarterTurn.cpp` and its function names are descriptive; no original filename or spelling is claimed. Full split-only verification remains required before registering its source.
 
+The initial split attempt was rejected because the automatic `lbl_804BA3C0` symbol covered eight bytes, merging the demonstrated four-byte `1.0f` with the following four zero bytes. The exact source pool ends at `0x804BA3C4`. The owned symbol extent is corrected to four bytes; the following alignment bytes are left outside the source split. No outside symbol size or original artifact is changed.
+
 ## Render-mode interface remains unresolved
 
 An ordinary `GXRenderModeObj` value return with a local mode reproduces every byte of the 1,176-byte producer and all 23 relocations. Its exception record is also exact. The choices reference the actual SDK templates at `0x803D6300`, `0x803D633C`, `0x803D63B4`, `0x803D63F0` and `0x803D642C`; the remaining calls pair with VIGetScanMode, VIGetTvFormat, SCGetEuRgb60Mode, GetDisplaySize and SCGetAspectRatio.
