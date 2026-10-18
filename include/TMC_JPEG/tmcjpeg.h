@@ -178,8 +178,8 @@ typedef struct TMCJPEGEncoder {
     u8 mcuHeight;
     u8 remainderX;
     u8 remainderY;
-    s32 paddedWidth;
-    s32 paddedHeight;
+    u32 paddedWidth;
+    u32 paddedHeight;
     u8 scale;
     u8 reserved1;
     u8 sampling;
@@ -188,8 +188,8 @@ typedef struct TMCJPEGEncoder {
     u16 cbWidth;
     u16 cbHeight;
     u8 reserved2[0x10];
-    s32 alignedWidth;
-    s32 alignedHeight;
+    u32 alignedWidth;
+    u32 alignedHeight;
     s32 plane2Width;
     s32 plane2Height;
     const u8* image;
