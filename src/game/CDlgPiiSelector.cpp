@@ -1,5 +1,7 @@
 #include <game/IDlgPiiSelector.h>
 
+#include <game/ControllerTable.h>
+#include <game/CPlayer.h>
 #include <game/CRemoteMemory.h>
 #include <game/IGameSession.h>
 #include <memory>
@@ -7,6 +9,67 @@
 #pragma dont_inline on
 
 namespace {
+
+class CControllerList {
+public:
+    CControllerList() {
+        mCount = 0;
+        for (int i = 0; i < 4; i++) {
+            mControllers[i] = nullptr;
+        }
+    }
+
+    void Collect() {
+        mCount = 0;
+        for (int channel = 0; channel < 4; channel++) {
+            IController* pController = GetController(IController::TYPE_GC_PAD, channel);
+            mControllers[channel] = pController;
+            if (pController != nullptr && pController->IsConnected()) {
+                mCount++;
+            } else {
+                mControllers[channel] = nullptr;
+            }
+        }
+        if (mCount < 4 && !AddType(IController::TYPE_CLASSIC) && !AddType(IController::TYPE_WII_REMOTE)) {
+            AddType(IController::TYPE_NUNCHAKU);
+        }
+        if (mCount == 0) {
+            mControllers[0] = GetController(IController::TYPE_WII_REMOTE, 0);
+            mCount++;
+        }
+    }
+
+    bool AddType(IController::Type type) {
+        for (int channel = 0; channel < 4; channel++) {
+            if (Add(GetController(type, channel))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    bool Add(IController* pController) {
+        if (mCount == 4) {
+            return true;
+        }
+        if (pController == nullptr || !pController->IsConnected()) {
+            return false;
+        }
+        for (int i = 0; i < 4; i++) {
+            if (mControllers[i] == nullptr) {
+                mControllers[i] = pController;
+                return ++mCount == 4;
+            }
+        }
+        return false;
+    }
+
+    IController* Get(int index) { return mControllers[index]; }
+
+private:
+    int mCount;
+    IController* mControllers[4];
+};
 
 class CDataPerPlayer {
 public:
@@ -22,7 +85,11 @@ public:
 
 class CDlgPiiSelector : public IDlgPiiSelectorInternal, public std::tr1::enable_shared_from_this<CDlgPiiSelector> {
 public:
-    struct MultiPlayerData;
+    struct MultiPlayerData {
+        int mState;
+        std::tr1::shared_ptr<CPiiPersonalData> mEntrancePPD[4][4];
+        int mPlayerNum;
+    };
 
     CDlgPiiSelector() : mIsPausing(false), mInputLocked(false), mErrorState(0), mError(0) {}
     virtual ~CDlgPiiSelector();
@@ -41,6 +108,30 @@ public:
     virtual void UpdateDlgOpenState();
 
     void Init(bool flag) {}
+
+    void CalcEntrance() {
+        switch (mMultiPlayerData->mState) {
+        case 0:
+            AssignControllers();
+            break;
+        case 1:
+            AssignControllers();
+            break;
+        }
+    }
+
+    void AssignControllers() {
+        CControllerList controllers;
+        controllers.Collect();
+        for (int player = 0; player < 4; player++) {
+            CPlayer* pPlayer = IGameSession::GetInstance()->GetPlayer(player);
+            IController* pController = nullptr;
+            if (player < mMultiPlayerData->mPlayerNum) {
+                pController = controllers.Get(player);
+            }
+            pPlayer->SetController(pController);
+        }
+    }
 
 private:
     std::tr1::shared_ptr<CDataPerPlayer> mDataPerPlayer[4];
