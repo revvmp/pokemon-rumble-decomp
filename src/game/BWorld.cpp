@@ -278,7 +278,7 @@ CShadowCamera* BWorld::GetShadowCamera() {
     return mShadowCamera.lock().get();
 }
 
-void BWorld::SetCurrentCamera(const std::tr1::shared_ptr<BWorldCamera>& camera) {
+void BWorld::SetCurrentCamera(std::tr1::shared_ptr<BWorldCamera> camera) {
     mCurrentCamera = camera;
 }
 

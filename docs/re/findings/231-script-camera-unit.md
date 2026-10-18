@@ -48,6 +48,21 @@ Every #231 function except `0x80131780` and `NewStageCamera` is a weak copy that
 
 The source therefore stays uncommitted, and the unit links the original object.
 
+Superseded: PRs #986, #988, #991 and #992 supplied these declarations, and F-231-4 records the source.
+
+## F-231-4: the source of #231
+
+`src/game/ScriptCamera.cpp` reconstructs all 21 functions; objdiff shows each at 100%. The file uses `#pragma dont_inline on`, like `CDlgPiiSelector.cpp`.
+
+- **Bindings.** Each binding is a global `int f(NPpu::CEngine*)` named by its script string, so `NewStageCamera` is `NewStageCamera__FPQ24NPpu7CEngine`. The binding table is in another unit, so the functions are not static. They reach `CPpuEngine` members through `static_cast<CPpuEngine*>`, which has offset 0 and no null test.
+- **Helper.** `0x80131780` is the file-local `static CStageCamera* PopStageCamera(CPpuEngine*)`, which returns `DynamicCast<CStageCamera>(pEngine->PopWorldObj())`. It is emitted only when a `method_cam*` binding (#232) calls it. Its symbol is `scope:local`.
+- **Pointer casts.** `BWorldObj.h` gains pointer overloads of `IsKindOf<T>(const U*)` and `DynamicCast<T>(U*)`. They sit beside the existing `shared_ptr` overloads and reproduce `0x801317F0` and `0x801317B0`.
+- **Owner.** `0x8006A4A0` is declared `BWorldObj::SetOwner(const shared_ptr<BWorldObjOwner>&)`. The name is descriptive, low confidence.
+- **Constant.** `NewStageCamera` passes `CStageCamera::TYPE` (8) to the constructor. It starts the script with the inline `LoadScript(const shared_ptr<NPpu::CEnvironment>&)` and an empty environment, and pushes `GetId()` or 0.
+- **`.sdata2`.** The unit also owns `.sdata2` `0x804BA1B8`–`0x804BA1E8`: 0.0f, 1.0f, 0x804BA1C0–0x804BA1CC, two int-to-float doubles and -1.0f, which its bindings read 42 times. F-231-1 missed this range. The split now includes it; the previous unit's constants end at `0x804BA1B8`, and `0x804BA1E8` starts the next unit.
+
+Renamed in `symbols.txt` for the objdiff pairing and a later link: the 21 functions and every weak callee and destructor the source names, including `0x80065110`, `0x80065630`, `0x80065870`, `0x8008F540`, `0x8009D2C0`, `0x800C98B0`, `0x80134FE0` and `0x80135070`. Also `CPpuEngine::GetWorld` `0x800FFA20` and `PopWorldObj` `0x80100DB0`, from the names in the #195 header, and the `shared_ptr_deleter<CStageCamera>` vtable `0x803B6618` and type info `0x804B79A8` and `0x804B79B0`. Each name is what the compiler emits for the call, so the linker resolves the original call to the same symbol.
+
 ## Method
 
 GNU objdump 2.42 on `build/wpse-v1/main.elf` and the split object, and a Python scan of `extabindex` records and absolute and small-data references of the `.text` range. No decompiler output was used.
@@ -56,3 +71,5 @@ GNU objdump 2.42 on `build/wpse-v1/main.elf` and the split object, and a Python 
 
 - **A binding file's first function can be a file-local helper.** `0x80131780` precedes the first binding and is followed by the weak functions it calls, so the unit starts before `NewStageCamera`.
 - **The `NPpu::CVM` name is descriptive.** RTTI of `CPpuEngine` names its base `NPpu::CEngine`.
+- **An unused static helper is not emitted.** `PopStageCamera` produced no code until a binding called it. Reconstruct its first caller before judging the helper's match.
+- **A split can miss `.sdata2`.** The unit's binding constants sat in an automatic `.sdata2` split. objdiff then compared relocations against labels outside the object. Check `R_PPC_EMB_SDA21` targets of the original object when you write the split.

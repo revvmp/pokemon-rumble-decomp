@@ -53,6 +53,7 @@ public:
     u32 GetType() const { return mType; }
 
     void Pause();
+    void SetOwner(const std::tr1::shared_ptr<BWorldObjOwner>& rOwner);
 
 protected:
     friend class BWorld;
@@ -68,6 +69,14 @@ protected:
     nw4r::math::VEC3 mPosition;
     nw4r::math::VEC3 mScale;
 };
+
+template <typename T, typename U> bool IsKindOf(const U* pObj) {
+    return pObj != nullptr && (pObj->GetType() & T::TYPE);
+}
+
+template <typename T, typename U> T* DynamicCast(U* pObj) {
+    return IsKindOf<T>(pObj) ? static_cast<T*>(pObj) : nullptr;
+}
 
 template <typename T, typename U> bool IsKindOf(const std::tr1::shared_ptr<U>& rObj) {
     return rObj && (rObj->GetType() & T::TYPE);

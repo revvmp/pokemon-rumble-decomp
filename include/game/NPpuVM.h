@@ -252,6 +252,8 @@ public:
         return value.GetReference();
     }
     void Drop(int count) { mSP -= count; }
+    int FetchArgCount() { return Fetch(); }
+    void PushNull() { PushInt(0); }
 
     void ConvertToNumber(CValue& rValue) {
         if (rValue.IsString()) {
