@@ -46,7 +46,7 @@ Every relocation in the accepted consumers is resolved to its actual native call
 | `0x801B6FA0` | 732 | Zero, negative and positive integer exponent wrapper | IntegerPower |
 | `0x801B7310` | 104 | Reduce a floating angle modulo 360, adjusting a negative result | NormalizePositiveAngle |
 
-The names are descriptive. They have not been recovered from original symbols and have not been published as canonical interfaces.
+The names are descriptive. They have not been recovered from original symbols. The bounded quarter-turn interface and the independently paired value-return render-mode declaration are canonical; the other diagnostic interfaces remain outside the repository.
 
 The power routine uses ordinary recursion and signed division/remainder. The existing compiler naturally inlines four recursive levels into the 356-byte body, and the signed wrapper naturally emits 732 bytes. There is no manual recursion expansion.
 
@@ -70,15 +70,19 @@ At `004028e7`, the actual registered NonMatching source compiles with the real p
 
 The generated Ninja graph explicitly lists `build/wpse-v1/src/game/QuarterTurn.o` as linked, replacing the original fallback for this unit. No force-active source pragma, hand padding, raw executable bytes or flag change is needed. A full frozen-DOL scan also finds incoming branches to SinQuarterTurn at `0x8009816C`, `0x8009A314`, `0x800B0768`, and to OneMinusCosQuarterTurn at `0x8009917C`, `0x80099CD4`; the incomplete IDA view missed these references. The names remain descriptive rather than recovered original spellings.
 
-## Render-mode interface remains unresolved
+## F-318-3: Value-return render-mode interface
 
 An ordinary `GXRenderModeObj` value return with a local mode reproduces every byte of the 1,176-byte producer and all 23 relocations. Its exception record is also exact. The choices reference the actual SDK templates at `0x803D6300`, `0x803D633C`, `0x803D63B4`, `0x803D63F0` and `0x803D642C`; the remaining calls pair with VIGetScanMode, VIGetTvFormat, SCGetEuRgb60Mode, GetDisplaySize and SCGetAspectRatio.
 
 The sole native code caller found so far is the graphics initializer at `0x801C6DB0`, owned by #326. The earlier ordinary output-pointer caller candidate reproduces its complete 476-byte body, but this alone does not prove the producer's declaration. Rewriting the exact producer as an ordinary output pointer plus final structure assignment emits 1,212 bytes. Thus the producer is discriminating evidence against treating that caller-only fixture as a recovered interface.
 
-Ordinary value-return consumer forms remain unaccepted: branch-local value initialization emits 592 bytes, branch-local const-reference binding emits 480, and a const reference bound through the conditional operator emits 884. These measurements explain the current limitation; none is accepted or used to force a declaration. The complete producer/caller relationship must be explained before adding a canonical render-mode interface or selecting either unit as Matching.
+Ordinary standard value-return consumer forms are nonmatching: branch-local value initialization emits 592 bytes, branch-local const-reference binding emits 480, and a const reference bound through the conditional operator emits 884. These rejected alternatives are retained outside; no compiler flag or invented lifetime helper is introduced to make them match.
 
-A further outside experiment takes the address of the returned temporary within the SetRenderModeObj full expression. CodeWarrior accepts this extension with two `not an lvalue` warnings, and the complete six-function graphics consumer then reproduces all 1,904 code bytes, 132 targets, 48 extab bytes and initialized data. This demonstrates a possible ABI explanation, but no evidence establishes that nonstandard source form as original. It is not published, source-selected or used to override the unresolved canonical interface.
+A natural pointer-choice expression, `SetRenderModeObj(*(pModeInput != nullptr ? pModeInput : &ChooseDefaultRenderMode()))`, takes the returned temporary's address within the call's full expression. CodeWarrior supports this extension and emits its normal `not an lvalue` warning twice; those warnings are preserved, with no suppression flag. The temporary remains alive throughout the call. This specific idiom is accepted as plausible original code after independently rejecting the ordinary standard const-reference alternatives.
+
+The canonical declaration in `include/game/RenderMode.h` returns `GXRenderModeObj` by value. Recompiled with that exact header, the producer reproduces all 1,176 native instruction bytes, 23 actual relocations, eight extab bytes and its 12-byte index. The actual graphics consumer with the same header reproduces all six functions, 1,904 native code bytes, 132 actual relocations, 48 extab bytes, six indices, 12 initialized small-data bytes and 16 float-pool bytes. Scripts are `318-compile-probe.py 318-render-mode-header-producer`, `318-audit-render-mode-header-producer.py`, `318-compile-probe.py 318-render-mode-header-caller` and `318-audit-render-mode-header-caller.py`. The header is additive and has no existing main consumers.
+
+This accepts the typed declaration and paired caller ABI, not the producer's complete source unit. The producer and six graphics consumers remain diagnostic until their owned units are reconstructed, selected and verified through the full link. No extra source byte credit is assigned here. The header's existing-object preservation gate uses the verified preheader snapshot at `b5f2d7eb`, containing all 552 registered source objects and linked/report artifact hashes.
 
 ## Remaining work
 
@@ -91,7 +95,7 @@ The original inventory is accounted for as follows. Only the first two entries a
 | `0x801B6510` | 116 | No | Resolved native instructions and EH exact |
 | `0x801B6590` | 68 | No | Resolved native leaf exact |
 | `0x801B65E0` | 180 | No | Resolved native instructions and EH exact |
-| `0x801B66A0` | 1176 | No | Exact producer; interface/caller source unresolved |
+| `0x801B66A0` | 1176 | No | Value-return interface and full caller independently exact; complete unit unselected |
 | `0x801B6B40` | 148 | No | Resolved native instructions and EH exact |
 | `0x801B6BE0` | 140 | No | Resolved native instructions and EH exact |
 | `0x801B6C70` | 224 | No | Current canonical custom shared consumer exact |
@@ -118,6 +122,6 @@ The later list, callback and CModel animation helpers require complete evidenced
 
 ## Traps
 
-- A caller that matches an output-parameter declaration can still belong to a value-return ABI. Here the ordinary output-pointer producer is 36 bytes larger while the value-return producer is fully exact. Preserve both sides' evidence and leave the declaration unresolved until the caller is explained.
+- A caller that matches an output-parameter declaration can still belong to a value-return ABI. Here the ordinary output-pointer producer is 36 bytes larger while the value-return producer is fully exact. The actual caller is explained by the supported address-of-temporary extension within its full expression; retain the compiler warning and both sides' evidence rather than suppressing it or inferring the interface from the callee alone.
 - VI mode classification and branch placement must preserve the actual mode set. The explicit-size helper distinguishes EURGB60, MPAL, PAL and default groups; treating every mode as a single generic height loses native behavior even when several constants coincide.
 - Instruction coverage does not establish the enclosing CModel translation unit. Keep the original issue inventory, source-file boundary evidence and compiler-consumer results separate.
