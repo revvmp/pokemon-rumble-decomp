@@ -1,0 +1,111 @@
+#ifndef _LIST
+#define _LIST
+
+#include <MSL_CPP/allocator.h>
+#include <MSL_CPP/compressed_pair.h>
+
+namespace std {
+
+template <typename T, typename Allocator> class __list_deleter {
+protected:
+    struct node_base {
+        void init() {
+            next_ = this;
+            prev_ = this;
+        }
+
+        node_base* prev_;
+        node_base* next_;
+    };
+
+    struct node : node_base {
+        T* value() { return &data_; }
+
+        T data_;
+    };
+
+    typedef unsigned long size_type;
+    typedef typename Allocator::template rebind<node>::other node_allocator;
+
+    __list_deleter() : size_(0, node_allocator()) { end_node()->init(); }
+    ~__list_deleter() { clear(); }
+
+    void clear() {
+        node_base* pFirst = tail_.next_;
+        node_base* pLast = &tail_;
+        erase(pFirst, pLast);
+    }
+
+    void erase(node_base* pFirst, node_base* pLast) {
+        if (pFirst != pLast) {
+            node_base* pBack = pLast->prev_;
+            pFirst->prev_->next_ = pBack->next_;
+            pBack->next_->prev_ = pFirst->prev_;
+            while (pFirst != pLast) {
+                destroy(static_cast<node*>(pFirst)->value());
+                node* pNode = static_cast<node*>(pFirst);
+                pFirst = pFirst->next_;
+                size_.second().deallocate(pNode, 1);
+                --size_.first();
+            }
+        }
+    }
+
+    void destroy(T* pValue) { pValue->~T(); }
+
+    node_base* begin_node() const { return tail_.next_; }
+    node_base* end_node() const { return const_cast<node_base*>(&tail_); }
+
+    Metrowerks::compressed_pair<size_type, node_allocator> size_;
+    node_base tail_;
+
+private:
+    __list_deleter(const __list_deleter&);
+    __list_deleter& operator=(const __list_deleter&);
+};
+
+template <typename T, typename Allocator> class __list_imp : public __list_deleter<T, Allocator> {
+public:
+    __list_imp() {}
+};
+
+template <typename T, typename Allocator = allocator<T> > class list : private __list_imp<T, Allocator> {
+    typedef __list_imp<T, Allocator> base;
+    typedef typename base::node_base node_base;
+    typedef typename base::node node;
+
+public:
+    typedef T value_type;
+    typedef typename base::size_type size_type;
+
+    class iterator {
+    public:
+        iterator() {}
+        explicit iterator(node_base* pNode) : node_(pNode) {}
+
+        T& operator*() const { return static_cast<node*>(node_)->data_; }
+        T* operator->() const { return &static_cast<node*>(node_)->data_; }
+        iterator& operator++() {
+            node_ = node_->next_;
+            return *this;
+        }
+        bool operator==(const iterator& rOther) const { return node_ == rOther.node_; }
+        bool operator!=(const iterator& rOther) const { return node_ != rOther.node_; }
+
+    private:
+        node_base* node_;
+    };
+
+    list() {}
+    ~list() {}
+
+    iterator begin() { return iterator(this->begin_node()); }
+    iterator end() { return iterator(this->end_node()); }
+    size_type size() const { return this->size_.first(); }
+    bool empty() const { return this->size_.first() == 0; }
+    void clear() { base::clear(); }
+};
+
+}
+
+#endif
