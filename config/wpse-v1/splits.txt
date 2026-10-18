@@ -111,6 +111,22 @@ game/CGameEnding.cpp:
 	.sbss       start:0x804B8FF8 end:0x804B9000
 	.sdata2     start:0x804B9E68 end:0x804B9E70
 
+game/CMoneyLifeDisplay.cpp:
+	extab       start:0x8001D4F0 end:0x8001DB14
+	extabindex  start:0x80048C24 end:0x80048C90
+	.text       start:0x800C4960 end:0x800C59D0
+	.data       start:0x803A4D00 end:0x803A50E0
+	.sdata      start:0x804B6AC0 end:0x804B6B20
+	.sdata2     start:0x804B9F60 end:0x804B9F78
+
+game/CMsgBalloon.cpp:
+	extab       start:0x8001DB14 end:0x8001E964
+	extabindex  start:0x80048C90 end:0x80049728
+	.text       start:0x800C59D0 end:0x800CD728
+	.data       start:0x803A50E0 end:0x803A5550
+	.sdata      start:0x804B6B20 end:0x804B6C70
+	.sdata2     start:0x804B9F78 end:0x804B9F98
+
 game/CMultiRanking.cpp:
 	extab       start:0x8001E964 end:0x8001F948
 	extabindex  start:0x80049728 end:0x800497E8

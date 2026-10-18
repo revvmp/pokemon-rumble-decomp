@@ -28,7 +28,7 @@ public:
     virtual CBattleRoyalData* GetBattleRoyalData() = 0;
     virtual CStatistic* GetStatistic() = 0;
     virtual std::wstring GetWazaName(int waza) = 0;
-    virtual StageDesc* GetStageDesc(const MapIndex& rIndex) = 0;
+    virtual StageDesc* GetStageDesc(MapIndex index) = 0;
     virtual MapDesc* GetMapDesc(const MapIndex& rIndex) = 0;
     virtual MapDesc* CreateMapDesc(const MapIndex& rIndex) = 0;
     virtual int MovePlayerPiisToTeamPiiBox() = 0;

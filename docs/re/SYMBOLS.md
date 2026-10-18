@@ -2773,3 +2773,23 @@ For `wpse-v1` / `main.dol`, [F-92-2](findings/92-cdlgpiiselector-construction.md
 ## Game script camera bindings (#231, #232)
 
 [F-231-4](findings/231-script-camera-unit.md#f-231-4-the-source-of-231) and [F-232-1](findings/232-script-camera-bindings.md#f-232-1-the-functions) name, in `.text`, the file-local `PopStageCamera(CPpuEngine*)` `0x80131780` (descriptive, medium), the pointer `DynamicCast<CStageCamera>` `0x801317B0` and `IsKindOf<CStageCamera>` `0x801317F0`, `BWorldObj::GetType` `0x80131840`, and the bindings `NewStageCamera` `0x80131850`, `NewWorldCamera` `0x80131D90`, `GetCurrentCamera` `0x80132210`, `method_camSetLookAt` `0x80132270`, `method_camSetRotate` `0x80132460` and `method_camSetAim` `0x80132500`. The binding names are original, and each binding is a global function on `NPpu::CEngine*`. Inline members: `CPpuEngine::GetOwner` `0x80131990`, `CStageCamera::LoadScript(const shared_ptr<NPpu::CEnvironment>&)` `0x801319A0`, and `NPpu::CEngine::FetchArgCount` `0x80132370` and `PushNull` `0x80132400` (descriptive, medium). The `nw4r::g3d::Camera::PostureInfo` constructor is at `0x80132410`. TR1 `shared_ptr`, `weak_ptr`, `move_ptr` and deleter instances for `CStageCamera` (`0x80131A10`–`0x80131D80`) and `BWorldCamera` (`0x80131EB0`–`0x801321C0`) carry their mangled names. Outside the block: `BWorldObj::SetOwner` `0x8006A4A0` (descriptive, low), `BWorldObj::GetId` `0x800C98B0`, `CPpuEngine::GetWorld` `0x800FFA20` and `PopWorldObj` `0x80100DB0`, and `BWorld::SetCurrentCamera` `0x8005E3D0`, whose mangled name now takes the pointer by value (F-232-2).
+## Game CMoneyLifeDisplay and CMsgBalloon start (#141)
+
+[F-141-3](findings/141-cmoneylifedisplay-cmsgballoon.md#f-141-3-the-cmsgballooncpp-functions-of-141) names, in `.text`: `GetMapRecord(MapIndex)` `0x800C59D0`, `IsStageCleared(MapIndex)` `0x800C5A60`, `GetStageClearCount(MapIndex)` `0x800C5B10`, `CMapRecord::IsFlagSet` `0x800C5AE0`, `CMapRecord::GetClearCount` `0x800C5BC0`, `Clamp<int>` `0x800C5BD0`, `std::max<int>` `0x800C5C10`, `std::min<int>` `0x80095280`, `IMsgBalloon::Create(bool)` `0x800C5C30`, `CMsgBalloon::Init(bool)` `0x800C5CC0`, `CMsgBalloon::CMsgBalloon()` `0x800C66F0` and `GetSaveData(int)` `0x80167E10` (free-function, `CMapRecord`, `Clamp` and `GetSaveData` names descriptive, low; the `std` templates high). Callees renamed for the `Show` and factory links: `CLayout::SetVisible(bool)` `0x801D04A0` (sets the root pane's visible bit, medium), `CLayout::CreateMotion(const char*)` `0x8006E240` (medium), `BUILayout::GetLayout()` `0x8008B7D0` (returns `this + 0x4C`, high), `PlaySound(u32, SoundHandle*, SoundStartable*)` `0x801E7F30` (descriptive, medium) and `std::type_info::operator==` `0x800871B0`.
+
+| Class | Offset | Member | Type | Evidence |
+| --- | --- | --- | --- | --- |
+| `MapIndex` | `0x0`–`0x3` | `mMode`, `mArea`, `mStage`, `mMap` | `int : 8` each | word load with `extlwi`/`srawi`; `rlwimi` store; names low |
+| `SaveData` | `0x18` | `mMapRecords` | `CMapRecord[3][5][8][10]` | strides 0x640, 0x140, 0x28, 4 in `GetMapRecord`; slot size 0x1360 |
+| `StageDesc` | `0xC` | `mMapDescs` | `std::vector<std::tr1::shared_ptr<MapDesc> >` | `IsStageCleared` reads `size()` (F-91 slot 14) |
+| `CMsgBalloon` | `0xC` | `mIsShown` | `bool` | `Show` |
+| `CMsgBalloon` | `0x10`, `0x14` | `mShowWait`, `mHideWait` | `int` | `Show` sets 0x10 to 5; `Calc` counts both down |
+| `CMsgBalloon` | `0x18` | `mUIManager` | `std::tr1::shared_ptr<CUIManager>` | `Init`, destructor `0x800CBD00` |
+| `CMsgBalloon` | `0x20`, `0x28`, `0x30` | `mLayout`, `mMsgLayout`, `mWarpLayout` | `std::tr1::shared_ptr<BUILayout>` | `Init` loads `msg_balloon`, `msg_balloon_msg`, `msg_balloon_warp` |
+| `CMsgBalloon` | `0x38` | `mModelLayouts` | `std::vector<std::tr1::shared_ptr<BUILayout> >` | 18 `MODEL%02d` layouts in `Init` |
+| `CMsgBalloon` | `0x44` | `mModelTextures` | `std::vector<std::tr1::shared_ptr<COffScreenTexture> >` | element built through `0x800F6580`; type medium-low |
+| `CMsgBalloon` | `0x50` | `mEntries` | `std::list<CMsgBalloon::Entry>` | list constructor `0x800C6D10`; entry constructor `0x800C9B30` |
+| `CMsgBalloon` | `0x5C`, `0x60` | `mCurrentEntry`, `mCurrentIndex` | `Entry*`, `int` | `Show`, `IsShown` (slot 11) |
+| `CMsgBalloon` | `0x64` | `mShownEntries` | `Entry*[4]` | `Show`, `IsShown` |
+| `CMsgBalloon` | `0x74` | `mOffset` | `nw4r::math::VEC3` | constructor `0x800C66F0`; name low |
+| `CMsgBalloon` | `0x80` | `mMotion` | `std::tr1::shared_ptr<CLayout::CMotionProgram>` | `Show`; deleter type from `0x8006E4B0` |

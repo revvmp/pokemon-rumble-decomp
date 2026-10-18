@@ -98,6 +98,21 @@ Every helper is called out of line, including one-instruction accessors, so the 
 
 Once #141 splits the file, the template functions (`0x800C6170`–`0x800C6330`, `0x800C63D0`–`0x800C6630`) need byte-exact `shared_ptr`, `move_ptr`, compressed-pair and `vector` headers, which are partly available from the `CDlgPiiSelector` and `CPpuEngine` work. `0x800C6090` needs `BUILayout`, `CLayout` motion and sound interfaces; `0x800C6160` needs `BUILayout`. None of the 24 functions uses `basic_string`; `0x800C5CC0` in #141 does (`0x800721A0`, #327).
 
+## F-142-4: reconstruction state
+
+#141 split the file (F-141-1). objdiff with `src/game/CMsgBalloon.cpp`:
+
+| Address | Function | Match |
+| --- | --- | --- |
+| `0x800C6090` | `CMsgBalloon::Show(bool)` | 99.90% |
+| `0x800C6330`, `0x800C6400`–`0x800C6630` | The factory's `shared_ptr`, `weak_ptr`, `move_ptr`, compressed-pair, `default_delete` and deleter templates (11 functions) | 100% |
+| `0x800C6160`–`0x800C6300`, `0x800C6380`, `0x800C63D0` | `BUILayout` text forward, `vector<shared_ptr<BUILayout> >` push-back chain, `shared_ptr<CUIManager>::reset` and `swap` (12 functions) | Not reconstructed |
+
+- **`Show`** differs only in the relocation of the `"end"` literal: the target label `lbl_804B6B68` against the compiler's numbered `@` label. The number changes as functions are added before it, so the label is not renamed while the file is incomplete. The calls go out of line to `BUILayout::GetLayout` (`0x8008B7D0`), `CLayout::SetVisible` (`0x801D04A0`), `CLayout::CreateMotion` (`0x8006E240`), the `shared_ptr<CLayout::CMotionProgram>` assignment and `reset`, and `PlaySound(0x59)` (`0x801E7F30`). The four slots at 0x64 are cleared by four stores before 0x5C and 0x60.
+- **The 12 open functions are emitted only by `Init`** (`0x800C5CC0`, #141), which is blocked by the class layouts listed in F-141-3.
+- **The MSL `vector` has accessor and tag layers that the repository header lacks.** `push_back(const T&)` (`0x800C6170`) tail-calls a layer (`0x800C6180`) that passes a zeroed one-byte tag to the implementation `0x800C61B0`. That compares `size_` with the capacity returned through an accessor (`0x800C6240`, then compressed-pair `first()` `0x800C6250`), constructs at `end()` (`0x800C62E0`) through the allocator accessor (`0x800C62C0`, then `second()` `0x800C62D0`) and `allocator::construct` (`0x800C6260`), or calls the growth layer `0x800C6300`, which again adds a tag. `include/vector` has none of these members yet.
+
 ## Traps
 
+- **A function can be 99.9% only because of a literal label.** `Show` matches every instruction; the remaining difference is the target's `lbl_` name for a string literal against the compiler's `@` number. Leave it until the file is complete instead of naming the label after a number that later code shifts.
 - **A survey class start can be eight functions late.** The survey put `CMsgBalloon` at its first vtable function, `0x800C6090`, but the factory, its initialization and file-local helpers start at `0x800C59D0`. Find the previous file's deleter destructor before taking a block start as a file start.
