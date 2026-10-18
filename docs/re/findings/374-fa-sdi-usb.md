@@ -50,3 +50,37 @@ The SD reference is partial: several retained SD routines require reconstruction
 - A partial audit returning zero reports that it completed its comparison. Its explicit per-function mismatch and coverage records remain authoritative; it does not establish whole-unit matching.
 - The three routines after message sending are semaphore operations in the distinct `puh_ker_sem.c` unit. Their actual `OSWaitSemaphore` calls and pinned original names independently confirm the boundary. Do not infer a four-function message unit from adjacency or from a partial reference file.
 - The reference's semaphore creation checks `count != 0 && count != 1`; this target uses the ordinary unsigned `count > 1` equivalent. That bounded source change reproduces the target's 408-byte function rather than the reference's 416-byte version.
+
+# F-374-2: Retained SD transfers and initialization
+
+## Additional external proof
+
+The next external checkpoint proves nineteen of twenty retained SDI functions, including the original eight in F-374-1. Only `ISD_GetCardSize` remains unaccepted. Together with the seven USB kernel functions, issue coverage is now 26 original functions and 6,104 native instruction bytes. This supersedes the earlier fifteen-function coverage count without changing its historical evidence.
+
+| Additional SDI function | Native address | Bytes |
+| --- | --- | --- |
+| `sduCommandv` | `0x80224110` | 448 |
+| `ISD_ReadBlock` | `0x80224570` | 12 |
+| `ISD_WriteBlock` | `0x80224580` | 12 |
+| `ISD_ReadMultiBlock` | `0x80224590` | 12 |
+| `ISD_WriteMultiBlock` | `0x802245A0` | 12 |
+| `ISD_ReadMultiBlockAsync` | `0x802245B0` | 616 |
+| `ISD_WriteMultiBlockAsync` | `0x80224820` | 616 |
+| `ISD_InitCard` | `0x80224BB0` | 372 |
+| `sduDatabuswidth` | `0x80225020` | 380 |
+| `ISD_RegisterDeviceIntrHandler` | `0x802252F0` | 168 |
+| `ISD_UnregisterDeviceIntrHandler` | `0x802253A0` | 124 |
+
+`374-probe-sdi-transfers.py`, `374-probe-sdi-interrupts.py`, and `374-probe-sdi-init.py` compile ordinary C candidates and resolve every relocation before comparing the complete retained native extents. Each completed with exit 0; the final audit explicitly reports nineteen exact bodies and the remaining geometry mismatch. No build/source-selection acceptance is inferred from these external compilations.
+
+The transfer functions use the second response buffer, `__sdResp2`, at `0x804B9298`. A small inline clock helper takes the descriptor and requested enabled value, writes the command buffer, and maps a failed IOS request to the fatal SD error. This captures the ordinary repeated operation and reproduces both complete 616-byte transfers. Separate response arrays preserve their actual native stack extents. The read path invalidates the data cache and uses `sduCommandv`; the write path flushes it and uses `sduCommand`.
+
+Initialization independently proves the original function-static `lo` pointer at `0x804B92A4`, IPC heap extent 2,048 bytes, four 32-byte buffer allocations, a 96-byte vector allocation, and the three device paths. The original pinned symbol map names the local pointer `lo$3187`; the compiler-generated spelling differs with source revision, while the ordinary function-static declaration and resolved address agree.
+
+The canonical-header owner was asked in [PR #931](https://github.com/revvmp/pokemon-rumble-decomp/pull/931#issuecomment-6243828295) to replace six provisional API names with the pinned original names, preserving its existing record. No header change or assigned neighboring source edit was made by this contributor.
+
+## Traps
+
+- Retaining a shared initialized error variable across early fatal branches emitted twenty extra bytes in each async transfer. Ordinary early returns for invalid heap/state restore the actual control flow; this is a source-structure finding, not a compiler flag change.
+- Initialization pointer checks written as `pointer == NULL` caused the compiler to retain a shared zero register and use register comparisons. Ordinary `!pointer` checks reproduce all actual instructions under the same unchanged SDK flags. Both controls have the same 372-byte extent, so extent agreement alone does not establish a match.
+- `ISD_UnregisterDeviceIntrHandler` has a genuinely 32-byte-aligned local response buffer, confirmed by its dynamic stack alignment and actual buffer address. Preserve that local alignment rather than changing the whole translation unit's function alignment.
