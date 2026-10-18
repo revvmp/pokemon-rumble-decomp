@@ -446,6 +446,13 @@ RVL_SDK/fa/pf_service.c:
 RVL_SDK/fa/pf_str.c:
 	.text       start:0x801FB620 end:0x801FBBDC
 
+RVL_SDK/fa/pf_driver.c:
+	.text       start:0x801FBBE0 end:0x801FC544
+
+RVL_SDK/fa/pdm_dskmng.c:
+	.text       start:0x801FC550 end:0x801FC620
+	.bss        start:0x803EAFA8 end:0x803EB89C
+
 RVL_SDK/fa/pdm_bpb.c:
 	.text       start:0x801FC620 end:0x801FCB18
 
