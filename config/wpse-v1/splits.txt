@@ -153,6 +153,7 @@ game/ScriptCamera.cpp:
 	.ctors      start:0x803529F0 end:0x803529F4
 	.data       start:0x803B65A0 end:0x803B66C8
 	.sdata      start:0x804B79A8 end:0x804B79B8
+	.sdata2     start:0x804BA1B8 end:0x804BA1E8
 
 game/NPpuVM.cpp:
 	extab       start:0x80034D94 end:0x80034EBC

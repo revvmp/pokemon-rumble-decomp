@@ -142,7 +142,7 @@ public:
     void RemoveCamera(const std::tr1::shared_ptr<BWorldCamera>& camera);
     void ClearCamera(u32 index);
     CShadowCamera* GetShadowCamera();
-    void SetCurrentCamera(const std::tr1::shared_ptr<BWorldCamera>& camera);
+    void SetCurrentCamera(std::tr1::shared_ptr<BWorldCamera> camera);
     BWorldCamera* GetCurrentCamera();
     nw4r::g3d::Camera GetG3dCamera();
     nw4r::g3d::ScnRoot* GetScnRoot() const { return mScnRoot.get(); }
