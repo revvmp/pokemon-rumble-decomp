@@ -77,3 +77,37 @@ Reproduction files are outside the repository at `C:/MassStorage/GitHub/326-grap
 - The default GX umbrella header does not declare GXInit, GXSetClipMode or GXSetNumIndStages. Include their existing GXInit, GXTransform and GXBump headers directly; do not invent local declarations or replace the canonical header tree.
 - A size match is insufficient: the initializer candidate still differs. The diagnostic audit records unpaired or incorrect relocations separately from other instruction differences, and no matching claim follows from masking relocation words. The earlier eleven-word color-conversion mismatch was resolved using the ordinary promoted integer expression without redundant bit masks.
 - The native framebuffer size multiplies the aligned sixteen-bit width by height before doubling it. A mathematically equivalent differently associated expression changes instructions. Preserve the demonstrated arithmetic types and order without adding artificial padding or instructions.
+
+# F-326-2: custom-deleter reset and compressed-pair argument policy
+
+## Native consumer and independently written source
+
+The custom-deleter diagnostic reproduces the two reset routines at `0x801C7A30` and `0x801C7B00`, two ownership-guard destructors, two get_deleter methods, two dispose methods and two control-block destructors. These ten owned functions total 936 code bytes. Every instruction matches after resolving all eighteen text relocations to their actual native callees, vtables or function-pointer type information.
+
+The ordinary reset constructs a temporary shared_ptr and swaps it with the destination. Its custom-deleter constructor protects the supplied pointer with a stack ownership guard while allocating the control block, then relinquishes the guard. The temporary shared_ptr destructor releases the old control block and has the native nonthrowing exception profile. The control block stores its owned pointer and function-pointer deleter in the nonempty compressed-pair policy. Its original public template name and deleter type are independently established by RTTI; the diagnostic guard name ResetGuard is descriptive and is not claimed as an original private class name.
+
+The compiled exception records independently pair the ScnMdl guard destructor with `0x801C8610` and the ScnMdlSimple guard with `0x801C85A0`. All 160 owned exception bytes, including the two guard-destructor relocations, and all eight twelve-byte exception-index entries reproduce the native records. The initialized-data proof covers 248 bytes at `0x803C0124` through `0x803C021C` and sixteen RTTI bytes at `0x804B8310`; all fourteen embedded pointers resolve exactly. The native four-byte gap before the next BUI data cluster is not reconstructed as artificial storage.
+
+The outside common-control destructor at `0x80055BB0` and shared_ptr destructor at `0x800770A0` also reproduce 196 code bytes, their four text relocations, 48 exception bytes and both indexes. They are controls for the generic interface and receive no #326 source credit. Extra weak definitions and diagnostic fixture wrappers are not treated as owned retained source. A full source-selected ELF and DOL comparison remains required.
+
+## Declaration-only evidence and header ownership
+
+The previously pinned smart-pointer declaration blob `e57966d2bb1331d2b2b21137c9bc389e90c6c573` declares `shared_ptr_deleter(element_type*, D&)`. Passing D by value instead initially caused six instruction differences per reset. The recovered reference interface reduces this to one swapped load/store pair.
+
+The compressed-pair declaration blob `c58d840db435e5ea772a13f07ecacc568e341f5c` at KooShnoo/pokemon-rumble revision `11c112f7548b26ab2cecfcf52e201b8d3b76120f` declares first_param and second_param through Metrowerks::call_traits and accepts those aliases in its two-argument constructor. Its companion declaration blob `f3c956bc7ff410613a30dae8aa95236741bc8cd6` declares a default size threshold of `sizeof(T) <= sizeof(void*)`, value parameters for that small case, const references for the large case, pointer values for pointer specializations and preserved references for reference specializations. Only declarations and aliases were extracted; no restricted implementation algorithms were imported or used.
+
+The #327 header owner independently corrected the generic utility. Its exact candidate was copied unchanged to `C:/MassStorage/GitHub/326-owner-compressed-pair.h`, SHA-256 `1996ce62764a5949f43509de05e69e7382085a554d69a1f0ca3aa9a298d75560`. Recompiling the reset consumers with that exact candidate removes the last two instruction differences in each routine and preserves all other native proof. This consumer exercises pointer/pointer construction and nonempty storage. It does not independently prove every call_traits selection or storage policy.
+
+An additional independent vector consumer using the same exact header confirms four-byte `compressed_pair<size_t, allocator<T>>` storage and a complete twelve-byte vector extent, exercising the second-empty policy. Its destructor remains 196 bytes against the native 204-byte routine and is explicitly unaccepted. The call-traits correction does not resolve that separate vector algorithm or exception-lifetime question.
+
+## Reproduction and limits
+
+The actual Wii/1.1 BController command drives `C:/MassStorage/GitHub/326-compile-reset.py`, which compiles the independently authored `326-reset-probe.cpp`. `326-audit-reset.py` asserts every resolved instruction, exception record, index and owned initialized-data byte. Outputs are `326-reset-native-proof.json`, `326-reset-metadata-proof.json` and `326-reset-owner-audit.log`. Both commands exit zero with the exact owner candidate above. The vector layout check is recorded in `326-vector-owner-layout-proof.json`; `326-compile-vector.py` compiles its fixture.
+
+The generic typed shared_ptr and ownership guard remain external diagnostics under coordination with #327. No competing canonical smart-pointer or compressed-pair header has been introduced. The factory's precise result-pointee interface, private guard identity, complete translation-unit boundary, source emission order and full source-selected link still require acceptance. Issue #326 remains incomplete.
+
+## Traps
+
+- A plausible generic utility can preserve layout yet change source emission. The const-reference compressed-pair constructor preserved twenty-byte control-block storage but scheduled the deleter load after the pointer store. The recovered call_traits interface and an independently written owner correction reproduce the native order. Do not repair this with volatile, padding or instruction-shaped source.
+- The custom-deleter constructor takes D by reference even though the public reset accepts it by value. Conflating those signatures changes native scheduling. Declarations establish the distinction; the native consumer verifies it.
+- Diagnostic wrappers emit duplicate reset bodies and extra weak definitions. Count the ten owned native functions once and retain the outside common/shared destructor proof solely as a control. Full source-selection and linked-artifact gates remain necessary before any reconstruction credit.
