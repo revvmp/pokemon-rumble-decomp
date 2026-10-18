@@ -210,6 +210,10 @@ The original-only split preserves the complete 48-byte extab at `0x8003BC40`, 72
 
 Before any source registration, configure, the real default Ninja build and the explicit actual-directory frozen verifier all exit zero with this split. The DOL SHA-256 remains `ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da`. This split-only stage earns no source credit; the following NonMatching and source-selected gates are recorded separately.
 
+The complete source and `include/game/Graphics.h` are then registered NonMatching with the actual game compiler and flags. The source includes the merged canonical Memory and RenderMode headers directly, with no diagnostic overlays or reference fallback. Actual unitdiff reports all six functions and all six sections at 100%. The strict actual-object audit resolves all 132 text relocations and compares every native instruction, all 48 exception bytes and six indexes, twelve initialized small-data bytes, sixteen constant bytes and the complete 1,928-byte text extent. The twenty-byte `.sbss` contains exactly the two FIFO pointers, the two-entry framebuffer array and the current framebuffer pointer.
+
+The complete NonMatching pipeline repeats configure, explicit all_source, plain Ninja after removing only the old DOL, frozen verification and the actual source audit, all exiting zero. The real link graph contains `obj/game/Graphics.o` and excludes `src/game/Graphics.o`, so this gate still links original fallback. Reproducibility uses `326-build-graphics-gate.py nonmatching`, `326-audit-actual-graphics.py` and `326-graphics-nonmatching-gate-proof.json`. Only the external render producer at `0x801B66A0` is renamed outside the graphics ranges; its type, size, split and original fallback remain unchanged under the same #318 owner's coordination.
+
 ## Traps
 
 - End a static object's extent at its actual enum or pointer word rather than absorbing the following alignment gap. Both graphics small-data and zero-initialized automatic clusters contained such gaps; the complete compiled object independently proves the smaller storage extents.
