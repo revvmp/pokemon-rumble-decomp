@@ -250,6 +250,7 @@ config.libs = [
             Object(Matching, "game/CFiber.cpp"),
             Object(NonMatching, "game/CMsgRes.cpp"),
             Object(NonMatching, "game/Message.cpp"),
+            Object(Matching, "game/Locale.cpp"),
             Object(Matching, "game/luckyhelper.cpp"),
             Object(NonMatching, "game/sound.cpp"),
         ],
