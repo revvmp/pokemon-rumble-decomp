@@ -21,7 +21,7 @@ The second file starts with `ScriptBinding_GetThrownValue` at `0x80174D70`: its 
 
 The RTTI objects of `NPpu::CEnvironment` and `NPpu::CCode` (`0x804B72F0`, `0x804B72F8`, names at `0x803AD04C` and `0x803AD060`) are weak copies kept by the earlier `CPpuEnv`/`CPpuCode` file, whose classes derive from these bases.
 
-The script binding table's interpreter (`CVM`) is not an RTTI class; its name is descriptive.
+The script binding table's interpreter was first named `CVM`; [F-282-1](282-nppu-engine.md#f-282-1-the-interpreter-class-is-nppucengine) identifies it as the RTTI class `NPpu::CEngine`.
 
 ## F-281-2: Classes and the first block's sources
 

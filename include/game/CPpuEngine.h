@@ -18,7 +18,7 @@ class BWorldObjOwner;
 class CFileData;
 class CPPD;
 
-class CPpuEngine : public NPpu::CVM, public ICalc, public std::tr1::enable_shared_from_this<CPpuEngine> {
+class CPpuEngine : public NPpu::CEngine, public ICalc, public std::tr1::enable_shared_from_this<CPpuEngine> {
 public:
     enum Flag {
         FLAG_LEFT_INIT_PART = 1 << 0

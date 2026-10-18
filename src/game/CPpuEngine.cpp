@@ -13,7 +13,7 @@ static bool sTemporaryIDReady;
 static void InitTemporaryID() {
     if (!sTemporaryIDReady) {
         sTemporaryIDReady = true;
-        NPpu::CVM::SetNextID(CPpuEngine::TEMPORARY_ID_BASE);
+        NPpu::CEngine::SetNextID(CPpuEngine::TEMPORARY_ID_BASE);
     }
 }
 
