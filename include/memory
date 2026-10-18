@@ -1,11 +1,18 @@
 #ifndef _MEMORY
 #define _MEMORY
 
-#include <MSL_CPP/detail/shared_ptr_deleter.h>
+#include <MSL_CPP/compressed_pair.h>
+#include <MSL_CPP/detail/shared_ptr.h>
 #include <exception>
+#include <revolution/types.h>
 
 namespace std {
 namespace detail {
+template <typename T> struct default_delete {
+    default_delete() {}
+    void operator()(T* pObject) const { delete pObject; }
+};
+
 template <typename T> struct default_delete<T[]> {
     void operator()(T* pArray) const { delete[] pArray; }
 };
@@ -282,5 +289,7 @@ void shared_ptr<T>::enable_from_this(const enable_shared_from_this<Y>* pBase, U*
 
 }
 }
+
+#include <MSL_CPP/detail/shared_ptr_deleter.h>
 
 #endif

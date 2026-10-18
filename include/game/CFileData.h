@@ -1,0 +1,26 @@
+#ifndef GAME_CFILEDATA_H
+#define GAME_CFILEDATA_H
+
+#include <memory>
+#include <string>
+#include <revolution/types.h>
+
+class CFileData {
+public:
+    u32 GetSize() const { return mSize; }
+    void* GetData() const { return mData; }
+
+private:
+    u32 mFlags;
+    std::string mPath;
+    u32 mSize;
+    std::tr1::shared_ptr<u8> mBuffer;
+    void* mData;
+    std::tr1::shared_ptr<CFileData> mArchive;
+    bool mFailed;
+    int mState;
+};
+
+std::tr1::shared_ptr<CFileData> LoadFile(const char* pPath, u32 flags, bool background);
+
+#endif

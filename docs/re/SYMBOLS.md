@@ -2861,3 +2861,26 @@ The descriptive CalcPostFieldParticle ABI from #769 now has a complete exact sou
 | `CollationKey` | bits 12–9 | `mAccent` | `u32 : 4` | Level 2 |
 | `CollationKey` | bits 8–5 | `mCase` | `u32 : 4` | Level 3; 8 for the prolonged sound mark |
 | `CollationKey` | bits 4–2 | `mWidth` | `u32 : 3` | Level 4 |
+## Game sound (#343)
+
+[F-343-1](findings/343-sound.md#f-343-1-unit-boundaries) to [F-343-5](findings/343-sound.md#f-343-5-names-outside-the-unit) split `game/sound.cpp` (`.text` `0x801E6D50`–`0x801E8738`) and name, in `.text`: the file-local `OnReset()` `0x801E6D50`, `InitSound(u32, u32, u32)` `0x801E6D80`, `ShutdownSound()` `0x801E7830`, `UpdateSound()` `0x801E78A0`, `LoadSoundArchive(const char*)` `0x801E78B0`, `SetBGMVolume(f32, f32)` `0x801E7C30`, `StopBGM(f32)` `0x801E7C90`, `GetBGMID()` `0x801E7D00`, `ContinueBGM(u32, f32)` `0x801E7D40`, `PlayBGM(u32, f32, bool)` `0x801E7D50`, `StopSound(SoundHandle*, SoundActor*, f32)` `0x801E7F70`, `GetSoundArchivePlayer` `0x801E7FF0`, `GetSound3DManager` `0x801E8000`, `GetSound3DListener` `0x801E8010`, `GetFxReverb` `0x801E8020`, `GetFxDelay` `0x801E8030`, `GetFxChorus` `0x801E8040`, the `SoundWork` deleter, `shared_ptr` and `move_ptr` instances `0x801E8050`–`0x801E86D0` and `__sinit_\sound_cpp` `0x801E8710`; the weak `FxBase` destructor `0x801E7600`, `NonCopyable` destructor `0x801E7640`, `SoundHandle()` `0x801E7780` and `Sound3DListener` destructor `0x801E77F0`. Data: deleter vtable `0x803C2BE0`, type info `0x804B8608` and `0x804B8610`, `sBgmIndex` `0x804B91E0`, `sSoundWork` `0x804B91E8`, `sBgmDisabled` `0x804B91F0`. Outside the unit, for the link: `SoundHandle::~SoundHandle` `0x800BCAE0`, the `function_imp<void (*)(), void (*)(), false, false>` members `0x8012FAB0`, `0x8012FB00`, `0x8012FB40`, `0x80131640`, vtable `0x803B5748` and type info `0x804B78F8`, the `function_base<void (*)()>` destructor `0x80131600`, vtable `0x803B5800` and type info `0x804B7900`, the `shared_ptr_deleter_common` type info `0x804B5AB8` (high), and the descriptive `LoadFile(const char*, u32, bool)` `0x8005ED70` and `RegisterResetCallback(const function<void()>&, int)` `0x801B5C30` (low). `SoundWork` and `sound_cpp` are RTTI names; all other names are descriptive (medium unless noted).
+
+| Class | Offset | Member | Type | Evidence |
+| --- | --- | --- | --- | --- |
+| `SoundWork` | `0x0` | `mSystemMemory` | `std::tr1::shared_ptr<u8>` | `InitSound` |
+| `SoundWork` | `0x8` | `mFxReverb` | `nw4r::snd::FxReverbStd` | `GetFxReverb` |
+| `SoundWork` | `0x130` | `mFxChorus` | `nw4r::snd::FxChorus` | `GetFxChorus` |
+| `SoundWork` | `0x1FC` | `mFxDelay` | `nw4r::snd::FxDelay` | `GetFxDelay` |
+| `SoundWork` | `0x280` | `mFxReverbMemory`, `mFxChorusMemory`, `mFxDelayMemory` | `std::tr1::shared_ptr<u8>` (three) | `InitSound` |
+| `SoundWork` | `0x298` | `mArchiveFile` | `std::tr1::shared_ptr<CFileData>` | `LoadSoundArchive` |
+| `SoundWork` | `0x2A0` | `mArchive` | `nw4r::snd::MemorySoundArchive` | `LoadSoundArchive` |
+| `SoundWork` | `0x3F0` | `mPlayer` | `nw4r::snd::SoundArchivePlayer` | `GetSoundArchivePlayer` |
+| `SoundWork` | `0x4DC` | `mPlayerMemory`, `mStrmBuffer` | `std::tr1::shared_ptr<u8>` (two) | `LoadSoundArchive` |
+| `SoundWork` | `0x4EC` | `m3DManager` | `nw4r::snd::Sound3DManager` | `GetSound3DManager` |
+| `SoundWork` | `0x518` | `m3DListener` | `nw4r::snd::Sound3DListener` | `GetSound3DListener` |
+| `SoundWork` | `0x584` | `m3DManagerMemory` | `std::tr1::shared_ptr<u8>` | `LoadSoundArchive` |
+| `SoundWork` | `0x58C` | `mSeHandle` | `nw4r::snd::SoundHandle` | `PlaySound`, `StopSound` |
+| `SoundWork` | `0x590` | `mBgmHandles` | `nw4r::snd::SoundHandle[2]` | BGM functions |
+| `SoundWork` | `0x598` | `mSpareHandle` | `nw4r::snd::SoundHandle` | Constructor and destructor only (low) |
+| `CFileData` | `0x10` | `mSize` | `u32` | `ARCGetLength` store `0x8019F0C0` |
+| `CFileData` | `0x1C` | `mData` | `void*` | `ARCGetStartAddrInMem` store `0x8019F0B4` |

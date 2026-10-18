@@ -495,6 +495,17 @@ game/EncodingConverter.cpp:
 	.sdata      start:0x804B8340 end:0x804B8348
 	.sbss       start:0x804B9178 end:0x804B9180
 
+game/sound.cpp:
+	extab       start:0x80041358 end:0x800432A4
+	extabindex  start:0x80051FF0 end:0x800520E0
+	.text       start:0x801E6D50 end:0x801E8738
+	.ctors      start:0x80352A30 end:0x80352A34
+	.data       start:0x803C2BE0 end:0x803C2CC0
+	.bss        start:0x803EAF88 end:0x803EAF98
+	.sdata      start:0x804B8608 end:0x804B8618
+	.sbss       start:0x804B91E0 end:0x804B91F8
+	.sdata2     start:0x804BA588 end:0x804BA5A0
+
 MSL_C/printf.c:
 	extab       start:0x80043418 end:0x80043478
 	extabindex  start:0x8005214C end:0x800521DC
