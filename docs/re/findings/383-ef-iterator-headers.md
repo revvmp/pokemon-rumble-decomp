@@ -88,6 +88,14 @@ The complete comparison passes: 570 whole objects are identical, the same six ob
 
 Commands, exit codes, native results, object comparison, original-header controls and linked-section confirmation are preserved in `383-reference/header-global-20261017-181659`. This is a historical checkpoint: later PRs #904 and #954 advanced main, so it does not establish the final latest-main merge gate.
 
+## Current 578-object preservation checkpoint
+
+The next incremental gate verifies `2819282106433b7fdc66858b35e53d636a0b2f0d` on main `097212a4e1c32d84b3d1fc24e88ecad9a7056848`, including PRs #904 and #954. Configure, actual 578-target `all_source`, default Ninja, explicit frozen verification, no-work repeats and complete retained native audits all exit 0. The build outputs were retained, with only the previous DOL removed before Ninja.
+
+The independent control is `359-reference/359-fat12-fat16-split-eb5ce5aa`, committed at `eb5ce5aaa9a616e4a85b6daa1e6f6e70fa973205`. Its source, headers, compiler configuration and build tooling are identical to canonical main. It additionally splits two unregistered FAT units and names eight native functions; those changes affect only `splits.txt`, `symbols.txt` and its findings file. The exact three-file difference, unchanged source selection, tracked-tree manifest and linked-artifact hashes were independently checked. Its complete tree is therefore not described as identical to main.
+
+All 578 declared existing source objects are compared: 571 whole files are identical, six have only numeric local-name string differences, and the sole allocated-code exception remains the native-proven NonMatching Smooth origin correction. Six original-header controls reproduce their exact old whole-object hashes. All 15 allocated final ELF sections and the complete frozen DOL are identical to the control; complete ELF symbol-name metadata differs. `383-reference/header-global-20261017-181954` preserves the actual commands, exit codes, native audits, comparison, original-header controls and linked confirmation. The baseline is immutable and independently retained; no live neighboring build is used during comparison.
+
 ## Traps
 
 An older diagnostic header included a direct particle-count access to correct an earlier canonical accessor. PR #917 has since corrected that accessor itself. Reapplying the historical hunk would unnecessarily change canonical source structure. Start from current main and retain only the two iterator-body changes.
