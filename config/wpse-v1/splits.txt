@@ -21,6 +21,15 @@ game/BController.cpp:
 	.sdata      start:0x804B5A20 end:0x804B5A40
 	.sdata2     start:0x804B9C60 end:0x804B9C88
 
+game/CDividedGround.cpp:
+	extab       start:0x8000BB5C end:0x8000CD9C
+	extabindex  start:0x80045264 end:0x800455AC
+	.text       start:0x80071220 end:0x800776A8
+	.rodata     start:0x80352AC0 end:0x80352B00
+	.data       start:0x8039B7B8 end:0x8039BFE8
+	.sdata      start:0x804B5E68 end:0x804B5F30
+	.sdata2     start:0x804B9DB0 end:0x804B9DC8
+
 RevoEX/net/NETVersion.c:
 	.text       start:0x801770F4 end:0x801770FC
 	.data       start:0x803B9D88 end:0x803B9DC0
