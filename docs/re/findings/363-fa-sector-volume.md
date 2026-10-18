@@ -71,3 +71,21 @@ The setvol implementation uses ordinary nested cache-flush error handling: a fai
 ## Verified sector checkpoint commands
 
 At the committed checkpoint based on main76b5be1b, `python configure.py --build-dir build/363-sector-split --map`, `.venv/Scripts/ninja -j4` and `python tools/verify/verify.py verify --manifest config/targets/wpse-v1.json --reference-dir orig/wpse-v1 --build-dir build/363-sector-split/wpse-v1` exit0. The fresh split-only build has523 default targets. The source-selected four-function audit additionally checks all34 paired original/source relocations, final native addresses/sizes, the complete original #363 issue subset, objdiff sections100, actual source input selection, original-sector fallback exclusion, exact rebuilt DOL bytes and the516-object independent baseline. Latest-main integration remains pending the shared-header prerequisite.
+
+## F-363-4: complete source-selected volume unit
+
+The actual default source-selected build passes plain Ninja and explicit
+frozen verification. All37 volume functions /18,008 instruction bytes /735
+paired relocation sites match, including the complete18,160-byte native
+text allocation and alignment. Every retained function has its native
+final ELF address and source-object map contribution; Ninja excludes the
+original volume fallback. Initialized payloads are12 data bytes,5 small-data
+bytes and one small-data constant byte. Separate linker alignment is three
+and seven zero bytes. The sole volume-set BSS allocation is0x33800.
+
+The final full link corrected two label comparisons to canonical pf_memcmp
+at0x801FB270. An obsolete scratch map had called that address pf_strncmp,
+whose accepted canonical definition is0x801FB380. The rejected mapping
+could pass an isolated comparison but caused the real link to discard the
+124-byte memcmp function and its alignment. Both actual call targets and
+the entire immutable DOL now agree; see F-365-5 for the reusable trap.

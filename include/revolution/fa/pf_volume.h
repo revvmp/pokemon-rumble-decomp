@@ -113,7 +113,7 @@ typedef struct PF_CURSOR {
 
 typedef struct PF_FILE {
     u32 stat;
-    u32 open_mode;
+    s32 open_mode;
     PF_SFD* p_sfd;
     PF_FAT_HINT hint;
     s32 last_error;
@@ -154,6 +154,13 @@ typedef struct PF_CUR_DIR {
     PF_DIR_ENT dir_entry;
 } PF_CUR_DIR;
 
+typedef struct PF_CLUSTER_LINK_VOL {
+    u16 flag;
+    u16 interval;
+    u32* buffer;
+    u32 link_max;
+} PF_CLUSTER_LINK_VOL;
+
 typedef struct PF_DIR_TAIL {
     u32 tracker_size;
     u32 tracker_buff[1];
@@ -184,8 +191,57 @@ typedef struct PF_VOLUME {
     u16 flags;
     s8 drv_char;
     u16 fsi_flag;
-    u8 tail[0x1FC6];
+    PF_CLUSTER_LINK_VOL cluster_link;
+    PDM_PARTITION* p_part;
+    s32 (*p_callback)(s32 error);
+    const u8* format_param;
 } PF_VOLUME;
+
+typedef struct PF_CACHE_SETTING {
+    PF_CACHE_PAGE* pages;
+    u8 (*buffers)[512];
+    u16 num_fat_pages;
+    u16 num_data_pages;
+    u32 num_fat_buf_size;
+    u32 num_data_buf_size;
+} PF_CACHE_SETTING;
+
+typedef struct PF_DRV_TBL {
+    PDM_PARTITION* p_part;
+    PF_CACHE_SETTING* cache;
+    s8 drive;
+    u8 stat;
+} PF_DRV_TBL;
+
+#define PF_MAX_CUR_VOLUMES 4
+
+typedef struct PF_CUR_VOLUME {
+    u32 stat;
+    s32 context_id;
+    struct PF_VOLUME* p_vol;
+} PF_CUR_VOLUME;
+
+typedef struct PF_CONTEXT {
+    u32 stat;
+    s32 context_id;
+} PF_CONTEXT;
+
+typedef struct PF_VOLUME_SET {
+    PF_CUR_VOLUME current_vol[PF_MAX_CUR_VOLUMES];
+    s32 num_attached_drives;
+    s32 num_mounted_volumes;
+    u32 config;
+    void* param;
+    s32 last_error;
+    s32 last_driver_error;
+    PF_CHARCODE codeset;
+    u32 setting;
+    s32 current_context_id;
+    PF_CONTEXT context[4];
+    PF_VOLUME volumes[26];
+} PF_VOLUME_SET;
+
+extern PF_VOLUME_SET pf_vol_set;
 
 typedef struct PF_ENT_ITER {
     u32 index;
@@ -199,6 +255,8 @@ typedef struct PF_ENT_ITER {
     u8 log2_entries_per_sector;
 } PF_ENT_ITER;
 
+PF_VOLUME* PFVOL_GetCurrentVolume(void);
+s32 PFVOL_InitModule(u32 config, void* param);
 s32 PFVOL_CheckForRead(PF_VOLUME* p_vol);
 s32 PFVOL_CheckForWrite(PF_VOLUME* p_vol);
 s32 PFVOL_IsCurrentDirCluster(PF_VOLUME* p_vol, u32 cluster);
@@ -208,6 +266,17 @@ void PFVOL_SetCurrentVolume(PF_VOLUME* p_vol);
 PF_VOLUME* PFVOL_GetVolumeFromDrvChar(s8 drv_char);
 void PFVOL_LoadVolumeLabelFromBuf(PF_VOLUME* p_vol, const u8* buf);
 
+s32 PFDRV_init(PF_VOLUME* p_vol);
+s32 PFDRV_finalize(PF_VOLUME* p_vol);
+s32 PFDRV_mount(PF_VOLUME* p_vol);
+s32 PFDRV_unmount(PF_VOLUME* p_vol, u32 mode);
+s32 PFDRV_format(PF_VOLUME* p_vol, const u8* param);
+u32 PFDRV_IsMountRequested(PF_VOLUME* p_vol);
+void PFDRV_ClearMountRequested(PF_VOLUME* p_vol);
+u32 PFDRV_IsUnmountRequested(PF_VOLUME* p_vol);
+void PFDRV_ClearUnmountRequested(PF_VOLUME* p_vol);
+s32 PFDRV_StoreVolumeLabelToBPB(PF_VOLUME* p_vol, const s8* label);
+void PFDRV_LoadVolumeLabelFromBuf(u8* p_buf, PF_VOLUME* p_vol);
 u32 PFDRV_IsInserted(PF_VOLUME* p_vol);
 s32 PFDRV_lread(PF_VOLUME* p_vol, u8* buf, u32 sector, u32 num_sector, u32* p_num_success);
 s32 PFDRV_lwrite(PF_VOLUME* p_vol, const u8* buf, u32 sector, u32 num_sector, u32* p_num_success);
@@ -216,6 +285,33 @@ typedef struct PF_DEV_INF PF_DEV_INF;
 typedef struct PF_VOL_INF PF_VOL_INF;
 typedef struct PF_VOLUME_CONFIG PF_VOLUME_CONFIG;
 typedef struct PF_CLUSTER_LINK_CONFIG PF_CLUSTER_LINK_CONFIG;
+
+struct PF_DEV_INF {
+    u32 cls;
+    u32 ecl;
+    u32 bps;
+    u32 spc;
+};
+
+struct PF_VOL_INF {
+    s8 label[12];
+    u8 attr;
+    u32 modify_date;
+    u32 modify_time;
+};
+
+struct PF_VOLUME_CONFIG {
+    u32 flags;
+    u32 file_flags;
+    u32 fat_buffer_size;
+    u32 data_buffer_size;
+};
+
+struct PF_CLUSTER_LINK_CONFIG {
+    void* buffer;
+    u32 count;
+    u16 interval;
+};
 
 s32 PFVOL_format(s8 drive, u8* p_parameter);
 s32 PFVOL_getdev(s8 drive, PF_DEV_INF* p_info);

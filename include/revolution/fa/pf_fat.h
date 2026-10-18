@@ -7,6 +7,10 @@
 extern "C" {
 #endif
 
+s32 PFFAT_InitFATRegion(PF_VOLUME* p_vol);
+s32 PFFAT_RefreshFSINFO(PF_VOLUME* p_vol);
+s32 PFFAT_CountFreeClusters(PF_VOLUME* p_vol, u32* p_count);
+
 s32 PFFAT_FreeChain(PF_FFD* p_ffd, u32 start_cluster, u32 chain_index, u32 size);
 s32 PFFAT_GetSectorSpecified(PF_FFD* p_ffd, u32 file_sector_index, u32 may_allocate, u32* p_sector);
 s32 PFFAT_GetSectorAllocated(PF_FFD* p_ffd, u32 file_sector_index, u32 size, u32* p_sector);
