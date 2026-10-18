@@ -2,7 +2,7 @@
 
 ## Scope
 
-The first three original #362 entries are PFFILE_cinsert/cdelete/combine at80211D10/11E10/11F10 and belong to the preceding file unit. This issue owns the path unit's first function, PFPATH_DoSplitPath at80211FE0. The complete path unit also supplies four original #363 tails at80214960/149C0/14CD0/14E50, ending80214EB8. These neighboring inventories remain distinct; no issue is complete without every original row's source-selected proof.
+The first three original #362 entries are PFFILE_cinsert/cdelete/flock at80211D10/11E10/11F10 and belong to the preceding file unit. This issue owns the path unit's first function, PFPATH_DoSplitPath at80211FE0. The complete path unit also supplies four original #363 tails at80214960/149C0/14CD0/14E50, ending80214EB8. These neighboring inventories remain distinct; no issue is complete without every original row's source-selected proof.
 
 No path split, source selection or matching ledger row is published by this diagnostic checkpoint. Its complete-source audit rejects any differing function.
 
