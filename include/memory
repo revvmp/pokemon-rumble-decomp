@@ -2,6 +2,67 @@
 #define _MEMORY
 
 #include <MSL_CPP/detail/shared_ptr_deleter.h>
+#include <exception>
+
+namespace std {
+namespace detail {
+template <typename T> struct default_delete<T[]> {
+    void operator()(T* pArray) const { delete[] pArray; }
+};
+}
+}
+
+namespace Metrowerks {
+template <bool B, typename T = void> struct restrict_to {};
+template <typename T> struct restrict_to<true, T> {
+    typedef T type;
+};
+
+template <typename From, typename To> struct is_convertible {
+private:
+    struct Yes {
+        char mValue[2];
+    };
+    static Yes Test(To);
+    static char Test(...);
+    static From Make();
+
+public:
+    enum { value = sizeof(Test(Make())) == sizeof(Yes) };
+};
+
+template <typename T, typename D = std::detail::default_delete<T> > class move_ptr {
+    struct nat {
+        int dummy_;
+    };
+
+    struct Storage : public D {
+        explicit Storage(T* p) : mPtr(p) {}
+        T* mPtr;
+    };
+
+public:
+    template <typename Y>
+    explicit move_ptr(Y* p, typename restrict_to<is_convertible<Y*, T*>::value, nat>::type = nat()) : ptr_(p) {}
+    ~move_ptr() {
+        if (ptr_.mPtr) {
+            ptr_(ptr_.mPtr);
+        }
+    }
+    T* get() const { return ptr_.mPtr; }
+    T* release() {
+        T* p = ptr_.mPtr;
+        ptr_.mPtr = nullptr;
+        return p;
+    }
+
+private:
+    move_ptr(const move_ptr&);
+    move_ptr& operator=(const move_ptr&);
+
+    Storage ptr_;
+};
+}
 
 namespace std {
 namespace tr1 {
@@ -25,38 +86,57 @@ private:
 
 }
 
+template <typename T> class shared_ptr;
 template <typename T> class weak_ptr;
+template <typename T> class enable_shared_from_this;
+
+class bad_weak_ptr : public exception {
+public:
+    virtual const char* what() const throw() { return "bad_weak_ptr"; }
+};
 
 template <typename T> class shared_ptr {
+    struct bool_type {
+        int dummy_;
+    };
+
 public:
     typedef T element_type;
-    typedef T* shared_ptr::*unspecified_bool_type;
 
     shared_ptr() : ptr_(nullptr), s_(nullptr) {}
-
-    template <typename Y> explicit shared_ptr(Y* p) : ptr_(p), s_(nullptr) {
+    template <typename Y> explicit shared_ptr(Y* p) : ptr_(p) {
+        Metrowerks::move_ptr<Y> hold(p);
         s_ = new detail::shared_ptr_deleter<Y, std::detail::default_delete<Y> >(p);
+        hold.release();
+        enable_from_this(p, p);
     }
-
     template <typename Y, typename D> shared_ptr(Y* p, D d) : ptr_(p) {
         detail::shared_ptr_holder<Y, D> holder(p, d);
         s_ = new detail::shared_ptr_deleter<Y, D>(p, d);
         holder.release();
     }
-
+    template <typename Y> explicit shared_ptr(const weak_ptr<Y>& r);
     shared_ptr(const shared_ptr& r) : ptr_(r.ptr_), s_(r.s_) {
-        if (s_ != nullptr) {
+        if (s_) {
             s_->retain();
         }
     }
-
+    template <typename Y> shared_ptr(const shared_ptr<Y>& r) : ptr_(r.ptr_), s_(r.s_) {
+        if (s_) {
+            s_->retain();
+        }
+    }
     ~shared_ptr() throw() {
-        if (s_ != nullptr) {
+        if (s_) {
             s_->release();
         }
     }
 
     shared_ptr& operator=(const shared_ptr& r) {
+        shared_ptr(r).swap(*this);
+        return *this;
+    }
+    template <typename Y> shared_ptr& operator=(const shared_ptr<Y>& r) {
         shared_ptr(r).swap(*this);
         return *this;
     }
@@ -69,17 +149,23 @@ public:
         s_ = r.s_;
         r.s_ = s;
     }
-
     void reset() { shared_ptr().swap(*this); }
+    template <typename Y> void reset(Y* p) { shared_ptr(p).swap(*this); }
     template <typename Y, typename D> void reset(Y* p, D d) { shared_ptr(p, d).swap(*this); }
 
     T* get() const { return ptr_; }
     T& operator*() const { return *ptr_; }
     T* operator->() const { return ptr_; }
-    operator unspecified_bool_type() const { return ptr_ != nullptr ? &shared_ptr::ptr_ : nullptr; }
+    long use_count() const { return s_ ? s_->use_count() : 0; }
+    operator int bool_type::*() const { return ptr_ ? &bool_type::dummy_ : nullptr; }
 
 private:
+    template <typename Y> friend class shared_ptr;
     template <typename Y> friend class weak_ptr;
+
+    shared_ptr(T* p, detail::shared_ptr_deleter_common* s) : ptr_(p), s_(s) { s_->retain(); }
+    template <typename Y, typename U> void enable_from_this(const enable_shared_from_this<Y>* pBase, U* p);
+    void enable_from_this(...) {}
 
     T* ptr_;
     detail::shared_ptr_deleter_common* s_;
@@ -87,27 +173,102 @@ private:
 
 template <typename T> class weak_ptr {
 public:
-    weak_ptr() : ptr_(nullptr), s_(nullptr) {}
+    typedef T element_type;
 
+    weak_ptr() : ptr_(nullptr), s_(nullptr) {}
+    weak_ptr(const weak_ptr& r) : ptr_(r.ptr_), s_(r.s_) {
+        if (s_) {
+            s_->attach_weak();
+        }
+    }
+    template <typename Y> weak_ptr(const shared_ptr<Y>& r) : ptr_(r.ptr_), s_(r.s_) {
+        if (s_) {
+            s_->attach_weak();
+        }
+    }
     ~weak_ptr() {
-        if (s_ != nullptr) {
+        if (s_) {
             s_->release_weak();
         }
     }
 
+    weak_ptr& operator=(const weak_ptr& r) {
+        weak_ptr(r).swap(*this);
+        return *this;
+    }
+    template <typename Y> weak_ptr& operator=(const shared_ptr<Y>& r) {
+        weak_ptr(r).swap(*this);
+        return *this;
+    }
+
+    void swap(weak_ptr& r) {
+        T* p = ptr_;
+        ptr_ = r.ptr_;
+        r.ptr_ = p;
+        detail::shared_ptr_deleter_common* s = s_;
+        s_ = r.s_;
+        r.s_ = s;
+    }
+    void reset() { weak_ptr().swap(*this); }
+
+    long use_count() const { return s_ ? s_->use_count() : 0; }
+    bool expired() const { return !s_ || s_->use_count() == 0; }
+    shared_ptr<T> lock() const {
+        if (expired()) {
+            return shared_ptr<T>();
+        }
+        shared_ptr<T> locked;
+        if (s_->use_count() != 0) {
+            locked.ptr_ = ptr_;
+            locked.s_ = s_;
+            locked.s_->retain();
+        }
+        return locked;
+    }
+
 private:
+    template <typename Y> friend class shared_ptr;
+    template <typename Y> friend class weak_ptr;
+
+    template <typename Y> weak_ptr(Y* p, detail::shared_ptr_deleter_common* s) : ptr_(p), s_(s) { s_->attach_weak(); }
+
     T* ptr_;
     detail::shared_ptr_deleter_common* s_;
 };
 
 template <typename T> class enable_shared_from_this {
+public:
+    shared_ptr<T> shared_from_this() { return shared_ptr<T>(weak_this_); }
+
 protected:
     enable_shared_from_this() {}
+    enable_shared_from_this(const enable_shared_from_this&) {}
+    enable_shared_from_this& operator=(const enable_shared_from_this&) { return *this; }
     ~enable_shared_from_this() {}
 
 private:
+    template <typename Y> friend class shared_ptr;
+
     weak_ptr<T> weak_this_;
 };
+
+template <typename T>
+template <typename Y>
+shared_ptr<T>::shared_ptr(const weak_ptr<Y>& r) : ptr_(nullptr), s_(nullptr) {
+    shared_ptr<T> locked(r.lock());
+    if (locked.use_count() == 0) {
+        throw bad_weak_ptr();
+    }
+    swap(locked);
+}
+
+template <typename T>
+template <typename Y, typename U>
+void shared_ptr<T>::enable_from_this(const enable_shared_from_this<Y>* pBase, U* p) {
+    if (p) {
+        weak_ptr<Y>(p, s_).swap(const_cast<enable_shared_from_this<Y>*>(pBase)->weak_this_);
+    }
+}
 
 }
 }
