@@ -500,7 +500,7 @@ config.libs = [
             Object(Matching, "nw4r/ef/ef_effect.cpp"),
             Object(Matching, "nw4r/ef/ef_effectsystem.cpp"),
             Object(Matching, "nw4r/ef/ef_emitter.cpp"),
-            Object(NonMatching, "nw4r/ef/ef_postfield.cpp"),
+            Object(Matching, "nw4r/ef/ef_postfield.cpp"),
             Object(Matching, "nw4r/ef/ef_particle.cpp"),
             Object(NonMatching, "nw4r/ef/ef_particlemanager.cpp"),
             Object(Matching, "nw4r/ef/ef_resource.cpp"),
