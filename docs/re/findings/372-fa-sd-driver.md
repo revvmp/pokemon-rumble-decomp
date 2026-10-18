@@ -44,7 +44,7 @@ The driver state, `sSdDriver`, is accessed as a volatile object, because the int
 
 Interrupt handlers take a signed event (`cmpwi`). The registration function reads an unsigned event word through its third argument (`cmplwi`). CodeWarrior placed this unit's `.sbss` objects in reverse declaration order.
 
-Status: `RVL_SDK/fa/sd_drv.c` is registered `NonMatching` with the nine #372 functions. objdiff reports 100% for eight of them: both callbacks, `pfd_sddrv_mount`, `pfd_sddrv_format`, `pfd_sddrv_pread`, `pfd_sddrv_pwrite`, `pfd_sddrv_unmount` and `pfd_sddrv_finalize`. `pfd_sddrv_init` is at 95.0%. Two differences remain:
+Status: `RVL_SDK/fa/sd_drv.c` is registered `NonMatching` with the nine #372 functions. objdiff reports 100% for eight of them: both callbacks, `pfd_sddrv_mount`, `pfd_sddrv_format`, `pfd_sddrv_pread`, `pfd_sddrv_pwrite`, `pfd_sddrv_unmount` and `pfd_sddrv_finalize`. `pfd_sddrv_init` is at 95.2%. Two differences remain:
 
 - The target tests `p_disk` against zero with `li r0,0` and `cmplw r3,r0`. The source gives `cmpwi r3,0`. These forms all give `cmpwi`: `p_disk == NULL`, `!p_disk`, `0 == p_disk`, `(u32)` casts, `const` and `volatile` casts, and an inline equality helper.
 - The target keeps the branch for `p_disk != sSdDriver.p_disk` that returns -44 or 0. The source becomes a branchless select. Equality, reversed operands and a `result` variable give the same select.
