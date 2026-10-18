@@ -9,7 +9,7 @@ The complete symbol map and `config/43U/splits.txt` from CC0 Wii IPL, pinned to 
 | Original source suffix | Target text range | Issue contribution | Status |
 | --- | --- | --- | --- |
 | `fa/driver/sd_drv.c` | starts `0x8021FFC0`; last SD function ends `0x80222E84` | 17 functions in #373; first function belongs to external #372 | Preserve #372 ownership and pending PR #931; no shared split/header edits here |
-| `fa/driver/pfd_cmn.c` | `0x80222E90–0x80222FA8` | one function, `pfd_get_media_drv_char` | First-owned #373; external investigation pending |
+| `fa/driver/pfd_cmn.c` | `0x80222E90–0x80222FA8` | one function, `pfd_get_media_drv_char` | First-owned #373; complete ordinary-C external candidate exact; neighboring split correction requested |
 | `fa/driver/msc_drv.c` | `0x80222FB0–0x80222FC4` | two functions, 20 bytes | First-owned #373; split prepared; complete external candidate exact |
 | `fa/msc/puh_msc.c` | `0x80222FD0–0x80223248` | four functions | First-owned #373; complete external object exact; diagnostic command-payload view remains under review |
 | `fa/msc/puh_msc_cmd.c` | `0x80223250–0x8022362C` | one function | First-owned #373; complete external readable switch exact |
@@ -60,3 +60,16 @@ External `373-reference/api-whole-evidence.json` preserves the complete proof. A
 
 - The actual command and block senders both pass a third zero argument to `uhf_ker_send_message`; a related reference declares only two arguments because its retained callee does not use the extra incoming register. Preserve the actual caller contract rather than deleting an unused argument to match the reference declaration.
 - Distinguish original retained objects from alignment: the four-byte heap handle's inferred eight-byte metadata extent includes the next unit's padding. Whole-unit storage and each emitted symbol offset must agree with actual accesses and the following unit boundary.
+
+# F-373-4: Independent common media-driver helper
+
+`pfd_get_media_drv_char` is a separate original `pfd_cmn.c` unit at `0x80222E90–0x80222FA8`, corroborated by the pinned original FA map and source-file spans. Its ordinary C candidate checks the output pointer and capacity, scans all 26 PDM partitions initialized for the input disk, then finds matching partitions in the 26 PF volumes and copies their drive characters until the requested capacity is reached. It includes the actual canonical `pdm.h` and #363's explicitly approved complete volume header checkpoint `dc3bf19e45e37260bef03251219a837f837ee16c`; no private replica of those records is declared.
+
+`373-probe-common-driver.py` compiles the candidate with unchanged Wii/1.0 SDK flags, verifies the original DOL's frozen SHA-256, compares the complete 280-byte text against that DOL, checks the exact function extent and absence of other allocated sections, and independently resolves every global and call target. All checks pass. The actual global bases are `pdm_disk_set = 0x803EAFA8` and `pf_vol_set = 0x803EB970`; the partition-array offset is `0x4E4`, the volume-array offset `0x88`, and the canonical volume stride `0x1FAC`. The native partition initialization call resolves to `pdm_part_is_initialized` at `0x801FDC30`. External `373-reference/common-driver-evidence.json` records the complete proof and consumed canonical-header digest.
+
+All 11 original first-owned #373 functions now have exact external candidates, totaling 2,224 native instruction bytes. The remaining 17 original rows and 9,644 bytes belong to the externally assigned #372 SD unit. No neighboring bodies are taken and no duplicate source credit is claimed. [The existing PR #931 coordination comment](https://github.com/revvmp/pokemon-rumble-decomp/pull/931#issuecomment-6243828295) now includes the concrete common-helper proof and requests ending the SD split at its actual final function end `0x80222E84`, leaving the separately owned helper and intervening alignment for integration. Its source, header and split remain untouched here. Actual split-only baseline, source registration and final complete pipeline gates remain pending.
+
+## Traps
+
+- The helper's inner loop index is eight bits. A wider index changes the compiler's unrolled induction updates and removes one native instruction; the ordinary byte-sized loop reproduces the complete function without flag changes.
+- PowerPC signed low halves matter when resolving address pairs. `lis 0x803F` followed by signed `addi 0xAFA8` resolves to `0x803EAFA8`, not `0x803FAFA8`. Compare resolved addresses with canonical symbol metadata before diagnosing a remaining instruction difference as source scheduling.
