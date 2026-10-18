@@ -2503,3 +2503,4 @@ For `wpse-v1` / `main.dol`, [F-39-2](findings/39-bmodelobj.md#f-39-2-model-setup
 | CNTHandleWithMutex::ScopedLock, `4` bytes | handle reference `0` | High layout/behavior; nested type name is descriptive |
 
 The class virtual order follows canonical IOStream/FileStream. The derived table is `0x803BF2E0`; CodeWarrior RTTI for CntFileStream, FileStream and IOStream occupies `0x804B81D8`–`0x804B81F0`. CntFileStream's independent NW4R RuntimeTypeInfo object is `0x804B9130`, initialized to reference FileStream::typeInfo at `0x804B93C0`. `Init` and private member names are descriptive; class names and canonical inherited method names are original.
+[F-85-1](findings/85-cdlgpiilist-instances.md) identifies two `CDlgPiiList.cpp` instances by their exception-table references and renames them for objdiff: `~shared_ptr<CDlgPiiListImpl>` `0x8008F0F0` and `~shared_ptr<CDlgPiiList>` `0x8008F180` (high confidence).
