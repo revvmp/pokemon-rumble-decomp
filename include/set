@@ -30,7 +30,9 @@ public:
     size_type size() const { return tree_.size(); }
     bool empty() const { return tree_.size() == 0; }
 
-    void insert(const value_type& rValue) { tree_.insert_one(rValue); }
+    pair<iterator, bool> insert(const value_type& rValue) { return tree_.insert(rValue); }
+    iterator find(const value_type& rValue) { return tree_.find(rValue); }
+    void erase(iterator position) { tree_.erase(position); }
 
 private:
     tree_type tree_;

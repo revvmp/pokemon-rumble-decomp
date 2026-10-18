@@ -16,6 +16,7 @@ void* malloc(size_t size) __attribute__((nothrow));
 void free(void* ptr) __attribute__((nothrow));
 div_t div(int numerator, int denominator);
 unsigned long strtoul(const char* str, char** end, int base);
+int atoi(const char* str);
 void abort(void);
 void exit(int status);
 
