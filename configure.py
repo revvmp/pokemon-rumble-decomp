@@ -243,6 +243,7 @@ config.libs = [
             Object(Matching, "game/CStageCamera.cpp"),
             Object(NonMatching, "game/ScriptCamera.cpp"),
             Object(NonMatching, "game/NPpuVM.cpp"),
+            Object(NonMatching, "game/NPpuLibrary.cpp"),
         ],
     ),
     library(
