@@ -32,7 +32,7 @@ An independently written six-function graphics candidate now reproduces a comple
 | `801C82A0` | 20 | Test a ResMdl wrapper for validity |
 | `801C82C0` | 16 | Initialize an empty two-word shared pointer |
 | `801C82D0` | 52 | Swap vector capacity, storage and count |
-| `801C8310` | 276 | Set eight G3dObj options |
+| `801C8310` | 276 | Enable or disable eight ScnObj processing options |
 | `801C8430` | 76 | Query the ScnMdlSimple function-pointer deleter by type |
 | `801C8480` | 20 | Invoke the ScnMdlSimple control block's function-pointer deleter |
 | `801C84A0` | 76 | Query the ScnMdl function-pointer deleter by type |
@@ -124,5 +124,7 @@ The generic typed shared_ptr and ownership guard remain external diagnostics und
 # F-326-3: canonical resource-wrapper consumers
 
 Three ordinary diagnostic consumers of the existing complete NW4R headers reproduce the native ResFile no-argument Bind wrapper at `0x801C7A00` (44 bytes), ResMdl assignment at `0x801C8290` (twelve bytes) and ResMdl validity test at `0x801C82A0` (twenty bytes). All 76 instruction bytes and the Bind call relocation to `0x8024C080` agree exactly. No competing resource class or header is needed. Reproduction files are `C:/MassStorage/GitHub/326-resource-probe.cpp`, `326-compile-resource.py`, `326-audit-resource.py` and `326-resource-native-proof.json`.
+
+The same diagnostic now also reproduces all 276 bytes at `0x801C8310` using the canonical ScnObj interface. Its eight calls to virtual slot `0x20` are SetScnObjOption for the disable-gather, world, material, vertex, view, opaque draw, translucent draw and frame-update options, each supplied the inverse of the requested enabled flag. G3dObj itself has no such virtual member; the earlier generic G3dObj option description was insufficient. The descriptive helper name SetSceneObjectEnabled is not asserted as an original symbol. The four proven consumers total 352 instruction bytes.
 
 The ResMdl constructor at `0x801C79F0` remains separate from this proof. A placement-new fixture adds a null-storage guard and emits sixteen bytes; a one-word class returned by value instead emits a four-byte return. Neither establishes the native eight-byte constructor callback. Source-context emission must be proven with the actual factory, rather than replacing that constructor with a hand-written initializer helper. No source-selected reconstruction credit is claimed for these diagnostics.
