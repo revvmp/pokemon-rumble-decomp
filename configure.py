@@ -470,6 +470,7 @@ config.libs = [
             Object(Matching, "RVL_SDK/fa/pfs_init_prfile2.c"),
             Object(Matching, "RVL_SDK/fa/pf_kernel.c"),
             Object(Matching, "RVL_SDK/fa/nand_drv.c"),
+            Object(NonMatching, "RVL_SDK/fa/sd_drv.c"),
         ],
     ),
     library(
