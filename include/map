@@ -1,0 +1,87 @@
+#ifndef _MAP
+#define _MAP
+
+#include <MSL_CPP/allocator.h>
+#include <MSL_CPP/detail/tree.h>
+#include <utility>
+
+namespace std {
+
+namespace detail {
+
+template <typename T, typename Compare, typename Allocator> class map_tree : private Allocator {
+public:
+    typedef unsigned long size_type;
+
+    struct node : tree_node_base {
+        T value_;
+    };
+
+    map_tree() : size_(0), root_(nullptr), begin_(reinterpret_cast<tree_node_base*>(&root_)) {}
+    ~map_tree() {
+        if (root_ != nullptr) {
+            destroy(static_cast<node*>(root_));
+        }
+    }
+
+    size_type size() const { return size_; }
+
+    void destroy(node* pNode);
+
+private:
+    size_type size_;
+    tree_node_base* root_;
+    Compare comp_;
+    tree_node_base* begin_;
+};
+
+template <typename T, typename Compare, typename Allocator>
+void map_tree<T, Compare, Allocator>::destroy(node* pNode) {
+    if (pNode->left_ != nullptr) {
+        destroy(static_cast<node*>(pNode->left_));
+    }
+    if (pNode->right_ != nullptr) {
+        destroy(static_cast<node*>(pNode->right_));
+    }
+    this->Allocator::destroy(&pNode->value_);
+    ::operator delete(pNode);
+}
+
+}
+
+template <typename Key, typename T, typename Compare = less<Key>, typename Allocator = allocator<pair<const Key, T> > >
+class map {
+public:
+    typedef Key key_type;
+    typedef T mapped_type;
+    typedef pair<const Key, T> value_type;
+    typedef Compare key_compare;
+    typedef Allocator allocator_type;
+
+    class value_compare {
+    public:
+        bool operator()(const value_type& rLeft, const value_type& rRight) const { return comp(rLeft.first, rRight.first); }
+
+    protected:
+        Compare comp;
+    };
+
+private:
+    typedef detail::map_tree<value_type, value_compare, allocator_type> tree_type;
+
+public:
+    typedef typename tree_type::size_type size_type;
+
+    map() {}
+    ~map() {}
+
+    size_type size() const { return tree_.size(); }
+    bool empty() const { return tree_.size() == 0; }
+
+private:
+    tree_type tree_;
+};
+
+}
+
+#endif

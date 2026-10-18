@@ -119,6 +119,17 @@ game/CNoticeDisplay.cpp:
 	.sdata      start:0x804B6CD8 end:0x804B6E80
 	.sdata2     start:0x804B9FB0 end:0x804B9FC0
 
+game/CPpuEngine.cpp:
+	extab       start:0x80026DC4 end:0x80027C60
+	extabindex  start:0x8004B198 end:0x8004B39C
+	.text       start:0x800FE5F0 end:0x801035C8
+	.ctors      start:0x803529DC end:0x803529E0
+	.data       start:0x803A96D8 end:0x803A97D8
+	.bss        start:0x803E6630 end:0x803E6648
+	.sdata      start:0x804B7148 end:0x804B7168
+	.sbss       start:0x804B9048 end:0x804B9068
+	.sdata2     start:0x804BA0D0 end:0x804BA0D8
+
 game/ScriptCamera.cpp:
 	extab       start:0x8002DE28 end:0x8002E278
 	extabindex  start:0x8004D07C end:0x8004D520

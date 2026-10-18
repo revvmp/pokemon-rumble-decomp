@@ -146,7 +146,9 @@ public:
     };
 
     enum State {
+        STATE_NONE = 0,
         STATE_IDLE = 1,
+        STATE_WAIT = 2,
         STATE_READY = 3,
         STATE_END = 4
     };
@@ -158,6 +160,15 @@ public:
 
     int ParseInt(const CValue& rValue) const;
     int ParseWInt(const CValue& rValue) const;
+
+    void SetThis(const CValue& rValue);
+    int Run();
+    void SetID(int id);
+    static void SetNextID(int id);
+
+    CEnvironment* GetEnvironment() const { return mEnv; }
+    State GetState() const { return static_cast<State>(mState); }
+    CValue Pop() { return mStack[--mSP]; }
 
 private:
     static int sNextID;
