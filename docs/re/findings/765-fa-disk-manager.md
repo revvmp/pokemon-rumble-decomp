@@ -1,6 +1,6 @@
 # F-765-1: Complete FA disk-manager candidate
 
-Target: `wpse-v1`, frozen `orig/wpse-v1/main.dol`. Issue #765 owns `pdm_open_partition` and `pdm_close_partition`, 104 native code bytes. Both end the same `pdm_dskmng.c` unit whose first three functions belong to #351. Shared-unit authorization is pending; no split, source, header, object registration or symbol entry has been changed.
+Target: `wpse-v1`, frozen `orig/wpse-v1/main.dol`. The initial scratch candidate below is historical. The first-function owner accepted the complete unit in PR #970; [F-765-2](765-complete-inventory.md) independently accepts both original #765 functions / 104 instruction bytes, the complete five-function source-selected unit and exact BSS extent. Shared-unit authorization, source selection and full frozen-DOL acceptance are resolved.
 
 | Function | Address | Native size | Issue |
 | --- | --- | --- | --- |
