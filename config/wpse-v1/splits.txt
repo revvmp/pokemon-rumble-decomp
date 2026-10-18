@@ -2926,6 +2926,11 @@ MSL_C/buffer_io.c:
 MSL_C/direct_io.c:
 	.text       start:0x80344BAC end:0x80344EB4
 
+MSL_C/wstrtold.c:
+	.text       start:0x80347904 end:0x80348C64
+	.rodata     start:0x803989A0 end:0x803989B0
+	.sdata2     start:0x804BB6B8 end:0x804BB6D8
+
 MSL_C/wcstoul.c:
 	.text       start:0x80348C64 end:0x8034916C
 

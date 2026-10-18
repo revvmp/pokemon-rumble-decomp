@@ -57,7 +57,9 @@ The wrapper names from issue 540 were off by one. The wrappers at `0x8034D530`, 
 
 The game has no `acos`. The math kernels are linked in alphabetical file order (`asin`, `atan2`, `exp`, `fmod`, `log`, `log10`, `pow`), and the wrappers follow the same order. This issue renames the three symbol pairs, renames `w_acos.c`, `w_asin.c` and `w_atan2.c` to `w_asin.c`, `w_atan2.c` and `w_exp.c`, and removes the `acos` and `__ieee754_acos` declarations. The wrapper bytes are unchanged.
 
-## Remaining
+## Remaining at the initial submission
+
+Resolved by [F-539-3](539-wide-parser.md). The earlier guessed wrapper name and nearby data attribution below are historical hypotheses; the accepted source retains the canonical `wcstof` interface and leaves shared locale/infinity data outside its unit.
 
 `0x80347904`-`0x80348C64` contains two functions: the wide floating-point parser at `0x80347904` (`0x12A8`; it calls `nan` and reads `__float_huge`) and a `0xB8` wrapper at `0x80348BAC`. By MSL naming these would be `__wcstold` and `wcstod`. Neither reference has a wide version. Petari's narrow `__strtold` is `0x12F8`, but the target's narrow parser at `0x80345FD4` is `0x1324`, so even the narrow reference differs from this MSL revision. The unit's data are `.rodata` `0x803989A0` (`0x10`), `.data` `0x803E6078` (`0x38`), `.sdata` `0x804B8FB8` and `.sdata2` `0x804BB6B8`-`0x804BB6D8`. The parser has to be reconstructed from the target before this unit can be split.
 
