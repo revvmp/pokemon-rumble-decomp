@@ -134,6 +134,8 @@ public:
     void EnableCalc(bool enable);
     void RequestPause();
     void RequestResume();
+    void RemoveObject(std::tr1::shared_ptr<BWorldObj> obj);
+    void RemoveAllEffects(bool retire);
     CShadowCamera* GetShadowCamera();
 
 private:
