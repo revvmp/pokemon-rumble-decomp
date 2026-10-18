@@ -2740,3 +2740,7 @@ For `wpse-v1` / `main.dol`, [F-92-2](findings/92-cdlgpiiselector-construction.md
 ## Game CMultiRanking split (#158)
 
 [F-158-2](findings/158-cmultiranking-split.md#f-158-2-class-shape-and-the-helper-at-0x800cd730) names `GetNodePosition(shared_ptr<BModelObj>, const char*)` `0x800CD730` (`GetNodePosition__FQ33std3tr122shared_ptr<9BModelObj>PCc`; name descriptive, low; behaviour high). `CMultiRanking` (RTTI `0x804B6CA0`, original) derives from `IMultiRanking` (RTTI `0x804B6CA8`, original) and `IGameMap`; it is 0x144 bytes, its vtable is `0x803A563C` and its deleter vtable `0x803A55B8`. The shared pointer array at 0x40 holds four `BModelObj` (high); the other member types are not yet recorded.
+
+## Game CMultiRanking layout (#159)
+
+[F-159-3](findings/159-cmultiranking-layout.md#f-159-3-members-virtual-slots-and-emission-order) records the 0x144-byte `CMultiRanking` layout: `shared_ptr` members `BWorld` 0x10, `BWorldCamera` 0x18, `CUIManager` 0x20, `BUILayout` 0x28 and 0x30, `IPauseMenu` 0x38, arrays of four `BModelObj` 0x40, `CPii` 0x60, `BUILayout` 0x80 and `CUIPlayerID` 0xA0 (high, from deleter vtables and constructors), `nw4r::snd::SoundHandle` 0x134 (high) and the active flag 0x141 (medium). Class names are original RTTI spellings; member names are not recovered. Slot overrides: 0 `0x800CF650`, `Calc` `0x800CF1D0`, `CalcMtx` `0x800CF070`, `CalcView` `0x800CF000`, `Draw` `0x800CEFA0`, `IGameMap` slots 5 `0x800CEB20`, 6 `0x800CF410`, 7 `0x800CF420` and 20 `0x800CF400`; all keep their address labels.
