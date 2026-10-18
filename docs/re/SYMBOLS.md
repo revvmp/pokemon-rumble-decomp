@@ -2844,3 +2844,20 @@ The existing `crossCheck` mangling is retained. Native arguments after the two m
 ## Issue #768: complete post-field particle step
 
 The descriptive CalcPostFieldParticle ABI from #769 now has a complete exact source-linked definition at 80230DA0/2208 bytes. The existing transform type is36 bytes (scale/rotation/translation vectors), PostFieldInfo remains72 bytes, and all14 post-field functions/13880 C++ instruction bytes and56 constant bytes are accepted as one unit; see [F-768-1](findings/768-postfield-particle.md). Particle tickDC,calcRemainE2,momentumC4,collision status9D,velocityA0 andpositionAC accesses all resolve through canonical members. This acceptance covers the nine #377 and four #767 routines once, while #377 animation remains unaccepted.
+## Game CMsgRes and message text (#346)
+
+[F-346-2](findings/346-cmsgres.md#f-346-2-cmsgres) and [F-346-3](findings/346-cmsgres.md#f-346-3-message) name, in `.text`: `CMsgRes::CMsgRes(void*, bool)` `0x801EE470`, `~CMsgRes()` `0x801EE4F0`, `ConvertEscape()` `0x801EE530`, `ConvertEscapeW()` `0x801EE760`, `Setup()` `0x801EE9A0`, `GetGroupID() const` `0x801EEA80`, `GetMessage(int) const` `0x801EEAA0`, `MakeCollationKeys` `0x801EEAC0`, `CompareCollationKeys` `0x801EEE90`, `CompareCollation` `0x801EF360`, `SetTextLocale` `0x801EF470`, `ConvertCase` `0x801EF480`, `towupper` `0x801EF670` and `toupper` `0x801EF680` (original: MSL code calls them by these names), `InitMsgResList` `0x801EF6F0`, `SetMsgRes` `0x801EF970`, `GetMessageText` `0x801EFA20`, `SetDateMessageIDs` `0x801EFAD0`, `SetTimeMessageIDs` `0x801F0530`, the `vector<shared_ptr<CMsgRes>>` deleter, `shared_ptr` and `move_ptr` instances `0x801F0DE0`–`0x801F1150` and `__sinit_\Message_cpp` `0x801F1190` (compiler names, high). Data: the deleter vtable `0x803C3BAC` and RTTI `0x804B8748`, `default_delete` RTTI `0x804B8750`; outside the units `__vt__Q23std12length_error` `0x80399778`, its destructor `0x8005A830`, `__vt__Q23std11logic_error` `0x803997B0` and the `shared_ptr_deleter<char, default_delete<char[]>>` vtable `0x803998B4` (high). `CMsgRes` is an RTTI name; other function, member and file names are descriptive (medium).
+
+| Class | Offset | Member | Type | Evidence |
+| --- | --- | --- | --- | --- |
+| `CMsgRes` | `0x0` | `mpHeader` | `FileHeader*` | `Setup`, encoding byte at 0x10 |
+| `CMsgRes` | `0x4` | `mpInfo` | `InfoBlock*` | `INF1`; `GetGroupID`, `GetMessage` |
+| `CMsgRes` | `0x8` | `mpResource` | `void*` | Constructor argument |
+| `CMsgRes` | `0xC` | `mpData` | `DataBlock*` | `DAT1`; escape conversion, `GetMessage` |
+| `CMsgRes` | `0x10` | `mpString` | `BlockHeader*` | `STR1` |
+| `CollationKey` | bits 31–29 | `mCategory` | `u32 : 3` | 1 symbol, 2 private use, 3 digit, 4 kana, 5 letter |
+| `CollationKey` | bits 28–21 | `mPrimary` | `u32 : 8` | Level 1 |
+| `CollationKey` | bits 20–13 | `mSecondary` | `u32 : 8` | Level 1 |
+| `CollationKey` | bits 12–9 | `mAccent` | `u32 : 4` | Level 2 |
+| `CollationKey` | bits 8–5 | `mCase` | `u32 : 4` | Level 3; 8 for the prolonged sound mark |
+| `CollationKey` | bits 4–2 | `mWidth` | `u32 : 3` | Level 4 |
