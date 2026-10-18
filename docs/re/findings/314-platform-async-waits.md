@@ -1,6 +1,6 @@
 # F-314-1: Platform timing and asynchronous file waits
 
-Issue #314 has 25 surveyed entries and 4,528 instruction bytes between `0x801AFC80` and `0x801B0EE8`. The unchanged isolated baseline configures, completes plain Ninja, and passes the frozen executable verifier. The fourteen timing/NAND entries below are now source-selected and accepted; the eleven PrFILE2 entries remain unfinished, so this does not complete the issue.
+Issue #314 has 25 surveyed entries and 4,528 instruction bytes between `0x801AFC80` and `0x801B0EE8`. The unchanged isolated baseline configures, completes plain Ninja, and passes the frozen executable verifier. All 25 entries are now reconstructed and source-selected in three complete units. F-314-3 records the initial fourteen-function acceptance; F-314-5 records the complete issue inventory and real final source link.
 
 ## Native boundaries and dependencies
 
@@ -89,6 +89,26 @@ After #910 and #920 merged, the source branch was restacked onto canonical main 
 Before restacking, an independent immutable snapshot preserved the exact tracked checkpoint, all 526 compiled source objects from the accepted fourteen-function `986c3977f37e174bef7362c918c67a207946a073` output, its ELF/DOL, and the separate individual FA evidence. These are distinct evidence stages: the newer checkpoint still registers FA as NonMatching and has not completed its source-selected full-artifact gate.
 
 The actual tracked FA source was recompiled using only canonical main declarations after restacking. `314-compile-fa-source.py` and `314-audit-fa.py 314-reference/fa-actual-source.o` both exit zero: all eleven functions / 2,308 bytes, 115 text targets, ten exception records / 880 exception-and-index bytes, and forty exception targets remain exact. No configure, Ninja or whole-artifact verifier was run for this integration checkpoint; the mandatory fresh metadata/source-selection gate remains pending.
+
+## F-314-5: Complete original inventory and source selection
+
+The staged pipeline on main `82571e1dcdb33589073ef500ecf425835813239a` completes the original #314 inventory. Split-only commit `447757eb480542fa70510c82b314c56d8ae97533` has no FA source registration. Fresh default configure and plain Ninja (`-j16`, 560 targets) exit zero, followed by the explicit frozen verifier. An independent control captures all 553 actual compiled source objects and both artifact hashes at that stage.
+
+The actual FA object is then registered NonMatching at `979a3f2a`. Configure, plain Ninja and frozen verification exit zero. The real Ninja-produced object independently reproduces eleven functions / 2,308 bytes, 115 actual code targets, all ten exception records and indices / 880 bytes, and forty exception targets. The complete report shows all 25 functions and all nine allocated sections of the three owned units at 100 percent.
+
+Matching source selection at `0f6b21f08eb80dc1dda7d49c89720d762c739633` also completes configure, plain Ninja and explicit frozen verification with exit zero. The linker selects each of the three real compiled source objects exactly once and selects none of their original fallback objects. Every original issue entry is checked against the actual GitHub inventory: all 25 native addresses and sizes, all 4,528 linked instruction bytes, and all 1,692 exception/index bytes match the original executable. The complete independent relocation inventory contains 218 code sites and 78 exception/index sites. All 553 previous whole source objects remain SHA-256 identical; only `game/FaAsync.o` is added, bringing the compiled source inventory to 554. The rebuilt DOL remains identical to the split-stage DOL and the frozen manifest.
+
+| Acceptance command | Exit | Evidence |
+| --- | --- | --- |
+| `python configure.py` then `.venv/Scripts/ninja -j16` at each stage | 0 | Actual split-only, NonMatching and Matching pipeline |
+| `python tools/verify/verify.py verify --manifest config/targets/wpse-v1.json --reference-dir orig/wpse-v1 --build-dir build/wpse-v1` after each successful Ninja | 0 | Frozen executable identity |
+| `python C:/MassStorage/GitHub/314-audit-fa.py build/wpse-v1/src/game/FaAsync.o` | 0 | Actual FA object instructions, targets and exception records |
+| `python C:/MassStorage/GitHub/314-audit-report.py matching` | 0 | 25 functions and nine allocated sections at 100 percent |
+| `python C:/MassStorage/GitHub/314-audit-linked.py` | 0 | Source-only linker inputs, 25 native addresses and all owned linked bytes |
+| `python C:/MassStorage/GitHub/314-audit-original-inventory.py` | 0 | Every original issue row, exact size and native bytes |
+| `python C:/MassStorage/GitHub/314-final-stage-control.py check` | 0 | All 553 previous whole objects unchanged and exact DOL |
+
+All original #314 functions are covered, with no neighboring source contribution or duplicate byte credit. The activity and fiber implementations and FA SDK producers remain with their respective owners. Newer skill guidance is adopted for the final integration loop: retain build outputs, remove only the old DOL before Ninja, then require successful Ninja and exact frozen verification after each rebase. The earlier fresh staged evidence remains valid and preserved.
 
 ## Traps
 
