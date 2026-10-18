@@ -142,3 +142,14 @@ An independently authored aggregate-options convenience diagnostic reproduces al
 The external helper at `0x800C5C10` is not optional-value access. Its six native instructions load both referenced words, compare them with signed cmpw and return the address of the larger word. The factory passes the address of its signed count at offset twelve and the address of integer one at `0x804B8308`, then loads the returned word for ScnMdl construction. Its behavior is the signed reference-returning maximum supplied by the existing canonical std::max interface. This is a distinct interface from the by-value game math helpers in F-735; the game compiler finding must not be generalized to every maximum operation.
 
 The isolated word at `0x804B8308` is therefore the lower bound one for that signed count. Its role no longer requires an invented optional wrapper. Native helper inspection is retained in `326-max-reference-native.json`; no outside helper split, size, type or reconstruction credit is changed.
+
+
+# F-326-5: file-loading consumer ABI limits
+
+The model factory saves its incoming r6 at `0x801C7604`, forwards that word as loader r6 at `0x801C7660`, places the selected filename in r4, supplies zero in r5 and calls `0x80066930` at `0x801C7670`. The return destination in r3 is an eight-byte shared-pointer temporary. The original type and meaning of the last parameter remain unresolved; it is not sufficient to declare an allocator or heap type from register forwarding alone. The #328 owner's separate consumer supplies `0x4000` in r5, whereas this factory supplies zero, so that other call's constant must not be attributed to this call.
+
+Independent inspection of the three actual callees confirms the consumer's checks. The shared-pointer predicate at `0x801288D0` tests its first word for nonzero. The pointee predicate at `0x801288F0` requires byte offset `0x28` to be zero and the pointer at `0x1C` to be nonnull. The data getter at `0x80072800` returns that same `0x1C` pointer. The actual instructions and cross-references are retained in `C:/MassStorage/GitHub/326-file-consumer-native.json`, from the outside IDA database copy. These observations agree with #328's archive-font consumer but do not establish a complete CFileData class. No partial canonical file-data class or guessed loader signature is introduced.
+
+## Traps
+
+- A callee's constants are caller-specific. Recheck the actual argument preparation rather than transferring a nearby consumer's fixed flags or allocation parameters. Native offsets and predicates can corroborate an incomplete interface without proving the rest of its class layout.
