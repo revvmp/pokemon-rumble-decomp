@@ -463,6 +463,12 @@ RVL_SDK/fa/pf_entry_iterator.c:
 	.text       start:0x802076D0 end:0x802095D4
 	.sdata      start:0x804B8878 end:0x804B8890
 
+RVL_SDK/fa/pf_fat32.c:
+	.text       start:0x8020D420 end:0x8020D920 align:16
+
+RVL_SDK/fa/pf_fatfs.c:
+	.text       start:0x8020D920 end:0x8020D924 align:16
+
 RVL_SDK/fa/pf_file.c:
 	.text       start:0x8020D930 end:0x80211FE0 align:16
 
