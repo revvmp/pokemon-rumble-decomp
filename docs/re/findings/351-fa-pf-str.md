@@ -11,16 +11,16 @@ How FA's `PFSTR_StrNCmp` differs from VF:
 
 `PFSTR_ToUpperNStr` writes the terminator twice at the same address in the wide branch, once inside the branch and once after it, with no increment in between.
 
-The rest of #351, `0x801FBBE0`–`0x801FC5A4`, is not reconstructed. It begins FA's driver layer, the counterpart of VF `pf_driver.c`, in a different order:
+[F-351-3](351-driver-reconstruction.md) now reconstructs and accepts the rest of #351, `0x801FBBE0` to `0x801FC5A4`. The original investigation below identified FA's driver layer, the counterpart of VF `pf_driver.c`, in a different order:
 
 1. Two volume-label copies at volume offset `0x1648`.
 2. A label writer that reads and rewrites the root directory entry.
-3. Two loops over the 13-entry volume table, at stride `0x3F58`, that set flag bits at offset `0x1F8C`.
+3. Two loops over 26 volume records of stride `0x1FAC`, with two records per unrolled `0x3F58` iteration, that set flag bits at offset `0x1F8C` (corrected by F-351-3).
 4. Five flag accessors.
 5. Init, finalize, mount, unmount, format, `lread` and `lwrite` wrappers. Each maps PDM error 21 to `0x1000` and records the driver error at volume set offset `0x44` and volume offset `0x1F84`.
-6. Three tail-call wrappers into the PDM layer.
+6. Three disk-manager wrappers into the PDM layer.
 
-Reconstructing this layer requires a verified FA `PF_VOLUME` layout of about `0x3F58` bytes and names for the PDM callees in #352 and later blocks. The VF layout does not carry over: the code-set table already sits at a different offset, and the volume stride differs. The unit boundary between the label routines and the driver routines is also unestablished.
+The initial layout and unit-boundary blockers are resolved by the later primary FA map, independent stride evidence, complete canonical volume/PDM headers and actual split/source-linked acceptance in [F-351-3](351-driver-reconstruction.md). The old `0x3F58` record-size hypothesis was the unrolled two-record step. No original hash, compiler flag or shared volume layout is changed by this reconstruction.
 
 ## Traps
 

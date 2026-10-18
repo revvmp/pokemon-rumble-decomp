@@ -342,6 +342,8 @@ config.libs = [
             Object(Matching, "RVL_SDK/fa/pf_code.c"),
             Object(Matching, "RVL_SDK/fa/pf_service.c"),
             Object(Matching, "RVL_SDK/fa/pf_str.c"),
+            Object(Matching, "RVL_SDK/fa/pf_driver.c"),
+            Object(Matching, "RVL_SDK/fa/pdm_dskmng.c"),
             Object(Matching, "RVL_SDK/fa/pdm_bpb.c"),
             Object(Matching, "RVL_SDK/fa/pdm_disk.c"),
             Object(NonMatching, "RVL_SDK/fa/pdm_mbr.c"),
