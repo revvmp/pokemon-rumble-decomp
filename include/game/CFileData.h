@@ -10,6 +10,7 @@ public:
     bool IsValid() const { return !mFailed && mData != nullptr; }
     u32 GetSize() const { return mSize; }
     void* GetData() const { return mData; }
+    bool IsLoaded() const { return !mFailed && mData != nullptr; }
 
 private:
     u32 mFlags;
@@ -23,5 +24,6 @@ private:
 };
 
 std::tr1::shared_ptr<CFileData> LoadFile(const char* pPath, u32 flags, bool background);
+std::tr1::shared_ptr<CFileData> LoadResourceFile(const char* pPath, u32 flags, bool background);
 
 #endif

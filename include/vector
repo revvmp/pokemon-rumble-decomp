@@ -10,7 +10,7 @@
 
 namespace std {
 
-inline void __throw_vector_length_error() {
+static inline void __throw_vector_length_error() {
     throw length_error("vector length error");
 }
 
@@ -42,6 +42,12 @@ public:
         memcpy(data_ + size_, pFirst, n * sizeof(T));
         memset(pFirst, 0, n * sizeof(T));
         size_ += n;
+    }
+    void construct_at_end(const T* pFirst, const T* pLast, Metrowerks::int2type<false>) {
+        for (T* p = data_ + size_; pFirst != pLast; ++pFirst, ++p) {
+            capacity_.second().construct(p, *pFirst);
+            ++size_;
+        }
     }
 
     T* data_;
@@ -127,6 +133,15 @@ public:
             construct_at_end(n, pod_type());
         }
     }
+    __vec_constructor(const __vec_constructor& x) : base() {
+        const T* first = x.data_;
+        const T* last = x.data_ + x.size_;
+        size_type n = last - first;
+        if (n != 0) {
+            allocate(n, pod_type());
+            base::construct_at_end(first, last, pod_type());
+        }
+    }
 
     size_type max_size() const { return size_type(-1) / sizeof(T); }
 
@@ -181,9 +196,8 @@ protected:
         }
     }
 
-    size_type grow_by(size_type n) {
+    size_type recommend(size_type n) {
         size_type capacity = this->capacity_.first();
-        n = this->size_ + n - capacity;
         if (n > max_size() - capacity) {
             __throw_vector_length_error();
         }
@@ -197,7 +211,11 @@ protected:
         }
         return result;
     }
-    size_type grow_by(size_type n, pod_type) { return grow_by(n); }
+    size_type grow_by(size_type n) { return recommend(this->size_ + n - this->capacity_.first()); }
+    bool grow_by(size_type n, pod_type) {
+        recommend(n);
+        return false;
+    }
 
     void append_realloc(size_type n) {
         __vec_split_buffer<T, Allocator> buffer(this->capacity_.second());
@@ -215,13 +233,11 @@ protected:
 
     void append(size_type n, pod_type) {
         size_type capacity = this->capacity_.first();
-        if (n > capacity || this->size_ > capacity - n) {
-            grow_by(n, pod_type());
-        } else {
+        if ((n <= capacity && this->size_ <= capacity - n) || grow_by(this->size_ + n - capacity, pod_type())) {
             construct_at_end(n, pod_type());
-            return;
+        } else {
+            append_realloc(n);
         }
-        append_realloc(n);
     }
 
     void swap(__vec_deleter<T, Allocator&>& r, pod_type) {
@@ -269,6 +285,7 @@ public:
 
     vector() {}
     explicit vector(size_type n) : base(n) {}
+    vector(const vector& x) : base(x) {}
     ~vector() {}
 
     void resize(size_type n) {

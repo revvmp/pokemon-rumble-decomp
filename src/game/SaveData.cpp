@@ -334,3 +334,118 @@ bool Save(int mode) {
     WriteBanner(BANNER_MODE_COMMIT_ONLY);
     return true;
 }
+
+enum LoadResult {
+    LOAD_RESULT_OK,
+    LOAD_RESULT_NO_FILE = 0x65,
+    LOAD_RESULT_EMPTY,
+    LOAD_RESULT_CORRUPT,
+    LOAD_RESULT_TOO_SMALL,
+    LOAD_RESULT_VERSION
+};
+
+static const int SLOT_COUNT = 3;
+
+template <typename T> const u8* DeserializeStruct(T& rStruct, u32 size, const u8* pData);
+
+template <typename T> const u8* DeserializeVector(std::vector<T>& rVector, const u8* pData) {
+    u16 count = reinterpret_cast<const u16*>(pData)[1];
+    u16 size = reinterpret_cast<const u16*>(pData)[0];
+    pData += 4;
+
+    rVector.resize(count);
+    for (typename std::vector<T>::iterator it = rVector.begin(); it != rVector.end(); ++it) {
+        pData = DeserializeStruct(*it, size, pData);
+    }
+    return pData;
+}
+
+template <typename T> const u8* DeserializeStruct(T& rStruct, u32 size, const u8* pData) {
+    if (size < T::GetDataSize()) {
+        rStruct.ClearData();
+    }
+    memcpy(&rStruct.mData, pData, size);
+    pData += size;
+
+    for (;;) {
+        switch (*pData++) {
+        case VECTOR_STRUCT_BATTLE_ROYAL_DATA:
+            pData = DeserializeVector(*rStruct.GetBattleRoyalData(), pData);
+            break;
+        case VECTOR_STRUCT_PII_PERSONAL_DATA:
+            pData = DeserializeVector(*rStruct.GetPiiPersonalData(), pData);
+            break;
+        case VECTOR_STRUCT_PII_COLLECTION_DATA:
+            pData = DeserializeVector(*rStruct.GetPiiCollectionData(), pData);
+            break;
+        case VECTOR_STRUCT_SLOT_DATA:
+            pData = DeserializeVector(*rStruct.GetSlotData(), pData);
+            break;
+        case VECTOR_STRUCT_STATISTIC_VALUE_1:
+            pData = DeserializeVector(*rStruct.GetStatisticValue1(), pData);
+            break;
+        case VECTOR_STRUCT_STATISTIC_VALUE_2:
+            pData = DeserializeVector(*rStruct.GetStatisticValue2(), pData);
+            break;
+        case VECTOR_STRUCT_STATISTIC_VALUE_3:
+            pData = DeserializeVector(*rStruct.GetStatisticValue3(), pData);
+            break;
+        case VECTOR_STRUCT_USED_PASSWORD:
+            pData = DeserializeVector(*rStruct.GetUsedPassword(), pData);
+            break;
+        case VECTOR_STRUCT_NONE:
+            return pData;
+        }
+    }
+}
+
+static inline void Unscramble(u8* pData, int size) {
+    int blockOffset = (size - 1) / 0x10 * 0x10;
+    int shift = blockOffset / 0x10;
+    for (; blockOffset > 0; shift--, blockOffset -= 0x10) {
+        u8* pBlock = pData + blockOffset;
+        u8* pDst = pBlock;
+        for (int i = 0; i < 0x10 && blockOffset + i < size; i++) {
+            *pDst++ -= pBlock[(shift + i) % 0x10 - 0x10];
+        }
+    }
+}
+
+int Load(bool backup) {
+    sSaveData.reset(new SaveData);
+    sSaveData->mSlotData.resize(SLOT_COUNT);
+
+    std::string path = std::string("nand:") + (backup ? "backup/savedata.bin" : "savedata.bin");
+    std::tr1::shared_ptr<CFileData> file = LoadResourceFile(path.c_str(), 0x10000, true);
+    if (!file || !file->IsLoaded()) {
+        return LOAD_RESULT_NO_FILE;
+    }
+
+    int size = file->GetSize();
+    if (size == 0) {
+        return LOAD_RESULT_EMPTY;
+    }
+    if (static_cast<u32>(size) < sizeof(SaveFileHeader)) {
+        return LOAD_RESULT_TOO_SMALL;
+    }
+
+    u8* pData = static_cast<u8*>(file->GetData());
+    Unscramble(pData, size);
+
+    SaveFileHeader* pHeader = reinterpret_cast<SaveFileHeader*>(pData);
+    NETSHA1Context context;
+    u8 digest[NET_SHA1_DIGEST_SIZE];
+    NETSHA1Init(&context);
+    NETSHA1Update(&context, &pHeader->mVersion, size - NET_SHA1_DIGEST_SIZE);
+    NETSHA1GetDigest(&context, digest);
+    if (memcmp(digest, pHeader->mDigest, NET_SHA1_DIGEST_SIZE) != 0) {
+        return LOAD_RESULT_CORRUPT;
+    }
+
+    if (pHeader->mVersion != SAVE_FILE_VERSION) {
+        return LOAD_RESULT_VERSION;
+    }
+
+    DeserializeStruct(*sSaveData, pHeader->mDataSize, reinterpret_cast<u8*>(pHeader + 1));
+    return LOAD_RESULT_OK;
+}
