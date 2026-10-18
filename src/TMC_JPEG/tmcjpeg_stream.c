@@ -2,6 +2,11 @@
 
 static const u8 sBitMask[9] = {0x00, 0x01, 0x03, 0x07, 0x0F, 0x1F, 0x3F, 0x7F, 0xFF};
 
+static inline u32 MaskBits(u32 bits, s32 count)
+{
+    return bits & sBitMask[count];
+}
+
 static void PutBitsFast(TMCJPEGStream* stream, u32 bits, s32 count);
 
 static inline void CheckOverflow(TMCJPEGStream* stream)
@@ -101,7 +106,7 @@ static void PutBitsFast(TMCJPEGStream* stream, u32 bits, s32 count)
     s32 free = stream->bitsFree;
 
     while (count > free) {
-        byte |= sBitMask[free] & ((s32)bits >> (count - free));
+        byte |= MaskBits((s32)bits >> (count - free), free);
         *stream->current++ = byte;
         if (byte == 0xFF) {
             *stream->current++ = 0;
@@ -112,7 +117,7 @@ static void PutBitsFast(TMCJPEGStream* stream, u32 bits, s32 count)
     }
 
     if (count == free) {
-        byte |= bits & sBitMask[count];
+        byte |= MaskBits(bits, count);
         stream->bitsFree = 8;
         *stream->current++ = byte;
         if (byte == 0xFF) {
@@ -121,7 +126,7 @@ static void PutBitsFast(TMCJPEGStream* stream, u32 bits, s32 count)
         *stream->current = 0;
     } else {
         free -= count;
-        byte |= (bits & sBitMask[count]) << free;
+        byte |= MaskBits(bits, count) << free;
         *stream->current = byte;
         stream->bitsFree = free;
     }
@@ -133,7 +138,7 @@ void TMCJPEGStreamPutBits(TMCJPEGStream* stream, u32 bits, s32 count)
     s32 free = stream->bitsFree;
 
     while (count > free) {
-        byte |= sBitMask[free] & ((s32)bits >> (count - free));
+        byte |= MaskBits((s32)bits >> (count - free), free);
         WriteByte(stream, byte);
         if (byte == 0xFF) {
             WriteByte(stream, 0);
@@ -144,7 +149,7 @@ void TMCJPEGStreamPutBits(TMCJPEGStream* stream, u32 bits, s32 count)
     }
 
     if (count == free) {
-        byte |= bits & sBitMask[count];
+        byte |= MaskBits(bits, count);
         stream->bitsFree = 8;
         WriteByte(stream, byte);
         if (byte == 0xFF) {
@@ -153,7 +158,7 @@ void TMCJPEGStreamPutBits(TMCJPEGStream* stream, u32 bits, s32 count)
         *stream->current = 0;
     } else {
         free -= count;
-        byte |= (bits & sBitMask[count]) << free;
+        byte |= MaskBits(bits, count) << free;
         *stream->current = byte;
         stream->bitsFree = free;
     }
