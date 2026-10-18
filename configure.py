@@ -237,6 +237,7 @@ config.libs = [
             Object(Matching, "game/Graphics.cpp"),
             Object(NonMatching, "game/CDlgPiiSelector.cpp"),
             Object(NonMatching, "game/CGameEnding.cpp"),
+            Object(NonMatching, "game/CMultiRanking.cpp"),
             Object(NonMatching, "game/CPpuEngine.cpp"),
             Object(NonMatching, "game/CNoticeDisplay.cpp"),
             Object(NonMatching, "game/ScriptCamera.cpp"),

@@ -111,6 +111,14 @@ game/CGameEnding.cpp:
 	.sbss       start:0x804B8FF8 end:0x804B9000
 	.sdata2     start:0x804B9E68 end:0x804B9E70
 
+game/CMultiRanking.cpp:
+	extab       start:0x8001E964 end:0x8001F948
+	extabindex  start:0x80049728 end:0x800497E8
+	.text       start:0x800CD730 end:0x800CF8A0
+	.data       start:0x803A5550 end:0x803A5840
+	.sdata      start:0x804B6C70 end:0x804B6CD8
+	.sdata2     start:0x804B9F98 end:0x804B9FB0
+
 game/CNoticeDisplay.cpp:
 	extab       start:0x8001F948 end:0x80020CC0
 	extabindex  start:0x800497E8 end:0x80049B60
