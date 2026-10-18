@@ -61,6 +61,19 @@ This converter was independently authored from native executable instructions, p
 
 The archive-font consumer independently corroborates only limited CFileData facts: the loader at `0x80066930` returns an eight-byte shared value through `r3`; its archive-font caller supplies filename in `r4`, `0x4000` in `r5` and its remaining incoming argument in `r6`. The pointee's buffer pointer is at `0x1C` and invalid-status byte at `0x28`. The #326 owner independently corroborated those accesses, but has a caller supplying zero in `r5`; the final parameter type and remaining class fields are unresolved. No partial CFileData class is introduced.
 
+## F-328-2: bounded archive-font destructor proof
+
+The original RTTI class `CArchiveFontWithBuf` derives from the canonical `nw4r::ut::ArchiveFont`, whose native size is `0x20`. Its buffer member begins at `0x20` and contains an object pointer followed by a shared control pointer. The destructor at `0x801CA180`, size `0xB8`, is reproduced by the ordinary body `if (mBuffer.get()) Destroy();`, followed by normal member and base destruction. The diagnostic reuses the #327 owner's approved two-field shared-pointer storage, getter and nonthrowing destructor behavior with the canonical `shared_ptr_deleter_common::release` declaration. It introduces no canonical generic header.
+
+The compiler also emits the ordinary `shared_ptr<void>` destructor, size `0x84`, which independently matches the existing native instance at `0x800657E0`. Strict comparison proves all ten actual code relocation targets across these two bodies, both exception records and indices, all 156 exception/index bytes, and seven exception relocation targets. The owned #328 contribution is only the 184-byte archive-font destructor; the 132-byte shared-pointer helper belongs to an earlier issue and receives no duplicate credit.
+
+| External diagnostic command | Exit | Result |
+| --- | --- | --- |
+| `python C:/MassStorage/GitHub/328-compile-archive-font.py` | 0 | Compiles the bounded derived-class/shared-buffer diagnostic |
+| `python C:/MassStorage/GitHub/328-audit-archive-font.py` | 0 | Both native bodies, ten targets and 156 exception/index bytes exact |
+
+This does not establish a complete generic shared-pointer implementation, the full archive-font construction method, a complete CFileData class, the archive-font unit's initialized data or source-selected acceptance. The seven-function converter remains the independent complete unit prepared for the next tooling stage.
+
 ## Traps
 
 - For this narrow Shift-JIS character parameter, `0x8100 <= value` and `0xE000 <= value` retain the native direct comparisons. Reversing the lower comparisons to `value >= ...` enables range fusion and changes seven instruction words. Controlled signed/unsigned literal probes showed that literal signedness was not the cause. Preserve ordinary relational operand spelling before considering type or compiler changes.
