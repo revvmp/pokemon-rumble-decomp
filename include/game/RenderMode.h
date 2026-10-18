@@ -4,5 +4,6 @@
 #include <revolution/gx/GXStruct.h>
 
 GXRenderModeObj ChooseDefaultRenderMode();
+f32 GetDisplayAspectRatio();
 
 #endif

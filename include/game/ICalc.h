@@ -5,7 +5,7 @@ class ICalc {
 public:
     virtual ~ICalc() {}
     virtual void Calc() = 0;
-    virtual void CalcMtx() = 0;
+    virtual void CalcMtx() {}
 };
 
 #endif
