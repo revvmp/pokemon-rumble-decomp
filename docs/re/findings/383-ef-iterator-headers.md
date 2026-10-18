@@ -83,3 +83,5 @@ After this prerequisite merges, coordinated PR #908 can register and verify the 
 An older diagnostic header included a direct particle-count access to correct an earlier canonical accessor. PR #917 has since corrected that accessor itself. Reapplying the historical hunk would unnecessarily change canonical source structure. Start from current main and retain only the two iterator-body changes.
 
 Individual native comparison can expose the exact intended NonMatching improvement without proving global header safety. Preserve the current all-source inventory and compare every existing source object; do not infer complete baseline coverage from an object-directory scan or claim all NonMatching objects unchanged.
+
+The initial clean 551-object gate preceded workflow update `ccfd461c`. That historical build is not advice to discard outputs on later rebases. The current procedure preserves verified outputs and incrementally regenerates metadata; remove only the old `main.dol` before Ninja, then check its exit and explicit frozen verification. The original immutable control and complete gate evidence remain preserved independently.
