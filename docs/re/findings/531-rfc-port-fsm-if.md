@@ -87,7 +87,7 @@ Before separating these diagnostics, two identical `addi` instructions received 
 
 ### Validation status
 
-`python configure.py --no-progress`, `.venv/Scripts/ninja all_source`, and `.venv/Scripts/ninja` exit 0. Initial source-linked `main.dol` matches the project's SHA-1 link check. The audit checks all 25 issue address/size pairs against compiled source objects and records full-unit objdiff results. Final frozen-manifest verification and rebased acceptance follow before merging. Scope is the main game executable only, excluding boot content 6, data contents, and WAD packaging.
+`python configure.py --no-progress`, `.venv/Scripts/ninja all_source`, and `.venv/Scripts/ninja` exit 0. Initial source-linked `main.dol` matches the project's SHA-1 link check. The audit checks all 25 issue address/size pairs against compiled source objects and records full-unit objdiff results. After rebasing onto current `main`, a clean `python configure.py`, `.venv/Scripts/ninja`, and frozen-manifest `tools/verify/verify.py verify` all exit 0, and the report scores `rfc_mx_fsm`, `rfc_port_fsm`, and `rfc_port_if` at 100% in every section. Every #531 function is accepted. Scope is the main game executable only, excluding boot content 6, data contents, and WAD packaging.
 
 ### Traps from the combined audit
 
