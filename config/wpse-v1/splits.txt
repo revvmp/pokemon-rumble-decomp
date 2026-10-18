@@ -998,6 +998,11 @@ nw4r/snd/snd_SoundArchive.cpp:
 nw4r/snd/snd_SoundArchiveFile.cpp:
 	.text       start:0x80284200 end:0x80285400
 
+nw4r/snd/snd_SoundArchivePlayer.cpp:
+	.text       start:0x80285400 end:0x80287C68
+	.data       start:0x803C6738 end:0x803C6788
+	.sdata2     start:0x804BAFD8 end:0x804BAFE8
+
 nw4r/snd/snd_SoundHandle.cpp:
 	.text       start:0x80287C70 end:0x80287D60
 

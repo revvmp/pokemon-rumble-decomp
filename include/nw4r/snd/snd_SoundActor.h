@@ -44,7 +44,7 @@ public:
     }
 
     detail::ExternalSoundPlayer* detail_GetActorPlayer(int actorPlayerId) {
-        if (actorPlayerId < 0 || actorPlayerId >= ACTOR_PLAYER_COUNT) {
+        if (actorPlayerId < 0 || ACTOR_PLAYER_COUNT <= actorPlayerId) {
             return nullptr;
         }
 
