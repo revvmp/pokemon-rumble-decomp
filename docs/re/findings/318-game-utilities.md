@@ -112,6 +112,8 @@ The original inventory is accounted for as follows. Only the first two entries a
 
 The signed-angle routine at `0x801B7280` now has the correct 136-byte extent but retains four arithmetic/register words. Its positive-angle sibling is exact, including the original ordering of floating comparisons and boolean materialization. Neither NaN behavior nor comparison operand order may be changed merely to obtain a score.
 
+Repeating the same ordinary candidate with Wii/1.3 and the unchanged captured flags leaves exactly the same four signed-angle words different; the positive-angle sibling remains exact. The version comparison is retained in `318-angle-native-proof-1.3.json`. No game compiler or optimization flag is changed. An alternative common-result form reduces the signed routine to 128 bytes and is rejected; it is retained outside as `318-angle-common-result-probe.cpp` to avoid repeating that attempt.
+
 The later list, callback and CModel animation helpers require complete evidenced class interfaces and unit-boundary work. They are not counted by the table above. The utility unit's complete initialized data, retained support selection, original source boundary and full linked artifact remain unaccepted.
 
 ## Traps
