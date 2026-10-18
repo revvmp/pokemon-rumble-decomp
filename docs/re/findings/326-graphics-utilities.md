@@ -201,3 +201,15 @@ The proposed declaration belongs to PR951, owned by #318. Reproduction uses `318
 ## Traps
 
 - Matching a producer as both a value return and a hidden-result out parameter does not resolve its public C++ return type. Pair the actual caller and exception records. Here a supported temporary-address extension reproduces the native caller while ordinary const-reference alternatives do not; preserve the compiler warning and full-expression lifetime instead of introducing an invented helper.
+
+# F-326-10: bounded graphics translation-unit acceptance
+
+Merged PR951 supplies the exact value-return render interface and merged PR909 supplies the exact nonthrowing allocation interface. The first six owned functions form the independent graphics unit at `0x801C6DB0`–`0x801C7538`, before the separate scene destruction helper at `0x801C7540`. The descriptive source and namespace names are `game/Graphics.cpp` and `Graphics`; no original filename is recovered. Its six functions total 1,904 native code bytes, with a natural 1,928-byte text section including alignment.
+
+The original-only split preserves the complete 48-byte extab at `0x8003BC40`, 72-byte index at `0x80051168`, twelve initialized small-data bytes at `0x804B82F8`, twenty zero-initialized bytes at `0x804B9160`, and sixteen constant bytes at `0x804BA480`. Two owned automatic extents previously absorbed following padding: the depth-format enum at `0x804B8300` is four bytes, and the current-framebuffer pointer at `0x804B9170` is four bytes. Their respective following four-byte gaps remain outside the unit. Neither following symbol changes.
+
+Before any source registration, configure, the real default Ninja build and the explicit actual-directory frozen verifier all exit zero with this split. The DOL SHA-256 remains `ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da`. This split-only stage earns no source credit; the following NonMatching and source-selected gates are recorded separately.
+
+## Traps
+
+- End a static object's extent at its actual enum or pointer word rather than absorbing the following alignment gap. Both graphics small-data and zero-initialized automatic clusters contained such gaps; the complete compiled object independently proves the smaller storage extents.
