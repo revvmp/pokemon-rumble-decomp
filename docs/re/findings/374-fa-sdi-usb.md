@@ -107,3 +107,15 @@ An additional external control, `374-probe-canonical-sdi.py`, repeats the same c
 
 - The inferred existing `__sdHeapId` symbol extent of eight bytes includes four trailing alignment bytes. The actual source object is a four-byte signed heap identifier with eight-byte section alignment. Preserve the following object's alignment rather than adding storage to the variable.
 - The final SDI function ends at `0x8022541C`; the next memory function starts at `0x80225420`. Those four external alignment bytes do not belong to the SDI text split.
+- The partial reference has an unused `int dummy` in the two recognized IOS error cases of its open helper. Removing the switch or leaving empty breaks changes the retained mount routine. Ordinary explicit returns for those recognized errors reproduce the native comparisons and remove the dummy entirely. `374-clean-canonical-sdi.py` also replaces provisional parameter/geometry names with descriptive names, then repeats every whole-object payload/target check successfully. The readable candidate is `374-sdi-canonical-readable.c`; no unused dummy remains.
+
+# F-374-4: USB block command transport
+
+The native `_uhf_msc_blk_send_message` at `0x80223D00`, size 356 bytes, now reproduces all instruction bytes and independently resolved targets in an external ordinary C candidate. `374-probe-usb-block-send.py` exits 0 and records the complete comparison, including a mismatch list that is empty for the accepted candidate. Source remains outside the checkout and is not linked.
+
+The transport allocates exactly 60 bytes at four-byte alignment. Its consumed prefix is a command word at zero, semaphore identifier at four, result pointer at eight, and a copied forty-byte command-parameter record at twelve. The parameter record is a transport payload of ten words; no unproven meaning is assigned to those words. Only the consumed 52-byte prefix is typed. The remaining eight allocated bytes are left untouched and receive no invented members or padding declaration. The caller waits on the created semaphore, deletes it, and returns the independently written result; native failure paths release the same resources as the source candidate.
+
+## Traps
+
+- Both native MSC senders explicitly load a third zero argument before calling `uhf_ker_send_message`, while the pinned partial reference declares only two parameters. The retained callee ignores the incoming third register and independently sets the OS nonblocking flag. Preserve a three-argument caller contract with an unused options parameter rather than dropping an observed argument based on a nearby revision's header. No canonical kernel header has been published by this checkpoint.
+- An allocation extent does not establish semantic fields throughout that extent. The sender proves a consumed prefix and a fixed transport allocation; it does not justify inventing two additional words at the tail of the message record.
