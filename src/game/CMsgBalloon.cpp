@@ -15,7 +15,7 @@ CMapRecord* GetMapRecord(MapIndex index) {
     int area = index.mArea;
     int stage = index.mStage;
     int map = index.mMap;
-    return &GetSaveData(-1)->mMapRecords[mode][area][stage][map];
+    return &GetSaveData(-1)->mData.mMapRecords[mode][area][stage][map];
 }
 
 bool IsStageCleared(MapIndex index) {
@@ -25,7 +25,7 @@ bool IsStageCleared(MapIndex index) {
 
 int GetStageClearCount(MapIndex index) {
     int lastMap = IGameSession::GetInstance()->GetStageDesc(index)->mMapDescs.size() - 1;
-    return Clamp(GetSaveData(-1)->mMapRecords[index.mMode][index.mArea][index.mStage][lastMap].GetClearCount(), 0, 999);
+    return Clamp(GetSaveData(-1)->mData.mMapRecords[index.mMode][index.mArea][index.mStage][lastMap].GetClearCount(), 0, 999);
 }
 
 std::tr1::shared_ptr<IMsgBalloon> IMsgBalloon::Create(bool flag) {

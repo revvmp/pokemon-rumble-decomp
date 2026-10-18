@@ -27,7 +27,7 @@ protected:
     typedef unsigned long size_type;
     typedef typename Allocator::template rebind<node>::other node_allocator;
 
-    __list_deleter() : size_(0, node_allocator()) { end_node()->init(); }
+    __list_deleter() : size_(0) { end_node()->init(); }
     ~__list_deleter() { clear(); }
 
     void clear() {
@@ -94,6 +94,8 @@ public:
 
     private:
         node_base* node_;
+
+        friend class list;
     };
 
     list() {}
@@ -103,7 +105,21 @@ public:
     iterator end() { return iterator(this->end_node()); }
     size_type size() const { return this->size_.first(); }
     bool empty() const { return this->size_.first() == 0; }
+    T& front() { return *begin(); }
+    void push_back(const T& x) { insert(end(), x); }
     void clear() { base::clear(); }
+
+    iterator insert(iterator position, const T& x) {
+        node* pNode = this->size_.second().allocate(1);
+        Allocator().construct(pNode->value(), x);
+        node_base* pNext = position.node_;
+        pNext->prev_->next_ = pNode;
+        pNode->prev_ = pNext->prev_;
+        pNext->prev_ = pNode;
+        pNode->next_ = pNext;
+        ++this->size_.first();
+        return iterator(pNode);
+    }
 };
 
 }
