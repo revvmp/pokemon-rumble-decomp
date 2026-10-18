@@ -38,8 +38,8 @@ The native selection order is preserved exactly: use Identity when both selected
 | `extab` | `0x8003C80C`–`0x8003C83C` | Six exact eight-byte records |
 | `extabindex` | `0x800513CC`–`0x80051414` | Six exact native indices |
 | `.data` | `0x803C0480`–`0x803C0530` | Two member-pointer arrays, Identity/bridge pointer constants, three strings and four name pointers |
-| `.sdata` | `0x804B8340`–`0x804B8346` | Native `UTF-8` string including terminator |
-| `.sbss` | `0x804B9178`–`0x804B917A` | Two independently accessed one-byte local-static guards |
+| `.sdata` | `0x804B8340`–`0x804B8348` | Six-byte native `UTF-8` string including terminator, followed by two alignment bytes |
+| `.sbss` | `0x804B9178`–`0x804B9180` | Two independently accessed one-byte guards, followed by six alignment bytes |
 
 The independent Wii/1.1 candidate uses the established game flags without overrides and includes the existing `revolution/enc.h`. All seven instruction streams and sizes match. Strict proof independently resolves all 38 code relocation sites, preserves the other instruction bits, and checks their actual native targets. All 182 initialized bytes and ten data relocation sites match. The six exception records and indices match all 120 bytes and twelve relocation targets. The two guard accesses identify separate byte objects at `0x804B9178` and `0x804B9179`, using the actual native ELF `_SDA_BASE_` of `0x804BDA20`. The second previous automatic symbol included six following padding bytes; the real guard has size one. OSFont's correctly named four-byte ParseString object at `0x804B94B8` remains unchanged. The split-stage correction below supersedes the earlier erroneous guard addresses.
 
@@ -122,6 +122,8 @@ A stronger third variant also removes every outside shared_ptr, weak_ptr, enable
 The first real seeded split-stage Ninja exited 1: the proposed guards at `0x804B94B8` overlapped the canonical OSFont split. The outside strict audit had used an incorrect hardcoded r13 base, `0x804BDD60`. The native ELF actually declares `_SDA_BASE_ = 0x804BDA20`; displacements `-0x48A8` and `-0x48A7` therefore resolve to `0x804B9178` and `0x804B9179`. The old address/OSFont-misattribution claim was wrong. No source object had been registered or accepted, and no full-artifact success was claimed.
 
 The corrected audit derives both small-data bases directly from the native ELF symbols and again passes all seven instruction streams, all 38 actual code targets, all initialized data and exception records. The converter split now owns only the two actual guard bytes through `0x804B917A`. Canonical OSFont metadata and its ParseString name are restored exactly to main. The native one-byte guard at `0x804B9179` is distinguished from its six subsequent alignment bytes. The repeat split/source pipeline remains required; successful outside comparison still does not establish source selection.
+
+The corrected split then exposed dtk's aligned automatic-gap requirement: ending the six-byte string at `0x804B8346` creates an automatic small-data object at an invalid two-byte-aligned start. The linked extent therefore ends at the next actual eight-byte-aligned object, `0x804B8348`; the two-byte guard payload similarly has linked extent through `0x804B9180`. The pinned dtk 1.8.4 implementation uses default alignment eight for both small-data sections. The compiled source payloads remain six and two bytes, each with section alignment eight. The extra two and six bytes are native inter-object alignment, not source storage, foreign payload or additional data credit. No padding field or invented source byte is added. Full split and source-selected verification must confirm those physical boundaries.
 
 ## Traps
 

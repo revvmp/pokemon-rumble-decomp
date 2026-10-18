@@ -376,8 +376,8 @@ game/EncodingConverter.cpp:
 	extabindex  start:0x800513CC end:0x80051414
 	.text       start:0x801CA450 end:0x801CA87C
 	.data       start:0x803C0480 end:0x803C0530
-	.sdata      start:0x804B8340 end:0x804B8346
-	.sbss       start:0x804B9178 end:0x804B917A
+	.sdata      start:0x804B8340 end:0x804B8348
+	.sbss       start:0x804B9178 end:0x804B9180
 
 MSL_C/printf.c:
 	extab       start:0x80043418 end:0x80043478
