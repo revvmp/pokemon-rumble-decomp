@@ -363,7 +363,7 @@ s32 PFVOL_p_getvol(PF_VOLUME* p_vol, PF_VOL_INF* p_info) {
             p_info->modify_date = 0;
             p_info->modify_time = 0;
             p_info->attr = PF_ATTR_VOLUME;
-            PFDRV_LoadVolumeLabelFromBuf((u8*)p_info->label, p_vol);
+            PFDRV_StoreVolumeLabelToBuf((u8*)p_info->label, p_vol);
         }
         return 0;
     }

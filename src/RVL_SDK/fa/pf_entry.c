@@ -637,7 +637,7 @@ s32 PFENT_MakeRootDir(PF_VOLUME* p_vol)
         return 7;
     }
 
-    PFVOL_LoadVolumeLabelFromBuf(p_vol, (const u8*)"NO NAME    ");
+    PFDRV_LoadVolumeLabelFromBuf(p_vol, (const u8*)"NO NAME    ");
     return 0;
 }
 

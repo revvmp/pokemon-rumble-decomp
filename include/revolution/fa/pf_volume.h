@@ -264,7 +264,7 @@ s32 PFVOL_SetCurrentDir(PF_VOLUME* p_vol, PF_DIR_ENT* p_ent);
 s32 PFVOL_GetCurrentDir(PF_VOLUME* p_vol, PF_DIR_ENT* p_current_dir);
 void PFVOL_SetCurrentVolume(PF_VOLUME* p_vol);
 PF_VOLUME* PFVOL_GetVolumeFromDrvChar(s8 drv_char);
-void PFVOL_LoadVolumeLabelFromBuf(PF_VOLUME* p_vol, const u8* buf);
+void PFDRV_LoadVolumeLabelFromBuf(PF_VOLUME* p_vol, const u8* buf);
 
 s32 PFDRV_init(PF_VOLUME* p_vol);
 s32 PFDRV_finalize(PF_VOLUME* p_vol);
@@ -276,7 +276,7 @@ void PFDRV_ClearMountRequested(PF_VOLUME* p_vol);
 u32 PFDRV_IsUnmountRequested(PF_VOLUME* p_vol);
 void PFDRV_ClearUnmountRequested(PF_VOLUME* p_vol);
 s32 PFDRV_StoreVolumeLabelToBPB(PF_VOLUME* p_vol, const s8* label);
-void PFDRV_LoadVolumeLabelFromBuf(u8* p_buf, PF_VOLUME* p_vol);
+void PFDRV_StoreVolumeLabelToBuf(u8* p_buf, PF_VOLUME* p_vol);
 u32 PFDRV_IsInserted(PF_VOLUME* p_vol);
 s32 PFDRV_lread(PF_VOLUME* p_vol, u8* buf, u32 sector, u32 num_sector, u32* p_num_success);
 s32 PFDRV_lwrite(PF_VOLUME* p_vol, const u8* buf, u32 sector, u32 num_sector, u32* p_num_success);
