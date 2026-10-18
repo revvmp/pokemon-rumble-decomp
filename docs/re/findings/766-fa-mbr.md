@@ -12,7 +12,25 @@ Negative probes include 480 same-order expression/cast/parenthesization candidat
 
 Pinned public VF implementations in [Petari](https://github.com/SMGCommunity/Petari/blob/e0ab141914921726a595573dc48d3f13d0922efe/src/RVL_SDK/vf/pdm_mbr.c), [wii-ipl](https://github.com/koopthekoopa/wii-ipl/blob/f4c09f4001c5a0b9af734ad1e3f80a54c5e5723c/libs/RevoEX/src/vf/dskmng/pdm_mbr.c), [TFP2](https://github.com/koopthekoopa/TFP2/blob/b62dfe78759133a85bf5ce451bcf496b87439b0c/src/vf/dskmng/pdm_mbr.c), [pbr-decomp](https://github.com/pbr-ret/pbr-decomp/blob/2f00145d6b48689c2d182c409828b13cdf1e55f8/libs/RVL_SDK/src/vf/pdm_mbr.c) and [mscharged-decomp](https://github.com/yannicksuter/mscharged-decomp/blob/734c3f65dcb5b59f01fda2cf4aaab8249c2da13f/src/RVL_SDK/vf/pdm_mbr.c) were inspected. Their validator has a different disk/MBR-table interface and extra operations; they do not supply this FA body. The older wii-ipl right-nested unsigned byte-read macro emits 308 bytes when used as written, compared with the native 336. Its all-add counterpart stays 336 bytes with twenty differing words. These are reference leads, not proof of target source.
 
+# F-766-2: second investigation of the boot-record validator
+
+A second session reran the validator against the unchanged baseline with `tools/re/unitdiff.py`. The baseline still has 21 differing rows (89.23%), in the first loop between offsets 0x4C and 0x9C. Every candidate was compiled through the generated Ninja command for the existing split. No candidate matched, none was applied to tracked source, and no source credit is claimed.
+
+The target loads the start bytes in the order 0x1C9, 0x1C8, 0x1C6, 0x1C7, and the count bytes in the matching order. That is the textual order of the public `PDM_U32_FROM_BUF` macro, `(b3 << 24) | ((b2 << 16) | (b0 | (b1 << 8)))`. Written with additions, that nesting compiles exactly like the current left-to-right sum, because the compiler reassociates it. With any `|` operator it emits `rlwimi` or `or` and changes the function size (308 to 348 bytes). Casting the operands to `u32` or `u16` changed nothing.
+
+Negative probes, all at the native 336 bytes unless noted:
+
+- Four local declaration orders crossed with three second-loop comparison forms: 21 to 39 rows. Swapping the array declarations swaps their stack slots and breaks the second loop.
+- Moving the zero store, and staging both fields through scalar locals in seven statement orders: unchanged at 21 rows, or 348 bytes. The intermediate representation is canonical across those orders.
+- Indexing by `i * 0x10`, `i << 4` or `0x10 * i`, and a separate partition pointer, either incremented or indexed: 34 to 60 rows.
+- Accumulating the start field (`start_sector[i] = 0; start_sector[i] += ...`) explains the zero store, but it keeps the intermediate stores and emits 352 bytes.
+- Writing the byte weights as multiplications (`* 0x100`, `* 256`, with or without `UL`) changes the schedule, unlike a reordered shift sum. All 576 start-by-count term orders with multiplication reach no better than 20 rows. Mixing shift and multiplication per term, with or without `<< 0` on the low byte, over all 24 shared term orders (384 candidates) reaches 19 rows, with orders `(b1, b0, b2, b3)` and `(b1, b0, b3, b2)` all shifts. That is still above the 18-word bound of F-766-1.
+
+The remaining difference is the scheduler's choice between independent byte loads, not instruction selection. Changing the expression text alone does not reach it. A future attempt should vary context outside the loop body, such as the parameter order or the second loop and return structure, or should test whether the source unit was built with other flags. Any flag change needs separate evidence.
+
 ## Traps
+
+- Score probes by the candidate's own instruction count, not the reported target size. `unitdiff.py` prints the target function size, so a candidate that adds stores can look like a 336-byte comparison unless the inserted rows are counted.
 
 - Comparing only changed-byte counts can hide invalid source transformations. An output helper used for both fields introduced an extra count-array zero store; a return helper removed the native start-array zero store. Require the exact native function extent and preserve both stores before interpreting a probe's difference count.
 - A library-relative name does not prove an identical API revision. The public VF validator has a disk parameter and an MBR structure, while the FA target accepts a total-sector count directly. Inspect native accesses and callers before adapting that reference.
