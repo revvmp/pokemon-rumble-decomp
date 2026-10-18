@@ -1171,6 +1171,12 @@ nw4r/ut/ut_PairFont.cpp:
 	.text       start:0x80297710 end:0x802983C4
 	.data       start:0x803C6CB0 end:0x803C6D20
 
+nw4r/ut/ut_CharWriter.cpp:
+	.text       start:0x802983D0 end:0x8029A78C
+	.bss        start:0x804524C8 end:0x804524D8
+	.sbss       start:0x804B93D8 end:0x804B93E0
+	.sdata2     start:0x804BB0C8 end:0x804BB0D8
+
 nw4r/db/db_DbgPrintBase.cpp:
 	.text       start:0x802A1950 end:0x802A346C
 	.sbss       start:0x804B93F8 end:0x804B9408
@@ -1224,12 +1230,42 @@ nw4r/lyt/lyt_picture.cpp:
 	.sbss       start:0x804B9418 end:0x804B941C
 	.sdata2     start:0x804BB188 end:0x804BB18C
 
+nw4r/lyt/lyt_textBox.cpp:
+	.text       start:0x802A7690 end:0x802A96DC
+	.ctors      start:0x80352A8C end:0x80352A90
+	.rodata     start:0x80371608 end:0x8037162C
+	.data       start:0x803C6FB8 end:0x803C7060
+	.sdata      start:0x804B8A18 end:0x804B8A1C
+	.sbss       start:0x804B9420 end:0x804B9424
+	.sdata2     start:0x804BB190 end:0x804BB1A8
+
 nw4r/lyt/lyt_window.cpp:
 	.text       start:0x802A96E0 end:0x802ABC7C
 	.ctors      start:0x80352A90 end:0x80352A94
 	.data       start:0x803C7060 end:0x803C7130
 	.sbss       start:0x804B9428 end:0x804B942C
 	.sdata2     start:0x804BB1A8 end:0x804BB1C0
+
+nw4r/lyt/lyt_bounding.cpp:
+	.text       start:0x802ABC80 end:0x802ABD4C
+	.ctors      start:0x80352A94 end:0x80352A98
+	.data       start:0x803C7130 end:0x803C71A8
+	.sbss       start:0x804B9430 end:0x804B9434
+
+nw4r/lyt/lyt_material.cpp:
+	.text       start:0x802ABD50 end:0x802AEB30
+	.data       start:0x803C71A8 end:0x803C7218
+	.sdata2     start:0x804BB1C0 end:0x804BB1E0
+	.sbss2      start:0x804BBC10 end:0x804BBC18
+
+nw4r/lyt/lyt_texMap.cpp:
+	.text       start:0x802AEB30 end:0x802AF000
+	.sdata2     start:0x804BB1E0 end:0x804BB1F4
+
+nw4r/lyt/lyt_drawInfo.cpp:
+	.text       start:0x802AF000 end:0x802AF0C0
+	.data       start:0x803C7218 end:0x803C7224
+	.sdata2     start:0x804BB1F8 end:0x804BB200
 
 nw4r/lyt/lyt_animation.cpp:
 	.text       start:0x802AF0C0 end:0x802B0674
