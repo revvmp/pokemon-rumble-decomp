@@ -87,3 +87,61 @@ Three ordinary helper-structure controls also retain the same 2,132-byte mismatc
 - **The activity counter and list length are different fields.** A matching old helper name can still select the wrong count. Preserve `GetNumActive` semantics for its existing callers and use the target-proven separate activity counter for stripe drawing.
 - **Equivalent const getters can expose a different inline call structure.** The duplicated link macro and forwarding versions of the existing const getters preserve the same types and behavior, but differ in this origin callback's loop optimization. The forwarding form also preserves the measured existing consumers. Retain full consumer proof rather than generalizing this observation into a compiler-wide rule.
 - **A missing repeated helper can change unrelated outlining.** Direct vertex writes made the stripe dispatcher inline four tiny callees and become 24 bytes shorter. Restoring the evidenced vertex-pair helper gives the exact original emission without a pragma. Diagnose the complete original helper structure before retaining an instruction-control workaround.
+
+# F-383-4: source-selected stripe and coordinated smooth-stripe acceptance
+
+The #383 first-function owner supplies the complete Stripe unit and its fourteen neighboring #384 functions. The claimed #384 owner explicitly authorizes accepting canonical Smooth source and the exact bounded empty-constructor placement correction below. Original #385 remains externally assigned and receives no closure here; none of its existing function bodies changes. The shared Base prerequisite is now canonical through PR #945; its earlier header proof carries no duplicate source-byte credit.
+
+## Split and native source gates
+
+The split-only gate at `cd92339781a95611f30d82af43d2ba49f9011c35` runs actual configure, `all_source`, default Ninja and frozen verification, all exit 0. Only owned boundaries and symbols change. The owned vtable is 28 bytes, not its older 32-byte placeholder; the last float is four bytes, leaving the following unit's alignment outside the split. The following Smooth data and constant sections already have the required eight-byte alignment.
+
+Actual unitdiff then reports all 21 Stripe functions / 13,908 bytes and all three sections 100%; canonical Smooth reports all 28 / 20,196 and all five sections 100%. The first source-selected link correctly fails the frozen CHECK despite those scores. It emits Stripe's local SDK `GXEnd` before `DrawParticle`, and Smooth's weak `Vertex` constructor before `DrawSectionEnd_BSpline`, shifting some native addresses. Verification is not run after that failed Ninja result. Raw instruction identity alone was therefore insufficient.
+
+The measured ordinary-source repair changes only helper declaration/definition placement. Stripe's existing `DrawParticle` is declared inline and defined before `DrawStripe`; Forecast's equivalent older `DispVertex` helper is also inline. The same function body remains intact. Smooth's existing empty `Vertex` constructor is declared in its class and defined inline after the first `ConnectNone` function. The #384 owner reviewed and approved that exact one-line declaration and two-line definition diff, conditional on complete native and actual-link proof. It changes no signature, member, layout, vtable, or #385 function body. These placements are native-emission evidence, not uniquely recovered original source positions.
+
+Both candidates retain every native instruction stream and independently paired target: Stripe 21 / 13,908 / 369 text sites, five vtable sites and 80 initialized bytes; Smooth 28 / 20,196 / 513 text sites, 28-byte vtable, 52 constants, BSS48 and SBSS4. An outside layout gate verifies complete retained order and alignment-aware offsets before another full link. Stripe's seven and Smooth's thirteen extra weak definitions are unretained and receive no credit. Raw object offsets include those discarded copies, so the retained projection and actual linked positions are checked separately. The SDK header, compiler options, function alignment and function instructions are unchanged. A reference-backed `dont_inline` diagnostic did not fix the order and is rejected.
+
+The subsequent actual source-selected gate at `81744e707a101a87c362f0f91e3881e4f38fae76`, on main `11c269cc`, passes configure, complete 601-target `all_source`, default Ninja and explicit frozen verification, all exit 0. Strict audits verify every final native function address and size, every owning map contribution, actual source link inputs with fallbacks excluded, both complete initialized payloads, and full DOL identity. This is the first source-selected acceptance checkpoint; later main rebases still require their own current-baseline and exact-head gates.
+
+Evidence: `383-reference/source-split-20261017-183105` for split-only validation; `source-split-20261017-183254` for the rejected first source link; `source-split-20261017-183828` for the passing actual source gate; `retained-layout-probes` for bounded source/header diffs, full native/data comparisons and projected layouts; `stripe-actual-acceptance` for actual Stripe paired/native/map/input proof; and `384-reference/smooth-actual-paired-native.json` plus `384-complete-original-inventory.json` for Smooth and original issue acceptance. Reproducers are `383-audit-stripe-actual.py`, `384-audit-smooth-actual.py` and `384-audit-original-inventory.py`, each taking the actual build directory. They do not modify source or expected hashes.
+
+## Complete original #384 inventory
+
+Every original row is joined by its actual native address, size, compiled source symbol and owning map object. The 25 functions / 18,856 bytes comprise fourteen Stripe functions / 11,884 bytes and eleven Smooth functions / 6,972 bytes. Their containing files are both selected from source and the frozen DOL is exact. This supports completing #384 only after the final merged gate, without duplicate credit for any inherited Smooth body or neighboring #385 work.
+
+| Native address | Bytes | Complete source unit | Function |
+| --- | --- | --- | --- |
+| `0x80243040` | 1112 | Stripe | `CalcVertexTube` |
+| `0x802434a0` | 988 | Stripe | `DrawTubeSegment` |
+| `0x80243880` | 696 | Stripe | `DrawStripeTube_ConnectNone` |
+| `0x80243b40` | 828 | Stripe | `DrawStripeTube_ConnectRing` |
+| `0x80243e80` | 956 | Stripe | `DrawStripeTube_ConnectEmitter` |
+| `0x80244240` | 1964 | Stripe | `DrawStripeTube` |
+| `0x802449f0` | 2208 | Stripe | `Draw` |
+| `0x80245290` | 684 | Stripe | `GetInitialPrevAxis` |
+| `0x80245540` | 204 | Stripe | `GetCalcAheadFunc` |
+| `0x80245610` | 284 | Stripe | `CalcAhead_Particle_Stripe` |
+| `0x80245730` | 632 | Stripe | `CalcAhead_ParticleBoth_Stripe` |
+| `0x802459b0` | 712 | Stripe | `CalcAhead_ParticleBoth_Ring` |
+| `0x80245c80` | 552 | Stripe | `CalcAhead_ParticleBoth_Origin` |
+| `0x80245eb0` | 64 | Stripe | `constructor` |
+| `0x80245ef0` | 60 | Smooth stripe | `constructor` |
+| `0x80245f30` | 928 | Smooth stripe | `CalcVertex` |
+| `0x802462d0` | 1112 | Smooth stripe | `CalcVertexTube` |
+| `0x80246730` | 716 | Smooth stripe | `DrawSection_BSpline` |
+| `0x80246a00` | 540 | Smooth stripe | `DrawSectionEnd_BSpline` |
+| `0x80246c20` | 2748 | Smooth stripe | `DrawSectionTube_BSpline` |
+| `0x802476e0` | 4 | Smooth stripe | `GXEnd` |
+| `0x802476f0` | 836 | Smooth stripe | `DrawSmoothStripe_BSpline_ConnectNone` |
+| `0x80247a40` | 12 | Smooth stripe | `GetDrawOrder` |
+| `0x80247a50` | 12 | Smooth stripe | `GetStripeTexmapType` |
+| `0x80247a60` | 4 | Smooth stripe | `constructor` |
+
+Original #383 remains incomplete: its containing Directional and Free units still have unresolved large draws. Earlier accepted Line/Point code is inherited, not new work. Stripe contributes 13,908 reconstructed code bytes; Smooth's pre-existing 20,196 source bytes become accepted rather than newly rewritten. Neither discarded weak copies nor PR #945's header correction is counted again.
+
+## Traps
+
+- A 100% unit score can conceal an early helper and wrong linked addresses. Check complete retained layout before linking and every final ELF/map address afterward; keep the failed CHECK as evidence rather than trusting a previous DOL.
+- Two local functions can share `GXEnd`. Use name, native address, size and owning map object for Stripe; a global name-to-one-address dictionary can select Smooth's later copy.
+- Moving an ordinary inline definition can restore native weak emission without changing function instructions. Prove every retained body, target and final allocation; do not infer a universally correct source position or add a compiler-control workaround.

@@ -94,3 +94,13 @@ unit; its source and interface changes stay with that owner.
 - A const-forward implementation and a newly added nonconst overload are
   different changes. The former preserves the existing overload set;
   the latter can silently change every caller's selected implementation.
+
+# F-384-4: coordinated source-selected acceptance and native helper order
+
+The complete source-selected proof is recorded in [F-383-4](383-ef-stripe-native.md#f-383-4-source-selected-stripe-and-coordinated-smooth-stripe-acceptance). The #384 first-function owner approved the exact `Vertex()` declaration with its unchanged empty inline definition after the first `ConnectNone` body. This preserves every #385 body and all existing source provenance. It is inferred from native weak emission, not claimed as uniquely recovered original source placement.
+
+The actual complete link verifies all 28 retained Smooth functions / 20,196 bytes / 513 text relocations, initialized vtable28 and constants52, BSS48/SBSS4, exact final ELF/map positions and source-only inputs. Together with the #383-owned complete Stripe unit, the strict original #384 audit covers all25 rows /18,856 bytes. The 13 discarded weak copies have no credit; source #385 is already canonical and receives no duplicate reconstruction claim or automatic closure.
+
+## Traps
+
+- Earlier per-function and paired-target proofs did not establish weak constructor placement. The first real source-selected CHECK failed because `Vertex()` appeared before `DrawSectionEnd_BSpline`. Keep retained layout and actual final source-selected addresses as mandatory gates even when every section scores100%.
