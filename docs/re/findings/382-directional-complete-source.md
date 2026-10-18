@@ -24,6 +24,10 @@ That diagnostic does not establish whether the original source returned a pointe
 
 The reproducible outside tools are `382-compile-complete-probe.py`, `382-view-return-probe.py` and `382-view-optimizer-control.py`, plus `382-paired-complete-probe.py` and its durable outside `paired-text-native.json`. Their inputs and objects are under `382-reference`; none writes source in this worktree.
 
+## Partial source delivery
+
+The view-space draw and complete direction-selector bodies are now retained in the existing canonical source file. Both members were already declared in its canonical class; this addition changes no header, class layout, split, object selector, or compiler option. The staged source is byte-identical to the ordinary complete candidate used for the 22-function paired proof above. The existing object remains NonMatching, and the native fallback remains selected. No new measured source credit or issue completion is claimed. A current-main actual build and frozen verification are still required before this partial delivery can be marked ready.
+
 ## Traps
 
 - **A following function can supply earlier weak copies.** Completing the directional view-space caller naturally emits the original earlier helpers. Do not treat those earlier inventory rows as independent missing translation units.
