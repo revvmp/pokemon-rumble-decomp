@@ -1,0 +1,41 @@
+#ifndef _SET
+#define _SET
+
+#include <MSL_CPP/detail/tree.h>
+
+namespace std {
+
+template <typename T, typename Compare = less<T>, typename Allocator = allocator<T> > class set {
+public:
+    typedef T key_type;
+    typedef T value_type;
+    typedef Compare key_compare;
+    typedef Allocator allocator_type;
+
+private:
+    typedef detail::tree<value_type, key_compare, allocator_type> tree_type;
+
+public:
+    typedef typename tree_type::size_type size_type;
+    typedef typename tree_type::iterator iterator;
+    typedef typename tree_type::const_iterator const_iterator;
+
+    set() {}
+    ~set() {}
+
+    iterator begin() { return tree_.begin(); }
+    const_iterator begin() const { return tree_.begin(); }
+    iterator end() { return tree_.end(); }
+    const_iterator end() const { return tree_.end(); }
+    size_type size() const { return tree_.size(); }
+    bool empty() const { return tree_.size() == 0; }
+
+    void insert(const value_type& rValue) { tree_.insert_one(rValue); }
+
+private:
+    tree_type tree_;
+};
+
+}
+
+#endif

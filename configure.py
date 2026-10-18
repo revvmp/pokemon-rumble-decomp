@@ -217,6 +217,7 @@ config.libs = [
         "game",
         [
             Object(Matching, "game/BController.cpp"),
+            Object(NonMatching, "game/BModelObj.cpp"),
             Object(NonMatching, "game/BWorldCamera.cpp"),
             Object(NonMatching, "game/BWorldLightSet.cpp"),
             Object(NonMatching, "game/BWorldObj.cpp"),

@@ -1,0 +1,93 @@
+#ifndef _MEMORY
+#define _MEMORY
+
+#include <MSL_CPP/detail/shared_ptr_deleter.h>
+
+namespace std {
+namespace tr1 {
+
+template <typename T> class weak_ptr;
+
+template <typename T> class shared_ptr {
+public:
+    typedef T element_type;
+    typedef T* shared_ptr::*unspecified_bool_type;
+
+    shared_ptr() : ptr_(nullptr), s_(nullptr) {}
+
+    template <typename Y> explicit shared_ptr(Y* p) : ptr_(p), s_(nullptr) {
+        s_ = new detail::shared_ptr_deleter<Y, std::detail::default_delete<Y> >(p);
+    }
+
+    template <typename Y, typename D> shared_ptr(Y* p, D d) : ptr_(p), s_(nullptr) {
+        s_ = new detail::shared_ptr_deleter<Y, D>(p, d);
+    }
+
+    shared_ptr(const shared_ptr& r) : ptr_(r.ptr_), s_(r.s_) {
+        if (s_ != nullptr) {
+            s_->retain();
+        }
+    }
+
+    ~shared_ptr() throw() {
+        if (s_ != nullptr) {
+            s_->release();
+        }
+    }
+
+    shared_ptr& operator=(const shared_ptr& r) {
+        shared_ptr(r).swap(*this);
+        return *this;
+    }
+
+    void swap(shared_ptr& r) {
+        T* p = ptr_;
+        ptr_ = r.ptr_;
+        r.ptr_ = p;
+        detail::shared_ptr_deleter_common* s = s_;
+        s_ = r.s_;
+        r.s_ = s;
+    }
+
+    void reset() { shared_ptr().swap(*this); }
+
+    T* get() const { return ptr_; }
+    T& operator*() const { return *ptr_; }
+    T* operator->() const { return ptr_; }
+    operator unspecified_bool_type() const { return ptr_ != nullptr ? &shared_ptr::ptr_ : nullptr; }
+
+private:
+    template <typename Y> friend class weak_ptr;
+
+    T* ptr_;
+    detail::shared_ptr_deleter_common* s_;
+};
+
+template <typename T> class weak_ptr {
+public:
+    weak_ptr() : ptr_(nullptr), s_(nullptr) {}
+
+    ~weak_ptr() {
+        if (s_ != nullptr) {
+            s_->release_weak();
+        }
+    }
+
+private:
+    T* ptr_;
+    detail::shared_ptr_deleter_common* s_;
+};
+
+template <typename T> class enable_shared_from_this {
+protected:
+    enable_shared_from_this() {}
+    ~enable_shared_from_this() {}
+
+private:
+    weak_ptr<T> weak_this_;
+};
+
+}
+}
+
+#endif
