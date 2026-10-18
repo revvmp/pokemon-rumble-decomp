@@ -131,6 +131,8 @@ The same diagnostic now also reproduces all 276 bytes at `0x801C8310` using the 
 
 The ResMdl constructor at `0x801C79F0` remains separate from this proof. A placement-new fixture adds a null-storage guard and emits sixteen bytes; a one-word class returned by value instead emits a four-byte return. Neither establishes the native eight-byte constructor callback. Source-context emission must be proven with the actual factory, rather than replacing that constructor with a hand-written initializer helper. No source-selected reconstruction credit is claimed for these diagnostics.
 
+The existing complete G3dObj declaration also reproduces the four-byte helper at `0x801C7540` through an ordinary pointer call to Destroy. Its only branch relocation resolves to the canonical Destroy method at `0x8025AD50`, exactly matching the native tail branch. The five resource and scene consumers now total 356 code bytes and two paired relocations. This does not establish the factory translation-unit boundary or select any reconstructed source for the linked build.
+
 # F-326-4: model factory options and signed reference maximum
 
 The twenty-byte factory options record has a natural complete scalar layout: file-name array pointer at zero, force-simple boolean at four, explicit-options boolean at five, construction-mask word at eight, signed view-matrix count at twelve and model-name pointer at sixteen. The names are descriptive; no original class or field spelling is asserted. The convenience routine builds a null-terminated two-name array, initializes options to automatic detection, zero mask, one view matrix and no model name, forces the simple path when no mask pointer is supplied, and otherwise seeds the mask from that pointer.
