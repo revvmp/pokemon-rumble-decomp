@@ -2929,3 +2929,7 @@ The retained8022CA10 routine is descriptively named detail::CreateCurveChild, co
 ### Issue #377 curve-time API provenance
 
 `AnimCurveCalcTime(u8*,u32,u32)` and `AnimCurveCalcFrameStep(u8*,u32,u32)` are public names from the pinned CC0 Forecast and News references in [F-377-3](findings/377-curves-postfields.md). Neither has a retained address in this target's eight-function animation inventory. Their definitions before the executors produce the exact 56-byte native constant section; no new target symbol, address or code coverage is claimed. Source-only linker stripping remains an acceptance requirement.
+
+## Game shadow-camera interface for #51
+
+[F-51-2](findings/51-bworldlightset-unit.md) establishes the 0x100-byte `CShadowCamera` layout over the existing 0x68-byte `BWorldCamera`: texture-level count `0x68`, three `CaptureTexture` objects `0x6C-0xF0`, texture-alpha mode `0xF0`, alpha `0xF1`, automatic light selection `0xF2`, light-set index `0xF4`, light index `0xF8` and projection-plane height `0xFC`. RTTI and class names are original; member and accessor spellings are descriptive. The destructor and UpdateVisible override existing slots; SelectLight (`0x8010D7D0`) is nonvirtual and remains original code under #208. `CFileData::IsValid` reads the already declared failed byte `0x28` and data pointer `0x1C` without changing storage or virtual interfaces. No source coverage is claimed by these declarations.
