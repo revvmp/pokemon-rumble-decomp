@@ -18,3 +18,14 @@ The outside candidate uses the actual Wii/1.0 pf_dir Ninja compile command, with
 
 - Casting the sixteen-bit input before applying the existing PDM_SWAP16 macro preserves native byte-reversed stores. A generic32-bit swap expression emitted an extra instruction. No new intrinsic, flag or macro was introduced.
 - Related VF page routines use a pointer-to-pointer cache interface. This target directly accesses PF_CACHE_PAGE at the incoming fourth argument; importing the VF interface would change the ABI.
+
+
+# F-359-2: Complete FAT12 native diagnostic
+
+FAT12 precedes FAT16 at0x8020C730–0x8020CFBC. All four functions belong to #359. The IPL source order and exact sizes identify ReadFATEntry404, WriteFATEntry440, WriteFATEntryWithBuf700 and ReadFATEntryWithBuf620. Their2164 code bytes and24 alignment bytes make2188 total text bytes. The ordinary C candidate emits only this allocated text section and matches every byte after all26 actual call targets are resolved independently. The strict diagnostic rejects changes in padding, branch instruction bits, extents or target identity.
+
+These routines use the native direct PF_CACHE_PAGE interface. They preserve the neighboring nibble in packed twelve-bit entries and handle an entry crossing a sector boundary through two actual sector operations. Native writes visit all active FAT copies and retain the first error. In the crossing case the second byte write still happens after a first-byte error; the related VF reference conditionally skipped it. Buffered reads flush modified pages, retry read failures through the evidenced callback, and reconstruct the little-endian value from bytes before selecting the odd/even twelve-bit value. No native side effect is replaced by a constant result or guessed helper.
+
+The buffered-write boundary uses an unsigned comparison, as the native cmplw instructions prove. An unsigned1 literal preserves that arithmetic without flags or artificial helpers. The unbuffered write uses its separately observed signed comparison. Ordinary declaration placement and the existing canonical PDM_SWAP16 macro reproduce the register allocation; no register forcing was used.
+
+`359-probe-fat12.py` and `359-strict-fat12.py` exit0 for all4/2164code/2188text/26targets. The candidate and approved volume/header overlay remain outside. The prior FAT16 split-only acceptance is preserved independently; FAT12's new split still needs its own actual incremental Ninja/frozen gate before source registration. Whole #359 completion remains pending on its earlier functions in the #358-owned core unit.
