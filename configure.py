@@ -226,6 +226,7 @@ config.libs = [
             Object(NonMatching, "game/CDlgCollection.cpp"),
             Object(NonMatching, "game/CDlgInfo.cpp"),
             Object(NonMatching, "game/CDlgPiiList.cpp"),
+            Object(NonMatching, "game/CDlgPiiSelector.cpp"),
         ],
     ),
     library(

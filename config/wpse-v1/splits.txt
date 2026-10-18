@@ -93,6 +93,15 @@ game/CDlgPiiList.cpp:
 	.sbss       start:0x804B8FD8 end:0x804B8FE0
 	.sdata2     start:0x804B9DE0 end:0x804B9DF0
 
+game/CDlgPiiSelector.cpp:
+	extab       start:0x80012F68 end:0x80014E20
+	extabindex  start:0x80046AD0 end:0x8004794C
+	.text       start:0x80092EB0 end:0x8009FD38
+	.data       start:0x8039F518 end:0x803A1020
+	.sdata      start:0x804B64A8 end:0x804B6598
+	.sbss       start:0x804B8FE0 end:0x804B8FE8
+	.sdata2     start:0x804B9DF0 end:0x804B9E20
+
 RevoEX/net/NETVersion.c:
 	.text       start:0x801770F4 end:0x801770FC
 	.data       start:0x803B9D88 end:0x803B9DC0
