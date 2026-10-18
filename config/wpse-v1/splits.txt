@@ -30,6 +30,21 @@ game/CDividedGround.cpp:
 	.sdata      start:0x804B5E68 end:0x804B5F30
 	.sdata2     start:0x804B9DB0 end:0x804B9DC8
 
+game/CDlgCollection.cpp:
+	extab       start:0x8000CD9C end:0x8000E5D4
+	extabindex  start:0x800455AC end:0x80045A2C
+	.text       start:0x800776B0 end:0x8007E5C4
+	.data       start:0x8039BFE8 end:0x8039D060
+	.sdata      start:0x804B5F30 end:0x804B60B0
+
+game/CDlgInfo.cpp:
+	extab       start:0x8000E5D4 end:0x8000FBC8
+	extabindex  start:0x80045A2C end:0x80045D68
+	.text       start:0x8007E5D0 end:0x80084D34
+	.data       start:0x8039D060 end:0x8039DB40
+	.sdata      start:0x804B60B0 end:0x804B61A8
+	.sdata2     start:0x804B9DC8 end:0x804B9DD0
+
 game/CDlgPiiList.cpp:
 	extab       start:0x800102D0 end:0x80012F68
 	extabindex  start:0x800463B0 end:0x80046AD0
