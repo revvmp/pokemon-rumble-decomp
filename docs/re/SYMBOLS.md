@@ -2793,3 +2793,9 @@ For `wpse-v1` / `main.dol`, [F-92-2](findings/92-cdlgpiiselector-construction.md
 | `CMsgBalloon` | `0x64` | `mShownEntries` | `Entry*[4]` | `Show`, `IsShown` |
 | `CMsgBalloon` | `0x74` | `mOffset` | `nw4r::math::VEC3` | constructor `0x800C66F0`; name low |
 | `CMsgBalloon` | `0x80` | `mMotion` | `std::tr1::shared_ptr<CLayout::CMotionProgram>` | `Show`; deleter type from `0x8006E4B0` |
+
+## F-769-1: particle-manager field records and post-field call
+
+`ParticleManager::Calc` (`0x80232930`, `0x1558` bytes) dispatches on animation-header byte 2, accepts baked/keyed magic, and treats ordinary U8/F32 target bytes as offsets into `ParticleParameter`. Curve type 7 carries a 28-byte field record; particle curve type 2 carries a post-field transform and a 112-byte post-field resource record. Proven offsets, kinds, spaces, and provenance are in [F-769-1](findings/769-particlemanager-fields.md).
+
+The new `detail::ParticleField`, `detail::ParticlePostFieldTransform`, and `detail::ParticlePostField` names are descriptive (low naming confidence); their accessed layouts are instruction-backed. `PostFieldInfo` is an original type name present in the adjacent cross-check manglings and remains opaque here. External `0x80230DA0` is descriptively named `CalcPostFieldParticle`, with the observed particle/transform/info/resource/matrix/previous-position/by-value-offset/velocity/killed interface. Existing `AnimCurveExecuteTexture` and `AnimCurveExecuteChild` interface names now label `0x8022C430` and `0x8022CB80`. No ownership, split, or size outside #769 changes. The unit remains `NonMatching`; these names and reconstructed paths do not establish source coverage.
