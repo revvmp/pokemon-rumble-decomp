@@ -1213,14 +1213,51 @@ void DrawSmoothStripeStrategy::CalcAhead_ParticleBoth_Ring(
     }
 }
 
+static inline Particle* FindElderActiveParticle(
+    const volatile ut::List* pList, Particle* pParticle) {
+
+    u32 linkOffset = pList->offset;
+    Particle* pIt = static_cast<Particle*>(
+        reinterpret_cast<ut::Link*>(reinterpret_cast<u8*>(pParticle) +
+                                   linkOffset)->prevObject);
+
+    while (pIt != nullptr &&
+           pIt->GetLifeStatus() != ReferencedObject::NW4R_EF_LS_ACTIVE) {
+        pIt = static_cast<Particle*>(
+            reinterpret_cast<ut::Link*>(reinterpret_cast<u8*>(pIt) +
+                                       linkOffset)->prevObject);
+    }
+
+    return pIt;
+}
+
+static inline Particle* FindYoungerActiveParticle(
+    const volatile ut::List* pList, Particle* pParticle) {
+
+    u32 linkOffset = pList->offset;
+    Particle* pIt = static_cast<Particle*>(
+        reinterpret_cast<ut::Link*>(reinterpret_cast<u8*>(pParticle) +
+                                   linkOffset)->nextObject);
+
+    while (pIt != nullptr &&
+           pIt->GetLifeStatus() != ReferencedObject::NW4R_EF_LS_ACTIVE) {
+        pIt = static_cast<Particle*>(
+            reinterpret_cast<ut::Link*>(reinterpret_cast<u8*>(pIt) +
+                                       linkOffset)->nextObject);
+    }
+
+    return pIt;
+}
+
 void DrawSmoothStripeStrategy::CalcAhead_ParticleBoth_Origin(
     math::VEC3* pAxisY, AheadContext* pContext, Particle* pParticle) {
 
-    Particle* pElder =
-        GetElderDrawParticle(pContext->mCommon.mParticleManager, pParticle);
-
-    Particle* pYounger =
-        GetYoungerDrawParticle(pContext->mCommon.mParticleManager, pParticle);
+    Particle* pElder = FindElderActiveParticle(
+        &pContext->mCommon.mParticleManager->mActivityList.mActiveList,
+        pParticle);
+    Particle* pYounger = FindYoungerActiveParticle(
+        &pContext->mCommon.mParticleManager->mActivityList.mActiveList,
+        pParticle);
 
     math::VEC3 elderDir(0.0f, 0.0f, 0.0f);
 
