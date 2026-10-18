@@ -164,3 +164,14 @@ A later attempt to select declarations from the pinned vector reference used a s
 ## Traps
 
 - A lexical line filter cannot distinguish a function declaration from a call inside an inline body merely by parentheses and a terminating semicolon. Review the extractor's selection conditions before treating its output as declaration-only evidence, and disclose accidental body exposure separately from accepted reconstruction evidence.
+
+
+# F-326-7: declaration-supported reference ownership guard
+
+The #327 shared-header owner independently confirmed that the pinned declaration-only smart-pointer reference supports move_ptr's explicit pointer/deleter constructor with a reference deleter type. This permits a separate bounded experiment replacing the descriptive ResetGuard with `std::move_ptr<Y, D&>` using the exact owner-approved `compressed_pair<Y*, D&>` header, SHA-256 `a352c30a5f8cf31ff7698c8ad1c82f4cae403ee08dfc62884d93eebe9be1da09`. The existing accepted ResetGuard candidate remains unchanged.
+
+The independently authored experiment implements only the reference-deleter specialization: constructor stores the pointer and deleter reference in that pair, destructor invokes the deleter for a nonnull pointer, and release clears and returns the owned pointer. It does not supply or claim a generic default-deleter policy, private original name recovery, nat marker behavior or a complete canonical move_ptr interface.
+
+The strict audit succeeds for all twelve owned functions, 1,088 code bytes and twenty actual text targets, all 200 owned exception bytes and nine indexes, and all 264 initialized bytes with fourteen paired pointers. Both reference-guard destructors retain their native 108-byte extents and the exception records pair them with `0x801C8610` and `0x801C85A0` exactly. Outside common/shared destructor controls remain unchanged and receive no duplicate credit. The same control-deleter RTTI and all initialized data remain exact.
+
+Reproduction uses `C:/MassStorage/GitHub/326-reset-move-ptr-probe.cpp`, `326-compile-reset-move-ptr.py` and `326-audit-reset-move-ptr.py`, with both commands exiting zero. The object and `326-reset-move-ptr-native-proof.json` / `326-reset-move-ptr-metadata-proof.json` retain the actual consumer evidence. The declaration-supported guard identity remains a hypothesis consistent with native behavior; the native metadata itself does not recover its private source spelling. No generic header is published and no new source functions or bytes are credited.
