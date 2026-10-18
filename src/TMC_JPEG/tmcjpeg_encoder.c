@@ -786,10 +786,10 @@ void TMCJPEGForwardDCT(const u8* src, s32* dst, s32 stride)
         tmp15 = tmp5 + tmp6;
         tmp16 = tmp6 + tmp7;
 
-        tmp10 = tmp0 + tmp3;
-        tmp13 = tmp0 - tmp3;
         tmp11 = tmp1 + tmp2;
         tmp12 = tmp1 - tmp2;
+        tmp10 = tmp0 + tmp3;
+        tmp13 = tmp0 - tmp3;
 
         z1 = ((tmp13 + tmp12) * 11585) >> 14;
         dst[0] = tmp10 + tmp11;
@@ -898,10 +898,10 @@ void TMCJPEGForwardDCTSigned(const s8* src, s32* dst, s32 stride)
         tmp15 = tmp5 + tmp6;
         tmp16 = tmp6 + tmp7;
 
-        tmp10 = tmp0 + tmp3;
-        tmp13 = tmp0 - tmp3;
         tmp11 = tmp1 + tmp2;
         tmp12 = tmp1 - tmp2;
+        tmp10 = tmp0 + tmp3;
+        tmp13 = tmp0 - tmp3;
 
         z1 = ((tmp13 + tmp12) * 11585) >> 14;
         dst[0] = tmp10 + tmp11;
