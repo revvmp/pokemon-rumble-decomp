@@ -21,6 +21,14 @@ game/BController.cpp:
 	.sdata      start:0x804B5A20 end:0x804B5A40
 	.sdata2     start:0x804B9C60 end:0x804B9C88
 
+game/BModelObj.cpp:
+	extab       start:0x800066C8 end:0x800078BC
+	extabindex  start:0x8004422C end:0x80044514
+	.text       start:0x800528E0 end:0x8005AA98
+	.data       start:0x80399440 end:0x803999B8
+	.sdata      start:0x804B5A40 end:0x804B5AF0
+	.sdata2     start:0x804B9C88 end:0x804B9CA8
+
 game/BWorldCamera.cpp:
 	extab       start:0x80009DDC end:0x8000A26C
 	extabindex  start:0x80044AB4 end:0x80044C04
