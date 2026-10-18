@@ -34,6 +34,15 @@ struct LINE3 {
 
 struct RAY3 {
     RAY3() {}
+    RAY3(const VEC3& rP, const VEC3& rD, bool isNormalized) : P(rP), d(rD) {
+        if (!isNormalized) {
+            Normalize();
+        }
+    }
+
+    void Normalize() {
+        VEC3Normalize(&d, &d);
+    }
 
     VEC3 P;
     VEC3 d;
@@ -54,6 +63,17 @@ struct SPHERE {
 
 struct PLANE {
     PLANE() {}
+    PLANE(f32 a, f32 b, f32 c, f32 d_, bool isNormalized) : n(a, b, c), d(d_) {
+        if (!isNormalized) {
+            Normalize();
+        }
+    }
+
+    void Normalize() {
+        f32 r = FrSqrt(VEC3LenSq(&n));
+        VEC3Scale(&n, &n, r);
+        d *= r;
+    }
 
     f32 Test(const VEC3& rPoint) const {
         return d + VEC3Dot(&n, &rPoint);
