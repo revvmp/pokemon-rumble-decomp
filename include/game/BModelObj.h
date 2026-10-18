@@ -22,6 +22,14 @@ public:
         FLAG_MODEL_SCALE_SIZE = 1 << 8
     };
 
+    enum ModelFlag {
+        MODEL_TYPE_MASK = 3,
+        MODEL_TYPE_NORMAL = 0,
+        MODEL_TYPE_SHADOW = 1,
+        MODEL_TYPE_OUTLINE = 2,
+        MODEL_SCALE_SIZE = 1 << 2
+    };
+
     explicit BModelObj(u32 type);
     virtual ~BModelObj();
 

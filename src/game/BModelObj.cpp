@@ -1,6 +1,10 @@
 #include <game/BModelObj.h>
 
+#include <game/AnmObjChrRootScale.h>
 #include <game/CModel.h>
+#include <game/Memory.h>
+#include <nw4r/g3d/g3d_scnmdl.h>
+#include <nw4r/g3d/g3d_scnmdlsmpl.h>
 #include <nw4r/math/math_triangular.h>
 
 BModelObj::BModelObj(u32 type) :
@@ -11,8 +15,73 @@ BModelObj::BModelObj(u32 type) :
     mVelocity(0.0f, 0.0f, 0.0f),
     mOutlineType(1) {}
 
+
 BModelObj::~BModelObj() {}
 
+bool BModelObj::IsOutlineModel(const std::tr1::shared_ptr<CModel>& rModel) {
+    nw4r::g3d::ResNode node = static_cast<nw4r::g3d::ScnMdlSimple*>(rModel->GetScnObj())->GetResMdl().GetResNode(0);
+    if (node.IsValid()) {
+        nw4r::g3d::ResUserData userData = node.GetResUserData();
+        if (userData.IsValid()) {
+            nw4r::g3d::ResUserDataEntry entry = userData.GetEntry("OUTLINED");
+            if (entry.IsValid() && entry.GetType() == nw4r::g3d::ResUserDataEntry::TYPE_INT && entry.GetInt() == 0) {
+                return false;
+            }
+        }
+    }
+
+    nw4r::g3d::ScnMdl* pScnMdl = nw4r::g3d::G3dObj::DynamicCast<nw4r::g3d::ScnMdl>(rModel->GetScnObj());
+    if (pScnMdl == nullptr) {
+        return false;
+    }
+
+    if (pScnMdl->GetResMdl().GetResMatNumEntries() == 0) {
+        return false;
+    }
+
+    nw4r::g3d::ScnMdl::CopiedMatAccess access(pScnMdl, 0);
+    return access.IsValid();
+}
+
+void BModelObj::SetModel(const std::tr1::shared_ptr<CModel>& rModel, u32 flags) {
+    mModel = rModel;
+    if (mModel) {
+        mFlags |= FLAG_DIRTY_MTX;
+        mFlags &= ~FLAG_HIDDEN;
+
+        int type = flags & MODEL_TYPE_MASK;
+        bool outline = false;
+        if (type == MODEL_TYPE_OUTLINE && IsOutlineModel(rModel)) {
+            outline = true;
+        }
+
+        if (outline) {
+            mFlags |= FLAG_OUTLINE;
+        } else {
+            mFlags &= ~FLAG_OUTLINE;
+        }
+
+        if (type == MODEL_TYPE_SHADOW) {
+            mFlags |= FLAG_SHADOW;
+        } else {
+            mFlags &= ~FLAG_SHADOW;
+        }
+
+        if (flags & MODEL_SCALE_SIZE) {
+            mFlags |= FLAG_MODEL_SCALE_SIZE;
+        } else {
+            mFlags &= ~FLAG_MODEL_SCALE_SIZE;
+        }
+
+        nw4r::g3d::ScnObj* pScnObj = mModel->GetScnObj();
+        if (pScnObj->GetPriorityDrawXlu() == 0) {
+            pScnObj->SetPriorityDrawXlu(50);
+        }
+    }
+
+    mSize = CalcSize((mFlags & FLAG_SIZE_MODE) != 0);
+    UpdateBounds();
+}
 void BModelObj::SetTransformDirect(const nw4r::math::VEC3& rPosition, const nw4r::math::VEC3& rVelocity) {
     mPosition = rPosition;
     mVelocity = rVelocity;
@@ -27,6 +96,23 @@ void BModelObj::SetScaleDirect(const nw4r::math::VEC3& rScale) {
     UpdateBounds();
 }
 
+void BModelObj::SetModelScaleDirect(const nw4r::math::VEC3& rScale) {
+    std::tr1::shared_ptr<nw4r::g3d::AnmObjChrRootScale> rootScale;
+    mModelScale = rScale;
+    if (mModelScale.x != 1.0f || mModelScale.y != 1.0f || mModelScale.z != 1.0f) {
+        if (mModel->mRootScale) {
+            mModel->mRootScale->SetScale(mModelScale);
+            return;
+        }
+
+        rootScale.reset(nw4r::g3d::AnmObjChrRootScale::Construct(GetDefaultAllocator(), nullptr, static_cast<nw4r::g3d::ScnMdlSimple*>(mModel->GetScnObj())->GetResMdl()), DestroyG3dObj);
+        rootScale->SetScale(mModelScale);
+    }
+
+    mModel->SetRootScale(rootScale);
+    mSize = CalcSize((mFlags & FLAG_SIZE_MODE) != 0);
+    UpdateBounds();
+}
 void BModelObj::SetBaseMtx(const nw4r::math::MTX34& rMtx) {
     mBaseMtx = rMtx;
     mFlags |= FLAG_BASE_MTX;

@@ -6,6 +6,25 @@
 namespace std {
 namespace tr1 {
 
+namespace detail {
+
+template <typename T, typename D> class shared_ptr_holder {
+public:
+    shared_ptr_holder(T* pObject, D& rDeleter) : mpObject(pObject), mrDeleter(rDeleter) {}
+    ~shared_ptr_holder() {
+        if (mpObject != nullptr) {
+            mrDeleter(mpObject);
+        }
+    }
+    void release() { mpObject = nullptr; }
+
+private:
+    T* mpObject;
+    D& mrDeleter;
+};
+
+}
+
 template <typename T> class weak_ptr;
 
 template <typename T> class shared_ptr {
@@ -19,8 +38,10 @@ public:
         s_ = new detail::shared_ptr_deleter<Y, std::detail::default_delete<Y> >(p);
     }
 
-    template <typename Y, typename D> shared_ptr(Y* p, D d) : ptr_(p), s_(nullptr) {
+    template <typename Y, typename D> shared_ptr(Y* p, D d) : ptr_(p) {
+        detail::shared_ptr_holder<Y, D> holder(p, d);
         s_ = new detail::shared_ptr_deleter<Y, D>(p, d);
+        holder.release();
     }
 
     shared_ptr(const shared_ptr& r) : ptr_(r.ptr_), s_(r.s_) {
@@ -50,6 +71,7 @@ public:
     }
 
     void reset() { shared_ptr().swap(*this); }
+    template <typename Y, typename D> void reset(Y* p, D d) { shared_ptr(p, d).swap(*this); }
 
     T* get() const { return ptr_; }
     T& operator*() const { return *ptr_; }

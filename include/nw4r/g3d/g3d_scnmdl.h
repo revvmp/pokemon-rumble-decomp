@@ -18,6 +18,10 @@ public:
     public:
         CopiedMatAccess(ScnMdl *pScnMdl, u32 id);
 
+        bool IsValid() const {
+            return mpScnMdl != NULL;
+        }
+
         ResTexObj GetResTexObj(bool markDirty);
         ResTlutObj GetResTlutObj(bool markDirty);
         ResMatTexCoordGen GetResMatTexCoordGen(bool markDirty);
