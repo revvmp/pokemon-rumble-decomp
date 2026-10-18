@@ -371,6 +371,14 @@ game/QuarterTurn.cpp:
 	.text       start:0x801B64B0 end:0x801B6508
 	.sdata2     start:0x804BA3B8 end:0x804BA3C4
 
+game/Graphics.cpp:
+	extab       start:0x8003BC40 end:0x8003BC70
+	extabindex  start:0x80051168 end:0x800511B0
+	.text       start:0x801C6DB0 end:0x801C7538
+	.sdata      start:0x804B82F8 end:0x804B8304
+	.sbss       start:0x804B9160 end:0x804B9174
+	.sdata2     start:0x804BA480 end:0x804BA490
+
 game/EncodingConverter.cpp:
 	extab       start:0x8003C80C end:0x8003C83C
 	extabindex  start:0x800513CC end:0x80051414
