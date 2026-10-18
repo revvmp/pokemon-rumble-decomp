@@ -428,15 +428,79 @@ RVL_SDK/fa/pf_entry_iterator.c:
 	.text       start:0x802076D0 end:0x802095D4
 	.sdata      start:0x804B8878 end:0x804B8890
 
+RVL_SDK/fa/pf_path.c:
+	.text       start:0x80211FE0 end:0x80214EB8 align:16
+	.sdata      start:0x804B8890 end:0x804B88BA
+	.sdata2     start:0x804BA5C8 end:0x804BA5D2
+
 RVL_SDK/fa/pf_sector.c:
 	.text       start:0x80214EC0 end:0x80215608
+
+RVL_SDK/fa/pf_volume.c:
+	.text       start:0x80215610 end:0x80219D00 align:16
+	.data       start:0x803C4268 end:0x803C4274
+	.bss        start:0x803EB970 end:0x8041F170
+	.sdata      start:0x804B88C0 end:0x804B88C8
+	.sdata2     start:0x804BA5D8 end:0x804BA5E0
+
+RVL_SDK/fa/pf_volume_apiadd.c:
+	.text       start:0x80219D00 end:0x80219D78
+
+RVL_SDK/fa/pf_cp932.c:
+	.text       start:0x80219D80 end:0x8021A2A8
+	.rodata     start:0x803681C8 end:0x8036C440
 
 RVL_SDK/fa/pf_api_util.c:
 	.text       start:0x8021A2B0 end:0x8021A464
 	.data       start:0x803C4278 end:0x803C4318
 
+RVL_SDK/fa/pf_attach.c:
+	.text       start:0x8021A470 end:0x8021A520
+
+RVL_SDK/fa/pf_buffering.c:
+	.text       start:0x8021A520 end:0x8021A54C
+
+RVL_SDK/fa/pf_cdelete.c:
+	.text       start:0x8021A550 end:0x8021A5CC
+
 RVL_SDK/fa/pf_chdir.c:
 	.text       start:0x8021A5D0 end:0x8021A620
+
+RVL_SDK/fa/pf_chdmod.c:
+	.text       start:0x8021A620 end:0x8021A680
+
+RVL_SDK/fa/pf_chmod.c:
+	.text       start:0x8021A680 end:0x8021A6E0
+
+RVL_SDK/fa/pf_cinsert.c:
+	.text       start:0x8021A6E0 end:0x8021A75C
+
+RVL_SDK/fa/pf_closedir.c:
+	.text       start:0x8021A760 end:0x8021A784
+
+RVL_SDK/fa/pf_combine.c:
+	.text       start:0x8021A790 end:0x8021A80C
+
+RVL_SDK/fa/pf_create.c:
+	.text       start:0x8021A810 end:0x8021A86C
+
+RVL_SDK/fa/pf_createdir.c:
+	.text       start:0x8021A870 end:0x8021A8E4
+
+RVL_SDK/fa/pf_cut.c:
+	.text       start:0x8021A8F0 end:0x8021A978
+
+RVL_SDK/fa/pf_derrnum.c:
+	.text       start:0x8021A980 end:0x8021A9A8
+
+RVL_SDK/fa/pf_detach.c:
+	.text       start:0x8021A9B0 end:0x8021A9D8
+
+RVL_SDK/fa/pf_divide.c:
+	.text       start:0x8021A9E0 end:0x8021AA70
+
+RVL_SDK/fa/pf_errnum.c:
+	.text       start:0x8021AA70 end:0x8021AA94
 
 RVL_SDK/fa/pf_fadjust.c:
 	.text       start:0x8021AAA0 end:0x8021AAC4

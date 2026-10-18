@@ -2518,3 +2518,48 @@ For `wpse-v1` / `main.dol`, [F-42-1](findings/42-bworld-unit.md) splits `game/BW
 ## FA sector I/O (#363)
 
 [F-363-1](findings/363-fa-sector-volume.md) establishes the complete native pf_sector.c unit at 0x80214EC0–0x80215608: PFSEC_ReadFAT (0xC4), PFSEC_ReadData at0x80214F90 (0x2F4), PFSEC_WriteFAT at0x80215290 (0xE8), and PFSEC_WriteData at0x80215380 (0x288). Names and file order have high confidence from the pinned original FA map and all1,832 native bytes/34 original-name paired calls. FAT offset/size parameters are u16; data routines retain u32 byte offset/size and an output success count. Complete actual text allocation including alignment is1,864 bytes, with no owned data sections. Name-only outside PFDRV_IsInserted at0x801FBF20 is independently proven with a u32 return and PF_VOLUME* argument; its outside size/type/split are preserved. All516 existing source objects retain their allocated sections and canonical relocations, and the actual source-selected executable passes the frozen manifest. Four path tails and fifteen volume functions remain outside this source checkpoint.
+### FA narrow standard API, issues 364 and 365
+
+[F-365-3](findings/365-fa-api.md#f-365-3-remaining-narrow-standard-api-units)
+records fifteen complete original-name standard wrappers at
+`0x8021A470–0x8021AA94`, excluding the separately reconstructed chdir file.
+The pinned FA symbol and file-order maps support every `pf2_` spelling;
+actual lower native calls support each operation and argument width.
+Public chdmod/chmod attributes and buffering mode are 32-bit, with u8 lower
+contracts. `PF_NAND_FILE` is a descriptive 84-byte record: path at 0 with
+chosen extent 78 and naturally aligned size at 80. The native 78-byte copy,
+size access, public NAND argument names, and actual target-compiler layout
+are evidenced; an original path[80] would be ABI-indistinguishable, so the
+original bound and type/member spellings remain uncertain. Outside lower
+functions receive name-only aliases and compatible declarations, with their
+original extents, splits, types and source status preserved.
+
+### FA CP932 codepage, issues 364 and 365
+
+[F-364-1](findings/364-fa-cp932.md) establishes the complete six-function
+CP932 unit at `0x80219D80–0x8021A2A8` and its original names from the pinned
+FA map. The first three functions belong to #364 and the final three to
+#365. The original cp932_to_unicode spelling and complete `const u16[45][189]`
+shape come from byte-identical CC0 references; its native extent is
+`0x803681C8–0x8036C43A`, 17,010 bytes. Six following zeros are alignment,
+not additional array storage. The previous internal symbol at 0x803691CE
+was a false pointer interpretation of two Unicode values; no native source
+object or external reference requires that boundary. Every function size,
+paired relocation, actual ELF placement, and complete source-selected DOL
+is exact. No PF_VOLUME layout or preceding PFVOL unit changes.
+
+### FA volume API extension, issue 364
+
+[F-364-3](findings/364-fa-cp932.md#f-364-3-independent-volume-api-extension-unit)
+identifies the separate original pf_volume_apiadd.c and its sole function
+PFVOL_iswriteprotected at 0x80219D00, 120 bytes. Its signed-drive argument,
+u32 output, external PFVOL_GetVolumeFromDrvChar call, mounted flag 8,
+write-protection flag 2 and error 9 follow the native instructions. The
+three paired relocations, actual source-selected object and complete DOL
+are exact. This publishes no complete volume record-size change and earns
+no credit for the preceding main-volume functions.
+## F-363-3: Complete native volume storage
+
+PF_VOLUME is0x1FAC, with cluster_link1F94, partition1FA0, signed-error callback1FA4 and format parameter1FA8; PF_VOLUME_SET is0x33800, with current_context_id64, four context records68 and26 volumes88. PF_CACHE_SETTING20 and PF_DRV_TBL12 are established by attach. PF_DEV_INF16, PF_VOL_INF24, PF_VOLUME_CONFIG16 and PF_CLUSTER_LINK_CONFIG12 cover all native-used output/configuration fields. Exact field tables, reference-name confidence, actual20-word layout proof,37-function735-target consumer proof and535-object preservation controls are recorded in [F-363-3](findings/363-fa-volume-interface.md). This is a header prerequisite, with source-selected acceptance pending.
+
+For `wpse-v1`, `PF_FILE.open_mode` at offset `0x4` is `s32`, preserving the record's `0x30` size. The pinned TFP2 declaration and native `PFFILE_fclose` signed comparison establish the type; complete close code and all paired targets match, while the complete volume object and two existing entry consumers are byte-identical under original-versus-signed header controls. See [F-363-3](findings/363-fa-volume-interface.md).

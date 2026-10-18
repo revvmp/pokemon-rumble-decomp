@@ -7,6 +7,7 @@
 extern "C" {
 #endif
 
+s32 PFSYS_GetCurrentContextID(s32* p_context_id);
 void PFSYS_initializeSYS(void);
 
 typedef struct PF_SYS_DATE {

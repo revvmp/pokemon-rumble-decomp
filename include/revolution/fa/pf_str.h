@@ -25,25 +25,6 @@ typedef struct PF_CHARCODE {
 
 #define PF_SETTING_CODE_MODE_MASK 0x3
 
-#define PF_MAX_CUR_VOLUMES 4
-
-typedef struct PF_CUR_VOLUME {
-    u32 stat;
-    s32 context_id;
-    struct PF_VOLUME* p_vol;
-} PF_CUR_VOLUME;
-
-typedef struct PF_VOLUME_SET {
-    PF_CUR_VOLUME current_vol[PF_MAX_CUR_VOLUMES];
-    u8 state[0x10];
-    s32 last_error;
-    s32 last_driver_error;
-    PF_CHARCODE codeset;
-    u32 setting;
-} PF_VOLUME_SET;
-
-extern PF_VOLUME_SET pf_vol_set;
-
 typedef struct PF_STR {
     const s8* p_head;
     const s8* p_tail;
@@ -66,5 +47,7 @@ void PFSTR_ToUpperNStr(PF_STR* p_str, u16 num, s8* dest);
 #ifdef __cplusplus
 }
 #endif
+
+#include <revolution/fa/pf_volume.h>
 
 #endif
