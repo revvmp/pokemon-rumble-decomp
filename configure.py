@@ -318,7 +318,7 @@ config.libs = [
             Object(NonMatching, "RVL_SDK/fa/pdm_mbr.c"),
             Object(Matching, "RVL_SDK/fa/pdm_partition.c"),
             Object(Matching, "RVL_SDK/fa/pf_cache.c"),
-            Object(NonMatching, "RVL_SDK/fa/pf_cluster.c"),
+            Object(Matching, "RVL_SDK/fa/pf_cluster.c"),
             Object(Matching, "RVL_SDK/fa/pf_dir.c"),
             Object(Matching, "RVL_SDK/fa/pf_entry.c"),
             Object(NonMatching, "RVL_SDK/fa/pf_entry_iterator.c"),

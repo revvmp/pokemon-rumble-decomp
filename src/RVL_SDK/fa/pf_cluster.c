@@ -598,9 +598,10 @@ s32 PFCLUSTER_InsertChain(PF_ENT_ITER* p_iter, PF_DIR_ENT* p_ent, u32 chain_inde
 s32 PFCLUSTER_DeleteChain(PF_ENT_ITER* p_iter, PF_DIR_ENT* p_ent, u32 chain_index, u32 num_cluster, u32* p_num_deleted)
 {
     u32 cluster_size;
+    u32 offset;
     PF_VOLUME* p_vol;
     u32 size;
-    u32 offset;
+    u32 available_size;
     s32 err;
     u32 end_cluster;
     u32 next_cluster;
@@ -619,8 +620,9 @@ s32 PFCLUSTER_DeleteChain(PF_ENT_ITER* p_iter, PF_DIR_ENT* p_ent, u32 chain_inde
     }
 
     size = num_cluster * cluster_size;
-    if (size > p_ent->file_size - offset) {
-        size = p_ent->file_size - offset;
+    available_size = p_ent->file_size - offset;
+    if (size > available_size) {
+        size = available_size;
     }
     err = PFFAT_TraceClustersChain(&p_iter->ffd, start_cluster, size, &last_cluster, &next_cluster);
     if (err != 0) {
