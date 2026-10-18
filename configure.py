@@ -240,6 +240,7 @@ config.libs = [
             Object(NonMatching, "game/CMultiRanking.cpp"),
             Object(NonMatching, "game/CPpuEngine.cpp"),
             Object(NonMatching, "game/CNoticeDisplay.cpp"),
+            Object(Matching, "game/CStageCamera.cpp"),
             Object(NonMatching, "game/ScriptCamera.cpp"),
             Object(NonMatching, "game/NPpuVM.cpp"),
         ],
