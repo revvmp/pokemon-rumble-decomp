@@ -125,6 +125,24 @@ The corrected audit derives both small-data bases directly from the native ELF s
 
 The corrected split then exposed dtk's aligned automatic-gap requirement: ending the six-byte string at `0x804B8346` creates an automatic small-data object at an invalid two-byte-aligned start. The linked extent therefore ends at the next actual eight-byte-aligned object, `0x804B8348`; the two-byte guard payload similarly has linked extent through `0x804B9180`. The pinned dtk 1.8.4 implementation uses default alignment eight for both small-data sections. The compiled source payloads remain six and two bytes, each with section alignment eight. The extra two and six bytes are native inter-object alignment, not source storage, foreign payload or additional data credit. No padding field or invented source byte is added. Full split and source-selected verification must confirm those physical boundaries.
 
+## F-328-6: source-selected converter acceptance
+
+The corrected split-only build passed plain Ninja and frozen verification before source registration, with 578 actual compiled source objects captured as the control. The converter was then registered NonMatching. The actual Ninja-built object passes the complete strict comparison: seven functions / 1,032 instruction bytes, 38 code relocation targets, 182 initialized bytes / ten data targets, two guard bytes, and six exception records / 120 exception-index bytes / twelve relocation targets. Unitdiff reports all seven functions and all six allocated sections at 100%.
+
+Selecting the compiled converter object passes plain Ninja and frozen verification. The actual linker input contains exactly one compiled converter object and no fallback converter object. All seven functions have their native final addresses and exact linked bytes; initialized data, all exception/index bytes and the native alignment bytes agree. The 578 prior source objects remain whole-file identical, and the resulting 579-object build has the same frozen DOL as the split-stage control. The six-byte string and two guard bytes remain the only source payloads in the eight-byte linked small-data extents; eight total alignment bytes receive no source credit.
+
+| Actual pipeline command | Exit | Result |
+| --- | --- | --- |
+| `python configure.py` | 0 | Source-selected converter registration |
+| `.venv/Scripts/ninja -j16` | 0 | Full real link, DOL and original SHA-1 check |
+| `python tools/verify/verify.py verify --manifest config/targets/wpse-v1.json --reference-dir orig/wpse-v1 --build-dir build/wpse-v1` | 0 | Frozen executable exact |
+| `python C:/MassStorage/GitHub/328-audit-converter.py build/wpse-v1/src/game/EncodingConverter.o` | 0 | All seven actual compiled instruction streams exact |
+| `python C:/MassStorage/GitHub/328-strict-converter.py build/wpse-v1/src/game/EncodingConverter.o` | 0 | Complete native relocation, data and exception proof |
+| `python C:/MassStorage/GitHub/328-audit-linked-converter.py` | 0 | Native linked addresses, bytes, tables, padding and source-only input |
+| `python C:/MassStorage/GitHub/328-stage-control.py check` | 0 | All 578 previous whole source objects unchanged; identical DOL |
+
+Only this complete seven-function unit is accepted. The original UI/archive-font inventory remains incomplete and #328 remains open. The earlier outside manager, archive-font and shared-pointer diagnostics are not selected source and receive no duplicate credit.
+
 ## Traps
 
 - Derive r13/r2 bases from the actual native ELF symbols. A wrong hardcoded r13 base made a relocation audit accept mislocated guards; the real split overlap check rejected them before source registration.
