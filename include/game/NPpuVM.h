@@ -6,9 +6,9 @@
 
 namespace NPpu {
 
-class CVM;
+class CEngine;
 
-typedef int (*NativeFunc)(CVM* pVM);
+typedef int (*NativeFunc)(CEngine* pEngine);
 
 struct SNativeFunction {
     NativeFunc mFunc;
@@ -40,6 +40,32 @@ public:
     f32 ToFloat() const;
     CValue* GetReference() const;
 
+    CValue& operator=(const CValue& rOther) {
+        mType = rOther.mType;
+        mInt = rOther.mInt;
+        return *this;
+    }
+
+    void SetInt(int value) {
+        mType = TYPE_INT;
+        mInt = value;
+    }
+    void SetFloat(f32 value) {
+        mType = TYPE_FLOAT;
+        mFloat = value;
+    }
+    void SetString(u32 index) {
+        mType = TYPE_STRING;
+        mIndex = index;
+    }
+    void SetWString(u32 index) {
+        mType = TYPE_WSTRING;
+        mIndex = index;
+    }
+    void SetFunction(int value) {
+        mType = TYPE_FUNCTION;
+        mInt = value;
+    }
     void SetReference(CValue* pValue);
     void Increment();
     void Decrement();
@@ -75,6 +101,8 @@ public:
         u32 mReserved;
     };
 
+    friend class CEngine;
+
 private:
     const char* mName;
     int mStackSize;
@@ -94,25 +122,14 @@ public:
     bool Load(const char* pName, const void* pData, u32 size, int, int);
 
     int GetStackSize() const { return mStackSize; }
-    const char* GetString(int index) const {
-        if (mStrings != nullptr && index >= 0 && index < mStringCount) {
-            return mStrings[index];
-        }
-        return nullptr;
-    }
-    const wchar_t* GetWString(int index) const {
-        if (mWStrings != nullptr && index >= 0 && index < mWStringCount) {
-            return mWStrings[index];
-        }
-        return nullptr;
-    }
 
 private:
     void Clear();
 };
 
 class CEnvironment {
-public:
+    friend class CEngine;
+
 private:
     int mGlobalCount;
     CValue* mGlobals;
@@ -131,7 +148,7 @@ private:
     void AllocGlobals();
 };
 
-class CVM {
+class CEngine {
 public:
     struct SFrame {
         int mSP;
@@ -153,8 +170,15 @@ public:
         STATE_END = 4
     };
 
-    CVM();
-    ~CVM();
+    enum NativeResult {
+        NATIVE_CONTINUE = 0,
+        NATIVE_YIELD = 1,
+        NATIVE_WAIT = 2,
+        NATIVE_STOP = 3
+    };
+
+    CEngine();
+    ~CEngine();
 
     void Init(CCode* pCode, CEnvironment* pEnv, int frameCapacity, int baseCount, int handlerCapacity);
 
@@ -162,19 +186,80 @@ public:
     int ParseWInt(const CValue& rValue) const;
 
     void SetThis(const CValue& rValue);
+    void GetThis(CValue& rValue) const;
+    CValue* PopArray(int* pCount);
+    bool IsIntArg() const;
+    bool IsStringArg() const;
+    void GetArg(int index, CValue& rValue) const;
+    int GetArgInt(int index) const;
     int Run();
     void SetID(int id);
     static void SetNextID(int id);
+    bool Reset();
+    bool Call(CValue* pResult, int pc, int argCount, const CValue* pArgs);
+    void Interrupt(const CValue& rValue);
 
     CEnvironment* GetEnvironment() const { return mEnv; }
     State GetState() const { return static_cast<State>(mState); }
-    CValue Pop() { return mStack[--mSP]; }
+
+    void Push(const CValue& rValue) { mStack[mSP++] = rValue; }
+    void Pop(CValue& rValue) { rValue = mStack[--mSP]; }
+    void PushInt(int value) {
+        CValue v;
+        v.SetInt(value);
+        Push(v);
+    }
+    void PushFloat(f32 value) {
+        CValue v;
+        v.SetFloat(value);
+        Push(v);
+    }
+    int PopInt() {
+        CValue value;
+        Pop(value);
+        return value.ToInt();
+    }
+    f32 PopFloat() {
+        CValue value;
+        Pop(value);
+        return value.ToFloat();
+    }
+    CValue* PopReference() {
+        CValue value;
+        Pop(value);
+        return value.GetReference();
+    }
+    void Drop(int count) { mSP -= count; }
+
+    void ConvertToNumber(CValue& rValue) {
+        if (rValue.IsString()) {
+            rValue.SetInt(ParseInt(rValue));
+        }
+        if (rValue.IsWString()) {
+            rValue.SetInt(ParseWInt(rValue));
+        }
+    }
+
+private:
+    u32 Fetch() { return mCode->mCode[mPC++]; }
+    void OnLineBegin() {}
+    void OnLineEnd() {}
+    void PushFrame(int baseIndex);
+    void PopFrame();
+    void PushReturn();
+    CValue* GetVariable(int baseIndex, int index);
+    void UnaryOp(int op);
+    void BinaryOp(int op);
+    void BitwiseOp(int op);
+    void CompareOp(int op);
+    int Execute(int isCall);
+    bool Unwind();
 
 private:
     static int sNextID;
     static std::set<char*>* sStrings;
     static std::set<wchar_t*>* sWStrings;
-    static std::set<CVM*>* sInstances;
+    static std::set<CEngine*>* sInstances;
 
     int mID;
     CCode* mCode;
