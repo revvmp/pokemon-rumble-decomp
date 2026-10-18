@@ -7,6 +7,7 @@
 
 class CFileData {
 public:
+    bool IsValid() const { return !mFailed && mData != nullptr; }
     u32 GetSize() const { return mSize; }
     void* GetData() const { return mData; }
 
