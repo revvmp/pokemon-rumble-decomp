@@ -101,6 +101,8 @@ Removing the reference-only unretained `ISD_ProbeCard` and ordering the retained
 
 Whole issue external coverage is now 27 of 35 original rows and 6,440 of 8,172 instruction bytes; the eight USB block tails remain. The complete SDI candidate still uses the isolated reference-shaped header overlay. Actual canonical-header adaptation, split-only baseline, real Ninja-built objects, source-input/MAP checks, objdiff and frozen full-DOL gates remain required before source acceptance. No source is registered or linked by this documentation checkpoint.
 
+An additional external control, `374-probe-canonical-sdi.py`, repeats the same complete comparison with an isolated copy of #931's exact canonical `ISD_HANDLE`. Its record is unchanged byte for byte; only the six requested original API names and the original `u32*` card-response declaration differ in that proposed header. Source directly consumes `fd`, `rca`, `capacity`, and `opened`, and uses the owner's existing signed callback/event-pointer declarations. All twenty functions, all allocated sections and all 231 actual targets remain exact. That control establishes compatibility of the proposed canonical adaptation; owner approval and a committed canonical header are still pending. The coordination comment above was updated with this complete proof.
+
 ## Traps
 
 - The inferred existing `__sdHeapId` symbol extent of eight bytes includes four trailing alignment bytes. The actual source object is a four-byte signed heap identifier with eight-byte section alignment. Preserve the following object's alignment rather than adding storage to the variable.
