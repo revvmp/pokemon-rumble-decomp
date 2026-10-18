@@ -419,6 +419,14 @@ RVL_SDK/hbm/seq.c:
 	.data       start:0x803BE388 end:0x803BE408
 	.bss        start:0x803EA7F0 end:0x803EA7F8
 
+game/CFiber.cpp:
+	extab       start:0x8003504C end:0x800353CC
+	extabindex  start:0x80050094 end:0x800500F4
+	.text       start:0x8019E110 end:0x8019EB94
+	.data       start:0x803BE408 end:0x803BE478
+	.sdata      start:0x804B80F8 end:0x804B8108
+	.sbss       start:0x804B9120 end:0x804B9128
+
 nw4r/ut/ut_CntFileStream.cpp:
 	extab       start:0x80037BEC end:0x80037C80
 	extabindex  start:0x80050640 end:0x800506AC
