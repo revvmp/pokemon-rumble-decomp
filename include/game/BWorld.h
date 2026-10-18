@@ -2,16 +2,19 @@
 #define GAME_BWORLD_H
 
 #include <game/BWorldObj.h>
+#include <game/CaptureTexture.h>
 #include <game/ICalcDraw.h>
 #include <memory>
 #include <nw4r/ef/ef_res_texture.h>
 #include <nw4r/g3d/g3d_scnobj.h>
 #include <nw4r/g3d/g3d_scnroot.h>
+#include <nw4r/ut/ut_Color.h>
 #include <set>
 #include <vector>
 
 class BModelObj;
 class BWorldCamera;
+class CEffect;
 class CShadowCamera;
 template <typename T> class CKDTree;
 
@@ -26,6 +29,14 @@ public:
         FLAG_RESUME_REQUESTED = 1 << 5,
         FLAG_PAUSED = 1 << 6,
         FLAG_SOUND_LISTENER = 1 << 7
+    };
+
+    enum DrawType {
+        DRAW_TYPE_NORMAL,
+        DRAW_TYPE_OUTLINE,
+        DRAW_TYPE_2,
+        DRAW_TYPE_OUTLINE_ALPHA,
+        DRAW_TYPE_ALPHA
     };
 
     class Desc {
@@ -86,9 +97,23 @@ public:
         std::tr1::shared_ptr<BWorldObj> mObj;
     };
 
-    struct EffectData;
-    struct OutlineData;
+    struct EffectData {
+        u32 mLastHandle;
+        u32 mGroupID;
+        u32 mPauseGroupID;
+        std::vector<std::tr1::shared_ptr<CEffect> > mEffects;
+        bool mCaptureEnable;
+        CaptureTexture mCaptureTexture;
+        TextureState mTextureState;
+        u32 mCaptureGroupID;
+    };
 
+    struct OutlineData {
+        CaptureTexture mTexture;
+        int mWidth;
+        u8 mAlpha;
+        nw4r::ut::Color mColor __attribute__((aligned(4)));
+    };
     explicit BWorld(const Desc& rDesc);
     virtual ~BWorld();
 
@@ -97,7 +122,13 @@ public:
     virtual void CalcView();
     virtual void Draw();
 
-    void SetFlag(u32 flag, bool enable);
+    void SetFlag(u32 flag, bool enable) {
+        if (enable) {
+            mFlags |= flag;
+        } else {
+            mFlags &= ~flag;
+        }
+    }
     void EnableCalc(bool enable);
     CShadowCamera* GetShadowCamera();
 
@@ -105,7 +136,7 @@ private:
     u32 mFlags;
     u32 mLastObjHandle;
     u32 mPendingFrames;
-    u32 mDrawType;
+    int mDrawType;
     std::tr1::shared_ptr<nw4r::g3d::ScnRoot> mScnRoot;
     std::tr1::shared_ptr<nw4r::g3d::ScnGroup> mOutlineGroup;
     std::tr1::shared_ptr<nw4r::g3d::ScnGroup> mModelGroup;
