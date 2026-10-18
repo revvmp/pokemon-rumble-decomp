@@ -60,3 +60,13 @@ The established game compiler and flags remain unchanged. `python configure.py -
 ## Traps
 
 - An earlier split-only blocker can become stale after shared templates land, but inspect the full unit before assuming it is independent: `BWorldLightSet` also consumes the file readiness byte and the complete shadow-camera interface.
+
+# F-51-3: List operations consumed by the light-motion queue
+
+The existing shared list lacks `erase(iterator)`, `pop_front()` and `swap(list&)`. The light-set request-next path at `0x80068E70` uses all three operations: preserve the first motion in a temporary list, erase the current head, stop and clear the remaining old queue, then swap the preserved head back. Frame advancement at `0x800696A0` also removes the current head before proceeding to the next request. The native ring repair exchanges size and both sentinel links, reconnects nonempty rings to their new sentinels and reinitializes empty rings.
+
+The three ordinary list methods are added as a shared-header prerequisite, without modifying any previously available method or the container's twelve-byte layout. No source selection changes and no new coverage is claimed. The actual light-set consumer must still prove the generated inline operations against the target. Configure, default Ninja after removing only the old DOL, and frozen executable verification exit0. Of703 existing source objects,696 retain their whole-file hash. Original-header control compilations prove every allocated section and normalized relocation identical for the seven recompiled consumers: BWorld, CDividedGround, CMsgBalloon, CPpuEngine, CStageCamera, SaveData and ScriptCamera. The comparison preserves opcode/register bits and resolves local symbols to section offsets. These gates repeat on the header merge head.
+
+## Traps
+
+- Swapping just the two endpoint pointers leaves a list linked to the other object's sentinel. Native code reconnects both endpoints and separately initializes empty rings; preserve that behavior in the standard container operation.
