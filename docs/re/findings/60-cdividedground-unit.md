@@ -18,13 +18,33 @@ The unit has no `.ctors` entry, `.bss` or `.sbss` of its own. The one-byte flag 
 
 ## Why one unit
 
-- **Start.** The function before `0x80071220` is the third virtual of `CDisplayPhaseCtrl`, whose vtable, name and base list end at `0x8039B7B8` in `.data`. `0x80071220` stores the `CDividedGround` vtables (`0x8039BB68` and its `BSoundSource` part at `+0x48`) after calling the base constructor at `0x800528E0`, so it is the constructor and the first function of a new unit. This corrects the survey's assumption that #59 might extend into the block.
-- **One class.** `.data` holds one cluster of out-of-line literals (`.pkc` names, `stage.brres` paths, `vector length error`, `rep_EX%02d`), then the deleter vtables and type names for `shared_ptr` of `nw4r::g3d::ScnGroupEx`, `ScnMdlSimpleData`, `CBSPTree`, `CModel`, `CPpuEngine` and `CDividedGround`, the `CDividedGround` vtable, RTTI name and base lists, and one cluster of template literals (`tree::insert length error`, `basic_string` errors, `default_delete` names). All deleter functions named by those vtables lie in `0x800769A0`–`0x800776A0`. No `.ctors` entry or second class name interrupts the range.
+- **Start.** The function before `0x80071220` is the third virtual of `CDisplayPhaseCtrl`, whose vtable, name and base list end at `0x8039B7B8` in `.data`. `0x80071220` stores the `CDividedGround` vtables (`0x8039BB68` and its `BSoundSource` part at `+0x48`) after calling the base constructor at `0x800528E0`, so it is the constructor and the first function of a new unit. This confirms the survey's start address.
+- **One class.** `.data` holds one cluster of out-of-line literals (`.pkc` names, `stage.brres` paths, `vector length error`, `rep_EX%02d`), then the deleter vtables and type names for `shared_ptr` of `nw4r::g3d::ScnGroupEx`, `ScnMdlSimpleData`, `CBSPTree`, `CModel` and `CPpuEngine`, the `CDividedGround` vtable, RTTI name and base lists, and one cluster of template literals (`tree::insert length error`, `basic_string` errors, `default_delete` names). All deleter functions named by those vtables lie in `0x800769A0`–`0x800776A0`. No `.ctors` entry or second class name interrupts the range.
 - **End.** `0x800776B0` starts `CDlgCollection`, whose deleter vtable follows at `0x8039BFE8`.
 
 ## Class layout evidence
 
 The base lists give `CDividedGround : BModelObj`, with `BModelObj : BWorldObj` at 0, `BSoundSource` at `0x48` and `BKDTreeLink` at `0x64`; `BWorldObj : ICalc` at 0 and `std::tr1::enable_shared_from_this<BWorldObj>` at 4. The `CDividedGround` vtable has 16 primary slots and a 12-slot `BSoundSource` table. The constructor initializes members from `0xF8` to `0x16C`, including two arrays of two eight-byte objects built with `__construct_array` at `0x120` and `0x130`, and four self-linked list heads at `0x10C`, `0x14C`, `0x158` and `0x164`.
+
+# F-60-2: Prerequisites for reconstructing the unit
+
+The unit is 0x6488 bytes of code in 136 functions. Every function depends on declarations that do not yet exist in the repository and that belong to other issues, so no source is committed yet and the original object stays linked.
+
+| Prerequisite | Needed by | Owner |
+| --- | --- | --- |
+| `BModelObj`, `BWorldObj`, `BSoundSource`, `BKDTreeLink`, `IKDTreeLinkRemoved` declarations with exact layout to `0xF8` and vtable order | Constructor (`0x800528E0` base call, flag argument ORed with `0x8000`), destructor (`0x80052F60`), the 28 vtable slots, the `BSoundSource` thunk | #39 to #52 |
+| Metrowerks `std::list`, `std::vector`, `std::map` tree and `std::basic_string` storage | The four list heads, the vector at `0x114`, the list destructors at `0x80071310`–`0x80071830`, the `tree::insert` and `basic_string` error paths | MSL C++ headers, in progress under #327 (compressed pair storage, PR #919) |
+| `CModel`, `CBSPTree`, `CPpuEngine`, `ScnMdlSimpleData`, `nw4r::g3d::ScnGroupEx` | The `shared_ptr` deleters at `0x800769A0`–`0x800776A0` | Owning units of those classes |
+
+Deleter evidence, from the five `shared_ptr_deleter` vtables (slots: destructor, `get_deleter`, `dispose`):
+
+| Type | Deleter | `dispose` |
+| --- | --- | --- |
+| `nw4r::g3d::ScnGroupEx` | `void (*)(nw4r::g3d::G3dObj *)` | Calls the stored function pointer (`+0x10`) on the stored object (`+0xC`); the existing `shared_ptr_deleter.h` storage only accepts class deleters, so a function-pointer deleter needs the compressed pair storage |
+| `ScnMdlSimpleData` | `default_delete` | Inline destructor: a `vector` of `shared_ptr` at `+8` (pointer, size, capacity; elements destroyed from the end) and a `shared_ptr` at 0, then `operator delete` |
+| `CBSPTree` | `default_delete` | Non-virtual deleting destructor `0x801E6710` |
+| `CModel` | `default_delete` | Virtual destructor in slot 0 of a vtable at offset 0 |
+| `CPpuEngine` | `default_delete` | Virtual destructor in the fourth slot of a vtable at offset `0xC0` |
 
 ## Traps
 
