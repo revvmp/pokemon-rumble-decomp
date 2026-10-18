@@ -1,6 +1,7 @@
 #ifndef GAME_MATHUTIL_H
 #define GAME_MATHUTIL_H
 
+#include <algorithm>
 #include <revolution/types.h>
 
 f32 NormalizeSignedAngle(f32 degrees);
@@ -11,6 +12,10 @@ template <typename T> inline T Max(T a, T b) {
 
 template <typename T> inline T Min(T a, T b) {
     return (b < a) ? b : a;
+}
+
+template <typename T> inline T Clamp(T value, T low, T high) {
+    return std::min(std::max(low, value), high);
 }
 
 #endif

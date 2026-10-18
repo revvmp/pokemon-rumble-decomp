@@ -1,6 +1,7 @@
 #ifndef GAME_CLAYOUT_H
 #define GAME_CLAYOUT_H
 
+#include <memory>
 #include <revolution/types.h>
 
 namespace nw4r {
@@ -25,6 +26,9 @@ public:
         u16 mLastFrame;
         int mState;
     };
+
+    void SetVisible(bool visible);
+    std::tr1::shared_ptr<CMotionProgram> CreateMotion(const char* pName);
 };
 
 #endif
