@@ -1,6 +1,10 @@
+#include <game/CDividedGround.h>
+#include <game/CPlayerPii.h>
 #include <game/CStageCamera.h>
 #include <game/BWorld.h>
+#include <game/CPlayer.h>
 #include <game/CPpuEngine.h>
+#include <game/IGameSession.h>
 #include <game/MathUtil.h>
 #include <game/RenderMode.h>
 #include <memory>
@@ -596,3 +600,250 @@ int method_camIsObjInSafeFrame4x3(NPpu::CEngine* pEngine) {
 int method_camIsObjInSafeFrame16x9(NPpu::CEngine* pEngine) {
     return IsObjInSafeFrame(pEngine, SC_ASPECT_RATIO_16x9);
 }
+
+static nw4r::math::VEC3 ProjectToHeight(const nw4r::math::MTX34& rInvViewMtx, const nw4r::math::VEC3& rViewPos,
+                                        f32 height) {
+    nw4r::math::VEC3 eye = Transform(rInvViewMtx, nw4r::math::VEC3(0.0f, 0.0f, 0.0f));
+    nw4r::math::VEC3 pos = Transform(rInvViewMtx, rViewPos);
+    nw4r::math::VEC3 dir = pos - eye;
+    if (0.0f == dir.y) {
+        return nw4r::math::VEC3(pos.x, height, pos.z);
+    }
+
+    f32 t = (height - eye.y) / dir.y;
+    return nw4r::math::VEC3(eye.x + dir.x * t, height, eye.z + dir.z * t);
+}
+
+class CCameraAdjuster {
+public:
+    enum Result {
+        RESULT_INSIDE,
+        RESULT_BEHIND,
+        RESULT_MOVED,
+        RESULT_BLOCKED
+    };
+
+    CCameraAdjuster();
+
+    bool Init(BWorldCamera* pCamera, u32 aspect, f32 maxDepth, f32 margin) {
+        if (pCamera == nullptr) {
+            return false;
+        }
+
+        pCamera->GetG3dCamera().GetCameraMtx(&mViewMtx);
+        if (!Inverse(&mInvViewMtx, &mViewMtx)) {
+            return false;
+        }
+
+        SSafeFrame frame = GetSafeFrame(pCamera, aspect);
+        f32 scale = 1.0f / -frame.near;
+        mTopSlope = scale * frame.top;
+        mBottomSlope = scale * frame.bottom;
+        mLeftSlope = scale * frame.left;
+        mRightSlope = scale * frame.right;
+        mTopLimit = margin * mTopSlope;
+        mBottomLimit = margin * mBottomSlope;
+        mLeftLimit = margin * mLeftSlope;
+        mRightLimit = margin * mRightSlope;
+        mMaxDepth = maxDepth;
+        mDepth = 0.0f;
+        mCount = 0;
+        mSum = nw4r::math::VEC3(0.0f, 0.0f, 0.0f);
+        mClipped = false;
+        mGround = DynamicCast<CDividedGround>(pCamera->GetWorld()->GetGround());
+        mPosition = nw4r::math::VEC3(0.0f, 0.0f, 0.0f);
+        return Adjust();
+    }
+
+    const nw4r::math::VEC3& GetPosition() const { return mPosition; }
+    f32 GetDepth() const { return mDepth; }
+    bool IsClipped() const { return mClipped; }
+
+private:
+    bool Adjust() {
+        CPlayerPii* pFirst = nullptr;
+        nw4r::math::VEC3 firstOffset;
+        std::vector<CPlayerPii*> blocked;
+        blocked.reserve(4);
+
+        for (int i = 0; i < 4; i++) {
+            CPlayer* pPlayer = IGameSession::GetInstance()->GetPlayer(i);
+            if (!pPlayer->IsJoined()) {
+                continue;
+            }
+
+            CPlayerPii* pPii = pPlayer->GetPii();
+            if (pPii == nullptr) {
+                continue;
+            }
+
+            nw4r::math::VEC3 viewPos;
+            nw4r::math::VEC3 worldPos;
+            nw4r::math::VEC3 pos;
+            pos = pPii->GetPositionRef();
+            for (u32 step = 0;;) {
+                switch (AdjustPii(&viewPos, &worldPos, pos)) {
+                case RESULT_BEHIND:
+                    goto next;
+                case RESULT_MOVED:
+                    pPii->SetPosition(worldPos);
+                    break;
+                case RESULT_BLOCKED: {
+                    std::deque<nw4r::math::VEC3>& rHistory = pPii->GetPositionHistory();
+                    if (rHistory.size() <= step) {
+                        blocked.push_back(pPii);
+                        goto next;
+                    }
+                    pos = rHistory[rHistory.size() - step - 1];
+                    step++;
+                    continue;
+                }
+                }
+
+                mSum += viewPos;
+                mCount++;
+                if (pFirst == nullptr) {
+                    pFirst = pPii;
+                    firstOffset = viewPos;
+                }
+                break;
+            }
+        next:;
+        }
+
+        if (blocked.size()) {
+            if (mCount == 0) {
+                pFirst = blocked.back();
+                blocked.pop_back();
+                while (blocked.size()) {
+                    CPlayerPii* pPii = blocked.back();
+                    blocked.pop_back();
+                    pPii->SetPosition(nw4r::math::VEC3(pFirst->GetPositionRef().x, pPii->GetPositionRef().y,
+                                                       pFirst->GetPositionRef().z));
+                }
+
+                mPosition = pFirst->GetPositionRef();
+                mPosition.y = 0.0f;
+                return true;
+            }
+
+            while (blocked.size()) {
+                CPlayerPii* pPii = blocked.back();
+                blocked.pop_back();
+                pPii->SetPosition(nw4r::math::VEC3(pFirst->GetPositionRef().x, pPii->GetPositionRef().y,
+                                                   pFirst->GetPositionRef().z));
+                mSum += firstOffset;
+                mCount++;
+            }
+        }
+
+        if (mCount <= 0) {
+            return false;
+        }
+
+        mPosition = ProjectToHeight(mInvViewMtx, mSum / mCount, 0.0f);
+        return true;
+    }
+
+    Result AdjustPii(nw4r::math::VEC3* pViewPos, nw4r::math::VEC3* pWorldPos,
+                                                       const nw4r::math::VEC3& rPos) {
+        *pViewPos = Transform(mViewMtx, rPos);
+        if (0.0f <= pViewPos->z) {
+            return RESULT_BEHIND;
+        }
+
+        *pViewPos = *pViewPos * (-1.0f / pViewPos->z);
+        if (mDepth <= mMaxDepth) {
+            f32 top = pViewPos->z - pViewPos->y / mTopLimit;
+            f32 bottom = pViewPos->z - pViewPos->y / mBottomLimit;
+            f32 left = pViewPos->z - pViewPos->x / mLeftLimit;
+            f32 right = pViewPos->z - pViewPos->x / mRightLimit;
+            f32 depth = std::max(std::max(top, bottom), std::max(left, right));
+            if (0.0f < depth) {
+                mClipped = true;
+            }
+            mDepth = std::min(std::max(mDepth, depth), mMaxDepth);
+        }
+
+        f32 distance = pViewPos->z - mDepth;
+        bool moved = false;
+        f32 limit = distance * mTopSlope;
+        if (limit < pViewPos->y) {
+            pViewPos->y = limit;
+            moved = true;
+        } else {
+            limit = distance * mBottomSlope;
+            if (pViewPos->y < limit) {
+                pViewPos->y = limit;
+                moved = true;
+            }
+        }
+
+        limit = distance * mRightSlope;
+        if (limit < pViewPos->x) {
+            pViewPos->x = limit;
+            moved = true;
+        } else {
+            limit = distance * mLeftSlope;
+            if (pViewPos->x < limit) {
+                pViewPos->x = limit;
+                moved = true;
+            }
+        }
+
+        if (!moved) {
+            return RESULT_INSIDE;
+        }
+
+        *pWorldPos = ProjectToHeight(mInvViewMtx, *pViewPos, rPos.y);
+        if (mGround != nullptr && !mGround->IsOutOfBounds(*pWorldPos)) {
+            return RESULT_MOVED;
+        }
+
+        return RESULT_BLOCKED;
+    }
+
+    nw4r::math::MTX34 mViewMtx;
+    nw4r::math::MTX34 mInvViewMtx;
+    f32 mTopSlope;
+    f32 mBottomSlope;
+    f32 mLeftSlope;
+    f32 mRightSlope;
+    f32 mTopLimit;
+    f32 mBottomLimit;
+    f32 mLeftLimit;
+    f32 mRightLimit;
+    f32 mMaxDepth;
+    f32 mDepth;
+    int mCount;
+    nw4r::math::VEC3 mSum;
+    bool mClipped;
+    nw4r::math::VEC3 mPosition;
+    CDividedGround* mGround;
+};
+
+int method_camAdjustPos(NPpu::CEngine* pEngine) {
+    f32 margin = pEngine->PopFloat();
+    f32 maxDepth = pEngine->PopFloat();
+    NPpu::CValue* pClipped = pEngine->PopReference();
+    NPpu::CValue* pDepth = pEngine->PopReference();
+    NPpu::CValue* pPosition = pEngine->PopReference();
+    BWorldCamera* pCamera = DynamicCast<BWorldCamera>(static_cast<CPpuEngine*>(pEngine)->PopWorldObj());
+
+    CCameraAdjuster adjuster;
+    u8 aspect = SCGetAspectRatio();
+    if (adjuster.Init(pCamera, aspect, maxDepth, margin)) {
+        pPosition[0].SetFloat(adjuster.GetPosition().x);
+        pPosition[1].SetFloat(adjuster.GetPosition().y);
+        pPosition[2].SetFloat(adjuster.GetPosition().z);
+        pDepth->SetFloat(adjuster.GetDepth());
+        pClipped->SetInt(adjuster.IsClipped());
+        pEngine->PushInt(1);
+    } else {
+        pEngine->PushInt(0);
+    }
+
+    return 0;
+}
+
+inline CCameraAdjuster::CCameraAdjuster() {}

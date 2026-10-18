@@ -36,6 +36,7 @@ public:
     virtual void UpdateVisible();
 
     void LoadAttr(const char* pName, u32 flags);
+    bool IsOutOfBounds(const nw4r::math::VEC3& rPos);
 
 private:
     void LoadAttr(const StageID* pStageID, int stageNo, const char* pName, u32 flags);

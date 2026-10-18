@@ -1,0 +1,73 @@
+#ifndef _DEQUE
+#define _DEQUE
+
+#include <MSL_CPP/allocator.h>
+#include <MSL_CPP/compressed_pair.h>
+
+namespace std {
+
+template <typename T, typename Allocator> class __cdeque_buf {
+public:
+    typedef unsigned long size_type;
+
+    size_type& cap() { return capacity_.first(); }
+    T& operator[](size_type i) { return data_[(start_ + i) % cap()]; }
+
+    T* data_;
+    size_type start_;
+    size_type size_;
+    Metrowerks::compressed_pair<size_type, Allocator> capacity_;
+};
+
+template <typename T, typename Allocator> class __cdeque_pointer : public __cdeque_buf<void*, allocator<void*> > {
+    typedef __cdeque_buf<void*, allocator<void*> > base;
+
+public:
+    T*& operator[](size_type i) { return reinterpret_cast<T*&>(base::operator[](i)); }
+};
+
+template <typename T, typename Allocator> class __cdeque;
+
+template <typename T, typename Allocator> class __cdeque<T*, Allocator> : private __cdeque_pointer<T, Allocator> {
+    typedef __cdeque_pointer<T, Allocator> base;
+
+public:
+    typedef unsigned long size_type;
+
+    T*& operator[](size_type i) { return base::operator[](i); }
+};
+
+template <typename T, typename Allocator> class __deque_imp {
+public:
+    typedef unsigned long size_type;
+    typedef __cdeque<T*, typename Allocator::template rebind<T*>::other> buf_type;
+
+    enum { block_size = 1024 / sizeof(T) };
+
+    size_type size() const { return size_; }
+    buf_type& buf() { return buf_.first(); }
+
+    T& operator[](size_type n) {
+        size_type i = n + start_;
+        return buf()[i / block_size][i % block_size];
+    }
+
+    size_type start_;
+    size_type size_;
+    Metrowerks::compressed_pair<buf_type, Allocator> buf_;
+};
+
+template <typename T, typename Allocator = allocator<T> > class deque : private __deque_imp<T, Allocator> {
+    typedef __deque_imp<T, Allocator> base;
+
+public:
+    typedef T value_type;
+    typedef unsigned long size_type;
+
+    size_type size() const { return base::size(); }
+    T& operator[](size_type n) { return base::operator[](n); }
+};
+
+}
+
+#endif
