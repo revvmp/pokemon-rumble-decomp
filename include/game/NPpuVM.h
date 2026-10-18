@@ -3,6 +3,7 @@
 
 #include <revolution/types.h>
 #include <set>
+#include <string>
 
 namespace NPpu {
 
@@ -148,6 +149,20 @@ private:
     void AllocGlobals();
 };
 
+template <typename T> struct SGCString {
+    std::basic_string<T> mString;
+    int mMark;
+};
+
+template <typename T> struct SGCStringRef {
+    SGCStringRef(const T* pKey, SGCString<T>* pString) : mKey(pKey), mString(pString) {}
+
+    bool operator<(const SGCStringRef& rOther) const { return mKey < rOther.mKey; }
+
+    const T* mKey;
+    SGCString<T>* mString;
+};
+
 class CEngine {
 public:
     struct SFrame {
@@ -198,6 +213,13 @@ public:
     bool Reset();
     bool Call(CValue* pResult, int pc, int argCount, const CValue* pArgs);
     void Interrupt(const CValue& rValue);
+    const char* ToString(const CValue& rValue) const;
+    const wchar_t* ToWString(const CValue& rValue) const;
+    std::string ToStdString(const CValue& rValue) const;
+    std::wstring ToStdWString(const CValue& rValue) const;
+    void GetThrown(CValue& rValue) const;
+    const char* AllocString(const std::string& rString);
+    const wchar_t* AllocWString(const std::wstring& rString);
 
     CEnvironment* GetEnvironment() const { return mEnv; }
     State GetState() const { return static_cast<State>(mState); }
@@ -240,8 +262,9 @@ public:
         }
     }
 
-private:
     u32 Fetch() { return mCode->mCode[mPC++]; }
+
+private:
     void OnLineBegin() {}
     void OnLineEnd() {}
     void PushFrame(int baseIndex);
@@ -257,8 +280,10 @@ private:
 
 private:
     static int sNextID;
-    static std::set<char*>* sStrings;
-    static std::set<wchar_t*>* sWStrings;
+    static int sGCMark;
+    static int sGCAllocCount;
+    static std::set<SGCStringRef<char> >* sStrings;
+    static std::set<SGCStringRef<wchar_t> >* sWStrings;
     static std::set<CEngine*>* sInstances;
 
     int mID;

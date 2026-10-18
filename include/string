@@ -1,0 +1,107 @@
+#ifndef _STRING
+#define _STRING
+
+#include <MSL_CPP/allocator.h>
+#include <iosfwd>
+#include <iterator>
+#include <string.h>
+#include <wstring.h>
+
+namespace std {
+
+template <> struct char_traits<char> {
+    typedef char char_type;
+
+    static size_t length(const char_type* s) { return strlen(s); }
+};
+
+template <> struct char_traits<wchar_t> {
+    typedef wchar_t char_type;
+
+    static size_t length(const char_type* s) { return wcslen(s); }
+};
+
+template <class charT, class traits, class Allocator> class basic_string : private Allocator {
+public:
+    typedef traits traits_type;
+    typedef charT value_type;
+    typedef Allocator allocator_type;
+    typedef unsigned long size_type;
+    typedef charT* pointer;
+    typedef const charT* const_pointer;
+    typedef charT* iterator;
+    typedef const charT* const_iterator;
+
+    basic_string() { init(); }
+    basic_string(const charT* s) {
+        init();
+        size_type n = traits::length(s);
+        reserve(n);
+        replace(0, 0, s, s + n, forward_iterator_tag());
+    }
+    ~basic_string() {
+        if (is_long()) {
+            this->Allocator::deallocate(rep_.l.data_, rep_.l.cap_);
+        }
+    }
+
+    basic_string& operator=(const basic_string& str) {
+        if (!is_long() && !str.is_long()) {
+            rep_ = str.rep_;
+        } else {
+            assign(str.begin(), str.end());
+        }
+        return *this;
+    }
+
+    size_type size() const { return rep_.l.is_long_ == 0 ? rep_.s.size_ : rep_.l.size_; }
+    const charT* data() const { return rep_.l.is_long_ == 0 ? rep_.s.data_ : rep_.l.data_; }
+    const charT* c_str() const { return data(); }
+    const_iterator begin() const { return data(); }
+    const_iterator end() const { return data() + size(); }
+
+    template <class InputIterator> basic_string& assign(InputIterator first, InputIterator last) {
+        return replace(0, size(), first, last, forward_iterator_tag());
+    }
+
+    void reserve(size_type res_arg);
+
+    template <class ForwardIterator>
+    basic_string& replace(size_type pos, size_type n1, ForwardIterator j1, ForwardIterator j2, forward_iterator_tag);
+
+private:
+    struct long_rep {
+        size_type is_long_ : 1;
+        size_type cap_ : 31;
+        size_type size_;
+        charT* data_;
+    };
+
+    struct short_rep {
+        unsigned char is_long_ : 1;
+        unsigned char size_ : 7;
+        charT data_[(sizeof(long_rep) - 1) / sizeof(charT)];
+    };
+
+    union rep {
+        long_rep l;
+        short_rep s;
+        size_type words[3];
+    };
+
+    bool is_long() const { return rep_.l.is_long_; }
+    void init() {
+        rep_.words[0] = 0;
+        rep_.words[1] = 0;
+        rep_.words[2] = 0;
+    }
+
+    rep rep_;
+};
+
+typedef basic_string<char> string;
+typedef basic_string<wchar_t> wstring;
+
+}
+
+#endif
