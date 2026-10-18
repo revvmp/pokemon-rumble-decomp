@@ -67,6 +67,14 @@ public:
         mType = TYPE_FUNCTION;
         mInt = value;
     }
+    void SetStringPtr(const char* pString) {
+        mType = TYPE_STRING_PTR;
+        mInt = reinterpret_cast<int>(pString);
+    }
+    void SetWStringPtr(const wchar_t* pString) {
+        mType = TYPE_WSTRING_PTR;
+        mInt = reinterpret_cast<int>(pString);
+    }
     void SetReference(CValue* pValue);
     void Increment();
     void Decrement();
@@ -220,6 +228,7 @@ public:
     void GetThrown(CValue& rValue) const;
     const char* AllocString(const std::string& rString);
     const wchar_t* AllocWString(const std::wstring& rString);
+    static void CollectGarbage(int threshold, int);
 
     CEnvironment* GetEnvironment() const { return mEnv; }
     State GetState() const { return static_cast<State>(mState); }
@@ -234,6 +243,16 @@ public:
     void PushFloat(f32 value) {
         CValue v;
         v.SetFloat(value);
+        Push(v);
+    }
+    void PushString(const char* pString) {
+        CValue v;
+        v.SetStringPtr(pString);
+        Push(v);
+    }
+    void PushWString(const wchar_t* pString) {
+        CValue v;
+        v.SetWStringPtr(pString);
         Push(v);
     }
     int PopInt() {

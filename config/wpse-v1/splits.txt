@@ -182,11 +182,17 @@ game/NPpuVM.cpp:
 	.sdata2     start:0x804BA2F8 end:0x804BA320
 
 game/NPpuLibrary.cpp:
-	extab       start:0x80034EBC end:0x8003501C
-	extabindex  start:0x8004FF14 end:0x8005004C
-	.text       start:0x80174D70 end:0x801770F4
+	extab       start:0x80034EBC end:0x8003500C
+	extabindex  start:0x8004FF14 end:0x80050034
+	.text       start:0x80174D70 end:0x801768D4
 	.data       start:0x803B8440 end:0x803B8730
 	.sdata      start:0x804B7B68 end:0x804B7B78
+
+game/luckyhelper.cpp:
+	extab       start:0x8003500C end:0x8003501C
+	extabindex  start:0x80050034 end:0x8005004C
+	.text       start:0x801768E0 end:0x801770F4
+	.rodata     start:0x80366760 end:0x803667C8
 
 RevoEX/net/NETVersion.c:
 	.text       start:0x801770F4 end:0x801770FC

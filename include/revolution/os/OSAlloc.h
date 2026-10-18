@@ -14,6 +14,8 @@ extern volatile OSHeapHandle __OSCurrHeap;
 void* OSAllocFromHeap(OSHeapHandle heap, u32 size);
 void OSFreeToHeap(OSHeapHandle heap, void* ptr);
 
+#define OSAlloc(size) OSAllocFromHeap(__OSCurrHeap, (size))
+
 #ifdef __cplusplus
 }
 #endif
