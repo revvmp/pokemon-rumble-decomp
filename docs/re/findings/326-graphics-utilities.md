@@ -150,6 +150,8 @@ The model factory saves its incoming r6 at `0x801C7604`, forwards that word as l
 
 Independent inspection of the three actual callees confirms the consumer's checks. The shared-pointer predicate at `0x801288D0` tests its first word for nonzero. The pointee predicate at `0x801288F0` requires byte offset `0x28` to be zero and the pointer at `0x1C` to be nonnull. The data getter at `0x80072800` returns that same `0x1C` pointer. The actual instructions and cross-references are retained in `C:/MassStorage/GitHub/326-file-consumer-native.json`, from the outside IDA database copy. These observations agree with #328's archive-font consumer but do not establish a complete CFileData class. No partial canonical file-data class or guessed loader signature is introduced.
 
+The eight-byte loader wrapper itself establishes that r5 carries bit flags: at `0x80066930` it ORs r5 with `0x2000` and tail-branches to `0x801A6420`. The latter preserves r6 across its underlying creation call, then uses its zero/nonzero value to choose distinct processing paths before validating the returned pointee. That is evidence against treating r6 as an allocator pointer, but it does not recover its original integer or boolean declaration. Both actual instruction streams are retained in `326-loader-native.json`; the large processing callees remain outside this issue and are not reconstructed.
+
 ## Traps
 
 - A callee's constants are caller-specific. Recheck the actual argument preparation rather than transferring a nearby consumer's fixed flags or allocation parameters. Native offsets and predicates can corroborate an incomplete interface without proving the rest of its class layout.
