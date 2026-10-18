@@ -336,6 +336,21 @@ nw4r/ut/ut_CntFileStream.cpp:
 	.sdata      start:0x804B81D8 end:0x804B81F0
 	.sbss       start:0x804B9130 end:0x804B9134
 
+game/VideoTiming.cpp:
+	extab       start:0x80037C80 end:0x80037C88
+	extabindex  start:0x800506AC end:0x800506B8
+	.text       start:0x801AFC80 end:0x801AFCE8
+
+game/FaAsync.cpp:
+	extab       start:0x80037C88 end:0x80037F80
+	extabindex  start:0x800506B8 end:0x80050730
+	.text       start:0x801AFCF0 end:0x801B0638
+
+game/NandAsync.cpp:
+	extab       start:0x80037F80 end:0x8003822C
+	extabindex  start:0x80050730 end:0x8005079C
+	.text       start:0x801B0640 end:0x801B0EE8
+
 game/QuarterTurn.cpp:
 	extab       start:0x80038DA8 end:0x80038DB0
 	extabindex  start:0x80050A30 end:0x80050A3C
