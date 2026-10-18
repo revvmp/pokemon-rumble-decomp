@@ -45,6 +45,8 @@ The NAND diagnostic includes this actual tracked header, rather than an external
 
 The header candidate also completes a fresh default 531-target plain Ninja build. All 524 existing compiled source objects have identical complete SHA-256 hashes before and after adding the declaration; no allocated section, relocation, compiler metadata, or object inventory changes. Configure, Ninja, the object control and the explicit frozen executable verifier exit zero. The header contributes zero reconstructed instruction bytes.
 
+The later integration control is actual main `ba3bf8dd03f37dc60726198a95bb223743e36622`, including the newly added NonMatching BModelObj source and canonical interfaces from #943. A fresh default 557-target plain Ninja and explicit frozen verification both exit zero on that clean commit. All 550 compiled source objects, their hashes, the ELF, DOL and tracked source/header/config input hashes are independently preserved before applying this declaration. This replaces the earlier 524-object control for the final header gate; no superseded interface proposal is substituted for canonical main.
+
 ## Traps
 
 The survey's NAND description does not identify every wrapper: the earlier callback has result offset `0x17C`, whereas the actual NAND callback has result offset `0xC8`. Their direct callees and canonical command sizes prove two different APIs. Do not apply the NAND layout to the PrFILE2 work area.
