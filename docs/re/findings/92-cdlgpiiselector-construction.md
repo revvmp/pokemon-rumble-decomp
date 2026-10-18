@@ -63,6 +63,8 @@ With these headers on main, `configure.py`, `ninja` and `verify.py` exit 0. The 
 
 The factory's first loop calls, for players 0 to 3, the static getter `0x800BAD40` (returns the `.sbss` word `0x804B9000`, set by `0x800B2040` in the `CGameSession` file). It then makes a virtual call through slot 24 (offset 0x68) with the player index, and passes the result and the factory's `bool` to `0x801081E0`. That routine yields the fiber until bit 0 of the object's first word clears. The getter's object is an `IGameSession`: its vtable `0x803A3BC8` is the `ICalcDraw` slots followed by about 37 pure virtuals. Every function in this block is a weak copy emitted only because the factory or the constructor it calls references it. Committing any of them therefore needs `IGameSession` declared with at least the 20 pure virtuals before slot 24, and none of those has a name yet. That interface belongs to the `CGameSession.cpp` owner (#126). The `IDlgPiiSelector` header also needs names for selector slots 9 to 13, which belong to #93 and later. The source stays uncommitted, and the unit remains `NonMatching` with the original object.
 
+Superseded: [F-91-2](91-cdlgpiiselector.md#f-91-2-factory-and-session-interface) declares `ISession` and `IGameSession` through slot 24 and names selector slots 9 to 13. With those declarations the source is committed. All 23 functions of this block are at 100% in objdiff, `0x800931F0` is `Init(bool)`, and the full build verifies.
+
 ## Method
 
 GNU objdump 2.42 on `build/wpse-v1/main.elf`, Python reading `orig/wpse-v1/main.dol` for vtables and RTTI, Wii/1.1 with `cflags_game` through `tools/re/unitdiff.py`, and a before-and-after comparison of `build/wpse-v1/report.json`. No decompiler output was used.
