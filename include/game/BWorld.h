@@ -155,6 +155,9 @@ public:
     bool AddObject(std::tr1::shared_ptr<BWorldObj> obj);
     void RemoveObject(std::tr1::shared_ptr<BWorldObj> obj);
     void RemoveAllEffects(bool retire);
+    bool RemoveOldestEffect(bool retire);
+    u32 GetEffectGroupID() const;
+    u32 GetCaptureEffectGroupID() const;
 
 private:
     u32 mFlags;

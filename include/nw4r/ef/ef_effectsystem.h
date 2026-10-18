@@ -73,6 +73,9 @@ public:
 
         if (mMemoryManager != NULL) {
             Initialize(maxGroupID);
+        } else {
+            mMaxGroupID = 0;
+            mActivityList = NULL;
         }
     }
 
