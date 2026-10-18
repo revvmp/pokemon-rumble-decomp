@@ -76,6 +76,21 @@ The compiler also emits the diagnostic `shared_ptr<void>` destructor, size `0x84
 
 This does not establish a complete generic shared-pointer implementation, the full archive-font construction method, a complete CFileData class, the archive-font unit's initialized data or source-selected acceptance. The seven-function converter remains the independent complete unit prepared for the next tooling stage.
 
+## F-328-3: checked shared-from-this conversion
+
+The native routine at `0x801C9C20`, size `0xD0`, is reproduced by the ordinary `enable_shared_from_this<BUI>::shared_from_this()` body returning `shared_ptr<BUI>(mWeakThis)`. The checked weak constructor initializes an empty result, obtains `rWeak.lock()`, throws `bad_weak_ptr` when the temporary's use count is zero, then swaps the temporary into the result. The diagnostic reuses the #327 owner's independently reconstructed weak-lock behavior and shared control layout. It adds only ordinary diagnostic getter, checked-construction and swap operations outside the repository; no generic canonical header is changed.
+
+An independently emitted checked constructor has the same body plus the normal constructor return-this instruction, totaling 212 bytes. Returning that constructor expression through the genuine shared-from-this method instead produces the native 208-byte function exactly. This difference establishes the method/return convention, rather than just an instruction pattern with an arbitrarily omitted return.
+
+Strict comparison validates all 208 owned instruction bytes and ten actual code relocation sites. The thrown type-name record is the native 42-byte record at `0x803C02B0`; the exception vtable's actual destructor slot points to `0x8007CC80`. The emitted shared-pointer destructor also independently matches the existing 132-byte routine at `0x8007C5F0`, including its three code targets. Both exception records and indices match all 120 bytes and five relocation targets. The existing destructor receives no duplicate byte credit. The precise exposed pointer specialization still depends on the independently established BUI consumer; destruction bytes alone do not recover a template element type.
+
+| External diagnostic command | Exit | Result |
+| --- | --- | --- |
+| `python C:/MassStorage/GitHub/328-probe-checked-weak.py` | 0 | Ordinary shared-from-this method has the native size and every non-relocation instruction word |
+| `python C:/MassStorage/GitHub/328-strict-checked-weak.py` | 0 | Owned method and existing destructor, thirteen code sites, two exception records, 120 exception/index bytes and five exception targets exact |
+
+This is bounded native evidence for the #327 owner's complete UI source. It does not select another source unit, supply a complete generic smart-pointer header, or establish completion of the original #328 inventory.
+
 ## Traps
 
 - For this narrow Shift-JIS character parameter, `0x8100 <= value` and `0xE000 <= value` retain the native direct comparisons. Reversing the lower comparisons to `value >= ...` enables range fusion and changes seven instruction words. Controlled signed/unsigned literal probes showed that literal signedness was not the cause. Preserve ordinary relational operand spelling before considering type or compiler changes.
