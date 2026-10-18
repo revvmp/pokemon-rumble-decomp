@@ -18,6 +18,8 @@ Declaration-only reference inspection establishes std::move_ptr storage as compr
 
 Wii/1.3 with the same game flags reproduces the same three differences in each method. Ordinary explicit-deleter, copy-initialization, out-of-class constructor and control-initialization variants do not resolve them. Explicit inline definitions also preserve the gap. Passing a local deleter by reference to the control constructor with an auto_ptr guard changes the function extents and does not match. No flag, forced register, artificial padding, manual stack slot or dummy helper has been accepted. The current first-only compressed-pair constructor is outside-only and is not part of the separately proposed canonical header.
 
+The later canonical memory header from #948 was also compiled against this ordinary class diagnostic. Its complete ownership implementation enlarges StartSound and SetPitch to 372 and 376 bytes and emits an 80-byte variadic enable_from_this hook, so it is not an accepted replacement for these consumers. A narrower diagnostic using only that header's Metrowerks::move_ptr with direct empty-base storage preserves the original 320/324 extents but retains exactly the same three stack-slot word differences per method. Changing the holder namespace or replacing compressed-pair storage with that direct empty-base storage therefore does not resolve the gap. These comparisons remain outside the repository; no canonical ownership implementation was altered.
+
 ## Traps
 
 - A GetVolume interpretation almost matches GetPitch but selects the wrong proven SoundActorParam field. Preserve the existing canonical parameter layout and identify the operation from its actual `0x4C` access.
