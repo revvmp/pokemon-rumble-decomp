@@ -29,6 +29,8 @@ The decisive native origin callbacks are `DrawStripeStrategy::CalcAhead_Particle
 
 The outside proof outputs are `383-reference/header-95d4ee86-native/stripe-paired-native.json` and `smooth-forward-paired-native.json`. They are produced by `383-header-current-stripe-paired.py` and `383-header-current-smooth-paired.py`; the latter independently decodes targets from the frozen executable and current canonical symbols. The #384 owner's separate `384-reference/smooth-forward-paired-native.json` confirms all 28 smooth-stripe functions, 513 text sites, vtable, constants, and storage extents.
 
+A paired original-header control, compiled with the same command and only the canonical header restored through an isolated include overlay, emits 41 functions. Forty retain identical instruction bytes and relocation records. Only `CalcAhead_ParticleBoth_Origin` changes, from 564 bytes to the native 552 bytes. Its proposed instruction stream is independently verified above. `383-compare-smooth-control.py` records the complete function comparison and both body hashes in `383-reference/header-95d4ee86-native/smooth-original-control.json`. This bounds the expected smooth-stripe exception without excluding the rest of that object from review.
+
 ## Acceptance boundary
 
 These are individual native proofs. They do not establish source-selected linking, a new Matching designation, issue completion, or measured progress. The proposed header still requires a current-main full existing-source comparison, actual `all_source` and default Ninja builds, and explicit frozen verification before it can be marked ready. Every existing Matching output must remain exact; any intended NonMatching difference must be identified precisely rather than omitted from the comparison.
