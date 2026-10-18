@@ -39,10 +39,20 @@ The vertex-color setup, overlay-state setup and screen quad each reproduce their
 
 The quad takes `nw4r::ut::Color` by value. Native callers at `0x800BA98C`, `0x801E4DEC` and `0x801E4E10` pass separate caller-owned copies; the latter two make distinct word copies of the same local RGBA color before each call. The ordinary by-value signature reproduces the native repeated packed-color loads and exact `0xF8` body. A const-reference signature incorrectly allows one color load to be reused and omits twelve bytes. No volatile qualifier is needed or supported.
 
+## F-325-2: Source-selected class acceptance
+
+After the verified split-only gate, all four units are registered NonMatching and compiled through plain Ninja. Configure, the nine-command incremental Ninja pipeline, its real objdiff report and explicit frozen executable verification all exit zero. All 33 retained class functions score 100 percent. The strict diagnostic repeats successfully against the actual Ninja-built objects, including every retained data and exception relocation.
+
+Only the three complete class registrations then become Matching. Configure, plain Ninja and explicit frozen executable verification exit zero again. The actual link selects each compiled class source object once and selects none of their corresponding fallback objects. All 33 final function addresses and all 4,536 relocated instruction bytes equal the native executable. The linked audit also compares all 710 initialized bytes and all 480 retained exception/index bytes at their actual native addresses. The unretained extra `AnmObj` destructor is absent from this range. All 535 original compiled source objects remain identical complete files; the candidate adds only the four owned compiler objects, with rendering still using its fallback.
+
+Raw Override/RootScale `.data` each score approximately 69 percent because the compiler also emits duplicate base-class RTTI definitions and their strings. The linker discards those redundant weak definitions, leaving each exact original `0xA8`-byte retained data extent. Group's extra unretained destructor similarly adds raw exception bytes and an index; those records are discarded. No claim of universal raw-section equivalence is made. Explicit retained relocation/data/table proof and the exact source-selected final ELF/DOL establish the accepted native coverage.
+
+This accepts 33 of the original 37 functions / 4,536 of 5,348 native instruction bytes. The four-function rendering unit remains NonMatching, receives no linked source-byte credit, and prevents issue closure. Its projection helper still differs under the additional isolated `-O4,s` measurement, so the production flags remain unchanged. The final latest-main rebase and exact committed-head merge gate remain required before integration.
+
 ## Traps
 
 An instruction-only search can incorrectly pair identical destructors or RTTI helper bodies with another class. The class audit instead pairs the full ordered inventory, validates every relocated target, and compares the class-specific vtables and type-name data. Raw masked comparison remains diagnostic only.
 
-The Group compiler object also emits an unretained weak `AnmObj` destructor and its exception metadata. It is excluded from the 33-function inventory. Its extra raw object bytes do not justify claiming another native function or whole-section equivalence; the final source-selected link must demonstrate that it is discarded.
+The Group compiler object also emits an unretained weak `AnmObj` destructor and its exception metadata. It is excluded from the 33-function inventory. Its extra raw object bytes do not justify claiming another native function or whole-section equivalence; the actual source-selected final ELF proves that it is discarded.
 
 The canonical allocator spelling matters. Using `ut::RoundUp` and one typed `u8*` allocation result reproduces both derived allocation routines, whereas a redundant `void*` alias changes several register assignments. Include `ut_algorithm.h` before the G3D headers and undefine the SDK `RoundUp` macro before qualified template calls, as already established in F-399. Do not invent replacement rounding helpers or compiler settings.
