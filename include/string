@@ -45,6 +45,11 @@ public:
         }
     }
 
+    basic_string& operator=(const charT* s) {
+        size_type oldSize = size();
+        return replace(0, oldSize, s, s + traits::length(s), forward_iterator_tag());
+    }
+
     basic_string& operator=(const basic_string& str) {
         if (!is_long() && !str.is_long()) {
             rep_ = str.rep_;
