@@ -2,10 +2,13 @@
 #define GAME_SAVEDATA_H
 
 #include <revolution/types.h>
+#include <string.h>
 #include <vector>
 
 class CMapRecord {
 public:
+    CMapRecord() : mValue(0) {}
+
     bool IsFlagSet(u32 flags) const { return (mValue & flags) == flags; }
     int GetClearCount() const { return mValue >> 22; }
 
@@ -34,6 +37,8 @@ class SlotData;
 
 class VectorStructs {
 public:
+    ~VectorStructs() {}
+
     virtual std::vector<SD_PiiPersonalData>* GetPiiPersonalData() { return nullptr; }
     virtual std::vector<SD_PiiCollectionData>* GetPiiCollectionData() { return nullptr; }
     virtual std::vector<SD_BattleRoyalData>* GetBattleRoyalData() { return nullptr; }
@@ -50,6 +55,11 @@ public:
         u32 mValues[11];
     };
 
+    SD_PiiPersonalData() { ClearData(); }
+
+    static u16 GetDataSize() { return sizeof(Data); }
+    void ClearData() { memset(&mData, 0, sizeof(mData)); }
+
     Data mData;
 
     static VectorStructType sVectorTypes[1];
@@ -60,6 +70,11 @@ public:
     struct Data {
         u32 mValue;
     };
+
+    SD_BattleRoyalData() { ClearData(); }
+
+    static u16 GetDataSize() { return sizeof(Data); }
+    void ClearData() { memset(&mData, 0, sizeof(mData)); }
 
     Data mData;
 
@@ -72,6 +87,11 @@ public:
         u32 mValue;
     };
 
+    SD_StatisticValue() { ClearData(); }
+
+    static u16 GetDataSize() { return sizeof(Data); }
+    void ClearData() { memset(&mData, 0, sizeof(mData)); }
+
     Data mData;
 
     static VectorStructType sVectorTypes[1];
@@ -83,6 +103,11 @@ public:
         u32 mValues[4];
     };
 
+    SD_PiiCollectionData() { ClearData(); }
+
+    static u16 GetDataSize() { return sizeof(Data); }
+    void ClearData() { memset(&mData, 0, sizeof(mData)); }
+
     Data mData;
 
     static VectorStructType sVectorTypes[1];
@@ -93,6 +118,11 @@ public:
     struct Data {
         u32 mPassword;
     };
+
+    UsedPassword() { ClearData(); }
+
+    static u16 GetDataSize() { return sizeof(Data); }
+    void ClearData() { memset(&mData, 0, sizeof(mData)); }
 
     Data mData;
 
@@ -109,6 +139,11 @@ public:
         s64 mTime;
         u8 mStatus[0x20];
     };
+
+    SlotData() { ClearData(); }
+
+    static u16 GetDataSize() { return sizeof(Data); }
+    void ClearData() { memset(&mData, 0, sizeof(mData)); }
 
     virtual std::vector<SD_PiiPersonalData>* GetPiiPersonalData() { return &mPiiPersonalData; }
     virtual std::vector<SD_PiiCollectionData>* GetPiiCollectionData() { return &mPiiCollectionData; }
@@ -137,6 +172,11 @@ public:
         u32 mSlotDigests[3][5];
     };
 
+    SaveData() { ClearData(); }
+
+    static u16 GetDataSize() { return sizeof(Data); }
+    void ClearData() { memset(&mData, 0, sizeof(mData)); }
+
     virtual std::vector<SlotData>* GetSlotData() { return &mSlotData; }
 
     Data mData;
@@ -146,5 +186,6 @@ public:
 };
 
 SlotData* GetSaveData(int slot);
+int Load(bool backup);
 
 #endif
