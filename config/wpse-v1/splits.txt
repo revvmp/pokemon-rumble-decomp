@@ -1067,6 +1067,10 @@ RVL_SDK/fa/sd_drv.c:
 	.bss        start:0x80422BE0 end:0x80422E40
 	.sbss       start:0x804B9240 end:0x804B9268
 
+RVL_SDK/fa/msc_drv.c:
+	.text       start:0x80222FB0 end:0x80222FC4
+	.sbss       start:0x804B9268 end:0x804B9270
+
 RVL_SDK/fa/sdi_api.c:
 	.text       start:0x80223E70 end:0x8022541C
 	.data       start:0x803C5280 end:0x803C52D0
