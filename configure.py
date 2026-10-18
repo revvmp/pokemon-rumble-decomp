@@ -219,6 +219,7 @@ config.libs = [
             Object(Matching, "game/BController.cpp"),
             Object(Matching, "nw4r/ut/ut_CntFileStream.cpp"),
             Object(NonMatching, "game/BModelObj.cpp"),
+            Object(NonMatching, "game/BWorld.cpp"),
             Object(NonMatching, "game/BWorldCamera.cpp"),
             Object(NonMatching, "game/BWorldLightSet.cpp"),
             Object(NonMatching, "game/BWorldObj.cpp"),
