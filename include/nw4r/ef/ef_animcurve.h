@@ -7,6 +7,9 @@ namespace ef {
 
 class Particle;
 
+f32 AnimCurveCalcTime(u8* pCmdList, u32 tick, u32 life);
+u16 AnimCurveCalcFrameStep(u8* pCmdList, u32 tick, u32 life);
+
 void AnimCurveExecuteU8(u8* pCmdList, u8* pTarget, u32 tick, u16 seed,
                         u32 life);
 
