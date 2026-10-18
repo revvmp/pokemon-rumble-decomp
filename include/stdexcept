@@ -1,0 +1,28 @@
+#ifndef _STDEXCEPT
+#define _STDEXCEPT
+
+#include <exception>
+#include <memory>
+#include <string.h>
+
+namespace std {
+
+class logic_error : public exception {
+public:
+    explicit logic_error(const char* pWhat) : what_(new char[strlen(pWhat) + 1], detail::default_delete<char[]>()) {
+        strcpy(what_.get(), pWhat);
+    }
+    virtual const char* what() const { return what_.get(); }
+
+private:
+    tr1::shared_ptr<char> what_;
+};
+
+class length_error : public logic_error {
+public:
+    explicit length_error(const char* pWhat) : logic_error(pWhat) {}
+};
+
+}
+
+#endif
