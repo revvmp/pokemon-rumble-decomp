@@ -42,6 +42,8 @@ functions / 10,172 bytes, all 315 independently resolved relocation targets,
 eighty vtable bytes and twelve constant payload bytes. No pending-interface
 or reference fallback include directory is used. This checkpoint confirms
 that deduplicating the owner-approved #799 and #802 interfaces preserves
-the source reconstruction. A fresh shared-header baseline and complete
-actual source-selected build on the final committed public stack remain
-required; the private full-build evidence above is historical.
+the source reconstruction. The final committed public stack, including the #864 header, was then
+rebased onto current main and built from a clean build directory: `python
+configure.py`, `.venv/Scripts/ninja` and frozen `tools/verify/verify.py`
+all exit 0 with the unit source selected, and the report scores its text,
+data and small-data constants at 100%.
