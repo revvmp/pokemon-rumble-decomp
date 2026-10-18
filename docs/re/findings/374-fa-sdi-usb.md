@@ -2,7 +2,7 @@
 
 ## Scope and provenance
 
-Issue #374 surveys 35 retained rows and 8,172 instruction bytes. Its first eight functions are the tail of `puh_msc_blk.c`, whose first function belongs to the same contributor's #373 claim. The remaining rows comprise twenty functions in `sdi_api.c`, three in `puh_ker_mem.c`, and four in `puh_ker_msg.c`. No unit is source-selected by this checkpoint and no new production source bytes are claimed.
+Issue #374 surveys 35 retained rows and 8,172 instruction bytes. Its first eight functions are the tail of `puh_msc_blk.c`, whose first function belongs to the same contributor's #373 claim. The remaining rows comprise twenty functions in `sdi_api.c`, three in `puh_ker_mem.c`, one in `puh_ker_msg.c`, and three in `puh_ker_sem.c`. No unit is source-selected by this checkpoint and no new production source bytes are claimed.
 
 The reference is [wii-ipl at f4c09f4001c5a0b9af734ad1e3f80a54c5e5723c](https://github.com/koopthekoopa/wii-ipl/tree/f4c09f4001c5a0b9af734ad1e3f80a54c5e5723c). Its root license is CC0; the selected SDI and USB kernel files have no overriding file-level notices. The local reference manifest records the commit, blob identifiers and SHA-256 values for each selected file. Reference comments are removed before generating candidates with the project's vendor stripping tool. Native function identities and unit order are checked independently against the pinned IPL symbol and split maps.
 
@@ -23,10 +23,14 @@ External Wii/1.0 SDK compilations resolve every relocation to its actual target 
 | `uhf_ker_get_memory_block` | `0x80225420` | 32 | Exact |
 | `uhf_ker_release_memory_block` | `0x80225440` | 60 | Exact |
 | `uhf_ker_check_cacheable` | `0x80225480` | 8 | Exact |
+| `uhf_ker_send_message` | `0x80225490` | 132 | Exact |
+| `uhf_ker_create_sem` | `0x80225520` | 408 | Exact |
+| `uhf_ker_delete_sem` | `0x802256C0` | 256 | Exact |
+| `uhf_ker_get_sem` | `0x802257C0` | 96 | Exact |
 
-These eleven functions cover 2,440 native instruction bytes. The memory unit also reproduces its four internal padding bytes, for 104 text bytes total, with no allocated data and both actual MEM call targets exact. These are external candidate results, not source-selected acceptance or a full issue completion.
+These fifteen functions cover 3,332 native instruction bytes. The memory unit also reproduces its four internal padding bytes, for 104 text bytes total, with no allocated data and both actual MEM call targets exact. The message unit's 132 text bytes and semaphore unit's 768 text bytes, including eight internal padding bytes, compare exactly after actual relocation resolution. Their retained static storage still needs the full native layout and whole-unit acceptance checks. These are external candidate results, not source-selected acceptance or a full issue completion.
 
-Reproduction scripts outside the checkout are `374-probe-sdi-reference.py`, `374-audit-sdi-partial.py`, and `374-probe-memory-kernel.py`. All completed with exit 0. The SD audit deliberately reports partial coverage and retains mismatches rather than treating its exit status as whole-unit acceptance. No configure, Ninja or frozen build verification has run for this checkpoint.
+Reproduction scripts outside the checkout are `374-probe-sdi-reference.py`, `374-audit-sdi-partial.py`, `374-probe-memory-kernel.py`, and `374-probe-usb-kernel-reference.py`. All completed with exit 0. The SD audit deliberately reports partial coverage and retains mismatches rather than treating its exit status as whole-unit acceptance. No configure, Ninja or frozen build verification has run for this checkpoint.
 
 ## Header coordination
 
@@ -34,7 +38,7 @@ The externally owned #372/#931 `include/revolution/fa/isd.h` already proposes a 
 
 ## Remaining work
 
-The reference is partial: several retained SD routines and three message-kernel routines require reconstruction. Static `sduCommandv` and data-width helpers are currently unretained because their missing callers have not been added, so their absence from the candidate object does not prove a boundary. An extra reference `ISD_ProbeCard` body has no corresponding retained target entry and must be handled before whole-unit comparison. The eight shared USB block tails remain part of this issue's original acceptance inventory.
+The SD reference is partial: several retained SD routines require reconstruction. Static `sduCommandv` and data-width helpers are currently unretained because their missing callers have not been added, so their absence from the candidate object does not prove a boundary. An extra reference `ISD_ProbeCard` body has no corresponding retained target entry and must be handled before whole-unit comparison. The eight shared USB block tails remain part of this issue's original acceptance inventory.
 
 `ISD_GetCardSize` has the correct 336-byte extent but still differs. Introducing ordinary named CSD size and multiplier locals before the read-length clamp reduced differences from 33 words to 26; a bounded declaration-order diagnostic reaches 23. None is accepted. Preserve the controls and pursue plausible readable data flow rather than register-forcing source changes.
 
@@ -44,3 +48,5 @@ The reference is partial: several retained SD routines and three message-kernel 
 - The high-capacity size calculation in the reference multiplies by 512, while the native target shifts by ten and therefore multiplies by 1,024. Reference revision agreement cannot replace the native semantic check.
 - The reference's SD command allocation uses a rounding macro absent from current headers. Its actual requested extent is 64 bytes; preserve that evidenced extent with an ordinary equivalent expression rather than adding an unsupported shared macro.
 - A partial audit returning zero reports that it completed its comparison. Its explicit per-function mismatch and coverage records remain authoritative; it does not establish whole-unit matching.
+- The three routines after message sending are semaphore operations in the distinct `puh_ker_sem.c` unit. Their actual `OSWaitSemaphore` calls and pinned original names independently confirm the boundary. Do not infer a four-function message unit from adjacency or from a partial reference file.
+- The reference's semaphore creation checks `count != 0 && count != 1`; this target uses the ordinary unsigned `count > 1` equivalent. That bounded source change reproduces the target's 408-byte function rather than the reference's 416-byte version.
