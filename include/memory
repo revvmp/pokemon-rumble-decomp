@@ -160,6 +160,7 @@ public:
     T* operator->() const { return ptr_; }
     long use_count() const { return s_ ? s_->use_count() : 0; }
     operator int bool_type::*() const { return ptr_ ? &bool_type::dummy_ : nullptr; }
+    template <typename Y> bool operator<(const shared_ptr<Y>& r) const { return s_ < r.s_; }
 
 private:
     template <typename Y> friend class shared_ptr;

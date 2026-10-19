@@ -7,6 +7,8 @@
 #include <nw4r/g3d/g3d_scnmdlsmpl.h>
 #include <nw4r/math/math_triangular.h>
 
+void SetSceneObjectEnabled(nw4r::g3d::ScnObj* pScnObj, bool enable);
+
 BModelObj::BModelObj(u32 type) :
     BWorldObj(type | TYPE_MODEL_OBJ),
     mFlags(0),
@@ -187,6 +189,67 @@ void BModelObj::Calc() {
         mModel->UpdateFrame(1.0f);
     }
     BSoundSource::SetPosition(mPosition);
+}
+
+void BModelObj::AddDrawLayer(const std::tr1::shared_ptr<IDrawLayer>& rLayer) {
+    if (rLayer) {
+        mDrawLayers.insert(rLayer);
+    }
+}
+
+void BModelObj::CalcMtx() {
+    if (mModel != nullptr) {
+        bool visible = IsVisible();
+        nw4r::g3d::ScnObj* pScnObj = mModel->GetScnObj();
+        if (visible) {
+            if (mFlags & FLAG_HIDDEN) {
+                mFlags &= ~FLAG_HIDDEN;
+                SetSceneObjectEnabled(pScnObj, true);
+            }
+        } else {
+            if (!(mFlags & FLAG_HIDDEN)) {
+                mFlags |= FLAG_HIDDEN;
+                SetSceneObjectEnabled(pScnObj, false);
+            }
+        }
+    }
+
+    if (!IsVisible()) {
+        return;
+    }
+    if (!(mFlags & FLAG_DIRTY_MTX)) {
+        return;
+    }
+    if (!mModel) {
+        return;
+    }
+
+    mFlags &= ~FLAG_DIRTY_MTX;
+
+    if (mFlags & FLAG_BASE_MTX) {
+        mModel->GetScnObj()->SetMtx(nw4r::g3d::ScnObj::MTX_LOCAL, mBaseMtx);
+        return;
+    }
+
+    f32 cos;
+    f32 sin;
+    nw4r::math::SinCosDeg(&sin, &cos, mRotation);
+
+    nw4r::math::MTX34 rot;
+    rot = nw4r::math::MTX34(cos, 0.0f, sin, 0.0f,
+                            0.0f, 1.0f, 0.0f, 0.0f,
+                            -sin, 0.0f, cos, 0.0f);
+    nw4r::math::MTX34 scale(mScale.x, 0.0f, 0.0f, 0.0f,
+                            0.0f, mScale.y, 0.0f, 0.0f,
+                            0.0f, 0.0f, mScale.z, 0.0f);
+    nw4r::math::MTX34 tmp;
+    nw4r::math::MTX34 trans(1.0f, 0.0f, 0.0f, mPosition.x,
+                            0.0f, 1.0f, 0.0f, mPosition.y,
+                            0.0f, 0.0f, 1.0f, mPosition.z);
+    nw4r::math::MTX34 mtx;
+    nw4r::math::MTX34Mult(&tmp, &trans, &scale);
+    nw4r::math::MTX34Mult(&mtx, &tmp, &rot);
+    mModel->GetScnObj()->SetMtx(nw4r::g3d::ScnObj::MTX_LOCAL, mtx);
 }
 
 void BModelObj::SetRotation(f32 rotation) {

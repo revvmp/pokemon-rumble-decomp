@@ -165,8 +165,8 @@ private:
 template <typename T, typename Compare, typename Allocator>
 pair<typename tree_imp<T, Compare, Allocator>::iterator, bool> tree_imp<T, Compare, Allocator>::insert(const value_type& rValue) {
     node* pPred;
-    bool left;
     bool leftmost;
+    bool left;
     tree_node_base* pParent = find_leaf(rValue, pPred, left, leftmost);
     if (pPred == nullptr || Compare()(pPred->value_, rValue)) {
         return pair<iterator, bool>(iterator(insert_node_at(pParent, left, leftmost, rValue)), true);
