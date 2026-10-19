@@ -101,8 +101,43 @@ Reconstructing #40 needs `include/game/BModelObj.h` and the `BModelObj.cpp` spli
 
 Python reading `build/wpse-v1/main.elf` for vtables, RTTI records, `extabindex` and data pointers, and GNU objdump 2.42 disassembly for `lis`/`addi`, `r13`, `r2` and call references. `configure.py`, `ninja` and `verify.py` exit 0 with the symbol renames. No decompiler output was used.
 
+## F-40-2: first reconstructed bodies in `game/BModelObj.cpp`
+
+#39 merged, so #40 can now add bodies to `src/game/BModelObj.cpp`. This session added `AddDrawLayer` at `0x800570D0` (100%, 144 bytes) and a non-matching `CalcMtx` (`0x80057A60`, 87.65%). `UpdateOutline` (`0x800561D0`) is analysed but blocked.
+
+### AddDrawLayer is complete
+
+`0x800570D0`, the new virtual at vtable offset 0x7C, is exactly `if (rLayer) { mDrawLayers.insert(rLayer); }` where `mDrawLayers` is the `std::set<std::tr1::shared_ptr<IDrawLayer>>` at `0xEC`. The set's `insert` inlines `find_leaf` (`0x8005A7D0`) and `insert_node_at` (`0x800594F0`, #41) and calls `destroy` (`0x8005A950`, #41), all already named in `config/wpse-v1/symbols.txt`. Renaming `fn_800570D0`, `fn_8005A7D0` and `fn_800594F0` to their real mangled names was required to reproduce the relocation names.
+
+- **Missing `shared_ptr` ordering.** `std::less<std::tr1::shared_ptr<IDrawLayer>>` compares the control block, so `shared_ptr` must define `operator<` in terms of `s_` (the control block at +4), not `ptr_`. `include/memory` had no `operator<`; adding `bool operator<(const shared_ptr<Y>&) const { return s_ < r.s_; }` is required for the set to compile and to match `find_leaf`, which loads `0x10(r11)` (control block) and `4(r4)`.
+- **`tree_imp::insert` stack-slot order.** Swapping the two locals in `include/MSL_CPP/detail/tree.h` from `left; leftmost;` to `leftmost; left;` is required: with the original order `AddDrawLayer` scores 99.89%, with the swap it is 100.00%.
+
+### CalcMtx is analysed but not matching
+
+`0x80057A60` (600 bytes) does: (1) synchronise model visibility to the scene-object option through `SetSceneObjectEnabled` (`0x801C8310`, see F-326), caching `mModel->GetScnObj()`; (2) early-out when `!IsVisible()`, `!(mFlags & FLAG_DIRTY_MTX)` or `!mModel`; (3) clear `FLAG_DIRTY_MTX`; (4) if `FLAG_BASE_MTX`, `SetMtx(MTX_LOCAL, mBaseMtx)`; (5) otherwise `SinCosDeg(&sin, &cos, mRotation)`, build a Y-rotation matrix, a scale matrix and a translation matrix, `MTX34Mult(tmp, trans, scale)`, `MTX34Mult(mtx, tmp, rot)`, then `SetMtx(MTX_LOCAL, mtx)`.
+
+The best source found is 87.65%. Remaining differences are CodeWarrior spill-slot and register allocation: the target materialises the rotation in a temporary at `0xD0` and copies it to the surviving `rot` at `0x10`, while every source form tried allocates the pair the other way; and the guard block loads `mModel`/`IsVisible()` into different registers. Slot order was brute-forced over all declaration permutations; several forms plateau at 87.65%, so the residue is structural, not ordering. The body is retained as a non-matching reconstruction; the unit is `NonMatching`, so it does not affect the DOL.
+
+Renaming `fn_801C8310` to `SetSceneObjectEnabled__FPQ34nw4r3g3d6ScnObjb` and declaring it in the source was required for the visibility block; it is the only reference to that function in reconstructed source.
+
+### UpdateOutline is blocked
+
+`0x800561D0` (376 bytes) switches on `mOutlineType` at `0xE8` (0 -> 0; 2 -> 0x20; otherwise `mId & 0x3F`, plus one when that is 0 or 0x20, then 6-to-8-bit expansion `(v << 2) | (v >> 4)`), then casts the model's scene object to `ScnMdl`, iterates `GetResMdl().GetResMatNumEntries()` through `CopiedMatAccess` and `GetResMatPix(false)`, and calls `GXSetDstAlpha(1, alpha)`. It reads `BWorld::mOutlineData` at `BWorld + 0x88`, which is private with no accessor and no `friend class BModelObj`; reconstructing it faithfully needs that access or a public accessor decided with #41/#46.
+
+### Consequence
+
+#40 remains partial. `AddDrawLayer` is complete; `CalcMtx` and `UpdateOutline` need a source form that reproduces CodeWarrior's spill-slot choice and a `BWorld::mOutlineData` access decision respectively. The remaining large functions (`0x80056350`, `0x80056B80`, `0x80057160`, `0x80057D20`, `0x80058650`) depend on the `KDTreeZXNode` internals owned by #41.
+
+### Method
+
+`configure.py`, `ninja` and `verify.py` exit 0; `verify.py` reports `PASS main.dol`. Function-level comparison used `tools/re/unitdiff.py` against `build/wpse-v1/main.elf`; declaration order was brute-forced with a throwaway script over all permutations. No decompiler output was used.
+
 ## Traps
 
 - **New virtuals follow the secondary vtable.** In `BModelObj`, CodeWarrior places the derived class's new virtual functions after the secondary base table, so the primary vtable is not contiguous and the second RTTI header sits in the middle of it. A run of function pointers after a secondary header is not that base's table.
 - **The `std::exception` destructor is a game-unit weak copy.** `0x80058560` is referenced by 366 `extab` words across the game; its kept copy is in `BModelObj.cpp`, not MSL.
 - **Issue boundaries are not file boundaries.** #39 to #42 are one file; #40 cannot split independently.
+- **`std::set<shared_ptr<T>>` needs `shared_ptr::operator<` on the control block.** `include/memory` had no `operator<`; `std::less` must compare `s_` (the control block at +4), which is what `find_leaf` loads. Adding it is required for `AddDrawLayer` to compile and match.
+- **A `tree_imp::insert` local's order changes `AddDrawLayer`.** The `left; leftmost;` order scores 99.89%; `leftmost; left;` scores 100.00%. Do not reorder these locals without re-checking the inlined insertion.
+- **CodeWarrior spill slots can defeat declaration-order brute force.** `CalcMtx`'s rotation/local layout plateaus at 87.65% across every declaration permutation, so a matching source needs the original expression form, not just an ordering.
+- **`BWorld::mOutlineData` at `BWorld + 0x88` is private.** `UpdateOutline` reads it with no accessor; the access decision belongs to #41/#46.
