@@ -1,7 +1,6 @@
 #include <game/IDlgPiiSelector.h>
 
 #include <game/ButtonMessage.h>
-#include <game/BWorld.h>
 #include <game/CColorBtnTagProc.h>
 #include <game/CFiber.h>
 #include <game/CLayout.h>
@@ -10,6 +9,7 @@
 #include <game/CPiiListFilterSort.h>
 #include <game/CPlayer.h>
 #include <game/CPlayerPii.h>
+#include <game/BWorld.h>
 #include <game/CRemoteMemory.h>
 #include <game/CUIManager.h>
 #include <game/CUIPiiList.h>
@@ -268,7 +268,7 @@ void CDataPerPlayer::Setup(bool background) {
     mReservedFlagBF = false;
     mReservedFlagC0 = false;
     CLayout* pLayout = mListLayout->GetLayout();
-    pLayout->SetVisible(true);
+    pLayout->CalculateMtx(true);
     nw4r::math::VEC3 position;
     position = Transform(pLayout->FindPane("INSIDE")->GetGlobalMtx(), nw4r::math::VEC3(0.0f, 0.0f, 0.0f));
     mReservedTargetPosition = pLayout->NormalizeViewPosition(nw4r::math::VEC2(position.x, position.y));
@@ -404,7 +404,7 @@ public:
         GetCurrentGameMap()->SetPausing(true);
         mMultiPlayerData.reset(new MultiPlayerData);
         mMultiPlayerData->mState = 0;
-        mMultiPlayerData->mDisconMsgDisable.reset(new IDisconMsg::CDisable(IGameSession::GetInstance()->GetDisconMsg()));
+        mMultiPlayerData->mDisconMsgDisable.reset(new IDisconMsg::CDisable(reinterpret_cast<IDisconMsg*>(IGameSession::GetInstance()->GetPendingMapChange())));
         mMultiPlayerData->mMsgWin = IDlgMsgWin::Create(false, false);
         for (int player = 0; player < 4; player++) {
             CPlayer* pPlayer = IGameSession::GetInstance()->GetPlayer(player);

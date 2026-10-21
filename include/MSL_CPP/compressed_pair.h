@@ -93,9 +93,8 @@ public:
     compressed_pair() {}
     explicit compressed_pair(first_param rFirst) : Storage(rFirst) {}
     compressed_pair(first_param rFirst, second_param rSecond) : Storage(rFirst, rSecond) {}
-    First& first() { return Storage::first(); }
-    const First& first() const { return Storage::first(); }
-    Second& second() { return Storage::second(); }
+    using Storage::first;
+    using Storage::second;
     const Second& second() const { return Storage::second(); }
 };
 }

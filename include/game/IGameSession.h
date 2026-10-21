@@ -17,7 +17,6 @@ class CPiiCollectionBox;
 class CPlayer;
 class CRemoteMemory;
 class CStatistic;
-class IDisconMsg;
 class IGameStage;
 class COyaInfo;
 class CPiiPersonalData;
@@ -63,7 +62,7 @@ public:
     virtual void StartMapTransitionIn() = 0;
     virtual void UpdateMapTransition() = 0;
     virtual bool IsMapChangeFinished() = 0;
-    virtual IDisconMsg* GetDisconMsg() = 0;
+    virtual int GetPendingMapChange() = 0;
     virtual bool IsRegisteredID(u32 id) = 0;
     virtual void UnanalyzedSlot42() = 0;
 
