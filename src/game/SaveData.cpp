@@ -489,7 +489,7 @@ SlotData* GetSaveData(int slot) {
     return &sSaveData->mSlotData[sSaveData->mData.mCurrentSlot];
 }
 
-u8 GetCurrentSlot() {
+int GetCurrentSlot() {
     return sSaveData->mData.mCurrentSlot;
 }
 

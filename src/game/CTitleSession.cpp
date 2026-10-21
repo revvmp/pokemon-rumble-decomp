@@ -526,7 +526,7 @@ bool CTitleSession::RefreshSlots() {
 
 void CTitleSession::WaitForMacAddress() {
     while (true) {
-        s32 result = NETGetWirelessMacAddress(GetSaveData(-1)->mData.mReserved + 4);
+        s32 result = NETGetWirelessMacAddress(GetSaveData(-1)->mData.mWirelessMacAddress);
         if (result == 0) {
             return;
         }
