@@ -6,7 +6,7 @@
 void PauseGameAudio();
 void ResumeGameAudio();
 
-std::tr1::shared_ptr<IDisconMsg> CreateDisconMsg() {
+std::tr1::shared_ptr<IDisconMsg> CreateDisconMsg(bool background) {
     return std::tr1::shared_ptr<CDisconMsg>(new CDisconMsg);
 }
 namespace {
