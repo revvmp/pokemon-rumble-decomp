@@ -37,6 +37,14 @@ The complete native virtual table identifies overridden destructor, `Calc`, `Get
 
 An ordinary outside Facility consumer derives a `0x110`-byte class with its own word at `0x104` and shared minimap marker at `0x108`/`0x10C`. Native type bit 13, marker kind 4 and `minimap_facility` reproduce all seven retained functions (696 bytes) and the complete 132-byte vtable byte-for-byte. These include the inline CItem engine accessor and compiler secondary-base destructor thunk. The proof is `C:/MassStorage/GitHub/115-reference/115-facility-contract-proof.json`; no source-completion credit is claimed by the header prerequisite.
 
+## F-115-5: Complete Facility source acceptance
+
+The canonical Facility source and full class declaration reproduce all seven retained functions, 696 of 696 instruction bytes at 100% in objdiff. A fresh Matching link and frozen verification pass. The final ELF retains the exact original addresses, sizes and native instruction bytes; exact map columns select `CFacility.o`, and the source graph excludes its original fallback. All retained exception tables (196 bytes), exception index (36), data (280), small data (24) and allocated text (728) match the original. The native receipt is `C:/MassStorage/GitHub/115-reference/115-facility-source-audit.json`.
+
+The complete data boundary is `0x803A1878`, including the final terminator of the CItem RTTI base list. Ending at the earlier survey estimate `0x803A1874` bisects the original symbol. This complete native source link proves the actual extent without adding padding bytes. Together with CEnemyPii this reconstructs 12 of the original 26 functions and 1,732 of 4,932 instruction bytes. The 14-function CEnemyInfo unit remains.
+
 ## Traps
 
 The 24-byte filename wrapper is not another virtual slot: the independently proved boss vtable already inherits the complete enemy virtual contract without that entry. Use its actual callers and generic loader target to establish the nonvirtual member interface.
+
+A prior neighboring finding described the Facility base-list end as `0x803A1874`; the actual complete symbol ends at `0x803A1878`. Confirm the complete RTTI terminator and source-selected native data extent before defining the split.

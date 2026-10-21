@@ -242,6 +242,7 @@ config.libs = [
             Object(NonMatching, "game/CDropPii.cpp"),
             Object(NonMatching, "game/CEffect.cpp"),
             Object(Matching, "game/CEnemyPii.cpp"),
+            Object(Matching, "game/CFacility.cpp"),
             Object(NonMatching, "game/CGameEnding.cpp"),
             Object(NonMatching, "game/CMoneyLifeDisplay.cpp"),
             Object(NonMatching, "game/CMsgBalloon.cpp"),
