@@ -283,7 +283,23 @@ compiler-generated in the primary interface; removing its invented body
 restores the native 12-byte assignment while preserving the API.
 
 These bounded contracts are separated from the outside string and vector
-changes. Publication requires a new complete same-base consumer gate.
+changes. The complete same-base gate at `f8ca25936f01` passes 762 source
+objects, 714 Matching objects and all 321 previously exact functions in
+affected objects. Matching strong functions, linked allocated ELF and the
+frozen DOL remain identical. NonMatching CDividedGround retains all scores;
+Balloon's constructor, destructor and SetupStageModels scores improve.
+The 24-function/EH72 and 17-game-body producers remain exact.
+
+The native storage-role corrections also preserve the existing CFileData,
+CPiiPersonalData and CLayout motion-list interfaces. The CPiiPersonalData
+nonconst begin/end functions retain their foreign strong 12-byte bodies
+from CDlgPiiList.o; the const 52/48-byte functions remain supplied by
+CDlgPiiSelector.o. Every gate checks their fresh MAP rows, Ninja inputs,
+strong binding, addresses and extents. Their emitted weak alternatives are
+not claimed native-exact. The original full-header producer independently
+identifies C6EC0 as the four-byte node-allocator copy constructor and C9710
+as transformed-map iterator assignment, correcting earlier labels without
+changing native code.
 
 ## Traps
 

@@ -3477,3 +3477,16 @@ records the independent consumer evidence and foreign-definition gates.
 ## F-272-1 personal-data script contracts
 
 The historical CPPD placeholder in CPpuEngine is CPiiPersonalData, the existing complete0x80-byte type: SetPPD at0x80100650 takes shared_ptr<CPiiPersonalData> byvalue; mPPD0xAC and mCachedPPD0xB8 retain their exact storage. The descriptive PopPersonalData member at0x80100F70 returns a strong owner consumed by all25 statbindings. New integer property getters read the existing fields at0x14,0x20–0x30,0x54–0x68, and new setter/WazaID declarations name the actual existing native callees. Original scriptbinding spellings establish property roles; publicmethodspellings remain descriptive. [F-272-1](findings/272-personal-stat-bindings.md) records all field/callee and exactconsumer evidence. This supersedes the earlier low-confidence CPPD type guess without changing any layout.
+## F-152-8: primary list accessor identities
+
+Balloon's list tail and stored-value accessors at 800C6D80/800C6D90 are
+nonconst storage methods. Its begin/end at 800C6F50/800C6FA0 belong to
+`__list_deleter`, exposed by the public list through using declarations.
+The same primary role applies to existing CFileData, CPiiPersonalData and
+CLayout motion-list accessor symbols. Their layouts and native extents
+are unchanged. The original full-header producer identifies 800C6EC0 as
+node-allocator copy construction and 800C9710 as transformed-map iterator
+assignment. These are class-role and signature corrections; project
+backend spellings remain descriptive. See
+[F-152-8](findings/152-balloon-library-contracts.md#f-152-8-list-construction-and-iterator-storage-contracts)
+for native proofs and explicit foreign-definition controls.
