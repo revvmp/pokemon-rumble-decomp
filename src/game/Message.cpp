@@ -10,9 +10,9 @@ void InitMsgResList(u32 num) {
     sMsgResList.reset(new std::vector<std::tr1::shared_ptr<CMsgRes> >(num));
 }
 
-void SetMsgRes(int group, const std::tr1::shared_ptr<CMsgRes>& rMsgRes) {
+void SetMsgRes(int group, std::tr1::shared_ptr<CMsgRes> messages) {
     if (sMsgResList && group < static_cast<int>(sMsgResList->size())) {
-        (*sMsgResList)[group] = rMsgRes;
+        (*sMsgResList)[group] = messages;
     }
 }
 

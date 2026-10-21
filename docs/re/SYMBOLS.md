@@ -3352,3 +3352,10 @@ The original anonymous `CIconCollection_cpp` class `CIconCollection` is 468 byte
 
 `std::tr1::function<R(A,B,C,D)>` is twelve bytes: implementation pointer at zero, eight inline bytes at four, with word alignment. Native `CPath::Drive/const char*/long/unsigned long` pointer callback implementations use an eight-byte polymorphic target and false/false flags. The native `bool(HBMSelectBtnNum)` plain-pointer implementation likewise uses false/false and converts the target result to bool. Existing one-argument functor implementations retain false/true. Type names and ABI are high confidence from RTTI, retained clone/invocation bodies and paired constructor/destructor contracts; details are in [F-228-1](findings/228-main-callable-contracts.md).
 
+
+## Main startup contracts (#229)
+
+| Native location | Recovered contract | Evidence |
+| --- | --- | --- |
+| 801CA130 / 801CA180 / 801CA240 | CArchiveFontWithBuf, complete size 40; ArchiveFont base 0–31, shared_ptr<u8> mBuffer 32–39; constructor, virtual destructor and Load(const char*, bool) | Native RTTI, all three actual producer instruction streams and 348 exception bytes; [F-229-1](findings/229-main-contracts.md) |
+| 801EF970 | SetMsgRes(int, shared_ptr<CMsgRes>) by value | Real main initializer argument-copy lifetime, exact 380-byte caller and unchanged 164-byte callee; [F-229-1](findings/229-main-contracts.md) |
