@@ -59,3 +59,13 @@ The 8-byte function before the constructor is the weak `ut::IOStream::GetOffsetA
 - **A weak inline can be emitted before a unit's first function.** CodeWarrior emits a weak inline function right after the first function that references it in code, and otherwise among the trailing weak functions. If a weak copy sits before a unit's first function, look for a dead-stripped caller at the head of the original file rather than another source unit.
 - **Out-of-line constructors can emit base destructors.** An out-of-line `MemoryFileStream` constructor emitted weak `IOStream::~IOStream` and `FileStream::~FileStream` after itself; the in-class constructor did not.
 - **Nested-class arguments mangle with their full qualification.** `SoundArchive::GroupInfo*` mangles as `PQ44nw4r3snd12SoundArchive9GroupInfo`, not `PQ34...`; a `Q3` prefix in `symbols.txt` gives undefined-symbol link errors.
+
+## Ordinary inline placement controls, 2026-10-20
+
+The source-only acceptance of the separate EF stripe units showed that ordinary inline declaration and definition placement can affect retained weak-function order. Two bounded controls tested whether that lesson resolves this unit's remaining `IOStream::GetOffsetAlign` at `0x8027C8C0`.
+
+Both controls compile the current `snd_MemorySoundArchive.cpp` with the established Wii/1.1 options, without changing compiler flags. First, the existing getter body was moved from its class to an ordinary out-of-class inline definition, tested before the first source body and after the final source body. Second, the existing nested `MemoryFileStream` constructor was declared in its class and defined inline at the same two positions. No signature, field, vtable entry, function behavior or new caller was introduced.
+
+All four compilations exit 0. In every object, `GetOffsetAlign` remains a weak function at `.text+0x4D0`, after `Seek`, rather than before the archive constructor. The late nested-constructor definition moves the discarded base destructors after `Seek`; it does not move the getter. These results reject these specific placement repairs and do not establish a general restriction on CodeWarrior inline emission.
+
+The controls and their complete objects are retained outside the checkout in `424-inline-placement.py`, `424-constructor-placement.py`, and `424-probe/ordinary-inline/` and `424-probe/ordinary-constructor/`. The `nm -n` outputs establish the observed order. No canonical source or header change was accepted, no source-selected build was attempted, and no new source credit or original-issue closure is claimed. The missing earlier caller or source-unit evidence described above remains the blocker.
