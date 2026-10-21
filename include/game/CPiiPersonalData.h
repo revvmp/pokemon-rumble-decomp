@@ -29,6 +29,8 @@ public:
     void SetSpecHidden(bool hidden) { SetFlag(FLAG_SPEC_HIDDEN, hidden); }
     void SetNewlyDisclosed(bool disclosed) { SetFlag(FLAG_NEWLY_DISCLOSED, disclosed); }
     void SetFavorite(bool favorite);
+    int GetPrefix() const { return mPrefix; }
+    u32 GetOriginalTrainerId() const { return mOriginalTrainerId; }
 private:
     bool HasFlag(u32 flag) const { return (mFlags & flag) != 0; }
     void SetFlag(u32 flag, bool enable) {
