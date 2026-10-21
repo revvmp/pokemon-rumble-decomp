@@ -78,6 +78,7 @@ public:
     virtual ~CDataPerPlayer();
     void CalcMtx();
     void CalcView();
+    bool IsShown();
 };
 
 class IDlgPiiSelectorInternal : public IDlgPiiSelector {
@@ -126,12 +127,29 @@ public:
     inline virtual void Draw();
     virtual bool IsClosable() { return false; }
     virtual bool Close() { return false; }
-    inline virtual bool IsShown(int player);
+    virtual bool IsShown(int player) {
+        if (mIsPausing) {
+            return true;
+        }
+        return !mMultiPlayerData && mDataPerPlayer[player] && mDataPerPlayer[player]->IsShown();
+    }
+
     inline virtual void Show(int player, bool flag);
-    inline virtual bool IsMultiPlayerEntranceShown();
+    virtual bool IsMultiPlayerEntranceShown() { return mMultiPlayerData; }
     inline virtual void ShowMultiPlayerEntrance();
-    inline virtual void SetEntrancePPD(IController* pController, const std::tr1::shared_ptr<CPiiPersonalData>& rPPD);
-    inline virtual std::tr1::shared_ptr<CPiiPersonalData> GetEntrancePPD(IController* pController);
+
+    virtual void SetEntrancePPD(IController* pController, const std::tr1::shared_ptr<CPiiPersonalData>& rPPD) {
+        if (pController != nullptr && mMultiPlayerData) {
+            mMultiPlayerData->mEntrancePPD[pController->GetType()][pController->GetChannel()] = rPPD;
+        }
+    }
+
+    virtual std::tr1::shared_ptr<CPiiPersonalData> GetEntrancePPD(IController* pController) {
+        return pController != nullptr && mMultiPlayerData
+                   ? mMultiPlayerData->mEntrancePPD[pController->GetType()][pController->GetChannel()]
+                   : std::tr1::shared_ptr<CPiiPersonalData>();
+    }
+
     inline virtual void UpdateDlgOpenState();
 
     void Init(bool flag) {}
