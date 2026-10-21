@@ -54,6 +54,10 @@ Original virtual tables establish the three retained function-base destructors: 
 
 The original entry-point exception record independently identifies the remaining destructor specializations: offsets `0x10C`, `0x11C`, and `0x12C` refer to the layout callback destructor `0x8012F710`, path callback destructor `0x8012F7B0`, and `ResourceFileConfig` destructor `0x8012EB20`. Candidate record relocations reproduce those original typed associations. This audit reports producer evidence, not complete issue acceptance or frozen-build verification.
 
+## F-227-5: Bounded ShouldRender source-context controls
+
+Two additional faithful controls were compiled against a copied complete producer with the same compiler arguments and copied outside header inputs. The baseline nested `if` was compared with `if (mDisconMsg && mDisconMsg->IsActive())`, and with a local `IDisconMsg* pDisconMsg = mDisconMsg.get()` used only for the virtual call while retaining the shared-owner boolean test. All three emitted the same 160-byte method and the same two prologue differences: the candidate stores LR at offset `0x08` and loads the member at `0x0C`; the original loads the member first and stores LR second. Neither source control fixes the gap. No flags, attributes, shared headers, or #225 files were changed.
+
 ## Traps
 
 - The source methods are inline in the original class context: individually exact out-of-line bodies alone do not reproduce physical function order. Preserve the native reverse-interface order in the complete producer.
