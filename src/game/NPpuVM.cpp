@@ -103,7 +103,8 @@ bool CValue::ToBool() const {
         return mInt != 0;
     }
     if (mType == TYPE_FLOAT) {
-        return mFloat;
+        f32 value = mFloat;
+        return value != 0.0f;
     }
     if (mType == TYPE_REFERENCE) {
         return !IsNull();
@@ -162,12 +163,13 @@ int CEngine::ParseWInt(const CValue& rValue) const {
 }
 
 void CValue::Increment() {
-    if (IsInt()) {
-        int value = ToInt();
+    const CValue& rValue = *this;
+    if (rValue.IsInt()) {
+        int value = rValue.ToInt();
         mType = TYPE_INT;
         mInt = value + 1;
     } else {
-        switch (mType) {
+        switch (rValue.mType) {
         case TYPE_FLOAT:
             {
                 f32 value = mFloat;
@@ -176,7 +178,7 @@ void CValue::Increment() {
             }
             break;
         case TYPE_REFERENCE:
-            if (!IsNull()) {
+            if (!rValue.IsNull()) {
                 CValue* pValue = mReference;
                 mType = TYPE_REFERENCE;
                 mReference = pValue + 1;
@@ -192,12 +194,13 @@ void CValue::SetReference(CValue* pValue) {
 }
 
 void CValue::Decrement() {
-    if (IsInt()) {
-        int value = ToInt();
+    const CValue& rValue = *this;
+    if (rValue.IsInt()) {
+        int value = rValue.ToInt();
         mType = TYPE_INT;
         mInt = value - 1;
     } else {
-        switch (mType) {
+        switch (rValue.mType) {
         case TYPE_FLOAT:
             {
                 f32 value = mFloat;
@@ -206,7 +209,7 @@ void CValue::Decrement() {
             }
             break;
         case TYPE_REFERENCE:
-            if (!IsNull()) {
+            if (!rValue.IsNull()) {
                 CValue* pValue = mReference;
                 mType = TYPE_REFERENCE;
                 mReference = pValue - 1;

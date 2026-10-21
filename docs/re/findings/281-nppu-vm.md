@@ -63,7 +63,19 @@ Remaining differences:
 
 The unit stays `NonMatching`: the rest of the file (#282, part of #283) is not reconstructed.
 
+## F-281-3: Value conversion and mutation lifetimes
+
+`CValue::ToBool` (`0x8016FF60`, 140 bytes), `Increment` (`0x80170180`, 240 bytes), and `Decrement` (`0x80170280`, 240 bytes) now reproduce every native instruction. The float boolean conversion names the loaded `f32` before comparing it with `0.0f`; implicit conversion reverses the `fcmpu` operands. Both mutations bind a const reference to the current value for the type, conversion, and null tests. The reference preserves the initial type load through the switch and removes the previous extra reload and reference-type comparison. The reference spelling is inferred source structure, not an original recovered name.
+
+Independent comparison against the frozen DOL checks all 620 instruction bytes and pairs the three `R_PPC_EMB_SDA21` sites with their exact original zero and one float constants. No header, layout, compiler setting, or unit selection changes. The unit remains `NonMatching`, now 48/63 functions at 100%; the loader, engine lifetime/initialization, interpreter operations, and collector remain unfinished. This is no linked-source acceptance or issue closure.
+
+Raw controls are outside the repository at `C:/MassStorage/GitHub/281-native-values`: `values-paired.json` contains the native instruction and relocation comparison; the final verification round records the current-main baseline source, proposed source, whole source inventory, unchanged function comparison, and linked artifact hashes. Full configure, Ninja, and frozen-manifest verification are required again on the exact merge head.
+
+Rejected controls: a copied value adds stack storage; a separate integer type snapshot adds another initial load; early return and direct if/else forms do not reproduce the native switch. Header-field snapshots improve the loader's instruction comparison but do not solve its alias-sensitive scheduling and are not retained.
+
 ## Traps
+
+- **A reference can preserve an existing type load.** In these two mutation functions, reading through a const reference to `*this` preserves the native initial tag through the switch. A value copy and an independent integer snapshot do not; this is a bounded compiler observation, not a general reference rule. See F-281-3.
 
 - **A `blr` after a tail call is not a function.** dtk split `0x801700E8` and `0x80170170` as four-byte functions; they belong to the preceding function.
 - **Inline helpers must be marked inline.** `CCode::Clear` and `CEnvironment::AllocGlobals` were emitted out of line under `-ipa file` until they were declared `inline`; the original has no copies.
