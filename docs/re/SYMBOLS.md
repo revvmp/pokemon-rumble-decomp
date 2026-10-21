@@ -2976,3 +2976,7 @@ The six provisional names at `0x80224BB0`, `0x80224A90`, `0x80224B70`, `0x802240
 ## F-374-6: USB memory wrappers
 
 `uhf_ker_get_memory_block` (`0x80225420`, 32 bytes), `uhf_ker_release_memory_block` (`0x80225440`, 60 bytes), and `uhf_ker_check_cacheable` (`0x80225480`, eight bytes) retain their original IPL names and canonical MEM heap calls. Complete source object and final ELF native extents, instructions and actual targets are exact. There is no allocated unit storage; see [F-374-6](findings/374-fa-sdi-usb.md#f-374-6-accepted-memory-helper-source-unit).
+
+## F-374-7: Complete SDI source state
+
+The twenty retained original SDI names and all source extents follow the pinned IPL reference plus complete native comparisons. `__reqMutex` is 24 bytes at `0x80422FC0`; `__sdPaths` is a 96-byte array at `0x80422FE0`. Signed `__sdHeapId` is four bytes at `0x804B88E0`, initialized to -1. Seven four-byte shared words/pointers occupy `0x804B9288` through `0x804B92A0`; the original function-static heap-base pointer follows at `0x804B92A4`. Four anonymous initialized literals at `0x803C5280/0x803C52A0/0x803C52B0/0x803C52C0` have extents 32/16/16/16 and descriptive metadata names only. All twenty native function starts/extents, complete allocated payloads, real targets, source-only inputs and final ELF/MAP agree; see [F-374-7](findings/374-fa-sdi-usb.md#f-374-7-accepted-complete-sdi-source-unit).
