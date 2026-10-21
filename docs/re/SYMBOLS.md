@@ -3468,3 +3468,8 @@ records the independent consumer evidence and foreign-definition gates.
 ## F-248-1 script utility interfaces
 
 `IWorldObjStatDisplay::Add(BWorldObj*)` is the pure virtual slot at byte0x1C after the five inherited ICalcDraw methods. Class layout is unchanged. `NPpu::CEngine::PopWString` is a descriptive typed stack-pop helper whose scoped CValue temporary matches the native show-text caller cleanup boundary. `CTextWorldObjStat` ownership RTTI and emitted helper names are original compiler names; the converted base argument destructor is independently bound to800E0070. See [F-248-1](findings/248-script-utilities.md) for all28 native addresses and naming confidence.
+
+
+## F-249-1: model motion and null-object interface layouts
+
+`CModel::CMotionProgram` is 48 bytes: flags 0, ID 4, start frame 8, rate 12, reserved state 16, string 20, reserved word 32, current-frame pointer 36, ResAnmChr 40, and length 44. Allocation, initialization, and all typed getter accesses agree. Reserved words retain unresolved semantics. `CNullObj` is 108 bytes with `BWorldObj` base 0–71, next ID 72, file shared owner 76, motion list 84, frame 96, and weak target 100. Native vtable overrides only destructor and Calc. Names for newly exposed APIs follow binding spellings and proven behavior; original C++ spellings remain descriptive where no symbol survives. See [F-249-1](findings/249-script-model.md#f-249-1-typed-model-motion-and-null-object-interfaces).

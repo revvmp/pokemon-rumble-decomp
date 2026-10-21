@@ -2,9 +2,11 @@
 #define GAME_CMODEL_H
 
 #include <game/ModelAim.h>
+#include <nw4r/g3d/res/g3d_resanmchr.h>
 #include <game/ScnMdlSimpleData.h>
 #include <functional>
 #include <list>
+#include <string>
 #include <nw4r/g3d/g3d_anmobj.h>
 #include <nw4r/g3d/g3d_scnmdlsmpl.h>
 #include <memory>
@@ -23,7 +25,48 @@ class CFileData;
 
 class CModel : private nw4r::g3d::IScnObjCallback, private nw4r::g3d::ICalcWorldCallback {
 public:
-    class CMotionProgram;
+    class CMotionProgram {
+    public:
+        enum Flag {
+            FLAG_CREATED = 1 << 0,
+            FLAG_PENDING = 1 << 4,
+            FLAG_PLAYING = 1 << 5,
+            FLAG_LOOPED = 1 << 6,
+            FLAG_FINISHED = 1 << 7,
+            FLAG_STOPPED = 1 << 8,
+            FLAG_PAUSED = 1 << 9
+        };
+
+        u32 GetId() const { return mId; }
+        bool IsStarted() const { return !(mFlags & FLAG_PENDING); }
+        bool IsPlaying() const { return mFlags & (FLAG_PLAYING | FLAG_LOOPED); }
+        bool IsPlayingNotYetLooped() const { return (mFlags & FLAG_PLAYING) != 0; }
+        bool IsCompleted() const { return mFlags & (FLAG_FINISHED | FLAG_STOPPED); }
+        bool IsCompletedOrIsLooped() const { return mFlags & (FLAG_LOOPED | FLAG_FINISHED | FLAG_STOPPED); }
+        f32 GetCurrentFrame() const {
+            if (mFlags & FLAG_PENDING) { return 0.0f; }
+            if (mFlags & (FLAG_PLAYING | FLAG_LOOPED)) { return *mpCurrentFrame; }
+            return mLength;
+        }
+        int GetLength() const { return mLength; }
+        u32 GetLoopCount() const { return mFlags >> 16; }
+        f32 GetSpeed() const { return mRate; }
+        void Pause() { mFlags |= FLAG_PAUSED; }
+        void Resume() { mFlags &= ~FLAG_PAUSED; }
+        bool IsPausing() const { return (mFlags & FLAG_PAUSED) != 0; }
+
+    private:
+        u32 mFlags;
+        u32 mId;
+        f32 mStartFrame;
+        f32 mRate;
+        u32 mReservedState;
+        std::string mName;
+        u32 mReserved;
+        f32* mpCurrentFrame;
+        nw4r::g3d::ResAnmChr mResource;
+        int mLength;
+    };
 
     class BPartialAnm {
     protected:
@@ -64,6 +107,9 @@ public:
     std::tr1::shared_ptr<CMotionProgram> PlayLoop(const char* pName, f32 frame, f32 rate);
     std::tr1::shared_ptr<CMotionProgram> PlayOnce(const char* pName, f32 frame, f32 rate);
     void Pause(bool pause);
+    void Stop();
+    std::tr1::shared_ptr<CMotionProgram> GetCurrentMotion();
+    std::tr1::shared_ptr<CMotionProgram> FindMotion(u32 id);
     void UpdateFrame(f32 step);
     void SetRootScale(const std::tr1::shared_ptr<nw4r::g3d::AnmObjChrRootScale>& rRootScale);
 
