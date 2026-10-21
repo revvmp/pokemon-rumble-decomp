@@ -16,6 +16,8 @@ class CPpuRegister {
 public:
     CPpuRegister();
     ~CPpuRegister();
+    void Reserve(u32 capacity);
+    void Reset();
     NPpu::CValue GetValue(unsigned int index) const;
     void Set(u32 index, const NPpu::CValue& rValue);
     void Swap(CPpuRegister* pOther);

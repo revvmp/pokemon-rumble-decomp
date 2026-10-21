@@ -88,3 +88,27 @@ Reproducers and raw controls are preserved outside the repository under `209-ref
 ### Traps
 
 Matching two-word layouts alone does not establish a base class. Native ownership RTTI, typed producer payloads, and shared exception cleanup identities support one value type here; adding an inheritance layer would introduce an unsupported source contract.
+
+## F-209-6: CPpuRegister producer and primary vector contracts
+
+The complete CPpuRegister unit is independently split at text 0x801119B0–0x801128C0, extab 0x800292DC–0x80029534, extabindex 0x8004BE28–0x8004BEAC, data 0x803ADDC0–0x803ADF30, and sdata 0x804B7370–0x804B7380. The last instruction is at 0x801128BC; the exclusive text end is 0x801128C0. Duplicate exception-string clusters and the register-specific ownership RTTI separate this unit from MapPiiTable and CStageCamera. CPpuRegister is an evidenced class name; the filename is descriptive. The split-only full executable verifies against the frozen manifest.
+
+The actual seven-method producer naturally emits its five owned ownership helpers. Reserve lazily allocates the value vector and reserves capacity; Set grows the vector, initializes intervening elements through Slice::SetInt(0), then copies the requested value. Reset releases the vector. Swap copies the other register owner, assigns this owner to the other register, and assigns the saved owner to this register.
+
+The original 2006 MSL vector header supplies four missing source contracts: the public reserve wrapper (lines 2425–2433), distinct move_construct_to_end using a strict pointer comparison (936–943), append_realloc clearing the moved-from owner before direct std::swap operations (1278–1289), and resize reading the size member directly (1985–1993). The ordinary copy loop retains its != comparison. The primary header is pinned by the 2006 manifest recorded in #198. The outside candidate preserves existing POD dispatch semantics and introduces no compiler flags or retention attributes.
+
+These contracts make all twelve native instruction streams exact: constructor 16, destructor 136, Reserve 720, GetValue 92, Set 1960, Reset 96, Swap 272, deleter query 76, dispose 96, shared-owner destructor 132, move-owner destructor 152, and deleter destructor 64. Strict audit applies all 118 code relocations; all 600 owned exception bytes and17 cleanup relocations also match. The compiler emits extra duplicate library definitions normally; source-only full-link acceptance remains necessary to show they are discarded correctly.
+
+Independent existing producer controls prove the renamed public reserve chain from CGameSession::SaveToSlot and the destructive move chain from ScriptCamera: seven bodies / 3,372 bytes with fully bound targets match native. ScriptCamera reallocate and its two move helpers have exact 24/8/8-byte exception records. SaveToSlot has an existing exception-record mismatch; baseline and candidate records are identical 200 bytes, so this is not a regression or a new matching claim. No whole CGameSession source acceptance is asserted.
+
+### Traps
+
+A public forwarding method can change register allocation under file IPA. Replacing the public reserve wrapper with a using declaration preserved behavior but changed 39 words in the register producer. Similarly, caching the size member in resize changed 32 registers in Set; the primary direct-member form restores the native stream. Preserve the primary source structure rather than adjusting flags or manually selecting registers.
+
+## F-209-7: Complete CPpuRegister source selection
+
+After canonical vector prerequisite PR1200, the actual CPpuRegister source is selected as Matching. A fresh full build and frozen executable verification pass. The final ELF proves all twelve original function addresses, sizes, and native bytes; the source-only linker graph excludes the owned fallback object, and each function has one exact-column MAP attribution to CPpuRegister.o. All 600 exception bytes, 132 index bytes, 368 data bytes, and 16 small-data bytes match the native extents.
+
+The source-selection audit is preserved as `209-reference/209-final-source-audit.py` and its JSON receipt. The whole-original inventory auditor separately requires all 34 functions / 11,528 bytes, including the MapPiiTable continuation. This PR accepts one complete original source unit; original #209 remains partial until the #208 owner accepts the complete MapPiiTable unit. CStageCamera remains source-selected unchanged.
+
+The two external cleanup names at 0x80110920 and 0x80111930 follow the actual register exception actions; their sizes and owning MapPiiTable split are unchanged. The primary reserve/move interface corrections and all current-consumer controls are in PR1200. No temporary header overlay or compiler flag is retained in this source integration.
