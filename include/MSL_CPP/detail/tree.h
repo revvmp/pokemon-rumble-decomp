@@ -94,6 +94,7 @@ public:
     class iterator {
     public:
         iterator() {}
+        iterator(const iterator& rOther) : node_(rOther.node_) {}
         iterator(tree_node_base* pNode) : node_(pNode) {}
 
         tree_node_base* node_;
@@ -109,14 +110,15 @@ public:
 
     size_type size() const { return size_; }
 
-    void insert_one(const value_type& rValue) {
+    pair<iterator, bool> insert_one(const value_type& rValue) {
         node* pPred;
         bool left;
         bool leftmost;
         tree_node_base* pParent = find_leaf(rValue, pPred, left, leftmost);
         if (pPred == nullptr || Compare()(pPred->value_, rValue)) {
-            insert_node_at(pParent, left, leftmost, rValue);
+            return pair<iterator, bool>(iterator(insert_node_at(pParent, left, leftmost, rValue)), true);
         }
+        return pair<iterator, bool>(iterator(pPred), false);
     }
 
     pair<iterator, bool> insert(const value_type& rValue);

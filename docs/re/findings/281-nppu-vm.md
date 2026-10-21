@@ -73,6 +73,18 @@ Raw controls are outside the repository at `C:/MassStorage/GitHub/281-native-val
 
 Rejected controls: a copied value adds stack storage; a separate integer type snapshot adds another initial load; early return and direct if/else forms do not reproduce the native switch. Header-field snapshots improve the loader's instruction comparison but do not solve its alias-sensitive scheduling and are not retained.
 
+## F-281-4: Pointer-set declaration prerequisite
+
+The primary MSL tree header at [11c112f](https://github.com/KooShnoo/pokemon-rumble/blob/11c112f7548b26ab2cecfcf52e201b8d3b76120f/libs/PowerPC_EABI_Support/MSL/MSL_C%2B%2B/tree) describes the compiler's pointer-container optimization: default pointer comparisons use a `const void*` backing tree and typed iterator wrappers. Its base iterator has an explicit copy constructor; its `insert_one` returns an iterator/bool pair. The existing header had omitted the copy constructor and gave `insert_one` a void return despite providing the correct search and insertion operations.
+
+The bounded prerequisite restores those two declarations and adds the default-pointer specialization of `std::set`. The generic set and its existing `insert` path remain intact. The pointer path uses the already separate `insert_one` operation and retains the intermediate backing-tree pair when converting its iterator. `CEngine::Init` now reproduces all 608 native instruction bytes and 20 independently paired relocation sites. The two outside tree callee types are inferred from this primary interface and the native caller; their native targets are `0x800BC3D0` and `0x800BB3C0`. Their original mangled spellings are not claimed recovered, and no outside symbol is renamed by this prerequisite. The source-visible set remains 12 bytes, as proven by the unchanged native allocations and following member accesses.
+
+The engine destructor improves to 90.21% but remains unfinished. Eighty other common emitted VM functions retain their instruction bytes and relocation targets; four string conversion functions' local format/empty-string constants move within the unaccepted source object's small-data section but preserve their exact values. Four pointer-tree destructor helpers change template identity from the typed pointer to the evidenced `const void*` backing type. This is a declaration prerequisite, not complete VM unit acceptance; the object remains `NonMatching` and its original fallback is selected.
+
+The fresh baseline at `31674ae11216b7f0cc45a4279845c4b16fe2afce` and proposed build each run actual configure, Ninja, `all_source`, and frozen verification with exit 0. All 714 declared sources compile. Every allocated section, size, alignment, and normalized relocation identity in all 713 other source objects remains exact; 701 are also whole-file identical, while twelve differ only in compiler metadata/local names. Every allocated linked ELF section, address, and extent is exact and the complete DOL remains identical to the frozen original. The ELF whole-file hash changes in metadata. The final exact-head landing repeats these controls after rebasing. Raw controls are `C:/MassStorage/GitHub/281-header-controls`, with `existing-consumer-sections.json`, `vm-consumers.json`, and `281-pointer-set-probe/canonical-init-paired.json`.
+
+An initial global reversal of the generic insertion flag declarations regressed the previously exact `BModelObj::AddDrawLayer`. It is rejected. Correcting the already separate `insert_one` return interface preserves that 144-byte consumer at 100% while producing the native VM initialization shape. No existing generic insertion order is changed.
+
 ## Traps
 
 ### Bounded follow-up controls after F-281-3
