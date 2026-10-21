@@ -30,9 +30,15 @@ public:
     explicit __vec_deleter(allocator_param a) : data_(nullptr), size_(0), capacity_(0, a) {}
     ~__vec_deleter();
 
-    void clear() { size_type n = size_; erase_at_end(n, pod_type()); }
+    T* begin() { return this->data_; }
+    const T* begin() const { return this->data_; }
+    T* end() { return this->data_ + this->size_; }
+    const T* end() const { return this->data_ + this->size_; }
+
+    void clear() { erase_at_end(size_); }
 
     size_type& cap() { return capacity_.first(); }
+    const size_type& cap() const { return capacity_.first(); }
     Allocator& alloc() { return capacity_.second(); }
     const Allocator& alloc() const { return capacity_.second(); }
     size_type max_size() const { return alloc().max_size(); }
@@ -67,7 +73,7 @@ public:
     }
     void construct_at_end(const T* pFirst, const T* pLast, Metrowerks::int2type<false>) {
         for (T* p = data_ + size_; pFirst != pLast; ++pFirst, ++p) {
-            capacity_.second().construct(p, *pFirst);
+            alloc().construct(p, *pFirst);
             ++size_;
         }
     }
@@ -83,18 +89,17 @@ protected:
         size_ -= count;
         for (; count != 0; --count) {
             --p;
-            capacity_.second().destroy(p);
+            alloc().destroy(p);
         }
     }
 public:
     void erase_at_end(size_type n) { erase_tail(n, pod_type()); }
 protected:
     void erase_tail(size_type n, Metrowerks::int2type<false>) {
-        T* p = data_ + size_;
+        T* p = end();
         size_ -= n;
-        for (; n != 0; --n) {
-            --p;
-            capacity_.second().destroy(p);
+        for (; n > 0; --n) {
+            alloc().destroy(--p);
         }
     }
     void erase_tail(size_type n, Metrowerks::int2type<true>) { size_ -= n; }
@@ -108,7 +113,7 @@ private:
 template <typename T, typename Allocator> __vec_deleter<T, Allocator>::~__vec_deleter() {
     if (data_) {
         clear();
-        capacity_.second().deallocate(data_, capacity_.first());
+        alloc().deallocate(data_, cap());
     }
 }
 
@@ -127,14 +132,13 @@ public:
 
     void construct_at_end(size_type n) { construct_at_end(n, pod_type()); }
     void construct_at_end(size_type n, pod_type) {
-        for (T* p = end(); n != 0; --n, ++p) {
-            this->capacity_.second().construct(p, T());
-            ++this->size_;
+        for (T* p = this->data_ + start_ + this->size_; n; --n, ++p, ++this->size_) {
+            this->alloc().construct(p, T());
         }
     }
 
     void construct_at_end(const T& x, pod_type) {
-        this->capacity_.second().construct(end(), x);
+        this->alloc().construct(end(), x);
         ++this->size_;
     }
 
@@ -147,9 +151,8 @@ public:
         this->size_ += n;
     }
     void construct_at_end(size_type n, const T& x, Metrowerks::int2type<false>) {
-        for (T* p = end(); n != 0; --n, ++p) {
-            this->capacity_.second().construct(p, x);
-            ++this->size_;
+        for (T* p = this->data_ + start_ + this->size_; n; --n, ++p, ++this->size_) {
+            this->alloc().construct(p, x);
         }
     }
 
@@ -164,12 +167,8 @@ public:
         this->size_ += n;
     }
     void construct_at_front(T* pFirst, T* pLast, Metrowerks::int2type<false>) {
-        for (T* p = begin(); pLast > pFirst;) {
-            --p;
-            --pLast;
-            this->capacity_.second().construct(p, *pLast);
-            --start_;
-            ++this->size_;
+        for (T* p = this->data_ + start_; pFirst < pLast; --start_, ++this->size_) {
+            this->alloc().construct(--p, std::move(*--pLast));
         }
     }
 
@@ -177,11 +176,10 @@ public:
 };
 
 template <typename T, typename Allocator> __vec_split_buffer<T, Allocator>::~__vec_split_buffer() {
-    T* first = begin();
-    T* last = end();
+    T* first = this->data_ + start_;
+    T* last = first + this->size_;
     while (last > first) {
-        --last;
-        this->capacity_.second().destroy(last);
+        this->alloc().destroy(--last);
     }
     this->size_ = 0;
 }
@@ -210,10 +208,8 @@ public:
         }
     }
 
-    T* begin() { return this->data_; }
-    const T* begin() const { return this->data_; }
-    T* end() { return this->data_ + this->size_; }
-    const T* end() const { return this->data_ + this->size_; }
+    using base::begin;
+    using base::end;
     size_type size() const { return this->size_; }
     T& back() { return this->data_[this->size_ - 1]; }
     T& operator[](size_type i) { return this->data_[i]; }
@@ -366,14 +362,14 @@ protected:
         if (n > max_size()) {
             __throw_vector_length_error();
         }
-        this->data_ = this->capacity_.second().allocate(n);
-        this->capacity_.first() = n;
+        this->data_ = this->alloc().allocate(n);
+        this->cap() = n;
     }
 
     void construct_at_end(size_type n) { construct_at_end(n, pod_type()); }
     void construct_at_end(size_type n, pod_type) {
         for (T* p = this->data_ + this->size_; n != 0; --n, ++p) {
-            this->capacity_.second().construct(p, T());
+            this->alloc().construct(p, T());
             ++this->size_;
         }
     }
@@ -395,7 +391,7 @@ protected:
     }
     size_type recommend(size_type n, pod_type) { return recommend(n); }
     size_type recommend_realloc(size_type n) { return recommend(n); }
-    size_type grow_capacity(size_type n) { return recommend_realloc(this->size_ + n - this->capacity_.first()); }
+    size_type grow_capacity(size_type n) { return recommend_realloc(this->size_ + n - this->cap()); }
     bool grow_by(size_type n) {
         size_type capacity;
         return grow_by(n, capacity, pod_type());
@@ -406,23 +402,13 @@ protected:
         recommend_append(n);
         return false;
     }
-    bool can_append(size_type n) { return grow_by(n, pod_type()); }
+    bool can_append(size_type n) { size_type capacity; return grow_by(n, capacity, pod_type()); }
     bool grow_by(size_type n, size_type& rCapacity, pod_type) {
         rCapacity = recommend(n);
         return false;
     }
 
-    void append_realloc(size_type n) {
-        __vec_split_buffer<T, Allocator> buffer(this->capacity_.second());
-        buffer.allocate(this->size_ + n, recommend(this->size_ + n - this->cap()));
-        buffer.start_ = this->size_;
-        buffer.construct_at_end(n);
-        buffer.construct_at_front(this->data_, this->data_ + this->size_);
-        clear_moved();
-        std::swap(this->cap(), buffer.cap());
-        std::swap(this->data_, buffer.data_);
-        std::swap(this->size_, buffer.size_);
-    }
+    void append_realloc(size_type n);
 
     void append(size_type n) { append(n, pod_type()); }
 
@@ -442,9 +428,9 @@ protected:
 
     void swap(__vec_deleter<T, Allocator&>& r) { swap(r, pod_type()); }
     void swap(__vec_deleter<T, Allocator&>& r, pod_type) {
-        size_type capacity = this->capacity_.first();
-        this->capacity_.first() = r.capacity_.first();
-        r.capacity_.first() = capacity;
+        size_type capacity = this->cap();
+        this->cap() = r.cap();
+        r.cap() = capacity;
         T* data = this->data_;
         this->data_ = r.data_;
         r.data_ = data;
@@ -518,9 +504,9 @@ public:
     void reserve(size_type n) { base::reserve(n); }
 
     void swap(vector& r) {
-        size_type capacity = this->capacity_.first();
-        this->capacity_.first() = r.capacity_.first();
-        r.capacity_.first() = capacity;
+        size_type capacity = this->cap();
+        this->cap() = r.cap();
+        r.cap() = capacity;
         T* data = this->data_;
         this->data_ = r.data_;
         r.data_ = data;
@@ -548,13 +534,13 @@ private:
             ++this->size_;
             this->back() = x;
         } else {
-            __vec_split_buffer<T, Allocator> buffer(this->capacity_.second());
+            __vec_split_buffer<T, Allocator> buffer(this->alloc());
             size_type capacity = base::grow_by(1);
             if (capacity > this->max_size()) {
                 __throw_vector_length_error();
             }
-            buffer.data_ = buffer.capacity_.second().allocate(capacity);
-            buffer.capacity_.first() = capacity;
+            buffer.data_ = buffer.alloc().allocate(capacity);
+            buffer.cap() = capacity;
             buffer.start_ = this->size_;
             *buffer.end() = x;
             ++buffer.size_;
@@ -583,6 +569,19 @@ public:
         return *this;
     }
 };
+
+template <typename T, typename Allocator, bool IsPOD>
+void __vec_constructor<T, Allocator, IsPOD>::append_realloc(size_type n) {
+        __vec_split_buffer<T, Allocator> buffer(this->alloc());
+        buffer.allocate(this->size_ + n, recommend(this->size_ + n - this->cap()));
+        buffer.start_ = this->size_;
+        buffer.construct_at_end(n);
+        buffer.construct_at_front(begin(), end());
+        clear_moved();
+        std::swap(this->cap(), buffer.cap());
+        std::swap(this->data_, buffer.data_);
+        std::swap(this->size_, buffer.size_);
+    }
 
 template <typename T, typename Allocator> class vector<T*, Allocator> : private __vec_pointer<T, Allocator> {
     typedef __vec_pointer<T, Allocator> base;
