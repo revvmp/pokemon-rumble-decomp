@@ -2,6 +2,7 @@
 #define _STRING
 
 #include <MSL_CPP/allocator.h>
+#include <MSL_CPP/compressed_pair.h>
 #include <algorithm>
 #include <iosfwd>
 #include <iterator>
@@ -27,7 +28,7 @@ template <> struct char_traits<wchar_t> {
 
 struct single_char_init {};
 
-template <class charT, class traits, class Allocator> class basic_string : private Allocator {
+template <class charT, class traits, class Allocator> class basic_string {
 public:
     typedef traits traits_type;
     typedef charT value_type;
@@ -43,11 +44,11 @@ public:
         init();
         charT* d;
         if (is_long()) {
-            rep_.l.size_ = 0;
-            d = reinterpret_cast<charT*>(&rep_);
+            r_.first().r.l.size_ = 0;
+            d = reinterpret_cast<charT*>(&r_.first().r);
         } else {
-            rep_.s.size_ = 1;
-            d = rep_.s.data_;
+            r_.first().r.s.size_ = 1;
+            d = r_.first().r.s.data_;
         }
         d[0] = c;
         d[1] = charT();
@@ -63,19 +64,18 @@ public:
         reserve(last - first);
         replace(0, 0, first, last, forward_iterator_tag());
     }
-    basic_string(const basic_string& str) {
+    basic_string(const basic_string& str) : r_(str.alloc()) {
         if (!str.is_long()) {
-            rep_ = str.rep_;
+            r_.first().r.raw = str.r_.first().r.raw;
         } else {
             init();
-            reserve(str.rep_.l.size_);
-            const_iterator first = str.rep_.l.data_;
-            replace(0, 0, first, first + str.rep_.l.size_, forward_iterator_tag());
+            reserve(str.r_.first().r.l.size_);
+            replace(0, 0, str.long_data(), str.long_data() + str.r_.first().r.l.size_, forward_iterator_tag());
         }
     }
     ~basic_string() {
         if (is_long()) {
-            this->Allocator::deallocate(rep_.l.data_, rep_.l.cap_);
+            alloc().deallocate(r_.first().r.l.data_, r_.first().r.l.cap_);
         }
     }
 
@@ -86,7 +86,7 @@ public:
 
     basic_string& operator=(const basic_string& str) {
         if (!is_long() && !str.is_long()) {
-            rep_ = str.rep_;
+            r_.first().r.raw = str.r_.first().r.raw;
         } else {
             assign(str.begin(), str.end());
         }
@@ -96,24 +96,24 @@ public:
     void assign(const basic_string& str) {
         bool currentIsLong = is_long();
         if (!currentIsLong && !str.is_long()) {
-            rep_ = str.rep_;
+            r_.first().r.raw = str.r_.first().r.raw;
         } else {
-            size_type oldSize = currentIsLong ? rep_.l.size_ : rep_.s.size_;
+            size_type oldSize = currentIsLong ? r_.first().r.l.size_ : r_.first().r.s.size_;
             const_iterator first;
             size_type count;
-            if (str.rep_.l.is_long_ == 0) {
-                first = str.rep_.s.data_;
-                count = str.rep_.s.size_;
+            if (str.r_.first().r.l.is_long_ == 0) {
+                first = str.r_.first().r.s.data_;
+                count = str.r_.first().r.s.size_;
             } else {
-                first = str.rep_.l.data_;
-                count = str.rep_.l.size_;
+                first = str.r_.first().r.l.data_;
+                count = str.r_.first().r.l.size_;
             }
             replace(0, oldSize, first, first + count, forward_iterator_tag());
         }
     }
 
-    size_type size() const { return !is_long() ? rep_.s.size_ : rep_.l.size_; }
-    const charT* data() const { return !is_long() ? reinterpret_cast<const charT*>(&rep_) + 1 : rep_.l.data_; }
+    size_type size() const { return !is_long() ? r_.first().r.s.size_ : r_.first().r.l.size_; }
+    const charT* data() const { return !is_long() ? reinterpret_cast<const charT*>(&r_.first().r) + 1 : r_.first().r.l.data_; }
     const charT* c_str() const { return data(); }
     const_iterator begin() const { return data(); }
     const_iterator end() const { return data() + size(); }
@@ -131,12 +131,12 @@ public:
         size_type pos = size();
         const_iterator first;
         size_type count;
-        if (str.rep_.l.is_long_ == 0) {
-            first = str.rep_.s.data_;
-            count = str.rep_.s.size_;
+        if (str.r_.first().r.l.is_long_ == 0) {
+            first = str.r_.first().r.s.data_;
+            count = str.r_.first().r.s.size_;
         } else {
-            first = str.rep_.l.data_;
-            count = str.rep_.l.size_;
+            first = str.r_.first().r.l.data_;
+            count = str.r_.first().r.l.size_;
         }
         return replace(pos, 0, first, first + count, forward_iterator_tag());
     }
@@ -175,11 +175,11 @@ public:
 
     void clear() {
         if (!is_long()) {
-            rep_.s.data_[0] = charT();
-            rep_.s.size_ = 0;
+            r_.first().r.s.data_[0] = charT();
+            r_.first().r.s.size_ = 0;
         } else {
-            rep_.l.data_[0] = charT();
-            rep_.l.size_ = 0;
+            r_.first().r.l.data_[0] = charT();
+            r_.first().r.l.size_ = 0;
         }
     }
 
@@ -195,11 +195,11 @@ public:
 
     void get_buffer(const_pointer& rData, size_type& rSize) const {
         if (!is_long()) {
-            rData = reinterpret_cast<const charT*>(&rep_) + 1;
-            rSize = rep_.s.size_;
+            rData = reinterpret_cast<const charT*>(&r_.first().r) + 1;
+            rSize = r_.first().r.s.size_;
         } else {
-            rData = rep_.l.data_;
-            rSize = rep_.l.size_;
+            rData = r_.first().r.l.data_;
+            rSize = r_.first().r.l.size_;
         }
     }
 
@@ -225,24 +225,29 @@ private:
         charT data_[(sizeof(long_rep) - 1) / sizeof(charT)];
     };
 
+    struct raw_t { size_type words_[3]; };
     union rep {
+        raw_t raw;
         long_rep l;
         short_rep s;
         size_type words[3];
     };
 
-    bool is_long() const { return rep_.l.is_long_; }
-    bool is_short() const { return !rep_.l.is_long_; }
-    charT* short_data() { return rep_.s.data_; }
-    charT*& long_data() { return rep_.l.data_; }
+    bool is_long() const { return r_.first().r.l.is_long_; }
+    bool is_short() const { return !r_.first().r.l.is_long_; }
+    charT* short_data() { return r_.first().r.s.data_; }
+    charT*& long_data() { return r_.first().r.l.data_; }
+    const charT* long_data() const { return r_.first().r.l.data_; }
     charT* buffer() { return !is_long() ? short_data() : long_data(); }
     void init() {
-        rep_.words[0] = 0;
-        rep_.words[1] = 0;
-        rep_.words[2] = 0;
+        size_type (&words)[3] = r_.first().r.raw.words_;
+        for (unsigned int i = 0; i < 3; ++i) { words[i] = 0; }
     }
 
-    rep rep_;
+    struct rep_s { rep r; };
+    Metrowerks::compressed_pair<rep_s, allocator_type> r_;
+    allocator_type& alloc() { return r_.second(); }
+    const allocator_type& alloc() const { return r_.second(); }
 };
 
 template <class charT, class traits, class Allocator>
