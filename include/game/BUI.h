@@ -40,6 +40,15 @@ private:
         explicit CCallbackListOwner(CallbackList* pList = nullptr) : mpList(pList) {}
         ~CCallbackListOwner() { delete mpList; }
         CallbackList* get() const { return mpList; }
+        Callback Add(const std::tr1::function<void(BUI*)>& rCallback) {
+            if (rCallback) {
+                Callback callback(new std::tr1::function<void(BUI*)>(rCallback));
+                if (mpList == nullptr) mpList = new CallbackList();
+                mpList->push_back(callback);
+                return callback;
+            }
+            return Callback();
+        }
 
     private:
         CCallbackListOwner(const CCallbackListOwner&);
@@ -55,6 +64,9 @@ private:
     CCallbackListOwner mFocusCallbacks;
     CCallbackListOwner mVisibilityCallbacks;
     CCallbackListOwner mEventCallbacks;
+
+public:
+    CCallbackListOwner& GetFocusCallbacks() { return mFocusCallbacks; }
 };
 
 #endif
