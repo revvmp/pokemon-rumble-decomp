@@ -85,6 +85,14 @@ game/CComboDisplay.cpp:
 	.sbss       start:0x804B8FC8 end:0x804B8FCC
 	.sdata2     start:0x804B9D58 end:0x804B9D6C
 
+game/CDisplayPhaseCtrl.cpp:
+	extab       start:0x8000B964 end:0x8000BB5C
+	extabindex  start:0x80045240 end:0x80045264
+	.text       start:0x80070C20 end:0x80071218
+	.data       start:0x8039B780 end:0x8039B7B8
+	.sdata      start:0x804B5E48 end:0x804B5E68
+	.sdata2     start:0x804B9DA8 end:0x804B9DB0
+
 game/CDividedGround.cpp:
 	extab       start:0x8000BB5C end:0x8000CD9C
 	extabindex  start:0x80045264 end:0x800455AC
