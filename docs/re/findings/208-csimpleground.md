@@ -63,7 +63,7 @@ The split links and the DOL verifies unchanged.
 | `0x8010DE20` | `~MapPiiTable()` (both tree `destroy` calls unrolled four levels) | 100% |
 | `0x8010E6F0` | `Clear()`: swaps the table and both pools with empty locals, zeroes both counts | 100% |
 | `0x8010F100` | `Initialize(int rowCount, int columnCount)`: stores the counts, `resize((rowCount + 1) * columnCount)`, clears both pools | 100% |
-| `0x8010F150` | `vector<NPpu::CValue>::resize(unsigned long)` | 79.1% |
+| `0x8010F150` | `vector<NPpu::CValue>::resize(unsigned long)` | 96.5% |
 | `0x8010F6E0`, `0x8010FB30` | `set<string>::clear()`, `set<wstring>::clear()` | 100% |
 | `0x8010FF80` | `SetValue(int row, int column, const CValue&, const CEngine*)`: a wide string is pooled (`InsertWString(engine->ToWString(value))`) and stored as a wide string pointer, a string likewise, anything else is copied | 100% |
 | `0x80110070`-`0x80110120` | `CValue::IsWString`, `SetWStringPtr`, `IsString`, `SetStringPtr`, `operator=`, `GetValue(int)`, `GetCell(int, int)`, `GetIndex` | 100% |
@@ -86,5 +86,22 @@ The four small destructors `0x80110920` (`vector<CValue>` through its base chain
 - **Which inline functions become calls is decided per region.** `CValue::IsString`, `SetStringPtr` and the `MapPiiTable` accessors are called, not inlined, from `SetValue`, while the vector and tree templates inside `resize` and `Initialize` inline completely. Wrapping `Initialize` and `SetValue` in `#pragma dont_inline on` (and resetting before the accessors) reproduces both: `resize` and the two `set::clear` stay separate functions and the `CValue` members are emitted out of line.
 - **A swap receiver decides the register allocation.** `mValues.swap(values)` matches `Clear()` exactly, `values.swap(mValues)` differs in register numbers only. The same holds for the two sets.
 - **Temporaries versus named locals.** `std::vector<T>().swap(x)` compiles a null check on the temporary and a different frame; named locals in declaration order reproduce the original frame (the vector at `0x20`, the narrow set at `0x14`, the wide set at `8` from the stack pointer).
-- **The `||` form of `vector::append` is what `resize` keeps.** The condition `(n <= capacity && size <= capacity - n) || grow_by(...)` gives 79%; rewriting it as an `if` chain or with `n > capacity ||` gives 75% and moves register allocation in the inlined `resize` of `SaveData`, so it was not changed.
 - **The pool search is `find` followed by `insert`.** It compares `node < key` with the node as the left operand and inserts only when the iterator equals `end()`; `insert` alone does not produce the second `find_leaf` call.
+
+## F-208-3: NPpu::CValue has two plain words
+
+`vector<NPpu::CValue>::resize` stayed at 93% because the original zero-initializes the temporary of `construct(p, T())` inside the loop (`li r0, 0; stw r0, 0x58(r1); stw r0, 0x5c(r1)` before the null check of the placement `new`), while the declaration produced an uninitialized temporary and loaded it. The cause was the class layout:
+
+| `CValue` storage | `T()` zero-initialized | `s[i] = v` forwards the constants of `v` | out-of-line `operator=` |
+| --- | --- | --- | --- |
+| user `operator=`, anonymous `union` (old) | no | yes | explicit |
+| implicit `operator=`, anonymous `union` | yes | no (a copy through the stack) | implicit |
+| implicit `operator=`, two plain `int`s | yes | yes | implicit (`lwz`/`lwz`/`stw`/`stw`, 0x14 bytes, same as the explicit one) |
+
+The original is the third row. `CValue` therefore keeps `int mType; int mInt;` and the float, string, wide string and reference views are accessors (`GetFloat`, `GetStringPtr`, `GetWStringPtr`, `GetPointer`, `SetPointer`); the 30 uses in `NPpuVM.cpp` were converted. `SetFloat` writes through a `reinterpret_cast` inside the class body because an out-of-line `SetFloatBits` call would appear under `#pragma dont_inline on` (`ScriptCamera::SetFloat` dropped to 60% until it was written in place). Per-function comparison of `report.json` against the previous build: no function loses a point, `resize` rises from 93.0% to 96.5% and `CEngine::BinaryOp` gains 0.04%.
+
+What is left of `resize` is register numbering (the original keeps the size in `r6` and the capacity in `r7`, the source gives the opposite order), the frame offsets of the exception-state bytes, and which of the two address registers of the inlined `length_error` holds the literal.
+
+### Traps
+
+- **A union hides a plain struct.** A class whose members are copied through a union is not forwarded by the optimizer and is not memberwise; if value-initialization or constant forwarding differs between the target and the source, check the class for a union before touching the container.

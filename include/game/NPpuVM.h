@@ -42,27 +42,21 @@ public:
     f32 ToFloat() const;
     CValue* GetReference() const;
 
-    CValue& operator=(const CValue& rOther) {
-        mType = rOther.mType;
-        mInt = rOther.mInt;
-        return *this;
-    }
-
     void SetInt(int value) {
         mType = TYPE_INT;
         mInt = value;
     }
     void SetFloat(f32 value) {
         mType = TYPE_FLOAT;
-        mFloat = value;
+        *reinterpret_cast<f32*>(&mInt) = value;
     }
     void SetString(u32 index) {
         mType = TYPE_STRING;
-        mIndex = index;
+        mInt = index;
     }
     void SetWString(u32 index) {
         mType = TYPE_WSTRING;
-        mIndex = index;
+        mInt = index;
     }
     void SetFunction(int value) {
         mType = TYPE_FUNCTION;
@@ -80,15 +74,15 @@ public:
     void Increment();
     void Decrement();
 
+    f32 GetFloat() const { return *reinterpret_cast<const f32*>(&mInt); }
+    void SetFloatBits(f32 value) { *reinterpret_cast<f32*>(&mInt) = value; }
+    const char* GetStringPtr() const { return reinterpret_cast<const char*>(mInt); }
+    const wchar_t* GetWStringPtr() const { return reinterpret_cast<const wchar_t*>(mInt); }
+    CValue* GetPointer() const { return reinterpret_cast<CValue*>(mInt); }
+    void SetPointer(CValue* pValue) { mInt = reinterpret_cast<int>(pValue); }
+
     int mType;
-    union {
-        int mInt;
-        f32 mFloat;
-        u32 mIndex;
-        const char* mString;
-        const wchar_t* mWString;
-        CValue* mReference;
-    };
+    int mInt;
 };
 
 class CCode {

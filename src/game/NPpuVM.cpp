@@ -85,7 +85,7 @@ int CValue::ToInt() const {
         return mInt;
     }
     if (mType == TYPE_FLOAT) {
-        return mFloat;
+        return GetFloat();
     }
     return 0;
 }
@@ -95,7 +95,7 @@ bool CValue::IsFloat() const {
 }
 
 bool CValue::IsNull() const {
-    return mType == TYPE_REFERENCE && mReference == nullptr;
+    return mType == TYPE_REFERENCE && GetPointer() == nullptr;
 }
 
 bool CValue::ToBool() const {
@@ -103,7 +103,7 @@ bool CValue::ToBool() const {
         return mInt != 0;
     }
     if (mType == TYPE_FLOAT) {
-        f32 value = mFloat;
+        f32 value = GetFloat();
         return value != 0.0f;
     }
     if (mType == TYPE_REFERENCE) {
@@ -114,7 +114,7 @@ bool CValue::ToBool() const {
 
 f32 CValue::ToFloat() const {
     if (mType == TYPE_FLOAT) {
-        return mFloat;
+        return GetFloat();
     }
     if (IsInt()) {
         return mInt;
@@ -123,7 +123,7 @@ f32 CValue::ToFloat() const {
 }
 
 CValue* CValue::GetReference() const {
-    return mReference;
+    return GetPointer();
 }
 
 int CEngine::ParseInt(const CValue& rValue) const {
@@ -132,7 +132,7 @@ int CEngine::ParseInt(const CValue& rValue) const {
     }
     const char* pString;
     if (rValue.mType == CValue::TYPE_STRING_PTR) {
-        pString = rValue.mString;
+        pString = rValue.GetStringPtr();
     } else {
         int index = rValue.mInt;
         if (mCode->mStrings != nullptr && index >= 0 && index < mCode->mStringCount) {
@@ -150,7 +150,7 @@ int CEngine::ParseWInt(const CValue& rValue) const {
     }
     const wchar_t* pString;
     if (rValue.mType == CValue::TYPE_WSTRING_PTR) {
-        pString = rValue.mWString;
+        pString = rValue.GetWStringPtr();
     } else {
         int index = rValue.mInt;
         if (mCode->mWStrings != nullptr && index >= 0 && index < mCode->mWStringCount) {
@@ -172,16 +172,16 @@ void CValue::Increment() {
         switch (rValue.mType) {
         case TYPE_FLOAT:
             {
-                f32 value = mFloat;
+                f32 value = GetFloat();
                 mType = TYPE_FLOAT;
-                mFloat = 1.0f + value;
+                SetFloatBits(1.0f + value);
             }
             break;
         case TYPE_REFERENCE:
             if (!rValue.IsNull()) {
-                CValue* pValue = mReference;
+                CValue* pValue = GetPointer();
                 mType = TYPE_REFERENCE;
-                mReference = pValue + 1;
+                SetPointer(pValue + 1);
             }
             break;
         }
@@ -190,7 +190,7 @@ void CValue::Increment() {
 
 void CValue::SetReference(CValue* pValue) {
     mType = TYPE_REFERENCE;
-    mReference = pValue;
+    SetPointer(pValue);
 }
 
 void CValue::Decrement() {
@@ -203,16 +203,16 @@ void CValue::Decrement() {
         switch (rValue.mType) {
         case TYPE_FLOAT:
             {
-                f32 value = mFloat;
+                f32 value = GetFloat();
                 mType = TYPE_FLOAT;
-                mFloat = value - 1.0f;
+                SetFloatBits(value - 1.0f);
             }
             break;
         case TYPE_REFERENCE:
             if (!rValue.IsNull()) {
-                CValue* pValue = mReference;
+                CValue* pValue = GetPointer();
                 mType = TYPE_REFERENCE;
-                mReference = pValue - 1;
+                SetPointer(pValue - 1);
             }
             break;
         }
@@ -608,20 +608,20 @@ void CEngine::BinaryOp(int op) {
             }
             if (rightIsReference) {
                 if (!right.IsNull()) {
-                    result.SetReference(right.mReference + left.ToInt());
+                    result.SetReference(right.GetPointer() + left.ToInt());
                 }
             } else if (leftIsReference) {
                 if (!left.IsNull()) {
-                    result.SetReference(left.mReference + right.ToInt());
+                    result.SetReference(left.GetPointer() + right.ToInt());
                 }
             }
             break;
         case OP_SUB:
             if (leftIsReference && !left.IsNull() && !right.IsNull()) {
                 if (rightIsReference) {
-                    result.SetInt(left.mReference - right.mReference);
+                    result.SetInt(left.GetPointer() - right.GetPointer());
                 } else if (right.IsInt()) {
-                    result.SetReference(left.mReference - right.ToInt());
+                    result.SetReference(left.GetPointer() - right.ToInt());
                 }
             }
             break;
@@ -758,8 +758,8 @@ void CEngine::CompareOp(int op) {
     bool rightIsReference = right.mType == CValue::TYPE_REFERENCE;
     bool leftIsReference = left.mType == CValue::TYPE_REFERENCE;
     if (rightIsReference && leftIsReference) {
-        bool rightIsNull = right.mReference == nullptr;
-        bool leftIsNull = left.mReference == nullptr;
+        bool rightIsNull = right.GetPointer() == nullptr;
+        bool leftIsNull = left.GetPointer() == nullptr;
         if (rightIsNull || leftIsNull) {
             switch (op) {
             case OP_EQ:
@@ -770,8 +770,8 @@ void CEngine::CompareOp(int op) {
                 break;
             }
         } else {
-            CValue* b = right.mReference;
-            CValue* a = left.mReference;
+            CValue* b = right.GetPointer();
+            CValue* a = left.GetPointer();
             switch (op) {
             case OP_EQ:
                 value = b == a;
@@ -1416,10 +1416,10 @@ const char* CEngine::ToString(const CValue& rValue) const {
     static char sBuffer[32];
 
     if (rValue.mType == CValue::TYPE_STRING) {
-        return mCode->mStrings[rValue.mIndex];
+        return mCode->mStrings[rValue.mInt];
     }
     if (rValue.mType == CValue::TYPE_STRING_PTR) {
-        return rValue.mString;
+        return rValue.GetStringPtr();
     }
     if (rValue.IsInt()) {
         snprintf(sBuffer, sizeof(sBuffer), "%d", rValue.ToInt());
@@ -1435,10 +1435,10 @@ const wchar_t* CEngine::ToWString(const CValue& rValue) const {
     static wchar_t sBuffer[32];
 
     if (rValue.mType == CValue::TYPE_WSTRING) {
-        return mCode->mWStrings[rValue.mIndex];
+        return mCode->mWStrings[rValue.mInt];
     }
     if (rValue.mType == CValue::TYPE_WSTRING_PTR) {
-        return rValue.mWString;
+        return rValue.GetWStringPtr();
     }
     if (rValue.IsInt()) {
         swprintf(sBuffer, 32, L"%d", rValue.ToInt());
