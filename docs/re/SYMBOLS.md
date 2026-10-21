@@ -3403,3 +3403,21 @@ These are template function identities, without a class size or layout change.
 ### F-343-8: MSL string representation and constructor contract
 
 `std::basic_string<char>` and `std::basic_string<wchar_t>` retain their twelve-byte extent. The original 2006 MSL member is `compressed_pair<rep_s, allocator_type>`, with the representation at offset zero and the empty allocator second. Its union has a raw three-word member, long representation and short representation. The copy constructor propagates the source allocator and copies the raw short representation; zero initialization clears the raw words through the primary loop. These source names and order come from recovered primary headers. The native consumer constructor at `0x801DC6C0` proves the resulting 192-byte instruction stream and 28-byte exception record; see [F-343-8](findings/343-string-representation.md).
+
+### F-152-5: Primary tree parent and list iterator helpers
+
+The original 2006 MSL tree uses `std::__pointer_plus_bit<Pointer>` for its
+four-byte parent pointer and color bit. Tree node left/right/parent remain
+at offsets 0/4/8, with unchanged 12-byte layout. The separately emitted
+arrow and conversion operators at `0x800CA7E0` and `0x800CA7F0` each load
+the packed pointer and mask its low bit; both native 12-byte functions are
+exact. Names and operation contracts come from the recovered primary
+header; the current tree storage class names remain reconstructed.
+
+`0x800CA760` is reference-based iterator advancement, not a member taking
+the tree iterator as its receiver. Its 128-byte native implementation and
+all call targets reproduce through the existing `tree_increment` API.
+`0x800CBCF0` is the list's `__pointer2iterator` factory, a four-byte tail
+branch to the eight-byte iterator constructor. The original primary
+declaration and the native call graph establish these identities. Details
+and consumer controls are in [F-152-5](findings/152-balloon-library-contracts.md#f-152-5-original-primary-container-and-string-producer-controls).

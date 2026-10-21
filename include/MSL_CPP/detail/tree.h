@@ -16,18 +16,50 @@ template <typename T> struct less : binary_function<T, T, bool> {
     bool operator()(const T& a, const T& b) const { return a < b; }
 };
 
+template <class Pointer> class __pointer_plus_bit {
+public:
+    __pointer_plus_bit(Pointer p = nullptr);
+    __pointer_plus_bit& operator=(Pointer p);
+    operator Pointer() const;
+    Pointer operator->() const;
+    bool bit() const;
+    void bit(bool value);
+private:
+    Pointer ptr_;
+};
+
+template <class Pointer> inline __pointer_plus_bit<Pointer>::__pointer_plus_bit(Pointer p) : ptr_(p) {}
+template <class Pointer> inline __pointer_plus_bit<Pointer>& __pointer_plus_bit<Pointer>::operator=(Pointer p) {
+    ptr_ = reinterpret_cast<Pointer>(reinterpret_cast<unsigned long>(p) | (reinterpret_cast<unsigned long>(ptr_) & 1));
+    return *this;
+}
+template <class Pointer> inline __pointer_plus_bit<Pointer>::operator Pointer() const {
+    return reinterpret_cast<Pointer>(reinterpret_cast<unsigned long>(ptr_) & ~1);
+}
+template <class Pointer> inline Pointer __pointer_plus_bit<Pointer>::operator->() const {
+    return reinterpret_cast<Pointer>(reinterpret_cast<unsigned long>(ptr_) & ~1);
+}
+template <class Pointer> inline bool __pointer_plus_bit<Pointer>::bit() const { return (reinterpret_cast<unsigned long>(ptr_) & 1) != 0; }
+template <class Pointer> inline void __pointer_plus_bit<Pointer>::bit(bool value) {
+    if (value) {
+        ptr_ = reinterpret_cast<Pointer>(reinterpret_cast<unsigned long>(ptr_) | 1);
+    } else {
+        ptr_ = reinterpret_cast<Pointer>(reinterpret_cast<unsigned long>(ptr_) & ~1);
+    }
+}
+
 namespace detail {
 
 struct tree_node_base {
-    tree_node_base* parent() const { return reinterpret_cast<tree_node_base*>(parent_ & ~1); }
-    void set_parent(tree_node_base* p) { parent_ = reinterpret_cast<unsigned long>(p) | (parent_ & 1); }
-    bool is_red() const { return (parent_ & 1) == 1; }
-    void set_red() { parent_ |= 1; }
-    void set_black() { parent_ &= ~1; }
+    tree_node_base* parent() const { return parent_; }
+    void set_parent(tree_node_base* p) { parent_ = p; }
+    bool is_red() const { return parent_.bit(); }
+    void set_red() { parent_.bit(true); }
+    void set_black() { parent_.bit(false); }
 
     tree_node_base* left_;
     tree_node_base* right_;
-    unsigned long parent_;
+    __pointer_plus_bit<tree_node_base*> parent_;
 };
 
 static inline void __throw_tree_length_error() {
@@ -43,11 +75,11 @@ inline void tree_rotate_left(tree_node_base* x, tree_node_base*& root) {
     if (y->left_ != nullptr) {
         y->left_->set_parent(x);
     }
-    y->set_parent(x->parent());
-    if (x == x->parent()->left_) {
-        x->parent()->left_ = y;
+    y->set_parent(x->parent_);
+    if (x == x->parent_->left_) {
+        x->parent_->left_ = y;
     } else {
-        x->parent()->right_ = y;
+        x->parent_->right_ = y;
     }
     y->left_ = x;
     x->set_parent(y);
@@ -62,11 +94,11 @@ inline void tree_rotate_right(tree_node_base* x, tree_node_base*& root) {
     if (y->right_ != nullptr) {
         y->right_->set_parent(x);
     }
-    y->set_parent(x->parent());
-    if (x == x->parent()->left_) {
-        x->parent()->left_ = y;
+    y->set_parent(x->parent_);
+    if (x == x->parent_->left_) {
+        x->parent_->left_ = y;
     } else {
-        x->parent()->right_ = y;
+        x->parent_->right_ = y;
     }
     y->right_ = x;
     x->set_parent(y);
@@ -83,10 +115,10 @@ inline tree_node_base* tree_next(tree_node_base* x) {
             x = x->left_;
         }
     } else {
-        while (x != x->parent()->left_) {
-            x = x->parent();
+        while (x != x->parent_->left_) {
+            x = x->parent_;
         }
-        x = x->parent();
+        x = x->parent_;
     }
     return x;
 }
@@ -100,16 +132,12 @@ inline tree_node_base* tree_leftmost(tree_node_base* x) {
 
 inline void tree_increment(tree_node_base*& pNode) {
     if (pNode->right_ != nullptr) {
-        tree_node_base* pNext = pNode->right_;
-        while (pNext->left_ != nullptr) {
-            pNext = pNext->left_;
-        }
-        pNode = pNext;
+        pNode = tree_leftmost(pNode->right_);
     } else {
-        while (pNode != pNode->parent()->left_) {
-            pNode = pNode->parent();
+        while (pNode != pNode->parent_->left_) {
+            pNode = pNode->parent_;
         }
-        pNode = pNode->parent();
+        pNode = pNode->parent_;
     }
 }
 
@@ -150,7 +178,7 @@ public:
         bool operator==(const iterator& rOther) const { return node_ == rOther.node_; }
         bool operator!=(const iterator& rOther) const { return node_ != rOther.node_; }
         iterator& operator++() {
-            increment();
+            tree_increment(node_);
             return *this;
         }
         T& operator*() const { return static_cast<node*>(node_)->value_; }
@@ -163,10 +191,10 @@ public:
             if (node_->right_ != nullptr) {
                 node_ = tree_leftmost(node_->right_);
             } else {
-                while (node_ != node_->parent()->left_) {
-                    node_ = node_->parent();
+                while (node_ != node_->parent_->left_) {
+                    node_ = node_->parent_;
                 }
-                node_ = node_->parent();
+                node_ = node_->parent_;
             }
         }
     };
@@ -212,7 +240,7 @@ public:
         bool left;
         bool leftmost;
         tree_node_base* pParent = find_leaf(rValue, pPred, left, leftmost);
-        if (pPred == nullptr || Compare()(pPred->value_, rValue)) {
+        if (pPred == nullptr || comp()(pPred->value_, rValue)) {
             return pair<iterator, bool>(iterator(insert_node_at(pParent, left, leftmost, rValue)), true);
         }
         return pair<iterator, bool>(iterator(pPred), false);
@@ -273,7 +301,7 @@ public:
         bool left;
         bool leftmost;
         tree_node_base* pParent = find_leaf(rKey, pPred, left, leftmost);
-        if (pPred == nullptr || Compare()(pPred->value_, rKey)) {
+        if (pPred == nullptr || comp()(pPred->value_, rKey)) {
             return insert_node_at(pParent, left, leftmost, value_type(rKey, typename value_type::second_type()))->value_;
         }
         return pPred->value_;
@@ -305,7 +333,7 @@ tree_node_base* tree_imp<T, Compare, Allocator>::find_leaf(const value_type& rVa
     rLeftmost = true;
     while (pNode != nullptr) {
         pLeaf = pNode;
-        if (Compare()(rValue, pNode->value_)) {
+        if (comp()(rValue, pNode->value_)) {
             pNode = static_cast<node*>(pNode->left_);
             rLeft = true;
         } else {
@@ -328,7 +356,7 @@ tree_node_base* tree_imp<T, Compare, Allocator>::find_leaf(const Key& rKey, node
     rLeftmost = true;
     while (pNode != nullptr) {
         pLeaf = pNode;
-        if (Compare()(rKey, pNode->value_)) {
+        if (comp()(rKey, pNode->value_)) {
             pNode = static_cast<node*>(pNode->left_);
             rLeft = true;
         } else {
@@ -351,7 +379,7 @@ typename tree_imp<T, Compare, Allocator>::node* tree_imp<T, Compare, Allocator>:
     node* pNode = holder.release();
     pNode->right_ = nullptr;
     pNode->left_ = nullptr;
-    new (&pNode->parent_) unsigned long(reinterpret_cast<unsigned long>(pParent));
+    new (&pNode->parent_) __pointer_plus_bit<tree_node_base*>(pParent);
     if (left) {
         pParent->left_ = pNode;
     } else {
@@ -371,7 +399,7 @@ pair<typename tree_imp<T, Compare, Allocator>::iterator, bool> tree_imp<T, Compa
     bool leftmost;
     bool left;
     tree_node_base* pParent = find_leaf(rValue, pPred, left, leftmost);
-    if (pPred == nullptr || Compare()(pPred->value_, rValue)) {
+    if (pPred == nullptr || comp()(pPred->value_, rValue)) {
         return pair<iterator, bool>(iterator(insert_node_at(pParent, left, leftmost, rValue)), true);
     }
     return pair<iterator, bool>(iterator(pPred), false);
@@ -386,7 +414,7 @@ void tree_imp<T, Compare, Allocator>::destroy(node* pNode) {
         destroy(static_cast<node*>(pNode->right_));
     }
     alloc().destroy(&pNode->value_);
-    ::operator delete(pNode);
+    node_alloc().deallocate(pNode, 1);
 }
 
 template <typename T, typename Compare, typename Allocator>
@@ -407,7 +435,7 @@ void tree_imp<T, Compare, Allocator>::copy_children(node* pDestination, node* pS
         pDestination = static_cast<node*>(pDestination->right_);
         pSource = static_cast<node*>(pSource->right_);
     }
-    if ((pSource->parent_ & 1) != 0) {
+    if (pSource->parent_.bit()) {
         pDestination->set_red();
     } else {
         pDestination->set_black();
@@ -430,7 +458,7 @@ void tree_imp<T, Compare, Allocator>::copy(const tree_imp& rOther) {
         tree_imp temporary(begin_.first(), alloc());
         pNode.get()->left_ = pNode.get()->right_ = nullptr;
         pNode.get()->set_parent(temporary.end_node());
-        if ((rOther.root()->parent_ & 1) != 0) {
+        if (rOther.root()->parent_.bit()) {
             pNode.get()->set_red();
         } else {
             pNode.get()->set_black();
