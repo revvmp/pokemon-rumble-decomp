@@ -81,4 +81,6 @@ public:
     virtual void Calc();
 };
 
+bool RunScript(const char* pName, int mode, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnvironment);
+
 #endif
