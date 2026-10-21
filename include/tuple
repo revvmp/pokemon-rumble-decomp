@@ -4,14 +4,19 @@ namespace std {
 namespace tr1 {
 struct nat {};
 template<class T0 = nat, class T1 = nat, class T2 = nat, class T3 = nat, class T4 = nat, class T5 = nat, class T6 = nat, class T7 = nat, class T8 = nat, class T9 = nat> class tuple;
-namespace detail { template<int Index> struct tuple_get; template<int Index, class T0, class T1> class bound_element; }
+namespace detail {
+template<int Index> struct tuple_get;
+template<int Index, class T0, class T1> class bound_element;
+template<class T> struct tuple_argument { typedef const T& type; };
+template<class T> struct tuple_argument<T&> { typedef T& type; };
+}
 namespace placeholders {
 namespace detail { template<int Index> struct ph {}; }
 static detail::ph<1> _1;
 }
 template<class T0> class tuple<T0, nat, nat, nat, nat, nat, nat, nat, nat, nat> {
 public:
-    explicit tuple(T0 rValue) : mValue(rValue) {}
+    explicit tuple(typename detail::tuple_argument<T0>::type rValue) : mValue(rValue) {}
 private:
     friend struct detail::tuple_get<0>;
     T0 mValue;

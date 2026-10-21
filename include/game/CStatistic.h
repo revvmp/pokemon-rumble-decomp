@@ -6,6 +6,7 @@
 
 class CStatistic {
 public:
+    void Add(int id, int amount);
     void ExportStatisticValues(std::vector<SD_StatisticValue::Data>& rOut1, std::vector<SD_StatisticValue::Data>& rOut2,
                                std::vector<SD_StatisticValue::Data>& rOut3);
 };

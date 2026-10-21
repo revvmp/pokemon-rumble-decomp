@@ -95,6 +95,10 @@ template <typename T, typename D> shared_ptr_holder<T, D>::~shared_ptr_holder() 
 
 }
 
+namespace detail {
+struct unused_argument;
+}
+
 template <typename T> class shared_ptr;
 template <typename T> class weak_ptr;
 template <typename T> class enable_shared_from_this;
@@ -113,6 +117,7 @@ public:
     typedef T element_type;
 
     shared_ptr() : ptr_(nullptr), s_(nullptr) {}
+    shared_ptr(detail::unused_argument*) : ptr_(nullptr), s_(nullptr) {}
     template <typename Y> explicit shared_ptr(Y* p) : ptr_(p) {
         Metrowerks::move_ptr<Y> hold(p);
         s_ = new detail::shared_ptr_deleter<Y, std::detail::default_delete<Y> >(p);
@@ -297,6 +302,10 @@ template <typename T> shared_ptr<T> weak_ptr<T>::lock() const {
         locked.s_->retain();
     }
     return locked;
+}
+
+template <typename T, typename U> bool operator==(const shared_ptr<T>& a, const shared_ptr<U>& b) {
+    return a.get() == b.get();
 }
 
 template <typename T, typename U> shared_ptr<T> static_pointer_cast(const shared_ptr<U>& r) {

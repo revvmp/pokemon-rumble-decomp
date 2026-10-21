@@ -83,11 +83,14 @@ private:
 };
 
 }
+template<class R,class C> detail::mem_fn_0<R,C> mem_fn(R (C::*pFunction)()) {
+    return detail::mem_fn_0<R,C>(pFunction);
+}
 template<class R,class C,class A> detail::mem_fn_1<R,C,A> mem_fn(R (C::*pFunction)(A)) {
     return detail::mem_fn_1<R,C,A>(pFunction);
 }
 template<class R, class C, class T> detail::bound_func<R, detail::mem_fn_0<R, C>, tuple<T> > bind(R (C::*pFunction)(), T value) {
-    return detail::bound_func<R, detail::mem_fn_0<R, C>, tuple<T> >(detail::mem_fn_0<R, C>(pFunction), tuple<T>(value));
+    return detail::bound_func<R, detail::mem_fn_0<R, C>, tuple<T> >(mem_fn(pFunction), tuple<T>(value));
 }
 template<class R,class C,class A,class T> detail::bound_func<R,detail::mem_fn_1<R,C,A>,tuple<T,A> > bind(R (C::*pFunction)(A),T value,A argument) {
     typedef tuple<T,A> Arguments;

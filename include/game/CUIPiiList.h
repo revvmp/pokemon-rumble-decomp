@@ -3,6 +3,9 @@
 
 #include <game/CUIList.h>
 
-class CUIPiiList : public CUIList {};
+class CUIPiiList : public CUIList {
+public:
+    void SelectIndex(int index) { SetSelectedIndex(index); }
+};
 
 #endif
