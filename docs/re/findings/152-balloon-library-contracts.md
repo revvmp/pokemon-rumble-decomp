@@ -223,6 +223,84 @@ Its notice is preserved here because source comments are prohibited:
 The reference attributes the insertion and removal algorithms to Cormen,
 Leiserson, and Rivest, *Introduction to Algorithms* (MIT Press, 1990).
 
+## F-152-7: Complete Balloon instruction and exception producer
+
+The post-1203 outside producer covers all 436 original functions from
+800C59D0 through 800CD728, totaling 29,012 instruction bytes. Every code
+relocation is resolved consistently, and all 226 exception records totaling
+3,664 bytes match with their actual cleanup targets. There is one source
+function per native address, no instruction differences, no unresolved
+targets, and no conflicting symbol bindings. Twenty reachable RTTI/vtable
+objects also match individually. The immutable source, overlay, object,
+compiler command, audit scripts and SHA-256 manifest are at
+`152-reference/152-native436-unique-positive`.
+
+This is not Matching acceptance. The object still fails section placement
+constraints. Defined weak functions outside this unit, including the
+visible formatter constructor, are not claimed reconstructed and require
+explicit foreign fallback and dead-stripping proof in the real source link.
+The shared header adaptations have not passed current-consumer controls.
+
+The remaining instruction gaps resolve through original declaration and
+class roles: the list default constructor initializes its size and node
+allocator separately; public list begin/end expose storage methods rather
+than duplicating them; map iterator assignment is implicit; vector cleanup
+uses allocator accessors and natural decrement expressions; split-buffer
+loops use the original pointer expressions; expansion carries its capacity
+output; append reallocation uses begin/end; and clear uses the one-argument
+erase API. String assignment needs the original reference-returning
+long_size and unsigned-char short_size accessors, ordinary out-of-class
+assignment/append forwarding, and mutable-pointer dispatch through the
+const-pointer implementation. The formatter constructor body already
+present in SaveData.cpp supplies genuine visibility for retained string
+constructor and allocator cleanup helpers.
+
+The audit starts from actual strong game functions, follows real code,
+vtable and exception relocations, and separately checks the retained
+primary string constructor and allocator destructor. Seeding every old
+template name from symbols.txt instead creates false conflicts because
+several provisional names assign the wrong vector specialization to an
+otherwise identical accessor. Those names are not treated as independent
+evidence.
+
+## F-152-8: List construction and iterator storage contracts
+
+The original list default constructor initializes `size_` from a size value,
+initializes its node allocator from `alloc()`, and chains the two sentinel
+links. Its ordinary out-of-class inline definition reproduces Balloon's
+100-byte constructor and eight-byte exception record. This exercises the
+missing second-value constructor in compressed-pair storage mode 1; the
+primary constructor initializes only its stored second value.
+
+The original public list exposes storage begin/end with using declarations.
+Retaining independent public implementations creates duplicate functions
+that individually fit the same native address. Moving the const iterator
+accessors to storage and exposing both overloads eliminates those aliases.
+The four native list accessor identities at 800C6D80, 800C6D90, 800C6F50,
+and 800C6FA0 follow the actual one-to-one producer graph. Existing legacy
+sentinel accessors remain available. Map iterator copy assignment is
+compiler-generated in the primary interface; removing its invented body
+restores the native 12-byte assignment while preserving the API.
+
+These bounded contracts are separated from the outside string and vector
+changes. The complete same-base gate at `f8ca25936f01` passes 762 source
+objects, 714 Matching objects and all 321 previously exact functions in
+affected objects. Matching strong functions, linked allocated ELF and the
+frozen DOL remain identical. NonMatching CDividedGround retains all scores;
+Balloon's constructor, destructor and SetupStageModels scores improve.
+The 24-function/EH72 and 17-game-body producers remain exact.
+
+The native storage-role corrections also preserve the existing CFileData,
+CPiiPersonalData and CLayout motion-list interfaces. The CPiiPersonalData
+nonconst begin/end functions retain their foreign strong 12-byte bodies
+from CDlgPiiList.o; the const 52/48-byte functions remain supplied by
+CDlgPiiSelector.o. Every gate checks their fresh MAP rows, Ninja inputs,
+strong binding, addresses and extents. Their emitted weak alternatives are
+not claimed native-exact. The original full-header producer independently
+identifies C6EC0 as the four-byte node-allocator copy constructor and C9710
+as transformed-map iterator assignment, correcting earlier labels without
+changing native code.
+
 ## Traps
 
 - A flattened container reconstruction can produce each native helper
