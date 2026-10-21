@@ -5,10 +5,12 @@
 #include <memory>
 
 class BWorld;
+class BWorldObj;
 
 class IWorldObjStatDisplay : public ICalcDraw {
 public:
     virtual ~IWorldObjStatDisplay() {}
+    virtual void Add(BWorldObj* pObj) = 0;
 
     static std::tr1::shared_ptr<IWorldObjStatDisplay> Create(BWorld* pWorld);
 };

@@ -3465,3 +3465,6 @@ implementation; the newly visible weak body is not claimed reconstructed.
 The complete insert producer at `0x800CC7A0` reproduces 392 code bytes and
 24 EH bytes with every target resolved. [F-152-6](findings/152-balloon-library-contracts.md#f-152-6-original-tree-algorithm-visibility-and-size-roles)
 records the independent consumer evidence and foreign-definition gates.
+## F-248-1 script utility interfaces
+
+`IWorldObjStatDisplay::Add(BWorldObj*)` is the pure virtual slot at byte0x1C after the five inherited ICalcDraw methods. Class layout is unchanged. `NPpu::CEngine::PopWString` is a descriptive typed stack-pop helper whose scoped CValue temporary matches the native show-text caller cleanup boundary. `CTextWorldObjStat` ownership RTTI and emitted helper names are original compiler names; the converted base argument destructor is independently bound to800E0070. See [F-248-1](findings/248-script-utilities.md) for all28 native addresses and naming confidence.
