@@ -29,6 +29,14 @@ The canonical source reconstructs the constructor, destructor, HP-bar and minima
 
 With the enemy selected as `Matching`, Ninja exits 0 and the full frozen DOL verifies. The final ELF preserves each original function address, size and exact native bytes, and the map assigns all five to `CEnemyPii.o`. The complete retained exception tables (480 bytes), exception index (36), data (176), and 1,064-byte allocated text extent match the frozen original. The link graph contains the source object and excludes the original enemy fallback. The independent receipt is `C:/MassStorage/GitHub/115-reference/115-enemy-source-audit.json`. This completes five of the issue's original 26 functions; CEnemyInfo and CFacility remain.
 
+## F-115-4: Complete CItem base contract and Facility consumer
+
+Facility RTTI names its immediate base `CItem`, whose first retained function is `0x800C0C60`, owned by unassigned issue #139. This is a bounded header prerequisite; the outside source and split remain with #139. Its constructor calls `BModelObj` with type bit 11, then clears a word at `0xF8` and the shared engine pair at `0xFC`/`0x100`, establishing complete size `0x104`. The word is named `mFlags` descriptively; no interpreted flag bits are asserted. The engine is the same canonical `CPpuEngine` used by Pii. Its destructor releases the engine then destroys `BModelObj`.
+
+The complete native virtual table identifies overridden destructor, `Calc`, `GetPpuEngine() const`, `OnLeaveWorld`, and the appended `Initialize(bool)` slot. Native nonvirtual routines load a script through the canonical PPU engine interface and a model from `item.arc/`; the descriptive names are `LoadScript` and `LoadModel`, with parameters established by their callers. RTTI class spelling is original; method and member names not already inherited remain inferred. No existing virtual slot or base declaration changes.
+
+An ordinary outside Facility consumer derives a `0x110`-byte class with its own word at `0x104` and shared minimap marker at `0x108`/`0x10C`. Native type bit 13, marker kind 4 and `minimap_facility` reproduce all seven retained functions (696 bytes) and the complete 132-byte vtable byte-for-byte. These include the inline CItem engine accessor and compiler secondary-base destructor thunk. The proof is `C:/MassStorage/GitHub/115-reference/115-facility-contract-proof.json`; no source-completion credit is claimed by the header prerequisite.
+
 ## Traps
 
 The 24-byte filename wrapper is not another virtual slot: the independently proved boss vtable already inherits the complete enemy virtual contract without that entry. Use its actual callers and generic loader target to establish the nonvirtual member interface.
