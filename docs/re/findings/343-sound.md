@@ -91,6 +91,9 @@ For the link `symbols.txt` names the weak copies the object references or emits:
 
 ## Traps
 
+- A fresh primary shared-pointer swap proposal removes InitSound's remaining nonrelocation differences without changing its 2036-byte extent. In LoadSoundArchive it removes the earlier shared-owner register mismatch, leaving exactly eight instruction differences in the listener-list iterator construction at offsets 2F4, 300, 304, 308, 30C, 314, 318 and 31C. This outside diagnostic skips relocation words and is not a complete actual-target or exception-table proof. Reproduce with `343-current-sound.py` and `343-current-sound-diff.py`; receipt `343-current-sound/primary-swap-opcode-proof.json` uses the immutable `280-reference/primary-swap/include/memory` proposal. No competing canonical memory edit is made.
+- Bounded current LinkList controls do not resolve those eight words: a const-reference converting iterator constructor and using the existing GetIteratorFromPointer factory are unchanged; explicit base/typed iterator copy constructors shorten LoadSoundArchive to 876/880 bytes, and a named end iterator grows it to 892 bytes. The NW4R owner has no independent native declaration evidence supporting a different contract. These controls stay outside; preserve the canonical implicit copy contract.
+
 - **An empty base destructor in an extab can belong to an inlined member.** `DESTROYBASE 0x0(r26)` in the `SoundWork` destructor path was the `NonCopyable` base of a `SoundHandle` whose address was in r26, not a base of `SoundWork`. Check which object the register holds at that PC before adding a base class.
 - **Deferred template members follow class declaration order.** Moving out-of-class definitions did not change emission order; moving the class's first declaration (including forward declarations) did.
 - **A Windows `python -` with a Git Bash heredoc hangs even with `< /dev/null`.** Write scripts to files.
