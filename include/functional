@@ -90,6 +90,30 @@ public:
         }
     }
 
+    function& operator=(const function& r) {
+        function tmp(r);
+        swap(tmp);
+        return *this;
+    }
+
+    void swap(function& r) {
+        base* p = f_;
+        bool localStorage = p == local();
+        f_ = r.f_;
+        r.f_ = p;
+        for (unsigned int i = 0; i < sizeof(buf_) / sizeof(unsigned long); ++i) {
+            unsigned long c = words_[i];
+            words_[i] = r.words_[i];
+            r.words_[i] = c;
+        }
+        if (localStorage) {
+            r.f_ = r.local();
+        }
+        if (f_ == r.local()) {
+            f_ = local();
+        }
+    }
+
     operator int bool_type::*() const { return f_ != nullptr ? &bool_type::dummy_ : nullptr; }
 
     R operator()() const {
@@ -103,7 +127,7 @@ private:
     base* local() const { return reinterpret_cast<base*>(const_cast<char*>(buf_)); }
 
     base* f_;
-    char buf_[8];
+    union { char buf_[8]; unsigned long words_[2]; };
 };
 
 }
