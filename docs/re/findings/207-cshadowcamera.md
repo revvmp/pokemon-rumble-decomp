@@ -47,7 +47,7 @@ Behaviour:
 
 ## F-207-4: remaining differences
 
-- `CalcLightProjection`: the frustum extents take callee-saved registers `f31 f29 f28 f27` for top, bottom, left, right where the original has `f28 f31 f29 f27` (24 declaration orders, tan-before-near and local-tan variants did not change this), and the two constants of the first `SetOrtho` call are loaded after the near and far calls where the original loads them first into callee-saved registers.
+- `CalcLightProjection` (99.8%): the frustum extents take callee-saved registers `f31 f29 f28 f27` for top, bottom, left, right where the original has `f28 f31 f29 f27` (24 declaration orders, 24 corner assignment orders, the order of the four perspective statements, and tan-before-near and local-tan variants did not change this), the two constants of the first `SetOrtho` call are loaded in the opposite order (the original loads `1.0f` before `-1.0f`), and the half-range product has its operands swapped.
 - `SetupShadowModel`: the `TypeObj`, `ResDic` and two by-value argument temporaries sit at different stack offsets (0x08 to 0x14).
 - `SetupShadowMaterial`: instruction scheduling of the post-matrix address arithmetic and of the `GXSetTevKColor` arguments (two instructions).
 
@@ -108,3 +108,9 @@ Per-function comparison against the previous `report.json` after the change: nin
 - **Pair target and compiled functions by instruction shape, then name the target.** A script that compares mnemonics and operands (relocated operands and branch displacements normalised) between `build/wpse-v1/obj/game/CSaveManager.o` (the original split) and `build/wpse-v1/src/game/CSaveManager.o` (the compiled source) pairs every function whose body is right, even when the placeholder names in `symbols.txt` are wrong (`max_size__...` at `0x8010B8A0` was `grow_by`, `__dt__vec_split_buffer` at `0x8010BF40` was `append_realloc`). Rename the target symbol to the compiled name, then use objdiff for the remaining rows.
 - **An extra inline wrapper level can shift register allocation in unrelated units.** Replacing `append_realloc`'s `grow_by(n)` call with a direct `recommend(...)` call lowered four `SaveData` functions slightly; a wrapper restored them.
 - **Do not guess a tag argument.** `push_back_realloc` calls `grow_by(1)`; passing `pod_type()` explicitly adds a stack temporary and 11% of the function.
+
+## F-207-7: CalcLightProjection details recovered after F-207-4
+
+- **The edge lengths use paired singles.** The original loop compares `psq_l`/`ps_mul`/`ps_madd`/`ps_sum0` results, which is `nw4r::math::VEC3LenSq`. `VEC3::LenSq()` therefore calls `VEC3LenSq(this)` (it was the scalar `x * x + y * y + z * z`, used by no other unit); that raised the function from 94.8% to 98.1%.
+- **The near-plane constants are locals.** Declaring `orthoMin = -1.0f` and `orthoMax = 1.0f` before the near and far reads makes the compiler load them into callee-saved registers before the two `GetG3dCamera()` calls, as the original does (98.1% to 99.8%). Declaring the maximum first swaps the registers.
+- **A local for the half range matters.** `f32 halfRange = (viewFar - viewNear) * 0.5f; shadowPos = center + lightDir * halfRange;` reproduces the original scheduling of the `psq_l` loads; the inline product does not (98.1% to 99.0%).

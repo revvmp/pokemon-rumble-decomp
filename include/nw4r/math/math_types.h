@@ -59,6 +59,7 @@ VEC3* VEC3Add(VEC3* pOut, const VEC3* pA, const VEC3* pB);
 VEC3* VEC3Sub(VEC3* pOut, const VEC3* pA, const VEC3* pB);
 VEC3* VEC3Scale(VEC3* pOut, const VEC3* pIn, f32 scale);
 f32 VEC3Dot(const VEC3* pA, const VEC3* pB);
+f32 VEC3LenSq(const VEC3* pVec);
 
 struct _VEC3 {
     f32 x, y, z;
@@ -95,7 +96,7 @@ struct VEC3 : _VEC3 {
     }
 
     f32 LenSq() const {
-        return x * x + y * y + z * z;
+        return VEC3LenSq(this);
     }
 
     f32 Dot(const VEC3& rRhs) const {
