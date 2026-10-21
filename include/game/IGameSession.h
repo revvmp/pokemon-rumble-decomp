@@ -11,7 +11,7 @@ struct MapDesc;
 struct StageDesc;
 struct WazaDescData;
 struct PiiPropData;
-class CBattleRoyalData;
+class CBattleRoyalBox;
 class CPiiBox;
 class CPiiCollectionBox;
 class CPlayer;
@@ -32,7 +32,7 @@ public:
     virtual PiiPropData* GetPiiPropData() = 0;
     virtual CPiiCollectionBox* GetPiiCollectionBox() = 0;
     virtual int GetCollectionType(u16 monsno) = 0;
-    virtual CBattleRoyalData* GetBattleRoyalData() = 0;
+    virtual CBattleRoyalBox* GetBattleRoyalBox() = 0;
     virtual CStatistic* GetStatistic() = 0;
     virtual std::wstring GetWazaName(int waza) = 0;
     virtual StageDesc* GetStageDesc(MapIndex index) = 0;

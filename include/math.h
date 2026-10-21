@@ -30,6 +30,10 @@ static inline float sqrtf(float x) {
     return (float)sqrt(x);
 }
 
+static inline float ceilf(float x) {
+    return (float)ceil(x);
+}
+
 static inline float cosf(float x) {
     return (float)cos(x);
 }

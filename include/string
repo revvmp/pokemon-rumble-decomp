@@ -93,8 +93,8 @@ public:
         }
     }
 
-    size_type size() const { return is_short() ? rep_.s.size_ : rep_.l.size_; }
-    const charT* data() const { return is_short() ? reinterpret_cast<const charT*>(&rep_) + 1 : rep_.l.data_; }
+    size_type size() const { return !is_long() ? rep_.s.size_ : rep_.l.size_; }
+    const charT* data() const { return !is_long() ? reinterpret_cast<const charT*>(&rep_) + 1 : rep_.l.data_; }
     const charT* c_str() const { return data(); }
     const_iterator begin() const { return data(); }
     const_iterator end() const { return data() + size(); }
