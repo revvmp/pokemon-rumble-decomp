@@ -142,7 +142,7 @@ public:
                 u16 mTicketMonsno;
                 u8 mTicketFormno;
                 u8 mReserved[1];
-                u8 mLuckyNumberSeed[6];
+                u8 mWirelessMacAddress[6];
                 s8 mExtraBRMaxRound;
                 s8 mExtraBRCurrentRound;
             };
