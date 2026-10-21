@@ -7,7 +7,7 @@
 #include <set>
 
 class BWorld;
-class BWorldObjEffect;
+class CMiniMapMarker;
 class BWorldObjOwner;
 class CPpuEngine;
 class IDrawLayer;
@@ -40,7 +40,7 @@ public:
     virtual nw4r::math::VEC3 GetPosition() { return mPosition; }
     virtual void SetVisible(bool visible);
     virtual CPpuEngine* GetPpuEngine() const { return nullptr; }
-    virtual BWorldObjEffect* GetEffect() const { return nullptr; }
+    virtual CMiniMapMarker* GetEffect() const { return nullptr; }
     virtual void SetEffectEnable(bool enable) {}
     virtual DrawLayerSet* GetDrawLayers() { return nullptr; }
     virtual void OnEnterWorld() {}
