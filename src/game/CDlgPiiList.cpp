@@ -25,6 +25,6 @@ private:
 
 }
 
-std::tr1::shared_ptr<IDlgPiiList> IDlgPiiList::Create() {
+std::tr1::shared_ptr<IDlgPiiList> IDlgPiiList::Create(bool) {
     return std::tr1::shared_ptr<CDlgPiiList>(new CDlgPiiList);
 }

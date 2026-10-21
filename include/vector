@@ -544,6 +544,31 @@ public:
     void pop_back() { base::pop_back(); }
 };
 
+template <typename Allocator> class __vec_integer : public __vec_constructor<unsigned long, Allocator, true> {};
+
+template <typename Allocator> class vector<unsigned long, Allocator> : private __vec_integer<Allocator> {
+    typedef __vec_integer<Allocator> base;
+
+public:
+    typedef unsigned long value_type;
+    typedef unsigned long* iterator;
+    typedef const unsigned long* const_iterator;
+    typedef unsigned long size_type;
+
+    vector() {}
+    ~vector() {}
+
+    iterator begin() { return this->data_; }
+    const_iterator begin() const { return this->data_; }
+    iterator end() { return this->data_ + this->size_; }
+    const_iterator end() const { return this->data_ + this->size_; }
+    size_type size() const { return this->size_; }
+    bool empty() const { return this->size_ == 0; }
+    void push_back(const unsigned long& x) { base::push_back(x); }
+    void clear() { base::clear(); }
+    unsigned long& operator[](size_type i) { return this->data_[i]; }
+};
+
 }
 
 #include <MSL_CPP/bitvector.h>

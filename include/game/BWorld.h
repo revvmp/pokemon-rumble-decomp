@@ -143,6 +143,7 @@ public:
             mFlags &= ~flag;
         }
     }
+    bool IsFlag(u32 flag) const { return mFlags & flag; }
     void EnableCalc(bool enable);
     void RequestPause();
     void RequestResume();
