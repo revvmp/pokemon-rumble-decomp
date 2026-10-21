@@ -3399,3 +3399,7 @@ These are template function identities, without a class size or layout change.
 | `0x800CB040` | The same allocation owner's `get() const` | 40-byte nested pair access, all targets exact; supersedes the old address assigned to get |
 | `0x800CB0C0` | The same allocation owner's `allocator()` | Four-byte tail call to reference-bearing pair first, high confidence |
 | `0x80095260` | `list<shared_ptr<CPiiPersonalData> >` storage `size_ref() const` | Four-byte forwarding accessor between public size and storage second; descriptive spelling, medium confidence |
+
+### F-343-8: MSL string representation and constructor contract
+
+`std::basic_string<char>` and `std::basic_string<wchar_t>` retain their twelve-byte extent. The original 2006 MSL member is `compressed_pair<rep_s, allocator_type>`, with the representation at offset zero and the empty allocator second. Its union has a raw three-word member, long representation and short representation. The copy constructor propagates the source allocator and copies the raw short representation; zero initialization clears the raw words through the primary loop. These source names and order come from recovered primary headers. The native consumer constructor at `0x801DC6C0` proves the resulting 192-byte instruction stream and 28-byte exception record; see [F-343-8](findings/343-string-representation.md).

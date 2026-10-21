@@ -20,11 +20,11 @@ void basic_string<charT, traits, Allocator>::reserve(size_type res_arg)
     size_type length;
     size_type capacity;
     if (!wasLong) {
-        length = rep_.s.size_;
+        length = r_.first().r.s.size_;
         capacity = sizeof(long_rep) - 1;
     } else {
-        length = rep_.l.size_;
-        capacity = rep_.l.cap_;
+        length = r_.first().r.l.size_;
+        capacity = r_.first().r.l.cap_;
     }
     if (res_arg < length) {
         res_arg = length;
@@ -40,34 +40,34 @@ void basic_string<charT, traits, Allocator>::reserve(size_type res_arg)
     bool nowLong;
     const charT* pOld;
     if (newCapacity == sizeof(long_rep) - 1) {
-        pOld = rep_.l.data_;
-        pNew = rep_.s.data_;
+        pOld = r_.first().r.l.data_;
+        pNew = r_.first().r.s.data_;
         nowLong = false;
     } else {
         if (newCapacity > capacity) {
-            pNew = this->Allocator::allocate(newCapacity);
+            pNew = alloc().allocate(newCapacity);
         } else {
             try {
-                pNew = this->Allocator::allocate(newCapacity);
+                pNew = alloc().allocate(newCapacity);
             } catch (...) {
                 return;
             }
         }
         nowLong = true;
-        pOld = wasLong ? rep_.l.data_ : rep_.s.data_;
+        pOld = wasLong ? r_.first().r.l.data_ : r_.first().r.s.data_;
     }
     memmove(pNew, pOld, length);
     pNew[length] = 0;
     if (wasLong) {
-        this->Allocator::deallocate(const_cast<charT*>(pOld), capacity);
+        alloc().deallocate(const_cast<charT*>(pOld), capacity);
     }
-    rep_.l.is_long_ = nowLong;
+    r_.first().r.l.is_long_ = nowLong;
     if (!nowLong) {
-        rep_.s.size_ = length;
+        r_.first().r.s.size_ = length;
     } else {
-        rep_.l.data_ = pNew;
-        rep_.l.size_ = length;
-        rep_.l.cap_ = newCapacity;
+        r_.first().r.l.data_ = pNew;
+        r_.first().r.l.size_ = length;
+        r_.first().r.l.cap_ = newCapacity;
     }
 }
 

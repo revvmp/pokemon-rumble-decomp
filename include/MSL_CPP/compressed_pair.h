@@ -73,8 +73,9 @@ public:
 template <class First, class Second> class CompressedPairStorage<First, Second, 2> : private Second {
     First mFirst;
 public:
-    CompressedPairStorage() : mFirst() {}
+    CompressedPairStorage() {}
     explicit CompressedPairStorage(typename call_traits<First>::param_type rFirst) : mFirst(rFirst) {}
+    explicit CompressedPairStorage(typename call_traits<Second>::param_type rSecond) : Second(rSecond) {}
     CompressedPairStorage(typename call_traits<First>::param_type rFirst, typename call_traits<Second>::param_type rSecond) : Second(rSecond), mFirst(rFirst) {}
     First& first() { return mFirst; }
     const First& first() const { return mFirst; }
@@ -108,6 +109,7 @@ public:
     typedef typename call_traits<Second>::param_type second_param;
     compressed_pair() {}
     explicit compressed_pair(first_param rFirst) : Storage(rFirst) {}
+    explicit compressed_pair(second_param rSecond) : Storage(rSecond) {}
     compressed_pair(first_param rFirst, second_param rSecond) : Storage(rFirst, rSecond) {}
     void swap(compressed_pair& rOther) { Storage::swap(rOther); }
     using Storage::first;
