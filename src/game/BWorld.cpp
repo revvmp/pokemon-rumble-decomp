@@ -358,7 +358,7 @@ bool BWorld::AddObject(std::tr1::shared_ptr<BWorldObj> obj) {
                 ObjEntry* pEntry = pEntries + slot;
                 pEntry->mObj = obj;
                 u32 type = obj->mType;
-                pEntry->mFlags = type | 0x40000;
+                pEntry->mFlags = type | ENTRY_NEW;
 
                 if (mObjHead == nullptr) {
                     mObjTail = pEntry;
@@ -461,10 +461,12 @@ std::vector<BWorldObj*> BWorld::GetObjects(u32 type) {
 
 int BWorld::CountObjects(u32 type) {
     int count = 0;
+    u32 entryType;
     u32 stopTypes = GetStopTypes(type);
     for (ObjEntry* pEntry = mObjHead; pEntry != nullptr; pEntry = GetNextEntry(pEntry)) {
-        if (!(pEntry->GetType() & type)) {
-            if (pEntry->GetType() & stopTypes) {
+        entryType = pEntry->GetType();
+        if (!(entryType & type)) {
+            if (entryType & stopTypes) {
                 continue;
             }
             break;
