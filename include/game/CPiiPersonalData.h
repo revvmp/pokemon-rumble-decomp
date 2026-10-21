@@ -36,6 +36,31 @@ public:
     void SetFavorite(bool favorite);
     int GetPrefix() const { return mPrefix; }
     u32 GetOriginalTrainerId() const { return mOriginalTrainerId; }
+    int GetMaxHP() const { return mMaxHP; }
+    void SetMaxHP(int value);
+    int GetBonusMaxHP() const { return mBonusMaxHP; }
+    void SetBonusMaxHP(int value);
+    int GetSex() const { return mSex; }
+    int GetLevel() const { return mLevel; }
+    void SetLevel(int value);
+    int GetCappedLevel() const { return mCappedLevel; }
+    void SetCappedLevel(int value);
+    int GetAP() const { return mAP; }
+    void SetAP(int value);
+    int GetDP() const { return mDP; }
+    void SetDP(int value);
+    int GetSPD() const { return mSPD; }
+    void SetSPD(int value);
+    int GetBonusAP() const { return mBonusAP; }
+    void SetBonusAP(int value);
+    int GetBonusDP() const { return mBonusDP; }
+    void SetBonusDP(int value);
+    int GetBonusSPD() const { return mBonusSPD; }
+    void SetBonusSPD(int value);
+    int GetBP() const { return mBP; }
+    void SetBP(int value);
+    int GetWazaID(int index) const;
+    void SetWazaID(int index, int id);
 private:
     bool HasFlag(u32 flag) const { return (mFlags & flag) != 0; }
     void SetFlag(u32 flag, bool enable) {

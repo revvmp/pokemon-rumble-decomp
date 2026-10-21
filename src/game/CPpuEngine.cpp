@@ -37,7 +37,7 @@ void CPpuEngine::SetDefaultStageDescTarget(const StageID& rTarget) {
     sDefaultStageDescTarget = rTarget;
 }
 
-void CPpuEngine::SetPPD(std::tr1::shared_ptr<CPPD> ppd) {
+void CPpuEngine::SetPPD(std::tr1::shared_ptr<CPiiPersonalData> ppd) {
     mPPD = ppd;
 }
 
