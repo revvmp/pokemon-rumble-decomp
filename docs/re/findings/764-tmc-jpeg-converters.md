@@ -33,6 +33,14 @@ These findings hold for this library's converters and reproduce the edge convert
 - **Y-only pixels read the texel inside the luma expression.** Separate `ar`/`gb`/`r`/`g`/`b` assignments for the second to fourth pixels cost three to six more register differences in 4:2:2.
 - **RGB565 channels go through `u8`.** The target keeps two dead `srawi` instructions per pixel, from `texel >> 8` and `texel >> 3`. They appear only when the channels are `u8` and the shifts are cast: `(u8)(texel >> 8) & 0xF8`, `(u8)(texel >> 3) & 0xFC` and `(u8)(texel << 3)`. With `s32` channels the dead shifts disappear and the pixel is one or two instructions short.
 
+# F-764-3: Native source continuation control
+
+The 2026-10-20 continuation rebased the unchanged converter sources onto `ca14c79b3104e852def3a3a03aeb12cfd10f613b`. The closest unmatched normal converter remains `ConvertRGBA8MCU422`, with its original 420-byte extent and three differing instruction words. Its temporary tile index uses `r23` instead of `r26` at function offsets `0x120`, `0x124` and `0x12C`; the other words match before relocation handling.
+
+Eighteen additional source probes did not improve it. Equivalent spellings of `px + 1`, incrementing `px` between the two pixel writes, reversing the two texel declarations, and commutative or shift spellings of the tile expression retain the three differences. Replacing the two `u16` texel locals with `u32` or `int` increases the difference count to seven. Making the AR temporary signed leaves four differences. Using division instead of the signed coordinate shifts changes the function size. Factoring both tile coordinates before doubling increases the difference count. These were scratch compilations with the existing Wii/1.0 command and flags; no probe was adopted, no source coverage increased, and both units remain `NonMatching`.
+
+The reproducible scratch evidence is `764-reference/764-followup-proof.json` outside the checkout. At the control revision, `python configure.py`, `.venv/Scripts/ninja` and the frozen-manifest verifier each exited 0 after deleting the old `build/wpse-v1/main.dol`. The rebuilt DOL SHA-256 is `ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da`. This validates the unchanged fallback build, not native completion of these converters. No new project-wide trap was found. A future continuation should seek a different native source structure rather than repeat these coordinate spellings or force a register assignment.
+
 ## Traps
 
 - **Edge converters match only with one declaration order.** Trigger: correct instructions, wrong `r7`–`r12` or `r28`–`r31`. Hill-climbing the declaration block found one order that matches all six. Do not reorder the declarations. Evidence: F-764-2.
