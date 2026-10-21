@@ -3153,3 +3153,6 @@ IUIListItem: abstract4-byte interface, vtable803C14FC20 bytes, first retained de
 ## F-200-1: CSaveManager.cpp second block
 
 [F-200-1](findings/200-csavemanager-2.md#f-200-1-the-26-functions-of-200-reconstructed) reconstructs `0x80108B90`-`0x801090E4`. `CSaveManager::WaitIdle` and `StartWork(WorkType)` are descriptive names (medium confidence) for `0x80108D30` and `0x80108DC0`. `CFiber::CFiber(const char*, const function<void()>&, u32)` at `0x80108EA0` takes an unused name, "CSaveManager" here. `__deque_imp::first` (`0x80108BE0`) is a descriptive name for the body of `front`. `0x800FC0C0` is `__cdeque_buf<void*>::cap`; `0x800FC080` lost that name (see Traps in the finding).
+### CPiiListFilterSort layout (#173)
+
+[F-173-4](findings/173-cpiilistfiltersort.md#f-173-4-complete-cpiilistfiltersort-layout) records the complete 0x20-byte `CPiiListFilterSort` (no vtable): filter type 0, type index 4, prefix 8, invert-owner flag 0xC, sort type 0x10, `shared_ptr<CPiiPersonalData>` 0x14, player index 0x1C. Constructor `0x800E5D00` and destructor `0x800E5D20` are named and match at 100%. The pointee type of the `shared_ptr` and the role of 0x1C are unproven.
