@@ -4,6 +4,8 @@
 #include <revolution/types.h>
 #include <list>
 #include <memory>
+#include <game/SaveData.h>
+#include <vector>
 
 class CPiiPersonalData;
 
@@ -11,6 +13,7 @@ class CPiiBox {
 public:
     CPiiBox(int type, int capacity);
     ~CPiiBox();
+    void ExportPersonalData(std::vector<SD_PiiPersonalData::Data>& rOut);
 
 private:
     int mType;

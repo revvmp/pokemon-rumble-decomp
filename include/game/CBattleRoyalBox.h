@@ -3,6 +3,8 @@
 
 #include <memory>
 #include <revolution/types.h>
+#include <game/SaveData.h>
+#include <vector>
 
 class CBattleRoyalData {
 public:
@@ -16,6 +18,7 @@ private:
 class CBattleRoyalBox {
 public:
     std::tr1::shared_ptr<CBattleRoyalData> GetData(int mode, int area);
+    void ExportBattleRoyalData(std::vector<SD_BattleRoyalData::Data>& rOut);
 };
 
 #endif

@@ -21,6 +21,7 @@ public:
     };
 
     const PiiSpeciesData* GetSpeciesData() const { return mSpeciesData; }
+    const s64& GetCreationTime() const { return mCreationTime; }
     int GetHP() const { return mHP; }
     bool IsFainted() const { return mHP <= 0; }
     bool IsFavorite() const { return HasFlag(FLAG_FAVORITE); }

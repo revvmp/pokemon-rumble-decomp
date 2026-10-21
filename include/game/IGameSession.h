@@ -67,6 +67,7 @@ public:
     virtual void UnanalyzedSlot42() = 0;
 
     static IGameSession* GetInstance();
+    static std::tr1::shared_ptr<IGameSession> Create(int pendingMapChange);
 };
 
 IGameSession* GetGameSession();
