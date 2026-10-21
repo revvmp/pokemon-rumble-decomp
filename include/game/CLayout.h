@@ -17,6 +17,7 @@ namespace lyt {
 class AnimTransform;
 class Layout;
 class Pane;
+class TexMap;
 class TextBox;
 }
 namespace ut {
@@ -69,6 +70,10 @@ public:
     std::tr1::shared_ptr<CMotionProgram> QueueMotion(const char* pName, const char* pPaneName, f32 startFrame, f32 rate);
     u16 GetMotionLength(const char* pName);
     nw4r::lyt::TextBox* SetText(const char* pName, const wchar_t* pText);
+
+    std::tr1::shared_ptr<CMotionProgram> AppendMotion(const char* pName, nw4r::lyt::Pane* pTarget, f32 startFrame, f32 rate);
+    void SetVisible(nw4r::lyt::Pane* pPane, bool visible);
+    bool SetTexture(const char* pName, const nw4r::lyt::TexMap& rTexture, int index);
 
 private:
     u32 mFlags;
