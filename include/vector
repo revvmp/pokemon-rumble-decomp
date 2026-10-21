@@ -474,6 +474,15 @@ template <typename T, typename Allocator> void __vec_deleter<T, Allocator>::allo
 }
 
 template <typename Allocator>
+class __vec_constructor<unsigned short, Allocator, true>
+    : public __vec_constructor<unsigned short, Allocator, false> {
+    typedef __vec_constructor<unsigned short, Allocator, false> base;
+public:
+    __vec_constructor() {}
+    explicit __vec_constructor(typename base::size_type n) : base(n) {}
+};
+
+template <typename Allocator>
 class __vec_constructor<short, Allocator, true>
     : public __vec_constructor<unsigned short, typename Allocator::template rebind<unsigned short>::other, false> {
     typedef __vec_constructor<unsigned short, typename Allocator::template rebind<unsigned short>::other, false> base;
@@ -532,8 +541,6 @@ public:
 
     vector() {}
     explicit vector(size_type n) : base(n) {}
-    vector(const vector& x) : base(x) {}
-    ~vector() {}
 
     void resize(size_type n) { base::resize(n); }
 
