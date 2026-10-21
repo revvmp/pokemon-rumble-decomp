@@ -114,7 +114,54 @@ unaccepted provisional instruction streams. The complete per-function
 before/after records are in the immutable per-head consumer receipts outside
 the repository. No unit status changes in this prerequisite.
 
+## F-152-5: Original primary container and string producer controls
+
+The recovered unadapted 2006 MSL headers provide direct source evidence for
+the parent pointer's `__pointer_plus_bit` type, iterator increment through a
+pointer reference, the list pointer-to-iterator factory, and the list
+allocator-taking sentinel construction. Outside adaptations reproduce the
+corresponding native helpers without changing compiler flags. The list
+constructor is exactly 100 bytes. Replacing the tree destruction routine's
+raw delete with the primary `node_alloc().deallocate(pNode, 1)` reproduces
+its complete 128-byte instruction stream and call targets, versus the
+previous 116-byte reconstruction.
+
+The current combined outside producer maps 309 reachable functions, of
+which 301 have complete native instruction streams after resolving call
+targets. The 17 game methods remain exact at 8,688 code bytes. All 24
+original issue functions and their nine EH records, totaling 72 bytes,
+remain independently exact. These are producer results, not a Matching
+unit claim: literal section placement and eight first-stop helper gaps
+still prevent complete acceptance. The recursive producer does not replace
+the full object, EH, data, and frozen-link gates.
+
+The primary string adaptation supplied by the Sound investigation restores
+the native assignment tail branch and 76-byte string append. The formatter
+parser's character insertion uses `mResult += c`, matching the primary
+84-byte character insertion method. Primary `push_back` itself delegates
+to that operator; it does not delegate to the pointer-length append API.
+The remaining string assignment implementation is 184 bytes versus native
+180, so no canonical string change is accepted here.
+
+Reproducible controls and receipts are outside the repository at
+`152-source-context.py`, `152-control-primary-string.py`, and
+`152-reference/primary-string-list-consumer/recursive.json`. The original
+24-function and EH receipts are in
+`152-reference/primary-list-constructor/primary-code-graph.json` and
+`primary-own-eh-proof.json`.
+
 ## Traps
+
+- The coherent original-header control of the complete Balloon source
+  compiles with the original MSL math header forwarded through the existing
+  `MSL_C/math.h` include path and the exception override declared `throw()`.
+  Mixing the reconstructed math wrapper with original headers instead
+  fails on a duplicate `INFINITY` macro. No macro suppression is needed.
+  The original-header producer reproduces 390 reachable functions and
+  25,512 instruction bytes with resolved targets, but still fails 100
+  literal section placement constraints. This is not a full-unit or
+  all-original-issue acceptance result. Its immutable input/object/receipt
+  archive is `152-reference/152-primary390-positive`.
 
 - A four-byte native forwarder can belong to a caller API rather than an
   invented wrapper in its callee's class. The list size chain above preserves
