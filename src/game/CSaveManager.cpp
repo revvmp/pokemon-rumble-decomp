@@ -30,6 +30,7 @@ public:
         WORK_DELETE
     };
 
+    CSaveManager();
     virtual ~CSaveManager();
     virtual void Calc();
     virtual void Draw();
@@ -51,6 +52,16 @@ private:
     std::queue<WorkType> mQueue;
     std::tr1::shared_ptr<IDlgMsgWin> mMsgWin;
 };
+
+CSaveManager* sInstance;
+
+CSaveManager::CSaveManager() {
+    sInstance = this;
+}
+
+CSaveManager::~CSaveManager() {
+    sInstance = nullptr;
+}
 
 void CSaveManager::Work(WorkType type) {
     CScopedActivity activity;
@@ -149,7 +160,6 @@ void CSaveManager::WaitIdle() {
 void CSaveManager::StartWork(WorkType type) {
     mFiber.reset(new CFiber("CSaveManager", std::tr1::bind(&CSaveManager::Work, this, type), 0x8000));
 }
-#pragma force_active on
 void CSaveManager::LoadSync() {
     WaitIdle();
     StartWork(WORK_LOAD);
@@ -195,6 +205,18 @@ void CSaveManager::Calc() {
         mMsgWin->Calc();
     }
 }
-#pragma force_active off
 
+void CSaveManager::Draw() {
+    if (mLayout) {
+        mLayout->Draw();
+    }
+    if (mMsgWin) {
+        mMsgWin->Draw();
+    }
+}
+
+}
+
+std::tr1::shared_ptr<ISaveManager> ISaveManager::Create() {
+    return std::tr1::shared_ptr<ISaveManager>(new CSaveManager);
 }
