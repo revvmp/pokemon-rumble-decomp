@@ -47,7 +47,6 @@ public:
     explicit BWorldLightSet(u32 type);
     virtual ~BWorldLightSet();
     virtual void Calc();
-    virtual void SetPosition(const nw4r::math::VEC3& rPosition);
     virtual void OnEnterWorld();
     virtual void OnLeaveWorld();
 

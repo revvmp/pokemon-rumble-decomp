@@ -43,3 +43,38 @@ Python reading the linked `main.elf` (byte-identical to the original DOL) for vt
 ## Traps
 
 - **An issue range can hold an unnamed unit.** The block's data ownership shows a second unit with no class vtable and no file-name string. Do not stretch `BWorldObj.cpp` over it just because the issue range continues.
+
+
+# F-52-2: Complete BWorldObj source and corrected register ownership
+
+The first unit is complete source selected with Wii/1.1 and unchanged `cflags_game`. All eleven retained functions match their full 1,040 instruction bytes and all 24 resolved instruction targets. The six complete exception records match 280 bytes, including cleanup targets; the 72-byte vtable matches every slot, and both float constants match eight bytes. `unitdiff.py game/BWorldObj` reports 11/11 at 100%. Full `ninja` and frozen-manifest verification both exit 0. The linked DOL is also raw byte-identical to the immutable baseline at `92230e3414fa2e8433609353b4fc6e3ef14e1833`.
+
+The complete BWorldObj remains 0x48 bytes. Its weak parent owner is at 0x1C/0x20 and is a weak pointer to BWorldObj, not the previous inferred BWorld. The by-value shared parent setter at 0x8006A290 is 60 bytes; the nonconst raw parent getter at 0x8006A2D0 is 160 bytes. A const getter changes nine native prologue words. The getter locks the weak owner through the retained 260-byte free Lock function and returns its raw pointer.
+
+The member at 0x24/0x28 is the existing complete eight-byte CPpuRegister. Its constructor at 0x801119B0 and destructor at 0x801119C0 are external retained functions. The control vtable at 0x803ADE0C names `shared_ptr_deleter<vector<NPpu::Slice,allocator<NPpu::Slice>>,default_delete<vector<NPpu::Slice>>>` through RTTI at 0x804B7370. This supersedes the placeholder BWorldObjOwner storage. Canonical GetValue(unsigned int) const at 0x80111D20 returns two words, Set at 0x80111D80 receives a const value reference, and Swap at 0x80112590 mutates a nonnull CPpuRegister pointer by exchanging ownership through a local. The BWorldObj forwarders are eight bytes each.
+
+The canonical NPpu::CValue retains its complete eight-byte tag/union representation. Native ScriptBinding_method_getRegister at 0x8014F4E0 stores Get's returned r3/r4 into an eight-byte local and passes that local directly to CEngine::Push at 0x801319F0. GetNewObjRegister at 0x8014F5D0 performs the same pairing. An independently compiled CValue return reproduces that ABI. Slice is the original embedded spelling, whereas CValue is inferred; this change introduces no alias, wrapper, storage change, or broad rename.
+
+CPpuEngine has the same register at 0x88. Its typed getter still returns this+0x88 in eight bytes. The two ScriptCamera calls now name SwapRegister/GetRegister instead of the incorrect shared-owner interpretation, preserving their instruction bytes and actual targets. CPpuEngine's existing NonMatching constructor changes from 168 to the native 176 bytes; its existing NonMatching destructor changes from 2,436 to 2,412 bytes, closer to the native 2,424. Their register construction/destruction now call the native out-of-line functions. This is a lifetime correction, not a claim that the entire CPpuEngine destructor matches. Its other 43 retained source instruction bodies remain identical.
+
+The BWorldObj vtable also establishes that 0x80069E60 is the common BWorldObj position setter. The preceding Matching BWorldLightSet source had named this identical 28-byte body as a derived override. Its declaration/body class is corrected to the base method, preserving all 27 retained functions / 6,740 instruction bytes, the vtable targets, and the frozen DOL. No preceding split or function extent changes.
+
+## Consumer controls
+
+An immutable full current baseline contains all 740 declared actual source objects at 92230e34, after explicit all_source, default link and verification. Against that baseline, 719 old objects are raw-identical. Twenty more preserve allocated section bytes, attributes, symbol identities and semantic relocations under the three explicitly documented API spelling corrections. BWorld's two byte-identical 96-byte weak pointer destructors exchange their symbol offsets and exception-index ordering; both bodies and their exception bytes remain identical. CPpuEngine is the single explicit native lifetime correction described above. No previously exact native consumer body regresses. The new BWorldObj object is the 741st actual source object; its selected input is the compiled source object, with no fallback object for this unit.
+
+Independent #218 producer reconstruction also confirms the same 0x48 base: CWaza Setup with a by-value shared parent matches 236 native instruction bytes, its nonconst parent-consuming GetAttachmentPosition matches 464, and its constructor/Calc/reset/get-engine match 112/116/28/8 bytes. These are supplementary consumer evidence; #218 retains ownership of its source.
+
+Names SetParent, GetParent, GetRegister, SetRegister, SwapRegister and CPpuRegister remain descriptive inferences from behavior and existing canonical declarations. No native mangled spelling for those game methods is asserted. The constructor's initial state is 4, not 1.
+
+## Remaining issue work
+
+The independent battle-royal unit after 0x8006A550 remains unaccepted. A typed outside producer has complete CBattleRoyalData size four and CBattleRoyalBox size 120, containing a 3-by-5 array of shared owners. Its first bounded probe still differs in the data factory, constructor and vector export context; no partial battle-royal source is added and #52 remains open.
+
+## Traps
+
+- Adding a vector definition transitively through CPpuRegister reordered unrelated weak helpers. A forward declaration with the complete allocator template argument and including CPpuRegister after BWorldObj's existing dependencies preserves old instruction bytes. Audit actual objects and relocations rather than inferring preservation from equal object sizes or objdiff scores.
+- Native vtable targets can reveal a prior common base method named as a derived override. Correct both the selected source definition and its declaration; renaming only the fallback symbol leaves an undefined source-selected method.
+
+
+The latest full control was refreshed at `4d997fb2` (full head recorded in the immutable control manifest): all 744 declared existing source objects were rebuilt, linked and frozen-verified. The candidate has 745 objects including BWorldObj. Of the existing objects, 717 are raw-identical and 26 preserve every allocated section byte, attributes and semantic targets with the explicit aliases above. New CGameMap's two weak and four shared destructors reorder symbol offsets and exception-index entries; every member of each group is independently asserted to have identical full instruction bytes and relative semantic targets. These are the same 96-byte weak or 132-byte shared destruction operations, not changed bodies. CPpuEngine remains the one explicit lifetime correction. Its constructor now independently matches all 176 native instruction bytes and all five targets. The just-landed canonical GetValue declaration is preserved exactly; the BWorldObj forwarder calls it without adding a competing getter API.
