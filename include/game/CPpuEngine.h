@@ -16,7 +16,7 @@
 class BWorld;
 class BWorldObj;
 class CFileData;
-class CPPD;
+class CPiiPersonalData;
 
 class CPpuEngine : public NPpu::CEngine, public ICalc, public std::tr1::enable_shared_from_this<CPpuEngine> {
 public:
@@ -48,13 +48,14 @@ public:
     std::tr1::shared_ptr<CFileData> LoadFile(const char* pName);
     bool LoadPlacement(const char* pFileName, const char* pAnmName, const char* pNodePrefix, u32 flags);
     void SetStageDescTarget(const StageID& rTarget);
-    void SetPPD(std::tr1::shared_ptr<CPPD> ppd);
+    void SetPPD(std::tr1::shared_ptr<CPiiPersonalData> ppd);
     void LeaveInitPart();
     static std::tr1::shared_ptr<CFileData> LoadScriptFile(const char* pName, u32 flags);
     bool Load(const char* pName, int mode, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnv);
     bool Load(BWorldObj* pOwner, const char* pName, int mode, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnv);
     bool Execute(const char* pName, int mode, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnv);
     BWorldObj* PopWorldObj();
+    std::tr1::shared_ptr<CPiiPersonalData> PopPersonalData();
     u32 PeekWorldObjType(int argIndex);
     bool HasCallback(int messageID) const;
     int SendMessage(const Message& rMessage);
@@ -73,9 +74,9 @@ private:
     StageID mStageDescTarget;
     std::set<std::tr1::shared_ptr<CFileData> > mFiles;
     std::vector<nw4r::math::MTX34> mPlacements;
-    std::tr1::shared_ptr<CPPD> mPPD;
+    std::tr1::shared_ptr<CPiiPersonalData> mPPD;
     int mCachedPPDValue;
-    std::tr1::weak_ptr<CPPD> mCachedPPD;
+    std::tr1::weak_ptr<CPiiPersonalData> mCachedPPD;
 
 public:
     virtual ~CPpuEngine();
