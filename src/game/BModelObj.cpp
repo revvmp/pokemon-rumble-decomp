@@ -197,6 +197,30 @@ void BModelObj::AddDrawLayer(const std::tr1::shared_ptr<IDrawLayer>& rLayer) {
     }
 }
 
+static inline nw4r::math::MTX34 MakeTransformMtx(
+    const nw4r::math::VEC3& rPosition, f32 rotation,
+    const nw4r::math::VEC3& rScale) {
+    f32 sin;
+    f32 cos;
+    nw4r::math::SinCosDeg(&sin, &cos, rotation);
+
+    nw4r::math::MTX34 rot;
+    rot = nw4r::math::MTX34(cos, 0.0f, sin, 0.0f,
+                            0.0f, 1.0f, 0.0f, 0.0f,
+                            -sin, 0.0f, cos, 0.0f);
+    nw4r::math::MTX34 scale(rScale.x, 0.0f, 0.0f, 0.0f,
+                            0.0f, rScale.y, 0.0f, 0.0f,
+                            0.0f, 0.0f, rScale.z, 0.0f);
+    nw4r::math::MTX34 trans(1.0f, 0.0f, 0.0f, rPosition.x,
+                            0.0f, 1.0f, 0.0f, rPosition.y,
+                            0.0f, 0.0f, 1.0f, rPosition.z);
+    nw4r::math::MTX34 tmp;
+    nw4r::math::MTX34 mtx;
+    nw4r::math::MTX34Mult(&tmp, &trans, &scale);
+    nw4r::math::MTX34Mult(&mtx, &tmp, &rot);
+    return mtx;
+}
+
 void BModelObj::CalcMtx() {
     bool visible = IsVisible();
     if (mModel != nullptr) {
@@ -227,24 +251,7 @@ void BModelObj::CalcMtx() {
     mFlags &= ~FLAG_DIRTY_MTX;
 
     if (!(mFlags & FLAG_BASE_MTX)) {
-        f32 cos;
-        f32 sin;
-        nw4r::math::SinCosDeg(&sin, &cos, mRotation);
-
-        nw4r::math::MTX34 rot;
-        rot = nw4r::math::MTX34(cos, 0.0f, sin, 0.0f,
-                                0.0f, 1.0f, 0.0f, 0.0f,
-                                -sin, 0.0f, cos, 0.0f);
-        nw4r::math::MTX34 scale(mScale.x, 0.0f, 0.0f, 0.0f,
-                                0.0f, mScale.y, 0.0f, 0.0f,
-                                0.0f, 0.0f, mScale.z, 0.0f);
-        nw4r::math::MTX34 tmp;
-        nw4r::math::MTX34 trans(1.0f, 0.0f, 0.0f, mPosition.x,
-                                0.0f, 1.0f, 0.0f, mPosition.y,
-                                0.0f, 0.0f, 1.0f, mPosition.z);
-        nw4r::math::MTX34 mtx;
-        nw4r::math::MTX34Mult(&tmp, &trans, &scale);
-        nw4r::math::MTX34Mult(&mtx, &tmp, &rot);
+        nw4r::math::MTX34 mtx = MakeTransformMtx(mPosition, mRotation, mScale);
         mModel->GetScnObj()->SetMtx(nw4r::g3d::ScnObj::MTX_LOCAL, mtx);
     } else {
         mModel->GetScnObj()->SetMtx(nw4r::g3d::ScnObj::MTX_LOCAL, mBaseMtx);
