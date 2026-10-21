@@ -14,7 +14,7 @@
 
 int method_CSimpleGround_loadModel(NPpu::CEngine* pEngine);
 
-static int AddItem(NPpu::CEngine* pBaseEngine, std::tr1::shared_ptr<CItem> rItem) {
+static int AddItem(NPpu::CEngine* pBaseEngine, std::tr1::shared_ptr<CItem> source) {
     CPpuEngine* pEngine = static_cast<CPpuEngine*>(pBaseEngine);
     int argCount = pEngine->FetchArgCount();
     BWorldObj* pParent = nullptr;
@@ -31,7 +31,7 @@ static int AddItem(NPpu::CEngine* pBaseEngine, std::tr1::shared_ptr<CItem> rItem
         }
     }
 
-    std::tr1::shared_ptr<CItem> item = rItem;
+    std::tr1::shared_ptr<CItem> item = source;
     item->SetOwner(pEngine->GetOwner());
     item->Initialize(false);
     if (pParent != nullptr) {
@@ -105,6 +105,7 @@ int SetPasswordUsed(NPpu::CEngine* pEngine) {
     pEngine->Pop(value);
     used.mData.mPassword = wide_string_to_decimal(pEngine->ToWString(value));
     GetSaveData(-1)->mUsedPassword.push_back(used);
+    pEngine->PushInt(0);
     return 0;
 }
 

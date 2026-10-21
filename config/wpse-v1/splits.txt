@@ -418,36 +418,6 @@ game/ControllerTable.cpp:
 	.bss        start:0x803E8D28 end:0x803E90C8
 	.sdata      start:0x804B77D8 end:0x804B77D9
 
-game/ScriptItem.cpp:
-	extab       start:0x8002EF78 end:0x8002F32C
-	extabindex  start:0x8004DE74 end:0x8004DF34
-	.text       start:0x80140C40 end:0x801420E4
-	.data       start:0x803B67A8 end:0x803B6980
-	.sdata      start:0x804B79E0 end:0x804B7A10
-
-game/GameLoop.cpp:
-	extab       start:0x8003501C end:0x80035024
-	extabindex  start:0x8005004C end:0x80050058
-	.text       start:0x8019DC50 end:0x8019DEAC
-	.bss        start:0x803EA7F8 end:0x803EA834
-	.sbss       start:0x804B9108 end:0x804B911C
-
-game/Random.cpp:
-	extab       start:0x80035024 end:0x8003504C
-	extabindex  start:0x80050058 end:0x80050094
-	.text       start:0x8019DEB0 end:0x8019E110
-	.sdata2     start:0x804BA328 end:0x804BA32C
-
-game/CFileData.cpp:
-	extab       start:0x800353CC end:0x80037A98
-	extabindex  start:0x800500F4 end:0x800505C8
-	.text       start:0x8019EBA0 end:0x801ADC38
-	.ctors      start:0x80352A10 end:0x80352A14
-	.data       start:0x803BE478 end:0x803BF000
-	.bss        start:0x803EA838 end:0x803EA890
-	.sdata      start:0x804B8108 end:0x804B81A0
-	.sbss       start:0x804B9128 end:0x804B9130
-
 ControllerTableAlignmentPadding:
 	.sdata      start:0x804B77D9 end:0x804B77E0 align:1
 
@@ -459,6 +429,13 @@ game/ScriptCamera.cpp:
 	.data       start:0x803B65A0 end:0x803B66C8
 	.sdata      start:0x804B79A8 end:0x804B79B8
 	.sdata2     start:0x804BA1B8 end:0x804BA1E8
+
+game/ScriptItem.cpp:
+	extab       start:0x8002EF78 end:0x8002F32C
+	extabindex  start:0x8004DE74 end:0x8004DF34
+	.text       start:0x80140C40 end:0x801420E4
+	.data       start:0x803B67A8 end:0x803B6980
+	.sdata      start:0x804B79E0 end:0x804B7A10
 
 game/SaveData.cpp:
 	extab       start:0x80032AA8 end:0x80033D8C
@@ -718,6 +695,19 @@ RVL_SDK/hbm/seq.c:
 	.data       start:0x803BE388 end:0x803BE408
 	.bss        start:0x803EA7F0 end:0x803EA7F8
 
+game/GameLoop.cpp:
+	extab       start:0x8003501C end:0x80035024
+	extabindex  start:0x8005004C end:0x80050058
+	.text       start:0x8019DC50 end:0x8019DEAC
+	.bss        start:0x803EA7F8 end:0x803EA834
+	.sbss       start:0x804B9108 end:0x804B911C
+
+game/Random.cpp:
+	extab       start:0x80035024 end:0x8003504C
+	extabindex  start:0x80050058 end:0x80050094
+	.text       start:0x8019DEB0 end:0x8019E110
+	.sdata2     start:0x804BA328 end:0x804BA32C
+
 game/CFiber.cpp:
 	extab       start:0x8003504C end:0x800353CC
 	extabindex  start:0x80050094 end:0x800500F4
@@ -725,6 +715,16 @@ game/CFiber.cpp:
 	.data       start:0x803BE408 end:0x803BE478
 	.sdata      start:0x804B80F8 end:0x804B8108
 	.sbss       start:0x804B9120 end:0x804B9128
+
+game/CFileData.cpp:
+	extab       start:0x800353CC end:0x80037A98
+	extabindex  start:0x800500F4 end:0x800505C8
+	.text       start:0x8019EBA0 end:0x801ADC38
+	.ctors      start:0x80352A10 end:0x80352A14
+	.data       start:0x803BE478 end:0x803BF000
+	.bss        start:0x803EA838 end:0x803EA890
+	.sdata      start:0x804B8108 end:0x804B81A0
+	.sbss       start:0x804B9128 end:0x804B9130
 
 nw4r/ut/ut_CntFileStream.cpp:
 	extab       start:0x80037BEC end:0x80037C80
