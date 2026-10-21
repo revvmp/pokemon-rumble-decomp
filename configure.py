@@ -282,7 +282,7 @@ config.libs = [
             Object(Matching, "game/CUIType.cpp"),
             Object(Matching, "game/CWarpZone.cpp"),
             Object(Matching, "game/CWaza.cpp"),
-            Object(NonMatching, "game/ScriptItem.cpp"),
+            Object(Matching, "game/ScriptItem.cpp"),
             Object(Matching, "game/ControllerTable.cpp"),
             Object(Matching, "game/DCIM.cpp"),
             Object(Matching, "game/Font.cpp"),
