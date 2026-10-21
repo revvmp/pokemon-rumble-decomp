@@ -40,10 +40,12 @@ The existing source-selected game/FaAsync.cpp consumes only FADta pointers. Its 
 
 All 757 existing source objects were captured before this header edit. The current comparison checks every function plus every allocated section and relocation, not just fuzzy scores. It normalizes only the two explicit waiter binding corrections and compiler-generated numeric symbol spellings by exact section/value/size. Both comparisons report zero changed objects. The full configure, ninja, original SHA-1 link check and frozen SHA-256 verifier pass. The private FA directory implementation and source-selected async waiter therefore preserve their accepted native artifacts.
 
-Outside 222-reference/fa-public-control contains the complete public/private layout producer, successful compilation command, object, twenty exact size/offset measurements, six actual native stack/field instructions, consumer baseline objects and reusable audits. The independent DCIM producer remains outside in 222-reference/dcim: two parsers reproduce 1,020 instruction bytes with every relocation, while the final index picker retains a four-byte pointer-hoisting difference and is not claimed as source accepted.
+Outside 222-reference/fa-public-control contains the complete public/private layout producer, successful compilation command, object, twenty exact size/offset measurements, six actual native stack/field instructions, consumer baseline objects and reusable audits. At prerequisite acceptance, the independent DCIM producer remained outside in 222-reference/dcim: two parsers reproduce 1,020 instruction bytes with every relocation, while the final index picker retains a four-byte pointer-hoisting difference and is not claimed as source accepted.
 
 ## Traps
 
 An opaque alias can safely describe pointer-only calls yet be wrong for allocating the complete public object. Preserve both independently evidenced public and private record contracts when a native caller proves different extents; do not remove real Unicode storage from the library type to fit a game stack.
 
 The pinned public header is encoded in CP932 rather than UTF-8. It is retained outside as original bytes for factual inspection, with its SHA-256 recorded; no encoding-normalized restricted header is committed.
+
+The subsequent complete DCIM source acceptance is [F-222-5](222-dcim.md); it resolves the former four-byte difference through the actual typed filename-field expression and retains this public ABI unchanged.

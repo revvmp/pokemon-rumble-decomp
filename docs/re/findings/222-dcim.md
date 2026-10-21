@@ -1,0 +1,27 @@
+# F-222-5: Complete DCF directory and file-index source
+
+Issue #222 owns 32 functions and 4,936 native instruction bytes. This publication accepts its complete three-function DCIM.cpp unit at 80125B10–8012623C: 1,816 instruction bytes. Together with the previously accepted Font.cpp five functions and 408 bytes, eight functions and 2,224 bytes are source-selected; the preceding 24 functions and 2,712 bytes remain outside these two units. The original issue remains open.
+
+## Actual source and public contract
+
+The two internal parsers validate DCF directory names and file stems. Directory names have exactly three decimal digits followed by five alphanumeric/underscore characters, with a numeric prefix of at least 100. File stems have four alphanumeric/underscore characters followed by four decimal digits, with a numeric suffix of at least one; an optional extension must begin after the eight-character stem with a dot. A negative explicit length requests strlen. Int character locals preserve the native signed-byte extension through classification and decimal accumulation.
+
+FindNextDcfIndex scans /DCIM, tracking the largest numbered directory and the largest eligible NIN01 directory. A second scan detects another vendor directory with that same number. Unless a new directory is forced, it enters the eligible Nintendo directory and finds the largest file number, accepting only non-directory entries. It reports the next indices or capacity/error state through the descriptive DcfIndexResult enum. The status values and output behavior come directly from all native return paths: zero is full, one is missing root with indices 100/1, two requests a new directory, three uses an existing directory, and four reports an access error. The routine changes the FA current directory, as native code does.
+
+The actual source consumes the distinct complete 1,092-byte public FADta from F-222-4 and its already canonical FAChdir/FAErrnum declarations. The native two-record 2,272-byte stack and public member offsets reproduce naturally. The helpers remain private to the unit; the only new public declaration is the index query and its descriptive result enum. File, helper, API, parameter and enum spellings are descriptive; public FA member spellings are recovered interface names.
+
+## Exact native proof
+
+With unchanged Wii/1.1 cflags_game, both parsers and the index query reproduce every instruction after applying every code relocation: 488, 532 and 796 bytes. The complete 24 exception bytes and 36 index bytes match. The format literal at 803B45A8 and three small-data strings beginning 804B7828 match, including all final linked padding. No executable-byte arrays, generated assembly or fallback body supplies any owned byte.
+
+The NonMatching split build passed full frozen verification first. Selecting the complete unit as Matching and deleting the previous DOL before a fresh configure/ninja also passes the original SHA-1 link check and frozen SHA-256 verifier. Fresh main.elf.MAP rows attribute all three owned functions at their exact native addresses/sizes uniquely to DCIM.o. Actual Ninja link inputs select src/game/DCIM.o and no owned original fallback. The independent final-ELF audit compares all code, exception records, index records and complete owned data regions directly with the immutable native artifact.
+
+The additive MSL interfaces are bounded: isalnum uses the existing locale-table contract and mask9, as both real native parsers prove; string.h gains the declaration of the already source-selected strncasecmp forwarding function. Existing source types, function bodies and compiler options remain unchanged. All 758 existing source objects retain identical functions, allocated sections and relocations after normalizing compiler-generated numeric names by exact section/value/size. Four stale NonMatching cache objects were refreshed against current accepted main 18803de4 without either new header addition, isolating accepted PR1186 vector changes from this control. No Matching consumer changed.
+
+Outside 222-reference/dcim preserves actual body producers, successful compile commands and strict code/EH/final-source audits. dcim-source-control preserves existing-object baselines, the explicit four-object refresh commands and zero-difference function/section receipts. The only production inputs are readable C++, the complete public header and additive standard-library declarations.
+
+## Traps
+
+The public FileName member is a signed-byte array. Converting the array to a character pointer before adding three let this compiler hoist an extra filename-suffix address, producing 800 bytes and another saved register. Indexing the actual typed field first, then converting its address for strncasecmp, naturally reproduces 796 bytes and every native register/call instruction. This is a paired source-context observation for this unit; no volatile cache, extra retained helper or compiler flag is introduced.
+
+The inherited build cache can predate a newly merged shared header even after switching to current main. The first current-consumer comparison observed four NonMatching objects affected by accepted vector PR1186. Recompiling those baseline consumers with current main and baseline standard-library headers removes that unrelated delta. Do not attribute stale inherited objects to the new change or hide their actual instruction differences through normalization.

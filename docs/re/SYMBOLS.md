@@ -3383,3 +3383,7 @@ The original anonymous `CIconCollection_cpp` class `CIconCollection` is 468 byte
 ## System-message integer action contract (#340)
 
 [F-340-4](findings/340-system-message-contract.md) corrects the descriptive public ShowSystemMessage signature at `0x801E09B0` to `void(const wchar_t*, int)`, preserving its 1648-byte extent. Native calls at `0x80168090`, `0x801680C0` and `0x801680E8` explicitly pass two; CErrMsgFatalLoop stores the action as int at offset 20 and distinguishes value two. The type/domain evidence is direct; the public spelling remains descriptive. Compiler binding is `ShowSystemMessage__FPCwi`. Existing bool-valued callers retain actions zero/one; the three existing SaveData integer-two calls now preserve their native action.
+
+## DCF filename validation and next image indices (#222)
+
+[F-222-5](findings/222-dcim.md) identifies private ParseDcfDirectoryName at 80125B10 (488 bytes), private ParseDcfFileName at 80125D00 (532 bytes), and public FindNextDcfIndex(int*, int*, bool) at 80125F20 (796 bytes). The descriptive DcfIndexResult statuses 0–4 correspond to full capacity, missing /DCIM root, new directory, existing directory, and I/O error, with exact native output behavior. Names are descriptive; signatures, public FADta field use and all native bytes/targets are independently source-proved. The public routine changes FA current-directory state. Its format and directory patterns retain exact native casing and spelling.
