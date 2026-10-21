@@ -161,6 +161,19 @@ Balloon's four-byte public forwarders at 800C94D0, 800C9520, 800C95B0,
 and 800C9760 are named from that primary class role and actual pipeline
 symbols. Current-consumer and linked acceptance remain separate gates.
 
+The same-base preflight at `2a8c4aa398e1` covers 760 source objects and
+713 source-selected Matching objects. All previously exact streams retain
+their bytes and semantic relocations; Matching strong functions and linked
+allocated ELF/DOL remain identical. CWaza changes only unused weak helper
+inventory and generated local labels. NonMatching BWorld and MapPiiTable
+scores improve, while NPpuVM Init remains nonmatching and exchanges four
+stack-byte references between offsets 12 and 13 without changing its
+608-byte extent. Its score changes from 99.86842 to 99.84210; this provisional
+stream is not presented as preserved or corrected. The native insert and
+its 24-byte EH record, original 24-function producer and 17 game bodies
+remain independently exact. Receipts are under
+`152-reference/header-verified-2a8c4aa398e1`.
+
 The recovered original header distinguishes the public `__tree::size`
 method from `__tree_deleter::size`. The existing reconstructed `tree`,
 `red_black_tree`, and `tree_imp` already represent the public, constructor,
