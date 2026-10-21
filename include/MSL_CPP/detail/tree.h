@@ -2,6 +2,7 @@
 #define MSL_CPP_DETAIL_TREE_H
 
 #include <algorithm>
+#include <MSL_CPP/functional_base.h>
 #include <MSL_CPP/alloc_ptr.h>
 #include <MSL_CPP/allocator.h>
 #include <MSL_CPP/compressed_pair.h>
@@ -11,7 +12,7 @@
 
 namespace std {
 
-template <typename T> struct less {
+template <typename T> struct less : binary_function<T, T, bool> {
     bool operator()(const T& a, const T& b) const { return a < b; }
 };
 
@@ -122,6 +123,7 @@ public:
     tree_begin_holder() {}
     tree_begin_holder(const Compare& rCompare) : Compare(rCompare) {}
     Compare& first() { return *this; }
+    const Compare& first() const { return *this; }
     tree_node_base*& second() { return node_; }
 
 private:
@@ -218,22 +220,28 @@ public:
 
     pair<iterator, bool> insert(const value_type& rValue);
 
-    template <typename Key> iterator find(const Key& rKey) {
-        tree_node_base* pResult = end_node();
-        tree_node_base* pNode = root();
+    template <typename Key> iterator find(const Key& rKey) const {
+        tree_node_base* pResult = do_lower_bound(rKey, root(), end_node());
+        if (pResult == end_node() || comp()(rKey, static_cast<node*>(pResult)->value_)) {
+            return iterator(end_node());
+        }
+        return iterator(pResult);
+    }
+
+    template <typename Key> tree_node_base* do_lower_bound(const Key& rKey, tree_node_base* pNode, tree_node_base* pResult) const {
         while (pNode != nullptr) {
-            if (!Compare()(static_cast<node*>(pNode)->value_, rKey)) {
+            if (!comp()(static_cast<node*>(pNode)->value_, rKey)) {
                 pResult = pNode;
                 pNode = pNode->left_;
             } else {
                 pNode = pNode->right_;
             }
         }
-        if (pResult == end_node() || Compare()(rKey, static_cast<node*>(pResult)->value_)) {
-            pResult = end_node();
-        }
-        return iterator(pResult);
+        return pResult;
     }
+
+    Compare& comp() { return begin_.first(); }
+    const Compare& comp() const { return begin_.first(); }
 
     void erase(iterator position) { erase(const_iterator(position)); }
 
@@ -248,13 +256,14 @@ public:
         --size_.first();
     }
 
+    tree_node_base* end_node() const { return reinterpret_cast<tree_node_base*>(const_cast<tree_root_ptr*>(&root_.second())); }
     tree_node_base* end_node() { return reinterpret_cast<tree_node_base*>(&root_.second()); }
     tree_node_base*& begin_node() { return begin_.second(); }
     tree_node_base*& root() { return *reinterpret_cast<tree_node_base**>(end_node()); }
     Allocator& alloc() { return size_.second(); }
     const Allocator& alloc() const { return size_.second(); }
     NodeAllocator& node_alloc() { return root_.first(); }
-    tree_node_base* root() const { return const_cast<tree_imp*>(this)->root(); }
+    tree_node_base* root() const { return *reinterpret_cast<tree_node_base**>(end_node()); }
     size_type& sz() { return size_.first(); }
     tree_node_base*& front() { return begin_node(); }
     tree_node_base* front() const { return const_cast<tree_imp*>(this)->begin_node(); }

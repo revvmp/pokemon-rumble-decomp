@@ -3387,3 +3387,15 @@ The original anonymous `CIconCollection_cpp` class `CIconCollection` is 468 byte
 ## DCF filename validation and next image indices (#222)
 
 [F-222-5](findings/222-dcim.md) identifies private ParseDcfDirectoryName at 80125B10 (488 bytes), private ParseDcfFileName at 80125D00 (532 bytes), and public FindNextDcfIndex(int*, int*, bool) at 80125F20 (796 bytes). The descriptive DcfIndexResult statuses 0–4 correspond to full capacity, missing /DCIM root, new directory, existing directory, and I/O error, with exact native output behavior. Names are descriptive; signatures, public FADta field use and all native bytes/targets are independently source-proved. The public routine changes FA current-directory state. Its format and directory patterns retain exact native casing and spelling.
+# Issue 152: allocator and list accessor corrections
+
+The native producer and provenance are recorded in
+[F-152-2](findings/152-balloon-library-contracts.md#f-152-2-allocator-ownership-and-inherited-pair-accessors).
+These are template function identities, without a class size or layout change.
+
+| Address | Contract | Evidence and confidence |
+| --- | --- | --- |
+| `0x800CB030` | `Metrowerks::alloc_ptr<list<CMsgBalloon::Entry>::node, allocator&>::operator->() const` | Four-byte tail call to `get`; primary interface and actual insertion producer, high confidence |
+| `0x800CB040` | The same allocation owner's `get() const` | 40-byte nested pair access, all targets exact; supersedes the old address assigned to get |
+| `0x800CB0C0` | The same allocation owner's `allocator()` | Four-byte tail call to reference-bearing pair first, high confidence |
+| `0x80095260` | `list<shared_ptr<CPiiPersonalData> >` storage `size_ref() const` | Four-byte forwarding accessor between public size and storage second; descriptive spelling, medium confidence |

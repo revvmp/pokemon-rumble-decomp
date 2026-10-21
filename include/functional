@@ -2,6 +2,7 @@
 #define _FUNCTIONAL
 
 #include <exception>
+#include <MSL_CPP/functional_base.h>
 #include <MSL_CPP/msl_utility.h>
 #include <tuple>
 #include <new>
