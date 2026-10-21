@@ -64,3 +64,14 @@ void CUIList::Draw() {
     BUILayout::Draw();
     for (std::vector<std::tr1::shared_ptr<CLayout> >::iterator i=mLayouts.begin();i!=mLayouts.end();++i) (*i)->Draw();
 }
+
+void CUIList::OnFocus(BUI*) {
+    if (IsFocused()) {
+        GetLayout()->CreateMotion("normal_hover");
+        GetLayout()->QueueMotion("hover");
+    } else {
+        GetLayout()->CreateMotion("hover_normal");
+        GetLayout()->QueueMotion("normal");
+    }
+    UpdateSelection();
+}

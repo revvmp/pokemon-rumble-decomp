@@ -28,6 +28,7 @@ public:
     virtual void OnInput(const IUIInput* pInput);
 
     bool AddChild(const Child& rChild);
+    bool IsFocused();
     bool RemoveChild(const Child& rChild);
     void SetVisible(bool visible);
 
