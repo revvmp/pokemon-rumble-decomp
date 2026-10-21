@@ -1,6 +1,6 @@
 #include <game/IGameSession.h>
 
-#include <game/CBattleRoyalData.h>
+#include <game/CBattleRoyalBox.h>
 #include <game/COyaInfo.h>
 #include <game/CPiiBox.h>
 #include <game/CPiiCollectionBox.h>
@@ -64,7 +64,7 @@ public:
     virtual PiiPropData* GetPiiPropData();
     virtual CPiiCollectionBox* GetPiiCollectionBox();
     virtual int GetCollectionType(u16 monsno);
-    virtual CBattleRoyalData* GetBattleRoyalData();
+    virtual CBattleRoyalBox* GetBattleRoyalBox();
     virtual CStatistic* GetStatistic();
     virtual std::wstring GetWazaName(int waza);
     virtual StageDesc* GetStageDesc(MapIndex index);
@@ -117,7 +117,7 @@ private:
     WazaDescData mWazaDescData;
     PiiPropData mPiiPropData;
     std::tr1::shared_ptr<CPiiCollectionBox> mPiiCollectionBox;
-    std::tr1::shared_ptr<CBattleRoyalData> mBattleRoyalData;
+    std::tr1::shared_ptr<CBattleRoyalBox> mBattleRoyalBox;
     std::tr1::shared_ptr<CStatistic> mStatistic;
     StageDesc mStageDescs[120];
     MapIndex mPendingMap;
@@ -187,7 +187,7 @@ void CGameSession::GetSnapshot(SessionSnapshot* pSnapshot) {
     pSnapshot->mRegistryCount = mOyaInfo.GetCount();
     mTeamPiiBox->ExportPersonalData(pSnapshot->mPiiPersonalData);
     mPiiCollectionBox->ExportCollectionData(pSnapshot->mPiiCollectionData);
-    mBattleRoyalData->ExportBattleRoyalData(pSnapshot->mBattleRoyalData);
+    mBattleRoyalBox->ExportBattleRoyalData(pSnapshot->mBattleRoyalData);
     mStatistic->ExportStatisticValues(pSnapshot->mStatisticValue1, pSnapshot->mStatisticValue2, pSnapshot->mStatisticValue3);
 }
 
