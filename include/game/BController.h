@@ -27,8 +27,8 @@ public:
     virtual u32 GetRelease() const { return mRelease; }
     virtual u32 GetRepeat() const { return mRepeat; }
     virtual u32 GetDisconnectSerial() const { return mDisconnectSerial; }
-    virtual void StartMotor(const MotorPattern& rPattern) {}
-    virtual void StopMotor() {}
+    virtual void StartMotor(const MotorPattern& rPattern) const {}
+    virtual void StopMotor() const {}
     virtual const wchar_t* GetButtonSymbol(u32 button) const { return L""; }
 
     bool IsLost(bool detected);

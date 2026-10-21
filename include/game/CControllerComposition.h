@@ -9,8 +9,8 @@ public:
     virtual Type GetType() const;
     virtual void Update();
     void SetControllers(const std::vector<IController*>& rControllers);
-    virtual void StartMotor(const MotorPattern& rPattern);
-    virtual void StopMotor();
+    virtual void StartMotor(const MotorPattern& rPattern) const;
+    virtual void StopMotor() const;
     virtual const wchar_t* GetButtonSymbol(u32 button) const;
 
     const std::vector<IController*>& GetControllers() const { return mControllers; }

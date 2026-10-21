@@ -17,8 +17,8 @@ public:
 
     virtual Type GetType() const = 0;
     virtual s32 GetChannel() const = 0;
-    virtual void StartMotor(const MotorPattern& rPattern) = 0;
-    virtual void StopMotor() = 0;
+    virtual void StartMotor(const MotorPattern& rPattern) const = 0;
+    virtual void StopMotor() const = 0;
     virtual const wchar_t* GetButtonSymbol(u32 button) const = 0;
     virtual u32 GetDisconnectSerial() const = 0;
     virtual void Update() = 0;
