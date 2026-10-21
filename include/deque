@@ -5,6 +5,7 @@
 #include <MSL_CPP/compressed_pair.h>
 #include <MSL_CPP/msl_utility.h>
 #include <algorithm>
+#include <iterator>
 #include <stdexcept>
 
 namespace std {
@@ -16,13 +17,29 @@ inline void __throw_deque_length_error(const char* pMessage) {
 template <typename T, typename Allocator> class __cdeque_buf {
 public:
     typedef unsigned long size_type;
+    typedef typename Metrowerks::compressed_pair<size_type, Allocator>::second_param allocator_param;
 
     class iterator {
+        friend class __cdeque_buf;
+
     public:
         iterator(const iterator& rOther);
         T& operator*();
         iterator& operator++();
+        iterator& operator+=(int n);
+        iterator& operator-=(int n) { return *this += -n; }
+        iterator operator+(int n) const {
+            return iterator(*this) += n;
+        }
+        iterator operator-(int n) const {
+            return iterator(*this) -= n;
+        }
+        long operator-(const iterator& rOther) const;
+        bool operator==(const iterator& rOther) const;
         bool operator!=(const iterator& rOther) const;
+        T* cur() const { return cur_; }
+        T*& cur_ref() { return cur_; }
+        T* last() const { return last_; }
 
     private:
         T* cur_;
@@ -32,6 +49,7 @@ public:
     };
 
     __cdeque_buf() : data_(0), start_(0), size_(0), capacity_(0) {}
+    explicit __cdeque_buf(allocator_param a) : data_(0), start_(0), size_(0), capacity_(0, a) {}
     ~__cdeque_buf();
 
     size_type& cap() { return capacity_.first(); }
@@ -52,6 +70,23 @@ public:
     void pop_front();
     void push_back(const T& rValue);
     void swap(__cdeque_buf& rOther);
+    size_type recommend(size_type n);
+    void clear_moved();
+    void allocate(size_type size, size_type n);
+    template <typename Iterator> void construct_at_end(const Iterator& rFirst, const Iterator& rLast);
+    template <typename Iterator> void construct_at_front(const Iterator& rFirst, const Iterator& rLast);
+
+    static iterator copy(iterator first, iterator last, iterator result);
+    static iterator copy_backward(iterator first, iterator last, iterator result);
+    template <typename ForwardIterator> static iterator copy(ForwardIterator first, ForwardIterator last, iterator result);
+    template <typename ForwardIterator> static T* copy(ForwardIterator first, ForwardIterator last, T* result);
+
+    template <typename ForwardIterator>
+    void insert(const iterator& rPos, ForwardIterator first, ForwardIterator last, bidirectional_iterator_tag) {
+        insert(rPos, first, last, Metrowerks::int2type<0>());
+    }
+    template <typename ForwardIterator>
+    void insert(const iterator& rPos, ForwardIterator& rFirst, ForwardIterator& rLast, Metrowerks::int2type<0>);
 
     T* data_;
     size_type start_;
@@ -68,22 +103,159 @@ template <typename T, typename Allocator> __cdeque_buf<T, Allocator>::~__cdeque_
 
 template <typename T, typename Allocator> class __cdeque_imp : public __cdeque_buf<T, Allocator> {};
 
+template <typename T, typename Allocator>
+template <typename ForwardIterator>
+T* __cdeque_buf<T, Allocator>::copy(ForwardIterator first, ForwardIterator last, T* result) {
+    for (; first != last; ++first, ++result) {
+        *result = *first;
+    }
+    return result;
+}
+
+template <typename T, typename Allocator>
+template <typename ForwardIterator>
+typename __cdeque_buf<T, Allocator>::iterator
+__cdeque_buf<T, Allocator>::copy(ForwardIterator first, ForwardIterator last, iterator result) {
+    if (first != last) {
+        long remaining = last - first;
+        for (;;) {
+            long room = result.last() - result.cur();
+            long n = std::min(remaining, room);
+            ForwardIterator mid = first + n;
+            copy(first, mid, result.cur());
+            remaining -= n;
+            result.cur_ref() += n - 1;
+            ++result;
+            if (remaining == 0) {
+                break;
+            }
+            first = mid;
+        }
+    }
+    return result;
+}
+
+template <typename T, typename Allocator>
+template <typename ForwardIterator>
+void __cdeque_buf<T, Allocator>::insert(const iterator& rPos, ForwardIterator& rFirst, ForwardIterator& rLast,
+                                        Metrowerks::int2type<0>) {
+    size_type n = std::distance(rFirst, rLast);
+    if (n != 0) {
+        T* pFront = data_ + start_;
+        size_type index = rPos.cur_ - pFront;
+        if (rPos.cur_ < pFront) {
+            index += cap();
+        }
+        size_type room = capacity();
+        if (n <= room && size_ <= room - n) {
+            iterator it = begin();
+            size_type tail = size_ - index;
+            if (index < tail) {
+                iterator oldBegin(it);
+                it -= n;
+                start_ = &*it - data_;
+                size_ += n;
+                if (index != 0) {
+                    it = copy(oldBegin, oldBegin + index, it);
+                }
+            } else {
+                size_ += n;
+                it = end();
+                if (tail != 0) {
+                    it = copy_backward(it - (n + tail), it - n, it);
+                }
+                it -= n;
+            }
+            copy(rFirst, rLast, it);
+        } else {
+            __cdeque_buf<T, Allocator&> buf(alloc());
+            buf.allocate(size_ + n, recommend(n));
+            buf.start_ = index;
+            T* pDest = buf.data_ + index;
+            while (n != 0) {
+                T value = *rFirst;
+                buf.alloc().construct(pDest, value);
+                ++buf.size_;
+                --n;
+                ++pDest;
+                ++rFirst;
+            }
+            buf.construct_at_end(rPos, end());
+            buf.construct_at_front(begin(), rPos);
+            clear_moved();
+            std::swap(data_, buf.data_);
+            std::swap(start_, buf.start_);
+            std::swap(size_, buf.size_);
+            std::swap(cap(), buf.cap());
+        }
+    }
+}
+
 template <typename T, typename Allocator> class __cdeque_pointer : public __cdeque_imp<void*, allocator<void*> > {
     typedef __cdeque_buf<void*, allocator<void*> > base;
+    typedef typename base::iterator base_iterator;
 
 public:
-    class iterator : public base::iterator {
-        typedef typename base::iterator base_iterator;
-
+    class iterator : public base_iterator {
     public:
+        typedef int difference_type;
+        typedef T* value_type;
+        typedef T** pointer;
+        typedef T*& reference;
+        typedef random_access_iterator_tag iterator_category;
+
         iterator(const base_iterator& rBase) : base_iterator(rBase) {}
+        base_iterator base() const { return *this; }
         T*& operator*() { return reinterpret_cast<T*&>(base_iterator::operator*()); }
         iterator& operator++() {
             base_iterator::operator++();
             return *this;
         }
+        iterator& operator+=(int n) {
+            base_iterator::operator+=(n);
+            return *this;
+        }
+        iterator& operator-=(int n) { return *this += -n; }
+        iterator operator-(int n) const {
+            return iterator(*this) -= n;
+        }
+        long operator-(const iterator& rOther) const { return base_iterator::operator-(rOther); }
+        bool operator==(const iterator& rOther) const { return base_iterator::operator==(rOther); }
         bool operator!=(const iterator& rOther) const { return base_iterator::operator!=(rOther); }
-        iterator operator-(int n) const;
+    };
+
+    class void_iterator : public iterator {
+    public:
+        typedef long difference_type;
+        typedef void* value_type;
+        typedef void** pointer;
+        typedef void*& reference;
+        typedef random_access_iterator_tag iterator_category;
+
+        void_iterator(const iterator& rIt) : iterator(rIt) {}
+        void* operator*() { return mCast(*this); }
+        void_iterator& operator++() {
+            iterator::operator++();
+            return *this;
+        }
+        void_iterator& operator+=(int n) {
+            iterator::operator+=(n);
+            return *this;
+        }
+        void_iterator operator+(int n) const {
+            return void_iterator(*this) += n;
+        }
+        long operator-(const void_iterator& rOther) const { return iterator::operator-(rOther); }
+        bool operator==(const void_iterator& rOther) const { return iterator::operator==(rOther); }
+        bool operator!=(const void_iterator& rOther) const { return !(*this == rOther); }
+
+    private:
+        struct pointer_cast {
+            void* operator()(iterator it) { return get(it, Metrowerks::int2type<0>()); }
+            void* get(iterator it, Metrowerks::int2type<0>) { return *it; }
+        };
+
+        pointer_cast mCast;
     };
 
     T*& operator[](size_type i) { return reinterpret_cast<T*&>(base::operator[](i)); }
@@ -94,7 +266,16 @@ public:
     T*& back() { return reinterpret_cast<T*&>(base::back()); }
     void push_back(T* const& rPtr) { base::push_back(reinterpret_cast<void* const&>(rPtr)); }
     void swap(__cdeque_pointer& rOther) { base::swap(rOther); }
-    void insert(iterator pos, iterator first, iterator last, int n);
+    void insert(const iterator& rPos, iterator first, iterator last, int) {
+        insert(rPos, first, last, typename iterator_traits<iterator>::iterator_category());
+    }
+    void insert(const iterator& rPos, iterator first, iterator last, bidirectional_iterator_tag) {
+        insert(rPos, first, last, Metrowerks::int2type<0>(), Metrowerks::int2type<0>());
+    }
+    void insert(const iterator& rPos, iterator first, iterator last, Metrowerks::int2type<0>, Metrowerks::int2type<0>) {
+        base::insert(rPos.base(), void_iterator(first), void_iterator(last),
+                     typename iterator_traits<void_iterator>::iterator_category());
+    }
 };
 
 template <typename T, typename Allocator> class __cdeque;
