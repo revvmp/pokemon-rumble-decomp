@@ -11,78 +11,60 @@
 namespace std {
 
 template <class charT, class traits, class Allocator>
-void basic_string<charT, traits, Allocator>::reserve(size_type res_arg)
-{
-    if (res_arg > 0x7FFFFFFE) {
+void basic_string<charT, traits, Allocator>::reserve(size_type newCapacity) {
+    if (newCapacity > max_size()) {
         throw length_error("basic_string::reserve length_error");
     }
     bool wasLong = is_long();
     size_type length;
-    size_type capacity;
+    size_type oldCapacity;
+    const size_type minimumCapacity = (sizeof(long_rep) - 1) / sizeof(charT);
     if (!wasLong) {
-        length = r_.first().r.s.size_;
-        capacity = sizeof(long_rep) - 1;
+        length = short_size();
+        oldCapacity = minimumCapacity;
     } else {
-        length = r_.first().r.l.size_;
-        capacity = r_.first().r.l.cap_;
+        length = long_size();
+        oldCapacity = long_cap();
     }
-    if (res_arg < length) {
-        res_arg = length;
+    if (newCapacity < length) newCapacity = length;
+    ++newCapacity;
+    if (newCapacity <= minimumCapacity) newCapacity = minimumCapacity;
+    else {
+        const size_type alignment = sizeof(charT) < 16 ? 16 / sizeof(charT) : 1;
+        newCapacity = (newCapacity + alignment - 1) & ~(alignment - 1);
     }
-    size_type newCapacity = sizeof(long_rep) - 1;
-    if (res_arg + 1 > sizeof(long_rep) - 1) {
-        newCapacity = (res_arg + 16) & ~15;
-    }
-    if (newCapacity == capacity) {
-        return;
-    }
-    charT* pNew;
-    bool nowLong;
-    const charT* pOld;
-    if (newCapacity == sizeof(long_rep) - 1) {
-        pOld = r_.first().r.l.data_;
-        pNew = r_.first().r.s.data_;
-        nowLong = false;
-    } else {
-        if (newCapacity > capacity) {
-            pNew = alloc().allocate(newCapacity);
+    if (newCapacity != oldCapacity) {
+        charT* pNew;
+        charT* pOld;
+        bool nowLong;
+        if (newCapacity == minimumCapacity) {
+            pNew = short_data();
+            nowLong = false;
+            pOld = long_data();
         } else {
-            try {
-                pNew = alloc().allocate(newCapacity);
-            } catch (...) {
-                return;
+            if (newCapacity > oldCapacity) pNew = alloc().allocate(newCapacity);
+            else {
+                try { pNew = alloc().allocate(newCapacity); }
+                catch (...) { return; }
             }
+            nowLong = true;
+            pOld = wasLong ? long_data() : short_data();
         }
-        nowLong = true;
-        pOld = wasLong ? r_.first().r.l.data_ : r_.first().r.s.data_;
-    }
-    memmove(pNew, pOld, length);
-    pNew[length] = 0;
-    if (wasLong) {
-        alloc().deallocate(const_cast<charT*>(pOld), capacity);
-    }
-    r_.first().r.l.is_long_ = nowLong;
-    if (!nowLong) {
-        r_.first().r.s.size_ = length;
-    } else {
-        r_.first().r.l.data_ = pNew;
-        r_.first().r.l.size_ = length;
-        r_.first().r.l.cap_ = newCapacity;
+        memmove(pNew, pOld, length * sizeof(charT));
+        pNew[length] = charT();
+        if (wasLong) alloc().deallocate(pOld, oldCapacity);
+        is_long(nowLong);
+        if (!nowLong) short_size(length);
+        else {
+            long_data() = pNew;
+            long_size() = length;
+            long_cap(newCapacity);
+        }
     }
 }
 
-template <class charT, class traits, class Allocator>
-basic_string<charT, traits, Allocator> operator+(const basic_string<charT, traits, Allocator>& lhs, const charT* rhs)
-{
-    basic_string<charT, traits, Allocator> result;
-    size_t rhsLength = traits::length(rhs);
-    size_t lhsLength;
-    const charT* lhsData;
-    lhs.get_buffer(lhsData, lhsLength);
-    result.reserve(lhsLength + rhsLength);
-    result.replace(0, 0, lhsData, lhsData + lhsLength).replace(lhsLength, 0, rhs, rhs + rhsLength);
-    return result;
-}
+
+
 
 }
 
@@ -141,6 +123,11 @@ void InitializeColorConstants(bool background)
     }
 }
 
+nw4r::ut::Color CColorConst::GetTextColor(int index, int end) const
+{
+    return mColors[index][end * 2];
+}
+
 IColorConst* GetColorConstants()
 {
     return sColorConst.get();
@@ -149,16 +136,6 @@ IColorConst* GetColorConstants()
 void FinalizeColorConstants()
 {
     sColorConst.reset();
-}
-
-nw4r::ut::Color CColorConst::GetTextColor(int index, int end) const
-{
-    return mColors[index][end * 2];
-}
-
-nw4r::ut::Color CColorConst::GetVertexColor(int index, int end) const
-{
-    return mColors[index][end];
 }
 
 bool CColorConst::ApplyVertexColor(nw4r::lyt::Pane* pPane, int index, int mode) const
@@ -179,6 +156,11 @@ bool CColorConst::ApplyVertexColor(nw4r::lyt::Pane* pPane, int index, int mode) 
         return true;
     }
     return false;
+}
+
+nw4r::ut::Color CColorConst::GetVertexColor(int index, int end) const
+{
+    return mColors[index][end];
 }
 
 bool CColorConst::ApplyVertexColor(CLayout* pLayout, const char* pName, int index, int mode) const
@@ -211,4 +193,21 @@ bool CColorConst::ApplyTextColor(CLayout* pLayout, const char* pName, int index,
         return true;
     }
     return ApplyTextColor(pLayout->FindPane(pName), index, mode);
+}
+
+namespace std {
+
+template <class charT, class traits, class Allocator>
+basic_string<charT, traits, Allocator> operator+(const basic_string<charT, traits, Allocator>& lhs, const charT* rhs)
+{
+    basic_string<charT, traits, Allocator> result;
+    size_t rhsLength = traits::length(rhs);
+    size_t lhsLength;
+    const charT* lhsData;
+    lhs.get_buffer(lhsData, lhsLength);
+    result.reserve(lhsLength + rhsLength);
+    result.replace(0, 0, lhsData, lhsData + lhsLength).replace(lhsLength, 0, rhs, rhs + rhsLength);
+    return result;
+}
+
 }

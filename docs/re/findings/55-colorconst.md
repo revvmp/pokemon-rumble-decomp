@@ -90,3 +90,16 @@ An independently reconstructed generic reserve algorithm using those accessors p
 The shared-header prerequisite adds only the accessor interface. It leaves reserve's definition in the owning CColorConst source unit. Same-base full builds compiled all 762 existing source objects: 708 are byte-identical, and every remaining object's parsed sections, symbol attributes, and raw relocations match after normalizing only numeric compiler-generated `__FUNCTION__` identity suffixes. Literal bytes and relocation destinations remain checked. The linked ELF has identical allocated payloads, and both fresh DOL builds pass the frozen artifact verifier.
 
 The meaningful lesson is to preserve original scalar and reference return types in low-level library accessors. Substituting direct representation fields or widening the short-length return changed CodeWarrior's instruction selection even where the nominal numeric values agree. This supersedes the earlier hypothesis that only a special exception wrapper or forced temporary layout could fix reserve.
+
+
+## F-55-4: complete instruction reconstruction and remaining small-data order
+
+The source now uses the original MSL representation accessors in its generic reserve algorithm. All 17 owned functions, 3,928 instruction bytes and every actual instruction target match independently. Reserve also matches its complete 68-byte exception record and both cleanup targets. Ordinary method definitions follow native address order. Defining the ordinary string-plus-C-string template after the game methods restores the native physical order of reserve, the ownership cleanup functions and concatenation without changing compiler flags or retaining extra code.
+
+A complete source-selected diagnostic produces an executable of the original 4,094,880-byte length with exactly 18 differing bytes. Code and exception records are otherwise exact. The remaining discrepancy swaps the eight-byte CColorConst ownership-control RTTI record at native `0x804B5CA8` and the three-byte `_c` literal at native `0x804B5CB0`, including their two references. This diagnostic fails the frozen checksum and is not accepted. The unit remains NonMatching; a fresh fallback-selected build succeeds after deleting the diagnostic DOL.
+
+The actual source, object, linked ELF, MAP, DOL, build graph and byte-difference receipt are preserved outside the repository under `55-reference/55-late-concat-source-selected`. The strict per-function and reserve exception audits are preserved under `55-reference/55-primary-reserve-accessors`. Direct temporary ownership assignment changes initialization size and is rejected. Direct temporary swap preserves initialization but leaves the data ordering unchanged. Out-of-class reset placement, direct memory inclusion, and the broader primary string declaration candidate also leave that order unchanged. No artificial storage, placement pragma, original-byte copy or expected-hash change is used.
+
+### Traps
+
+Individual native instruction matches and correct physical code ordering still do not establish full unit acceptance: RTTI and literal encounter order can leave a small but real frozen executable mismatch. Keep the full source-selected result separate from the fallback-selected verified build, and retain NonMatching until the actual complete output verifies.
