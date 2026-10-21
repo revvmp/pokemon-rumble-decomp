@@ -356,7 +356,7 @@ template <typename T, typename Allocator>
 typename list<T, Allocator>::iterator list<T, Allocator>::erase(iterator position) {
     iterator next(position);
     ++next;
-    node* pNode = position.node_;
+    node* pNode = static_cast<node*>(position.base());
     unlink_nodes(pNode, pNode);
     pNode->data_.~T();
     this->tail_.first().deallocate(pNode, 1);
