@@ -180,7 +180,7 @@ void CGameMap::Initialize()
     mWorldObjStatDisplay = IWorldObjStatDisplay::Create(mWorld.get());
     mTutorialMsg = ITutorialMsg::Create(true);
     mNumericInput = INumericInput::Create(true);
-    mPauseMenu = IPauseMenu::Create(mParam.mMapDesc, false, true);
+    mPauseMenu = IPauseMenu::Create(mParam.mMapDesc, false, 1);
     if (mParam.mMapDesc->mIndex.mStage == 0) {
         mDlgPiiList = IDlgPiiList::Create(true);
         mDlgCollection = IDlgCollection::Create(true);
