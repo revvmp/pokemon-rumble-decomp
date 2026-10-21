@@ -3,6 +3,6 @@
 
 #include <functional>
 
-void RegisterResetCallback(const std::tr1::function<void()>& rCallback, int priority);
+int RegisterResetCallback(const std::tr1::function<void()>& rCallback, int priority);
 
 #endif
