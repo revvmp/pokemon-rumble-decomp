@@ -39,6 +39,21 @@ public:
         reserve(n);
         replace(0, 0, s, s + n, forward_iterator_tag());
     }
+    basic_string(const_iterator first, const_iterator last) {
+        init();
+        reserve(last - first);
+        replace(0, 0, first, last, forward_iterator_tag());
+    }
+    basic_string(const basic_string& str) {
+        if (!str.is_long()) {
+            rep_ = str.rep_;
+        } else {
+            init();
+            reserve(str.rep_.l.size_);
+            const_iterator first = str.rep_.l.data_;
+            replace(0, 0, first, first + str.rep_.l.size_, forward_iterator_tag());
+        }
+    }
     ~basic_string() {
         if (is_long()) {
             this->Allocator::deallocate(rep_.l.data_, rep_.l.cap_);

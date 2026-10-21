@@ -21,13 +21,13 @@ public:
     virtual BWorld* GetWorld() const { return mpWorld.get(); }
     virtual IPauseMenu* GetPauseMenu() { return mpPauseMenu.get(); }
     inline virtual void ShowCongratulations();
-    inline virtual void LocalizeCongratulations();
-    inline virtual void BuildStaffRollText();
+    inline virtual void StopCongratulations();
+    inline virtual void ParseStaffRollText(const wchar_t* pText);
     inline virtual void StartStaffRoll();
     inline virtual void HideStaffRoll();
     inline virtual bool IsStaffRollFinished();
     inline virtual void ShowNext();
-    inline virtual void LocalizeNext();
+    inline virtual void StopNext();
     inline virtual bool IsNextVisible();
 
 private:
@@ -51,6 +51,71 @@ private:
     CLayout mNext;
     std::tr1::shared_ptr<CLayout::CMotionProgram> mpNextMotion;
 };
+
+inline CGameEnding::~CGameEnding() {}
+
+inline void CGameEnding::ShowCongratulations() {
+    mpCongratulationsMotion = mCongratulations.CreateMotion("normal");
+    mCongratulations.SetVisible(true);
+}
+
+inline void CGameEnding::StopCongratulations() {
+    mCongratulations.StopMotion();
+}
+
+inline void CGameEnding::ParseStaffRollText(const wchar_t* pText) {
+    const wchar_t* pLine = pText;
+    const wchar_t* pEnd = pText;
+    for (;;) {
+        if (*pEnd == L'\n' || *pEnd == 0) {
+            std::wstring unused;
+            if (*pLine == 0x25C6) {
+                mLineTexts.push_back(L"");
+                mTitleTexts.push_back(std::wstring(pLine + 1, pEnd));
+            } else {
+                mLineTexts.push_back(std::wstring(pLine, pEnd));
+                mTitleTexts.push_back(L"");
+            }
+            if (*pEnd == 0) {
+                break;
+            }
+            pLine = ++pEnd;
+        } else {
+            ++pEnd;
+        }
+    }
+}
+
+inline void CGameEnding::StartStaffRoll() {
+    mStaffRoll.SetVisible(true);
+    mpScrollMotion = mStaffRoll.CreateMotion("in");
+    mStaffRoll.SetPaneVisible("SCROLL", false);
+    mState = STATE_SCROLLING;
+}
+
+inline void CGameEnding::HideStaffRoll() {
+    mStaffRoll.SetVisible(false);
+    mState = STATE_IDLE;
+}
+
+inline bool CGameEnding::IsStaffRollFinished() {
+    return !(mState == STATE_SCROLLING || (mState == STATE_SCROLL_DONE && !mLineTexts.empty()));
+}
+
+inline void CGameEnding::ShowNext() {
+    mNext.CreateMotion("begin");
+    mNext.AppendMotion("loop");
+    mpNextMotion = mNext.AppendMotion("end");
+    mNext.SetVisible(true);
+}
+
+inline void CGameEnding::StopNext() {
+    mNext.StopMotion();
+}
+
+inline bool CGameEnding::IsNextVisible() {
+    return mNext.IsVisible();
+}
 
 inline void CGameEnding::Draw() {
     mpWorld->Draw();
