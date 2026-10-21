@@ -481,6 +481,16 @@ game/ControllerTable.cpp:
 	.bss        start:0x803E8D28 end:0x803E90C8
 	.sdata      start:0x804B77D8 end:0x804B77D9
 
+game/l10n_files.cpp:
+	extab       start:0x8002C2F0 end:0x8002CBC8
+	extabindex  start:0x8004C920 end:0x8004CB18
+	.text       start:0x801263F0 end:0x8012B5E8
+	.ctors      start:0x803529EC end:0x803529F0
+	.data       start:0x803B45B8 end:0x803B4F80
+	.bss        start:0x803E90D8 end:0x803E90FC
+	.sdata      start:0x804B7840 end:0x804B7880
+	.sbss       start:0x804B90A0 end:0x804B90B8
+
 ControllerTableAlignmentPadding:
 	.sdata      start:0x804B77D9 end:0x804B77E0 align:1
 
