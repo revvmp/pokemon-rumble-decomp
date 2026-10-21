@@ -1,12 +1,23 @@
 #include <game/IDlgPiiSelector.h>
 
+#include <game/CFiber.h>
 #include <game/CLayout.h>
+#include <game/CNoticeDisplay.h>
 #include <game/ControllerTable.h>
+#include <game/CPiiListFilterSort.h>
 #include <game/CPlayer.h>
 #include <game/CRemoteMemory.h>
+#include <game/CUIManager.h>
+#include <game/CUIPiiList.h>
+#include <game/CUIPiiListItem.h>
+#include <game/CUIPiiSpec.h>
+#include <game/CUIPlayerID.h>
 #include <game/IDlgMsgWin.h>
+#include <game/IGameMap.h>
 #include <game/IGameSession.h>
 #include <memory>
+#include <nw4r/math/math_types.h>
+#include <vector>
 
 #pragma dont_inline on
 
@@ -73,12 +84,79 @@ private:
     IController* mControllers[4];
 };
 
+class IDlgPiiSelectorInternal;
+
 class CDataPerPlayer {
 public:
-    virtual ~CDataPerPlayer();
-    void CalcMtx();
-    void CalcView();
+    void Draw() { mUIManager->Draw(); }
+    void CalcMtx() { mUIManager->CalcMtx(); }
+    void CalcView() { mUIManager->CalcView(); }
+
+    void Calc() {
+        if (mState == 2) {
+            IController* pController = IGameSession::GetInstance()->GetPlayer(mPlayer)->GetController();
+            if (pController == nullptr || mpController != pController ||
+                mDisconnectSerial != pController->GetDisconnectSerial()) {
+                mDisconnected = true;
+            }
+            if (!IsDisconnected()) {
+                mPlayerID->Update();
+            }
+        }
+        mPiiList->UpdateSelection();
+        {
+            std::tr1::shared_ptr<IUIListItem> selected = mPiiList->GetSelectedItem();
+            if (selected) {
+                std::tr1::shared_ptr<CUIPiiListItem> item = std::tr1::static_pointer_cast<CUIPiiListItem>(selected);
+                mPiiSpec->SetPii(item->GetPPD(), mPlayer);
+            }
+        }
+        mUIManager->Calc();
+        mFiber.Resume();
+    }
+
+    bool IsDisconnected() { return mDisconnected; }
+    bool IsFinished();
     bool IsShown();
+
+private:
+    IDlgPiiSelectorInternal* mpDlg;
+    int mState;
+    int mPlayer;
+    int mReservedMode;
+    bool mFavoriteMode;
+    std::vector<std::tr1::shared_ptr<CUIPiiListItem> > mItems;
+    CPiiListFilterSort mFilterSort;
+    nw4r::math::VEC2 mReservedPosition;
+    nw4r::math::VEC2 mReservedTargetPosition;
+    bool mReservedFlag50;
+    bool mSilent;
+    bool mReservedFlag52;
+    std::tr1::shared_ptr<BUI> mReservedUI54;
+    std::tr1::shared_ptr<BUI> mReservedUI5C;
+    std::tr1::shared_ptr<BUI> mReservedUI64;
+    int mReserved6C;
+    int mReserved70;
+    int mReserved74;
+    int mReserved78;
+    int mReserved7C;
+    int mReserved80;
+    std::tr1::shared_ptr<CUIManager> mUIManager;
+    std::tr1::shared_ptr<BUILayout> mReservedLayout8C;
+    std::tr1::shared_ptr<BUILayout> mReservedLayout94;
+    std::tr1::shared_ptr<CUIPiiSpec> mPiiSpec;
+    std::tr1::shared_ptr<CUIPiiList> mPiiList;
+    std::tr1::shared_ptr<CUIPlayerID> mPlayerID;
+    std::tr1::shared_ptr<BUILayout> mReservedLayoutB4;
+    nw4r::math::VEC2 mReservedVectorBC;
+    IController* mpController;
+    u32 mDisconnectSerial;
+    bool mDisconnected;
+    int mReservedD0;
+    CFiber mFiber;
+
+public:
+    virtual ~CDataPerPlayer();
 };
 
 class IDlgPiiSelectorInternal : public IDlgPiiSelector {
@@ -100,7 +178,31 @@ public:
 
     CDlgPiiSelector() : mIsPausing(false), mInputLocked(false), mErrorState(0), mError(0) {}
     virtual ~CDlgPiiSelector() {}
-    inline virtual void Calc();
+    virtual void Calc() {
+        if (mMultiPlayerData) {
+            CalcEntrance();
+        }
+        for (int player = 0; player < 4; player++) {
+            if (mDataPerPlayer[player]) {
+                mDataPerPlayer[player]->Calc();
+                if (mDataPerPlayer[player]->IsFinished()) {
+                    mDataPerPlayer[player].reset();
+                    if (mIsPausing) {
+                        mIsPausing = false;
+                        GetCurrentGameMap()->SetPausing(false);
+                    }
+                    UpdateDlgOpenState();
+                }
+            }
+        }
+        if (mMultiPlayerData) {
+            UpdateEntrance();
+            if (mMultiPlayerData) {
+                mMultiPlayerData->mLayout.Calc();
+                mMultiPlayerData->mMsgWin->Calc();
+            }
+        }
+    }
 
     virtual void CalcMtx() {
         for (int player = 0; player < 4; player++) {
@@ -124,7 +226,21 @@ public:
         }
     }
 
-    inline virtual void Draw();
+    virtual void Draw() {
+        if (GetCurrentGameMap()->GetNoticeDisplay()->IsShown()) {
+            return;
+        }
+        for (int player = 0; player < 4; player++) {
+            if (mDataPerPlayer[player]) {
+                mDataPerPlayer[player]->Draw();
+            }
+        }
+        if (mMultiPlayerData) {
+            mMultiPlayerData->mLayout.Draw();
+            mMultiPlayerData->mMsgWin->Draw();
+        }
+    }
+
     virtual bool IsClosable() { return false; }
     virtual bool Close() { return false; }
     virtual bool IsShown(int player) {
@@ -164,6 +280,8 @@ public:
             break;
         }
     }
+
+    void UpdateEntrance();
 
     void AssignControllers() {
         CControllerList controllers;
