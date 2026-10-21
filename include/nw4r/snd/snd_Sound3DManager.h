@@ -60,6 +60,10 @@ public:
     u32 GetRequiredMemSize(const SoundArchive* pArchive);
     bool Setup(const SoundArchive* pArchive, void* pBuffer, u32 size);
 
+    void AddListener(Sound3DListener* pListener) {
+        mListenerList.PushBack(pListener);
+    }
+
     Sound3DListenerList& GetListenerList() {
         return mListenerList;
     }

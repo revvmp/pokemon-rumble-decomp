@@ -127,8 +127,7 @@ void LoadSoundArchive(const char* pPath) {
     sSoundWork->m3DManagerMemory.reset(static_cast<u8*>(GameMemory::Allocate(managerSize)), GameMemory::Free);
     sSoundWork->m3DManager.Setup(&sSoundWork->mArchive, sSoundWork->m3DManagerMemory.get(), managerSize);
     sSoundWork->m3DManager.SetMaxPriorityReduction(32);
-    nw4r::snd::Sound3DListenerList& rList = sSoundWork->m3DManager.GetListenerList();
-    rList.PushBack(&sSoundWork->m3DListener);
+    sSoundWork->m3DManager.AddListener(&sSoundWork->m3DListener);
     sSoundWork->m3DListener.SetMaxVolumeDistance(12.0f);
     sSoundWork->m3DListener.SetUnitDistance(6.0f);
     sSoundWork->m3DListener.SetInteriorSize(20.0f);
