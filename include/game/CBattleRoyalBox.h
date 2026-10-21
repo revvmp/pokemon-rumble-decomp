@@ -7,6 +7,7 @@
 class CBattleRoyalData {
 public:
     bool UpdateBestTime(f32 time);
+    f32 GetBestTime() const { return mBestTime; }
 
 private:
     f32 mBestTime;

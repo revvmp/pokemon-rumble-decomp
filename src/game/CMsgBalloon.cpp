@@ -1,6 +1,6 @@
 #include <game/CMsgBalloon.h>
 
-#include <game/CBattleRoyalData.h>
+#include <game/CBattleRoyalBox.h>
 #include <game/CPiiPersonalData.h>
 #include <game/CPiiTex.h>
 #include <game/CPlayerPii.h>
@@ -345,10 +345,10 @@ inline void CMsgBalloon::SetupBattleWarp(StageID stageID) {
             progress = (s8)GetSaveData(-1)->mData.mStatus[18] * 2 + IsGameFlagSet(30) - 1;
         }
         if (progress > 1) {
-            pLayout->SetText("UNKNOWN", FormatMessageString(GetMessageString(0x600CC, L"さいこうきろく {1}-{2}"), progress / 2, progress % 2 + 1).c_str());
+            pLayout->SetText("UNKNOWN", FormatMessage(GetMessageString(0x600CC, L"さいこうきろく {1}-{2}"), progress / 2, progress % 2 + 1).c_str());
         }
     } else {
-        float clearTime = IGameSession::GetInstance()->GetBattleRoyalData()->GetRecord(rIndex.mMode, rIndex.mArea)->GetClearTime();
+        float clearTime = IGameSession::GetInstance()->GetBattleRoyalBox()->GetData(rIndex.mMode, rIndex.mArea)->GetBestTime();
         int centiseconds = ceil(100.0f * clearTime);
         bool cleared = clearCount > 0;
         CLayout* pLayout = mWarpLayout->GetLayout();
@@ -358,7 +358,7 @@ inline void CMsgBalloon::SetupBattleWarp(StageID stageID) {
         pLayout->SetPaneVisible("EXTRA", false);
         pLayout->SetPaneVisible("CLEAR", cleared);
         if (cleared) {
-            pLayout->SetText("CLEAR", FormatMessageString(GetMessageString(0x600C7, nullptr), clearCount).c_str());
+            pLayout->SetText("CLEAR", FormatMessage(GetMessageString(0x600C7, nullptr), clearCount).c_str());
             int minutes = centiseconds / 100 / 60;
             int seconds = centiseconds / 100 % 60;
             int hundredths = centiseconds % 100;
@@ -385,6 +385,6 @@ inline void CMsgBalloon::SetupStageWarp(StageID stageID) {
     pLayout->SetPaneVisible("EXTRA", isExtra);
     pLayout->SetPaneVisible("CLEAR", clearCount > 0);
     if (cleared) {
-        pLayout->SetText("CLEAR", FormatMessageString(GetMessageString(0x600C7, nullptr), clearCount).c_str());
+        pLayout->SetText("CLEAR", FormatMessage(GetMessageString(0x600C7, nullptr), clearCount).c_str());
     }
 }
