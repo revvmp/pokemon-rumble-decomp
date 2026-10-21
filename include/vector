@@ -246,8 +246,9 @@ protected:
 
     void push_back_realloc(const T& x) { push_back_realloc(x, pod_type()); }
     void push_back_realloc(const T& x, Metrowerks::int2type<false>) {
+        grow_by(1);
         __vec_split_buffer<T, Allocator> buffer(this->capacity_.second());
-        size_type capacity = grow_by(1);
+        size_type capacity = grow_capacity(1);
         if (capacity > max_size()) {
             __throw_vector_length_error();
         }
@@ -284,7 +285,7 @@ protected:
     void clear(Metrowerks::int2type<false>) { base::clear(); }
     void clear_moved() { clear_moved(pod_type()); }
     void clear_moved(Metrowerks::int2type<true>) { this->size_ = 0; }
-    void clear_moved(Metrowerks::int2type<false>) { base::clear(); }
+    void clear_moved(Metrowerks::int2type<false>) { this->size_ = 0; }
 
     void allocate(size_type n, pod_type) {
         if (n > max_size()) {
@@ -371,7 +372,7 @@ void __vec_constructor<T, Allocator, IsPOD>::reallocate(size_type n) {
     base buffer(this->alloc());
     buffer.allocate(n);
     buffer.construct_at_end(begin(), end());
-    clear_moved(pod_type());
+    clear_moved();
     std::swap(this->cap(), buffer.cap());
     std::swap(this->data_, buffer.data_);
     std::swap(this->size_, buffer.size_);

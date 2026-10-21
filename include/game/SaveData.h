@@ -68,7 +68,7 @@ public:
 class SD_BattleRoyalData : public VectorStructs {
 public:
     struct Data {
-        u32 mValue;
+        f32 mValue;
     };
 
     SD_BattleRoyalData() { ClearData(); }
