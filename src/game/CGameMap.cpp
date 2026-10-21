@@ -1,4 +1,6 @@
 #include <game/CDividedGround.h>
+#include <game/CItem.h>
+#include <game/CPii.h>
 #include <game/CFileData.h>
 #include <game/CEnemyInfo.h>
 #include <game/IGameMap.h>
@@ -34,10 +36,13 @@
 #include <string>
 #include <game/CNoticeDisplay.h>
 #include <game/CMsgBalloon.h>
+#include <algorithm>
 #include <memory>
 #include <vector>
 
 namespace {
+
+enum { TYPE_HIDDEN_MODEL_OBJ = 1 << 16 };
 
 int GetStageNumber(MapDesc* pDesc)
 {
@@ -86,12 +91,12 @@ public:
     virtual IEnemyInfo* GetEnemyInfo() { return mEnemyInfo.get(); }
     virtual INumericInput* GetNumericInput() { return mNumericInput.get(); }
     virtual IPostEffect* GetPostEffect() { return mPostEffect.get(); }
-    virtual IDlg* GetCurrentDialog();
+    virtual IDlg* GetCurrentDialog() { return mCurrentDialog.lock().get(); }
     virtual bool RegisterDialog(const std::tr1::shared_ptr<IDlg>& rDialog);
     virtual void UnregisterDialog(const std::tr1::shared_ptr<IDlg>& rDialog);
     virtual void SetPausing(bool pausing) { mPausing = pausing; }
     virtual bool IsPausing();
-    virtual void Hitstop(int frames);
+    virtual void Hitstop(int frames) { mHitstopFrames = std::max(frames, mHitstopFrames); }
     virtual bool IsHitstopping() { return mWorld->IsFlag(BWorld::FLAG_SKIP_STATE_4); }
     virtual void EnterEvent() { mWorld->RequestPause(); }
     virtual void ExitEvent() { mWorld->RequestResume(); }
@@ -101,7 +106,13 @@ public:
         mTimerFrame = frames;
         mTimerStep = step;
     }
-    virtual void AddTimer(int frames);
+    virtual void AddTimer(int frames)
+    {
+        mTimerFrame += frames;
+        if (frames > 0) {
+            mBattleRoyalDisplay->Finish();
+        }
+    }
     virtual void StopTimer() { mTimerStep = 0; }
     virtual bool IsTimerWorking() { return mTimerStep != 0; }
     virtual int GetTimerFrame() { return mTimerFrame; }
@@ -393,6 +404,64 @@ void CGameMap::Draw()
     mTutorialMsg->Draw();
     mDlgPiiSelector->Draw();
     mNumericInput->Draw();
+}
+
+void CGameMap::RunAction()
+{
+    CPpuEngine::SetDefaultEnvironment(mParam.mEnvironment);
+    StageID target = reinterpret_cast<const StageID&>(mParam.mMapDesc->mIndex);
+    CPpuEngine::SetDefaultStageDescTarget(target);
+    CDividedGround* pGround = DynamicCast<CDividedGround>(mWorld->GetGround());
+    pGround->LoadPkc(1, std::tr1::shared_ptr<NPpu::CEnvironment>(), nullptr);
+}
+
+bool CGameMap::RegisterDialog(const std::tr1::shared_ptr<IDlg>& rDialog)
+{
+    if (!rDialog) {
+        return false;
+    }
+    std::tr1::shared_ptr<IDlg> pCurrent = mCurrentDialog.lock();
+    if (pCurrent.get() == rDialog.get()) {
+        return true;
+    }
+    if (pCurrent && !pCurrent->Close()) {
+        return false;
+    }
+    pCurrent.reset();
+    mCurrentDialog = rDialog;
+    return true;
+}
+
+void CGameMap::UnregisterDialog(const std::tr1::shared_ptr<IDlg>& rDialog)
+{
+    std::tr1::shared_ptr<IDlg> pCurrent = mCurrentDialog.lock();
+    if (pCurrent && pCurrent.get() == rDialog.get()) {
+        mCurrentDialog.reset();
+    }
+}
+
+void CGameMap::DisappearModelObjs()
+{
+    mModelObjsHidden = true;
+    std::vector<BWorldObj*> objs = mWorld->GetObjects(CPii::TYPE | CItem::TYPE | TYPE_HIDDEN_MODEL_OBJ);
+    for (std::vector<BWorldObj*>::iterator it = objs.begin(); it != objs.end(); ++it) {
+        if ((*it)->IsVisible()) {
+            mHiddenObjIDs.push_back((*it)->GetId());
+            (*it)->SetVisible(false);
+        }
+    }
+}
+
+void CGameMap::AppearModelObjs()
+{
+    for (std::vector<u32>::iterator it = mHiddenObjIDs.begin(); it != mHiddenObjIDs.end(); ++it) {
+        BWorldObj* pObj = mWorld->GetObject(*it);
+        if (pObj) {
+            pObj->SetVisible(true);
+        }
+    }
+    mHiddenObjIDs.clear();
+    mModelObjsHidden = false;
 }
 
 }
