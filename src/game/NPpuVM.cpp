@@ -254,8 +254,8 @@ const SNativeFunction* CEnvironment::GetNative(int index) const {
 int CEngine::sNextID = 1;
 int CEngine::sGCMark;
 int CEngine::sGCAllocCount;
-std::set<SGCStringRef<char> >* CEngine::sStrings;
-std::set<SGCStringRef<wchar_t> >* CEngine::sWStrings;
+std::map<const char*, SGCString<char>* >* CEngine::sStrings;
+std::map<const wchar_t*, SGCString<wchar_t>* >* CEngine::sWStrings;
 std::set<CEngine*>* CEngine::sInstances;
 
 CEngine::CEngine() : mID(sNextID++), mCode(nullptr), mEnv(nullptr), mState(0) {
@@ -286,10 +286,10 @@ CEngine::~CEngine() {
 
 void CEngine::Init(CCode* pCode, CEnvironment* pEnv, int frameCapacity, int baseCount, int handlerCapacity) {
     if (sStrings == nullptr) {
-        sStrings = new std::set<SGCStringRef<char> >;
+        sStrings = new std::map<const char*, SGCString<char>* >;
     }
     if (sWStrings == nullptr) {
-        sWStrings = new std::set<SGCStringRef<wchar_t> >;
+        sWStrings = new std::map<const wchar_t*, SGCString<wchar_t>* >;
     }
     if (sInstances == nullptr) {
         sInstances = new std::set<CEngine*>;
@@ -1497,18 +1497,18 @@ void CEngine::GetThrown(CValue& rValue) const {
 const char* CEngine::AllocString(const std::string& rString) {
     sGCAllocCount++;
     SGCString<char>* pString = new SGCString<char>;
-    pString->mString = rString;
+    pString->mString.assign(rString);
     pString->mMark = sGCMark;
-    sStrings->insert(SGCStringRef<char>(pString->mString.c_str(), pString));
+    sStrings->insert(std::map<const char*, SGCString<char>* >::value_type(pString->mString.c_str(), pString));
     return pString->mString.c_str();
 }
 
 const wchar_t* CEngine::AllocWString(const std::wstring& rString) {
     sGCAllocCount++;
     SGCString<wchar_t>* pString = new SGCString<wchar_t>;
-    pString->mString = rString;
+    pString->mString.assign(rString);
     pString->mMark = sGCMark;
-    sWStrings->insert(SGCStringRef<wchar_t>(pString->mString.c_str(), pString));
+    sWStrings->insert(std::map<const wchar_t*, SGCString<wchar_t>* >::value_type(pString->mString.c_str(), pString));
     return pString->mString.c_str();
 }
 

@@ -3,6 +3,7 @@
 
 #include <revolution/types.h>
 #include <set>
+#include <map>
 #include <string>
 
 namespace NPpu {
@@ -162,15 +163,6 @@ template <typename T> struct SGCString {
     int mMark;
 };
 
-template <typename T> struct SGCStringRef {
-    SGCStringRef(const T* pKey, SGCString<T>* pString) : mKey(pKey), mString(pString) {}
-
-    bool operator<(const SGCStringRef& rOther) const { return mKey < rOther.mKey; }
-
-    const T* mKey;
-    SGCString<T>* mString;
-};
-
 class CEngine {
 public:
     struct SFrame {
@@ -303,8 +295,8 @@ private:
     static int sNextID;
     static int sGCMark;
     static int sGCAllocCount;
-    static std::set<SGCStringRef<char> >* sStrings;
-    static std::set<SGCStringRef<wchar_t> >* sWStrings;
+    static std::map<const char*, SGCString<char>* >* sStrings;
+    static std::map<const wchar_t*, SGCString<wchar_t>* >* sWStrings;
     static std::set<CEngine*>* sInstances;
 
     int mID;
