@@ -258,6 +258,7 @@ config.libs = [
             Object(NonMatching, "game/CGameSession.cpp"),
             Object(Matching, "game/CGameStage.cpp"),
             Object(NonMatching, "game/CGloballyReusableTexBuf.cpp"),
+            Object(Matching, "game/CIconCollection.cpp"),
             Object(Matching, "game/CMiniMapMarker.cpp"),
             Object(NonMatching, "game/CGameResult.cpp"),
             Object(NonMatching, "game/CMoneyLifeDisplay.cpp"),

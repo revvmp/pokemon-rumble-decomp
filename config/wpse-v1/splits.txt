@@ -288,6 +288,17 @@ game/CGloballyReusableTexBuf.cpp:
 	.sbss       start:0x804B9008 end:0x804B9010
 	.sdata2     start:0x804B9F00 end:0x804B9F08
 
+game/CIconCollection.cpp:
+	extab       start:0x8001C7B0 end:0x8001C908
+	extabindex  start:0x800489D8 end:0x80048A5C
+	.text       start:0x800C0490 end:0x800C0C58
+	.ctors      start:0x803529D8 end:0x803529DC
+	.data       start:0x803A45D0 end:0x803A4934
+	.bss        start:0x803E6620 end:0x803E6630
+	.sdata      start:0x804B6A10 end:0x804B6A30
+	.sbss       start:0x804B9018 end:0x804B9020
+	.sdata2     start:0x804B9F30 end:0x804B9F38
+
 game/CMiniMapMarker.cpp:
 	extab       start:0x8001D4A8 end:0x8001D4F0
 	extabindex  start:0x80048C00 end:0x80048C24
