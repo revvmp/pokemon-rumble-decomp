@@ -16,6 +16,7 @@ namespace std {
 template <> struct char_traits<char> {
     typedef char char_type;
     static void assign(char_type& destination, const char_type& value) { destination = value; }
+    static char_type* assign(char_type* destination, size_t count, char_type value) { return static_cast<char_type*>(memset(destination, static_cast<unsigned char>(value), count)); }
     static char_type* copy(char_type* destination, const char_type* source, size_t count) { return static_cast<char_type*>(memcpy(destination, source, count * sizeof(char_type))); }
     static char_type* move(char_type* destination, const char_type* source, size_t count) { return static_cast<char_type*>(memmove(destination, source, count * sizeof(char_type))); }
 
@@ -27,6 +28,7 @@ template <> struct char_traits<char> {
 template <> struct char_traits<wchar_t> {
     typedef wchar_t char_type;
     static void assign(char_type& destination, const char_type& value) { destination = value; }
+    static char_type* assign(char_type* destination, size_t count, char_type value) { return wmemset(destination, value, count); }
     static char_type* copy(char_type* destination, const char_type* source, size_t count) { return wmemcpy(destination, source, count); }
     static char_type* move(char_type* destination, const char_type* source, size_t count) { return wmemmove(destination, source, count); }
 
@@ -170,6 +172,9 @@ public:
     basic_string& replace(size_type pos1, size_type n1, const basic_string& str, size_type pos2, size_type n2);
 
     void reserve(size_type res_arg);
+    void resize(size_type n, value_type c);
+    void resize(size_type n);
+    basic_string& replace(size_type pos, size_type n1, size_type n2, value_type c);
 
     basic_string& insert(size_type pos, const charT* first, const charT* last) {
         return replace(pos, 0, first, last, forward_iterator_tag());
@@ -246,6 +251,62 @@ private:
     const allocator_type& alloc() const { return r_.second(); }
 };
 
+
+template <class charT, class traits, class Allocator>
+void basic_string<charT, traits, Allocator>::resize(size_type n, value_type c) {
+    size_type currentSize = size();
+    if (n > currentSize) replace(currentSize, 0, n - currentSize, c);
+    else replace(n, currentSize - n, size_type(0), value_type(0));
+}
+
+template <class charT, class traits, class Allocator>
+inline void basic_string<charT, traits, Allocator>::resize(size_type n) {
+    resize(n, value_type());
+}
+
+template <class charT, class traits, class Allocator>
+basic_string<charT, traits, Allocator>& basic_string<charT, traits, Allocator>::replace(size_type pos, size_type n1, size_type n2, value_type c) {
+    pointer p;
+    size_type oldSize;
+    size_type oldCapacity;
+    bool wasLong = is_long();
+    if (!wasLong) {
+        p = short_data();
+        oldSize = short_size();
+        oldCapacity = min_cap;
+    } else {
+        p = long_data();
+        oldSize = long_size();
+        oldCapacity = long_cap();
+    }
+    if (pos > oldSize) throw out_of_range("basic_string: out_of_range");
+    size_type erased = min(n1, oldSize - pos);
+    size_type maximumSize = max_size();
+    if (n2 > maximumSize || oldSize - erased > maximumSize - n2) throw length_error("basic_string: length_error");
+    size_type newSize = oldSize - erased + n2;
+    size_type suffix = oldSize - (pos + erased);
+    if (newSize >= oldCapacity) {
+        size_type newCapacity = recommend(oldCapacity);
+        while (newCapacity < newSize + 1) newCapacity = recommend(newCapacity * 2);
+        pointer pNew = alloc().allocate(newCapacity);
+        if (pos > 0) traits::copy(pNew, p, pos);
+        traits::assign(pNew + pos, n2, c);
+        if (suffix > 0) traits::copy(pNew + pos + n2, p + pos + erased, suffix);
+        traits::assign(pNew[newSize], value_type());
+        if (wasLong) alloc().deallocate(p, oldCapacity);
+        else is_long(true);
+        long_data() = pNew;
+        long_size() = newSize;
+        long_cap(newCapacity);
+    } else {
+        if (suffix > 0) traits::move(p + pos + n2, p + pos + erased, suffix);
+        traits::assign(p + pos, n2, c);
+        traits::assign(p[newSize], charT());
+        if (!wasLong) short_size(static_cast<unsigned int>(newSize));
+        else long_size() = newSize;
+    }
+    return *this;
+}
 
 template <class charT, class traits, class Allocator>
 basic_string<charT, traits, Allocator>::basic_string(const basic_string& str, size_type pos, size_type n, const allocator_type& a) : r_(a) {
