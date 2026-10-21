@@ -263,6 +263,28 @@ several provisional names assign the wrong vector specialization to an
 otherwise identical accessor. Those names are not treated as independent
 evidence.
 
+## F-152-8: List construction and iterator storage contracts
+
+The original list default constructor initializes `size_` from a size value,
+initializes its node allocator from `alloc()`, and chains the two sentinel
+links. Its ordinary out-of-class inline definition reproduces Balloon's
+100-byte constructor and eight-byte exception record. This exercises the
+missing second-value constructor in compressed-pair storage mode 1; the
+primary constructor initializes only its stored second value.
+
+The original public list exposes storage begin/end with using declarations.
+Retaining independent public implementations creates duplicate functions
+that individually fit the same native address. Moving the const iterator
+accessors to storage and exposing both overloads eliminates those aliases.
+The four native list accessor identities at 800C6D80, 800C6D90, 800C6F50,
+and 800C6FA0 follow the actual one-to-one producer graph. Existing legacy
+sentinel accessors remain available. Map iterator copy assignment is
+compiler-generated in the primary interface; removing its invented body
+restores the native 12-byte assignment while preserving the API.
+
+These bounded contracts are separated from the outside string and vector
+changes. Publication requires a new complete same-base consumer gate.
+
 ## Traps
 
 - A flattened container reconstruction can produce each native helper

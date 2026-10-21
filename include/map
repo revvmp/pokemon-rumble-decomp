@@ -288,10 +288,6 @@ public:
         iterator() {}
         iterator(const iterator& rOther) : mIterator(rOther.mIterator) {}
         iterator(const typename tree_type::iterator& rIterator) : mIterator(rIterator) {}
-        iterator& operator=(const iterator& rOther) {
-            mIterator = rOther.mIterator;
-            return *this;
-        }
         value_type* operator->() const { return mIterator.operator->(); }
         value_type& operator*() const { return *mIterator; }
         iterator& operator++() {

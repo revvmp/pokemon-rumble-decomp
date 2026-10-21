@@ -104,9 +104,11 @@ public:
     void splice_all(iterator position, __list_deleter& rOther);
 
     iterator begin() { return iterator(tail().next_); }
+    const_iterator begin() const { return const_iterator(tail().next_); }
     iterator end() { return iterator(&tail()); }
+    const_iterator end() const { return const_iterator(&tail()); }
 
-    __list_deleter() : size_(Allocator(), 0) { tail().init(); }
+    __list_deleter();
     explicit __list_deleter(const Allocator& rAllocator) : size_(rAllocator, 0), tail_(alloc()) {
         node_base& rTail = tail();
         rTail.next_ = static_cast<node*>(&rTail);
@@ -146,6 +148,12 @@ private:
     __list_deleter(const __list_deleter&);
     __list_deleter& operator=(const __list_deleter&);
 };
+
+template <typename T, typename Allocator>
+inline __list_deleter<T, Allocator>::__list_deleter() : size_(size_type(0)), tail_(alloc()) {
+    node_base& rTail = tail();
+    rTail.prev_ = rTail.next_ = static_cast<node*>(&rTail);
+}
 
 template <typename T, typename Allocator>
 typename __list_deleter<T, Allocator>::iterator __list_deleter<T, Allocator>::erase(__list_deleter* pList, iterator first, iterator last) {
@@ -248,10 +256,8 @@ public:
         return *this;
     }
 
-    iterator begin() { return iterator(this->end_node()->next_); }
-    iterator end() { return iterator(this->end_node()); }
-    const_iterator begin() const { return const_iterator(this->begin_node()); }
-    const_iterator end() const { return const_iterator(this->end_node()); }
+    using base::begin;
+    using base::end;
     size_type size() const { return this->size_ref(); }
     bool empty() const { return this->size_.second() == 0; }
     T& front() { return *begin(); }
