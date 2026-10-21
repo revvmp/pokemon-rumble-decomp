@@ -16,7 +16,7 @@ On current base `5a5b22116b2b480095b034fdc42a8827211bfad9`, the same-base contro
 
 The existing canonical CHPBar declaration is 316 bytes (`0x13C`). Its constructor and list destructor were independently proved during issue 54. The original Update also allocates a nested CDamage object of 268 bytes. Observed fields are an integer at zero, a CLayout at four, and a shared pointer to a motion program at 236. Current constructor, destructor, Update and CalcView traces do not explain the trailing 24 bytes. No opaque tail, fabricated member type or fixed-size allocation substitute is proposed. This contract must be recovered before claiming the complete CHPBar class.
 
-## F-138-3: local source-selected icon acceptance
+## F-138-3: complete source-selected icon acceptance
 
 The canonical private class header declares each controller-pointer overload before its type/index overload. Base-interface slot order stays unchanged, because every derived method overrides an existing slot. That derived declaration order reproduces the original deferred inline-function placement: pointer-button at `0x800C0680`, type-button at `0x800C0740`, pointer-controller at `0x800C0850`, and type-controller at `0x800C0930`. The initial declaration in base slot order reproduced every function separately but reordered these four retained functions in the complete link; that diagnostic was rejected.
 
@@ -24,7 +24,7 @@ The split-only default build first reproduced the frozen DOL. The actual `Matchi
 
 The icon extents are `extab` `0x8001C7B0–0x8001C908`, `extabindex` `0x800489D8–0x80048A5C`, `.text` `0x800C0490–0x800C0C58`, `.ctors` `0x803529D8–0x803529DC`, `.data` `0x803A45D0–0x803A4934`, `.bss` `0x803E6620–0x803E6630`, `.sdata` `0x804B6A10–0x804B6A30`, `.sbss` `0x804B9018–0x804B9020`, and `.sdata2` `0x804B9F30–0x804B9F38`. The global-registration node is twelve actual bytes with four native inter-object alignment bytes in its linked BSS extent; the floating literal is four actual bytes with four linked alignment bytes. No padding member or executable data array is added.
 
-Before source integration, the additive remote getter received a same-base full consumer control at head `4e06092745398cf1032331631ffa782f650fde8b` against `1d4e7e6d761a19023294d34acf8ff6dad52dbe88`: 748 objects, 746 whole-identical and two differing solely in numerical compiler-local symbol names. Every allocated section, raw relocation and named symbol attribute stays identical. The full linked ELF differs only in those numerical labels; both DOLs are raw-identical to the frozen executable. The receipt is `C:/MassStorage/GitHub/138-reference/contract-control-1d4e7e6d761a-4e0609274539/proof.json`. No header or partial-source PR has been published during this local investigation.
+The bounded remote getter merged separately through PR1167 as `7eef978e21`, from exact verified head `22cc3cec98b160d9141aa5e10e92759f1c2d1e70`. Its official landing gate repeated the same-base control over all 751 existing source objects: 749 whole-identical and two differing solely in numerical compiler-local names, with every allocated byte, raw relocation and named symbol attribute unchanged and the frozen DOL raw-identical. This source-unit change therefore contains no shared controller-header edit. The icon gate repeats exact retained addresses, sizes and bytes, strict MAP columns, source-only Ninja graph checks and frozen verification after each rebase. Issue 138 stays open for the separate CHPBar unit.
 
 ## Traps
 
