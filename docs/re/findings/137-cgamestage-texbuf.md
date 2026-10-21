@@ -30,6 +30,6 @@ An out-of-line constructor in an anonymous namespace that is fully inlined and d
 
 Include order of `IGameMap.h`, `IGameResult.h`, `IGameEnding.h`, `IMultiRanking.h`, `IGameSession.h` decides the order of weak `shared_ptr` destructors. `WorkBuffer::Allocate` must be defined after the other functions in `CGloballyReusableTexBuf.cpp`.
 
-### F-137-7: vector append form
+### F-137-7: shared vector header
 
-`include/vector` `append` needs the `goto fit` form with `grow_in_place`; `clear()` uses `erase_at_end(n, pod_type())` with a local `n` (validated by CDividedGround). Making `clear()` pass `size_` directly fixes `dispose<Work>` but breaks CDividedGround.
+Experiments with `include/vector` (`append` goto form with `grow_in_place`, `clear()` calling `erase_at_end(n, pod_type())`) reached 100% on `dispose<Work>` in some variants but regressed CDividedGround and conflicted with concurrent edits, so they are not included. With the mainline `include/vector`, InitializeWorkBuffer is 95.07% and the unit stays NonMatching. `CGameStage.cpp` does not depend on the vector change.
