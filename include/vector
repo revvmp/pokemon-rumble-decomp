@@ -541,6 +541,8 @@ public:
 
     vector() {}
     explicit vector(size_type n) : base(n) {}
+    vector(const vector& x) : base(x) {}
+    ~vector() {}
 
     void resize(size_type n) { base::resize(n); }
 
