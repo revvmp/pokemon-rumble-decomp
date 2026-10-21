@@ -21,3 +21,9 @@ The record and form-offset tables are referenced at `0x8035DF88` and `0x80361CC8
 ## Traps
 
 A complete, consumer-matching declaration can still contain incorrect inferred member meanings. Verify stored pointer values and the actual accessor return contract before reusing a field name. Here the native sex-indexed strings disprove the earlier move-ID interpretation, and independently named script wrappers disprove both float interpretations. Canonical declaration changes require current-consumer and whole-artifact controls before publication; scratch instruction agreement does not replace those gates.
+
+## F-221-4: Bounded canonical declaration correction
+
+The canonical change is limited to the two model-name pointers and the two proven float names. Existing packed-word storage, all public signatures, record size/alignment and the surrounding consumers are preserved. The private bitfield/accessor scratch is not published as accepted code.
+
+On base `ca7d10184aed13eea0dc24ba044113ccdaeedfe3`, the baseline and candidate each compile all 722 actual Ninja `all_source` objects, execute the default build after removing only the old DOL, and pass explicit frozen-manifest verification. Every complete source object is raw-identical. The complete linked ELF is raw-identical, SHA-256 `6a74860a8eed177ab59aeb007b278152a51a637108e4de3344d2dcee24fd9ed3`; the DOL remains the frozen SHA-256 `ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da`. The same control is rerun inside the official landing verifier after each rebase. This corrects the declaration's meaning and pointer types without adding source coverage or completing #221.

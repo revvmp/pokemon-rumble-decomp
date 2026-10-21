@@ -11,9 +11,9 @@ private:
     u32 mIdentityFlags;
     u32 mScaleAndTypeFlags;
     u32 mGenderAndTypeFlags;
-    u32 mMoveIds[2];
-    f32 mModelScale;
-    f32 mShadowScale;
+    const char* mModelNames[2];
+    f32 mWalkSpeedCoeff;
+    f32 mWalkAnmRate;
 };
 
 #endif
