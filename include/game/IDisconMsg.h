@@ -19,6 +19,6 @@ public:
     virtual bool CanShow() const = 0;
     virtual void AdjustSuppressCount(int amount) = 0;
 };
-std::tr1::shared_ptr<IDisconMsg> CreateDisconMsg();
+std::tr1::shared_ptr<IDisconMsg> CreateDisconMsg(bool background);
 
 #endif
