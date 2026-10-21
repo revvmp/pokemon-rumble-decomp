@@ -205,10 +205,9 @@ private:
     const charT* long_data() const { return r_.first().r.l.data_; }
     charT* buffer() { return !is_long() ? short_data() : long_data(); }
     void init(const_iterator first, const_iterator last, forward_iterator_tag);
-    void init() {
-        size_type (&words)[3] = r_.first().r.raw.words_;
-        for (unsigned int i = 0; i < 3; ++i) { words[i] = 0; }
-    }
+    typedef size_type (&word_array)[3];
+    word_array words() { return r_.first().r.raw.words_; }
+    void init();
 
     struct rep_s { rep r; };
     Metrowerks::compressed_pair<rep_s, allocator_type> r_;
@@ -216,6 +215,12 @@ private:
     const allocator_type& alloc() const { return r_.second(); }
 };
 
+
+template <class charT, class traits, class Allocator>
+inline void basic_string<charT, traits, Allocator>::init() {
+    word_array w = words();
+    for (unsigned int i = 0; i < 3; ++i) w[i] = 0;
+}
 
 template <class charT, class traits, class Allocator>
 void basic_string<charT, traits, Allocator>::resize(size_type n, value_type c) {
