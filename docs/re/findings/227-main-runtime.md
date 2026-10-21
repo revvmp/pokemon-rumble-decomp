@@ -26,6 +26,8 @@ The native font map is `std::map<std::string, std::tr1::shared_ptr<nw4r::ut::Fon
 
 The clone functions at `0x8012F850` and `0x8012F8A0` store vtable `0x803B52E0`, identifying the plain callback `void (*)(const CLayout::CInitializeException&)`. Its invocation at `0x8012F8E0` therefore returns void and tail-calls the stored pointer. It is distinct from the neighboring HBM callback returning bool, whose invocation normalizes the result.
 
+Consuming #228's outside bounded functional overlay reproduces eight additional original functions: the HBM callback constructor `0x8012E940`/76, HBM function-base destructor `0x8012E990`/64, zero-argument function-base destructor `0x8012EAA0`/64, layout-exception function-base destructor `0x8012EAE0`/64, HBM function destructor `0x8012F670`/160, and the layout-exception clones/invocation above at 76, 64, and 20 bytes. All 588 bytes compare exactly after resolving all 11 relocation sites, with no unresolved target. These diagnostics do not substitute for emission in the actual complete `main.cpp` producer or full frozen verification.
+
 ## Traps
 
 - The source methods are inline in the original class context: individually exact out-of-line bodies alone do not reproduce physical function order. Preserve the native reverse-interface order in the complete producer.
