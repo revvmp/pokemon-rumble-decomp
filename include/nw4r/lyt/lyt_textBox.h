@@ -58,6 +58,10 @@ public:
         mDrawCacheFlags |= 1;
     }
 
+    ut::Color GetTextColor(u32 index) const {
+        return mTextColors[index];
+    }
+
     void SetTextColor(u32 index, ut::Color color) {
         mTextColors[index] = color;
     }

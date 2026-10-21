@@ -22,7 +22,7 @@ public:
         WAIT_YIELD
     };
 
-    CFiber() { Initialize(); }
+    CFiber() throw() { Initialize(); }
     CFiber(const std::tr1::function<void()>& rBody, u32 stackSize) throw() {
         Initialize();
         Start(rBody, stackSize);

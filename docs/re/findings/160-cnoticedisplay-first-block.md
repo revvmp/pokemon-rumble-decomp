@@ -98,7 +98,43 @@ Names are descriptive unless the class name is given by RTTI. Confidence is that
 
 Reconstruction needs `#159`'s split and object line first, and then: the `CLayout` interface (`0x801CB1C0`, `0x801CCBD0`, `0x801CC070`), `CFiber` (`0x8019E110`, `0x8019E320`, `0x8019E460`), `shared_ptr` with the move-holder destructor used in the factory, the interface of the object from `0x800AA2B0` (slots 6 and 29), and, for `0x800D0920`, the `NIntl::basic_formatter` and MSL `basic_string` (#327). Fifteen of the twenty functions are small accessors or forwards that can be written once the header exists; the factory, `0x800D0460`, the constructor and the destructors need the member classes above.
 
+## F-160-3: the 20 functions of #160 reconstructed
+
+`src/game/CNoticeDisplay.cpp` now holds the classes of F-160-2 in the anonymous namespace, the `CreateNoticeDisplay` factory, and every function of #160. `python tools/re/unitdiff.py game/CNoticeDisplay.cpp` shows 19 of the 20 at 100% and the 20th, `CSimpleText::Init` (`0x800D0920`), at 99.23% (see below). The unit stays `NonMatching` because #161 to #164 own the rest of the file, so the build links the original object. `configure.py`, `ninja` and `tools/verify/verify.py` exit 0.
+
+| Address | Function | objdiff |
+| --- | --- | --- |
+| `0x800D00B0` | `CreateNoticeDisplay` | 100% |
+| `0x800D01D0` | `INoticeDisplay::~INoticeDisplay` | 100% |
+| `0x800D0210`, `0x800D0280`, `0x800D02B0`, `0x800D02E0` | `CNoticeDisplay::Draw`, `CalcView`, `CalcMtx`, `Calc` | 100% |
+| `0x800D0240`, `0x800D0270` | `shared_ptr<BNoticeDisplayImpl>` `operator bool` and `operator->` | 100% |
+| `0x800D0260`, `0x800D0380` | `BNoticeDisplayImpl::Draw`, `Calc` | 100% |
+| `0x800D03D0` to `0x800D0430` | `CNoticeDisplay::GetType`, `SetWinnerParam`, `SetWinner`, `Clear`, `Close` | 100% |
+| `0x800D0460` | `CNoticeDisplay::Show` | 100% |
+| `0x800D0760` | `CSimpleText::CSimpleText(int)` | 100% |
+| `0x800D0830`, `0x800D08A0` | `BNoticeDisplayImpl::~BNoticeDisplayImpl`, `BOther::~BOther` | 100% |
+| `0x800D0920` | `CSimpleText::Init` | 99.23% |
+
+Thirteen shared-pointer helpers of #161 to #164 are emitted as a side effect and also reach 100%: the `shared_ptr<CSimpleText>`, `<CFight>`, `<CLose>` and `<CYouWin>` destructors and `operator->`, and `shared_ptr<BNoticeDisplayImpl>::reset`. The four deleter-owning constructors differ only in the `.data` vtable names, which depend on the full `.data` layout of the file.
+
+### What the evidence fixed
+
+- **Classes.** `BNoticeDisplayImpl` is 0x460 bytes (`CLayout` at 4, `CFiber` at 0xF0; the object is 8-byte aligned because `CFiber` holds an `OSThread`). `BOther` adds `mType` (0x460), a second `CLayout` (0x464) and a counter of `ENEMY_IMG%d` panes (0x54C). `CSimpleText` adds a close request (0x550), an auto-close frame count (0x554, initialised to -1), a frame counter (0x558) and a pause-released byte (0x55C). `CYouWin` (0x728 bytes) stores the winner and its parameter at 0x550 and 0x554 and has two more layouts at 0x558 and 0x640. `CLose` stores 0 at 0x460 and its type at 0x464 (0x468 bytes); `CFight` stores its type at 0x460 (0x468 bytes by alignment). The `CFight`, `CLose` and `CYouWin` constructors and their `Init` functions belong to #161 and #162.
+- **Show.** The first call is `GetCurrentGameMap()->GetMapDesc()`, made before the `type == 0` test. The map index is the `MapIndex` bit field of `MapDesc`: world 0 hides the notice, world 7 asks `IsStage7EvenMap` (type 4 or hide), and other worlds pick type 1 or 2 from the map number. The call through slot 29 is `IGameMap::SetPausing`. The out-of-line `operator bool`, `operator->`, shared-pointer constructors, assignments and destructors need `#pragma dont_inline on` around `Show` (reset before the constructor), the same inlining state as in [F-92](92-cdlgpiiselector-construction.md). The `case 9:` label precedes `case 5:` in the original compare order.
+- **Init.** `gStageWorlds[mIndex.mStage]` gives the archive name (`5:/stage/%s/common.arc/stage2d.arc`) and the message id. The function loads `/arc/blyt/notice.brlyt`, reads `gSharedLayoutArchives` and the stage archive into the two layouts, hides six panes, sets the `AREA` and `STAGE` texts, copies the `BAR_AREA` texture map and nine `AREA_*` text colours, hides the `ENEMY_IMG%d` panes that exist, shows panes by notice type 1 to 3, and starts the fiber with `bind(&CSimpleText::Run, this)` and a 0x8000-byte stack.
+- **Names.** Symbols for the 20 functions, their callees in the block, `gAreaPaneNames` (`0x803A58E8`) and the vtables used by them follow the mangled spellings the source produces. `FormatAreaName` (`0x800CF8A0`, #159) and `IsStage7EvenMap` (`0x80125180`) are descriptive.
+
+### Remaining differences in `Init`
+
+- Every `.data` and `.sdata` string reference differs only because the object's literal pool starts at the first literal of this unit's own functions: the original object also holds the literals of `FormatAreaName` and the later `Init` functions, so each offset (for example `+0x198` for the archive format) needs #159 and #161 to #164 in the same object.
+- The original hoists the loop-invariant `addi r24, r31, 0x79` (short-string buffer of the `ENEMY_IMG%d` name) in front of the loop and passes it with `mr r4, r24`. No loop form tried (`do ... while (p)` with an inner `break`, `for (;;)`, `while (cond)`, an inner block with a named string) reproduces the hoist; `do ... break ... while (pPane != nullptr)` reproduces everything else about the loop.
+- The `LoadResourceFile(path, 0, false)` call loads both zeros with `li` in the original and copies the second with `mr r6, r5` in the source. Forms `0u`, `bool()`, `!1`, a named constant and an inline wrapper do not change it.
+
 ## Traps
 
+- **Inline-expanded locals alternate direction with nesting depth.** CodeWarrior gives the locals of a function inlined once increasing stack offsets in declaration order, those of a function inlined into an inlined function decreasing offsets, and so on; the caller's own locals are decreasing. `Init` fits only when its body is one more inline level (`Init` calls `StartNotice`, which calls `SetupLayouts`, which calls `LoadLayouts`); with one level fewer, every slot of the `bind` and `function` temporaries lands in the opposite half of the frame. Adding or removing trivial wrapper levels is a cheap probe; compare the `stw` offsets of the callback temporaries and of the `std::string` locals.
+- **A vtable key function is the first non-inline virtual.** An anonymous-namespace class whose first non-inline virtual is declared but not defined in the unit gets no vtable, so none of its members are emitted and `unitdiff.py` reports them missing. Defining the destructor (`CNoticeDisplay::~CNoticeDisplay` here) emits the vtable and all members.
+- **objdiff cannot reach 100% for a function that reads a unit-local string until the unit is complete.** The relocation operand is the object's own literal pool (`lbl_803A5840 + 0x198` against `@NNNN + 0xC`). Compare such functions with the relocation operands masked, and keep the unit `NonMatching`.
+- **`throw()` belongs on the inline `CFiber` constructor.** `CFiber() throw()` produces the `__unexpected` handler after `Initialize` that the original constructors carry; without it every constructor that inlines `CFiber()` is 0x14 bytes short.
 - **A file can start in the previous block through file-local helpers.** The first `CNoticeDisplay` RTTI and vtable references are at `0x800D00B0`, which the survey took as the file start, but three helpers called only from this file precede it. Check callers of the functions before a block start, and shared literal data such as exception type names, before taking the split.
 - **Inlining is not uniform in this file.** `CNoticeDisplay::Draw` inlines the `shared_ptr` boolean test, while `0x800D0460` calls the out-of-line `operator bool` and `operator->`. Do not assume the whole file is built with `dont_inline` (F-92) from one function.
