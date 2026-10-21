@@ -275,15 +275,7 @@ public:
             }
         }
     }
-    function(const function& r) : f_(nullptr) {
-        if (r.f_ != nullptr) {
-            if (r.f_ == r.local()) {
-                f_ = r.f_->clone(buf_);
-            } else {
-                f_ = r.f_->clone();
-            }
-        }
-    }
+    function(const function& r);
     ~function() {
         if (f_ == local()) {
             f_->~base();
@@ -335,6 +327,17 @@ private:
     base* f_;
     union { char buf_[8]; unsigned long words_[2]; };
 };
+
+template <typename R, typename A>
+function<R(A)>::function(const function& r) : f_(nullptr) {
+    if (r.f_ != nullptr) {
+        if (r.f_ == r.local()) {
+            f_ = r.f_->clone(buf_);
+        } else {
+            f_ = r.f_->clone();
+        }
+    }
+}
 
 namespace detail {
 template<class R,class A,class B,class C,class D> class function_base<R (*)(A,B,C,D)> {
