@@ -53,7 +53,7 @@ struct SessionSnapshot {
 
 class CGameSession : public IGameSession {
 public:
-    explicit CGameSession(int pendingMapChange);
+    explicit CGameSession(IDisconMsg* pDisconMsg);
     virtual ~CGameSession();
     virtual void Calc();
     virtual void CalcMtx();
@@ -94,7 +94,7 @@ public:
     virtual void StartMapTransitionIn();
     virtual void UpdateMapTransition();
     virtual bool IsMapChangeFinished();
-    virtual int GetPendingMapChange();
+    virtual IDisconMsg* GetDisconMsg();
     virtual bool IsRegisteredID(u32 id);
     virtual void UnanalyzedSlot42();
 
@@ -128,16 +128,16 @@ private:
     nw4r::ut::Color mFadeTargetColor;
     int mFadeFrames;
     std::tr1::shared_ptr<CMapTransition> mMapTransition;
-    int mPendingMapChange;
+    IDisconMsg* mpDisconMsg;
 };
 
 #pragma force_active on
 
 CGameSession* sGameSession;
 
-CGameSession::CGameSession(int pendingMapChange) :
+CGameSession::CGameSession(IDisconMsg* pDisconMsg) :
     mPlayTime(0), mStartTime(0), mHeaderValue(0), mLoadedHeaderValue(0), mPendingMap(MakeMapIndex(0, 1, 0, 1)), mMapChangeMode(0),
-    mMapChangeType(0), mFadeColor(0, 0, 0, 255), mFadeTargetColor(0, 0, 0, 255), mFadeFrames(0), mPendingMapChange(pendingMapChange) {
+    mMapChangeType(0), mFadeColor(0, 0, 0, 255), mFadeTargetColor(0, 0, 0, 255), mFadeFrames(0), mpDisconMsg(pDisconMsg) {
     sGameSession = this;
     for (int i = 0; i < 4; i++) {
         mPlayers[i].reset(new CPlayer(i));
@@ -285,7 +285,7 @@ IGameSession* IGameSession::GetInstance() {
     return sGameSession;
 }
 
-std::tr1::shared_ptr<IGameSession> IGameSession::Create(int pendingMapChange) {
-    std::tr1::shared_ptr<CGameSession> session(new CGameSession(pendingMapChange));
+std::tr1::shared_ptr<IGameSession> IGameSession::Create(IDisconMsg* pDisconMsg) {
+    std::tr1::shared_ptr<CGameSession> session(new CGameSession(pDisconMsg));
     return session;
 }
