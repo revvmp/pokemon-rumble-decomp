@@ -10,6 +10,18 @@ The fourth function, `8016DF60`, is a two-argument wide formatter. Ordinary sour
 
 Raw controls are preserved outside the repository in `C:/MassStorage/GitHub/280-reference`: `280-photo-callbacks.cpp`, `280-photo-callbacks.o`, `280-audit-callbacks.py`, `280-callback-proof.json`, and `280-photo-formatter.cpp/.o`. The callback audit applies actual branch and SDA relocations before comparison. Its result is three exact functions, not source-selected acceptance. Both large save/dialog routines remain unimplemented, and the issue is incomplete.
 
+## F-280-2: Actual save routine and FA contracts
+
+A renewed helper claim uses the current public `FADta` definition from PR #1185 and preserves the earlier feasibility checkpoint. The outside `280-photo-save.cpp` now reconstructs the screenshot-save routine as ordinary C++ with the real dialog, layout, session, fiber, FA and reset-guard interfaces. It includes card attachment, mounting, device-query threading, free-space checks, DCF directory selection, creation and writing, and the success/error dialogs. The second large deletion-dialog routine remains to be written. No production source, split or matching selector is changed.
+
+The draft compiles with canonical game flags and emits 5,228 bytes against the native save routine's 5,064. It is not accepted. Its three actual callback definitions still pass the strict relocated comparison for all 108 bytes; `280-audit-save-callbacks.py` also checks the frozen executable SHA-256 first. `280-compile-save.py` records the exact arguments, source/object hashes and exit status. The current containing producer includes the actual two-argument formatter after the save routine, retaining the original strong-function order.
+
+Both native large routines build the same twelve-byte FA driver-table layout and twenty-byte cache settings. The public pinned FA declarations and the existing `PF_DRV_TBL` and `PF_CACHE_SETTING` layouts agree here, unlike the previously corrected directory-search record. Save uses 256 FAT pages, four data pages, 64-sector FAT buffers and one-sector data buffers; its allocated cache buffer is 133,120 bytes. The cleanup control-block vtable at `0x803A42AC` independently names `shared_ptr_deleter<unsigned char, void (*)(void*)>`, agreeing with the draft's byte owner and `GameMemory::Free` deleter. The drive-letter validation tests the locale classification mask `0x200`, which is `isupper`, rather than the generic alphabetic classification.
+
+The native save and deletion-dialog stack frames dynamically align to 32 bytes. Their cache-page arrays begin at aligned stack offsets `0xA60` and `0x640`, respectively. The draft gives the save cache-page array explicit alignment as a source hypothesis; this reproduces the alignment requirement but is not final evidence of the original declaration. All native wide success-message literals are decoded directly, including the Japanese yen-sign path separators versus the other languages' backslashes. Their final literal placement remains unaccepted.
+
+Outside reading aids for both native routines are saved as `280-save-analysis.txt` and `280-dialog-analysis.txt`. They are not reconstructed source. The next work is the complete deletion-dialog body, then strict instruction, target, data, EH and source-selected verification of the actual containing unit.
+
 ## Traps
 
 - An early typed formatter producer can expose the existing string lifetime/code-generation blocker before reconstructing two large filesystem routines. Preserve the positive callbacks and exact native retained-address site; do not repeat the prior allocator and constructor sweeps without new primary evidence.
