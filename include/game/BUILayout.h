@@ -16,6 +16,8 @@ public:
     virtual void Load(const char* const* pArchives, const char* pLayoutName, const std::tr1::shared_ptr<CLayout::FontMap>& rFonts);
 
     CLayout* GetLayout();
+    bool AttachChild(const char* pPaneName, std::tr1::shared_ptr<BUILayout> child);
+    nw4r::lyt::TextBox* SetText(const char* pName, const wchar_t* pText) { return mLayout.SetText(pName, pText); }
 
 private:
     CLayout mLayout;

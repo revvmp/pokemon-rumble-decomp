@@ -172,7 +172,17 @@ protected:
         }
     }
 
+    void push_back(const T& x, Metrowerks::int2type<false>) {
+        if (this->size_ < this->cap()) {
+            this->alloc().construct(end(), x);
+            ++this->size_;
+        } else {
+            push_back_realloc(x);
+        }
+    }
+
     void push_back_realloc(const T& x) { push_back_realloc(x, pod_type()); }
+    void push_back_realloc(const T& x, Metrowerks::int2type<false>);
     void push_back_realloc(const T& x, Metrowerks::int2type<true>) {
         reallocate(grow_by(1));
         this->data_[this->size_++] = x;
@@ -303,6 +313,7 @@ public:
     const_iterator end() const { return this->data_ + this->size_; }
     size_type size() const { return this->size_; }
     bool empty() const { return this->size_ == 0; }
+    void push_back(const T& x) { base::push_back(x); }
     T& operator[](size_type i) { return this->data_[i]; }
     const T& operator[](size_type i) const { return this->data_[i]; }
 };

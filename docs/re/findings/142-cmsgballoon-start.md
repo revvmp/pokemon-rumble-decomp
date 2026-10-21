@@ -112,7 +112,35 @@ Once #141 splits the file, the template functions (`0x800C6170`–`0x800C6330`, 
 - **The 12 open functions are emitted only by `Init`** (`0x800C5CC0`, #141), which is blocked by the class layouts listed in F-141-3.
 - **The MSL `vector` has accessor and tag layers that the repository header lacks.** `push_back(const T&)` (`0x800C6170`) tail-calls a layer (`0x800C6180`) that passes a zeroed one-byte tag to the implementation `0x800C61B0`. That compares `size_` with the capacity returned through an accessor (`0x800C6240`, then compressed-pair `first()` `0x800C6250`), constructs at `end()` (`0x800C62E0`) through the allocator accessor (`0x800C62C0`, then `second()` `0x800C62D0`) and `allocator::construct` (`0x800C6260`), or calls the growth layer `0x800C6300`, which again adds a tag. `include/vector` has none of these members yet.
 
+## F-142-5: the 12 helpers are emitted by a reconstructed `Init`
+
+`CMsgBalloon::Init` (`0x800C5CC0`, #141) was written so that the 12 functions of F-142-4 are emitted by their only caller. It compiles to 976 bytes, the size of the original, and matches 86.23%. All 12 helpers then match 100% under their compiler names, as does the rest of the `0x800C6160`-`0x800C6630` range except `Show`, which keeps the literal label difference of F-142-4 (99.90%).
+
+| Address | Function | Source |
+| --- | --- | --- |
+| `0x800C6160` | `BUILayout::SetText(const char*, const wchar_t*)` | Inline forward to `CLayout::SetText` (`0x801D60B0`) in `BUILayout.h` |
+| `0x800C6170` | `vector<shared_ptr<BUILayout> >::push_back(const T&)` | `base::push_back(x)` in `include/vector` |
+| `0x800C6180` | `__vec_constructor::push_back(const T&)` | Existing overload that passes `pod_type()` |
+| `0x800C61B0` | `__vec_constructor::push_back(const T&, int2type<false>)` | New non-POD overload: construct at `end()` through the allocator while `size_ < cap()`, else `push_back_realloc(x)` |
+| `0x800C6240`, `0x800C62C0` | `__vec_deleter::cap()`, `alloc()` | Existing accessors |
+| `0x800C6250`, `0x800C62D0` | `CompressedPairStorage<unsigned long, allocator<...>, 2>::first()`, `second()` | Existing compressed pair |
+| `0x800C6260` | `allocator<shared_ptr<BUILayout> >::construct` | Existing allocator, placement `new` (`0x80087500`) |
+| `0x800C62E0` | `__vec_constructor::end()` | Existing |
+| `0x800C6300` | `__vec_constructor::push_back_realloc(const T&)` | Existing; calls the `int2type<false>` overload `0x800CA5D0`, declared but not defined |
+| `0x800C6380`, `0x800C63D0` | `shared_ptr<CUIManager>::reset(CUIManager*)`, `swap` | Existing `shared_ptr` |
+
+`Init` follows the disassembly: it clears `mCurrentEntry`, sets `mCurrentIndex` to -1 and `mIsShown` to false, calls `Show(true)`, takes `GetDefaultFontMap()`, builds `CUIManager` and `BUILayout` objects, attaches the root layout to the manager (`BUI::AddChild`, `0x801C8E40`), loads `msg_balloon`, `msg_balloon_msg` and `msg_balloon_warp` with `gSharedLayoutArchives` (`0x804B9098`), sets five texts on the warp layout through `0x80086620`, loads 18 `msg_balloon_warp_model` layouts attached as `MODEL%02d` (`BUILayout::AttachChild`, `0x801C9FC0`), attaches the warp layout at `above_site` and the message layout at `below_site`, and hides the root layout.
+
+- **`0x80086620` ignores its second argument.** It loads `gEmptyText` (`0x804B5C48`) and tail-calls `GetMessageText` (`0x801EFA20`); all five callers pass a wide Japanese literal that it discards. It is declared as `GetMessageString(int, const wchar_t*)` in `Message.h` (descriptive name, medium confidence).
+- **`0x801C9FC0` is `BUILayout::AttachChild(name, shared_ptr<BUILayout>)`.** It converts the argument to `shared_ptr<BUI>` for `BUI::AddChild` (`0x801C8E40`), then calls `CLayout` `0x801D5130` on the members at 0x4C if that succeeds. Names are descriptive, medium confidence.
+- **`CUIManager`** is declared in `include/game/CUIManager.h` from F-328-4: `BUI` plus a `weak_ptr<BUI>` at 0x4C, size 0x54. Only the constructor, destructor and virtual overrides are declared; they are defined elsewhere (#327).
+- **Callee names.** The `Init` callees and the 12 helpers were renamed in `symbols.txt` to the mangled names the compiler produces; `lbl_803A50E0` is named as the `shared_ptr_deleter<CMsgBalloon, ...>` vtable, which removes a relocation-name difference in `0x800C6630`.
+- **Literals.** The compiler shares one base register for all `.data` literals of `Init` and emits them in order of use, while the original materializes each address separately and lays the literals out in reverse order of use. The cause is not found; `-str pool`, `-str noreuse`, `-O4,s` and `-inline auto,deferred` do not change it.
+
 ## Traps
+
+- **A helper unreachable from the unit can be emitted by writing its caller.** The 12 helpers of F-142-4 only appear once `Init` exists. Writing the caller, even at 86%, turns "not reconstructed" into 100% helpers.
+- **A call that loads an argument and then overwrites it is a wrapper that drops the argument.** `0x80086620` takes `(id, text)`, replaces `r4` with `gEmptyText` and forwards; the caller still evaluates the literal.
 
 - **A function can be 99.9% only because of a literal label.** `Show` matches every instruction; the remaining difference is the target's `lbl_` name for a string literal against the compiler's `@` number. Leave it until the file is complete instead of naming the label after a number that later code shifts.
 - **A survey class start can be eight functions late.** The survey put `CMsgBalloon` at its first vtable function, `0x800C6090`, but the factory, its initialization and file-local helpers start at `0x800C59D0`. Find the previous file's deleter destructor before taking a block start as a file start.
