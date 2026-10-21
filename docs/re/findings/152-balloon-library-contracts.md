@@ -377,6 +377,16 @@ still compares the full symbol multiset, all allocated ELF sections, named
 previously exact streams, and Matching strong definitions. No instruction,
 relocation, function symbol or unnamed file record is exempted.
 
+The reviewed-head preflight at
+`4e9157598370645abd5f444eb84c502fccd81b00` passes all 764 current source
+objects and 716 Matching units. No source object has a semantic delta;
+only numeric local identifiers differ. Allocated ELF, normalized complete
+symbol identities and the frozen DOL are identical. Nineteen generated
+module identity pairs are individually recorded, including the fourteen
+STT_FILE differences noted above. The complete 436/226-EH caller audit and
+fresh strong 116-byte TransformPoint fallback proof both pass. These guards
+run again after every official landing rebase.
+
 ## Traps
 
 - A flattened container reconstruction can produce each native helper
