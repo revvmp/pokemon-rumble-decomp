@@ -115,6 +115,7 @@ public:
     void clear() { erase(this, begin(), end()); }
 
     size_type& size_ref() { return size_.second(); }
+    const size_type& size_ref() const { return size_.second(); }
     Allocator& alloc() { return size_.first(); }
     node_allocator& node_alloc() { return tail_.first(); }
 
@@ -179,7 +180,7 @@ template <typename T, typename Allocator> void __list_deleter<T, Allocator>::spl
 template <typename T, typename Allocator>
 typename __list_deleter<T, Allocator>::iterator __list_deleter<T, Allocator>::insert(iterator position, const T& x) {
     Metrowerks::alloc_ptr<node, node_allocator&> holder(node_alloc().allocate(1), node_alloc());
-    alloc().construct(&holder.get()->data_, x);
+    alloc().construct(&holder->data_, x);
     node* pNode = holder.release();
     link_nodes(position.base(), pNode, pNode);
     ++size_ref();
@@ -249,7 +250,7 @@ public:
     iterator end() { return iterator(this->end_node()); }
     const_iterator begin() const { return const_iterator(this->begin_node()); }
     const_iterator end() const { return const_iterator(this->end_node()); }
-    size_type size() const { return this->size_.second(); }
+    size_type size() const { return this->size_ref(); }
     bool empty() const { return this->size_.second() == 0; }
     T& front() { return *begin(); }
     void push_back(const T& x) { insert(end(), x); }

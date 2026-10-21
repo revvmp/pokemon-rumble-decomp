@@ -14,9 +14,11 @@ public:
     alloc_ptr(T* p, Allocator a, Size size = Size()) : ptr_(a, compressed_pair<Size, T*>(size, p)) {}
     ~alloc_ptr() {
         if (get() != nullptr) {
-            ptr_.first().deallocate(get(), capacity());
+            allocator().deallocate(get(), capacity());
         }
     }
+    T* operator->() const { return get(); }
+    typename call_traits<Allocator>::reference allocator() { return ptr_.first(); }
     T* get() const { return ptr_.second().second(); }
     T* release() {
         T* p = get();

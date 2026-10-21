@@ -19,7 +19,17 @@ template <class T> struct CallTraitsStorage<T&> { typedef T& param_type; };
 }
 
 template <class T> struct call_traits {
+    typedef T value_type;
+    typedef T& reference;
+    typedef const T& const_reference;
     typedef typename detail::CallTraitsStorage<T>::param_type param_type;
+};
+
+template <class T> struct call_traits<T&> {
+    typedef T value_type;
+    typedef T& reference;
+    typedef T& const_reference;
+    typedef T& param_type;
 };
 
 namespace detail {
@@ -102,7 +112,6 @@ public:
     void swap(compressed_pair& rOther) { Storage::swap(rOther); }
     using Storage::first;
     using Storage::second;
-    const Second& second() const { return Storage::second(); }
 };
 template <class First, class Second> inline void swap(compressed_pair<First, Second>& rLeft, compressed_pair<First, Second>& rRight) { rLeft.swap(rRight); }
 }
