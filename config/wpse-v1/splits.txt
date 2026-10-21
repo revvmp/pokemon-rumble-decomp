@@ -76,6 +76,16 @@ game/CColorBtnTagProc.cpp:
 	.bss        start:0x803E6580 end:0x803E65E0
 	.sdata      start:0x804B5C90 end:0x804B5CA0
 
+game/CColorConst.cpp:
+	extab       start:0x8000B030 end:0x8000B23C
+	extabindex  start:0x80044F70 end:0x8004500C
+	.text       start:0x8006CE30 end:0x8006DDD8
+	.ctors      start:0x803529C8 end:0x803529CC
+	.data       start:0x8039A9E8 end:0x8039AE00
+	.bss        start:0x803E65E0 end:0x803E65EC
+	.sdata      start:0x804B5CA0 end:0x804B5CD0
+	.sbss       start:0x804B8FC0 end:0x804B8FC8
+
 game/CComboDisplay.cpp:
 	extab       start:0x8000B23C end:0x8000B4A4
 	extabindex  start:0x8004500C end:0x80045090
