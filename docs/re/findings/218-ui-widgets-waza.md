@@ -4,9 +4,9 @@
 
 Original issue #218 lists 27 functions and 5,668 instruction bytes in `0x8011FC80`–`0x80121338`. The original four class boundaries are confirmed: CUIStar at `0x8011FC80`, CUIType at `0x8011FE40`, CWarpZone at `0x80120000`, and CWaza at `0x801202D0`. The next unit begins at `0x80121340`.
 
-CUIStar has three functions / 428 bytes, CUIType four / 424, CWarpZone six / 688, and CWaza fourteen / 4,128. The CWaza inventory includes its map destructor at `0x80120340`, key lookup helper at `0x80120E10`, and secondary-base destructor thunk at `0x80121330`. All original instruction streams have native-size, zero non-relocation differences in the current producer. This statement alone does not establish linked source acceptance; relocation, exception, data, and full-DOL gates remain required.
+CUIStar has three functions / 428 bytes, CUIType four / 424, CWarpZone six / 688, and CWaza fourteen / 4,128. The CWaza inventory includes its map destructor at `0x80120340`, key lookup helper at `0x80120E10`, and secondary-base destructor thunk at `0x80121330`. All original instruction streams have native-size, zero non-relocation differences in the current producer. These initial instruction controls were subsequently completed by the linked source acceptance in F-218-4.
 
-The game compiler is unchanged Wii/1.1 with `cflags_game`. The current producer was recompiled after adopting main `50d012ef`, including the newly accepted generic vector implementation. No old vector overlay is used.
+The game compiler is unchanged Wii/1.1 with `cflags_game`. The final source uses current canonical headers, including the accepted generic vector, shared BWorldObj parent/register contract, shared MapPiiTable alias, and compact map prerequisite. No outside include overlay is used in the accepted build.
 
 ## Names and layouts
 
@@ -40,3 +40,20 @@ A current-consumer control with the candidate map header, CUIStar selected from 
 - Findings naming a generic table CStatistic do not prove identity. Canonical CGameSession separately owns CStatistic and embeds WazaDescData; preserve that distinction while adopting independently proved storage fields.
 - Equal instruction bodies can still call different shared helpers. Decode actual branch targets before claiming completion: CWaza reuses BWorld's erased scalar map helpers rather than a second CEffect-pointer instantiation.
 - Combining early return conditions changed the attachment routine from native 464 bytes to 448. The independent signed range check and separate null checks reproduce the native control flow without altered flags or artificial statements.
+
+- **Native bodies do not establish retained order.** Define the CWaza methods in native address order before source selection; isolated instruction pairing does not detect a reordered whole translation unit. The final full-DOL/MAP control establishes the retained order.
+- **Use explicit UTF-8 when reading existing documentation on Windows.** Reading with the local default decoder and writing UTF-8 corrupted existing dash characters in an uncommitted diff. Rebuilt those files from the original Git UTF-8 blobs and appended only the issue rows; no unrelated documentation rewrite was retained.
+
+## F-218-4: complete original inventory source acceptance
+
+All original 27 functions / 5,668 instruction bytes are reconstructed in four source-selected Matching units. The fresh final ELF retains each original native address, size, and every byte, including resolved relocations. A freshly emitted linker MAP attributes every original function uniquely to its expected compiled source object. The link graph contains the four source objects and none of their original fallback objects. Every complete owned section extent, including text padding, exception records/indexes, RTTI/vtables, strings and small data, matches the frozen original bytes.
+
+The unchanged Wii/1.1 game pipeline passes configure, ninja, and the explicit frozen-manifest verifier with a freshly generated main.dol. Its SHA256 is `ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da`. Unitdiff reports all 27 owned functions at100%; weak helpers outside the four native inventories and discarded data/exception records do not establish acceptance by themselves.
+
+The native method definition order is preserved so retained functions link in original order. Clear/Get/IncBlownEnemysCount retain the script binding spelling. The shared scalar-map insertion/destruction targets at80063DE0/80063FB0 are named for their erased unsigned-long value representation; their bodies, sizes, and ownership remain outside this issue. The complete read-only effect table receives only an evidenced name, with its existing696*24-byte extent unchanged.
+
+The overlapping CWarpZone header from the ScriptItem work declared the twelve trailing bytes as an inferred destination array. The reviewed resolution retains its TYPE constant and constructor/destructor API while completing flags at104 and the shared marker at108. The user explicitly authorized conflict resolution. All54 emitted ScriptItem functions /7,948 bytes and their allocated bytes/relocations are unchanged by the completed declaration.
+
+Prerequisites #1150 and #1168 separately delivered the shared table and compact-map contracts. These prerequisites do not count as issue closures. The complete #218 closure is established by this four-unit source link.
+
+Reproducible audit: `C:/MassStorage/GitHub/218-source-native27-audit.py`. It fetches the original inventory, checks27/5668, compares the full linked ELF against frozen DOL bytes, verifies a fresh source MAP and source-only graph, and records every owned section range. Initial raw full-source control is preserved at `C:/MassStorage/GitHub/218-reference/pre-closure-native27`; the final accepted commit receives a separate immutable archive after the official land loop.

@@ -281,7 +281,7 @@ config.libs = [
             Object(Matching, "game/CUIStar.cpp"),
             Object(Matching, "game/CUIType.cpp"),
             Object(Matching, "game/CWarpZone.cpp"),
-            Object(NonMatching, "game/CWaza.cpp"),
+            Object(Matching, "game/CWaza.cpp"),
             Object(NonMatching, "game/ScriptItem.cpp"),
             Object(Matching, "game/ControllerTable.cpp"),
             Object(NonMatching, "game/SaveData.cpp"),

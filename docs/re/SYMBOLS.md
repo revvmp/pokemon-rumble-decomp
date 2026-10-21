@@ -3339,3 +3339,12 @@ For `wpse-v1` / `main.dol`, [F-329-5](findings/329-clayout-unit.md#f-329-5-prove
 
 The original anonymous `CIconCollection_cpp` class `CIconCollection` is 468 bytes: four-byte IIconCollection base, CLayout at four and CLayout at 236. It overrides the interface's four original slots without a virtual destructor. Native pointer-overload bodies dynamically cast Wii Remote controllers and select Classic icons using the existing Boolean at offset52; `UsesClassic() const` is an inferred descriptive accessor. Controller and button pointer tables contain 5×4 and 5×2 mutable pointer entries, respectively. Source/file identity and interface identity are original RTTI names; initialization/shutdown and table names are descriptive. Complete native and source-selection evidence: [F-138-1/F-138-3](findings/138-hpbar-icon.md).
 
+### Issue218 UI widgets, warp zone, and CWaza
+
+[F-218-1/F-218-4](findings/218-ui-widgets-waza.md) establish complete CUIStar3/428, CUIType4/424, CWarpZone6/688 and CWaza14/4128 native source inventories. Class names are original RTTI names; the script bindings establish the BlownEnemysCount spelling. All other method/field names are descriptive unless already inherited from canonical headers.
+
+- CUIStar and CUIType add no fields to BUILayout.
+- CWarpZone retains CItem through `0x104`; flags at `0x104` and shared CMiniMapMarker at `0x108/0x10C` give size `0x110`. TYPE remains `1 << 12`.
+- CWaza has BWorldObj at `0x00..0x47` and BSoundSource at `0x48..0x63`, move ID at `0x64`, shared CPpuEngine at `0x68/0x6C`, and twelve-byte map at `0x70..0x7B`; size `0x7C`. Its secondary vtable is at `0x60`.
+- The EffectInfo read-only array at803550E0 remains696 records of24 bytes, using node-name offset8. The existing size/split/type are unchanged.
+- Shared map helpers80063DE0 and80063FB0 use the unsigned-long scalar storage contract documented by the primary Metrowerks transformation and their reuse by CWaza. Only names change; outside code ownership is preserved.

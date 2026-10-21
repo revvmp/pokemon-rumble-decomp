@@ -14,7 +14,7 @@ public:
     using BWorldObj::SetPosition;
     virtual ~CWaza();
     virtual void Calc();
-    void Setup(int id, std::tr1::shared_ptr<BWorldObj> rParent);
+    void Setup(int id, std::tr1::shared_ptr<BWorldObj> parent);
     bool GetAttachmentPosition(nw4r::math::VEC3& rPosition);
     bool LoadScript(int mode, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnvironment);
     void ClearBlownEnemysCount();
