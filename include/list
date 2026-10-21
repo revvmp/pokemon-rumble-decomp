@@ -233,11 +233,7 @@ public:
     iterator locate(size_type n);
 
     list() {}
-    list(const list& rOther) : base() {
-        for (node_base* p = rOther.begin_node(); p != rOther.end_node(); p = p->next_) {
-            push_back(static_cast<node*>(p)->data_);
-        }
-    }
+    list(const list& rOther) : base(rOther.begin(), rOther.end(), Allocator()) {}
     template <class InputIterator> list(InputIterator first, InputIterator last) {
         for (; first != last; ++first) {
             push_back(*first);

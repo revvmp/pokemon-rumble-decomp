@@ -4,7 +4,9 @@
 #include <game/ICalcDraw.h>
 #include <memory>
 #include <list>
+#include <MSL_CPP/runtime_error.h>
 #include <map>
+#include <set>
 #include <string>
 #include <vector>
 #include <nw4r/lyt/lyt_arcResourceAccessor.h>
@@ -34,9 +36,22 @@ nw4r::lyt::Pane* spDefaultMotionPane;
 class CLayout : public ICalcDraw {
 public:
     class CAttach;
-    class CInitializeException;
     class PaneMP;
     typedef std::map<std::string, std::tr1::shared_ptr<nw4r::ut::Font> > FontMap;
+    typedef std::map<nw4r::lyt::Pane*, std::tr1::shared_ptr<PaneMP> > PaneProgramMap;
+
+    class CInitializeException : public std::runtime_error {
+    public:
+        CInitializeException(int error, const char* pArchive, const char* pLayoutName, const std::tr1::shared_ptr<FontMap>& rFonts);
+        CInitializeException(int error, const char* const* pArchives, const char* pLayoutName, const std::tr1::shared_ptr<FontMap>& rFonts);
+        virtual ~CInitializeException() {}
+
+    private:
+        int mError;
+        std::list<std::string> mArchives;
+        std::string mLayoutName;
+        std::tr1::shared_ptr<FontMap> mFonts;
+    };
 
     class CMotionProgram {
     public:
@@ -44,8 +59,10 @@ public:
         bool IsFinished() const { return mState == 3 || mState == 2; }
         bool IsEnded() const { return mState == 3; }
         bool IsEnded(bool includeFinished) const { return includeFinished ? IsFinished() : IsEnded(); }
+        void Finish() { mState = 3; }
         f32 GetFrame() const;
         void Wait();
+        void WaitStart();
 
     private:
         f32 mFrame;
@@ -54,6 +71,17 @@ public:
         PaneMP* mpTarget;
         u16 mLastFrame;
         int mState;
+    };
+
+    typedef std::list<std::tr1::shared_ptr<CMotionProgram> > MotionList;
+
+    class PaneMP {
+    public:
+        nw4r::lyt::Pane* mpPane;
+        f32 mFrame;
+        MotionList mMotions;
+        bool mRunning;
+        std::set<nw4r::lyt::Pane*> mDescendants;
     };
 
     CLayout();
@@ -76,6 +104,7 @@ public:
     void SetVisible(bool visible);
     void UpdateAttachedLayouts();
     void DetachChildren();
+    void DetachAttachedLayouts();
     const nw4r::ut::Rect& GetViewRect() const { return mViewRect; }
     std::tr1::shared_ptr<CMotionProgram> CreateMotion(const char* pName) { return CreateMotion(pName, spDefaultMotionPane, 0.0f, 1.0f); }
     std::tr1::shared_ptr<CMotionProgram> CreateMotion(const char* pName, nw4r::lyt::Pane* pPane, f32 startFrame, f32 rate);
@@ -97,6 +126,9 @@ public:
     nw4r::lyt::Layout* GetLayout() const { return mLayout.get(); }
 
 private:
+    int LoadArchive(const char* pArchive, const char* pLayoutName, const std::tr1::shared_ptr<FontMap>& rFonts, bool background);
+    void UpdateViewRect();
+
     u32 mFlags;
     std::string mName;
     std::list<std::tr1::shared_ptr<CFileData> > mFiles;
@@ -106,9 +138,9 @@ private:
     std::tr1::shared_ptr<FontMap> mFonts;
     nw4r::lyt::DrawInfo mDrawInfo;
     std::map<std::string, nw4r::lyt::AnimTransform*> mAnimations;
-    std::map<nw4r::lyt::Pane*, std::tr1::shared_ptr<PaneMP> > mPanePrograms;
+    PaneProgramMap mPanePrograms;
     nw4r::ut::Rect mViewRect;
-    nw4r::math::VEC2 mViewScale;
+    nw4r::math::VEC2 mPixelScale;
     std::tr1::shared_ptr<CAttach> mAttach;
     GXCompare mDepthCompare;
 };

@@ -73,10 +73,28 @@ public:
         iterator() {}
         iterator(const iterator& rOther) : node_(rOther.node_) {}
         iterator(tree_node_base* pNode) : node_(pNode) {}
+        T& operator*() const { return static_cast<node*>(node_)->value_; }
         T* operator->() const { return &static_cast<node*>(node_)->value_; }
+        iterator& operator++() {
+            tree_node_base* pNode = node_->right_;
+            if (pNode != nullptr) {
+                while (pNode->left_ != nullptr) {
+                    pNode = pNode->left_;
+                }
+                node_ = pNode;
+            } else {
+                while (node_ != node_->parent()->left_) {
+                    node_ = node_->parent();
+                }
+                node_ = node_->parent();
+            }
+            return *this;
+        }
+        bool operator!=(const iterator& rOther) const { return node_ != rOther.node_; }
         tree_node_base* node_;
     };
     iterator begin() { return iterator(begin_); }
+    iterator end() { return iterator(end_node()); }
     tree_node_base* end_node() { return reinterpret_cast<tree_node_base*>(&root_.second()); }
     pair<iterator, bool> insert_one(const value_type& rValue) {
         node* pPred;
@@ -155,11 +173,14 @@ tree_node_base* map_compact_tree<T, Compare, Allocator>::find_leaf(const value_t
     return pLeaf;
 }
 
+template <typename T, typename Compare, typename Allocator> class map_compact_red_black_tree : public map_compact_tree<T, Compare, Allocator> {};
+template <typename T, typename Compare, typename Allocator> class map_compact_tree_adapter : public map_compact_red_black_tree<T, Compare, Allocator> {};
+
 template <typename T, typename Compare, typename BaseCompare, typename Allocator, bool Compact> struct map_tree_selection {
     typedef tree<T, Compare, Allocator> type;
 };
 template <typename T, typename Compare, typename BaseCompare, typename Allocator> struct map_tree_selection<T, Compare, BaseCompare, Allocator, true> {
-    typedef map_compact_tree<T, BaseCompare, Allocator> type;
+    typedef map_compact_tree_adapter<T, BaseCompare, Allocator> type;
 };
 
 }
