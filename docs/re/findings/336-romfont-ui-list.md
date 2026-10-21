@@ -18,6 +18,8 @@ The CUIList constructor at `0x801DA120` calls BUILayout at `0x801C9EE0`; its fir
 
 The proposed font `.data` interval is `0x803C0FB0–0x803C1090`, containing the vtable and RTTI names/base arrays. Three typeinfo objects occupy `0x804B8430–0x804B8448`. These are boundary hypotheses pending complete object, exception-table, and linked-layout proof; no split has been registered.
 
+The verified executable's exception index identifies nine retained font entries: constructor, base destructor, derived destructor, the five conversion methods, and the depth guard destructor. Their contiguous index interval is `0x8005199C–0x80051A08`; their exception tables occupy `0x8003E9BC–0x8003EB10`. GetEncoding needs no entry. This establishes the native interval, not candidate exception-table identity. The outside `336-font-extab.py` inventory reads the verified linked ELF and candidate object independently.
+
 ## Native font layout and behavior
 
 | Offset | Native evidence |
@@ -53,6 +55,8 @@ The constructor allocates a 32-byte-aligned MEM2 buffer of `RomFont::GetRequireB
 The rejected shared_ptr<unsigned char> owner candidate differs at constructor offsets `0x34`, `0x38`, `0x68`, `0x84`, `0x90`, `0x9C`, and `0xB8`, exchanging r29/r30 for the constant one and allocated buffer pointer. Wii/1.1 and Wii/1.3 both reproduce that gap. The void owner view removes every difference under the existing Wii/1.1 game flags, without changes to instruction comparison or callee targets.
 
 The reproducible outside investigation uses `336-probe-void-owner.py`, `336-compile-romfont.py`, `336-audit-romfont.py`, and `336-reference/romfont-void-native-proof.json`. The audit resolves each relocation to a native address and compares the resulting instruction words. The void-view experiment needs a normal internal reference-type trait because the current canonical shared_ptr forms the invalid type void& unconditionally. That bounded standard-library extension requires owner review and full existing-consumer preservation before publication. These experiments are separate from the build pipeline, so no source-selected or frozen-DOL acceptance is claimed.
+
+The bounded canonical shared_ptr prerequisite was subsequently accepted in PR #1022, merged as `a1442a6146`, after owner review, unchanged SHA-256 values for all 705 current source objects, and frozen-DOL verification. See [F-336-2](336-shared-ptr-void.md). The ten-function native instruction probe passed again after rebasing onto that merge. No font source selection was changed.
 
 ## Traps
 
