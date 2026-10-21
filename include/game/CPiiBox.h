@@ -14,6 +14,7 @@ public:
     CPiiBox(int type, int capacity);
     ~CPiiBox();
     void ExportPersonalData(std::vector<SD_PiiPersonalData::Data>& rOut);
+    std::list<std::tr1::shared_ptr<CPiiPersonalData> >& GetPersonalDataList() { return mPersonalDataList; }
 
 private:
     int mType;

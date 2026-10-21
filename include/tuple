@@ -7,7 +7,7 @@ template<class T0 = nat, class T1 = nat, class T2 = nat, class T3 = nat, class T
 namespace detail { template<int Index> struct tuple_get; }
 namespace placeholders {
 namespace detail { template<int Index> struct ph {}; }
-extern const detail::ph<1> _1;
+static detail::ph<1> _1;
 }
 template<class T0> class tuple<T0, nat, nat, nat, nat, nat, nat, nat, nat, nat> {
 public:

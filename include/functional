@@ -229,8 +229,8 @@ template <typename R,typename A> class function<R(A)> {
 public:
     typedef R result_type;
 
-    function() : f_(nullptr) {}
-    template <typename F> function(F f) : f_(nullptr) {
+    function(detail::unused_argument* = nullptr) : f_(nullptr) {}
+    template <typename F> function(F f, detail::unused_argument* = nullptr) : f_(nullptr) {
         if (!detail::is_null(f)) {
             typedef detail::function_imp<R (*)(A), F, false, true> imp;
             if (sizeof(imp) <= sizeof(buf_)) {

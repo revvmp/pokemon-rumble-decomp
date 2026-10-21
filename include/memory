@@ -124,7 +124,8 @@ public:
         s_ = new detail::shared_ptr_deleter<Y, D>(p, d);
         holder.release();
     }
-    template <typename Y> explicit shared_ptr(const weak_ptr<Y>& r);
+    template <typename Y>
+    explicit shared_ptr(const weak_ptr<Y>& r, typename Metrowerks::restrict_to<Metrowerks::is_convertible<Y*, T*>::value>::type* = nullptr);
     shared_ptr(const shared_ptr& r) : ptr_(r.ptr_), s_(r.s_) {
         if (s_) {
             s_->retain();
@@ -250,7 +251,7 @@ private:
 
 template <typename T>
 template <typename Y>
-shared_ptr<T>::shared_ptr(const weak_ptr<Y>& r) : ptr_(nullptr), s_(nullptr) {
+shared_ptr<T>::shared_ptr(const weak_ptr<Y>& r, typename Metrowerks::restrict_to<Metrowerks::is_convertible<Y*, T*>::value>::type*) : ptr_(nullptr), s_(nullptr) {
     shared_ptr<T> locked(r.lock());
     if (locked.use_count() == 0) {
         throw bad_weak_ptr();
