@@ -512,3 +512,24 @@ After 1235, the first misplaced late cluster is exactly four prematurely retaine
 The earlier same-copy-only diagnostic omitted the original explicit inline qualifier and is not a faithful final proposal. It is preserved solely as causal evidence. A separate natural implicit derived-destructor control preserves code/EH but moves the destructor from 7648 bytes early to 1968 bytes late; it does not restore native placement and is not adopted. No destructor attribute or emission-forcing control is used.
 
 The isolated six-definition-context proposal passes the current 221938c7 control: 767 actual source objects, all 717 Matching objects and every prior native-100 instruction/semantic-target stream preserved. Eight NonMatching objects change emission context, with no native-score change. Allocated ELF sections, normalized semantic symbols and frozen DOL remain identical. The independent combined current-string plus memory producer retains all 436 code streams and 226 EH records. Receipts are `152-reference/memory-context-consumer-221938c7c17d` and `memory-context-native436`; the official per-rebase wrapper is `152-land-memory-context.py`.
+
+### Remaining physical-context controls after 1239
+
+The actual current-header source link succeeds but frozen verification rejects remaining placement; 165 of 436 functions occupy their native addresses. All ordinary game methods are exact in position. Constructor remains 16 bytes late, and the explicit inline destructor is 7648 bytes early. The implicit destructor alternative preserves the native adjacency to its shared-control destructor but remains 1968 bytes late; it is diagnostic, not accepted.
+
+A bounded ordinary Init/Show classification after the factory changes Init 976 to 928 and formatter parse 424 to 420, so it is rejected before linking. Moving only the constructor declaration to the reverse-emission position inferred between Draw and Show does not change its object position. Neither is adopted.
+
+The actual primary list places insert before range erase in declarations and definitions, and range erase is a member rather than the legacy static three-argument interface. Separate outside controls for definition order, declaration order, and genuine member range erase with a compatibility wrapper preserve all 436 code/226 EH records but leave retained helper order unchanged. The primary vector base destructor after the split-buffer destructor likewise preserves all streams but leaves the late helper order unchanged. These are negative physical-layout controls, not proposed shared-header changes. Reproducers and receipts are in `152-reference/ordinary-init-show-context`, `constructor-declaration-context`, `primary-list-definition-order`, `primary-list-declaration-order`, `primary-list-member-range-erase` and `primary-vector-dtor-context`.
+
+
+## Final goal-wrap checkpoint, 2026-10-21
+
+The complete source remains NonMatching. All 436 owned instruction streams and 226 EH records resolve exactly, but the source-selected frozen DOL still fails retained physical ordering. No original Balloon issue is complete. The checkpoint is private review material, not accepted source.
+
+The earlier primary390 oracle omitted the factory; its absent 46 functions were ownership and cleanup instantiations, not 46 missing library algorithms. The new complete genuine-header oracle includes the factory and proves all 436 code streams and 226 EH records. An implicit derived destructor and implicit inherited interface destructor improve an owned-subsequence projection to 332 native positions, but that projection is diagnostic and is not a linked MAP or frozen-DOL proof. Ordinary factory get() and descriptive entry-name controls preserve exact code/EH but do not improve projected order; neither was adopted.
+
+Immutable external preservation: `C:/MassStorage/GitHub/152-reference/final-checkpoint-20261021` contains the exact diagnostic patch before restoring NonMatching, changed files, complete original-header oracle variants, latest source-selected artifacts and compiler/audit drivers. Its manifest records SHA-256 for every archived file. Earlier accepted prerequisite archives remain under `1235-accepted-e126d97846b5` and `1239-accepted-1368fa2913a9` in the same reference root.
+
+### Traps at final checkpoint
+
+A primary oracle can silently omit the factory and its deferred ownership helpers. Compare its actual source coverage before interpreting absent symbols as missing library implementations. Exact code/EH and projected owned order do not replace source-selected frozen-DOL acceptance. The complete oracle and diagnostic results above preserve this distinction.

@@ -14,7 +14,7 @@ public:
     class TooManyArgsException {};
 
     explicit basic_formatter(const charT* pFormat);
-    ~basic_formatter();
+    ~basic_formatter() {}
 
     basic_formatter& operator%(const int& rArg);
     basic_formatter& operator%(const unsigned long& rArg);
@@ -34,7 +34,7 @@ public:
         return mResult;
     }
 
-    const charT* c_str();
+    const charT* c_str() { return str().c_str(); }
 
 private:
     void parse() {
@@ -62,7 +62,7 @@ private:
                     i += 2;
                 }
             } else {
-                mResult.push_back(c);
+                mResult += c;
             }
         }
         mParsed = true;
@@ -77,6 +77,8 @@ private:
     std::basic_string<charT> mResult;
     bool mParsed;
 };
+
+template <class charT> basic_formatter<charT>::basic_formatter(const charT* pFormat) : mFormat(pFormat), mParsed(false) {}
 
 }
 

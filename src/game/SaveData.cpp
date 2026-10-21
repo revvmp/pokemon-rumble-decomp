@@ -505,9 +505,9 @@ void SetOption(u8 option) {
     sSaveData->mData.mOption = option;
 }
 
-template <class charT> NIntl::basic_formatter<charT>::basic_formatter(const charT* pFormat) : mFormat(pFormat), mParsed(false) {}
 
-template <class charT> NIntl::basic_formatter<charT>::~basic_formatter() {}
+
+
 
 template <typename T> static std::wstring FormatWide(const wchar_t* pFormat, const T& rValue) {
     NIntl::basic_formatter<wchar_t> formatter(pFormat);

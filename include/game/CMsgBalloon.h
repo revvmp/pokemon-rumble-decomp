@@ -34,6 +34,10 @@ class CMsgBalloon : public IMsgBalloon, public std::tr1::enable_shared_from_this
 public:
     struct Entry {
         Entry() : mPosition(0.0f, 0.0f, 0.0f) {}
+        Entry(const Entry& rOther) {
+            mText = rOther.mText;
+            mPosition = rOther.mPosition;
+        }
 
         std::tr1::weak_ptr<BWorldObj> mObject;
         std::wstring mText;
@@ -50,17 +54,17 @@ public:
 
     CMsgBalloon();
     virtual ~CMsgBalloon();
+    virtual bool Close();
+    virtual bool IsShown(int index);
+    virtual void Register(BWorldObj* pObject, const wchar_t* pText, f32 radius);
+    virtual void Add(const wchar_t* pText, f32 z, f32 x);
+    virtual void RegisterWarpzone(BWorldObj* pObject, f32 radius, const StageID& rStageID);
+    virtual void AdjustY(BWorldObj* pObject, const nw4r::math::VEC3& rPosition);
     virtual void Calc();
     virtual void CalcMtx();
     virtual void CalcView();
     virtual void Draw();
-    virtual bool Close();
     virtual void Show(bool show);
-    virtual void Add(const wchar_t* pText, f32 z, f32 x);
-    virtual void Register(BWorldObj* pObject, const wchar_t* pText, f32 radius);
-    virtual void RegisterWarpzone(BWorldObj* pObject, f32 radius, const StageID& rStageID);
-    virtual bool IsShown(int index);
-    virtual void AdjustY(BWorldObj* pObject, const nw4r::math::VEC3& rPosition);
 
     void Init(bool flag);
 

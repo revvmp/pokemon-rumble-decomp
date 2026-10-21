@@ -53,16 +53,6 @@ int GetStageClearCount(MapIndex index) {
     return Clamp(GetSaveData(-1)->mData.mMapRecords[index.mMode][index.mArea][index.mStage][lastMap].GetClearCount(), 0, 999);
 }
 
-std::tr1::shared_ptr<IMsgBalloon> IMsgBalloon::Create(bool flag) {
-    std::tr1::shared_ptr<CMsgBalloon> balloon(new CMsgBalloon);
-    balloon->Init(flag);
-    return balloon;
-}
-
-inline CMsgBalloon::CMsgBalloon() {}
-
-inline CMsgBalloon::~CMsgBalloon() {}
-
 inline void CMsgBalloon::Init(bool flag) {
     mCurrentEntry = nullptr;
     mCurrentIndex = -1;
@@ -320,7 +310,7 @@ inline void CMsgBalloon::Calc() {
                 } else {
                     SetupStageWarp(pBest->mStageID);
                 }
-                mWarpLayout->GetLayout()->SetText("TITLE", GetMessageString(gStageWorlds[pBest->mStageID.mWorld].mMessageID, L""));
+                mWarpLayout->GetLayout()->SetText("TITLE", GetMessageString(gStageWorlds[pBest->mStageID.mWorld].mMessageID, nullptr));
                 mLayout->AttachChild(behind ? "above_site" : "below_site", mWarpLayout);
             } else {
                 mMsgLayout->GetLayout()->SetText("TEXT", pBest->mText.c_str());
@@ -383,7 +373,7 @@ inline void CMsgBalloon::UpdateBalloon(BWorldCamera* pCamera, CLayout* pLayout, 
     pCamera->GetG3dCamera().GetCameraMtx(&viewMtx);
     pCamera->GetG3dCamera().GetProjectionMtx(&projectionMtx);
     nw4r::math::VEC3 position(mOffset);
-    nw4r::math::VEC3Transform(&position, &viewMtx, &position);
+    TransformPoint(&position, &viewMtx, &position);
     nw4r::math::VEC3TransformCoord(&position, &projectionMtx, &position);
     const nw4r::ut::Rect& rRect = pLayout->GetViewRect();
     position.x = position.x * rRect.GetWidth() / 2.0f;
@@ -571,3 +561,13 @@ inline void CMsgBalloon::SetupStageModels(StageID stageID) {
     total = unlocked.size();
     mWarpLayout->GetLayout()->SetText("OBTAIN", FormatMessage(GetMessageString(0x600C9, nullptr), collectedCount, total).c_str());
 }
+std::tr1::shared_ptr<IMsgBalloon> IMsgBalloon::Create(bool flag) {
+    std::tr1::shared_ptr<CMsgBalloon> balloon(new CMsgBalloon);
+    balloon->Init(flag);
+    return balloon;
+}
+
+inline CMsgBalloon::CMsgBalloon() {}
+
+inline CMsgBalloon::~CMsgBalloon() {}
+
