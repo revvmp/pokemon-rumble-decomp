@@ -3289,3 +3289,13 @@ For `wpse-v1` / `main.dol`, [F-126-2](findings/126-cgamesession.md#f-126-2-cgame
 | CPpuRegister Get 0x80111D20 / Set 0x80111D80 / Swap 0x80112590 | Complete native forwarding/caller traces and Slice-vector control RTTI | Signatures proven; method/class names descriptive |
 | BWorldObj SetParent 0x8006A290 / GetParent 0x8006A2D0 | Exact60/160-byte producers; by-value parent and nonconst getter contexts | Names inferred; native behavior proven |
 | BWorldObj SetPosition 0x80069E60 | BWorldObj and derived vtable targets; exact28-byte common body retained in preceding source | Base ownership proven; replaces derived override interpretation |
+## Tutorial layout accessors (#213 prerequisite)
+
+| Address | Declaration | Evidence |
+| --- | --- | --- |
+| `0x801D3830` | `void CLayout::CalculateMtx(bool)` | Native tutorial loader and complete calculation caller; descriptive method name. |
+| `0x801CB0E0` | `f32 CLayout::CMotionProgram::GetFrame() const` | Native insertion caller consumes the frame as a float when replacing a motion. |
+| `0x8011AF20` | `const nw4r::math::VEC3& nw4r::lyt::Pane::GetTranslate() const` | Exact eight-byte native member accessor; returns pane translation at `+0x2C`. |
+| `0x802A4E80` | `nw4r::ut::Rect nw4r::lyt::Pane::GetPaneRect() const` | Producer reads pane size/origin; tutorial and numeric-input callers pass no DrawInfo. Corrects the imported extra parameter. |
+
+See [F-213-1](findings/213-tutorial-message.md) for native caller proofs and current-consumer controls.

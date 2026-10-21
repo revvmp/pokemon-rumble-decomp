@@ -110,7 +110,7 @@ void Pane::RemoveChild(Pane* pChild) {
     pChild->mpParent = nullptr;
 }
 
-ut::Rect Pane::GetPaneRect(const DrawInfo& rInfo) const {
+ut::Rect Pane::GetPaneRect() const {
     ut::Rect rect;
     math::VEC2 base = GetVtxPos();
 
