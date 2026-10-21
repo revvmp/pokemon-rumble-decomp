@@ -18,6 +18,7 @@ Target `wpse-v1`, immutable `orig/wpse-v1/main.dol`, read in the dtk split assem
 | `0x80168110` | `FormatWide<unsigned long>(const wchar_t*, const unsigned long&)` (file-local template over `NIntl::basic_formatter<wchar_t>`) | 92.8% |
 | `0x801685C0`-`0x8016A540` | `__vec_constructor<T>::append(n, int2type<0>)` for five element types | 96% |
 | `0x80169880` | `__vec_deleter<SlotData>::erase_tail` | 100% |
+| `0x8016A4D0` | `__vec_deleter<UsedPassword>::~__vec_deleter()` (the DESTROYBASE cleanup of the `vector<UsedPassword>` copy constructor at `0x8016BA20`) | 100% |
 
 `SaveData::Data` is `{u8 mCurrentSlot; u8 mOption; u32 mSlotDigests[3][5]}`: bytes `+4` and `+5` of the object are read by `0x80167E50`/`0x80167E70`. The flag bitmap is the first 16 bytes of `SlotData::Data`.
 
@@ -41,7 +42,6 @@ The inline `throw length_error(...)` stores `logic_error`'s message members at f
 - `FormatWide` 92.8%: the original keeps a second callee-saved register for the formatter address and hoists the short-string data address out of the character loop.
 - `append` instances (96%) and the `operator=` instances (94-97%) differ only in callee-saved register numbering around the inlined `length_error` throw: the original gives the exception-object pointer the highest of the three throw registers in `operator=` and the lowest in `append`, the reconstruction does not, and frame-offset stores (F-278-3) and register priority could not be obtained together.
 - `SlotData` growth: the original calls `grow_by`, `construct_at_end` and `append_realloc` out of line (`0x80169A30`, `0x80169B40`, `0x8016BC60`) with the default constructor and the member copies inlined into the loop. Here the constructor stays a call inside loops and `append<SlotData>` inlines everything. These and the vector copy constructors (`0x8016B2E0`-`0x8016BA20`, #279) are not reconstructed.
-- The destructor at `0x8016A4D0` (cleanup action of a `__vec_deleter`-like base in one extab) is unattributed.
 
 ## Traps
 
