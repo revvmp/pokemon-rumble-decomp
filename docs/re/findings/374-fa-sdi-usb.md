@@ -170,3 +170,13 @@ SDI contributes twenty original issue rows and 5,448 instruction bytes from sour
 
 - A single eighty-byte original metadata symbol hid four distinct SDI literals. Objdiff showed three identical `addi` instructions as different in initialization even though complete native text and actual relocations were exact. Establishing the actual string extents (32, 16, 16 and 16 bytes) gives all twenty functions 100% without changing source. The four descriptive metadata names denote anonymous literals, not recovered original identifiers.
 - The actual mutex is 24 bytes with alignment before the following path array; its prior inferred 32-byte extent included padding. The signed heap identifier is four bytes, with four following alignment bytes excluded from its source split. Whole-object and full-link proof validate both corrections.
+
+# F-374-8: Cacheability caller contract
+
+The retained memory helper ignores its input and returns true, but both native block transfers explicitly pass their buffer pointer. The initial memory integration changed the partial reference's old-style empty parameter list into a strict void parameter list; that would reject those actual callers. The canonical declaration and definition now preserve the observed `const void* p_buffer` argument without assigning it new behavior. The compiled memory object remains byte-for-byte native exact: all three function extents, 104 full text bytes and both actual MEM callees match under unchanged flags.
+
+An isolated block candidate now includes the real canonical memory header and removes all three duplicate memory declarations. Its complete text/data/BSS/small-BSS payloads, alignments and every relocation are identical to the already native-exact block control. `374-reference/cacheable-canonical-caller-control.json` and the paired `374-usb-block-canonical-memory.c/.o` preserve this compatibility result; block source fidelity and source selection remain pending. No new functions or bytes are credited.
+
+## Traps
+
+- Do not infer a strict no-argument interface from an old-style C empty parameter list or from a retained callee that ignores its input. Check actual native callers before publishing the canonical prototype.
