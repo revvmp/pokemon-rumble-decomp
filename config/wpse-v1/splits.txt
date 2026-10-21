@@ -386,6 +386,13 @@ game/CShadowCamera.cpp:
 	.sdata      start:0x804B7358 end:0x804B7368
 	.sdata2     start:0x804BA0D8 end:0x804BA108
 
+game/MapPiiTable.cpp:
+	extab       start:0x800290E8 end:0x800292DC
+	extabindex  start:0x8004BD44 end:0x8004BE28
+	.text       start:0x8010DDE0 end:0x801119A4
+	.data       start:0x803ADD58 end:0x803ADDC0
+	.sdata      start:0x804B7368 end:0x804B7370
+
 game/CStageCamera.cpp:
 	extab       start:0x80029534 end:0x800295E8
 	extabindex  start:0x8004BEAC end:0x8004BF0C

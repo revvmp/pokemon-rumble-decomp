@@ -29,7 +29,7 @@ Symbols renamed in `symbols.txt`: the nine functions, `__vt__13CSimpleGround` (`
 
 ## Remaining work in #208
 
-`0x8010DDE0`-`0x80110134` are the first part of a unit that runs to `0x801119A4` ([F-209-4](209-cstagecamera.md#f-209-4-the-other-functions-of-209)). It is a set of non-inline container functions: tree destructors unrolled four levels, node insertion and `vector<NPpu::Slice>` helpers called from the `CGameSession` and script-binding code. It is not reconstructed.
+`0x8010DDE0`-`0x80110134` are the first part of the `MapPiiTable` unit that runs to `0x801119A4`; see F-208-2 for the split, the reconstructed functions and what is left.
 
 ## Method
 
@@ -38,3 +38,53 @@ GNU objdump 2.42 with `-M gekko`, call-site scans of `build/wpse-v1/main.elf`, a
 ## Traps
 
 - **Pass-through virtuals after `BModelObj` are visible only in the second vtable group.** `BModelObj`'s new virtuals sit after the `BSoundSource` destructor thunk at vtable offset `0x48`, so a class that adds one more virtual shows it as the entry after `AddDrawLayer` (`0x800570D0`), not in the first sixteen slots.
+
+## F-208-2: the MapPiiTable unit
+
+`0x8010DDE0`-`0x801119A4` is one translation unit registered as `game/MapPiiTable.cpp` (descriptive file name; the class is the shared table of [F-218-2](218-table-contract.md), used through `MapDesc::mPiiTable` and, under the alias `MapPiiTable`, by the session's move-description storage). F-209-4 left the split to #208.
+
+| Section | Range | Evidence |
+| --- | --- | --- |
+| `extab` | `0x800290E8`-`0x800292DC` | Entry of the record for `0x8010DE20` to the entry of `0x801119C0` |
+| `extabindex` | `0x8004BD44`-`0x8004BE28` | 19 records, `0x8010DE20` to `0x80111930`; the record after names `0x801119C0` (next unit) |
+| `.text` | `0x8010DDE0`-`0x801119A4` | Starts at the constructor after `CSimpleGround`; ends at the end of the last destructor `0x80111930` (`0x74` bytes), not at the 16-byte padding |
+| `.data` | `0x803ADD58`-`0x803ADDC0` | `"vector length error"`, the exception name cluster, `"tree::insert length error"`; `0x803ADDC0` starts the second cluster of the next unit |
+| `.sdata` | `0x804B7368`-`0x804B7370` | The two `bool` constants returned by `set::insert` (`true` for a new node, `false` for an existing one) |
+
+The split links and the DOL verifies unchanged.
+
+### Layout and behaviour
+
+`MapPiiTable` is 0x2C bytes: `vector<NPpu::CValue>` at 0 (the value table), `set<string>` at `0xC` and `set<wstring>` at `0x18` (string pools whose elements the values point into, so the pointers stay valid across inserts), and the row and column counts at `0x24` and `0x28`. The table has `rows + 1` rows of `columns` values (`GetIndex` is `(row + 1) * columns + column`).
+
+| Address | Function | Match |
+| --- | --- | --- |
+| `0x8010DDE0` | `MapPiiTable()` | 100% |
+| `0x8010DE20` | `~MapPiiTable()` (both tree `destroy` calls unrolled four levels) | 100% |
+| `0x8010E6F0` | `Clear()`: swaps the table and both pools with empty locals, zeroes both counts | 100% |
+| `0x8010F100` | `Initialize(int rowCount, int columnCount)`: stores the counts, `resize((rowCount + 1) * columnCount)`, clears both pools | 100% |
+| `0x8010F150` | `vector<NPpu::CValue>::resize(unsigned long)` | 79.1% |
+| `0x8010F6E0`, `0x8010FB30` | `set<string>::clear()`, `set<wstring>::clear()` | 100% |
+| `0x8010FF80` | `SetValue(int row, int column, const CValue&, const CEngine*)`: a wide string is pooled (`InsertWString(engine->ToWString(value))`) and stored as a wide string pointer, a string likewise, anything else is copied | 100% |
+| `0x80110070`-`0x80110120` | `CValue::IsWString`, `SetWStringPtr`, `IsString`, `SetStringPtr`, `operator=`, `GetValue(int)`, `GetCell(int, int)`, `GetIndex` | 100% |
+| `0x80110140`, `0x80110530` | `InsertString(const char*)`, `InsertWString(const wchar_t*)`: find in the pool, insert when absent, return the stored data pointer (#209 range) | 92.8% |
+| `0x80110990`, `0x80110F90` | `tree_imp<wstring>::insert_node_at`, `tree_imp<string>::insert_node_at` | 99.7% (data label names) |
+| `0x80110BD0`, `0x801111D0` | `tree_imp::destroy` for the wide and narrow pools | 100% |
+| `0x80111670`, `0x801117D0` | `tree_imp::find_leaf` for the wide and narrow pools | 100% |
+| `0x80111590` | `allocator<string>::destroy` | 100% |
+
+The four small destructors `0x80110920` (`vector<CValue>` through its base chain), `0x801115B0`, `0x80111610` (`alloc_ptr` of a set node) and `0x80111930` are weak instances referenced from exception cleanup tables; their sources are not written yet.
+
+### Header work this needed
+
+- `<string>`: `char_traits::compare` (`memcmp` / `wmemcmp`), `basic_string::compare(pos1, n1, const charT*, n2)` and `compare(const basic_string&)`, and `operator<`. The shape matters. The inlined search in `find_leaf` loads the pooled node's data and size once through `get_buffer`, takes the key size separately, clamps with `min(size - pos1, n1)` (`std::min` returns a reference to a stack copy, which is why the compare result is read back from the stack), calls the traits compare with `min(rlen, n2)` and, only when it returns 0, returns `-1`, `1` or `0` with `return` statements (an `if`/`else` assignment of the same three values became a branchless `subf`/`or`/`srwi` sequence). `get_buffer` now forms the short-string data pointer as `reinterpret_cast<const charT*>(&rep_) + 1`, so the compiler hoists it out of the search loop.
+- `tree_imp`: iterator `operator*`, `==` and `!=`, `begin()`, `end()`, and `swap` (exchange size, root and begin, re-parent the roots on the end nodes, point `begin` at the end node when a tree is empty). `set` gained `swap`.
+- The members `Initialize`, `Clear` and `SetValue` and the private `GetIndex`, `GetValue(int)`, `InsertString` and `InsertWString` are declared on `MapPiiTable` in `include/game/MapDesc.h`.
+
+### Traps
+
+- **Which inline functions become calls is decided per region.** `CValue::IsString`, `SetStringPtr` and the `MapPiiTable` accessors are called, not inlined, from `SetValue`, while the vector and tree templates inside `resize` and `Initialize` inline completely. Wrapping `Initialize` and `SetValue` in `#pragma dont_inline on` (and resetting before the accessors) reproduces both: `resize` and the two `set::clear` stay separate functions and the `CValue` members are emitted out of line.
+- **A swap receiver decides the register allocation.** `mValues.swap(values)` matches `Clear()` exactly, `values.swap(mValues)` differs in register numbers only. The same holds for the two sets.
+- **Temporaries versus named locals.** `std::vector<T>().swap(x)` compiles a null check on the temporary and a different frame; named locals in declaration order reproduce the original frame (the vector at `0x20`, the narrow set at `0x14`, the wide set at `8` from the stack pointer).
+- **The `||` form of `vector::append` is what `resize` keeps.** The condition `(n <= capacity && size <= capacity - n) || grow_by(...)` gives 79%; rewriting it as an `if` chain or with `n > capacity ||` gives 75% and moves register allocation in the inlined `resize` of `SaveData`, so it was not changed.
+- **The pool search is `find` followed by `insert`.** It compares `node < key` with the node as the left operand and inserts only when the iterator equals `end()`; `insert` alone does not produce the second `find_leaf` call.
