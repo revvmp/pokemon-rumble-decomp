@@ -508,16 +508,7 @@ public:
         }
     }
 
-    pair<iterator, bool> insert_one(const value_type& rValue) {
-        node* pPred;
-        bool left;
-        bool leftmost;
-        tree_node_base* pParent = find_leaf(rValue, pPred, left, leftmost);
-        if (pPred == nullptr || comp()(pPred->value_, rValue)) {
-            return pair<iterator, bool>(iterator(insert_node_at(pParent, left, leftmost, rValue)), true);
-        }
-        return pair<iterator, bool>(iterator(pPred), false);
-    }
+    pair<iterator, bool> insert_one(const value_type& rValue);
 
     pair<iterator, bool> insert(const value_type& rValue);
 
@@ -565,7 +556,6 @@ public:
 
     template <typename Key> value_type& find_or_insert(const Key& rKey);
 
-    tree_node_base* find_leaf(const value_type& rValue, node*& rpPred, bool& rLeft, bool& rLeftmost);
     template <typename Key> tree_node_base* find_leaf(const Key& rKey, node*& rpPred, bool& rLeft, bool& rLeftmost);
     node* insert_node_at(tree_node_base* pParent, bool left, bool leftmost, const value_type& rValue);
 
@@ -590,28 +580,6 @@ tree_imp<T, Compare, Allocator>::~tree_imp() {
     if (root() != nullptr) {
         destroy(static_cast<node*>(root()));
     }
-}
-
-template <typename T, typename Compare, typename Allocator>
-tree_node_base* tree_imp<T, Compare, Allocator>::find_leaf(const value_type& rValue, node*& rpPred, bool& rLeft, bool& rLeftmost) {
-    rpPred = nullptr;
-    node* pLeaf = static_cast<node*>(end_node());
-    node* pNode = static_cast<node*>(root());
-    rLeft = true;
-    rLeftmost = true;
-    while (pNode != nullptr) {
-        pLeaf = pNode;
-        if (comp()(rValue, pNode->value_)) {
-            pNode = static_cast<node*>(pNode->left_);
-            rLeft = true;
-        } else {
-            rpPred = pLeaf;
-            pNode = static_cast<node*>(pNode->right_);
-            rLeft = false;
-            rLeftmost = false;
-        }
-    }
-    return pLeaf;
 }
 
 template <typename T, typename Compare, typename Allocator>
@@ -684,6 +652,18 @@ typename tree_imp<T, Compare, Allocator>::value_type& tree_imp<T, Compare, Alloc
             return insert_node_at(pParent, left, leftmost, value_type(rKey, typename value_type::second_type()))->value_;
         }
         return pPred->value_;
+    }
+
+template <typename T, typename Compare, typename Allocator>
+pair<typename tree_imp<T, Compare, Allocator>::iterator, bool> tree_imp<T, Compare, Allocator>::insert_one(const value_type& rValue) {
+        node* pPred;
+        bool left;
+        bool leftmost;
+        tree_node_base* pParent = find_leaf(rValue, pPred, left, leftmost);
+        if (pPred == nullptr || comp()(pPred->value_, rValue)) {
+            return pair<iterator, bool>(iterator(insert_node_at(pParent, left, leftmost, rValue)), true);
+        }
+        return pair<iterator, bool>(iterator(pPred), false);
     }
 
 template <typename T, typename Compare, typename Allocator>

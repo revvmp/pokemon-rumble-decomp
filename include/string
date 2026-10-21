@@ -102,12 +102,7 @@ public:
 
     int compare(size_type pos1, size_type n1, const charT* s, size_type n2) const;
 
-    int compare(const basic_string& str) const {
-        const charT* pStr;
-        size_type length;
-        str.get_buffer(pStr, length);
-        return compare(0, size(), pStr, length);
-    }
+    int compare(const basic_string& str) const;
 
     basic_string& operator+=(const charT* s) { return append(s); }
     basic_string& operator+=(const basic_string& str) { return append(str); }
@@ -512,6 +507,14 @@ template <class charT, class traits, class Allocator>
 bool operator<(const basic_string<charT, traits, Allocator>& lhs, const basic_string<charT, traits, Allocator>& rhs) {
     return lhs.compare(rhs) < 0;
 }
+
+template <class charT, class traits, class Allocator>
+int basic_string<charT, traits, Allocator>::compare(const basic_string& str) const {
+        const charT* pStr;
+        size_type length;
+        str.get_buffer(pStr, length);
+        return compare(0, size(), pStr, length);
+    }
 
 template <class charT, class traits, class Allocator>
 int basic_string<charT, traits, Allocator>::compare(size_type pos1, size_type n1, const charT* s, size_type n2) const {

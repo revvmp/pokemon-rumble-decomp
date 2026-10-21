@@ -15,8 +15,13 @@ struct FileLoadParam {
 };
 
 std::tr1::shared_ptr<FileList> LoadFiles(const FileLoadParam* pFiles, unsigned int count, bool background);
-std::tr1::shared_ptr<FileList> LoadLocalizedFiles(const FileLoadParam* pFiles, unsigned int count, bool background);
+inline std::tr1::shared_ptr<FileList> LoadLocalizedFiles(const FileLoadParam* pFiles, unsigned int count, bool background) {
+    return LoadFiles(pFiles, count, background);
+}
+
 extern const char* const* gSharedLayoutArchives;
+
+const char* InternPath(const std::string& rPath);
 
 namespace {
 
@@ -26,7 +31,17 @@ struct LessConstChar {
 
 struct CL10NFileSet {
     CL10NFileSet() : mCount(0) { mpFiles[0] = nullptr; }
-    bool Add(std::tr1::shared_ptr<FileList> files, std::tr1::shared_ptr<CFileData> file);
+    bool Add(std::tr1::shared_ptr<FileList> files, std::tr1::shared_ptr<CFileData> file) {
+    if (!file || !file->IsLoaded()) {
+        return false;
+    }
+    mpFiles[mCount] = InternPath(file->GetPath());
+    ++mCount;
+    mpFiles[mCount] = nullptr;
+    files->push_back(file);
+    return true;
+}
+
     unsigned int mCount;
     const char* mpFiles[4];
 };
@@ -124,20 +139,7 @@ std::tr1::shared_ptr<FileList> LoadFileList(void** ppEntry, const char* pPath, u
     return files;
 }
 
-std::tr1::shared_ptr<FileList> LoadLocalizedFiles(const FileLoadParam* pFiles, unsigned int count, bool background) {
-    return LoadFiles(pFiles, count, background);
-}
 
-bool CL10NFileSet::Add(std::tr1::shared_ptr<FileList> files, std::tr1::shared_ptr<CFileData> file) {
-    if (!file || !file->IsLoaded()) {
-        return false;
-    }
-    mpFiles[mCount] = InternPath(file->GetPath());
-    ++mCount;
-    mpFiles[mCount] = nullptr;
-    files->push_back(file);
-    return true;
-}
 
 std::tr1::shared_ptr<CFileData> LoadLocalizedFile(const char* pPath, u32 flags, bool background, const char* pRegion) {
     pPath = InternPath(pPath);
