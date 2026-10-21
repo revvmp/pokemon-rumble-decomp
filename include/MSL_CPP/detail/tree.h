@@ -846,7 +846,7 @@ public:
     template <typename Key> const_iterator find(const Key& rKey) const { return implementation::find(rKey); }
     pair<iterator, bool> insert_one(const value_type& rValue) { return base::insert_one(rValue); }
     pair<iterator, bool> insert(const value_type& rValue) { return base::insert(rValue); }
-    template <typename Key> T& find_or_insert(const Key& rKey) { return base::find_or_insert(rKey); }
+    template <typename Key> T& find_or_insert(const Key& rKey) { return implementation::find_or_insert(rKey); }
     void clear() { base::clear(); }
     void swap(tree& rOther) { base::swap(rOther); }
     void erase(const_iterator position) { base::erase(position); }
