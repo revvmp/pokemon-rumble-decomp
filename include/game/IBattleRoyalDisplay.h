@@ -2,6 +2,7 @@
 #define GAME_IBATTLEROYALDISPLAY_H
 
 #include <game/ICalcDraw.h>
+#include <memory>
 
 class IBattleRoyalDisplay : public ICalcDraw {
 public:
@@ -12,6 +13,8 @@ public:
     virtual void SetRound(int round) = 0;
     virtual int GetRoundIndex() = 0;
     virtual int GetRound() = 0;
+
+    static std::tr1::shared_ptr<IBattleRoyalDisplay> Create(bool flag);
 };
 
 #endif

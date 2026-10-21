@@ -13,5 +13,7 @@ struct MapIndex {
 };
 
 MapIndex MakeMapIndex(int mode, int area, int stage, int map);
+bool IsStage7EvenMap(MapIndex index);
+bool IsBattleRoyalFirstPart(MapIndex index);
 
 #endif

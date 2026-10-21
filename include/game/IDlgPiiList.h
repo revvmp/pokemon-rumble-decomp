@@ -10,7 +10,7 @@ public:
     virtual int GetType() = 0;
     virtual bool Show(int player, int type) = 0;
 
-    static std::tr1::shared_ptr<IDlgPiiList> Create();
+    static std::tr1::shared_ptr<IDlgPiiList> Create(bool flag);
 };
 
 #endif
