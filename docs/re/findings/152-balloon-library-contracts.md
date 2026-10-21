@@ -447,3 +447,15 @@ producer are rerun with the current canonical headers.
 - An ELF NOBITS section has no file payload. Comparing file bytes at its
   nominal offset reads unrelated later tables and falsely reports changed
   BSS contents. Compare its allocation, flags, alignment and extent instead.
+
+- Balloon source visibility controls preserve no new placement acceptance.
+  Moving its unchanged constructor into the class header keeps all 436
+  instruction streams and 226 EH records exact, but emits the constructor
+  group before Init; the first physical mismatch becomes index 4. Keep the
+  late constructor definition in the positive checkpoint. The receipt is
+  `152-reference/order-inline-header-constructor/order-proof.json`.
+- For Balloon, making late methods ordinary out-of-class definitions in
+  native address order changes Calc literal pooling: one candidate symbol
+  would need two different native addresses. The consistent-binding audit
+  rejects this context before any link claim. See
+  `152-reference/order-native-method-definitions/audit.log`.
