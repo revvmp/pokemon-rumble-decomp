@@ -3328,4 +3328,4 @@ See [F-213-1](findings/213-tutorial-message.md) for native caller proofs and cur
 
 ## CTitleSession (#212)
 
-[F-212-2](findings/212-ctitlesession.md#f-212-2-ctitlesession) records the 0xAC-byte layout of `CTitleSession` (`mUIManager` 0x0C, `mLayouts[7]` 0x14, `mMsgWin` 0x4C, `mSaveManager` 0x54, `mSlotTexts[3]` 0x5C, `mButtonEnabled[7][4]` 0x80, counters 0x9C-0xA8) and the names given to `FormatDate`, `FormatTime`, `SetCurrentSaveSlot`, `GetVibrationSetting`, `SetVibrationSetting`, `DeleteSlotData` and `ChangeBGM`. The class name is an RTTI spelling; members and methods are descriptive (medium confidence).
+[F-212-2](findings/212-ctitlesession.md#f-212-2-ctitlesession) records the 0xAC-byte layout of `CTitleSession` (`mUIManager` 0x0C, `mLayouts[7]` 0x14, `mMsgWin` 0x4C, `mSaveManager` 0x54, `mSlotTexts[3]` 0x5C, `mButtonEnabled[7][4]` 0x80, counters 0x9C-0xA8) and the names given to `FormatDate`, `FormatTime`, ``ChangeBGM`. The class name is an RTTI spelling; members and methods are descriptive (medium confidence).

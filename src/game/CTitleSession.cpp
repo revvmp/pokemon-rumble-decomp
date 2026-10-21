@@ -20,12 +20,6 @@
 #include <string>
 #include <vector>
 
-void FormatDate(std::wstring* pOut, int year, int month, int day, int flags);
-void FormatTime(std::wstring* pOut, int hour, int minute, int second, int flags);
-void SetCurrentSaveSlot(int slot);
-int GetVibrationSetting();
-void SetVibrationSetting(int enabled);
-void DeleteSlotData(int slot);
 void ChangeBGM(u32 id);
 IUIInput* GetUIInput();
 
@@ -228,8 +222,8 @@ void CTitleSession::Run() {
                 pLayout->SetText("title", GetMessageString(0x600D5, L"つづきから"));
                 break;
             case SCREEN_VIBRATION:
-                pLayout->SetPaneVisible(GetVibrationSetting() ? "off" : "on", true);
-                pLayout->SetPaneVisible(GetVibrationSetting() ? "on" : "off", false);
+                pLayout->SetPaneVisible(GetOption() ? "off" : "on", true);
+                pLayout->SetPaneVisible(GetOption() ? "on" : "off", false);
                 break;
             }
             shownSelection = -1;
@@ -276,7 +270,7 @@ void CTitleSession::Run() {
             if (shownSelection != BUTTON_BACK) {
                 selection = BUTTON_BACK;
             } else {
-                selection = GetVibrationSetting() != 0;
+                selection = GetOption() != 0;
             }
         }
         if (step != 0) {
@@ -341,7 +335,7 @@ void CTitleSession::Run() {
                 break;
             case SCREEN_NEW_GAME:
                 if (shownSelection < SLOT_COUNT) {
-                    SetCurrentSaveSlot(shownSelection);
+                    SetCurrentSlot(shownSelection);
                     WaitForMacAddress();
                     return;
                 }
@@ -375,15 +369,15 @@ void CTitleSession::Run() {
                     break;
                 }
             startGame:
-                SetCurrentSaveSlot(mLastPlayedSlot);
+                SetCurrentSlot(mLastPlayedSlot);
                 if (shownSelection != GetSaveData(-1)->mData.mFlags[3]) {
                     s8 level = 1;
                     switch (shownSelection) {
                     case 0:
-                        level = GetSaveData(-1)->mData.mDifficultyLevel[0];
+                        level = GetSaveData(-1)->mData.mLastArea[0];
                         break;
                     case 1:
-                        level = GetSaveData(-1)->mData.mDifficultyLevel[1];
+                        level = GetSaveData(-1)->mData.mLastArea[1];
                         break;
                     }
                     if (level == 0) {
@@ -397,7 +391,7 @@ void CTitleSession::Run() {
                 switch (shownSelection) {
                 case 0:
                     screen = SCREEN_VIBRATION;
-                    selection = GetVibrationSetting() != 0;
+                    selection = GetOption() != 0;
                     break;
                 case 1:
                     selection = mFirstUsedSlot;
@@ -411,10 +405,10 @@ void CTitleSession::Run() {
                 break;
             case SCREEN_VIBRATION:
                 if (static_cast<u32>(shownSelection) <= 1) {
-                    if (shownSelection != GetVibrationSetting()) {
-                        SetVibrationSetting(shownSelection == 1);
-                        pLayout->SetPaneVisible(GetVibrationSetting() ? "off" : "on", true);
-                        pLayout->SetPaneVisible(GetVibrationSetting() ? "on" : "off", false);
+                    if (shownSelection != GetOption()) {
+                        SetOption(shownSelection == 1);
+                        pLayout->SetPaneVisible(GetOption() ? "off" : "on", true);
+                        pLayout->SetPaneVisible(GetOption() ? "on" : "off", false);
                         SaveAndWait();
                     }
                 } else {
@@ -431,7 +425,7 @@ void CTitleSession::Run() {
                                               .c_str())) {
                         mMsgWin->SetDefaultYes(false);
                         if (mMsgWin->AskYesNo(GetMessageString(0x600E1, L"さくじょした データは もとに もどりません\nほんとうに さくじょしますか？"))) {
-                            DeleteSlotData(shownSelection);
+                            ResetSlot(shownSelection);
                             SaveAndWait();
                             RefreshSlots();
                             if (mSlotsInUse == 0) {
@@ -487,9 +481,9 @@ bool CTitleSession::RefreshSlots() {
             OSCalendarTime calendar;
             OSTicksToCalendarTime(saved, &calendar);
             std::wstring date;
-            FormatDate(&date, calendar.year, calendar.mon + 1, calendar.mday, 0);
+            FormatDate(date, calendar.year, calendar.mon + 1, calendar.mday, 0);
             std::wstring time;
-            FormatTime(&time, calendar.hour, calendar.min, calendar.sec, 8);
+            FormatTime(time, calendar.hour, calendar.min, calendar.sec, 8);
             text.assign(date + L" " + time);
             int level = GetSaveData(i)->mData.mFlags[3];
             int mode = GetSaveData(i)->mData.mFlags[2];
