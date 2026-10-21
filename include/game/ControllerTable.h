@@ -5,6 +5,11 @@
 
 class CControllerComposition;
 
+void InitControllers();
+void SetExtensionControllerEnabled(bool enabled);
+void UpdateControllers();
+void ShutdownControllers();
+
 IController* GetController(IController::Type type, int channel);
 CControllerComposition* GetControllerTable();
 bool IsExtensionControllerEnabled();
