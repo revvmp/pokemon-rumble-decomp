@@ -49,3 +49,32 @@ The frame and exception shapes of `0x800927B0`, `0x800926E0` and `0x80092810` ar
 ## Next step
 
 Assign the range to a single owner (#88 to #91 together), decide whether it starts `CDlgPiiSelector.cpp`, and reconstruct it as one unit starting from the `include/vector` instance the block uses.
+
+## F-91-4: The block starts CDlgPiiSelector.cpp (split moved to 0x80091360)
+
+Decision: `game/CDlgPiiSelector.cpp` now starts at `.text` `0x80091360`, `extab` `0x80012CD8` and `extabindex` `0x800467E8`. The previous starts were `0x80092EB0`, `0x80012F68` and `0x80046AD0`. The change alone builds and `verify.py` prints `PASS main.dol`.
+
+Evidence:
+
+| Observation | Source |
+| --- | --- |
+| No call into `0x80091360`-`0x80092EB0` comes from outside the block below `0x80094FD8`, which is inside the Selector range. A scan of every `bl` in the split assembly finds 36 distinct block targets with external callers at `0x80094xxx`-`0x8009Exxx`, `0x800ADxxx`, `0x800E6xxx`, `0x800F7xxx` and one at `0x80134xxx`. | `bl` scan of `build/wpse-v1/asm` |
+| Nothing earlier than the block reaches it, and the block calls only earlier library copies (`0x8008A450`, the `vector<shared_ptr<CUIPiiListItem> >` destructor, and `0x8008F4B0`, a `shared_ptr` destructor, both emitted by `CDlgPiiList.cpp`). The linker folded duplicate weak instances onto the first unit that emitted them, so the block is the first place where the later-needed instances appear. | Block `extab` actions |
+| The `extab` records `0x80012CD8`-`0x80012F68` and `extabindex` records `0x800467E8`-`0x80046AD0` sit directly between `CDlgPiiList.cpp`'s and `CDlgPiiSelector.cpp`'s ranges, in function order, with no `.data`, `.sdata`, `.sbss` or `.ctors` of their own. A separate unit would need its own data or a RTTI record. | `splits.txt` |
+| `0x80091360` (0x278 bytes) is a real function, not an instance. It fills a vector of `shared_ptr<CPiiPersonalData>` from the team Pii box (`IGameSession` slot 0x60, `GetTeamPiiBox`), the player's list (`GetPlayer`, slot 0x64) and a remote-memory list (slot 0x68, `GetRemoteMemory`), then allocates a 0x1C-byte `CUIPiiListItem` for each element through `0x8011D7E0` and appends it to the output vector. Its only callers are `0x800928A0` and `0x80092E10`, both in the block and both called only from Selector code. It is a file-local helper defined before the factory. | `fn_80091360` assembly |
+
+The earlier claim in F-91-3 that the range is a hypothesis for `CDlgPiiSelector.cpp` is therefore upgraded to a boundary decision with indirect evidence. No string or RTTI record names the file for this range, so confidence is medium-high rather than proven.
+
+## F-91-5: Why the block's functions are not reconstructed
+
+- The user function `0x80091360` needs `CUIPiiListItem` (0x1C bytes, constructor `0x8011D7E0` taking a `shared_ptr<CPiiPersonalData>` and an int), `CPiiBox`, `CRemoteMemory` list accessors (`0x80107290` is 0x854 bytes), and the game map type query behind `0x800859B0`. None exists as a header.
+- Every other function in the block is an instance of `vector` or iterator machinery for two element types. They are emitted only if source uses them, and the only real use is `0x80091360`. Inventing call sites to force emission is forbidden, so the instances come with that function.
+- The reconstructed Selector source has 47 of 530 target functions matching and does not use these containers yet, so no block function is emitted from it.
+- IDA was unavailable (connection refused).
+
+Issues #88 to #91 stay open and are released as blocked on `CUIPiiListItem`, `CPiiBox` and the remote-memory accessor.
+
+## Traps (additions)
+
+- **A block between two units can still belong to the later one.** Check the lowest external caller, the earlier-unit callees folded from weak instances, and `extab` contiguity before choosing; here all three pointed to the following unit although the issue titles name the earlier file.
+- **Moving a split start needs all three ranges.** `.text`, `extab` and `extabindex` must move together; `verify.py` passes either way when the combined range stays contiguous, so only the references show which unit owns it.
