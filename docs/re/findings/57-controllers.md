@@ -34,6 +34,14 @@ The native composition motor loops only read their controller collection. Declar
 
 The correction changes mangled method names at the existing eight native addresses, preserving their sizes, virtual slots and object layouts. Composition update and pointer-vector assignment remain incomplete; this interface control does not complete issue #57.
 
+## F-57-3: Pointer-vector assignment context
+
+The complete 756-byte `SetControllers` instruction stream is reproduced by ordinary vector copy assignment. The constructor layer delegates allocation to the existing deleter layer, whose allocator size check and allocation path match both native exception paths. The internal pointer-copy helper receives its iterators by const reference. Its signed element distance feeds `memmove`, while assignment separately preserves the requested element count across allocation.
+
+With value iterator parameters in that copy helper, Wii/1.1 combines the two distance calculations and eliminates the retained end iterator, producing 736 bytes. Const reference parameters preserve the native beginning and ending iterators and their two distance calculations. Using the duplicate constructor-layer allocator instead leaves four non-relocation differences in the second exception path; delegation to the existing base allocator resolves those too. These are source-level controls under unchanged game flags.
+
+Current object controls reproduce five of the six composition functions, 1,172 of its 1,596 instruction bytes. Update remains 424 bytes with four reordered instruction positions near its start, three of which are reported by the non-relocation comparison. The complete issue remains open. The four concrete controller units remain source-selected together and the full frozen DOL passes with the proposed vector additions; composition remains `NonMatching`.
+
 ## Traps
 
 - A seeded `main.elf.MAP` can be stale even after a successful current link. Default `configure.py` does not enable map generation. The first controller control had a current ELF with source symbols while its seed MAP still named original fallback objects. Generate with `configure.py --map`, relink and verify before using a MAP to attribute source coverage; inspect timestamps and actual symbol entries. Never infer source attribution from an inherited map.
