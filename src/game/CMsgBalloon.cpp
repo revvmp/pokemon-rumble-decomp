@@ -100,3 +100,7 @@ void CMsgBalloon::Show(bool show) {
         PlaySound(0x59);
     }
 }
+
+void CMsgBalloon::Draw() {
+    mUIManager->Draw();
+}

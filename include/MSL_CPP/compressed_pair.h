@@ -49,6 +49,7 @@ template <class First, class Second> class CompressedPairStorage<First, Second, 
     Second mSecond;
 public:
     CompressedPairStorage() : mSecond() {}
+    explicit CompressedPairStorage(typename call_traits<First>::param_type) : mSecond() {}
     CompressedPairStorage(typename call_traits<First>::param_type rFirst, typename call_traits<Second>::param_type rSecond) : First(rFirst), mSecond(rSecond) {}
     First& first() { return *this; }
     const First& first() const { return *this; }

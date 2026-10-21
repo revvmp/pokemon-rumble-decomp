@@ -12,11 +12,6 @@ protected:
     struct node;
 
     struct node_base {
-        void init() {
-            next_ = static_cast<node*>(this);
-            prev_ = static_cast<node*>(this);
-        }
-
         node* prev_;
         node* next_;
     };
@@ -30,27 +25,62 @@ protected:
     typedef unsigned long size_type;
     typedef typename Allocator::template rebind<node>::other node_allocator;
 
-    __list_deleter() : size_(0) { end_node()->init(); }
-    ~__list_deleter() { clear(); }
+    class iterator {
+    public:
+        iterator() {}
+        iterator(const iterator& rOther) : node_(rOther.node_) {}
+        iterator(node* pNode) : node_(pNode) {}
+        explicit iterator(node_base* pNode) : node_(static_cast<node*>(pNode)) {}
+
+        T& operator*() const { return node_->data_; }
+        T* operator->() const { return &node_->data_; }
+        iterator& operator++() {
+            node_ = node_->next_;
+            return *this;
+        }
+        bool operator==(const iterator& rOther) const { return node_ == rOther.node_; }
+        bool operator!=(const iterator& rOther) const { return node_ != rOther.node_; }
+
+        node* get() const { return node_; }
+
+        node* node_;
+    };
+
+    __list_deleter() : size_(0), tail_(alloc()) {
+        node_base* pTail = end_node();
+        pTail->next_ = static_cast<node*>(pTail);
+        pTail->prev_ = static_cast<node*>(pTail);
+    }
+    ~__list_deleter() { erase(begin(), end()); }
 
     void clear() {
-        erase(begin_node(), end_node());
+        erase(begin(), end());
     }
 
-    void erase(node_base* pFirst, node_base* pLast) {
-        if (pFirst != pLast) {
-            node_base* pBack = pLast->prev_;
-            pFirst->prev_->next_ = pBack->next_;
-            pBack->next_->prev_ = pFirst->prev_;
-            while (pFirst != pLast) {
-                destroy(static_cast<node*>(pFirst)->value());
-                node* pNode = static_cast<node*>(pFirst);
-                pFirst = pFirst->next_;
-                tail_.first().deallocate(pNode, 1);
-                --size_.first();
-            }
+    iterator begin() { return iterator(end_node()->next_); }
+    iterator end() { return iterator(end_node()); }
+
+    iterator erase(iterator first, iterator last) {
+        if (first == last) {
+            return last;
         }
+        unlink_nodes(first.get(), last.get()->prev_);
+        while (first != last) {
+            alloc().destroy(&*first);
+            node* pNode = first.get();
+            ++first;
+            tail_.first().deallocate(pNode, 1);
+            --size_.first();
+        }
+        return last;
     }
+
+    static void unlink_nodes(node_base* pFirst, node_base* pLast) {
+        pFirst->prev_->next_ = pLast->next_;
+        pLast->next_->prev_ = pFirst->prev_;
+    }
+
+    Allocator& alloc() { return size_.second(); }
 
     void destroy(T* pValue) { pValue->~T(); }
 
@@ -79,26 +109,7 @@ public:
     typedef T value_type;
     typedef typename base::size_type size_type;
 
-    class iterator {
-    public:
-        iterator() {}
-        iterator(const iterator& rOther) : node_(rOther.node_) {}
-        explicit iterator(node_base* pNode) : node_(static_cast<node*>(pNode)) {}
-
-        T& operator*() const { return static_cast<node*>(node_)->data_; }
-        T* operator->() const { return &static_cast<node*>(node_)->data_; }
-        iterator& operator++() {
-            node_ = node_->next_;
-            return *this;
-        }
-        bool operator==(const iterator& rOther) const { return node_ == rOther.node_; }
-        bool operator!=(const iterator& rOther) const { return node_ != rOther.node_; }
-
-    private:
-        node* node_;
-
-        friend class list;
-    };
+    typedef typename base::iterator iterator;
 
     list() {}
     list(const list& rOther) : base() {
@@ -118,18 +129,13 @@ public:
 
     void pop_front() {
         node_base* pNode = this->begin_node();
-        unlink_nodes(pNode, pNode);
+        base::unlink_nodes(pNode, pNode);
         static_cast<node*>(pNode)->data_.~T();
         this->tail_.first().deallocate(static_cast<node*>(pNode), 1);
         --this->size_.first();
     }
 
     iterator erase(iterator position);
-
-    static void unlink_nodes(node_base* pFirst, node_base* pLast) {
-        pFirst->prev_->next_ = pLast->next_;
-        pLast->next_->prev_ = pFirst->prev_;
-    }
 
     void swap(list& rOther) {
         if (this != &rOther) {
@@ -177,7 +183,7 @@ typename list<T, Allocator>::iterator list<T, Allocator>::erase(iterator positio
     iterator next(position);
     ++next;
     node* pNode = position.node_;
-    unlink_nodes(pNode, pNode);
+    base::unlink_nodes(pNode, pNode);
     pNode->data_.~T();
     this->tail_.first().deallocate(pNode, 1);
     --this->size_.first();
