@@ -25,7 +25,7 @@ public:
         return std::tr1::static_pointer_cast<CPlayerPii>(shared_from_this());
     }
 
-    std::deque<nw4r::math::VEC3>& GetPositionHistory() { return mPositionHistory; }
+    const std::deque<nw4r::math::VEC3>& GetPositionHistory() { return mPositionHistory; }
 
 private:
     void SetEnvironment(NPpu::CEnvironment*) {}
