@@ -252,6 +252,15 @@ game/CStageCamera.cpp:
 	.sdata      start:0x804B7380 end:0x804B7388
 	.sdata2     start:0x804BA108 end:0x804BA128
 
+game/ControllerTable.cpp:
+	extab       start:0x8002C200 end:0x8002C230
+	extabindex  start:0x8004C818 end:0x8004C860
+	.text       start:0x801248C0 end:0x80124C80
+	.ctors      start:0x803529E4 end:0x803529E8
+	.data       start:0x803B3030 end:0x803B3070
+	.bss        start:0x803E8D28 end:0x803E90C8
+	.sdata      start:0x804B77D8 end:0x804B77D9
+
 game/ScriptCamera.cpp:
 	extab       start:0x8002DE28 end:0x8002E278
 	extabindex  start:0x8004D07C end:0x8004D520
@@ -3385,3 +3394,6 @@ MetroTRK/debugger/embedded/MetroTRK/Processor/ppc/Generic/targimpl.c:
 MetroTRK/debugger/embedded/MetroTRK/Os/dolphin/target_options.c:
 	.text       start:0x803529AC end:0x803529BC
 	.sbss       start:0x804B9C40 end:0x804B9C41
+
+ControllerTableAlignmentPadding:
+	.sdata      start:0x804B77D9 end:0x804B77E0 align:1
