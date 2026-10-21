@@ -38,7 +38,17 @@ public:
             }
             return *this;
         }
-        iterator& operator+=(int n);
+        iterator& operator+=(int n) {
+            int count = last_ - first_;
+            int pos = n + (cur_ - first_);
+            if (pos < 0) {
+                pos += count;
+            } else if (pos >= count) {
+                pos -= count;
+            }
+            cur_ = first_ + pos;
+            return *this;
+        }
         iterator& operator-=(int n) { return *this += -n; }
         iterator operator+(int n) const {
             return iterator(*this) += n;
@@ -46,9 +56,22 @@ public:
         iterator operator-(int n) const {
             return iterator(*this) -= n;
         }
-        long operator-(const iterator& rOther) const;
-        bool operator==(const iterator& rOther) const;
-        bool operator!=(const iterator& rOther) const;
+        long operator-(const iterator& rOther) const { return distance_to(rOther); }
+        long distance_to(const iterator& rOther) const {
+            long n = cur_ - rOther.cur_;
+            if (cur_ >= begin_) {
+                if (rOther.cur_ < begin_) {
+                    n -= last_ - first_;
+                }
+            } else {
+                if (rOther.cur_ >= begin_) {
+                    n += last_ - first_;
+                }
+            }
+            return n;
+        }
+        bool operator==(const iterator& rOther) const { return cur_ == rOther.cur_; }
+        bool operator!=(const iterator& rOther) const { return !(*this == rOther); }
         T* cur() const { return cur_; }
         T*& cur_ref() { return cur_; }
         T* last() const { return last_; }
