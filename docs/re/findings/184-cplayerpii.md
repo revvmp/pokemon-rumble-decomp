@@ -70,3 +70,9 @@ The position history is an MSL `deque<VEC3>`. The unit instantiates the whole te
 
 - **Renamed placeholders look like regressions in `report.json`.** Renaming an unmatched `fn_` placeholder (for example `0x80097810`) to its mangled name changes the report key; compare scores per address when checking other units.
 - **The same wrapper can have different depth in two instantiations.** `push_back` is one forwarder deep for `deque<VEC3>` and two for `deque<WorkType>`, and the constructor chain differs by a class; the cause is the element type's POD-ness, not the unit. Compare the element types before reusing a layer count.
+
+## Ring iterator and copy helpers (192 of 254 functions at 100%)
+
+`__cdeque_buf` gains the ring iterator operations (`operator--`, `+=`, `segment_start`, `same_segment`), the static `copy`, `copy_backward` and byte-copy helpers used by the pointer overloads, and `__deque_ops` gains `make_iterator`, `capacity`, `max_size` and the block iterator constructor. Remaining differences: `GetShadowName` (88.86%), `make_iterator` (99.08%, a swap of two callee-saved registers), `distance_to` (89.7%, compare/subtract scheduling), `void_iterator::operator=` (not reproducible: CodeWarrior emits chained assignment for derived classes under `dont_inline`), and about 46 functions from `0x800FBF40` (buffer `construct_at_front`/`construct_at_end`, swap and copy-constructor chains).
+
+- **Two addresses cannot share a pointer-copy name.** `0x800FBA20` and `0x800FC690` both pair with `copy(void**,void**,void**)` by bytes; only the first is the static member, so the second stays `fn_` until its owner class is found.

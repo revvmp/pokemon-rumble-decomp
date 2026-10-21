@@ -70,6 +70,20 @@ public:
             }
             return n;
         }
+        iterator& operator--() {
+            if (cur_ == first_) {
+                cur_ = last_;
+            }
+            --cur_;
+            return *this;
+        }
+        T* segment_start() const {
+            if (cur_ >= begin_) {
+                return begin_;
+            }
+            return first_;
+        }
+        bool same_segment(const iterator& rOther) const { return (cur_ >= begin_) == (rOther.cur_ >= rOther.begin_); }
         bool operator==(const iterator& rOther) const { return cur_ == rOther.cur_; }
         bool operator!=(const iterator& rOther) const { return !(*this == rOther); }
         T* cur() const { return cur_; }
@@ -143,6 +157,19 @@ public:
 
     static iterator copy(iterator first, iterator last, iterator result);
     static iterator copy_backward(iterator first, iterator last, iterator result);
+    static T* copy(T* first, T* last, T* result) { return copy_bytes(first, last, result); }
+    static T* copy_bytes(T* first, T* last, T* result) {
+        size_type bytes = (last - first) * sizeof(T);
+        memmove(result, first, bytes);
+        return reinterpret_cast<T*>(reinterpret_cast<char*>(result) + bytes);
+    }
+    static T* copy_backward(T* first, T* last, T* result) { return copy_backward_bytes(first, last, result); }
+    static T* copy_backward_bytes(T* first, T* last, T* result) {
+        long n = last - first;
+        result -= n;
+        memmove(result, first, n * sizeof(T));
+        return result;
+    }
     template <typename ForwardIterator> static iterator copy(ForwardIterator first, ForwardIterator last, iterator result);
     template <typename ForwardIterator> static T* copy(ForwardIterator first, ForwardIterator last, T* result);
 
@@ -204,6 +231,46 @@ template <typename T, typename Allocator> void __cdeque_buf<T, Allocator>::reser
         std::swap(size_, tmp.size_);
         std::swap(cap(), tmp.cap());
     }
+}
+
+template <typename T, typename Allocator>
+typename __cdeque_buf<T, Allocator>::iterator
+__cdeque_buf<T, Allocator>::copy(iterator first, iterator last, iterator result) {
+    while (first != last) {
+        long room = result.last() - result.cur();
+        long n;
+        if (first.same_segment(last)) {
+            n = std::min(last.cur() - first.cur(), room);
+        } else {
+            n = std::min(first.last() - first.cur(), room);
+        }
+        copy(first.cur(), first.cur() + n, result.cur());
+        first.cur_ref() += n - 1;
+        ++first;
+        result.cur_ref() += n - 1;
+        ++result;
+    }
+    return result;
+}
+
+template <typename T, typename Allocator>
+typename __cdeque_buf<T, Allocator>::iterator
+__cdeque_buf<T, Allocator>::copy_backward(iterator first, iterator last, iterator result) {
+    while (first != last) {
+        --last;
+        --result;
+        long room = result.cur() - result.segment_start();
+        long n;
+        if (first.same_segment(last)) {
+            n = std::min(last.cur() - first.cur(), room);
+        } else {
+            n = std::min(last.cur() - last.segment_start(), room);
+        }
+        last.cur_ref() -= n;
+        copy_backward(last.cur(), last.cur() + (n + 1), result.cur() + 1);
+        result.cur_ref() -= n;
+    }
+    return result;
 }
 
 template <typename T, typename Allocator> class __cdeque_imp : public __cdeque_buf<T, Allocator> {};
@@ -565,7 +632,7 @@ public:
 
     class iterator {
     public:
-        iterator(__deque_ops& rDeque, size_type pos);
+        iterator(const typename buf_type::iterator& rBlock, T* pCur) : block_(rBlock), cur_(pCur) {}
         T& operator*() { return *cur_; }
 
     private:
@@ -582,11 +649,15 @@ public:
     const buf_type& buf() const { return buf_.first(); }
     Allocator& alloc() { return buf_.second(); }
     ~__deque_ops();
-    iterator end() { return iterator(*this, size_); }
+    iterator end() { return make_iterator(size_); }
+    iterator make_iterator(size_type pos);
     size_type front_capacity() const { return start_; }
     size_type back_capacity() { return capacity() - (start_ + size_); }
-    size_type capacity() const;
-    size_type max_size() const;
+    size_type capacity() const { return buf().empty() ? 0 : (buf().size() - 1) * block_size; }
+    size_type max_size() const {
+        static size_type n = (numeric_limits<size_type>::max() / block_size - 1) * block_size;
+        return n;
+    }
 
     void destroy_all() { destroy_all(pod_type()); }
     void destroy_all(pod_type) { size_ = 0; }
@@ -623,6 +694,14 @@ template <typename T, typename Allocator> __deque_ops<T, Allocator>::~__deque_op
             }
         }
     }
+}
+
+template <typename T, typename Allocator>
+typename __deque_ops<T, Allocator>::iterator __deque_ops<T, Allocator>::make_iterator(size_type pos) {
+    size_type index = pos + start_;
+    buf_type& rBuf = buf();
+    typename buf_type::iterator block = rBuf.begin() + index / block_size;
+    return iterator(block, (rBuf.empty() ? 0 : *block) + index % block_size);
 }
 
 template <typename T, typename Allocator> void __deque_ops<T, Allocator>::push_back(const T& x, Metrowerks::int2type<false>) {
