@@ -1,6 +1,6 @@
 # CGameEnding.cpp unit and its first block (#116)
 
-Target `wpse-v1`, immutable `orig/wpse-v1/main.dol`, analysed in the linked `build/wpse-v1/main.elf`, which verifies byte-identical. Issue #116 lists 15 functions in `.text` `0x800A4EF0`–`0x800A5BE4`.
+Target `wpse-v1`, immutable `orig/wpse-v1/main.dol`, analysed in the linked `build/wpse-v1/main.elf`, which verifies byte-identical. Issue #116 lists 15 functions in `.text` `0x800A4EF0`â€“`0x800A5BE4`.
 
 ## F-116-1: unit boundaries of `game/CGameEnding.cpp`
 
@@ -8,13 +8,13 @@ The file is one translation unit with no static initializer. Its split is in `co
 
 | Section | Range | Evidence |
 | --- | --- | --- |
-| `extab` | `0x80015CA0`–`0x80016838` | Records named by the first and last index entries of the unit |
-| `extabindex` | `0x80047BEC`–`0x80047D3C` | 28 entries, `0x800A4EF0` to `0x800A7610`; the neighbours index `0x800A4D10` (`CFacility`) and `0x800A7760` (`CGameMap.cpp`) |
-| `.text` | `0x800A4EF0`–`0x800A7650` | First function is the factory that builds `CGameEnding`; last are the three `shared_ptr_deleter` destructors at `0x800A7590`, `0x800A75D0`, `0x800A7610` |
-| `.data` | `0x803A1878`–`0x803A2150` | From the `event/ending.arc/event2d.arc` path to the `exception` string; `0x803A2150` starts the `CGameMap` stage paths |
-| `.sdata` | `0x804B66D8`–`0x804B6790` | From `LINES` to the `default_delete<CShadowCamera>` type info; `0x804B6790` (`%02d`) is used only by `CGameMap.cpp` |
-| `.sbss` | `0x804B8FF8`–`0x804B9000` | An 8-byte object read only by `0x800A6490` and `0x800A6D20` |
-| `.sdata2` | `0x804B9E68`–`0x804B9E70` | Two floats read only by `0x800A5EB0` |
+| `extab` | `0x80015CA0`â€“`0x80016838` | Records named by the first and last index entries of the unit |
+| `extabindex` | `0x80047BEC`â€“`0x80047D3C` | 28 entries, `0x800A4EF0` to `0x800A7610`; the neighbours index `0x800A4D10` (`CFacility`) and `0x800A7760` (`CGameMap.cpp`) |
+| `.text` | `0x800A4EF0`â€“`0x800A7650` | First function is the factory that builds `CGameEnding`; last are the three `shared_ptr_deleter` destructors at `0x800A7590`, `0x800A75D0`, `0x800A7610` |
+| `.data` | `0x803A1878`â€“`0x803A2150` | From the `event/ending.arc/event2d.arc` path to the `exception` string; `0x803A2150` starts the `CGameMap` stage paths |
+| `.sdata` | `0x804B66D8`â€“`0x804B6790` | From `LINES` to the `default_delete<CShadowCamera>` type info; `0x804B6790` (`%02d`) is used only by `CGameMap.cpp` |
+| `.sbss` | `0x804B8FF8`â€“`0x804B9000` | An 8-byte object read only by `0x800A6490` and `0x800A6D20` |
+| `.sdata2` | `0x804B9E68`â€“`0x804B9E70` | Two floats read only by `0x800A5EB0` |
 
 - **Start.** `CFacility`'s vtable, type name and base lists end at `0x803A1874`. `0x800A4EF0` is the first function to reference this unit's data (`0x803A1878`, the `CGameEnding` vtable `0x803A1AC8` and its three deleter vtables).
 - **End.** `0x800A7650` has no exception entry and stores the `CGameMap` vtable `0x803A23F8`, so it is the `CGameMap` constructor and the first function of the next file. The deleter vtables `0x803A1908` (`CGameEnding`), `0x803A19BC` (`BWorld`) and `0x803A1A30` (`CShadowCamera`) name `0x800A7610`, `0x800A75D0` and `0x800A7590`.
@@ -23,7 +23,7 @@ The file is one translation unit with no static initializer. Its split is in `co
 
 ## F-116-2: class hierarchy
 
-RTTI type names and base lists (`.sdata` `0x804B6758`–`0x804B6778`):
+RTTI type names and base lists (`.sdata` `0x804B6758`â€“`0x804B6778`):
 
 | Class | Type info | Bases |
 | --- | --- | --- |
@@ -37,9 +37,9 @@ Vtables:
 | --- | --- | --- |
 | `0x803A1D00` | `IGameMap` | Destructor `0x800A5980`; the `ICalcDraw` slots (pure `Calc`, `0x80063DC0`, `0x80063DD0`, pure `Draw`); three pure slots; 35 implemented inline slots |
 | `0x803A1BF8` | `IGameEnding` | Destructor `0x800A59F0`; the `IGameMap` slots; nine pure slots |
-| `0x803A1AC8` | `CGameEnding` | Destructor `0x800A7310`, overrides of `Calc`, `CalcMtx`, `CalcView` and `Draw` (`0x800A5EB0`, `0x800A5E60`, `0x800A5E10`, `0x800A5D90`), the three pure `IGameMap` slots (`0x800A5CF0`, `0x800A6460`, `0x800A6470`), the inherited inline slots with one override (`0x800A6450` for `IGameMap`'s `0x800A6DF0`), and nine `IGameEnding` implementations `0x800A6D30`–`0x800A6480` |
+| `0x803A1AC8` | `CGameEnding` | Destructor `0x800A7310`, overrides of `Calc`, `CalcMtx`, `CalcView` and `Draw` (`0x800A5EB0`, `0x800A5E60`, `0x800A5E10`, `0x800A5D90`), the three pure `IGameMap` slots (`0x800A5CF0`, `0x800A6460`, `0x800A6470`), the inherited inline slots with one override (`0x800A6450` for `IGameMap`'s `0x800A6DF0`), and nine `IGameEnding` implementations `0x800A6D30`â€“`0x800A6480` |
 
-Of the 35 `IGameMap` inline slots, 28 are the weak copies emitted in this file (`0x800A5B40`–`0x800A5CE0`, and `0x800A6DF0` later). Seven keep copies from earlier units (`0x8006BAB0`, `0x8006E020`, `0x80078480`, `0x80078F80`, `0x80078F90`, `0x8008D2B0`, `0x80093630`), so `IGameMap.h` is included before this file. No slot has a recovered name.
+Of the 35 `IGameMap` inline slots, 28 are the weak copies emitted in this file (`0x800A5B40`â€“`0x800A5CE0`, and `0x800A6DF0` later). Seven keep copies from earlier units (`0x8006BAB0`, `0x8006E020`, `0x80078480`, `0x80078F80`, `0x80078F90`, `0x8008D2B0`, `0x80093630`), so `IGameMap.h` is included before this file. No slot has a recovered name.
 
 ## F-116-3: the 15 functions of #116
 
@@ -49,9 +49,9 @@ Of the 35 `IGameMap` inline slots, 28 are the weak copies emitted in this file (
 | `0x800A5980` | `0x6C` | `IGameMap::~IGameMap()`, now `__dt__8IGameMapFv` | Slot 0 of `0x803A1D00`; releases the weak count of `enable_shared_from_this` at 4, deletes when the flag is positive |
 | `0x800A59F0` | `0x70` | `IGameEnding::~IGameEnding()`, now `__dt__11IGameEndingFv` | Slot 0 of `0x803A1BF8`; the same code with one more inlined `this` check; also a cleanup action of the factory |
 | `0x800A5A60` | `0xD4` | `list<wstring>` destructor | Size at 0, sentinel at 4; each node's 12-byte string at +8 frees its buffer when bit 31 of its first word is set; called from the factory's cleanup and `0x800A7310` |
-| `0x800A5B40`–`0x800A5BE0` | `0x4`/`0x8` | Eleven `IGameMap` inline virtuals, empty or `return 0` | Listed in reverse slot order in `0x803A1D00`, which is the `-ipa file` emission order of F-735-1 |
+| `0x800A5B40`â€“`0x800A5BE0` | `0x4`/`0x8` | Eleven `IGameMap` inline virtuals, empty or `return 0` | Listed in reverse slot order in `0x803A1D00`, which is the `-ipa file` emission order of F-735-1 |
 
-The factory takes the result pointer, a record pointer stored at `+0xC` and load flags. It allocates the 0x310-byte object and constructs it inline (vptr, the weak pointer at 4, two `shared_ptr`s at `0x10` and `0x18`, layouts at `0x20`, `0x114` and `0x220` built by `0x801CB1C0`, words at `0x1FC`–`0x204`, `list<wstring>`s at `0x208` and `0x214`, a `shared_ptr` at `0x308`). It then wraps it in `shared_ptr<CGameEnding>`; fills a `BWorld::Desc` (draw type 1, 0x400 objects) and stores `new BWorld` at `0x10`; makes a 0x100-byte `CShadowCamera` and adds it with `BWorld::AddCamera`; loads `event/ending.arc/event2d.arc` and builds the `congratulations` and `staff_roll` layouts; counts the lines of the `LINES` text box (`L'\n'` plus one) into `0x204` and pushes `L""` into both lists for each line; loads `event/epilogue.arc/event2d.arc`, builds the `next` layout, sets the `TextBox_C_01`, `TextBox` and `TextBox2` texts, and shows `HARD`, `VERYHARD` or `THANKYOU` for the signed top byte of the record's first word being 0, 1 or 2.
+The factory takes the result pointer, a record pointer stored at `+0xC` and load flags. It allocates the 0x310-byte object and constructs it inline (vptr, the weak pointer at 4, two `shared_ptr`s at `0x10` and `0x18`, layouts at `0x20`, `0x114` and `0x220` built by `0x801CB1C0`, words at `0x1FC`â€“`0x204`, `list<wstring>`s at `0x208` and `0x214`, a `shared_ptr` at `0x308`). It then wraps it in `shared_ptr<CGameEnding>`; fills a `BWorld::Desc` (draw type 1, 0x400 objects) and stores `new BWorld` at `0x10`; makes a 0x100-byte `CShadowCamera` and adds it with `BWorld::AddCamera`; loads `event/ending.arc/event2d.arc` and builds the `congratulations` and `staff_roll` layouts; counts the lines of the `LINES` text box (`L'\n'` plus one) into `0x204` and pushes `L""` into both lists for each line; loads `event/epilogue.arc/event2d.arc`, builds the `next` layout, sets the `TextBox_C_01`, `TextBox` and `TextBox2` texts, and shows `HARD`, `VERYHARD` or `THANKYOU` for the signed top byte of the record's first word being 0, 1 or 2.
 
 ## F-116-4: what blocks the source
 
@@ -82,7 +82,7 @@ Evidence for the shape, all from the factory body:
 
 ## Traps
 
-- **A repeated constant argument exposes a parameter type.** `Create(p, true, true)` with two `bool` parameters shared one register; the target's two `li` instructions required a different type on one of them.
+- **Superseded parameter inference.** Repeated constant arguments alone do not distinguish which formal parameter has a different scalar type. F-116-7 records the remaining provider-contract uncertainty; do not restore the old third-parameter `int` solely to obtain two `li` instructions.
 - **`reset(new T)` and `x = shared_ptr<T>(new T)` compile differently.** The first builds in registers and releases the old pointer; the second goes through a memory temporary and a copy.
 - **A missing `basic_string` copy constructor is silent.** The implicit one copies the 12-byte representation, hiding the long-string branch until a list of strings is compared.
 
@@ -100,3 +100,20 @@ Evidence for the shape, all from the factory body:
 - **A trial `Matching` link can succeed and still differ.** `ninja` and the linker accept the object; only `verify.py` showed the size drift. Compare the DOL header section sizes first (a 20-line script over the first `0xD8` bytes) to see which section drifted.
 - **`sed -i` through Git Bash strips CR.** A blanket `sed` on `CGameEnding.cpp` rewrote the whole file with LF; restore CRLF with a binary-mode Python rewrite before committing.
 - **Inline-only edits to `.data` need the whole `std` exception set.** The out-of-line `basic_string` members throw `length_error` and `out_of_range`; their RTTI and name strings land in the first unit that instantiates the inline paths.
+
+
+## F-116-7: Original MSL range construction and current remaining gaps
+
+The recovered 2006 MSL C++ headers provide an independent library oracle. With the existing CGameEnding source and the canonical Wii/1.1 game flags, the complete original header context reproduces all 1,520 instruction bytes of ParseStaffRollText. The current reconstructed context differs in six iterator-category stack addresses. This supersedes the older first-temporary register observation in F-116-6, which intervening string fixes have resolved.
+
+The original string range constructor calls the forward-iterator initialization helper. That helper zeroes the string, reserves the iterator distance, and invokes the public four-argument replace overload. The public overload dispatches directly to do_replace with iterator_traits<InputIterator>::iterator_category. The reconstruction instead added an extra forward_iterator_tag forwarding step. Reproducing the evidenced call structure for the existing const-pointer constructor removes all six differences. The change retains the five-argument compatibility interface for existing callers. It adds no padding, local byte, compiler flag, or source-function permutation.
+
+The outside producer in 116-reference/replace-pointer-primary archives the candidate source, header, command, object, and strict-parse.json. The strict check applies all 40 actual relocations, verifies the two-byte empty wide-string payload, and compares all 1,520 bytes against the frozen native executable. The function is not being counted as a completed translation unit. The independent native consumer control preserves every previously 100-percent function byte stream and semantic relocation across all 17 changed NonMatching objects; all other 750 source objects are unchanged apart from proven compiler-generated numeric names. CColorConst wide-context-independent narrow string concatenation also improves from 99.88 percent to 100 percent. Final shared-header acceptance additionally requires the same-base full build and frozen binary gate.
+
+The whole CGameEnding unit remains NonMatching. Calc still has 71 masked diagnostic instruction differences in the reconstructed header context, versus 53 with the complete original headers. Its extent remains 1,428 bytes. The 2,696-byte factory differs in four words around the two repeated arguments to IPauseMenu::Create. Native callers consistently use independent constant loads, but this does not by itself prove the third parameter is int. Fresh headless IDA inspection confirms the first flag is stored as a byte and the second is passed to layout-loading methods; those methods need their own complete contract evidence before another shared signature change. No signature change is included here.
+
+### Traps
+
+- **A matching algorithm can retain the wrong dispatch lineage.** The extra forward-iterator wrapper changed stack slots even though the final replace algorithm was unchanged. Compare the actual original constructor and dispatch roles before altering game locals.
+- **A full original-header result is an oracle, not an adoption patch.** Mixing the reconstructed list with the original compressed-pair and allocator types fails with duplicate declarations. Such an incompatible inverse control establishes no negative native result.
+- **Whole-object inequality can conceal a safe native improvement.** Inspect previously exact function bytes and actual semantic relocation targets as well as the final linked ELF and frozen DOL. The initial blanket object comparison rejected 17 NonMatching objects; the native per-function control preserved every previously exact stream.
