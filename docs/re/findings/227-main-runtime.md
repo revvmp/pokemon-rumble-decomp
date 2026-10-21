@@ -28,6 +28,16 @@ The clone functions at `0x8012F850` and `0x8012F8A0` store vtable `0x803B52E0`, 
 
 Consuming #228's outside bounded functional overlay reproduces eight additional original functions: the HBM callback constructor `0x8012E940`/76, HBM function-base destructor `0x8012E990`/64, zero-argument function-base destructor `0x8012EAA0`/64, layout-exception function-base destructor `0x8012EAE0`/64, HBM function destructor `0x8012F670`/160, and the layout-exception clones/invocation above at 76, 64, and 20 bytes. All 588 bytes compare exactly after resolving all 11 relocation sites, with no unresolved target. These diagnostics do not substitute for emission in the actual complete `main.cpp` producer or full frozen verification.
 
+## F-227-3: Main owner archive dependencies
+
+At #225's request, two original #225 helper producers were traced outside the repository to unblock the complete translation unit. They do not extend #227's original inventory or ownership.
+
+`0x8012D310` returns `shared_ptr<FileList>` by hidden result pointer. It builds seven local eight-byte requests, each containing a filename pointer and a zero `u32` flag word, then calls `0x80128600` with count 7 and background true. That four-byte thunk branches to the batch loader at `0x801A6510`, which produces a shared list of successfully loaded files. This API is distinct from the existing five-argument path-expansion `LoadResourceFileList` interface. Descriptive outside names are `ResourceFileRequest`, `LoadResourceFiles`, and `LoadStartupArchives`; original spellings remain unknown.
+
+The seven paths are `5:/pii_1-151_387-492.arc`, `5:/item.arc`, `5:/game2d.arc`, `5:/font.arc`, `5:/effect/main.breff`, `5:/effect/main.breft`, and `5:/sound/waza_p.brsar`. Ordinary aggregate initialization reproduces all 176 native function bytes after resolving five relocations, the 56-byte constant initializer at `0x8035BBE8`, all seven string payloads, and its eight-byte exception record.
+
+`0x8012D3C0` appends one `const shared_ptr<CFileData>&` to a `FileList`, using a 16-byte list node with the shared owner at offset 8. There are no additional registration effects. The natural `rFiles.push_back(rFile)` producer reproduces its native 224-byte extent, allocation/deallocation targets, and eight-byte exception record. Two stores of a temporary allocation pointer at function offsets `0x44` and `0x48` exchange order; Wii/1.3 retains that difference. The diagnostic therefore establishes semantics and types but does not claim complete byte acceptance for this helper.
+
 ## Traps
 
 - The source methods are inline in the original class context: individually exact out-of-line bodies alone do not reproduce physical function order. Preserve the native reverse-interface order in the complete producer.
