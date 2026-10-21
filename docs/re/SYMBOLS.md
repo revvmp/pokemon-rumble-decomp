@@ -2973,3 +2973,6 @@ Member spellings are descriptive. Reserved words preserve unknown storage withou
 ## F-372-4: SDI original API names
 
 The six provisional names at `0x80224BB0`, `0x80224A90`, `0x80224B70`, `0x80224030`, `0x80224490`, and `0x80224D30` are corrected respectively to `ISD_InitCard`, `ISD_MountCard`, `ISD_UnmountCard`, `ISD_GetDeviceStatus`, `ISD_ResetDevice`, and `ISD_ReadCardRegister`. Confidence is high from pinned original IPL names plus all native consumer and complete SDI object controls. The last API consumes a `u32*` response. Record layout and function metadata remain unchanged; see [F-372-4](findings/372-fa-sd-driver.md#f-372-4-original-sdi-api-correction).
+## F-374-6: USB memory wrappers
+
+`uhf_ker_get_memory_block` (`0x80225420`, 32 bytes), `uhf_ker_release_memory_block` (`0x80225440`, 60 bytes), and `uhf_ker_check_cacheable` (`0x80225480`, eight bytes) retain their original IPL names and canonical MEM heap calls. Complete source object and final ELF native extents, instructions and actual targets are exact. There is no allocated unit storage; see [F-374-6](findings/374-fa-sdi-usb.md#f-374-6-accepted-memory-helper-source-unit).

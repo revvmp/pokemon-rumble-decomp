@@ -147,3 +147,13 @@ The pinned public THPConv tree also exposes an MSC interface, but its larger pub
 
 - Narrow the native block chunk in each arm of the minimum expression before passing it to the sixteen-bit USB API. Narrowing only after a wider conditional introduces an extra instruction and changes the full extent; the original reference/compiler configuration does not establish a generic minimum helper here.
 - The block-unit text ends at `0x80223E64`; twelve alignment bytes precede SDI at `0x80223E70` and belong outside the text split. Likewise the four-byte bounce-buffer object ends at `0x804B9284`; the next SDI small-BSS start is aligned to `0x804B9288`.
+
+# F-374-6: Accepted memory helper source unit
+
+`RVL_SDK/fa/puh_ker_mem.c` now reconstructs the three memory wrappers at `0x80225420`, `0x80225440` and `0x80225480`. Its split ends at `0x80225488`; following alignment is excluded. The real Ninja-built object has 104 complete text bytes (100 instruction bytes plus four internal padding bytes), no other allocated sections, both actual MEM call targets exact, and all three function extents exact. Source is adapted from the pinned CC0 IPL memory helper with no overriding file notice, using the existing canonical MEM heap interface and unchanged SDK Wii/1.0 flags.
+
+The split-only configure/plain Ninja/frozen verifier baseline passes. NonMatching registration followed by `unitdiff.py` reports all three functions and the whole text at 100%. After source selection, `configure.py --map`, plain Ninja and the explicit frozen verifier all exit 0. The MAP attributes the exact native starts and sizes to `puh_ker_mem.o`; the link input is the source-built object, with no original object for this unit. All final ELF function extents and native instruction payloads independently compare exactly. External `374-audit-real-memory.py`, `memory-kernel-real-object-evidence.json`, and `memory-real-final-elf.json` preserve the direct comparisons. Other #374 candidates remain external diagnostics. This accepts three of the original thirty-five issue rows (100 of 8,172 instruction bytes) and does not complete the issue.
+
+## Traps
+
+- `unitdiff.py` reads generated configuration. Regenerate with `configure.py` after adding an object line before invoking the focused comparison.

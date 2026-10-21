@@ -1055,6 +1055,9 @@ RVL_SDK/fa/sd_drv.c:
 	.bss        start:0x80422BE0 end:0x80422E40
 	.sbss       start:0x804B9240 end:0x804B9268
 
+RVL_SDK/fa/puh_ker_mem.c:
+	.text       start:0x80225420 end:0x80225488
+
 nw4r/ef/ef_draworder.cpp:
 	.text       start:0x80225820 end:0x80225940
 	.data       start:0x803C52D0 end:0x803C52E8
