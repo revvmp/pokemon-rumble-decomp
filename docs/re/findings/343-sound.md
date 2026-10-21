@@ -104,3 +104,11 @@ The preceding home-button owner independently establishes its last initializer e
 
 The bounded shared-header prerequisite is controlled against all actual Ninja-derived source objects and the linked ELF and frozen DOL on the same base, inside official landing verification after every rebase. It introduces no source-selection or split change and does not complete issue343. Detailed source, immutable-object comparisons and receipts are retained in343-reference.
 
+
+## F-343-7: Source-selected CBSPTree unit
+
+The complete class unit spans text801E6700..801E6D44, extab80041348..80041358, extabindex80051FD8..80051FF0 and sdata2 804BA580..804BA588. Its 1,604 allocated text bytes include normal inter-function alignment; only1,592 instruction bytes count as reconstructed code. There are five real methods and no constructor table, retained RTTI, additional data or original-code fallback inside this unit. The source filename CBSPTree.cpp follows the existing canonical class spelling and is inferred rather than an embedded original filename.
+
+The original-only split passes configure, plain Ninja and frozen verification, all exit0. The real NonMatching source object then reports100% for all five functions and all four allocated sections. Independent allocated-section comparison resolves all23 relocations and matches all1,652 bytes exactly, including alignment, both EH records and every exception-index entry. Selecting the object Matching also passes configure, plain Ninja and frozen verification, all exit0. Acceptance inspects the actual Ninja main.elf input edge, a freshly generated linker map and final linked method addresses and bytes; all checks repeat inside official landing verification after every rebase.
+
+This is a complete source-selected utility class, not completion of the original issue. The other three pre-Sound functions and the two documented Sound register contexts remain unfinished. The wide-text draft reaches the native1760/484-byte extents but does not match; its new substring and exception declarations stay outside and are not part of this source change. No speculative string or exception header correction is published.

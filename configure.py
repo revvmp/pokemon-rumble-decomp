@@ -300,6 +300,7 @@ config.libs = [
             Object(NonMatching, "game/Message.cpp"),
             Object(Matching, "game/Locale.cpp"),
             Object(Matching, "game/luckyhelper.cpp"),
+            Object(Matching, "game/CBSPTree.cpp"),
             Object(NonMatching, "game/sound.cpp"),
         ],
     ),
