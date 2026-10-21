@@ -1,6 +1,8 @@
 #ifndef MSL_CPP_COMPRESSED_PAIR_H
 #define MSL_CPP_COMPRESSED_PAIR_H
 
+#include <algorithm>
+
 namespace Metrowerks {
 namespace detail {
 template <class T, bool Small> struct CallTraitsSize {
@@ -44,6 +46,7 @@ public:
     const First& first() const { return mFirst; }
     Second& second() { return mSecond; }
     const Second& second() const { return mSecond; }
+    void swap(CompressedPairStorage& rOther) { std::swap(mFirst, rOther.mFirst); std::swap(mSecond, rOther.mSecond); }
 };
 template <class First, class Second> class CompressedPairStorage<First, Second, 1> : private First {
     Second mSecond;
@@ -55,6 +58,7 @@ public:
     const First& first() const { return *this; }
     Second& second() { return mSecond; }
     const Second& second() const { return mSecond; }
+    void swap(CompressedPairStorage& rOther) { std::swap(mSecond, rOther.mSecond); }
 };
 template <class First, class Second> class CompressedPairStorage<First, Second, 2> : private Second {
     First mFirst;
@@ -66,6 +70,7 @@ public:
     const First& first() const { return mFirst; }
     Second& second() { return *this; }
     const Second& second() const { return *this; }
+    void swap(CompressedPairStorage& rOther) { std::swap(mFirst, rOther.mFirst); }
 };
 template <class First, class Second> class CompressedPairStorage<First, Second, 3> : private First, private Second {
 public:
@@ -75,6 +80,7 @@ public:
     const First& first() const { return *this; }
     Second& second() { return *this; }
     const Second& second() const { return *this; }
+    void swap(CompressedPairStorage& rOther) {  }
 };
 template <class First, class Second> struct PairStorageKind {
     enum {
@@ -93,10 +99,12 @@ public:
     compressed_pair() {}
     explicit compressed_pair(first_param rFirst) : Storage(rFirst) {}
     compressed_pair(first_param rFirst, second_param rSecond) : Storage(rFirst, rSecond) {}
+    void swap(compressed_pair& rOther) { Storage::swap(rOther); }
     using Storage::first;
     using Storage::second;
     const Second& second() const { return Storage::second(); }
 };
+template <class First, class Second> inline void swap(compressed_pair<First, Second>& rLeft, compressed_pair<First, Second>& rRight) { rLeft.swap(rRight); }
 }
 
 #endif
