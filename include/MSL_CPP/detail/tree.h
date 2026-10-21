@@ -807,13 +807,49 @@ public:
     ~red_black_tree() {}
 };
 
-template <typename T, typename Compare, typename Allocator> class tree : public red_black_tree<T, Compare, Allocator> {
+template <typename T, typename Compare, typename Allocator> class tree : private red_black_tree<T, Compare, Allocator> {
     typedef red_black_tree<T, Compare, Allocator> base;
+    typedef tree_imp<T, Compare, Allocator> implementation;
 public:
+    typedef typename base::value_type value_type;
     typedef typename base::size_type size_type;
-    size_type size() const { return base::sz(); }
+    typedef typename base::iterator iterator;
+    typedef typename base::const_iterator const_iterator;
+    using base::node;
+    using base::NodeAllocator;
+    using base::node_allocator;
+    using base::do_lower_bound;
+    using base::comp;
+    using base::end_node;
+    using base::begin_node;
+    using base::root;
+    using base::alloc;
+    using base::node_alloc;
+    using base::sz;
+    using base::front;
+    using base::find_leaf;
+    using base::insert_node_at;
+    using base::destroy;
+    using base::copy;
+    using base::copy_children;
+    using base::swap;
+    using base::erase;
     tree() {}
     ~tree() {}
+    size_type size() const { return base::sz(); }
+    size_type max_size() const { return base::max_size(); }
+    iterator begin() { return implementation::begin(); }
+    const_iterator begin() const { return implementation::begin(); }
+    iterator end() { return implementation::end(); }
+    const_iterator end() const { return implementation::end(); }
+    template <typename Key> iterator find(const Key& rKey) { return implementation::find(rKey); }
+    template <typename Key> const_iterator find(const Key& rKey) const { return implementation::find(rKey); }
+    pair<iterator, bool> insert_one(const value_type& rValue) { return base::insert_one(rValue); }
+    pair<iterator, bool> insert(const value_type& rValue) { return base::insert(rValue); }
+    template <typename Key> T& find_or_insert(const Key& rKey) { return base::find_or_insert(rKey); }
+    void clear() { base::clear(); }
+    void swap(tree& rOther) { base::swap(rOther); }
+    void erase(const_iterator position) { base::erase(position); }
 };
 
 }

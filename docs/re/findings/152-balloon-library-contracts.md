@@ -152,6 +152,15 @@ Reproducible controls and receipts are outside the repository at
 
 ## F-152-6: Original tree algorithm visibility and size roles
 
+The original public tree also forwards `begin`, `end`, and `find` directly
+to storage, and set insertion calls its `insert_one` API. Independent
+MapPiiTable producers reproduce all 29 instruction streams with these
+roles. The compatible adaptation retains the older middle-layer APIs and
+exposes inherited backend types and methods through using declarations.
+Balloon's four-byte public forwarders at 800C94D0, 800C9520, 800C95B0,
+and 800C9760 are named from that primary class role and actual pipeline
+symbols. Current-consumer and linked acceptance remain separate gates.
+
 The recovered original header distinguishes the public `__tree::size`
 method from `__tree_deleter::size`. The existing reconstructed `tree`,
 `red_black_tree`, and `tree_imp` already represent the public, constructor,
