@@ -31,16 +31,20 @@ public:
         T* last_;
     };
 
+    __cdeque_buf() : data_(0), start_(0), size_(0), capacity_(0) {}
     ~__cdeque_buf();
 
     size_type& cap() { return capacity_.first(); }
+    Allocator& alloc() { return capacity_.second(); }
     T& operator[](size_type i) { return data_[(start_ + i) % cap()]; }
 
     size_type size() const { return size_; }
     bool empty() const { return size_ == 0; }
     size_type capacity();
     void reserve(size_type n);
-    void clear();
+    void clear() { pop_back(size_); }
+    void pop_back(size_type n) { pop_back(n, Metrowerks::int2type<Metrowerks::is_POD<T>::value>()); }
+    void pop_back(size_type n, Metrowerks::int2type<true>) { size_ -= n; }
     iterator begin();
     iterator end();
     T& front();
@@ -55,7 +59,16 @@ public:
     Metrowerks::compressed_pair<size_type, Allocator> capacity_;
 };
 
-template <typename T, typename Allocator> class __cdeque_pointer : public __cdeque_buf<void*, allocator<void*> > {
+template <typename T, typename Allocator> __cdeque_buf<T, Allocator>::~__cdeque_buf() {
+    if (data_) {
+        clear();
+        alloc().deallocate(data_, cap());
+    }
+}
+
+template <typename T, typename Allocator> class __cdeque_imp : public __cdeque_buf<T, Allocator> {};
+
+template <typename T, typename Allocator> class __cdeque_pointer : public __cdeque_imp<void*, allocator<void*> > {
     typedef __cdeque_buf<void*, allocator<void*> > base;
 
 public:
@@ -253,8 +266,58 @@ template <typename T, typename Allocator> class __deque_storage : public __deque
 
 template <typename T, typename Allocator> class __deque_container : public __deque_storage<T, Allocator> {};
 
-template <typename T, typename Allocator = allocator<T> > class deque : private __deque_container<T, Allocator> {
-    typedef __deque_imp<T, Allocator> base;
+template <typename T, typename Allocator> class __deque_deleter {
+public:
+    typedef unsigned long size_type;
+    typedef __cdeque<T*, typename Allocator::template rebind<T*>::other> buf_type;
+
+    __deque_deleter() : start_(0), size_(0), buf_() {}
+    ~__deque_deleter();
+
+    size_type start_;
+    size_type size_;
+    Metrowerks::compressed_pair<buf_type, Allocator> buf_;
+};
+
+template <typename T, typename Allocator> __deque_deleter<T, Allocator>::~__deque_deleter() {}
+
+template <typename T, typename Allocator> class __deque_ops : public __deque_deleter<T, Allocator> {
+public:
+    typedef unsigned long size_type;
+    typedef __cdeque<T*, typename Allocator::template rebind<T*>::other> buf_type;
+
+    typedef Metrowerks::int2type<Metrowerks::is_POD<T>::value> pod_type;
+
+    enum { block_size = 1024 / sizeof(T) };
+
+    size_type size() const { return size_; }
+    bool empty() const { return size_ == 0; }
+    buf_type& buf() { return buf_.first(); }
+
+    void push_back(const T& x) { push_back(x, pod_type()); }
+    void push_back(const T& x, Metrowerks::int2type<false>);
+
+    void pop_front() { pop_front(1); }
+    void pop_front(size_type n) { pop_front(n, pod_type()); }
+    void pop_front(size_type n, Metrowerks::int2type<false>);
+
+    T& operator[](size_type n) {
+        size_type i = n + start_;
+        return buf()[i / block_size][i % block_size];
+    }
+};
+
+template <typename T, typename Allocator, bool IsPOD> struct __deque_select {
+    typedef __deque_ops<T, Allocator> type;
+};
+
+template <typename T, typename Allocator> struct __deque_select<T, Allocator, true> {
+    typedef __deque_container<T, Allocator> type;
+};
+
+template <typename T, typename Allocator = allocator<T> >
+class deque : private __deque_select<T, Allocator, __builtin_is_pod(T)>::type {
+    typedef typename __deque_select<T, Allocator, __builtin_is_pod(T)>::type base;
 
 public:
     typedef T value_type;
