@@ -64,3 +64,20 @@ Both units stay `NonMatching`; `configure.py`, `ninja` and `tools/verify/verify.
 - **Explicit tag temporaries change scheduling.** Passing `random_access_iterator_tag()` to a `forward_iterator_tag` parameter moved the tag address load; passing `forward_iterator_tag()` matches the conversion functions.
 - **Bool-returning bitfield tests add `cntlzw`.** `!is_long()` through a `bool` helper inside a conditional expression produced `cntlzw`/`srwi.`; testing the bitfield against 0 directly gives the original `srwi.`/`bne`.
 - **Declaring locals before a call fixes prologue order.** In `Format`, the pointers and argument counter are initialised before `strncpy` in the original; declaring them after the copy cost about 2%.
+
+## F-283-4: pointer dictionaries and the string-copy range
+
+The native narrow and wide allocation paths share the same 96-byte insertion search at `0x80174AD0` and insertion callee `0x800B10A0`. The MSL pointer transformations in `KooShnoo/pokemon-rumble` revision `11c112f7548b26ab2cecfcf52e201b8d3b76120f`, `libs/PowerPC_EABI_Support/MSL/MSL_C++/map`, `tree`, and `msl_utility`, describe pointer keys as `const void*` and pointer mapped values as `unsigned long`. Both dictionaries therefore use the same `pair<const void* const, unsigned long>` backing value, while the public types retain their character-specific pointers. Their wrapper and tree each occupy 12 bytes; iterator copies preserve the native returned insertion pair.
+
+An outside source proposal using these typed maps reproduces every instruction in `AllocString` (404 bytes) and `AllocWString` (408 bytes), with all 20 relocation sites paired to native call targets, globals, and the actual one-byte constants. Its out-of-class insertion-search definition reproduces all 96 bytes at `0x80174AD0`, without relocations. Raw controls are in `C:/MassStorage/GitHub/283-minimal-probe`, with independent auditor `283-audit-minimal.py` in its parent directory. The insertion helper declaration is inferred from actual callers; its body remains owned by the earlier source unit.
+
+The native string copy caches the destination representation classification, then obtains the source pointer and count together before passing the range to `replace`. The additive standard `assign(const basic_string&)` overload expresses that operation without changing the existing assignment operator. The standard API spelling is a source inference; no original inline call spelling was recovered. No extra caller, forced instantiation, compiler flag, or padding data is used.
+
+The first prerequisite changes only `include/map` and `include/string`. It leaves the VM header, bodies, source selectors, splits, and symbols unchanged. On baseline `055a23a367d3b124eb2c753454c31478529fc285`, all 715 declared source objects retain their allocated sections, bytes, sizes, alignment, and normalized relocation identities; 703 whole object files are byte-identical and the remaining 12 differ only outside allocated contents. The linked ELF allocated sections and frozen DOL are identical. Both baseline and proposal pass configure, Ninja, `all_source`, and frozen verification. Raw consumer controls are in `C:/MassStorage/GitHub/283-header-controls`.
+
+The collector remains outside: a typed source proposal is 1404 bytes against native 1400, with remaining iterator lifetime differences. No whole-unit matching, issue completion, or additional source-selected progress is claimed by this prerequisite.
+
+### Traps from F-283-4
+
+- Combining the primary tree `leftmost` helper into the incrementing iterator loses its independent traversal temporary. The separate helper improves the collector comparison from 92.49% to 97.37%; this observation is limited to this compiler and caller.
+- A broad change to existing generic tree increment/erase changes the previously verified engine destructor. Keep new map APIs bounded and verify every existing consumer instead of accepting a better collector score alone.
