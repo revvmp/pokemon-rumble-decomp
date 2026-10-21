@@ -26,6 +26,8 @@ public:
     virtual void OnDetached(BUI* pParent);
     virtual void OnInput(const IUIInput* pInput);
 
+    bool AddChild(const Child& rChild);
+
 private:
     class CCallbackListOwner {
     public:
