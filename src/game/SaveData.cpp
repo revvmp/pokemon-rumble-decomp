@@ -6,6 +6,7 @@
 #include <game/NandAsync.h>
 #include <game/StringFormat.h>
 #include <game/SystemMessage.h>
+#include <NIntl/basic_formatter.h>
 #include <memory>
 #include <revolution/net.h>
 #include <revolution/tpl.h>
@@ -30,6 +31,10 @@ static const int BANNER_ICON_SPEED_END = 0;
 static const int BANNER_ICON_SPEED_FAST = 1;
 
 static const u32 SAVE_FILE_SIZE = 0x34000;
+static const u32 NAND_REQUIRED_BLOCKS = 30;
+static const u32 NAND_REQUIRED_INODES = 5;
+static const u32 NAND_CHECK_BLOCKS_MASK = 5;
+static const u32 NAND_CHECK_INODES_MASK = 0xA;
 static const u16 SAVE_FILE_VERSION = 4;
 
 struct SaveFileHeader {
@@ -453,4 +458,93 @@ int Load(bool backup) {
 
     DeserializeStruct(*sSaveData, pHeader->mDataSize, reinterpret_cast<u8*>(pHeader + 1));
     return LOAD_RESULT_OK;
+}
+
+void DeleteSaveFiles() {
+    WaitNandDelete("banner.bin");
+    WaitNandDelete("savedata.bin");
+    WaitNandDelete("backup/");
+}
+
+bool IsGameFlagSet(int flag) {
+    SlotData& rSlot = sSaveData->mSlotData[sSaveData->mData.mCurrentSlot];
+    return (reinterpret_cast<u8*>(&rSlot.mData)[flag >> 3] & (1 << (flag & 7))) != 0;
+}
+
+void SetFlag(int flag, int value) {
+    SlotData& rSlot = sSaveData->mSlotData[sSaveData->mData.mCurrentSlot];
+    u8& rByte = reinterpret_cast<u8*>(&rSlot.mData)[flag >> 3];
+    int bit = flag & 7;
+    rByte = (rByte & ~(1 << bit)) | (value << bit);
+}
+
+void ResetSlot(int slot) {
+    sSaveData->mSlotData[slot] = SlotData();
+}
+
+SlotData* GetSaveData(int slot) {
+    if (slot != -1) {
+        return &sSaveData->mSlotData[slot];
+    }
+    return &sSaveData->mSlotData[sSaveData->mData.mCurrentSlot];
+}
+
+u8 GetCurrentSlot() {
+    return sSaveData->mData.mCurrentSlot;
+}
+
+void SetCurrentSlot(u8 slot) {
+    sSaveData->mData.mCurrentSlot = slot;
+}
+
+u8 GetOption() {
+    return sSaveData->mData.mOption;
+}
+
+void SetOption(u8 option) {
+    sSaveData->mData.mOption = option;
+}
+
+template <class charT> NIntl::basic_formatter<charT>::basic_formatter(const charT* pFormat) : mFormat(pFormat), mParsed(false) {}
+
+template <class charT> NIntl::basic_formatter<charT>::~basic_formatter() {}
+
+template <typename T> static std::wstring FormatWide(const wchar_t* pFormat, const T& rValue) {
+    NIntl::basic_formatter<wchar_t> formatter(pFormat);
+    return (formatter % rValue).str();
+}
+
+bool CheckNandSpace() {
+    u32 blocks;
+    u32 inodes;
+    s32 result = WaitNandGetHomeDirUsage(&blocks, &inodes);
+    if (result != NAND_RESULT_OK) {
+        ReportNandError(result);
+        return false;
+    }
+
+    blocks = NAND_REQUIRED_BLOCKS - blocks;
+    inodes = NAND_REQUIRED_INODES - inodes;
+    u32 answer;
+    result = WaitNandCheck(blocks, inodes, &answer);
+    if (result != NAND_RESULT_OK) {
+        ReportNandError(result);
+        return false;
+    }
+
+    if ((answer & NAND_CHECK_BLOCKS_MASK) != 0) {
+        u32 neededBlocks = (blocks + 7) >> 3;
+        if (neededBlocks > 1) {
+            std::wstring message = FormatWide(GetMessageText(0x10018, gEmptyText), neededBlocks);
+            ShowSystemMessage(message.c_str(), 2);
+        } else {
+            ShowSystemMessage(GetMessageText(0x10019, gEmptyText), 2);
+        }
+        return false;
+    }
+    if ((answer & NAND_CHECK_INODES_MASK) != 0) {
+        ShowSystemMessage(GetMessageText(0x1001A, gEmptyText), 2);
+        return false;
+    }
+    return true;
 }

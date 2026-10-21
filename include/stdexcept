@@ -7,15 +7,24 @@
 
 namespace std {
 
-class logic_error : public exception {
+class __msl_error {
 public:
-    explicit logic_error(const char* pWhat) : what_(new char[strlen(pWhat) + 1], detail::default_delete<char[]>()) {
-        strcpy(what_.get(), pWhat);
+    explicit __msl_error(const char* pMessage) : message_(new char[strlen(pMessage) + 1], detail::default_delete<char[]>()) {
+        strcpy(message_.get(), pMessage);
     }
-    virtual const char* what() const { return what_.get(); }
+    const char* what() const { return message_.get(); }
 
 private:
-    tr1::shared_ptr<char> what_;
+    tr1::shared_ptr<char> message_;
+};
+
+class logic_error : public exception {
+public:
+    explicit logic_error(const char* pWhat) : message_(pWhat) {}
+    virtual const char* what() const { return message_.what(); }
+
+private:
+    __msl_error message_;
 };
 
 class length_error : public logic_error {

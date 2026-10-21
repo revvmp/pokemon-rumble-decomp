@@ -73,6 +73,18 @@ protected:
             capacity_.second().destroy(p);
         }
     }
+public:
+    void erase_at_end(size_type n) { erase_tail(n, pod_type()); }
+protected:
+    void erase_tail(size_type n, Metrowerks::int2type<false>) {
+        T* p = data_ + size_;
+        size_ -= n;
+        for (; n != 0; --n) {
+            --p;
+            capacity_.second().destroy(p);
+        }
+    }
+    void erase_tail(size_type n, Metrowerks::int2type<true>) { size_ -= n; }
     void erase_at_end(size_type& n, Metrowerks::int2type<true>) { size_ -= n; }
 
 private:
@@ -224,6 +236,44 @@ public:
         this->size_ = n;
     }
 
+    template <typename Iterator> void assign(Iterator first, Iterator last, Metrowerks::int2type<false>) {
+        size_type n = std::distance(first, last);
+        size_type capacity;
+        if (n > this->cap()) {
+            capacity = assign_capacity(n);
+        } else {
+            Iterator mid = first + std::min(n, this->size_);
+            assign_in_place(first, mid, last, n);
+            return;
+        }
+        assign_reallocate(first, last, capacity);
+    }
+
+    size_type assign_capacity(size_type n) { return recommend(n - this->cap(), pod_type()); }
+
+    template <typename Iterator> void assign_in_place(Iterator first, Iterator mid, Iterator last, size_type n) {
+        T* result = this->data_;
+        for (Iterator it = first; it < mid; ++it, ++result) {
+            *result = *it;
+        }
+        if (n < this->size_) {
+            this->erase_at_end(this->size_ - n);
+        } else if (this->size_ < n) {
+            base::construct_at_end(mid, last, pod_type());
+        }
+    }
+
+    template <typename Iterator> void assign_reallocate(Iterator first, Iterator last, size_type capacity) {
+        base::clear();
+        if (this->data_) {
+            this->alloc().deallocate(this->data_, this->cap());
+            this->data_ = nullptr;
+            this->cap() = 0;
+        }
+        base::allocate(capacity);
+        base::construct_at_end(first, last, pod_type());
+    }
+
     template <typename Iterator> static void copy_assign(const Iterator& first, const Iterator& last, T* result) {
         ptrdiff_t n = last - first;
         memmove(result, first, n * sizeof(T));
@@ -324,6 +374,7 @@ protected:
         }
         return maxSize;
     }
+    size_type recommend(size_type n, pod_type) { return recommend(n); }
     size_type grow_capacity(size_type n) { return recommend(this->size_ + n - this->capacity_.first()); }
     bool grow_by(size_type n) {
         size_type capacity;
@@ -354,7 +405,13 @@ protected:
 
     void append(size_type n, pod_type) {
         size_type capacity = this->capacity_.first();
-        if ((n <= capacity && this->size_ <= capacity - n) || grow_by(this->size_ + n - capacity, pod_type())) {
+        if (n <= capacity) {
+            if (this->size_ <= capacity - n) {
+                goto construct;
+            }
+        }
+        if (grow_by(this->size_ + n - capacity, pod_type())) {
+        construct:
             construct_at_end(n, pod_type());
         } else {
             append_realloc(n);
@@ -438,7 +495,7 @@ public:
         if (n > size) {
             this->append(n - size, pod_type());
         } else if (n < size) {
-            this->erase_at_end(size - n, pod_type());
+            this->erase_at_end(size - n);
         }
     }
 

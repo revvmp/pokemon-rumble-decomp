@@ -17,6 +17,7 @@ public:
     ~basic_formatter();
 
     basic_formatter& operator%(const int& rArg);
+    basic_formatter& operator%(const unsigned long& rArg);
 
     basic_formatter& format(const charT* pSpec) {
         mSpec = pSpec;
