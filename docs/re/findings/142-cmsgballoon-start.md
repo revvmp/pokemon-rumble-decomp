@@ -135,7 +135,7 @@ Once #141 splits the file, the template functions (`0x800C6170`–`0x800C6330`, 
 - **`0x801C9FC0` is `BUILayout::AttachChild(name, shared_ptr<BUILayout>)`.** It converts the argument to `shared_ptr<BUI>` for `BUI::AddChild` (`0x801C8E40`), then calls `CLayout` `0x801D5130` on the members at 0x4C if that succeeds. Names are descriptive, medium confidence.
 - **`CUIManager`** is declared in `include/game/CUIManager.h` from F-328-4: `BUI` plus a `weak_ptr<BUI>` at 0x4C, size 0x54. Only the constructor, destructor and virtual overrides are declared; they are defined elsewhere (#327).
 - **Callee names.** The `Init` callees and the 12 helpers were renamed in `symbols.txt` to the mangled names the compiler produces; `lbl_803A50E0` is named as the `shared_ptr_deleter<CMsgBalloon, ...>` vtable, which removes a relocation-name difference in `0x800C6630`.
-- **Literals.** The compiler shares one base register for all `.data` literals of `Init` and emits them in order of use, while the original materializes each address separately and lays the literals out in reverse order of use. The cause is not found; `-str pool`, `-str noreuse`, `-O4,s` and `-inline auto,deferred` do not change it.
+- **Literals.** The compiler shares one base register for all `.data` literals of `Init` and emits them in order of use, while the original materializes each address separately and lays the literals out in reverse order of use. The cause is not found; `-str pool`, `-str noreuse`, `-O4,s` and `-inline auto,deferred` do not change it. Superseded: the members are `inline` ([F-146-2](146-cmsgballoon-warp.md#f-146-2-cmsgballoon-methods-are-inline)), which gives separate per-use literals in reverse order and raises `Init` to 99.36%.
 
 ## Traps
 

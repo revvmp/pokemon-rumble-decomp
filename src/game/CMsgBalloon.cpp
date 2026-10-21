@@ -1,5 +1,6 @@
 #include <game/CMsgBalloon.h>
 
+#include <game/CBattleRoyalData.h>
 #include <game/CPiiPersonalData.h>
 #include <game/CPiiTex.h>
 #include <game/CPlayerPii.h>
@@ -13,6 +14,7 @@
 #include <game/IGameMap.h>
 #include <game/LayoutResources.h>
 #include <game/Message.h>
+#include <game/MessageFormat.h>
 #include <game/StringFormat.h>
 #include <game/IGameSession.h>
 #include <game/MapIndex.h>
@@ -49,9 +51,11 @@ std::tr1::shared_ptr<IMsgBalloon> IMsgBalloon::Create(bool flag) {
     return balloon;
 }
 
-CMsgBalloon::CMsgBalloon() {}
+inline CMsgBalloon::CMsgBalloon() {}
 
-void CMsgBalloon::Init(bool flag) {
+inline CMsgBalloon::~CMsgBalloon() {}
+
+inline void CMsgBalloon::Init(bool flag) {
     mCurrentEntry = nullptr;
     mCurrentIndex = -1;
     mIsShown = false;
@@ -90,7 +94,7 @@ void CMsgBalloon::Init(bool flag) {
     mLayout->GetLayout()->SetVisible(false);
 }
 
-void CMsgBalloon::Show(bool show) {
+inline void CMsgBalloon::Show(bool show) {
     if (mIsShown == show) {
         return;
     }
@@ -112,11 +116,11 @@ void CMsgBalloon::Show(bool show) {
     }
 }
 
-void CMsgBalloon::Draw() {
+inline void CMsgBalloon::Draw() {
     mUIManager->Draw();
 }
 
-void CMsgBalloon::CalcView() {
+inline void CMsgBalloon::CalcView() {
     std::vector<std::tr1::shared_ptr<CPiiTex> >::iterator it;
     if (mCurrentEntry != nullptr && mCurrentEntry->mStageValue != 0xFFFFFFFF) {
         for (it = mModelTextures.begin(); it != mModelTextures.end(); ++it) {
@@ -125,7 +129,7 @@ void CMsgBalloon::CalcView() {
     }
 }
 
-void CMsgBalloon::CalcMtx() {
+inline void CMsgBalloon::CalcMtx() {
     std::vector<std::tr1::shared_ptr<CPiiTex> >::iterator it;
     if (mCurrentEntry != nullptr && mCurrentEntry->mStageValue != 0xFFFFFFFF) {
         for (it = mModelTextures.begin(); it != mModelTextures.end(); ++it) {
@@ -134,7 +138,7 @@ void CMsgBalloon::CalcMtx() {
     }
 }
 
-void CMsgBalloon::Calc() {
+inline void CMsgBalloon::Calc() {
     BWorld* pWorld = GetCurrentGameMap()->GetWorld();
     if (pWorld == nullptr) {
         return;
@@ -176,8 +180,8 @@ void CMsgBalloon::Calc() {
             f32 nearestDistance = 1.0f;
             std::list<Entry>::iterator it;
             for (it = mEntries.begin(); it != mEntries.end(); ++it) {
-                nw4r::math::VEC3 position((*it).mPosition);
-                std::tr1::shared_ptr<BWorldObj> pObject = (*it).mObject.lock();
+                nw4r::math::VEC3 position(it->mPosition);
+                std::tr1::shared_ptr<BWorldObj> pObject = it->mObject.lock();
                 if (pObject) {
                     if (!pObject->IsVisible()) {
                         continue;
@@ -190,7 +194,7 @@ void CMsgBalloon::Calc() {
                 nw4r::math::SinCosFIdx(&sinValue, &cosValue, 0.71111f * pPii->GetRotation());
                 f32 dz = position.z - (rPiiPosition.z + 0.33f * cosValue);
                 f32 dx = position.x - (rPiiPosition.x + 0.33f * sinValue);
-                f32 distance = (dz * dz + dx * dx) * (*it).mDistanceScale;
+                f32 distance = (dz * dz + dx * dx) * it->mDistanceScale;
                 if (distance < nearestDistance) {
                     nearestDistance = distance;
                     pNearest = &*it;
@@ -305,7 +309,7 @@ void CMsgBalloon::Calc() {
     mUIManager->Calc();
 }
 
-void CMsgBalloon::UpdateBalloon(BWorldCamera* pCamera, CLayout* pLayout, bool* pBehind) {
+inline void CMsgBalloon::UpdateBalloon(BWorldCamera* pCamera, CLayout* pLayout, bool* pBehind) {
     nw4r::math::MTX34 viewMtx;
     nw4r::math::MTX44 projectionMtx;
     pCamera->GetG3dCamera().GetCameraMtx(&viewMtx);
@@ -321,5 +325,66 @@ void CMsgBalloon::UpdateBalloon(BWorldCamera* pCamera, CLayout* pLayout, bool* p
     pLayout->UpdateAttachedLayouts();
     if (pBehind != nullptr) {
         *pBehind = position.y <= 0.0f;
+    }
+}
+
+inline void CMsgBalloon::SetupBattleWarp(StageID stageID) {
+    MapIndex& rIndex = reinterpret_cast<MapIndex&>(stageID);
+    int clearCount = GetStageClearCount(rIndex);
+    if (stageID.mKind == 2) {
+        CLayout* pLayout = mWarpLayout->GetLayout();
+        pLayout->SetPaneVisible("BATTLE", false);
+        pLayout->SetPaneVisible("KNOWN", false);
+        pLayout->SetPaneVisible("UNKNOWN", true);
+        pLayout->SetPaneVisible("EXTRA", false);
+        pLayout->SetPaneVisible("CLEAR", false);
+        int progress;
+        if (clearCount > 1) {
+            progress = 9;
+        } else {
+            progress = (s8)GetSaveData(-1)->mData.mStatus[18] * 2 + IsGameFlagSet(30) - 1;
+        }
+        if (progress > 1) {
+            pLayout->SetText("UNKNOWN", FormatMessageString(GetMessageString(0x600CC, L"さいこうきろく {1}-{2}"), progress / 2, progress % 2 + 1).c_str());
+        }
+    } else {
+        float clearTime = IGameSession::GetInstance()->GetBattleRoyalData()->GetRecord(rIndex.mMode, rIndex.mArea)->GetClearTime();
+        int centiseconds = ceil(100.0f * clearTime);
+        bool cleared = clearCount > 0;
+        CLayout* pLayout = mWarpLayout->GetLayout();
+        pLayout->SetPaneVisible("BATTLE", cleared);
+        pLayout->SetPaneVisible("KNOWN", false);
+        pLayout->SetPaneVisible("UNKNOWN", !cleared);
+        pLayout->SetPaneVisible("EXTRA", false);
+        pLayout->SetPaneVisible("CLEAR", cleared);
+        if (cleared) {
+            pLayout->SetText("CLEAR", FormatMessageString(GetMessageString(0x600C7, nullptr), clearCount).c_str());
+            int minutes = centiseconds / 100 / 60;
+            int seconds = centiseconds / 100 % 60;
+            int hundredths = centiseconds % 100;
+            NIntl::basic_formatter<wchar_t> formatter(GetMessageString(0x70010, L"{1}'{2}\"{3}"));
+            formatter % minutes;
+            formatter % L"%02d" % seconds;
+            formatter % L"%02d" % hundredths;
+            pLayout->SetText("TIME", formatter.c_str());
+        }
+    }
+}
+
+inline void CMsgBalloon::SetupStageWarp(StageID stageID) {
+    bool isExtra = stageID.mKind == 2;
+    if (!isExtra) {
+        SetupStageModels(stageID);
+    }
+    int clearCount = GetStageClearCount(reinterpret_cast<MapIndex&>(stageID));
+    bool cleared = clearCount > 0;
+    CLayout* pLayout = mWarpLayout->GetLayout();
+    pLayout->SetPaneVisible("BATTLE", false);
+    pLayout->SetPaneVisible("KNOWN", !isExtra && cleared);
+    pLayout->SetPaneVisible("UNKNOWN", !isExtra && !cleared);
+    pLayout->SetPaneVisible("EXTRA", isExtra);
+    pLayout->SetPaneVisible("CLEAR", clearCount > 0);
+    if (cleared) {
+        pLayout->SetText("CLEAR", FormatMessageString(GetMessageString(0x600C7, nullptr), clearCount).c_str());
     }
 }
