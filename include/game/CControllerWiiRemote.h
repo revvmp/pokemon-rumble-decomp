@@ -11,6 +11,7 @@ public:
     virtual void StartMotor(const MotorPattern& rPattern) const;
     virtual void StopMotor() const;
     virtual const wchar_t* GetButtonSymbol(u32 button) const;
+    bool UsesClassic() const { return mUsesClassic; }
 
 private:
     bool mUsesClassic;
