@@ -275,6 +275,7 @@ config.libs = [
             Object(NonMatching, "game/CStrapReminder.cpp"),
             Object(NonMatching, "game/CTextWorldObjStat.cpp"),
             Object(NonMatching, "game/ScriptCamera.cpp"),
+            Object(NonMatching, "game/ScriptItem.cpp"),
             Object(Matching, "game/ControllerTable.cpp"),
             Object(NonMatching, "game/SaveData.cpp"),
             Object(NonMatching, "game/NPpuVM.cpp"),
