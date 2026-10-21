@@ -5,17 +5,25 @@
 #include <game/CShadowCamera.h>
 #include <game/CKDTree.h>
 #include <game/EffectGroupID.h>
+#include <game/FrameStep.h>
+#include <game/Graphics.h>
 #include <game/MathUtil.h>
 #include <game/Memory.h>
 #include <game/Sound.h>
 #include <game/WorkBuffer.h>
 #include <map>
+#include <nw4r/ef/ef_drawinfo.h>
 #include <nw4r/ef/ef_effectsystem.h>
 #include <nw4r/ef/ef_resource.h>
+#include <nw4r/g3d/g3d_anmscn.h>
 #include <nw4r/g3d/g3d_state.h>
 #include <nw4r/math/math_geometry.h>
 #include <nw4r/snd/snd_Sound3DListener.h>
 #include <revolution/gx.h>
+#include <revolution/gx/GXBump.h>
+#include <revolution/gx/GXTexture.h>
+#include <revolution/gx/GXTransform.h>
+#include <revolution/gx/GXVert.h>
 #include <revolution/mtx.h>
 
 BWorld::Desc::Desc() :
@@ -166,7 +174,7 @@ BWorld::~BWorld() {
         RemoveObject(it->mObj);
     }
 
-    if (mEffectData) {
+    if (HasEffectData()) {
         RemoveAllEffects(TRUE);
         if (mEffectData->mCaptureEnable) {
             mEffectData->mTextureState.Restore();
@@ -681,7 +689,7 @@ CEffect* BWorld::GetEffect(u32 handle) {
 }
 
 u32 BWorld::GetEffectGroupID() const {
-    if (!mEffectData) {
+    if (!HasEffectData()) {
         return EFFECT_GROUP_INVALID;
     }
     if (((mFlags & FLAG_PAUSED) || (mFlags & FLAG_SKIP_STATE_2)) && mEffectData->mPauseGroupID != EFFECT_GROUP_INVALID) {
@@ -691,7 +699,7 @@ u32 BWorld::GetEffectGroupID() const {
 }
 
 u32 BWorld::GetCaptureEffectGroupID() const {
-    if (!mEffectData) {
+    if (!HasEffectData()) {
         return EFFECT_GROUP_INVALID;
     }
     if (((mFlags & FLAG_PAUSED) || (mFlags & FLAG_SKIP_STATE_2)) && mEffectData->mPauseGroupID != EFFECT_GROUP_INVALID) {
@@ -704,7 +712,7 @@ u32 BWorld::GetCaptureEffectGroupID() const {
 }
 
 CEffect* BWorld::CreateEffect(const CEffect::Param& rParam, const nw4r::math::VEC3& rPosition, f32 rotation) {
-    if (!mEffectData) {
+    if (!HasEffectData()) {
         return nullptr;
     }
     std::tr1::shared_ptr<CEffect> effect(new CEffect);
@@ -713,7 +721,7 @@ CEffect* BWorld::CreateEffect(const CEffect::Param& rParam, const nw4r::math::VE
 }
 
 CEffect* BWorld::CreateEffect(const CEffect::Param& rParam, BWorldObj* pFollow) {
-    if (!mEffectData) {
+    if (!HasEffectData()) {
         return nullptr;
     }
     std::tr1::shared_ptr<CEffect> effect(new CEffect);
@@ -722,7 +730,7 @@ CEffect* BWorld::CreateEffect(const CEffect::Param& rParam, BWorldObj* pFollow) 
 }
 
 CEffect* BWorld::CreateEffect(const CEffect::Param& rParam, BWorldObj* pFollow, f32 rotation) {
-    if (!mEffectData) {
+    if (!HasEffectData()) {
         return nullptr;
     }
     std::tr1::shared_ptr<CEffect> effect(new CEffect);
@@ -731,7 +739,7 @@ CEffect* BWorld::CreateEffect(const CEffect::Param& rParam, BWorldObj* pFollow, 
 }
 
 CEffect* BWorld::CreateEffectFollowRotation(const CEffect::Param& rParam, BWorldObj* pFollow, f32 rotation) {
-    if (!mEffectData) {
+    if (!HasEffectData()) {
         return nullptr;
     }
     std::tr1::shared_ptr<CEffect> effect(new CEffect);
@@ -740,7 +748,7 @@ CEffect* BWorld::CreateEffectFollowRotation(const CEffect::Param& rParam, BWorld
 }
 
 CEffect* BWorld::CreateEffect(const CEffect::Param& rParam, BWorldObj* pFollow, BWorldObj* pTarget) {
-    if (!mEffectData) {
+    if (!HasEffectData()) {
         return nullptr;
     }
     std::tr1::shared_ptr<CEffect> effect(new CEffect);
@@ -749,7 +757,7 @@ CEffect* BWorld::CreateEffect(const CEffect::Param& rParam, BWorldObj* pFollow, 
 }
 
 void BWorld::RemoveAllEffects(BOOL retire) {
-    if (!mEffectData) {
+    if (!HasEffectData()) {
         return;
     }
 
@@ -780,7 +788,7 @@ void BWorld::RemoveAllEffects(BOOL retire) {
 }
 
 bool BWorld::RemoveOldestEffect(bool retire) {
-    if (!mEffectData) {
+    if (!HasEffectData()) {
         return false;
     }
 
@@ -837,16 +845,7 @@ void BWorld::Calc() {
     mPendingFrames++;
     mFlags = (mFlags & ~(FLAG_PAUSE_REQUESTED | FLAG_RESUME_REQUESTED)) | FLAG_IN_CALC;
 
-    u32 skipStates = 0;
-    if (mFlags & FLAG_SKIP_STATE_2) {
-        skipStates |= 2;
-    }
-    if (mFlags & FLAG_SKIP_STATE_4) {
-        skipStates |= 4;
-    }
-    if (mFlags & FLAG_PAUSED) {
-        skipStates |= 0x10;
-    }
+    u32 skipStates = GetSkipStates();
 
     std::vector<ObjEntry>::iterator it = mObjEntries.begin();
     u32 lastHandle = mLastObjHandle;
@@ -880,4 +879,399 @@ void BWorld::Calc() {
             GetSound3DListener().SetMatrix(mtx);
         }
     }
+}
+
+namespace {
+
+inline void RemoveAllChildren(nw4r::g3d::ScnGroup* pGroup) {
+    while (!pGroup->Empty()) {
+        pGroup->PopBack();
+    }
+}
+
+inline void SetCopyClear(GXColor color, GXPixelFmt pixelFormat) {
+    Graphics::SetCopyClear(color, 0xFFFFFF, pixelFormat);
+}
+
+inline void SetupFlatColor(nw4r::ut::Color color) {
+    GXSetNumTexGens(0);
+    GXSetNumChans(1);
+    GXSetNumTevStages(1);
+    GXSetNumIndStages(0);
+    GXSetChanCtrl(GX_COLOR0A0, GX_FALSE, GX_SRC_REG, GX_SRC_REG, GX_LIGHT_NULL, GX_DF_NONE, GX_AF_NONE);
+    GXSetChanCtrl(GX_COLOR1A1, GX_FALSE, GX_SRC_REG, GX_SRC_REG, GX_LIGHT_NULL, GX_DF_NONE, GX_AF_NONE);
+    GXSetChanAmbColor(GX_COLOR0A0, color);
+    GXSetChanMatColor(GX_COLOR0A0, color);
+    GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD_NULL, GX_TEXMAP_NULL, GX_COLOR0A0);
+    GXSetTevOp(GX_TEVSTAGE0, GX_PASSCLR);
+    GXSetTevDirect(GX_TEVSTAGE0);
+    GXSetZMode(GX_TRUE, GX_LEQUAL, GX_TRUE);
+    GXSetBlendMode(GX_BM_NONE, GX_BL_ZERO, GX_BL_ZERO, GX_LO_COPY);
+}
+
+}
+
+void BWorld::CalcMtx() {
+    if (mPendingFrames == 0) {
+        return;
+    }
+
+    FrameStepScope frameStep;
+    gFrameStep = mPendingFrames;
+
+    u32 skipStates = GetSkipStates();
+
+    for (std::vector<ObjEntry>::iterator it = mObjEntries.begin(); it != mObjEntries.end(); ++it) {
+        BWorldObj* pObj = it->mObj.get();
+        if (pObj != nullptr && !(pObj->mState & skipStates)) {
+            pObj->CalcMtx();
+        }
+    }
+
+    RemoveAllChildren(mScnRoot.get());
+    mScnRoot->PushBack(mModelGroup.get());
+    mScnRoot->PushBack(mOutlineGroup.get());
+
+    nw4r::g3d::FrameCtrl::SetBaseUpdateRate(60.0f * gFrameStep / 60.0f);
+
+    if (nw4r::g3d::AnmScn* pAnmScn = mScnRoot->GetAnmScn()) {
+        pAnmScn->UpdateFrame();
+    }
+    mScnRoot->CalcWorld();
+    mScnRoot->CalcVtx();
+    mScnRoot->CalcMaterial();
+
+    if (HasEffectData()) {
+        for (std::vector<std::tr1::shared_ptr<CEffect> >::iterator it = mEffectData->mEffects.begin();
+             it != mEffectData->mEffects.end(); ++it) {
+            if (*it) {
+                (*it)->CalcMtx();
+                if ((*it)->IsFinished()) {
+                    it->reset();
+                }
+            }
+        }
+    }
+}
+
+void BWorld::CalcView() {
+    FrameStepScope frameStep;
+    gFrameStep = mPendingFrames;
+    mPendingFrames = 0;
+
+    for (ObjEntry* pEntry = mObjHead; pEntry != nullptr; pEntry = GetNextEntry(pEntry)) {
+        pEntry->mObj->UpdateVisible();
+    }
+}
+
+namespace {
+
+void DrawFrame(int width, int height);
+void DrawTexture(int width, int height, const GXTexObj* pTexObj);
+
+}
+
+void BWorld::Draw() {
+    Graphics::ResetState();
+
+    GXPixelFmt pixelFormat;
+    switch (mDrawType) {
+    default:
+        pixelFormat = GX_PF_RGB8_Z24;
+        break;
+    case DRAW_TYPE_OUTLINE:
+    case DRAW_TYPE_OUTLINE_ALPHA:
+    case DRAW_TYPE_ALPHA:
+        pixelFormat = GX_PF_RGBA6_Z24;
+        break;
+    }
+
+    GXColor black = {0, 0, 0, 0};
+    DrawShadow(black, pixelFormat);
+    Graphics::SetPixelFormat(pixelFormat, GX_ZC_LINEAR);
+
+    int cameraIndex = 0;
+    BWorldCamera* pCurrentCamera = mCurrentCamera.lock().get();
+    if (pCurrentCamera != nullptr) {
+        cameraIndex = pCurrentCamera->GetIndex();
+    }
+    nw4r::g3d::Camera camera = mScnRoot->GetCamera(cameraIndex);
+    mScnRoot->SetCurrentCamera(cameraIndex);
+
+    RemoveAllChildren(mScnRoot.get());
+    mScnRoot->PushBack(mModelGroup.get());
+    mScnRoot->PushBack(mOutlineGroup.get());
+    mScnRoot->CalcView();
+
+    RemoveAllChildren(mScnRoot.get());
+    mScnRoot->PushBack(mOutlineGroup.get());
+    mScnRoot->GatherDrawScnObj();
+    mScnRoot->ZSort();
+
+    GXSetColorUpdate(GX_TRUE);
+    switch (mDrawType) {
+    default:
+        GXSetAlphaUpdate(GX_FALSE);
+        break;
+    case DRAW_TYPE_OUTLINE:
+    case DRAW_TYPE_OUTLINE_ALPHA:
+    case DRAW_TYPE_ALPHA:
+        GXSetAlphaUpdate(GX_TRUE);
+        break;
+    }
+    nw4r::g3d::G3DState::Invalidate(0x7FF);
+    mScnRoot->DrawOpa();
+    if (mOutlineData) {
+        mOutlineData->mTexture.CopyFromEFB(GX_CTF_A8, false);
+    }
+    mScnRoot->DrawXlu();
+
+    RemoveAllChildren(mScnRoot.get());
+    mScnRoot->PushBack(mModelGroup.get());
+    mScnRoot->GatherDrawScnObj();
+    mScnRoot->ZSort();
+
+    GXSetColorUpdate(GX_TRUE);
+    switch (mDrawType) {
+    default:
+        GXSetAlphaUpdate(GX_FALSE);
+        break;
+    case DRAW_TYPE_ALPHA:
+        GXSetAlphaUpdate(GX_TRUE);
+        break;
+    }
+    nw4r::g3d::G3DState::Invalidate(0x7FF);
+    mScnRoot->DrawOpa();
+    mScnRoot->DrawXlu();
+
+    if (mOutlineData) {
+        DrawOutline();
+    }
+
+    if (HasEffectData()) {
+        camera.GXSetViewport();
+        camera.GXSetProjection();
+        camera.GXSetScissor();
+        camera.GXSetScissorBoxOffset();
+
+        nw4r::math::MTX34 cameraMtx;
+        camera.GetCameraMtx(&cameraMtx);
+        nw4r::math::VEC3 cameraPos;
+        camera.GetPosition(&cameraPos);
+
+        nw4r::ef::EffectSystem* pSystem = nw4r::ef::EffectSystem::GetInstance();
+        pSystem->SetProcessCamera(cameraPos, cameraMtx, camera.ref().projNear, camera.ref().projFar);
+
+        int steps = gFrameStep * 60 / 60;
+        if (!(mFlags & FLAG_SKIP_STATE_4)) {
+            for (int i = 0; i < steps; i++) {
+                if (!(mFlags & FLAG_PAUSED) && !(mFlags & FLAG_SKIP_STATE_2)) {
+                    pSystem->Calc(mEffectData->mGroupID, 0);
+                    if (mEffectData->mCaptureGroupID != EFFECT_GROUP_INVALID) {
+                        pSystem->Calc(mEffectData->mCaptureGroupID, 0);
+                    }
+                }
+                if (mEffectData->mPauseGroupID != EFFECT_GROUP_INVALID) {
+                    pSystem->Calc(mEffectData->mPauseGroupID, 0);
+                }
+            }
+        }
+
+        GXLoadPosMtxImm(cameraMtx, GX_PNMTX0);
+        GXSetCurrentMtx(GX_PNMTX0);
+        camera.GXSetProjection();
+
+        nw4r::ef::DrawInfo drawInfo;
+        nw4r::math::MTX34 viewMtx;
+        camera.GetCameraMtx(&viewMtx);
+        drawInfo.SetViewMtx(viewMtx);
+
+        const nw4r::g3d::CameraData& rData = camera.ref();
+        switch (rData.flags & (nw4r::g3d::CameraData::FLAG_PROJ_FRUSTUM | nw4r::g3d::CameraData::FLAG_PROJ_PERSP |
+                               nw4r::g3d::CameraData::FLAG_PROJ_ORTHO)) {
+        case nw4r::g3d::CameraData::FLAG_PROJ_FRUSTUM: {
+            nw4r::math::MTX34 projMtx;
+            f32 near = rData.projNear;
+            f32 right = rData.projRight;
+            f32 left = rData.projLeft;
+            f32 bottom = rData.projBottom;
+            f32 top = rData.projTop;
+            C_MTXLightFrustum(projMtx, top, bottom, left, right, near, 0.5f, -0.5f, 0.5f, 0.5f);
+            drawInfo.SetProjMtx(projMtx);
+            break;
+        }
+        case nw4r::g3d::CameraData::FLAG_PROJ_PERSP: {
+            nw4r::math::MTX34 projMtx;
+            f32 aspect = rData.projAspect;
+            f32 fovy = rData.projFovy;
+            C_MTXLightPerspective(projMtx, fovy, aspect, 0.5f, -0.5f, 0.5f, 0.5f);
+            drawInfo.SetProjMtx(projMtx);
+            break;
+        }
+        }
+
+        pSystem->Draw(drawInfo, mEffectData->mGroupID);
+        if (mEffectData->mPauseGroupID != EFFECT_GROUP_INVALID) {
+            pSystem->Draw(drawInfo, mEffectData->mPauseGroupID);
+        }
+        if (mEffectData->mCaptureEnable) {
+            mEffectData->mCaptureTexture.CopyFromEFB(false);
+        }
+        if (mEffectData->mCaptureGroupID != EFFECT_GROUP_INVALID) {
+            pSystem->Draw(drawInfo, mEffectData->mCaptureGroupID);
+        }
+    }
+
+    SetCopyClear(GXColor(), GX_PF_RGBA6_Z24);
+}
+
+namespace {
+
+void DrawFrame(int width, int height) {
+    nw4r::g3d::CameraData cameraData;
+    nw4r::g3d::Camera camera(&cameraData);
+    camera.Init();
+    camera.SetOrtho(0.0f, height, 0.0f, width, 0.0f, -1.0f);
+    camera.SetViewport(0.0f, 0.0f, width, height);
+    camera.GXSetViewport();
+    camera.GXSetProjection();
+    camera.GXSetScissor();
+    camera.GXSetScissorBoxOffset();
+
+    SetupFlatColor(nw4r::ut::Color(0));
+    GXSetZMode(GX_TRUE, GX_ALWAYS, GX_TRUE);
+
+    Mtx identity;
+    PSMTXIdentity(identity);
+    GXLoadPosMtxImm(identity, GX_PNMTX0);
+    GXClearVtxDesc();
+    GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
+    GXSetVtxAttrFmt(GX_VTXFMT7, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
+    GXSetLineWidth(6, GX_TO_ZERO);
+
+    f32 bottom = height;
+    f32 right = width;
+    GXSetCurrentMtx(GX_PNMTX0);
+    GXBegin(GX_LINESTRIP, GX_VTXFMT7, 5);
+    GXPosition3f32(0.5f, 0.5f, 0.0f);
+    GXPosition3f32(right, 0.5f, 0.0f);
+    GXPosition3f32(right, bottom, 0.0f);
+    GXPosition3f32(0.5f, bottom, 0.0f);
+    GXPosition3f32(0.5f, 0.5f, 0.0f);
+}
+
+void DrawTexture(int width, int height, const GXTexObj* pTexObj) {
+    nw4r::g3d::CameraData cameraData;
+    nw4r::g3d::Camera camera(&cameraData);
+    camera.Init();
+    camera.SetOrtho(0.0f, height, 0.0f, width, 0.0f, -1.0f);
+    camera.SetViewport(0.0f, 0.0f, width, height);
+    camera.GXSetViewport();
+    camera.GXSetProjection();
+    camera.GXSetScissor();
+    camera.GXSetScissorBoxOffset();
+
+    GXSetNumChans(1);
+    GXSetTexCoordGen2(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY, GX_FALSE, GX_PTIDENTITY);
+    GXSetNumTexGens(1);
+    GXLoadTexObj(pTexObj, GX_TEXMAP0);
+    GXSetNumTevStages(1);
+    GXSetNumIndStages(0);
+    GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR_NULL);
+    GXSetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_ZERO, GX_CC_ZERO, GX_CC_ZERO);
+    GXSetTevColorOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, GX_FALSE, GX_TEVPREV);
+    GXSetTevAlphaIn(GX_TEVSTAGE0, GX_CA_ZERO, GX_CA_ZERO, GX_CA_ZERO, GX_CA_TEXA);
+    GXSetTevAlphaOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, GX_TRUE, GX_TEVPREV);
+    GXSetTevDirect(GX_TEVSTAGE0);
+    GXSetBlendMode(GX_BM_NONE, GX_BL_ZERO, GX_BL_ZERO, GX_LO_COPY);
+    GXSetZMode(GX_TRUE, GX_LEQUAL, GX_TRUE);
+    GXSetZMode(GX_TRUE, GX_ALWAYS, GX_TRUE);
+
+    Mtx identity;
+    PSMTXIdentity(identity);
+    GXLoadPosMtxImm(identity, GX_PNMTX0);
+    GXSetVtxAttrFmt(GX_VTXFMT7, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
+    GXSetVtxAttrFmt(GX_VTXFMT7, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
+    GXClearVtxDesc();
+    GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
+    GXSetVtxDesc(GX_VA_TEX0, GX_DIRECT);
+
+    f32 bottom = height;
+    f32 right = width;
+    GXSetCurrentMtx(GX_PNMTX0);
+    GXBegin(GX_TRIANGLEFAN, GX_VTXFMT7, 4);
+    GXPosition3f32(0.0f, 0.0f, 0.0f);
+    GXTexCoord2f32(0.0f, 0.0f);
+    GXPosition3f32(right, 0.0f, 0.0f);
+    GXTexCoord2f32(1.0f, 0.0f);
+    GXPosition3f32(right, bottom, 0.0f);
+    GXTexCoord2f32(1.0f, 1.0f);
+    GXPosition3f32(0.0f, bottom, 0.0f);
+    GXTexCoord2f32(0.0f, 1.0f);
+}
+
+}
+
+bool BWorld::DrawShadow(GXColor clearColor, GXPixelFmt pixelFormat) {
+    CShadowCamera* pShadowCamera = mShadowCamera.lock().get();
+    if (pShadowCamera == nullptr || !pShadowCamera->IsVisible()) {
+        return false;
+    }
+
+    Graphics::SetPixelFormat(GX_PF_RGBA6_Z24, GX_ZC_LINEAR);
+    mScnRoot->SetCurrentCamera(pShadowCamera->GetIndex());
+    GXSetColorUpdate(GX_FALSE);
+    GXSetAlphaUpdate(GX_TRUE);
+
+    RemoveAllChildren(mScnRoot.get());
+    mScnRoot->PushBack(mOutlineGroup.get());
+    mScnRoot->CalcView();
+    mScnRoot->GatherDrawScnObj();
+    mScnRoot->ZSort();
+
+    if (pShadowCamera->IsTextureAlpha()) {
+        mScnRoot->DrawXlu();
+        mScnRoot->DrawOpa();
+    } else {
+        mScnRoot->ForceDrawMode(true, nw4r::g3d::RESMDL_DRAWMODE_IGNORE_MATERIAL);
+
+        nw4r::ut::Color shadowColor(0, 0, 0, pShadowCamera->GetAlpha());
+        SetupFlatColor(shadowColor);
+        mScnRoot->DrawXlu();
+        mScnRoot->DrawOpa();
+        mScnRoot->ForceDrawMode(false, nw4r::g3d::RESMDL_DRAWMODE_DEFAULT);
+    }
+
+    CaptureTexture& rFirstTexture = pShadowCamera->GetTexture(0);
+    DrawFrame(rFirstTexture.GetWidth(), rFirstTexture.GetHeight());
+
+    const GXRenderModeObj* pRenderMode = nw4r::g3d::G3DState::GetRenderModeObj();
+    GXSetCopyFilter(GX_FALSE, nullptr, GX_FALSE, nullptr);
+
+    int levels = pShadowCamera->GetTextureLevels();
+    if (levels == 1) {
+        SetCopyClear(clearColor, pixelFormat);
+    } else {
+        SetCopyClear(GXColor(), GX_PF_RGBA6_Z24);
+    }
+    pShadowCamera->GetTexture(0).CopyFromEFB(GX_CTF_A8, true);
+    GXInvalidateTexAll();
+
+    for (int i = 1; i < levels; i++) {
+        CaptureTexture& rTexture = pShadowCamera->GetTexture(i);
+        u16 width = rTexture.GetWidth();
+        u16 height = rTexture.GetHeight();
+        DrawTexture(width, height, &pShadowCamera->GetTexture(i - 1).GetTexObj());
+        if (i == levels - 1) {
+            DrawFrame(width, height);
+            SetCopyClear(clearColor, pixelFormat);
+        } else {
+            SetCopyClear(GXColor(), GX_PF_RGBA6_Z24);
+        }
+        rTexture.CopyFromEFB(GX_CTF_A8, true);
+        GXInvalidateTexAll();
+    }
+
+    GXSetCopyFilter(pRenderMode->aa, pRenderMode->sample_pattern, GX_TRUE, pRenderMode->vfilter);
+    return true;
 }
