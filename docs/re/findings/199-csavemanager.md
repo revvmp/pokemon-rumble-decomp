@@ -43,11 +43,31 @@ The three Japanese messages (`0x1001C`, `0x1001B`, `0x10021`) are passed as fall
 
 ## F-199-3: what is left
 
-- **The unit stays `NonMatching`.** It covers #199 to #206 (243 functions, 15,256 code bytes). This issue's 27 functions are reconstructed; the other 216 are not.
+- **The unit stays `NonMatching`.** It covers #199 to #206 (243 functions, 15,256 code bytes). This issue's 27 functions are reconstructed (26 at 100%, `Work` at 99.95%); the other 216 are not. #199 is closed on the same terms as #142, whose `NonMatching` unit also spans neighbouring issues.
 - **`Work` 99.95%.** Two instructions load the second and third message from the pool with `addi rX, r28, 0x80` and `0x118`. The original object carries a dtk-synthesised `R_PPC_NONE` relocation with that addend on both; the compiled object cannot have one, so objdiff reports an argument mismatch. The opcodes and operands are identical.
 - **`Work` is kept alive with `#pragma force_active`.** It is referenced only by the bound `mem_fn` that `StartWork` (`0x80108DC0`, #200) builds; until that and the vtable owners exist, nothing in the source references it and the compiler would drop it. Remove the pragma when `StartWork` is written.
 - **`vector` push_back chain.** The out-of-line `__vec_constructor<void*>::push_back` (`0x80108AB0`) is the plain `size < cap` test; the `grow_by(1, pod_type())` branch seen in `BWorld.cpp`'s inlined copy belongs one level down, in `push_back_realloc(x, int2type<true>)` (`0x8010A8A0`, 89% here), which falls back to `append_realloc(1, x)` (`0x8010BF40`, the split-buffer body moved there). `include/vector` is restructured that way; `BWorld`, `CEffect` and `CDlgPiiSelector` scores are unchanged or better.
 - **Scaffolding.** `include/queue` and the `empty`, `front`, `pop_front` additions to `include/deque` give the `queue<WorkType>` chain of `0x80108B80`-`0x80108CF0`. Only `empty` is credited; the original `front` and `pop` chains have one more wrapper level and a different `pop_front` (`0x80108CF0` calls an erase helper `0x80108D00` with a `pod_type` tag), which #200 should rework.
+
+## F-199-4: map of the other 216 functions
+
+Recorded for the owners of #200 to #206; identifications are from call graphs and vtables, names are descriptive.
+
+| Address | What it is |
+| --- | --- |
+| `0x80108BB0`-`0x80108CF0` | `queue<WorkType>::front` and `pop` chains over `deque`; `0x80108BE0` is the body (`buf()[start_ / 256][start_ % 256]` through `__cdeque_buf::operator[]` at `0x80108C70`). `pop_front` is `0x80108CF0` (`li r4, 1`) calling `0x80108D00`, which tags `int2type<false>` and calls the erase helper `0x8010A5D0` |
+| `0x80108D30` | `WaitIdle`: `while (mFiber && !mFiber->IsFinished()) YieldFiber();` through `shared_ptr` bool (`0x80108D90`) and `operator->` (`0x80108DB0`) |
+| `0x80108DC0` | `StartWork(WorkType)`: copies the 12-byte member-pointer constant `.data` `0x803AD2AC` (`{0, -1, Work}`), builds `bound_func<void, mem_fn_1<void, CSaveManager, WorkType>, tuple<CSaveManager*, WorkType, nat x8>>` into a `function<void()>`, then `mFiber.reset(new CFiber(f, 0x8000))` (`0x370` bytes; the `CFiber(const function<void()>&, u32) throw()` constructor `0x80108EA0` runs `Initialize` and `Start`; its vptr is at 0x368) |
+| `0x80109510`, `0x80109620`-`0x80109650`, `0x801096B0` | `ISaveManager` slots: `LoadSync` is `WaitIdle(); StartWork(1); WaitIdle();`; `RequestSave`, `RequestSaveWithoutBackup`, `RequestSaveCommitOnly` and `RequestDelete` call `0x80109550` with 2, 3, 4 and 5, which pushes onto the queue when the fiber is running and otherwise calls `StartWork`; `IsIdle` (`0x80109650`) is `!mFiber || mFiber->IsFinished()` |
+| `0x801096C0`, `0x801097A0` | `Calc` (resume the fiber, then slot 1 of the layout and of the message window) and `Draw` (slot 4 of both) |
+| `0x80109820`, `0x80109880` | Factory (`new CSaveManager`, 0x34 bytes, into a `shared_ptr<ISaveManager>`) and the constructor, which stores `this` in `.sbss` `0x804B9070`; `0x8010A0A0` returns that pointer; `0x8010A0B0` is the deleting destructor |
+| `0x80109920`-`0x80109E80`, `0x8010A150` | `ISaveManager` deleting destructor, `deque` default constructor chain (`0x801099A0`-`0x80109B50`), `deque` deleting destructors (`0x80109B80`-`0x80109E20`) and `~deque` (`0x8010A150`, frees each 0x400-byte block) |
+| `0x80109E80`-`0x8010AA90` | `shared_ptr<CSaveManager>` constructor and `shared_ptr_deleter` instances (vtable `.data` `0x803AD2C8`), `function_imp` for the bound member (vtable `0x803AD380`, `clone` `0x8010A920`, `clone(buf)` `0x8010A970`, `operator()` `0x8010A9E0`) |
+| `0x8010A260`, `0x8010A330`, `0x8010A5D0` | `deque::push_back`, `deque` grow at end (0x294, throws `"deque length error"`), and the erase-at-front helper |
+| `0x8010AC50`-`0x8010B800` | `vector<void*>::insert(pos, first, last)` chain over `__deque_iterator` ranges (five forwarding layers, `0x8010AE20` is 0x358 bytes) and its iterator helpers |
+| `0x8010B840`-`0x8010C488` | `function_imp` destructor and clone, `shared_ptr_deleter<CLayout>` and `<char[]>` support, and the remaining `vector<void*>` helpers (`reallocate`, `swap`, `allocate`, `max_size`) |
+
+Matching this needs the Metrowerks `deque` and range-insert code, which is not in the repository; `include/deque` has only the pieces `Work` reaches.
 
 ## Traps
 
