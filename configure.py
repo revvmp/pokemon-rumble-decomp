@@ -285,6 +285,7 @@ config.libs = [
             Object(Matching, "game/GameLoop.cpp"),
             Object(Matching, "game/Random.cpp"),
             Object(Matching, "game/CFiber.cpp"),
+            Object(NonMatching, "game/CLayout.cpp"),
             Object(NonMatching, "game/CFileData.cpp"),
             Object(Matching, "game/CResFont.cpp"),
             Object(Matching, "game/CRomFont.cpp"),
