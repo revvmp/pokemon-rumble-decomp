@@ -1,0 +1,23 @@
+#ifndef _QUEUE
+#define _QUEUE
+
+#include <deque>
+
+namespace std {
+
+template <typename T, typename Container = deque<T> > class queue {
+public:
+    typedef unsigned long size_type;
+
+    bool empty() const { return c.empty(); }
+    size_type size() const { return c.size(); }
+    T& front() { return c.front(); }
+    void pop() { c.pop_front(); }
+
+protected:
+    Container c;
+};
+
+}
+
+#endif

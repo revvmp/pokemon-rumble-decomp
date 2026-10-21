@@ -67,6 +67,7 @@ public:
     std::tr1::shared_ptr<CMotionProgram> CreateMotion(const char* pName) { return CreateMotion(pName, spDefaultMotionPane, 0.0f, 1.0f); }
     std::tr1::shared_ptr<CMotionProgram> CreateMotion(const char* pName, nw4r::lyt::Pane* pPane, f32 startFrame, f32 rate);
     std::tr1::shared_ptr<CMotionProgram> CreateMotion(const char* pName, const char* pPaneName, f32 startFrame, f32 rate);
+    std::tr1::shared_ptr<CMotionProgram> QueueMotion(const char* pName) { return QueueMotion(pName, spDefaultMotionPane, 0.0f, 1.0f); }
     std::tr1::shared_ptr<CMotionProgram> QueueMotion(const char* pName, nw4r::lyt::Pane* pPane, f32 startFrame, f32 rate);
     std::tr1::shared_ptr<CMotionProgram> QueueMotion(const char* pName, const char* pPaneName, f32 startFrame, f32 rate);
     u16 GetMotionLength(const char* pName);

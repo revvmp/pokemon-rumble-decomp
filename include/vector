@@ -179,9 +179,6 @@ protected:
         if (this->size_ < this->cap()) {
             ++this->size_;
             back() = x;
-        } else if (grow_by(1, pod_type())) {
-            ++this->size_;
-            back() = x;
         } else {
             push_back_realloc(x);
         }
@@ -199,8 +196,17 @@ protected:
     void push_back_realloc(const T& x) { push_back_realloc(x, pod_type()); }
     void push_back_realloc(const T& x, Metrowerks::int2type<false>);
     void push_back_realloc(const T& x, Metrowerks::int2type<true>) {
+        if (grow_by(1, pod_type())) {
+            ++this->size_;
+            back() = x;
+        } else {
+            append_realloc(1, x);
+        }
+    }
+
+    void append_realloc(size_type n, const T& x) {
         __vec_split_buffer<T, Allocator> buffer(this->capacity_.second());
-        size_type capacity = grow_by(1);
+        size_type capacity = grow_by(n);
         if (capacity > max_size()) {
             __throw_vector_length_error();
         }
