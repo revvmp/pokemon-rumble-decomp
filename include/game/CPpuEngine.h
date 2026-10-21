@@ -17,6 +17,7 @@
 class BWorld;
 class BWorldObj;
 class CFileData;
+struct PiiSpeciesData;
 class CPiiPersonalData;
 
 class CPpuEngine : public NPpu::CEngine, public ICalc, public std::tr1::enable_shared_from_this<CPpuEngine> {
@@ -59,6 +60,7 @@ public:
     bool Load(BWorldObj* pOwner, const char* pName, int mode, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnv);
     bool Execute(const char* pName, int mode, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnv);
     BWorldObj* PopWorldObj();
+    const PiiSpeciesData* PopSpeciesData();
     std::tr1::shared_ptr<CPiiPersonalData> PopPersonalData();
     u32 PeekWorldObjType(int argIndex);
     bool HasCallback(int messageID) const;

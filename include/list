@@ -205,6 +205,7 @@ public:
         insert_dispatch(first, last, Metrowerks::int2type<0>());
     }
 
+    void push_front(const T& x) { this->insert(this->begin(), x); }
     void push_back(const T& x);
 
 private:
@@ -258,6 +259,7 @@ public:
 
     using base::begin;
     using base::end;
+    using base::push_front;
     size_type size() const { return this->size_ref(); }
     bool empty() const { return this->size_.second() == 0; }
     T& front() { return *begin(); }
