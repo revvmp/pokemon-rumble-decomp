@@ -3,7 +3,7 @@
 
 #include <string>
 #include <vector>
-#include <wctype.h>
+#include <MSL_C/ctype.h>
 
 namespace NIntl {
 
@@ -17,8 +17,17 @@ public:
 
     explicit basic_formatter(const CharT* pFormat) : mFormat(pFormat), mFormatted(false) {}
 
+    struct format_spec {
+        explicit format_spec(const CharT* pSpec) : mpSpec(pSpec) {}
+        const CharT* mpSpec;
+    };
+
+    basic_formatter& operator%(const format_spec& rSpec) {
+        mScratch = rSpec.mpSpec;
+        return *this;
+    }
     basic_formatter& operator%(const CharT* pArg);
-    basic_formatter& operator%(int arg);
+    basic_formatter& operator%(const int& rArg);
 
     const string_type& str() {
         if (!mFormatted) {
@@ -26,26 +35,28 @@ public:
             mFormatted = false;
             unsigned long maxIndex = 0;
             for (unsigned long i = 0; i < mFormat.size(); i++) {
-                if (mFormat[i] == '{') {
-                    if (i + 2 >= mFormat.size() || !iswdigit(mFormat[i + 1]) || mFormat[i + 2] != '}') {
+                int c = mFormat[i];
+                if (c == '{') {
+                    if (i + 2 >= mFormat.size() || !isdigit(mFormat[i + 1]) || mFormat[i + 2] != '}') {
                         throw InvalidFormatException();
-                    }
-                    unsigned long index = mFormat[i + 1] - '0';
-                    if (index < 1) {
-                        throw InvalidFormatException();
-                    }
-                    if (maxIndex < index) {
-                        maxIndex = index;
-                    }
-                    if (index >= 1 && index <= mArgs.size()) {
-                        const string_type& rArg = mArgs[index - 1];
-                        mResult.append(rArg.begin(), rArg.end());
                     } else {
-                        throw TooFewArgsException();
+                        unsigned long index = mFormat[i + 1] - '0';
+                        if (index < 1) {
+                            throw InvalidFormatException();
+                        }
+                        if (maxIndex < index) {
+                            maxIndex = index;
+                        }
+                        if (index >= 1 && index <= mArgs.size()) {
+                            mResult.append(mArgs[index - 1]);
+                        } else {
+                            throw TooFewArgsException();
+                        }
+                        i += 2;
                     }
-                    i += 2;
                 } else {
-                    mResult.append(&mFormat[i], &mFormat[i] + 1);
+                    CharT ch = c;
+                    mResult.append(&ch, &ch + 1);
                 }
             }
             mFormatted = true;
