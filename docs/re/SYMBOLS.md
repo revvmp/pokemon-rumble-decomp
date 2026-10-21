@@ -3076,3 +3076,5 @@ Original RTTI names BUI (`0x4C`) and BUILayout (`0x134`) identify ICalcDraw/enab
 ## CLayout attachment owner correction (#329)
 
 [F-329-3](findings/329-clayout-attachment.md) supersedes the DC/E0 exception-callback interpretation: native allocation and control-block vtable `0x803C0640`, RTTI `0x804B83A0` and name `0x803C0654` prove `shared_ptr<CLayout::CAttach>`. CAttach is an original nested name; `mAttach` is descriptive. The complete CLayout remains E8. CAttach allocates twenty bytes and stores a parent CLayout pointer and SDK Pane pointer at zero/four; its remaining tree contract is not yet declared.
+
+| `CPii::LoadScript` / `CEnemyPii::LoadScript` | `0x800DCDF0` / `0x800A4BE0` | Nonvirtual `bool` members; generic filename, integer mode and const shared environment reference; enemy supplies filename | Native caller and canonical engine loader forwarding; descriptive spelling inferred | F-115-2 |

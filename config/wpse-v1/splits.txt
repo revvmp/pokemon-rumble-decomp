@@ -137,6 +137,12 @@ game/CEffect.cpp:
 	.sbss       start:0x804B8FE8 end:0x804B8FF8
 	.sdata2     start:0x804B9E20 end:0x804B9E58
 
+game/CEnemyPii.cpp:
+	extab       start:0x800159FC end:0x80015BDC
+	extabindex  start:0x80047BA4 end:0x80047BC8
+	.text       start:0x800A47E0 end:0x800A4C08
+	.data       start:0x803A16B0 end:0x803A1760
+
 game/CGameEnding.cpp:
 	extab       start:0x80015CA0 end:0x80016838
 	extabindex  start:0x80047BEC end:0x80047D3C

@@ -15,6 +15,10 @@ class CHPBar;
 class CMiniMapMarker;
 class CPiiPersonalData;
 
+namespace NPpu {
+class CEnvironment;
+}
+
 class CPii : public BModelObj {
 public:
     enum { TYPE = 1 << 6 };
@@ -59,6 +63,8 @@ public:
     }
     void SetHPBar(std::tr1::shared_ptr<CHPBar> hpBar);
     void SetMiniMapMarker(std::tr1::shared_ptr<CMiniMapMarker> marker);
+    bool LoadScript(const char* pName, int mode,
+                    const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnvironment);
 
 private:
     u32 mPiiFlags;
