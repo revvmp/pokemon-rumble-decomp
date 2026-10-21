@@ -29,6 +29,12 @@ Method spellings for these previously unnamed routines are descriptive inference
 
 `gSharedLayoutArchives` at `0x804B9098` is a pointer to a null-terminated array of constant archive-name pointers. `0x801CABD0` traverses it, and `0x80127CF0` assigns the first mapped value's archive array at offset 20. Only the first word of the existing eight-byte placeholder is proven to be this pointer. This prerequisite neither renames nor resizes that outside symbol; its second word remains unproven. The resource function, variable and header names are descriptive inferences coordinated with #55 and #58.
 
+## Prerequisite consumer validation
+
+The initial same-base control on source head `e4d9541e17d77a30c8bd07369aa7632afc32ccae` enumerated all 716 actual `all_source` inputs through Ninja. Of these, 711 whole objects were byte-identical. CBossPii, CEnemyPii, CMsgBalloon, CNoticeDisplay and SaveData differed only in compiler-generated numeric symbol names inside `.strtab`. Section metadata, every allocated section, raw relocations and symbol attributes were identical after normalizing only names of the form `@` followed by digits. The linked ELF had only the same numeric-name metadata difference; the full frozen DOL was byte-identical. Both before and after states completed configure, explicit `all_source`, plain Ninja and frozen verification with exit 0.
+
+The outside `56-land-contract.py` wrapper repeats this control inside the official `land.verify` callback after its original verifier on every merge-loop round. It restores only these three proposed headers to that round's exact common main ancestor, builds and snapshots every Ninja-declared source object and linked artifact, restores the candidate headers, rebuilds and compares again. It rejects instruction, data, relocation, section-metadata or nonnumeric-symbol changes, restores candidate files even after failure, and requires a clean tree and unchanged head before returning. A moving main is handled by the official loop's rebase and another complete control.
+
 ## Traps
 
 - A motion's input pane and stored target have different types. `0x801D2180` accepts `Pane*` but returns the mapped `PaneMP*`; the unchanged pointer width conceals an incorrect declaration from layout checks.
