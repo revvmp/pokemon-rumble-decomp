@@ -239,7 +239,7 @@ config.libs = [
             Object(Matching, "game/QuarterTurn.cpp"),
             Object(Matching, "game/Graphics.cpp"),
             Object(NonMatching, "game/CDlgPiiSelector.cpp"),
-            Object(NonMatching, "game/CDropPii.cpp"),
+            Object(Matching, "game/CDropPii.cpp"),
             Object(NonMatching, "game/CEffect.cpp"),
             Object(Matching, "game/CEnemyPii.cpp"),
             Object(Matching, "game/CFacility.cpp"),
