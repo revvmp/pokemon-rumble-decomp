@@ -112,10 +112,20 @@ A chain of `else if (c < K)` tests on an unsigned 16-bit value is turned by Code
 
 `MakeCollationKeys` has the same inner tree (root `0x3094`, `cmplwi`, one shared default block), but its default block holds the symbol-key construction, so the ladder form would duplicate it and was not applied.
 
+## F-346-6: current primary-header and language controls
+
+At `32d30869ef`, the canonical primary MSL interfaces remove the earlier first-temporary register discrepancy described in F-346-5. A fresh `unitdiff.py Message` build emits `FormatDate` at its native 2324 bytes and `FormatTime` at its native 2132 bytes. Comparing instruction words with relocation fields masked leaves six differences in `FormatDate`, fourteen in `FormatTime`, three in the 172-byte wide-character concatenation instance, and two in `InitMsgResList`. This is diagnostic evidence only: masking does not prove actual relocation targets, exception records, data placement, or whole-unit acceptance. The date differences are the source and destination stack slots of empty iterator-category temporaries. Both units remain `NonMatching`.
+
+A standalone reconstruction of the case-range switch was compiled with the actual game command under both explicit `-lang=c` and `-lang=c++`, using the same locale interface and character tables. Both emit the signed `cmpwi` tree and redundant zero lower-bound comparison described in F-346-4. Changing language does not recover the native unsigned tree and supplies no evidence for changing the unit's language or split. A readable balanced conditional tree reaches the native 492-byte extent but changes 102 instruction words; matching the extent alone is insufficient.
+
+For narrow escape conversion, fresh headless IDA views were checked against native instructions. The hexadecimal accumulator is an integer, without per-iteration byte truncation. Byte-typed accumulator and character controls, a scoped digit variable, direct pointer reads, and an ordinary inline hexadecimal reader all remain different. None was adopted. The existing source still saves one additional nonvolatile register and emits 560 bytes against the native 552.
+
+The reading aids, exact compile controls, objects, disassemblies and masked diagnostic reports are preserved outside the repository in `C:/MassStorage/GitHub/346-reference/`. These controls establish the remaining discrepancies; they do not establish matching or completion.
+
 ## Remaining work
 
 - `CMsgRes.cpp`: `ConvertEscape` (94.59%, one extra non-volatile register for the hex-digit character), `MakeCollationKeys` (81.77%) and `ConvertCase` (93.34%), see F-346-4.
-- `Message.cpp`: the first-temporary register of `FormatDate` (97.45%) and `FormatTime` (97.17%), and the stack slots of `InitMsgResList` (99.85%) from the shared `stdexcept`/`vector` headers.
+- `Message.cpp`: empty iterator-category temporary stack slots in the formatters and concatenation instance, the allocator stack slots in `InitMsgResList`, and actual relocation, exception and data-placement acceptance. The earlier first-temporary register discrepancy is resolved by the current shared interfaces; see F-346-6.
 
 ## Method
 
