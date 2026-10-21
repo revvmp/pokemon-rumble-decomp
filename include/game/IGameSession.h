@@ -40,6 +40,24 @@ public:
     virtual CPiiBox* GetTeamPiiBox() = 0;
     virtual CPlayer* GetPlayer(int player) = 0;
     virtual CRemoteMemory* GetRemoteMemory(int player) = 0;
+    virtual void UnanalyzedSlot25() = 0;
+    virtual void UnanalyzedSlot26() = 0;
+    virtual void UnanalyzedSlot27() = 0;
+    virtual void UnanalyzedSlot28() = 0;
+    virtual void UnanalyzedSlot29() = 0;
+    virtual f32 GetPlayTimeSeconds() = 0;
+    virtual int GetMapChangeType() = 0;
+    virtual void SetFade(int type, int frames) = 0;
+    virtual int GetFadeFrames() = 0;
+    virtual bool RequestMapChange(MapIndex map, int type, int frames) = 0;
+    virtual bool RequestSceneChange(int type, int frames) = 0;
+    virtual void StartMapTransitionOut() = 0;
+    virtual void StartMapTransitionIn() = 0;
+    virtual void UpdateMapTransition() = 0;
+    virtual bool IsMapChangeFinished() = 0;
+    virtual int GetPendingMapChange() = 0;
+    virtual bool IsRegisteredID(u32 id) = 0;
+    virtual void UnanalyzedSlot42() = 0;
 
     static IGameSession* GetInstance();
 };

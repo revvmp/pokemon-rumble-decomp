@@ -21,6 +21,7 @@ struct StageWorldInfo {
     int mMessageID;
 };
 
+extern const int gStageKindMessageIDs[];
 extern const StageRankInfo gStageRanks[];
 extern const StageWorldInfo gStageWorlds[];
 

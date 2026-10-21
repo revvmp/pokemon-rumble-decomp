@@ -125,6 +125,22 @@ public:
     basic_string& operator+=(const charT* s) { return append(s); }
     basic_string& operator+=(const basic_string& str) { return append(str); }
 
+    const charT& operator[](size_type n) const { return data()[n]; }
+
+    void clear() {
+        if (!is_long()) {
+            rep_.s.data_[0] = charT();
+            rep_.s.size_ = 0;
+        } else {
+            rep_.l.data_[0] = charT();
+            rep_.l.size_ = 0;
+        }
+    }
+
+    template <class InputIterator> basic_string& append(InputIterator first, InputIterator last) {
+        return replace(size(), 0, first, last, forward_iterator_tag());
+    }
+
     void reserve(size_type res_arg);
 
     basic_string& insert(size_type pos, const charT* first, const charT* last) {

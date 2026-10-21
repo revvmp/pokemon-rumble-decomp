@@ -70,6 +70,8 @@ The factory allocates 0x5B8 bytes and constructs the object inline. Layout from 
 
 ## Blockers
 
+Superseded by [F-167-4 to F-167-6](167-cpausemenu-reconstruction.md): the dependencies listed here were declared and the unit now has a source. The text below is kept as the record of the first attempt.
+
 The file is compiled with inlining: the destructor and overrides inline `shared_ptr` access and release, and the factory inlines `CUIManager` and `BUILayout` construction. Every function of the file is emitted only through the factory, either directly or through the vtables and the member pointer it references, so no function can be reconstructed and compared before the factory compiles. The factory needs complete `BUI`, `BUILayout`, `CUIManager` and `CLayout` declarations (#327, #328, #890), MSL wide `basic_string`, and `NIntl::basic_formatter<wchar_t>`. The fiber body and slot 6 also need the `CLayout` motion interface and `IGameSession` slots. The unit stays `NonMatching` with the original object; none of the 37 functions is reconstructed.
 
 ## Traps

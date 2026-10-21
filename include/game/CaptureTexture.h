@@ -20,7 +20,9 @@ public:
     u16 GetWidth() const { return GXGetTexObjWidth(&mTexObj); }
     u16 GetHeight() const { return GXGetTexObjHeight(&mTexObj); }
     GXTexFmt GetFormat() const { return GXGetTexObjFmt(&mTexObj); }
+    u32 GetBufferSize() const { return mBufferSize; }
     u8* GetBuffer() const { return mBuffer.get(); }
+    std::tr1::shared_ptr<u8> GetBufferOwner() const { return mBuffer; }
 
 private:
     GXTexObj mTexObj;
