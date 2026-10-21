@@ -3490,3 +3490,7 @@ assignment. These are class-role and signature corrections; project
 backend spellings remain descriptive. See
 [F-152-8](findings/152-balloon-library-contracts.md#f-152-8-list-construction-and-iterator-storage-contracts)
 for native proofs and explicit foreign-definition controls.
+
+### F-152-9: Vector storage accessor roles
+
+Original vector storage owns begin/end: native 800C62E0 (BUILayout end,20), 800C7240/800C7350 (CPiiTex begin/end,8/20), and 8010C360/8010C370 (void-pointer begin/end,8/20). Corrected __vec_deleter identities preserve raw bytes and actual caller destinations. See F-152-9 in findings/152-balloon-library-contracts.md.
