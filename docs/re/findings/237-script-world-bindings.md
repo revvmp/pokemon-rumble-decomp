@@ -2,7 +2,7 @@
 
 ## F-237-1: Source-unit ownership and original inventories
 
-The first retained function is `method_BWorldCamera_play` at `0x801352F0`. The actual unit continues through the `CSimpleGround` ownership cleanup group ending at `0x80140C40`; the next item binding starts there. The original survey blocks #237–244 divide this unit rather than identify separate source files. Issue #237 owns its split and header integration. The earlier #242 claim was released before claiming #237 through the helper. No split or object registration has been published.
+The first retained function is `method_BWorldCamera_play` at `0x801352F0`. An initial hypothesis grouped it with the functions through the `CSimpleGround` ownership cleanup group ending at `0x80140C40`, because no intervening cleanup group was found. F-237-5 supersedes that grouping: independent literal-pool evidence supports intermediate source units. Exact text boundaries remain under investigation. Issue #237 owns the first camera-motion unit, not automatically every following survey block. The earlier #242 claim was released before claiming #237 through the helper. No split or object registration has been published.
 
 The original #237 inventory contains 24 functions and 6,516 code bytes. The full address-and-size inventory is preserved outside the checkout at `C:/MassStorage/GitHub/237-reference/237-original-whole-inventory.json`. Each original issue still requires a separate inventory audit before closure.
 
@@ -39,8 +39,33 @@ The corrected immutable checkpoint is `C:/MassStorage/GitHub/237-reference/237-s
 
 Nine functions remain outside that accepted subset: the four camera string-pop gaps and five range-effect bindings. The latter have native extents and all direct call targets, but five register/result words differ in each. Ordinary integer-versus-boolean return, returning the stored enable flag, a local conditional region and a named result did not resolve the range-helper context; these rejected controls are preserved outside the checkout. No canonical headers, source object selection or unit splits have been changed.
 
+## F-237-5: Intermediate unit evidence and expanded controls
+
+After rebasing onto main `0790943bb2f741ca4b7e648d72cb336a0bd5833e`, the producer contains 108 actual functions through `GetTimerFrame`. The script auditor now restricts binding-name aliases to the actual `NPpu::CEngine*` signature; similarly named inline `IGameMap` methods are not binding functions.
+
+The combined producer fails strict SDA section-base validation when timer code is added. Native camera literals occupy `0x804BA1E8`–`0x804BA200`; the effect degree/radian factor occupies `0x804BA200`–`0x804BA204`; after four alignment bytes, timer literals start at `0x804BA208` and include a second copy of the signed-integer conversion bias at `0x804BA210`. A single compiled object instead coalesces that bias and places the timer constant four bytes early. Lack of an intervening destructor cluster therefore did not establish a single translation unit.
+
+Independent outside source partitions reproduce each literal pool naturally with unchanged flags:
+
+| Candidate producer | Strict functions | Code bytes | Exception bytes |
+| --- | ---: | ---: | ---: |
+| Camera motion and adjacent debug bindings | 26 | 5,588 | 872 |
+| Effect bindings | 16 | 4,496 | 128 |
+| Game, ending, dialogue and timer bindings | 54 | 7,384 | 344 |
+| Total | 96 | 17,468 | 1,344 |
+
+These are accepted function subsets, not accepted complete source files. The exact camera/debug boundary and game-file first function still require evidence. No ownership transfer, split or completion follows from these diagnostics. The corrected sources, compiler commands, objects, individual strict reports and manifest are preserved in `C:/MassStorage/GitHub/237-reference/237-partition-controls-20261021`.
+
+The message-text producer uses one named result and a single return. This reproduces all instructions and relocations in the 436-, 632- and 616-byte message/yes-no functions. The invalid-value fallback is the native UTF-16 text `L"???"` at `0x804B79C0`, not an empty string. A separate conversion overload for existing values changed these callers' register allocation and was rejected. Applying the named-result form to the simpler string-pop helper did not resolve the four camera gaps.
+
+The outside `IGameSession::IsReplacePiiAvailable(int)` signature has independent caller and callee evidence. Native table `0x803A395C` slot 124 points to `0x800B94A0` (680 bytes), which consumes only this/player and creates its own candidate references before calling slot 120. The script caller supplies only player and matches all 208 bytes with that declaration. The canonical extra shared-pointer argument remains unchanged pending a bounded consumer-controlled prerequisite. Likewise, actual image-message production passes the result of `CEngine::ToString`, supporting `const char*` for the image name; choice opening receives a wide title. Those declarations remain outside only.
+
+The CModel signed animation-index writer/read chain was also independently checked in `237-model-animation-index-native-proof.json`: `0x801BB1A0` saves input r5; `0x801BB274` passes it to `ResFile::GetResAnmChr(int)`; `0x801BB2D8` stores it at motion offset 32. Reader `0x801BB714` forwards that word through `0x801BC630` to `ResFile::GetResAnmVis(int)`. No default-minus-one store was independently verified, and no field meaning was transferred to the camera class.
+
 ## Traps
 
 - A matching function extent does not establish matching argument semantics. Camera Request and RequestNext load minus one, whereas Play loads zero; resolve SDA references explicitly. See F-237-2 and the saved native constant receipt.
 - An unmasked code comparison and direct-call audit do not cover data references or exception cleanup identities. The checkpoint intentionally reports these separately and claims no completed issue.
 - The camera motion's word at offset 32 remains unresolved. The outside declaration reserves its observed extent for investigation; it is not an accepted complete canonical class or permission to invent padding.
+- Absence of trailing cleanup helpers is insufficient to merge adjacent binding groups into a source unit. A consistent native literal-pool base must also be established; see F-237-5.
+- The scratch compiler wrapper now propagates the actual compiler exit status, and the auditor rejects a failed compile record. Never inspect an older object after a failed compile as evidence for the changed source.
