@@ -2,12 +2,27 @@
 #define _MAP
 
 #include <MSL_CPP/allocator.h>
+#include <MSL_CPP/msl_utility.h>
 #include <MSL_CPP/detail/tree.h>
 #include <utility>
 
 namespace std {
 
 namespace detail {
+
+template <typename T> struct map_pointer_key { enum { value = false }; };
+template <typename T> struct map_pointer_key<T*> { enum { value = true }; };
+
+template <typename Key, typename T, typename Compare> struct map_transform { enum { value = false }; };
+template <typename Key, typename T> struct map_transform<Key, T, less<Key> > {
+    enum { value = Metrowerks::is_POD<T>::value || map_pointer_key<Key>::value };
+};
+
+template <typename Key, typename T, typename Compare> struct map_base_value_compare {
+    bool operator()(const pair<const Key, T>& rLeft, const pair<const Key, T>& rRight) const {
+        return Compare()(rLeft.first, rRight.first);
+    }
+};
 
 template <typename T, typename Compare, typename Allocator> class map_tree : private Allocator {
 public:
@@ -47,6 +62,46 @@ void map_tree<T, Compare, Allocator>::destroy(node* pNode) {
     ::operator delete(pNode);
 }
 
+template <typename T, typename Compare, typename Allocator> class map_compact_tree : private Compare, private Allocator {
+public:
+    typedef unsigned long size_type;
+
+    struct node : tree_node_base {
+        T value_;
+    };
+
+    map_compact_tree() : size_(0), root_(nullptr), begin_(reinterpret_cast<tree_node_base*>(&root_)) {}
+    ~map_compact_tree() {
+        if (root_ != nullptr) {
+            destroy(static_cast<node*>(root_));
+        }
+    }
+
+    size_type size() const { return size_; }
+    void destroy(node* pNode) {
+        if (pNode->left_ != nullptr) {
+            destroy(static_cast<node*>(pNode->left_));
+        }
+        if (pNode->right_ != nullptr) {
+            destroy(static_cast<node*>(pNode->right_));
+        }
+        this->Allocator::destroy(&pNode->value_);
+        ::operator delete(pNode);
+    }
+
+private:
+    size_type size_;
+    tree_node_base* root_;
+    tree_node_base* begin_;
+};
+
+template <typename T, typename Compare, typename BaseCompare, typename Allocator, bool Compact> struct map_tree_selection {
+    typedef map_tree<T, Compare, Allocator> type;
+};
+template <typename T, typename Compare, typename BaseCompare, typename Allocator> struct map_tree_selection<T, Compare, BaseCompare, Allocator, true> {
+    typedef map_compact_tree<T, BaseCompare, Allocator> type;
+};
+
 }
 
 template <typename Key, typename T, typename Compare = less<Key>, typename Allocator = allocator<pair<const Key, T> > >
@@ -67,7 +122,8 @@ public:
     };
 
 private:
-    typedef detail::map_tree<value_type, value_compare, allocator_type> tree_type;
+    typedef detail::map_base_value_compare<Key, T, Compare> base_value_compare;
+    typedef typename detail::map_tree_selection<value_type, value_compare, base_value_compare, allocator_type, detail::map_transform<Key, T, Compare>::value>::type tree_type;
 
 public:
     typedef typename tree_type::size_type size_type;
