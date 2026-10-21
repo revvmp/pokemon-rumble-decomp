@@ -6,6 +6,8 @@
 class IGameResult : public IGameMap {
 public:
     virtual ~IGameResult() {}
+
+    static std::tr1::shared_ptr<IGameResult> Create(const MapDesc* pDesc, bool background);
 };
 
 #endif

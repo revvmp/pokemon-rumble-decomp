@@ -6,6 +6,11 @@
 
 class BWorld;
 struct MapDesc;
+
+namespace NPpu {
+class CEnvironment;
+}
+
 class IWorldObjStatDisplay;
 class IMiniMap;
 class IDlgPiiSelector;
@@ -28,6 +33,13 @@ class IDlg;
 
 class IGameMap : public ICalcDraw, public std::tr1::enable_shared_from_this<IGameMap> {
 public:
+    struct Param {
+        Param() : mMapDesc(nullptr) {}
+
+        MapDesc* mMapDesc;
+        std::tr1::shared_ptr<NPpu::CEnvironment> mEnvironment;
+    };
+
     virtual ~IGameMap() {}
     virtual void RunAction() = 0;
     virtual const MapDesc& GetMapDesc() const = 0;
@@ -67,6 +79,8 @@ public:
     virtual int GetTimerFrame() { return 0; }
     virtual void DisappearModelObjs() {}
     virtual void AppearModelObjs() {}
+
+    static std::tr1::shared_ptr<IGameMap> Create(const Param& rParam);
 };
 
 IGameMap* GetCurrentGameMap();

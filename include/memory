@@ -79,17 +79,19 @@ template <> struct shared_ptr_reference<void> { typedef void type; };
 template <typename T, typename D> class shared_ptr_holder {
 public:
     shared_ptr_holder(T* pObject, D& rDeleter) : mpObject(pObject), mrDeleter(rDeleter) {}
-    ~shared_ptr_holder() {
-        if (mpObject != nullptr) {
-            mrDeleter(mpObject);
-        }
-    }
+    ~shared_ptr_holder();
     void release() { mpObject = nullptr; }
 
 private:
     T* mpObject;
     D& mrDeleter;
 };
+
+template <typename T, typename D> shared_ptr_holder<T, D>::~shared_ptr_holder() {
+    if (mpObject != nullptr) {
+        mrDeleter(mpObject);
+    }
+}
 
 }
 

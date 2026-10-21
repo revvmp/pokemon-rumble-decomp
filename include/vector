@@ -286,32 +286,26 @@ protected:
         return result;
     }
     size_type grow_by(size_type n) { return recommend(this->size_ + n - this->capacity_.first()); }
-    bool grow_by(size_type n, pod_type) {
-        recommend(n);
+    bool grow_in_place(size_type n, size_type& rCapacity, pod_type) {
+        rCapacity = recommend(n);
         return false;
     }
-
-    void append_realloc(size_type n) {
-        __vec_split_buffer<T, Allocator> buffer(this->capacity_.second());
-        size_type capacity = grow_by(n);
-        if (capacity > max_size()) {
-            __throw_vector_length_error();
-        }
-        buffer.data_ = buffer.capacity_.second().allocate(capacity);
-        buffer.capacity_.first() = capacity;
-        buffer.start_ = this->size_;
-        buffer.construct_at_end(n, pod_type());
-        buffer.construct_at_front(this->data_, this->data_ + this->size_, pod_type());
-        swap(buffer, pod_type());
+    bool grow_in_place(size_type n) {
+        size_type capacity;
+        return grow_in_place(n, capacity, pod_type());
     }
+
+    void append_realloc(size_type n);
 
     void append(size_type n, pod_type) {
         size_type capacity = this->capacity_.first();
-        if ((n <= capacity && this->size_ <= capacity - n) || grow_by(this->size_ + n - capacity, pod_type())) {
+        if (n <= capacity && this->size_ <= capacity - n) goto fit;
+        if (grow_in_place(this->size_ + n - capacity)) {
+        fit:
             construct_at_end(n, pod_type());
-        } else {
-            append_realloc(n);
+            return;
         }
+        append_realloc(n);
     }
 
     void swap(__vec_deleter<T, Allocator&>& r, pod_type) {
@@ -326,6 +320,17 @@ protected:
         r.size_ = size;
     }
 };
+
+template <typename T, typename Allocator, bool IsPOD>
+void __vec_constructor<T, Allocator, IsPOD>::append_realloc(size_type n) {
+    __vec_split_buffer<T, Allocator> buffer(this->capacity_.second());
+    size_type capacity = grow_by(n);
+    buffer.allocate(capacity, pod_type());
+    buffer.start_ = this->size_;
+    buffer.construct_at_end(n, pod_type());
+    buffer.construct_at_front(this->data_, this->data_ + this->size_, pod_type());
+    swap(buffer, pod_type());
+}
 
 template <typename T, typename Allocator, bool IsPOD>
 void __vec_constructor<T, Allocator, IsPOD>::reallocate(size_type n) {
