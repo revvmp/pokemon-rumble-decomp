@@ -143,6 +143,30 @@ public:
     iterator begin() { return iterator(begin_node()); }
     iterator end() { return iterator(end_node()); }
 
+    void swap(tree_imp& rOther) {
+        if (this != &rOther) {
+            size_type size = size_.first();
+            size_.first() = rOther.size_.first();
+            rOther.size_.first() = size;
+            tree_node_base* pRoot = root();
+            root() = rOther.root();
+            rOther.root() = pRoot;
+            tree_node_base* pBegin = begin_node();
+            begin_node() = rOther.begin_node();
+            rOther.begin_node() = pBegin;
+            if (root() != nullptr) {
+                root()->set_parent(end_node());
+            } else {
+                begin_node() = end_node();
+            }
+            if (rOther.root() != nullptr) {
+                rOther.root()->set_parent(rOther.end_node());
+            } else {
+                rOther.begin_node() = rOther.end_node();
+            }
+        }
+    }
+
     void clear() {
         if (root() != nullptr) {
             destroy(static_cast<node*>(root()));
