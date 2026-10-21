@@ -120,6 +120,12 @@ public:
         std::fill_n(this->data_ + start_ + this->size_, n, x);
         this->size_ += n;
     }
+    void construct_at_end(size_type n, const T& x, Metrowerks::int2type<false>) {
+        for (T* p = end(); n != 0; --n, ++p) {
+            this->capacity_.second().construct(p, x);
+            ++this->size_;
+        }
+    }
 
     void construct_at_front(T* pFirst, T* pLast) {
         construct_at_front(pFirst, pLast, Metrowerks::int2type<__vec_bulk_move<T>::value>());
@@ -255,8 +261,9 @@ protected:
         buffer.data_ = buffer.capacity_.second().allocate(capacity);
         buffer.capacity_.first() = capacity;
         buffer.start_ = this->size_;
-        buffer.construct_at_end(x, pod_type());
+        buffer.construct_at_end(1, x);
         buffer.construct_at_front(this->data_, this->data_ + this->size_, pod_type());
+        clear_moved();
         swap(buffer, pod_type());
     }
     void push_back_realloc(const T& x, Metrowerks::int2type<true>) {
