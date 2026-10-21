@@ -61,6 +61,25 @@ public:
     void SetBP(int value);
     int GetWazaID(int index) const;
     void SetWazaID(int index, int id);
+    int GetPrice() const { return mPrice; }
+    void SetPrice(int value);
+    int GetGroupNo() const { return mGroupNo; }
+    void SetGroupNo(int value);
+    void SetPrefix(int value);
+    bool IsBoss() const { return HasFlag(FLAG_BOSS); }
+    void SetBoss(bool boss);
+    bool IsBossHideHP() const { return HasFlag(FLAG_BOSS_HIDE_HP); }
+    void SetBossHideHP(bool hidden) { SetFlag(FLAG_BOSS_HIDE_HP, hidden); }
+    bool IsSelling() const { return HasFlag(FLAG_SELLING); }
+    bool IsNewlyDisclosed() const { return HasFlag(FLAG_NEWLY_DISCLOSED); }
+    CPpuRegister* GetRegister() { return &mRegister; }
+    void SetOriginalTrainerId(u32 id);
+    u32 GetRandomSeed() const { return mRandomSeed; }
+    void SetRandomSeed(u32 seed);
+    bool IsRareColor() const;
+    void SetRareColorRnd();
+    void SetNormalColorRnd();
+    bool IsInWiiRemote() const { return HasFlag(FLAG_IN_WII_REMOTE); }
 private:
     bool HasFlag(u32 flag) const { return (mFlags & flag) != 0; }
     void SetFlag(u32 flag, bool enable) {
