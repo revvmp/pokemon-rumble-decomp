@@ -1,0 +1,25 @@
+#ifndef _TUPLE
+#define _TUPLE
+namespace std {
+namespace tr1 {
+struct nat {};
+template<class T0 = nat, class T1 = nat, class T2 = nat, class T3 = nat, class T4 = nat, class T5 = nat, class T6 = nat, class T7 = nat, class T8 = nat, class T9 = nat> class tuple;
+namespace detail { template<int Index> struct tuple_get; }
+template<class T0> class tuple<T0, nat, nat, nat, nat, nat, nat, nat, nat, nat> {
+public:
+    explicit tuple(const T0& rValue) : mValue(rValue) {}
+private:
+    friend struct detail::tuple_get<0>;
+    T0 mValue;
+};
+namespace detail {
+template<> struct tuple_get<0> {
+    template<class T0> static T0& get(tuple<T0>& rTuple) { return rTuple.mValue; }
+    template<class T0> static const T0& get(const tuple<T0>& rTuple) { return rTuple.mValue; }
+};
+}
+template<int Index, class T0> T0& get(tuple<T0>& rTuple) { return detail::tuple_get<Index>::get(rTuple); }
+template<int Index, class T0> const T0& get(const tuple<T0>& rTuple) { return detail::tuple_get<Index>::get(rTuple); }
+}
+}
+#endif
