@@ -67,6 +67,62 @@ containing-unit fixture matches 37 retained data objects, 527 logical bytes,
 including all pointer relocations and their physical order. Full unit
 registration and executable acceptance remain pending.
 
+## F-213-2: Unaccepted containing-unit producer
+
+The complete outside producer reconstructs all 114 original instruction
+streams, 8,712 code bytes, and all 72 exception records, 988 bytes, when
+relocations are assigned their native locations. The containing unit's
+retained data has 37 objects and 527 logical bytes. An actual pipeline
+object reproduces the same instruction and exception records. These are
+producer checks, not whole-file acceptance.
+
+The real split has text `0x8011AB90..0x8011D088`, extab
+`0x8002A3C8..0x8002A7A4`, index `0x8004C170..0x8004C4D0`, data
+`0x803AEDD0..0x803AEF4C`, small data `0x804B74B8..0x804B7574`, and
+float constants `0x804BA140..0x804BA148`. The last data and small-data
+strings consume their ordinary four-byte allocation padding; four further
+bytes before each following unit remain outside this split. The actual
+NonMatching split passes the frozen executable check.
+
+The temporary source-selected link fails. Its in-class and instantiated
+template definitions do not yet emit in the complete native order. An
+implicit concrete constructor, with the explicit interface constructor
+retained, fixes the early constructor/accessor order while preserving all
+114 instruction streams and 72 exception records. Replacing the factory's
+arrow with `get()`, marking its out-of-class constructor inline, or spelling
+out the nested message's three special members does not fix the remaining
+order. Moving the false erase implementation out of class defers it, but
+introduces other ordering differences. Merely moving that out-of-class
+definition before or after reallocation does not change the result.
+
+The real link also exposes a binding problem hidden by assigning relocation
+targets independently: the current namespace-static vector length-error
+helper is local to the new object, whereas the native calls in allocation
+and growth reach `0x80088550`, outside this unit. Making it an ordinary inline
+global lets it share the existing helper and removes 960 extra output bytes.
+However, that change also changes the register allocation of existing
+Matching controller code. It is rejected. Neither an error-helper binding
+change nor a source-selected tutorial unit is accepted.
+
+The initial backend preflight derived 747 source objects from Ninja and
+rebuilt all 45 consumers of vector or allocator. Thirty-eight retained
+identical allocated bytes and semantic relocations. The seven changed
+objects were all NonMatching: BWorld, CGameSession,
+CGloballyReusableTexBuf, CMsgBalloon, CSaveManager, SaveData, and ScriptCamera.
+The changed previously exact accessors remain byte-identical after their
+storage-base ownership correction. Other mapped changed functions already
+failed their native streams; some allocation and destruction streams improve.
+Several provisional helper associations remain unresolved. This is not a
+claim that every NonMatching object is preserved. The later global-helper
+trial additionally fails Matching-consumer preservation and is not part of
+the accepted layout prerequisite.
+
+A recovered MSL declaration/emission and common error-helper contract is
+still required to establish a faithful whole-file link. The complete source
+and rejected controls are preserved privately for continuation. No tutorial
+issue is completed, no partial-source pull request is opened, and the
+unaccepted backend is not merged.
+
 ## Traps
 
 - Repeated literal symbols require a single consistent native address for
@@ -85,3 +141,11 @@ registration and executable acceptance remain pending.
   register allocation and failed the current-consumer gate. Those changes
   remain outside the prerequisite; matching isolated tutorial helpers is
   insufficient to publish a shared backend change.
+- A source-defined local callee cannot be assigned an external native
+  address. Verify symbol binding and the actual linked address, rather than
+  accepting only normalized call instructions. A weak definition may reuse
+  an existing global definition; a namespace-static definition cannot.
+- Do not end data splits at an odd logical string end. Include only that
+  object's normal allocation padding, and leave the following unit's gap
+  outside. The odd tutorial data ends otherwise create invalid automatic
+  split alignment.

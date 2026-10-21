@@ -3,6 +3,7 @@
 
 #include <limits>
 #include <new>
+#include <limits>
 #include <stddef.h>
 
 namespace std {

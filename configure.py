@@ -267,6 +267,7 @@ config.libs = [
             Object(NonMatching, "game/CGameResult.cpp"),
             Object(NonMatching, "game/CMoneyLifeDisplay.cpp"),
             Object(NonMatching, "game/CMsgBalloon.cpp"),
+            Object(NonMatching, "game/CTutorialMsg.cpp", extra_cflags=["-inline off", "-str noreuse,nopool"]),
             Object(NonMatching, "game/CMultiRanking.cpp"),
             Object(NonMatching, "game/CPpuEngine.cpp"),
             Object(NonMatching, "game/CNoticeDisplay.cpp"),
