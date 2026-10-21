@@ -145,13 +145,16 @@ bool CShadowCamera::CalcLightProjection() {
     }
 
     nw4r::g3d::Camera shadowCamera = GetG3dCamera();
+    f32 orthoMin = -1.0f;
+    f32 orthoMax = 1.0f;
     f32 viewNear = pCamera->GetG3dCamera().ref().projNear;
     f32 viewFar = pCamera->GetG3dCamera().ref().projFar;
-    shadowCamera.SetOrtho(1.0f, -1.0f, -1.0f, 1.0f, viewNear, viewFar);
+    shadowCamera.SetOrtho(orthoMax, orthoMin, orthoMin, orthoMax, viewNear, viewFar);
     shadowCamera.SetViewport(0.0f, 0.0f, mTextures[0].GetWidth(), mTextures[0].GetHeight());
 
     nw4r::math::VEC3 center = (corners[0] + corners[1] + corners[2] + corners[3]) / 4.0f;
-    nw4r::math::VEC3 shadowPos = center + lightDir * ((viewFar - viewNear) * 0.5f);
+    f32 halfRange = (viewFar - viewNear) * 0.5f;
+    nw4r::math::VEC3 shadowPos = center + lightDir * halfRange;
     shadowCamera.SetPosition(shadowPos);
 
     nw4r::g3d::Camera::PostureInfo posture;
