@@ -2969,3 +2969,7 @@ The native motion allocation is 0x38 bytes:
 |0x34|`int mLength`|Resource frame count, signed conversion and script query; high|
 
 Member spellings are descriptive. Reserved words preserve unknown storage without claiming a recovered meaning or original type. Public method names follow behavior and corresponding script bindings. Private file-handle Load and ApplyFrame are reconstruction helpers with no retained symbol. Mutable MotionPtr reference signatures are supported by exact pointer reloads in the 496-byte factory and all wrapper comparisons. Own vtables are0x8039A208 and0x8039A160; own RTTI records are0x804B5B98/0x804B5BA0/0x804B5BA8. Outside names preserve existing sizes, types, bodies and split ownership: canonical LoadResourceFile0x80066930, scene-animation holder destructor0x80065980 and vtable0x80399A88, and CShadowCamera::SelectLight0x8010D7D0.
+
+## F-372-4: SDI original API names
+
+The six provisional names at `0x80224BB0`, `0x80224A90`, `0x80224B70`, `0x80224030`, `0x80224490`, and `0x80224D30` are corrected respectively to `ISD_InitCard`, `ISD_MountCard`, `ISD_UnmountCard`, `ISD_GetDeviceStatus`, `ISD_ResetDevice`, and `ISD_ReadCardRegister`. Confidence is high from pinned original IPL names plus all native consumer and complete SDI object controls. The last API consumes a `u32*` response. Record layout and function metadata remain unchanged; see [F-372-4](findings/372-fa-sd-driver.md#f-372-4-original-sdi-api-correction).

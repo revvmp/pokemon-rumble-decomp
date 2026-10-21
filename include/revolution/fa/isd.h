@@ -27,12 +27,12 @@ typedef struct ISD_HANDLE {
 
 typedef s32 (*ISD_INTR_HANDLER)(s32 event, void* p_context);
 
-s32 ISD_Init(void);
-s32 ISD_Open(u32 slot, ISD_HANDLE** pp_handle);
-s32 ISD_Close(ISD_HANDLE* p_handle);
-s32 ISD_GetStatus(ISD_HANDLE* p_handle, u32* p_status);
-s32 ISD_Reset(ISD_HANDLE* p_handle);
-s32 ISD_SendCommand(ISD_HANDLE* p_handle, u32 command, void* p_response, u32 size);
+s32 ISD_InitCard(void);
+s32 ISD_MountCard(u32 slot, ISD_HANDLE** pp_handle);
+s32 ISD_UnmountCard(ISD_HANDLE* p_handle);
+s32 ISD_GetDeviceStatus(ISD_HANDLE* p_handle, u32* p_status);
+s32 ISD_ResetDevice(ISD_HANDLE* p_handle);
+s32 ISD_ReadCardRegister(ISD_HANDLE* p_handle, u32 command, u32* p_response, u32 size);
 s32 ISD_GetCardSize(ISD_HANDLE* p_handle, u32* p_total_blocks, u32* p_block_count, u32* p_block_size);
 s32 ISD_RegisterDeviceIntrHandler(ISD_HANDLE* p_handle, ISD_INTR_HANDLER handler, u32* p_event);
 s32 ISD_UnregisterDeviceIntrHandler(ISD_HANDLE* p_handle);
