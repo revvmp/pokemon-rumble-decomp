@@ -18,6 +18,11 @@ template <typename Key, typename T> struct map_transform<Key, T, less<Key> > {
     enum { value = (Metrowerks::is_POD<T>::value && sizeof(T) == sizeof(void*)) || map_pointer_key<Key>::value };
 };
 
+template <typename Key, typename T, typename Compare> struct map_iterator_transform { enum { value = false }; };
+template <typename Key, typename T> struct map_iterator_transform<Key, T, less<Key> > {
+    enum { value = Metrowerks::is_scalar<T>::value || map_pointer_key<Key>::value };
+};
+
 template <typename Key, typename T, typename Compare> struct map_base_value_compare {
     bool operator()(const pair<const Key, T>& rLeft, const pair<const Key, T>& rRight) const {
         return Compare()(rLeft.first, rRight.first);
@@ -46,8 +51,8 @@ protected:
 template <typename Key, typename T, typename Compare, bool IsPOD> struct map_tree_compare {
     typedef map_member_compare<Key, T, Compare> type;
 };
-template <typename Key, typename T, typename Compare> struct map_tree_compare<Key, T, Compare, true> {
-    typedef map_value_compare<Key, T, Compare> type;
+template <typename Key, typename T> struct map_tree_compare<Key, T, less<Key>, true> {
+    typedef map_value_compare<Key, T, less<Key> > type;
 };
 
 template <typename T, typename Compare, typename Allocator> class map_compact_tree : public __red_black_tree<tree_node_base*> {
@@ -300,17 +305,18 @@ public:
         typename tree_type::iterator mIterator;
     };
 
+    typedef typename Metrowerks::select<map_iterator_transform<Key, T, Compare>::value, iterator, typename tree_type::iterator>::type native_iterator;
+
     void swap(map_base& rOther) { tree_.swap(rOther.tree_); }
-    iterator begin() { return iterator(tree_.begin()); }
-    iterator end() { return iterator(tree_.end()); }
+    native_iterator begin() { return tree_.begin(); }
+    native_iterator end() { return tree_.end(); }
     size_type size() const { return tree_.size(); }
     bool empty() const { return tree_.size() == 0; }
 
-    pair<iterator, bool> insert(const value_type& rValue) {
-        pair<typename tree_type::iterator, bool> result = tree_.insert_one(rValue);
-        return pair<iterator, bool>(iterator(result.first), result.second);
+    pair<native_iterator, bool> insert(const value_type& rValue) {
+        return tree_.insert_one(rValue);
     }
-    iterator find(const key_type& rKey) { return iterator(tree_.find(rKey)); }
+    native_iterator find(const key_type& rKey) { return tree_.find(rKey); }
     mapped_type& operator[](const key_type& rKey) { return tree_.find_or_insert(rKey).second; }
 
 private:
@@ -321,7 +327,11 @@ private:
 
 template <typename Key, typename T, typename Compare = less<Key>, typename Allocator = allocator<pair<const Key, T> > >
 class map : public detail::map_base<Key, T, Compare, Allocator> {
+    typedef detail::map_base<Key, T, Compare, Allocator> base;
 public:
+    typedef typename base::native_iterator iterator;
+    typedef typename base::value_type value_type;
+    pair<iterator, bool> insert(const value_type& rValue) { return base::insert(rValue); }
     map() {}
     ~map() {}
 };

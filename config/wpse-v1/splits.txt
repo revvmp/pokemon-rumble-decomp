@@ -488,7 +488,7 @@ game/l10n_files.cpp:
 	.ctors      start:0x803529EC end:0x803529F0
 	.data       start:0x803B45B8 end:0x803B4F80
 	.bss        start:0x803E90D8 end:0x803E90FC
-	.sdata      start:0x804B7840 end:0x804B7880
+	.sdata      start:0x804B7840 end:0x804B78A0
 	.sbss       start:0x804B90A0 end:0x804B90B8
 
 game/ScriptMotion.cpp:

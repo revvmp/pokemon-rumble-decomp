@@ -293,6 +293,7 @@ config.libs = [
             Object(Matching, "game/ScriptMotion.cpp"),
             Object(Matching, "game/ControllerTable.cpp"),
             Object(Matching, "game/DCIM.cpp"),
+            Object(NonMatching, "game/l10n_files.cpp"),
             Object(Matching, "game/Font.cpp"),
             Object(NonMatching, "game/SaveData.cpp"),
             Object(NonMatching, "game/NPpuVM.cpp"),
