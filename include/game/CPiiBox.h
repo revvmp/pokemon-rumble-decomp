@@ -1,10 +1,10 @@
 #ifndef GAME_CPIIBOX_H
 #define GAME_CPIIBOX_H
 
-#include <game/SaveData.h>
+#include <revolution/types.h>
 #include <list>
 #include <memory>
-#include <revolution/types.h>
+#include <game/SaveData.h>
 #include <vector>
 
 class CPiiPersonalData;

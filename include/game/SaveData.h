@@ -137,9 +137,14 @@ public:
         CMapRecord mMapRecords[3][5][8][10];
         u32 mCounters[2];
         s64 mTime;
-        u32 mRegistryCount;
-        u32 mElapsedSeconds;
-        u8 mReserved[0xC];
+        union {
+            struct {
+                u32 mRegistryCount;
+                u32 mElapsedSeconds;
+                u8 mReserved[0xC];
+            };
+            u8 mStatus[0x14];
+        };
         u32 mLeadPiiIdHigh;
         u16 mLeadPiiMonsno;
         u32 mLeadPiiIdLow;

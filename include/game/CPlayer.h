@@ -28,8 +28,8 @@ public:
     void RestoreState();
     void SetController(IController* pController);
     bool IsJoined() const;
-    std::tr1::shared_ptr<CPiiPersonalData> GetPersonalData() const { return mState.mPersonalData; }
-    std::tr1::shared_ptr<CPiiPersonalData> GetPendingPersonalData() const { return mState.mPendingPersonalData; }
+    std::tr1::shared_ptr<CPiiPersonalData> GetPersonalData() const;
+    std::tr1::shared_ptr<CPiiPersonalData> GetPendingPersonalData() const;
     void SetPii(CPlayerPii* pPii);
     CPlayerPii* GetPii();
     IController* GetController();
