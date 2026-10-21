@@ -1,7 +1,16 @@
 #include <game/CMsgBalloon.h>
 
+#include <game/CPiiPersonalData.h>
+#include <game/CPiiTex.h>
+#include <game/CPlayerPii.h>
 #include <game/BUILayout.h>
+#include <game/BWorld.h>
+#include <game/BWorldCamera.h>
+#include <game/CPlayer.h>
+#include <game/CPpuEngine.h>
 #include <game/CUIManager.h>
+#include <game/IController.h>
+#include <game/IGameMap.h>
 #include <game/LayoutResources.h>
 #include <game/Message.h>
 #include <game/StringFormat.h>
@@ -11,6 +20,8 @@
 #include <game/SaveData.h>
 #include <game/Sound.h>
 #include <game/StageDesc.h>
+#include <nw4r/lyt/lyt_pane.h>
+#include <nw4r/math/math_triangular.h>
 
 #pragma dont_inline on
 
@@ -103,4 +114,212 @@ void CMsgBalloon::Show(bool show) {
 
 void CMsgBalloon::Draw() {
     mUIManager->Draw();
+}
+
+void CMsgBalloon::CalcView() {
+    std::vector<std::tr1::shared_ptr<CPiiTex> >::iterator it;
+    if (mCurrentEntry != nullptr && mCurrentEntry->mStageValue != 0xFFFFFFFF) {
+        for (it = mModelTextures.begin(); it != mModelTextures.end(); ++it) {
+            (*it)->CalcView();
+        }
+    }
+}
+
+void CMsgBalloon::CalcMtx() {
+    std::vector<std::tr1::shared_ptr<CPiiTex> >::iterator it;
+    if (mCurrentEntry != nullptr && mCurrentEntry->mStageValue != 0xFFFFFFFF) {
+        for (it = mModelTextures.begin(); it != mModelTextures.end(); ++it) {
+            (*it)->CalcMtx();
+        }
+    }
+}
+
+void CMsgBalloon::Calc() {
+    BWorld* pWorld = GetCurrentGameMap()->GetWorld();
+    if (pWorld == nullptr) {
+        return;
+    }
+    BWorldCamera* pCamera = pWorld->GetCurrentCamera();
+    if (pCamera == nullptr) {
+        return;
+    }
+    if (mEntries.size() == 0) {
+        return;
+    }
+
+    if (mMotion) {
+        if (!mMotion->IsEnded(false)) {
+            UpdateBalloon(pCamera, mLayout->GetLayout(), nullptr);
+        } else {
+            mLayout->GetLayout()->SetVisible(false);
+            mMotion.reset();
+        }
+    }
+    if (!mIsShown) {
+        return;
+    }
+
+    Entry* pBest = nullptr;
+    nw4r::math::VEC3 bestPosition;
+    int bestIndex = -1;
+    IDlg* pDialog = GetCurrentGameMap()->GetCurrentDialog();
+    if (pDialog == nullptr || pDialog == this) {
+        for (int i = 0; i < 4; i++) {
+            CPlayerPii* pPii = IGameSession::GetInstance()->GetPlayer(i)->GetPii();
+            if (pPii == nullptr || pPii->GetPersonalData()->GetHP() <= 0) {
+                mShownEntries[i] = nullptr;
+                continue;
+            }
+
+            Entry* pNearest = nullptr;
+            nw4r::math::VEC3 nearestPosition;
+            f32 nearestDistance = 1.0f;
+            std::list<Entry>::iterator it;
+            for (it = mEntries.begin(); it != mEntries.end(); ++it) {
+                nw4r::math::VEC3 position((*it).mPosition);
+                std::tr1::shared_ptr<BWorldObj> pObject = (*it).mObject.lock();
+                if (pObject) {
+                    if (!pObject->IsVisible()) {
+                        continue;
+                    }
+                    position += pObject->GetPositionRef();
+                }
+                const nw4r::math::VEC3& rPiiPosition = pPii->GetPositionRef();
+                f32 sinValue;
+                f32 cosValue;
+                nw4r::math::SinCosFIdx(&sinValue, &cosValue, 0.71111f * pPii->GetRotation());
+                f32 dz = position.z - (rPiiPosition.z + 0.33f * cosValue);
+                f32 dx = position.x - (rPiiPosition.x + 0.33f * sinValue);
+                f32 distance = (dz * dz + dx * dx) * (*it).mDistanceScale;
+                if (distance < nearestDistance) {
+                    nearestDistance = distance;
+                    pNearest = &*it;
+                    nearestPosition = position;
+                }
+            }
+
+            if (mShownEntries[i] != pNearest) {
+                mShownEntries[i] = pNearest;
+                if (pNearest != nullptr) {
+                    pBest = pNearest;
+                    bestPosition = nearestPosition;
+                    bestIndex = i;
+                }
+            } else if (pNearest != nullptr && pBest == nullptr && mCurrentIndex == i) {
+                pBest = pNearest;
+                bestPosition = nearestPosition;
+                bestIndex = i;
+            }
+        }
+    }
+
+    if (pBest == nullptr) {
+        if (mHideWait > 0) {
+            mHideWait--;
+        } else if (mCurrentEntry != nullptr) {
+            mMotion = mLayout->GetLayout()->CreateMotion("end");
+            PlaySound(0x59);
+            mCurrentEntry = nullptr;
+        }
+        UpdateBalloon(pCamera, mLayout->GetLayout(), nullptr);
+    } else {
+        if (mCurrentEntry != pBest) {
+            if (mCurrentEntry != nullptr) {
+                mCurrentEntry->ClearFlags(1);
+                mCurrentEntry = nullptr;
+            }
+            mOffset = bestPosition;
+        }
+        bool behind;
+        UpdateBalloon(pCamera, mLayout->GetLayout(), &behind);
+        if (mCurrentEntry == nullptr) {
+            mLayout->GetLayout()->SetVisible(true);
+            mLayout->GetLayout()->CreateMotion("begin");
+            PlaySound(0x58);
+            mLayout->GetLayout()->SetPaneVisible("above", behind);
+            mLayout->GetLayout()->SetPaneVisible("below", !behind);
+            mLayout->RemoveChild(mMsgLayout);
+            mMsgLayout->GetLayout()->DetachChildren();
+            mLayout->RemoveChild(mWarpLayout);
+            mWarpLayout->GetLayout()->DetachChildren();
+            if (pBest->mStageValue != 0xFFFFFFFF) {
+                if (pBest->mStageID.mWorld == 7) {
+                    SetupBattleWarp(pBest->mStageID);
+                } else {
+                    SetupStageWarp(pBest->mStageID);
+                }
+                mWarpLayout->GetLayout()->SetText("TITLE", GetMessageString(gStageWorlds[pBest->mStageID.mWorld].mMessageID, L""));
+                mLayout->AttachChild(behind ? "above_site" : "below_site", mWarpLayout);
+            } else {
+                mMsgLayout->GetLayout()->SetText("TEXT", pBest->mText.c_str());
+                bool hasCallback = false;
+                {
+                    std::tr1::shared_ptr<BWorldObj> pObject = pBest->mObject.lock();
+                    if (pObject) {
+                        CPpuEngine* pEngine = pObject->GetPpuEngine();
+                        if (pEngine != nullptr && pEngine->HasCallback(1)) {
+                            hasCallback = true;
+                        }
+                    }
+                }
+                mMsgLayout->GetLayout()->SetPaneVisible("button", hasCallback);
+                mLayout->AttachChild(behind ? "above_site" : "below_site", mMsgLayout);
+            }
+            mCurrentEntry = pBest;
+            mCurrentIndex = bestIndex;
+            mMotion.reset();
+            mShowWait = 1;
+        }
+
+        if (mHideWait != 1) {
+            mHideWait = 1;
+        }
+
+        if (mShowWait > 0) {
+            mShowWait--;
+        } else {
+            std::tr1::shared_ptr<BWorldObj> pObject = pBest->mObject.lock();
+            if (pObject) {
+                CPlayer* pPlayer = IGameSession::GetInstance()->GetPlayer(bestIndex);
+                CPlayerPii* pPii = pPlayer->GetPii();
+                IController* pController = pPlayer->GetController();
+                if (pController != nullptr && pController->IsConnected() && (pController->GetTrig() & 0x20)) {
+                    pPii->GetPpuEngine();
+                    CPpuEngine::Message message;
+                    message.mSender = pPii->GetId();
+                    message.mArgument.SetInt(0);
+                    message.mMessageID = 1;
+                    CPpuEngine* pEngine = pObject->GetPpuEngine();
+                    if (pEngine != nullptr) {
+                        pEngine->SendMessage(message);
+                    }
+                }
+            }
+        }
+    }
+
+    std::vector<std::tr1::shared_ptr<CPiiTex> >::iterator it;
+    for (it = mModelTextures.begin(); it != mModelTextures.end(); ++it) {
+        (*it)->Calc();
+    }
+    mUIManager->Calc();
+}
+
+void CMsgBalloon::UpdateBalloon(BWorldCamera* pCamera, CLayout* pLayout, bool* pBehind) {
+    nw4r::math::MTX34 viewMtx;
+    nw4r::math::MTX44 projectionMtx;
+    pCamera->GetG3dCamera().GetCameraMtx(&viewMtx);
+    pCamera->GetG3dCamera().GetProjectionMtx(&projectionMtx);
+    nw4r::math::VEC3 position(mOffset);
+    nw4r::math::VEC3Transform(&position, &viewMtx, &position);
+    nw4r::math::VEC3TransformCoord(&position, &projectionMtx, &position);
+    const nw4r::ut::Rect& rRect = pLayout->GetViewRect();
+    position.x = position.x * rRect.GetWidth() / 2.0f;
+    position.y = -position.y * rRect.GetHeight() / 2.0f;
+    position.z = 0.0f;
+    pLayout->FindPane("root")->SetTranslate(position);
+    pLayout->UpdateAttachedLayouts();
+    if (pBehind != nullptr) {
+        *pBehind = position.y <= 0.0f;
+    }
 }

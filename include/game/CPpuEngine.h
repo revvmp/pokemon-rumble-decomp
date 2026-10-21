@@ -31,6 +31,12 @@ public:
         TEMPORARY_ID_BASE = 1000000000
     };
 
+    struct Message {
+        int mSender;
+        int mMessageID;
+        NPpu::CValue mArgument;
+    };
+
     static void SetDefaultEnvironment(const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnv);
     static void SetDefaultStageDescTarget(const StageID& rTarget);
     static const char* GetScriptRoot();
@@ -49,6 +55,8 @@ public:
     bool Load(BWorldObj* pOwner, const char* pName, int mode, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnv);
     bool Execute(const char* pName, int mode, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnv);
     BWorldObj* PopWorldObj();
+    bool HasCallback(int messageID) const;
+    int SendMessage(const Message& rMessage);
 
     const std::tr1::shared_ptr<BWorldObjOwner>& GetOwner() const { return mOwner; }
 

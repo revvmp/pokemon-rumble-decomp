@@ -9,6 +9,7 @@ public:
     void SetController(IController* pController);
     bool IsJoined() const;
     CPlayerPii* GetPii();
+    IController* GetController();
 };
 
 #endif

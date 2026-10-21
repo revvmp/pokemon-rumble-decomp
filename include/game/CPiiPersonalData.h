@@ -11,6 +11,7 @@ public:
     ~CPiiPersonalData();
 
     const PiiSpeciesData* GetSpeciesData() const { return mSpeciesData; }
+    int GetHP() const { return mHP; }
 private:
     u32 mFlags;
     u32 mId;

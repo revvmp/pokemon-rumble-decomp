@@ -27,6 +27,7 @@ public:
     virtual void OnInput(const IUIInput* pInput);
 
     bool AddChild(const Child& rChild);
+    bool RemoveChild(const Child& rChild);
 
 private:
     class CCallbackListOwner {

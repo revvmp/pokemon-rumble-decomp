@@ -188,7 +188,7 @@ public:
     CEffect* AddEffect(std::tr1::shared_ptr<CEffect> effect);
 
 private:
-    ObjEntry* GetNextEntry(const ObjEntry* pEntry) { return pEntry->GetNext(mObjEntries.begin()); }
+    ObjEntry* GetNextEntry(const ObjEntry* pEntry) { return pEntry->GetNext(&mObjEntries[0]); }
 
     static u32 GetStopTypes(u32 type) { return (type & ~ENTRY_HEAD_TYPES) == 0 ? ENTRY_HEAD_TYPES : 0xFFFFFFFF; }
 

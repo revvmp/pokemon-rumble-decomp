@@ -43,6 +43,7 @@ public:
         bool IsStarted() const { return mState != 0; }
         bool IsFinished() const { return mState == 3 || mState == 2; }
         bool IsEnded() const { return mState == 3; }
+        bool IsEnded(bool includeFinished) const { return includeFinished ? IsFinished() : IsEnded(); }
         void Wait();
 
     private:
@@ -64,6 +65,9 @@ public:
     nw4r::lyt::Pane* FindPane(const char* pName);
     void SetPaneVisible(const char* pName, bool visible);
     void SetVisible(bool visible);
+    void UpdateAttachedLayouts();
+    void DetachChildren();
+    const nw4r::ut::Rect& GetViewRect() const { return mViewRect; }
     std::tr1::shared_ptr<CMotionProgram> CreateMotion(const char* pName) { return CreateMotion(pName, spDefaultMotionPane, 0.0f, 1.0f); }
     std::tr1::shared_ptr<CMotionProgram> CreateMotion(const char* pName, nw4r::lyt::Pane* pPane, f32 startFrame, f32 rate);
     std::tr1::shared_ptr<CMotionProgram> CreateMotion(const char* pName, const char* pPaneName, f32 startFrame, f32 rate);

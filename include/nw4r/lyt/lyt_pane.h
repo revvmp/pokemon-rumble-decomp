@@ -108,6 +108,7 @@ public:
     void SetSRTElement(u32 index, f32 value) {
         reinterpret_cast<f32*>(&mTranslate)[index] = value;
     }
+    void SetTranslate(const math::VEC3& rTranslate) { mTranslate = rTranslate; }
     void SetName(const char* pName);
     void SetUserData(const char* pUserData);
     const res::ExtUserData* FindExtUserDataByName(const char* pName);

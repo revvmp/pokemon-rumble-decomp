@@ -3,6 +3,7 @@
 
 #include <game/CLayout.h>
 #include <game/IDlg.h>
+#include <game/StageID.h>
 #include <list>
 #include <memory>
 #include <nw4r/math/math_types.h>
@@ -11,8 +12,9 @@
 #include <vector>
 
 class BUILayout;
+class BWorldCamera;
 class BWorldObj;
-class COffScreenTexture;
+class CPiiTex;
 class CUIManager;
 
 class IMsgBalloon : public IDlg {
@@ -34,6 +36,14 @@ public:
         std::tr1::weak_ptr<BWorldObj> mObject;
         std::wstring mText;
         nw4r::math::VEC3 mPosition;
+        f32 mDistanceScale;
+        u32 mFlags;
+        union {
+            u32 mStageValue;
+            StageID mStageID;
+        };
+
+        void ClearFlags(u32 flags) { mFlags &= ~flags; }
     };
 
     CMsgBalloon();
@@ -53,6 +63,10 @@ public:
     void Init(bool flag);
 
 private:
+    void UpdateBalloon(BWorldCamera* pCamera, CLayout* pLayout, bool* pBehind);
+    void SetupBattleWarp(StageID stageID);
+    void SetupStageWarp(StageID stageID);
+
     bool mIsShown;
     int mShowWait;
     int mHideWait;
@@ -61,7 +75,7 @@ private:
     std::tr1::shared_ptr<BUILayout> mMsgLayout;
     std::tr1::shared_ptr<BUILayout> mWarpLayout;
     std::vector<std::tr1::shared_ptr<BUILayout> > mModelLayouts;
-    std::vector<std::tr1::shared_ptr<COffScreenTexture> > mModelTextures;
+    std::vector<std::tr1::shared_ptr<CPiiTex> > mModelTextures;
     std::list<Entry> mEntries;
     Entry* mCurrentEntry;
     int mCurrentIndex;

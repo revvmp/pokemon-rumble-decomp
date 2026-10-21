@@ -49,7 +49,8 @@ public:
     virtual void OnLeaveWorld() {}
     virtual void UpdateVisible() {}
 
-    bool IsVisible() const { return mState & STATE_VISIBLE; }
+    u32 GetStateFlags(u32 mask) const { return mState & mask; }
+    bool IsVisible() const { return GetStateFlags(STATE_VISIBLE); }
     BWorld* GetWorld() const { return mWorld; }
     u32 GetId() const { return mId; }
     u32 GetType() const { return mType; }

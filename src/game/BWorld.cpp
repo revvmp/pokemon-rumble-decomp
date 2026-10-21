@@ -354,7 +354,7 @@ bool BWorld::AddObject(std::tr1::shared_ptr<BWorldObj> obj) {
                 obj->mWorld = this;
                 obj->mId = mLastObjHandle;
 
-                ObjEntry* pEntries = mObjEntries.begin();
+                ObjEntry* pEntries = &mObjEntries[0];
                 ObjEntry* pEntry = pEntries + slot;
                 pEntry->mObj = obj;
                 u32 type = obj->mType;
@@ -394,7 +394,7 @@ void BWorld::RemoveObject(std::tr1::shared_ptr<BWorldObj> obj) {
         return;
     }
 
-    ObjEntry* pEntries = mObjEntries.begin();
+    ObjEntry* pEntries = &mObjEntries[0];
     ObjEntry* pEntry = &mObjEntries[obj->mId % mObjEntries.size()];
     pEntry->mObj.reset();
     pEntry->mFlags = 0;
