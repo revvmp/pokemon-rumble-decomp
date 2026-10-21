@@ -1,4 +1,9 @@
 #include <game/CShadowCamera.h>
+#include <game/CSimpleGround.h>
+#include <game/CFiber.h>
+#include <game/CPpuEngine.h>
+#include <game/FileList.h>
+#include <game/VideoTiming.h>
 #include <game/BWorld.h>
 #include <game/CModel.h>
 #include <game/MathUtil.h>
@@ -299,5 +304,77 @@ void CShadowCamera::SetupShadowModel(std::tr1::shared_ptr<CModel> model) {
 
         nw4r::g3d::ScnMdl::CopiedMatAccess access(pScnMdl, i);
         SetupShadowMaterial(mat, access, mTextures[mTextureLevels - 1], color, GetIndex(), mUseTextureAlpha);
+    }
+}
+
+void CShadowCamera::SelectLight() {
+    BWorld* pWorld = GetWorld();
+    if (pWorld != nullptr) {
+        nw4r::g3d::LightSetting& rSetting = pWorld->GetScnRoot()->GetLightSetting();
+
+        for (int i = 0; i < static_cast<int>(rSetting.GetNumLightSet()); i++) {
+            nw4r::g3d::LightSet lightSet = rSetting.GetLightSet(i);
+
+            for (u32 j = 0;; j++) {
+                nw4r::g3d::LightObj* pLight = lightSet.GetLightObj(j);
+                if (pLight == nullptr) {
+                    break;
+                }
+
+                if (pLight->IsDiffuseLight()) {
+                    mLightSetIndex = i;
+                    mLightIndex = j;
+                    mAutoSelectLight = true;
+                    return;
+                }
+            }
+        }
+    }
+
+    mLightSetIndex = 0;
+    mLightIndex = 0;
+    mAutoSelectLight = true;
+}
+
+CSimpleGround::CSimpleGround(u32 type) : BModelObj(type | TYPE), mReserved(0) {}
+
+CSimpleGround::~CSimpleGround() {}
+
+void CSimpleGround::Initialize(bool background) {}
+
+void CSimpleGround::LoadScript(const char* pName, int mode, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnvironment) {
+    mPpuEngine.reset(new CPpuEngine);
+    mPpuEngine->Load(this, pName, mode, rEnvironment);
+}
+
+void CSimpleGround::LoadModel(const char* pName, bool background) {
+    std::tr1::shared_ptr<CModel> model(new CModel);
+
+    void* pEntry;
+    std::tr1::shared_ptr<FileList> fileList = LoadFileList(&pEntry, pName, 0, background, nullptr);
+
+    CModel::LoadParams params = {nullptr, false, 0xD15, 1, nullptr};
+    params.mpFileNames = static_cast<const char**>(pEntry);
+    if (!model->Load(params, background)) {
+        TerminateFiber(1);
+        return;
+    }
+
+    model->GetScnObj()->SetPriorityDrawXlu(1);
+    ChangeModel(model, 1);
+    gFrameTimingReset = true;
+}
+
+void CSimpleGround::Calc() {
+    BModelObj::Calc();
+    if (mPpuEngine) {
+        mPpuEngine->Calc();
+    }
+}
+
+void CSimpleGround::OnLeaveWorld() {
+    BModelObj::OnLeaveWorld();
+    if (mPpuEngine) {
+        mPpuEngine->Reset();
     }
 }

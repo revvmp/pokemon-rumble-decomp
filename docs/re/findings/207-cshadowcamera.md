@@ -65,3 +65,7 @@ GNU objdump 2.42 with `-M gekko` and Python scans of `build/wpse-v1/main.elf` (c
 - **`VEC3::operator/` is not folded.** `sum / 4.0f` keeps the runtime `fdivs` of `1.0f / 4.0f` that the original has; `sum * 0.25f` does not.
 - **`std::min` takes references.** `std::min(mAlpha, color.a)` on `u8` reproduces the reference-returning compare (`cmplw`, select a stack address); `Min<u8>` by value does not.
 - **A `GXPTTexMtx` cast changes scheduling.** `static_cast<GXPTTexMtx>(GX_PTTEXMTX0 + texCoord * 3)` keeps the matrix index in a callee-saved register before the texture copy; a plain `u32` is computed at the call.
+
+## F-207-5: SelectLight and CSimpleGround
+
+`SelectLight` and the `CSimpleGround` members at `0x8010D7D0`-`0x8010DDD8` are reconstructed in the same source file; see [F-208-1](208-csimpleground.md#f-208-1-selectlight-and-csimpleground).
