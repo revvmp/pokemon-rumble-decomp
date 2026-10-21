@@ -364,8 +364,8 @@ inline void CMsgBalloon::SetupBattleWarp(StageID stageID) {
             int hundredths = centiseconds % 100;
             NIntl::basic_formatter<wchar_t> formatter(GetMessageString(0x70010, L"{1}'{2}\"{3}"));
             formatter % minutes;
-            formatter % L"%02d" % seconds;
-            formatter % L"%02d" % hundredths;
+            formatter.format(L"%02d") % seconds;
+            formatter.format(L"%02d") % hundredths;
             pLayout->SetText("TIME", formatter.c_str());
         }
     }

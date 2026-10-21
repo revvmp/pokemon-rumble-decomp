@@ -4,16 +4,16 @@ Target `wpse-v1`, checked with `tools/re/unitdiff.py src/game/CMsgBalloon.cpp`, 
 
 ## F-146-1: the 32 functions of 0x800C7EF0-0x800C88C8
 
-Result: every function of the block compares 100% in objdiff apart from relocation names of callees and literals that other issues own or that need the whole file (`SetupBattleWarp` 99.27%, `SetupStageWarp` 99.56%, `NIntl::basic_formatter<wchar_t>::operator%(const wchar_t*)` 99.62%, `parse` 99.48%, `basic_string<wchar_t>::buffer` 99.21%, `operator+=` 95.00%; the other 26 are 100.00%). Confidence high. Full `ninja` links and `verify.py` passes; per-function scores of every other unit are unchanged against the baseline `report.json`.
+Result: every function of the block compares 100% in objdiff apart from relocation names of callees and literals that other issues own or that need the whole file (`SetupBattleWarp` 99.27%, `SetupStageWarp` 99.56%, `NIntl::basic_formatter<wchar_t>::format(const wchar_t*)` 99.62%, `parse` 99.48%, `basic_string<wchar_t>::buffer` 99.21%, `operator+=` 95.00%; the other 26 are 100.00%). Confidence high. Full `ninja` links and `verify.py` passes; per-function scores of every other unit are unchanged against the baseline `report.json`.
 
 | Address | Function |
 | --- | --- |
 | `0x800C7EF0`-`0x800C7F30` | `CLayout::GetViewRect`, `ut::Rect::GetWidth`, `GetHeight`, `lyt::Pane::SetTranslate`, `CPiiPersonalData::GetHP` (inline accessors declared in F-145-4) |
-| `0x800C7F40`-`0x800C8020` | `list<Entry>::iterator` default constructor, assignment, `operator->` (`0x800C7F60`), `operator*` (`0x800C7FE0`), `operator++`, `operator!=`; `shared_ptr<BWorldObj>` bool conversion and `operator->`; `BWorldObj::IsVisible` and `GetStateFlags`; `Entry::ClearFlags` |
+| `0x800C7F40`-`0x800C8020` | `list<Entry>::generic_iterator<false>` default constructor, assignment, `operator->` (`0x800C7F60`), `operator*` (`0x800C7FE0`), `operator++`, `operator!=` (the class and its mangled name come from the list rewrite of #1107); `shared_ptr<BWorldObj>` bool conversion and `operator->`; `BWorldObj::IsVisible` and `GetStateFlags`; `Entry::ClearFlags` |
 | `0x800C8030` | `CMsgBalloon::SetupBattleWarp(StageID)` (descriptive name, medium) |
 | `0x800C83C0`, `0x800C83D0` | `CBattleRoyalRecord::GetClearTime`, `shared_ptr<CBattleRoyalRecord>::operator->` |
 | `0x800C83E0`, `0x800C83F0` | `ceil(float)` and `ceilf(float)` |
-| `0x800C8420`, `0x800C8460`, `0x800C84A0` | `NIntl::basic_formatter<wchar_t>`: `operator%(const wchar_t*)`, `str()`, `parse()` |
+| `0x800C8420`, `0x800C8460`, `0x800C84A0` | `NIntl::basic_formatter<wchar_t>`: `format(const wchar_t*)`, `str()`, `parse()` |
 | `0x800C8650`, `0x800C8690` | `basic_string<wchar_t>::operator[]` and its private buffer accessor |
 | `0x800C86E0` | `isdigit(int)` |
 | `0x800C8720`, `0x800C8740`, `0x800C8750` | `vector<wstring>::size`, `operator[]` and the `__vec_constructor` layer below it |
@@ -28,7 +28,7 @@ Both fill the `mWarpLayout` panes `BATTLE`, `KNOWN`, `UNKNOWN`, `EXTRA` and `CLE
 
 ### The formatter
 
-`NIntl::basic_formatter<wchar_t>` is 0x34 bytes: the format string at 0, a `vector<wstring>` of arguments at 0xC, the pending format specification at 0x18, the result at 0x24 and a parsed flag at 0x30. Three nested empty exception classes (`InvalidFormatException`, `TooFewArgsException`, `TooManyArgsException`, type names at `0x803A5160`, `0x803A5198`, `0x803A51D0`) are thrown by value from `parse`, which copies the format into the result, replacing each `{n}` (single digit, n at least 1) by argument n and throwing when an argument is missing or unused. `operator%(const wchar_t*)` stores the specification that the next `operator%<int>` (`0x801F34E0`, in another unit) consumes. The constructor `0x80089330`, destructor `0x800893F0`, `operator%<T>` and `c_str()` (`0x8008D4E0`) are defined in other units; `str()` and `parse()` are the copies in this one. `include/NIntl/basic_formatter.h` declares them; `include/game/MessageFormat.h` holds the one-argument and two-argument helpers behind `0x800CB5F0` and `0x800CB570` (`FormatMessageString`, descriptive name, medium), which return a copy of `str()`.
+`NIntl::basic_formatter<wchar_t>` is 0x34 bytes: the format string at 0, a `vector<wstring>` of arguments at 0xC, the pending format specification at 0x18, the result at 0x24 and a parsed flag at 0x30. Three nested empty exception classes (`InvalidFormatException`, `TooFewArgsException`, `TooManyArgsException`, type names at `0x803A5160`, `0x803A5198`, `0x803A51D0`) are thrown by value from `parse`, which copies the format into the result, replacing each `{n}` (single digit, n at least 1) by argument n and throwing when an argument is missing or unused. `format(const wchar_t*)` (descriptive name, returns the formatter) stores the specification that the next `operator%(const int&)` (`0x801F34E0`, in another unit; the argument is a pointer to the integer, so the symbol is renamed from `Fi` to `FRCi`) consumes. `0x801F5120` is the `const wchar_t*` argument overload of `operator%`, a different function from `format`, and keeps its name. The constructor `0x80089330`, destructor `0x800893F0`, `operator%` and `c_str()` (`0x8008D4E0`) are defined in other units; `str()` and `parse()` are the copies in this one. `include/NIntl/basic_formatter.h` declares them; `include/game/MessageFormat.h` holds the one-argument and two-argument helpers behind `0x800CB5F0` and `0x800CB570` (`FormatMessageString`, descriptive name, medium), which return a copy of `str()`.
 
 ### Library changes
 
@@ -46,7 +46,7 @@ The numbered `@NNNN` string symbols, the single shared base register and the in-
 
 - A by-value class parameter (`StageID`) is read through the caller's pointer. Using it through a second type (`MapIndex`) for the record lookup, `GetRecord(rIndex.mMode, rIndex.mArea)`, stops the compiler from reusing the first comparison's `srawi` result and reloads the word; `GetRecord(stageID.mKind, stageID.mRank)` keeps the kind in a callee-saved register. `StageID` and `MapIndex` are the same 32-bit value (`mKind` is the mode, `mRank` the area, `mWorld` the stage).
 - The two arguments of `FormatMessageString(msg, progress / 2, progress % 2 + 1)` are temporaries bound to `const int&`; declaring them as locals puts them above the copy of the `MapIndex` instead of below it.
-- `formatter % minutes;` then `formatter % L"%02d" % seconds;` then `formatter % L"%02d" % hundredths;` are three statements. One chain, or five statements, differ in where `this` is reloaded.
+- `formatter % minutes;` then `formatter.format(L"%02d") % seconds;` then `formatter.format(L"%02d") % hundredths;` are three statements. One chain, or five statements, differ in where `this` is reloaded.
 - `Calc` uses `it->mPosition` and `it->mObject` (`operator->` at `0x800C7F60`) and `&*it` (`operator*` at `0x800C7FE0`).
 - In `parse`, `charT c = mFormat[i]` is kept in `r4` for `push_back`; the `{` case comes first, and its validity test is `if (!(...)) throw; else { ... }` because the target jumps from the first throw to the end of the iteration.
 

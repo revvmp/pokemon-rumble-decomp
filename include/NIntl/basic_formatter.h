@@ -16,9 +16,9 @@ public:
     explicit basic_formatter(const charT* pFormat);
     ~basic_formatter();
 
-    template <class T> basic_formatter& operator%(const T& rArg);
+    basic_formatter& operator%(const int& rArg);
 
-    basic_formatter& operator%(const charT* pSpec) {
+    basic_formatter& format(const charT* pSpec) {
         mSpec = pSpec;
         return *this;
     }
