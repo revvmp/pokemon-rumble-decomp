@@ -17,6 +17,7 @@ void* memset(void* dst, int value, size_t count) _MSL_CANT_THROW;
 void* memcpy(void* dst, const void* src, size_t count) _MSL_CANT_THROW;
 int memcmp(const void* lhs, const void* rhs, size_t count) _MSL_CANT_THROW;
 void* memmove(void* dst, const void* src, size_t count) _MSL_CANT_THROW;
+int strncasecmp(const char* lhs, const char* rhs, size_t count) _MSL_CANT_THROW;
 int strcmp(const char* lhs, const char* rhs) _MSL_CANT_THROW;
 int strncmp(const char* lhs, const char* rhs, size_t count) _MSL_CANT_THROW;
 char* strcat(char* dst, const char* src) _MSL_CANT_THROW;

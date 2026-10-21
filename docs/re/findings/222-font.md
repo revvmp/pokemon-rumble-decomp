@@ -38,6 +38,8 @@ No new source-generation trap beyond F-222-1 arose. A reused seed MAP can predat
 
 # F-222-3: Independent DCIM continuation checkpoint
 
+The unresolved producer state below is superseded by [F-222-5](222-dcim.md): indexing the typed filename field before pointer conversion resolves the final code difference, and the complete three-function DCIM unit is now source-selected with frozen verification.
+
 The next independent investigated boundary is 80125B10–8012623C, three ordinary DCF filename/index functions. The first validates an eight-character directory name with three decimal digits (directory number at least 100) followed by five alphanumeric/underscore characters. The second validates four alphanumeric/underscore prefix characters followed by four decimal digits (file number at least one), permitting a following extension beginning with a dot. Both support negative explicit length by calling strlen. Holding each input character in an int local permits the same signed-char extension to serve classification and decimal accumulation. Their actual natural producer reproduces all 1,020 instruction bytes and every applied relocation target. A bounded additive isalnum body follows the existing locale-table ctype contract, outside only.
 
 The full index-selection producer at 80125F20 reaches 800 bytes against native 796 with the exact 2,272-byte stack. Its current residual is a hoisted pointer to the directory filename suffix that uses an extra saved register; native recomputes that stack-relative address at its comparison sites. Wii/1.3 leaves this unchanged. Naming loop-local filename pointers increases the discrepancy and is not adopted. No flags, volatile storage or fabricated cache controls are used.

@@ -7,6 +7,10 @@
 extern "C" {
 #endif
 
+inline int isalnum(int c) {
+    return ((c < 0) || (c >= 0x100)) ? 0 : (int)(_current_locale.ctype_cmpt_ptr->ctype_map_ptr[c] & 0x9);
+}
+
 inline int isdigit(int c) {
     return ((c < 0) || (c >= 0x100)) ? 0 : (int)(_current_locale.ctype_cmpt_ptr->ctype_map_ptr[c] & 0x8);
 }
