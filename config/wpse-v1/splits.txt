@@ -261,6 +261,9 @@ game/ControllerTable.cpp:
 	.bss        start:0x803E8D28 end:0x803E90C8
 	.sdata      start:0x804B77D8 end:0x804B77D9
 
+ControllerTableAlignmentPadding:
+	.sdata      start:0x804B77D9 end:0x804B77E0 align:1
+
 game/ScriptCamera.cpp:
 	extab       start:0x8002DE28 end:0x8002E278
 	extabindex  start:0x8004D07C end:0x8004D520
@@ -3394,6 +3397,3 @@ MetroTRK/debugger/embedded/MetroTRK/Processor/ppc/Generic/targimpl.c:
 MetroTRK/debugger/embedded/MetroTRK/Os/dolphin/target_options.c:
 	.text       start:0x803529AC end:0x803529BC
 	.sbss       start:0x804B9C40 end:0x804B9C41
-
-ControllerTableAlignmentPadding:
-	.sdata      start:0x804B77D9 end:0x804B77E0 align:1
