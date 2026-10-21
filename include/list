@@ -76,6 +76,7 @@ public:
         friend class const_iterator;
     };
 
+    static node* __iterator2pointer(iterator& i) { return i.node_; }
     static iterator __pointer2iterator(node* pNode) { return iterator(pNode); }
 
     class const_iterator {
@@ -125,6 +126,7 @@ public:
     size_type& size_ref() { return size_.second(); }
     const size_type& size_ref() const { return size_.second(); }
     Allocator& alloc() { return size_.first(); }
+    const Allocator& alloc() const { return size_.first(); }
     node_allocator& node_alloc() { return tail_.first(); }
 
     static void unlink_nodes(node_base* pFirst, node_base* pLast) {
@@ -177,7 +179,7 @@ typename __list_deleter<T, Allocator>::iterator __list_deleter<T, Allocator>::er
 
 template <typename T, typename Allocator>
 typename __list_deleter<T, Allocator>::iterator __list_deleter<T, Allocator>::erase(iterator position) {
-    node* oldnode = static_cast<node*>(position.base());
+    node* oldnode = __iterator2pointer(position);
     ++position;
     unlink_nodes(oldnode, oldnode);
     alloc().destroy(&oldnode->data_);
@@ -215,6 +217,7 @@ typename __list_deleter<T, Allocator>::iterator __list_deleter<T, Allocator>::in
 template <typename T, typename Allocator> class __list_imp : public __list_deleter<T, Allocator> {
 public:
     __list_imp() {}
+    __list_imp(const __list_imp& rOther) : __list_deleter<T, Allocator>(rOther.alloc()) { insert_range(rOther.begin(), rOther.end()); }
     template <typename InputIterator> __list_imp(InputIterator first, InputIterator last, const Allocator& rAllocator) :
         __list_deleter<T, Allocator>(rAllocator) {
         insert_dispatch(first, last, Metrowerks::int2type<0>());
@@ -260,7 +263,6 @@ public:
     iterator locate(size_type n);
 
     list() {}
-    list(const list& rOther) : base(rOther.begin(), rOther.end(), Allocator()) {}
     template <class InputIterator> list(InputIterator first, InputIterator last) {
         for (; first != last; ++first) {
             push_back(*first);

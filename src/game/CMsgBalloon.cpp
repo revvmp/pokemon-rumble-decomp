@@ -458,7 +458,7 @@ inline void CMsgBalloon::SetupStageWarp(StageID stageID) {
 }
 
 inline void CMsgBalloon::SetupStageModels(StageID stageID) {
-    std::map<u32, bool> unlocked;
+    std::map<int, bool> unlocked;
     MapIndex& rIndex = reinterpret_cast<MapIndex&>(stageID);
     bool anyCleared = false;
     bool allCleared = true;
@@ -504,7 +504,7 @@ inline void CMsgBalloon::SetupStageModels(StageID stageID) {
 
     CPiiCollectionBox* pBox = IGameSession::GetInstance()->GetPiiCollectionBox();
     u32 index = 0;
-    std::map<u32, bool>::iterator it;
+    std::map<int, bool>::iterator it;
     bool anyCollected = false;
     for (it = unlocked.begin(); it != unlocked.end(); ++it) {
         if (it->second) {

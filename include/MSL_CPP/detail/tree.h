@@ -11,6 +11,11 @@
 #include <limits>
 
 
+namespace Metrowerks {
+template <bool, typename T, typename F> struct select { typedef T type; };
+template <typename T, typename F> struct select<false, T, F> { typedef F type; };
+}
+
 namespace std {
 
 template <typename T> struct less : binary_function<T, T, bool> {
@@ -462,46 +467,25 @@ public:
     typedef typename Allocator::template rebind<node>::other NodeAllocator;
     typedef NodeAllocator node_allocator;
 
-    class iterator {
+    template <bool IsConst> class __generic_iterator {
     public:
-        iterator() {}
-        iterator(const iterator& rOther) : node_(rOther.node_) {}
-        iterator(tree_node_base* pNode) : node_(pNode) {}
-        bool operator==(const iterator& rOther) const { return node_ == rOther.node_; }
-        bool operator!=(const iterator& rOther) const { return node_ != rOther.node_; }
-        iterator& operator++() {
-            tree_imp::algorithm_base::increment(node_);
-            return *this;
-        }
-        T& operator*() const { return static_cast<node*>(node_)->value_; }
-        T* operator->() const { return &static_cast<node*>(node_)->value_; }
-
-        tree_node_base* node_;
-
+        typedef typename Metrowerks::select<IsConst, const T*, T*>::type pointer;
+        typedef typename Metrowerks::select<IsConst, const T&, T&>::type reference;
+        __generic_iterator() {}
+        __generic_iterator(const __generic_iterator<false>& rOther) : node_(rOther.node_) {}
+        reference operator*() const { return node_->value_; }
+        pointer operator->() const { return &node_->value_; }
+        __generic_iterator& operator++() { tree_imp::algorithm_base::increment(reinterpret_cast<tree_node_base*&>(node_)); return *this; }
+        friend bool operator==(const __generic_iterator& rLeft, const __generic_iterator& rRight) { return rLeft.node_ == rRight.node_; }
+        friend bool operator!=(const __generic_iterator& rLeft, const __generic_iterator& rRight) { return rLeft.node_ != rRight.node_; }
+        node* node_;
     private:
-        void increment() {
-            if (node_->right_ != nullptr) {
-                node_ = tree_leftmost(node_->right_);
-            } else {
-                while (node_ != node_->parent_->left_) {
-                    node_ = node_->parent_;
-                }
-                node_ = node_->parent_;
-            }
-        }
+        explicit __generic_iterator(node* pNode) : node_(pNode) {}
+        friend class __generic_iterator<true>;
+        friend class tree_imp;
     };
-    class const_iterator {
-    public:
-        const_iterator() {}
-        const_iterator(const iterator& rOther) : node_(rOther.node_) {}
-        const_iterator(tree_node_base* pNode) : node_(pNode) {}
-        const T& operator*() const { return static_cast<node*>(node_)->value_; }
-        const T* operator->() const { return &static_cast<node*>(node_)->value_; }
-        const_iterator& operator++() { tree_imp::algorithm_base::increment(node_); return *this; }
-        bool operator==(const const_iterator& rOther) const { return node_ == rOther.node_; }
-        bool operator!=(const const_iterator& rOther) const { return !(*this == rOther); }
-        tree_node_base* node_;
-    };
+    typedef __generic_iterator<false> iterator;
+    typedef __generic_iterator<true> const_iterator;
 
     tree_imp() : size_(0) { begin_node() = end_node(); }
     tree_imp(const Compare& rCompare, const Allocator& rAllocator) : size_(size_type(0), rAllocator), root_(NodeAllocator(rAllocator)), begin_(rCompare) { begin_node() = end_node(); }
@@ -510,10 +494,10 @@ public:
     size_type size() const { return sz(); }
     size_type max_size() const { return numeric_limits<size_type>::max(); }
 
-    iterator begin() { return iterator(begin_node()); }
-    iterator end() { return iterator(end_node()); }
-    const_iterator begin() const { return const_iterator(const_cast<tree_imp*>(this)->begin_node()); }
-    const_iterator end() const { return const_iterator(const_cast<tree_imp*>(this)->end_node()); }
+    iterator begin() { return iterator(static_cast<node*>(begin_node())); }
+    iterator end() { return iterator(static_cast<node*>(end_node())); }
+    const_iterator begin() const { return const_iterator(static_cast<node*>(const_cast<tree_imp*>(this)->begin_node())); }
+    const_iterator end() const { return const_iterator(static_cast<node*>(const_cast<tree_imp*>(this)->end_node())); }
 
     void clear() {
         if (root() != nullptr) {
@@ -597,8 +581,8 @@ private:
     Metrowerks::compressed_pair<size_type, Allocator> size_;
     Metrowerks::compressed_pair<node_allocator, tree_root_ptr> root_;
     tree_begin_holder<Compare> begin_;
-    friend class iterator;
-    friend class const_iterator;
+    friend class __generic_iterator<false>;
+    friend class __generic_iterator<true>;
 };
 
 template <typename T, typename Compare, typename Allocator>
@@ -707,9 +691,9 @@ template <typename Key>
 typename tree_imp<T, Compare, Allocator>::iterator tree_imp<T, Compare, Allocator>::find(const Key& rKey) const {
         tree_node_base* pResult = do_lower_bound(rKey, root(), end_node());
         if (pResult == end_node() || comp()(rKey, static_cast<node*>(pResult)->value_)) {
-            return iterator(end_node());
+            return iterator(static_cast<node*>(end_node()));
         }
-        return iterator(pResult);
+        return iterator(static_cast<node*>(pResult));
     }
 
 template <typename T, typename Compare, typename Allocator>

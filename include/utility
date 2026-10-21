@@ -3,6 +3,16 @@
 
 namespace std {
 
+template <typename T1, typename T2> struct pair;
+
+namespace tr1 {
+template <unsigned int N, class T> struct tuple_element;
+template <class T1, class T2> struct tuple_element<0, pair<T1, T2> > { typedef T1 type; };
+template <class T1, class T2> struct tuple_element<1, pair<T1, T2> > { typedef T2 type; };
+template <unsigned int N, class T1, class T2>
+const typename tuple_element<N, pair<T1, T2> >::type& get(const pair<T1, T2>& p);
+}
+
 template <typename T1, typename T2> struct pair {
     typedef T1 first_type;
     typedef T2 second_type;
@@ -10,11 +20,32 @@ template <typename T1, typename T2> struct pair {
     pair() : first(), second() {}
     pair(const T1& rFirst, const T2& rSecond) : first(rFirst), second(rSecond) {}
 
-    template <typename U, typename V> pair(const pair<U, V>& rOther) : first(rOther.first), second(rOther.second) {}
+    template <typename U, typename V> pair(const pair<U, V>& rOther) : first(tr1::get<0>(rOther)), second(tr1::get<1>(rOther)) {}
 
     T1 first;
     T2 second;
 };
+
+namespace tr1 {
+namespace detail {
+template <unsigned int N, class T1, class T2> struct get_pair;
+template <class T1, class T2> struct get_pair<0, T1, T2> {
+    T1& operator()(const pair<T1, T2>& p) const { return const_cast<T1&>(p.first); }
+};
+template <class T1, class T2> struct get_pair<1, T1, T2> {
+    T2& operator()(const pair<T1, T2>& p) const { return const_cast<T2&>(p.second); }
+};
+}
+template <unsigned int N, class T1, class T2>
+inline typename tuple_element<N, pair<T1, T2> >::type& get(pair<T1, T2>& p) {
+    return detail::get_pair<N, T1, T2>()(p);
+}
+template <unsigned int N, class T1, class T2>
+inline const typename tuple_element<N, pair<T1, T2> >::type& get(const pair<T1, T2>& p) {
+    return detail::get_pair<N, T1, T2>()(p);
+}
+}
+
 
 }
 
