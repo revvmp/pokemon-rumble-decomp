@@ -3348,3 +3348,7 @@ The original anonymous `CIconCollection_cpp` class `CIconCollection` is 468 byte
 - CWaza has BWorldObj at `0x00..0x47` and BSoundSource at `0x48..0x63`, move ID at `0x64`, shared CPpuEngine at `0x68/0x6C`, and twelve-byte map at `0x70..0x7B`; size `0x7C`. Its secondary vtable is at `0x60`.
 - The EffectInfo read-only array at803550E0 remains696 records of24 bytes, using node-name offset8. The existing size/split/type are unchanged.
 - Shared map helpers80063DE0 and80063FB0 use the unsigned-long scalar storage contract documented by the primary Metrowerks transformation and their reuse by CWaza. Only names change; outside code ownership is preserved.
+# F-228: main callback wrapper layout
+
+`std::tr1::function<R(A,B,C,D)>` is twelve bytes: implementation pointer at zero, eight inline bytes at four, with word alignment. Native `CPath::Drive/const char*/long/unsigned long` pointer callback implementations use an eight-byte polymorphic target and false/false flags. The native `bool(HBMSelectBtnNum)` plain-pointer implementation likewise uses false/false and converts the target result to bool. Existing one-argument functor implementations retain false/true. Type names and ABI are high confidence from RTTI, retained clone/invocation bodies and paired constructor/destructor contracts; details are in [F-228-1](findings/228-main-callable-contracts.md).
+

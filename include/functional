@@ -234,6 +234,19 @@ private:
     union { char buf_[8]; unsigned long words_[2]; };
 };
 
+namespace detail {
+template<class R,class A,class F> class function_imp<R (*)(A),F,false,false> : public function_base<R (*)(A)> {
+    typedef function_base<R (*)(A)> base;
+public:
+    explicit function_imp(F f) : f_(f) {}
+    virtual base* clone() const { return new function_imp(*this); }
+    virtual base* clone(void* pBuffer) const { return new (pBuffer) function_imp(*this); }
+    virtual R operator()(A argument) { return R(f_(argument)); }
+private:
+    F f_;
+};
+}
+
 template <typename R,typename A> class function<R(A)> {
     typedef detail::function_base<R (*)(A)> base;
 
@@ -245,6 +258,12 @@ public:
     typedef R result_type;
 
     function(detail::unused_argument* = nullptr) : f_(nullptr) {}
+    template <typename R2> function(R2 (*pFunction)(A), detail::unused_argument* = nullptr) : f_(nullptr) {
+        if (pFunction != nullptr) {
+            typedef detail::function_imp<R (*)(A), R2 (*)(A), false, false> imp;
+            f_ = new (buf_) imp(pFunction);
+        }
+    }
     template <typename F> function(F f, detail::unused_argument* = nullptr) : f_(nullptr) {
         if (!detail::is_null(f)) {
             typedef detail::function_imp<R (*)(A), F, false, true> imp;
@@ -303,6 +322,100 @@ public:
             throw bad_function_call();
         }
         return (*f_)(argument);
+    }
+
+private:
+    base* local() const { return reinterpret_cast<base*>(const_cast<char*>(buf_)); }
+
+    base* f_;
+    union { char buf_[8]; unsigned long words_[2]; };
+};
+
+namespace detail {
+template<class R,class A,class B,class C,class D> class function_base<R (*)(A,B,C,D)> {
+public:
+    virtual ~function_base() {}
+    virtual function_base* clone() const = 0;
+    virtual function_base* clone(void* pBuffer) const = 0;
+    virtual R operator()(A first, B second, C third, D fourth) = 0;
+};
+template<class R,class A,class B,class C,class D,class F> class function_imp<R (*)(A,B,C,D),F,false,false> : public function_base<R (*)(A,B,C,D)> {
+    typedef function_base<R (*)(A,B,C,D)> base;
+public:
+    explicit function_imp(F f) : f_(f) {}
+    virtual base* clone() const { return new function_imp(*this); }
+    virtual base* clone(void* pBuffer) const { return new (pBuffer) function_imp(*this); }
+    virtual R operator()(A first, B second, C third, D fourth) { return R(f_(first,second,third,fourth)); }
+private:
+    F f_;
+};
+}
+
+template <typename R,typename A,typename B,typename C,typename D> class function<R(A,B,C,D)> {
+    typedef detail::function_base<R (*)(A,B,C,D)> base;
+
+    struct bool_type {
+        int dummy_;
+    };
+
+public:
+    typedef R result_type;
+
+    function(detail::unused_argument* = nullptr) : f_(nullptr) {}
+    template <typename R2> function(R2 (*pFunction)(A,B,C,D), detail::unused_argument* = nullptr) : f_(nullptr) {
+        if (pFunction != nullptr) {
+            typedef detail::function_imp<R (*)(A,B,C,D), R2 (*)(A,B,C,D), false, false> imp;
+            f_ = new (buf_) imp(pFunction);
+        }
+    }
+    function(const function& r) : f_(nullptr) {
+        if (r.f_ != nullptr) {
+            if (r.f_ == r.local()) {
+                f_ = r.f_->clone(buf_);
+            } else {
+                f_ = r.f_->clone();
+            }
+        }
+    }
+    ~function() {
+        if (f_ == local()) {
+            f_->~base();
+        } else if (f_ != nullptr) {
+            delete f_;
+        }
+    }
+
+    function& operator=(const function& r) {
+        function tmp(r);
+        swap(tmp);
+        return *this;
+    }
+
+    void swap(function& r) {
+        base* p = f_;
+        bool localStorage = p == local();
+        f_ = r.f_;
+        r.f_ = p;
+        for (unsigned int i = 0; i < sizeof(buf_) / sizeof(unsigned long); ++i) {
+            unsigned long c = words_[i];
+            words_[i] = r.words_[i];
+            r.words_[i] = c;
+        }
+        if (localStorage) {
+            r.f_ = r.local();
+        }
+        if (f_ == r.local()) {
+            f_ = local();
+        }
+    }
+
+    operator int bool_type::*() const { return f_ != nullptr ? &bool_type::dummy_ : nullptr; }
+
+    R operator()(A first, B second, C third, D fourth) const {
+        if (f_ == nullptr) {
+            throw bad_function_call();
+        }
+        return (*f_)(first,second,third,fourth);
     }
 
 private:
