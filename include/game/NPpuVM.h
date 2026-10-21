@@ -254,6 +254,11 @@ public:
         Pop(value);
         return value.ToFloat();
     }
+    const wchar_t* PopWString() {
+        CValue value;
+        Pop(value);
+        return ToWString(value);
+    }
     CValue* PopReference() {
         CValue value;
         Pop(value);

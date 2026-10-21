@@ -480,17 +480,6 @@ game/ControllerTable.cpp:
 	.bss        start:0x803E8D28 end:0x803E90C8
 	.sdata      start:0x804B77D8 end:0x804B77D9
 
-game/CLayout.cpp:
-	extab       start:0x8003C83C end:0x8003E964
-	extabindex  start:0x80051414 end:0x80051990
-	.text       start:0x801CA880 end:0x801D9A08
-	.ctors      start:0x80352A24 end:0x80352A28
-	.rodata     start:0x80367038 end:0x80367068
-	.data       start:0x803C0530 end:0x803C0FB0
-	.sdata      start:0x804B8348 end:0x804B8430
-	.sbss       start:0x804B9180 end:0x804B9188
-	.sdata2     start:0x804BA490 end:0x804BA4D0
-
 ControllerTableAlignmentPadding:
 	.sdata      start:0x804B77D9 end:0x804B77E0 align:1
 
@@ -524,6 +513,14 @@ game/ScriptItem.cpp:
 	.text       start:0x80140C40 end:0x801420E4
 	.data       start:0x803B67A8 end:0x803B6980
 	.sdata      start:0x804B79E0 end:0x804B7A10
+
+game/ScriptUtilities.cpp:
+	extab       start:0x8002FB20 end:0x8002FCB0
+	extabindex  start:0x8004E144 end:0x8004E288
+	.text       start:0x80145AA0 end:0x80146EE0
+	.data       start:0x803B6DF0 end:0x803B6EAC
+	.sdata      start:0x804B7A30 end:0x804B7A40
+	.sdata2     start:0x804BA240 end:0x804BA250
 
 game/SaveData.cpp:
 	extab       start:0x80032AA8 end:0x80033D8C
@@ -885,6 +882,17 @@ game/EncodingConverter.cpp:
 	.data       start:0x803C0480 end:0x803C0530
 	.sdata      start:0x804B8340 end:0x804B8348
 	.sbss       start:0x804B9178 end:0x804B9180
+
+game/CLayout.cpp:
+	extab       start:0x8003C83C end:0x8003E964
+	extabindex  start:0x80051414 end:0x80051990
+	.text       start:0x801CA880 end:0x801D9A08
+	.ctors      start:0x80352A24 end:0x80352A28
+	.rodata     start:0x80367038 end:0x80367068
+	.data       start:0x803C0530 end:0x803C0FB0
+	.sdata      start:0x804B8348 end:0x804B8430
+	.sbss       start:0x804B9180 end:0x804B9188
+	.sdata2     start:0x804BA490 end:0x804BA4D0
 
 game/CResFont.cpp:
 	extab       start:0x8003E964 end:0x8003E9BC
