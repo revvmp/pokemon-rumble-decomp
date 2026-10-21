@@ -28,7 +28,13 @@ Unchanged `GAME_COMPILER` Wii/1.1 and `cflags_game` reproduce all five Classic f
 
 The native Boolean stages in the GameCube and Wii Remote input checks correspond to nested readability, connection and processing predicates. Collapsing all stages into one expression shortens the routines. The Classic button mapper declares the native hold word before its result and compares positive stick thresholds with the constant as the left operand; the equivalent reversed comparison selects different floating comparison instructions.
 
+## F-57-2: Const motor interface control
+
+The native composition motor loops only read their controller collection. Declaring `StartMotor(const MotorPattern&) const` and `StopMotor() const` across `IController`, `BController`, composition, GameCube and Wii Remote reproduces their complete 120-byte and 104-byte instruction streams under unchanged Wii/1.1 game flags. The former non-const declarations left five and three differing prologue instructions respectively. All five GameCube functions and all seven Wii Remote functions retain their exact native instruction streams with the corrected interface. This independently checks the concrete overrides rather than inferring const qualification from the empty base implementations.
+
+The correction changes mangled method names at the existing eight native addresses, preserving their sizes, virtual slots and object layouts. Composition update and pointer-vector assignment remain incomplete; this interface control does not complete issue #57.
+
 ## Traps
 
 - A seeded `main.elf.MAP` can be stale even after a successful current link. Default `configure.py` does not enable map generation. The first controller control had a current ELF with source symbols while its seed MAP still named original fallback objects. Generate with `configure.py --map`, relink and verify before using a MAP to attribute source coverage; inspect timestamps and actual symbol entries. Never infer source attribution from an inherited map.
-- Composition scratch controls are not accepted source. Its update currently has the correct 424-byte extent with three prologue scheduling differences; its two rumble loops differ only in prologue ordering. Pointer-vector assignment still needs the original iterator and allocation context. Wii/1.3 gives the same residuals as Wii/1.1; changing compiler flags is not justified.
+- Composition scratch controls are not accepted source. Its update currently has the correct 424-byte extent with three prologue scheduling differences. The former motor-loop prologue differences are resolved by the const interface in F-57-2. Pointer-vector assignment still needs the original iterator and allocation context. Wii/1.3 gives the same residuals as Wii/1.1; changing compiler flags is not justified.

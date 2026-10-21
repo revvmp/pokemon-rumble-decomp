@@ -8,8 +8,8 @@ public:
     CControllerWiiRemote();
     virtual Type GetType() const;
     virtual void Update();
-    virtual void StartMotor(const MotorPattern& rPattern);
-    virtual void StopMotor();
+    virtual void StartMotor(const MotorPattern& rPattern) const;
+    virtual void StopMotor() const;
     virtual const wchar_t* GetButtonSymbol(u32 button) const;
 
 private:
