@@ -110,7 +110,7 @@ s32 pfd_sddrv_init(PDM_DISK* p_disk) {
     if (!(sSdDriver.status & SD_DRIVER_ISD_READY)) {
         sSdDriver.sector_size = 512;
         pf_memset(&sSdHandle, 0, sizeof(ISD_HANDLE));
-        if (ISD_Init() != 0) {
+        if (ISD_InitCard() != 0) {
             OSReport("ERR:Failed to init SD Card Driver in pfd_sddrv_init()\n");
             return -40;
         }
@@ -120,13 +120,13 @@ s32 pfd_sddrv_init(PDM_DISK* p_disk) {
 
     pf_memset(&sSdHandle, 0, sizeof(ISD_HANDLE));
     p_handle = &sSdHandle;
-    result = ISD_Open(0, &p_handle);
+    result = ISD_MountCard(0, &p_handle);
     if (result != 0) {
         OSReport("ERR SD card can not mount [ret = 0x%x]. pfd_sddrv_init()\n", result);
         return -41;
     }
 
-    result = ISD_GetStatus(p_handle, &status);
+    result = ISD_GetDeviceStatus(p_handle, &status);
     if (result != 0) {
         OSReport("ERR Failed to get sd card status. [ret = 0x%x]\n", result);
         return PDM_ERR_DRIVER;
@@ -142,7 +142,7 @@ s32 pfd_sddrv_init(PDM_DISK* p_disk) {
         result = ISD_RegisterDeviceIntrHandler(p_handle, pfd_st_removal_callback, &sSdIntrEvent);
         if (result != 0) {
             OSReport("ERR:Failed to regist intr handler1 [ret = 0x%x] pfd_sddrv_init()\n", result);
-            ISD_Close(p_handle);
+            ISD_UnmountCard(p_handle);
             sSdDriver.p_handle = NULL;
             return -42;
         }
@@ -151,7 +151,7 @@ s32 pfd_sddrv_init(PDM_DISK* p_disk) {
         result = ISD_RegisterDeviceIntrHandler(p_handle, pfd_st_inter_callback, &sSdIntrEvent);
         if (result != 0) {
             OSReport("ERR:Failed to regist intr handler1 [ret = 0x%x] pfd_sddrv_init()\n", result);
-            ISD_Close(p_handle);
+            ISD_UnmountCard(p_handle);
             sSdDriver.p_handle = NULL;
             return -42;
         }
@@ -187,7 +187,7 @@ s32 pfd_sddrv_mount(PDM_DISK* p_disk) {
             return -33;
         }
 
-        result = ISD_Reset(sSdDriver.p_handle);
+        result = ISD_ResetDevice(sSdDriver.p_handle);
         if (result == 0) {
             sSdDriver.media_changed = 0;
             break;
@@ -205,19 +205,19 @@ s32 pfd_sddrv_mount(PDM_DISK* p_disk) {
     }
 
     ocr = 0;
-    if (ISD_SendCommand(sSdDriver.p_handle, ISD_CMD_SD_SEND_OP_COND, &ocr, sizeof(ocr)) != 0) {
+    if (ISD_ReadCardRegister(sSdDriver.p_handle, ISD_CMD_SD_SEND_OP_COND, &ocr, sizeof(ocr)) != 0) {
         OSReport("ERR Failed to read OCR reg. pfd_sddrv_mount()\n");
         return -43;
     }
 
     pf_memset(cid, 0, sizeof(cid));
-    if (ISD_SendCommand(sSdDriver.p_handle, ISD_CMD_SEND_CID, cid, sizeof(cid)) != 0) {
+    if (ISD_ReadCardRegister(sSdDriver.p_handle, ISD_CMD_SEND_CID, (u32*)cid, sizeof(cid)) != 0) {
         OSReport("ERR Failed to read CID reg. pfd_sddrv_mount()\n");
         return -43;
     }
 
     rca = 0;
-    if (ISD_SendCommand(sSdDriver.p_handle, ISD_CMD_SEND_RELATIVE_ADDR, &rca, sizeof(rca)) != 0) {
+    if (ISD_ReadCardRegister(sSdDriver.p_handle, ISD_CMD_SEND_RELATIVE_ADDR, (u32*)&rca, sizeof(rca)) != 0) {
         OSReport("ERR Failed to read RCA reg. pfd_sddrv_mount()\n");
         return -43;
     }
@@ -301,7 +301,7 @@ s32 pfd_sddrv_finalize(PDM_DISK* p_disk) {
             OSReport("WARNING Faild to UnregisterDeviceIntrHandler sd card [ret = %d]\n", result);
         }
 
-        result = ISD_Close(sSdDriver.p_handle);
+        result = ISD_UnmountCard(sSdDriver.p_handle);
         if (result != 0) {
             OSReport("WARNING Faild to unmount sd card [ret = %d]\n", result);
         }

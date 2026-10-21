@@ -57,3 +57,15 @@ Source was written for this target from native instructions and diagnostics. No 
 
 - **An unreferenced static function is dropped from a partial unit.** Trigger: the first build of the partial file emitted no `.text`, because nothing referenced the static table entries. The function table and the entry that references it belong to #373. Until then the entries are external, declared in `sd_drv.h`.
 - **The SD driver state is volatile.** Trigger: `pfd_sddrv_unmount` and the callbacks lacked reloads of `status` and `drive`. Declaring `sSdDriver` volatile reproduced them.
+
+# F-372-4: Original SDI API correction
+
+The resumed #372 claim replaces six provisional SDI names with the original pinned CC0 Wii IPL names: `ISD_InitCard`, `ISD_MountCard`, `ISD_UnmountCard`, `ISD_GetDeviceStatus`, `ISD_ResetDevice`, and `ISD_ReadCardRegister`. Every existing driver consumer and the corresponding outside symbol name is updated together. The original card-register response is `u32*`; the canonical `ISD_HANDLE` record, callback contract, symbol addresses, sizes, types and splits remain unchanged. This is an interface correction supporting #373/#374, not additional source coverage or issue completion.
+
+Provenance is the pinned IPL revision `f4c09f4001c5a0b9af734ad1e3f80a54c5e5723c`, its `libs/RVL_SDK/include/revolution/sdi.h`, native symbol map and SDI source. The complete independently prepared #374 readable candidate compiles against this worktree's actual canonical header under unchanged SDK Wii/1.0 flags. `372-audit-sdi-header-functions.py` and `372-audit-sdi-header-allocated.py` both exit 0: all twenty retained functions (5,448 instruction bytes), 5,548 complete text bytes including padding, eighty initialized bytes, four small-data bytes, 128 BSS bytes, 32 small-BSS bytes and all 231 actual relocation targets compare exactly against the immutable native DOL. External raw control `372-sdi-header-control.o` and the two `374-reference/372-sdi-header-control-*.json` records preserve the comparison. These checks establish native consumer compatibility; SDI source selection still belongs to #374.
+
+## Traps
+
+- The prior #931 coordination comment was a request, with no owner reply. Its presence did not constitute approval. The resumed contributor claimed the eligible #372 through the helper and proposed this compatible correction through a separate reviewable pull request.
+
+The driver preserves its native sixteen-byte CID buffer and two-byte RCA local, using explicit typed buffer views for the word-response API and their actual transfer sizes. A separately compiled pre-correction source/header control and the real Ninja-built corrected object have identical complete allocated payloads, NOBITS extents/alignments and every relocation after only the six evidenced name normalizations. `372-reference/372-sd-driver-header-control.json` retains that full comparison. The partial source remains `NonMatching` with the same preexisting differences; no fuzzy score is claimed as acceptance. Actual configure, Ninja and frozen-manifest verification each exit 0 after the correction.
