@@ -84,33 +84,9 @@ public:
     basic_string& operator=(const charT* s) { return assign(s); }
     basic_string& assign(const charT* s);
 
-    basic_string& operator=(const basic_string& str) {
-        if (!is_long() && !str.is_long()) {
-            r_.first().r.raw = str.r_.first().r.raw;
-        } else {
-            assign(str.begin(), str.end());
-        }
-        return *this;
-    }
+    basic_string& operator=(const basic_string& str) { return assign(str); }
 
-    void assign(const basic_string& str) {
-        bool currentIsLong = is_long();
-        if (!currentIsLong && !str.is_long()) {
-            r_.first().r.raw = str.r_.first().r.raw;
-        } else {
-            size_type oldSize = currentIsLong ? r_.first().r.l.size_ : r_.first().r.s.size_;
-            const_iterator first;
-            size_type count;
-            if (str.r_.first().r.l.is_long_ == 0) {
-                first = str.r_.first().r.s.data_;
-                count = str.r_.first().r.s.size_;
-            } else {
-                first = str.r_.first().r.l.data_;
-                count = str.r_.first().r.l.size_;
-            }
-            replace(0, oldSize, first, first + count, forward_iterator_tag());
-        }
-    }
+    basic_string& assign(const basic_string& str);
 
     size_type max_size() const { return (sizeof(value_type) > 1 ? alloc().max_size() : alloc().max_size() / 2) - 1; }
     size_type size() const { return !is_long() ? short_size() : long_size(); }
@@ -125,19 +101,8 @@ public:
     basic_string& replace(size_type pos, size_type count, const charT* s);
     basic_string& replace(size_type pos, size_type count, const charT* s, size_type length);
 
-    basic_string& append(const basic_string& str) {
-        size_type pos = size();
-        const_iterator first;
-        size_type count;
-        if (str.r_.first().r.l.is_long_ == 0) {
-            first = str.r_.first().r.s.data_;
-            count = str.r_.first().r.s.size_;
-        } else {
-            first = str.r_.first().r.l.data_;
-            count = str.r_.first().r.l.size_;
-        }
-        return replace(pos, 0, first, first + count, forward_iterator_tag());
-    }
+    basic_string& append(const basic_string& str);
+    basic_string& replace(size_type pos, size_type count, const basic_string& str);
 
     int compare(size_type pos1, size_type n1, const charT* s, size_type n2) const;
 
@@ -151,7 +116,8 @@ public:
     basic_string& operator+=(const charT* s) { return append(s); }
     basic_string& operator+=(const basic_string& str) { return append(str); }
     charT& operator[](size_type n) { return buffer()[n]; }
-    void push_back(charT c) { replace(size(), 0, &c, &c + 1, forward_iterator_tag()); }
+    basic_string& operator+=(charT c);
+    void push_back(charT c) { *this += c; }
 
     const charT& operator[](size_type n) const { return data()[n]; }
 
@@ -197,6 +163,8 @@ public:
 
     template <class ForwardIterator>
     basic_string& replace(size_type pos, size_type n1, ForwardIterator j1, ForwardIterator j2, forward_iterator_tag);
+
+    basic_string& do_replace(size_type pos, size_type count, pointer first, pointer last, random_access_iterator_tag tag) { return do_replace(pos, count, static_cast<const_pointer>(first), static_cast<const_pointer>(last), tag); }
 
 private:
     struct long_rep {
@@ -551,6 +519,32 @@ int basic_string<charT, traits, Allocator>::compare(size_type pos1, size_type n1
         return 1;
     }
     return result;
+}
+
+template <class charT, class traits, class Allocator>
+basic_string<charT, traits, Allocator>& basic_string<charT, traits, Allocator>::assign(const basic_string& str) {
+    bool lhsLong = is_long();
+    if (!lhsLong) {
+        if (str.is_long()) { goto doLong; }
+        r_.first().r.raw = str.r_.first().r.raw;
+        return *this;
+    }
+doLong:
+    return replace(0, lhsLong ? long_size() : short_size(), str);
+}
+
+template <class charT, class traits, class Allocator>
+basic_string<charT, traits, Allocator>& basic_string<charT, traits, Allocator>::operator+=(charT c) { return do_replace(size(), 0, &c, &c + 1, random_access_iterator_tag()); }
+
+template <class charT, class traits, class Allocator>
+basic_string<charT, traits, Allocator>& basic_string<charT, traits, Allocator>::append(const basic_string& str) { return replace(size(), 0, str); }
+
+template <class charT, class traits, class Allocator>
+basic_string<charT, traits, Allocator>& basic_string<charT, traits, Allocator>::replace(size_type pos, size_type count, const basic_string& str) {
+    const_pointer p;
+    size_type size;
+    str.get_buffer(p, size);
+    return do_replace(pos, count, p, p + size, random_access_iterator_tag());
 }
 
 typedef basic_string<char> string;

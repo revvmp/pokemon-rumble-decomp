@@ -99,13 +99,7 @@ protected:
 public:
     void erase_at_end(size_type n) { erase_tail(n, pod_type()); }
 protected:
-    void erase_tail(size_type n, Metrowerks::int2type<false>) {
-        T* p = end();
-        size_ -= n;
-        for (; n > 0; --n) {
-            alloc().destroy(--p);
-        }
-    }
+    void erase_tail(size_type n, Metrowerks::int2type<false>);
     void erase_tail(size_type n, Metrowerks::int2type<true>) { size_ -= n; }
     void erase_at_end(size_type& n, Metrowerks::int2type<true>) { size_ -= n; }
 
@@ -120,6 +114,15 @@ template <typename T, typename Allocator> __vec_deleter<T, Allocator>::~__vec_de
         alloc().deallocate(data_, cap());
     }
 }
+
+template <typename T, typename Allocator>
+void __vec_deleter<T, Allocator>::erase_tail(size_type n, Metrowerks::int2type<false>) {
+        T* p = end();
+        size_ -= n;
+        for (; n > 0; --n) {
+            alloc().destroy(--p);
+        }
+    }
 
 template <typename T, typename Allocator> class __vec_split_buffer : public __vec_deleter<T, Allocator&> {
     typedef __vec_deleter<T, Allocator&> base;
@@ -330,22 +333,8 @@ protected:
     }
 
     void push_back_realloc(const T& x) { push_back_realloc(x, pod_type()); }
-    void push_back_realloc(const T& x, Metrowerks::int2type<false>) {
-        if (grow_by(1)) {
-            this->alloc().construct(end(), x);
-            ++this->size_;
-        } else {
-            append_realloc(1, x);
-        }
-    }
-    void push_back_realloc(const T& x, Metrowerks::int2type<true>) {
-        if (grow_by(1)) {
-            ++this->size_;
-            back() = x;
-        } else {
-            append_realloc(1, x);
-        }
-    }
+    void push_back_realloc(const T& x, Metrowerks::int2type<false>);
+    void push_back_realloc(const T& x, Metrowerks::int2type<true>);
 
     void append_realloc(size_type n, const T& x) {
         __vec_split_buffer<T, Allocator> buffer(this->alloc());
@@ -426,19 +415,7 @@ protected:
 
     void append(size_type n) { append(n, pod_type()); }
 
-    void append(size_type n, pod_type) {
-        if (n <= this->cap()) {
-            if (this->size_ <= this->cap() - n) {
-                goto construct;
-            }
-        }
-        if (can_append(this->size_ + n - this->cap())) {
-        construct:
-            construct_at_end(n);
-        } else {
-            append_realloc(n);
-        }
-    }
+    void append(size_type n, pod_type);
 
     void swap(__vec_deleter<T, Allocator&>& r) { swap(r, pod_type()); }
     void swap(__vec_deleter<T, Allocator&>& r, pod_type) {
@@ -465,6 +442,24 @@ void __vec_constructor<T, Allocator, IsPOD>::reallocate(size_type n) {
     std::swap(this->size_, buffer.size_);
 }
 
+template <typename T, typename Allocator, bool IsPOD> void __vec_constructor<T, Allocator, IsPOD>::push_back_realloc(const T& x, Metrowerks::int2type<false>) {
+        if (grow_by(1)) {
+            this->alloc().construct(end(), x);
+            ++this->size_;
+        } else {
+            append_realloc(1, x);
+        }
+    }
+
+template <typename T, typename Allocator, bool IsPOD> void __vec_constructor<T, Allocator, IsPOD>::push_back_realloc(const T& x, Metrowerks::int2type<true>) {
+        if (grow_by(1)) {
+            ++this->size_;
+            back() = x;
+        } else {
+            append_realloc(1, x);
+        }
+    }
+
 template <typename T, typename Allocator> void __vec_deleter<T, Allocator>::allocate(size_type n, pod_type) {
     if (n > max_size()) {
         this->throw_length_error();
@@ -472,6 +467,21 @@ template <typename T, typename Allocator> void __vec_deleter<T, Allocator>::allo
     data_ = alloc().allocate(n, 0);
     cap() = n;
 }
+
+template <typename T, typename Allocator, bool IsPOD>
+void __vec_constructor<T, Allocator, IsPOD>::append(size_type n, pod_type) {
+        if (n <= this->cap()) {
+            if (this->size_ <= this->cap() - n) {
+                goto construct;
+            }
+        }
+        if (can_append(this->size_ + n - this->cap())) {
+        construct:
+            construct_at_end(n);
+        } else {
+            append_realloc(n);
+        }
+    }
 
 template <typename Allocator>
 class __vec_constructor<unsigned short, Allocator, true>
@@ -566,7 +576,10 @@ public:
     const_iterator end() const { return reinterpret_cast<const T*>(this->data_ + this->size_); }
     size_type size() const { return this->size_; }
     bool empty() const { return this->size_ == 0; }
-    void push_back(const T& x);
+    void push_back(const T& x) {
+        if (!Metrowerks::is_POD<T>::value) base::push_back(x);
+        else push_back_pod(x);
+    }
     T& operator[](size_type i) { return base::operator[](i); }
     const T& operator[](size_type i) const { return reinterpret_cast<const T&>(this->data_[i]); }
 
@@ -599,10 +612,6 @@ private:
     iterator make_iterator(T* const& rPointer) { return iterator(rPointer); }
 };
 
-template <typename T, typename Allocator> void vector<T, Allocator>::push_back(const T& x) {
-    if (!Metrowerks::is_POD<T>::value) base::push_back(x);
-    else push_back_pod(x);
-}
 
 template <typename T, typename Allocator> class __vec_pointer : public __vec_constructor<void*, allocator<void*>, true> {
     typedef __vec_constructor<void*, allocator<void*>, true> base;
