@@ -340,6 +340,53 @@ from native 424 bytes to 420. The unchanged control still reproduces all
 436 functions. That experiment is rejected and excluded. Full Balloon
 physical placement and source-only provenance acceptance remain pending.
 
+## F-152-10: Borrowed interfaces and actual link bindings
+
+The complete producer's resolved instruction streams do not by themselves
+prove final symbol selection. A real link with the complete outside object
+exposed borrowed helpers still named fn_ or dtor_ in original objects.
+That allowed additional weak code/EH to survive. Naming the evidenced
+wstring representation/accessor, formatter, shared-owner and operator
+interfaces leaves the original fallback definitions in use. No borrowed
+implementation is claimed reconstructed. All original DOL bytes remain
+unchanged in the metadata-only configure/Ninja/frozen control.
+
+The native 800968D0 routine is a 116-byte position-transform wrapper that
+calls MTX34/VEC3 conversion operators and PSMTXMultVec, returning the output
+pointer. It cannot share the existing strong SDK VEC3Transform identity at
+8023F120, whose body is 60 bytes. Its original spelling is unknown. The
+external declaration TransformPoint is descriptive, not a recovered name;
+it adds no body or forwarding shim. The actual Balloon caller with this
+declaration preserves all 436 isolated instruction streams and 226 EH
+records. Final acceptance also requires the fresh MAP and Ninja graph to
+select the original CDlgPiiSelector object and its strong 116-byte function
+at 800968D0.
+
+A diagnostic input-list link is not a source-selected Matching result.
+Its complete 436 linked functions retain their native sizes, but native
+physical order remains wrong. The pending genuine non-template do_replace
+binding is coordinated with the string prerequisite and excluded from this
+proposal. The legacy external string interface is preserved meanwhile.
+
+Renaming an automatic fallback changes its generated object-file name.
+Fourteen STT_FILE entries changed from auto_fn/dtor names to recovered
+names while every allocated ELF byte and the DOL stayed identical. The
+consumer guard pairs only those file identities using fresh before/after
+MAP rows at the same native address and original Ninja input paths. It
+still compares the full symbol multiset, all allocated ELF sections, named
+previously exact streams, and Matching strong definitions. No instruction,
+relocation, function symbol or unnamed file record is exempted.
+
+The reviewed-head preflight at
+`4e9157598370645abd5f444eb84c502fccd81b00` passes all 764 current source
+objects and 716 Matching units. No source object has a semantic delta;
+only numeric local identifiers differ. Allocated ELF, normalized complete
+symbol identities and the frozen DOL are identical. Nineteen generated
+module identity pairs are individually recorded, including the fourteen
+STT_FILE differences noted above. The complete 436/226-EH caller audit and
+fresh strong 116-byte TransformPoint fallback proof both pass. These guards
+run again after every official landing rebase.
+
 ## Traps
 
 - A flattened container reconstruction can produce each native helper
