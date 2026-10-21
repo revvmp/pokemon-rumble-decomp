@@ -102,4 +102,6 @@ The actual same-base 714-object preflight of cached `get()` passes default Ninja
 
 `317-memory-variants.json` and `317-memory-variants-move_cached_field.json` preserve the bounded diagnostics. The untouched baseline, recompiled after both reversions, has all 714 complete source objects, the whole ELF and DOL identical to `control-list-node-31674ae11216`; `317-list-restored-714-proof.json` records that restoration. No canonical list or memory modification remains.
 
+### Traps
+
 - **Fallback-linked verification can hide an existing source regression.** Replacing a common destructor with a natural pointer cache made one new native instance exact and preserved the DOL, but regressed four previously exact instances in NonMatching units. Inspect the entire declared source-object set and pair changed functions against their native targets before accepting a shared-header proposal.
