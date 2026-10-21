@@ -1,7 +1,16 @@
+#include <nw4r/lyt/lyt_textBox.h>
+#include <nw4r/ut/ut_RuntimeTypeInfo.h>
+
 #include <game/BWorld.h>
 #include <game/CLayout.h>
+#include <game/CShadowCamera.h>
+#include <game/FileList.h>
 #include <game/IGameEnding.h>
 #include <game/IPauseMenu.h>
+#include <game/LayoutResources.h>
+#include <game/MapDesc.h>
+#include <game/Message.h>
+#include <game/SystemMessage.h>
 
 #include <list>
 #include <memory>
@@ -11,6 +20,8 @@ namespace {
 
 class CGameEnding : public IGameEnding {
 public:
+    explicit CGameEnding(const MapDesc* pMapDesc) : mpMapDesc(pMapDesc), mState(STATE_IDLE), mLineCount(0) {}
+    inline void Init(bool background);
     inline virtual ~CGameEnding();
     inline virtual void Calc();
     inline virtual void CalcMtx();
@@ -117,6 +128,61 @@ inline bool CGameEnding::IsNextVisible() {
     return mNext.IsVisible();
 }
 
+inline void CGameEnding::Init(bool background) {
+    mpPauseMenu = IPauseMenu::Create(mpMapDesc, true, true);
+
+    BWorld::Desc worldDesc;
+    worldDesc.SetDrawType(1);
+    worldDesc.SetObjectCapacity(0x400);
+    worldDesc.SetOutlineCapacity(worldDesc.GetObjectCapacity());
+    worldDesc.SetModelCapacity(worldDesc.GetObjectCapacity() + 0x80);
+    worldDesc.SetScnObjCapacity(worldDesc.GetOutlineCapacity() + worldDesc.GetModelCapacity() + 0x200);
+    worldDesc.SetEffectCapacity(worldDesc.GetObjectCapacity());
+    worldDesc.SetCaptureEnable(true);
+    worldDesc.SetSoundListenerEnable(true);
+    mpWorld.reset(new BWorld(worldDesc));
+
+    std::tr1::shared_ptr<CShadowCamera> pShadowCamera;
+    pShadowCamera.reset(new CShadowCamera(4));
+    pShadowCamera->Setup(0x200, 0x200, 1, false);
+    mpWorld->AddCamera(pShadowCamera, 1);
+
+    std::tr1::shared_ptr<CLayout::FontMap> pFonts = GetDefaultFontMap();
+    void* pEndingArchives;
+    void* pEpilogueArchives;
+    std::tr1::shared_ptr<FileList> pFiles =
+        LoadFileList(&pEndingArchives, "event/ending.arc/event2d.arc", 0, background, nullptr);
+    mCongratulations.Load(static_cast<const char* const*>(pEndingArchives), "congratulations", pFonts, background);
+    mCongratulations.SetVisible(false);
+    mStaffRoll.Load(static_cast<const char* const*>(pEndingArchives), "staff_roll", pFonts, background);
+    mStaffRoll.SetVisible(false);
+
+    nw4r::lyt::TextBox* pLines = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(mStaffRoll.FindPane("LINES"));
+    mLineCount = 1;
+    for (const wchar_t* pChar = pLines->GetStringBuffer(); *pChar != L'\0'; pChar++) {
+        if (*pChar == L'\n') {
+            mLineCount++;
+        }
+    }
+    for (int i = 0; i < mLineCount; i++) {
+        mLineTexts.push_back(std::wstring(L""));
+        mTitleTexts.push_back(std::wstring(L""));
+    }
+
+    pFiles = LoadFileList(&pEpilogueArchives, "event/epilogue.arc/event2d.arc", 0, background, nullptr);
+    mNext.Load(static_cast<const char* const*>(pEpilogueArchives), "next", pFonts, background);
+    mNext.SetText("TextBox_C_01", GetMessageText(0x60115, gEmptyText));
+    const wchar_t* pNextText = GetMessageText(0x60114, gEmptyText);
+    mNext.SetText("TextBox", pNextText);
+    mNext.SetText("TextBox2", pNextText);
+    mNext.SetVisible(false);
+
+    int difficulty = mpMapDesc->mIndex.mMode;
+    mNext.SetPaneVisible("HARD", difficulty == 0);
+    mNext.SetPaneVisible("VERYHARD", difficulty == 1);
+    mNext.SetPaneVisible("THANKYOU", difficulty == 2);
+}
+
 inline void CGameEnding::Draw() {
     mpWorld->Draw();
     mCongratulations.Draw();
@@ -181,4 +247,10 @@ inline void CGameEnding::Calc() {
     }
 }
 
+}
+
+std::tr1::shared_ptr<IGameEnding> IGameEnding::Create(const MapDesc* pDesc, bool background) {
+    std::tr1::shared_ptr<CGameEnding> pGameEnding(new CGameEnding(pDesc));
+    pGameEnding->Init(background);
+    return pGameEnding;
 }

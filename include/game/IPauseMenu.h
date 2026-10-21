@@ -2,10 +2,15 @@
 #define GAME_IPAUSEMENU_H
 
 #include <game/ICalcDraw.h>
+#include <memory>
+
+struct MapDesc;
 
 class IPauseMenu : public ICalcDraw {
 public:
     virtual ~IPauseMenu() {}
+
+    static std::tr1::shared_ptr<IPauseMenu> Create(const MapDesc* pDesc, bool openMenu, int fadeIn);
 };
 
 #endif

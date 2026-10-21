@@ -64,3 +64,24 @@ Python reading `orig/wpse-v1/main.dol` for vtables, RTTI records, `extabindex` a
 ## Traps
 
 - **A survey title can name later files.** #116's title lists `CGameEnding`, `CGameMap` and `CGameResult`, but the block is the first 15 functions of `CGameEnding.cpp`, which runs to `0x800A7650`, across #117 and later blocks.
+
+## F-116-5: the factory is reconstructed and the unit now emits
+
+`IGameEnding::Create(const MapDesc*, bool)` at `0x800A4EF0` is reconstructed in `src/game/CGameEnding.cpp`: `new CGameEnding(pDesc)` held in a `shared_ptr<CGameEnding>`, then the inline `Init`, then a conversion to `shared_ptr<IGameEnding>`. `tools/re/unitdiff.py` reports the factory at 99.88% with the same 2,696 bytes; the only differing rows are relocation names (`lbl_` data and vtable symbols, which the object-level comparison cannot resolve without the full `.data` split). With the constructor used, the compiler emits the `CGameEnding` vtable, so the 35 functions of #116 and #117 that F-117-4 measured now appear in the committed object (the two interface destructors, the sixteen `IGameMap` defaults, `Draw`, `CalcView`, `CalcMtx`, the three getters at 100%, `Calc` at 98.29%). The unit stays `NonMatching` because #118 and later blocks of the file are still absent.
+
+Evidence for the shape, all from the factory body:
+
+- `Init` first assigns the pause menu from `IPauseMenu::Create(mpMapDesc, true, 1)` (`0x800D83B0`, the `CPauseMenu` factory of F-167), which fixes the member at 0x18 as `shared_ptr<IPauseMenu>` (F-117-2).
+- `BWorld::Desc` takes draw type 1, 0x400 objects, the outline capacity equal to the object capacity, models plus 0x80, scene objects as outline plus model plus 0x200, effects equal to the object capacity, capture and sound listener enabled. The world is installed with `reset(new BWorld(desc))`; assigning a temporary `shared_ptr` instead copies and releases and gave 85%.
+- A default `shared_ptr<CShadowCamera>` is filled with `reset(new CShadowCamera(4))`, set up by `0x8010C5A0` (`CShadowCamera::Setup(width, height, textureLevels, useTextureAlpha)` with 0x200, 0x200, 1, false) and added to the world with `AddCamera(camera, 1)`. It is not stored in the object.
+- `event/ending.arc/event2d.arc` and `event/epilogue.arc/event2d.arc` load through `LoadFileList` with separate archive-list locals; `congratulations` and `staff_roll` are hidden after loading. The line count starts at 1 and counts `L'
+'` in the `LINES` text box; one empty `wstring` is pushed per line into each list.
+- `next` takes message 0x60115 for `TextBox_C_01` and 0x60114 for `TextBox` and `TextBox2`, and shows `HARD`, `VERYHARD` or `THANKYOU` for `mMode` 0, 1 or 2.
+- `std::basic_string` gained the MSL copy constructor: a short string copies its three words; a long one is initialised empty, reserved for its size and replaced from its own buffer. Without it the compiler used a bitwise copy and the list nodes of the factory differed.
+- The `IPauseMenu::Create` third parameter is `int`, not `bool`: with `bool` the compiler loaded one constant into both arguments (`mr r6, r5`), whereas the target loads two. Its meaning is unknown.
+
+## Traps
+
+- **A repeated constant argument exposes a parameter type.** `Create(p, true, true)` with two `bool` parameters shared one register; the target's two `li` instructions required a different type on one of them.
+- **`reset(new T)` and `x = shared_ptr<T>(new T)` compile differently.** The first builds in registers and releases the old pointer; the second goes through a memory temporary and a copy.
+- **A missing `basic_string` copy constructor is silent.** The implicit one copies the 12-byte representation, hiding the long-string branch until a list of strings is compared.

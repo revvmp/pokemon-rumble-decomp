@@ -41,6 +41,8 @@ public:
     u16 SetStringImpl(const wchar_t* pString, u16 dstIndex, u32 stringLength);
     const ut::Font* GetFont() const;
 
+    const wchar_t* GetStringBuffer() const { return mTextBuf; }
+
     u16 GetStringBufferLength() const {
         if (mTextBufBytes == 0) {
             return 0;

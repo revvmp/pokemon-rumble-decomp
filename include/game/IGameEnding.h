@@ -6,6 +6,9 @@
 class IGameEnding : public IGameMap {
 public:
     virtual ~IGameEnding() {}
+
+    static std::tr1::shared_ptr<IGameEnding> Create(const MapDesc* pDesc, bool background);
+
     virtual void ShowCongratulations() = 0;
     virtual void StopCongratulations() = 0;
     virtual void ParseStaffRollText(const wchar_t* pText) = 0;
