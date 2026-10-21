@@ -10,7 +10,11 @@
 
 namespace std {
 
-static inline void __throw_vector_length_error() {
+template <bool> struct __vector_common {
+    static void throw_length_error();
+};
+
+template <bool b> void __vector_common<b>::throw_length_error() {
     throw length_error("vector length error");
 }
 
@@ -20,7 +24,7 @@ template <typename T> struct __vec_bulk_move {
 
 template <typename T, typename Allocator, bool IsPOD> class __vec_constructor;
 
-template <typename T, typename Allocator> class __vec_deleter {
+template <typename T, typename Allocator> class __vec_deleter : public __vector_common<true> {
 public:
     typedef unsigned long size_type;
     typedef typename Metrowerks::compressed_pair<size_type, Allocator>::second_param allocator_param;
@@ -360,7 +364,7 @@ protected:
 
     void allocate(size_type n, pod_type) {
         if (n > max_size()) {
-            __throw_vector_length_error();
+            this->throw_length_error();
         }
         this->data_ = this->alloc().allocate(n);
         this->cap() = n;
@@ -378,7 +382,7 @@ protected:
         size_type maxSize = this->max_size();
         size_type capacity = this->cap();
         if (n > maxSize - capacity) {
-            __throw_vector_length_error();
+            this->throw_length_error();
         }
         size_type third = maxSize / 3;
         if (capacity < third) {
@@ -453,7 +457,7 @@ void __vec_constructor<T, Allocator, IsPOD>::reallocate(size_type n) {
 
 template <typename T, typename Allocator> void __vec_deleter<T, Allocator>::allocate(size_type n, pod_type) {
     if (n > max_size()) {
-        __throw_vector_length_error();
+        this->throw_length_error();
     }
     data_ = alloc().allocate(n, 0);
     cap() = n;
@@ -537,7 +541,7 @@ private:
             __vec_split_buffer<T, Allocator> buffer(this->alloc());
             size_type capacity = base::grow_by(1);
             if (capacity > this->max_size()) {
-                __throw_vector_length_error();
+                this->throw_length_error();
             }
             buffer.data_ = buffer.alloc().allocate(capacity);
             buffer.cap() = capacity;

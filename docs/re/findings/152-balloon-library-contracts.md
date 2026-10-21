@@ -459,3 +459,12 @@ producer are rerun with the current canonical headers.
   would need two different native addresses. The consistent-binding audit
   rejects this context before any link claim. See
   `152-reference/order-native-method-definitions/audit.log`.
+
+
+### Real source-selected pipeline diagnostic after PR1222
+
+The complete Balloon source was selected locally through `Object(Matching, "game/CMsgBalloon.cpp")` solely as a diagnostic. The real configure, compiler and linker pipeline completed; the frozen checksum rejected the fresh DOL. This does not establish Matching acceptance. The actual pipeline object independently preserves all 436 function streams and all 226 EH records, with every paired target checked. A fresh `all_source` rebuild and comparison of all 717 previously Matching objects preserves allocated bytes, section metadata, semantic relocations and symbol attributes; 28 objects differ only in compiler numeric labels.
+
+Relative to the verified baseline, the resulting ELF grows by 8 extab bytes, 12 extabindex bytes, 80 text bytes, 64 data bytes and 16 sdata bytes. The retained local 68-byte free vector length-error helper is an additional body; mapping it to an unrelated native role is not accepted. The fresh MAP also shows owned function permutations, so removing the extra helper alone would not prove whole-unit layout. Evidence is preserved outside in `152-reference/full-source-pipeline`: actual compiler object, ELF/DOL/MAP, complete native proof, section deltas, owned function layout and Matching-object control.
+
+The first link attempt exposed stale source-object timestamps inherited through `copy2`; explicitly refreshing the changed source caused a real recompile and resolved the apparent missing wide-string constructor, allocator destroy and integer comparator. Future source-selected diagnostics must confirm an actual compiler edge ran before interpreting unresolved helper identities.
