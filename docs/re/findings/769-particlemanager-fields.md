@@ -57,7 +57,7 @@ The public Whippy, ogws and Monster Hunter Tri file histories were checked; they
 
 ## Traps
 
-- **Iterator lifetime can dominate matrix-copy register pressure.** In the continuation below, initializing the particle iterator immediately before its loop removes the seven matrix-copy spill slots. The earlier matrix-copy and declaration permutations did not vary this lifetime. This is a bounded source-context finding, not a compiler-setting rule.
+- **Iterator lifetime can dominate matrix-copy register pressure.** In the continuation below, initializing the particle iterator immediately before its loop removes the seven matrix-copy spill slots. Reusing the canonical seed helpers subsequently permits the original earlier iterator initialization without those spills. These are context-dependent source findings, not compiler-setting rules.
 
 - **The tracked IDA database has labels without function definitions.** `ida_funcs.get_func(0x80232930)` returned none and decompilation failed with invalid input ranges. On the scratch copy, recreate exactly the proven function extent and wait for analysis before decompiling. Do not change or commit the tracked database.
 - **Default PowerPC ISA settings misdecode paired-single instructions.** IDA's server/Altivec configuration treated Gekko PSQ instructions as VSX instructions. On the scratch copy only, `PPC_ISA_SUPPORT=0x0008`, `PPC_TOC=0x804C1C60`, and `PPC_SDA_BASE=0x804BDA20` restore the correct interpretation. These options are documented by the installed `ppc.cfg` and `ida.cfg`. GNU objdump likewise needs `-M gekko`. Hex-Rays still omits two valid paired-single case blocks; inspect native instructions instead of interpreting those gaps as missing target behavior.
@@ -73,3 +73,30 @@ Moving the initialization of the particle iterator from before the matrix calcul
 A small inline reader for the post-field name-table address removes the remaining spilled post-field flag. Together with the iterator lifetime and immutable byte, its candidate reaches the native 5,464-byte extent and `0x5C0` frame. Reading the name table through a typed header alone or with a separate byte pointer gives identical results. Restoring the native order of the two final rotation-only matrix copies gives a diagnostic score of 98.36%. Remaining differences include the initial iterator load, register assignments, paired-single temporary allocation, and instruction ordering. Exact size and a high diagnostic score do not establish a match; no candidate is marked `Matching`, and this finding adds no source coverage.
 
 Negative controls in this new context include all 24 post-field local declaration orders, fifteen combinations of enclosing-scope declarations, byte/integer flag types, seed/tick scalar type variants, all 24 name-table offset-expression orders, pointer/reference output helper forms, complete post-field helper return forms, and ten iterator initialization points. Equivalent output helper parameter orders do not change their compiled result. The native field-position intermediate copy remains present; candidates that remove it remain rejected as in F-769-2.
+
+Further probes reuse the existing `detail::HashCurveSeed` and `detail::NextCurveSeed` from `ef_animcurveinternal.h`, rather than duplicating their seed mixing and linear-congruential expressions. Using both helpers eliminates the observed random-field instruction differences and permits the original earlier iterator initialization without matrix spills. Direct vector subtraction and scaling calls reproduce the native paired-single temporaries; the gravity scale retains the ordinary multiplication-assignment operator. The current best scratch candidate has the native 5,464-byte extent and frame, with 31 unequal non-relocation instruction words. Its remaining differences are two resource-pointer calculations and an index/post-field register swap. This raw-word diagnostic excludes relocation words and is not full resolved-byte acceptance. No candidate algorithm is adopted by the layout prerequisite below.
+
+# F-769-4: Complete original PostFieldInfo resource layout
+
+The original `PostFieldInfo` name is established by the existing crossing-function signatures and the complete matching post-field unit in F-768-1. Its shared declaration previously stopped after the ten-byte `EmitterInheritSetting` at `0x3C`, giving a 72-byte C++ type including two trailing padding bytes. The particle-manager caller proves that the same record contains an unsigned-short effect-resource index at `0x46` and the optional wrap region after `0x48`. The private `ParticlePostField` duplicated this record using 34 opaque collision bytes. The bounded prerequisite completes the original shared type, removes that duplicate, and uses `PostFieldInfo*` directly. It changes no algorithms, compiler settings, source selection, splits, or symbols.
+
+| Offset | Complete shared member | Native evidence |
+| --- | --- | --- |
+| `0x46` | `u16 mEffectIndex` | `Calc+0x103C` (`0x8023396C`) loads an unsigned halfword and indexes the track's relocated effect-name table |
+| `0x48` | `u8 mWrapFlags` | `Calc+0x1230` (`0x80233B60`) loads a byte; bit zero enables wrapping and bit one follows the emitter translation |
+| `0x49` | Three alignment bytes | The next vector begins at `0x4C` |
+| `0x4C` | `math::VEC3 mWrapScale` | `Calc+0x1248` passes its address to the independently matched scale helper |
+| `0x58` | `math::VEC3 mWrapRotate` | `Calc+0x1254` onward loads three floats for `PSMTX34RotXYZRad` |
+| `0x64` | `math::VEC3 mWrapTranslate` | `Calc+0x127C` onward reads the three translation components, ending at `0x70` |
+
+The 112-byte extent is independently confirmed by this release's resources. Extraction inventory record 262 is `effect/main.breff.cx::lzh8`, `orig/wpse-v1/extraction/expanded/00128/decoded.bin`, SHA-256 `7a2079e514e65ff3ab572761aa6bc0a40c0ef4980a71efc9856c225300d05d29`. Parsing its effect-name table and the already source-matched emitter/track traversal finds 1,520 emitters and 5,044 particle tracks. All five nonempty post-field records declare `infoTable == 112`. Every particle-track extent and header table-length sum is within its containing emitter record. The name table ends with two zero alignment bytes. These checks read the preserved extraction; they do not alter it.
+
+| Emitter | Particle-track index | Track file offset | Info-table bytes |
+| --- | --- | --- | --- |
+| `child_born_tail_boss_Copy` | 4 | `0x2C160` | 112 |
+| `child_born_tail` | 3 | `0x3186C` | 112 |
+| `child_born_tail_boss` | 4 | `0x327E4` | 112 |
+| `child_born_tail_rival_1` | 3 | `0x336F4` | 112 |
+| `child_born_tail_rival_2` | 4 | `0x34574` | 112 |
+
+All five records have zero wrap flags; the native code, rather than these disabled resource examples, establishes the enabled wrapping behavior and vector interpretations. Member names added here are descriptive. The original `PostFieldInfo` identity and previous member names are preserved. Acceptance requires a same-base comparison of every `all_source` object, the complete linked ELF and the frozen DOL; results are recorded after that gate passes. The particle-manager unit remains `NonMatching`, and this type correction earns no source coverage or issue completion.
