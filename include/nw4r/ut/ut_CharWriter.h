@@ -58,6 +58,18 @@ public:
         UpdateVertexColor();
     }
 
+    Color GetTextColorStart() const {
+        return mTextColor.start;
+    }
+
+    Color GetTextColorEnd() const {
+        return mTextColor.end;
+    }
+
+    GradationMode GetGradationMode() const {
+        return mTextColor.gradationMode;
+    }
+
     f32 GetScaleH() const {
         return mScale.x;
     }

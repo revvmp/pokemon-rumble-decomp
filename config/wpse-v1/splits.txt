@@ -60,6 +60,15 @@ game/BWorldObj.cpp:
 	.data       start:0x8039A2B8 end:0x8039A300
 	.sdata2     start:0x804B9D28 end:0x804B9D30
 
+game/CColorBtnTagProc.cpp:
+	extab       start:0x8000AF60 end:0x8000B030
+	extabindex  start:0x80044F40 end:0x80044F70
+	.text       start:0x8006C7B0 end:0x8006CE2C
+	.ctors      start:0x803529C4 end:0x803529C8
+	.data       start:0x8039A960 end:0x8039A9E8
+	.bss        start:0x803E6580 end:0x803E65E0
+	.sdata      start:0x804B5C90 end:0x804B5CA0
+
 game/CDividedGround.cpp:
 	extab       start:0x8000BB5C end:0x8000CD9C
 	extabindex  start:0x80045264 end:0x800455AC
