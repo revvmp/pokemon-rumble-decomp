@@ -89,7 +89,55 @@ The four free functions are written with external linkage. Their callers in `CMs
 - the `BUILayout` virtual at vtable offset 0x30 (`0x801C9FB0`, forwarding to the `CLayout` loader `0x801CCBD0`), which needs the nine `BUI` virtuals and the first `BUILayout` virtual declared in order;
 - the `vector<shared_ptr<BUILayout> >::push_back` layering of F-142-4.
 
+## F-141-4: complete typed MoneyLife producer and remaining native context
+
+The complete ordinary producer now exists in `src/game/CMoneyLifeDisplay.cpp` with its anonymous class in `include/game/detail/CMoneyLifeDisplay.h`. It remains `NonMatching`. The factory is its sole retained entry point; there are no emission drivers or retention directives. The class size is 0x5C. The phase member at +8 occupies 0x1C bytes, ending at +0x24; the earlier 0x24-byte member-size claim in F-141-2 is superseded. Its actual type is the existing `CDisplayPhaseCtrl`. The display-mode enum and member/method spellings are inferred from behavior; the class and anonymous source-unit spelling come from RTTI.
+
+| Original entry | Complete typed producer | Native bytes | Result |
+| --- | --- | --- | --- |
+| `800C4960` | `IMoneyLifeDisplay::Create` | 2384 | Six instruction words differ |
+| `800C52B0` | `IMoneyLifeDisplay` destructor | 64 | Code and actual targets exact |
+| `800C52F0` | `CMoneyLifeDisplay::Hide` | 24 | Exact |
+| `800C5310` | `CMoneyLifeDisplay::Show` | 24 | Exact |
+| `800C5330` | `CMoneyLifeDisplay::SetForceVisible` | 24 | Exact |
+| `800C5350` | `CMoneyLifeDisplay::Draw` | 88 | Exact |
+| `800C53B0` | `CMoneyLifeDisplay::Calc` | 832 | Exact |
+| `800C56F0` | shared control-block `get_deleter` | 76 | Exact |
+| `800C5740` | shared control-block `dispose` | 36 | Exact |
+| `800C5770` | shared-owner destructor | 132 | Exact |
+| `800C5800` | raw-allocation guard destructor | 116 | Exact |
+| `800C5880` | implicit `CMoneyLifeDisplay` destructor | 260 | Exact |
+| `800C5990` | shared control-block destructor | 64 | Exact |
+
+All actual target bindings were checked against the frozen DOL, including all literal payloads, virtual-table slots and cleanup calls. The 12 nonfactory functions total 1740 exact instruction bytes. The nine owned exception records total 1572 exact bytes; the two borrowed guard records add 16 exact bytes. All three virtual tables total 100 exact bytes at their native positions. These are producer-level results, not a Matching acceptance claim.
+
+The full source-selected link preserves all 13 function addresses, every section address and extent, all exception tables and indices, and every foreign section byte. Its remaining differences are 22 text bytes in the factory's six words and 85 data bytes. Factory +0x40..+0x4C load the map-index word after the vtable store rather than before it. Factory +0x820 and +0x824 exchange the `0x4330` conversion constant load and unsigned-short return narrowing. The two data blocks are the meaningful `ICalcDraw` and `shared_ptr_deleter_common` RTTI name records: native `ICalcDraw` begins at data +0x2D4, while the producer places the common control-block name first at +0x2CC and `ICalcDraw` at +0x314. No padding, forced flags, fabricated retention or raw executable data was added to conceal these failures.
+
+The original #141 inventory remains 23 functions. Its other ten entries are the CMsgBalloon continuation documented in F-141-3 (`800C59D0`, `800C5A60`, `800C5AE0`, `800C5B00`, `800C5B10`, `800C5BC0`, `800C5BD0`, `800C5C10`, `800C5C30`, `800C5CC0`). That source is independently owned by its current whole-unit contributor. This checkpoint neither replaces that source nor claims its acceptance or issue closure.
+
+### Native interface and ownership corrections
+
+The final three pure virtual slots of `IMoneyLifeDisplay` are implemented by the typed producer and preserve all existing inherited slots. The original 0x44-byte data symbol at `803A4F4C` contains a 0x1C-byte base descriptor followed by the 0x28-byte `IMoneyLifeDisplay` vtable at `803A4F68`; the corrected symbols separate those actual objects.
+
+Factory exception record `8001D700` calls `8007DD50`. A real typed `new CUIManager` producer proves that 116-byte function and its eight-byte exception record are the `Metrowerks::move_ptr<CUIManager>` guard destructor. The former name at `8011A990` came from incomplete #217 inference; its contributor confirmed there is no retained independently accepted producer establishing that identity. That older function returns to its address placeholder until its own evidence establishes a type. The corresponding actual BUILayout guard is `8007DDD0`, called by factory exception record `8001D730`, also exact for all 116 code and eight exception bytes. These are borrowed native identities, not new source coverage.
+
+The factory reads the local default motion-pane pointer at `804B9020`. Its actual four-byte zero-initialized symbol belongs to this TU; the old eight-byte extent included four unreferenced bytes. Only `[804B9020,804B9024)` is assigned to this source. No identity or ownership is inferred for `804B9028` from its proximity. The earlier assertion that this TU has no `.sbss` is superseded.
+
+The factory genuinely allocates the life-layout array twice and registers the money layout twice. Both repetitions remain in the source. The idle motion string is `"normal"`, not `"loop"`; comparing only relocation kinds and code size would miss that semantic error.
+
+### Rejected bounded controls
+
+Wii/1.3 reproduces exactly the same six instruction differences as Wii/1.1 with the normal game flags. Genuine unadapted 2006 MSL headers also retain the wrong relative RTTI-name order; this does not establish a new library contract. Pointer/reference map arguments, ordinary inline constructor-definition placement, direct versus named frame conversion, and explicit empty base-destructor declarations did not resolve the remaining differences. A u32 `GetMotionLength` return declaration plus explicit u16 narrowing is also unchanged; the canonical u16 interface remains intact. No shared-header change is proposed from these negative controls.
+
+An explicit empty derived destructor rotates the retained destructor/helper block even when individual bodies are exact. Leaving the derived destructor implicit restores every native function position and complete exception-index order. This is observed for this producer; it is not a general rule that explicit destructors are incorrect.
+
+Reproducible outside artifacts are retained under `C:/MassStorage/GitHub/141-reference`: `141-compile.py`, `141-audit-code.py`, `141-audit-strict.py`, the code/EH/vtable JSON receipts, `141-source-link-proof.json`, the full linked image, and the genuine-primary reading-control object. They preserve the failed source-selected link separately from any successful NonMatching fallback build.
+
 ## Traps
+
+- **Exact individual bodies can still have the wrong source order.** This producer's explicit empty derived destructor changes retained placement. Its implicit destructor restores native code and exception-index order without an emission fixture; F-141-4 records the bounded result.
+- **A plausible template name can be attached to the wrong earlier function.** The real factory cleanup records identify the CUIManager allocation guard at `8007DD50`, superseding the unaccepted #217 inference at `8011A990`. Validate actual cleanup targets, not only destructor size.
+- **String relocation identity is part of the proof.** The idle motion literal must be `"normal"`; a different same-shaped string can leave instruction comparison apparently exact.
 
 - **A unit can sit between a deleter destructor and the next survey class.** `0x800C4810`–`0x800C495C` follow `CMiniMap`'s deleter destructor but are neither `CMiniMap` nor `CMoneyLifeDisplay` code. Check callers and `.sdata` alignment before attaching such functions to either neighbour.
 - **A word load with byte extraction means bitfields, not bytes.** A struct of `s8` fields compiles to byte loads; this index is read as one word and written with `rlwimi`, which only bitfields produce.
