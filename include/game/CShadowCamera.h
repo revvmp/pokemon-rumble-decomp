@@ -15,10 +15,10 @@ public:
     virtual ~CShadowCamera();
     virtual void UpdateVisible();
 
+    void Setup(u16 width, u16 height, int textureLevels, bool useTextureAlpha);
     bool IsAutoSelectLight() const { return mAutoSelectLight; }
-    void Init(u16 width, u16 height, int levels, bool useTextureAlpha);
-    void SetupShadowModel(std::tr1::shared_ptr<CModel> model);
     void SelectLight();
+    void SetupShadowModel(std::tr1::shared_ptr<CModel> model);
 
 private:
     bool CalcLightProjection();

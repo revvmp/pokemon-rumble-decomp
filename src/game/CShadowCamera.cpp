@@ -23,8 +23,8 @@ CShadowCamera::CShadowCamera(u32 type) :
 
 CShadowCamera::~CShadowCamera() {}
 
-void CShadowCamera::Init(u16 width, u16 height, int levels, bool useTextureAlpha) {
-    mTextureLevels = levels;
+void CShadowCamera::Setup(u16 width, u16 height, int textureLevels, bool useTextureAlpha) {
+    mTextureLevels = textureLevels;
     mUseTextureAlpha = useTextureAlpha;
 
     u32 size = GXGetTexBufferSize(width, height, GX_TF_I8, GX_FALSE, 0);
