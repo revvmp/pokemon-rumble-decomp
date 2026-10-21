@@ -24,6 +24,8 @@
 #include <game/MapDesc.h>
 #include <game/MathUtil.h>
 #include <game/Message.h>
+#include <game/Sound.h>
+#include <game/CStatistic.h>
 #include <game/StringFormat.h>
 #include <memory>
 #include <nw4r/lyt/lyt_pane.h>
@@ -100,15 +102,26 @@ private:
 
 class IDlgPiiSelectorInternal;
 
+typedef std::vector<std::tr1::shared_ptr<CUIPiiListItem> > PiiItemVector;
+
+bool LoadItems(PiiItemVector& rItems, int player);
+bool IsCurrentMapStage7Even();
+
+struct SwapRequest {
+    std::tr1::shared_ptr<CPiiPersonalData> mPii;
+    nw4r::math::VEC3 mFrom;
+    nw4r::math::VEC3 mTo;
+};
+
 class CDataPerPlayer {
 public:
     CDataPerPlayer(IDlgPiiSelectorInternal* pDlg, int state, int player)
         : mpDlg(pDlg), mState(state), mPlayer(player), mMode(0), mFavoriteMode(false), mReservedPosition(0.0f, 0.0f),
-          mReservedTargetPosition(0.0f, 0.0f), mReservedFlag50(false), mSilent(false), mReservedFlag52(false),
+          mReservedTargetPosition(0.0f, 0.0f), mOpen(false), mSilent(false), mInputDisabled(false),
           mReserved6C(0), mReserved70(0), mReserved74(0), mReserved78(""), mReserved7C(""), mReserved80(""),
           mUIManager(new CUIManager), mRootLayout(new BUILayout), mListLayout(new BUILayout),
           mPiiSpec(new CUIPiiSpec), mPiiList(new CUIPiiList), mPlayerID(new CUIPlayerID), mpController(nullptr),
-          mDisconnectSerial(0), mDisconnected(false), mReservedD0(0), mFiber("CDataPerPlayer") {}
+          mDisconnectSerial(0), mDisconnected(false), mEntranceResult(0), mFiber("CDataPerPlayer") {}
 
     void Draw() { mUIManager->Draw(); }
     void CalcMtx() { mUIManager->CalcMtx(); }
@@ -145,7 +158,24 @@ public:
     bool IsShown();
     void OnSelectionChanged(BUI* pUI);
     void OnAccept(BUI* pUI) { mMode = 3; }
+    void OnSortChanged(const CPiiListFilterSort* pFilterSort);
     void Run();
+    void RunDialog();
+    void RunSelection();
+    void RunEntrance();
+    void WaitForRemoteMemory();
+    void SetOpen(bool open);
+    int TakeMode();
+    void UpdateList(bool selectFirst);
+    void SelectEntrancePii();
+    std::tr1::shared_ptr<CLayout::CMotionProgram> PlayMotion(std::tr1::shared_ptr<BUILayout> pLayout, bool shown);
+    int ValidateAccept();
+    void ApplyAccept();
+    void ProcessEntranceAccept();
+    void FinishAccept();
+    bool CanSwap();
+    void PrepareSwap(SwapRequest& rRequest);
+    void ExecuteSwap(const SwapRequest& rRequest);
 
 private:
     IDlgPiiSelectorInternal* mpDlg;
@@ -153,13 +183,13 @@ private:
     int mPlayer;
     int mMode;
     bool mFavoriteMode;
-    std::vector<std::tr1::shared_ptr<CUIPiiListItem> > mItems;
+    PiiItemVector mItems;
     CPiiListFilterSort mFilterSort;
     nw4r::math::VEC2 mReservedPosition;
     nw4r::math::VEC2 mReservedTargetPosition;
-    bool mReservedFlag50;
+    bool mOpen;
     bool mSilent;
-    bool mReservedFlag52;
+    bool mInputDisabled;
     std::tr1::weak_ptr<IUIListItem> mReservedWeak54;
     std::tr1::weak_ptr<BUI> mReservedWeak5C;
     std::tr1::weak_ptr<BUI> mReservedWeak64;
@@ -176,15 +206,15 @@ private:
     std::tr1::shared_ptr<CUIPiiList> mPiiList;
     std::tr1::shared_ptr<CUIPlayerID> mPlayerID;
     std::tr1::shared_ptr<BUILayout> mHelpLayout;
-    bool mReservedFlagBC;
-    bool mReservedFlagBD;
-    bool mReservedFlagBE;
-    bool mReservedFlagBF;
+    bool mSpecShown;
+    bool mListShown;
+    bool mPlayerIDShown;
+    bool mHelpShown;
     bool mReservedFlagC0;
     IController* mpController;
     u32 mDisconnectSerial;
     bool mDisconnected;
-    int mReservedD0;
+    int mEntranceResult;
     CFiber mFiber;
 
 public:
@@ -262,10 +292,10 @@ void CDataPerPlayer::Setup(bool background) {
     mPiiSpec->SetVisible(false);
     mPiiList->SetVisible(false);
     mPlayerID->SetVisible(false);
-    mReservedFlagBC = false;
-    mReservedFlagBD = false;
-    mReservedFlagBE = false;
-    mReservedFlagBF = false;
+    mSpecShown = false;
+    mListShown = false;
+    mPlayerIDShown = false;
+    mHelpShown = false;
     mReservedFlagC0 = false;
     CLayout* pLayout = mListLayout->GetLayout();
     pLayout->CalculateMtx(true);
@@ -283,6 +313,199 @@ public:
     virtual std::tr1::shared_ptr<CPiiPersonalData> GetEntrancePPD(IController* pController) = 0;
     virtual void UpdateDlgOpenState() = 0;
 };
+
+void CDataPerPlayer::Run() {
+    switch (mState) {
+    case 0:
+    case 1:
+        YieldFiberStarted();
+        RunDialog();
+        break;
+    case 2:
+        RunEntrance();
+        break;
+    }
+    SetOpen(false);
+}
+
+void CDataPerPlayer::RunDialog() {
+    WaitForRemoteMemory();
+    mpController = IGameSession::GetInstance()->GetPlayer(mPlayer)->GetController();
+    mDisconnectSerial = mpController != nullptr ? mpController->GetDisconnectSerial() : 0;
+    if (LoadItems(mItems, mPlayer)) {
+        SetOpen(true);
+        RunSelection();
+    }
+    PlayMotion(mPiiSpec, false);
+    PlayMotion(mPlayerID, false);
+    PlayMotion(mHelpLayout, false);
+    std::tr1::shared_ptr<CLayout::CMotionProgram> motion = PlayMotion(mPiiList, false);
+    if (motion) {
+        motion->Wait();
+    }
+}
+
+void CDataPerPlayer::WaitForRemoteMemory() {
+    IController* pController = IGameSession::GetInstance()->GetPlayer(mPlayer)->GetController();
+    IController::Type type = pController->GetType();
+    if (type >= IController::TYPE_WII_REMOTE && type <= IController::TYPE_NUNCHAKU) {
+        IGameSession::GetInstance()->GetRemoteMemory(pController->GetChannel())->WaitUntilIdle(true);
+    }
+}
+
+void CDataPerPlayer::SetOpen(bool open) {
+    mOpen = open;
+    mpDlg->UpdateDlgOpenState();
+}
+
+void CDataPerPlayer::RunSelection() {
+    mSilent = true;
+    CPlayer* pPlayer = IGameSession::GetInstance()->GetPlayer(mPlayer);
+    UpdateList(false);
+    mPlayerID->Update();
+    SelectEntrancePii();
+    PlaySound(40);
+    PlayMotion(mPiiSpec, true);
+    PlayMotion(mPlayerID, true);
+    PlayMotion(mHelpLayout, true);
+    {
+        std::tr1::shared_ptr<CLayout::CMotionProgram> motion = PlayMotion(mPiiList, true);
+        if (motion) {
+            motion->Wait();
+        }
+    }
+    mUIManager->SetFocusedUI(mPiiList.get());
+    mSilent = false;
+    for (;;) {
+        IController* pController = pPlayer->GetController();
+        if (IsDisconnected()) {
+            if (!IsCurrentMapStage7Even()) {
+                mMode = 4;
+            }
+        } else if (pController == nullptr || !pController->IsConnected()) {
+            if (mState == 2) {
+                mMode = 4;
+            }
+        } else if (!mInputDisabled) {
+            if (pController->GetTrig() & 0x90) {
+                do {
+                    if (IsCurrentMapStage7Even()) {
+                        break;
+                    }
+                    CPlayerPii* pPii = pPlayer->GetPii();
+                    if (pPii != nullptr) {
+                        if (pPii->GetPersonalData()->IsFainted()) {
+                            break;
+                        }
+                    }
+                    mpDlg->SetEntrancePPD(pController, 0);
+                    mMode = 4;
+                } while (false);
+                PlaySound(90);
+            } else if (pController->GetTrig() & 0x800) {
+                mMode = 6;
+            } else if (pController->GetTrig() & 0x100) {
+                if (mState == 1) {
+                    mMode = 7;
+                }
+            } else {
+                mUIManager->DispatchFocusedInput(pController);
+            }
+        }
+        switch (TakeMode()) {
+        case 5:
+            IGameSession::GetInstance()->GetStatistic()->Add(-99, 1);
+            PlaySound(41);
+            return;
+        case 4:
+            if (!IsCurrentMapStage7Even()) {
+                PlaySound(41);
+                return;
+            }
+            break;
+        case 7:
+            YieldFiber();
+            mFilterSort.ShowSortMenu(mUIManager, mPlayer, mItems,
+                                     std::tr1::bind(&CDataPerPlayer::OnSortChanged, this, std::tr1::placeholders::_1));
+            break;
+        case 6: {
+            std::tr1::shared_ptr<IUIListItem> selected = mPiiList->GetSelectedItem();
+            if (selected) {
+                std::tr1::shared_ptr<CUIPiiListItem> item = std::tr1::static_pointer_cast<CUIPiiListItem>(selected);
+                bool favorite = !item->GetPPD()->IsFavorite();
+                item->GetPPD()->SetFavorite(favorite);
+                if (favorite) {
+                    PlaySound(9);
+                } else {
+                    PlaySound(90);
+                }
+                mFavoriteMode = favorite;
+            }
+            break;
+        }
+        case 3: {
+            switch (ValidateAccept()) {
+            case 2:
+                PlaySound(41);
+                return;
+            case 0:
+                ApplyAccept();
+                if (mState == 2) {
+                    ProcessEntranceAccept();
+                    if (mEntranceResult != 2) {
+                        if (!IsDisconnected()) {
+                            PlayMotion(mPiiList, true);
+                        }
+                        FinishAccept();
+                        break;
+                    }
+                }
+                if (CanSwap()) {
+                    SwapRequest request;
+                    PrepareSwap(request);
+                    SetOpen(false);
+                    ExecuteSwap(request);
+                }
+                SetOpen(false);
+                PlayMotion(mPiiSpec, false);
+                PlayMotion(mPiiList, false);
+                PlayMotion(mPlayerID, false);
+                PlayMotion(mHelpLayout, false);
+                FinishAccept();
+                return;
+            }
+            break;
+        }
+        }
+        YieldFiber();
+    }
+}
+
+void CDataPerPlayer::UpdateList(bool selectFirst) {
+    int player = mState == 2 ? -1 : mPlayer;
+    mFilterSort.Filter(mPiiList, mItems, player);
+    if (selectFirst) {
+        mPiiList->SelectIndex(0);
+    }
+}
+
+void CDataPerPlayer::SelectEntrancePii() {
+    IController* pController = IGameSession::GetInstance()->GetPlayer(mPlayer)->GetController();
+    {
+        std::tr1::shared_ptr<CPiiPersonalData> entrance = mpDlg->GetEntrancePPD(pController);
+        if (entrance) {
+            int index = 0;
+            for (PiiItemVector::iterator it = mItems.begin(); it != mItems.end(); ++it) {
+                if ((*it)->GetPPD() == entrance) {
+                    mPiiList->SetSelectedIndex(index);
+                    return;
+                }
+                index++;
+            }
+        }
+    }
+    mPiiList->SelectIndex(0);
+}
 
 class CDlgPiiSelector : public IDlgPiiSelectorInternal, public std::tr1::enable_shared_from_this<CDlgPiiSelector> {
 public:

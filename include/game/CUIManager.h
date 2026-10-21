@@ -14,6 +14,9 @@ public:
     virtual void Draw();
     virtual CUIManager* GetManager();
 
+    void SetFocusedUI(BUI* pUI);
+    void DispatchFocusedInput(const IUIInput* pInput);
+
 private:
     std::tr1::weak_ptr<BUI> mFocusedUI;
 };
