@@ -447,3 +447,31 @@ producer are rerun with the current canonical headers.
 - An ELF NOBITS section has no file payload. Comparing file bytes at its
   nominal offset reads unrelated later tables and falsely reports changed
   BSS contents. Compare its allocation, flags, alignment and extent instead.
+
+- Balloon source visibility controls preserve no new placement acceptance.
+  Moving its unchanged constructor into the class header keeps all 436
+  instruction streams and 226 EH records exact, but emits the constructor
+  group before Init; the first physical mismatch becomes index 4. Keep the
+  late constructor definition in the positive checkpoint. The receipt is
+  `152-reference/order-inline-header-constructor/order-proof.json`.
+- For Balloon, making late methods ordinary out-of-class definitions in
+  native address order changes Calc literal pooling: one candidate symbol
+  would need two different native addresses. The consistent-binding audit
+  rejects this context before any link claim. See
+  `152-reference/order-native-method-definitions/audit.log`.
+
+
+### Real source-selected pipeline diagnostic after PR1222
+
+The complete Balloon source was selected locally through `Object(Matching, "game/CMsgBalloon.cpp")` solely as a diagnostic. The real configure, compiler and linker pipeline completed; the frozen checksum rejected the fresh DOL. This does not establish Matching acceptance. The actual pipeline object independently preserves all 436 function streams and all 226 EH records, with every paired target checked. A fresh `all_source` rebuild and comparison of all 717 previously Matching objects preserves allocated bytes, section metadata, semantic relocations and symbol attributes; 28 objects differ only in compiler numeric labels.
+
+Relative to the verified baseline, the resulting ELF grows by 8 extab bytes, 12 extabindex bytes, 80 text bytes, 64 data bytes and 16 sdata bytes. The retained local 68-byte free vector length-error helper is an additional body; mapping it to an unrelated native role is not accepted. The fresh MAP also shows owned function permutations, so removing the extra helper alone would not prove whole-unit layout. Evidence is preserved outside in `152-reference/full-source-pipeline`: actual compiler object, ELF/DOL/MAP, complete native proof, section deltas, owned function layout and Matching-object control.
+
+The first link attempt exposed stale source-object timestamps inherited through `copy2`; explicitly refreshing the changed source caused a real recompile and resolved the apparent missing wide-string constructor, allocator destroy and integer comparator. Future source-selected diagnostics must confirm an actual compiler edge ran before interpreting unresolved helper identities.
+
+
+### Primary vector error owner and inherited interface
+
+The original 2006 MSL vector header declares `__vector_common<bool>` with an ordinary out-of-class static `throw_length_error` definition; `__vec_deleter` publicly inherits `__vector_common<true>`. Adapting this exact role removes the reconstructed file-local free error routine. The original native error routine at 80088550 retains its existing 68-byte extent and receives the actual primary template identity. No exception algorithm, source flags or expected hashes change.
+
+The complete Balloon diagnostic retains all 436 code streams and 226 EH records with this inherited primary contract. Its actual linked text, extab and extabindex now have exact native addresses and sizes. Its remaining data growth and function ordering still prevent acceptance. Isolating only this bounded header/interface prerequisite, with Balloon left NonMatching, passes the real all-source build, full link and frozen DOL. Two accepted consumer objects reorder emitted weak helpers without changing their function instructions; the verified isolated final allocated ELF is byte-identical to the baseline. This differs from the previously rejected free/global-helper variant and does not authorize that variant.
