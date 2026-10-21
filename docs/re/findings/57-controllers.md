@@ -56,6 +56,14 @@ An independent consumer control in issue #219 uses the same header overlay: fact
 
 This is a bounded shared-header prerequisite. Composition remains NonMatching until its complete source-linked data and exception tables pass the frozen DOL gate; exact function objects alone do not establish original issue completion.
 
+## F-57-6: Complete original controller inventory
+
+All 26 functions and 5,300 instruction bytes in the original issue inventory are source-linked together across the five controller units. Composition contributes the remaining six functions and 1,596 bytes. Every final ELF function has its original address, size and bytes, with one corresponding compiled-source row in a freshly generated MAP. The selected link graph contains each controller source object and excludes its original fallback. The complete rebuilt DOL equals the frozen original byte-for-byte, including the retained exception tables, literals, RTTI and vtables.
+
+The native cleanup destructor at `0x8005A9F0`, 96 bytes, is `std::tr1::detail::shared_ptr_holder<char, std::detail::default_delete<char[]> >::~shared_ptr_holder`. Its source body and both delete targets match the native routine. The composition assignment exception record references this same cleanup guard twice. Naming that existing outside symbol lets the linker resolve the emitted weak duplicate to its original instance; leaving it unnamed instead retains an extra destructor and exception record in the controller unit. Its address, size, split and implementation ownership remain unchanged.
+
+The complete control runs `configure.py --map`, a fresh-output `ninja` and the frozen-manifest verifier, each exiting zero. `unitdiff.py` reports all six composition functions at 100%. The immutable native26 audit also checks the original issue REST inventory, source selection, unique MAP coverage and frozen DOL hash. No compiler option, original manifest or executable byte was changed to obtain acceptance.
+
 ## Traps
 
 - A seeded `main.elf.MAP` can be stale even after a successful current link. Default `configure.py` does not enable map generation. The first controller control had a current ELF with source symbols while its seed MAP still named original fallback objects. Generate with `configure.py --map`, relink and verify before using a MAP to attribute source coverage; inspect timestamps and actual symbol entries. Never infer source attribution from an inherited map.
