@@ -266,7 +266,7 @@ public:
         }
     }
     template <typename F> function(F f, detail::unused_argument* = nullptr) : f_(nullptr) {
-        if (!detail::is_null(f)) {
+        if (!is_empty(f)) {
             typedef detail::function_imp<R (*)(A), F, false, true> imp;
             if (sizeof(imp) <= sizeof(buf_)) {
                 f_ = new (buf_) imp(f);
@@ -326,6 +326,10 @@ public:
     }
 
 private:
+    static bool is_empty(...) { return false; }
+    template <typename F> static bool is_empty(F* pFunction) { return pFunction == nullptr; }
+    template <typename F, typename C> static bool is_empty(F C::*pMember) { return pMember == nullptr; }
+    template <typename S> static bool is_empty(const function<S>& rFunction) { return !rFunction; }
     base* local() const { return reinterpret_cast<base*>(const_cast<char*>(buf_)); }
 
     base* f_;
