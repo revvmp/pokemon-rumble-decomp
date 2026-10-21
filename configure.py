@@ -254,6 +254,7 @@ config.libs = [
             Object(NonMatching, "game/CNoticeDisplay.cpp"),
             Object(NonMatching, "game/CPauseMenu.cpp"),
             Object(NonMatching, "game/CPiiListFilterSort.cpp"),
+            Object(NonMatching, "game/CSaveManager.cpp"),
             Object(Matching, "game/CStageCamera.cpp"),
             Object(NonMatching, "game/ScriptCamera.cpp"),
             Object(Matching, "game/ControllerTable.cpp"),

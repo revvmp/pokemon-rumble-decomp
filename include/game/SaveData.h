@@ -187,5 +187,8 @@ public:
 
 SlotData* GetSaveData(int slot);
 int Load(bool backup);
+bool Save(int mode);
+bool CheckNandSpace();
+void DeleteSaveFiles();
 
 #endif

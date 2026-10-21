@@ -45,7 +45,15 @@ public:
     enum { block_size = 1024 / sizeof(T) };
 
     size_type size() const { return size_; }
+    bool empty() const { return size_ == 0; }
     buf_type& buf() { return buf_.first(); }
+
+    T& front() { return buf()[start_ / block_size][start_ % block_size]; }
+
+    void pop_front() {
+        ++start_;
+        --size_;
+    }
 
     T& operator[](size_type n) {
         size_type i = n + start_;
@@ -65,6 +73,9 @@ public:
     typedef unsigned long size_type;
 
     size_type size() const { return base::size(); }
+    bool empty() const { return base::empty(); }
+    T& front() { return base::front(); }
+    void pop_front() { base::pop_front(); }
     T& operator[](size_type n) { return base::operator[](n); }
 };
 
