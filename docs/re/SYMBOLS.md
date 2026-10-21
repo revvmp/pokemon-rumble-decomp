@@ -3501,4 +3501,4 @@ CPpuEngine +0x90 is a four-byte MapIndex, copied whole from MapDesc and passed t
 
 ### F-152-10: Borrowed Balloon interfaces
 
-Native 800968D0 is a 112-byte position-transform wrapper (output VEC3 pointer, const MTX34 pointer, const input VEC3 pointer; returns output). TransformPoint is a descriptive inferred spelling, distinct from the SDK VEC3Transform at 8023F120. Its body remains an original CDlgPiiSelector fallback. The wstring representation/accessor, formatter and shared-owner identities recorded in F-152-10 retain their original native definitions; no borrowed source coverage is claimed.
+Native 800968D0 is a 116-byte position-transform wrapper (output VEC3 pointer, const MTX34 pointer, const input VEC3 pointer; returns output). TransformPoint is a descriptive inferred spelling, distinct from the SDK VEC3Transform at 8023F120. Its body remains an original CDlgPiiSelector fallback. The wstring representation/accessor, formatter and shared-owner identities recorded in F-152-10 retain their original native definitions; no borrowed source coverage is claimed.

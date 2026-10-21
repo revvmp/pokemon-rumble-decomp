@@ -351,7 +351,7 @@ interfaces leaves the original fallback definitions in use. No borrowed
 implementation is claimed reconstructed. All original DOL bytes remain
 unchanged in the metadata-only configure/Ninja/frozen control.
 
-The native 800968D0 routine is a 112-byte position-transform wrapper that
+The native 800968D0 routine is a 116-byte position-transform wrapper that
 calls MTX34/VEC3 conversion operators and PSMTXMultVec, returning the output
 pointer. It cannot share the existing strong SDK VEC3Transform identity at
 8023F120, whose body is 60 bytes. Its original spelling is unknown. The
@@ -359,7 +359,7 @@ external declaration TransformPoint is descriptive, not a recovered name;
 it adds no body or forwarding shim. The actual Balloon caller with this
 declaration preserves all 436 isolated instruction streams and 226 EH
 records. Final acceptance also requires the fresh MAP and Ninja graph to
-select the original CDlgPiiSelector object and its strong 112-byte function
+select the original CDlgPiiSelector object and its strong 116-byte function
 at 800968D0.
 
 A diagnostic input-list link is not a source-selected Matching result.
