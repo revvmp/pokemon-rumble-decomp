@@ -1,5 +1,19 @@
 # Symbols and interfaces
 
+## CRomFont and CAnyEncFont (#336)
+
+Native RTTI recovers CRomFont, CAnyEncFont<nw4r::ut::RomFont>, and nw4r::ut::RomFont. The complete font is 0x70 bytes. Native virtual slot order is the canonical SDK RomFont order; CAnyEncFont overrides character conversion and GetEncoding, while CRomFont supplies resource construction/destruction. Method and member spellings not recovered through RTTI are descriptive.
+
+| Offset | Member | Evidence and confidence |
+| --- | --- | --- |
+| `0x00–0x1B` | `nw4r::ut::RomFont` base | Constructor, SDK interface and RTTI; high |
+| `0x1C–0x5F` | `CEncodingConverter mConverter` | Canonical 0x44-byte converter, initialization and conversion member-pointer accesses; high |
+| `0x60` | `FontEncoding mEncoding` | UTF16 initialization and GetEncoding return; high |
+| `0x64` | `int mConversionDepth` | Signed positive comparison and scoped increment/decrement; high |
+| `0x68–0x6F` | `shared_ptr<u8> mBuffer` | Native custom-deleter specialization, canonical cleanup 0x800657E0 and full source-selected match; high |
+
+The four-byte scoped guard holds a reference to the signed counter. Its generic source form CFontConversionGuard<int> and name are inferred from the native lifetime and retained emission order, not recovered original symbols. Its destructor is 0x801DA070. CRomFont constructor/destructor are 0x801D9B40/0x801D9CE0; CAnyEncFont destructor is 0x801D9C80. Conversion virtuals are 0x801D9DA0, 0x801D9E20, 0x801D9EA0, 0x801D9F40 and 0x801D9FE0; GetEncoding is 0x801DA060. Own vtable is 0x803C0FB0, and RTTI records are 0x804B8430/0x804B8438/0x804B8440. [F-336-1](findings/336-romfont-ui-list.md) records all-section, cleanup, link-input and frozen-executable evidence. The preceding resource-font unit and following IUIListItem/CUIList context remain outside this source split.
+
 ## OS IPC buffer and time conversion (#470)
 
 For `wpse-v1` / `main.dol`, [F-470-1 and F-470-2](findings/470-os-ipc.md) recover `__OSGetIPCBufferHi` at `.text:0x802BD980` (8 bytes), `__OSGetIPCBufferLo` at `.text:0x802BD990` (8 bytes), and `__OSTimeToSystemTime` at `.text:0x802BD100` (0x58 bytes). These replace the corresponding `fn_` labels with high-confidence original names corroborated by Petari and target data flow. Text file offsets equal address minus `0x8004FD40`. The getters return 32-bit pointers in r3. Time conversion takes and returns signed 64-bit time in r3/r4; its source remains fallback. OSIpc source and its two 4-byte local data objects are described in the finding.
