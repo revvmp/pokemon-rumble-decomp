@@ -294,6 +294,104 @@ private:
     union { char buf_[8]; unsigned long words_[2]; };
 };
 
+namespace detail {
+template<class A,class B> class function_base<void (*)(A,B)> {
+public:
+    virtual ~function_base() {}
+    virtual function_base* clone() const = 0;
+    virtual function_base* clone(void* pBuffer) const = 0;
+    virtual void operator()(A first, B second) = 0;
+};
+template<class A,class B,class F> class function_imp<void (*)(A,B),F,false,true> : public function_base<void (*)(A,B)> {
+    typedef function_base<void (*)(A,B)> base;
+public:
+    explicit function_imp(F f) : f_(f) {}
+    virtual base* clone() const { return new function_imp(*this); }
+    virtual base* clone(void* pBuffer) const { return new (pBuffer) function_imp(*this); }
+    virtual void operator()(A first, B second) { f_(first,second); }
+private:
+    F f_;
+};
+}
+
+template <typename A,typename B> class function<void(A,B)> {
+    typedef detail::function_base<void (*)(A,B)> base;
+
+    struct bool_type {
+        int dummy_;
+    };
+
+public:
+    typedef void result_type;
+
+    function() : f_(nullptr) {}
+    template <typename F> function(F f) : f_(nullptr) {
+        if (!detail::is_null(f)) {
+            typedef detail::function_imp<void (*)(A,B), F, false, true> imp;
+            if (sizeof(imp) <= sizeof(buf_)) {
+                f_ = new (buf_) imp(f);
+            } else {
+                f_ = new imp(f);
+            }
+        }
+    }
+    function(const function& r) : f_(nullptr) {
+        if (r.f_ != nullptr) {
+            if (r.f_ == r.local()) {
+                f_ = r.f_->clone(buf_);
+            } else {
+                f_ = r.f_->clone();
+            }
+        }
+    }
+    ~function() {
+        if (f_ == local()) {
+            f_->~base();
+        } else if (f_ != nullptr) {
+            delete f_;
+        }
+    }
+
+    function& operator=(const function& r) {
+        function tmp(r);
+        swap(tmp);
+        return *this;
+    }
+
+    void swap(function& r) {
+        base* p = f_;
+        bool localStorage = p == local();
+        f_ = r.f_;
+        r.f_ = p;
+        for (unsigned int i = 0; i < sizeof(buf_) / sizeof(unsigned long); ++i) {
+            unsigned long c = words_[i];
+            words_[i] = r.words_[i];
+            r.words_[i] = c;
+        }
+        if (localStorage) {
+            r.f_ = r.local();
+        }
+        if (f_ == r.local()) {
+            f_ = local();
+        }
+    }
+
+    operator int bool_type::*() const { return f_ != nullptr ? &bool_type::dummy_ : nullptr; }
+
+    void operator()(A first, B second) const {
+        if (f_ == nullptr) {
+            throw bad_function_call();
+        }
+        (*f_)(first, second);
+    }
+
+private:
+    base* local() const { return reinterpret_cast<base*>(const_cast<char*>(buf_)); }
+
+    base* f_;
+    union { char buf_[8]; unsigned long words_[2]; };
+};
+
 template<class R,class F,class T> template<class A>
 inline R detail::bound_func<R,F,tuple<T,placeholders::detail::ph<1> > >::operator()(const A& argument) const {
     tuple<const A&> arguments(argument);

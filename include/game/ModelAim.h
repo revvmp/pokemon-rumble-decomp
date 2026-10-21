@@ -1,0 +1,34 @@
+#ifndef GAME_MODEL_AIM_H
+#define GAME_MODEL_AIM_H
+#include <nw4r/g3d/g3d_scnmdlsmpl.h>
+#include <nw4r/math/math_types.h>
+class ModelAim {
+public:
+    struct Parameters {
+        f32 maxPitchStep;
+        f32 maxYawStep;
+        f32 pitchFollowRate;
+        f32 yawFollowRate;
+        f32 pitchInnerMin;
+        f32 pitchInnerMax;
+        f32 pitchOuterMin;
+        f32 pitchOuterMax;
+        f32 yawInnerMin;
+        f32 yawInnerMax;
+        f32 yawOuterMin;
+        f32 yawOuterMax;
+    };
+    ModelAim();
+    ~ModelAim();
+    void SetParameters(const Parameters& rParameters);
+    static Parameters sDefaultParameters;
+private:
+    nw4r::g3d::ScnMdlSimple* mpModel;
+    u32 mParentNodeId;
+    nw4r::math::MTX34 mBindTransform;
+    f32 mYaw;
+    f32 mPitch;
+    bool mLimitEnabled;
+    Parameters* mpParameters;
+};
+#endif
