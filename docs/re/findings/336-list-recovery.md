@@ -1,0 +1,38 @@
+# F-336-8: complete CUIList recovery and separate destruction policy
+
+Issue 336 owns the CUIList source unit beginning at `0x801DA0C0`; its continuation includes issue 337 through `0x801DC6C0`. Issue 337 was unassigned when this recovery resumed. The coordinating agent authorized recovery of the complete unit under the single 336 claim. CRomFont's ten functions end at `0x801DA0C0` and are already Matching. This checkpoint does not mark CUIList Matching.
+
+## Native producer evidence
+
+Outside evidence is retained in `C:/MassStorage/GitHub/336-resume-reference`. `336-audit-scalars.py` checks compiled source against the frozen DOL, resolves every instruction relocation, checks the shared literal pool, and checks exception records. The current `CUIList-trivial-dtor.o` proves UpdateScrollRange (232 bytes), UpdateSelection (1456), OnInput (1656), and OnFocus (292): 3636 instruction bytes, 108 targets, and 360 exception bytes. These are individual body proofs, not full translation-unit acceptance. The existing destructor now matches all 840 instruction bytes with the current canonical vector implementation.
+
+Native comparisons support unsigned-long selected and first-visible indices. Scroll arithmetic also needs signed layout-count and page locals. Input forward wrapping uses a remainder; backward scanning has distinct termination and selectable-item breaks. The reference-returning minimum produces the observed temporary lifetime. Direct SDK size and translation temporaries reproduce the selection update's stack layout.
+
+Two previous interpretations are superseded: the successful array Load tail invokes only UpdateSelection, not an additional Calc; the scroll visibility argument is the comparison `itemCount <= layoutCount`. The native callee applies that boolean directly. Descriptive names do not justify reversing this observed condition.
+
+The complete outside array Load remains 2992 bytes against native 2996. Its remaining instruction differences involve the string constructor retaining its receiver and temporary character storage. No complete Load, whole-unit, or source-coverage acceptance is claimed. Making OnFocus inline changes emission and literal order; individual-body equality does not establish that source-placement hypothesis.
+
+## Vector construction and destruction are distinct
+
+The pinned primary `msl_utility` revision 1.57.2.6, dated 2006/02/09, is retained as a declaration reading aid. Provenance is in `336-primary-provenance.json`: repository KooShnoo/pokemon-rumble, commit `11c112f7548b26ab2cecfcf52e201b8d3b76120f`, blob `a2ffc78dc703f018a8feeda0f99734cd99709547`, SHA-256 `c1dc679bde87835a2450ffc13305034347d81a0552d610336f3a2001c2b6b4bc`. Its class traits use separate `__builtin_trivial_members` bits: 4 for trivial copying and 1 for trivial destruction. Its default destruction-after-move trait follows trivial destruction; its default move-constructor trait follows scalar classification. This is evidence for separate policies, not permission to import an unproved vector body.
+
+Actual Wii/1.1 compiler probes recorded in `336-trivial-member-masks.json` and `336-trivial-category-masks.json` distinguish SD records with virtual getters and trivial destructors from shared owners with nontrivial destructors. The former need copy construction but may omit destruction with the standard allocator. A reference specialization preserves the primary reference-type category. Existing POD and copy-construction policies remain unchanged.
+
+The outside vector candidate keeps copied-owner old sizes so their destructors release the old references. It clears moved sizes for trivial destruction only with the exact standard allocator. The custom allocator producer retains actual construct, destroy, and deallocate calls; `336-custom-allocator-proof.json` records their emitted call sites. No custom destruction is bypassed.
+
+`336-audit-candidate-prior-pushback.py` preserves all five prior native producers: 5652 instruction bytes, 261 targets, and 600 exception bytes. `336-audit-destruction-chain.py` independently binds the actual CMsgBalloon append caller at `0x800CC130 + 0xA8` to its 44-byte clear wrapper at `0x800CC240`, then its four-byte no-op at `0x800CC270`. All 48 bytes and both call edges match. This establishes the copied-owner policy independently of the unfinished CUIList Load.
+
+The public push_back dispatch candidate moves the unchanged existing public POD branch into a private public-vector helper and retains the short ordinary out-of-class public dispatch. Existing internal true dispatch remains unchanged. It introduces no concrete element-type specializations. Moving the branch into the existing internal true overload was rejected because direct void-vector callers changed.
+
+On source head 2deb767c649cdf84a6536c2217a7e69025c6539b, actual all_source rebuilt successfully. The complete control captured 758 objects and 709 Matching objects. All Matching objects preserve allocated bytes, raw semantic relocations, and symbol attributes; across all objects, 692 are raw-identical and 61 differ only in numeric local labels. Five NonMatching objects require separate accounting: CGameSession has unchanged function bytes; CLayout has unchanged function bytes; CMsgBalloon corrects the false clear helper from 12 to 4 bytes and drops unused assignment/swap helpers; ScriptItem now emits SetPasswordUsed as 1428 native instruction bytes with 68 resolved targets and 148 exact exception bytes; CPauseMenu retains its already incorrect 852-byte pushback against native 1236, with changed local stack placement. No CPauseMenu native-completion claim is made.
+
+All five prior strict native producers retain 5652 bytes, 261 targets, and 600 exception bytes. Separate objdiff preservation checks lose no prior 100-percent functions in those five NonMatching units (67, 23, 199, 29, and 17 respectively); these fuzzy checks supplement the strict controls. The ELF nonmetadata sections and complete DOL are identical to the baseline; the official frozen-manifest verifier passes. Evidence is in control-2deb767c/336-matching-consumer-result.json, 336-consumer-report.json, 336-password-native-proof.json, and 336-prior-native-functions.json.
+
+The generated split rewrite only moves the complete unchanged CLayout block. A receipt asserts equality of all complete blocks before restoring committed ordering; no outside split change is published.
+
+## Traps
+
+- Clearing no non-POD moved sizes fixes shared owners but regresses four previously proven SD producers. Trivial copying and trivial destruction must be checked separately; neither is synonymous with the reconstructed POD trait.
+- Identical helper bytes can belong to different instantiations. The initial `0x800CC010`/`0x800CC040` pairing was rejected after the actual append caller resolved to `0x800CC240`/`0x800CC270`. Preserve caller edges and typed symbols in addition to byte comparisons.
+- Adding inline to the large public push_back definition outlines substantial work in the CUIList caller and is not a supported replacement for the bounded dispatch change.
+- Do not repeat cached-string-receiver permutations without fresh declaration or native evidence. The remaining four-byte Load constructor gap is retained honestly.

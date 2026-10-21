@@ -346,7 +346,9 @@ protected:
     void clear(Metrowerks::int2type<false>) { base::clear(); }
     void clear_moved() { clear_moved(pod_type()); }
     void clear_moved(Metrowerks::int2type<true>) { this->size_ = 0; }
-    void clear_moved(Metrowerks::int2type<false>) { this->size_ = 0; }
+    void clear_moved(Metrowerks::int2type<false>) {
+        if (Metrowerks::is_same<Allocator, allocator<T> >::value && Metrowerks::has_trivial_dtor<T>::value) this->size_ = 0;
+    }
 
     void allocate(size_type n, pod_type) {
         if (n > max_size()) {
@@ -525,35 +527,37 @@ public:
     const T& operator[](size_type i) const { return this->data_[i]; }
 
 private:
+    void push_back_pod(const T& x) {
+        if (this->size_ < this->cap()) {
+            ++this->size_;
+            this->back() = x;
+        } else if (base::grow_by(1, pod_type())) {
+            ++this->size_;
+            this->back() = x;
+        } else {
+            __vec_split_buffer<T, Allocator> buffer(this->capacity_.second());
+            size_type capacity = base::grow_by(1);
+            if (capacity > this->max_size()) {
+                __throw_vector_length_error();
+            }
+            buffer.data_ = buffer.capacity_.second().allocate(capacity);
+            buffer.capacity_.first() = capacity;
+            buffer.start_ = this->size_;
+            *buffer.end() = x;
+            ++buffer.size_;
+            T* pFirst = this->data_;
+            T* pLast = this->data_ + this->size_;
+            buffer.construct_at_front(pFirst, pLast, Metrowerks::int2type<__vec_bulk_move<T>::value>());
+            this->size_ = 0;
+            base::swap(buffer, pod_type());
+        }
+    }
     iterator make_iterator(T* const& rPointer) { return iterator(rPointer); }
 };
 
 template <typename T, typename Allocator> void vector<T, Allocator>::push_back(const T& x) {
-    if (!Metrowerks::is_POD<T>::value) {
-        base::push_back(x);
-    } else if (this->size_ < this->cap()) {
-        ++this->size_;
-        this->back() = x;
-    } else if (base::grow_by(1, pod_type())) {
-        ++this->size_;
-        this->back() = x;
-    } else {
-        __vec_split_buffer<T, Allocator> buffer(this->capacity_.second());
-        size_type capacity = base::grow_by(1);
-        if (capacity > this->max_size()) {
-            __throw_vector_length_error();
-        }
-        buffer.data_ = buffer.capacity_.second().allocate(capacity);
-        buffer.capacity_.first() = capacity;
-        buffer.start_ = this->size_;
-        *buffer.end() = x;
-        ++buffer.size_;
-        T* pFirst = this->data_;
-        T* pLast = this->data_ + this->size_;
-        buffer.construct_at_front(pFirst, pLast, Metrowerks::int2type<__vec_bulk_move<T>::value>());
-        this->size_ = 0;
-        base::swap(buffer, pod_type());
-    }
+    if (!Metrowerks::is_POD<T>::value) base::push_back(x);
+    else push_back_pod(x);
 }
 
 template <typename T, typename Allocator> class __vec_pointer : public __vec_constructor<void*, allocator<void*>, true> {
