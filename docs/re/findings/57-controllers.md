@@ -24,7 +24,7 @@ The free `GetControllerDisconnectState()` at `0x8006FA00` walks the composition 
 
 ## Reconstruction control
 
-Unchanged `GAME_COMPILER` Wii/1.1 and `cflags_game` reproduce all five Classic functions, all five GameCube functions, all three Nunchaku functions, all six Wii Remote member functions and the disconnect-state query: twenty original functions. The four concrete units have been linked from source together and the full frozen DOL passes. Local controls also reproduce composition `GetType` and `GetButtonSymbol`. The four other composition bodies remain under investigation, so this finding does not establish completion of the original issue.
+Unchanged `GAME_COMPILER` Wii/1.1 and `cflags_game` reproduce all five Classic functions, all five GameCube functions, all three Nunchaku functions, all six Wii Remote member functions and the disconnect-state query: twenty original functions. The four concrete units have been linked from source together and the full frozen DOL passes. The subsequent controls in F-57-2 and F-57-3 reproduce five composition function bodies; update remains incomplete, so this finding does not establish completion of the original issue.
 
 The native Boolean stages in the GameCube and Wii Remote input checks correspond to nested readability, connection and processing predicates. Collapsing all stages into one expression shortens the routines. The Classic button mapper declares the native hold word before its result and compares positive stick thresholds with the constant as the left operand; the equivalent reversed comparison selects different floating comparison instructions.
 
@@ -41,6 +41,12 @@ The complete 756-byte `SetControllers` instruction stream is reproduced by ordin
 With value iterator parameters in that copy helper, Wii/1.1 combines the two distance calculations and eliminates the retained end iterator, producing 736 bytes. Const reference parameters preserve the native beginning and ending iterators and their two distance calculations. Using the duplicate constructor-layer allocator instead leaves four non-relocation differences in the second exception path; delegation to the existing base allocator resolves those too. These are source-level controls under unchanged game flags.
 
 Current object controls reproduce five of the six composition functions, 1,172 of its 1,596 instruction bytes. Update remains 424 bytes with four reordered instruction positions near its start, three of which are reported by the non-relocation comparison. The complete issue remains open. The four concrete controller units remain source-selected together and the full frozen DOL passes with the proposed vector additions; composition remains `NonMatching`.
+
+## F-57-4: Concrete controller source acceptance
+
+The four complete concrete units reconstruct twenty original issue functions and 3,704 instruction bytes: Classic five/920, GameCube five/648, Nunchaku three/612 and Wii Remote seven/1,524. Every final ELF function at its original address and size compares byte-for-byte with the frozen original DOL. A fresh link MAP attributes each function uniquely to its compiled controller source object, and the full DOL verifies with all four units source-selected together. Composition remains the original fallback in the selected graph; its five exact function-object controls are not credited as linked source.
+
+The GameCube glyph pool at `0x8039B0E0` contains six twelve-byte wide literals, ending at `0x8039B128`. The previous metadata represented it as one opaque 72-byte object. Identifying the six observed wide strings resolves objdiff's interior-symbol annotation discrepancy on two identical `addi` instructions: all five GameCube functions now report 100%, matching the independently exact final instruction bytes. The literal contents and addresses do not change.
 
 ## Traps
 
