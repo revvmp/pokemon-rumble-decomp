@@ -426,18 +426,57 @@ template <typename T, typename Allocator> class vector<T*, Allocator> : private 
 public:
     typedef T* value_type;
     typedef unsigned long size_type;
-    typedef T** iterator;
-    typedef T* const* const_iterator;
+    class iterator {
+    public:
+        iterator() {}
+        explicit iterator(void** const& pPointer) : mPointer(pPointer) {}
+        T*& operator*() const { return reinterpret_cast<T*&>(*mPointer); }
+        iterator& operator++() { ++mPointer; return *this; }
+        iterator operator++(int) { iterator previous(*this); ++*this; return previous; }
+        iterator& operator--() { --mPointer; return *this; }
+        iterator operator--(int) { iterator previous(*this); --*this; return previous; }
+        iterator& operator+=(long offset) { mPointer += offset; return *this; }
+        iterator& operator-=(long offset) { mPointer -= offset; return *this; }
+        iterator operator+(long offset) const { iterator result(*this); result += offset; return result; }
+        iterator operator-(long offset) const { iterator result(*this); result -= offset; return result; }
+        long operator-(const iterator& rOther) const { return mPointer - rOther.mPointer; }
+        bool operator==(const iterator& rOther) const { return mPointer == rOther.mPointer; }
+        bool operator!=(const iterator& rOther) const { return mPointer != rOther.mPointer; }
+        bool operator<(const iterator& rOther) const { return mPointer < rOther.mPointer; }
+    private:
+        void** mPointer;
+    };
+    class const_iterator {
+    public:
+        const_iterator() {}
+        explicit const_iterator(void* const* const& pPointer) : mPointer(pPointer) {}
+        T* const& operator*() const { return reinterpret_cast<T* const&>(*mPointer); }
+        const_iterator& operator++() { ++mPointer; return *this; }
+        const_iterator operator++(int) { const_iterator previous(*this); ++*this; return previous; }
+        const_iterator& operator--() { --mPointer; return *this; }
+        const_iterator operator--(int) { const_iterator previous(*this); --*this; return previous; }
+        const_iterator& operator+=(long offset) { mPointer += offset; return *this; }
+        const_iterator& operator-=(long offset) { mPointer -= offset; return *this; }
+        const_iterator operator+(long offset) const { const_iterator result(*this); result += offset; return result; }
+        const_iterator operator-(long offset) const { const_iterator result(*this); result -= offset; return result; }
+        long operator-(const const_iterator& rOther) const { return mPointer - rOther.mPointer; }
+        bool operator==(const const_iterator& rOther) const { return mPointer == rOther.mPointer; }
+        bool operator!=(const const_iterator& rOther) const { return mPointer != rOther.mPointer; }
+        bool operator<(const const_iterator& rOther) const { return mPointer < rOther.mPointer; }
+    private:
+        void* const* mPointer;
+    };
+
 
     vector() {}
     ~vector() {}
 
     using base::size;
 
-    iterator begin() { return reinterpret_cast<iterator>(base::begin()); }
-    const_iterator begin() const { return reinterpret_cast<const_iterator>(base::begin()); }
-    iterator end() { return reinterpret_cast<iterator>(base::end()); }
-    const_iterator end() const { return reinterpret_cast<const_iterator>(base::end()); }
+    iterator begin() { return iterator(this->data_); }
+    const_iterator begin() const { void* const* pBegin = this->data_; return const_iterator(pBegin); }
+    iterator end() { void** pEnd = this->data_ + this->size_; return iterator(pEnd); }
+    const_iterator end() const { void* const* pEnd = this->data_ + this->size_; return const_iterator(pEnd); }
 
     T*& operator[](size_type i) { return reinterpret_cast<T**>(base::begin())[i]; }
 
