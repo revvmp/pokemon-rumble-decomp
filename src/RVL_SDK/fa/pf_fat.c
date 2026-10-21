@@ -498,9 +498,9 @@ s32 PFFAT_WriteClusterPage(PF_FFD* p_ffd, u32 cluster, u32 chain_index, u32 next
 static inline s32 PFFAT_UpdateFATEntry(PF_VOLUME* p_vol, PF_CACHE_PAGE* p_page)
 {
     u16 i;
+    u32 sector;
     s32 err;
     s32 err2;
-    u32 sector;
 
     err = 0;
     sector = p_page->sector;
@@ -985,4 +985,464 @@ s32 PFFAT_GetSectorSpecified(PF_FFD* p_ffd, u32 file_sector_index, u32 may_alloc
         return err;
     }
     return 0;
+}
+
+
+s32 PFFAT_GetSectorAllocated(PF_FFD* p_ffd, u32 file_sector_index, u32 size, u32* p_sector) {
+    s32 err = PFFAT_GetSector(p_ffd, file_sector_index, 2, size, p_sector);
+    if (err != 0) return err;
+    return 0;
+}
+
+s32 PFFAT_GetContinuousSector(PF_FFD* p_ffd, u32 file_sector_index, u32 size, u32* p_sector, u32* p_num_sector) {
+    PF_VOLUME* p_vol;
+    u32 chain_index;
+    u32 cluster;
+    s32 err;
+
+    cluster = -1;
+    p_vol = p_ffd->p_vol;
+    if (*p_sector != -1) {
+        cluster = ((*p_sector - p_vol->bpb.first_data_sector) >> p_vol->bpb.log2_sectors_per_cluster) + 2;
+    } else {
+        err = PFFAT_GetSectorSpecified(p_ffd, file_sector_index, 0, p_sector);
+        if (err != 0) return err;
+        if (*p_sector != -1) {
+            cluster = ((*p_sector - p_vol->bpb.first_data_sector) >> p_vol->bpb.log2_sectors_per_cluster) + 2;
+        }
+    }
+    if (*p_sector != -1) {
+        *p_num_sector = p_vol->bpb.first_data_sector + ((cluster - 1) << p_vol->bpb.log2_sectors_per_cluster) - *p_sector;
+    } else {
+        *p_num_sector = 0;
+    }
+    if (*p_sector != -1 && (*p_num_sector << p_vol->bpb.log2_bytes_per_sector) < size) {
+        chain_index = file_sector_index >> p_vol->bpb.log2_sectors_per_cluster;
+        err = PFFAT_GetClusterContinuousSectorInChain(p_ffd, cluster, chain_index + 1, size, p_num_sector);
+        if (err != 0) return err;
+    }
+    return 0;
+}
+
+s32 PFFAT_CountAllocatedClusters(PF_FFD* p_ffd, u32 size, u32* p_num_alloc_clusters) {
+    u32 cluster;
+    u32 chain_index;
+    s32 err;
+
+    *p_num_alloc_clusters = 0;
+    if (*p_ffd->p_start_cluster < 2) {
+        return 0;
+    }
+    if (p_ffd->last_cluster.num_last_cluster != 0) {
+        *p_num_alloc_clusters = p_ffd->last_cluster.max_chain_index + 1;
+        return 0;
+    }
+    if (p_ffd->p_hint->cluster != 0) {
+        if (size <= (p_ffd->p_hint->chain_index + 1) * (p_ffd->p_vol->bpb.bytes_per_sector * p_ffd->p_vol->bpb.sectors_per_cluster)) {
+            *p_num_alloc_clusters = p_ffd->p_hint->chain_index + 1;
+            return 0;
+        }
+        *p_num_alloc_clusters = p_ffd->p_hint->chain_index;
+        cluster = p_ffd->p_hint->cluster;
+        chain_index = p_ffd->p_hint->chain_index + 1;
+        size -= p_ffd->p_hint->chain_index * (p_ffd->p_vol->bpb.bytes_per_sector * p_ffd->p_vol->bpb.sectors_per_cluster);
+    } else {
+        cluster = *p_ffd->p_start_cluster;
+        chain_index = 1;
+    }
+    err = PFFAT_GetClusterAllocatedInChain(p_ffd, cluster, chain_index, size, p_num_alloc_clusters);
+    if (err != 0) return err;
+    return 0;
+}
+
+s32 PFFAT_CountFreeClusters(PF_VOLUME* p_vol, u32* p_num_free_clusters) {
+    u32 free_cluster;
+    s32 err;
+    u32 next_cluster;
+    u32 is_hit;
+    PF_CACHE_PAGE* p_page;
+
+    if ((p_vol->fsi_flag & 4) != 0 && p_vol->num_free_clusters != -1) {
+        *p_num_free_clusters = p_vol->num_free_clusters;
+        return 0;
+    }
+    *p_num_free_clusters = 0;
+    free_cluster = 2;
+    err = PFCACHE_AllocateDataPage(p_vol, -1, &p_page, &is_hit);
+    if (err != 0) return err;
+    err = PFFAT_ReadFATSector(p_vol, p_page, free_cluster);
+    if (err != 0) {
+        PFCACHE_FreeDataPage(p_vol, p_page);
+        return err;
+    }
+    p_page->option = 0;
+    for (; free_cluster >= 2 && free_cluster < p_vol->bpb.num_clusters + 2; free_cluster++) {
+        err = PFFAT_ReadFATEntryPage(p_vol, free_cluster, &next_cluster, p_page);
+        if (err != 0) {
+            PFCACHE_FreeDataPage(p_vol, p_page);
+            return err;
+        }
+        if (next_cluster == 0) (*p_num_free_clusters)++;
+    }
+    PFCACHE_FreeDataPage(p_vol, p_page);
+    p_vol->fsi_flag |= 4;
+    p_vol->num_free_clusters = *p_num_free_clusters;
+    if (p_vol->bpb.fat_type == PDM_FAT_32 && (p_vol->fsi_flag & 2) != 0) {
+        err = PFFAT_RefreshFSINFO(p_vol);
+        if (err != 0) {
+            p_vol->num_free_clusters = -1;
+            p_vol->fsi_flag &= ~4;
+        }
+    }
+    return 0;
+}
+
+s32 PFFAT_FreeChain(PF_FFD* p_ffd, u32 start_cluster, u32 chain_index, u32 size) {
+    s32 err;
+    PF_VOLUME* p_vol = p_ffd->p_vol;
+    u32 eoc1;
+    u32 next_cluster;
+    u32 file_size;
+    u32 clst_size;
+    u32 is_hit;
+    PF_CACHE_PAGE* p_page;
+
+    if (start_cluster == 0) return 0;
+    eoc1 = fat_special_values[p_vol->bpb.fat_type].eoc1;
+    if (size != 0) {
+        file_size = size;
+        clst_size = p_vol->bpb.bytes_per_sector << p_vol->bpb.log2_sectors_per_cluster;
+    } else {
+        return 0;
+    }
+    err = PFCACHE_AllocateDataPage(p_vol, -1, &p_page, &is_hit);
+    if (err != 0) return err;
+    err = PFFAT_ReadFATSector(p_vol, p_page, start_cluster);
+    if (err != 0) {
+        PFCACHE_FreeDataPage(p_vol, p_page);
+        return err;
+    }
+    p_page->option = 1;
+    next_cluster = start_cluster;
+    while (start_cluster < eoc1) {
+        if (size != 0 && file_size == 0) break;
+        err = PFFAT_ReadFATEntryPage(p_vol, start_cluster, &next_cluster, p_page);
+        if (err != 0) {
+            PFCACHE_FreeDataPage(p_vol, p_page);
+            return err;
+        }
+        if (next_cluster == 0) {
+            err = PFFAT_UpdateFATEntry(p_vol, p_page);
+            if (err != 0) {
+                PFCACHE_FreeDataPage(p_vol, p_page);
+                return err;
+            }
+            PFCACHE_FreeDataPage(p_vol, p_page);
+            return 0;
+        }
+        if (chain_index != -1) {
+            err = PFFAT_WriteClusterPage(p_ffd, start_cluster, chain_index, 0, 1, p_page);
+            chain_index++;
+        } else {
+            err = PFFAT_WriteFATEntryPage(p_vol, start_cluster, 0, p_page);
+        }
+        if (err != 0) {
+            PFCACHE_FreeDataPage(p_vol, p_page);
+            return err;
+        }
+        if (size != 0 && file_size != 0) {
+            if (file_size <= clst_size) file_size = 0;
+            else file_size -= clst_size;
+        }
+        if (p_vol->num_free_clusters != -1) p_vol->num_free_clusters++;
+        start_cluster = next_cluster;
+    }
+    err = PFFAT_UpdateFATEntry(p_vol, p_page);
+    if (err != 0) {
+        PFCACHE_FreeDataPage(p_vol, p_page);
+        return err;
+    }
+    PFCACHE_FreeDataPage(p_vol, p_page);
+    if (p_vol->bpb.fat_type == PDM_FAT_32 && (p_vol->fsi_flag & 2) != 0) {
+        err = PFFAT_RefreshFSINFO(p_vol);
+        if (err != 0) {
+            p_vol->num_free_clusters = -1;
+            p_vol->fsi_flag &= ~4;
+        }
+    }
+    return 0;
+}
+
+s32 PFFAT_GetBeforeChain(PF_VOLUME* p_vol, u32 start_cluster, u32 active_cluster, u32* p_cluster) {
+    s32 err;
+    u32 eoc1;
+    u32 next_cluster;
+    PF_CACHE_PAGE* p_page;
+    u32 is_hit;
+
+    eoc1 = fat_special_values[p_vol->bpb.fat_type].eoc1;
+    *p_cluster = -1;
+    err = PFCACHE_AllocateDataPage(p_vol, -1, &p_page, &is_hit);
+    if (err != 0) return err;
+    p_page->option = 0;
+    while (start_cluster < eoc1) {
+        err = PFFAT_ReadFATEntryPage(p_vol, start_cluster, &next_cluster, p_page);
+        if (err != 0) {
+            PFCACHE_FreeDataPage(p_vol, p_page);
+            return err;
+        }
+        if (active_cluster == next_cluster) {
+            *p_cluster = start_cluster;
+            return 0;
+        }
+        start_cluster--;
+        if ((start_cluster < 2 || start_cluster >= p_vol->bpb.num_clusters + 2) && start_cluster < eoc1) {
+            *p_cluster = active_cluster;
+            return 0;
+        }
+    }
+    PFCACHE_FreeDataPage(p_vol, p_page);
+    return 13;
+}
+
+s32 PFFAT_InitFATRegion(PF_VOLUME* p_vol) {
+    u32 sector;
+    PF_CACHE_PAGE* p_page;
+    s32 err;
+    u32 is_hit;
+
+    err = PFCACHE_AllocateFATPage(p_vol, -1, &p_page, &is_hit);
+    if (err != 0) return err;
+    pf_memset(p_page->p_buf, 0, p_vol->bpb.bytes_per_sector);
+    for (sector = p_vol->bpb.num_reserved_sectors; sector < p_vol->bpb.first_root_dir_sector; sector++) {
+        err = PFCACHE_WriteFATSector(p_vol, p_page->p_buf, sector);
+        if (err != 0) {
+            PFCACHE_FreeFATPage(p_vol, p_page);
+            return err;
+        }
+    }
+    PFCACHE_FreeFATPage(p_vol, p_page);
+    err = PFFAT_WriteFATEntry(p_vol, 0, p_vol->bpb.media | fat_special_values[p_vol->bpb.fat_type].fat0_mask);
+    if (err != 0) return err;
+    err = PFFAT_WriteFATEntry(p_vol, 1, fat_special_values[p_vol->bpb.fat_type].fat1);
+    if (err != 0) return err;
+    err = PFCACHE_FlushFATCache(p_vol);
+    if (err != 0) return err;
+    return 0;
+}
+
+s32 PFFAT_MakeRootDir(PF_VOLUME* p_vol) {
+    s32 err;
+    u32 sector;
+    u32 success_size;
+    u32 num_sectors;
+    u32 is_hit;
+    PF_CACHE_PAGE* p_page;
+
+    err = PFFAT_WriteFATEntry(p_vol, p_vol->bpb.root_dir_cluster, fat_special_values[p_vol->bpb.fat_type].eoc2);
+    if (err != 0) return err;
+    err = PFCACHE_FlushFATCache(p_vol);
+    if (err != 0) return err;
+    err = PFCACHE_AllocateDataPage(p_vol, -1, &p_page, &is_hit);
+    if (err != 0) return err;
+    pf_memset(p_page->p_buf, 0, p_vol->bpb.bytes_per_sector);
+    sector = p_vol->bpb.first_data_sector + ((p_vol->bpb.root_dir_cluster - 2) << p_vol->bpb.log2_sectors_per_cluster);
+    for (num_sectors = 0; num_sectors < p_vol->bpb.sectors_per_cluster; num_sectors++) {
+        err = PFSEC_WriteData(p_vol, p_page->p_buf, sector + num_sectors, 0, p_vol->bpb.bytes_per_sector, &success_size, 0);
+        if (err != 0) {
+            PFCACHE_FreeDataPage(p_vol, p_page);
+            return err;
+        }
+        if (success_size != p_vol->bpb.bytes_per_sector) {
+            PFCACHE_FreeDataPage(p_vol, p_page);
+            return 17;
+        }
+    }
+    PFCACHE_FreeDataPage(p_vol, p_page);
+    return 0;
+}
+
+s32 PFFAT_RefreshFSINFO(PF_VOLUME* p_vol) {
+    s32 err;
+    PF_CACHE_PAGE* p_page;
+    u32 is_hit;
+    u32 success_size;
+
+    err = 0;
+    if ((p_vol->fsi_flag & 4) != 0) {
+        err = PFCACHE_AllocateDataPage(p_vol, -1, &p_page, &is_hit);
+        if (err != 0) return err;
+        err = PFSEC_ReadData(p_vol, p_page->p_buf, p_vol->bpb.fs_info_sector, 0, p_vol->bpb.bytes_per_sector, &success_size, 0);
+        if (err == 0 && success_size != p_vol->bpb.bytes_per_sector) err = 17;
+        if (err == 0) {
+            if ((u32)(p_page->p_buf + 0x1E8) & 3) {
+                p_page->p_buf[0x1E8] = p_vol->num_free_clusters;
+                p_page->p_buf[0x1E9] = p_vol->num_free_clusters >> 8;
+                p_page->p_buf[0x1EA] = p_vol->num_free_clusters >> 16;
+                p_page->p_buf[0x1EB] = p_vol->num_free_clusters >> 24;
+            } else {
+                ((u32*)p_page->p_buf)[0x1E8 / sizeof(u32)] = PDM_SWAP32(p_vol->num_free_clusters);
+            }
+            err = PFSEC_WriteData(p_vol, p_page->p_buf, p_vol->bpb.fs_info_sector, 0, p_vol->bpb.bytes_per_sector, &success_size, 0);
+            if (err == 0 && success_size != p_vol->bpb.bytes_per_sector) err = 17;
+        }
+        PFCACHE_FreeDataPage(p_vol, p_page);
+    }
+    return err;
+}
+
+void PFFAT_InitHint(PF_FAT_HINT* p_hint) {
+    p_hint->chain_index = 0;
+    p_hint->cluster = 0;
+    p_hint->chain_stamp = 0;
+}
+
+s32 PFFAT_TraceClustersChain(PF_FFD* p_ffd, u32 start_clst, u32 size, u32* p_target_clst, u32* p_next_clst) {
+    s32 err;
+    u32 next_cluster;
+    u32 save_cluster = start_clst;
+    u32 chain_index;
+    u32 clst_size;
+    u32 clst_cnt;
+    PF_VOLUME* p_vol;
+    u32 cnt;
+    u32 check_use;
+
+    *p_target_clst = 0;
+    *p_next_clst = 0;
+    if (*p_ffd->p_start_cluster < 2) return 0;
+    if (start_clst < 2) return 0;
+    if (size == 0) return 0;
+    p_vol = p_ffd->p_vol;
+    if (size == -1 && p_ffd->last_cluster.num_last_cluster != 0) {
+        *p_target_clst = p_ffd->last_cluster.num_last_cluster;
+        *p_next_clst = fat_special_values[p_vol->bpb.fat_type].eoc2;
+        return 0;
+    }
+    clst_size = p_vol->bpb.bytes_per_sector * p_vol->bpb.sectors_per_cluster;
+    clst_cnt = size / clst_size;
+    if (size % clst_size != 0) clst_cnt++;
+    if (*p_ffd->p_start_cluster == start_clst) chain_index = 1;
+    else chain_index = p_ffd->p_hint->chain_index + 1;
+    next_cluster = -1;
+    check_use = 1;
+    for (cnt = 0; cnt < clst_cnt; cnt++) {
+        err = PFFAT_ReadCluster(p_ffd, start_clst, chain_index, &next_cluster, &check_use);
+        if (err != 0) return err;
+        save_cluster = start_clst;
+        if (next_cluster == fat_special_values[p_vol->bpb.fat_type].eoc2) {
+            p_ffd->last_cluster.num_last_cluster = start_clst;
+            p_ffd->last_cluster.max_chain_index = chain_index - 1;
+            break;
+        }
+        start_clst = next_cluster;
+        chain_index++;
+    }
+    p_ffd->p_hint->chain_index = chain_index - 1;
+    *p_target_clst = save_cluster;
+    *p_next_clst = next_cluster;
+    return 0;
+}
+
+s32 PFFAT_WriteValueToSpecifiedCluster(PF_VOLUME* p_vol, u32 cluster, u32 value) {
+    s32 err;
+    switch (p_vol->bpb.fat_type) {
+    case PDM_FAT_12:
+        if (value > 0xFFF) { err = 16; break; }
+        err = PFFAT12_WriteFATEntry(p_vol, cluster, value);
+        break;
+    case PDM_FAT_16:
+        if (value > 0xFFFF) { err = 16; break; }
+        err = PFFAT16_WriteFATEntry(p_vol, cluster, value);
+        break;
+    case PDM_FAT_32:
+        if (value > 0xFFFFFFF) { err = 16; break; }
+        err = PFFAT32_WriteFATEntry(p_vol, cluster, value);
+        break;
+    default:
+        err = 15;
+        break;
+    }
+    if (err != 0) return err;
+    return 0;
+}
+
+s32 PFFAT_ReadValueToSpecifiedCluster(PF_VOLUME* p_vol, u32 cluster, u32* p_value) {
+    s32 err;
+    switch (p_vol->bpb.fat_type) {
+    case PDM_FAT_12:
+        err = PFFAT12_ReadFATEntry(p_vol, cluster, p_value);
+        break;
+    case PDM_FAT_16:
+        err = PFFAT16_ReadFATEntry(p_vol, cluster, p_value);
+        break;
+    case PDM_FAT_32:
+        err = PFFAT32_ReadFATEntry(p_vol, cluster, p_value);
+        break;
+    default:
+        *p_value = -1;
+        err = 15;
+        break;
+    }
+    if (err != 0) return err;
+    return 0;
+}
+
+s32 PFFAT_AllocateContinuousClusters(PF_FFD* p_ffd, u32 size, u32* p_start_cluster, u32* p_last_cluster, u32* p_size) {
+    u32 cluster_size;
+    u32 num_clusters;
+    u32 allocated_clusters;
+    s32 err;
+
+    cluster_size = p_ffd->p_vol->bpb.bytes_per_sector << p_ffd->p_vol->bpb.log2_sectors_per_cluster;
+    num_clusters = size / cluster_size;
+    if (size % cluster_size != 0) num_clusters++;
+    err = PFFAT_AllocateChain(p_ffd, num_clusters, 1, p_start_cluster, p_last_cluster);
+    if (err != 0) return err;
+    if (*p_start_cluster == -1 || *p_last_cluster == -1) {
+        *p_size = 0;
+        return 0;
+    }
+    allocated_clusters = *p_last_cluster - *p_start_cluster + 1;
+    if (num_clusters == allocated_clusters) {
+        *p_size = size;
+    } else {
+        *p_size = allocated_clusters * cluster_size;
+    }
+    return 0;
+}
+
+s32 PFFAT_ResetFFD(PF_FFD* p_ffd, u32* p_start_cluster) {
+    p_ffd->p_start_cluster = p_start_cluster;
+    p_ffd->chain_stamp = 1;
+    if (p_ffd->p_hint != NULL) p_ffd->p_hint->chain_stamp = 0;
+    p_ffd->last_access.cluster = 0;
+    p_ffd->last_access.chain_index = 0;
+    p_ffd->last_cluster.num_last_cluster = 0;
+    p_ffd->last_cluster.max_chain_index = 0;
+    p_ffd->cluster_link.buffer = NULL;
+    return 0;
+}
+
+s32 PFFAT_InitFFD(PF_FFD* p_ffd, PF_FAT_HINT* p_hint, PF_VOLUME* p_vol, u32* p_start_cluster) {
+    p_ffd->p_hint = p_hint;
+    p_ffd->p_vol = p_vol;
+    p_ffd->p_start_cluster = p_start_cluster;
+    p_ffd->chain_stamp = 1;
+    if (p_hint != NULL) p_hint->chain_stamp = 0;
+    p_ffd->last_access.cluster = 0;
+    p_ffd->last_access.chain_index = 0;
+    p_ffd->last_cluster.num_last_cluster = 0;
+    p_ffd->last_cluster.max_chain_index = 0;
+    p_ffd->cluster_link.buffer = NULL;
+    return 0;
+}
+
+s32 PFFAT_FinalizeFFD(PF_FFD* p_ffd) {
+    p_ffd->cluster_link.buffer = NULL;
+    return 0;
+}
+
+u32 PFFAT_GetValueOfEOC2(PF_VOLUME* p_vol) {
+    return fat_special_values[p_vol->bpb.fat_type].eoc2;
 }
