@@ -549,38 +549,52 @@ void SetTextLocale(int locale) {
 wchar_t ConvertCase(wchar_t c, int type) {
     switch (type) {
     case CASE_UPPER:
-        switch (static_cast<unsigned int>(c)) {
-        case 0x0000u ... 0x007Fu:
+        if (c < 0x0080) {
             return _current_locale.ctype_cmpt_ptr->wupper_map_ptr[c];
-        case 0x00C0u ... 0x00FFu:
+        } else if (c < 0x00C0) {
+            return c;
+        } else if (c < 0x0100) {
             return sUpperLatin1[c - 0x00C0];
-        case 0x0100u ... 0x017Fu:
+        } else if (c < 0x0180) {
             return sUpperLatinExtA[c - 0x0100];
-        case 0x0380u ... 0x03CFu:
+        } else if (c < 0x0380) {
+            return c;
+        } else if (c < 0x03D0) {
             return sUpperGreek[c - 0x0380];
-        case 0x0430u ... 0x044Fu:
+        } else if (c < 0x0430) {
+            return c;
+        } else if (c < 0x0450) {
             return c - 0x20;
-        case 0x0450u ... 0x045Fu:
+        } else if (c < 0x0460) {
             return c - 0x50;
-        case 0xFF41u ... 0xFF5Au:
+        } else if (c < 0xFF41) {
+            return c;
+        } else if (c < 0xFF5B) {
             return c - 0x20;
         }
         return c;
     case CASE_LOWER:
-        switch (static_cast<unsigned int>(c)) {
-        case 0x0000u ... 0x007Fu:
+        if (c < 0x0080) {
             return _current_locale.ctype_cmpt_ptr->wlower_map_ptr[c];
-        case 0x00C0u ... 0x00FFu:
+        } else if (c < 0x00C0) {
+            return c;
+        } else if (c < 0x0100) {
             return sLowerLatin1[c - 0x00C0];
-        case 0x0100u ... 0x017Fu:
+        } else if (c < 0x0180) {
             return sLowerLatinExtA[c - 0x0100];
-        case 0x0380u ... 0x03CFu:
+        } else if (c < 0x0380) {
+            return c;
+        } else if (c < 0x03D0) {
             return sLowerGreek[c - 0x0380];
-        case 0x0400u ... 0x040Fu:
+        } else if (c < 0x0400) {
+            return c;
+        } else if (c < 0x0410) {
             return c + 0x50;
-        case 0x0410u ... 0x042Fu:
+        } else if (c < 0x0430) {
             return c + 0x20;
-        case 0xFF21u ... 0xFF3Au:
+        } else if (c < 0xFF21) {
+            return c;
+        } else if (c < 0xFF3B) {
             return c + 0x20;
         }
         return c;
