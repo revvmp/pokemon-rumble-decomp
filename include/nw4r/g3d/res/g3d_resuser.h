@@ -29,8 +29,16 @@ public:
         return ref().type;
     }
 
+    u32 GetNumData() const {
+        return ref().numData;
+    }
+
     s32 GetInt() const {
         return *ofs_to_ptr<s32>(ref().toData);
+    }
+
+    const GXColor& GetColor() const {
+        return *ofs_to_ptr<GXColor>(ref().toData);
     }
 };
 

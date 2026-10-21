@@ -16,6 +16,7 @@ public:
     void CopyFromEFB(bool clear);
     void CopyFromEFB(GXTexFmt format, bool clear);
 
+    const GXTexObj& GetTexObj() const { return mTexObj; }
     u16 GetWidth() const { return GXGetTexObjWidth(&mTexObj); }
     u16 GetHeight() const { return GXGetTexObjHeight(&mTexObj); }
     GXTexFmt GetFormat() const { return GXGetTexObjFmt(&mTexObj); }

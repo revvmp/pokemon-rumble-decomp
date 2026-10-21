@@ -311,6 +311,14 @@ game/CSaveManager.cpp:
 	.sdata      start:0x804B7310 end:0x804B7358
 	.sbss       start:0x804B9070 end:0x804B9080
 
+game/CShadowCamera.cpp:
+	extab       start:0x80028E54 end:0x800290E8
+	extabindex  start:0x8004BC9C end:0x8004BD44
+	.text       start:0x8010C490 end:0x8010DDD8
+	.data       start:0x803ADA30 end:0x803ADD58
+	.sdata      start:0x804B7358 end:0x804B7368
+	.sdata2     start:0x804BA0D8 end:0x804BA108
+
 game/CStageCamera.cpp:
 	extab       start:0x80029534 end:0x800295E8
 	extabindex  start:0x8004BEAC end:0x8004BF0C

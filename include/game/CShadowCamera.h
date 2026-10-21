@@ -3,6 +3,9 @@
 
 #include <game/BWorldCamera.h>
 #include <game/CaptureTexture.h>
+#include <memory>
+
+class CModel;
 
 class CShadowCamera : public BWorldCamera {
 public:
@@ -13,9 +16,13 @@ public:
     virtual void UpdateVisible();
 
     bool IsAutoSelectLight() const { return mAutoSelectLight; }
+    void Init(u16 width, u16 height, int levels, bool useTextureAlpha);
+    void SetupShadowModel(std::tr1::shared_ptr<CModel> model);
     void SelectLight();
 
 private:
+    bool CalcLightProjection();
+
     int mTextureLevels;
     CaptureTexture mTextures[3];
     bool mUseTextureAlpha;
