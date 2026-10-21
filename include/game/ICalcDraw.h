@@ -5,7 +5,6 @@
 
 class ICalcDraw : public ICalc {
 public:
-    virtual void CalcMtx() {}
     virtual void CalcView() {}
     virtual void Draw() = 0;
 };
