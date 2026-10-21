@@ -270,6 +270,8 @@ config.libs = [
             Object(NonMatching, "game/CShadowCamera.cpp"),
             Object(NonMatching, "game/CSaveManager.cpp"),
             Object(Matching, "game/CStageCamera.cpp"),
+            Object(NonMatching, "game/CStrapReminder.cpp"),
+            Object(NonMatching, "game/CTextWorldObjStat.cpp"),
             Object(NonMatching, "game/ScriptCamera.cpp"),
             Object(Matching, "game/ControllerTable.cpp"),
             Object(NonMatching, "game/SaveData.cpp"),

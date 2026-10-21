@@ -87,6 +87,7 @@ public:
     void SetVisible(nw4r::lyt::Pane* pPane, bool visible);
     bool SetTexture(const char* pName, const nw4r::lyt::TexMap& rTexture, int index);
     bool SetTexture(nw4r::lyt::Pane* pPane, const nw4r::lyt::TexMap& rTexture, int index);
+    nw4r::lyt::Layout* GetLayout() const { return mLayout.get(); }
 
 private:
     u32 mFlags;

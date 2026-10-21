@@ -50,6 +50,7 @@ public:
     virtual void SetTagProcessor(ut::TagProcessorBase<wchar_t>* pProcessor);
 
     ut::Rect GetLayoutRect() const;
+    Pane* GetRootPane() const { return mpRootPane; }
 
     static MEMAllocator* GetAllocator() {
         return mspAllocator;
