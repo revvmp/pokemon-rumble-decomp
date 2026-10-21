@@ -51,6 +51,7 @@ public:
 
         generic_iterator() {}
         generic_iterator(const generic_iterator& rOther) : node_(rOther.node_) {}
+        explicit generic_iterator(node* pNode) : node_(pNode) {}
         explicit generic_iterator(node_base* pNode) : node_(static_cast<node*>(pNode)) {}
 
         T& operator*() const { return static_cast<node*>(node_)->data_; }
@@ -177,15 +178,11 @@ template <typename T, typename Allocator> void __list_deleter<T, Allocator>::spl
 
 template <typename T, typename Allocator>
 typename __list_deleter<T, Allocator>::iterator __list_deleter<T, Allocator>::insert(iterator position, const T& x) {
-    Metrowerks::alloc_ptr<node, node_allocator&> holder(tail_.first().allocate(1), tail_.first());
-    size_.first().construct(&holder.get()->data_, x);
+    Metrowerks::alloc_ptr<node, node_allocator&> holder(node_alloc().allocate(1), node_alloc());
+    alloc().construct(&holder.get()->data_, x);
     node* pNode = holder.release();
-    node_base* pNext = position.node_;
-    pNext->prev_->next_ = pNode;
-    pNode->prev_ = pNext->prev_;
-    pNext->prev_ = pNode;
-    pNode->next_ = static_cast<node*>(pNext);
-    ++size_.second();
+    link_nodes(position.base(), pNode, pNode);
+    ++size_ref();
     return iterator(pNode);
 }
 
@@ -252,7 +249,7 @@ public:
         return *this;
     }
 
-    iterator begin() { return iterator(this->begin_node()); }
+    iterator begin() { return iterator(this->end_node()->next_); }
     iterator end() { return iterator(this->end_node()); }
     const_iterator begin() const { return const_iterator(this->begin_node()); }
     const_iterator end() const { return const_iterator(this->end_node()); }

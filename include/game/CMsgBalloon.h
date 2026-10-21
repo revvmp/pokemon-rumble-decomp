@@ -21,11 +21,11 @@ class IMsgBalloon : public IDlg {
 public:
     virtual ~IMsgBalloon() {}
     virtual void Show(bool show) = 0;
-    virtual void Add(int id, f32 x, f32 y) = 0;
-    virtual void Register(int id, int kind, f32 y) = 0;
-    virtual void RegisterWarpzone(int id, int kind, f32 y) = 0;
+    virtual void Add(const wchar_t* pText, f32 z, f32 x) = 0;
+    virtual void Register(BWorldObj* pObject, const wchar_t* pText, f32 radius) = 0;
+    virtual void RegisterWarpzone(BWorldObj* pObject, f32 radius, const StageID& rStageID) = 0;
     virtual bool IsShown(int index) = 0;
-    virtual void AdjustY(int id, int y) = 0;
+    virtual void AdjustY(BWorldObj* pObject, const nw4r::math::VEC3& rPosition) = 0;
 
     static std::tr1::shared_ptr<IMsgBalloon> Create(bool flag);
 };
@@ -33,6 +33,8 @@ public:
 class CMsgBalloon : public IMsgBalloon, public std::tr1::enable_shared_from_this<CMsgBalloon> {
 public:
     struct Entry {
+        Entry() : mPosition(0.0f, 0.0f, 0.0f) {}
+
         std::tr1::weak_ptr<BWorldObj> mObject;
         std::wstring mText;
         nw4r::math::VEC3 mPosition;
@@ -54,11 +56,11 @@ public:
     virtual void Draw();
     virtual bool Close();
     virtual void Show(bool show);
-    virtual void Add(int id, f32 x, f32 y);
-    virtual void Register(int id, int kind, f32 y);
-    virtual void RegisterWarpzone(int id, int kind, f32 y);
+    virtual void Add(const wchar_t* pText, f32 z, f32 x);
+    virtual void Register(BWorldObj* pObject, const wchar_t* pText, f32 radius);
+    virtual void RegisterWarpzone(BWorldObj* pObject, f32 radius, const StageID& rStageID);
     virtual bool IsShown(int index);
-    virtual void AdjustY(int id, int y);
+    virtual void AdjustY(BWorldObj* pObject, const nw4r::math::VEC3& rPosition);
 
     void Init(bool flag);
 

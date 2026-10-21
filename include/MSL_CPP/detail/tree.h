@@ -89,6 +89,13 @@ inline tree_node_base* tree_next(tree_node_base* x) {
     return x;
 }
 
+inline tree_node_base* tree_leftmost(tree_node_base* x) {
+    while (x->left_ != nullptr) {
+        x = x->left_;
+    }
+    return x;
+}
+
 struct tree_root_ptr {
     tree_root_ptr(tree_node_base* pNode = nullptr) : node_(pNode) {}
     tree_node_base* node_;
@@ -117,15 +124,27 @@ public:
         iterator(const iterator& rOther) : node_(rOther.node_) {}
         iterator(tree_node_base* pNode) : node_(pNode) {}
         bool operator==(const iterator& rOther) const { return node_ == rOther.node_; }
-        bool operator!=(const iterator& rOther) const { return !(*this == rOther); }
+        bool operator!=(const iterator& rOther) const { return node_ != rOther.node_; }
         iterator& operator++() {
-            node_ = tree_next(node_);
+            increment();
             return *this;
         }
         T& operator*() const { return static_cast<node*>(node_)->value_; }
         T* operator->() const { return &static_cast<node*>(node_)->value_; }
 
         tree_node_base* node_;
+
+    private:
+        void increment() {
+            if (node_->right_ != nullptr) {
+                node_ = tree_leftmost(node_->right_);
+            } else {
+                while (node_ != node_->parent()->left_) {
+                    node_ = node_->parent();
+                }
+                node_ = node_->parent();
+            }
+        }
     };
     typedef iterator const_iterator;
 
