@@ -1061,15 +1061,21 @@ RVL_SDK/fa/nand_drv.c:
 	.sbss       start:0x804B9218 end:0x804B9224
 
 RVL_SDK/fa/sd_drv.c:
-	.text       start:0x8021FFC0 end:0x80222FA8
+	.text       start:0x8021FFC0 end:0x80222E84
 	.rodata     start:0x8036C460 end:0x8036C5D0
 	.data       start:0x803C47F0 end:0x803C5260
 	.bss        start:0x80422BE0 end:0x80422E40
 	.sbss       start:0x804B9240 end:0x804B9268
 
+RVL_SDK/fa/pfd_cmn.c:
+	.text       start:0x80222E90 end:0x80222FA8
+
 RVL_SDK/fa/msc_drv.c:
 	.text       start:0x80222FB0 end:0x80222FC4
 	.sbss       start:0x804B9268 end:0x804B9270
+
+RVL_SDK/fa/puh_msc_cmd.c:
+	.text       start:0x80223250 end:0x8022362C
 
 RVL_SDK/fa/sdi_api.c:
 	.text       start:0x80223E70 end:0x8022541C

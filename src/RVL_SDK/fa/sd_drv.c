@@ -1,4 +1,5 @@
 #include <revolution/fa/sd_drv.h>
+#include <revolution/fa/pfd_cmn.h>
 #include <revolution/fa/isd.h>
 #include <revolution/fa/pf_clib.h>
 #include <revolution/os.h>
@@ -30,12 +31,11 @@ static s32 pfd_st_removal_callback(s32 event, void* p_context);
 s32 pfd_sddrv_physical_read(u32 count, u8* p_buf, u32 block, u32 sector_size, u32* p_success);
 s32 pfd_sddrv_physical_write(u32 count, const u8* p_buf, u32 block, u32 sector_size, u32* p_success);
 s32 pfd_sddrv_full_format(void);
-u8 SdGetDriveLetters(PDM_DISK* p_disk, char* p_drives, u8 max);
 
 static inline void SdUpdateDrive(void) {
     char drive;
 
-    if (sSdDriver.drive == 0 && SdGetDriveLetters(sSdDriver.p_disk, &drive, 1) == 1) {
+    if (sSdDriver.drive == 0 && pfd_get_media_drv_char(sSdDriver.p_disk, &drive, 1) == 1) {
         sSdDriver.drive = drive;
     }
 }

@@ -112,3 +112,21 @@ Independent external #373 coverage is now nineteen of twenty-eight original rows
 ## Traps
 
 - The apparent big-endian constants in the native word stores are the byte-reversed representation of the little-endian FSInfo signatures. Model the ordinary serialization operation and preserve its unaligned path rather than embedding target instruction words or treating the constants as unrelated magic.
+
+# F-373-8: Three independent units source accepted
+
+`pfd_cmn.c`, `msc_drv.c` and `puh_msc_cmd.c` now build from tracked readable C with unchanged SDK Wii/1.0 flags and the real canonical PDM/volume interfaces. The resumed contributor holds the normal #372 and #373 claims, so the formerly broad SD split is corrected through that ownership to end at its last real function `0x80222E84`. The separate original common unit starts at `0x80222E90` and ends at `0x80222FA8`; intervening padding is outside both bodies. Its existing SD consumers now use the evidenced original common-helper name and its canonical byte-capacity/character-buffer prototype. No shared record layout changes.
+
+The three-unit split-only configure, plain Ninja and explicit frozen verifier all exit 0. NonMatching registration and focused unit comparisons show every section and every function 100%. The real source-object audit `373-audit-real-independent.py` independently compares all four function starts/extents and 1,288 complete native text bytes, every actual relocation target, the exact eight-byte callback small-BSS extent and both actual local pointer offsets. The units have no other allocated data. It exits 0 and retains `independent-real-object-evidence.json`. Source selection followed by `configure.py --map`, plain Ninja and the explicit frozen verifier all exit 0. `373-audit-final-independent.py` proves the four final ELF extents/payloads and all three actual source-only link inputs/MAP attributions, preserving `independent-final-elf-evidence.json`.
+
+| Unit | Original issue rows | Native text | Storage |
+| --- | --- | --- | --- |
+| `pfd_cmn.c` | one common helper | 280 bytes | none |
+| `msc_drv.c` | two callback bridge functions | twenty bytes | eight small-BSS bytes |
+| `puh_msc_cmd.c` | one sense translator | 988 bytes | none |
+
+These four of twenty-eight original #373 rows, totaling 1,288 of 11,868 instruction bytes, are now selected from source. The remaining fifteen externally proven rows remain diagnostic; nine further shared SD rows remain unresolved. The complete shared SD unit, command API and block unit are not claimed accepted, and the issue remains open. Callback/common implementations are independently authored from native behavior and original symbol facts. The translator is independently authored from concrete native branch behavior as documented in F-373-2, with no external implementation text imported.
+
+## Traps
+
+- Correcting a broad existing split requires the first owner's coordination even when the inserted function belongs to the later block. Here that prerequisite was satisfied through the normal resumed #372 claim; the earlier unresponded request alone would not have authorized a takeover.
