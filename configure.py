@@ -225,6 +225,7 @@ config.libs = [
             Object(NonMatching, "game/BWorld.cpp"),
             Object(NonMatching, "game/BWorldCamera.cpp"),
             Object(Matching, "game/BWorldLightSet.cpp"),
+            Object(Matching, "game/CBossPii.cpp"),
             Object(Matching, "game/CColorBtnTagProc.cpp"),
             Object(NonMatching, "game/BWorldObj.cpp"),
             Object(NonMatching, "game/CDividedGround.cpp"),

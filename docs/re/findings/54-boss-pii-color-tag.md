@@ -103,6 +103,53 @@ The recovered base type also corrects the earlier inferred `IDrawLayer` spelling
 
 The current source-selected game-object controls are repeated against `origin/main`'s prior headers in an isolated include overlay after every rebase, together with all three native consumer probes and frozen full-DOL verification. These headers add no source-completion credit and take no outside split or source body.
 
+# F-54-5: Complete boss source and original issue acceptance
+
+`game/CBossPii.cpp` is reconstructed with the existing Wii/1.1 game compiler and flags. The class extends the canonical `CEnemyPii`, adds no instance fields, and initializes the native boss type bit. Its initializer creates the missing HP bar and minimap marker through ordinary typed `shared_ptr` ownership, then calls the enemy initializer. The complete native unit is source selected; no original `CBossPii.o` fallback remains in the link graph.
+
+| Section | Native accepted extent | Bytes |
+| --- | --- | --- |
+| Text | `0x8006BEE0`–`0x8006C7A8` | 2,248 allocated; 2,108 instructions |
+| Exception tables | `0x8000ACD8`–`0x8000AF60` | 648 |
+| Exception index | `0x80044EB0`–`0x80044F40` | 144 |
+| Data | `0x8039A6A8`–`0x8039A960` | 696 |
+| Small data | `0x804B5C50`–`0x804B5C90` | 64 |
+
+| Address | Instruction bytes | Reconstructed function |
+| --- | --- | --- |
+| `0x8006BEE0` | 168 | Boss constructor |
+| `0x8006BF90` | 88 | Boss destructor |
+| `0x8006BFF0` | 748 | Boss initialization |
+| `0x8006C2E0` | 40 | `CPii::GetHPBar` |
+| `0x8006C310` | 40 | `CPii::GetPersonalData` |
+| `0x8006C340` | 28 | `CPii::GetEffect` |
+| `0x8006C360` | 40 | `CPii::SetEffectEnable` |
+| `0x8006C390` | 8 | `CPii::GetPpuEngine` |
+| `0x8006C3A0` | 76 | HP-bar control-block deleter query |
+| `0x8006C3F0` | 36 | HP-bar disposal |
+| `0x8006C420` | 76 | Marker control-block deleter query |
+| `0x8006C470` | 12 | Marker disposal |
+| `0x8006C480` | 132 | Marker shared-pointer destructor |
+| `0x8006C510` | 132 | HP-bar shared-pointer destructor |
+| `0x8006C5A0` | 132 | Personal-data shared-pointer destructor |
+| `0x8006C630` | 116 | HP-bar move-pointer destructor |
+| `0x8006C6B0` | 100 | Marker move-pointer destructor |
+| `0x8006C720` | 64 | Marker control-block destructor |
+| `0x8006C760` | 64 | HP-bar control-block destructor |
+| `0x8006C7A0` | 8 | Secondary-base boss destructor thunk |
+
+All twenty functions score 100%, including relocation targets. Actual linked bytes, addresses, native sizes and source-map ownership are independently compared against the immutable original executable. The original-only split checkpoint and subsequent source-selected build both complete configure, Ninja and frozen verification with exit 0 after removing the prior DOL. The final DOL SHA-256 is `ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da`.
+
+The unlinked object also emits the existing 64-byte common deleter destructor, its eight-byte exception record and twelve-byte index entry. The map discards those duplicates and keeps the original earlier definition at `0x80055BB0` in `BModelObj.o`. Earlier base RTTI metadata is likewise discarded in favor of the existing named definitions. Consequently raw object exception/data fuzzy scores include metadata that is not retained by this unit. The final linked native ranges above are exact. The retained data payload is 692 bytes plus four linker padding bytes; no fabricated padding source is added. There are no boss BSS, constructor-table or small-zero-data ranges.
+
+The initializer's copies establish that `SetHPBar` and `SetMiniMapMarker` take their shared pointers by value. The earlier header-only declarations used const references; those are corrected here before source selection. Const-reference parameters produced a 612-byte initializer; the by-value contract reproduces all 748 native bytes. The HP-bar constructor argument is the evidenced `0x6A`, and the marker flag is `0x4`. These values come from native immediates and bit masks, not from interpreting decimal decompiler output as hexadecimal.
+
+The two shared-pointer getters are non-const. With otherwise identical bodies, const-qualified getters load the control pointer before storing the returned object pointer, while the non-const declarations reproduce the native interleaved load/store order and register use. This is a bounded compiler observation for these getters, not a general claim about C++ const qualification. The inherited marker accessors remain inline and emit at their native positions under the established IPA behavior.
+
+Outside callee names for enemy construction/destruction/initialization, HUD helper calls, `CPii` overrides/setters and the already declared `BModelObj` methods follow the actual typed compiler interfaces. Their source bodies, splits, sizes and type attributes are untouched. Class names are original RTTI evidence; descriptive method/member spellings retain medium confidence.
+
+The frozen original #54 inventory is 22 functions and 2,284 instruction bytes. Its twenty boss functions contribute 2,108 bytes; the first two functions of the complete color-tag unit accepted in F-54-2 contribute the other 176 bytes. Both complete units remain source selected, with all native code, data, EH, layout and fallback checks passing. This supersedes the earlier partial accounting: the original #54 scope is complete. The other eight color-tag functions remain the previously delivered contribution to neighboring #55.
+
 ## Traps
 
 The issue's last two functions belong to the next class's unit. Preserve that class's initializer, registration records and neighboring #55 methods together; the survey issue boundary is not a source-file boundary.
@@ -110,3 +157,5 @@ The issue's last two functions belong to the next class's unit. Preserve that cl
 - A decompiler's returned address can be incidental. Attachment is a `void` operation: forcing a pointer return adds a branch and explicit null result. The ordinary void method reproduces every native instruction.
 - The setter's color parameters are values. Reference parameters retain the same ABI registers but schedule their byte copies differently; by-value `Color` parameters reproduce all 96 native bytes.
 - A successful original-only split cannot prove global ownership. The first BSS estimate still verified because the original bytes remained linked. The initializer's base/addend arithmetic establishes the registration record before the singleton and the true end after the second color array.
+- A shared-pointer setter can require a caller-side temporary even when its own body resembles assignment from a reference. Preserve the caller's retain/release pair with the evidenced by-value signature; the boss initializer is 136 bytes too short with const-reference setters.
+- Identical getter bodies with different const qualification can schedule member loads differently in this compiler. The native interleaved stores establish non-const getters here; do not compensate with register declarations or compiler flags.
