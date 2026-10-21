@@ -143,6 +143,13 @@ game/CEnemyPii.cpp:
 	.text       start:0x800A47E0 end:0x800A4C08
 	.data       start:0x803A16B0 end:0x803A1760
 
+game/CFacility.cpp:
+	extab       start:0x80015BDC end:0x80015CA0
+	extabindex  start:0x80047BC8 end:0x80047BEC
+	.text       start:0x800A4C10 end:0x800A4EE8
+	.data       start:0x803A1760 end:0x803A1878
+	.sdata      start:0x804B66C0 end:0x804B66D8
+
 game/CGameEnding.cpp:
 	extab       start:0x80015CA0 end:0x80016838
 	extabindex  start:0x80047BEC end:0x80047D3C
