@@ -22,6 +22,15 @@ inline TPtr find(TPtr first, TPtr last, const T& value) {
     return first;
 }
 
+template <typename InputIterator, typename OutputIterator>
+inline OutputIterator copy(InputIterator first, InputIterator last, OutputIterator result) {
+    for (; first != last; ++first, ++result) {
+        *result = *first;
+    }
+
+    return result;
+}
+
 template <typename T> inline T& move(T& x) {
     return x;
 }

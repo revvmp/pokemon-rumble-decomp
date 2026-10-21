@@ -1,93 +1,141 @@
 #ifndef _LIST
 #define _LIST
 
+#include <MSL_CPP/compressed_pair.h>
 #include <MSL_CPP/allocator.h>
 #include <MSL_CPP/alloc_ptr.h>
-#include <MSL_CPP/compressed_pair.h>
+#include <MSL_CPP/msl_utility.h>
+#include <algorithm>
+#include <iterator>
+#include <stdexcept>
+#include <MSL_CPP/runtime_error.h>
 
 namespace std {
 
+template <class T1, class T2> inline bool operator!=(const allocator<T1>&, const allocator<T2>&) {
+    return false;
+}
+
 template <typename T, typename Allocator> class __list_deleter {
-protected:
+public:
     struct node;
 
     struct node_base {
+        void init() {
+            next_ = static_cast<node*>(this);
+            prev_ = static_cast<node*>(this);
+        }
+
         node* prev_;
         node* next_;
     };
 
     struct node : node_base {
-        T* value() { return &data_; }
-
         T data_;
     };
 
     typedef unsigned long size_type;
     typedef typename Allocator::template rebind<node>::other node_allocator;
 
-    class iterator {
-    public:
-        iterator() {}
-        iterator(const iterator& rOther) : node_(rOther.node_) {}
-        iterator(node* pNode) : node_(pNode) {}
-        explicit iterator(node_base* pNode) : node_(static_cast<node*>(pNode)) {}
+    class const_iterator;
+    template <bool B> class generic_iterator;
+    typedef generic_iterator<false> iterator;
 
-        T& operator*() const { return node_->data_; }
-        T* operator->() const { return &node_->data_; }
-        iterator& operator++() {
+    template <bool B = false> class generic_iterator {
+    public:
+        typedef int difference_type;
+        typedef T value_type;
+        typedef T* pointer;
+        typedef T& reference;
+        typedef bidirectional_iterator_tag iterator_category;
+
+        generic_iterator() {}
+        generic_iterator(const generic_iterator& rOther) : node_(rOther.node_) {}
+        explicit generic_iterator(node_base* pNode) : node_(static_cast<node*>(pNode)) {}
+
+        T& operator*() const { return static_cast<node*>(node_)->data_; }
+        T* operator->() const { return &static_cast<node*>(node_)->data_; }
+        generic_iterator& operator++() {
             node_ = node_->next_;
             return *this;
         }
-        bool operator==(const iterator& rOther) const { return node_ == rOther.node_; }
-        bool operator!=(const iterator& rOther) const { return node_ != rOther.node_; }
+        generic_iterator& operator--() {
+            node_ = node_->prev_;
+            return *this;
+        }
+        bool operator==(const generic_iterator& rOther) const { return node_ == rOther.node_; }
+        bool operator!=(const generic_iterator& rOther) const { return node_ != rOther.node_; }
+        node_base* base() const { return node_; }
 
-        node* get() const { return node_; }
-
+    private:
         node* node_;
+
+        friend class __list_deleter;
+        template <typename U, typename V> friend class list;
+        friend class const_iterator;
     };
 
-    __list_deleter() : size_(0), tail_(alloc()) {
-        node_base* pTail = end_node();
-        pTail->next_ = static_cast<node*>(pTail);
-        pTail->prev_ = static_cast<node*>(pTail);
-    }
-    ~__list_deleter() { erase(begin(), end()); }
+    class const_iterator {
+    public:
+        const_iterator() {}
+        const_iterator(const iterator& rOther) : node_(rOther.node_) {}
+        explicit const_iterator(const node_base* pNode) : node_(static_cast<const node*>(pNode)) {}
 
-    void clear() {
-        erase(begin(), end());
-    }
-
-    iterator begin() { return iterator(end_node()->next_); }
-    iterator end() { return iterator(end_node()); }
-
-    iterator erase(iterator first, iterator last) {
-        if (first == last) {
-            return last;
+        const T& operator*() const { return node_->data_; }
+        const_iterator& operator++() {
+            node_ = node_->next_;
+            return *this;
         }
-        unlink_nodes(first.get(), last.get()->prev_);
-        while (first != last) {
-            alloc().destroy(&*first);
-            node* pNode = first.get();
-            ++first;
-            tail_.first().deallocate(pNode, 1);
-            --size_.first();
-        }
-        return last;
+        bool operator==(const const_iterator& rOther) const { return node_ == rOther.node_; }
+        bool operator!=(const const_iterator& rOther) const { return node_ != rOther.node_; }
+
+    private:
+        const node* node_;
+
+        friend class __list_deleter;
+        template <typename U, typename V> friend class list;
+    };
+
+    static iterator erase(__list_deleter* pList, iterator first, iterator last);
+    iterator insert(iterator position, const T& x);
+    void splice_all(iterator position, __list_deleter& rOther);
+
+    iterator begin() { return iterator(tail().next_); }
+    iterator end() { return iterator(&tail()); }
+
+    __list_deleter() : size_(Allocator(), 0) { tail().init(); }
+    explicit __list_deleter(const Allocator& rAllocator) : size_(rAllocator, 0), tail_(alloc()) {
+        node_base& rTail = tail();
+        rTail.next_ = static_cast<node*>(&rTail);
+        rTail.prev_ = static_cast<node*>(&rTail);
     }
+    ~__list_deleter() { erase(this, begin(), end()); }
+
+    void clear() { erase(this, begin(), end()); }
+
+    size_type& size_ref() { return size_.second(); }
+    Allocator& alloc() { return size_.first(); }
+    node_allocator& node_alloc() { return tail_.first(); }
 
     static void unlink_nodes(node_base* pFirst, node_base* pLast) {
         pFirst->prev_->next_ = pLast->next_;
         pLast->next_->prev_ = pFirst->prev_;
     }
 
-    Allocator& alloc() { return size_.second(); }
+    static void link_nodes(node_base* pPosition, node_base* pFirst, node_base* pLast) {
+        pPosition->prev_->next_ = static_cast<node*>(pFirst);
+        pFirst->prev_ = pPosition->prev_;
+        pPosition->prev_ = static_cast<node*>(pLast);
+        pLast->next_ = static_cast<node*>(pPosition);
+    }
 
-    void destroy(T* pValue) { pValue->~T(); }
+    node_base& tail() { return tail_.second(); }
+    const node_base& tail() const { return tail_.second(); }
 
     node_base* begin_node() const { return tail_.second().next_; }
     node_base* end_node() const { return const_cast<node_base*>(&tail_.second()); }
 
-    Metrowerks::compressed_pair<size_type, Allocator> size_;
+    Metrowerks::compressed_pair<Allocator, size_type> size_;
     Metrowerks::compressed_pair<node_allocator, node_base> tail_;
 
 private:
@@ -95,12 +143,85 @@ private:
     __list_deleter& operator=(const __list_deleter&);
 };
 
+template <typename T, typename Allocator>
+typename __list_deleter<T, Allocator>::iterator __list_deleter<T, Allocator>::erase(__list_deleter* pList, iterator first, iterator last) {
+    if (first == last) {
+        return last;
+    }
+    unlink_nodes(first.base(), last.base()->prev_);
+    while (first != last) {
+        pList->alloc().destroy(&*first);
+        node* pNode = static_cast<node*>(first.base());
+        ++first;
+        pList->node_alloc().deallocate(pNode, 1);
+        --pList->size_ref();
+    }
+    return last;
+}
+
+template <typename T, typename Allocator> void __list_deleter<T, Allocator>::splice_all(iterator position, __list_deleter& rOther) {
+    if (rOther.size_ref() != 0) {
+        if (alloc() != rOther.alloc()) {
+            throw runtime_error("list::splice called with unequal allocators");
+        }
+        node_base* pEnd = &rOther.tail();
+        node_base* pFirst = pEnd->next_;
+        node_base* pLast = pEnd->prev_;
+        pEnd->next_ = static_cast<node*>(pEnd);
+        pEnd->prev_ = static_cast<node*>(pEnd);
+        link_nodes(position.base(), pFirst, pLast);
+        size_ref() += rOther.size_ref();
+        rOther.size_ref() = 0;
+    }
+}
+
+template <typename T, typename Allocator>
+typename __list_deleter<T, Allocator>::iterator __list_deleter<T, Allocator>::insert(iterator position, const T& x) {
+    Metrowerks::alloc_ptr<node, node_allocator&> holder(tail_.first().allocate(1), tail_.first());
+    size_.first().construct(&holder.get()->data_, x);
+    node* pNode = holder.release();
+    node_base* pNext = position.node_;
+    pNext->prev_->next_ = pNode;
+    pNode->prev_ = pNext->prev_;
+    pNext->prev_ = pNode;
+    pNode->next_ = static_cast<node*>(pNext);
+    ++size_.second();
+    return iterator(pNode);
+}
+
 template <typename T, typename Allocator> class __list_imp : public __list_deleter<T, Allocator> {
 public:
     __list_imp() {}
+    template <typename InputIterator> __list_imp(InputIterator first, InputIterator last, const Allocator& rAllocator) :
+        __list_deleter<T, Allocator>(rAllocator) {
+        insert_dispatch(first, last, Metrowerks::int2type<0>());
+    }
+
+    void push_back(const T& x);
+
+private:
+    template <typename InputIterator> void insert_dispatch(InputIterator first, InputIterator last, Metrowerks::int2type<0>) {
+        insert_range(first, last);
+    }
+
+    template <typename InputIterator> void insert_range(InputIterator first, InputIterator last) {
+        for (; first != last; ++first) {
+            push_back(*first);
+        }
+    }
 };
 
-template <typename T, typename Allocator = allocator<T> > class list : private __list_imp<T, Allocator> {
+template <typename T, typename Allocator> void __list_imp<T, Allocator>::push_back(const T& x) {
+    this->insert(this->end(), x);
+}
+
+template <typename T, typename Allocator = allocator<T> > class list;
+
+template <typename T, typename Allocator>
+void __assign_range(list<T, Allocator>& rList, typename list<T, Allocator>::const_iterator first,
+                    typename list<T, Allocator>::const_iterator mid, typename list<T, Allocator>::const_iterator last);
+
+template <typename T, typename Allocator> class list : private __list_imp<T, Allocator> {
     typedef __list_imp<T, Allocator> base;
     typedef typename base::node_base node_base;
     typedef typename base::node node;
@@ -110,6 +231,9 @@ public:
     typedef typename base::size_type size_type;
 
     typedef typename base::iterator iterator;
+    typedef typename base::const_iterator const_iterator;
+
+    iterator locate(size_type n);
 
     list() {}
     list(const list& rOther) : base() {
@@ -117,65 +241,47 @@ public:
             push_back(static_cast<node*>(p)->data_);
         }
     }
-    ~list() {}
-
-    iterator begin() { return iterator(this->begin_node()); }
-    iterator end() { return iterator(this->end_node()); }
-    size_type size() const { return this->size_.first(); }
-    bool empty() const { return this->size_.first() == 0; }
-    T& front() { return *begin(); }
-    void push_back(const T& x) { insert(end(), x); }
-    void clear() { base::clear(); }
-
-    void pop_front() {
-        node_base* pNode = this->begin_node();
-        base::unlink_nodes(pNode, pNode);
-        static_cast<node*>(pNode)->data_.~T();
-        this->tail_.first().deallocate(static_cast<node*>(pNode), 1);
-        --this->size_.first();
-    }
-
-    iterator erase(iterator position);
-
     template <class InputIterator> list(InputIterator first, InputIterator last) {
         for (; first != last; ++first) {
             push_back(*first);
         }
     }
 
-    template <class InputIterator> void insert(iterator position, InputIterator first, InputIterator last) {
-        iterator pos(position);
-        list temp(first, last);
-        splice(pos, temp);
+    list& operator=(const list& rOther) {
+        copy_from(rOther);
+        return *this;
     }
 
-    void splice(iterator position, list& rOther) {
-        if (rOther.size_.first() != 0) {
-            node_base* pFirst = rOther.begin_node();
-            node_base* pLast = rOther.end_node()->prev_;
-            node_base* pOtherTail = rOther.end_node();
-            pOtherTail->next_ = static_cast<node*>(pOtherTail);
-            pOtherTail->prev_ = static_cast<node*>(pOtherTail);
-            node_base* pNext = position.node_;
-            pNext->prev_->next_ = static_cast<node*>(pFirst);
-            pFirst->prev_ = pNext->prev_;
-            pNext->prev_ = static_cast<node*>(pLast);
-            pLast->next_ = static_cast<node*>(pNext);
-            this->size_.first() += rOther.size_.first();
-            rOther.size_.first() = 0;
-        }
+    iterator begin() { return iterator(this->begin_node()); }
+    iterator end() { return iterator(this->end_node()); }
+    const_iterator begin() const { return const_iterator(this->begin_node()); }
+    const_iterator end() const { return const_iterator(this->end_node()); }
+    size_type size() const { return this->size_.second(); }
+    bool empty() const { return this->size_.second() == 0; }
+    T& front() { return *begin(); }
+    void push_back(const T& x) { insert(end(), x); }
+    void clear() { base::clear(); }
+
+    void pop_front() {
+        node_base* pNode = this->begin_node();
+        unlink_nodes(pNode, pNode);
+        static_cast<node*>(pNode)->data_.~T();
+        this->tail_.first().deallocate(static_cast<node*>(pNode), 1);
+        --this->size_.second();
     }
+
+    iterator erase(iterator position);
 
     void swap(list& rOther) {
         if (this != &rOther) {
-            size_type size = this->size_.first();
-            this->size_.first() = rOther.size_.first();
-            rOther.size_.first() = size;
+            size_type size = this->size_.second();
+            this->size_.second() = rOther.size_.second();
+            rOther.size_.second() = size;
             node_base* pTail = this->end_node();
             node_base tail = *pTail;
             *pTail = rOther.tail_.second();
             rOther.tail_.second() = tail;
-            if (this->size_.first() != 0) {
+            if (this->size_.second() != 0) {
                 pTail->prev_->next_ = static_cast<node*>(pTail);
                 pTail->next_->prev_ = static_cast<node*>(pTail);
             } else {
@@ -183,7 +289,7 @@ public:
                 pTail->next_ = static_cast<node*>(pTail);
             }
             node_base* pOtherTail = rOther.end_node();
-            if (rOther.size_.first() != 0) {
+            if (rOther.size_.second() != 0) {
                 pOtherTail->prev_->next_ = static_cast<node*>(pOtherTail);
                 pOtherTail->next_->prev_ = static_cast<node*>(pOtherTail);
             } else {
@@ -193,29 +299,68 @@ public:
         }
     }
 
-    iterator insert(iterator position, const T& x) {
-        Metrowerks::alloc_ptr<node, typename base::node_allocator&> holder(this->tail_.first().allocate(1), this->tail_.first());
-        this->size_.second().construct(holder.get()->value(), x);
-        node* pNode = holder.release();
-        node_base* pNext = position.node_;
-        pNext->prev_->next_ = pNode;
-        pNode->prev_ = pNext->prev_;
-        pNext->prev_ = pNode;
-        pNode->next_ = static_cast<node*>(pNext);
-        ++this->size_.first();
-        return iterator(pNode);
+    using base::insert;
+
+    void splice(iterator position, base& rOther) { base::splice_all(position, rOther); }
+    void splice(iterator position, list& rOther) { base::splice_all(position, rOther); }
+
+    template <class InputIterator> void insert(iterator position, InputIterator first, InputIterator last) {
+        iterator pos(position);
+        list temp(first, last);
+        splice(pos, temp);
     }
+
+    using base::erase;
+
+private:
+    template <typename U, typename V>
+    friend void __assign_range(list<U, V>& rList, typename list<U, V>::const_iterator first,
+                               typename list<U, V>::const_iterator mid, typename list<U, V>::const_iterator last);
+
+    list& copy_from(const list& rOther) {
+        if (this != &rOther) {
+            __assign_range(*this, rOther.begin(), rOther.nth(std::min(size(), rOther.size())), rOther.end());
+        }
+        return *this;
+    }
+
+    const_iterator nth(size_type n) const { return const_iterator(const_cast<list*>(this)->locate(n)); }
 };
+
+template <typename T, typename Allocator>
+void __assign_range(list<T, Allocator>& rList, typename list<T, Allocator>::const_iterator first,
+                    typename list<T, Allocator>::const_iterator mid, typename list<T, Allocator>::const_iterator last) {
+    if (mid != last) {
+        __list_imp<T, Allocator> temp(mid, last, rList.alloc());
+        rList.splice(std::copy(first, mid, rList.begin()), temp);
+    } else {
+        list<T, Allocator>::erase(&rList, std::copy(first, mid, rList.begin()), rList.end());
+    }
+}
+
+template <typename T, typename Allocator> typename list<T, Allocator>::iterator list<T, Allocator>::locate(size_type n) {
+    size_type count = size();
+    iterator it;
+    if (n <= count / 2) {
+        it = this->begin();
+        std::advance(it, n);
+    } else {
+        it = this->end();
+        std::advance(it, n - count);
+    }
+    return it;
+}
+
 
 template <typename T, typename Allocator>
 typename list<T, Allocator>::iterator list<T, Allocator>::erase(iterator position) {
     iterator next(position);
     ++next;
-    node* pNode = position.node_;
-    base::unlink_nodes(pNode, pNode);
+    node* pNode = static_cast<node*>(position.base());
+    unlink_nodes(pNode, pNode);
     pNode->data_.~T();
     this->tail_.first().deallocate(pNode, 1);
-    --this->size_.first();
+    --this->size_.second();
     return next;
 }
 

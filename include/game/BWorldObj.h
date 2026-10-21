@@ -52,6 +52,7 @@ public:
     u32 GetStateFlags(u32 mask) const { return mState & mask; }
     bool IsVisible() const { return GetStateFlags(STATE_VISIBLE); }
     BWorld* GetWorld() const { return mWorld; }
+    bool IsInWorld() const { return mWorld != nullptr; }
     u32 GetId() const { return mId; }
     u32 GetType() const { return mType; }
     f32 GetRotation() const { return mRotation; }
