@@ -41,6 +41,10 @@ Eighteen additional source probes did not improve it. Equivalent spellings of `p
 
 The reproducible scratch evidence is `764-reference/764-followup-proof.json` outside the checkout. At the control revision, `python configure.py`, `.venv/Scripts/ninja` and the frozen-manifest verifier each exited 0 after deleting the old `build/wpse-v1/main.dol`. The rebuilt DOL SHA-256 is `ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da`. This validates the unchanged fallback build, not native completion of these converters. No new project-wide trap was found. A future continuation should seek a different native source structure rather than repeat these coordinate spellings or force a register assignment.
 
+# F-764-4: Public decoder reference is a different direction
+
+The pinned [Wii IPL TMC JPEG tree](https://github.com/koopthekoopa/wii-ipl/tree/f4c09f4001c5a0b9af734ad1e3f80a54c5e5723c/libs/RVLMiddleware/TMC_JPEG) contains decoder texture converters, not this encoder. Its `Texture_MCUtoRGBA8.c` setup uses the same multiple-of-four rounding expression after loading both dimensions into block-local `int` variables. Reproducing that structure in an isolated encoder probe yields 244 bytes rather than the native 236: the signed local divisions retain correction instructions that the direct unsigned-short field expressions avoid. It does not resolve the setup schedule, and no reference code is imported. The decoder's inverse pixel conversion is not evidence for replacing the encoder's established arithmetic.
+
 ## Traps
 
 - **Edge converters match only with one declaration order.** Trigger: correct instructions, wrong `r7`–`r12` or `r28`–`r31`. Hill-climbing the declaration block found one order that matches all six. Do not reorder the declarations. Evidence: F-764-2.
