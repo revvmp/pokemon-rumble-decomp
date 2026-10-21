@@ -94,6 +94,26 @@ score delta is recorded separately in the outside consumer receipt; this is
 not a blanket assertion that provisional object code was unchanged. Final
 publication repeats controls after each official landing rebase.
 
+The complete current-base check at `aa756c75e4c0` rebuilt 759 source objects,
+including 710 source-selected objects. Forty-seven raw differences normalize
+to numeric labels only. CPlayer's original native function scores and all
+strong function bodies and call targets are unchanged; only discarded helper
+inventory differs. Linked ELF allocations, logical symbols after the four
+documented renames, and the entire frozen DOL are identical. The final list
+size chain is exact in the real CDlgPiiSelector producer.
+
+NonMatching deltas are intentionally reported separately. The Balloon
+four-byte lookup forwarder changes its relocation name to the const lookup;
+its score changes from 100 to 95 solely for that name, while the native
+lookup branch is independently resolved in the 24-function proof. Its old
+non-const lookup symbol no longer describes the emitted function. Provisional
+MapPiiTable InsertString changes from 95.91235 to 87.84064 and InsertWString
+from 95.92857 to 91.62698 under the corrected lookup hierarchy; neither was
+previously instruction-exact. No preservation claim is made for those
+unaccepted provisional instruction streams. The complete per-function
+before/after records are in the immutable per-head consumer receipts outside
+the repository. No unit status changes in this prerequisite.
+
 ## Traps
 
 - A four-byte native forwarder can belong to a caller API rather than an
