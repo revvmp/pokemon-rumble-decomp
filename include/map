@@ -32,6 +32,15 @@ public:
         T value_;
     };
 
+    class iterator {
+    public:
+        iterator() {}
+        iterator(const iterator& rOther) : node_(rOther.node_) {}
+        iterator(tree_node_base* pNode) : node_(pNode) {}
+        T* operator->() const { return &static_cast<node*>(node_)->value_; }
+        tree_node_base* node_;
+    };
+
     map_tree() : size_(0), root_(nullptr), begin_(reinterpret_cast<tree_node_base*>(&root_)) {}
     ~map_tree() {
         if (root_ != nullptr) {
@@ -39,6 +48,7 @@ public:
         }
     }
 
+    iterator begin() { return iterator(begin_); }
     size_type size() const { return size_; }
 
     void destroy(node* pNode);
@@ -83,8 +93,10 @@ public:
         iterator() {}
         iterator(const iterator& rOther) : node_(rOther.node_) {}
         iterator(tree_node_base* pNode) : node_(pNode) {}
+        T* operator->() const { return &static_cast<node*>(node_)->value_; }
         tree_node_base* node_;
     };
+    iterator begin() { return iterator(begin_); }
     tree_node_base* end_node() { return reinterpret_cast<tree_node_base*>(&root_); }
     pair<iterator, bool> insert_one(const value_type& rValue) {
         node* pPred;
@@ -171,12 +183,16 @@ private:
 
 public:
     typedef typename tree_type::size_type size_type;
+    typedef typename tree_type::iterator iterator;
 
     map() {}
     ~map() {}
 
+    iterator begin() { return tree_.begin(); }
     size_type size() const { return tree_.size(); }
     bool empty() const { return tree_.size() == 0; }
+
+    pair<iterator, bool> insert(const value_type& rValue) { return tree_.insert_one(rValue); }
 
 private:
     tree_type tree_;

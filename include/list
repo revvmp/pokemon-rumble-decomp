@@ -101,6 +101,11 @@ public:
     };
 
     list() {}
+    list(const list& rOther) : base() {
+        for (node_base* p = rOther.begin_node(); p != rOther.end_node(); p = p->next_) {
+            push_back(static_cast<node*>(p)->data_);
+        }
+    }
     ~list() {}
 
     iterator begin() { return iterator(this->begin_node()); }

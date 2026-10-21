@@ -32,7 +32,8 @@ public:
         FLAG_LOCAL_MTX = 1 << 1,
         FLAG_FOLLOW_ROTATION = 1 << 2,
         FLAG_FOLLOW = 1 << 3,
-        FLAG_TARGET = 1 << 4
+        FLAG_TARGET = 1 << 4,
+        FLAG_PERSISTENT = 1 << 5
     };
 
     enum Type {
@@ -76,6 +77,9 @@ public:
     void Finalize(BOOL retireParticles);
 
     u32 GetHandle() const { return mHandle; }
+    void SetHandle(u32 handle) { mHandle = handle; }
+    bool IsFinished() const { return (mFlags & FLAG_FINALIZED) || mParam.mInfo == nullptr; }
+    bool IsPersistent() const { return mFlags & FLAG_PERSISTENT; }
 
 private:
     void SetRotation(f32 rotation) {

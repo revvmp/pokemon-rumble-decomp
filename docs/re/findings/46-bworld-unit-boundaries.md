@@ -49,3 +49,14 @@ Python reading the linked `main.elf` (byte-identical to the original DOL) for `.
 
 - **Issue boundaries are not file boundaries here.** #46 to #49 lie inside one unit that starts in #43, while #50, #51 and #52 each start a unit exactly. Check data ownership before splitting at an issue boundary.
 - **Inline virtual copies sit mid-file.** Weak copies of `BWorldObj` inline virtuals (`0x8005F740`, `0x800605C0`, `0x80062970`) appear between `BWorld.cpp`'s own functions, not at its end. They do not mark a file boundary.
+
+## F-46-2: object registry and effect functions (partial)
+
+`src/game/BWorld.cpp` now holds the object registry (`AddObject`, `RemoveObject`, `GetObject`, `GetObjects`, `CountObjects`, `FindNearestObject`), the area queries (`FindObjectsInSector`, `FindObjectsInRing`, `FindObjectsInRect`), the five `CreateEffect` factories, `AddEffect`, `RemoveAllEffects`, `RemoveOldestEffect` and `Calc`, with the `BWorld::ObjEntry` doubly linked index list (1-based `mPrev`/`mNext` indices into `mObjEntries`) declared in `include/game/BWorld.h`. `unitdiff.py` shows 96 of 196 functions at 100%. Of #46's range, the factories, `GetObject`, `GetEffect`, the effect ID accessors and `AddEffect` are exact; `AddObject`, `RemoveObject`, `CountObjects`, `FindNearestObject`, `FindObjectsInRing` and `GetObjects` differ only in register allocation or operand order; `RemoveAllEffects`, `RemoveOldestEffect`, `FindObjectsInSector`, `FindObjectsInRect` and `Calc` still differ in frame layout and need the effect map's `destroy` and `find_leaf` instances (`0x80063FB0`) named and reconstructed.
+
+Remaining blockers: register allocation in the loop helpers (stop-type mask versus entry type versus counter are assigned in a different order than the original, unchanged by declaration order), map tree node instances, `.sdata2` constant ordering, and `.data` and `extab` contents, which only the complete unit can fix.
+
+## Traps (F-46-2)
+
+- **Declaration order does not steer CodeWarrior register choice in loop helpers.** In `CountObjects`, swapping the declarations of the counter and the stop mask, or hoisting the entry type outside the loop, left or worsened the same three-register permutation. Do not iterate on declaration order there.
+- **Replacing a cached base pointer with repeated calls changes the prologue.** Inlining `mObjEntries.begin()` in `AddObject` instead of keeping the local changed the saved-register count (78% versus 99%).

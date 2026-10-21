@@ -7,6 +7,7 @@
 #include <nw4r/math/math_types.h>
 
 f32 NormalizeSignedAngle(f32 degrees);
+f32 NormalizeAngle(f32 degrees);
 
 inline nw4r::math::VEC3 Transform(const nw4r::math::MTX34& rMtx, const nw4r::math::VEC3& rVec) {
     nw4r::math::VEC3 result;
