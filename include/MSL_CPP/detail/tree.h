@@ -138,7 +138,7 @@ public:
         }
     }
 
-    size_type size() const { return size_.first(); }
+    size_type size() const { return count(); }
 
     iterator begin() { return iterator(begin_node()); }
     iterator end() { return iterator(end_node()); }
@@ -198,12 +198,26 @@ public:
     tree_node_base*& root() { return *reinterpret_cast<tree_node_base**>(end_node()); }
     Allocator& alloc() { return size_.second(); }
 
+    template <typename Key> value_type& find_or_insert(const Key& rKey) {
+        node* pPred;
+        bool left;
+        bool leftmost;
+        tree_node_base* pParent = find_leaf(rKey, pPred, left, leftmost);
+        if (pPred == nullptr || Compare()(pPred->value_, rKey)) {
+            return insert_node_at(pParent, left, leftmost, value_type(rKey, typename value_type::second_type()))->value_;
+        }
+        return pPred->value_;
+    }
+
     tree_node_base* find_leaf(const value_type& rValue, node*& rpPred, bool& rLeft, bool& rLeftmost);
+    template <typename Key> tree_node_base* find_leaf(const Key& rKey, node*& rpPred, bool& rLeft, bool& rLeftmost);
     node* insert_node_at(tree_node_base* pParent, bool left, bool leftmost, const value_type& rValue);
 
     void destroy(node* pNode);
 
 private:
+    const size_type& count() const { return size_.first(); }
+
     Metrowerks::compressed_pair<size_type, Allocator> size_;
     Metrowerks::compressed_pair<node_allocator, tree_root_ptr> root_;
     tree_begin_holder<Compare> begin_;
@@ -219,6 +233,29 @@ tree_node_base* tree_imp<T, Compare, Allocator>::find_leaf(const value_type& rVa
     while (pNode != nullptr) {
         pLeaf = pNode;
         if (Compare()(rValue, pNode->value_)) {
+            pNode = static_cast<node*>(pNode->left_);
+            rLeft = true;
+        } else {
+            rpPred = pLeaf;
+            pNode = static_cast<node*>(pNode->right_);
+            rLeft = false;
+            rLeftmost = false;
+        }
+    }
+    return pLeaf;
+}
+
+template <typename T, typename Compare, typename Allocator>
+template <typename Key>
+tree_node_base* tree_imp<T, Compare, Allocator>::find_leaf(const Key& rKey, node*& rpPred, bool& rLeft, bool& rLeftmost) {
+    rpPred = nullptr;
+    node* pLeaf = static_cast<node*>(end_node());
+    node* pNode = static_cast<node*>(root());
+    rLeft = true;
+    rLeftmost = true;
+    while (pNode != nullptr) {
+        pLeaf = pNode;
+        if (Compare()(rKey, pNode->value_)) {
             pNode = static_cast<node*>(pNode->left_);
             rLeft = true;
         } else {
@@ -281,8 +318,16 @@ void tree_imp<T, Compare, Allocator>::destroy(node* pNode) {
 
 template <typename T, typename Compare, typename Allocator>
 class red_black_tree : public tree_imp<T, Compare, Allocator> {
+    typedef tree_imp<T, Compare, Allocator> base;
+
 public:
+    typedef typename base::iterator iterator;
+
     red_black_tree() {}
+    iterator begin() { return base::begin(); }
+    iterator end() { return base::end(); }
+    template <typename Key> iterator find(const Key& rKey) { return base::find(rKey); }
+    template <typename Key> T& find_or_insert(const Key& rKey) { return base::find_or_insert(rKey); }
     ~red_black_tree() {}
 };
 

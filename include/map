@@ -214,7 +214,7 @@ public:
         return pair<iterator, bool>(iterator(result.first), result.second);
     }
     iterator find(const key_type& rKey) { return iterator(tree_.find(rKey)); }
-    mapped_type& operator[](const key_type& rKey) { return insert(value_type(rKey, mapped_type())).first->second; }
+    mapped_type& operator[](const key_type& rKey) { return tree_.find_or_insert(rKey).second; }
 
 private:
     tree_type tree_;
