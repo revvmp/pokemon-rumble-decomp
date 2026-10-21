@@ -301,6 +301,45 @@ identifies C6EC0 as the four-byte node-allocator copy constructor and C9710
 as transformed-map iterator assignment, correcting earlier labels without
 changing native code.
 
+## F-152-9: Primary vector storage and split-buffer algorithms
+
+The original 2006 vector places begin/end in its storage/deleter layer,
+uses allocator/capacity accessors, and destroys the preceding element with
+alloc().destroy(--p). The split buffer computes its live range directly
+from data/start/size and updates size in the construction-loop increment.
+The append-reallocation definition is ordinary out-of-class. Restoring this
+coherent primary context reproduces the Balloon erase, construction,
+destruction, growth-dispatch and append-reallocation helpers.
+
+The immutable outside producer at
+`152-reference/152-native436-unique-positive` retains 436 functions /
+29,012 instruction bytes and 226 EH records / 3,664 bytes exact. It includes
+other pending source/string changes and is not Matching. Independent Map
+receipts at `152-reference/152-map-vector-independent` preserve all 29
+functions / 15,184 bytes and all 19 EH records / 500 bytes with applied
+relocation targets.
+
+The same-base control at `7b46a1163eda1a8911f85b2bcf74d128d1e7fdc9`
+rebuilds 762 source objects, including 714 Matching units. All 983 affected
+previously exact streams retain their bytes and semantic relocations;
+Matching strong definitions, allocated linked ELF and frozen DOL are
+identical. NonMatching native score changes only improve BWorld,
+CGloballyReusableTexBuf, CMsgBalloon and SaveData; other affected provisional
+units retain their scores. CPpuRegister retains every Matching strong
+function. No unit status changes.
+
+Five provisional names put native storage accessors in the constructor
+layer: 800C62E0, 800C7240, 800C7350, 8010C360 and 8010C370. Primary inheritance
+and actual typed callers prove the __vec_deleter identities. Their raw
+native bytes remain identical. The guard normalizes these baseline names
+before comparing every previously exact stream; it skips no stream.
+
+A separate inside-class public push_back placement experiment moved the
+first ordering mismatch from index 12 to 22, but changed formatter parse
+from native 424 bytes to 420. The unchanged control still reproduces all
+436 functions. That experiment is rejected and excluded. Full Balloon
+physical placement and source-only provenance acceptance remain pending.
+
 ## Traps
 
 - A flattened container reconstruction can produce each native helper
