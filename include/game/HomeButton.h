@@ -7,6 +7,8 @@
 
 class CHBMParam {
 public:
+    enum Flags { NoSaveAll = 4, PreloadResources = 16 };
+
     CHBMParam();
     ~CHBMParam();
     void SetResourceRoot(const char* pPath) { mResourceRoot = pPath; }
@@ -45,6 +47,10 @@ private:
     std::tr1::function<void()> mOpenCallback;
     std::tr1::function<bool(HBMSelectBtnNum)> mCloseCallback;
 };
+
+inline CHBMParam::Flags operator|(CHBMParam::Flags left, CHBMParam::Flags right) {
+    return static_cast<CHBMParam::Flags>(static_cast<unsigned long>(left) | static_cast<unsigned long>(right));
+}
 
 class CDisableHBM {
 public:

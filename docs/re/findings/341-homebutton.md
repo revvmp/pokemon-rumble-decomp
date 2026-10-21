@@ -30,3 +30,11 @@ Main's retained deleter RTTI at 0x803B58F0 identifies CDisableHBM. The main prod
 Main's stack space around a temporary is not its class extent. The CHBMParam temporary begins at stack+0x150 in main, but the native copied allocation explicitly requests 0x80 bytes. Constructor stores, eight string destructions and the two twelve-byte function destructions independently agree with 128 bytes, rather than the initially suggested 160.
 
 The existing one-argument function constructor hardcodes a reference-wrapper implementation identity. Native main RTTI explicitly requires function_imp<bool (*)(HBMSelectBtnNum), bool (*)(HBMSelectBtnNum), false, false>. The parameter header's default/copy/destructor control does not establish that function-pointer constructor specialization; its main consumer must prove it separately.
+
+## F-341-2: Typed flag combination
+
+Main retains a sixteen-byte parameter flag setter at 0x8012D0B0 and an eight-byte two-argument OR helper at 0x8012D0C0. The additive nested Flags enum and free operator| reproduce these complete instruction streams under the unchanged game compiler. SetFlags(unsigned long) remains available and unchanged; enum arguments convert normally to its original storage type. CHBMParam remains 128 bytes, and its complete constructor, destructor, cleanup target and 28-byte exception record retain their earlier exact proofs.
+
+The descriptive enumerator NoSaveAll is bit 4: InitializeHomeButtonInfo at 0x801E24C0+0x7CC tests that bit and ORs HBMMSG_NOSAVE_ALL (-1) into HBMDataInfo::messageFlag. The SDK's adjacent WIIMENU and RESET constants correspond to the independently tested bits 1 and 2. PreloadResources is bit 16: InitializeHomeButton at 0x801E3930+0x724 tests it before initializing both Home Button info and sound resources; UpdateHomeButton releases those resources on closing only when that bit is clear. These names describe observed behavior, rather than recovered original spelling.
+
+Outside exact-header controls are 341-reference/341-flags.cpp, 341-flags-probe.py and 341-flags-audit.py. The actual main Run producer is independently controlled by the owner of issue #229. This remains a header prerequisite; neither original issue #341 nor #342 is complete.
