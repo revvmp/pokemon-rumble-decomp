@@ -17,6 +17,7 @@ namespace lyt {
 class AnimTransform;
 class Layout;
 class Pane;
+class TextBox;
 }
 namespace ut {
 class Font;
@@ -36,12 +37,14 @@ public:
     public:
         bool IsStarted() const { return mState != 0; }
         bool IsFinished() const { return mState == 3 || mState == 2; }
+        bool IsEnded() const { return mState == 3; }
+        void Wait();
 
     private:
         f32 mFrame;
         f32 mRate;
         nw4r::lyt::AnimTransform* mpAnimTransform;
-        nw4r::lyt::Pane* mpTarget;
+        PaneMP* mpTarget;
         u16 mLastFrame;
         int mState;
     };
@@ -56,6 +59,12 @@ public:
     nw4r::lyt::Pane* FindPane(const char* pName);
     void SetVisible(bool visible);
     std::tr1::shared_ptr<CMotionProgram> CreateMotion(const char* pName);
+    std::tr1::shared_ptr<CMotionProgram> CreateMotion(const char* pName, nw4r::lyt::Pane* pPane, f32 startFrame, f32 rate);
+    std::tr1::shared_ptr<CMotionProgram> CreateMotion(const char* pName, const char* pPaneName, f32 startFrame, f32 rate);
+    std::tr1::shared_ptr<CMotionProgram> QueueMotion(const char* pName, nw4r::lyt::Pane* pPane, f32 startFrame, f32 rate);
+    std::tr1::shared_ptr<CMotionProgram> QueueMotion(const char* pName, const char* pPaneName, f32 startFrame, f32 rate);
+    u16 GetMotionLength(const char* pName);
+    nw4r::lyt::TextBox* SetText(const char* pName, const wchar_t* pText);
 
 private:
     u32 mFlags;
