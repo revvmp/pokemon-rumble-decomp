@@ -198,8 +198,8 @@ void BModelObj::AddDrawLayer(const std::tr1::shared_ptr<IDrawLayer>& rLayer) {
 }
 
 void BModelObj::CalcMtx() {
+    bool visible = IsVisible();
     if (mModel != nullptr) {
-        bool visible = IsVisible();
         nw4r::g3d::ScnObj* pScnObj = mModel->GetScnObj();
         if (visible) {
             if (mFlags & FLAG_HIDDEN) {
@@ -226,30 +226,29 @@ void BModelObj::CalcMtx() {
 
     mFlags &= ~FLAG_DIRTY_MTX;
 
-    if (mFlags & FLAG_BASE_MTX) {
+    if (!(mFlags & FLAG_BASE_MTX)) {
+        f32 cos;
+        f32 sin;
+        nw4r::math::SinCosDeg(&sin, &cos, mRotation);
+
+        nw4r::math::MTX34 rot;
+        rot = nw4r::math::MTX34(cos, 0.0f, sin, 0.0f,
+                                0.0f, 1.0f, 0.0f, 0.0f,
+                                -sin, 0.0f, cos, 0.0f);
+        nw4r::math::MTX34 scale(mScale.x, 0.0f, 0.0f, 0.0f,
+                                0.0f, mScale.y, 0.0f, 0.0f,
+                                0.0f, 0.0f, mScale.z, 0.0f);
+        nw4r::math::MTX34 tmp;
+        nw4r::math::MTX34 trans(1.0f, 0.0f, 0.0f, mPosition.x,
+                                0.0f, 1.0f, 0.0f, mPosition.y,
+                                0.0f, 0.0f, 1.0f, mPosition.z);
+        nw4r::math::MTX34 mtx;
+        nw4r::math::MTX34Mult(&tmp, &trans, &scale);
+        nw4r::math::MTX34Mult(&mtx, &tmp, &rot);
+        mModel->GetScnObj()->SetMtx(nw4r::g3d::ScnObj::MTX_LOCAL, mtx);
+    } else {
         mModel->GetScnObj()->SetMtx(nw4r::g3d::ScnObj::MTX_LOCAL, mBaseMtx);
-        return;
     }
-
-    f32 cos;
-    f32 sin;
-    nw4r::math::SinCosDeg(&sin, &cos, mRotation);
-
-    nw4r::math::MTX34 rot;
-    rot = nw4r::math::MTX34(cos, 0.0f, sin, 0.0f,
-                            0.0f, 1.0f, 0.0f, 0.0f,
-                            -sin, 0.0f, cos, 0.0f);
-    nw4r::math::MTX34 scale(mScale.x, 0.0f, 0.0f, 0.0f,
-                            0.0f, mScale.y, 0.0f, 0.0f,
-                            0.0f, 0.0f, mScale.z, 0.0f);
-    nw4r::math::MTX34 tmp;
-    nw4r::math::MTX34 trans(1.0f, 0.0f, 0.0f, mPosition.x,
-                            0.0f, 1.0f, 0.0f, mPosition.y,
-                            0.0f, 0.0f, 1.0f, mPosition.z);
-    nw4r::math::MTX34 mtx;
-    nw4r::math::MTX34Mult(&tmp, &trans, &scale);
-    nw4r::math::MTX34Mult(&mtx, &tmp, &rot);
-    mModel->GetScnObj()->SetMtx(nw4r::g3d::ScnObj::MTX_LOCAL, mtx);
 }
 
 void BModelObj::SetRotation(f32 rotation) {
