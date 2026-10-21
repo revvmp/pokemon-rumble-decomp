@@ -418,6 +418,29 @@ game/ControllerTable.cpp:
 	.bss        start:0x803E8D28 end:0x803E90C8
 	.sdata      start:0x804B77D8 end:0x804B77D9
 
+game/GameLoop.cpp:
+	extab       start:0x8003501C end:0x80035024
+	extabindex  start:0x8005004C end:0x80050058
+	.text       start:0x8019DC50 end:0x8019DEAC
+	.bss        start:0x803EA7F8 end:0x803EA834
+	.sbss       start:0x804B9108 end:0x804B911C
+
+game/Random.cpp:
+	extab       start:0x80035024 end:0x8003504C
+	extabindex  start:0x80050058 end:0x80050094
+	.text       start:0x8019DEB0 end:0x8019E110
+	.sdata2     start:0x804BA328 end:0x804BA32C
+
+game/CFileData.cpp:
+	extab       start:0x800353CC end:0x80037A98
+	extabindex  start:0x800500F4 end:0x800505C8
+	.text       start:0x8019EBA0 end:0x801ADC38
+	.ctors      start:0x80352A10 end:0x80352A14
+	.data       start:0x803BE478 end:0x803BF000
+	.bss        start:0x803EA838 end:0x803EA890
+	.sdata      start:0x804B8108 end:0x804B81A0
+	.sbss       start:0x804B9128 end:0x804B9130
+
 ControllerTableAlignmentPadding:
 	.sdata      start:0x804B77D9 end:0x804B77E0 align:1
 
