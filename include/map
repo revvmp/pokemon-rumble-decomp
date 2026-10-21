@@ -50,7 +50,7 @@ template <typename Key, typename T, typename Compare> struct map_tree_compare<Ke
     typedef map_value_compare<Key, T, Compare> type;
 };
 
-template <typename T, typename Compare, typename Allocator> class map_compact_tree {
+template <typename T, typename Compare, typename Allocator> class map_compact_tree : public __red_black_tree<tree_node_base*> {
 public:
     typedef unsigned long size_type;
 
@@ -220,7 +220,7 @@ typename map_compact_tree<T, Compare, Allocator>::node* map_compact_tree<T, Comp
         pParent->right_ = pNode;
     }
     ++sz();
-    tree_balance_after_insert(pNode, root());
+    __red_black_tree<tree_node_base*>::balance_insert(pNode, root());
     if (leftmost) {
         front() = pNode;
     }

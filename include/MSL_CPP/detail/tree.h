@@ -8,6 +8,7 @@
 #include <MSL_CPP/compressed_pair.h>
 #include <stdexcept>
 #include <utility>
+#include <limits>
 
 
 namespace std {
@@ -48,9 +49,300 @@ template <class Pointer> inline void __pointer_plus_bit<Pointer>::bit(bool value
     }
 }
 
+enum __tree_color { black, red };
+
+template <typename Pointer>
+class __red_black_tree
+{
+	typedef Pointer      pointer;
+protected:
+
+	static pointer leftmost(pointer x);
+	static pointer rightmost(pointer x);
+	static void increment(pointer& x);
+	static void decrement(pointer& x);
+	static void balance_insert(pointer x, pointer root);
+	static pointer balance_erase(pointer z, pointer root);
+private:
+	static void rotate_left(pointer x, pointer& root);
+	static void rotate_right(pointer x, pointer& root);
+};
+
+template <typename Pointer>
+inline
+typename __red_black_tree<Pointer>::pointer
+__red_black_tree<Pointer>::leftmost(pointer x)
+{
+	while (x->left_ != nullptr)
+		x = x->left_;
+	return x;
+}
+
+template <typename Pointer>
+inline
+typename __red_black_tree<Pointer>::pointer
+__red_black_tree<Pointer>::rightmost(pointer x)
+{
+	while (x->right_ != nullptr)
+		x = x->right_;
+	return x;
+}
+
+template <typename Pointer>
+void
+__red_black_tree<Pointer>::increment(pointer& x)
+{
+	if (x->right_ != nullptr)
+		x = leftmost(x->right_);
+	else
+	{
+		while (x != x->parent_->left_)
+			x = x->parent_;
+		x = x->parent_;
+	}
+}
+
+template <typename Pointer>
+void
+__red_black_tree<Pointer>::decrement(pointer& x)
+{
+	if (x->left_ != nullptr)
+		x = rightmost(x->left_);
+	else
+	{
+		while (x == x->parent_->left_)
+			x = x->parent_;
+		x = x->parent_;
+	}
+}
+
+template <typename Pointer>
+void
+__red_black_tree<Pointer>::balance_insert(pointer x, pointer root)
+{
+	x->set_color(red);
+	while (x != root && x->parent_->color() == red)
+	{
+		if (x->parent_ == x->parent_->parent_->left_)
+		{
+			pointer y = x->parent_->parent_->right_;
+			if (y != nullptr && y->color() == red)
+			{
+				x->parent_->set_color(black);
+				y->set_color(black);
+				x = x->parent_->parent_;
+				x->set_color(red);
+			}
+			else
+			{
+				if (x == x->parent_->right_)
+				{
+					x = x->parent_;
+					rotate_left(x, root);
+				}
+				x->parent_->set_color(black);
+				x->parent_->parent_->set_color(red);
+				rotate_right(x->parent_->parent_, root);
+			}
+		}
+		else
+		{
+			pointer y = x->parent_->parent_->left_;
+			if (y != nullptr && y->color() == red)
+			{
+				x->parent_->set_color(black);
+				y->set_color(black);
+				x = x->parent_->parent_;
+				x->set_color(red);
+			}
+			else
+			{
+				if (x == x->parent_->left_)
+				{
+					x = x->parent_;
+					rotate_right(x, root);
+				}
+				x->parent_->set_color(black);
+				x->parent_->parent_->set_color(red);
+				rotate_left(x->parent_->parent_, root);
+			}
+		}
+	}
+	root->set_color(black);
+}
+
+template <typename Pointer>
+typename __red_black_tree<Pointer>::pointer
+__red_black_tree<Pointer>::balance_erase(pointer z, pointer root)
+{
+
+	pointer result = z;
+	increment(result);
+	pointer y = z;
+	if (z->left_ != nullptr && z->right_ != nullptr)
+		y = result;
+	pointer x = y->left_ != nullptr ? y->left_ : y->right_;
+	pointer x_parent = y->parent_;
+	if (x != nullptr)
+		x->parent_ = x_parent;
+	bool x_is_left_child;
+	if (y == y->parent_->left_)
+	{
+		y->parent_->left_ = x;
+		x_is_left_child = true;
+	}
+	else
+	{
+		y->parent_->right_ = x;
+		x_is_left_child = false;
+	}
+	bool removed_black = y->color() == black;
+	if (y != z)
+	{
+		y->parent_ = z->parent_;
+		if (z == y->parent_->left_)
+			y->parent_->left_ = y;
+		else
+			y->parent_->right_ = y;
+		y->left_ = z->left_;
+		if (y->left_ != nullptr)
+			y->left_->parent_ = y;
+		else
+			x_parent = y;
+		y->right_ = z->right_;
+		if (y->right_ != nullptr)
+			y->right_->parent_ = y;
+		else
+			x_parent = y;
+		y->set_color(z->color());
+		if (root == z)
+			root = y;
+	}
+	else if (x == nullptr && z == root)
+		removed_black = false;
+	if (removed_black)
+	{
+		while (x != root && (x == nullptr || x->color() == black))
+		{
+			if (x_is_left_child)
+			{
+				pointer w = x_parent->right_;
+				if (w->color() == red)
+				{
+					w->set_color(black);
+					x_parent->set_color(red);
+					rotate_left(x_parent, root);
+					w = x_parent->right_;
+				}
+				if ((w->left_  == nullptr || w->left_->color()  == black) &&
+					(w->right_ == nullptr || w->right_->color() == black))
+				{
+					w->set_color(red);
+					x = x_parent;
+					x_parent = x->parent_;
+					x_is_left_child = x == x_parent->left_;
+				}
+				else
+				{
+					if (w->right_ == nullptr || w->right_->color() == black)
+					{
+						w->left_->set_color(black);
+						w->set_color(red);
+						rotate_right(w, root);
+						w = x_parent->right_;
+					}
+					w->set_color(x_parent->color());
+					x_parent->set_color(black);
+					w->right_->set_color(black);
+					rotate_left(x_parent, root);
+					x = root;
+				}
+			}
+			else
+			{
+				pointer w = x_parent->left_;
+				if (w->color() == red)
+				{
+					w->set_color(black);
+					x_parent->set_color(red);
+					rotate_right(x_parent, root);
+					w = x_parent->left_;
+				}
+				if ((w->left_  == nullptr || w->left_->color()  == black) &&
+					(w->right_ == nullptr || w->right_->color() == black))
+				{
+					w->set_color(red);
+					x = x_parent;
+					x_parent = x->parent_;
+					x_is_left_child = x == x_parent->left_;
+				}
+				else
+				{
+					if (w->left_ == nullptr || w->left_->color() == black)
+					{
+						w->right_->set_color(black);
+						w->set_color(red);
+						rotate_left(w, root);
+						w = x_parent->left_;
+					}
+					w->set_color(x_parent->color());
+					x_parent->set_color(black);
+					w->left_->set_color(black);
+					rotate_right(x_parent, root);
+					x = root;
+				}
+			}
+		}
+		if (x != nullptr)
+			x->set_color(black);
+	}
+	return result;
+}
+
+template <typename Pointer>
+void
+__red_black_tree<Pointer>::rotate_left(pointer x, pointer& root)
+{
+	pointer y = x->right_;
+	if (root == x)
+		root = y;
+	x->right_ = y->left_;
+	if (y->left_ != nullptr)
+		y->left_->parent_ = x;
+	y->parent_ = x->parent_;
+	if (x == x->parent_->left_)
+		x->parent_->left_ = y;
+	else
+		x->parent_->right_ = y;
+	y->left_ = x;
+	x->parent_ = y;
+}
+
+template <typename Pointer>
+void
+__red_black_tree<Pointer>::rotate_right(pointer x, pointer& root)
+{
+	pointer y = x->left_;
+	if (root == x)
+		root = y;
+	x->left_ = y->right_;
+	if (y->right_ != nullptr)
+		y->right_->parent_ = x;
+	y->parent_ = x->parent_;
+	if (x == x->parent_->left_)
+		x->parent_->left_ = y;
+	else
+		x->parent_->right_ = y;
+	y->right_ = x;
+	x->parent_ = y;
+}
+
+
 namespace detail {
 
 struct tree_node_base {
+    __tree_color color() const { return __tree_color(parent_.bit()); }
+    void set_color(__tree_color c) { parent_.bit(bool(c)); }
     tree_node_base* parent() const { return parent_; }
     void set_parent(tree_node_base* p) { parent_ = p; }
     bool is_red() const { return parent_.bit(); }
@@ -104,7 +396,6 @@ inline void tree_rotate_right(tree_node_base* x, tree_node_base*& root) {
     x->set_parent(y);
 }
 
-void tree_balance_after_insert(tree_node_base* x, tree_node_base* root);
 
 void tree_balance_for_erase(tree_node_base* z, tree_node_base* root);
 
@@ -158,7 +449,7 @@ private:
     tree_node_base* node_;
 };
 
-template <typename T, typename Compare, typename Allocator> class tree_imp {
+template <typename T, typename Compare, typename Allocator> class tree_imp : public __red_black_tree<tree_node_base*> {
 public:
     typedef T value_type;
     typedef unsigned long size_type;
@@ -219,7 +510,8 @@ public:
         }
     }
 
-    size_type size() const { return count(); }
+    size_type size() const { return sz(); }
+    size_type max_size() const { return numeric_limits<size_type>::max(); }
 
     iterator begin() { return iterator(begin_node()); }
     iterator end() { return iterator(end_node()); }
@@ -316,9 +608,10 @@ public:
     void copy_children(node* pDestination, node* pSource, bool left);
     void swap(tree_imp& rOther);
 
-private:
-    const size_type& count() const { return size_.first(); }
+public:
+    const size_type& sz() const { return size_.first(); }
 
+private:
     Metrowerks::compressed_pair<size_type, Allocator> size_;
     Metrowerks::compressed_pair<node_allocator, tree_root_ptr> root_;
     tree_begin_holder<Compare> begin_;
@@ -371,11 +664,11 @@ tree_node_base* tree_imp<T, Compare, Allocator>::find_leaf(const Key& rKey, node
 
 template <typename T, typename Compare, typename Allocator>
 typename tree_imp<T, Compare, Allocator>::node* tree_imp<T, Compare, Allocator>::insert_node_at(tree_node_base* pParent, bool left, bool leftmost, const value_type& rValue) {
-    if (size_.first() == size_type(-1)) {
-        __throw_tree_length_error();
+    if (size() == max_size()) {
+        throw length_error("tree::insert length error");
     }
-    Metrowerks::alloc_ptr<node, node_allocator&> holder(root_.first().allocate(1), root_.first());
-    alloc().construct(&holder.get()->value_, rValue);
+    Metrowerks::alloc_ptr<node, node_allocator&> holder(node_alloc().allocate(1), node_alloc());
+    alloc().construct(&holder->value_, rValue);
     node* pNode = holder.release();
     pNode->right_ = nullptr;
     pNode->left_ = nullptr;
@@ -385,8 +678,8 @@ typename tree_imp<T, Compare, Allocator>::node* tree_imp<T, Compare, Allocator>:
     } else {
         pParent->right_ = pNode;
     }
-    ++size_.first();
-    tree_balance_after_insert(pNode, root());
+    ++sz();
+    __red_black_tree<tree_node_base*>::balance_insert(pNode, root());
     if (leftmost) {
         begin_node() = pNode;
     }
@@ -515,7 +808,10 @@ public:
 };
 
 template <typename T, typename Compare, typename Allocator> class tree : public red_black_tree<T, Compare, Allocator> {
+    typedef red_black_tree<T, Compare, Allocator> base;
 public:
+    typedef typename base::size_type size_type;
+    size_type size() const { return base::sz(); }
     tree() {}
     ~tree() {}
 };
