@@ -520,6 +520,18 @@ game/new.cpp:
 	.text       start:0x801B1450 end:0x801B15A0
 	.data       start:0x803BF3B8 end:0x803BF3CC
 
+game/pad.cpp:
+	extab       start:0x8003850C end:0x80038AB0
+	extabindex  start:0x80050838 end:0x800509AC
+	.text       start:0x801B15A0 end:0x801B5308
+	.ctors      start:0x80352A18 end:0x80352A1C
+	.rodata     start:0x80366FC8 end:0x80366FD8
+	.data       start:0x803BF3D0 end:0x803BF570
+	.bss        start:0x803EA890 end:0x803EA8B0
+	.sdata      start:0x804B81F8 end:0x804B8220
+	.sbss       start:0x804B9140 end:0x804B9148
+	.sdata2     start:0x804BA330 end:0x804BA3B8
+
 game/QuarterTurn.cpp:
 	extab       start:0x80038DA8 end:0x80038DB0
 	extabindex  start:0x80050A30 end:0x80050A3C

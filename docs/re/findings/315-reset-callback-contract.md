@@ -1,4 +1,4 @@
-# F-315-1: Reset registration returns an integer identifier
+# F-315-6: Reset registration returns an integer identifier
 
 The Pad integration consumes the result of `RegisterResetCallback` at
 `0x801B5C30`. The existing public name and argument types remain canonical.
