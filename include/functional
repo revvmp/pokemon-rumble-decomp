@@ -33,9 +33,33 @@ private:
     F mFunction;
     Tuple mArguments;
 };
+template<class R,class C,class A> class mem_fn_1 {
+public:
+    typedef R (C::*Function)(A);
+    explicit mem_fn_1(Function function) : mFunction(function) {}
+    R operator()(C* pObject,A argument) const { return (pObject->*mFunction)(argument); }
+private:
+    Function mFunction;
+};
+template<class A> A& resolve_bound_argument(const placeholders::detail::ph<1>&,tuple<A&> rArguments) { return std::tr1::get<0>(rArguments); }
+template<class R,class F,class T> class bound_func<R,F,tuple<T,placeholders::detail::ph<1> > > {
+public:
+    typedef tuple<T,placeholders::detail::ph<1> > Arguments;
+    bound_func(const F& rFunction,const Arguments& rArguments) : mFunction(rFunction),mArguments(rArguments) {}
+    template<class A> R operator()(A& argument) const;
+    template<class A> R operator()(const A& argument) const;
+private:
+    F mFunction;
+    Arguments mArguments;
+};
+
 }
 template<class R, class C, class T> detail::bound_func<R, detail::mem_fn_0<R, C>, tuple<T> > bind(R (C::*pFunction)(), T value) {
     return detail::bound_func<R, detail::mem_fn_0<R, C>, tuple<T> >(detail::mem_fn_0<R, C>(pFunction), tuple<T>(value));
+}
+template<class R,class C,class A,class T> detail::bound_func<R,detail::mem_fn_1<R,C,A>,tuple<T,placeholders::detail::ph<1> > > bind(R (C::*pFunction)(A),T value,placeholders::detail::ph<1> placeholder) {
+    typedef tuple<T,placeholders::detail::ph<1> > Arguments;
+    return detail::bound_func<R,detail::mem_fn_1<R,C,A>,Arguments>(detail::mem_fn_1<R,C,A>(pFunction),Arguments(value,placeholder));
 }
 namespace detail {
 
@@ -64,6 +88,23 @@ private:
     F f_;
 };
 
+template<class R,class A> class function_base<R (*)(A)> {
+public:
+    virtual ~function_base() {}
+    virtual function_base* clone() const = 0;
+    virtual function_base* clone(void* pBuffer) const = 0;
+    virtual R operator()(A argument) = 0;
+};
+template<class R,class A,class F> class function_imp<R (*)(A),F,false,true> : public function_base<R (*)(A)> {
+    typedef function_base<R (*)(A)> base;
+public:
+    explicit function_imp(F f) : f_(f) {}
+    virtual base* clone() const { return new function_imp(*this); }
+    virtual base* clone(void* pBuffer) const { return new (pBuffer) function_imp(*this); }
+    virtual R operator()(A argument) { return f_(argument); }
+private:
+    F f_;
+};
 inline bool is_null(...) {
     return false;
 }
@@ -151,6 +192,96 @@ private:
     base* f_;
     union { char buf_[8]; unsigned long words_[2]; };
 };
+
+template <typename R,typename A> class function<R(A)> {
+    typedef detail::function_base<R (*)(A)> base;
+
+    struct bool_type {
+        int dummy_;
+    };
+
+public:
+    typedef R result_type;
+
+    function() : f_(nullptr) {}
+    template <typename F> function(F f) : f_(nullptr) {
+        if (!detail::is_null(f)) {
+            typedef detail::function_imp<R (*)(A), F, false, true> imp;
+            if (sizeof(imp) <= sizeof(buf_)) {
+                f_ = new (buf_) imp(f);
+            } else {
+                f_ = new imp(f);
+            }
+        }
+    }
+    function(const function& r) : f_(nullptr) {
+        if (r.f_ != nullptr) {
+            if (r.f_ == r.local()) {
+                f_ = r.f_->clone(buf_);
+            } else {
+                f_ = r.f_->clone();
+            }
+        }
+    }
+    ~function() {
+        if (f_ == local()) {
+            f_->~base();
+        } else if (f_ != nullptr) {
+            delete f_;
+        }
+    }
+
+    function& operator=(const function& r) {
+        function tmp(r);
+        swap(tmp);
+        return *this;
+    }
+
+    void swap(function& r) {
+        base* p = f_;
+        bool localStorage = p == local();
+        f_ = r.f_;
+        r.f_ = p;
+        for (unsigned int i = 0; i < sizeof(buf_) / sizeof(unsigned long); ++i) {
+            unsigned long c = words_[i];
+            words_[i] = r.words_[i];
+            r.words_[i] = c;
+        }
+        if (localStorage) {
+            r.f_ = r.local();
+        }
+        if (f_ == r.local()) {
+            f_ = local();
+        }
+    }
+
+    operator int bool_type::*() const { return f_ != nullptr ? &bool_type::dummy_ : nullptr; }
+
+    R operator()(A argument) const {
+        if (f_ == nullptr) {
+            throw bad_function_call();
+        }
+        return (*f_)(argument);
+    }
+
+private:
+    base* local() const { return reinterpret_cast<base*>(const_cast<char*>(buf_)); }
+
+    base* f_;
+    union { char buf_[8]; unsigned long words_[2]; };
+};
+
+template<class R,class F,class T> template<class A>
+inline R detail::bound_func<R,F,tuple<T,placeholders::detail::ph<1> > >::operator()(const A& argument) const {
+    tuple<const A&> arguments(argument);
+    return mFunction(std::tr1::get<0>(mArguments),resolve_bound_argument(std::tr1::get<1>(mArguments),arguments));
+}
+
+template<class R,class F,class T> template<class A>
+inline R detail::bound_func<R,F,tuple<T,placeholders::detail::ph<1> > >::operator()(A& argument) const {
+    tuple<A&> arguments(argument);
+    return mFunction(std::tr1::get<0>(mArguments),resolve_bound_argument(std::tr1::get<1>(mArguments),arguments));
+}
 
 }
 }
