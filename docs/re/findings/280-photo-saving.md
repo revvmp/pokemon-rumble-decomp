@@ -32,6 +32,19 @@ The initial same-base control at main `5133f82a` built all 759 actual Ninja sour
 
 Outside evidence is in `280-reference/primary-swap/`, including `consumer-proof.json`, `link-proof.json`, `whole-code-proof.json`, the original reference header and the const-owner compile consumer. The photo producer is still incomplete acceptance evidence: deletion-dialog exception data emits 2,032 bytes against 2,004 with unresolved references, and owned data placement remains unaccepted. Exact instruction bytes alone do not establish a reconstructed source unit or close this issue.
 
+## F-280-4: Original C declarations resolve dialog exception ranges
+
+The unadapted September 2006 CodeWarrior distribution provides `MSL_C/MSL_Common/Include/wstring.h`. Its declarations of `wcslen` and `wcsncpy` carry `_MSL_CANT_THROW`; `ansi_parms.h` defines that macro as `__attribute__((nothrow))` when throw specifications are enabled. Reading reference: [original archive](https://archive.org/download/cw_consoles/Wii/CW_GCN-3_0_Alpha5-2-060920.zip), archive SHA-256 `6bac434a2ff28f75c44fdd9606b3d58c3ff302b081a8717e137417af1c98a515`. This is distinct from the adapted GitHub header used for the earlier swap control.
+
+The reconstructed C declarations lacked those attributes. The actual deletion-dialog producer consequently added two exception ranges around the wide copy and length calls while its formatted message was alive. The native table covers the containing range without that cleanup. Restoring precisely the two original declarations changes the outside dialog exception table from 2,032 to the native 2,004 bytes, with every non-relocation byte and every cleanup target exact. The 6,120 instruction bytes and all 222 direct call targets remain exact.
+
+Two previously unnamed cleanup bindings are independently proved from the same actual producer: `shared_ptr<IDisconMsg::CDisable>` at `8008F210`, 132 bytes and three relocated call targets, and `Metrowerks::move_ptr<IDisconMsg::CDisable>` at `80090D20`, 136 bytes and two relocated call targets. Their complete instruction streams match before those identities are used to verify the dialog's six cleanup references. This is not a guessed binding based only on a convenient address.
+
+At main `ad33af87`, the real all-source build compares 759 objects: 757 remain raw identical, including all 710 Matching objects. Only the exception sections of the existing NonMatching `CGameEnding` and `CNoticeDisplay` objects change; their function bodies and relocations remain identical. The full build exits zero, all linked allocated ELF sections and the DOL remain identical, and frozen verification passes. No formerly 100% function loses that score. Per-rebase controls must repeat these checks before landing.
+
+Outside receipts are `280-reference/primary-wstring/{compile.json,whole-code-proof.json,eh-proof.json,discon-cleanup-proof.json,consumer-proof.json,link-proof.json}`. The Save and formatter bodies and the photo unit's complete owned data placement remain unaccepted, so this prerequisite does not close #280. A separate control using the complete original C++ headers currently stops at conflicting reconstructed exception declarations; no result is asserted for that mixed-header compilation.
+
 ## Traps
 
 - An early typed formatter producer can expose the existing string lifetime/code-generation blocker before reconstructing two large filesystem routines. Preserve the positive callbacks and exact native retained-address site; do not repeat the prior allocator and constructor sweeps without new primary evidence.
+- Exact function instructions can coexist with incorrect exception ranges when a reconstructed C declaration omits an original nothrow attribute. Check the primary declaration before changing game object lifetimes; the photo-dialog copy/length range demonstrates this distinction.
