@@ -6,10 +6,10 @@ The first bounded unit is `CEnemyPii`, whose complete class contract and the req
 
 | Section | Complete enemy extent |
 | --- | --- |
-| Text | `0x800A47E0`–`0x800A4C08` |
-| Exception tables | `0x800159FC`–`0x80015BDC` |
-| Exception index | `0x80047BA4`–`0x80047BC8` |
-| Data | `0x803A16B0`–`0x803A1760` |
+| Text | `0x800A47E0`â€“`0x800A4C08` |
+| Exception tables | `0x800159FC`â€“`0x80015BDC` |
+| Exception index | `0x80047BA4`â€“`0x80047BC8` |
+| Data | `0x803A16B0`â€“`0x803A1760` |
 
 The exception index has exactly the constructor, destructor and initializer entries. The data comprises `minimap_enemy`, `CEnemyPii.pkc`, and the native 144-byte vtable. The class RTTI, shared-pointer helpers and base metadata already have earlier definitions in the boss unit; no independent enemy small-data, constructor-table or BSS extent is inferred.
 
