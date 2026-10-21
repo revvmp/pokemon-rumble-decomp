@@ -3368,3 +3368,7 @@ The original anonymous `CIconCollection_cpp` class `CIconCollection` is 468 byte
 | `800BAC40` | `IGameSession::Create(IDisconMsg*)` | Factory forwards the same CMain-owned disconnect-message pointer; high confidence |
 | `800BABC0` | `CGameSession::GetDisconMsg()` | Slot 40 returns the word at `0xC70`; descriptive name, pointer type high confidence |
 | `CGameSession + 0xC70` | `IDisconMsg* mpDisconMsg` | Non-owning session reference; CMain's shared owner at 20 outlives each session; [F-226-4](findings/226-main-continuation.md#f-226-4-canonical-disconnect-message-pointer-prerequisite) |
+
+## Game Font globals (#222)
+
+[F-222-1 and F-222-2](findings/222-font.md) recover SetDefaultFontMap(const weak_ptr<CLayout::FontMap>&) at 80126240 and the existing GetDefaultFontMap shared-return getter at 80126280. Its weak_ptr::lock is 80126290 and complete destructor is 80126360. Main constructs the weak argument from its loaded shared FontMap and layout callers consume the returned shared map, establishing the template element type independently of instruction identity. The eight-byte sDefaultFonts global is 804B9090; its twelve-byte destructor registration node is 803E90C8, initialized by __sinit_\Font_cpp at 801263C0. Function/global names are descriptive except canonical template spellings and the preexisting getter; boundaries and types are high confidence from full source-selected/frozen controls.

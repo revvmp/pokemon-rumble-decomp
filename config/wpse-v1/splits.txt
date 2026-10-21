@@ -487,6 +487,14 @@ game/CLayout.cpp:
 ControllerTableAlignmentPadding:
 	.sdata      start:0x804B77D9 end:0x804B77E0 align:1
 
+game/Font.cpp:
+	extab       start:0x8002C2C0 end:0x8002C2F0
+	extabindex  start:0x8004C908 end:0x8004C920
+	.text       start:0x80126240 end:0x801263E8
+	.ctors      start:0x803529E8 end:0x803529EC
+	.bss        start:0x803E90C8 end:0x803E90D4
+	.sbss       start:0x804B9090 end:0x804B9098
+
 game/ScriptCamera.cpp:
 	extab       start:0x8002DE28 end:0x8002E278
 	extabindex  start:0x8004D07C end:0x8004D520
