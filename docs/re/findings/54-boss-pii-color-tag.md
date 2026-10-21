@@ -45,6 +45,38 @@ The source object also emits the already existing weak `Color` destructor. The m
 
 The first two accepted functions account for 176 instruction bytes in #54. The remaining eight account for 1,424 bytes in #55. The twenty `CBossPii` functions, 2,108 instruction bytes, remain original fallback dependencies, so this partial delivery does not complete #54. The distinct `CColorConst` unit remains with #55's owner.
 
+# F-54-3: Boss prerequisite contracts
+
+The script factory at `0x80153470` allocates 332 bytes for either `CBossPii` or `CEnemyPii`. Both have the existing `CPii` extent, `0x14C`; neither adds instance storage. The boss constructor adds type bit `0x200`, the enemy constructor adds `0x100`, and the `CPii` constructor adds `0x40` before calling `BModelObj`. The two-word argument is copied and retained as a by-value shared pointer at each derived-constructor call.
+
+The shared pointer stored at `CPii+0xFC` targets `CPiiPersonalData`: the getter at `0x8006C310` feeds the HP ratio routine `0x800EC880`, which reads the initialized personal-data integer fields at `0x54` and `0x6C`; the constructor at `0x800EC3D0` initializes these along with the rare-color seed, time and personal ID. The HUD initializer reads the same object's classification at offset 8. The getter and member spellings remain inferred; the pointee class spelling is supported by the surrounding original default-deleter RTTI.
+
+The destructor at `0x800DCBE0` proves strong shared-pointer pairs at offsets `0xFC`, `0x104`, `0x114`, `0x11C`, `0x130` and `0x138`, a weak pair at `0x124`, and a three-word dynamic array of eight-byte strong-pointer elements at `0x140`. This does not yet establish every pointee type. In particular, the pointer returned by the inline PPU accessor is the first word of the strong pair at `0x114`, not an independently owned raw pointer. No shared header is changed from these incomplete contracts.
+
+The copied IDA database cannot currently decompile `0x800DCF40`; native disassembly remains available. In this function `r24` holds the object and `r31` holds the stack pointer. Large stack stores at offsets `0x140` and beyond therefore do not enlarge the class. Use the constructor, destructor and object-base register when validating field accesses.
+
+The initialization argument is `bool background`. The native `CPii` initializer forwards it through the model loader at `0x801B8BB0` and scene loader at `0x801C75E0` to the existing `LoadResourceFile__FPCcUlb` interface at `0x80066930`; its canonical declaration is in `CFileData.h`. It is not a context pointer. The following complete header layout replaces the prior opaque `0x54`-byte array without changing `sizeof(CPii)`.
+
+| Offset | Type and descriptive role | Native evidence |
+| --- | --- | --- |
+| `0xF8` | `u32` state flags | Constructor, marker-enable accessor and shadow update |
+| `0xFC` | `shared_ptr<CPiiPersonalData>` | Constructor, getter and HP-ratio consumer |
+| `0x104` | `shared_ptr<nw4r::g3d::AnmObjTexSrtRes>` | `0x800DE1E0`, creation at `0x802576B0`, exact deleter RTTI `0x803A80D0` |
+| `0x10C`, `0x110` | `f32` texture-animation frame and rate | Float initialization and texture-animation virtual calls in `0x800DE1E0` |
+| `0x114` | `shared_ptr<CPpuEngine>` | Constructor `0x800FE5F0`, exact deleter RTTI `0x8039BB00`, getter `0x8006C390` |
+| `0x11C` | `shared_ptr<CHPBar>` | Getter `0x8006C2E0`, setter `0x800DE060`, boss and enemy HUD allocation |
+| `0x124` | `weak_ptr<BWorldObj>` follow target | Weak release, lock in `0x800DF990`, target position and optional model-node lookup |
+| `0x12C` | `int` follow-node index | Constructor sets `-1`; calculation uses it as the optional scene-node index |
+| `0x130` | `shared_ptr<CMiniMapMarker>` | Setter `0x800DE140`, HUD constructor and exact deleter RTTI `0x8039A930` |
+| `0x138` | `shared_ptr<nw4r::g3d::ScnObj>` shadow | Scene loader and canonical `ScnObj::SetMtx` at `0x802681F0` |
+| `0x140` | `vector<shared_ptr<CFileData>>` shadow resources | Scene loader's resource-file acquisition and vector assignment/destruction |
+
+The canonical base header's previously inferred `BWorldObjEffect*` return type is corrected to `CMiniMapMarker*`; the old invented forward declaration has no other uses. The inherited `GetEffect` method spelling and slot are preserved. The new `CPii` overrides follow the original 144-byte boss vtable exactly, including four appended slots: initialization, shadow-name query, visibility query and shadow-matrix update. These method and member spellings are descriptive with medium confidence, except class names pinned by original RTTI. `CEnemyPii` adds no fields and overrides initialization only.
+
+An independently compiled boss consumer proves the new contract before any boss source selection. Its resolved constructor (168 bytes), destructor (88), PPU getter (8), personal-data shared-pointer destructor (132), secondary destructor thunk (8), and complete 144-byte vtable equal the immutable executable at their native addresses. The consumer compiles with the established game flags and checks the `0x14C` extent. This is prerequisite evidence, not source-completion credit.
+
+All 34 existing compiled game objects retain identical allocated section payloads, section metadata and normalized relocation semantics after the header change. Compiler-generated local numeric identifiers change in `ScriptCamera.o`; normalization uses their section, value, size and ELF type rather than spelling. The fresh source-selected-game control recompiles all 16 current linked game sources against `origin/main`'s old headers in a separate include overlay and compares them to the candidate objects; all pass. This control is repeated after every rebase inside the official landing verifier, together with the boss contract probe and full frozen-DOL verification. No #115 split, source body or configure object is taken.
+
 ## Traps
 
 The issue's last two functions belong to the next class's unit. Preserve that class's initializer, registration records and neighboring #55 methods together; the survey issue boundary is not a source-file boundary.
