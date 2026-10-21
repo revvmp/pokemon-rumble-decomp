@@ -95,6 +95,46 @@ game/CComboDisplay.cpp:
 	.sbss       start:0x804B8FC8 end:0x804B8FCC
 	.sdata2     start:0x804B9D58 end:0x804B9D6C
 
+game/CControllerClassic.cpp:
+	extab       start:0x8000B4A4 end:0x8000B4AC
+	extabindex  start:0x80045090 end:0x8004509C
+	.text       start:0x8006E6A0 end:0x8006EA50
+	.data       start:0x8039AFA8 end:0x8039B018
+	.sdata      start:0x804B5D20 end:0x804B5D48
+	.sdata2     start:0x804B9D70 end:0x804B9D80
+
+game/CControllerComposition.cpp:
+	extab       start:0x8000B4AC end:0x8000B514
+	extabindex  start:0x8004509C end:0x800450CC
+	.text       start:0x8006EA50 end:0x8006F0B8
+	.data       start:0x8039B018 end:0x8039B0E0
+	.sdata      start:0x804B5D48 end:0x804B5D70
+	.sdata2     start:0x804B9D80 end:0x804B9D88
+
+game/CControllerGCPad.cpp:
+	extab       start:0x8000B514 end:0x8000B52C
+	extabindex  start:0x800450CC end:0x800450F0
+	.text       start:0x8006F0C0 end:0x8006F350
+	.data       start:0x8039B0E0 end:0x8039B1E0
+	.sdata      start:0x804B5D70 end:0x804B5D80
+	.sdata2     start:0x804B9D88 end:0x804B9D90
+
+game/CControllerNunchaku.cpp:
+	extab       start:0x8000B52C end:0x8000B534
+	extabindex  start:0x800450F0 end:0x800450FC
+	.text       start:0x8006F350 end:0x8006F5C8
+	.data       start:0x8039B1E0 end:0x8039B250
+	.sdata      start:0x804B5D80 end:0x804B5DA8
+	.sdata2     start:0x804B9D90 end:0x804B9D98
+
+game/CControllerWiiRemote.cpp:
+	extab       start:0x8000B534 end:0x8000B55C
+	extabindex  start:0x800450FC end:0x80045138
+	.text       start:0x8006F5D0 end:0x8006FBE4
+	.data       start:0x8039B250 end:0x8039B2C8
+	.sdata      start:0x804B5DA8 end:0x804B5DD0
+	.sdata2     start:0x804B9D98 end:0x804B9DA0
+
 game/CDisconMsg.cpp:
 	extab       start:0x8000B55C end:0x8000B964
 	extabindex  start:0x80045138 end:0x80045240
