@@ -17,7 +17,7 @@ Target `wpse-v1`, immutable `orig/wpse-v1/main.dol`, analysed in the linked `bui
 
 Descriptive names: `Finish`, `Run`, `Create`, `Initialize` (inlined into `Create`), `mCloseQueued`. The default `CFiber()` constructor must be `throw()` to reproduce the `__unexpected` landing pad around the inlined `Initialize` call.
 
-All 16 retained functions are 100% in objdiff except relocation names of string literals (`@STRING@...` against `lbl_`). The unit stays `NonMatching` because of the weak-template order below.
+All 16 retained functions reproduce their instruction streams; objdiff distinguishes only relocation names of string literals (`@STRING@...` against `lbl_`). The unit is now source-linked `Matching`; F-211-5 resolves its former weak-template ordering failure.
 
 ## F-211-3: CTextWorldObjStat
 
@@ -29,7 +29,21 @@ Seven of eight functions are 100%. `CalcView` is 98.7%: the clip constant and th
 
 The linked `CStrapReminder.o` has the right size once the original copy of `shared_ptr<list<shared_ptr<CFileData>>>::~shared_ptr` (`0x80076CB0`) is named, but the order of its weak template functions differs: the original emits the three `function_imp` virtuals (`clone`, `clone`, `operator()`) before `get_deleter`, `dispose` and the shared-pointer destructors, and its `.data` holds the deleter vtable before the `function_imp` vtable. In every mini translation unit tried (creating the function first, in another inline function, in the class body, in a separate static function) the `shared_ptr_deleter` virtuals come first. The text and data order of the other functions, and the literal order (reversed within each deferred inline function), are reproduced by defining `Draw`, `Calc`, `Finish`, `Run` and `Initialize` as out-of-class `inline` members after a normal `Create`, in that order.
 
+## F-211-5: declaration order and specialization encounter order resolve CStrapReminder
+
+The fresh control on `codex/211-include-order` consumes the independently established class-declaration ordering rule in [F-343-4](343-sound.md#f-343-4-weak-function-order-and-tr1-header-layout). Including `CLayout.h` before `CFiber.h` in the owned header introduces the shared-pointer class templates before the callable templates. This restores the native callable clones and invocation before the deleter functions. Only `CStrapReminder.cpp` includes this header among current sources.
+
+That change alone still fails the actual Matching link: the implicit virtual destructors and RTTI/vtable groups remain reversed, and alignment grows the allocated data by four bytes. Moving the ordinary factory definition after the inline `Initialize` definition encounters the bound callable specialization before the factory's shared-pointer deleter specialization. This independently restores both implicit destructor order and data order. No function body, template implementation, compiler option, register constraint, or artificial operation changes.
+
+With both changes, the fresh source-linked MAP places all sixteen retained functions at their native addresses, including callable clones at `0x801188F0` and `0x80118960`, invocation at `0x801189C0`, deleter access/disposal at `0x801189F0` and `0x80118A40`, and the final callable/deleter destructors at `0x80118B80` and `0x80118BC0`. The deleter vtable returns to `0x803AE0E4`; strings return to their original addresses. The source contributes 2,688 allocated text bytes, 728 exception-table bytes, 168 exception-index bytes, 716 data bytes and 56 small-data bytes. The four remaining bytes at the end of the surveyed 720-byte data extent are ordinary following alignment padding.
+
+Acceptance used `python configure.py --map`, deletion of only `build/wpse-v1/main.dol`, and `.venv/Scripts/ninja`: exit 0, frozen SHA-1 check `OK`. The fresh MAP identifies `CStrapReminder.o` for all sixteen native functions and the owned exception/data sections. The explicit frozen-manifest verifier and an independent range/source-selection audit supplement this gate before publication. This accepts one complete source unit; original issue #211 remains incomplete because `CTextWorldObjStat::CalcView` still differs.
+
+Two bounded outside controls did not solve that remaining function: replacing the motion convenience overloads with equivalent default arguments and suppressing unused VEC3 division definitions changes the float-pool encounter order but retains the same 372-byte comparison-register mismatch; a named clip minimum also leaves the mismatch. These are diagnostic scratch controls only. No shared header correction is proposed from them, and the prior condition/register searches should not be repeated without a new source contract.
+
 ## Traps
+
+- **Template class ordering and specialization encounter ordering are separate controls.** Header declaration order recovered CStrapReminder's ordinary callable virtuals, while defining the factory after its inline initializer independently recovered implicit destructors and RTTI. Check the real linked MAP and frozen DOL after each change; identical per-function instruction streams alone did not establish either ordering.
 
 - **Literal and function order follow definition style.** String literals in deferred inline functions are emitted in reverse order of use and after the RTTI names, and inline functions are emitted in reverse declaration order. A class-body inline and an out-of-class `inline` member behave differently. Brute-force the definition order (compile to a scratch object and compare `.data` and `.sdata` order) before fighting registers.
 - **Header literals change the float pool.** The inline `CLayout::CreateMotion(const char*)` family pools `0.0f` and `1.0f` when `CLayout.h` is parsed, so a later `-1.0f` follows `1.0f` in `.sdata2`; the original has `-1.0f` before `1.0f` in `CTextWorldObjStat`.

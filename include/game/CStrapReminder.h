@@ -1,8 +1,8 @@
 #ifndef GAME_CSTRAPREMINDER_H
 #define GAME_CSTRAPREMINDER_H
 
-#include <game/CFiber.h>
 #include <game/CLayout.h>
+#include <game/CFiber.h>
 #include <game/IStrapReminder.h>
 #include <memory>
 
