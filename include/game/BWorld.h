@@ -165,7 +165,7 @@ public:
     void SetOutlineWidth(int width);
     bool AddGround(std::tr1::shared_ptr<BWorldObj> obj);
     void SetGround(std::tr1::shared_ptr<BWorldObj> obj);
-    BWorldObj* GetGround() { return std::tr1::shared_ptr<BWorldObj>(mGround).get(); }
+    BWorldObj* GetGround() { return mGround.lock().get(); }
     bool Add(std::tr1::shared_ptr<BWorldObj> obj);
     bool AddObject(std::tr1::shared_ptr<BWorldObj> obj);
     void RemoveObject(std::tr1::shared_ptr<BWorldObj> obj);
