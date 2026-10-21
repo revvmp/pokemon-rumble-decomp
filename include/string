@@ -89,6 +89,28 @@ public:
         return replace(0, size(), first, last, forward_iterator_tag());
     }
 
+    basic_string& append(const charT* s) {
+        size_type pos = size();
+        return replace(pos, 0, s, s + traits::length(s), forward_iterator_tag());
+    }
+
+    basic_string& append(const basic_string& str) {
+        size_type pos = size();
+        const_iterator first;
+        size_type count;
+        if (str.rep_.l.is_long_ == 0) {
+            first = str.rep_.s.data_;
+            count = str.rep_.s.size_;
+        } else {
+            first = str.rep_.l.data_;
+            count = str.rep_.l.size_;
+        }
+        return replace(pos, 0, first, first + count, forward_iterator_tag());
+    }
+
+    basic_string& operator+=(const charT* s) { return append(s); }
+    basic_string& operator+=(const basic_string& str) { return append(str); }
+
     void reserve(size_type res_arg);
 
     template <class ForwardIterator>
