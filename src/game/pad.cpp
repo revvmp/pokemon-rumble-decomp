@@ -1,12 +1,12 @@
 #include <game/detail/PadData.h>
 #include <game/MathUtil.h>
 #include <game/Memory.h>
+#include <game/ResetCallback.h>
 #include <functional>
 #include <nw4r/snd/snd_RemoteSpeakerManager.h>
 #include <nw4r/snd/snd_SoundSystem.h>
 
 extern "C" void KPADEnableAimingMode(s32 channel);
-#include <game/ResetCallback.h>
 void ClampGCPads(PADStatus* pStatus);
 void SamplePad(OSAlarm* pAlarm, OSContext* pContext);
 void ShutdownPad();

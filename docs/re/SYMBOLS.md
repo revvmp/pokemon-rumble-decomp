@@ -3006,6 +3006,40 @@ The twenty retained original SDI names and all source extents follow the pinned 
 ## F-373-8: Common driver and USB bridge/sense units
 
 `pfd_get_media_drv_char` at `0x80222E90` has a byte capacity and byte return count, consumes the canonical PDM partition and PF volume records, and retains its original FA name. `pfd_mscdrv_registar_callback` (`0x80222FB0`, sixteen bytes) preserves the original misspelling and stores signed-byte callbacks in `g_attach_func`/`g_detach_func` at `0x804B9268/0x804B926C`; `pfd_mscdrv_is_media_insert` (`0x80222FC0`, four bytes) forwards its disk pointer to `uhf_msc_is_media_insert`. `__uhf_msc_cmd_check_sense` (`0x80223250`, 988 bytes) maps the three-byte sense result through the native-derived cases. All three complete source units and actual final ELF/MAP/source-only inputs are exact; see [F-373-8](findings/373-fa-usb-boundaries.md#f-373-8-three-independent-units-source-accepted).
+# Pad controller sampling and rumble (#315–#317)
+
+[F-316-1](findings/316-pad.md) establishes the complete `pad.cpp` unit at
+`0x801B15A0–0x801B5308`. `PadData`, `BRumble`, `CWiiRemoteRumble` and
+`CGCPadRumble` are original RTTI spellings. Public operation and member names
+are descriptive. `PadData` is `0xC860` bytes: 48-byte alarm, signed ring indices
+at 48/52, sixty four-channel direction/probe/device/KPAD samples, working and
+public Wii state, four Wii rumble objects, per-channel activity masks and
+connection callbacks, channel count, sixty four-channel GC samples, working
+and public GC state, four GC rumble objects, activity minima, clamp settings,
+and integer reset callback ID at `0xC858`. The callback retains canonical
+`RegisterResetCallback`, whose int-return declaration was corrected in #1036.
+
+`WiiPadState` is 240 bytes and derives from 176-byte `KPADStatus`: repeat at
+176; hold/trigger/release/button-repeat/repeating fields at 180/184/188/192/196;
+unsigned-short delay at 200; processing byte at 202; stable `Vec2` at 204;
+idle counters at 212/216/220; shake hold/trigger at 224/228; signed probe result
+at 232 and device type at 236. `GCPadState` is 68 bytes and derives from
+12-byte `PADStatus`: button fields at 12–28, four signed-short stick deltas at
+32–38, unsigned-short delay at 40, `Vec2` sticks at 44/52, float triggers at
+60/64. Inheritance and flat button fields are established by exact aggregate
+copy instruction streams.
+
+`BRumble` is 88 bytes, with enabled/block-count/channel/state/pattern/cooldown
+at 0/4/8/12/16/20, `OSAlarm` at 24, `OSTime` at 72, and vptr at 80. Its virtual
+order is destructor, const availability predicate, start, stop and hard stop.
+`RumbleStep` is four bytes: on-time 12 bits, hard-stop one bit, flags three
+bits, off-time 12 bits, end flags four bits. Only the hard-stop flag semantics
+are established. `RumbleBlocker` is an empty scope guard for the eight channel
+block counters. `InterruptLock` has a four-byte saved interrupt state and an
+empty nontrivial base, modeled as inferred `NonCopyable` with inaccessible
+copy operations; native destructor and exception lifetimes establish its
+presence. These declarations reproduce all native code and exception records.
+
 # Game color-button tag processor (#54)
 
 `CColorBtnTagProc` is an original RTTI spelling. The complete class is 16 bytes: inherited wide-character tag-processor vptr at zero, saved `CharWriter::GradationMode` at four, and saved start/end `ut::Color` values at eight/twelve. The inherited destructor, `Process` and `CalcRect` virtual order is preserved. `Attach` and `SetColor`, static-storage names and member names are inferred descriptions; their signatures and native bodies are established by [F-54-2](findings/54-boss-pii-color-tag.md#f-54-2-complete-color-tag-source-acceptance). `SetColor` takes two colors by value; attachment returns void.
