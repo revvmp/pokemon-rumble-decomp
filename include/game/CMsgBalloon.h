@@ -7,9 +7,11 @@
 #include <memory>
 #include <nw4r/math/math_types.h>
 #include <revolution/types.h>
+#include <string>
 #include <vector>
 
 class BUILayout;
+class BWorldObj;
 class COffScreenTexture;
 class CUIManager;
 
@@ -28,7 +30,11 @@ public:
 
 class CMsgBalloon : public IMsgBalloon, public std::tr1::enable_shared_from_this<CMsgBalloon> {
 public:
-    struct Entry;
+    struct Entry {
+        std::tr1::weak_ptr<BWorldObj> mObject;
+        std::wstring mText;
+        nw4r::math::VEC3 mPosition;
+    };
 
     CMsgBalloon();
     virtual ~CMsgBalloon();

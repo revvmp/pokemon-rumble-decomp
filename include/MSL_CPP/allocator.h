@@ -15,6 +15,7 @@ public:
     typedef size_t size_type;
     typedef ptrdiff_t difference_type;
     template <class U> struct rebind { typedef allocator<U> other; };
+    allocator() {}
     pointer allocate(size_type count, const void* pHint = nullptr) {
         return static_cast<pointer>(::operator new(count * sizeof(T)));
     }

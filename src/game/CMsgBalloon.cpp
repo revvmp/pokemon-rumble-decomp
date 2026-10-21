@@ -38,6 +38,8 @@ std::tr1::shared_ptr<IMsgBalloon> IMsgBalloon::Create(bool flag) {
     return balloon;
 }
 
+CMsgBalloon::CMsgBalloon() {}
+
 void CMsgBalloon::Init(bool flag) {
     mCurrentEntry = nullptr;
     mCurrentIndex = -1;
