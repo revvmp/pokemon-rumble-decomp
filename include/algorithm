@@ -35,6 +35,16 @@ template <typename T> inline T& move(T& x) {
     return x;
 }
 
+template <typename T, typename Size, typename Value> inline void __fill_n(T* first, Size n, const Value& x) {
+    for (; n > 0; --n, ++first) {
+        *first = x;
+    }
+}
+
+template <typename T, typename Size, typename Value> inline void fill_n(T* first, Size n, const Value& x) {
+    __fill_n(first, n, x);
+}
+
 template <typename T> inline void swap(T& a, T& b) {
     T tmp = move(a);
     a = move(b);

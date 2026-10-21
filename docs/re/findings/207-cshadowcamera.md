@@ -69,3 +69,42 @@ GNU objdump 2.42 with `-M gekko` and Python scans of `build/wpse-v1/main.elf` (c
 ## F-207-5: SelectLight and CSimpleGround
 
 `SelectLight` and the `CSimpleGround` members at `0x8010D7D0`-`0x8010DDD8` are reconstructed in the same source file; see [F-208-1](208-csimpleground.md#f-208-1-selectlight-and-csimpleground).
+
+## F-207-6: the vector<void*> half of the CSaveManager template run
+
+`0x8010BD30`-`0x8010C488` (the 25 functions of F-207-1, plus the vector helpers they call) are the out-of-line pieces that `src/game/CSaveManager.cpp` emits because the file builds with `#pragma dont_inline on`. They split into two groups: the `vector<void*>` reallocation chain (all of it now reproduced) and three `deque` iterator functions (`0x8010BD30`, `0x8010BDD0`, `0x8010BE10`) that only the `deque_imp::push_back` chain of #203 reaches through `0x8010BC50`.
+
+Roles, from the call graph and the objdump of the original object (descriptive where noted):
+
+| Address | Function | Match |
+| --- | --- | --- |
+| `0x8010A8A0` | `__vec_constructor<void*>::push_back_realloc(const T&, int2type<1>)` | 100% |
+| `0x8010B8A0` | `grow_by(size_type)`: returns `grow_by(n, capacity, pod_type())` through a dummy capacity local and an empty tag temporary | 100% |
+| `0x8010B8D0` | `grow_by(size_type, size_type&, pod_type)`: `capacity = recommend(n); return false` | 100% |
+| `0x8010BE60` | `recommend(size_type)`: one `max_size()` call, `n > max - capacity` throws `__throw_vector_length_error`, growth by `3/5` below one third of the maximum, by `1/2` below two thirds, otherwise the maximum | 99.8% |
+| `0x8010BF40` | `append_realloc(size_type n, const T& x)`: builds a `__vec_split_buffer`, allocates `recommend(size + n - cap)`, sets `start_` to the old size, fills `n` copies, moves the old elements to the front, `clear_moved()`, then `std::swap`s the capacity, data and size | 99.9% |
+| `0x8010C050`, `0x8010C080` | `clear_moved()` and `clear_moved(int2type<1>)` | 100% |
+| `0x8010C090`, `0x8010C2B0` | `__vec_split_buffer` and `__vec_deleter<void*, allocator<void*>&>` constructors taking the allocator | 100% |
+| `0x8010C0D0`, `0x8010C100` | `__vec_split_buffer::construct_at_end(n, x)` and its tagged body | 100% |
+| `0x8010C160`, `0x8010C190` | `__vec_split_buffer::construct_at_front(first, last)` and its `memcpy`/`memset` body | 100% |
+| `0x8010C220`, `0x8010C230` | `std::fill_n` and the eight-way unrolled `__fill_n` | 100% |
+| `0x8010C300`, `0x8010C330`, `0x8010C3E0` | `__vec_split_buffer::allocate(size_type, size_type)` and its tagged form, which drop the first argument and call `__vec_deleter<..&>::allocate(n, tag)` | 100% |
+| `0x8010B910`, `0x8010C2A0`, `0x8010C3D0`, `0x8010C480`, `0x8010C390`, `0x8010C3A0`, `0x8010C450` | `alloc()`, `alloc() const`, `cap()` and `max_size() const` accessors of the two `__vec_deleter` instances | 97.5% to 100% (callee relocation names only) |
+
+The differences below 100% are relocation names, never instructions: the callees are weak instances first emitted in the earlier `CPpuEngine` unit (`0x800FBE40`-`0x800FD4E0`, `0x800887B0`), which `symbols.txt` now names with the mangled names the compiler produces (`second`, `first`, `max_size`, `max<Ul>`, the `compressed_pair` constructor) so the comparison resolves them. `0x80066040` is the out-of-line `__vec_split_buffer` destructor with a deleting flag and is named after it.
+
+What changed in the shared headers (`include/vector`, `include/algorithm`):
+- `__vec_constructor` no longer defines its own `max_size()`; the base `__vec_deleter::max_size()` (the allocator's) is used, as the original calls it.
+- `recommend` caches `max_size()`, returns from each branch, and is called directly with `size + n - cap` by `append_realloc`.
+- `grow_by(size_type)` (bool, three levels deep) replaces `grow_by(size_type, pod_type)` in the POD path of `push_back_realloc`. The non-POD `append_realloc(size_type)` keeps its own `grow_capacity` wrapper: removing that extra call level moves register allocation in the inlined `resize` of the save-data deserializers.
+- `__vec_split_buffer` gained `allocate`, `construct_at_end(n, x)` and `construct_at_front(first, last)`; the last two compute positions as `data_ + start_ (+ size_)` instead of calling `begin()`/`end()`, as the original does.
+- `std::fill_n` and `std::__fill_n` are new in `<algorithm>`.
+
+Per-function comparison against the previous `report.json` after the change: nine functions improve (`push_back_realloc` 89% to 100%, `CPauseMenu` `push_back` 95.9% to 99.8%, `CDividedGround` `push_back` 98.2% to 100%, `BWorld::GetObjects` 94.1% to 95.2%), and four `SaveData` `DeserializeVector<...>` instances move from 91.51% to 91.44% (91.26% to 91.20%): one register renumbering in the inlined `recommend`. The old `recommend` (repeated `max_size()` calls, one `result` variable) restores those four but breaks the out-of-line `recommend`, so the shape that matches the original function is kept.
+
+## Traps (F-207-6)
+
+- **`#pragma dont_inline on` explains the deep wrapper chains.** Every inline member of the file is emitted, so `0x8010BE60`-`0x8010C480` look like many tiny functions. Reproduce each level with a real member rather than collapsing them.
+- **Pair target and compiled functions by instruction shape, then name the target.** A script that compares mnemonics and operands (relocated operands and branch displacements normalised) between `build/wpse-v1/obj/game/CSaveManager.o` (the original split) and `build/wpse-v1/src/game/CSaveManager.o` (the compiled source) pairs every function whose body is right, even when the placeholder names in `symbols.txt` are wrong (`max_size__...` at `0x8010B8A0` was `grow_by`, `__dt__vec_split_buffer` at `0x8010BF40` was `append_realloc`). Rename the target symbol to the compiled name, then use objdiff for the remaining rows.
+- **An extra inline wrapper level can shift register allocation in unrelated units.** Replacing `append_realloc`'s `grow_by(n)` call with a direct `recommend(...)` call lowered four `SaveData` functions slightly; a wrapper restored them.
+- **Do not guess a tag argument.** `push_back_realloc` calls `grow_by(1)`; passing `pod_type()` explicitly adds a stack temporary and 11% of the function.
