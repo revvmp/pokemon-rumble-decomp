@@ -10,9 +10,34 @@ public:
     CPiiPersonalData(u32 id, u32 originalTrainerId, const PiiSpeciesData* pSpeciesData, u32 sex);
     ~CPiiPersonalData();
 
+    enum Flag {
+        FLAG_FAVORITE = 1 << 1,
+        FLAG_IN_WII_REMOTE = 1 << 17,
+        FLAG_SPEC_HIDDEN = 1 << 18,
+        FLAG_NEWLY_DISCLOSED = 1 << 19,
+        FLAG_SELLING = 1 << 20,
+        FLAG_BOSS_HIDE_HP = 1 << 30,
+        FLAG_BOSS = 1 << 31
+    };
+
     const PiiSpeciesData* GetSpeciesData() const { return mSpeciesData; }
     int GetHP() const { return mHP; }
+    bool IsFainted() const { return mHP <= 0; }
+    bool IsFavorite() const { return HasFlag(FLAG_FAVORITE); }
+    bool IsSpecHidden() const { return HasFlag(FLAG_SPEC_HIDDEN); }
+    void SetSpecHidden(bool hidden) { SetFlag(FLAG_SPEC_HIDDEN, hidden); }
+    void SetNewlyDisclosed(bool disclosed) { SetFlag(FLAG_NEWLY_DISCLOSED, disclosed); }
+    void SetFavorite(bool favorite);
 private:
+    bool HasFlag(u32 flag) const { return (mFlags & flag) != 0; }
+    void SetFlag(u32 flag, bool enable) {
+        if (enable) {
+            mFlags |= flag;
+        } else {
+            mFlags &= ~flag;
+        }
+    }
+
     u32 mFlags;
     u32 mId;
     const PiiSpeciesData* mSpeciesData;
