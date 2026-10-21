@@ -133,7 +133,7 @@ class SlotData : public VectorStructs {
 public:
     struct Data {
         u32 mHeader[3];
-        u8 mFlags[4];
+        s8 mFlags[4];
         CMapRecord mMapRecords[3][5][8][10];
         u32 mCounters[2];
         s64 mTime;
@@ -147,6 +147,7 @@ public:
         };
         u32 mLeadPiiIdHigh;
         u16 mLeadPiiMonsno;
+        s8 mLastArea[2];
         u32 mLeadPiiIdLow;
     };
 

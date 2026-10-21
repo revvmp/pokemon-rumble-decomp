@@ -10,6 +10,7 @@ public:
     bool IsValid() const { return !mFailed && mData != nullptr; }
     u32 GetSize() const { return mSize; }
     void* GetData() const { return mData; }
+    const std::string& GetPath() const { return mPath; }
     bool IsLoaded() const { return !mFailed && mData != nullptr; }
 
 private:
