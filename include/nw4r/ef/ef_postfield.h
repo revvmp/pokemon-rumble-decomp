@@ -20,6 +20,12 @@ struct PostFieldInfo {
     u16 mStartAge;
     math::VEC3 mCollisionScale;
     EmitterInheritSetting mInheritSetting;
+    u16 mEffectIndex;
+    u8 mWrapFlags;
+    u8 mReserved[3];
+    math::VEC3 mWrapScale;
+    math::VEC3 mWrapRotate;
+    math::VEC3 mWrapTranslate;
 };
 
 int GetTypePositionSphere(const math::VEC3& rPosition, u8 option);

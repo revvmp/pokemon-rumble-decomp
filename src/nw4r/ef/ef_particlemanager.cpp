@@ -217,7 +217,7 @@ void ParticleManager::Calc() {
         math::VEC3 addPos(0.0f, 0.0f, 0.0f);
         BOOL hasPostField = false;
         detail::ParticlePostFieldTransform postTransform;
-        detail::ParticlePostField* pPostField;
+        PostFieldInfo* pPostField;
         EmitterResource* pPostResource = nullptr;
 
         for (u16 i = pIt->mTick == 0 ? 0 : mResource->NumPtclInitTrack();
@@ -342,12 +342,12 @@ void ParticleManager::Calc() {
                 }
                 break;
             }
-            case detail::ParticlePostField::CURVE_TYPE:
+            case detail::POST_FIELD_CURVE:
                 if (pHeader->infoTable != 0) {
                     AnimCurveNameTable* pNames = reinterpret_cast<AnimCurveNameTable*>(
                         pTrack + pHeader->keyTable + sizeof(AnimCurveHeader) +
                         pHeader->rangeTable + pHeader->randomTable);
-                    pPostField = reinterpret_cast<detail::ParticlePostField*>(
+                    pPostField = reinterpret_cast<PostFieldInfo*>(
                         reinterpret_cast<u8*>(pNames) + pHeader->nameTable);
                     memcpy(&postTransform, pPostField, sizeof(postTransform));
                     if (pHeader->nameTable > 4) {
@@ -369,7 +369,7 @@ void ParticleManager::Calc() {
             velocity += addVel;
             bool killed = false;
             int moved = CalcPostFieldParticle(pIt, &postTransform,
-                reinterpret_cast<PostFieldInfo*>(pPostField), pPostResource,
+                pPostField, pPostResource,
                 &mtxEmToGlb, &mtxGlbToLoc, &prevPos, addPos, &velocity, &killed);
             if (killed) {
                 RetireParticle(pIt);

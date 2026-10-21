@@ -2,6 +2,7 @@
 #define NW4R_EF_PARTICLE_MANAGER_FIELD_H
 
 #include <nw4r/ef/ef_res_animcurve.h>
+#include <nw4r/ef/ef_postfield.h>
 #include <nw4r/ef/ef_particle.h>
 #include <nw4r/ef/ef_util.h>
 #include <nw4r/math/math_types.h>
@@ -11,7 +12,6 @@ namespace ef {
 
 class Particle;
 struct EmitterResource;
-struct PostFieldInfo;
 
 namespace detail {
 
@@ -61,18 +61,7 @@ struct ParticlePostFieldTransform {
     math::VEC3 mTranslate;
 };
 
-struct ParticlePostField {
-    enum { CURVE_TYPE = 2 };
-
-    ParticlePostFieldTransform mTransform;
-    u8 mCollisionParameters[34];
-    u16 mEffectIndex;
-    u8 mWrapFlags;
-    u8 mReserved[3];
-    math::VEC3 mWrapScale;
-    math::VEC3 mWrapRotate;
-    math::VEC3 mWrapTranslate;
-};
+enum { POST_FIELD_CURVE = 2 };
 
 inline math::VEC3 CalcFieldPosition(bool emitterSpace,
                                     const math::MTX34* pLocalToEmitter,
