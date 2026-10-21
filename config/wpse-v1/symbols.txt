@@ -12895,7 +12895,7 @@ __dt__Q210Metrowerks122move_ptr<Q224@unnamed@CPauseMenu_cpp@10CPauseMenu,Q33std6
 __dt__Q224@unnamed@CPauseMenu_cpp@10CPauseMenuFv = .text:0x800DC770; // type:function size:0x194
 __dt__Q43std3tr16detail326function_imp<PFv_v,Q43std3tr16detail282bound_func<v,Q43std3tr16detail52mem_fn_0<v,Q224@unnamed@CPauseMenu_cpp@10CPauseMenu>,Q33std3tr1183tuple<PQ224@unnamed@CPauseMenu_cpp@10CPauseMenu,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat>>,0,0>Fv = .text:0x800DC910; // type:function size:0x40
 __dt__Q43std3tr16detail132shared_ptr_deleter<Q224@unnamed@CPauseMenu_cpp@10CPauseMenu,Q33std6detail56default_delete<Q224@unnamed@CPauseMenu_cpp@10CPauseMenu>>Fv = .text:0x800DC950; // type:function size:0x40
-__dt__Q23std65__vec_constructor<10UIMenuItem,Q23std23allocator<10UIMenuItem>,1>Fv = .text:0x800DC990; // type:function size:0x74
+__dt__Q23std64__vec_split_buffer<10UIMenuItem,Q23std23allocator<10UIMenuItem>>Fv = .text:0x800DC990; // type:function size:0x74
 __ct__4CPiiFQ33std3tr130shared_ptr<16CPiiPersonalData>Ul = .text:0x800DCA10; // type:function size:0xC8
 dtor_800DCAE0 = .text:0x800DCAE0; // type:function size:0xFC
 __dt__4CPiiFv = .text:0x800DCBE0; // type:function size:0x1F4
