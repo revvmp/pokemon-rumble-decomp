@@ -1,6 +1,6 @@
 # F-221-1: Vector erase count snapshot required by controller destruction
 
-Issue #221 begins with a controller-table unit at `0x801248C0`â€“`0x80124C80`, rather than the survey's proposed filename helper. The following unit begins with PokÃ©mon species/form validation at `0x80124C80`. The controller table has four concrete controller arrays and one `CControllerComposition`; its original class names, complete layouts and controller interfaces are supplied by the #57 owner. The composition is 64 bytes, with a pointer vector at offset 52. Its implicit destructor is `0x80124C00`, 128 bytes.
+Issue #221 begins with a controller-table unit at `0x801248C0`–`0x80124C80`, rather than the survey's proposed filename helper. The following unit begins with Pokémon species/form validation at `0x80124C80`. The controller table has four concrete controller arrays and one `CControllerComposition`; its original class names, complete layouts and controller interfaces are supplied by the #57 owner. The composition is 64 bytes, with a pointer vector at offset 52. Its implicit destructor is `0x80124C00`, 128 bytes.
 
 A scratch reconstruction using the canonical controller headers reproduces twelve of the thirteen controller-table function bodies immediately. The remaining composition destructor is four bytes short: the native clear path loads the current vector count and subtracts that count, while the current header folds the decrement directly to a zero immediate. This is an internal erase operation, not a different vector layout.
 
