@@ -53,6 +53,8 @@ GetMessageText's second parameter is a wide-character fallback returned unchange
 
 The immutable outside producer, objects, and fully resolved receipts are in58-reference/58-run-context, with58-audit-run.py performing complete code and exception comparisons. A fresh same-base all_source comparison guards the bounded shared-header proposal before any merge; each landing round repeats it against that round's actual main. The full source/data/helper ordering, split integration, source-only build graph, and frozen linked DOL remain required before marking this file Matching.
 
+The initial same-base preflight against f5d78c9a94235c2242862172bc99d761aa1ff65d declares718 actual all_source objects. Baseline and proposal configure, all_source, ordinary Ninja, and frozen verification all exit0. Of these objects,708 are whole-file identical and10 differ only in numeric compiler-local symbol names. All other sections, symbol attributes, and actual relocation identities match. The linked ELF's non-symbol sections and symbol attributes match, and the entire frozen DOL is identical. The six callback helper proofs are retained as well: together these bounded consumers prove8 functions /1976 code bytes and720 exception bytes, with exact recovered callback RTTI. Landing repeats the same tests after rebasing; these initial counts do not substitute for the final current-main gate.
+
 ## Traps
 
 A correct-sized callback producer can still model copies at the wrong boundary. Preserve the native constructor and exception context, and compare every operand and cleanup record before accepting a construction change. The rejected by-value bound_func profile and the corrected by-value function_imp plus CFiber throw() profile are distinguished above.
