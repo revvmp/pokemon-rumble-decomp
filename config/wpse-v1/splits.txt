@@ -404,6 +404,13 @@ game/MapPiiTable.cpp:
 	.data       start:0x803ADD58 end:0x803ADDC0
 	.sdata      start:0x804B7368 end:0x804B7370
 
+game/CPpuRegister.cpp:
+	extab       start:0x800292DC end:0x80029534
+	extabindex  start:0x8004BE28 end:0x8004BEAC
+	.text       start:0x801119B0 end:0x801128C0
+	.data       start:0x803ADDC0 end:0x803ADF30
+	.sdata      start:0x804B7370 end:0x804B7380
+
 game/CStageCamera.cpp:
 	extab       start:0x80029534 end:0x800295E8
 	extabindex  start:0x8004BEAC end:0x8004BF0C
