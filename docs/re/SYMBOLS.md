@@ -3247,3 +3247,7 @@ For `wpse-v1` / `main.dol`, [F-126-2](findings/126-cgamesession.md#f-126-2-cgame
 
 [F-207-6](findings/207-cshadowcamera.md#f-207-6-the-vectorvoid-half-of-the-csavemanager-template-run) renames the `vector<void*>` reallocation functions of the CSaveManager unit (`0x8010B8A0`, `0x8010B8D0`, `0x8010BE60`, `0x8010BF40`, `0x8010C050`-`0x8010C480`) and their weak callees (`0x800887B0`, `0x800FBE40`-`0x800FD4E0`, `0x80066040`) to the mangled names of the reconstructed `include/vector` templates. Names are template-instance names, so confidence is high where the instruction bodies match and the roles are descriptive.
 | `IGameSession` | slot 26 | `GetEnvironment` | virtual | returns `shared_ptr<NPpu::CEnvironment>` by value from `CGameSession+0x84`; high ([F-116-6](findings/116-cgameending-unit.md#f-116-6-runaction-calc-and-the-matching-trial)) |
+
+## CStrapReminder and CTextWorldObjStat (#211)
+
+[F-211-2](findings/211-strap-reminder-text-stat.md#f-211-2-cstrapreminder) and [F-211-3](findings/211-strap-reminder-text-stat.md#f-211-3-ctextworldobjstat) record the layouts: `CStrapReminder` is 0x468 bytes (`CLayout` at 0x04, `CFiber` at 0xF0, `mCloseQueued` at 0x460) and `CTextWorldObjStat` is 0x108 bytes (flags 0x04, type 0x08, position 0x0C, `CLayout` 0x18, motion 0x100). Member and method names are descriptive (medium confidence); class names are RTTI spellings.

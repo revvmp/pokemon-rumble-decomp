@@ -377,6 +377,21 @@ game/CStageCamera.cpp:
 	.sdata      start:0x804B7380 end:0x804B7388
 	.sdata2     start:0x804BA108 end:0x804BA128
 
+game/CStrapReminder.cpp:
+	extab       start:0x80029AA4 end:0x80029D7C
+	extabindex  start:0x8004BFE4 end:0x8004C08C
+	.text       start:0x80118180 end:0x80118C00
+	.data       start:0x803AE0D8 end:0x803AE3A8
+	.sdata      start:0x804B73A0 end:0x804B73D8
+
+game/CTextWorldObjStat.cpp:
+	extab       start:0x80029D7C end:0x80029E78
+	extabindex  start:0x8004C08C end:0x8004C0BC
+	.text       start:0x80118C00 end:0x80119020
+	.data       start:0x803AE3A8 end:0x803AE428
+	.sdata      start:0x804B73D8 end:0x804B73F0
+	.sdata2     start:0x804BA128 end:0x804BA138
+
 game/ControllerTable.cpp:
 	extab       start:0x8002C200 end:0x8002C230
 	extabindex  start:0x8004C818 end:0x8004C860
