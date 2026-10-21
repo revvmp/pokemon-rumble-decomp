@@ -243,6 +243,15 @@ game/CGameEnding.cpp:
 	.sbss       start:0x804B8FF8 end:0x804B9000
 	.sdata2     start:0x804B9E68 end:0x804B9E70
 
+game/CGameResult.cpp:
+	extab       start:0x800186BC end:0x80019A1C
+	extabindex  start:0x80048084 end:0x800482A0
+	.text       start:0x800AC4B0 end:0x800B2034
+	.rodata     start:0x80352B90 end:0x80352BA8
+	.data       start:0x803A2938 end:0x803A3678
+	.sdata      start:0x804B67D0 end:0x804B6880
+	.sdata2     start:0x804B9E78 end:0x804B9EC8
+
 game/CMoneyLifeDisplay.cpp:
 	extab       start:0x8001D4F0 end:0x8001DB14
 	extabindex  start:0x80048C24 end:0x80048C90
