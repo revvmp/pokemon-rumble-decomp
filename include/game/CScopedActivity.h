@@ -1,10 +1,14 @@
 #ifndef GAME_CSCOPEDACTIVITY_H
 #define GAME_CSCOPEDACTIVITY_H
 
-class CScopedActivity {
+namespace NResetMgr {
+class CDisable {
 public:
-    CScopedActivity();
-    ~CScopedActivity();
+    CDisable();
+    ~CDisable();
 };
+}
+
+typedef NResetMgr::CDisable CScopedActivity;
 
 #endif
