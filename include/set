@@ -38,6 +38,41 @@ private:
     tree_type tree_;
 };
 
+template <typename T> class set<T*, less<T*>, allocator<T*> > {
+    typedef detail::tree<const void*, less<const void*>, allocator<const void*> > tree_type;
+public:
+    typedef T* key_type;
+    typedef T* value_type;
+    typedef less<T*> key_compare;
+    typedef allocator<T*> allocator_type;
+    typedef unsigned long size_type;
+    class iterator {
+    public:
+        iterator() {}
+        explicit iterator(const typename tree_type::iterator& rIterator) : mIterator(rIterator) {}
+        typename tree_type::iterator mIterator;
+    };
+    typedef iterator const_iterator;
+    set() {}
+    ~set() {}
+    iterator begin() { return iterator(mTree.begin()); }
+    const_iterator begin() const { return const_iterator(mTree.begin()); }
+    iterator end() { return iterator(mTree.end()); }
+    const_iterator end() const { return const_iterator(mTree.end()); }
+    size_type size() const { return mTree.size(); }
+    bool empty() const { return mTree.size() == 0; }
+    pair<iterator, bool> insert(const value_type& rValue) {
+        pair<typename tree_type::iterator, bool> result = mTree.insert_one(static_cast<const void*>(rValue));
+        return pair<iterator, bool>(iterator(result.first), result.second);
+    }
+    iterator find(const value_type& rValue) {
+        return iterator(mTree.find(static_cast<const void*>(rValue)));
+    }
+    void erase(iterator position) { mTree.erase(position.mIterator); }
+private:
+    tree_type mTree;
+};
+
 }
 
 #endif
