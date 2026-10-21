@@ -152,6 +152,26 @@ Reproducible controls and receipts are outside the repository at
 
 ## Traps
 
+- A flattened container reconstruction can produce each native helper
+  separately while merging two real class identities. The original tree
+  insert body reaches its native 392 bytes with the primary inline throw,
+  maximum-size check, node allocator, and allocation-owner arrow. However,
+  the reconstructed `tree_imp::size` then binds to both `0x800C95E0` and
+  `0x800CCEE0`. Original headers distinguish derived `__tree::size` and
+  base `__tree_deleter::size`, each 36 bytes. The binding conflict rejects
+  this incomplete adaptation; no extra artificial size wrapper is accepted.
+  Reproducer: `152-primary-insert-context.py`; receipt:
+  `152-reference/primary-insert-context/recursive.json`.
+
+- Native instruction proofs for an owned range do not prove every emitted
+  external weak definition. Extending the original-header oracle to all
+  reachable defined functions audits 521 functions and exposes external
+  weak bodies with different extents. Actual source selection must prove
+  which external strong definitions win and which weak bodies are stripped.
+  The 390-function owned-range oracle remains diagnostic rather than whole
+  source acceptance. Receipt:
+  `152-reference/full-primary-external-defined.json`.
+
 The bounded follow-up candidate changes only the tree parent pointer type,
 stored comparator use, reference-based iterator advancement, allocator-based
 node destruction, and the list pointer-to-iterator factory. Existing public
