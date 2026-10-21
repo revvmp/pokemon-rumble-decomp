@@ -3034,7 +3034,7 @@ at 0/4/8/12/16/20, `OSAlarm` at 24, `OSTime` at 72, and vptr at 80. Its virtual
 order is destructor, const availability predicate, start, stop and hard stop.
 `RumbleStep` is four bytes: on-time 12 bits, hard-stop one bit, flags three
 bits, off-time 12 bits, end flags four bits. Only the hard-stop flag semantics
-are established. `RumbleBlocker` is an empty scope guard for the eight channel
+are established. `CDisablePadRumble` is the original empty scope guard for the eight channel
 block counters. `InterruptLock` has a four-byte saved interrupt state and an
 empty nontrivial base, modeled as inferred `NonCopyable` with inaccessible
 copy operations; native destructor and exception lifetimes establish its

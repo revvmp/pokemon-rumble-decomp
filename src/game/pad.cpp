@@ -647,7 +647,7 @@ void SetGCRumbleEnabled(bool enabled) {
     }
 }
 
-RumbleBlocker::RumbleBlocker() {
+CDisablePadRumble::CDisablePadRumble() {
     for (int channel = 0; channel < 4; ++channel) {
         spPadData->mWiiRumble[channel].Block();
     }
@@ -656,7 +656,7 @@ RumbleBlocker::RumbleBlocker() {
     }
 }
 
-RumbleBlocker::~RumbleBlocker() {
+CDisablePadRumble::~CDisablePadRumble() {
     for (int channel = 0; channel < 4; ++channel) {
         spPadData->mWiiRumble[channel].Unblock();
     }

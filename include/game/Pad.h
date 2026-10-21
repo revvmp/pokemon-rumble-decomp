@@ -54,10 +54,10 @@ struct GCPadState : public PADStatus {
     void Update(const PADStatus* pStatus);
 };
 
-class RumbleBlocker {
+class CDisablePadRumble {
 public:
-    RumbleBlocker();
-    ~RumbleBlocker();
+    CDisablePadRumble();
+    ~CDisablePadRumble();
 };
 
 void InitializePad(OSTime sampleInterval, int channels);
