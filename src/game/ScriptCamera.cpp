@@ -689,7 +689,7 @@ private:
                     pPii->SetPosition(worldPos);
                     break;
                 case RESULT_BLOCKED: {
-                    std::deque<nw4r::math::VEC3>& rHistory = pPii->GetPositionHistory();
+                    const std::deque<nw4r::math::VEC3>& rHistory = pPii->GetPositionHistory();
                     if (rHistory.size() <= step) {
                         blocked.push_back(pPii);
                         goto next;
