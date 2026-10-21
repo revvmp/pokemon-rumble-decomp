@@ -113,6 +113,7 @@ public:
         }
     }
 
+    size_type max_size() const { return (sizeof(value_type) > 1 ? alloc().max_size() : alloc().max_size() / 2) - 1; }
     size_type size() const { return !is_long() ? r_.first().r.s.size_ : r_.first().r.l.size_; }
     const charT* data() const { return !is_long() ? reinterpret_cast<const charT*>(&r_.first().r) + 1 : r_.first().r.l.data_; }
     const charT* c_str() const { return data(); }
@@ -217,6 +218,13 @@ private:
     };
 
     bool is_long() const { return r_.first().r.l.is_long_; }
+    void is_long(bool value) { r_.first().r.l.is_long_ = value; }
+    unsigned char short_size() const { return r_.first().r.s.size_; }
+    void short_size(unsigned int value) { r_.first().r.s.size_ = value; }
+    size_type& long_size() { return r_.first().r.l.size_; }
+    const size_type& long_size() const { return r_.first().r.l.size_; }
+    size_type long_cap() const { return r_.first().r.l.cap_; }
+    void long_cap(size_type value) { r_.first().r.l.cap_ = value; }
     bool is_short() const { return !r_.first().r.l.is_long_; }
     charT* short_data() { return r_.first().r.s.data_; }
     charT*& long_data() { return r_.first().r.l.data_; }

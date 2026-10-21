@@ -79,3 +79,14 @@ The compiler hoists one `.data` base register when several statics of one sectio
 The `.bss` registration object `lbl_803E65E0` was 16 bytes in the symbol map. Ending the split at `0x803E65EC` requires resizing it to 12 first, or dtk rejects the split because it ends inside a symbol.
 
 `unitdiff.py` compares data relocations by symbol name, and the original's data symbols are `lbl_` names. The RTTI, vtable and static-storage symbols of this unit are therefore renamed to the compiler's mangled spellings in `symbols.txt`; without that, `get_deleter` shows 99.74% from one relocation name alone.
+
+
+## F-55-3: original MSL string representation accessors
+
+The recovered September 2006 CodeWarrior MSL C++ headers provide a concrete declaration contract for the string representation: `short_size()` returns `unsigned char`; `long_size()` returns a reference, with a const-reference overload; capacity and long/short state use their ordinary setters. The public `max_size()` treats byte characters and wider character types differently. These declarations are implemented against the existing proven representation without changing storage or existing operations. The reference archive identity and extraction manifest are recorded with the primary-header investigation; original SDK files remain outside the repository.
+
+An independently reconstructed generic reserve algorithm using those accessors produces the native 560-byte char specialization at `0x8006D8B0`: all 25 actual instruction relocation targets, both cleanup targets, and the complete 68-byte exception record match. The same actual CColorConst producer retains all sixteen other native instruction bodies, including the 328-byte named-layout text-color method that earlier records listed as nonmatching. Together the preview proves all 17 instruction bodies and 3,928 bytes; data layout and full source selection are separate acceptance gates still to run.
+
+The shared-header prerequisite adds only the accessor interface. It leaves reserve's definition in the owning CColorConst source unit. Same-base full builds compiled all 762 existing source objects: 708 are byte-identical, and every remaining object's parsed sections, symbol attributes, and raw relocations match after normalizing only numeric compiler-generated `__FUNCTION__` identity suffixes. Literal bytes and relocation destinations remain checked. The linked ELF has identical allocated payloads, and both fresh DOL builds pass the frozen artifact verifier.
+
+The meaningful lesson is to preserve original scalar and reference return types in low-level library accessors. Substituting direct representation fields or widening the short-length return changed CodeWarrior's instruction selection even where the nominal numeric values agree. This supersedes the earlier hypothesis that only a special exception wrapper or forced temporary layout could fix reserve.
