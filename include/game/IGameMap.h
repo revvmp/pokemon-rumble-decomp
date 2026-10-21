@@ -28,7 +28,7 @@ class IDlg;
 
 class IGameMap : public ICalcDraw, public std::tr1::enable_shared_from_this<IGameMap> {
 public:
-    virtual ~IGameMap();
+    virtual ~IGameMap() {}
     virtual void RunAction() = 0;
     virtual const MapDesc& GetMapDesc() const = 0;
     virtual BWorld* GetWorld() const = 0;
