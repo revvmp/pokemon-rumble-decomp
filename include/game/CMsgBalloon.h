@@ -66,6 +66,7 @@ private:
     void UpdateBalloon(BWorldCamera* pCamera, CLayout* pLayout, bool* pBehind);
     void SetupBattleWarp(StageID stageID);
     void SetupStageWarp(StageID stageID);
+    void SetupStageModels(StageID stageID);
 
     bool mIsShown;
     int mShowWait;

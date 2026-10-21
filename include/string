@@ -124,6 +124,8 @@ public:
 
     basic_string& operator+=(const charT* s) { return append(s); }
     basic_string& operator+=(const basic_string& str) { return append(str); }
+    charT& operator[](size_type n) { return buffer()[n]; }
+    void push_back(charT c) { replace(size(), 0, &c, &c + 1, forward_iterator_tag()); }
 
     const charT& operator[](size_type n) const { return data()[n]; }
 
@@ -187,6 +189,9 @@ private:
 
     bool is_long() const { return rep_.l.is_long_; }
     bool is_short() const { return !rep_.l.is_long_; }
+    charT* short_data() { return rep_.s.data_; }
+    charT*& long_data() { return rep_.l.data_; }
+    charT* buffer() { return !is_long() ? short_data() : long_data(); }
     void init() {
         rep_.words[0] = 0;
         rep_.words[1] = 0;

@@ -167,6 +167,7 @@ public:
     const T* end() const { return this->data_ + this->size_; }
     size_type size() const { return this->size_; }
     T& back() { return this->data_[this->size_ - 1]; }
+    T& operator[](size_type i) { return this->data_[i]; }
 
     void reserve(size_type n) {
         if (n > this->cap()) {
@@ -406,7 +407,7 @@ public:
     size_type size() const { return this->size_; }
     bool empty() const { return this->size_ == 0; }
     void push_back(const T& x) { base::push_back(x); }
-    T& operator[](size_type i) { return this->data_[i]; }
+    T& operator[](size_type i) { return base::operator[](i); }
     const T& operator[](size_type i) const { return this->data_[i]; }
 
 private:

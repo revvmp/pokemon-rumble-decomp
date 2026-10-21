@@ -189,6 +189,7 @@ SlotData* GetSaveData(int slot);
 int Load(bool backup);
 bool Save(int mode);
 bool CheckNandSpace();
+bool IsGameFlagSet(int flag);
 void DeleteSaveFiles();
 
 #endif

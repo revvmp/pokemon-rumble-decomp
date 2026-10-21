@@ -52,6 +52,10 @@ static inline float log10f(float x) {
 
 #ifdef __cplusplus
 }
+
+inline float ceil(float x) {
+    return ceilf(x);
+}
 #endif
 
 #endif
