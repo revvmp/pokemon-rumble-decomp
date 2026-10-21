@@ -3425,3 +3425,11 @@ and consumer controls are in [F-152-5](findings/152-balloon-library-contracts.md
 ## NPpu register value identity (#209)
 
 `NPpu::Slice` is the original RTTI spelling of the register vector element. The existing complete two-int value type is now named Slice, with CValue retained as a compatibility typedef. Native Set/Get payloads and exception cleanup sharing with MapPiiTable establish this identity; no inheritance or layout changes are introduced. See [F-209-5](findings/209-cstagecamera.md#f-209-5-recover-the-register-values-original-slice-identity).
+### F-337-5: Signature-specific function emptiness checks
+
+| Address | Symbol | Evidence |
+| --- | --- | --- |
+| `0x8007CC20` | `std::tr1::function<void(BUI*)>::is_empty(...)` | Original2006 private static declaration; actual BUI callback constructor binding,84 code bytes and8 EH bytes exact |
+| `0x8008FF10` | `std::tr1::function<void(const CPiiListFilterSort*)>::is_empty(...)` | Constructor8009C700 calls this distinct signature's helper;84 code bytes and8 EH bytes exact |
+
+The name and private per-signature ownership come from original MSL functional; native calls distinguish these byte-identical helpers. See [F-337-5](findings/337-cuilist-unit.md#f-337-5-original-per-signature-function-emptiness-checks). This bounded correction does not rename the earlier reconstructed zero-argument helper.
