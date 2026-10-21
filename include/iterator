@@ -1,6 +1,7 @@
 #ifndef _ITERATOR
 #define _ITERATOR
 
+#include <MSL_CPP/msl_utility.h>
 #include <stddef.h>
 
 namespace std {
@@ -48,6 +49,31 @@ template <class InputIterator>
 inline typename iterator_traits<InputIterator>::difference_type distance(InputIterator first,
                                                                          InputIterator last) {
     return __distance(first, last, typename iterator_traits<InputIterator>::iterator_category());
+}
+
+template <class BidirectionalIterator>
+inline void __advance(BidirectionalIterator& i, typename iterator_traits<BidirectionalIterator>::difference_type n,
+                      bidirectional_iterator_tag, Metrowerks::int2type<0>) {
+    if (n >= 0) {
+        for (; n > 0; --n) {
+            ++i;
+        }
+    } else {
+        for (; n < 0; ++n) {
+            --i;
+        }
+    }
+}
+
+template <class BidirectionalIterator>
+inline void __advance(BidirectionalIterator& i, typename iterator_traits<BidirectionalIterator>::difference_type n,
+                      bidirectional_iterator_tag tag) {
+    __advance(i, n, tag, Metrowerks::int2type<0>());
+}
+
+template <class InputIterator>
+inline void advance(InputIterator& i, typename iterator_traits<InputIterator>::difference_type n) {
+    __advance(i, n, typename iterator_traits<InputIterator>::iterator_category());
 }
 
 }

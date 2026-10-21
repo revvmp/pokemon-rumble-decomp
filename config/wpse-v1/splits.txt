@@ -307,6 +307,13 @@ game/CPiiListFilterSort.cpp:
 	.data       start:0x803A8BC8 end:0x803A9088
 	.sdata      start:0x804B7090 end:0x804B70D0
 
+game/CPlayer.cpp:
+	extab       start:0x800261C0 end:0x80026418
+	extabindex  start:0x8004A88C end:0x8004AA84
+	.text       start:0x800F77E0 end:0x800F8D5C
+	.data       start:0x803A9320 end:0x803A93C8
+	.sdata      start:0x804B7108 end:0x804B7120
+
 game/CPpuEngine.cpp:
 	extab       start:0x80026DC4 end:0x80027C60
 	extabindex  start:0x8004B198 end:0x8004B39C
