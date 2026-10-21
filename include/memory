@@ -118,12 +118,7 @@ public:
 
     shared_ptr() : ptr_(nullptr), s_(nullptr) {}
     shared_ptr(detail::unused_argument*) : ptr_(nullptr), s_(nullptr) {}
-    template <typename Y> explicit shared_ptr(Y* p) : ptr_(p) {
-        Metrowerks::move_ptr<Y> hold(p);
-        s_ = new detail::shared_ptr_deleter<Y, std::detail::default_delete<Y> >(p);
-        hold.release();
-        enable_from_this(p, p);
-    }
+    template <typename Y> explicit shared_ptr(Y* p);
     template <typename Y, typename D> shared_ptr(Y* p, D d) : ptr_(p) {
         detail::shared_ptr_holder<Y, D> holder(p, d);
         s_ = new detail::shared_ptr_deleter<Y, D>(p, d);
@@ -186,6 +181,15 @@ private:
     T* ptr_;
     detail::shared_ptr_deleter_common* s_;
 };
+
+template <typename T>
+template <typename Y>
+shared_ptr<T>::shared_ptr(Y* p) : ptr_(p) {
+    Metrowerks::move_ptr<Y> hold(p);
+    s_ = new detail::shared_ptr_deleter<Y, std::detail::default_delete<Y> >(p);
+    hold.release();
+    enable_from_this(p, p);
+}
 
 template <typename T> class weak_ptr {
 public:
