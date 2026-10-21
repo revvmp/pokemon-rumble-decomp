@@ -56,6 +56,7 @@ public:
     virtual void Calc();
     virtual void Draw();
 
+    void Load(const char* pArchive, const char* pLayoutName, const std::tr1::shared_ptr<FontMap>& rFonts, bool background);
     void Load(const char* const* pArchives, const char* pLayoutName, const std::tr1::shared_ptr<FontMap>& rFonts, bool background);
     nw4r::lyt::Pane* FindPane(const char* pName);
     void SetVisible(bool visible);
