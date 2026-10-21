@@ -39,12 +39,15 @@ public:
     virtual void OnLeaveWorld();
     virtual void UpdateVisible();
 
+    bool Load(const StageID* pStageID, int stageNo, bool background);
     bool LoadPkc(int mode, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnv, const char* pPrefix);
-    void LoadAttr(const char* pName, u32 flags);
+    bool LoadAttr(const char* pName, bool background);
     bool IsOutOfBounds(const nw4r::math::VEC3& rPos);
 
 private:
-    void LoadAttr(const StageID* pStageID, int stageNo, const char* pName, u32 flags);
+    void BuildScene(const StageID* pStageID, int stageNo, bool background);
+    void LoadFileLists(const StageID* pStageID, int stageNo, bool background);
+    bool LoadAttr(const StageID* pStageID, int stageNo, const char* pName, bool background);
 
     static const char* FindIndexSuffix(const char* pName);
 

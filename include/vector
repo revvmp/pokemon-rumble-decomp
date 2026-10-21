@@ -252,6 +252,8 @@ protected:
 
     void pop_back(Metrowerks::int2type<true>) { --this->size_; }
     void clear(Metrowerks::int2type<true>) { base::clear(); }
+    void clear_moved(Metrowerks::int2type<true>) { this->size_ = 0; }
+    void clear_moved(Metrowerks::int2type<false>) { base::clear(); }
 
     void allocate(size_type n, pod_type) {
         if (n > max_size()) {
@@ -330,7 +332,7 @@ void __vec_constructor<T, Allocator, IsPOD>::reallocate(size_type n) {
     base buffer(this->alloc());
     buffer.allocate(n);
     buffer.construct_at_end(begin(), end());
-    clear();
+    clear_moved(pod_type());
     std::swap(this->cap(), buffer.cap());
     std::swap(this->data_, buffer.data_);
     std::swap(this->size_, buffer.size_);
@@ -411,7 +413,7 @@ template <typename T, typename Allocator> class __vec_pointer : public __vec_con
     typedef __vec_constructor<void*, allocator<void*>, true> base;
 
 public:
-    void push_back(T* const& x) { base::push_back(reinterpret_cast<void* const&>(x)); }
+    void push_back(T* const& x) { base::push_back((void* const&)x); }
     __vec_pointer& operator=(const __vec_pointer& x) {
         base::operator=(x);
         return *this;
@@ -436,6 +438,8 @@ public:
     const_iterator begin() const { return reinterpret_cast<const_iterator>(base::begin()); }
     iterator end() { return reinterpret_cast<iterator>(base::end()); }
     const_iterator end() const { return reinterpret_cast<const_iterator>(base::end()); }
+
+    T*& operator[](size_type i) { return reinterpret_cast<T**>(base::begin())[i]; }
 
     vector& operator=(const vector& x) {
         base::operator=(x);

@@ -8,4 +8,6 @@ void WaitForVideoRetrace();
 int GetVideoRetraceTicks();
 int GetNominalVideoRetraceTicks();
 
+extern bool gFrameTimingReset;
+
 #endif
