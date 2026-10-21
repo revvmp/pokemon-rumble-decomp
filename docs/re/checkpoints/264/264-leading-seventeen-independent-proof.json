@@ -1,0 +1,104 @@
+[
+  {
+    "name": "__ct__Q33std3tr122shared_ptr<9CEnemyPii>Fv",
+    "address": "0x80153d30",
+    "bytes": 16,
+    "resolved_targets": 0
+  },
+  {
+    "name": "reset<8CBossPii>__Q33std3tr122shared_ptr<9CEnemyPii>FP8CBossPii_v",
+    "address": "0x80153a20",
+    "bytes": 72,
+    "resolved_targets": 3
+  },
+  {
+    "name": "__rf__Q33std3tr122shared_ptr<9CEnemyPii>CFv",
+    "address": "0x80153d40",
+    "bytes": 8,
+    "resolved_targets": 0
+  },
+  {
+    "name": "__ct<8CBossPii>__Q33std3tr122shared_ptr<9CEnemyPii>FP8CBossPii_Pv",
+    "address": "0x80153a70",
+    "bytes": 168,
+    "resolved_targets": 6
+  },
+  {
+    "name": "swap__Q33std3tr122shared_ptr<9CEnemyPii>FRQ33std3tr122shared_ptr<9CEnemyPii>",
+    "address": "0x801539f0",
+    "bytes": 36,
+    "resolved_targets": 0
+  },
+  {
+    "name": "__ct<8CBossPii>__Q210Metrowerks60move_ptr<8CBossPii,Q33std6detail25default_delete<8CBossPii>>FP8CBossPiiQ310Metrowerks60move_ptr<8CBossPii,Q33std6detail25default_delete<8CBossPii>>3nat_Pv",
+    "address": "0x80153bc0",
+    "bytes": 48,
+    "resolved_targets": 1
+  },
+  {
+    "name": "__ct__Q43std3tr16detail70shared_ptr_deleter<8CBossPii,Q33std6detail25default_delete<8CBossPii>>FP8CBossPii",
+    "address": "0x80153c70",
+    "bytes": 84,
+    "resolved_targets": 4
+  },
+  {
+    "name": "release__Q210Metrowerks60move_ptr<8CBossPii,Q33std6detail25default_delete<8CBossPii>>Fv",
+    "address": "0x80153cd0",
+    "bytes": 76,
+    "resolved_targets": 2
+  },
+  {
+    "name": "enable_from_this<9BWorldObj,8CBossPii>__Q33std3tr122shared_ptr<9CEnemyPii>FPCQ33std3tr135enable_shared_from_this<9BWorldObj>P8CBossPii_v",
+    "address": "0x80153b20",
+    "bytes": 88,
+    "resolved_targets": 3
+  },
+  {
+    "name": "__ct__Q43std3tr16detail72shared_ptr_deleter<9CEnemyPii,Q33std6detail26default_delete<9CEnemyPii>>FP9CEnemyPii",
+    "address": "0x80153930",
+    "bytes": 84,
+    "resolved_targets": 4
+  },
+  {
+    "name": "release__Q210Metrowerks62move_ptr<9CEnemyPii,Q33std6detail26default_delete<9CEnemyPii>>Fv",
+    "address": "0x80153990",
+    "bytes": 76,
+    "resolved_targets": 2
+  },
+  {
+    "name": "__ct__Q210Metrowerks68compressed_pair<P8CBossPii,Q33std6detail25default_delete<8CBossPii>>FP8CBossPii",
+    "address": "0x80153bf0",
+    "bytes": 48,
+    "resolved_targets": 1
+  },
+  {
+    "name": "first__Q310Metrowerks6detail76CompressedPairStorage<P8CBossPii,Q33std6detail25default_delete<8CBossPii>,2>Fv",
+    "address": "0x80153d20",
+    "bytes": 4,
+    "resolved_targets": 0
+  },
+  {
+    "name": "__ct<8CBossPii>__Q33std3tr120weak_ptr<9BWorldObj>FP8CBossPiiPQ43std3tr16detail25shared_ptr_deleter_common_Pv",
+    "address": "0x80153b80",
+    "bytes": 60,
+    "resolved_targets": 1
+  },
+  {
+    "name": "first__Q310Metrowerks6detail78CompressedPairStorage<P9CEnemyPii,Q33std6detail26default_delete<9CEnemyPii>,2>Fv",
+    "address": "0x801539e0",
+    "bytes": 4,
+    "resolved_targets": 0
+  },
+  {
+    "name": "__ct__Q310Metrowerks6detail76CompressedPairStorage<P8CBossPii,Q33std6detail25default_delete<8CBossPii>,2>FP8CBossPii",
+    "address": "0x80153c20",
+    "bytes": 64,
+    "resolved_targets": 1
+  },
+  {
+    "name": "__ct__Q33std6detail25default_delete<8CBossPii>Fv",
+    "address": "0x80153c60",
+    "bytes": 4,
+    "resolved_targets": 0
+  }
+]
