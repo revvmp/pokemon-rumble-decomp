@@ -5,7 +5,7 @@
 void YieldFiber();
 
 std::tr1::weak_ptr<NPpu::CEnvironment> CPpuEngine::sDefaultEnv;
-StageID CPpuEngine::sDefaultStageDescTarget;
+MapIndex CPpuEngine::sDefaultStageDescTarget;
 std::tr1::shared_ptr<std::string> CPpuEngine::sScriptRoot;
 
 static bool sTemporaryIDReady;
@@ -29,11 +29,11 @@ void CPpuEngine::SetDefaultEnvironment(const std::tr1::shared_ptr<NPpu::CEnviron
     sDefaultEnv = rEnv;
 }
 
-void CPpuEngine::SetStageDescTarget(const StageID& rTarget) {
+void CPpuEngine::SetStageDescTarget(const MapIndex& rTarget) {
     mStageDescTarget = rTarget;
 }
 
-void CPpuEngine::SetDefaultStageDescTarget(const StageID& rTarget) {
+void CPpuEngine::SetDefaultStageDescTarget(const MapIndex& rTarget) {
     sDefaultStageDescTarget = rTarget;
 }
 

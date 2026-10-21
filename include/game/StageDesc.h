@@ -2,21 +2,14 @@
 #define GAME_STAGEDESC_H
 
 #include <game/MapIndex.h>
+#include <game/CPpuRegister.h>
 #include <memory>
 #include <vector>
 
 struct MapDesc;
 struct DescParams;
 
-class DescParamTable {
-public:
-    DescParamTable();
-    ~DescParamTable();
-    void Reset();
-
-private:
-    std::tr1::shared_ptr<DescParams> mParams;
-};
+typedef CPpuRegister DescParamTable;
 
 struct StageDesc {
     StageDesc() {}

@@ -145,6 +145,7 @@ public:
     }
     bool IsFlag(u32 flag) const { return mFlags & flag; }
     void EnableCalc(bool enable);
+    bool IsCalcEnabled() const { return !(mFlags & FLAG_CALC_DISABLED); }
     void RequestPause();
     void RequestResume();
     BWorldCamera* GetCamera(int index);

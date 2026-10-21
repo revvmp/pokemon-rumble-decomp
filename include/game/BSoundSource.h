@@ -10,6 +10,10 @@ class BSoundSource {
 public:
     BSoundSource();
     void SetPosition(nw4r::math::VEC3 position);
+    void StartSE(u32 id);
+    void StopSE(f32 fadeTime);
+    void SetPitch(f32 pitch);
+    f32 GetPitch() const;
 
 protected:
     nw4r::snd::SoundHandle mHandle;
