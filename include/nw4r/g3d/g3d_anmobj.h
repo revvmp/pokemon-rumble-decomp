@@ -84,6 +84,10 @@ public:
         mpPlayPolicy = func;
     }
 
+    static void SetBaseUpdateRate(f32 rate) {
+        smBaseUpdateRate = rate;
+    }
+
 private:
     f32 mFrame;
     f32 mUpdateRate;

@@ -12,7 +12,10 @@ public:
     ~CKDTree() {}
 
 private:
-    std::tr1::shared_ptr<KDTreeZXNode<2, 9> > mRoot;
+    struct Root {
+        std::tr1::shared_ptr<KDTreeZXNode<2, 9> > mNode;
+    };
+    Root mRoot;
     nw4r::math::AABB mBounds;
     nw4r::math::VEC3 mOrigin;
     nw4r::math::VEC3 mScale;

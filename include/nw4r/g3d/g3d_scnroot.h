@@ -76,6 +76,10 @@ public:
         return mLightSetting;
     }
 
+    AnmScn *GetAnmScn() const {
+        return mpAnmScn;
+    }
+
 private:
     IScnObjGather *mpCollection;
     ResMdlDrawMode mDrawMode;

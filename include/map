@@ -80,10 +80,12 @@ public:
         T value_;
     };
 
-    map_compact_tree() : size_(0), root_(nullptr), begin_(reinterpret_cast<tree_node_base*>(&root_)) {}
+    typedef typename Allocator::template rebind<node>::other node_allocator;
+
+    map_compact_tree() : size_(0), begin_(end_node()) {}
     ~map_compact_tree() {
-        if (root_ != nullptr) {
-            destroy(static_cast<node*>(root_));
+        if (root_.second() != nullptr) {
+            destroy(static_cast<node*>(root_.second()));
         }
     }
 
@@ -97,7 +99,7 @@ public:
         tree_node_base* node_;
     };
     iterator begin() { return iterator(begin_); }
-    tree_node_base* end_node() { return reinterpret_cast<tree_node_base*>(&root_); }
+    tree_node_base* end_node() { return reinterpret_cast<tree_node_base*>(&root_.second()); }
     pair<iterator, bool> insert_one(const value_type& rValue) {
         node* pPred;
         bool left;
@@ -125,15 +127,39 @@ public:
 
 private:
     size_type size_;
-    tree_node_base* root_;
+    Metrowerks::compressed_pair<node_allocator, tree_node_base*> root_;
     tree_node_base* begin_;
 };
+
+template <typename T, typename Compare, typename Allocator>
+typename map_compact_tree<T, Compare, Allocator>::node* map_compact_tree<T, Compare, Allocator>::insert_node_at(tree_node_base* pParent, bool left, bool leftmost, const value_type& rValue) {
+    if (size_ == size_type(-1)) {
+        __throw_tree_length_error();
+    }
+    Metrowerks::alloc_ptr<node, node_allocator&> holder(root_.first().allocate(1), root_.first());
+    this->Allocator::construct(&holder.get()->value_, rValue);
+    node* pNode = holder.release();
+    pNode->right_ = nullptr;
+    pNode->left_ = nullptr;
+    new (&pNode->parent_) unsigned long(reinterpret_cast<unsigned long>(pParent));
+    if (left) {
+        pParent->left_ = pNode;
+    } else {
+        pParent->right_ = pNode;
+    }
+    ++size_;
+    tree_balance_after_insert(pNode, root_.second());
+    if (leftmost) {
+        begin_ = pNode;
+    }
+    return pNode;
+}
 
 template <typename T, typename Compare, typename Allocator>
 tree_node_base* map_compact_tree<T, Compare, Allocator>::find_leaf(const value_type& rValue, node*& rpPred, bool& rLeft, bool& rLeftmost) {
     rpPred = nullptr;
     node* pLeaf = static_cast<node*>(end_node());
-    node* pNode = static_cast<node*>(root_);
+    node* pNode = static_cast<node*>(root_.second());
     rLeft = true;
     rLeftmost = true;
     while (pNode != nullptr) {

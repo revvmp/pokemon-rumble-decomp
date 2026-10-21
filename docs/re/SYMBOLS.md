@@ -3186,3 +3186,18 @@ CUIList complete180-byte typed declaration,14 virtual slots, four input/selectio
 ## Game CGameEnding factory (#116)
 
 [F-116-5](findings/116-cgameending-unit.md#f-116-5-the-factory-is-reconstructed-and-the-unit-now-emits) names the factory `0x800A4EF0` `IGameEnding::Create(const MapDesc*, bool)` (`Create__11IGameEndingFPC7MapDescb`, descriptive name, medium confidence), the `CPauseMenu` factory `0x800D83B0` `IPauseMenu::Create(const MapDesc*, bool, int)`, the `CShadowCamera` constructor `0x8010C490` and `CShadowCamera::Setup(u16, u16, int, bool)` `0x8010C5A0`, and the template instances of the factory's cleanup actions: `list<wstring>` destructor `0x800A5A60`, `shared_ptr<CGameEnding>` `0x800A6F80`, `shared_ptr<IPauseMenu>` `0x800A7010`, `shared_ptr<BWorld>` `0x800A70A0`, `move_ptr<CGameEnding>` `0x800A7130`, `move_ptr<BWorld>` `0x800A71B0`, `move_ptr<CShadowCamera>` `0x800A7230` and the list node `alloc_ptr` `0x800A72B0`. Names come from the mangled symbols of the compiled source, high confidence.
+## Game BWorld calc, view and draw (#47)
+
+[F-47-1](findings/47-bworld-draw.md) names, in `.text`: `BWorld::CalcMtx` `0x80062980`, `FrameStepScope::~FrameStepScope` `0x80062C20`, `BWorld::CalcView` `0x80062C80`, `BWorld::Draw` `0x80062D20`, file-local `DrawFrame(int, int)` `0x800633D0` and `DrawTexture(int, int, const GXTexObj*)` `0x800636B0`, `BWorld::DrawShadow(GXColor, GXPixelFmt)` `0x800639F0`, `BWorld::DrawOutline` `0x8005E560` (callee), and the weak template instances `insert_node_at` `0x80063DE0` (`map<ulong, CEffect*>`) and `0x80064240` (`set<shared_ptr<BWorldObj>>`), `destroy` `0x80063FB0` and `0x80064420`, `find_leaf` `0x80065DC0` and `0x80065E20`, `tree_balance_after_insert` `0x80059AF0`, the `shared_ptr_deleter` `get_deleter`/`dispose` pairs for `CEffect` `0x80064980`/`0x800649D0`, `CKDTree<BModelObj>` `0x80064A70`/`0x80064AC0` and `ScnRoot` `0x80064B40`/`0x80064B90`, and the two `weak_ptr::lock` instances `0x80064EB0` (`CShadowCamera`) and `0x80064FE0` (`BWorldCamera`).
+
+| Class | Offset | Member | Type | Evidence |
+| --- | --- | --- | --- | --- |
+| `BWorld` | `0x14` | `mPendingFrames` | `u32` | copied to `gFrameStep` by `CalcMtx` and `CalcView`; `CalcView` clears it |
+| `BWorld` | `0x1C`, `0x24`, `0x2C` | `mScnRoot`, `mOutlineGroup`, `mModelGroup` | `shared_ptr` | rebuilt as the root's children by `CalcMtx` and each `Draw` pass |
+| `BWorld` | `0x40`, `0x48` | `mCurrentCamera`, `mShadowCamera` | `weak_ptr` | `lock` calls in `Draw`, `DrawShadow` |
+| `BWorld` | `0x80`, `0x88` | `mEffectData`, `mOutlineData` | `shared_ptr` | `Calc`, `Draw` effect and outline passes |
+| `CShadowCamera` | `0x68` | `mTextureLevels` | `int` | level count in `DrawShadow` |
+| `CShadowCamera` | `0x6C` + 44 * i | `mTextures[3]` | `CaptureTexture` | `DrawShadow` copies each level from the EFB |
+| `CShadowCamera` | `0xF0`, `0xF1` | `mUseTextureAlpha`, `mAlpha` | `bool`, `u8` | `DrawShadow` colour pass |
+| `BWorld::EffectData` | `0x04`, `0x08`, `0x60` | `mGroupID`, `mPauseGroupID`, `mCaptureGroupID` | `u32` | `Draw` calls `EffectSystem::Calc` and `Draw` per group, skipping `0xFFFFFFFF` |
+| `tree_imp`, `map_compact_tree` | `0x00`, `0x04`, `0x08` | size, node allocator with root pointer, leftmost | `unsigned long`, `compressed_pair`, `tree_node_base*` | `insert_node_at` passes `this + 4` as the allocator |

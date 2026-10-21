@@ -20,6 +20,11 @@ public:
     void SelectLight();
     void SetupShadowModel(std::tr1::shared_ptr<CModel> model);
 
+    int GetTextureLevels() const { return mTextureLevels; }
+    CaptureTexture& GetTexture(int index) { return mTextures[index]; }
+    bool IsTextureAlpha() const { return mUseTextureAlpha; }
+    u8 GetAlpha() const { return mAlpha; }
+
 private:
     bool CalcLightProjection();
 

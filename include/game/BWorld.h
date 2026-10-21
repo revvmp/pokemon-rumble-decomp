@@ -11,6 +11,7 @@
 #include <nw4r/g3d/g3d_scnobj.h>
 #include <nw4r/g3d/g3d_scnroot.h>
 #include <nw4r/ut/ut_Color.h>
+#include <revolution/gx.h>
 #include <set>
 #include <vector>
 
@@ -190,6 +191,25 @@ public:
 
 private:
     ObjEntry* GetNextEntry(const ObjEntry* pEntry) { return pEntry->GetNext(&mObjEntries[0]); }
+
+    u32 GetSkipStates() const {
+        u32 states = 0;
+        if (mFlags & FLAG_SKIP_STATE_2) {
+            states |= 2;
+        }
+        if (mFlags & FLAG_SKIP_STATE_4) {
+            states |= 4;
+        }
+        if (mFlags & FLAG_PAUSED) {
+            states |= 0x10;
+        }
+        return states;
+    }
+
+    bool HasEffectData() const { return mEffectData; }
+
+    bool DrawShadow(GXColor clearColor, GXPixelFmt pixelFormat);
+    void DrawOutline();
 
     static u32 GetStopTypes(u32 type) { return (type & ~ENTRY_HEAD_TYPES) == 0 ? ENTRY_HEAD_TYPES : 0xFFFFFFFF; }
 
