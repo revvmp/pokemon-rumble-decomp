@@ -25,3 +25,13 @@ The current-consumer control captures all 756 existing source objects before the
 An identical weak destructor does not identify its element type. Use the setter caller conversion, the global shared-return getter and its actual layout consumers to establish FontMap ownership before naming this specialization.
 
 Moving source global definitions to the bottom did not change weak helper emission order and is not adopted. The positive control changes a declaration structure supported by the pinned reference, rather than reordering declarations solely to request an address order.
+
+# F-222-2: Complete Font.cpp source acceptance
+
+The complete Font.cpp split is source-selected with Wii/1.1 and unchanged cflags_game. Its text is 80126240–801263E8, 408 instruction bytes across five functions; alignment padding remains separate from the counting denominator. The weak global owns .sbss 804B9090–804B9098, the runtime registration node owns .bss 803E90C8–803E90D4, and its constructor entry owns .ctors 803529E8–803529EC. The old inferred registration-node symbol included four bytes of next-object padding; its source-proven extent is twelve bytes and that padding remains outside the split.
+
+The NonMatching split build passed the frozen verifier before source selection. The Matching build then passed configure, ninja, the original SHA-1 link check and frozen SHA-256 verification. unitdiff reports all five functions and 408 instruction bytes at 100%. Both native exception records, totaling 48 bytes, compare exactly including cleanup targets. Fresh main.elf.MAP rows attribute each owned function at its exact native address and size uniquely to Font.o. Ninja's actual final link inputs select build/wpse-v1/src/game/Font.o and contain no fallback for these five functions or owned state. The extra ordinary shared FontMap destructor and its exception record are discarded because the existing earlier specialization resolves it.
+
+The complete source supplies native caller evidence for main.cpp's weak FontMap cleanup at 80126360. The original issue inventory remains 32 functions and 4,936 bytes; this publication accepts five functions and 408 bytes only. The preceding 27 functions and 4,528 bytes remain outside this source unit and the issue remains open.
+
+No new source-generation trap beyond F-222-1 arose. A reused seed MAP can predate the current ELF when configure is run without --map; fresh source attribution was taken only after configure --map and a successful link.
