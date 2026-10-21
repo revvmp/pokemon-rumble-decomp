@@ -18,6 +18,8 @@ div_t div(int numerator, int denominator);
 unsigned long strtoul(const char* str, char** end, int base);
 float strtof(const char* str, char** end);
 int atoi(const char* str);
+int rand(void);
+void srand(unsigned int seed);
 void abort(void);
 void exit(int status);
 

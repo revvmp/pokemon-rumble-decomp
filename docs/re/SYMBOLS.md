@@ -2851,6 +2851,22 @@ The new `detail::ParticleField`, `detail::ParticlePostFieldTransform`, and `deta
 | `CFiber` | `0x50` | `mThread` | `OSThread` | `Start`, `Resume` |
 | `CFiber` | `0x368` | vptr | | Vtable `0x803BE468` |
 
+## Game loop, random numbers and CFileData split (#307)
+
+[F-307-5](findings/307-cfiber.md#f-307-5-gameloopcpp-and-randomcpp) names, in `.text`: `RunGameLoop(IGameLoopCallback*)` `0x8019DC50`, `InitRandom()` `0x8019DEB0`, `ShutdownRandom()` `0x8019DEE0`, `RandInt(int, int)` `0x8019DEF0`, `Rand32()` `0x8019DFC0`, `RandReal(f32, f32)` `0x8019E010` and `RandBool(f32)` `0x8019E0A0`; and MSL `rand` `0x80345B08` and `srand` `0x80345B28`. `IGameLoopCallback` is an RTTI name (high); the nine slot names and the function names are descriptive (medium to low). `.sbss`: `gGameFrame` `0x804B9108` (read by `ScriptBinding_GetGameFrame`), `gFrameStep` `0x804B910C`, `gFrameTimingReset` `0x804B9110`, file-local `sRenderCount` `0x804B9114` and `sRenderHistoryIndex` `0x804B9118`; `.bss`: file-local `sRenderHistory` `0x803EA7F8`, 60 `bool`.
+
+| Class | Offset | Member | Type | Evidence |
+| --- | --- | --- | --- | --- |
+| `IGameLoopCallback` | `0x8` | `IsRunning` | virtual, returns `bool` | `RunGameLoop` loop condition |
+| `IGameLoopCallback` | `0xC` | `ResetTiming` | virtual | Called after a timing reset |
+| `IGameLoopCallback` | `0x10` | `Update` | virtual | Pad, controllers, sound |
+| `IGameLoopCallback` | `0x14` | `ShouldRender` | virtual, returns `bool` | Gates `Prepare` and the frame counter |
+| `IGameLoopCallback` | `0x18` | `Prepare` | virtual | Called only when rendering |
+| `IGameLoopCallback` | `0x1C` | `Calc` | virtual | After the history update |
+| `IGameLoopCallback` | `0x20` | `Draw` | virtual | |
+| `IGameLoopCallback` | `0x24` | `Render` | virtual | GX state reset and frame buffer copy in `CMain` |
+| `IGameLoopCallback` | `0x28` | `Present` | virtual | `DisplayFrameBuffer` in `CMain` |
+
 ## Game script camera projection and safe frame (#233, #234)
 
 [F-233-1](findings/233-script-camera-projection.md#f-233-1-the-functions), [F-233-2](findings/233-script-camera-projection.md#f-233-2-shared-inline-helpers) and [F-234-1](findings/234-script-camera-safe-frame.md#f-234-1-the-functions) name the bindings `method_camSetFovy` to `method_camGetFar` (`0x801325D0`–`0x80132E80`), `method_camGetXYZOf` `0x80133360`, `IsTV16x9` `0x801335C0` and `method_camIsObjInSafeFrame`, `4x3` and `16x9` (`0x80133EA0`–`0x80133EF0`), all original. File-local, descriptive (medium): `GetSafeFrameGroundPos` `0x80132F00`, `GetSafeFrame` `0x80133610`, `MakePlane` `0x801337B0`, `IsInFrontOfPlane` `0x80133A70`, `IsObjInSafeFrame` `0x80133AE0` and the object `sSafeFrameCache` `0x803B65C0` (`SSafeFrameCache`, 0x58 bytes: `u8` aspect at 0, projection flags 0x4, top 0x8, bottom 0xC, fovy 0x10, near 0x14, four `PLANE`s from 0x18). `SSafeFrame` is six floats: top, bottom, left, right, near, far. NW4R inlines: `RAY3(const VEC3&, const VEC3&, bool)` `0x801331A0`, `RAY3::Normalize` `0x80133210`, `VEC3Normalize` `0x80133220`, `PLANE(f32, f32, f32, f32, bool)` `0x80133280`, `PLANE::Normalize` `0x801332E0`, `VEC3LenSq` `0x80133340`, `VEC3Cross` `0x80133900`, `VEC3::Dot` `0x80133A40` (descriptive), `VEC3Dot` `0x80133A50`, `PLANE()` `0x80133E40` and its assignment `0x80133E70`, and outside the block `ref` of `ResCommon<CameraData>` `0x80098660`, `MTX34()` `0x80074A30`, `MTX34Inv` `0x800986A0`, `TanDeg` `0x80098700`, `TanFIdx` `0x80098710`, `VEC3(f32, f32, f32)` `0x80096990`, the `VEC3` copy constructor `0x8009A050` and assignments `0x80096820` and `0x80096850`, and `VEC3Scale` `0x8009CAC0`. Game inlines, descriptive (medium): `Transform` `0x80096870`, `Inverse` `0x80098670`, `Cross` `0x801338A0`, `SafeNormalize` `0x80133980` and `BWorldObj::GetPositionRef` `0x80098850`. `GetSafeDisplaySize` `0x801B6BE0` and `GetPixelAspectRatio` `0x801B6590` follow F-318-1.

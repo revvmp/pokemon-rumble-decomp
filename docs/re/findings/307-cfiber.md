@@ -56,8 +56,70 @@ Outside the unit, renamed for the link because the object emits weak copies or r
 
 ## F-307-4: the rest of #307
 
-- **`0x8019DC50`–`0x8019E10C`.** `0x8019DC50` is the frame loop called by `main` and `0x801E0F60`: it drives an object through virtual slots 2 to 10 with frame skipping from `VideoTiming`, keeps the game frame counter `0x804B9108` (read by `ScriptBinding_GetGameFrame`) and the flag `0x804B9110` (written by `ScriptBinding_IgnoreTimeConsumption`), and uses the 60-entry `.bss` array `0x803EA7F8`. `0x8019DEB0` seeds MSL `rand` from `OSGetTime`; `0x8019DEE0` is empty and called at the end of `main`. `0x8019DEF0`, `0x8019E010` and `0x8019E0A0` are the integer, real and Boolean random functions behind `ScriptBinding_RandInt`, `RandReal` and `RandB`, and `0x8019DFC0` builds a 32-bit value from three `rand` calls; the real functions use `1.0f` at `.sdata2` `0x804BA328`. No string, static initializer or data cluster separates the frame loop from the random functions, so their file boundaries are not established and they stay unsplit.
-- **`0x8019EBA0`–`0x801A06D4`.** These open `CFileData.cpp` (source-file string `0x803BE548`), whose data names `CFileData::CWorker` with its `DecodeThread`, `LoaderThread` and `BThread`, `LoadedFileData`, `CPath::Drive` callbacks, the NAND and CNT file streams, and MSL `basic_string`, `vector` and `out_of_range` errors. The unit continues past #307 and needs those classes first.
+- **`0x8019DC50`–`0x8019E10C`.** `0x8019DC50` is the frame loop called by `main` and `0x801E0F60`: it drives an object through virtual slots 2 to 10 with frame skipping from `VideoTiming`, keeps the game frame counter `0x804B9108` (read by `ScriptBinding_GetGameFrame`) and the flag `0x804B9110` (written by `ScriptBinding_IgnoreTimeConsumption`), and uses the 60-entry `.bss` array `0x803EA7F8`. `0x8019DEB0` seeds MSL `rand` from `OSGetTime`; `0x8019DEE0` is empty and called at the end of `main`. `0x8019DEF0`, `0x8019E010` and `0x8019E0A0` are the integer, real and Boolean random functions behind `ScriptBinding_RandInt`, `RandReal` and `RandB`, and `0x8019DFC0` builds a 32-bit value from three `rand` calls; the real functions use `1.0f` at `.sdata2` `0x804BA328`. No string, static initializer or data cluster separates the frame loop from the random functions; [F-307-5](#f-307-5-gameloopcpp-and-randomcpp) later split them into two units.
+- **`0x8019EBA0`–`0x801A06D4`.** These open `CFileData.cpp` (source-file string `0x803BE548`), whose data names `CFileData::CWorker` with its `DecodeThread`, `LoaderThread` and `BThread`, `LoadedFileData`, `CPath::Drive` callbacks, the NAND and CNT file streams, and MSL `basic_string`, `vector` and `out_of_range` errors. The unit continues past #307 and needs those classes first; [F-307-6](#f-307-6-cfiledatacpp-split) records its split.
+
+## F-307-5: GameLoop.cpp and Random.cpp
+
+The first seven functions of #307 (`0x8019DC50`-`0x8019E10C`) are now two Matching units. F-307-4 recorded them as unsplit because no string, static initializer or data cluster separates them. The boundary between the two units is a reconstruction choice (medium confidence): the frame loop owns all of its data, while the six random functions share no data with it and start with the seed call that `main` pairs with an empty function at its end.
+
+| Unit | Section | Range | Evidence |
+| --- | --- | --- | --- |
+| `game/GameLoop.cpp` | `extab` | `0x8003501C`-`0x80035024` | One 8-byte record |
+| | `extabindex` | `0x8005004C`-`0x80050058` | One record, for `0x8019DC50` |
+| | `.text` | `0x8019DC50`-`0x8019DEAC` | `RunGameLoop`, 0x25C bytes; `0x8019DEAC` is padding to the next 16-byte start |
+| | `.bss` | `0x803EA7F8`-`0x803EA834` | 60 `bool` render history; the symbol was 0x40 bytes and had to be cut to 0x3C |
+| | `.sbss` | `0x804B9108`-`0x804B911C` | `gGameFrame`, `gFrameStep`, `gFrameTimingReset`, render count, history index |
+| `game/Random.cpp` | `extab` | `0x80035024`-`0x8003504C` | Five records, 40 bytes |
+| | `extabindex` | `0x80050058`-`0x80050094` | Five records |
+| | `.text` | `0x8019DEB0`-`0x8019E110` | Six functions |
+| | `.sdata2` | `0x804BA328`-`0x804BA32C` | `1.0f`; the symbol was 8 bytes and was cut to 4 |
+
+The exception ranges are the gaps left between `luckyhelper.cpp` (ends `0x8003501C`, `0x8005004C`) and `CFiber.cpp` (starts `0x8003504C`, `0x80050094`): 48 bytes of `extab` and 72 bytes (six records) of `extabindex`, one record per function in function order. Every function in an exception-enabled game unit gets a record, even leaf functions.
+
+`RunGameLoop(IGameLoopCallback*)`: the class name `IGameLoopCallback` is the RTTI string at `0x803B5FEC`, and the implementing class is `@unnamed@main_cpp@::CMain` (vtable `0x803B5EE4`, typeinfo `0x803B5F10`). The interface has no virtual destructor; its nine virtual functions are at vtable offsets 8 to 40. `main` (at `0x8012C3DC`) and `ShowSystemMessage` (at `0x801E0F60`) call the loop with an embedded object. The slot names are descriptive and low to medium confidence: `IsRunning`, `ResetTiming` (`CMain` calls `SetPadReadDelay(1)`), `Update` (pad, controllers, sound), `ShouldRender`, `Prepare`, `Calc`, `Draw`, `Render` (resets GX state and copies the frame buffer) and `Present` (`DisplayFrameBuffer`).
+
+The loop keeps `elapsedTicks` and `budgetTicks`, repeats `Update` while the elapsed video time exceeds the budget, and resynchronises after `gFrameTimingReset` is set. After each frame it records in a 60-entry ring whether each update was the rendered one, then waits for the retrace unless it resynchronises. `gFrameStep` is the number of rendered updates, so `FrameStepScope` restores it. `gGameFrame` (`0x804B9108`) is read by `ScriptBinding_GetGameFrame`.
+
+Random: `InitRandom` (`srand(OSGetTime())`), `ShutdownRandom` (empty, called at the end of `main`), `RandInt(min, max)`, `Rand32`, `RandReal` and `RandBool`. MSL `rand` is `0x80345B08` and `srand` is `0x80345B28` (renamed, declared in `stdlib.h`). `RandReal` and `RandBool` share an inline that builds a float in [1, 2) from 23 random bits and subtracts one.
+
+## F-307-6: CFileData.cpp split
+
+`game/CFileData.cpp` is split and registered `NonMatching` without a source file, so the build still uses the original object. The split verifies (`configure.py`, `ninja` and `verify.py` exit 0). The functions of #307 from `0x8019EBA0` onward are its first fifteen; the unit continues through #308 to #312.
+
+| Section | Range | Evidence |
+| --- | --- | --- |
+| `.text` | `0x8019EBA0`-`0x801ADC38` | The only `.ctors` entry between `ut_TextWriterBase.cpp` and `ut_CntFileStream.cpp` (`0x80352A10`) points at `0x801ADB40`, whose size ends at `0x801ADC38`; the next function `0x801ADC40` belongs to `CPath.cpp` (its source string is at `0x803BF000`) |
+| `.ctors` | `0x80352A10`-`0x80352A14` | The gap between the neighbors |
+| `extab` | `0x800353CC`-`0x80037A98` | `CFiber` ends at `0x800353CC`; the `extabindex` record for `0x801ADC40` names `0x80037A98` |
+| `extabindex` | `0x800500F4`-`0x800505C8` | `CFiber` ends at `0x800500F4`; the record at `0x800505C8` is `0x801ADC40` |
+| `.data` | `0x803BE478`-`0x803BF000` | Source string `CFileData.cpp` at `0x803BE548` and `0x803BEFD0`, error strings, `CWorker` thread names, deleters and RTTI; `CPath.cpp` at `0x803BF000` starts its data |
+| `.bss` | `0x803EA838`-`0x803EA890` | Three objects of 0x10, 0x28 and 0x20 bytes constructed by the static initializer at `0x801ADB40`; `pad.cpp` starts at `0x803EA890` |
+| `.sdata` | `0x804B8108`-`0x804B81A0` | Cross-references from the two text ranges (`lis`/`addi`/load pairs and SDA bases): `0x804B8108`-`0x804B8198` from `CFileData`, `0x804B81A0`-`0x804B81D0` (`nand`, `nand:`, `dvd:`) from `CPath` |
+| `.sbss` | `0x804B9128`-`0x804B9130` | The `CWorker` singleton pointer, read by `0x8019EBE0` |
+
+`CPath.cpp` (`0x801ADC40` onward, before the CNT file-stream group) is a separate unit that #313 owns. It has no static initializer, and no `.rodata`, `.bss` or `.sdata2`. Its `.sdata` is `0x804B81A0`-`0x804B81D8`.
+
+The first fifteen functions, by reading only (medium or low confidence; roles are descriptive):
+
+| Address | Role |
+| --- | --- |
+| `0x8019EBA0` | Zeroes a 0x30-byte request record (words at 0 to 0x24, a byte at 0x28, a word at 0x2C) |
+| `0x8019EBE0` | `CWorker` job-processing loop (0xA70 bytes). Takes jobs from a queue, handles states 5, 6, 8, 9 and 10, reports errors -6000 to -6010, decompresses with `CXGetUncompressedSize`, allocates MEM1 or MEM2 by the flag bits `0x30000`/`0x20000`, opens ARC archives and validates `nw4r::g3d::ResFile`. Without a worker it reduces to the loaded check |
+| `0x8019F650`, `0x8019F750`, `0x801A06C0` | `shared_ptr` safe-bool conversions (`get() != nullptr`) |
+| `0x8019F670` | Tries MEM1 or MEM2 allocation by the same flag bits, with a 4-byte minimum alignment, negated for a top-down request |
+| `0x8019F770` | Appends a job to a mutex-and-condition protected linked list (head at 0x24, next at 0x20) and signals |
+| `0x8019F7F0` | Opens an ARC archive in memory and sets up a `ResFile` (same work as the ARC branch of `0x8019EBE0`) |
+| `0x8019F9B0`, `0x8019FB80` | `shared_ptr::get` |
+| `0x8019F9C0` | Job record deleting destructor: releases four `shared_ptr` members at 0x04, 0x0C, 0x14 and 0x28 and a `CScopedActivity` at 0x24 |
+| `0x8019FAE0` | Invokes slot 5 of a `std::tr1::function<void(CPath::Drive, const char*, long, unsigned long)>`, throwing `bad_function_call` when empty |
+| `0x8019FB90` | Resets a `shared_ptr<T>` with a custom deleter (`T*` at 0, control block at 4) |
+| `0x8019FC60` | Runs `0x8019EBE0` when the flag is clear, otherwise hands the file to `0x8019FCD0` (when the singleton exists) or `0x801288F0` |
+| `0x8019FCD0` | 0x9EC-byte `CFileData` and `CWorker` routine, not yet read in detail |
+
+The `CWorker` singleton pointer is `0x804B9128`. From `0x8019EBE0` and `0x8019F770`: mutex `+0x96B0`, condition `+0x96C8`, queue head `+0x96D0` and count `+0x96D8` serve the finished-job queue, and mutex `+0x35C`, condition `+0x374` and queue head `+0x37C` the pending queue. These offsets are unverified as member names.
+
+None of the fifteen is reconstructed in #307. They are instantiations of `shared_ptr`, `function` and queue templates, ARC and compression handling, and thread bodies, and the compiler emits weak template copies according to use across the whole file. Matching even one of them needs the unit's class model (`CFileData`, `CWorker`, `LoadedFileData` and the job record), which spans #308 to #312.
 
 ## Method
 
@@ -68,3 +130,9 @@ GNU objdump 2.42 on `build/wpse-v1/main.elf`, Python scans of `extabindex`, `ext
 - **Exception specifications change frame sizes.** Every `throw()` or `throw(Terminated)` adds an `__unexpected` landing pad and 0x10 bytes of frame. `Start`, `Resume`, `ThreadMain` and the destructor matched only with `throw()`, the destructor only with its loop inside a separate inline `throw()` function, and `TerminateFiber` only with both it and the inlined `Terminate` declaring `throw(Terminated)`. Count the `__unexpected` blocks and read the `extab` specification entries (`0f000000` for `throw()`, `0f000001` plus a type string for one type) before changing code.
 - **Inline depth orders temporaries.** `YieldFiber` placed its two `bad_function_call` temporaries in the opposite stack slots when its body was a separate inline function. Writing the body in `YieldFiber` itself and letting `YieldFiberStarted` and `Terminate` inline `YieldFiber` matched all three.
 - **A `shared_ptr` null test can be `get()`.** `Resume` tests the stack pointer with `lwz`/`cmpwi`, which is `get() != nullptr`; the safe-bool conversion gives `neg`/`or`/`srwi.`.
+- **CodeWarrior evaluates additive operands right to left.** `(rand() << 15) + (rand() << 30) + rand()` calls `rand` in a different order from the original; `(rand() << 30) + (rand() << 15) + rand()` reproduces the three calls in the observed order. Check call order before blaming register allocation.
+- **A multiplication can need a named temporary.** In `RunGameLoop`, `elapsedTicks += (now - retraceCount) * retraceTicks` emitted `mullw r0, r27, r0`; assigning the difference to a local first emitted the original operand order.
+- **Function order inside a unit is part of the match.** `Rand32` placed before `RandInt` moved `RandInt` and every call to it, and verification failed at the call sites; source order must follow address order.
+- **`unitdiff.py` compares against the previous split.** After changing `splits.txt`, run `ninja` once before trusting the `extab` and `extabindex` percentages. A split that omits an exception range leaves the target with none.
+- **A symbol straddling a new split edge blocks dtk.** `lbl_803EA7F8` (0x40) and `lbl_804BA328` (8) had to be resized before the split would load; leave the padding bytes unowned.
+- **Exception ranges can be found by arithmetic.** When neighbors own `extab` and `extabindex`, the gap between them holds one record per function of the units in between (8-byte `extab` entries or more, 12-byte `extabindex` records); split in function order and let the build confirm.
