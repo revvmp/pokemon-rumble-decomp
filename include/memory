@@ -206,10 +206,7 @@ public:
     }
     ~weak_ptr();
 
-    weak_ptr& operator=(const weak_ptr& r) {
-        weak_ptr(r).swap(*this);
-        return *this;
-    }
+    weak_ptr& operator=(const weak_ptr& r);
     template <typename Y> weak_ptr& operator=(const shared_ptr<Y>& r) {
         weak_ptr(r).swap(*this);
         return *this;
@@ -289,6 +286,11 @@ template <typename T> weak_ptr<T>::~weak_ptr() {
     if (s_) {
         s_->release_weak();
     }
+}
+
+template <typename T> weak_ptr<T>& weak_ptr<T>::operator=(const weak_ptr& r) {
+    weak_ptr(r).swap(*this);
+    return *this;
 }
 
 template <typename T> shared_ptr<T> weak_ptr<T>::lock() const {
