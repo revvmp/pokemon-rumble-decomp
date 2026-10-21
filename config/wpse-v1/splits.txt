@@ -336,6 +336,15 @@ game/ControllerTable.cpp:
 	.bss        start:0x803E8D28 end:0x803E90C8
 	.sdata      start:0x804B77D8 end:0x804B77D9
 
+game/CUIList.cpp:
+	extab       start:0x8003EB10 end:0x8003F20C
+	extabindex  start:0x80051A08 end:0x80051B10
+	.text       start:0x801DA0C0 end:0x801DC6C0
+	.rodata     start:0x80367068 end:0x803670A8
+	.data       start:0x803C1090 end:0x803C1890
+	.sdata      start:0x804B8448 end:0x804B8498
+	.sdata2     start:0x804BA4D0 end:0x804BA4E0
+
 ControllerTableAlignmentPadding:
 	.sdata      start:0x804B77D9 end:0x804B77E0 align:1
 

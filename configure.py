@@ -272,6 +272,7 @@ config.libs = [
             Object(Matching, "game/CFiber.cpp"),
             Object(Matching, "game/CResFont.cpp"),
             Object(Matching, "game/CRomFont.cpp"),
+            Object(NonMatching, "game/CUIList.cpp"),
             Object(NonMatching, "game/CMsgRes.cpp"),
             Object(NonMatching, "game/Message.cpp"),
             Object(Matching, "game/Locale.cpp"),
