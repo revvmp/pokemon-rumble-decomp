@@ -313,19 +313,12 @@ protected:
 
     void push_back_realloc(const T& x) { push_back_realloc(x, pod_type()); }
     void push_back_realloc(const T& x, Metrowerks::int2type<false>) {
-        grow_by(1);
-        __vec_split_buffer<T, Allocator> buffer(this->capacity_.second());
-        size_type capacity = grow_capacity(1);
-        if (capacity > max_size()) {
-            __throw_vector_length_error();
+        if (grow_by(1)) {
+            this->alloc().construct(end(), x);
+            ++this->size_;
+        } else {
+            append_realloc(1, x);
         }
-        buffer.data_ = buffer.capacity_.second().allocate(capacity);
-        buffer.capacity_.first() = capacity;
-        buffer.start_ = this->size_;
-        buffer.construct_at_end(1, x);
-        buffer.construct_at_front(this->data_, this->data_ + this->size_, pod_type());
-        clear_moved();
-        swap(buffer, pod_type());
     }
     void push_back_realloc(const T& x, Metrowerks::int2type<true>) {
         if (grow_by(1)) {
