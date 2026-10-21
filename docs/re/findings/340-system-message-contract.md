@@ -6,6 +6,8 @@ The bounded correction preserves the descriptive public name ShowSystemMessage, 
 
 The same-base control rebuilds every registered source object, preserving all allocated section bytes, raw relocations and symbol attributes except the intended public-symbol alias and exactly three `li r4,1` to `li r4,2` changes inside the NonMatching SaveData CheckNandSpace body. Each changed operand must immediately precede a relocation to the corrected public symbol and lies within the same unchanged function extent. These three source corrections implement the independently checked native actions; they are not a claim that the whole SaveData unit matches. Final ELF and DOL checks apply separately, and the official landing loop repeats the controls after rebasing.
 
+Initial same-base controls passed on main `18803de45c5e11ec6b3dac49578b9c5213d73ce1`, proposal `83c40e3f292dc195648db47e3872fc8f87c6e8ef`: 758 actual source objects, 756 whole-file identical. CSaveManager differs only in the public symbol spelling; SaveData has that alias plus exactly the three independently validated action operands. All other compared sections, symbol attributes and raw relocations are unchanged. Final ELF allocated bytes are unchanged after the alias, and baseline/proposal DOLs are byte-identical and pass the frozen manifest. The report is retained under `340-contract-controls/<baseline>/<proposal>/report.json`; the official landing verifier repeats these controls for the final head.
+
 ## Traps
 
 A bool prototype silently narrows an existing integer argument two to one. The caller's readable source can therefore look correct while compiling the wrong action. Validate the parameter domain against both callers and the receiving state machine before adopting descriptive signatures.
