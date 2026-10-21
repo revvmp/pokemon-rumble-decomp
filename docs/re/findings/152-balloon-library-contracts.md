@@ -157,7 +157,16 @@ stored comparator use, reference-based iterator advancement, allocator-based
 node destruction, and the list pointer-to-iterator factory. Existing public
 APIs remain available. It excludes the unfinished insert-node, vector, and
 string adaptations. Initial all-source compilation and frozen-link checks
-pass; publication still requires the same-base full consumer control.
+pass. The same-base control on head `f1b25da98220` also passes all 759 actual
+Ninja source inputs and 710 source-selected units, with identical allocated
+ELF sections, semantic linked symbols after the four evidenced renames, and
+frozen DOL bytes. CPlayer changes only dead-stripped weak helper inventory;
+all strong functions and every native function score remain unchanged.
+The only other semantic object delta is provisional CMsgBalloon: its
+iterator increment and list insertion reach 100%, and find-or-insert
+improves from 97.86957% to 99.347824%. No previously 100% native stream
+regresses. The exact 24-function/72-byte EH proof and separate 17-method
+producer are rerun with the current canonical headers.
 
 - The coherent original-header control of the complete Balloon source
   compiles with the original MSL math header forwarded through the existing
