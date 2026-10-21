@@ -1,6 +1,6 @@
 # F-222-1: Font globals and weak-pointer declaration context
 
-Issue #222 owns 32 functions and 4,936 instruction bytes. This finding concerns only its final five functions, the complete Font.cpp unit at 80126240–801263E8. The preceding controller, sound and DCIM functions remain outside this reconstruction; no whole-issue completion is claimed.
+Issue #222 owns 32 functions and 4,936 instruction bytes. This finding concerns only its final five functions, the complete Font.cpp unit at 80126240–801263E8. The preceding species, stage, sound and DCIM functions remain outside this reconstruction; no whole-issue completion is claimed.
 
 ## Native contract
 
@@ -35,3 +35,15 @@ The NonMatching split build passed the frozen verifier before source selection. 
 The complete source supplies native caller evidence for main.cpp's weak FontMap cleanup at 80126360. The original issue inventory remains 32 functions and 4,936 bytes; this publication accepts five functions and 408 bytes only. The preceding 27 functions and 4,528 bytes remain outside this source unit and the issue remains open.
 
 No new source-generation trap beyond F-222-1 arose. A reused seed MAP can predate the current ELF when configure is run without --map; fresh source attribution was taken only after configure --map and a successful link.
+
+# F-222-3: Independent DCIM continuation checkpoint
+
+The next independent investigated boundary is 80125B10–8012623C, three ordinary DCF filename/index functions. The first validates an eight-character directory name with three decimal digits (directory number at least 100) followed by five alphanumeric/underscore characters. The second validates four alphanumeric/underscore prefix characters followed by four decimal digits (file number at least one), permitting a following extension beginning with a dot. Both support negative explicit length by calling strlen. Holding each input character in an int local permits the same signed-char extension to serve classification and decimal accumulation. Their actual natural producer reproduces all 1,020 instruction bytes and every applied relocation target. A bounded additive isalnum body follows the existing locale-table ctype contract, outside only.
+
+The full index-selection producer at 80125F20 reaches 800 bytes against native 796 with the exact 2,272-byte stack. Its current residual is a hoisted pointer to the directory filename suffix that uses an extra saved register; native recomputes that stack-relative address at its comparison sites. Wii/1.3 leaves this unchanged. Naming loop-local filename pointers increases the discrepancy and is not adopted. No flags, volatile storage or fabricated cache controls are used.
+
+The real caller allocates two directory-search records 1,092 bytes apart and accesses attributes at offset 556 and short names at offset 557. This disproves allocating the current complete private PF_DTA (which includes a Unicode tail) as the game's public record. The public THPConv FA types at pinned e7f2a17eeff43bc6b822a01af66ce670822ab77b independently declare a distinct FADta ending with the OEM long filename; its natural size is 1,092. Older CC0 IPL corroborates that extent. The private PF_DTA Unicode fields are legitimate library state and must remain intact. The earlier public opaque alias to PF_DTA was sufficient for pointer-only async consumers, but cannot establish this allocation contract. Only factual type/field/API observations are used from the restrictive public header; no restricted implementation is imported.
+
+The resulting complete public FADta correction and native FAChdir/FAErrnum declarations remain outside in 222-reference/dcim/include/revolution/fa.h. They require a separate bounded shared-interface proposal with actual async consumers and native symbol-binding controls before publication. The full three-function unit has not passed source-selected acceptance and receives no source credit.
+
+The species combined-type getter at 801250D0 calls the small type-table lookup helper at 80125340, after the strong StageDesc functions at 80125180–80125334. This is a warning that the first-owner species/data source boundary may extend beyond the earlier 80125180 estimate. No competing StageDesc split is inferred solely from addresses.

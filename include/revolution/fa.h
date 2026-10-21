@@ -8,7 +8,27 @@ extern "C" {
 #endif
 
 typedef struct PF_FILE FAFile;
-typedef struct PF_DTA FADta;
+typedef struct PF_DIR FADir;
+typedef struct PF_VOLUME FAVolume;
+typedef struct FADta {
+    FAFile* pFile;
+    FADir* pDir;
+    FAVolume* pVol;
+    u32 parentStartCluster;
+    u32 parentPos;
+    u32 status;
+    u8 numEntryLFNs;
+    u8 ordinal;
+    u8 checkSum;
+    u8 attr;
+    s8 regExp[520];
+    u16 Time;
+    u16 Date;
+    u32 FileSize;
+    u8 Attribute;
+    s8 FileName[13];
+    s8 LongName[522];
+} FADta;
 typedef struct PF_DRV_TBL FADrvTbl;
 
 typedef struct FANandInfo {
@@ -23,6 +43,9 @@ typedef struct FACommandBlock {
 } FACommandBlock;
 
 typedef void (*FACallback)(s32 result, FACommandBlock* block);
+
+s32 FAChdir(const char* pPath);
+s32 FAErrnum(void);
 
 s32 FAAttachAsync(u8 device, s8* nand_path, u32 nand_size, FADrvTbl* p_driver_table, FACallback callback, FACommandBlock* block);
 s32 FAMountAsync(s8 drive, FACallback callback, FACommandBlock* block);
