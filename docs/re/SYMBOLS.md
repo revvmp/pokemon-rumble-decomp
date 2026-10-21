@@ -3445,3 +3445,23 @@ The three New bindings own a `shared_ptr<CItem>` while retaining the allocated d
 ## CPpuRegister native source contract (#209)
 
 CPpuRegister is 8 bytes: one shared_ptr<vector<NPpu::Slice>> named mValues at offset 0 (element pointer 0, ownership control 4). Reserve(unsigned long) lazily allocates and reserves the vector; Reset releases it. Set(unsigned long,const NPpu::Slice&) grows and zeroes intervening integer values through SetInt(0); GetValue(unsigned int)const returns the two-word value. Swap(CPpuRegister*) exchanges shared owners through a saved owner and tolerates null. The existing canonical name and eight-byte layout are preserved. Reserve/Reset and mValues are descriptive behavior names. Native ownership RTTI and shared cleanup actions prove the Slice payload. See [F-209-6](findings/209-cstagecamera.md#f-209-6-cppuregister-producer-and-primary-vector-contracts) and [source acceptance](findings/209-cstagecamera.md#f-209-7-complete-cppuregister-source-selection).
+
+### F-152-6: Tree size roles and empty algorithm base
+
+The original `std::__red_black_tree<Pointer>` is an empty algorithm base.
+Adding that evidenced inheritance preserves compact and full tree storage
+layouts; it supplies the complete ordinary template method definitions
+needed for correct caller exception analysis. The two-value
+`std::__tree_color` enumeration and node `color()`/`set_color()` methods
+read and update the already-proven low parent-pointer bit. Node fields
+remain at 0/4/8 with 12-byte extent.
+
+The public tree size method at `0x800C95E0` and storage size method at
+`0x800CCEE0` are distinct 36-byte functions, both calling the const `sz()`
+accessor at `0x800C9610`. Mutable `sz()` at `0x800CCF20` is a four-byte
+forwarder. The shared balancing target at `0x80059AF0` is the original
+algorithm member and retains the existing foreign strong 900-byte
+implementation; the newly visible weak body is not claimed reconstructed.
+The complete insert producer at `0x800CC7A0` reproduces 392 code bytes and
+24 EH bytes with every target resolved. [F-152-6](findings/152-balloon-library-contracts.md#f-152-6-original-tree-algorithm-visibility-and-size-roles)
+records the independent consumer evidence and foreign-definition gates.

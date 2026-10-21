@@ -150,7 +150,102 @@ Reproducible controls and receipts are outside the repository at
 `152-reference/primary-list-constructor/primary-code-graph.json` and
 `primary-own-eh-proof.json`.
 
+## F-152-6: Original tree algorithm visibility and size roles
+
+The original public tree also forwards `begin`, `end`, and `find` directly
+to storage, and set insertion calls its `insert_one` API. Independent
+MapPiiTable producers reproduce all 29 instruction streams with these
+roles. The compatible adaptation retains the older middle-layer APIs and
+exposes inherited backend types and methods through using declarations.
+Balloon's four-byte public forwarders at 800C94D0, 800C9520, 800C95B0,
+and 800C9760 are named from that primary class role and actual pipeline
+symbols. Current-consumer and linked acceptance remain separate gates.
+
+The same-base preflight at `2a8c4aa398e1` covers 760 source objects and
+713 source-selected Matching objects. All previously exact streams retain
+their bytes and semantic relocations; Matching strong functions and linked
+allocated ELF/DOL remain identical. CWaza changes only unused weak helper
+inventory and generated local labels. NonMatching BWorld and MapPiiTable
+scores improve, while NPpuVM Init remains nonmatching and exchanges four
+stack-byte references between offsets 12 and 13 without changing its
+608-byte extent. Its score changes from 99.86842 to 99.84210; this provisional
+stream is not presented as preserved or corrected. The native insert and
+its 24-byte EH record, original 24-function producer and 17 game bodies
+remain independently exact. Receipts are under
+`152-reference/header-verified-2a8c4aa398e1`.
+
+The recovered original header distinguishes the public `__tree::size`
+method from `__tree_deleter::size`. The existing reconstructed `tree`,
+`red_black_tree`, and `tree_imp` already represent the public, constructor,
+and storage roles, but the public size method was inherited rather than
+defined. A public size method returning the base const `sz()` restores
+the distinct 36-byte functions at `0x800C95E0` and `0x800CCEE0` without
+changing any object layout. The mutable `sz()` call also restores the
+separate four-byte increment accessor at `0x800CCF20`.
+
+The native insert body at `0x800CC7A0` is 392 bytes. The primary maximum-size
+check, direct length-error construction, node allocator calls, allocation
+owner arrow, and `sz()` increment reproduce all code and relocation targets.
+Its 24-byte EH record initially retained an extra protected interval after
+the allocation owner released its node. The missing information was the
+balance algorithm: the reconstructed header declared only an external
+helper, while the original header supplies its complete template member
+definition. Making the original algorithm visible restores the exact EH
+interval and destructor target.
+
+An explicitly inline free-function adaptation changes MapPiiTable inlining
+and is rejected. An ordinary non-inline free definition in a shared header
+would violate the one-definition rule and remains diagnostic only. The
+coherent reconstruction uses the original empty `std::__red_black_tree`
+algorithm base, ordinary out-of-class template definitions, and the original
+color enumeration and accessors. Existing compact and full tree storage
+classes inherit that empty algorithm base. No compiler flags, attributes,
+or forced retention are used.
+
+The complete producer proof is archived at
+`152-reference/152-primary-insert392-eh24-positive`. An independent
+MapPiiTable producer confirms four helpers totaling 1,324 code bytes and
+both 96-byte insertion EH records, including all relocation and cleanup
+targets. Its receipts are `208-reference/208-tree-helper-proof.json`.
+
+The visible balance body is an external weak definition and is not claimed
+native-exact. The source-selected link must retain the existing strong
+900-byte implementation at `0x80059AF0` from the explicitly foreign
+`build/wpse-v1/obj/game/BModelObj.o`. Each acceptance round regenerates the
+MAP, checks that module in the Ninja link inputs, and checks the strong ELF
+symbol and extent. It also repeats the complete current-consumer and frozen
+ELF/DOL controls before publication.
+
+The primary reference is `tree`, revision 1.36.2.3, dated 2006-02-09,
+in the recovered `alpha2006/CW_RVL/PowerPC_EABI_Support/MSL/` tree.
+Its notice is preserved here because source comments are prohibited:
+“Copyright © 1995-2006 Freescale Corporation. All rights reserved.”
+The reference attributes the insertion and removal algorithms to Cormen,
+Leiserson, and Rivest, *Introduction to Algorithms* (MIT Press, 1990).
+
 ## Traps
+
+- A flattened container reconstruction can produce each native helper
+  separately while merging two real class identities. The original tree
+  insert body reaches its native 392 bytes with the primary inline throw,
+  maximum-size check, node allocator, and allocation-owner arrow. However,
+  the reconstructed `tree_imp::size` then binds to both `0x800C95E0` and
+  `0x800CCEE0`. Original headers distinguish derived `__tree::size` and
+  base `__tree_deleter::size`, each 36 bytes. The binding conflict rejects
+  this incomplete adaptation. F-152-6 resolves it using the existing real
+  class roles and their primary public size method, rather than inventing
+  an additional storage class or helper.
+  Reproducer: `152-primary-insert-context.py`; receipt:
+  `152-reference/primary-insert-context/recursive.json`.
+
+- Native instruction proofs for an owned range do not prove every emitted
+  external weak definition. Extending the original-header oracle to all
+  reachable defined functions audits 521 functions and exposes external
+  weak bodies with different extents. Actual source selection must prove
+  which external strong definitions win and which weak bodies are stripped.
+  The 390-function owned-range oracle remains diagnostic rather than whole
+  source acceptance. Receipt:
+  `152-reference/full-primary-external-defined.json`.
 
 The bounded follow-up candidate changes only the tree parent pointer type,
 stored comparator use, reference-based iterator advancement, allocator-based
