@@ -7,6 +7,7 @@
 #include <iosfwd>
 #include <iterator>
 #include <string.h>
+#include <stdexcept>
 #include <wchar.h>
 #include <wstring.h>
 
@@ -139,23 +140,7 @@ public:
         return replace(pos, 0, first, first + count, forward_iterator_tag());
     }
 
-    int compare(size_type pos1, size_type n1, const charT* s, size_type n2) const {
-        const charT* pLhs;
-        size_type size;
-        get_buffer(pLhs, size);
-        size_type rlen = min(size - pos1, n1);
-        int result = traits::compare(pLhs + pos1, s, min(rlen, n2));
-        if (result == 0) {
-            if (rlen < n2) {
-                return -1;
-            }
-            if (rlen == n2) {
-                return 0;
-            }
-            return 1;
-        }
-        return result;
-    }
+    int compare(size_type pos1, size_type n1, const charT* s, size_type n2) const;
 
     int compare(const basic_string& str) const {
         const charT* pStr;
@@ -298,6 +283,28 @@ basic_string<charT, traits, Allocator> operator+(const basic_string<charT, trait
 template <class charT, class traits, class Allocator>
 bool operator<(const basic_string<charT, traits, Allocator>& lhs, const basic_string<charT, traits, Allocator>& rhs) {
     return lhs.compare(rhs) < 0;
+}
+
+template <class charT, class traits, class Allocator>
+int basic_string<charT, traits, Allocator>::compare(size_type pos1, size_type n1, const charT* s, size_type n2) const {
+    const charT* pLhs;
+    size_type size;
+    get_buffer(pLhs, size);
+    if (pos1 > size) {
+        throw out_of_range("string compare: pos > len");
+    }
+    size_type rlen = min(size - pos1, n1);
+    int result = traits::compare(pLhs + pos1, s, min(rlen, n2));
+    if (result == 0) {
+        if (rlen < n2) {
+            return -1;
+        }
+        if (rlen == n2) {
+            return 0;
+        }
+        return 1;
+    }
+    return result;
 }
 
 typedef basic_string<char> string;
