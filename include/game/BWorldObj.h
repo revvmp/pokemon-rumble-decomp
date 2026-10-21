@@ -56,6 +56,7 @@ public:
     const nw4r::math::VEC3& GetPositionRef() const { return mPosition; }
 
     void Pause();
+    void Resume();
     void SetOwner(const std::tr1::shared_ptr<BWorldObjOwner>& rOwner);
 
 protected:

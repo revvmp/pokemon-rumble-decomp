@@ -110,6 +110,15 @@ public:
 
     size_type size() const { return size_; }
 
+    void clear() {
+        if (root_ != nullptr) {
+            destroy(static_cast<node*>(root_));
+            size_ = 0;
+            root_ = nullptr;
+            begin_ = end_node();
+        }
+    }
+
     pair<iterator, bool> insert_one(const value_type& rValue) {
         node* pPred;
         bool left;

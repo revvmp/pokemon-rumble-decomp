@@ -43,6 +43,11 @@ public:
         memset(pFirst, 0, n * sizeof(T));
         size_ += n;
     }
+    void construct_at_end(const T* pFirst, const T* pLast, Metrowerks::int2type<true>) {
+        ptrdiff_t n = pLast - pFirst;
+        memcpy(data_ + size_, pFirst, n * sizeof(T));
+        size_ += n;
+    }
     void construct_at_end(const T* pFirst, const T* pLast, Metrowerks::int2type<false>) {
         for (T* p = data_ + size_; pFirst != pLast; ++pFirst, ++p) {
             capacity_.second().construct(p, *pFirst);
@@ -97,7 +102,14 @@ public:
         }
     }
 
-    void construct_at_front(T* pFirst, T* pLast, pod_type) {
+    void construct_at_front(T* pFirst, T* pLast, Metrowerks::int2type<true>) {
+        ptrdiff_t n = pLast - pFirst;
+        start_ -= n;
+        memcpy(begin(), pFirst, n * sizeof(T));
+        memset(pFirst, 0, n * sizeof(T));
+        this->size_ += n;
+    }
+    void construct_at_front(T* pFirst, T* pLast, Metrowerks::int2type<false>) {
         for (T* p = begin(); pLast > pFirst;) {
             --p;
             --pLast;
@@ -167,6 +179,9 @@ protected:
         if (this->size_ < this->cap()) {
             ++this->size_;
             back() = x;
+        } else if (grow_by(1, pod_type())) {
+            ++this->size_;
+            back() = x;
         } else {
             push_back_realloc(x);
         }
@@ -184,8 +199,19 @@ protected:
     void push_back_realloc(const T& x) { push_back_realloc(x, pod_type()); }
     void push_back_realloc(const T& x, Metrowerks::int2type<false>);
     void push_back_realloc(const T& x, Metrowerks::int2type<true>) {
-        reallocate(grow_by(1));
-        this->data_[this->size_++] = x;
+        __vec_split_buffer<T, Allocator> buffer(this->capacity_.second());
+        size_type capacity = grow_by(1);
+        if (capacity > max_size()) {
+            __throw_vector_length_error();
+        }
+        buffer.data_ = buffer.capacity_.second().allocate(capacity);
+        buffer.capacity_.first() = capacity;
+        buffer.start_ = this->size_;
+        *buffer.end() = x;
+        ++buffer.size_;
+        buffer.construct_at_front(this->data_, this->data_ + this->size_, pod_type());
+        this->size_ = 0;
+        swap(buffer, pod_type());
     }
 
     void pop_back(Metrowerks::int2type<true>) { --this->size_; }

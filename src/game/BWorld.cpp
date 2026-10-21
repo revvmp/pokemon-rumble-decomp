@@ -5,11 +5,18 @@
 #include <game/CShadowCamera.h>
 #include <game/CKDTree.h>
 #include <game/EffectGroupID.h>
+#include <game/MathUtil.h>
 #include <game/Memory.h>
+#include <game/Sound.h>
 #include <game/WorkBuffer.h>
+#include <map>
+#include <nw4r/ef/ef_effectsystem.h>
 #include <nw4r/ef/ef_resource.h>
 #include <nw4r/g3d/g3d_state.h>
+#include <nw4r/math/math_geometry.h>
+#include <nw4r/snd/snd_Sound3DListener.h>
 #include <revolution/gx.h>
+#include <revolution/mtx.h>
 
 BWorld::Desc::Desc() :
     mDrawType(0),
@@ -160,7 +167,7 @@ BWorld::~BWorld() {
     }
 
     if (mEffectData) {
-        RemoveAllEffects(true);
+        RemoveAllEffects(TRUE);
         if (mEffectData->mCaptureEnable) {
             mEffectData->mTextureState.Restore();
         }
@@ -247,7 +254,7 @@ int BWorld::AttachCamera(std::tr1::shared_ptr<BWorldCamera> camera) {
     return -1;
 }
 
-void BWorld::RemoveCamera(const std::tr1::shared_ptr<BWorldCamera>& camera) {
+void BWorld::RemoveCamera(std::tr1::shared_ptr<BWorldCamera> camera) {
     if (camera) {
         ClearCamera(camera->GetIndex());
     }
@@ -381,4 +388,494 @@ bool BWorld::AddObject(std::tr1::shared_ptr<BWorldObj> obj) {
         }
     }
     return false;
+}
+void BWorld::RemoveObject(std::tr1::shared_ptr<BWorldObj> obj) {
+    if (!obj || obj->mWorld == nullptr) {
+        return;
+    }
+
+    ObjEntry* pEntries = mObjEntries.begin();
+    ObjEntry* pEntry = &mObjEntries[obj->mId % mObjEntries.size()];
+    pEntry->mObj.reset();
+    pEntry->mFlags = 0;
+
+    ObjEntry* pNext = pEntry->GetNext(pEntries);
+    ObjEntry* pPrev = pEntry->GetPrev(pEntries);
+    if (pEntry->mPrev == 0) {
+        if (pEntry->mNext == 0) {
+            mObjTail = nullptr;
+            mObjHead = nullptr;
+        } else {
+            mObjHead = pNext;
+            pNext->mPrev = 0;
+        }
+    } else if (pEntry->mNext == 0) {
+        mObjTail = pPrev;
+        pPrev->mNext = 0;
+    } else {
+        pPrev->mNext = pNext - pEntries + 1;
+        pNext->mPrev = pPrev - pEntries + 1;
+    }
+
+    if (std::tr1::shared_ptr<BWorldCamera> camera = DynamicCast<BWorldCamera>(obj)) {
+        RemoveCamera(camera);
+    }
+
+    if (obj.get() == mGround.lock().get()) {
+        mGround.reset();
+    }
+
+    obj->mWorld = nullptr;
+    obj->OnLeaveWorld();
+
+    if (mFlags & FLAG_IN_CALC) {
+        mRemovedObjs.insert(obj);
+    }
+}
+
+BWorldObj* BWorld::GetObject(u32 id) {
+    if (id == 0) {
+        return nullptr;
+    }
+    return mObjEntries[id % mObjEntries.size()].mObj.get();
+}
+
+std::vector<BWorldObj*> BWorld::GetObjects(u32 type) {
+    std::vector<BWorldObj*> objs;
+    objs.reserve(mObjEntries.size());
+
+    u32 stopTypes = GetStopTypes(type);
+    for (ObjEntry* pEntry = mObjHead; pEntry != nullptr; pEntry = GetNextEntry(pEntry)) {
+        u32 entryType = pEntry->mFlags & ~ENTRY_NEW;
+        if (!(entryType & type)) {
+            if (entryType & stopTypes) {
+                continue;
+            }
+            break;
+        }
+
+        objs.push_back(pEntry->mObj.get());
+    }
+    return objs;
+}
+
+int BWorld::CountObjects(u32 type) {
+    int count = 0;
+    u32 stopTypes = GetStopTypes(type);
+    for (ObjEntry* pEntry = mObjHead; pEntry != nullptr; pEntry = GetNextEntry(pEntry)) {
+        if (!(pEntry->GetType() & type)) {
+            if (pEntry->GetType() & stopTypes) {
+                continue;
+            }
+            break;
+        }
+        count++;
+    }
+    return count;
+}
+
+BWorldObj* BWorld::FindNearestObject(u32 type, BWorldObj* pOrigin) {
+    BWorldObj* pNearest = nullptr;
+    f32 nearestDistSq = 0.0f;
+    u32 stopTypes = GetStopTypes(type);
+    for (ObjEntry* pEntry = mObjHead; pEntry != nullptr; pEntry = GetNextEntry(pEntry)) {
+        u32 entryType = pEntry->mFlags & ~ENTRY_NEW;
+        if (!(entryType & type)) {
+            if (entryType & stopTypes) {
+                continue;
+            }
+            break;
+        }
+
+        BWorldObj* pObj = pEntry->mObj.get();
+        if (pObj != pOrigin && pObj->IsVisible()) {
+            nw4r::math::VEC3 diff = pObj->mPosition - pOrigin->mPosition;
+            f32 distSq = nw4r::math::VEC3LenSq(&diff);
+            if (pNearest == nullptr || distSq < nearestDistSq) {
+                pNearest = pObj;
+                nearestDistSq = distSq;
+            }
+        }
+    }
+    return pNearest;
+}
+
+namespace {
+
+struct SectorPlane {
+    f32 GetOriginDistance() const { return -mD; }
+
+    f32 GetDistance(const nw4r::math::VEC3& rCenter, f32 radius) const {
+        f32 dist = rCenter.z * mNormal.z + rCenter.x * mNormal.x - GetOriginDistance();
+        if (radius <= dist) {
+            return dist - radius;
+        }
+        if (dist <= -radius) {
+            return dist + radius;
+        }
+        return 0.0f;
+    }
+
+    nw4r::math::VEC3 mNormal;
+    f32 mD;
+};
+
+}
+
+std::list<BWorldObj*> BWorld::FindObjectsInSector(u32 type, const nw4r::math::VEC3& rCenter, f32 innerRadius,
+                                                  f32 outerRadius, f32 startAngle, f32 endAngle) {
+    std::list<BWorldObj*> objs;
+    nw4r::math::VEC3 center(rCenter.x, 0.0f, rCenter.z);
+    f32 sin;
+    f32 cos;
+
+    SectorPlane startPlane;
+    nw4r::math::SinCosDeg(&sin, &cos, startAngle + 90.0f);
+    startPlane.mNormal.x = sin;
+    startPlane.mNormal.y = 0.0f;
+    startPlane.mNormal.z = cos;
+    startPlane.mD = -nw4r::math::VEC3Dot(&center, &startPlane.mNormal);
+
+    SectorPlane endPlane;
+    nw4r::math::SinCosDeg(&sin, &cos, endAngle - 90.0f);
+    endPlane.mNormal.x = sin;
+    endPlane.mNormal.y = 0.0f;
+    endPlane.mNormal.z = cos;
+    endPlane.mD = -nw4r::math::VEC3Dot(&center, &endPlane.mNormal);
+
+    f32 range = NormalizeAngle(endAngle - startAngle);
+    bool narrow = range <= 180.0f;
+    SectorPlane midPlane;
+    if (narrow) {
+        nw4r::math::SinCosDeg(&sin, &cos, startAngle + range * 0.5f);
+        midPlane.mNormal.x = sin;
+        midPlane.mNormal.y = 0.0f;
+        midPlane.mNormal.z = cos;
+        midPlane.mD = -nw4r::math::VEC3Dot(&center, &midPlane.mNormal);
+    }
+
+    u32 stopTypes = GetStopTypes(type);
+    for (ObjEntry* pEntry = mObjHead; pEntry != nullptr; pEntry = GetNextEntry(pEntry)) {
+        u32 entryType = pEntry->mFlags & ~ENTRY_NEW;
+        if (!(entryType & type)) {
+            if (entryType & stopTypes) {
+                continue;
+            }
+            break;
+        }
+
+        BWorldObj* const& pObj = pEntry->mObj.get();
+        nw4r::math::VEC3 pos = pObj->mPosition;
+        nw4r::math::VEC3 diff = pos - center;
+        f32 distSq = diff.z * diff.z + diff.x * diff.x;
+
+        f32 radius = pObj->GetSize().z;
+        if ((outerRadius + radius) * (outerRadius + radius) < distSq) {
+            continue;
+        }
+        f32 inner = innerRadius - radius;
+        if (0.0f < inner && distSq < inner * inner) {
+            continue;
+        }
+
+        nw4r::math::SPHERE sphere;
+        sphere.C.x = pos.x;
+        sphere.C.y = 0.0f;
+        sphere.C.z = pos.z;
+        sphere.r = pObj->GetSize().z;
+        if (narrow) {
+            if (!(0.0f <= startPlane.GetDistance(sphere.C, sphere.r)) ||
+                !(0.0f <= endPlane.GetDistance(sphere.C, sphere.r)) ||
+                !(0.0f <= midPlane.GetDistance(sphere.C, sphere.r))) {
+                continue;
+            }
+        } else if (startPlane.GetDistance(sphere.C, sphere.r) < 0.0f &&
+                   endPlane.GetDistance(sphere.C, sphere.r) < 0.0f) {
+            continue;
+        }
+
+        objs.push_back(pObj);
+    }
+    return objs;
+}
+
+std::list<BWorldObj*> BWorld::FindObjectsInRing(u32 type, const nw4r::math::VEC3& rCenter, f32 innerRadius,
+                                                f32 outerRadius) {
+    std::list<BWorldObj*> objs;
+    nw4r::math::VEC3 center(rCenter.x, 0.0f, rCenter.z);
+
+    u32 stopTypes = GetStopTypes(type);
+    for (ObjEntry* pEntry = mObjHead; pEntry != nullptr; pEntry = GetNextEntry(pEntry)) {
+        u32 entryType = pEntry->mFlags & ~ENTRY_NEW;
+        if (!(entryType & type)) {
+            if (entryType & stopTypes) {
+                continue;
+            }
+            break;
+        }
+
+        BWorldObj* const& pObj = pEntry->mObj.get();
+        nw4r::math::VEC3 pos = pObj->mPosition;
+        nw4r::math::VEC3 diff = pos - center;
+        f32 distSq = diff.z * diff.z + diff.x * diff.x;
+
+        f32 radius = pObj->GetSize().z;
+        if ((outerRadius + radius) * (outerRadius + radius) < distSq) {
+            continue;
+        }
+        f32 inner = innerRadius - radius;
+        if (0.0f < inner && distSq < inner * inner) {
+            continue;
+        }
+
+        objs.push_back(pObj);
+    }
+    return objs;
+}
+
+std::list<BWorldObj*> BWorld::FindObjectsInRect(u32 type, const nw4r::math::VEC3& rCenter, f32 rotation, f32 minZ,
+                                                f32 maxZ, f32 minX, f32 maxX) {
+    std::list<BWorldObj*> objs;
+    nw4r::math::VEC3 center(rCenter.x, 0.0f, rCenter.z);
+    nw4r::math::VEC3 trans = -center;
+    nw4r::math::MTX34 transMtx(1.0f, 0.0f, 0.0f, trans.x, 0.0f, 1.0f, 0.0f, trans.y, 0.0f, 0.0f, 1.0f, trans.z);
+
+    f32 sin;
+    f32 cos;
+    nw4r::math::SinCosDeg(&sin, &cos, -rotation);
+    nw4r::math::MTX34 rotMtx(cos, 0.0f, sin, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, -sin, 0.0f, cos, 0.0f);
+
+    nw4r::math::MTX34 mtx;
+    PSMTXConcat(rotMtx, transMtx, mtx);
+
+    u32 stopTypes = GetStopTypes(type);
+    for (ObjEntry* pEntry = mObjHead; pEntry != nullptr; pEntry = GetNextEntry(pEntry)) {
+        u32 entryType = pEntry->mFlags & ~ENTRY_NEW;
+        if (!(entryType & type)) {
+            if (entryType & stopTypes) {
+                continue;
+            }
+            break;
+        }
+
+        BWorldObj* const& pObj = pEntry->mObj.get();
+        nw4r::math::VEC3 local;
+        PSMTXMultVec(mtx, pObj->mPosition, local);
+
+        f32 radius = pObj->GetSize().z;
+        if (minZ - radius <= local.z && local.z <= maxZ + radius && minX - radius <= local.x &&
+            local.x <= maxX + radius) {
+            objs.push_back(pObj);
+        }
+    }
+    return objs;
+}
+
+CEffect* BWorld::GetEffect(u32 handle) {
+    if (!mEffectData || handle == 0) {
+        return nullptr;
+    }
+    return mEffectData->mEffects[handle % mEffectData->mEffects.size()].get();
+}
+
+u32 BWorld::GetEffectGroupID() const {
+    if (!mEffectData) {
+        return EFFECT_GROUP_INVALID;
+    }
+    if (((mFlags & FLAG_PAUSED) || (mFlags & FLAG_SKIP_STATE_2)) && mEffectData->mPauseGroupID != EFFECT_GROUP_INVALID) {
+        return mEffectData->mPauseGroupID;
+    }
+    return mEffectData->mGroupID;
+}
+
+u32 BWorld::GetCaptureEffectGroupID() const {
+    if (!mEffectData) {
+        return EFFECT_GROUP_INVALID;
+    }
+    if (((mFlags & FLAG_PAUSED) || (mFlags & FLAG_SKIP_STATE_2)) && mEffectData->mPauseGroupID != EFFECT_GROUP_INVALID) {
+        return mEffectData->mPauseGroupID;
+    }
+    if (mEffectData->mCaptureGroupID != EFFECT_GROUP_INVALID) {
+        return mEffectData->mCaptureGroupID;
+    }
+    return mEffectData->mGroupID;
+}
+
+CEffect* BWorld::CreateEffect(const CEffect::Param& rParam, const nw4r::math::VEC3& rPosition, f32 rotation) {
+    if (!mEffectData) {
+        return nullptr;
+    }
+    std::tr1::shared_ptr<CEffect> effect(new CEffect);
+    effect->Create(this, rParam, rPosition, rotation);
+    return AddEffect(effect);
+}
+
+CEffect* BWorld::CreateEffect(const CEffect::Param& rParam, BWorldObj* pFollow) {
+    if (!mEffectData) {
+        return nullptr;
+    }
+    std::tr1::shared_ptr<CEffect> effect(new CEffect);
+    effect->Create(this, rParam, pFollow);
+    return AddEffect(effect);
+}
+
+CEffect* BWorld::CreateEffect(const CEffect::Param& rParam, BWorldObj* pFollow, f32 rotation) {
+    if (!mEffectData) {
+        return nullptr;
+    }
+    std::tr1::shared_ptr<CEffect> effect(new CEffect);
+    effect->Create(this, rParam, pFollow, rotation);
+    return AddEffect(effect);
+}
+
+CEffect* BWorld::CreateEffectFollowRotation(const CEffect::Param& rParam, BWorldObj* pFollow, f32 rotation) {
+    if (!mEffectData) {
+        return nullptr;
+    }
+    std::tr1::shared_ptr<CEffect> effect(new CEffect);
+    effect->CreateFollowRotation(this, rParam, pFollow, rotation);
+    return AddEffect(effect);
+}
+
+CEffect* BWorld::CreateEffect(const CEffect::Param& rParam, BWorldObj* pFollow, BWorldObj* pTarget) {
+    if (!mEffectData) {
+        return nullptr;
+    }
+    std::tr1::shared_ptr<CEffect> effect(new CEffect);
+    effect->Create(this, rParam, pFollow, pTarget);
+    return AddEffect(effect);
+}
+
+void BWorld::RemoveAllEffects(BOOL retire) {
+    if (!mEffectData) {
+        return;
+    }
+
+    for (std::vector<std::tr1::shared_ptr<CEffect> >::iterator it = mEffectData->mEffects.begin();
+         it != mEffectData->mEffects.end(); ++it) {
+        if (*it) {
+            (*it)->Finalize(retire);
+            it->reset();
+        }
+    }
+
+    if (retire == TRUE) {
+        nw4r::ef::EffectSystem* pSystem = nw4r::ef::EffectSystem::GetInstance();
+        if (mEffectData->mCaptureGroupID != EFFECT_GROUP_INVALID) {
+            pSystem->RetireParticleAll(mEffectData->mCaptureGroupID);
+            pSystem->RetireEmitterAll(mEffectData->mCaptureGroupID);
+            pSystem->RetireEffectAll(mEffectData->mCaptureGroupID);
+        }
+        if (mEffectData->mPauseGroupID != EFFECT_GROUP_INVALID) {
+            pSystem->RetireParticleAll(mEffectData->mPauseGroupID);
+            pSystem->RetireEmitterAll(mEffectData->mPauseGroupID);
+            pSystem->RetireEffectAll(mEffectData->mPauseGroupID);
+        }
+        pSystem->RetireParticleAll(mEffectData->mGroupID);
+        pSystem->RetireEmitterAll(mEffectData->mGroupID);
+        pSystem->RetireEffectAll(mEffectData->mGroupID);
+    }
+}
+
+bool BWorld::RemoveOldestEffect(bool retire) {
+    if (!mEffectData) {
+        return false;
+    }
+
+    std::map<u32, CEffect*> effects;
+    for (std::vector<std::tr1::shared_ptr<CEffect> >::iterator it = mEffectData->mEffects.begin(); it != mEffectData->mEffects.end(); ++it) {
+        if (*it && !(*it)->IsFinished() && !(*it)->IsPersistent()) {
+            effects.insert(std::map<u32, CEffect*>::value_type((*it)->GetHandle(), it->get()));
+        }
+    }
+
+    if (effects.empty()) {
+        return false;
+    }
+    effects.begin()->second->Finalize(retire);
+    return true;
+}
+
+CEffect* BWorld::AddEffect(std::tr1::shared_ptr<CEffect> effect) {
+    if (effect && !effect->IsFinished()) {
+        u32 capacity = mEffectData->mEffects.size();
+        for (u32 i = 1; i <= capacity; i++) {
+            u32 handle = mEffectData->mLastHandle + i;
+            if (handle & 0x80000000) {
+                return nullptr;
+            }
+
+            u32 slot = handle % capacity;
+            if (!mEffectData->mEffects[slot] || mEffectData->mEffects[slot]->IsFinished()) {
+                mEffectData->mLastHandle = handle;
+                mEffectData->mEffects[slot] = effect;
+                effect->SetHandle(handle);
+                return effect.get();
+            }
+        }
+    }
+    return nullptr;
+}
+
+void BWorld::Calc() {
+    if (mFlags & FLAG_CALC_DISABLED) {
+        return;
+    }
+
+    if ((mFlags & FLAG_PAUSE_REQUESTED) && !(mFlags & FLAG_PAUSED)) {
+        for (ObjEntry* pEntry = mObjHead; pEntry != nullptr; pEntry = GetNextEntry(pEntry)) {
+            pEntry->mObj->Pause();
+        }
+    } else if ((mFlags & FLAG_RESUME_REQUESTED) && (mFlags & FLAG_PAUSED)) {
+        for (ObjEntry* pEntry = mObjHead; pEntry != nullptr; pEntry = GetNextEntry(pEntry)) {
+            pEntry->mObj->Resume();
+        }
+    }
+
+    mPendingFrames++;
+    mFlags = (mFlags & ~(FLAG_PAUSE_REQUESTED | FLAG_RESUME_REQUESTED)) | FLAG_IN_CALC;
+
+    u32 skipStates = 0;
+    if (mFlags & FLAG_SKIP_STATE_2) {
+        skipStates |= 2;
+    }
+    if (mFlags & FLAG_SKIP_STATE_4) {
+        skipStates |= 4;
+    }
+    if (mFlags & FLAG_PAUSED) {
+        skipStates |= 0x10;
+    }
+
+    std::vector<ObjEntry>::iterator it = mObjEntries.begin();
+    u32 lastHandle = mLastObjHandle;
+    for (; it != mObjEntries.end(); ++it) {
+        BWorldObj* pObj = it->mObj.get();
+        if (pObj != nullptr && !(pObj->mState & skipStates)) {
+            pObj->Calc();
+            it->mFlags &= ~ENTRY_NEW;
+        }
+    }
+
+    while (lastHandle != mLastObjHandle) {
+        lastHandle = mLastObjHandle;
+        for (it = mObjEntries.begin(); it != mObjEntries.end(); ++it) {
+            BWorldObj* pObj = it->mObj.get();
+            if (pObj != nullptr && !(pObj->mState & skipStates) && (it->mFlags & ENTRY_NEW)) {
+                pObj->Calc();
+                it->mFlags &= ~ENTRY_NEW;
+            }
+        }
+    }
+
+    mFlags &= ~FLAG_IN_CALC;
+    mRemovedObjs.clear();
+
+    if (mFlags & FLAG_SOUND_LISTENER) {
+        std::tr1::shared_ptr<BWorldCamera> camera = mCurrentCamera.lock();
+        if (camera) {
+            nw4r::math::MTX34 mtx;
+            camera->GetG3dCamera().GetCameraMtx(&mtx);
+            GetSound3DListener().SetMatrix(mtx);
+        }
+    }
 }

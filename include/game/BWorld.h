@@ -3,7 +3,9 @@
 
 #include <game/BWorldObj.h>
 #include <game/CaptureTexture.h>
+#include <game/CEffect.h>
 #include <game/ICalcDraw.h>
+#include <list>
 #include <memory>
 #include <nw4r/ef/ef_res_texture.h>
 #include <nw4r/g3d/g3d_scnobj.h>
@@ -14,7 +16,6 @@
 
 class BModelObj;
 class BWorldCamera;
-class CEffect;
 class CShadowCamera;
 template <typename T> class CKDTree;
 
@@ -90,8 +91,18 @@ public:
         u8* mpTlut;
     };
 
+    enum EntryFlag {
+        ENTRY_HEAD_TYPES = 0x180,
+        ENTRY_NEW = 0x40000
+    };
+
     struct ObjEntry {
         ObjEntry() : mFlags(0) {}
+
+        u32 GetType() const { return mFlags & ~ENTRY_NEW; }
+        bool IsType(u32 type) const { return GetType() & type; }
+        ObjEntry* GetNext(ObjEntry* pEntries) const { return mNext != 0 ? pEntries + mNext - 1 : nullptr; }
+        ObjEntry* GetPrev(ObjEntry* pEntries) const { return mPrev != 0 ? pEntries + mPrev - 1 : nullptr; }
 
         u32 mFlags;
         u16 mNext;
@@ -139,7 +150,7 @@ public:
     void SetCamera(std::tr1::shared_ptr<BWorldCamera> camera, u32 index);
     int AddCamera(std::tr1::shared_ptr<BWorldCamera> camera);
     int AttachCamera(std::tr1::shared_ptr<BWorldCamera> camera);
-    void RemoveCamera(const std::tr1::shared_ptr<BWorldCamera>& camera);
+    void RemoveCamera(std::tr1::shared_ptr<BWorldCamera> camera);
     void ClearCamera(u32 index);
     CShadowCamera* GetShadowCamera();
     void SetCurrentCamera(std::tr1::shared_ptr<BWorldCamera> camera);
@@ -154,12 +165,33 @@ public:
     bool Add(std::tr1::shared_ptr<BWorldObj> obj);
     bool AddObject(std::tr1::shared_ptr<BWorldObj> obj);
     void RemoveObject(std::tr1::shared_ptr<BWorldObj> obj);
-    void RemoveAllEffects(bool retire);
-    bool RemoveOldestEffect(bool retire);
+    BWorldObj* GetObject(u32 id);
+    std::vector<BWorldObj*> GetObjects(u32 type);
+    int CountObjects(u32 type);
+    BWorldObj* FindNearestObject(u32 type, BWorldObj* pOrigin);
+    std::list<BWorldObj*> FindObjectsInSector(u32 type, const nw4r::math::VEC3& rCenter, f32 innerRadius,
+                                              f32 outerRadius, f32 startAngle, f32 endAngle);
+    std::list<BWorldObj*> FindObjectsInRing(u32 type, const nw4r::math::VEC3& rCenter, f32 innerRadius,
+                                            f32 outerRadius);
+    std::list<BWorldObj*> FindObjectsInRect(u32 type, const nw4r::math::VEC3& rCenter, f32 rotation, f32 minZ,
+                                            f32 maxZ, f32 minX, f32 maxX);
+    CEffect* GetEffect(u32 handle);
     u32 GetEffectGroupID() const;
     u32 GetCaptureEffectGroupID() const;
+    CEffect* CreateEffect(const CEffect::Param& rParam, const nw4r::math::VEC3& rPosition, f32 rotation);
+    CEffect* CreateEffect(const CEffect::Param& rParam, BWorldObj* pFollow);
+    CEffect* CreateEffect(const CEffect::Param& rParam, BWorldObj* pFollow, f32 rotation);
+    CEffect* CreateEffectFollowRotation(const CEffect::Param& rParam, BWorldObj* pFollow, f32 rotation);
+    CEffect* CreateEffect(const CEffect::Param& rParam, BWorldObj* pFollow, BWorldObj* pTarget);
+    void RemoveAllEffects(BOOL retire);
+    bool RemoveOldestEffect(bool retire);
+    CEffect* AddEffect(std::tr1::shared_ptr<CEffect> effect);
 
 private:
+    ObjEntry* GetNextEntry(const ObjEntry* pEntry) { return pEntry->GetNext(mObjEntries.begin()); }
+
+    static u32 GetStopTypes(u32 type) { return (type & ~ENTRY_HEAD_TYPES) == 0 ? ENTRY_HEAD_TYPES : 0xFFFFFFFF; }
+
     u32 mFlags;
     u32 mLastObjHandle;
     u32 mPendingFrames;

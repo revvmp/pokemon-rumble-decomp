@@ -32,6 +32,7 @@ public:
 
     pair<iterator, bool> insert(const value_type& rValue) { return tree_.insert(rValue); }
     iterator find(const value_type& rValue) { return tree_.find(rValue); }
+    void clear() { tree_.clear(); }
     void erase(iterator position) { tree_.erase(position); }
 
 private:
