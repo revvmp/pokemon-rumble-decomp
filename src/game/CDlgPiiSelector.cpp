@@ -1,8 +1,10 @@
 #include <game/IDlgPiiSelector.h>
 
+#include <game/CLayout.h>
 #include <game/ControllerTable.h>
 #include <game/CPlayer.h>
 #include <game/CRemoteMemory.h>
+#include <game/IDlgMsgWin.h>
 #include <game/IGameSession.h>
 #include <memory>
 
@@ -74,6 +76,8 @@ private:
 class CDataPerPlayer {
 public:
     virtual ~CDataPerPlayer();
+    void CalcMtx();
+    void CalcView();
 };
 
 class IDlgPiiSelectorInternal : public IDlgPiiSelector {
@@ -89,23 +93,46 @@ public:
         int mState;
         std::tr1::shared_ptr<CPiiPersonalData> mEntrancePPD[4][4];
         int mPlayerNum;
+        CLayout mLayout;
+        std::tr1::shared_ptr<IDlgMsgWin> mMsgWin;
     };
 
     CDlgPiiSelector() : mIsPausing(false), mInputLocked(false), mErrorState(0), mError(0) {}
-    virtual ~CDlgPiiSelector();
-    virtual void Calc();
-    virtual void CalcMtx();
-    virtual void CalcView();
-    virtual void Draw();
+    virtual ~CDlgPiiSelector() {}
+    inline virtual void Calc();
+
+    virtual void CalcMtx() {
+        for (int player = 0; player < 4; player++) {
+            if (mDataPerPlayer[player]) {
+                mDataPerPlayer[player]->CalcMtx();
+            }
+        }
+        if (mMultiPlayerData) {
+            mMultiPlayerData->mMsgWin->CalcMtx();
+        }
+    }
+
+    virtual void CalcView() {
+        for (int player = 0; player < 4; player++) {
+            if (mDataPerPlayer[player]) {
+                mDataPerPlayer[player]->CalcView();
+            }
+        }
+        if (mMultiPlayerData) {
+            mMultiPlayerData->mMsgWin->CalcView();
+        }
+    }
+
+    inline virtual void Draw();
     virtual bool IsClosable() { return false; }
     virtual bool Close() { return false; }
-    virtual bool IsShown(int player);
-    virtual void Show(int player, bool flag);
-    virtual bool IsMultiPlayerEntranceShown();
-    virtual void ShowMultiPlayerEntrance();
-    virtual void SetEntrancePPD(IController* pController, const std::tr1::shared_ptr<CPiiPersonalData>& rPPD);
-    virtual std::tr1::shared_ptr<CPiiPersonalData> GetEntrancePPD(IController* pController);
-    virtual void UpdateDlgOpenState();
+    inline virtual bool IsShown(int player);
+    inline virtual void Show(int player, bool flag);
+    inline virtual bool IsMultiPlayerEntranceShown();
+    inline virtual void ShowMultiPlayerEntrance();
+    inline virtual void SetEntrancePPD(IController* pController, const std::tr1::shared_ptr<CPiiPersonalData>& rPPD);
+    inline virtual std::tr1::shared_ptr<CPiiPersonalData> GetEntrancePPD(IController* pController);
+    inline virtual void UpdateDlgOpenState();
 
     void Init(bool flag) {}
 
