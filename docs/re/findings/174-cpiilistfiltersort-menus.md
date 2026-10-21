@@ -12,7 +12,7 @@ Target `wpse-v1`. The block continues the unit of [F-173-1](173-cpiilistfilterso
 
 All three score 100% in objdiff and are named in `symbols.txt` with the mangled name the source produces. The two item scans are called by the sort menu `0x800E7BA0` (disabling entries 3 and 4 when no item has a prefix or a matching owner) and by the prefix menu `0x800E9330` (entries 0 to 43, one per prefix). They have external linkage because the target emits them out of line; with internal linkage CodeWarrior drops them when nothing calls them.
 
-`include/game/CUIPiiListItem.h` declares the layout of F-173-3 and `CPiiPersonalData` gains `GetPrefix` and `GetOriginalTrainerId`. The constructor of `CUIPiiListItem` is #217's.
+`CPiiPersonalData` gains `GetPrefix` and `GetOriginalTrainerId`. The constructor of `CUIPiiListItem` is #217's.
 
 ## F-174-2: what remains in the block
 
