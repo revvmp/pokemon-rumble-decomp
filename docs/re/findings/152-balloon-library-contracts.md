@@ -152,6 +152,13 @@ Reproducible controls and receipts are outside the repository at
 
 ## Traps
 
+The bounded follow-up candidate changes only the tree parent pointer type,
+stored comparator use, reference-based iterator advancement, allocator-based
+node destruction, and the list pointer-to-iterator factory. Existing public
+APIs remain available. It excludes the unfinished insert-node, vector, and
+string adaptations. Initial all-source compilation and frozen-link checks
+pass; publication still requires the same-base full consumer control.
+
 - The coherent original-header control of the complete Balloon source
   compiles with the original MSL math header forwarded through the existing
   `MSL_C/math.h` include path and the exception override declared `throw()`.

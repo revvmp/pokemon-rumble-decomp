@@ -76,6 +76,8 @@ public:
         friend class const_iterator;
     };
 
+    static iterator __pointer2iterator(node* pNode) { return iterator(pNode); }
+
     class const_iterator {
     public:
         const_iterator() {}
@@ -184,7 +186,7 @@ typename __list_deleter<T, Allocator>::iterator __list_deleter<T, Allocator>::in
     node* pNode = holder.release();
     link_nodes(position.base(), pNode, pNode);
     ++size_ref();
-    return iterator(pNode);
+    return __pointer2iterator(pNode);
 }
 
 template <typename T, typename Allocator> class __list_imp : public __list_deleter<T, Allocator> {
