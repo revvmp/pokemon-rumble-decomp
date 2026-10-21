@@ -5,6 +5,7 @@
 #include <game/CPpuRegister.h>
 #include <game/NPpuVM.h>
 #include <game/StageID.h>
+#include <game/MapIndex.h>
 #include <iosfwd>
 #include <list>
 #include <map>
@@ -38,7 +39,7 @@ public:
     };
 
     static void SetDefaultEnvironment(const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnv);
-    static void SetDefaultStageDescTarget(const StageID& rTarget);
+    static void SetDefaultStageDescTarget(const MapIndex& rTarget);
     static const char* GetScriptRoot();
 
     CPpuEngine();
@@ -47,7 +48,10 @@ public:
     NPpu::CEnvironment* GetEnv() const;
     std::tr1::shared_ptr<CFileData> LoadFile(const char* pName);
     bool LoadPlacement(const char* pFileName, const char* pAnmName, const char* pNodePrefix, u32 flags);
-    void SetStageDescTarget(const StageID& rTarget);
+    void SetStageDescTarget(const MapIndex& rTarget);
+    MapIndex GetStageDescTarget() const { return mStageDescTarget; }
+    int InsertCallback(int messageID, int functionID, int position);
+    int EraseCallback(int messageID, int functionID);
     void SetPPD(std::tr1::shared_ptr<CPiiPersonalData> ppd);
     void LeaveInitPart();
     static std::tr1::shared_ptr<CFileData> LoadScriptFile(const char* pName, u32 flags);
@@ -64,14 +68,14 @@ public:
 
 private:
     static std::tr1::weak_ptr<NPpu::CEnvironment> sDefaultEnv;
-    static StageID sDefaultStageDescTarget;
+    static MapIndex sDefaultStageDescTarget;
     static std::tr1::shared_ptr<std::string> sScriptRoot;
 
     u32 mFlags;
     BWorldObj* mOwnerObj;
     std::map<int, std::list<int> > mCallbacks;
     CPpuRegister mRegister;
-    StageID mStageDescTarget;
+    MapIndex mStageDescTarget;
     std::set<std::tr1::shared_ptr<CFileData> > mFiles;
     std::vector<nw4r::math::MTX34> mPlacements;
     std::tr1::shared_ptr<CPiiPersonalData> mPPD;

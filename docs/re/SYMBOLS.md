@@ -3494,3 +3494,7 @@ for native proofs and explicit foreign-definition controls.
 ### F-152-9: Vector storage accessor roles
 
 Original vector storage owns begin/end: native 800C62E0 (BUILayout end,20), 800C7240/800C7350 (CPiiTex begin/end,8/20), and 8010C360/8010C370 (void-pointer begin/end,8/20). Corrected __vec_deleter identities preserve raw bytes and actual caller destinations. See F-152-9 in findings/152-balloon-library-contracts.md.
+
+### Issue 274 script descriptor and audio contracts
+
+CPpuEngine +0x90 is a four-byte MapIndex, copied whole from MapDesc and passed to existing IGameSession descriptor APIs. Its target getters/setters preserve the native word; StageID remains separate. StageDesc +4 is the eight-byte CPpuRegister owner (DescParamTable descriptive alias). BSoundSource adds nonvirtual StartSE(u32), StopSE(f32), SetPitch(f32), and GetPitch() const without layout or virtual-order changes. See [F-274-1](findings/274-script-audio-table.md) for typed caller/callee evidence and strict current-consumer controls.

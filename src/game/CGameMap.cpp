@@ -267,7 +267,7 @@ bool CGameMap::IsPausing()
 void CGameMap::Calc()
 {
     CPpuEngine::SetDefaultEnvironment(mParam.mEnvironment);
-    StageID target = reinterpret_cast<const StageID&>(mParam.mMapDesc->mIndex);
+    MapIndex target = mParam.mMapDesc->mIndex;
     CPpuEngine::SetDefaultStageDescTarget(target);
     mWorld->SetOutlineAlpha(255);
     mWorld->SetOutlineWidth(1);
@@ -409,7 +409,7 @@ void CGameMap::Draw()
 void CGameMap::RunAction()
 {
     CPpuEngine::SetDefaultEnvironment(mParam.mEnvironment);
-    StageID target = reinterpret_cast<const StageID&>(mParam.mMapDesc->mIndex);
+    MapIndex target = mParam.mMapDesc->mIndex;
     CPpuEngine::SetDefaultStageDescTarget(target);
     CDividedGround* pGround = DynamicCast<CDividedGround>(mWorld->GetGround());
     pGround->LoadPkc(1, std::tr1::shared_ptr<NPpu::CEnvironment>(), nullptr);
