@@ -73,6 +73,21 @@ The four rotation `Create` overloads differ only in the relocation names of thre
 
 The reconstruction adds placement `operator new[]` and `operator delete[]` to `<new>`, the null-manager branch of `EffectSystem::SetMemoryManager` (zeroing `mMaxGroupID` and `mActivityList`, as at `0x800A06E4`), `BWorld::GetEffectGroupID` `0x80060C10`, `GetCaptureEffectGroupID` `0x80060C60` and `RemoveOldestEffect(bool)` `0x80061750`, `Lock(weak_ptr<BWorldObj>)` `0x8006A370` and `RandReal(f32, f32)` `0x8019E010` (behind `ScriptBinding_RandReal`).
 
+## F-113-4: CDropPii source acceptance
+
+`src/game/CDropPii.cpp` reconstructs all four functions of the unit, each at 100% in objdiff, and the unit is linked as `Matching`:
+
+| Address | Function |
+| --- | --- |
+| `0x8009FD40` | `CDropPii::CDropPii(shared_ptr<CPiiPersonalData>, u32)`, passing `type | 0x400` to `CPii` |
+| `0x8009FDF0` | `CDropPii::~CDropPii` |
+| `0x8009FE50` | `CDropPii::Initialize(bool)`: creates a `CHPBar(1)` initialized with -1, and a `CMiniMapMarker` initialized with kind 0 and `"minimap_drop"`, then calls `CPii::Initialize` |
+| `0x800A0140` | `@72@CDropPii::~CDropPii`, the compiler-generated thunk for the `BSoundSource` base |
+
+The unit has the same shape as `CEnemyPii.cpp` ([F-115-3](115-enemy-info-pii-facility.md#f-115-3-complete-enemy-source-acceptance)) without the script loader: the marker kind is 0 where `CEnemyPii` passes 1. The vtable `0x803A1030` is named `__vt__8CDropPii`. With the object `Matching`, `configure.py`, `ninja` and `tools/verify/verify.py` exit 0.
+
+`CEffect.cpp` stays `NonMatching`. A pool-creation helper template for the four `MemoryManager` pools lowered `InitializeEffect` from 99.62% to 94.12%, so the explicit pool blocks stay. `AllocEffectGroupID` and `FreeEffectGroupID` still need MSL `vector<bool>`, a shared-header addition outside this unit, and 37 functions of the file belong to #114.
+
 ## Traps
 
 - **A heap header can be padded by alignment.** The block header uses 0x15 bytes but every offset uses 0x20; `__attribute__((aligned(32)))` on the struct reproduces `sizeof`.
