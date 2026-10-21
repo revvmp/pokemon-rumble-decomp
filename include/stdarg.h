@@ -14,6 +14,7 @@ extern void* __va_arg(void*, int);
 #define va_start __va_start
 #define va_arg   __va_arg
 #define va_end   __va_end
+#define va_copy(a,b) ((a)[0] = (b)[0])
 
 #define __va_end(ap) ((void)0)
 

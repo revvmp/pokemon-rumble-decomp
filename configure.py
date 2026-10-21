@@ -307,6 +307,8 @@ config.libs = [
             Object(NonMatching, "game/CMsgRes.cpp"),
             Object(NonMatching, "game/Message.cpp"),
             Object(Matching, "game/Locale.cpp"),
+            Object(Matching, "game/ArgumentFormatter.cpp"),
+            Object(Matching, "game/StringFormat.cpp"),
             Object(Matching, "game/luckyhelper.cpp"),
             Object(Matching, "game/CBSPTree.cpp"),
             Object(Matching, "game/sound.cpp"),
