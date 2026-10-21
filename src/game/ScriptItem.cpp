@@ -56,12 +56,12 @@ int NewItem(NPpu::CEngine* pEngine) {
 }
 
 int NewWarpZone(NPpu::CEngine* pEngine) {
-    std::tr1::shared_ptr<CWarpZone> warpZone(new CWarpZone(CWarpZone::TYPE));
+    std::tr1::shared_ptr<CItem> warpZone(new CWarpZone(CWarpZone::TYPE));
     return AddItem(pEngine, warpZone);
 }
 
 int NewFacility(NPpu::CEngine* pEngine) {
-    std::tr1::shared_ptr<CFacility> facility(new CFacility(CFacility::TYPE));
+    std::tr1::shared_ptr<CItem> facility(new CFacility(CFacility::TYPE));
     return AddItem(pEngine, facility);
 }
 
