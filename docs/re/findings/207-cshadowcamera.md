@@ -114,3 +114,10 @@ Per-function comparison against the previous `report.json` after the change: nin
 - **The edge lengths use paired singles.** The original loop compares `psq_l`/`ps_mul`/`ps_madd`/`ps_sum0` results, which is `nw4r::math::VEC3LenSq`. `VEC3::LenSq()` therefore calls `VEC3LenSq(this)` (it was the scalar `x * x + y * y + z * z`, used by no other unit); that raised the function from 94.8% to 98.1%.
 - **The near-plane constants are locals.** Declaring `orthoMin = -1.0f` and `orthoMax = 1.0f` before the near and far reads makes the compiler load them into callee-saved registers before the two `GetG3dCamera()` calls, as the original does (98.1% to 99.8%). Declaring the maximum first swaps the registers.
 - **A local for the half range matters.** `f32 halfRange = (viewFar - viewNear) * 0.5f; shadowPos = center + lightDir * halfRange;` reproduces the original scheduling of the `psq_l` loads; the inline product does not (98.1% to 99.0%).
+
+## F-207-8: what is left of #207
+
+- `CalcLightProjection` 99.8%: the four frustum extents take `f31 f29 f28 f27` instead of `f28 f31 f29 f27` and the two `SetOrtho` constants load in the other order.
+- `SetupShadowMaterial` 99.8%: the scheduling of the post-matrix address arithmetic and of the `GXSetTevKColor` arguments.
+- `SetupShadowModel` 94.6%: the `TypeObj`, `ResDic` and two by-value argument temporaries are in the opposite order on the stack (the original allocates the four in creation order, highest first; the compiler places the inlined-function locals below the argument copies).
+- `0x8010BD30`, `0x8010BDD0`, `0x8010BE10`: the `deque_imp` iterator constructors and offset helpers that `deque_imp::push_back` reaches through `0x8010BC50`; they are written with the deque chain of #203 to #206, which is in progress. Every other function of F-207-1 is reproduced ([F-207-6](#f-207-6-the-vectorvoid-half-of-the-csavemanager-template-run)).

@@ -105,3 +105,7 @@ What is left of `resize` is register numbering (the original keeps the size in `
 ### Traps
 
 - **A union hides a plain struct.** A class whose members are copied through a union is not forwarded by the optimizer and is not memberwise; if value-initialization or constant forwarding differs between the target and the source, check the class for a union before touching the container.
+
+## F-208-4: what is left of #208
+
+Every function of `0x8010D7D0`-`0x80110134` is reconstructed. All are at 100% in objdiff except `CSimpleGround::LoadModel` (99.6%, two data relocation names) and `vector<NPpu::CValue>::resize` (96.5%; see F-208-3 for the remaining register-number and frame-offset differences). `InsertString` and `InsertWString` (`0x80110140`, `0x80110530`, #209) are at 92.8%: the frame holds the key and the `set::insert` result as separate pair copies in the original. The weak destructors `0x80110920`, `0x801115B0`, `0x80111610` and `0x80111930` (#209) are not written.
