@@ -457,6 +457,13 @@ game/CWarpZone.cpp:
 	.data       start:0x803AF938 end:0x803AFA18
 	.sdata      start:0x804B76D8 end:0x804B76E0
 
+game/CWaza.cpp:
+	extab       start:0x8002B374 end:0x8002B4C4
+	extabindex  start:0x8004C6B0 end:0x8004C71C
+	.text       start:0x801202D0 end:0x80121338
+	.data       start:0x803AFA18 end:0x803AFAA0
+	.sdata      start:0x804B76E0 end:0x804B76F8
+
 game/ControllerTable.cpp:
 	extab       start:0x8002C200 end:0x8002C230
 	extabindex  start:0x8004C818 end:0x8004C860
