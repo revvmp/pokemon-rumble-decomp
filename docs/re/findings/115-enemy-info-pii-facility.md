@@ -58,6 +58,12 @@ The added contracts are:
 - `IColorConst`: original RTTI interface and six-slot order from [F-55](55-colorconst.md), with no virtual destructor. The typed UI caller invokes ApplyVertexColor through slot 0x18, supplying a pane, type index plus eleven and mode four. GetColorConstants is a descriptive inferred singleton accessor.
 - `CLayout`: additive AppendMotion, pane-visible and named texture interfaces. `0x801D10F0` creates a motion then `0x801D11D0` appends it to the target PaneMP tail, unlike the already established QueueMotion which replaces pending motions. `0x801D3DF0` updates pane visibility and attached layouts. Named texture setter `0x801D4590` finds the pane and forwards to `0x801D43E0`, which copies the canonical TexMap and returns boolean success. Existing class fields, virtual slots and method bodies are preserved.
 
+## F-115-7: Same-base shared-header controls
+
+At head `819d1a8bca18b22c8b085324c12c4a218361071b`, the full current-source baseline/candidate control compares all 718 actual all_source inputs against pinned base `d07bff51bffb`. All allocated sections, relocations and symbol attributes are identical; seven objects differ only in numeric local labels. The complete linked ELF has only corresponding numeric-label changes, and the DOL is raw-identical with frozen verification passing before and after. The receipt is `C:/MassStorage/GitHub/115-reference/contract-control-d07bff51bffb-819d1a8bca18/proof.json`. The official landing adapter repeats this full comparison after each rebase, then checks the exact typed UI producer and both already accepted source units.
+
+The additive CLayout declarations overlap PR #1061, whose distinct change defines the one-name motion wrapper and its TU-local default pane. Those changes are preserved on rebase and rechecked in the native consumer; no outside source body or split is adopted. First-function owners #175 (personal data), #180 (texture), #209 (register wrapper), #329 (layout) and #55 (color constants) retain their implementation ownership.
+
 ## Traps
 
 The 24-byte filename wrapper is not another virtual slot: the independently proved boss vtable already inherits the complete enemy virtual contract without that entry. Use its actual callers and generic loader target to establish the nonvirtual member interface.
@@ -65,3 +71,5 @@ The 24-byte filename wrapper is not another virtual slot: the independently prov
 A prior neighboring finding described the Facility base-list end as `0x803A1874`; the actual complete symbol ends at `0x803A1878`. Confirm the complete RTTI terminator and source-selected native data extent before defining the split.
 
 Inline virtual method definitions can retain separate identical literals even with canonical `-str reuse`. The native six flash_end strings, three end strings and three PII strings are reproduced by inline Show/Hide source, without changing compiler flags or inventing duplicate named arrays. The factory font-map lifetime belongs to an inlined Initialize method with a local font map; placing the same statements directly in the factory changes temporary order and register allocation. Texture replacement uses shared_ptr::reset; assigning a constructed shared_ptr adds ownership work absent from the original.
+
+An implicit derived destructor can be required for native retained order. Explicitly writing an empty CEnemyInfo destructor emits it before the shared-pointer helpers; letting the compiler synthesize the destructor preserves the native helper/destructor order while reproducing the same 156-byte body.
