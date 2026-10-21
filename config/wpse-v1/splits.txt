@@ -416,6 +416,15 @@ game/CTextWorldObjStat.cpp:
 	.sdata      start:0x804B73D8 end:0x804B73F0
 	.sdata2     start:0x804BA128 end:0x804BA138
 
+game/CTitleSession.cpp:
+	extab       start:0x80029E78 end:0x8002A3C8
+	extabindex  start:0x8004C0BC end:0x8004C170
+	.text       start:0x80119020 end:0x8011AB90
+	.rodata     start:0x80354E38 end:0x803550B8
+	.data       start:0x803AE428 end:0x803AEDC4
+	.sdata      start:0x804B73F0 end:0x804B74B8
+	.sdata2     start:0x804BA138 end:0x804BA140
+
 game/ControllerTable.cpp:
 	extab       start:0x8002C200 end:0x8002C230
 	extabindex  start:0x8004C818 end:0x8004C860
