@@ -29,6 +29,16 @@ The 980-byte helper at `0x80136EF0` was recovered from native disassembly becaus
 
 The outside `CPpuEngine::PopEffect` declaration is supported by the native routine at `0x80100E80`: pop an integer handle, resolve the engine's world, then call `BWorld::GetEffect`. Its binding `method_effAlive` matches all 100 bytes and its actual callee target. No canonical engine header change has been made.
 
+## F-237-4: Strict relocation and exception audit
+
+The next coherent producer contains 51 functions through `FinalizeEffectsAll`. The strict accepted subset is 42 functions, 10,084 code bytes and 1,000 exception-table bytes. `237-native-positive.py`, adapted from the independent #247 auditor, resolves every REL24, HA, LO and SDA relocation, checks literal payload bytes and a consistent small-data section base, then compares complete code bytes. It also resolves every exception cleanup target and compares complete exception records against native `extabindex` entries. Unknown targets remain failures. Numeric compiler-local names are not matched across unrelated objects by spelling.
+
+The strict run exposed a semantic distinction hidden by the earlier relocation-word masking: the Waza cone parameter uses `NW4R_MATH_DEG_TO_RAD(radius)`. Its native factor is `0x3C8EFA35` at `0x804BA200`. An earlier outside factor of two produced identical unrelocated instructions but the wrong literal. The strict producer corrects that factor. The earlier checkpoint remains specifically code-and-direct-call evidence, not literal acceptance.
+
+The corrected immutable checkpoint is `C:/MassStorage/GitHub/237-reference/237-strict-prefix-51-20261021`, including its frozen-DOL digest, source/object/header manifest and complete strict report. Compilation and `python C:/MassStorage/GitHub/237-reference/237-native-positive.py` both exited 0; the latter printed `PASS 42 10084 code 1000 EH`.
+
+Nine functions remain outside that accepted subset: the four camera string-pop gaps and five range-effect bindings. The latter have native extents and all direct call targets, but five register/result words differ in each. Ordinary integer-versus-boolean return, returning the stored enable flag, a local conditional region and a named result did not resolve the range-helper context; these rejected controls are preserved outside the checkout. No canonical headers, source object selection or unit splits have been changed.
+
 ## Traps
 
 - A matching function extent does not establish matching argument semantics. Camera Request and RequestNext load minus one, whereas Play loads zero; resolve SDA references explicitly. See F-237-2 and the saved native constant receipt.
