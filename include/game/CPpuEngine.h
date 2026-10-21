@@ -55,6 +55,7 @@ public:
     bool Load(BWorldObj* pOwner, const char* pName, int mode, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnv);
     bool Execute(const char* pName, int mode, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnv);
     BWorldObj* PopWorldObj();
+    u32 PeekWorldObjType(int argIndex);
     bool HasCallback(int messageID) const;
     int SendMessage(const Message& rMessage);
 

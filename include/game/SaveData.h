@@ -116,7 +116,7 @@ public:
 class UsedPassword : public VectorStructs {
 public:
     struct Data {
-        u32 mPassword;
+        int mPassword;
     };
 
     UsedPassword() { ClearData(); }
