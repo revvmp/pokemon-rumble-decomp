@@ -2,10 +2,13 @@
 #include <nw4r/ut/ut_RuntimeTypeInfo.h>
 
 #include <game/BWorld.h>
+#include <game/CFiber.h>
 #include <game/CLayout.h>
+#include <game/CPpuEngine.h>
 #include <game/CShadowCamera.h>
 #include <game/FileList.h>
 #include <game/IGameEnding.h>
+#include <game/IGameSession.h>
 #include <game/IPauseMenu.h>
 #include <game/LayoutResources.h>
 #include <game/MapDesc.h>
@@ -183,6 +186,12 @@ inline void CGameEnding::Init(bool background) {
     mNext.SetPaneVisible("THANKYOU", difficulty == 2);
 }
 
+inline void CGameEnding::RunAction() {
+    IGameSession::GetInstance()->SetFade(0, -1);
+    YieldFiberStarted();
+    RunScript("CGameEnding.pkc", 1, IGameSession::GetInstance()->GetEnvironment());
+}
+
 inline void CGameEnding::Draw() {
     mpWorld->Draw();
     mCongratulations.Draw();
@@ -214,10 +223,10 @@ inline void CGameEnding::Calc() {
         }
         mStaffRoll.SetPaneVisible("SCROLL", true);
         mpScrollMotion = mStaffRoll.CreateMotion("scroll", "SCROLL", 0.0f, 1.0f);
-        std::wstring titles;
-        std::wstring lines;
         std::list<std::wstring>::iterator title = mTitleTexts.begin();
         std::list<std::wstring>::iterator line = mLineTexts.begin();
+        std::wstring titles;
+        std::wstring lines;
         int i = 0;
         for (; i < mLineCount && line != mLineTexts.end(); ++i, ++line, ++title) {
             if (i > 0) {
