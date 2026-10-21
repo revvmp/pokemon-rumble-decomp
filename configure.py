@@ -285,6 +285,7 @@ config.libs = [
             Object(Matching, "game/CWaza.cpp"),
             Object(Matching, "game/ScriptItem.cpp"),
             Object(Matching, "game/ScriptUtilities.cpp"),
+            Object(NonMatching, "game/ScriptPiiPropData.cpp"),
             Object(Matching, "game/ScriptPiiStats.cpp"),
             Object(Matching, "game/ScriptPiiProperties.cpp"),
             Object(Matching, "game/ScriptAudio.cpp"),
