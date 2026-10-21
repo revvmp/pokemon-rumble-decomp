@@ -51,11 +51,30 @@ A scratch reconstruction of index 1 with early returns and `return pB->mID < pA-
 
 `CUIPiiListItem` (0x1C bytes, constructor `0x8011D7E0`, vtable `0x803AF3B8`, base `IUIListItem`): flags at 4 (initially 1; bit 0x4 for `InWiiRemote`), `shared_ptr<CPiiPersonalData>` at 8, the player index at 0x10, the mask of the species' two types at 0x14 and the mask of its two moves' types at 0x18.
 
+## F-173-4: complete CPiiListFilterSort layout
+
+`CPiiListFilterSort` is a 0x20-byte object with no vtable and no base class; the constructor stores no vtable pointer and the destructor is non-virtual. The header is `include/game/CPiiListFilterSort.h`, so other units can embed it by value (`CDlgPiiListImpl` at 0x1C, `CDataPerPlayer`).
+
+| Offset | Size | Member | Evidence | Confidence |
+| --- | --- | --- | --- | --- |
+| 0x00 | 4 | `int mFilterType` | Constructor zero; the filter `0x800E5DB0` switches on 1 to 4 and treats other values as no filter. RTTI names the nested enum `CPiiListFilterSort::FilterType`; enumerator names are descriptive | type and offset high, names medium |
+| 0x04 | 4 | `int mTypeIndex` | Kinds 1 and 2 compute `1 << [4]` and test the item masks at 0x14 and 0x18; not initialized by the constructor | offset high, name medium |
+| 0x08 | 4 | `int mPrefix` | Kind 3 compares it with the `Prefix` (0x34) of the item's `CPiiPersonalData`; not initialized | offset high, name medium |
+| 0x0C | 4 | `int mInvertOriginalTrainer` | Kind 4 keeps items whose 0x48 equals word 0x10 of the `IGameSession` slot 25 object when zero, and unequal items otherwise; not initialized | offset high, name medium |
+| 0x10 | 4 | `int mSortType` | Constructor zero; the sort `0x800E62F0` indexes the seven-entry comparator table by it and tests it against zero for the favourites-first move | high |
+| 0x14 | 8 | `shared_ptr<CPiiPersonalData> mpSelectedPii` | Constructor zeroes both words in this order after 0x10; the destructor releases the control block at 0x18 | size and offsets high; the pointee type is unproven because no code reads or writes it |
+| 0x1C | 4 | `int mPlayerIndex` | Constructor stores -1; no access in the filter, sort, menu routine or the two dialog units. The sort takes its player index as a parameter instead | size high, name low |
+
+The constructor stores in the order `mFilterType`, `mSortType`, the `shared_ptr` words, `mPlayerIndex`, which declaration order with initializers for the three scalars reproduces; the constructor (32 bytes) and destructor (140 bytes) are at 100% in objdiff. `CPiiListFilterSort::Filter` and `Sort` take the list object, so they are not methods of the 0x20 bytes alone: `0x800E62F0` reads only `this`+0x10, and `0x800E5DB0` reads `this`+0, 4, 8 and 0xC.
+
 ## Remaining work
 
-No source is committed. Every function of the block needs at least one of: the `CPiiPersonalData` and `CUIPiiListItem` headers with the unnamed fields above (owners of `0x800EC3D0` and `0x8011D7E0`), `IUIListItem` (#890), names for `CPiiListFilterSort` 0x14 and 0x1C (no access found in `0x800E5620`–`0x800EC3D0`, `CDlgPiiList.cpp` or `CDlgPiiSelector.cpp`), `IGameSession` slot 25, and the MSL vector iterator. The filter and sort call the iterator's dereference, increment and inequality out of line (`0x8008E6C0`, `0x8008E7B0`, `0x8008E7C0`), and `sort` receives iterators by address, so this unit's `vector` iterator is a class; `include/vector` declares it as `T*`. Changing it is a shared-header change.
+`src/game/CPiiListFilterSort.cpp` defines the constructor and destructor ([F-173-4](#f-173-4-complete-cpiilistfiltersort-layout)). Every other function of the block needs at least one of: the `CPiiPersonalData` and `CUIPiiListItem` headers with the unnamed fields above (owners of `0x800EC3D0` and `0x8011D7E0`), `IUIListItem` (#890), the type of `CPiiListFilterSort` 0x14 and a use for 0x1C (no access found in `0x800E5620`–`0x800EC3D0`, `CDlgPiiList.cpp` or `CDlgPiiSelector.cpp`), `IGameSession` slot 25, and the MSL vector iterator. The filter and sort call the iterator's dereference, increment and inequality out of line (`0x8008E6C0`, `0x8008E7B0`, `0x8008E7C0`), and `sort` receives iterators by address, so this unit's `vector` iterator is a class; `include/vector` declares it as `T*`. Changing it is a shared-header change.
 
 ## Traps
+
+- **A default `shared_ptr` member sits between two scalar stores.** The constructor stores 0x0, 0x10, 0x14, 0x18, 0x1C in that order, which declaration order plus initializers for the scalars reproduces. Assigning the scalars in the body put the `shared_ptr` zeroing first and scored 99.5%.
+- **A weak `~shared_ptr<CPiiPersonalData>` appears next to the matched destructor.** objdiff lists it as only in source; the target inlines it, so a `Matching` promotion of this file must keep the weak copy out of the link (other units already emit it).
 
 - **One file mixes inlining modes.** The filter and sort call two-instruction accessors out of line (`dont_inline`), while the comparators, `sort` and the menu routine inline `shared_ptr` and list code. Do not apply one pragma to the whole file.
 - **CodeWarrior returns one-word classes in `r3`.** A `begin()` returning a one-pointer iterator class compiles to `lwz r3, 0(r3); blr`, so a returned value in `r3` does not prove a raw-pointer iterator.
