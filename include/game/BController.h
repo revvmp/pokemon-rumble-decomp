@@ -16,6 +16,8 @@ public:
 
     BController();
 
+    void SetChannel(s32 channel) { mChannel = channel; }
+
     virtual s32 GetChannel() const { return mChannel; }
     virtual bool IsConnected() const { return mConnected; }
     virtual f32 GetStickLength() const { return mStickLength; }
