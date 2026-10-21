@@ -254,6 +254,7 @@ config.libs = [
             Object(Matching, "game/CEnemyPii.cpp"),
             Object(Matching, "game/CFacility.cpp"),
             Object(NonMatching, "game/CGameEnding.cpp"),
+            Object(NonMatching, "game/CGameSession.cpp"),
             Object(Matching, "game/CGameStage.cpp"),
             Object(NonMatching, "game/CGloballyReusableTexBuf.cpp"),
             Object(Matching, "game/CMiniMapMarker.cpp"),

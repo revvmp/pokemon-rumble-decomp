@@ -12,4 +12,6 @@ struct MapIndex {
     }
 };
 
+MapIndex MakeMapIndex(int mode, int area, int stage, int map);
+
 #endif

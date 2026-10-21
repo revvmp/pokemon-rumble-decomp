@@ -65,9 +65,10 @@ public:
 
 protected:
     void erase_at_end(size_type n, Metrowerks::int2type<false>) {
+        size_type count = n;
         T* p = data_ + size_;
-        size_ -= n;
-        for (; n != 0; --n) {
+        size_ -= count;
+        for (; count != 0; --count) {
             --p;
             capacity_.second().destroy(p);
         }
@@ -104,6 +105,11 @@ public:
             this->capacity_.second().construct(p, T());
             ++this->size_;
         }
+    }
+
+    void construct_at_end(const T& x, pod_type) {
+        this->capacity_.second().construct(end(), x);
+        ++this->size_;
     }
 
     void construct_at_front(T* pFirst, T* pLast, Metrowerks::int2type<true>) {
@@ -229,7 +235,19 @@ protected:
     }
 
     void push_back_realloc(const T& x) { push_back_realloc(x, pod_type()); }
-    void push_back_realloc(const T& x, Metrowerks::int2type<false>);
+    void push_back_realloc(const T& x, Metrowerks::int2type<false>) {
+        __vec_split_buffer<T, Allocator> buffer(this->capacity_.second());
+        size_type capacity = grow_by(1);
+        if (capacity > max_size()) {
+            __throw_vector_length_error();
+        }
+        buffer.data_ = buffer.capacity_.second().allocate(capacity);
+        buffer.capacity_.first() = capacity;
+        buffer.start_ = this->size_;
+        buffer.construct_at_end(x, pod_type());
+        buffer.construct_at_front(this->data_, this->data_ + this->size_, pod_type());
+        swap(buffer, pod_type());
+    }
     void push_back_realloc(const T& x, Metrowerks::int2type<true>) {
         if (grow_by(1, pod_type())) {
             ++this->size_;
@@ -257,6 +275,7 @@ protected:
 
     void pop_back(Metrowerks::int2type<true>) { --this->size_; }
     void clear(Metrowerks::int2type<true>) { base::clear(); }
+    void clear(Metrowerks::int2type<false>) { base::clear(); }
     void clear_moved(Metrowerks::int2type<true>) { this->size_ = 0; }
     void clear_moved(Metrowerks::int2type<false>) { base::clear(); }
 
@@ -398,6 +417,20 @@ public:
         } else if (n < size) {
             this->erase_at_end(size - n, pod_type());
         }
+    }
+
+    using base::reserve;
+
+    void swap(vector& r) {
+        size_type capacity = this->capacity_.first();
+        this->capacity_.first() = r.capacity_.first();
+        r.capacity_.first() = capacity;
+        T* data = this->data_;
+        this->data_ = r.data_;
+        r.data_ = data;
+        size_type size = this->size_;
+        this->size_ = r.size_;
+        r.size_ = size;
     }
 
     iterator begin() { return make_iterator(base::begin()); }

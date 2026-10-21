@@ -1,9 +1,11 @@
 #ifndef GAME_CPIIBOX_H
 #define GAME_CPIIBOX_H
 
-#include <revolution/types.h>
+#include <game/SaveData.h>
 #include <list>
 #include <memory>
+#include <revolution/types.h>
+#include <vector>
 
 class CPiiPersonalData;
 
@@ -11,6 +13,7 @@ class CPiiBox {
 public:
     CPiiBox(int type, int capacity);
     ~CPiiBox();
+    void ExportPersonalData(std::vector<SD_PiiPersonalData::Data>& rOut);
 
 private:
     int mType;
