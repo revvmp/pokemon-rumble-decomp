@@ -10,7 +10,7 @@ Target `wpse-v1`, analysed with `tools/re/unitdiff.py` under `cflags_game` and t
 
 ## F-137-2: status
 
-`CGameStage.cpp` is Matching: every function is 100% and the full frozen DOL verifies. `CGloballyReusableTexBuf.cpp` is NonMatching. Twelve of fifteen functions are 100%. `InitializeWorkBuffer` is 99.03% (stack numbering of EH flag bytes, r5/r6 swap). `dispose<Work>`, the `move_ptr<Work>` destructor and the `__vec_split_buffer` destructor differ only by swapped loop registers in the inlined element-destroy loop. The extab of `InitializeWorkBuffer` and of the split-buffer destructor each carry one extra `DestroyBase(__vec_deleter)` action (0x1EC vs 0x1E0 and 0x70 vs 0x64 bytes), so the DOL extab grows by 0x20. Weak-function emission order already equals the original. Remaining work: find the `__vec_split_buffer`/`__vec_deleter` constructor form in `include/vector` whose EH chain has two actions.
+`CGameStage.cpp` is Matching: every function is 100% and the full frozen DOL verifies. `CGloballyReusableTexBuf.cpp` is NonMatching. Thirteen of the fourteen compared functions are 100% (the static initializer is `fn_800BE9B0` in the target and is not compared), including `dispose<Work>`, the `move_ptr<Work>` destructor and the `__vec_split_buffer` destructor, whose EH tables now have the original sizes (`InitializeWork` extab 0x1E0, split-buffer destructor 0x64). `InitializeWorkBuffer` is 99.91%. Every instruction opcode, immediate and stack offset matches; nine rows differ in three register choices: the `first`/`last` pointers of the inlined split-buffer destructor (r26/r25 against r25/r26), the `pBuffer` register in `WorkBuffer::Allocate` (r25 against r28), and the `.sdata2` relocation name of the texture-size array. Remaining work: find the source shape that gives those registers. The static initializer is `fn_800BE9B0` in the target; its name needs the symbols entry only when the unit becomes Matching.
 
 ## Traps
 
@@ -32,4 +32,20 @@ Include order of `IGameMap.h`, `IGameResult.h`, `IGameEnding.h`, `IMultiRanking.
 
 ### F-137-7: shared vector header
 
-Experiments with `include/vector` (`append` goto form with `grow_in_place`, `clear()` calling `erase_at_end(n, pod_type())`) reached 100% on `dispose<Work>` in some variants but regressed CDividedGround and conflicted with concurrent edits, so they are not included. With the mainline `include/vector`, InitializeWorkBuffer is 95.07% and the unit stays NonMatching. `CGameStage.cpp` does not depend on the vector change.
+Changes to `include/vector` need a per-function comparison of `report.json` against a fresh baseline of the same `origin/main`, because the vector instances are shared with BWorld, CControllerComposition, CDividedGround, CPauseMenu and CSaveManager. The current changes were checked that way on top of `58520c41`: no function in any other unit changed its score, and the full frozen DOL verifies.
+
+### F-137-8: EH action counts follow the helper used to compute a range
+
+The extra `DestroyBase(__vec_deleter)` action in the split-buffer destructor and in `InitializeWorkBuffer` came from computing the end of the element range as `first + size_` in the loop header. Calling `end()` (`begin() + size_`) gives the original two-action chain and the 0x64 and 0x1E0 extab sizes. The loop shape (`while (last > first) { --last; destroy(last); }`) does not matter once `end()` is used.
+
+### F-137-9: stack slot order follows the nesting depth of inlined helpers
+
+The `stb 0` temporaries for empty `int2type` tags, the word temporaries behind `std::max` and the EH locals are laid out by a rule that alternates with the nesting depth of the inlined function that owns them: adding one forwarding member function between a caller and a callee reverses the order of every temporary below that callee. Member order inside a class, definition position, operand order of comparisons and compiler version (Wii/1.0 to 1.5) do not change the layout. Consequences measured on the TexBuf unit:
+
+- Tag-less forwarding overloads (`construct_at_end(n)`, `swap(buffer)`, `buffer.allocate(size, n)`, `can_append(n)`, and the two `recommend_*` forwarders) put the `append_realloc` temporaries into the original order. The original evidently called helpers through such overloads.
+- `WorkBuffer::Allocate(const TexSize*, u32)` must contain both the size loop and the allocation. With the loop in `InitializeWorkBuffer` and a separate `Allocate()`, the word temporary of `std::max` and the `GameMemory::Free` pointer swap places. Keeping them in one nested function matches the original order and fixes the loop registers.
+- Adding a forwarding layer inside `recommend` around the throw fixes the registers of the inlined throw blocks and the order of the two byte temporaries in `InitializeWorkBuffer`, but changes `recommend` instances in CDividedGround, CPauseMenu, CSaveManager, BWorld and CControllerComposition from 100% to 90-99%. Fix the order with forwarders on the callers' paths instead.
+
+### F-137-10: a swapped register pair in an inlined loop can come from a missing local
+
+`T* p = data_ + size_` inside the element-destroy helper gave swapped loop registers in `dispose<Work>` and the two destructors. Writing `size_type n = size_; T* p = data_ + n;` in the caller and passing both to the helper fixed all three, but main's later `erase_at_end` rewrite already reached 100% for them, so that change is not part of this pull request. The lesson stays: declare the pointer and the count as separate locals in the caller before the helper call.
