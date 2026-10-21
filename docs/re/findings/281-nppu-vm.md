@@ -75,6 +75,14 @@ Rejected controls: a copied value adds stack storage; a separate integer type sn
 
 ## Traps
 
+### Bounded follow-up controls after F-281-3
+
+The canonical unit compiled with the established Wii/1.3 alternative has the same remaining function scores as Wii/1.1. This provides no reason to change its compiler. Outside controls are `C:/MassStorage/GitHub/281-compiler-control.py` and `281-compiler-control/NPpuVM.json`.
+
+The 2006 MSL tree reading aid is pinned to [KooShnoo/pokemon-rumble tree at 11c112f](https://github.com/KooShnoo/pokemon-rumble/blob/11c112f7548b26ab2cecfcf52e201b8d3b76120f/libs/PowerPC_EABI_Support/MSL/MSL_C%2B%2B/tree). It supplies an actual pointer-container optimization design: typed wrappers over a `const void*` tree, with an intermediate insertion pair. A bounded outside reconstruction of that design makes the missing true/false pair stores appear in `Init`, but retains additional copies and scores only 88.49%; the destructor improves from 86.54% to 90.21%. Neither header is adopted. An explicit iterator copy constructor and by-reference increment alone leave both functions unchanged. Deliberate `#error` inclusion control confirms the overlay header is really used. Inputs and results remain outside at `281-pointer-set-probe*` and `281-tree-reference-probe*`.
+
+Two other hypotheses are rejected without canonical changes. A const-reference alias inside `ConvertToNumber` worsens the three operator bodies, and returning a converted value by value worsens them further. A four-field loader aggregate reaches only 90.62% and does not justify changing the class declaration. Moving the ordinary inline `Clear` definition after its callers leaves the loader unchanged; reading the magic before clearing worsens it. The outside `281-loader-aggregate-probe*` and `281-clear-placement-probe*` retain these controls. No compiler options, synthetic calls, volatile fields, or offset-only views are introduced.
+
 - **A reference can preserve an existing type load.** In these two mutation functions, reading through a const reference to `*this` preserves the native initial tag through the switch. A value copy and an independent integer snapshot do not; this is a bounded compiler observation, not a general reference rule. See F-281-3.
 
 - **A `blr` after a tail call is not a function.** dtk split `0x801700E8` and `0x80170170` as four-byte functions; they belong to the preceding function.
