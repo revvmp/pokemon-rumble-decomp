@@ -3376,3 +3376,7 @@ The original anonymous `CIconCollection_cpp` class `CIconCollection` is 468 byte
 
 [F-343-6](findings/343-sound.md#f-343-6-complete-cbsptree-trace-contract) proves CBSPTree size4 with unchanged data pointer0. Node size24 has VEC3 normal0, f32 plane distance12 and a four-u16-child/leaf-marker-and-payload-offset union16. Root is data+48; child indices0 andFFFF are null. Trace size36 has VEC3 start0 and direction12, f32 fraction24, const Node*28 and const void* payload32. Public TraceSegment(Trace&,f32,f32) at801E6760 forwards to its private recursive overload at801E6770. Names and const qualifications are descriptive; all five native methods1592 bytes and twoEHrecords16 bytes match after resolving every target and constant.
 
+
+## Public FA directory-search ABI (#222)
+
+[F-222-4](findings/222-fa-public-dta.md) completes distinct public FADta at 0x444 bytes, with Attribute0x22C, FileName0x22D and LongName0x23A. Native DCIM allocates two records0x444 apart and passes them through source-selected FaAsync waiters. Private PF_DTA remains0x870 with its Unicode tail at0x444. Original public names/bounds/types are corroborated by pinnedFA interface and native offsets; opaque pointers retain existing private-tag compatibility. The waiter bindings at801B01C0/801B02C0 now name FADta rather than the former inferred PF_DTA alias, preserving every instruction and target. FAChdir at8021D850 and FAErrnum at8021D980 recover original public API names/signatures with unchanged44/64-byte native extents.
