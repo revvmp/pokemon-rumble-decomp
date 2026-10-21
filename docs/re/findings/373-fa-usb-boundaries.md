@@ -100,3 +100,15 @@ Current independent external coverage is seventeen of twenty-eight original #373
 - A findings summary can lag preserved raw comparisons. Rerun the actual external controls before carrying forward a partial coverage total, and count only the original issue rows.
 
 The matching physical-write counterpart at `0x80220CF0` adds another 508 exact native instruction bytes. It preserves the canonical const input buffer, copies into the shared bounce buffer before an unaligned write, uses the original write APIs and returns -36 on failed transfers. `373-probe-sd-physical-write.py` exits 0 after independently resolving every target and comparing the full 508-byte extent and complete literal pool. Its source/object and `373-reference/sd-physical-write-evidence.json` remain external. Current diagnostic coverage therefore reaches eighteen original rows / 4,144 instruction bytes, leaving ten rows / 7,724 bytes unresolved; source credit remains unchanged.
+
+# F-373-7: FAT32 FSInfo initialization
+
+The 304-byte routine at `0x80222230` clears a 512-byte sector and writes little-endian lead/structure/trailing signatures at offsets 0, 484 and 508, with unknown free-count and next-allocation-hint words at 488 and 492. These native constants and offsets identify FAT32 FSInfo; the field interpretation is independently confirmed by the [Microsoft FAT specification, version 1.03](https://www.cs.fsu.edu/~cop4610t/assignments/project3/spec/fatspec.pdf), FSInfo section. The candidate was independently authored from native behavior, with no implementation text imported. `pfd_sddrv_store_fsinfo` is a descriptive name; its original identifier is not recovered.
+
+An ordinary inline little-endian 32-bit store chooses byte stores for unaligned destinations and a byte-swapped word for aligned destinations. Compiler constant folding reproduces the complete native routine exactly under unchanged Wii/1.0 SDK flags. `373-audit-sd-fsinfo.py` recompiles the candidate, checks the immutable DOL hash, asserts its sole function's exact extent and absence of other allocated data, resolves the actual `pf_memset` call, and compares every one of the 304 text bytes. It exits 0. Source/object and `373-reference/sd-fsinfo-evidence.json` remain external.
+
+Independent external #373 coverage is now nineteen of twenty-eight original rows / 4,448 of 11,868 instruction bytes. Nine original shared-SD rows / 7,420 bytes remain unresolved. No additional source selection or issue completion is claimed.
+
+## Traps
+
+- The apparent big-endian constants in the native word stores are the byte-reversed representation of the little-endian FSInfo signatures. Model the ordinary serialization operation and preserve its unaligned path rather than embedding target instruction words or treating the constants as unrelated magic.
