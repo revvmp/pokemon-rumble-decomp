@@ -1,6 +1,7 @@
 #ifndef MSL_CPP_ALLOCATOR_H
 #define MSL_CPP_ALLOCATOR_H
 
+#include <limits>
 #include <new>
 #include <stddef.h>
 
@@ -20,7 +21,7 @@ public:
     pointer allocate(size_type count, const void* pHint = nullptr) {
         return static_cast<pointer>(::operator new(count * sizeof(T)));
     }
-    size_type max_size() const { return size_type(-1) / sizeof(T); }
+    size_type max_size() const { return numeric_limits<size_type>::max() / sizeof(T); }
     void deallocate(pointer pValue, size_type) { ::operator delete(pValue); }
     void construct(pointer pValue, const_reference rValue) { new (pValue) T(rValue); }
     void destroy(pointer pValue) { pValue->~T(); }

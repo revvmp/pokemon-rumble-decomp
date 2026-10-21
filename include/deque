@@ -75,7 +75,7 @@ public:
     bool empty() const { return size_ == 0; }
     size_type capacity() const { return cap() == 0 ? 0 : cap() - 1; }
     size_type max_size() const {
-        static size_type n = std::min(alloc().max_size(), size_type(0x7FFFFFFF) / 2) - 1;
+        static size_type n = std::min(alloc().max_size(), size_type(numeric_limits<long>::max()) / 2) - 1;
         return n;
     }
     void reserve(size_type n);
@@ -113,7 +113,7 @@ public:
     void clear_moved(Metrowerks::int2type<true>) { size_ = 0; }
     void allocate(size_type n) { allocate(n, pod_type()); }
     void allocate(size_type n, Metrowerks::int2type<true>);
-    void allocate(size_type, size_type n) { allocate(n, n, pod_type()); }
+    void allocate(size_type size, size_type n) { allocate(size, n, pod_type()); }
     void allocate(size_type, size_type n, Metrowerks::int2type<true> t) { allocate(n, t); }
     template <typename Iterator> void construct_at_end(const Iterator& rFirst, const Iterator& rLast);
     template <typename Iterator> void construct_at_front(const Iterator& rFirst, const Iterator& rLast);
