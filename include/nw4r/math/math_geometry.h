@@ -27,6 +27,7 @@ enum IntersectionResult {
 
 struct LINE3 {
     LINE3() {}
+    LINE3(const VEC3& rP, const VEC3& rD) : P(rP), d(rD) {}
 
     VEC3 P;
     VEC3 d;
