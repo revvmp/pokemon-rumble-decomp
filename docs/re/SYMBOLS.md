@@ -3055,3 +3055,14 @@ The singleton is `0x803E6590` (16 bytes), start colors `0x803E65AC` (five four-b
 ### F-54-4: Original HUD helper contracts
 
 `IWorldObjStat` is the original four-byte six-slot base of `CHPBar`; its RTTI spelling replaces the earlier inferred `IDrawLayer` identity in `DrawLayerSet` and the native `BModelObj::AddDrawLayer` callee mangling at `0x800570D0`. The old name remains a compatibility typedef for the external #39 owner's untouched source. The complete `CHPBar` (`0x13C`) and `CMiniMapMarker` (`0xF0`) member layouts and original nested `CHPBar::CDamage` spelling are recorded in [F-54-4](findings/54-boss-pii-color-tag.md#f-54-4-complete-hud-helper-header-prerequisites). Constructor/destructor and full HP-vtable consumers prove native layout and relocations using canonical `CLayout`. New member/method spellings are descriptive, medium confidence; no outside source body or split is reconstructed by these header prerequisites.
+
+## Complete FA SD driver storage and format records (#372/#373)
+
+| Address or record | Layout / identity | Evidence |
+| --- | --- | --- |
+| `sSdDriver`, `0x80422BE0` | 28-byte volatile `PFD_SD_DRIVER`; seven existing status/size/handle/disk/media/drive fields, final ordinary alignment | [F-373-10](findings/373-fa-usb-boundaries.md#f-373-10-complete-shared-sd-driver-source-acceptance); real object and final ELF exact |
+| `sSdHandle`, `0x80422C00`; `sSdSectorBuffer`, `0x80422C40` | Forty-byte canonical `ISD_HANDLE`, then 512-byte sector buffer aligned to 32 | Same; source-selected complete DOL exact |
+| `sSdInsertCallback`, `0x804B9240`; `sSdEjectCallback`, `0x804B9244`; `sSdIntrEvent`, `0x804B9260` | Two four-byte callbacks and a four-byte event word aligned to 32; complete small BSS 36 bytes | Same; no invented intervening fields |
+| `SD_FORMAT_PARAMETERS` | 32 bytes: partition start `0x00`, partition count `0x04`, cluster byte `0x08`, FAT sectors `0x0C`, volume ID `0x10`, FAT type `0x14`, reserved sectors `0x18`, total sectors `0x1C` | Native geometry/BPB accesses and full source-selected stream; descriptive record/member names |
+| `SD_FORMAT_GEOMETRY` / `SD_FORMAT_CAPACITY_RULE` | Sixteen-byte geometry: alignment `0`, heads `4`, track sectors `8`, cluster byte `12`; rule prefixes two capacity words, total 24 bytes | Fourteen exact rules / 336 bytes at `0x8036C480`; lower bound exclusive, upper inclusive |
+| `sSdFunctions`, `0x8036C460` | Eight-entry native `PDM_FUNCTBL`, 32 bytes, exact source function positions and absolute relocations | Complete real-object and final-ELF controls |

@@ -1086,7 +1086,7 @@ RVL_SDK/fa/sd_drv.c:
 	.rodata     start:0x8036C460 end:0x8036C5D0
 	.data       start:0x803C47F0 end:0x803C5260
 	.bss        start:0x80422BE0 end:0x80422E40
-	.sbss       start:0x804B9240 end:0x804B9268
+	.sbss       start:0x804B9240 end:0x804B9264
 
 RVL_SDK/fa/pfd_cmn.c:
 	.text       start:0x80222E90 end:0x80222FA8
