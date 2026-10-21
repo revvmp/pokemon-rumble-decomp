@@ -3,6 +3,7 @@
 
 #include <game/ISession.h>
 #include <iosfwd>
+#include <memory>
 #include <revolution/types.h>
 
 struct MapIndex;
@@ -17,6 +18,12 @@ class CPlayer;
 class CRemoteMemory;
 class CStatistic;
 class IGameStage;
+class COyaInfo;
+class CPiiPersonalData;
+
+namespace NPpu {
+class CEnvironment;
+}
 
 class IGameSession : public ISession {
 public:
@@ -29,7 +36,7 @@ public:
     virtual CStatistic* GetStatistic() = 0;
     virtual std::wstring GetWazaName(int waza) = 0;
     virtual StageDesc* GetStageDesc(MapIndex index) = 0;
-    virtual MapDesc* GetMapDesc(const MapIndex& rIndex) = 0;
+    virtual MapDesc* GetMapDesc(MapIndex index) = 0;
     virtual MapDesc* CreateMapDesc(const MapIndex& rIndex) = 0;
     virtual int MovePlayerPiisToTeamPiiBox() = 0;
     virtual int GetMoney() = 0;
@@ -40,11 +47,11 @@ public:
     virtual CPiiBox* GetTeamPiiBox() = 0;
     virtual CPlayer* GetPlayer(int player) = 0;
     virtual CRemoteMemory* GetRemoteMemory(int player) = 0;
-    virtual void UnanalyzedSlot25() = 0;
-    virtual void UnanalyzedSlot26() = 0;
-    virtual void UnanalyzedSlot27() = 0;
-    virtual void UnanalyzedSlot28() = 0;
-    virtual void UnanalyzedSlot29() = 0;
+    virtual COyaInfo* GetOyaInfo() = 0;
+    virtual std::tr1::shared_ptr<NPpu::CEnvironment> GetEnvironment() = 0;
+    virtual int AddPPDToPlayerPiiBox(int player, const std::tr1::shared_ptr<CPiiPersonalData>& rPPD) = 0;
+    virtual bool CanAddPPDToPlayerPiiBox(int player, const std::tr1::shared_ptr<CPiiPersonalData>& rPPD) = 0;
+    virtual bool IsReplacePiiAvailable(int player, const std::tr1::shared_ptr<CPiiPersonalData>& rPPD) = 0;
     virtual f32 GetPlayTimeSeconds() = 0;
     virtual int GetMapChangeType() = 0;
     virtual void SetFade(int type, int frames) = 0;
@@ -61,5 +68,7 @@ public:
 
     static IGameSession* GetInstance();
 };
+
+IGameSession* GetGameSession();
 
 #endif

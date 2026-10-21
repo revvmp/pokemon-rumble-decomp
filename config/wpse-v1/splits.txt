@@ -252,6 +252,25 @@ game/CGameResult.cpp:
 	.sdata      start:0x804B67D0 end:0x804B6880
 	.sdata2     start:0x804B9E78 end:0x804B9EC8
 
+game/CGameStage.cpp:
+	extab       start:0x8001B840 end:0x8001BC8C
+	extabindex  start:0x800487D4 end:0x800488A0
+	.text       start:0x800BCAA0 end:0x800BD9C0
+	.data       start:0x803A4088 end:0x803A4260
+	.sdata      start:0x804B6918 end:0x804B6940
+	.sdata2     start:0x804B9EF8 end:0x804B9F00
+
+game/CGloballyReusableTexBuf.cpp:
+	extab       start:0x8001BC8C end:0x8001BFC0
+	extabindex  start:0x800488A0 end:0x80048930
+	.text       start:0x800BD9C0 end:0x800BE9D8
+	.ctors      start:0x803529D0 end:0x803529D4
+	.data       start:0x803A4260 end:0x803A4440
+	.bss        start:0x803E6600 end:0x803E6610
+	.sdata      start:0x804B6940 end:0x804B6960
+	.sbss       start:0x804B9008 end:0x804B9010
+	.sdata2     start:0x804B9F00 end:0x804B9F08
+
 game/CMiniMapMarker.cpp:
 	extab       start:0x8001D4A8 end:0x8001D4F0
 	extabindex  start:0x80048C00 end:0x80048C24
