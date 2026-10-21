@@ -3505,3 +3505,15 @@ Native 800968D0 is a 116-byte position-transform wrapper (output VEC3 pointer, c
 # F-238: Save-slot status contract
 
 [F-238-4](findings/238-script-game-bindings.md#f-238-4-complete-statistic-storage-contract) corrects `GetCurrentSlot` at `0x80167E50` to return `int`: the native lucky-number caller uses the complete signed return word without unsigned-character truncation. Its 488 code bytes, fourteen calls, and exception record match with the corrected declaration. `SlotData` retains its existing extent and twenty-byte status union; descriptive inferred members are `mTicketMonsno` (`u16`, 4848), `mTicketFormno` (`u8`, 4850), `mWirelessMacAddress` (`u8[6]`, 4852), `mExtraBRMaxRound` and `mExtraBRCurrentRound` (`s8`, 4858 and 4859). Byte 4851 remains unresolved. Ticket, round, and grade/difficulty script consumers establish the widths and offsets; the original status-copy routine independently preserves these widths.
+
+## Issue 270: Pii property script contracts
+
+| Type or symbol | Native evidence | Contract and confidence |
+| --- | --- | --- |
+| CPpuEngine::PopSpeciesData | 0x80100F10 and ppr/native notice callers | Borrowed const PiiSpeciesData pointer from integer script identity; descriptive name |
+| PiiPropData | ctor 0x800F2630, Initialize 0x800F3120, GetWazaLevels 0x800F5B00 | 56 bytes: vector<SpeciesMoves> at 0, MapPiiTable at 12; complete observed layout |
+| PiiPropData::SpeciesMoves | native 508-element construction and move lookup | 72 bytes: level/move signed-short pair vector at 0, five signed-short vectors at 12; member names descriptive |
+| PiiSpeciesData::GetGenderAndTypeFlags | 0x80125010 full lwz return | Unsigned 32-bit packed word at offset 8; script binding explicitly narrows to its low byte |
+| Scalar vector storage cleanups | setter EH and native 0x8007B2A0/0x800F44C0 | unsigned-short backend and signed-short public vector; full native code/targets and typed producer cleanup proof |
+
+See [F-270](findings/270-pii-property-bindings.md) for bounded header and consumer controls.

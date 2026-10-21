@@ -135,10 +135,14 @@ public:
     T* end() { return begin() + this->size_; }
 
     void construct_at_end(size_type n) { construct_at_end(n, pod_type()); }
-    void construct_at_end(size_type n, pod_type) {
+    void construct_at_end(size_type n, Metrowerks::int2type<false>) {
         for (T* p = this->data_ + start_ + this->size_; n; --n, ++p, ++this->size_) {
             this->alloc().construct(p, T());
         }
+    }
+    void construct_at_end(size_type n, Metrowerks::int2type<true>) {
+        memset(this->data_ + start_ + this->size_, 0, n * sizeof(T));
+        this->size_ += n;
     }
 
     void construct_at_end(const T& x, pod_type) {
@@ -192,6 +196,8 @@ template <typename T, typename Allocator, bool IsPOD> class __vec_constructor : 
     typedef __vec_deleter<T, Allocator> base;
 
 public:
+    typedef T storage_type;
+    typedef Allocator storage_allocator;
     typedef typename base::size_type size_type;
     typedef typename base::pod_type pod_type;
 
@@ -371,11 +377,15 @@ protected:
     }
 
     void construct_at_end(size_type n) { construct_at_end(n, pod_type()); }
-    void construct_at_end(size_type n, pod_type) {
+    void construct_at_end(size_type n, Metrowerks::int2type<false>) {
         for (T* p = this->data_ + this->size_; n != 0; --n, ++p) {
             this->alloc().construct(p, T());
             ++this->size_;
         }
+    }
+    void construct_at_end(size_type n, Metrowerks::int2type<true>) {
+        memset(this->data_ + this->size_, 0, n * sizeof(T));
+        this->size_ += n;
     }
 
     size_type recommend(size_type n) {
@@ -463,6 +473,26 @@ template <typename T, typename Allocator> void __vec_deleter<T, Allocator>::allo
     cap() = n;
 }
 
+template <typename Allocator>
+class __vec_constructor<short, Allocator, true>
+    : public __vec_constructor<unsigned short, typename Allocator::template rebind<unsigned short>::other, false> {
+    typedef __vec_constructor<unsigned short, typename Allocator::template rebind<unsigned short>::other, false> base;
+public:
+    typedef typename base::size_type size_type;
+    typedef unsigned short storage_type;
+    typedef typename Allocator::template rebind<unsigned short>::other storage_allocator;
+    __vec_constructor() {}
+    explicit __vec_constructor(size_type n) : base(n) {}
+    __vec_constructor(const __vec_constructor& x) : base(x) {}
+    short* begin() { return reinterpret_cast<short*>(base::begin()); }
+    const short* begin() const { return reinterpret_cast<const short*>(base::begin()); }
+    short* end() { return reinterpret_cast<short*>(base::end()); }
+    const short* end() const { return reinterpret_cast<const short*>(base::end()); }
+    short& back() { return reinterpret_cast<short&>(base::back()); }
+    short& operator[](size_type n) { return reinterpret_cast<short&>(base::operator[](n)); }
+    void push_back(const short& x) { base::push_back(reinterpret_cast<const unsigned short&>(x)); }
+};
+
 template <typename T, typename Allocator = allocator<T> >
 class vector : private __vec_constructor<T, Allocator, Metrowerks::is_POD<T>::value> {
     typedef __vec_constructor<T, Allocator, Metrowerks::is_POD<T>::value> base;
@@ -497,6 +527,8 @@ public:
 
     typedef typename base::size_type size_type;
     typedef typename base::pod_type pod_type;
+    typedef typename base::storage_type storage_type;
+    typedef typename base::storage_allocator storage_allocator;
 
     vector() {}
     explicit vector(size_type n) : base(n) {}
@@ -511,7 +543,7 @@ public:
         size_type capacity = this->cap();
         this->cap() = r.cap();
         r.cap() = capacity;
-        T* data = this->data_;
+        storage_type* data = this->data_;
         this->data_ = r.data_;
         r.data_ = data;
         size_type size = this->size_;
@@ -520,14 +552,14 @@ public:
     }
 
     iterator begin() { return make_iterator(base::begin()); }
-    const_iterator begin() const { return this->data_; }
+    const_iterator begin() const { return reinterpret_cast<const T*>(this->data_); }
     iterator end() { return make_iterator(base::end()); }
-    const_iterator end() const { return this->data_ + this->size_; }
+    const_iterator end() const { return reinterpret_cast<const T*>(this->data_ + this->size_); }
     size_type size() const { return this->size_; }
     bool empty() const { return this->size_ == 0; }
     void push_back(const T& x);
     T& operator[](size_type i) { return base::operator[](i); }
-    const T& operator[](size_type i) const { return this->data_[i]; }
+    const T& operator[](size_type i) const { return reinterpret_cast<const T&>(this->data_[i]); }
 
 private:
     void push_back_pod(const T& x) {
@@ -538,7 +570,7 @@ private:
             ++this->size_;
             this->back() = x;
         } else {
-            __vec_split_buffer<T, Allocator> buffer(this->alloc());
+            __vec_split_buffer<storage_type, storage_allocator> buffer(this->alloc());
             size_type capacity = base::grow_by(1);
             if (capacity > this->max_size()) {
                 this->throw_length_error();
@@ -546,10 +578,10 @@ private:
             buffer.data_ = buffer.alloc().allocate(capacity);
             buffer.cap() = capacity;
             buffer.start_ = this->size_;
-            *buffer.end() = x;
+            *buffer.end() = reinterpret_cast<const storage_type&>(x);
             ++buffer.size_;
-            T* pFirst = this->data_;
-            T* pLast = this->data_ + this->size_;
+            storage_type* pFirst = this->data_;
+            storage_type* pLast = this->data_ + this->size_;
             buffer.construct_at_front(pFirst, pLast, Metrowerks::int2type<__vec_bulk_move<T>::value>());
             this->size_ = 0;
             base::swap(buffer, pod_type());
