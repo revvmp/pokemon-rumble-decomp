@@ -26,6 +26,10 @@ class Font;
 
 class CFileData;
 
+namespace {
+nw4r::lyt::Pane* spDefaultMotionPane;
+}
+
 class CLayout : public ICalcDraw {
 public:
     class CAttach;
@@ -58,7 +62,7 @@ public:
     void Load(const char* const* pArchives, const char* pLayoutName, const std::tr1::shared_ptr<FontMap>& rFonts, bool background);
     nw4r::lyt::Pane* FindPane(const char* pName);
     void SetVisible(bool visible);
-    std::tr1::shared_ptr<CMotionProgram> CreateMotion(const char* pName);
+    std::tr1::shared_ptr<CMotionProgram> CreateMotion(const char* pName) { return CreateMotion(pName, spDefaultMotionPane, 0.0f, 1.0f); }
     std::tr1::shared_ptr<CMotionProgram> CreateMotion(const char* pName, nw4r::lyt::Pane* pPane, f32 startFrame, f32 rate);
     std::tr1::shared_ptr<CMotionProgram> CreateMotion(const char* pName, const char* pPaneName, f32 startFrame, f32 rate);
     std::tr1::shared_ptr<CMotionProgram> QueueMotion(const char* pName, nw4r::lyt::Pane* pPane, f32 startFrame, f32 rate);
