@@ -70,3 +70,19 @@ The complete-unit continuation must preserve native data and retained helper ord
 Further bounded controls did not resolve that ordering: an explicit inline destructor at the beginning or end of the class, moving its constructor declaration to the end, defining the constructor normally before/after the factory or before Calc/after all methods, naming the factory's concrete shared owner, explicitly constructing the returned interface owner, or moving shared_ptr_deleter get_deleter/dispose definitions outside their template class. Their source/header variants and objects remain outside; none changes a canonical header or selected source. Making the otherwise unreferenced public factory inline causes the compiler to omit the entire private implementation, so it is not an acceptable retention mechanism.
 
 The compiler discrimination control uses the same accepted individual producer and headers under Wii/1.1 and Wii/1.3. Their .text, .data, .sdata, .sdata2, extab and extabindex sections are byte-identical, preserving the same ordering gap. Removing -ipa file as a controlled check of F-735-1's medium-confidence inference contradicts native function sizes: factory228 versus280, Calc756 versus740, Run660 versus788, and concrete destructor104 versus180. This supports keeping the canonical IPA setting for this producer; it does not establish a universal compiler rule. Objects, exact source copies and section hashes are retained in58-unit-context/compiler-1.1, compiler-1.3, noipa-original-source and58-compiler-controls.json. No compiler or flag change is adopted.
+
+# F-58-4: all original CDisconMsg functions individually verified
+
+The complete outside producer now passes an independent strict audit of all32 retained native functions /3924 instruction bytes, including all117 actual code relocation operands and all25 exception records /1032 bytes with their cleanup destinations. This covers every original #58 function (25/3388) and the seven trailing #59 functions (7/536). Default-deleter type-info comparisons also resolve the native RTTI addresses and compare their exact type-name strings; they are not masked operands. The accepted individual source, object, exact header inputs, audits and SHA-256 manifest are preserved together outside in58-reference/58-all32-native-proof. The receipt explicitly states that the whole unit has not been source-selected or accepted.
+
+| Neighboring #59 address | Bytes | Proven helper |
+| --- | --- | --- |
+| 0x800709E0 | 76 | CFiber shared deleter type query |
+| 0x80070A30 | 36 | CFiber shared deleter dispose |
+| 0x80070A60 | 116 | move_ptr<CLayout> destructor |
+| 0x80070AE0 | 116 | move_ptr<CFiber> destructor |
+| 0x80070B60 | 64 | CLayout shared deleter destructor |
+| 0x80070BA0 | 64 | CFiber shared deleter destructor |
+| 0x80070BE0 | 64 | Bound callback function_imp destructor |
+
+The two shared-deleter destructor identities follow the native CLayout and CFiber vtable destinations, superseding preliminary interface/base-destructor guesses. Native IDisconMsg RTTI points to its20-byte ancestor list at0x8039B418; that object is not a function_base vtable. The complete class's28-byte ancestor list at0x8039B3F0 contains ICalc, ICalcDraw and IDisconMsg at zero offset. Individual code and exception success still does not prove retained function/data ordering. The next acceptance step is the actual complete source-unit split and source-selected link, including native retained metadata and the frozen DOL; no completion is claimed from the standalone producer.
