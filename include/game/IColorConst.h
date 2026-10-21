@@ -21,6 +21,8 @@ public:
     virtual bool ApplyVertexColor(CLayout* pLayout, const char* pName, int index, int mode) const = 0;
 };
 
+void InitializeColorConstants(bool background);
+void FinalizeColorConstants();
 IColorConst* GetColorConstants();
 
 #endif

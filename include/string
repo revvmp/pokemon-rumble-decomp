@@ -113,6 +113,21 @@ public:
 
     void reserve(size_type res_arg);
 
+    void get_buffer(const_pointer& rData, size_type& rSize) const {
+        if (!is_long()) {
+            rData = rep_.s.data_;
+            rSize = rep_.s.size_;
+        } else {
+            rData = rep_.l.data_;
+            rSize = rep_.l.size_;
+        }
+    }
+
+    template <class ForwardIterator>
+    basic_string& replace(size_type pos, size_type n1, ForwardIterator j1, ForwardIterator j2) {
+        return replace(pos, n1, j1, j2, forward_iterator_tag());
+    }
+
     template <class ForwardIterator>
     basic_string& replace(size_type pos, size_type n1, ForwardIterator j1, ForwardIterator j2, forward_iterator_tag);
 

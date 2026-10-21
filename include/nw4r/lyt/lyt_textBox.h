@@ -66,6 +66,10 @@ public:
         mTextColors[index] = color;
     }
 
+    ut::Color GetTextColor(u32 index) const {
+        return mTextColors[index];
+    }
+
     u8 GetTextPositionH() const {
         return detail::GetHorizontalPosition(mTextPosition);
     }
