@@ -2,6 +2,7 @@
 #define _FUNCTIONAL
 
 #include <exception>
+#include <MSL_CPP/msl_utility.h>
 #include <tuple>
 #include <new>
 #include <revolution/types.h>
@@ -37,7 +38,7 @@ template<class R,class C,class A> class mem_fn_1 {
 public:
     typedef R (C::*Function)(A);
     explicit mem_fn_1(Function function) : mFunction(function) {}
-    R operator()(C* pObject,A argument) const { return (pObject->*mFunction)(argument); }
+    R operator()(C* const& rObject,A argument) const { return (rObject->*mFunction)(argument); }
 private:
     Function mFunction;
 };
@@ -49,11 +50,22 @@ private:
     F mFunction;
     tuple<T> mArguments;
 };
+struct no_arguments {};
+template<class A,class Arguments> A& resolve_bound_argument(A& rArgument, const Arguments&) { return rArgument; }
+template<class R,class F,class Tuple,class Arguments> R call_bound(F& rFunction, Tuple& rTuple, const Arguments& arguments, Metrowerks::int2type<0>) {
+    return rFunction(resolve_bound_argument(get_bound<0>(rTuple), arguments), resolve_bound_argument(get_bound<1>(rTuple), arguments));
+}
+template<class R,class F,class Tuple,class Arguments> R call_bound(F& rFunction, Tuple& rTuple, const Arguments& arguments) {
+    return call_bound<R>(rFunction, rTuple, arguments, Metrowerks::int2type<0>());
+}
 template<class R,class F,class T0,class T1> class bound_func<R,F,tuple<T0,T1> > {
 public:
     typedef tuple<T0,T1> Arguments;
     bound_func(const F& rFunction,const Arguments& rArguments) : mFunction(rFunction),mArguments(rArguments) {}
-    R operator()() { return mFunction(std::tr1::get<0>(mArguments),std::tr1::get<1>(mArguments)); }
+    R operator()() {
+        detail::no_arguments arguments;
+        return call_bound<R>(mFunction, mArguments, arguments);
+    }
 private:
     F mFunction;
     Arguments mArguments;

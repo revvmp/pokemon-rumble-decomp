@@ -328,7 +328,7 @@ public:
         bool operator!=(const iterator& rOther) const { return base_iterator::operator!=(rOther); }
     };
 
-    class void_iterator : public iterator {
+    class void_iterator {
     public:
         typedef long difference_type;
         typedef void* value_type;
@@ -336,21 +336,21 @@ public:
         typedef void*& reference;
         typedef random_access_iterator_tag iterator_category;
 
-        void_iterator(const iterator& rIt) : iterator(rIt) {}
-        void* operator*() { return mCast(*this); }
+        void_iterator(const iterator& rIt) : mIt(rIt) {}
+        void* operator*() { return mCast(mIt); }
         void_iterator& operator++() {
-            iterator::operator++();
+            ++mIt;
             return *this;
         }
         void_iterator& operator+=(int n) {
-            iterator::operator+=(n);
+            mIt += n;
             return *this;
         }
         void_iterator operator+(int n) const {
             return void_iterator(*this) += n;
         }
-        long operator-(const void_iterator& rOther) const { return iterator::operator-(rOther); }
-        bool operator==(const void_iterator& rOther) const { return iterator::operator==(rOther); }
+        long operator-(const void_iterator& rOther) const { return mIt - rOther.mIt; }
+        bool operator==(const void_iterator& rOther) const { return mIt == rOther.mIt; }
         bool operator!=(const void_iterator& rOther) const { return !(*this == rOther); }
 
     private:
@@ -359,6 +359,7 @@ public:
             void* get(iterator it, Metrowerks::int2type<0>) { return *it; }
         };
 
+        iterator mIt;
         pointer_cast mCast;
     };
 
