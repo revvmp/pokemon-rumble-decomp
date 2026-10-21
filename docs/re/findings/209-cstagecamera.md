@@ -72,3 +72,19 @@ GNU objdump 2.42 and Python scans of `build/wpse-v1/main.elf` (vtables, RTTI bas
 - **Constant order follows the source operand order.** `SinCosDeg(x)` expands to `x * (256/360)` and emitted `90` before `256/360` in `.sdata2`; the original has `(256.0f / 360.0f) * (90.0f + angle)`.
 - **A by-value helper explains extra stack copies.** The original transforms into a temporary and copies it back, with the subtraction temporary above the transform temporary; a file-local `Transform` returning `VEC3` reproduces the frame.
 - **The light test is the spot flag.** The original tests bit 0 of the light flags, which is `IsSpotLight`, not `IsEnable` (bit 2).
+
+## F-209-5: Recover the register value's original Slice identity
+
+The register ownership RTTI names `std::vector<NPpu::Slice>` in the original image. `CValue` was a descriptive reconstruction name, not a recovered spelling. The register's Set copies both words directly into an eight-byte vector element, and GetValue returns the same two-word payload. Reserve's native exception record names the vector storage cleanup at `0x80110920`; Set's records name the split-buffer cleanup at `0x80111930`. These are also emitted by MapPiiTable's value vector. This links the register and table value types without introducing inheritance or conversion storage.
+
+The complete existing two-int value declaration is therefore named `NPpu::Slice`, retaining `NPpu::CValue` as a compatibility typedef. Its methods, layout, and public API spelling remain intact. CPpuRegister's forward declaration uses the same alias; MapDesc's redundant forward declaration is removed with the MapPiiTable owner's agreement. Thirty-eight configured symbol spellings follow the actual compiler's type mangling. No split or source acceptance changes accompany this prerequisite.
+
+On baseline `f62a0a0cbf44744e01f099f036e7ee17d14ef177`, all 759 compiled source objects retain identical function bytes and relocation identities, and identical allocated section metadata, payloads, and relocation identities after the explicit type-name normalization. The full build exits 0 and the frozen executable verification passes. Independent MapPiiTable owner control retains all 55 emitted function bodies and every allocated section and relocation.
+
+The actual outside CPpuRegister producer now reproduces all twelve functions, 3,812 code bytes with 118 applied relocations, plus eleven exception records totaling 600 bytes. These producer results support the type identity but do not mark CPpuRegister source-selected yet. Original #209 remains incomplete: its MapPiiTable continuation is coordinated with #208.
+
+Reproducers and raw controls are preserved outside the repository under `209-reference/`: `209-register-strict-audit.py`, `209-register-eh-audit.py`, and `209-alias-control/209-audit-consumers.py`. Independent #208 receipt is `208-reference/208-alias-control/report.json`.
+
+### Traps
+
+Matching two-word layouts alone does not establish a base class. Native ownership RTTI, typed producer payloads, and shared exception cleanup identities support one value type here; adding an inheritance layer would introduce an unsupported source contract.

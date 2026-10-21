@@ -3421,3 +3421,7 @@ all call targets reproduce through the existing `tree_increment` API.
 branch to the eight-byte iterator constructor. The original primary
 declaration and the native call graph establish these identities. Details
 and consumer controls are in [F-152-5](findings/152-balloon-library-contracts.md#f-152-5-original-primary-container-and-string-producer-controls).
+
+## NPpu register value identity (#209)
+
+`NPpu::Slice` is the original RTTI spelling of the register vector element. The existing complete two-int value type is now named Slice, with CValue retained as a compatibility typedef. Native Set/Get payloads and exception cleanup sharing with MapPiiTable establish this identity; no inheritance or layout changes are introduced. See [F-209-5](findings/209-cstagecamera.md#f-209-5-recover-the-register-values-original-slice-identity).

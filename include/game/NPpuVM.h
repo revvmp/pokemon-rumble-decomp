@@ -18,7 +18,10 @@ struct SNativeFunction {
     int mArgCount;
 };
 
-class CValue {
+class Slice;
+typedef Slice CValue;
+
+class Slice {
 public:
     enum Type {
         TYPE_INT = 0,
