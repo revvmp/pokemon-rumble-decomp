@@ -47,6 +47,7 @@ public:
     typedef const charT* const_pointer;
     typedef charT* iterator;
     typedef const charT* const_iterator;
+    static const size_type npos = static_cast<size_type>(-1);
 
     basic_string() { init(); }
     explicit basic_string(const allocator_type& allocator) : r_(allocator) { init(); }
@@ -70,6 +71,8 @@ public:
         replace(0, 0, first, last, forward_iterator_tag());
     }
     basic_string(const basic_string& str);
+    basic_string(const basic_string& str, size_type pos, size_type n, const allocator_type& a);
+    basic_string substr(size_type pos = 0, size_type n = npos) const;
     ~basic_string() {
         if (is_long()) {
             alloc().deallocate(r_.first().r.l.data_, r_.first().r.l.cap_);
@@ -164,6 +167,8 @@ public:
         return replace(size(), 0, first, last, forward_iterator_tag());
     }
 
+    basic_string& replace(size_type pos1, size_type n1, const basic_string& str, size_type pos2, size_type n2);
+
     void reserve(size_type res_arg);
 
     basic_string& insert(size_type pos, const charT* first, const charT* last) {
@@ -240,6 +245,33 @@ private:
     allocator_type& alloc() { return r_.second(); }
     const allocator_type& alloc() const { return r_.second(); }
 };
+
+
+template <class charT, class traits, class Allocator>
+basic_string<charT, traits, Allocator>::basic_string(const basic_string& str, size_type pos, size_type n, const allocator_type& a) : r_(a) {
+    init();
+    size_type s_s = str.size();
+    reserve(pos <= s_s ? min(n, s_s - pos) : 0);
+    replace(0, 0, str, pos, n);
+}
+
+template <class charT, class traits, class Allocator>
+basic_string<charT, traits, Allocator>& basic_string<charT, traits, Allocator>::replace(size_type pos1, size_type n1, const basic_string& str, size_type pos2, size_type n2) {
+    const_pointer p;
+    size_type sz;
+    str.get_buffer(p, sz);
+    if (pos2 > sz) {
+        throw out_of_range("basic_string: out_of_range");
+    }
+    p += pos2;
+    n2 = min(n2, sz - pos2);
+    return do_replace(pos1, n1, p, p + n2, random_access_iterator_tag());
+}
+
+template <class charT, class traits, class Allocator>
+inline basic_string<charT, traits, Allocator> basic_string<charT, traits, Allocator>::substr(size_type pos, size_type n) const {
+    return basic_string(*this, pos, n, alloc());
+}
 
 template <class charT, class traits, class Allocator>
 basic_string<charT, traits, Allocator>::basic_string(const basic_string& str) : r_(str.alloc()) {
