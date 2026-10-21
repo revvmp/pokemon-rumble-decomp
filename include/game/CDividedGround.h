@@ -13,6 +13,10 @@ class ScnGroupEx;
 }
 }
 
+namespace NPpu {
+class CEnvironment;
+}
+
 class CBSPTree;
 class CFileData;
 class CModel;
@@ -35,6 +39,7 @@ public:
     virtual void OnLeaveWorld();
     virtual void UpdateVisible();
 
+    bool LoadPkc(int mode, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnv, const char* pPrefix);
     void LoadAttr(const char* pName, u32 flags);
     bool IsOutOfBounds(const nw4r::math::VEC3& rPos);
 

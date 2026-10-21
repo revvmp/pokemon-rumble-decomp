@@ -26,7 +26,7 @@ public:
     explicit __vec_deleter(allocator_param a) : data_(nullptr), size_(0), capacity_(0, a) {}
     ~__vec_deleter();
 
-    void clear() { erase_at_end(size_, pod_type()); }
+    void clear() { size_type n = size_; erase_at_end(n, pod_type()); }
 
     size_type& cap() { return capacity_.first(); }
     Allocator& alloc() { return capacity_.second(); }
@@ -63,7 +63,7 @@ protected:
             capacity_.second().destroy(p);
         }
     }
-    void erase_at_end(size_type n, Metrowerks::int2type<true>) { size_ -= n; }
+    void erase_at_end(size_type& n, Metrowerks::int2type<true>) { size_ -= n; }
 
 private:
     __vec_deleter(const __vec_deleter&);

@@ -44,7 +44,7 @@ public:
     void SetStageDescTarget(const StageID& rTarget);
     void SetPPD(std::tr1::shared_ptr<CPPD> ppd);
     void LeaveInitPart();
-    std::tr1::shared_ptr<CFileData> LoadScriptFile(const char* pName, u32 flags);
+    static std::tr1::shared_ptr<CFileData> LoadScriptFile(const char* pName, u32 flags);
     bool Load(const char* pName, int mode, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnv);
     bool Load(BWorldObj* pOwner, const char* pName, int mode, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnv);
     bool Execute(const char* pName, int mode, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnv);
