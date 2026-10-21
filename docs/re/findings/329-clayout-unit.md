@@ -50,7 +50,7 @@ Remaining differences that are symbol names only (`lbl_803C0AF4` against `__vt__
 
 ## Shared header changes
 
-- `include/map`: the compact tree selection gains two empty wrapper classes (`map_compact_red_black_tree`, `map_compact_tree_adapter`) and the compact tree `iterator` gains `operator*`, `operator++` (successor search), `operator!=` and `end()`. With `map_base` already supplying one level, the two wrappers reproduce the five `beq` null checks that open every `map` destructor in the target. Rebuilding every game unit changes only `BWorld` and `CPpuEngine` (their `map` destructors move to 100% on the earlier measurement); no function in any other unit moved.
+- `include/map`: the compact tree selection gains two empty wrapper classes (`map_compact_red_black_tree`, `map_compact_tree_adapter`) and the compact tree `iterator` gains `operator*`, `operator++` (successor search), `operator!=` and `end()`. With `map_base` already supplying one level, the two wrappers reproduce the five `beq` null checks that open every `map` destructor in the target. The full game build and frozen-manifest verification pass; the `map` destructors of `BWorld` and `CPpuEngine` also reach 100% in objdiff with the same wrappers.
 - `include/list`: the copy constructor delegates to `__list_imp(first, last, allocator)`, which is how the target copies (two nested pairs of iterator temporaries). No other unit changed.
 
 ## Traps
