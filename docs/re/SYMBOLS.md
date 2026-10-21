@@ -3115,3 +3115,7 @@ Original RTTI identifies `@unnamed@CComboDisplay_cpp@::CComboDisplay` and its pu
 ## F-115-8: CEnemyInfo and IEnemyInfo
 
 Original RTTI names IEnemyInfo and CEnemyInfo. IEnemyInfo derives ICalcDraw with virtual destructor and appends Show(shared personal data reference, bool, int), then Hide. CEnemyInfo size 0x118: CLayout at 0x4 (0xE8 bytes), six pane pointers at 0xEC, int frame count at 0x104, bool flash at 0x108, shared CPiiTex at 0x10C, bool collection state at 0x114. Natural alignment fills the remaining bytes. Class spellings are original; method and member spellings descriptive and inferred. The complete native 14-function, data and EH evidence is [F-115-8](findings/115-enemy-info-pii-facility.md#f-115-8-complete-original-issue-source-acceptance).
+
+## Game CMsgBalloon constructor block (#143)
+
+[F-143-1](findings/143-cmsgballoon-constructor.md#f-143-1-the-23-functions-of-0x800c6690-0x800c6be4) names `CMsgBalloon::CMsgBalloon()` `0x800C66F0` and the `IMsgBalloon`, `enable_shared_from_this`, vector constructor chain and `allocator` constructors in `0x800C6780`-`0x800C6BE0` by their compiler names, with `lbl_803A5208` and `lbl_803A52AC` as `__vt__11CMsgBalloon` and `__vt__11IMsgBalloon`. `CMsgBalloon::Entry` (`weak_ptr<BWorldObj>` at 0, `wstring` at 8, `VEC3` at 0x14) is declared in `include/game/CMsgBalloon.h` (medium confidence, [F-143-3](findings/143-cmsgballoon-constructor.md#f-143-3-cmsgballoonentry)).
