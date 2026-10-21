@@ -1,0 +1,11 @@
+# F-340-4: System-message action is an integer
+
+The native function at `0x801E09B0` accepts an integer action, rather than the bool used by the earlier descriptive public declaration. Three callers in CheckNandSpace at `0x80168090`, `0x801680C0` and `0x801680E8` explicitly load two into r4 immediately before branching to this same function. These three branches and preceding operands are checked directly against the frozen DOL, including its SHA-256. The error-message fatal loop stores the action as an int at offset 20, and its Prepare method distinguishes action two when requesting the data-manager reset. Actions zero and one retain their existing behavior.
+
+The bounded correction preserves the descriptive public name ShowSystemMessage, changes its second parameter to int, and binds the resulting compiler symbol `ShowSystemMessage__FPCwi` to the same native address and 1648-byte extent. Existing true/false callers promote normally to integer zero/one. Existing SaveData source already passes two at its three space-check failure sites; correcting the declaration prevents those constants from narrowing to one. No caller source, split, class layout, source-selection status or original expected hash changes.
+
+The same-base control rebuilds every registered source object, preserving all allocated section bytes, raw relocations and symbol attributes except the intended public-symbol alias and exactly three `li r4,1` to `li r4,2` changes inside the NonMatching SaveData CheckNandSpace body. Each changed operand must immediately precede a relocation to the corrected public symbol and lies within the same unchanged function extent. These three source corrections implement the independently checked native actions; they are not a claim that the whole SaveData unit matches. Final ELF and DOL checks apply separately, and the official landing loop repeats the controls after rebasing.
+
+## Traps
+
+A bool prototype silently narrows an existing integer argument two to one. The caller's readable source can therefore look correct while compiling the wrong action. Validate the parameter domain against both callers and the receiving state machine before adopting descriptive signatures.

@@ -3,6 +3,6 @@
 
 extern wchar_t gEmptyText[1];
 
-void ShowSystemMessage(const wchar_t* pText, bool fatal);
+void ShowSystemMessage(const wchar_t* pText, int action);
 
 #endif
