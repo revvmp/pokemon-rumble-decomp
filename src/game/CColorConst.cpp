@@ -8,66 +8,6 @@
 
 #include <game/detail/CColorConst.h>
 
-namespace std {
-
-template <class charT, class traits, class Allocator>
-void basic_string<charT, traits, Allocator>::reserve(size_type newCapacity) {
-    if (newCapacity > max_size()) {
-        throw length_error("basic_string::reserve length_error");
-    }
-    bool wasLong = is_long();
-    size_type length;
-    size_type oldCapacity;
-    const size_type minimumCapacity = (sizeof(long_rep) - 1) / sizeof(charT);
-    if (!wasLong) {
-        length = short_size();
-        oldCapacity = minimumCapacity;
-    } else {
-        length = long_size();
-        oldCapacity = long_cap();
-    }
-    if (newCapacity < length) newCapacity = length;
-    ++newCapacity;
-    if (newCapacity <= minimumCapacity) newCapacity = minimumCapacity;
-    else {
-        const size_type alignment = sizeof(charT) < 16 ? 16 / sizeof(charT) : 1;
-        newCapacity = (newCapacity + alignment - 1) & ~(alignment - 1);
-    }
-    if (newCapacity != oldCapacity) {
-        charT* pNew;
-        charT* pOld;
-        bool nowLong;
-        if (newCapacity == minimumCapacity) {
-            pNew = short_data();
-            nowLong = false;
-            pOld = long_data();
-        } else {
-            if (newCapacity > oldCapacity) pNew = alloc().allocate(newCapacity);
-            else {
-                try { pNew = alloc().allocate(newCapacity); }
-                catch (...) { return; }
-            }
-            nowLong = true;
-            pOld = wasLong ? long_data() : short_data();
-        }
-        memmove(pNew, pOld, length * sizeof(charT));
-        pNew[length] = charT();
-        if (wasLong) alloc().deallocate(pOld, oldCapacity);
-        is_long(nowLong);
-        if (!nowLong) short_size(length);
-        else {
-            long_data() = pNew;
-            long_size() = length;
-            long_cap(newCapacity);
-        }
-    }
-}
-
-
-
-
-}
-
 namespace {
 std::tr1::shared_ptr<CColorConst> sColorConst;
 }

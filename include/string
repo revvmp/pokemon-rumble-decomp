@@ -15,6 +15,10 @@ namespace std {
 
 template <> struct char_traits<char> {
     typedef char char_type;
+    static void assign(char_type& destination, const char_type& value) { destination = value; }
+    static char_type* copy(char_type* destination, const char_type* source, size_t count) { return static_cast<char_type*>(memcpy(destination, source, count * sizeof(char_type))); }
+    static char_type* move(char_type* destination, const char_type* source, size_t count) { return static_cast<char_type*>(memmove(destination, source, count * sizeof(char_type))); }
+
 
     static size_t length(const char_type* s) { return strlen(s); }
     static int compare(const char_type* lhs, const char_type* rhs, size_t n) { return memcmp(lhs, rhs, n); }
@@ -22,6 +26,10 @@ template <> struct char_traits<char> {
 
 template <> struct char_traits<wchar_t> {
     typedef wchar_t char_type;
+    static void assign(char_type& destination, const char_type& value) { destination = value; }
+    static char_type* copy(char_type* destination, const char_type* source, size_t count) { return wmemcpy(destination, source, count); }
+    static char_type* move(char_type* destination, const char_type* source, size_t count) { return wmemmove(destination, source, count); }
+
 
     static size_t length(const char_type* s) { return wcslen(s); }
     static int compare(const char_type* lhs, const char_type* rhs, size_t n) { return wmemcmp(lhs, rhs, n); }
@@ -41,6 +49,7 @@ public:
     typedef const charT* const_iterator;
 
     basic_string() { init(); }
+    explicit basic_string(const allocator_type& allocator) : r_(allocator) { init(); }
     basic_string(single_char_init, charT c) {
         init();
         charT* d;
@@ -54,36 +63,21 @@ public:
         d[0] = c;
         d[1] = charT();
     }
-    basic_string(const charT* s) {
-        init();
-        size_type n = traits::length(s);
-        reserve(n);
-        replace(0, 0, s, s + n, forward_iterator_tag());
-    }
+    basic_string(const charT* s);
     basic_string(const_iterator first, const_iterator last) {
         init();
         reserve(last - first);
         replace(0, 0, first, last, forward_iterator_tag());
     }
-    basic_string(const basic_string& str) : r_(str.alloc()) {
-        if (!str.is_long()) {
-            r_.first().r.raw = str.r_.first().r.raw;
-        } else {
-            init();
-            reserve(str.r_.first().r.l.size_);
-            replace(0, 0, str.long_data(), str.long_data() + str.r_.first().r.l.size_, forward_iterator_tag());
-        }
-    }
+    basic_string(const basic_string& str);
     ~basic_string() {
         if (is_long()) {
             alloc().deallocate(r_.first().r.l.data_, r_.first().r.l.cap_);
         }
     }
 
-    basic_string& operator=(const charT* s) {
-        size_type oldSize = size();
-        return replace(0, oldSize, s, s + traits::length(s), forward_iterator_tag());
-    }
+    basic_string& operator=(const charT* s) { return assign(s); }
+    basic_string& assign(const charT* s);
 
     basic_string& operator=(const basic_string& str) {
         if (!is_long() && !str.is_long()) {
@@ -114,18 +108,17 @@ public:
     }
 
     size_type max_size() const { return (sizeof(value_type) > 1 ? alloc().max_size() : alloc().max_size() / 2) - 1; }
-    size_type size() const { return !is_long() ? r_.first().r.s.size_ : r_.first().r.l.size_; }
+    size_type size() const { return !is_long() ? short_size() : long_size(); }
     const charT* data() const { return !is_long() ? reinterpret_cast<const charT*>(&r_.first().r) + 1 : r_.first().r.l.data_; }
     const charT* c_str() const { return data(); }
     const_iterator begin() const { return data(); }
     const_iterator end() const { return data() + size(); }
 
-    template <class InputIterator> basic_string& assign(InputIterator first, InputIterator last) {
-        return replace(0, size(), first, last, forward_iterator_tag());
-    }
+    template <class InputIterator> basic_string& assign(InputIterator first, InputIterator last);
 
     basic_string& append(const charT* s);
     basic_string& replace(size_type pos, size_type count, const charT* s);
+    basic_string& replace(size_type pos, size_type count, const charT* s, size_type length);
 
     basic_string& append(const basic_string& str) {
         size_type pos = size();
@@ -217,6 +210,12 @@ private:
         size_type words[3];
     };
 
+    basic_string& do_replace(size_type pos, size_type n1, const_pointer first, const_pointer last, random_access_iterator_tag);
+
+    static const size_type min_cap = (sizeof(long_rep) - 1) / sizeof(charT);
+    static size_type align(size_type size, size_type alignment) { return (size + alignment - 1) & ~(alignment - 1); }
+    static size_type recommend(size_type capacity) { return align(capacity, sizeof(value_type) < 16 ? 16 / sizeof(value_type) : 1); }
+
     bool is_long() const { return r_.first().r.l.is_long_; }
     void is_long(bool value) { r_.first().r.l.is_long_ = value; }
     unsigned char short_size() const { return r_.first().r.s.size_; }
@@ -225,6 +224,7 @@ private:
     const size_type& long_size() const { return r_.first().r.l.size_; }
     size_type long_cap() const { return r_.first().r.l.cap_; }
     void long_cap(size_type value) { r_.first().r.l.cap_ = value; }
+
     bool is_short() const { return !r_.first().r.l.is_long_; }
     charT* short_data() { return r_.first().r.s.data_; }
     charT*& long_data() { return r_.first().r.l.data_; }
@@ -242,13 +242,158 @@ private:
 };
 
 template <class charT, class traits, class Allocator>
+basic_string<charT, traits, Allocator>::basic_string(const basic_string& str) : r_(str.alloc()) {
+    if (!str.is_long()) {
+        r_.first().r.raw = str.r_.first().r.raw;
+    } else {
+        init();
+        reserve(str.long_size());
+        do_replace(0, 0, str.long_data(), str.long_data() + str.long_size(), random_access_iterator_tag());
+    }
+}
+
+template <class charT, class traits, class Allocator>
+basic_string<charT, traits, Allocator>::basic_string(const charT* s) {
+    init();
+    size_type n = traits::length(s);
+    reserve(n);
+    do_replace(0, 0, s, s + n, random_access_iterator_tag());
+}
+
+template <class charT, class traits, class Allocator>
 basic_string<charT, traits, Allocator>& basic_string<charT, traits, Allocator>::append(const charT* s) {
     return replace(size(), 0, s);
 }
 
 template <class charT, class traits, class Allocator>
+basic_string<charT, traits, Allocator>& basic_string<charT, traits, Allocator>::replace(size_type pos, size_type count, const charT* s, size_type length) {
+    return do_replace(pos, count, s, s + length, random_access_iterator_tag());
+}
+
+template <class charT, class traits, class Allocator>
 basic_string<charT, traits, Allocator>& basic_string<charT, traits, Allocator>::replace(size_type pos, size_type count, const charT* s) {
-    return replace(pos, count, s, s + traits::length(s), forward_iterator_tag());
+    return do_replace(pos, count, s, s + traits::length(s), random_access_iterator_tag());
+}
+
+template <class charT, class traits, class Allocator>
+basic_string<charT, traits, Allocator>& basic_string<charT, traits, Allocator>::assign(const charT* s) {
+    return replace(0, size(), s);
+}
+
+template <class charT, class traits, class Allocator>
+template <class InputIterator>
+basic_string<charT, traits, Allocator>& basic_string<charT, traits, Allocator>::assign(InputIterator first, InputIterator last) {
+    return replace(0, size(), first, last);
+}
+
+template <class charT, class traits, class Allocator>
+template <class ForwardIterator>
+basic_string<charT, traits, Allocator>& basic_string<charT, traits, Allocator>::replace(size_type pos, size_type n1, ForwardIterator first, ForwardIterator last, forward_iterator_tag) {
+    return do_replace(pos, n1, first, last, typename iterator_traits<ForwardIterator>::iterator_category());
+}
+
+template <class charT, class traits, class Allocator>
+basic_string<charT, traits, Allocator>& basic_string<charT, traits, Allocator>::do_replace(size_type pos, size_type n1, const_pointer first, const_pointer last, random_access_iterator_tag) {
+    pointer p;
+    size_type oldSize;
+    size_type oldCapacity;
+    bool wasLong = is_long();
+    if (!wasLong) {
+        p = short_data();
+        oldSize = short_size();
+        oldCapacity = min_cap;
+    } else {
+        p = long_data();
+        oldSize = long_size();
+        oldCapacity = long_cap();
+    }
+    if (pos > oldSize) throw out_of_range("basic_string: out_of_range");
+    size_type erased = min(n1, oldSize - pos);
+    size_type inserted = last - first;
+    size_type maximumSize = max_size();
+    if (inserted > maximumSize || oldSize - erased > maximumSize - inserted) throw length_error("basic_string: length_error");
+    size_type newSize = oldSize - erased + inserted;
+    size_type suffix = oldSize - (pos + erased);
+    if (newSize >= oldCapacity) {
+        size_type newCapacity = recommend(oldCapacity);
+        while (newCapacity < newSize + 1) newCapacity = recommend(newCapacity * 2);
+        pointer pNew = alloc().allocate(newCapacity);
+        if (pos > 0) traits::copy(pNew, p, pos);
+        memmove(pNew + pos, first, (last - first) * sizeof(charT));
+        if (suffix > 0) traits::copy(pNew + pos + inserted, p + pos + erased, suffix);
+        traits::assign(pNew[newSize], charT());
+        if (wasLong) alloc().deallocate(p, oldCapacity);
+        else is_long(true);
+        long_data() = pNew;
+        long_size() = newSize;
+        long_cap(newCapacity);
+    } else {
+        basic_string temporary(alloc());
+        if (suffix > 0 && p + pos + inserted < last && last <= p + oldSize) {
+            temporary.assign(first, last);
+            const basic_string& rTemporary = temporary;
+            size_type temporarySize;
+            rTemporary.get_buffer(first, temporarySize);
+            last = first + temporarySize;
+        }
+        if (suffix > 0) traits::move(p + pos + inserted, p + pos + erased, suffix);
+        traits::move(p + pos, first, inserted);
+        traits::assign(p[newSize], charT());
+        if (!wasLong) short_size(newSize);
+        else long_size() = newSize;
+    }
+    return *this;
+}
+
+template <class charT, class traits, class Allocator>
+void basic_string<charT, traits, Allocator>::reserve(size_type newCapacity) {
+    if (newCapacity > max_size()) {
+        throw length_error("basic_string::reserve length_error");
+    }
+    bool wasLong = is_long();
+    size_type length;
+    size_type oldCapacity;
+    if (!wasLong) {
+        length = short_size();
+        oldCapacity = min_cap;
+    } else {
+        length = long_size();
+        oldCapacity = long_cap();
+    }
+    if (newCapacity < length) newCapacity = length;
+    ++newCapacity;
+    if (newCapacity <= min_cap) newCapacity = min_cap;
+    else {
+        newCapacity = recommend(newCapacity);
+    }
+    if (newCapacity != oldCapacity) {
+        charT* pNew;
+        charT* pOld;
+        bool nowLong;
+        if (newCapacity == min_cap) {
+            pNew = short_data();
+            nowLong = false;
+            pOld = long_data();
+        } else {
+            if (newCapacity > oldCapacity) pNew = alloc().allocate(newCapacity);
+            else {
+                try { pNew = alloc().allocate(newCapacity); }
+                catch (...) { return; }
+            }
+            nowLong = true;
+            pOld = wasLong ? long_data() : short_data();
+        }
+        memmove(pNew, pOld, length * sizeof(charT));
+        pNew[length] = charT();
+        if (wasLong) alloc().deallocate(pOld, oldCapacity);
+        is_long(nowLong);
+        if (!nowLong) short_size(length);
+        else {
+            long_data() = pNew;
+            long_size() = length;
+            long_cap(newCapacity);
+        }
+    }
 }
 
 template <class charT, class traits, class Allocator>
