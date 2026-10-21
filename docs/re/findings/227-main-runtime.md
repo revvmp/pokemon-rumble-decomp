@@ -58,6 +58,12 @@ The original entry-point exception record independently identifies the remaining
 
 Two additional faithful controls were compiled against a copied complete producer with the same compiler arguments and copied outside header inputs. The baseline nested `if` was compared with `if (mDisconMsg && mDisconMsg->IsActive())`, and with a local `IDisconMsg* pDisconMsg = mDisconMsg.get()` used only for the virtual call while retaining the shared-owner boolean test. All three emitted the same 160-byte method and the same two prologue differences: the candidate stores LR at offset `0x08` and loads the member at `0x0C`; the original loads the member first and stores LR second. Neither source control fixes the gap. No flags, attributes, shared headers, or #225 files were changed.
 
+## F-227-6: Single Wii/1.0a discriminator
+
+Following F-735-1's compiler-version evidence, the copied complete producer was compiled once with only the Wii/1.0a compiler executable substituted for Wii/1.1. Canonical flags and copied outside headers were preserved. Compilation succeeded; no configuration changes followed.
+
+All nine main-loop callback instruction streams and extents were unchanged. `ShouldRender` remained 160 bytes with the same two prologue differences. `Run` remained 1,488 bytes and `LoadFonts` remained 1,028 bytes, with no non-relocation instruction changes relative to the Wii/1.1 control. Font-map insertion remained 600 bytes with a 104-byte exception record, and recursive destruction remained 1,040 bytes with a 104-byte exception record; the original cleanup sizes are 96 and 40. The append helper regressed from the native 224-byte extent to 220 bytes. This single version control is negative and does not justify a compiler change or further version sweep.
+
 ## Traps
 
 - The source methods are inline in the original class context: individually exact out-of-line bodies alone do not reproduce physical function order. Preserve the native reverse-interface order in the complete producer.
