@@ -59,6 +59,26 @@ public:
         return *this;
     }
 
+    basic_string& assign(const basic_string& str) {
+        bool currentIsLong = is_long();
+        if (!currentIsLong && !str.is_long()) {
+            rep_ = str.rep_;
+        } else {
+            size_type oldSize = currentIsLong ? rep_.l.size_ : rep_.s.size_;
+            const_iterator first;
+            size_type count;
+            if (str.rep_.l.is_long_ == 0) {
+                first = str.rep_.s.data_;
+                count = str.rep_.s.size_;
+            } else {
+                first = str.rep_.l.data_;
+                count = str.rep_.l.size_;
+            }
+            replace(0, oldSize, first, first + count, forward_iterator_tag());
+        }
+        return *this;
+    }
+
     size_type size() const { return rep_.l.is_long_ == 0 ? rep_.s.size_ : rep_.l.size_; }
     const charT* data() const { return rep_.l.is_long_ == 0 ? rep_.s.data_ : rep_.l.data_; }
     const charT* c_str() const { return data(); }
