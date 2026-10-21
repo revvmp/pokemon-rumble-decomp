@@ -6,6 +6,7 @@
 
 class CPiiCollectionBox {
 public:
+    int GetCollectionType(u16 monsno);
     void ExportCollectionData(std::vector<SD_PiiCollectionData::Data>& rOut);
 };
 

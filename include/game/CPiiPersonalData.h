@@ -5,6 +5,11 @@
 #include <game/PiiSpeciesData.h>
 #include <memory>
 #include <revolution/types.h>
+class COyaInfo;
+class CPiiPersonalData;
+
+std::tr1::shared_ptr<CPiiPersonalData> CreatePiiPersonalData(const COyaInfo* pOyaInfo, const PiiSpeciesData* pSpeciesData, u32 sex);
+
 class CPiiPersonalData : public std::tr1::enable_shared_from_this<CPiiPersonalData> {
 public:
     CPiiPersonalData(u32 id, u32 originalTrainerId, const PiiSpeciesData* pSpeciesData, u32 sex);

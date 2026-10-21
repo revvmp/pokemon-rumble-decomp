@@ -2,6 +2,10 @@
 #define GAME_PIISPECIESDATA_H
 
 #include <revolution/types.h>
+struct PiiSpeciesData;
+
+const PiiSpeciesData* GetPiiSpeciesData(u16 monsno, int form);
+
 struct PiiSpeciesData {
     int GetSpecies() const;
     int GetPrimaryType() const;
