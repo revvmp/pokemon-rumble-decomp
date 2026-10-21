@@ -112,3 +112,43 @@ Remaining differences:
 
 - **An out-of-line weak function can depend on a later block.** `0x800713F0`, `0x80071400` and `0x80071310` are emitted only because functions in #61 call them or name them in exception actions. With only the first block's source they compile inline or are dead-stripped, so they cannot be checked until those callers exist.
 - **Copies of one inline function can get different registers.** The four inlined list destructors in `~CDividedGround` come from the same template, but the original gives the first copy different registers from the other three. Matching the out-of-line destructor does not mean every inlined copy matches.
+
+# F-60-4: POD vector destructor, FormatString and the .pkc loader
+
+Target: `wpse-v1`. `~CDividedGround` and `vector<const char*>::~vector` now match 100%, `FormatString(const char*, ...)` `0x800721A0` matches 100%, and the `.pkc` loader `0x80071B80` matches 99.97%. The object stays `NonMatching` because the rest of the unit (#61 to #65) is unreconstructed. `configure.py`, `ninja` and `tools/verify/verify.py` exit 0.
+
+| Address | Function | Match |
+| --- | --- | --- |
+| `0x800714F0` | `vector<const char*>::~vector()` | 100% |
+| `0x80071830` | `CDividedGround::~CDividedGround()` | 100% |
+| `0x80071B80` | `CDividedGround::LoadPkc(int, const shared_ptr<NPpu::CEnvironment>&, const char*)` | 99.97% |
+| `0x800721A0` | `FormatString(const char*, ...)` | 100% |
+
+## POD vector clearing
+
+The POD `erase_at_end` takes its count by reference (`size_type&`), and `clear()` passes a local copy of the size. The original then loads the size once and computes `size -= size` as `subf r0, r5, r5` (standalone) or with the load placed before the exception-state store (inlined in `~CDividedGround`). Passing `size_` directly folds the subtraction to zero, and a `const size_type&` loads twice.
+
+## FormatString
+
+`0x800721A0` zeroes the 12-byte return string, builds a `va_list` and calls `0x801F5A50` with the string, the format and the `va_list`, so that function is `VFormatString(std::string&, const char*, va_list)` (descriptive, medium; F-347-1 identifies it as `vsnprintf` into a `basic_string`). `FormatString` is defined in `CDividedGround.cpp` and declared in `include/game/StringFormat.h`.
+
+## The .pkc loader
+
+`0x80071B80` is called only from `CGameMap` `RunAction` (`0x800A98E0`) with mode 1, an environment pointer and no prefix, so it is public. It resets `mPpuEngine` to a new `CPpuEngine`, replaces a null prefix with the empty string, and tries three names in order, each loaded with `CPpuEngine::LoadScriptFile(const char*, u32)` (`0x80100720`, which has no `this` and is therefore static): `%s%s_%s%02d.pkc`, `%s%s.pkc` and `%s%s_%02d.pkc`, built from the prefix, a world name, a rank letter and the stage number. The first two are tried through `CPpuEngine::Load(BWorldObj*, const char*, int, const shared_ptr<CEnvironment>&)`; the third is loaded without a check. `LoadPkc` is a descriptive name.
+
+The world and rank names come from two `.rodata` tables at `0x8035B9F8` (`gStageWorlds`, eight 12-byte entries: index, name such as `terminal` or `battle`, message ID) and `0x8035B9D0` (`gStageRanks`, five 8-byte entries: `D`, `C`, `B`, `A`, `S` and a message ID). These are in another unit; the names and the `StageRankInfo` and `StageWorldInfo` records in `StageID.h` are descriptive.
+
+`StageID` is four signed 8-bit bitfields, not a `s8[4]`: `ScriptBinding_MakeStageID` builds it with `rlwimi` into one word and `LoadPkc` reads it with `lwz`, `rlwinm ..., 0, 8` and `srawi 24`, which a `s8` array does not produce (verified with a scratch compile). Byte 1 indexes the ranks and byte 2 the worlds; the members are named `mKind`, `mRank`, `mWorld` and `mReserved` (descriptive; `mKind` and `mReserved` are unproven). Every `Matching` unit that uses `StageID` and `vector` still verifies.
+
+Source shapes the match needs:
+- The stage number is read once into a local and reused by the first and third format.
+- Each name is assigned with `name.assign(FormatString(...))`, which inlines the `basic_string::assign(const basic_string&)` already in `include/string`; `operator=` does not match.
+- The result of `LoadScriptFile` is kept in a `shared_ptr` that is assigned for the second attempt, which produces the copy and release in the original.
+- The null prefix is replaced with `pPrefix ? pPrefix : ""`; an `if` produces the wrong branch layout.
+
+The two `.data` addends that differ (`0x02F0`, `0x04D4`) are relocations to the format strings inside this unit's `.data`, which does not match until the whole unit is reconstructed.
+
+## Traps
+
+- **Signed-byte struct fields read as a word are bitfields.** Table lookups through `lwz`, `rlwinm 0, 8` and `srawi 24` mean `signed x : 8` fields; `s8` members give `lbz` and `extsb`.
+- **A reference parameter can reproduce `x -= x`.** `size_ -= n` with `n` a reference to a local copy of `size_` gives the original load-once `subf`; a by-value or `const` reference parameter does not.

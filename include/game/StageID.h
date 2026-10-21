@@ -4,7 +4,24 @@
 #include <revolution/types.h>
 
 struct StageID {
-    s8 mIndex[4];
+    s32 mKind : 8;
+    s32 mRank : 8;
+    s32 mWorld : 8;
+    s32 mReserved : 8;
 };
+
+struct StageRankInfo {
+    const char* mName;
+    int mMessageID;
+};
+
+struct StageWorldInfo {
+    int mIndex;
+    const char* mName;
+    int mMessageID;
+};
+
+extern const StageRankInfo gStageRanks[];
+extern const StageWorldInfo gStageWorlds[];
 
 #endif
