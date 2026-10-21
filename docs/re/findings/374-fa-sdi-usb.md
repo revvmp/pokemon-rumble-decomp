@@ -157,3 +157,16 @@ The split-only configure/plain Ninja/frozen verifier baseline passes. NonMatchin
 ## Traps
 
 - `unitdiff.py` reads generated configuration. Regenerate with `configure.py` after adding an object line before invoking the focused comparison.
+
+# F-374-7: Accepted complete SDI source unit
+
+The corrected canonical SD interface from #1025 permits actual integration of all twenty retained SDI bodies. `src/RVL_SDK/fa/sdi_api.c` now builds with the unchanged SDK Wii/1.0 configuration and the unchanged canonical handle record. Its split exactly covers the five section ranges proven in F-374-3. Split-only configure/plain Ninja/frozen verification all exit 0 before source registration. The actual NonMatching object compares 100% across every function and every allocated section. Source-selected `configure.py --map`, plain Ninja and explicit frozen verification then all exit 0.
+
+The real source-object audits `374-audit-real-sdi-functions.py` and `374-audit-real-sdi-allocated.py` independently resolve all 231 relocations and prove every instruction, internal padding byte and allocated initialized payload against the frozen native DOL, together with exact BSS/storage extents. `374-audit-sdi-final-elf.py` checks all twenty final ELF names, native starts, extents and complete instruction payloads; whole text/data/small-data also compare exactly. MAP entries attribute the unit to `sdi_api.o`, while the actual link selects `build/wpse-v1/src/RVL_SDK/fa/sdi_api.o`, with no original fallback object for this unit. External `sdi-real-source-functions.json`, `sdi-real-source-allocated.json` and `sdi-real-final-elf.json` retain the comparisons. No executable bytes are embedded in source.
+
+SDI contributes twenty original issue rows and 5,448 instruction bytes from source, in 5,548 complete text bytes including 100 internal padding bytes, eighty initialized bytes, 128 BSS bytes, four small-data bytes and 32 small-BSS bytes. Together with the accepted memory helper, #374 now has twenty-three of thirty-five original rows / 5,548 of 8,172 instruction bytes source selected. The eight shared block tails and four remaining kernel bodies remain external; no issue completion is claimed. The shared block record's unconsumed ranges and remaining kernel managers still need source-fidelity resolution before tracked publication.
+
+## Traps
+
+- A single eighty-byte original metadata symbol hid four distinct SDI literals. Objdiff showed three identical `addi` instructions as different in initialization even though complete native text and actual relocations were exact. Establishing the actual string extents (32, 16, 16 and 16 bytes) gives all twenty functions 100% without changing source. The four descriptive metadata names denote anonymous literals, not recovered original identifiers.
+- The actual mutex is 24 bytes with alignment before the following path array; its prior inferred 32-byte extent included padding. The signed heap identifier is four bytes, with four following alignment bytes excluded from its source split. Whole-object and full-link proof validate both corrections.

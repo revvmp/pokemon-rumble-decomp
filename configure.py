@@ -496,6 +496,7 @@ config.libs = [
             Object(Matching, "RVL_SDK/fa/pf_kernel.c"),
             Object(Matching, "RVL_SDK/fa/nand_drv.c"),
             Object(NonMatching, "RVL_SDK/fa/sd_drv.c"),
+            Object(Matching, "RVL_SDK/fa/sdi_api.c"),
             Object(Matching, "RVL_SDK/fa/puh_ker_mem.c"),
         ],
     ),

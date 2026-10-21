@@ -1055,6 +1055,13 @@ RVL_SDK/fa/sd_drv.c:
 	.bss        start:0x80422BE0 end:0x80422E40
 	.sbss       start:0x804B9240 end:0x804B9268
 
+RVL_SDK/fa/sdi_api.c:
+	.text       start:0x80223E70 end:0x8022541C
+	.data       start:0x803C5280 end:0x803C52D0
+	.bss        start:0x80422FC0 end:0x80423040
+	.sdata      start:0x804B88E0 end:0x804B88E4
+	.sbss       start:0x804B9288 end:0x804B92A8
+
 RVL_SDK/fa/puh_ker_mem.c:
 	.text       start:0x80225420 end:0x80225488
 
