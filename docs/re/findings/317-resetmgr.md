@@ -93,3 +93,13 @@ The bounded scratch comparisons in `317-iterator-variants.json` and `317-clear-v
 ## Additional traps
 
 - A private accessor's static pointer type can affect optimized callers even when the pointer value and object layout are unchanged. One newly exact native function does not justify a global helper change. This proposed derived-node return changed four existing source consumers and failed the frozen DOL; preserve the canonical base-pointer accessor while investigating the new caller's source expression.
+
+## Cached move-pointer diagnostic rejected by source consumers
+
+The ordinary destructor form `T* p = get(); if (p) ptr_.second()(p);` reproduces the entire 280-byte reset-list `move_ptr` destructor, including every target. A direct field-read cache does not: its fifteen differences remain. This proves a bounded compiler-dataflow lead without establishing a replacement shared-header implementation.
+
+The actual same-base 714-object preflight of cached `get()` passes default Ninja and frozen DOL verification. Complete source-object comparisons nevertheless expose four regressions in three unselected units: `move_ptr<CMsgBalloon>`, `move_ptr<CDlgPiiSelector>`, `move_ptr<CStageCamera>`, and `move_ptr<BWorldCamera>` destructors shrink from 132 to 120 bytes and emit new 36-byte `get()` and four-byte const-storage accessor instances. All other retained function bodies in these three objects are unchanged. Eight further objects differ only in numeric local string-table labels. `CMsgBalloon` unitdiff independently shows its previously exact native `move_ptr` destructor falling to 84.09 percent. The cached-pointer change was therefore reverted and not published, despite the passing final DOL.
+
+`317-memory-variants.json` and `317-memory-variants-move_cached_field.json` preserve the bounded diagnostics. The untouched baseline, recompiled after both reversions, has all 714 complete source objects, the whole ELF and DOL identical to `control-list-node-31674ae11216`; `317-list-restored-714-proof.json` records that restoration. No canonical list or memory modification remains.
+
+- **Fallback-linked verification can hide an existing source regression.** Replacing a common destructor with a natural pointer cache made one new native instance exact and preserved the DOL, but regressed four previously exact instances in NonMatching units. Inspect the entire declared source-object set and pair changed functions against their native targets before accepting a shared-header proposal.
