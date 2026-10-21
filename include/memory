@@ -156,12 +156,12 @@ public:
     }
 
     void swap(shared_ptr& r) {
-        T* p = ptr_;
+        void* temporary = const_cast<void*>(static_cast<const void*>(ptr_));
         ptr_ = r.ptr_;
-        r.ptr_ = p;
-        detail::shared_ptr_deleter_common* s = s_;
+        r.ptr_ = static_cast<element_type*>(temporary);
+        temporary = s_;
         s_ = r.s_;
-        r.s_ = s;
+        r.s_ = static_cast<detail::shared_ptr_deleter_common*>(temporary);
     }
     void reset();
     template <typename Y> void reset(Y* p) { shared_ptr(p).swap(*this); }

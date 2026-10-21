@@ -22,6 +22,16 @@ The native save and deletion-dialog stack frames dynamically align to 32 bytes. 
 
 Outside reading aids for both native routines are saved as `280-save-analysis.txt` and `280-dialog-analysis.txt`. They are not reconstructed source. The next work is the complete deletion-dialog body, then strict instruction, target, data, EH and source-selected verification of the actual containing unit.
 
+## F-280-3: Complete producer and shared-owner swap
+
+The outside producer now contains all six original bodies. Save emits 5,056 bytes against 5,064, the formatter 1,204 against 1,212, and the deletion dialog 6,120 against 6,120. These supersede the earlier incomplete checkpoints above. No photo source unit is selected as Matching. Direct caller-scope completion statements, the actual `IGameSession::GetInstance()` call, signed counters and the observed cache-page alignment recover the native deletion-dialog instruction stream without artificial lifetimes or register shims.
+
+The remaining sixteen dialog instruction differences came from two inlined shared-owner resets. The pinned reading reference `KooShnoo/pokemon-rumble` commit `11c112f7548b26ab2cecfcf52e201b8d3b76120f`, blob `e57966d2bb1331d2b2b21137c9bc389e90c6c573`, retains the Freescale February 2006 smart-pointer implementation, with adaptations elsewhere in that header. Its `shared_ptr::swap` reuses one erased pointer temporary for both pointer exchanges. The previous reconstruction used two separately typed temporaries. Applying the evidenced single-temporary contract reproduces every deletion-dialog non-relocation instruction and all 222 direct call targets. The const-preserving pointer erasure also compiles for `shared_ptr<const int>`.
+
+The initial same-base control at main `5133f82a` built all 759 actual Ninja source objects and preserved all 710 Matching objects. Of those source objects, 721 were raw identical, 36 differed only in compiler-generated numeric names, and two already NonMatching objects changed three functions. `InitSound` newly scores 100%; no formerly 100% function loses that score. All allocated linked ELF sections remain identical and the freshly linked DOL retains frozen SHA-256 `ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da`. These controls must be repeated against the current merge base after rebasing.
+
+Outside evidence is in `280-reference/primary-swap/`, including `consumer-proof.json`, `link-proof.json`, `whole-code-proof.json`, the original reference header and the const-owner compile consumer. The photo producer is still incomplete acceptance evidence: deletion-dialog exception data emits 2,032 bytes against 2,004 with unresolved references, and owned data placement remains unaccepted. Exact instruction bytes alone do not establish a reconstructed source unit or close this issue.
+
 ## Traps
 
 - An early typed formatter producer can expose the existing string lifetime/code-generation blocker before reconstructing two large filesystem routines. Preserve the positive callbacks and exact native retained-address site; do not repeat the prior allocator and constructor sweeps without new primary evidence.
