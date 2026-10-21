@@ -67,11 +67,7 @@ public:
         d[1] = charT();
     }
     basic_string(const charT* s);
-    basic_string(const_iterator first, const_iterator last) {
-        init();
-        reserve(last - first);
-        replace(0, 0, first, last, forward_iterator_tag());
-    }
+    basic_string(const_iterator first, const_iterator last);
     basic_string(const basic_string& str);
     basic_string(const basic_string& str, size_type pos, size_type n, const allocator_type& a);
     basic_string substr(size_type pos = 0, size_type n = npos) const;
@@ -158,7 +154,7 @@ public:
 
     template <class ForwardIterator>
     basic_string& replace(size_type pos, size_type n1, ForwardIterator j1, ForwardIterator j2) {
-        return replace(pos, n1, j1, j2, forward_iterator_tag());
+        return do_replace(pos, n1, j1, j2, typename iterator_traits<ForwardIterator>::iterator_category());
     }
 
     template <class ForwardIterator>
@@ -208,6 +204,7 @@ private:
     charT*& long_data() { return r_.first().r.l.data_; }
     const charT* long_data() const { return r_.first().r.l.data_; }
     charT* buffer() { return !is_long() ? short_data() : long_data(); }
+    void init(const_iterator first, const_iterator last, forward_iterator_tag);
     void init() {
         size_type (&words)[3] = r_.first().r.raw.words_;
         for (unsigned int i = 0; i < 3; ++i) { words[i] = 0; }
@@ -274,6 +271,18 @@ basic_string<charT, traits, Allocator>& basic_string<charT, traits, Allocator>::
         else long_size() = newSize;
     }
     return *this;
+}
+
+template <class charT, class traits, class Allocator>
+inline basic_string<charT, traits, Allocator>::basic_string(const_iterator first, const_iterator last) {
+    init(first, last, random_access_iterator_tag());
+}
+
+template <class charT, class traits, class Allocator>
+void basic_string<charT, traits, Allocator>::init(const_iterator first, const_iterator last, forward_iterator_tag) {
+    init();
+    reserve(static_cast<size_type>(std::distance(first, last)));
+    replace(size_type(0), size_type(0), first, last);
 }
 
 template <class charT, class traits, class Allocator>
