@@ -256,6 +256,6 @@ void BWorldLightSet::OnEnterWorld() {}
 
 void BWorldLightSet::OnLeaveWorld() {}
 
-void BWorldLightSet::SetPosition(const nw4r::math::VEC3& rPosition) {
+void BWorldObj::SetPosition(const nw4r::math::VEC3& rPosition) {
     mPosition = rPosition;
 }

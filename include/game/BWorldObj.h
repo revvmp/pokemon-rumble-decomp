@@ -5,10 +5,10 @@
 #include <memory>
 #include <nw4r/math/math_types.h>
 #include <set>
+#include <game/CPpuRegister.h>
 
 class BWorld;
 class CMiniMapMarker;
-class BWorldObjOwner;
 class CPpuEngine;
 class IWorldObjStat;
 
@@ -60,7 +60,11 @@ public:
 
     void Pause();
     void Resume();
-    void SetOwner(const std::tr1::shared_ptr<BWorldObjOwner>& rOwner);
+    void SetParent(std::tr1::shared_ptr<BWorldObj> parent);
+    BWorldObj* GetParent();
+    NPpu::CValue GetRegister(u32 index);
+    void SetRegister(u32 index, const NPpu::CValue& rValue);
+    void SwapRegister(CPpuRegister* pRegister);
 
 protected:
     friend class BWorld;
@@ -70,8 +74,8 @@ protected:
     u32 mType;
     BWorld* mWorld;
     u32 mId;
-    std::tr1::weak_ptr<BWorld> mWorldRef;
-    std::tr1::shared_ptr<BWorldObjOwner> mOwnerRef;
+    std::tr1::weak_ptr<BWorldObj> mParent;
+    CPpuRegister mRegister;
     f32 mRotation;
     nw4r::math::VEC3 mPosition;
     nw4r::math::VEC3 mScale;

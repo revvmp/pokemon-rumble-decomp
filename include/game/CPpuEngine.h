@@ -2,6 +2,7 @@
 #define GAME_CPPUENGINE_H
 
 #include <game/ICalc.h>
+#include <game/CPpuRegister.h>
 #include <game/NPpuVM.h>
 #include <game/StageID.h>
 #include <iosfwd>
@@ -14,7 +15,6 @@
 
 class BWorld;
 class BWorldObj;
-class BWorldObjOwner;
 class CFileData;
 class CPPD;
 
@@ -58,7 +58,7 @@ public:
     bool HasCallback(int messageID) const;
     int SendMessage(const Message& rMessage);
 
-    const std::tr1::shared_ptr<BWorldObjOwner>& GetOwner() const { return mOwner; }
+    CPpuRegister* GetRegister() { return &mRegister; }
 
 private:
     static std::tr1::weak_ptr<NPpu::CEnvironment> sDefaultEnv;
@@ -68,7 +68,7 @@ private:
     u32 mFlags;
     BWorldObj* mOwnerObj;
     std::map<int, std::list<int> > mCallbacks;
-    std::tr1::shared_ptr<BWorldObjOwner> mOwner;
+    CPpuRegister mRegister;
     StageID mStageDescTarget;
     std::set<std::tr1::shared_ptr<CFileData> > mFiles;
     std::vector<nw4r::math::MTX34> mPlacements;

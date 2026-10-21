@@ -3279,3 +3279,13 @@ For `wpse-v1` / `main.dol`, [F-126-2](findings/126-cgamesession.md#f-126-2-cgame
 ## Game CMsgBalloon stage models and std::map layers (#147)
 
 [F-147-1 to F-147-3](findings/147-cmsgballoon-stage-models.md) name `CMsgBalloon::SetupStageModels(StageID)` `0x800C88D0` (descriptive, medium) and the `std::map<unsigned long, bool>` chain `0x800C8FE0`-`0x800C9420`: the `map`, `detail::map_base`, `detail::tree`, `detail::red_black_tree` and `detail::tree_imp` constructors and destructors, the `compressed_pair` and `CompressedPairStorage` constructors of `tree_imp`'s size and root members, `tree_root_ptr` `0x800C9210`, `tree_begin_holder` `0x800C9220`, `begin_node` `0x800C9260`, `end_node` `0x800C9280` and `map_base::iterator::operator==` `0x800C9420` (names from the compiled source; layout high, spelling medium). Outside names for the link: `GetPiiSpeciesData(u16, int)` `0x80124EE0`, `CreatePiiPersonalData(const COyaInfo*, const PiiSpeciesData*, u32)` `0x800EE800`, `CPiiCollectionBox::GetCollectionType(u16)` `0x800E1C10`, `MapPiiTable::GetCell(int, int)` `0x80110100` and `FormatMessage<int, unsigned long>` `0x800CB4F0` (descriptive, medium). `MapDesc` is `MapIndex` at 0, two unknown words and the 0x2C-byte `MapPiiTable` at `0xC` (cells 0, row count `0x24`, column count `0x28`; low confidence for the field names). `std::map` is 12 bytes with an empty compare class and 16 bytes with a non-empty one (`CPpuEngine::mCallbacks`).
+
+
+## BWorldObj parent and register ownership (#52)
+
+| Address / offset | Evidence | Confidence |
+| --- | --- | --- |
+| BWorldObj size 0x48; weak parent 0x1C/0x20; CPpuRegister 0x24/0x28 | Complete constructor/destructor, all forwarders, 72-byte native vtable; F-52-2 | Layout/type proven; field names inferred |
+| CPpuRegister Get 0x80111D20 / Set 0x80111D80 / Swap 0x80112590 | Complete native forwarding/caller traces and Slice-vector control RTTI | Signatures proven; method/class names descriptive |
+| BWorldObj SetParent 0x8006A290 / GetParent 0x8006A2D0 | Exact60/160-byte producers; by-value parent and nonconst getter contexts | Names inferred; native behavior proven |
+| BWorldObj SetPosition 0x80069E60 | BWorldObj and derived vtable targets; exact28-byte common body retained in preceding source | Base ownership proven; replaces derived override interpretation |

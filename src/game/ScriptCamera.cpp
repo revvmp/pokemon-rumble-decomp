@@ -22,7 +22,7 @@ static CStageCamera* PopStageCamera(CPpuEngine* pEngine) {
 int NewStageCamera(NPpu::CEngine* pEngine) {
     CPpuEngine* pPpuEngine = static_cast<CPpuEngine*>(pEngine);
     std::tr1::shared_ptr<CStageCamera> camera(new CStageCamera(CStageCamera::TYPE));
-    camera->SetOwner(pPpuEngine->GetOwner());
+    camera->SwapRegister(pPpuEngine->GetRegister());
 
     BWorld* pWorld = pPpuEngine->GetWorld();
     if (pWorld->Add(camera)) {
@@ -39,7 +39,7 @@ int NewStageCamera(NPpu::CEngine* pEngine) {
 int NewWorldCamera(NPpu::CEngine* pEngine) {
     CPpuEngine* pPpuEngine = static_cast<CPpuEngine*>(pEngine);
     std::tr1::shared_ptr<BWorldCamera> camera(new BWorldCamera(BWorldCamera::TYPE));
-    camera->SetOwner(pPpuEngine->GetOwner());
+    camera->SwapRegister(pPpuEngine->GetRegister());
 
     BWorld* pWorld = pPpuEngine->GetWorld();
     if (pWorld->Add(camera)) {
