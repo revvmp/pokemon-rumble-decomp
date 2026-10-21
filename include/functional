@@ -393,7 +393,6 @@ public:
 
     void swap(function& r) {
         base* p = f_;
-        bool localStorage = p == local();
         f_ = r.f_;
         r.f_ = p;
         for (unsigned int i = 0; i < sizeof(buf_) / sizeof(unsigned long); ++i) {
@@ -401,7 +400,7 @@ public:
             words_[i] = r.words_[i];
             r.words_[i] = c;
         }
-        if (localStorage) {
+        if (r.f_ == local()) {
             r.f_ = r.local();
         }
         if (f_ == r.local()) {
