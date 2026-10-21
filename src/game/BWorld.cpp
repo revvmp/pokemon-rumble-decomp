@@ -2,6 +2,7 @@
 
 #include <game/AnmObjChrRootScale.h>
 #include <game/BWorldCamera.h>
+#include <game/CFileData.h>
 #include <game/CShadowCamera.h>
 #include <game/CKDTree.h>
 #include <game/EffectGroupID.h>
@@ -17,6 +18,7 @@
 #include <nw4r/ef/ef_resource.h>
 #include <nw4r/g3d/g3d_anmscn.h>
 #include <nw4r/g3d/g3d_state.h>
+#include <nw4r/g3d/res/g3d_resfile.h>
 #include <nw4r/math/math_geometry.h>
 #include <nw4r/snd/snd_Sound3DListener.h>
 #include <revolution/gx.h>
@@ -319,6 +321,125 @@ void BWorld::SetOutlineWidth(int width) {
     if (mOutlineData) {
         mOutlineData->mWidth = width;
     }
+}
+
+void BWorld::DrawOutline() {
+    Graphics::ResetState();
+    u16 width = mOutlineData->mTexture.GetWidth();
+    u16 height = mOutlineData->mTexture.GetHeight();
+    GXPixModeSync();
+    GXInvalidateTexAll();
+    GXLoadTexObj(&mOutlineData->mTexture.GetTexObj(), GX_TEXMAP0);
+
+    Mtx44 projMtx;
+    C_MTXOrtho(projMtx, 0.0f, height, 0.0f, width, 0.0f, 1.0f);
+    GXSetProjection(projMtx, GX_ORTHOGRAPHIC);
+    Mtx identity;
+    PSMTXIdentity(identity);
+    GXLoadPosMtxImm(identity, GX_PNMTX0);
+    GXSetCurrentMtx(GX_PNMTX0);
+    GXSetViewport(0.0f, 0.0f, width, height, 0.1f, 1000.0f);
+
+    GXClearVtxDesc();
+    GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
+    GXSetVtxDesc(GX_VA_TEX0, GX_DIRECT);
+    GXSetVtxAttrFmt(GX_VTXFMT7, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
+    GXSetVtxAttrFmt(GX_VTXFMT7, GX_VA_TEX0, GX_TEX_ST, GX_U8, 0);
+    GXSetNumChans(0);
+    GXSetNumTexGens(3);
+    GXSetNumTevStages(3);
+    GXSetNumIndStages(0);
+    GXSetChanCtrl(GX_COLOR0A0, GX_FALSE, GX_SRC_REG, GX_SRC_REG, GX_LIGHT_NULL, GX_DF_NONE, GX_AF_NONE);
+    GXSetChanCtrl(GX_COLOR1A1, GX_FALSE, GX_SRC_REG, GX_SRC_REG, GX_LIGHT_NULL, GX_DF_NONE, GX_AF_NONE);
+
+    Mtx widthMtx;
+    PSMTXIdentity(widthMtx);
+    widthMtx[0][3] = static_cast<f32>(mOutlineData->mWidth) / width;
+    GXLoadTexMtxImm(widthMtx, GX_TEXMTX0, GX_MTX2x4);
+    Mtx heightMtx;
+    PSMTXIdentity(heightMtx);
+    heightMtx[1][3] = static_cast<f32>(mOutlineData->mWidth) / height;
+    GXLoadTexMtxImm(heightMtx, GX_TEXMTX1, GX_MTX2x4);
+    GXSetTexCoordGen2(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY, GX_FALSE, GX_PTIDENTITY);
+    GXSetTexCoordGen2(GX_TEXCOORD1, GX_TG_MTX2x4, GX_TG_TEX0, GX_TEXMTX0, GX_FALSE, GX_PTIDENTITY);
+    GXSetTexCoordGen2(GX_TEXCOORD2, GX_TG_MTX2x4, GX_TG_TEX0, GX_TEXMTX1, GX_FALSE, GX_PTIDENTITY);
+
+    GXSetTevSwapMode(GX_TEVSTAGE0, GX_TEV_SWAP0, GX_TEV_SWAP0);
+    GXSetTevSwapMode(GX_TEVSTAGE1, GX_TEV_SWAP0, GX_TEV_SWAP0);
+    GXSetTevSwapMode(GX_TEVSTAGE2, GX_TEV_SWAP0, GX_TEV_SWAP0);
+    GXSetTevSwapModeTable(GX_TEV_SWAP0, GX_CH_RED, GX_CH_GREEN, GX_CH_BLUE, GX_CH_ALPHA);
+
+    GXColor outlineColor = mOutlineData->mColor;
+    outlineColor.a = mOutlineData->mAlpha;
+    GXSetTevColor(GX_TEVREG1, outlineColor);
+    GXSetTevColor(GX_TEVREG2, nw4r::ut::Color(0x82828201));
+
+    GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR_NULL);
+    GXSetTevDirect(GX_TEVSTAGE0);
+    GXSetTevColorIn(GX_TEVSTAGE0, GX_CC_TEXA, GX_CC_C2, GX_CC_C1, GX_CC_ZERO);
+    GXSetTevColorOp(GX_TEVSTAGE0, GX_TEV_COMP_R8_EQ, GX_TB_ZERO, GX_CS_SCALE_1, GX_TRUE, GX_TEVPREV);
+    GXSetTevAlphaIn(GX_TEVSTAGE0, GX_CA_ZERO, GX_CA_ZERO, GX_CA_ZERO, GX_CA_TEXA);
+    GXSetTevAlphaOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, GX_TRUE, GX_TEVREG0);
+
+    GXSetTevOrder(GX_TEVSTAGE1, GX_TEXCOORD1, GX_TEXMAP0, GX_COLOR_NULL);
+    GXSetTevDirect(GX_TEVSTAGE1);
+    GXSetTevColorIn(GX_TEVSTAGE1, GX_CC_TEXA, GX_CC_C2, GX_CC_C1, GX_CC_CPREV);
+    GXSetTevColorOp(GX_TEVSTAGE1, GX_TEV_COMP_R8_EQ, GX_TB_ZERO, GX_CS_SCALE_1, GX_TRUE, GX_TEVPREV);
+    GXSetTevAlphaIn(GX_TEVSTAGE1, GX_CA_TEXA, GX_CA_A0, GX_CA_A2, GX_CA_ZERO);
+    GXSetTevAlphaOp(GX_TEVSTAGE1, GX_TEV_COMP_A8_EQ, GX_TB_ZERO, GX_CS_SCALE_1, GX_TRUE, GX_TEVPREV);
+
+    GXSetTevOrder(GX_TEVSTAGE2, GX_TEXCOORD2, GX_TEXMAP0, GX_COLOR_NULL);
+    GXSetTevDirect(GX_TEVSTAGE2);
+    GXSetTevColorIn(GX_TEVSTAGE2, GX_CC_TEXA, GX_CC_C2, GX_CC_C1, GX_CC_CPREV);
+    GXSetTevColorOp(GX_TEVSTAGE2, GX_TEV_COMP_R8_EQ, GX_TB_ZERO, GX_CS_SCALE_1, GX_TRUE, GX_TEVPREV);
+    GXSetTevAlphaIn(GX_TEVSTAGE2, GX_CA_TEXA, GX_CA_A0, GX_CA_APREV, GX_CA_A1);
+    GXSetTevAlphaOp(GX_TEVSTAGE2, GX_TEV_COMP_A8_EQ, GX_TB_ZERO, GX_CS_SCALE_1, GX_FALSE, GX_TEVPREV);
+
+    GXSetAlphaCompare(GX_EQUAL, outlineColor.a, GX_AOP_OR, GX_NEVER, 0);
+    GXSetZMode(GX_TRUE, GX_ALWAYS, GX_TRUE);
+    GXSetZCompLoc(GX_FALSE);
+    GXSetBlendMode(GX_BM_BLEND, GX_BL_SRCALPHA, GX_BL_INVSRCALPHA, GX_LO_COPY);
+    GXSetZMode(GX_FALSE, GX_NEVER, GX_FALSE);
+
+    GXBegin(GX_QUADS, GX_VTXFMT7, 4);
+    GXPosition3f32(0.0f, 0.0f, 0.0f);
+    GXTexCoord2u8(0, 0);
+    GXPosition3f32(width, 0.0f, 0.0f);
+    GXTexCoord2u8(1, 0);
+    GXPosition3f32(width, height, 0.0f);
+    GXTexCoord2u8(1, 1);
+    GXPosition3f32(0.0f, height, 0.0f);
+    GXTexCoord2u8(0, 1);
+    GXSetAlphaCompare(GX_ALWAYS, 0, GX_AOP_OR, GX_ALWAYS, 0);
+    GXSetZMode(GX_FALSE, GX_NEVER, GX_FALSE);
+}
+
+bool BWorld::LoadLightScene(const char* pPath, const char* pName, bool background) {
+    std::tr1::shared_ptr<CFileData> file = LoadFile(pPath, 0, background);
+    if (!file) {
+        return false;
+    }
+    bool loaded;
+    nw4r::g3d::ResFile resource(file->GetData());
+    nw4r::g3d::ResAnmScn scene = resource.GetResAnmScn(pName);
+    if (!scene.IsValid() || !scene.Bind() || !scene.HasResLightSet()) {
+        loaded = false;
+    } else {
+        {
+            std::tr1::shared_ptr<nw4r::g3d::AnmScnRes> animation(
+                nw4r::g3d::AnmScnRes::Construct(GetDefaultAllocator(), nullptr, scene, true), DestroyG3dObj);
+            animation->SetFrame(0.0f);
+            if (animation->GetLightSetMaxRefNumber() != 0) {
+                animation->GetLightSetting(&mScnRoot->GetLightSetting());
+            }
+        }
+        loaded = true;
+    }
+    return loaded;
+}
+
+std::tr1::shared_ptr<CFileData> LoadFile(const char* pPath, u32 flags, bool background) {
+    return CreateFileData(pPath, flags, background);
 }
 
 bool BWorld::AddGround(std::tr1::shared_ptr<BWorldObj> obj) {

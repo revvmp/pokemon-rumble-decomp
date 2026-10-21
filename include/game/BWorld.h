@@ -155,7 +155,7 @@ public:
     void RemoveCamera(std::tr1::shared_ptr<BWorldCamera> camera);
     void ClearCamera(u32 index);
     CShadowCamera* GetShadowCamera();
-    void LoadLightScene(const char* pFileName, const char* pSceneName, bool background);
+    bool LoadLightScene(const char* pFileName, const char* pSceneName, bool background);
     void SetCurrentCamera(std::tr1::shared_ptr<BWorldCamera> camera);
     BWorldCamera* GetCurrentCamera();
     nw4r::g3d::Camera GetG3dCamera();
