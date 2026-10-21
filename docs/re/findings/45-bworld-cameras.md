@@ -29,10 +29,26 @@ objdiff in a scratch build of the unit: every function above matches. Remaining 
 
 - `SetCamera` (`0x8005D510`): it inlines `vector<weak_ptr<BWorldCamera>>::resize`. That resize has the same stack-slot order difference as the out-of-line `resize`; only slot offsets and register numbers differ.
 - `AddObject` (`0x8005F230`) differs only in register numbers: the original gives the entry base pointer `r29`, above `this` and the object.
-- `0x8005E560` (0x608 bytes), `0x8005EB70` and the inline tail call at `0x8005ED70` load a scene animation and its light setting through the file resource system, whose classes are not reconstructed yet.
+- The outline pass and the light setting loader are now reconstructed ([F-45-2](#f-45-2-outline-pass-and-light-setting-loader)).
 
 ## Traps
 
 - **A missing placement delete removes `r1` stores.** Symptom: the original stores `r1` to a stack slot in the middle of a placement copy construction and has a larger frame. Declare `operator delete(void*, void*)` in `<new>`.
 - **Out-of-line template members are calls only when the original calls them.** Symptom: the original calls `weak_ptr::lock` as a function emitted at the end of the unit. Define the member outside the class.
 - **Comparison operand order matters.** Symptom: `cmplw rA, rB` with the operands swapped, or `subf` with the operands reversed, in an equality test. Write the comparison in the original order, for example `camera.get() == lock().get()`.
+
+## F-45-2: outline pass and light setting loader
+
+`BWorld::DrawOutline` (`0x8005E560`) matches 100%. It draws one full-target quad that samples the captured outline texture at three offsets, shifted by `OutlineData::mWidth` texels: three texture coordinate generators (identity, `GX_TEXMTX0` shifted horizontally, `GX_TEXMTX1` shifted vertically) feed three TEV stages that use `GX_TEV_COMP_R8_EQ` on the texture channel with the outline colour (`mColor` with `mAlpha`) in register 1 and `0x82828201` in register 2. The viewport depth range is `0.1f` to `1000.0f` and the vertices use `GX_U8` texture coordinates.
+
+`BWorld::LoadLightScene(const char* pPath, const char* pName, bool background)` (`0x8005EB70`, 98.97%) loads a file, finds the named `ResAnmScn`, binds it, requires a light set, builds an `AnmScnRes` held in a `shared_ptr` with `DestroyG3dObj`, sets frame 0 and copies its light setting into the scene root. The instruction stream matches; only the stack slots of the two `ResAnmScn` copies and the `shared_ptr` temporary differ (the original has one more `ResAnmScn` copy and places the `shared_ptr` temporary above the pointer). Its callers are not in this unit, so the method name is descriptive.
+
+`LoadFile` (`0x8005ED70`) is a tail-calling wrapper (100%) of the `CFileData` loader at `0x801A6420`, named `CreateFileData(const char*, u32, bool)` (low confidence; its sibling wrapper at `0x80066930` ORs `0x2000` into the flags). With this loader the `shared_ptr<AnmScnRes>` instances (`0x80064A00`, `0x80064A50`, `0x80065240`, `0x80065980`, `0x80065FC0`) are emitted and match 100%, unblocking those items of [F-49-1](49-bworld-tail.md).
+
+Still open in the issue range: `SetCamera` resize slot order and `AddObject` register assignment (unchanged from F-45-1).
+
+### Traps (F-45-2)
+
+- **`sed -i` rewrites CRLF to LF in `BWorld.cpp`.** Symptom: whole-file diff after a one-line change. Convert back with a Python rewrite before committing.
+- **The viewport depth range in the outline pass is not 0 to 1.** Symptom: `f5`/`f6` loads from `.sdata2` `0x804B9CB0`/`0x804B9CB4` (`0.1f`, `1000.0f`) instead of reusing the `0.0f` pool entry.
+- **`GX_TEV_COMP_R8_EQ` as a colour op.** Symptom: `li r4, 9` where `GX_TEV_ADD` is expected.
