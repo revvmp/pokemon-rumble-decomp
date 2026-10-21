@@ -57,3 +57,73 @@ The digit test in `FindIndexSuffix` must be written `'0' <= *p && *p <= '9'`. Wr
 
 - **An equivalent comparison order can change code.** `*p >= '0' && *p <= '9'` and `'0' <= *p && *p <= '9'` compile differently under `cflags_game`: the first becomes a single unsigned range test. When a range check shows two signed compares in the target, try the constant on the left.
 - **Most of this block cannot be compiled before MSL `basic_string`.** Only two non-template members are independent of it; the small helpers are weak and depend on string-using callers here or in #62.
+
+# F-61-2: Reconstruction of the second block
+
+Target: `wpse-v1`. `game/CDividedGround.cpp` now holds source for every function of `0x80072280`–`0x800740F4` and the original object stays linked (`NonMatching`) because #62 to #65 are not reconstructed. `configure.py`, `ninja` and `tools/verify/verify.py` exit 0.
+
+## Status
+
+objdiff (`tools/re/unitdiff.py`), best result per function:
+
+| Address | Function | Match |
+| --- | --- | --- |
+| `0x80072320` | `basic_string::c_str() const` | 100% |
+| `0x80072340` | `CDividedGround::Load(const StageID*, int, bool)` | 93.4% |
+| `0x80072830`, `0x80072910` | `operator+(string, string)`, `operator+(const char*, string)` | 100% |
+| `0x80072AE0` | `CDividedGround::LoadFileLists(const StageID*, int, bool)` | 100% |
+| `0x80072DE0` | `list<shared_ptr<CFileData>>::insert(iterator, iterator, iterator)` | 95.7% |
+| `0x80072FC0`, `0x80072FD0`, `0x80073630` | `shared_ptr<FileList>` default constructor, `operator bool`, `operator->` | 100% |
+| `0x80072FF0` | `vector<const char*>::reserve` | 100% |
+| `0x800731B0` | `vector<const char*>::push_back` | 98.2% |
+| `0x80073640` | `CDividedGround::LoadAttr(const char*, bool)` | 100% |
+| `0x80073660` | `CDividedGround::LoadAttr(const StageID*, int, const char*, bool)` | 93.0% |
+| `0x80073F70` | `CDividedGround::FindIndexSuffix` | 100% |
+| `0x80074000` | `IsLayerFogName(const std::string&)` | 100% |
+| `0x80072DD0` | `LoadResourceFileList` wrapper | not in this unit's source (tail call into the loader) |
+
+The #60 leftovers are now emitted by `LoadFileLists` and match: `list<shared_ptr<CFileData>>::begin` `0x800713F0` and `end` `0x80071400` at 100%, and the twelve-byte `basic_string()` `0x80072260` (see below).
+
+Eleven helpers are called in this unit only from #62's `0x80074100`, so the committed source does not emit them. They were checked with a scratch caller built under `#pragma dont_inline on` (not committed): each compares 100% except `shared_ptr<CModel>::shared_ptr(CModel*)`, which differs only in the `.data` vtable relocation name.
+
+| Address | Function |
+| --- | --- |
+| `0x80072260` | `basic_string::basic_string()` |
+| `0x80072280` | `basic_string::assign(const basic_string&)`, returning `void` |
+| `0x800727F0` | `nw4r::g3d::ResFile::ResFile(void*)` |
+| `0x80072800` | `CFileData::GetData() const` |
+| `0x80072810` | `CModel::GetScnObj() const` |
+| `0x80072820` | `ScnMdlSimpleData::GetModel() const` |
+| `0x800729E0` | `shared_ptr<CModel>::shared_ptr(CModel*)` |
+| `0x80072A70`, `0x80072A90`, `0x80072AA0` | `list<shared_ptr<CFileData>>::iterator::operator*`, `operator++`, `operator!=` |
+| `0x80072A80` | `shared_ptr<CFileData>::operator->` |
+| `0x80072AC0` | `vector<const char*>::operator[]` |
+| `0x80072AD0` | `shared_ptr<CModel>::operator->` |
+
+## What the code shows
+
+- **`Load` (`0x80072340`).** Called once, from `0x800A8BA4`, with the stage ID, the stage number and `1`. It loads the file lists (`LoadFileLists`) and the BSP attributes (`LoadAttr` with no name), builds `ground_<rank><NN>` from the rank letter and the `%02d` stage number, and searches each `mFiles` entry for a `ResMdl` of that name; with no hit it uses `ground_<NN>`. The model is a new 0xDC-byte `CModel` loaded with a five-word parameter record (the file-name array, a flag, `0xD15`, `1`, the model name). A failed load calls `TerminateFiber(1)` and returns false. Otherwise it sets draw priority 1, runs `0x80074100` (`BuildScene`, #62), calls `BModelObj::ChangeModel` (`0x80053520`), stores the stage ID and number, starts animation 0 with `CModel::Play(int, f32, f32)` (`0x801B9530`, which reads `GetResAnmChr(int)`, unlike `Play(const char*, ...)` at `0x801B9450`), moves the model scene object into `mScnGroup`, inserts that group into the world's model group (`BWorld` `+0x2C`, `ScnGroup::PushBack`) and sets the shared byte `0x804B9110`.
+- **`LoadFileLists` (`0x80072AE0`).** Loads `stage/<world>/<NN>.arc/stage.brres` and `stage/<world>/common.arc/stage.brres` through `LoadResourceFileList`, counts the null-terminated name arrays they return, reserves `mFileNames` for the total plus one, appends every name and a null, and splices each file list into `mFiles`.
+- **`LoadAttr` (`0x80073660`).** For each of the two BSP slots it makes a `CBSPTree`, builds `attr_` (slot 0) or `attrk_` (slot 1), appends the optional name and `_`, loads `5:/stage/<world>/<NN>.arc/<prefix><rank><NN>.bsp`, falls back to `<prefix><NN>.bsp`, and stores the file and tree. A missing slot 0 fails the call; a missing slot 1 is skipped.
+- **`IsLayerFogName` (`0x80074000`).** True for names of at least eight characters that end in `_fog` and start with `layer_` or `pale_`; descriptive name.
+- **Byte `0x804B9110`.** Set to 1 by this loader and by seven other loaders, and read and cleared by `0x8019DC50` next to the video retrace counters. It is named `gFrameTimingReset` (descriptive, low confidence) and declared in `VideoTiming.h`.
+- **`CBSPTree`.** A 4-byte class (pointer at 0): constructor `0x801E6700` clears it, `SetData(void*)` `0x801E6750` stores the file data, and the non-virtual destructor `0x801E6710` frees on a positive flag. `CModel` is 0xDC bytes; only the first 0x24 are modelled, so `mTail` stands for the rest until the `CModel` unit exists.
+
+## Library shapes the match needs
+
+- **`basic_string`.** `size()` and `data()` must test `!rep_.l.is_long_` through `is_short()` so the condition is materialised with `cntlzw` (`IsLayerFogName`); `== 0` folds into the branch. `assign(const basic_string&)` returns `void`, otherwise the out-of-line body saves and returns `this`. `operator+` reads data and size of each operand in one branch (`get_data_and_size`, sizes declared before data pointers) and chains `result.insert(0, l).insert(lhsSize, r)`, which reuses `r3` and puts each `forward_iterator_tag` temporary below its copy.
+- **`list`.** `iterator` keeps its user copy constructor: without it `begin()` returns in `r3` instead of through a hidden pointer. It is nested in `__list_deleter` ([F-144-2](144-cmsgballoon-list.md)), so the iterator helpers mangle as `__list_deleter<...>::iterator`. The range insert is a range constructor over `push_back` followed by `splice`, with `position` copied first.
+- **`vector<T*>`.** A full POD `push_back` fills a `__vec_split_buffer` with `*end() = x` (`construct` adds a null check), moves the old elements with `memcpy` and `memset`, clears the old size and swaps; the same shape was reconstructed independently in parallel and merged. `reserve` needs `size_ = 0` after the move (`clear_moved`), not the `size_ -= size_` form that `clear()` produces for the vector assignment. The `T*` specialisation gained `operator[]`, and its `push_back` casts through `(void* const&)` so `const char*` instances compile.
+
+## Not matching
+
+- **Inlined `basic_string(const char*)`.** In `Load` (93.4%) and `LoadAttr` (93.0%) the original keeps the object's address in a callee-saved register for the constructor's calls, while the same constructor matches out of line (`0x80076910`) and in `LoadFileLists`. Everything after the first string shifts one register. The same retained address shows in the original's other stage loaders (`0x800AC4B0`, `0x800C26D0`), and `LoadAttr` also shows loop-invariant `&string + 1` addresses held in registers, so the original compiler keeps local addresses in registers where this build recomputes them. Tried without effect: copy and direct initialisation, a temporary, a `const` reference, a helper returning the string (not inlined), `const char*` locals, constructor bodies calling `copy_from`/`assign`, an allocator base initialiser, out-of-class definition, Wii/1.3, and many `init()` forms in a reduced test class.
+- **`list::insert` (95.7%).** The original has two exception-state flag bytes in the temporary list's constructor chain (an earlier arrangement with allocator-taking constructors reached 97.3% with one); the merged list header produces none.
+- **`vector::push_back` (98.2%).** The recommended capacity lives in a separate register from the old capacity, and `(data + size) - data` is not folded when the old range is passed to `construct_at_front`.
+
+## Traps
+
+- **A weak helper can be checked without its caller.** Append a scratch function under `#pragma dont_inline on` that calls it; the out-of-line body then compares like any other function. Remove the scratch function before committing.
+- **`-maxerrors 1` hides follow-on errors.** Fix one compile error at a time; a template instantiation error appears only after the earlier ones are gone.
+- **Two functions can share one mangled name.** Renaming `0x801B9530` to `Play(const char*, f32, f32)` made the link fail with a multiply-defined symbol; it reads `GetResAnmChr(int)`, so it is the `int` overload.
+- **A shared header change can break a `Matching` unit.** Folding the `list` node insert into the base class changed `BWorldLightSet` stack layout (three functions at 99.8%); `verify.py` caught it at DOL offset `0x18F05`.

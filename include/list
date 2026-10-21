@@ -137,6 +137,35 @@ public:
 
     iterator erase(iterator position);
 
+    template <class InputIterator> list(InputIterator first, InputIterator last) {
+        for (; first != last; ++first) {
+            push_back(*first);
+        }
+    }
+
+    template <class InputIterator> void insert(iterator position, InputIterator first, InputIterator last) {
+        iterator pos(position);
+        list temp(first, last);
+        splice(pos, temp);
+    }
+
+    void splice(iterator position, list& rOther) {
+        if (rOther.size_.first() != 0) {
+            node_base* pFirst = rOther.begin_node();
+            node_base* pLast = rOther.end_node()->prev_;
+            node_base* pOtherTail = rOther.end_node();
+            pOtherTail->next_ = static_cast<node*>(pOtherTail);
+            pOtherTail->prev_ = static_cast<node*>(pOtherTail);
+            node_base* pNext = position.node_;
+            pNext->prev_->next_ = static_cast<node*>(pFirst);
+            pFirst->prev_ = pNext->prev_;
+            pNext->prev_ = static_cast<node*>(pLast);
+            pLast->next_ = static_cast<node*>(pNext);
+            this->size_.first() += rOther.size_.first();
+            rOther.size_.first() = 0;
+        }
+    }
+
     void swap(list& rOther) {
         if (this != &rOther) {
             size_type size = this->size_.first();

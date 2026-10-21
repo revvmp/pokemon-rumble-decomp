@@ -152,3 +152,11 @@ The two `.data` addends that differ (`0x02F0`, `0x04D4`) are relocations to the 
 
 - **Signed-byte struct fields read as a word are bitfields.** Table lookups through `lwz`, `rlwinm 0, 8` and `srawi 24` mean `signed x : 8` fields; `s8` members give `lbz` and `extsb`.
 - **A reference parameter can reproduce `x -= x`.** `size_ -= n` with `n` a reference to a local copy of `size_` gives the original load-once `subf`; a by-value or `const` reference parameter does not.
+
+# F-60-5: Leftovers closed by the second block
+
+Target: `wpse-v1`. The three functions F-60-3 and F-60-4 left open are emitted once #61's `LoadFileLists` ([F-61-2](61-cdividedground-second-block.md#f-61-2-reconstruction-of-the-second-block)) exists, and all compare 100%: `list<shared_ptr<CFileData>>::begin` `0x800713F0` and `end` `0x80071400` (called out of line by `0x80072AE0`), and the twelve-byte `basic_string::basic_string()` `0x80072260` (`init()`, emitted out of line only for #62's `0x80074100`; checked with a scratch caller under `#pragma dont_inline on`). With them every function of `0x80071220`–`0x80072280` compares 100%, except `LoadPkc` at 99.97% (two `.data` relocation addends that depend on the whole unit being reconstructed, F-60-4).
+
+## Traps
+
+- **An out-of-line weak function needs a caller that does not inline it.** `begin()` and `end()` stay inline in a small caller; the larger `LoadFileLists` calls them, so they appear. A scratch caller built under `#pragma dont_inline on` reproduces the effect for any helper.

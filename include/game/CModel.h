@@ -45,10 +45,22 @@ public:
         virtual bool AppendMotion(CModel* pModel, const std::tr1::shared_ptr<CMotionProgram>& rMotion, f32 step);
     };
     class PartialAnmManager;
+
+    struct LoadParams {
+        const char** mpFileNames;
+        bool mFlag;
+        u32 mOptions;
+        int mMode;
+        const char* mpModelName;
+    };
+
     CModel();
     virtual ~CModel();
+
+    bool Load(const LoadParams& rParams, bool background);
     int GetMotionLength(const char* pName);
     std::tr1::shared_ptr<CMotionProgram> Play(const char* pName, f32 frame, f32 rate);
+    std::tr1::shared_ptr<CMotionProgram> Play(int index, f32 frame, f32 rate);
     std::tr1::shared_ptr<CMotionProgram> PlayLoop(const char* pName, f32 frame, f32 rate);
     std::tr1::shared_ptr<CMotionProgram> PlayOnce(const char* pName, f32 frame, f32 rate);
     void Pause(bool pause);
