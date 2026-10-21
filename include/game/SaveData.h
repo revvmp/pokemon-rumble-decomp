@@ -37,8 +37,6 @@ class SlotData;
 
 class VectorStructs {
 public:
-    ~VectorStructs() {}
-
     virtual std::vector<SD_PiiPersonalData>* GetPiiPersonalData() { return nullptr; }
     virtual std::vector<SD_PiiCollectionData>* GetPiiCollectionData() { return nullptr; }
     virtual std::vector<SD_BattleRoyalData>* GetBattleRoyalData() { return nullptr; }
@@ -180,6 +178,7 @@ class SaveData : public VectorStructs {
 public:
     struct Data {
         u8 mCurrentSlot;
+        u8 mOption;
         u32 mSlotDigests[3][5];
     };
 
@@ -202,5 +201,11 @@ bool Save(int mode);
 bool CheckNandSpace();
 bool IsGameFlagSet(int flag);
 void DeleteSaveFiles();
+void SetFlag(int flag, int value);
+void ResetSlot(int slot);
+u8 GetCurrentSlot();
+void SetCurrentSlot(u8 slot);
+u8 GetOption();
+void SetOption(u8 option);
 
 #endif
