@@ -491,6 +491,11 @@ game/l10n_files.cpp:
 	.sdata      start:0x804B7840 end:0x804B7880
 	.sbss       start:0x804B90A0 end:0x804B90B8
 
+game/ScriptMotion.cpp:
+	extab       start:0x80030D18 end:0x80030DE8
+	extabindex  start:0x8004EBE8 end:0x8004ED20
+	.text       start:0x801504C0 end:0x80151224
+
 game/ScriptPiiPropData.cpp:
 	extab       start:0x80031B28 end:0x80031C30
 	extabindex  start:0x8004F41C end:0x8004F524

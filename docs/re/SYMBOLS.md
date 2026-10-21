@@ -3533,3 +3533,7 @@ Factory cleanup records establish native move_ptr<CUIManager> at8007DD50 and mov
 ### F-238-10: StageID packed word
 
 `StageID` retains four signed eight-bit fields in its existing four-byte extent. Its union member `s32 mValue` names the complete packed representation proven by the actual `MakeStageID` binding at `0x801402A0` and three getter bindings at `0x801400F0`, `0x80140180`, and `0x80140210`. The constructor zeroes the reserved low byte before inserting the three fields. `mValue` is descriptive; the existing field names and signed types are preserved. See [F-238-10](findings/238-script-game-bindings.md#f-238-10-packed-stageid-construction-and-strict-game-checkpoint).
+
+### F-261-1: generic motion dispatch bindings
+
+The twenty-six original binding-table names at `0x801504C0–0x80151224` name ordinary free functions taking `NPpu::CEngine*` and returning int. Existing CPii, BWorldCamera, CNullObj, BWorldLightSet TYPE enums select the actual typed script callees, with BModelObj as the final fallback. Only the complete dispatch unit is reconstructed; outside callee names retain their original addresses, extents and types. See [F-261-1](findings/261-motion-dispatch.md#f-261-1-complete-source-selected-dispatch-unit).
