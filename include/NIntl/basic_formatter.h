@@ -18,7 +18,9 @@ public:
 
     basic_formatter& operator%(const int& rArg);
     basic_formatter& operator%(const unsigned long& rArg);
-    basic_formatter& operator%(const charT* pArg);
+    basic_formatter& operator%(const float& rArg);
+    basic_formatter& operator%(const char* pArg);
+    basic_formatter& operator%(const wchar_t* pArg);
 
     basic_formatter& format(const charT* pSpec) {
         mSpec = pSpec;

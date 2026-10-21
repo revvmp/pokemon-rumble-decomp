@@ -498,6 +498,20 @@ game/ScriptPiiPropData.cpp:
 	.data       start:0x803B72F8 end:0x803B7344
 	.sdata2     start:0x804BA2E0 end:0x804BA2E4
 
+game/ArgumentFormatter.cpp:
+	extab       start:0x80043798 end:0x800440F0
+	extabindex  start:0x8005238C end:0x80052410
+	.text       start:0x801F18E0 end:0x801F5A44
+	.data       start:0x803C4160 end:0x803C41B0
+	.sdata      start:0x804B8810 end:0x804B8848
+
+game/StringFormat.cpp:
+	extab       start:0x800440F0 end:0x80044150
+	extabindex  start:0x80052410 end:0x80052434
+	.text       start:0x801F5A50 end:0x801F6060
+	.data       start:0x803C41B0 end:0x803C4258
+	.sdata      start:0x804B8848 end:0x804B884A
+
 ControllerTableAlignmentPadding:
 	.sdata      start:0x804B77D9 end:0x804B77E0 align:1
 

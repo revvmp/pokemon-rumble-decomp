@@ -2,6 +2,7 @@
 #define _VECTOR
 
 #include <algorithm>
+#include <iosfwd>
 #include <MSL_CPP/allocator.h>
 #include <MSL_CPP/compressed_pair.h>
 #include <MSL_CPP/msl_utility.h>
@@ -22,11 +23,18 @@ template <typename T> struct __vec_bulk_move {
     enum { value = Metrowerks::is_POD<T>::value };
 };
 
+template <class CharT, class Traits, class Allocator> struct __vec_bulk_move<basic_string<CharT, Traits, Allocator> > {
+    enum { value = (__builtin_trivial_members(Allocator) & 4) != 0 && Metrowerks::has_trivial_dtor<Allocator>::value };
+};
+
 template <typename T, typename Allocator, bool IsPOD> class __vec_constructor;
+
+template <typename T, typename Allocator> class __vec_split_buffer;
 
 template <typename T, typename Allocator> class __vec_deleter : public __vector_common<true> {
 public:
     typedef unsigned long size_type;
+    typedef __vec_split_buffer<T, Allocator> helper;
     typedef typename Metrowerks::compressed_pair<size_type, Allocator>::second_param allocator_param;
     typedef Metrowerks::int2type<Metrowerks::is_POD<T>::value> pod_type;
 
@@ -337,7 +345,7 @@ protected:
     void push_back_realloc(const T& x, Metrowerks::int2type<true>);
 
     void append_realloc(size_type n, const T& x) {
-        __vec_split_buffer<T, Allocator> buffer(this->alloc());
+        typename base::helper buffer(this->alloc());
         buffer.allocate(this->size_ + n, recommend(this->size_ + n - this->cap()));
         buffer.start_ = this->size_;
         buffer.construct_at_end(n, x);
@@ -626,7 +634,7 @@ public:
 
 template <typename T, typename Allocator, bool IsPOD>
 void __vec_constructor<T, Allocator, IsPOD>::append_realloc(size_type n) {
-        __vec_split_buffer<T, Allocator> buffer(this->alloc());
+        typename base::helper buffer(this->alloc());
         buffer.allocate(this->size_ + n, recommend(this->size_ + n - this->cap()));
         buffer.start_ = this->size_;
         buffer.construct_at_end(n);
