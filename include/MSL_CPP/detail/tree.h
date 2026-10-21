@@ -450,6 +450,7 @@ private:
 };
 
 template <typename T, typename Compare, typename Allocator> class tree_imp : public __red_black_tree<tree_node_base*> {
+    typedef __red_black_tree<tree_node_base*> algorithm_base;
 public:
     typedef T value_type;
     typedef unsigned long size_type;
@@ -469,7 +470,7 @@ public:
         bool operator==(const iterator& rOther) const { return node_ == rOther.node_; }
         bool operator!=(const iterator& rOther) const { return node_ != rOther.node_; }
         iterator& operator++() {
-            tree_increment(node_);
+            tree_imp::algorithm_base::increment(node_);
             return *this;
         }
         T& operator*() const { return static_cast<node*>(node_)->value_; }
@@ -496,7 +497,7 @@ public:
         const_iterator(tree_node_base* pNode) : node_(pNode) {}
         const T& operator*() const { return static_cast<node*>(node_)->value_; }
         const T* operator->() const { return &static_cast<node*>(node_)->value_; }
-        const_iterator& operator++() { tree_increment(node_); return *this; }
+        const_iterator& operator++() { tree_imp::algorithm_base::increment(node_); return *this; }
         bool operator==(const const_iterator& rOther) const { return node_ == rOther.node_; }
         bool operator!=(const const_iterator& rOther) const { return !(*this == rOther); }
         tree_node_base* node_;
@@ -504,11 +505,7 @@ public:
 
     tree_imp() : size_(0) { begin_node() = end_node(); }
     tree_imp(const Compare& rCompare, const Allocator& rAllocator) : size_(size_type(0), rAllocator), root_(NodeAllocator(rAllocator)), begin_(rCompare) { begin_node() = end_node(); }
-    ~tree_imp() {
-        if (root() != nullptr) {
-            destroy(static_cast<node*>(root()));
-        }
-    }
+    ~tree_imp();
 
     size_type size() const { return sz(); }
     size_type max_size() const { return numeric_limits<size_type>::max(); }
@@ -540,13 +537,7 @@ public:
 
     pair<iterator, bool> insert(const value_type& rValue);
 
-    template <typename Key> iterator find(const Key& rKey) const {
-        tree_node_base* pResult = do_lower_bound(rKey, root(), end_node());
-        if (pResult == end_node() || comp()(rKey, static_cast<node*>(pResult)->value_)) {
-            return iterator(end_node());
-        }
-        return iterator(pResult);
-    }
+    template <typename Key> iterator find(const Key& rKey) const;
 
     template <typename Key> tree_node_base* do_lower_bound(const Key& rKey, tree_node_base* pNode, tree_node_base* pResult) const {
         while (pNode != nullptr) {
@@ -588,16 +579,7 @@ public:
     tree_node_base*& front() { return begin_node(); }
     tree_node_base* front() const { return const_cast<tree_imp*>(this)->begin_node(); }
 
-    template <typename Key> value_type& find_or_insert(const Key& rKey) {
-        node* pPred;
-        bool left;
-        bool leftmost;
-        tree_node_base* pParent = find_leaf(rKey, pPred, left, leftmost);
-        if (pPred == nullptr || comp()(pPred->value_, rKey)) {
-            return insert_node_at(pParent, left, leftmost, value_type(rKey, typename value_type::second_type()))->value_;
-        }
-        return pPred->value_;
-    }
+    template <typename Key> value_type& find_or_insert(const Key& rKey);
 
     tree_node_base* find_leaf(const value_type& rValue, node*& rpPred, bool& rLeft, bool& rLeftmost);
     template <typename Key> tree_node_base* find_leaf(const Key& rKey, node*& rpPred, bool& rLeft, bool& rLeftmost);
@@ -615,7 +597,16 @@ private:
     Metrowerks::compressed_pair<size_type, Allocator> size_;
     Metrowerks::compressed_pair<node_allocator, tree_root_ptr> root_;
     tree_begin_holder<Compare> begin_;
+    friend class iterator;
+    friend class const_iterator;
 };
+
+template <typename T, typename Compare, typename Allocator>
+tree_imp<T, Compare, Allocator>::~tree_imp() {
+    if (root() != nullptr) {
+        destroy(static_cast<node*>(root()));
+    }
+}
 
 template <typename T, typename Compare, typename Allocator>
 tree_node_base* tree_imp<T, Compare, Allocator>::find_leaf(const value_type& rValue, node*& rpPred, bool& rLeft, bool& rLeftmost) {
@@ -697,6 +688,29 @@ pair<typename tree_imp<T, Compare, Allocator>::iterator, bool> tree_imp<T, Compa
     }
     return pair<iterator, bool>(iterator(pPred), false);
 }
+
+template <typename T, typename Compare, typename Allocator>
+template <typename Key>
+typename tree_imp<T, Compare, Allocator>::value_type& tree_imp<T, Compare, Allocator>::find_or_insert(const Key& rKey) {
+        node* pPred;
+        bool left;
+        bool leftmost;
+        tree_node_base* pParent = find_leaf(rKey, pPred, left, leftmost);
+        if (pPred == nullptr || comp()(pPred->value_, rKey)) {
+            return insert_node_at(pParent, left, leftmost, value_type(rKey, typename value_type::second_type()))->value_;
+        }
+        return pPred->value_;
+    }
+
+template <typename T, typename Compare, typename Allocator>
+template <typename Key>
+typename tree_imp<T, Compare, Allocator>::iterator tree_imp<T, Compare, Allocator>::find(const Key& rKey) const {
+        tree_node_base* pResult = do_lower_bound(rKey, root(), end_node());
+        if (pResult == end_node() || comp()(rKey, static_cast<node*>(pResult)->value_)) {
+            return iterator(end_node());
+        }
+        return iterator(pResult);
+    }
 
 template <typename T, typename Compare, typename Allocator>
 void tree_imp<T, Compare, Allocator>::destroy(node* pNode) {
