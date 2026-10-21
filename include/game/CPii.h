@@ -27,8 +27,19 @@ public:
     virtual void SetPosition(const nw4r::math::VEC3& rPosition);
     virtual nw4r::math::VEC3 GetPosition();
     virtual CPpuEngine* GetPpuEngine() const { return mPpuEngine.get(); }
-    virtual CMiniMapMarker* GetEffect() const;
-    virtual void SetEffectEnable(bool enable);
+    virtual void SetEffectEnable(bool enable) {
+        if (enable) {
+            mPiiFlags |= 0x4;
+        } else {
+            mPiiFlags &= ~0x4;
+        }
+    }
+    virtual CMiniMapMarker* GetEffect() const {
+        if ((mPiiFlags & 0x4) != 0) {
+            return mMiniMapMarker.get();
+        }
+        return nullptr;
+    }
     virtual void OnEnterWorld();
     virtual void OnLeaveWorld();
     virtual void UpdateVisible();
@@ -42,12 +53,12 @@ public:
     virtual bool IsVisible() const;
     virtual void UpdateShadowMtx();
 
-    std::tr1::shared_ptr<CHPBar> GetHPBar() const { return mHPBar; }
-    std::tr1::shared_ptr<CPiiPersonalData> GetPersonalData() const {
+    std::tr1::shared_ptr<CHPBar> GetHPBar() { return mHPBar; }
+    std::tr1::shared_ptr<CPiiPersonalData> GetPersonalData() {
         return mPersonalData;
     }
-    void SetHPBar(const std::tr1::shared_ptr<CHPBar>& rHPBar);
-    void SetMiniMapMarker(const std::tr1::shared_ptr<CMiniMapMarker>& rMarker);
+    void SetHPBar(std::tr1::shared_ptr<CHPBar> hpBar);
+    void SetMiniMapMarker(std::tr1::shared_ptr<CMiniMapMarker> marker);
 
 private:
     u32 mPiiFlags;
