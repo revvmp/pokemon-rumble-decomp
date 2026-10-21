@@ -522,6 +522,14 @@ game/ScriptUtilities.cpp:
 	.sdata      start:0x804B7A30 end:0x804B7A40
 	.sdata2     start:0x804BA240 end:0x804BA250
 
+game/ScriptModel.cpp:
+	extab       start:0x8002FCB0 end:0x80030310
+	extabindex  start:0x8004E288 end:0x8004E420
+	.text       start:0x80146EE0 end:0x80149520
+	.data       start:0x803B6EB0 end:0x803B6F50
+	.sdata      start:0x804B7A40 end:0x804B7A58
+	.sdata2     start:0x804BA250 end:0x804BA268
+
 game/SaveData.cpp:
 	extab       start:0x80032AA8 end:0x80033D8C
 	extabindex  start:0x8004FA7C end:0x8004FD94
