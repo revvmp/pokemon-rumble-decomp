@@ -37,11 +37,11 @@ void CControllerGCPad::Update() {
     }
 }
 
-void CControllerGCPad::StartMotor(const MotorPattern& rPattern) {
+void CControllerGCPad::StartMotor(const MotorPattern& rPattern) const {
     StartGCRumble(GetChannel(), rPattern.mpGCPattern);
 }
 
-void CControllerGCPad::StopMotor() {
+void CControllerGCPad::StopMotor() const {
     StopGCRumble(GetChannel());
 }
 

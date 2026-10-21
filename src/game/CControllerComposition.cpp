@@ -44,7 +44,7 @@ void CControllerComposition::SetControllers(const std::vector<IController*>& rCo
     mControllers = rControllers;
 }
 
-void CControllerComposition::StartMotor(const MotorPattern& rPattern) {
+void CControllerComposition::StartMotor(const MotorPattern& rPattern) const {
     const std::vector<IController*>& rControllers = mControllers;
     std::vector<IController*>::const_iterator p = rControllers.begin();
     for (; p != rControllers.end(); ++p) {
@@ -52,7 +52,7 @@ void CControllerComposition::StartMotor(const MotorPattern& rPattern) {
     }
 }
 
-void CControllerComposition::StopMotor() {
+void CControllerComposition::StopMotor() const {
     const std::vector<IController*>& rControllers = mControllers;
     std::vector<IController*>::const_iterator p = rControllers.begin();
     for (; p != rControllers.end(); ++p) {

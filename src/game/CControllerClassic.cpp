@@ -1,6 +1,5 @@
 #include <game/CControllerClassic.h>
-
-bool IsExtensionControllerEnabled();
+#include <game/ControllerTable.h>
 
 IController::Type CControllerClassic::GetType() const {
     return TYPE_CLASSIC;

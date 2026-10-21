@@ -1,7 +1,6 @@
 #include <game/CControllerNunchaku.h>
+#include <game/ControllerTable.h>
 #include <game/Pad.h>
-
-bool IsExtensionControllerEnabled();
 
 IController::Type CControllerNunchaku::GetType() const {
     return TYPE_NUNCHAKU;

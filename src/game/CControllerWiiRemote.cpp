@@ -5,8 +5,6 @@
 #include <game/ControllerTable.h>
 #include <algorithm>
 
-bool IsExtensionControllerEnabled();
-
 inline bool IsWiiPadReadable(const WiiPadState* pPad) {
     return pPad->wpad_err == 0 || pPad->wpad_err == -7;
 }
@@ -74,13 +72,13 @@ void CControllerWiiRemote::Update() {
     }
 }
 
-void CControllerWiiRemote::StartMotor(const MotorPattern& rPattern) {
+void CControllerWiiRemote::StartMotor(const MotorPattern& rPattern) const {
     if (!mUsesClassic) {
         StartWiiRumble(GetChannel(), rPattern.mpWiiPattern);
     }
 }
 
-void CControllerWiiRemote::StopMotor() {
+void CControllerWiiRemote::StopMotor() const {
     StopWiiRumble(GetChannel());
 }
 
