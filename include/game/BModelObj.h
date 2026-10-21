@@ -63,6 +63,9 @@ public:
     std::tr1::shared_ptr<CModel::CMotionProgram> Play(const char* pName, f32 frame, f32 rate);
     std::tr1::shared_ptr<CModel::CMotionProgram> PlayLoop(const char* pName, f32 frame, f32 rate);
     std::tr1::shared_ptr<CModel::CMotionProgram> PlayOnce(const char* pName, f32 frame, f32 rate);
+    std::tr1::shared_ptr<CModel::CMotionProgram> LengthPlay(const char* pName, f32 frame, f32 length);
+    std::tr1::shared_ptr<CModel::CMotionProgram> LengthRequest(const char* pName, f32 frame, f32 length);
+    std::tr1::shared_ptr<CModel::CMotionProgram> LengthRequestNext(const char* pName, f32 frame, f32 length);
     void Pause(bool pause);
     void Resume();
     void SetOutlineType(int type);
