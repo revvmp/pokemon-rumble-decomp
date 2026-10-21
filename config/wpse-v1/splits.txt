@@ -535,6 +535,11 @@ game/ScriptPiiStats.cpp:
 	extabindex  start:0x8004F620 end:0x8004F74C
 	.text       start:0x8015A0E0 end:0x8015B624
 
+game/ScriptPiiProperties.cpp:
+	extab       start:0x80032320 end:0x80032790
+	extabindex  start:0x8004F74C end:0x8004F86C
+	.text       start:0x8015B630 end:0x8015C9F4
+
 game/SaveData.cpp:
 	extab       start:0x80032AA8 end:0x80033D8C
 	extabindex  start:0x8004FA7C end:0x8004FD94
