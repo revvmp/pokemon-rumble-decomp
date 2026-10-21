@@ -2,6 +2,7 @@
 #define GAME_IGAMESESSION_H
 
 #include <game/ISession.h>
+#include <game/WazaDescData.h>
 #include <iosfwd>
 #include <memory>
 #include <revolution/types.h>
@@ -9,7 +10,6 @@
 struct MapIndex;
 struct MapDesc;
 struct StageDesc;
-struct WazaDescData;
 struct PiiPropData;
 class CBattleRoyalBox;
 class CPiiBox;

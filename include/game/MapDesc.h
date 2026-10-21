@@ -4,6 +4,10 @@
 #include <game/CPpuRegister.h>
 #include <game/MapIndex.h>
 #include <revolution/types.h>
+#include <game/NPpuVM.h>
+#include <set>
+#include <string>
+#include <vector>
 
 namespace NPpu {
 class CValue;
@@ -11,12 +15,15 @@ class CValue;
 
 class MapPiiTable {
 public:
+    MapPiiTable();
+    ~MapPiiTable();
     int GetRowCount() const { return mRowCount; }
     NPpu::CValue* GetCell(int row, int column);
 
 private:
-    NPpu::CValue* mCells;
-    u32 mReserved[8];
+    std::vector<NPpu::CValue> mValues;
+    std::set<std::string> mStrings;
+    std::set<std::wstring> mWideStrings;
     int mRowCount;
     int mColumnCount;
 };
