@@ -112,6 +112,7 @@ public:
     T* begin() { return this->data_ + start_; }
     T* end() { return begin() + this->size_; }
 
+    void construct_at_end(size_type n) { construct_at_end(n, pod_type()); }
     void construct_at_end(size_type n, pod_type) {
         for (T* p = end(); n != 0; --n, ++p) {
             this->capacity_.second().construct(p, T());
@@ -164,9 +165,10 @@ public:
 
 template <typename T, typename Allocator> __vec_split_buffer<T, Allocator>::~__vec_split_buffer() {
     T* first = begin();
-    for (T* p = first + this->size_; p > first;) {
-        --p;
-        this->capacity_.second().destroy(p);
+    T* last = end();
+    while (last > first) {
+        --last;
+        this->capacity_.second().destroy(last);
     }
     this->size_ = 0;
 }
@@ -361,6 +363,7 @@ protected:
         this->capacity_.first() = n;
     }
 
+    void construct_at_end(size_type n) { construct_at_end(n, pod_type()); }
     void construct_at_end(size_type n, pod_type) {
         for (T* p = this->data_ + this->size_; n != 0; --n, ++p) {
             this->capacity_.second().construct(p, T());
@@ -384,15 +387,19 @@ protected:
         return maxSize;
     }
     size_type recommend(size_type n, pod_type) { return recommend(n); }
-    size_type grow_capacity(size_type n) { return recommend(this->size_ + n - this->capacity_.first()); }
+    size_type recommend_realloc(size_type n) { return recommend(n); }
+    size_type grow_capacity(size_type n) { return recommend_realloc(this->size_ + n - this->capacity_.first()); }
     bool grow_by(size_type n) {
         size_type capacity;
         return grow_by(n, capacity, pod_type());
     }
+    size_type recommend_extra(size_type n) { return recommend(n); }
+    size_type recommend_append(size_type n) { return recommend_extra(n); }
     bool grow_by(size_type n, pod_type) {
-        recommend(n);
+        recommend_append(n);
         return false;
     }
+    bool can_append(size_type n) { return grow_by(n, pod_type()); }
     bool grow_by(size_type n, size_type& rCapacity, pod_type) {
         rCapacity = recommend(n);
         return false;
@@ -401,15 +408,11 @@ protected:
     void append_realloc(size_type n) {
         __vec_split_buffer<T, Allocator> buffer(this->capacity_.second());
         size_type capacity = grow_capacity(n);
-        if (capacity > max_size()) {
-            __throw_vector_length_error();
-        }
-        buffer.data_ = buffer.capacity_.second().allocate(capacity);
-        buffer.capacity_.first() = capacity;
+        buffer.allocate(this->size_ + n, capacity);
         buffer.start_ = this->size_;
-        buffer.construct_at_end(n, pod_type());
-        buffer.construct_at_front(this->data_, this->data_ + this->size_, pod_type());
-        swap(buffer, pod_type());
+        buffer.construct_at_end(n);
+        buffer.construct_at_front(this->data_, this->data_ + this->size_);
+        swap(buffer);
     }
 
     void append(size_type n) { append(n, pod_type()); }
@@ -421,14 +424,15 @@ protected:
                 goto construct;
             }
         }
-        if (grow_by(this->size_ + n - capacity, pod_type())) {
+        if (can_append(this->size_ + n - capacity)) {
         construct:
-            construct_at_end(n, pod_type());
+            construct_at_end(n);
         } else {
             append_realloc(n);
         }
     }
 
+    void swap(__vec_deleter<T, Allocator&>& r) { swap(r, pod_type()); }
     void swap(__vec_deleter<T, Allocator&>& r, pod_type) {
         size_type capacity = this->capacity_.first();
         this->capacity_.first() = r.capacity_.first();
