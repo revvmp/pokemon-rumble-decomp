@@ -252,6 +252,7 @@ config.libs = [
             Object(NonMatching, "game/NPpuVM.cpp"),
             Object(NonMatching, "game/NPpuLibrary.cpp"),
             Object(Matching, "game/CFiber.cpp"),
+            Object(Matching, "game/CResFont.cpp"),
             Object(Matching, "game/CRomFont.cpp"),
             Object(NonMatching, "game/CMsgRes.cpp"),
             Object(NonMatching, "game/Message.cpp"),

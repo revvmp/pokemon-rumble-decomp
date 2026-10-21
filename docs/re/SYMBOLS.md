@@ -1,5 +1,9 @@
 # Symbols and interfaces
 
+## CResFont resource loader (#336)
+
+The recovered CResFont class is a complete 0x24-byte object: canonical nw4r::ut::ResFont at 0x00–0x1B and shared_ptr<CFileData> at 0x1C/0x20. Earlier constructor 0x8012D910, destructor 0x801313E0, vtable 0x803B5F38 and RTTI 0x804B7948 establish the full layout and inherited SDK virtual order. Only the derived destructor differs from SDK ResFont's vtable. These earlier records stay outside the loader source unit. The descriptive Load(const char*, bool) method at 0x801D9A10 assigns the resource owner, validates it and installs its data. The class spelling is native RTTI; member mFile and method Load are descriptive. [F-336-3](findings/336-resource-font.md) records corrected file ownership, three-section exact acceptance, all cleanup targets and source-only selection. No #335 implementation is taken.
+
 ## CRomFont and CAnyEncFont (#336)
 
 Native RTTI recovers CRomFont, CAnyEncFont<nw4r::ut::RomFont>, and nw4r::ut::RomFont. The complete font is 0x70 bytes. Native virtual slot order is the canonical SDK RomFont order; CAnyEncFont overrides character conversion and GetEncoding, while CRomFont supplies resource construction/destruction. Method and member spellings not recovered through RTTI are descriptive.

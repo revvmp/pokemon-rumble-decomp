@@ -2,7 +2,7 @@
 
 ## Status
 
-Issue #336 remains incomplete. Its original inventory contains 22 functions and 6,068 instruction bytes. The independent CRomFont translation unit now links from reconstructed source with all ten retained functions, 1,364 instruction bytes, and every allocated section exact against the frozen executable. Twelve original inventory functions remain outside this accepted unit.
+Issue #336 remains incomplete. Its original inventory contains 22 functions and 6,068 instruction bytes. The independent CRomFont translation unit now links from reconstructed source with all ten retained functions, 1,364 instruction bytes, and every allocated section exact against the frozen executable. Twelve original inventory functions remain outside this accepted unit; the resource-loader function is subsequently accepted separately in [F-336-3](336-resource-font.md), leaving eleven issue functions unresolved.
 
 The accepted unit uses Wii/1.1 and unchanged `cflags_game`. Configure, full Ninja, explicit `all_source`, and frozen-manifest verification all exit zero. The map identifies CRomFont.o as the owner of every retained font function, exception entry, vtable, type name, base array, and three typeinfo objects. The link input selects `build/wpse-v1/src/game/CRomFont.o`, with no original object for this unit.
 
