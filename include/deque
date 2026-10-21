@@ -11,6 +11,8 @@ template <typename T, typename Allocator> class __cdeque_buf {
 public:
     typedef unsigned long size_type;
 
+    ~__cdeque_buf();
+
     size_type& cap() { return capacity_.first(); }
     T& operator[](size_type i) { return data_[(start_ + i) % cap()]; }
 
@@ -54,6 +56,9 @@ public:
     T& front() { return first(); }
     T& first() { return buf()[start_ / block_size][start_ % block_size]; }
 
+    __deque_imp() : start_(0), size_(0) {}
+    ~__deque_imp() {}
+
     void push_back(const T& x) { append(x); }
     void append(const T& x) { push_back(x, pod_type()); }
     void push_back(const T& x, Metrowerks::int2type<false>);
@@ -72,7 +77,11 @@ public:
     Metrowerks::compressed_pair<buf_type, Allocator> buf_;
 };
 
-template <typename T, typename Allocator = allocator<T> > class deque : private __deque_imp<T, Allocator> {
+template <typename T, typename Allocator> class __deque_storage : public __deque_imp<T, Allocator> {};
+
+template <typename T, typename Allocator> class __deque_container : public __deque_storage<T, Allocator> {};
+
+template <typename T, typename Allocator = allocator<T> > class deque : private __deque_container<T, Allocator> {
     typedef __deque_imp<T, Allocator> base;
 
 public:

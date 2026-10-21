@@ -13,6 +13,8 @@ public:
     virtual void RequestSaveCommitOnly() = 0;
     virtual void RequestDelete() = 0;
     virtual bool IsIdle() = 0;
+
+    static std::tr1::shared_ptr<ISaveManager> Create();
 };
 
 #endif
