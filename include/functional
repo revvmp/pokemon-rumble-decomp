@@ -2,6 +2,7 @@
 #define _FUNCTIONAL
 
 #include <exception>
+#include <tuple>
 #include <new>
 #include <revolution/types.h>
 
@@ -15,6 +16,27 @@ public:
 
 template <typename Signature> class function;
 
+namespace detail {
+template<class R, class C> class mem_fn_0 {
+public:
+    typedef R (C::*Function)();
+    explicit mem_fn_0(Function function) : mFunction(function) {}
+    R operator()(C* pObject) { return (pObject->*mFunction)(); }
+private:
+    Function mFunction;
+};
+template<class R, class F, class Tuple> class bound_func {
+public:
+    bound_func(const F& rFunction, const Tuple& rArguments) : mFunction(rFunction), mArguments(rArguments) {}
+    R operator()() { return mFunction(std::tr1::get<0>(mArguments)); }
+private:
+    F mFunction;
+    Tuple mArguments;
+};
+}
+template<class R, class C, class T> detail::bound_func<R, detail::mem_fn_0<R, C>, tuple<T> > bind(R (C::*pFunction)(), T value) {
+    return detail::bound_func<R, detail::mem_fn_0<R, C>, tuple<T> >(detail::mem_fn_0<R, C>(pFunction), tuple<T>(value));
+}
 namespace detail {
 
 template <typename Signature> class function_base;
@@ -42,7 +64,7 @@ private:
     F f_;
 };
 
-template <typename F> bool is_null(const F&) {
+inline bool is_null(...) {
     return false;
 }
 
