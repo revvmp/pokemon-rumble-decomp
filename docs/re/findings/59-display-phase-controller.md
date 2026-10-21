@@ -18,4 +18,16 @@ The source-selected Matching build passes configure, Ninja and frozen-manifest v
 
 Directly duplicating and simplifying transition cases loses the original inlining context and produces a shorter Calc. Ordinary reusable private methods restore the native switches; grouped switch dispatch on the saved phase restores the final four bytes. Explicitly marking helpers inline preserves instructions but changes retained literal emission order. Ordinary member definitions reproduce begin/loop/end before RTTI. This is evidence for this unit, not a general source-order rule.
 
-The issue's first seven helpers remain #58's source authority. CDisplayPhaseCtrl alone supplies nine of sixteen original functions and must not close #59 before the preceding 536 bytes also pass source acceptance.
+The issue's first seven helpers remain #58's source authority. Its independent complete-code proof at `C:/MassStorage/GitHub/58-reference/58-run-context/58-complete-code-proof.json` establishes the following inventory, but whole-unit source selection and retained layout remain pending:
+
+| Address | Bytes | Native identity |
+| --- | --- | --- |
+| `0x800709E0` | 76 | CFiber shared deleter get_deleter |
+| `0x80070A30` | 36 | CFiber shared deleter dispose |
+| `0x80070A60` | 116 | move_ptr<CLayout> destructor |
+| `0x80070AE0` | 116 | move_ptr<CFiber> destructor |
+| `0x80070B60` | 64 | CLayout deleter destructor |
+| `0x80070BA0` | 64 | CFiber deleter destructor |
+| `0x80070BE0` | 64 | bound-function function_imp destructor |
+
+These seven functions total 536 bytes; together with this unit the original denominator is sixteen functions and 2,028 bytes. CDisplayPhaseCtrl alone supplies nine of sixteen original functions and must not close #59 before the preceding 536 bytes also pass source acceptance. Prerequisite [F-59-2](59-icalc-inheritance.md) reconciles the inherited ICalc matrix-slot identity against all current consumers before this unit's final acceptance.
