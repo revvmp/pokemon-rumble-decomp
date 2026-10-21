@@ -125,6 +125,8 @@ public:
         holder.release();
     }
     template <typename Y> explicit shared_ptr(const weak_ptr<Y>& r);
+    template <typename Y>
+    shared_ptr(const weak_ptr<Y>& r, typename Metrowerks::restrict_to<Metrowerks::is_convertible<Y*, T*>::value>::type*);
     shared_ptr(const shared_ptr& r) : ptr_(r.ptr_), s_(r.s_) {
         if (s_) {
             s_->retain();
@@ -234,7 +236,7 @@ private:
 
 template <typename T> class enable_shared_from_this {
 public:
-    shared_ptr<T> shared_from_this() { return shared_ptr<T>(weak_this_); }
+    shared_ptr<T> shared_from_this() { return shared_ptr<T>(weak_this_, nullptr); }
 
 protected:
     enable_shared_from_this() {}
@@ -251,6 +253,16 @@ private:
 template <typename T>
 template <typename Y>
 shared_ptr<T>::shared_ptr(const weak_ptr<Y>& r) : ptr_(nullptr), s_(nullptr) {
+    shared_ptr<T> locked(r.lock());
+    if (locked.use_count() == 0) {
+        throw bad_weak_ptr();
+    }
+    swap(locked);
+}
+
+template <typename T>
+template <typename Y>
+shared_ptr<T>::shared_ptr(const weak_ptr<Y>& r, typename Metrowerks::restrict_to<Metrowerks::is_convertible<Y*, T*>::value>::type*) : ptr_(nullptr), s_(nullptr) {
     shared_ptr<T> locked(r.lock());
     if (locked.use_count() == 0) {
         throw bad_weak_ptr();

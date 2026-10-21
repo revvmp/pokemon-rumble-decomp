@@ -63,9 +63,13 @@ public:
 
     void Load(const char* pArchive, const char* pLayoutName, const std::tr1::shared_ptr<FontMap>& rFonts, bool background);
     void Load(const char* const* pArchives, const char* pLayoutName, const std::tr1::shared_ptr<FontMap>& rFonts, bool background);
+    void Load(const char* const* pArchives, const char* pLayoutName, const std::tr1::shared_ptr<FontMap>& rFonts) {
+        Load(pArchives, pLayoutName, rFonts, false);
+    }
     nw4r::lyt::Pane* FindPane(const char* pName);
     void CalculateMtx(bool recursive);
     void SetViewScale(const nw4r::math::VEC2& rScale);
+    nw4r::math::VEC2 NormalizeViewPosition(const nw4r::math::VEC2& rPosition) const;
     nw4r::math::VEC2 GetViewScale() const;
     void Render(const nw4r::math::VEC2& rSize);
     void SetPaneVisible(const char* pName, bool visible);

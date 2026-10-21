@@ -95,6 +95,7 @@ public:
     compressed_pair(first_param rFirst, second_param rSecond) : Storage(rFirst, rSecond) {}
     using Storage::first;
     using Storage::second;
+    const Second& second() const { return Storage::second(); }
 };
 }
 

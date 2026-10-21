@@ -35,6 +35,7 @@ private:
     public:
         explicit CCallbackListOwner(CallbackList* pList = nullptr) : mpList(pList) {}
         ~CCallbackListOwner() { delete mpList; }
+        Callback Add(const std::tr1::function<void(BUI*)>& rFunction);
     private:
         CCallbackListOwner(const CCallbackListOwner&);
         CCallbackListOwner& operator=(const CCallbackListOwner&);
@@ -57,6 +58,10 @@ private:
     CCallbackListOwner mSelectionCallbacks;
     CCallbackListOwner mAcceptCallbacks;
     CCallbackListOwner mScrollCallbacks;
+
+public:
+    CCallbackListOwner& GetSelectionCallbacks() { return mSelectionCallbacks; }
+    CCallbackListOwner& GetAcceptCallbacks() { return mAcceptCallbacks; }
 };
 
 

@@ -93,6 +93,7 @@ public:
     }
     u8 GetAlpha() const { return mAlpha; }
     const math::VEC2& GetScale() const { return mScale; }
+    const math::MTX34& GetGlobalMtx() const { return mGlbMtx; }
     const Size& GetSize() const { return mSize; }
     void SetSize(const Size& rSize) { mSize = rSize; }
     void SetScale(const math::VEC2& rScale) { mScale = rScale; }
