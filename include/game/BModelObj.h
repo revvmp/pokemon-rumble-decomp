@@ -10,6 +10,8 @@
 
 class BModelObj : public BWorldObj, public BSoundSource, public BKDTreeLink {
 public:
+    enum { TYPE = TYPE_MODEL_OBJ };
+
     enum Flag {
         FLAG_DIRTY_MTX = 1 << 0,
         FLAG_HIDDEN = 1 << 1,

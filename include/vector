@@ -371,4 +371,6 @@ public:
 
 }
 
+#include <MSL_CPP/bitvector.h>
+
 #endif

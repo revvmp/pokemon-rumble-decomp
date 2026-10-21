@@ -53,6 +53,7 @@ public:
     BWorld* GetWorld() const { return mWorld; }
     u32 GetId() const { return mId; }
     u32 GetType() const { return mType; }
+    f32 GetRotation() const { return mRotation; }
     const nw4r::math::VEC3& GetPositionRef() const { return mPosition; }
 
     void Pause();

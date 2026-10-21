@@ -1,6 +1,9 @@
 #include <game/CEffect.h>
+#include <game/BModelObj.h>
 #include <game/BWorld.h>
 #include <game/BWorldObj.h>
+#include <game/EffectGroupID.h>
+#include <game/MathUtil.h>
 #include <game/Memory.h>
 #include <game/Random.h>
 #include <nw4r/ef/ef_effect.h>
@@ -10,11 +13,19 @@
 #include <nw4r/ef/ef_memorymanager.h>
 #include <nw4r/ef/ef_particle.h>
 #include <nw4r/ef/ef_particlemanager.h>
+#include <nw4r/g3d/g3d_scnmdlsmpl.h>
+#include <nw4r/math/math_arithmetic.h>
 #include <nw4r/math/math_triangular.h>
 #include <nw4r/ut/ut_list.h>
 #include <new>
+#include <string.h>
+#include <vector>
 
 namespace {
+
+inline bool IsEqual(const char* pName, const char* pPrefix, size_t length) {
+    return strncmp(pName, pPrefix, length) == 0;
+}
 
 inline u32 AlignHeap(u32 value) {
     return (value + 31) & ~31;
@@ -27,6 +38,76 @@ public:
         mParam.mEnable = false;
     }
 
+    virtual bool Initialize(nw4r::ef::Effect* pParent, nw4r::ef::EmitterResource* pResource, u8 drawWeight) {
+        bool result = nw4r::ef::Emitter::Initialize(pParent, pResource, drawWeight);
+        mParam.mInfo = nullptr;
+        mParam.mEnable = false;
+        return result;
+    }
+
+    virtual nw4r::ef::Emitter* CreateEmitter(nw4r::ef::EmitterResource* pResource,
+                                             nw4r::ef::EmitterInheritSetting* pSetting, nw4r::ef::Particle* pParticle,
+                                             u16 calcRemain, nw4r::math::VEC3* pTranslate) {
+        nw4r::ef::Emitter* pEmitter =
+            nw4r::ef::Emitter::CreateEmitter(pResource, pSetting, pParticle, calcRemain, pTranslate);
+        if (pEmitter != nullptr && mParam.mEnable) {
+            switch (mParam.mInfo->mType) {
+            case CEffect::TYPE_LIFE: {
+                if (pEmitter->mResource->GetEmitterDesc()->GetFormType() != nw4r::ef::EMITFORMTYPE_CUBE) {
+                    break;
+                }
+
+                nw4r::math::VEC3 scale(static_cast<const nw4r::math::_VEC3&>(pEmitter->mParameter.mScale));
+                const char* pName = pEmitter->mResource->GetName();
+                if (IsEqual(pName, "main", 4)) {
+                    pEmitter->mParameter.mParams[0] = mParam.mFrames.mHeight * 0.5f / scale.x;
+                    pEmitter->SetTranslate(nw4r::math::VEC3(0.0f, 0.0f, 0.0f));
+                    pEmitter->SetMtxDirty();
+                    pEmitter->mParameter.mVelDiffusionSpecDir = 0.0f;
+                    pEmitter->mParameter.mVelPowerSpecDir = mParam.mFrames.mRadius / scale.x;
+                    pEmitter->mWaitTime = 1;
+                    pEmitter->mParameter.mEmitSpan = mParam.mFrames.mEmitSpan;
+                    static_cast<EmitterWithParam*>(pEmitter)->mParam = mParam;
+                } else if (IsEqual(pName, "sub", 3)) {
+                    pEmitter->mWaitTime = mParam.mFrames.mLife + 1;
+                    pEmitter->mParameter.mParams[0] = mParam.mFrames.mHeight * 0.5f / scale.x;
+                    pEmitter->SetTranslate(nw4r::math::VEC3(0.0f, 0.0f, mParam.mFrames.mRadius * mParam.mFrames.mLife));
+                    pEmitter->SetMtxDirty();
+                }
+                break;
+            }
+            case CEffect::TYPE_LIFE_FOLLOW: {
+                if (pEmitter->mResource->GetEmitterDesc()->GetFormType() != nw4r::ef::EMITFORMTYPE_CYLINDER) {
+                    break;
+                }
+
+                pEmitter->mParameter.mParams[2] = NW4R_MATH_PI + -mParam.mFrames.mHeight * 0.5f;
+                pEmitter->mParameter.mParams[3] = NW4R_MATH_PI + mParam.mFrames.mHeight * 0.5f;
+                nw4r::math::VEC3 scale(static_cast<const nw4r::math::_VEC3&>(pEmitter->mParameter.mScale));
+                pEmitter->SetTranslate(nw4r::math::VEC3(0.0f, 0.0f, 0.0f));
+                pEmitter->SetMtxDirty();
+
+                const char* pName = pEmitter->mResource->GetName();
+                if (IsEqual(pName, "main", 4)) {
+                    pEmitter->mParameter.mParams[0] = pEmitter->mParameter.mParams[5] = 0.01f;
+                    pEmitter->mParameter.mVelPowerRadiationDir = mParam.mFrames.mRadius / scale.x;
+                    pEmitter->mWaitTime = 1;
+                    pEmitter->mParameter.mEmitSpan = mParam.mFrames.mEmitSpan;
+                    static_cast<EmitterWithParam*>(pEmitter)->mParam = mParam;
+                } else if (IsEqual(pName, "sub", 3)) {
+                    pEmitter->mWaitTime = mParam.mFrames.mLife + 1;
+                    f32 radius = mParam.mFrames.mRadius * mParam.mFrames.mLife;
+                    pEmitter->mParameter.mParams[0] = radius / scale.x;
+                    pEmitter->mParameter.mParams[5] = radius / scale.z;
+                }
+                break;
+            }
+            }
+        }
+
+        return pEmitter;
+    }
+
     CEffect::Param mParam;
 };
 
@@ -35,6 +116,15 @@ void PrevEmissionLife(nw4r::ef::Emitter* pEmitter, nw4r::ef::ParticleManager* pM
 void PrevEmissionLifeFollow(nw4r::ef::Emitter* pEmitter, nw4r::ef::ParticleManager* pManager, int* pCount, u32* pFlags,
                             f32 (*pParams)[nw4r::ef::NUM_PARAMS], u16* pLife, f32* pLifeRnd,
                             nw4r::math::MTX34* pSpace);
+
+const nw4r::math::_VEC3 sExtendEmissionOffsets[] = {
+    {0.5f, 0.7f, 0.3f},   {0.25f, 0.525f, 0.475f},  {0.0f, 0.35f, 0.65f}, {-0.25f, 0.175f, 0.825f},
+    {-0.5f, 0.0f, 1.0f},  {-0.5f, 0.7f, 0.3f},      {-0.25f, 0.525f, 0.475f}, {0.0f, 0.35f, 0.65f},
+    {0.25f, 0.175f, 0.825f}, {0.5f, 0.0f, 1.0f},
+};
+
+std::tr1::shared_ptr<std::vector<bool> > sUsedEffectGroupID;
+int sNumUsedEffectGroupID;
 
 }
 
@@ -56,13 +146,70 @@ public:
         }
     }
 
+    T* Alloc() {
+        T* pObject = static_cast<T*>(ut::List_GetFirst(&mFreeList));
+        if (pObject == nullptr) {
+            return nullptr;
+        }
+
+        UpdateObjectID(pObject);
+        ut::List_Remove(&mFreeList, pObject);
+        ut::List_Append(&mActiveList, pObject);
+        return pObject;
+    }
+
+    void Free(void* pObject) {
+        ut::List_Remove(&mActiveList, pObject);
+        ut::List_Append(&mFreeList, pObject);
+    }
+
+    u32 GetNumAlloc() const { return mActiveList.numObjects + mFreeList.numObjects; }
+    u32 GetNumActive() const { return mActiveList.numObjects; }
+    u32 GetNumFree() const { return mFreeList.numObjects; }
+
     T* mBuffer;
     ut::List mFreeList;
     ut::List mActiveList;
     u32 mObjectSize;
 
-    virtual ~MemoryManagerTmp() {}
+    virtual void UpdateObjectID(T* pObject) { pObject->mObjectID += 0x10000; }
 };
+
+inline void ReleaseFromParent(ParticleManager* pManager) {
+    pManager->mManagerEM->mActivityList.ToFree(pManager);
+}
+
+inline void ReleaseFromParent(Emitter* pEmitter) {
+    pEmitter->mManagerEF->mActivityList.ToFree(pEmitter);
+}
+
+inline void ReleaseFromParent(Effect* pEffect) {
+    pEffect->mManagerES->mActivityList[pEffect->mGroupID].ToFree(pEffect);
+}
+
+template <typename T> inline void CollectClosing(MemoryManagerTmp<T>* pPool) {
+    T* pObject;
+    T* pNext;
+
+    if (pPool == nullptr) {
+        return;
+    }
+
+    pObject = static_cast<T*>(ut::List_GetFirst(&pPool->mActiveList));
+    if (pObject == nullptr) {
+        return;
+    }
+
+    pNext = static_cast<T*>(ut::List_GetNext(&pPool->mActiveList, pObject));
+    while (pObject != nullptr) {
+        if (pObject->GetLifeStatus() == ReferencedObject::NW4R_EF_LS_CLOSING && pObject->GetRefCount() == 0) {
+            ReleaseFromParent(pObject);
+            pPool->Free(pObject);
+        }
+        pObject = pNext;
+        pNext = static_cast<T*>(ut::List_GetNext(&pPool->mActiveList, pNext));
+    }
+}
 
 class MemoryManager : public MemoryManagerBase {
 public:
@@ -128,34 +275,222 @@ public:
             new (AllocHeap(sizeof(MemoryManagerTmp<Particle>))) MemoryManagerTmp<Particle>(pParticles, mNumParticle);
     }
 
-    virtual void GarbageCollection();
+    virtual ~MemoryManager() {}
 
-    virtual Effect* AllocEffect();
-    virtual void FreeEffect(void* pObject);
-    virtual u32 GetNumAllocEffect() const;
-    virtual u32 GetNumActiveEffect() const;
-    virtual u32 GetNumFreeEffect() const;
+    virtual void GarbageCollection() {
+        NW4R_UT_LIST_FOREACH_SAFE(ParticleManager, pManager, mParticleManagerPool->mActiveList, {
+            Particle* pParticle;
+            Particle* pNext;
+            for (pParticle = static_cast<Particle*>(pManager->mActivityList.mClosingList.headObject);
+                 pParticle != nullptr; pParticle = pNext) {
+                pNext = static_cast<Particle*>(
+                    NW4R_UT_LIST_GET_LINK(pManager->mActivityList.mClosingList, pParticle)->nextObject);
+                pParticle->mParticleManager->mActivityList.ToFree(pParticle);
+                ut::List_Remove(&mParticlePool->mActiveList, pParticle);
+                ut::List_Append(&mParticlePool->mFreeList, pParticle);
+            }
+        });
 
-    virtual Emitter* AllocEmitter();
-    virtual void FreeEmitter(void* pObject);
-    virtual u32 GetNumAllocEmitter() const;
-    virtual u32 GetNumActiveEmitter() const;
-    virtual u32 GetNumFreeEmitter() const;
+        CollectClosing(mParticleManagerPool);
+        CollectClosing(mEmitterPool);
+        CollectClosing(mEffectPool);
+    }
 
-    virtual ParticleManager* AllocParticleManager();
-    virtual void FreeParticleManager(void* pObject);
-    virtual u32 GetNumAllocParticleManager() const;
-    virtual u32 GetNumActiveParticleManager() const;
-    virtual u32 GetNumFreeParticleManager() const;
+    virtual Effect* AllocEffect() {
+        if (mEffectPool == nullptr) {
+            return nullptr;
+        }
+        return mEffectPool->Alloc();
+    }
+    virtual void FreeEffect(void* pObject) {
+        if (mEffectPool != nullptr) {
+            mEffectPool->Free(pObject);
+        }
+    }
+    virtual u32 GetNumAllocEffect() const {
+        if (mEffectPool == nullptr) {
+            return 0;
+        }
+        return mEffectPool->GetNumAlloc();
+    }
+    virtual u32 GetNumActiveEffect() const {
+        if (mEffectPool == nullptr) {
+            return 0;
+        }
+        return mEffectPool->GetNumActive();
+    }
+    virtual u32 GetNumFreeEffect() const {
+        if (mEffectPool == nullptr) {
+            return 0;
+        }
+        return mEffectPool->GetNumFree();
+    }
 
-    virtual Particle* AllocParticle();
-    virtual void FreeParticle(void* pObject);
-    virtual u32 GetNumAllocParticle() const;
-    virtual u32 GetNumActiveParticle() const;
-    virtual u32 GetNumFreeParticle() const;
+    virtual Emitter* AllocEmitter() {
+        if (mEmitterPool == nullptr) {
+            return nullptr;
+        }
+        return mEmitterPool->Alloc();
+    }
+    virtual void FreeEmitter(void* pObject) {
+        if (mEmitterPool != nullptr) {
+            mEmitterPool->Free(pObject);
+        }
+    }
+    virtual u32 GetNumAllocEmitter() const {
+        if (mEmitterPool == nullptr) {
+            return 0;
+        }
+        return mEmitterPool->GetNumAlloc();
+    }
+    virtual u32 GetNumActiveEmitter() const {
+        if (mEmitterPool == nullptr) {
+            return 0;
+        }
+        return mEmitterPool->GetNumActive();
+    }
+    virtual u32 GetNumFreeEmitter() const {
+        if (mEmitterPool == nullptr) {
+            return 0;
+        }
+        return mEmitterPool->GetNumFree();
+    }
+
+    virtual ParticleManager* AllocParticleManager() {
+        if (mParticleManagerPool == nullptr) {
+            return nullptr;
+        }
+        return mParticleManagerPool->Alloc();
+    }
+    virtual void FreeParticleManager(void* pObject) {
+        if (mParticleManagerPool != nullptr) {
+            mParticleManagerPool->Free(pObject);
+        }
+    }
+    virtual u32 GetNumAllocParticleManager() const {
+        if (mParticleManagerPool == nullptr) {
+            return 0;
+        }
+        return mParticleManagerPool->GetNumAlloc();
+    }
+    virtual u32 GetNumActiveParticleManager() const {
+        if (mParticleManagerPool == nullptr) {
+            return 0;
+        }
+        return mParticleManagerPool->GetNumActive();
+    }
+    virtual u32 GetNumFreeParticleManager() const {
+        if (mParticleManagerPool == nullptr) {
+            return 0;
+        }
+        return mParticleManagerPool->GetNumFree();
+    }
+
+    virtual Particle* AllocParticle() {
+        if (mParticlePool == nullptr) {
+            return nullptr;
+        }
+        return mParticlePool->Alloc();
+    }
+    virtual void FreeParticle(void* pObject) {
+        if (mParticlePool != nullptr) {
+            mParticlePool->Free(pObject);
+        }
+    }
+    virtual u32 GetNumAllocParticle() const {
+        if (mParticlePool == nullptr) {
+            return 0;
+        }
+        return mParticlePool->GetNumAlloc();
+    }
+    virtual u32 GetNumActiveParticle() const {
+        if (mParticlePool == nullptr) {
+            return 0;
+        }
+        return mParticlePool->GetNumActive();
+    }
+    virtual u32 GetNumFreeParticle() const {
+        if (mParticlePool == nullptr) {
+            return 0;
+        }
+        return mParticlePool->GetNumFree();
+    }
 
     virtual void* AllocHeap(u32 size);
-    virtual void FreeHeap(void* pPtr);
+    virtual void FreeHeap(void* pPtr) {
+        HeapBlock* pBlock = static_cast<HeapBlock*>(pPtr) - 1;
+        HeapBlock* pPrevFree;
+        HeapBlock* pNextFree;
+
+        if (pBlock->mPrev != nullptr) {
+            pBlock->mPrev->mNext = pBlock->mNext;
+        } else {
+            mUsedList = pBlock->mNext;
+        }
+        if (pBlock->mNext != nullptr) {
+            pBlock->mNext->mPrev = pBlock->mPrev;
+        }
+
+        pPrevFree = nullptr;
+        if (pBlock->mPrevPhys != nullptr && !pBlock->mPrevPhys->mUsed) {
+            pPrevFree = pBlock->mPrevPhys;
+        }
+        pNextFree = nullptr;
+        if (pBlock->mNextPhys != nullptr && !pBlock->mNextPhys->mUsed) {
+            pNextFree = pBlock->mNextPhys;
+        }
+
+        if (pPrevFree != nullptr) {
+            if (pNextFree != nullptr) {
+                if (pNextFree->mPrev != nullptr) {
+                    pNextFree->mPrev->mNext = pNextFree->mNext;
+                } else {
+                    mFreeList = pNextFree->mNext;
+                }
+                if (pNextFree->mNext != nullptr) {
+                    pNextFree->mNext->mPrev = pNextFree->mPrev;
+                }
+
+                pPrevFree->mSize += pBlock->mSize + pNextFree->mSize + sizeof(HeapBlock) * 2;
+                pPrevFree->mNextPhys = pNextFree->mNextPhys;
+                if (pNextFree->mNextPhys != nullptr) {
+                    pNextFree->mNextPhys->mPrevPhys = pPrevFree;
+                }
+            } else {
+                pPrevFree->mSize += pBlock->mSize + sizeof(HeapBlock);
+                pPrevFree->mNextPhys = pBlock->mNextPhys;
+                if (pBlock->mNextPhys != nullptr) {
+                    pBlock->mNextPhys->mPrevPhys = pPrevFree;
+                }
+            }
+        } else if (pNextFree != nullptr) {
+            if (pNextFree->mPrev != nullptr) {
+                pNextFree->mPrev->mNext = pBlock;
+            } else {
+                mFreeList = pBlock;
+            }
+            if (pNextFree->mNext != nullptr) {
+                pNextFree->mNext->mPrev = pBlock;
+            }
+
+            pBlock->mPrev = pNextFree->mPrev;
+            pBlock->mNext = pNextFree->mNext;
+            pBlock->mUsed = false;
+            pBlock->mSize += pNextFree->mSize + sizeof(HeapBlock);
+            pBlock->mNextPhys = pNextFree->mNextPhys;
+            if (pNextFree->mNextPhys != nullptr) {
+                pNextFree->mNextPhys->mPrevPhys = pBlock;
+            }
+        } else {
+            if (mFreeList != nullptr) {
+                mFreeList->mPrev = pBlock;
+            }
+            pBlock->mNext = mFreeList;
+            pBlock->mPrev = nullptr;
+            pBlock->mUsed = false;
+            mFreeList = pBlock;
+        }
+    }
 
     int mNumEffect;
     MemoryManagerTmp<Effect>* mEffectPool;
@@ -253,6 +588,41 @@ void* nw4r::ef::MemoryManager::AllocHeap(u32 size) {
 }
 
 void FinalizeEffect() {}
+
+u32 AllocEffectGroupID() {
+    nw4r::ef::EffectSystem* pSystem = nw4r::ef::EffectSystem::GetInstance();
+
+    if (sNumUsedEffectGroupID == 0) {
+        sUsedEffectGroupID.reset(new std::vector<bool>(pSystem->mMaxGroupID));
+        (*sUsedEffectGroupID)[0] = true;
+        sNumUsedEffectGroupID++;
+        return 0;
+    }
+
+    for (u32 i = 0; i < sUsedEffectGroupID->size(); i++) {
+        if (!(*sUsedEffectGroupID)[i]) {
+            (*sUsedEffectGroupID)[i] = true;
+            sNumUsedEffectGroupID++;
+            return i;
+        }
+    }
+
+    return EFFECT_GROUP_INVALID;
+}
+
+void FreeEffectGroupID(u32 id) {
+    if (sNumUsedEffectGroupID == 0) {
+        return;
+    }
+    if (id < sUsedEffectGroupID->size()) {
+        if ((*sUsedEffectGroupID)[id]) {
+            (*sUsedEffectGroupID)[id] = false;
+            if (--sNumUsedEffectGroupID == 0) {
+                sUsedEffectGroupID.reset();
+            }
+        }
+    }
+}
 
 CEffect::CEffect() : mFlags(0), mWorld(nullptr), mHandle(0) {
     mParam.mInfo = nullptr;
@@ -386,13 +756,24 @@ void PrevEmissionLifeFollow(nw4r::ef::Emitter* pEmitter, nw4r::ef::ParticleManag
     }
 }
 
+inline nw4r::math::MTX34 MakeTranslationMtx(const nw4r::math::VEC3& rTranslate) {
+    return nw4r::math::MTX34(1.0f, 0.0f, 0.0f, rTranslate.x, 0.0f, 1.0f, 0.0f, rTranslate.y, 0.0f, 0.0f, 1.0f,
+                             rTranslate.z);
 }
 
-bool CEffect::Create(BWorld* pWorld, const Param& rParam, const nw4r::math::VEC3& rPosition, f32 rotation) {
-    mPosition = rPosition;
-    mFlags |= FLAG_LOCAL_MTX;
-    SetRotation(rotation);
-    return Create(pWorld, rParam);
+inline nw4r::math::MTX34 MakeRotationMtx(f32 rotation) {
+    f32 sin;
+    f32 cos;
+    nw4r::math::SinCosDeg(&sin, &cos, rotation);
+    return nw4r::math::MTX34(cos, 0.0f, sin, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, -sin, 0.0f, cos, 0.0f);
+}
+
+inline nw4r::math::MTX34 Mult(const nw4r::math::MTX34& rA, const nw4r::math::MTX34& rB) {
+    nw4r::math::MTX34 result;
+    nw4r::math::MTX34Mult(&result, &rA, &rB);
+    return result;
+}
+
 }
 
 bool CEffect::Create(BWorld* pWorld, const Param& rParam, BWorldObj* pFollow) {
@@ -401,6 +782,13 @@ bool CEffect::Create(BWorld* pWorld, const Param& rParam, BWorldObj* pFollow) {
     }
     mFlags |= FLAG_LOCAL_MTX;
     SetRotation(RandReal(0.0f, 360.0f));
+    return Create(pWorld, rParam);
+}
+
+bool CEffect::Create(BWorld* pWorld, const Param& rParam, const nw4r::math::VEC3& rPosition, f32 rotation) {
+    mPosition = rPosition;
+    mFlags |= FLAG_LOCAL_MTX;
+    SetRotation(rotation);
     return Create(pWorld, rParam);
 }
 
@@ -457,3 +845,150 @@ void CEffect::Finalize(BOOL retireParticles) {
 }
 
 void CEffect::Calc() {}
+
+void CEffect::CalcMtx() {
+    if (!mEffect.IsAlive()) {
+        Finalize(FALSE);
+        return;
+    }
+
+    f32 rotation = 0.0f;
+    if (std::tr1::shared_ptr<BWorldObj> pFollow = Lock(mFollow)) {
+        BModelObj* pModelObj = DynamicCast<BModelObj>(pFollow.get());
+        if (pModelObj != nullptr && pModelObj->GetModel()) {
+            u32 nodeID = 0xFFFFFFFF;
+            nw4r::g3d::ScnMdlSimple* pScnMdl =
+                static_cast<nw4r::g3d::ScnMdlSimple*>(pModelObj->GetModel()->GetScnObj());
+            if (mParam.mInfo->mNodeName != nullptr) {
+                nw4r::g3d::ResNode node = pScnMdl->GetResMdl().GetResNode(mParam.mInfo->mNodeName);
+                if (node.IsValid()) {
+                    nodeID = node.GetID();
+                }
+            }
+
+            if (nodeID == 0xFFFFFFFF) {
+                nw4r::math::MTX34 mtx;
+                pScnMdl->GetScnMtxPos(&mtx, nw4r::g3d::ScnObj::MTX_WORLD, 0);
+                nw4r::math::VEC3 position(0.0f, pModelObj->GetSize().y, 0.0f);
+                nw4r::math::VEC3Transform(&position, &mtx, &position);
+                mPosition = position;
+            } else {
+                nw4r::math::MTX34 mtx;
+                pScnMdl->GetScnMtxPos(&mtx, nw4r::g3d::ScnObj::MTX_WORLD, nodeID);
+                mPosition = nw4r::math::VEC3(mtx._03, mtx._13, mtx._23);
+            }
+        } else {
+            mPosition = pFollow->GetPositionRef();
+        }
+
+        mEffect.GetPtr()->SetFlagDisableDraw(!pFollow->IsVisible());
+        rotation = pFollow->GetRotation();
+    } else {
+        if (mFlags & FLAG_FOLLOW) {
+            Finalize(FALSE);
+            return;
+        }
+        mEffect.GetPtr()->SetFlagDisableDraw(false);
+    }
+
+    if (mFlags & FLAG_LOCAL_MTX) {
+        if (mFlags & FLAG_FOLLOW_ROTATION) {
+            mEffect.GetPtr()->SetRootMtx(Mult(Mult(MakeTranslationMtx(mPosition), MakeRotationMtx(rotation)), mLocalMtx));
+        } else {
+            mEffect.GetPtr()->SetRootMtx(Mult(MakeTranslationMtx(mPosition), mLocalMtx));
+        }
+    } else {
+        if (std::tr1::shared_ptr<BWorldObj> pTarget = Lock(mTarget)) {
+            BModelObj* pModelObj = DynamicCast<BModelObj>(pTarget.get());
+            if (pModelObj != nullptr && pModelObj->GetModel()) {
+                u32 nodeID = 0xFFFFFFFF;
+                nw4r::g3d::ScnMdlSimple* pScnMdl =
+                    static_cast<nw4r::g3d::ScnMdlSimple*>(pModelObj->GetModel()->GetScnObj());
+                if (mParam.mInfo->mTargetNodeName != nullptr) {
+                    nw4r::g3d::ResNode node = pScnMdl->GetResMdl().GetResNode(mParam.mInfo->mTargetNodeName);
+                    if (node.IsValid()) {
+                        nodeID = node.GetID();
+                    }
+                }
+
+                if (nodeID == 0xFFFFFFFF) {
+                    nw4r::math::MTX34 mtx;
+                    pScnMdl->GetScnMtxPos(&mtx, nw4r::g3d::ScnObj::MTX_WORLD, 0);
+                    nw4r::math::VEC3 position(0.0f, pModelObj->GetSize().y, 0.0f);
+                    nw4r::math::VEC3Transform(&position, &mtx, &position);
+                    mTargetPosition = position;
+                } else {
+                    nw4r::math::MTX34 mtx;
+                    pScnMdl->GetScnMtxPos(&mtx, nw4r::g3d::ScnObj::MTX_WORLD, nodeID);
+                    mTargetPosition = nw4r::math::VEC3(mtx._03, mtx._13, mtx._23);
+                }
+            } else {
+                mTargetPosition = pTarget->GetPositionRef();
+            }
+        } else if (mFlags & FLAG_TARGET) {
+            Finalize(FALSE);
+            return;
+        }
+
+        nw4r::math::VEC3 dir = mTargetPosition - mPosition;
+        f32 lenSq = nw4r::math::VEC3LenSq(&dir);
+        if (lenSq < 0.0001f) {
+            mLocalMtx = nw4r::math::MTX34(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+        } else {
+            dir = dir * nw4r::math::FrSqrt(lenSq);
+            nw4r::math::VEC3 side = Cross(nw4r::math::VEC3(0.0f, 1.0f, 0.0f), dir);
+            lenSq = nw4r::math::VEC3LenSq(&side);
+            if (0.0001f < lenSq) {
+                side = side * nw4r::math::FrSqrt(lenSq);
+                nw4r::math::VEC3 front = Cross(dir, side);
+                mLocalMtx = nw4r::math::MTX34(side.x, front.x, dir.x, 0.0f, side.y, front.y, dir.y, 0.0f, side.z,
+                                              front.z, dir.z, 0.0f);
+            } else {
+                mLocalMtx = nw4r::math::MTX34(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f);
+            }
+        }
+
+        mEffect.GetPtr()->SetRootMtx(Mult(MakeTranslationMtx(mPosition), mLocalMtx));
+    }
+
+    if (!mParam.mEnable) {
+        return;
+    }
+
+    switch (mParam.mInfo->mType) {
+    case TYPE_STOP_EMISSION: {
+        nw4r::ef::Emitter* pEmitter = mEffect.GetPtr()->GetFirstEmitter();
+        if (pEmitter == nullptr) {
+            mParam.mEnable = false;
+            break;
+        }
+
+        u32 tick = pEmitter->mTick;
+        if (mParam.mFrames.mLife <= tick) {
+            pEmitter->mParameter.mParams[0] = pEmitter->mParameter.mParams[4] = mParam.mFrames.mRadius;
+        } else {
+            pEmitter->mParameter.mParams[0] = pEmitter->mParameter.mParams[4] =
+                static_cast<f32>(tick) / mParam.mFrames.mLife * mParam.mFrames.mRadius;
+        }
+        break;
+    }
+    case TYPE_EXTEND_EMISSION: {
+        nw4r::ef::Emitter* pEmitter = mEffect.GetPtr()->GetFirstEmitter();
+        if (pEmitter == nullptr) {
+            mParam.mEnable = false;
+            break;
+        }
+
+        u32 index = pEmitter->mTick % 10;
+        f32 length = mParam.mFrames.mRadius * mParam.mFrames.mLife;
+        f32 sin;
+        f32 cos;
+        nw4r::math::SinCosRad(&sin, &cos, mParam.mFrames.mHeight * sExtendEmissionOffsets[index].x);
+        pEmitter->mParameter.mTranslate.x = (GetHandle() & 1) ? sin * length : -sin * length;
+        pEmitter->mParameter.mTranslate.y = sExtendEmissionOffsets[index].y;
+        pEmitter->mParameter.mTranslate.z = cos * length + (sExtendEmissionOffsets[index].z - 1.0f);
+        pEmitter->SetMtxDirty();
+        break;
+    }
+    }
+}
