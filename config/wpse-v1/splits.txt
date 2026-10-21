@@ -66,7 +66,7 @@ game/CColorBtnTagProc.cpp:
 	.text       start:0x8006C7B0 end:0x8006CE2C
 	.ctors      start:0x803529C4 end:0x803529C8
 	.data       start:0x8039A960 end:0x8039A9E8
-	.bss        start:0x803E6590 end:0x803E65EC
+	.bss        start:0x803E6580 end:0x803E65E0
 	.sdata      start:0x804B5C90 end:0x804B5CA0
 
 game/CDividedGround.cpp:
