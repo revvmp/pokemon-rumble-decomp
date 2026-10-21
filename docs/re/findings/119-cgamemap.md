@@ -125,3 +125,11 @@ GNU objdump 2.42 of `build/wpse-v1/main.elf`, Python scans of `extabindex`, vtab
 - **`cntlzw` after a bool test is `!x` stored into a bit field.** `GetStageNumber` writes `index.mMode = !IsBattleRoyalFirstPart(index)` and `index.mMap = (index.mMap - 1) % 2 + 1`; the `xor` and `subf` pair is the signed remainder.
 - **By-value `MapIndex` arguments live at two stack slots.** The by-value copy and the `const MapIndex&` temporary swap places with the order the temporaries are created; a named local declared early did not reproduce the target order.
 - **Another agent's unit may already have renamed a symbol you need.** `0x80125180` arrived as `IsStage7EvenMap` on a rebase; run `git pull --rebase` before renaming callees in `symbols.txt`.
+
+## F-119-6: current primary-header control
+
+The unchanged complete producer was rebuilt after the accepted primary string and memory contracts through PR1241. The original first-block comparison still has 21/23 functions at objdiff 100 percent. Actual `LoadStageResources` is 2,036 bytes with frame 0x1B0, versus native 2,276 bytes/frame 0x230; the destructor is 1,024 versus native 1,036, retaining the absent vtable store. These are diagnostic scores, not strict acceptance.
+
+A separate complete actual producer compiled successfully against the pinned original 2006 MSL headers and retains exactly those same two method sizes and stack frames. Commands, source, object, and measurements are preserved under `C:/MassStorage/GitHub/119-reference/`, including `119-primary-command.json` and `119-primary-method-context.json`. This rejects the current reconstructed standard-header implementation as a sufficient cause for the two residuals. No prior source-form controls were repeated, no source changed, and no unit was marked Matching.
+
+The native loader already calls the three outlined string addition overloads while inlining string assignment, destruction, and small file accessors. A separate factory inlining-policy result from another issue does not establish a policy change for this unit; none was adopted. Further work remains blocked on genuine source or compiler-context evidence.
