@@ -92,7 +92,7 @@ template <typename T> u32 SerializeVector(std::vector<T>& rVector, u8* pBuffer, 
 
     u32 digestIndex = 0;
     u8* pDigest;
-    for (typename std::vector<T>::iterator it = rVector.begin(); it != rVector.end(); ++it) {
+    for (T* it = rVector.begin().base(); it != rVector.end().base(); ++it) {
         u32 start = offset;
         offset = SerializeStruct(*it, sizeof(typename T::Data), pBuffer, offset, nullptr);
         if (pDigests != nullptr) {
