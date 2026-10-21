@@ -55,7 +55,7 @@ template <typename R, typename F> class function_imp<R (*)(), F, false, false> :
     typedef function_base<R (*)()> base;
 
 public:
-    explicit function_imp(const F& f) : f_(f) {}
+    explicit function_imp(F f) : f_(f) {}
     virtual base* clone() const { return new function_imp(*this); }
     virtual base* clone(void* pBuffer) const { return new (pBuffer) function_imp(*this); }
     virtual R operator()() { return f_(); }

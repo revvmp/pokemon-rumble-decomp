@@ -23,6 +23,10 @@ public:
     };
 
     CFiber() { Initialize(); }
+    CFiber(const std::tr1::function<void()>& rBody, u32 stackSize) throw() {
+        Initialize();
+        Start(rBody, stackSize);
+    }
 
     void Start(const std::tr1::function<void()>& rBody, u32 stackSize) throw();
     void Resume() throw();
