@@ -41,7 +41,7 @@ An ordinary outside Facility consumer derives a `0x110`-byte class with its own 
 
 The canonical Facility source and full class declaration reproduce all seven retained functions, 696 of 696 instruction bytes at 100% in objdiff. A fresh Matching link and frozen verification pass. The final ELF retains the exact original addresses, sizes and native instruction bytes; exact map columns select `CFacility.o`, and the source graph excludes its original fallback. All retained exception tables (196 bytes), exception index (36), data (280), small data (24) and allocated text (728) match the original. The native receipt is `C:/MassStorage/GitHub/115-reference/115-facility-source-audit.json`.
 
-The complete data boundary is `0x803A1878`, including the final terminator of the CItem RTTI base list. Ending at the earlier survey estimate `0x803A1874` bisects the original symbol. This complete native source link proves the actual extent without adding padding bytes. Together with CEnemyPii this reconstructs 12 of the original 26 functions and 1,732 of 4,932 instruction bytes. The 14-function CEnemyInfo unit remains.
+The source map identifies 276 bytes of data ending at `0x803A1874`, followed by four linker alignment bytes before the next unit at `0x803A1878`. The split extent includes that alignment because the original survey symbol includes it; the source introduces no padding array. Together with CEnemyPii this reconstructs 12 of the original 26 functions and 1,732 of 4,932 instruction bytes. The 14-function CEnemyInfo unit remains.
 
 ## F-115-6: Complete typed UI dependencies and native consumer
 
@@ -64,11 +64,21 @@ At head `819d1a8bca18b22c8b085324c12c4a218361071b`, the full current-source base
 
 The additive CLayout declarations overlap PR #1061, whose distinct change defines the one-name motion wrapper and its TU-local default pane. Those changes are preserved on rebase and rechecked in the native consumer; no outside source body or split is adopted. First-function owners #175 (personal data), #180 (texture), #209 (register wrapper), #329 (layout) and #55 (color constants) retain their implementation ownership.
 
+## F-115-8: Complete original issue source acceptance
+
+All original 26 functions and 4,932 instruction bytes are now reconstructed and source selected: CEnemyInfo 14/3,200, CEnemyPii 5/1,036, and CFacility 7/696. Each retained function has its original address, size, resolved native bytes and exact source-owner MAP row. All three source graph inputs exclude their original fallback objects. A fresh default link with `configure.py --map` and unchanged game flags passes the frozen DOL comparison.
+
+CEnemyInfo is an ordinary 0x118-byte IEnemyInfo implementation: embedded 0xE8 CLayout at 4, six pane pointers at 0xEC, frame counter at 0x104, flash flag at 0x108, shared CPiiTex at 0x10C, and collection flag at 0x114. IEnemyInfo inherits ICalcDraw and appends Show and Hide after the inherited destructor and calculation/draw slots. RTTI class spellings are original; descriptive method/member names remain inferred. The compiler synthesizes the native destructor and shared-pointer helpers.
+
+The independent canonical-object audit resolves all 14 instruction streams, ten retained exception records totaling 1,012 bytes, 61 referenced data objects and seven earlier weak helper bodies. Raw object metadata includes discarded earlier definitions; acceptance checks the actual linked native allocations instead. Allocated source text is 3,280 bytes, data payload 450, small data 152 and small constants 12. Six data and four constant alignment bytes complete the original split extents without source padding objects. Enemy and Facility retained data/EH/layout checks also pass.
+
+The final change adds only this owned source and its two private headers; no existing shared header contract changes. The prerequisite's same-base all-718-source consumer proof remains recorded in F-115-7. Immutable per-head final evidence is saved under `C:/MassStorage/GitHub/115-reference/accepted/<verified-head>/`, including the original REST issue inventory, source and original objects, exact-column MAP, ELF, DOL, source graph, native audit receipts and SHA-256 manifest. This completes the original issue without adopting neighboring #116 or dependency implementation ownership.
+
 ## Traps
 
 The 24-byte filename wrapper is not another virtual slot: the independently proved boss vtable already inherits the complete enemy virtual contract without that entry. Use its actual callers and generic loader target to establish the nonvirtual member interface.
 
-A prior neighboring finding described the Facility base-list end as `0x803A1874`; the actual complete symbol ends at `0x803A1878`. Confirm the complete RTTI terminator and source-selected native data extent before defining the split.
+Source payload and original split extent can differ by linker alignment. Facility has 276 source data bytes ending at `0x803A1874`, then four alignment bytes; CEnemyInfo has 450 source data bytes plus six alignment bytes, and twelve small-constant bytes plus four alignment bytes. Use exact source map columns rather than treating survey-symbol padding as RTTI payload.
 
 Inline virtual method definitions can retain separate identical literals even with canonical `-str reuse`. The native six flash_end strings, three end strings and three PII strings are reproduced by inline Show/Hide source, without changing compiler flags or inventing duplicate named arrays. The factory font-map lifetime belongs to an inlined Initialize method with a local font map; placing the same statements directly in the factory changes temporary order and register allocation. Texture replacement uses shared_ptr::reset; assigning a constructed shared_ptr adds ownership work absent from the original.
 
