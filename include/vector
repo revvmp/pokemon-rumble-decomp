@@ -209,6 +209,15 @@ public:
         }
     }
 
+    void resize(size_type n) {
+        size_type size = this->size_;
+        if (n > size) {
+            append(n - size);
+        } else if (n < size) {
+            erase_at_end(size - n);
+        }
+    }
+
     void push_back(const T& x) { push_back(x, pod_type()); }
     void pop_back() { pop_back(pod_type()); }
     void clear() { clear(pod_type()); }
@@ -403,6 +412,8 @@ protected:
         swap(buffer, pod_type());
     }
 
+    void append(size_type n) { append(n, pod_type()); }
+
     void append(size_type n, pod_type) {
         size_type capacity = this->capacity_.first();
         if (n <= capacity) {
@@ -490,14 +501,7 @@ public:
     vector(const vector& x) : base(x) {}
     ~vector() {}
 
-    void resize(size_type n) {
-        size_type size = this->size_;
-        if (n > size) {
-            this->append(n - size, pod_type());
-        } else if (n < size) {
-            this->erase_at_end(size - n);
-        }
-    }
+    void resize(size_type n) { base::resize(n); }
 
     using base::reserve;
 
