@@ -127,11 +127,7 @@ public:
     template <typename Y> explicit shared_ptr(const weak_ptr<Y>& r);
     template <typename Y>
     shared_ptr(const weak_ptr<Y>& r, typename Metrowerks::restrict_to<Metrowerks::is_convertible<Y*, T*>::value>::type*);
-    shared_ptr(const shared_ptr& r) : ptr_(r.ptr_), s_(r.s_) {
-        if (s_) {
-            s_->retain();
-        }
-    }
+    shared_ptr(const shared_ptr& r);
     template <typename Y>
     shared_ptr(const shared_ptr<Y>& r, typename Metrowerks::restrict_to<Metrowerks::is_convertible<Y*, T*>::value>::type* = nullptr) :
         ptr_(r.ptr_), s_(r.s_) {
@@ -141,25 +137,15 @@ public:
     }
     ~shared_ptr() throw();
 
-    shared_ptr& operator=(const shared_ptr& r) {
-        shared_ptr(r).swap(*this);
-        return *this;
-    }
+    shared_ptr& operator=(const shared_ptr& r);
     template <typename Y> shared_ptr& operator=(const shared_ptr<Y>& r) {
         shared_ptr(r).swap(*this);
         return *this;
     }
 
-    void swap(shared_ptr& r) {
-        void* temporary = const_cast<void*>(static_cast<const void*>(ptr_));
-        ptr_ = r.ptr_;
-        r.ptr_ = static_cast<element_type*>(temporary);
-        temporary = s_;
-        s_ = r.s_;
-        r.s_ = static_cast<detail::shared_ptr_deleter_common*>(temporary);
-    }
+    void swap(shared_ptr& r);
     void reset();
-    template <typename Y> void reset(Y* p) { shared_ptr(p).swap(*this); }
+    template <typename Y> void reset(Y* p);
     template <typename Y, typename D> void reset(Y* p, D d) { shared_ptr(p, d).swap(*this); }
 
     T* get() const { return ptr_; }
@@ -202,19 +188,11 @@ public:
         }
     }
     template <typename Y>
-    weak_ptr(const shared_ptr<Y>& r, typename Metrowerks::restrict_to<Metrowerks::is_convertible<Y*, T*>::value>::type* = nullptr) :
-        ptr_(r.ptr_), s_(r.s_) {
-        if (s_) {
-            s_->attach_weak();
-        }
-    }
+    weak_ptr(const shared_ptr<Y>& r, typename Metrowerks::restrict_to<Metrowerks::is_convertible<Y*, T*>::value>::type* = nullptr);
     ~weak_ptr();
 
     weak_ptr& operator=(const weak_ptr& r);
-    template <typename Y> weak_ptr& operator=(const shared_ptr<Y>& r) {
-        weak_ptr(r).swap(*this);
-        return *this;
-    }
+    template <typename Y> weak_ptr& operator=(const shared_ptr<Y>& r);
 
     void swap(weak_ptr& r) {
         T* p = ptr_;
@@ -280,9 +258,42 @@ template <typename T> void shared_ptr<T>::reset() {
     shared_ptr().swap(*this);
 }
 
+template <typename T> inline
+shared_ptr<T>::shared_ptr(const shared_ptr& r) : ptr_(r.ptr_), s_(r.s_) {
+    if (s_) {
+        s_->retain();
+    }
+}
+
 template <typename T> shared_ptr<T>::~shared_ptr() throw() {
     if (s_) {
         s_->release();
+    }
+}
+
+template <typename T>
+shared_ptr<T>& shared_ptr<T>::operator=(const shared_ptr& r) {
+    shared_ptr(r).swap(*this);
+    return *this;
+}
+
+template <typename T> inline
+void shared_ptr<T>::swap(shared_ptr& r) {
+    void* temporary = const_cast<void*>(static_cast<const void*>(ptr_));
+    ptr_ = r.ptr_;
+    r.ptr_ = static_cast<element_type*>(temporary);
+    temporary = s_;
+    s_ = r.s_;
+    r.s_ = static_cast<detail::shared_ptr_deleter_common*>(temporary);
+}
+
+template <typename T> template <typename Y>
+void shared_ptr<T>::reset(Y* p) { shared_ptr(p).swap(*this); }
+
+template <typename T> template <typename Y> inline
+weak_ptr<T>::weak_ptr(const shared_ptr<Y>& r, typename Metrowerks::restrict_to<Metrowerks::is_convertible<Y*, T*>::value>::type*) : ptr_(r.ptr_), s_(r.s_) {
+    if (s_) {
+        s_->attach_weak();
     }
 }
 
@@ -293,6 +304,12 @@ template <typename T> weak_ptr<T>::~weak_ptr() {
 }
 
 template <typename T> weak_ptr<T>& weak_ptr<T>::operator=(const weak_ptr& r) {
+    weak_ptr(r).swap(*this);
+    return *this;
+}
+
+template <typename T> template <typename Y>
+weak_ptr<T>& weak_ptr<T>::operator=(const shared_ptr<Y>& r) {
     weak_ptr(r).swap(*this);
     return *this;
 }
