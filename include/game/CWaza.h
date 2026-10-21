@@ -10,6 +10,8 @@ namespace NPpu { class CEnvironment; }
 
 class CWaza : public BWorldObj, public BSoundSource {
 public:
+    enum { TYPE = 0x10000 };
+    int GetWazaID() const { return mWazaID; }
     explicit CWaza(u32 type);
     using BWorldObj::SetPosition;
     virtual ~CWaza();
