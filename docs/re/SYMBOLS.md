@@ -3529,3 +3529,7 @@ Factory cleanup records establish native move_ptr<CUIManager> at8007DD50 and mov
 ## F-238: Unsigned-short vector constructor role
 
 [F-238-9](findings/238-script-game-bindings.md#f-238-9-primary-unsigned-short-vector-transformation) recovers the original Wii/1.1 scalar-container role for unsigned short: public `vector<unsigned short>` uses the transformed `__vec_constructor<unsigned short, Allocator, true>`, whose unchanged storage type is implemented by the distinct false backend. The twelve-byte storage and existing signed-short false backend remain unchanged. Actual `GetManyDefeatedPii` at `0x8013F9E0` proves the three nested cleanup guards and matches all 260 bytes, four calls, and exception bytes while retaining the canonical public copy/destructor declarations. Independent #270 and #152 native consumers provide additional controls for the recovered layer.
+
+### F-238-10: StageID packed word
+
+`StageID` retains four signed eight-bit fields in its existing four-byte extent. Its union member `s32 mValue` names the complete packed representation proven by the actual `MakeStageID` binding at `0x801402A0` and three getter bindings at `0x801400F0`, `0x80140180`, and `0x80140210`. The constructor zeroes the reserved low byte before inserting the three fields. `mValue` is descriptive; the existing field names and signed types are preserved. See [F-238-10](findings/238-script-game-bindings.md#f-238-10-packed-stageid-construction-and-strict-game-checkpoint).
