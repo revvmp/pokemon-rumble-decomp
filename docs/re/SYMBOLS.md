@@ -3517,3 +3517,6 @@ Native 800968D0 is a 116-byte position-transform wrapper (output VEC3 pointer, c
 | Scalar vector storage cleanups | setter EH and native 0x8007B2A0/0x800F44C0 | unsigned-short backend and signed-short public vector; full native code/targets and typed producer cleanup proof |
 
 See [F-270](findings/270-pii-property-bindings.md) for bounded header and consumer controls.
+## F-238: Tutorial and dialogue interface tails
+
+[F-238-6](findings/238-script-game-bindings.md#f-238-6-complete-tutorial-and-dialogue-interface-tails) completes three four-byte public interfaces without changing their inherited slots. `ITutorialMsg` appends `Clear()`, `Show(const wchar_t*)`, `Close()` at offsets `0x1C` through `0x24` (vtable `0x803AEE50`). `IDlgCollection` appends `bool IsShown()` and `bool Show(int)` at `0x24` and `0x28` (vtable `0x8039C220`). `IDlgInfo` appends `bool IsShown()`, `bool Show(int)`, `Clear()`, `SetTitle(int, const wchar_t*)`, `SetLine(int, unsigned int, const wchar_t*, const wchar_t*, const wchar_t*)`, and `SetText(int, unsigned int, const wchar_t*)` at `0x24` through `0x38` (vtable `0x8039D1F0`). Method names are descriptive inferences; concrete factory vtable stores, method bodies, and eleven strictly matched Game callers establish slot order and signatures.
