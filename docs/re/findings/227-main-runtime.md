@@ -26,7 +26,7 @@ The native font map is `std::map<std::string, std::tr1::shared_ptr<nw4r::ut::Fon
 
 The clone functions at `0x8012F850` and `0x8012F8A0` store vtable `0x803B52E0`, identifying the plain callback `void (*)(const CLayout::CInitializeException&)`. Its invocation at `0x8012F8E0` therefore returns void and tail-calls the stored pointer. It is distinct from the neighboring HBM callback returning bool, whose invocation normalizes the result.
 
-Consuming #228's outside bounded functional overlay reproduces eight additional original functions: the HBM callback constructor `0x8012E940`/76, HBM function-base destructor `0x8012E990`/64, zero-argument function-base destructor `0x8012EAA0`/64, layout-exception function-base destructor `0x8012EAE0`/64, HBM function destructor `0x8012F670`/160, and the layout-exception clones/invocation above at 76, 64, and 20 bytes. All 588 bytes compare exactly after resolving all 11 relocation sites, with no unresolved target. These diagnostics do not substitute for emission in the actual complete `main.cpp` producer or full frozen verification.
+Consuming #228's outside bounded functional overlay reproduced eight isolated callback bodies totaling 588 bytes, including all 11 relocation sites. The isolated diagnostic incorrectly associated the zero-argument function-base destructor with `0x8012EAA0`: identical destructor bytes did not establish specialization identity. The complete producer and original vtables below supersede that provisional association. These diagnostics do not substitute for emission in the actual complete `main.cpp` producer or full frozen verification.
 
 ## F-227-3: Main owner archive dependencies
 
@@ -38,8 +38,25 @@ The seven paths are `5:/pii_1-151_387-492.arc`, `5:/item.arc`, `5:/game2d.arc`, 
 
 `0x8012D3C0` appends one `const shared_ptr<CFileData>&` to a `FileList`, using a 16-byte list node with the shared owner at offset 8. There are no additional registration effects. The natural `rFiles.push_back(rFile)` producer reproduces its native 224-byte extent, allocation/deallocation targets, and eight-byte exception record. Two stores of a temporary allocation pointer at function offsets `0x44` and `0x48` exchange order; Wii/1.3 retains that difference. The diagnostic therefore establishes semantics and types but does not claim complete byte acceptance for this helper.
 
+## F-227-4: Complete combined producer audit
+
+The actual combined startup, session, runtime, and font producer emits all 25 original #227 functions without diagnostic retainers. A snapshot is identified by object SHA-256 `6f289fa2a7b0b42260b21f3bcf8bbf86ee53f7ce7592781c2f9831ed95688dbd`. Its independently audited results are 22 functions and 2,236 original code bytes exactly reproduced, including all 41 relocation sites in those functions. No retained function is missing.
+
+| Native function | Code remaining | Exception data remaining |
+| --- | --- | --- |
+| `0x8012EEB0`, ShouldRender | Native size 160; two prologue instructions exchange order | Exact 8 bytes |
+| `0x8012F080`, font-map insert_node_at | Native size 600; five differing words | Candidate 104 bytes versus original 96 |
+| `0x8012F2E0`, font-map destroy | Candidate 1,040 bytes versus original 912 | Candidate 104 bytes versus original 40 |
+
+The inventory has 20 exception records totaling 296 original bytes. Eighteen records and 160 bytes reproduce exactly; the two map records above remain unaccepted. The separate #225 append helper still has its two temporary-pointer store-order differences in the combined context, with its targets and exception record exact.
+
+Original virtual tables establish the three retained function-base destructors: HBM bool at `0x803B5888` points to `0x8012E990`; path-error callback at `0x803B54D0` points to `0x8012EAA0`; layout-exception callback at `0x803B5398` points to `0x8012EAE0`. The preceding `0x803B54C4` is a base-RTTI array, not the bound-main callback vtable. The bound-main callback vtable is `0x803B5548`, whose destructor is outside #227 at `0x801316C0`.
+
+The original entry-point exception record independently identifies the remaining destructor specializations: offsets `0x10C`, `0x11C`, and `0x12C` refer to the layout callback destructor `0x8012F710`, path callback destructor `0x8012F7B0`, and `ResourceFileConfig` destructor `0x8012EB20`. Candidate record relocations reproduce those original typed associations. This audit reports producer evidence, not complete issue acceptance or frozen-build verification.
+
 ## Traps
 
 - The source methods are inline in the original class context: individually exact out-of-line bodies alone do not reproduce physical function order. Preserve the native reverse-interface order in the complete producer.
 - Identify callback invocation types through the actual vtable and RTTI before interpreting a short indirect tail call; the exception callback and HBM bool callback have different return contracts.
 - Native font-map allocation is 32 bytes with value offset 12. Treating the allocator's value pointer as a node pointer would incorrectly suggest a 36-byte node.
+- Identical small destructor bodies do not identify a template specialization. Decode the original vtable's RTTI and confirm its start before associating an address; a base-RTTI array can precede the real vtable.
