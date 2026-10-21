@@ -44,6 +44,7 @@ public:
         bool IsFinished() const { return mState == 3 || mState == 2; }
         bool IsEnded() const { return mState == 3; }
         bool IsEnded(bool includeFinished) const { return includeFinished ? IsFinished() : IsEnded(); }
+        f32 GetFrame() const;
         void Wait();
 
     private:
@@ -63,6 +64,7 @@ public:
     void Load(const char* pArchive, const char* pLayoutName, const std::tr1::shared_ptr<FontMap>& rFonts, bool background);
     void Load(const char* const* pArchives, const char* pLayoutName, const std::tr1::shared_ptr<FontMap>& rFonts, bool background);
     nw4r::lyt::Pane* FindPane(const char* pName);
+    void CalculateMtx(bool recursive);
     void SetViewScale(const nw4r::math::VEC2& rScale);
     nw4r::math::VEC2 GetViewScale() const;
     void Render(const nw4r::math::VEC2& rSize);

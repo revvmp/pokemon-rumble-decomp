@@ -79,7 +79,7 @@ public:
     void AppendChild(Pane* pChild);
     void PrependChild(Pane* pChild);
     void RemoveChild(Pane* pChild);
-    ut::Rect GetPaneRect(const DrawInfo& rInfo) const;
+    ut::Rect GetPaneRect() const;
     void AddAnimationLink(AnimationLink* pLink);
     math::VEC2 GetVtxPos() const;
     const char* GetName() const { return mName; }
@@ -112,6 +112,7 @@ public:
     void SetSRTElement(u32 index, f32 value) {
         reinterpret_cast<f32*>(&mTranslate)[index] = value;
     }
+    const math::VEC3& GetTranslate() const { return mTranslate; }
     void SetTranslate(const math::VEC3& rTranslate) { mTranslate = rTranslate; }
     void SetName(const char* pName);
     void SetUserData(const char* pUserData);
