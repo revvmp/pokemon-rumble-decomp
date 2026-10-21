@@ -81,11 +81,11 @@ The complete outside producer now passes an independent strict audit of all32 re
 | 0x80070A30 | 36 | CFiber shared deleter dispose |
 | 0x80070A60 | 116 | move_ptr<CLayout> destructor |
 | 0x80070AE0 | 116 | move_ptr<CFiber> destructor |
-| 0x80070B60 | 64 | CLayout shared deleter destructor |
-| 0x80070BA0 | 64 | CFiber shared deleter destructor |
+| 0x80070B60 | 64 | CFiber shared deleter destructor |
+| 0x80070BA0 | 64 | CLayout shared deleter destructor |
 | 0x80070BE0 | 64 | Bound callback function_imp destructor |
 
-The two shared-deleter destructor identities follow the native CLayout and CFiber vtable destinations, superseding preliminary interface/base-destructor guesses. Native IDisconMsg RTTI points to its20-byte ancestor list at0x8039B418; that object is not a function_base vtable. The complete class's28-byte ancestor list at0x8039B3F0 contains ICalc, ICalcDraw and IDisconMsg at zero offset. Individual code and exception success still does not prove retained function/data ordering. The next acceptance step is the actual complete source-unit split and source-selected link, including native retained metadata and the frozen DOL; no completion is claimed from the standalone producer.
+The two shared-deleter destructor identities follow the native CLayout vtable's slot at0x8039B5C4 (0x80070BA0) and CFiber vtable's slot at0x8039B638 (0x80070B60), superseding preliminary interface/base-destructor guesses. An earlier individual-code receipt interchanged these two labels because the64-byte bodies and8-byte exception records are identical; the table and strict code map are corrected from the actual vtable destinations. Native IDisconMsg RTTI points to its20-byte ancestor list at0x8039B418; that object is not a function_base vtable. The complete class's28-byte ancestor list at0x8039B3F0 contains ICalc, ICalcDraw and IDisconMsg at zero offset. Individual code and exception success still does not prove retained function/data ordering. The next acceptance step is the actual complete source-unit split and source-selected link, including native retained metadata and the frozen DOL; no completion is claimed from the standalone producer.
 
 # F-58-5: default-pane motion-queue overload
 
