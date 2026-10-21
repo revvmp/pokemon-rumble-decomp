@@ -47,7 +47,7 @@ The type names come from RTTI strings. Their assignment to the five element shap
 
 | Address | Function | Match |
 | --- | --- | --- |
-| `0x8015EEB0` | `WriteBanner(int mode)`: builds the `NANDBanner` from `savebanner.arc` TPLs into `/tmp/banner.bin` (mode 1 writes only, 2 moves only) | 94.00% |
+| `0x8015EEB0` | `WriteBanner(int mode)`: builds the `NANDBanner` from `savebanner.arc` TPLs into `/tmp/banner.bin` (mode 1 writes only, 2 moves only) | 99.96% (only the relocation name of the `.data` base differs, F-276-4) |
 | `0x8015F9A0` | `list<shared_ptr<FileList>>` destructor | 100% |
 | `0x8015FA80` | `Save(int mode)` | 100% |
 | `0x801601A0` | `SerializeStruct<SaveData>` | 100% |
@@ -60,13 +60,23 @@ The type names come from RTTI strings. Their assignment to the five element shap
 
 Outside the unit, renamed for the link (descriptive, low unless stated): `ShowSystemMessage(const wchar_t*, bool)` `0x801E09B0`, the shared empty default text `gEmptyText` `.sdata` `0x804B5C48` (passed as the `GetMessageText` default in 49 files), `FormatString(const char*, ...)` `0x800721A0` (returns `std::string`, F-60), `LoadFileList` `0x80127CF0` and `LoadResourceFileList` `0x80072DD0` (return `shared_ptr<list<shared_ptr<CFileData>>>`; the list is created at `0x80128084`, and the wrapper ORs the flags with 0x2000), and the `shared_ptr_deleter<NANDBanner, void (*)(void*) throw()>` vtable `0x803B7878` (high: compiler name).
 
-## Remaining work
+## F-276-4: WriteBanner and the short-string address
 
-- `WriteBanner`: the inlined `list::push_back` keeps two node pointers and the end node in stack temporaries (`0x18`/`0x1C`, `0x30`/`0x34`) and stores an empty allocator byte before allocating, and the loop keeps the short-string data address of the temporary path in r27. Both come from MSL `list` and `basic_string` internals that the repository headers do not reproduce (#327, #328); the rest of the function matches except the registers that follow from them.
-- The object also emits the base destructors of that list type and the `std::string` destructor, which the original file does not contain; the unit stays `NonMatching` until #277 to #279 are done and those are resolved.
+The remaining difference of `WriteBanner` (the hoisted address of the temporary path's inline buffer and the registers that followed from it) came from `std::basic_string::data()`. The original computes the short-string pointer as the object address plus one character (`reinterpret_cast<const charT*>(&rep_) + 1`), not as the address of the `rep_.s.data_` array member; CodeWarrior then treats it as a loop-invariant address and hoists it out of the `icon%02d` loop, keeping it in a callee-saved register. `include/string` now uses that form. Three functions improve with it and none regress (objdiff before and after on all units): `WriteBanner` 98.5% to 99.96%, `CSimpleText::Init` in `CNoticeDisplay.cpp` 99.49% to 99.85% and `ScriptBinding_String` 74.2% to 80.2%. Three source changes in `WriteBanner` complete the match:
+
+- the title and subtitle texts are fetched right to left before the call, which loads `banner.get()` last as the original does (a local pair, or an inline `InitBanner` wrapper that takes the three arguments in one call; the wrapper reproduces the register choice);
+- `written` holds the `WaitNandWrite` result before the compare with `size`;
+- `SetBannerIconSpeed` writes `(speed << shift) | (iconSpeed & ~(3 << shift))`, which swaps the temporaries the original uses.
+
+All 24 functions of #276 now match in objdiff; `WriteBanner` differs from the original only in the symbol name of its `.data` base relocation (`sVectorTypes__8SlotData` against the object-local label), which follows from the functions of #277 to #279 that are not reconstructed.
+
+The object still emits the base destructors of the list type and the `std::string` destructor, which the original file does not contain; the unit stays `NonMatching` until #277 to #279 are done.
 
 ## Traps
 
+- **The short-string pointer is `this + 1`, not an array-member address.** A `basic_string::data()` that returns `rep_.s.data_` computes the buffer address inside the conditional arm; CodeWarrior hoists only the `(char*)&rep_ + 1` form out of loops. Several other game functions show the same hoist, so check this header before chasing register differences around `FormatString(...).c_str()` in loops.
+- **Argument evaluation order follows the order of inline accessors.** `NANDInitBanner(banner.get(), ..., GetMessageText(1), GetMessageText(0x600D3))` loads `banner.get()` first; fetching the texts into locals before the call, or calling through an inline wrapper, loads it last as in the original.
+- **`sed -i` and scripted writes can rewrite `splits.txt`.** `ninja` regenerates `config/wpse-v1/splits.txt`; run `git checkout config/wpse-v1/splits.txt` before committing.
 - **String literal and jump table relocations match only at the original data offsets.** `Save` and the serializers scored below 100% until `WriteBanner`, which owns the first literals of `.data`, existed; then every literal and jump table landed at its original offset and objdiff paired them. A missing earlier function can make later relocation-only rows look wrong.
 - **A small out-of-line callee is inlined into its only caller.** A placeholder `WriteBanner` was inlined into `Save` and switched `Save` to base-register addressing of `.data`.
 - **Locals declared before a loop take higher registers.** `SerializeVector` and the `Save` scramble loop matched only with the digest pointer and the block pointers declared ahead of the loop, as the author's style suggests.
