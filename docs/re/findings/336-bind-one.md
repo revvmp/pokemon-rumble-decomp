@@ -12,12 +12,14 @@ The implementation adds a two-element tuple, first placeholder, member-one adapt
 
 ## Current consumer controls
 
-Baseline is 0b86a452 plus documentation-only issue commits. Actual all_source builds before and after the change contain718 objects:714 are whole-object byte-identical; CMsgBalloon, CFiber, pad and sound differ only in numeric local symbol names. All other sections, raw relocations, exception data and normalized symbol attributes remain identical. No fallback-only default build was substituted for this control.
+Baseline was independently refreshed on fbab3bbc36 after the initial0b86a452 control. Actual all_source builds before and after the change contain718 objects:714 are whole-object byte-identical; CMsgBalloon, CFiber, pad and sound differ only in numeric local symbol names. All other sections, raw relocations, exception data and normalized symbol attributes remain identical. No fallback-only default build was substituted for this control.
 
-Outside evidence is retained in C:/MassStorage/GitHub/336-reference: 336-binding-clean-probe.cpp/.o, 336-binding-native-proof.json, 336-binding-data-proof.json and 336-bind-candidate-build.log. The immutable before-manifest and after-result are in C:/MassStorage/GitHub/329-reference/336-binding-sections-before.json and336-binding-control-result.json. Auditors are C:/MassStorage/GitHub/336-audit-binding.py and336-audit-binding-data.py.
+Outside evidence is retained in C:/MassStorage/GitHub/336-reference: 336-binding-clean-probe.cpp/.o, 336-binding-native-proof.json, 336-binding-data-proof.json and 336-bind-candidate-build.log. The immutable before-manifest and after-result are in C:/MassStorage/GitHub/329-reference/336-binding-fbab-sections-before.json and336-binding-fbab-control-result.json. Auditors are C:/MassStorage/GitHub/336-audit-binding.py and336-audit-binding-data.py.
 
 ## Traps
 
 A static placeholder definition emitted an unreferenced byte in every consumer. The declaration-only placeholder removes this unintended storage. Passing the borrowed argument tuple by reference removed a native argument spill; the by-value borrowed view reproduces the actual lifetime and six complete native bodies without extra operations or forced code.
 
 Native is_null at8007CC20 is byte-identical to80070700, but the complete CUIList caller destination is not yet proven. The array Load candidate remains rejected at2824 versus2996 native bytes; the840-byte destructor remains rejected with22 differing words. No complete caller acceptance follows from the helper proof.
+
+Official land dry-run rebased onto fbab3bbc36 and verified d420dcd6e7adfc465110a7537dfef7219df6ac8b: configure0, ninja0, frozen verify0, exact main.dol. It then stopped because the draft PR had not yet been opened; no merge was attempted.
