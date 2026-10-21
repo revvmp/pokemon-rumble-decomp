@@ -80,8 +80,8 @@ Every object in the table derives `ICalcDraw`: `Calc`, `CalcMtx`, `CalcView` and
 | `0x800A8020` | `0x1D4` | `CGameMap::CalcMtx()` | 100% |
 | `0x800A8200` | `0x1E0` | `CGameMap::CalcView()` | 100% |
 | `0x800A83E0` | `0x1CC` | `CGameMap::Draw()` | 100% |
-| `0x800A85B0` | `0xC4` | `GetStageNumber(MapDesc*)` | 99.9%: the two stack temporaries swap slots |
-| `0x800A8680` | `0x58C` | `CGameMap::Initialize()` | 95.2%: the target stores the save-slot area and mode through sign-extended bytes |
+| `0x800A85B0` | `0xC4` | `GetStageNumber(MapDesc*)` | 100% |
+| `0x800A8680` | `0x58C` | `CGameMap::Initialize()` | 100% |
 | `0x800A8C10` | `0x8` | `shared_ptr<BWorld>::get() const` | 100% |
 | `0x800A8C20` | `0x28` | `shared_ptr<BWorldObj>` converting constructor from `shared_ptr<CDividedGround>` | 100% |
 | `0x800A8C50` | `0xDC` | `shared_ptr<CDividedGround>::shared_ptr(CDividedGround*)` | 100% |
@@ -91,7 +91,7 @@ Every object in the table derives `ICalcDraw`: `Calc`, `CalcMtx`, `CalcView` and
 | `0x800A8FC0` | `0x10` | `shared_ptr<CShadowCamera>::shared_ptr()` | 100% |
 | `0x800A8FD0` | `0x8` | `shared_ptr<CShadowCamera>::operator*() const` | 100% |
 | `0x800A8FE0` | `0x8` | `shared_ptr<CDividedGround>::operator*() const` | 100% |
-| `0x800A8FF0` | `0x8E4` | `CGameMap::LoadStageResources()` | Not reconstructed (F-119-5) |
+| `0x800A8FF0` | `0x8E4` | `CGameMap::LoadStageResources()` | 85%: same calls and control flow, different stack slots (F-119-5) |
 
 Also at 100% outside the block, because the constructor, `Initialize` and the factory emit them: `IGameMap::Create` (`0x800AA140`, builds the object and calls `Initialize`) and the `shared_ptr<I...>::operator=` and destructor pairs of the 19 member types between `0x800AA6D0` and `0x800ABBB0`, renamed from `fn_` and `dtor_`. #120 to #122 own the rest.
 
@@ -109,9 +109,9 @@ Also at 100% outside the block, because the constructor, `Initialize` and the fa
 
 ## F-119-5: what blocks the rest
 
-- **`LoadStageResources` (`0x800A8FF0`, `0x8E4` bytes).** It builds the world, rank and `%02d` strings with `FormatString` and the `std::string` `operator+` and `replace` instances `0x80072830`, `0x80072910`, `0x8006DCA0` and `0x80067F70`, loads `5:/stage/<world>/<nn>.arc/stage.brres` and `<world>/common.arc/stage.brres` through `LoadFile` and `LoadResourceFile`, looks up `light...` scene animations with `ResFile::GetResAnmScn` and passes the hit to `0x8005EB70` and `CShadowCamera::SelectLight`. It needs `GetResAnmScn` and `0x8005EB70` declared first, and the string locals' stack order matched. Not started beyond this reading.
+- **`LoadStageResources` (`0x800A8FF0`, `0x8E4` bytes) stack layout.** The reconstruction makes the same calls in the same order (world and rank names from `gStageWorlds[mStage]` and `gStageRanks[mArea]`, `FormatString("%02d")`, three `light...` names, `LoadFile` of `5:/stage/<world>/<nn>.arc/stage.brres`, then `LoadResourceFile` of `<world>/common.arc/stage.brres`, `ResFile::GetResAnmScn`, `BWorld::LoadLightScene` `0x8005EB70`, `CShadowCamera::SelectLight`) and matches 85%. The target allocates ten distinct 12-byte slots for the `operator+` temporaries (frame `0x230`, saves `r23`-`r31`); the rebuild shares slots between statements (frame `0x1A0`, saves `r24`-`r31`). Naming the intermediate strings, nesting them in blocks, binding references to `world` and `rank`, and building the path inside the call did not change the frame. `lights[i].assign(...)` is required: `operator=` produces a different copy.
 - **`~CGameMap` vtable store.** Making the destructor explicit, out-of-line, `inline`, or calling a virtual in its body did not make CodeWarrior store the vtable pointer first. `CGameEnding`'s destructor shows the same inlined base destructors without the store, so the trigger is something specific to `CGameMap`; the remaining difference is three instructions.
-- **`Initialize` area and mode stores.** The target extends the sign of the bit-field bytes before `stb` to `mFlags[2]`, `mFlags[3]`, `mStatus[26]` and `mStatus[27]` of the save slot; `(s8)` casts and `s8` locals are folded away by the `u8` destination. A `char`-typed field in `SaveData.h` may be the real declaration.
+- **`Initialize` and the save slot.** The stores to `SlotData` `+0x16`, `+0x17`, `+0x12FA` and `+0x12FB` only match when the destination bytes are signed: `SlotData::Data::mFlags` is `s8[4]` and the two bytes after `mLeadPiiMonsno` (the padding before `mLeadPiiIdLow`) are `s8 mLastArea[2]`, indexed by mode 0 and 1. A `switch (mode)` reproduces the branch layout. The type change of `mFlags` leaves every other unit's objdiff counts and the DOL verification unchanged.
 - **Slots 31-42 and the rest of the class** (`Hitstop`, `AddTimer`, `RunAction`, the dialog stack, `DisappearModelObjs`, `AppearModelObjs`) are declared in `CGameMap.cpp` but defined by #120 to #122. `AddTimer` needs slot 7 of `IBattleRoyalDisplay`, whose three own virtuals are unnamed.
 
 ## Method

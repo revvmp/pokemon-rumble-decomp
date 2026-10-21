@@ -1,4 +1,5 @@
 #include <game/CDividedGround.h>
+#include <game/CFileData.h>
 #include <game/CEnemyInfo.h>
 #include <game/IGameMap.h>
 
@@ -27,6 +28,10 @@
 #include <game/MapDesc.h>
 #include <game/NPpuVM.h>
 #include <game/SaveData.h>
+#include <game/StageID.h>
+#include <game/StringFormat.h>
+#include <nw4r/g3d/res/g3d_resfile.h>
+#include <string>
 #include <game/CNoticeDisplay.h>
 #include <game/CMsgBalloon.h>
 #include <memory>
@@ -133,20 +138,54 @@ private:
     std::tr1::shared_ptr<INumericInput> mNumericInput;
 };
 
+void CGameMap::LoadStageResources()
+{
+    MapDesc* pDesc = mParam.mMapDesc;
+    int stageNo = pDesc->mParams.GetValue(0).ToInt();
+    std::string world = gStageWorlds[pDesc->mIndex.mStage].mName;
+    std::string rank = gStageRanks[pDesc->mIndex.mArea].mName;
+    std::string number = FormatString("%02d", stageNo);
+    std::string lights[3];
+    if (pDesc->mIndex.mMode == 2) {
+        rank = "EX";
+    }
+    lights[0].assign("light" + rank + number);
+    lights[1].assign("light" + rank);
+    lights[2].assign("light" + number);
+    std::tr1::shared_ptr<CFileData> file = LoadFile(("5:/stage/" + world + "/" + number + ".arc/stage.brres").c_str(), 0, true);
+    for (int i = 0; i < 2; i++) {
+        if (file && file->IsLoaded()) {
+            for (int j = 0; j < 3; j++) {
+                if (lights[j].size() != 0) {
+                    nw4r::g3d::ResAnmScn scene = nw4r::g3d::ResFile(file->GetData()).GetResAnmScn(lights[j].c_str());
+                    if (scene.IsValid()) {
+                        mWorld->LoadLightScene(file->GetPath().c_str(), lights[j].c_str(), true);
+                        mWorld->GetShadowCamera()->SelectLight();
+                        return;
+                    }
+                }
+            }
+        }
+        file = LoadResourceFile(("5:/stage/" + world + "/common.arc/stage.brres").c_str(), 0, true);
+    }
+    mWorld->GetShadowCamera()->SelectLight();
+}
+
 void CGameMap::Initialize()
 {
     if (GetSaveData(-1)) {
         MapIndex index = mParam.mMapDesc->mIndex;
         int area = index.mArea;
-        s8 areaByte = area;
-        GetSaveData(-1)->mData.mFlags[2] = areaByte;
+        GetSaveData(-1)->mData.mFlags[2] = area;
         int mode = index.mMode;
-        s8 modeByte = mode;
-        GetSaveData(-1)->mData.mFlags[3] = modeByte;
-        if (mode == 0) {
-            GetSaveData(-1)->mData.mStatus[26] = areaByte;
-        } else if (mode == 1) {
-            GetSaveData(-1)->mData.mStatus[27] = areaByte;
+        GetSaveData(-1)->mData.mFlags[3] = mode;
+        switch (mode) {
+        case 0:
+            GetSaveData(-1)->mData.mLastArea[0] = area;
+            break;
+        case 1:
+            GetSaveData(-1)->mData.mLastArea[1] = area;
+            break;
         }
     }
     BWorld::Desc worldDesc;
