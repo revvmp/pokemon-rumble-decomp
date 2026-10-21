@@ -40,3 +40,11 @@ Baseline and candidate `python configure.py`, plain `.venv/Scripts/ninja`, and t
 
 - **A higher fuzzy score still needs an instruction-word comparison.** The table-base candidate improves the fuzzy score substantially but fixes only three instruction words and no complete function. Resolve relocation operands independently and keep register fields in the comparison before describing progress.
 - **A cached read-only table base can recover a saved register without resolving the loop graph.** For this function it recovers `r31` and the native prologue table loads, but the overflow constants and temporary colors remain wrong. Do not mark the unit Matching from that local result.
+
+## Current-main continuation controls
+
+A fresh continuation on current main independently reproduces the same nine exact functions, all22 resolved relocation sites and complete nine-byte table. The checked writer retains exactly23 instruction-word differences in its loop; its size and remaining instruction stream are unchanged. The established compiler options remain unchanged.
+
+Returning the written byte from the existing inline WriteByte and consuming it in the loop does not recover the remaining graph: signed or unsigned32-bit forms preserve nine exact functions and the same23 differences; an eight-bit return adds a truncation and grows the checked routine to436 bytes. A shared checked/unchecked bit-writer body with an inline byte-output policy, evaluated with the recovered loop table pointer present, regresses the fast routine by13 words and the checked routine by47. These are outside diagnostic candidates only; no source or flag change is retained. Raw commands and results are preserved under `763-reference/763-return-byte-results.json` and the issue-specific shared-policy candidates.
+
+The remaining work needs evidence for the original checked-writer source/inline lifetime structure. Current public-reference and native evidence establish the algorithm and instruction layout but do not identify that structure uniquely. Preserve the nine proven functions and the complete native table; do not substitute fixed registers, volatile state, guessed compiler flags or instruction bytes to close this gap.
