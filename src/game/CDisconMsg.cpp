@@ -22,7 +22,7 @@ void CDisconMsg::CalcMtx() {
 void CDisconMsg::Calc() {
     if (!mFiber) {
         if (GetControllerDisconnectState() && CanShow()) {
-            mFiber.reset(new CFiber(std::tr1::bind(&CDisconMsg::Run, this), 0x8000));
+            mFiber.reset(new CFiber("CDisconMsg", std::tr1::bind(&CDisconMsg::Run, this), 0x8000));
         }
     } else {
         mFiber->Resume();
