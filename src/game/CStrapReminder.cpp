@@ -14,11 +14,6 @@ inline void WaitForButton(int frames) {
         YieldFiber();
     }
 }
-std::tr1::shared_ptr<IStrapReminder> CStrapReminder::Create(bool background) {
-    std::tr1::shared_ptr<CStrapReminder> reminder(new CStrapReminder);
-    reminder->Initialize(background);
-    return reminder;
-}
 inline void CStrapReminder::Draw() {
     mLayout.Draw();
 }
@@ -52,4 +47,9 @@ inline void CStrapReminder::Initialize(bool background) {
     std::tr1::shared_ptr<FileList> files = LoadFileList(reinterpret_cast<void**>(&pArchives), "title2d.arc", 0, background, nullptr);
     mLayout.Load(pArchives, "wii_remote", std::tr1::shared_ptr<CLayout::FontMap>(), background);
     mFiber.Start(std::tr1::bind(&CStrapReminder::Run, this), 0x8000);
+}
+std::tr1::shared_ptr<IStrapReminder> CStrapReminder::Create(bool background) {
+    std::tr1::shared_ptr<CStrapReminder> reminder(new CStrapReminder);
+    reminder->Initialize(background);
+    return reminder;
 }

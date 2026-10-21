@@ -273,7 +273,7 @@ config.libs = [
             Object(NonMatching, "game/MapPiiTable.cpp"),
             Object(NonMatching, "game/CSaveManager.cpp"),
             Object(Matching, "game/CStageCamera.cpp"),
-            Object(NonMatching, "game/CStrapReminder.cpp"),
+            Object(Matching, "game/CStrapReminder.cpp"),
             Object(NonMatching, "game/CTextWorldObjStat.cpp"),
             Object(NonMatching, "game/ScriptCamera.cpp"),
             Object(NonMatching, "game/ScriptItem.cpp"),
