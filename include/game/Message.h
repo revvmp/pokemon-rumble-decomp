@@ -48,7 +48,7 @@ enum TimeFormatFlags {
 };
 
 void InitMsgResList(u32 num);
-void SetMsgRes(int group, const std::tr1::shared_ptr<CMsgRes>& rMsgRes);
+void SetMsgRes(int group, std::tr1::shared_ptr<CMsgRes> messages);
 const wchar_t* GetMessageText(int id, const wchar_t* pDefault);
 inline const wchar_t* GetMessageString(int id, const wchar_t* pFallback) {
     return GetMessageText(id, gEmptyText);
