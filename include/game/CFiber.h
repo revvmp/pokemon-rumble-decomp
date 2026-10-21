@@ -23,7 +23,7 @@ public:
     };
 
     CFiber() throw() { Initialize(); }
-    CFiber(const std::tr1::function<void()>& rBody, u32 stackSize) throw() {
+    CFiber(const char* pName, const std::tr1::function<void()>& rBody, u32 stackSize) throw() {
         Initialize();
         Start(rBody, stackSize);
     }
