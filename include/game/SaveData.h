@@ -145,7 +145,11 @@ public:
         };
         u32 mLeadPiiIdHigh;
         u16 mLeadPiiMonsno;
+<<<<<<< HEAD
         s8 mLastArea[2];
+=======
+        s8 mDifficultyLevel[2];
+>>>>>>> 9afa9c8f (Game: split CTitleSession.cpp and reconstruct its functions (part of #212))
         u32 mLeadPiiIdLow;
     };
 

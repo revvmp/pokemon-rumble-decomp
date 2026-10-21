@@ -17,7 +17,11 @@ public:
     ~basic_formatter();
 
     basic_formatter& operator%(const int& rArg);
+<<<<<<< HEAD
     basic_formatter& operator%(const unsigned long& rArg);
+=======
+    basic_formatter& operator%(const charT* pArg);
+>>>>>>> 9afa9c8f (Game: split CTitleSession.cpp and reconstruct its functions (part of #212))
 
     basic_formatter& format(const charT* pSpec) {
         mSpec = pSpec;

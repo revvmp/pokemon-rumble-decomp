@@ -90,6 +90,7 @@ public:
 
     std::tr1::shared_ptr<CMotionProgram> AppendMotion(const char* pName) { return AppendMotion(pName, spDefaultMotionPane, 0.0f, 1.0f); }
     std::tr1::shared_ptr<CMotionProgram> AppendMotion(const char* pName, nw4r::lyt::Pane* pTarget, f32 startFrame, f32 rate);
+    std::tr1::shared_ptr<CMotionProgram> AppendMotion(const char* pName, const char* pPaneName, f32 startFrame, f32 rate);
     void SetVisible(nw4r::lyt::Pane* pPane, bool visible);
     bool SetTexture(const char* pName, const nw4r::lyt::TexMap& rTexture, int index);
     bool SetTexture(nw4r::lyt::Pane* pPane, const nw4r::lyt::TexMap& rTexture, int index);
