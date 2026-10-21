@@ -122,10 +122,8 @@ public:
         return replace(0, size(), first, last, forward_iterator_tag());
     }
 
-    basic_string& append(const charT* s) {
-        size_type pos = size();
-        return replace(pos, 0, s, s + traits::length(s), forward_iterator_tag());
-    }
+    basic_string& append(const charT* s);
+    basic_string& replace(size_type pos, size_type count, const charT* s);
 
     basic_string& append(const basic_string& str) {
         size_type pos = size();
@@ -249,6 +247,16 @@ private:
     allocator_type& alloc() { return r_.second(); }
     const allocator_type& alloc() const { return r_.second(); }
 };
+
+template <class charT, class traits, class Allocator>
+basic_string<charT, traits, Allocator>& basic_string<charT, traits, Allocator>::append(const charT* s) {
+    return replace(size(), 0, s);
+}
+
+template <class charT, class traits, class Allocator>
+basic_string<charT, traits, Allocator>& basic_string<charT, traits, Allocator>::replace(size_type pos, size_type count, const charT* s) {
+    return replace(pos, count, s, s + traits::length(s), forward_iterator_tag());
+}
 
 template <class charT, class traits, class Allocator>
 basic_string<charT, traits, Allocator> operator+(const basic_string<charT, traits, Allocator>& lhs,

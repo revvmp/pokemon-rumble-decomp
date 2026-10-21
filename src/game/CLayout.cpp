@@ -47,15 +47,15 @@ nw4r::math::VEC2 GetDefaultPixelScale() {
 
 std::string get_what(int error, const char* pArchive, const char* pLayoutName, const std::tr1::shared_ptr<CLayout::FontMap>& rFonts) {
     std::string what;
-    what.append("CLayout.cpp: in ");
-    what.append(__FUNCTION__);
+    what += "CLayout.cpp: in ";
+    what += __FUNCTION__;
     return what;
 }
 
 std::string get_what() {
     std::string what;
-    what.append("CLayout.cpp: in ");
-    what.append(__FUNCTION__);
+    what += "CLayout.cpp: in ";
+    what += __FUNCTION__;
     return what;
 }
 
