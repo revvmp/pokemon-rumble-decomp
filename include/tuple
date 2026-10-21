@@ -7,7 +7,7 @@ template<class T0 = nat, class T1 = nat, class T2 = nat, class T3 = nat, class T
 namespace detail { template<int Index> struct tuple_get; }
 template<class T0> class tuple<T0, nat, nat, nat, nat, nat, nat, nat, nat, nat> {
 public:
-    explicit tuple(const T0& rValue) : mValue(rValue) {}
+    explicit tuple(T0 rValue) : mValue(rValue) {}
 private:
     friend struct detail::tuple_get<0>;
     T0 mValue;
