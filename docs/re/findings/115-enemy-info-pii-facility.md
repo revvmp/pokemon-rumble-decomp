@@ -23,6 +23,12 @@ The additive declarations name the generic loader `CPii::LoadScript(const char*,
 
 An outside ordinary C++ enemy implementation compiled with the unchanged canonical game flags resolves all five retained instruction streams (168, 88, 748, 24 and 8 bytes) and the complete 144-byte vtable byte-for-byte against the frozen-verified executable. The proof is retained in `C:/MassStorage/GitHub/115-reference/115-enemy-contract-proof.json`. All 18 currently source-selected game consumers have identical allocated sections and normalized relocation contracts when compiled with the previous declarations versus the additive headers. The pinned comparison base is `c7c1d0daf7f9825bd98f00bd9f6c1c83a39aa026`; the receipt is `115-prereq-current-controls/proof.json`. This prerequisite retains the original-only split and claims no source completion.
 
+## F-115-3: Complete enemy source acceptance
+
+The canonical source reconstructs the constructor, destructor, HP-bar and minimap initialization, and typed script-loader wrapper. The compiler emits the secondary-base destructor thunk. All five retained functions are 100% in objdiff: 1,036 of 1,036 instruction bytes. The earlier canonical boss unit supplies shared inline/deleter definitions, so raw source-object metadata includes legitimate duplicate definitions discarded at link. No duplicated helper or metadata is counted as new source coverage.
+
+With the enemy selected as `Matching`, Ninja exits 0 and the full frozen DOL verifies. The final ELF preserves each original function address, size and exact native bytes, and the map assigns all five to `CEnemyPii.o`. The complete retained exception tables (480 bytes), exception index (36), data (176), and 1,064-byte allocated text extent match the frozen original. The link graph contains the source object and excludes the original enemy fallback. The independent receipt is `C:/MassStorage/GitHub/115-reference/115-enemy-source-audit.json`. This completes five of the issue's original 26 functions; CEnemyInfo and CFacility remain.
+
 ## Traps
 
 The 24-byte filename wrapper is not another virtual slot: the independently proved boss vtable already inherits the complete enemy virtual contract without that entry. Use its actual callers and generic loader target to establish the nonvirtual member interface.
