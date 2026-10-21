@@ -12,6 +12,8 @@
     #ifdef __cplusplus
     }
     #endif
+#else
+    typedef int wint_t;
 #endif
 
 #endif

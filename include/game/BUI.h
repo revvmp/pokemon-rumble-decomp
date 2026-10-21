@@ -8,6 +8,7 @@
 #include <memory>
 
 class CUIManager;
+class CUICallbackLists;
 
 class BUI : public ICalcDraw, public std::tr1::enable_shared_from_this<BUI> {
 public:
@@ -28,8 +29,11 @@ public:
 
     bool AddChild(const Child& rChild);
     bool RemoveChild(const Child& rChild);
+    void SetVisible(bool visible);
 
 private:
+    friend class CUICallbackLists;
+
     class CCallbackListOwner {
     public:
         explicit CCallbackListOwner(CallbackList* pList = nullptr) : mpList(pList) {}

@@ -17,6 +17,14 @@ public:
     virtual void OpenYesNo(const wchar_t* pText) = 0;
     virtual bool IsYesNoClosed() = 0;
     virtual bool IsYesSelected() = 0;
+    virtual void SetOption(int index, const wchar_t* pLabel, const wchar_t* pText) = 0;
+    virtual void SetDefaultOption(int index) = 0;
+    virtual void OpenOptions(int index) = 0;
+    virtual bool IsOptionsClosed() = 0;
+    virtual int GetSelectedOption() = 0;
+    virtual void OpenFootnote(const wchar_t* pText) = 0;
+    virtual void BeginClose() = 0;
+    virtual bool IsClosed() = 0;
 
     bool AskYesNo(const wchar_t* pText) {
         OpenYesNo(pText);
@@ -24,6 +32,12 @@ public:
             YieldFiber();
         }
         return IsYesSelected();
+    }
+
+    void WaitUntilClosed() {
+        while (!IsClosed()) {
+            YieldFiber();
+        }
     }
 
     void ShowMessage(const wchar_t* pText) {

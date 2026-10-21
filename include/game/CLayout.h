@@ -63,6 +63,9 @@ public:
     void Load(const char* pArchive, const char* pLayoutName, const std::tr1::shared_ptr<FontMap>& rFonts, bool background);
     void Load(const char* const* pArchives, const char* pLayoutName, const std::tr1::shared_ptr<FontMap>& rFonts, bool background);
     nw4r::lyt::Pane* FindPane(const char* pName);
+    void SetViewScale(const nw4r::math::VEC2& rScale);
+    nw4r::math::VEC2 GetViewScale() const;
+    void Render(const nw4r::math::VEC2& rSize);
     void SetPaneVisible(const char* pName, bool visible);
     void SetVisible(bool visible);
     void UpdateAttachedLayouts();
@@ -83,6 +86,7 @@ public:
     std::tr1::shared_ptr<CMotionProgram> AppendMotion(const char* pName, nw4r::lyt::Pane* pTarget, f32 startFrame, f32 rate);
     void SetVisible(nw4r::lyt::Pane* pPane, bool visible);
     bool SetTexture(const char* pName, const nw4r::lyt::TexMap& rTexture, int index);
+    bool SetTexture(nw4r::lyt::Pane* pPane, const nw4r::lyt::TexMap& rTexture, int index);
 
 private:
     u32 mFlags;

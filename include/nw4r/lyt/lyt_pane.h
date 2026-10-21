@@ -92,6 +92,10 @@ public:
         mFlag |= visible ? 1 : 0;
     }
     u8 GetAlpha() const { return mAlpha; }
+    const math::VEC2& GetScale() const { return mScale; }
+    const Size& GetSize() const { return mSize; }
+    void SetSize(const Size& rSize) { mSize = rSize; }
+    void SetScale(const math::VEC2& rScale) { mScale = rScale; }
     bool IsInfluencedAlpha() const { return (mFlag & 2) != 0; }
     bool IsLocationAdjust() const { return (mFlag & 4) != 0; }
     bool IsVisibleForDraw() const {
