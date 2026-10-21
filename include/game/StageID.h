@@ -4,10 +4,15 @@
 #include <revolution/types.h>
 
 struct StageID {
-    s32 mKind : 8;
-    s32 mRank : 8;
-    s32 mWorld : 8;
-    s32 mReserved : 8;
+    union {
+        struct {
+            s32 mKind : 8;
+            s32 mRank : 8;
+            s32 mWorld : 8;
+            s32 mReserved : 8;
+        };
+        s32 mValue;
+    };
 };
 
 struct StageRankInfo {
