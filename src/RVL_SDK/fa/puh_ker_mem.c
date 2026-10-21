@@ -19,6 +19,6 @@ s32 uhf_ker_release_memory_block(void* heap, void* block) {
     }
 }
 
-BOOL uhf_ker_check_cacheable(void) {
+BOOL uhf_ker_check_cacheable(const void* p_buffer) {
     return TRUE;
 }
