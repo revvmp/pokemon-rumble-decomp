@@ -119,30 +119,17 @@ const TitleText sTitleTexts[35] = {
 class CTitleSession : public ITitleSession {
 public:
     CTitleSession() : mUIManager(new CUIManager), mMsgWin(IDlgMsgWin::Create(false, true)) {}
-    virtual ~CTitleSession() {}
-    virtual void Calc() {
-        mUIManager->Calc();
-        mMsgWin->Calc();
-    }
-    virtual void CalcMtx() {
-        mUIManager->CalcMtx();
-        mMsgWin->CalcMtx();
-    }
-    virtual void CalcView() {
-        mUIManager->CalcView();
-        mMsgWin->CalcView();
-    }
-    virtual void Draw() {
-        mUIManager->Draw();
-        mMsgWin->Draw();
-    }
+    virtual void Calc();
+    virtual void CalcMtx();
+    virtual void CalcView();
+    virtual void Draw();
     virtual void Run();
 
 private:
     bool RefreshSlots();
     void WaitForMacAddress();
     void SaveAndWait();
-    bool IsFinished() { return false; }
+    bool IsFinished();
 
     std::tr1::shared_ptr<CUIManager> mUIManager;
     std::tr1::shared_ptr<BUILayout> mLayouts[SCREEN_COUNT];
@@ -155,6 +142,34 @@ private:
     int mFirstEmptySlot;
     int mFirstUsedSlot;
 };
+
+}
+
+std::tr1::shared_ptr<ITitleSession> ITitleSession::Create() {
+    return std::tr1::shared_ptr<ITitleSession>(new CTitleSession);
+}
+
+namespace {
+
+void CTitleSession::Draw() {
+    mUIManager->Draw();
+    mMsgWin->Draw();
+}
+
+void CTitleSession::CalcView() {
+    mUIManager->CalcView();
+    mMsgWin->CalcView();
+}
+
+void CTitleSession::CalcMtx() {
+    mUIManager->CalcMtx();
+    mMsgWin->CalcMtx();
+}
+
+void CTitleSession::Calc() {
+    mUIManager->Calc();
+    mMsgWin->Calc();
+}
 
 #pragma dont_inline on
 void CTitleSession::Run() {
@@ -538,8 +553,8 @@ void CTitleSession::SaveAndWait() {
     }
 }
 
+bool CTitleSession::IsFinished() {
+    return false;
 }
 
-std::tr1::shared_ptr<ITitleSession> ITitleSession::Create() {
-    return std::tr1::shared_ptr<ITitleSession>(new CTitleSession);
 }
