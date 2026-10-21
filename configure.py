@@ -230,6 +230,7 @@ config.libs = [
             Object(NonMatching, "game/CColorConst.cpp"),
             Object(Matching, "game/CComboDisplay.cpp"),
             Object(NonMatching, "game/BWorldObj.cpp"),
+            Object(NonMatching, "game/CDisconMsg.cpp"),
             Object(Matching, "game/CDisplayPhaseCtrl.cpp"),
             Object(NonMatching, "game/CDividedGround.cpp"),
             Object(NonMatching, "game/CDlgCollection.cpp"),

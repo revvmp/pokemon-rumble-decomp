@@ -26,8 +26,8 @@ The issue's first seven helpers remain #58's source authority. Its independent c
 | `0x80070A30` | 36 | CFiber shared deleter dispose |
 | `0x80070A60` | 116 | move_ptr<CLayout> destructor |
 | `0x80070AE0` | 116 | move_ptr<CFiber> destructor |
-| `0x80070B60` | 64 | CLayout deleter destructor |
-| `0x80070BA0` | 64 | CFiber deleter destructor |
+| `0x80070B60` | 64 | CFiber deleter destructor |
+| `0x80070BA0` | 64 | CLayout deleter destructor |
 | `0x80070BE0` | 64 | bound-function function_imp destructor |
 
 These seven functions total 536 bytes; together with this unit the original denominator is sixteen functions and 2,028 bytes. CDisplayPhaseCtrl alone supplies nine of sixteen original functions and must not close #59 before the preceding 536 bytes also pass source acceptance. Prerequisite [F-59-2](59-icalc-inheritance.md) reconciles the inherited ICalc matrix-slot identity against all current consumers before this unit's final acceptance.
