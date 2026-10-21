@@ -9,7 +9,7 @@ template <class T, class Allocator> class vector;
 
 namespace NPpu {
 class Slice;
-class CValue;
+typedef Slice CValue;
 }
 
 class CPpuRegister {

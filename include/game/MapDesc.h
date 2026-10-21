@@ -9,10 +9,6 @@
 #include <string>
 #include <vector>
 
-namespace NPpu {
-class CValue;
-}
-
 class MapPiiTable {
 public:
     MapPiiTable();
