@@ -39,3 +39,54 @@ The actual canonical-header source probe matches all25/5324 code bytes and1208EH
 - CPPD was a historical descriptive placeholder, not evidence for a distinct type. The native property readers and existing complete object establish the real pointee. Correct both cached ownership fields and the existing by-value SetPPD source contract together; do not introduce casts between duplicate declarations.
 - Opcode-only comparisons missed first-draft script return behavior. The MaxHP setters must push their input, and the missing-owner sex result is2. These were corrected from actual native stores before the strict25-function audit.
 - The survey's bind_7 label is an estimated grouping, not a recovered original filename. The next source acceptance must document its bounded numeric binding ranges and verify that it owns no hidden data or static state before selecting the source.
+
+
+# F-272-2: Complete numeric binding source acceptance
+
+`src/game/ScriptPiiStats.cpp` reconstructs every original #272 function:25 functions and5324 instruction bytes. This is a descriptive self-contained numeric binding module; no original filename marker was recovered. The survey bind_7 label is not asserted as an original file boundary. The exact bounded ranges are extab0x80031E68–0x80032320 (1208 bytes), extabindex0x8004F620–0x8004F74C (25 records/300 bytes), and text0x8015A0E0–0x8015B624 (5444 bytes including120 bytes of native function alignment).
+
+All25 native functions reference only their engine/personal-data arguments and existing external functions. There are no owned SDA constants, RTTI, data objects, static state, zero storage or initializer records. The preceding #271 HP/damage/heal bindings and following #273 prefix/property bindings use the same public pointee but no hidden static ownership crosses these ranges. They remain outside this source selection and are not counted. The only extra weak function the compiler emits is the132-byte shared_ptr<CPiiPersonalData> destructor, whose existing earlier native definition at0x8006C5A0 supplies exception cleanup; its coalesced copy and40EH bytes do not extend the owned ranges.
+
+## Original inventory
+
+| Address | Bytes | Source function |
+| --- | --- | --- |
+| 0x8015a0e0 | 176 | `method_getMaxHP__FPQ24NPpu7CEngine` |
+| 0x8015a190 | 264 | `method_setMaxHP__FPQ24NPpu7CEngine` |
+| 0x8015a2a0 | 176 | `method_getBonusMaxHP__FPQ24NPpu7CEngine` |
+| 0x8015a350 | 264 | `method_setBonusMaxHP__FPQ24NPpu7CEngine` |
+| 0x8015a460 | 316 | `method_setWazaID__FPQ24NPpu7CEngine` |
+| 0x8015a5a0 | 316 | `method_getWazaID__FPQ24NPpu7CEngine` |
+| 0x8015a6e0 | 176 | `method_getSex__FPQ24NPpu7CEngine` |
+| 0x8015a790 | 176 | `method_getLevel__FPQ24NPpu7CEngine` |
+| 0x8015a840 | 228 | `method_setLevel__FPQ24NPpu7CEngine` |
+| 0x8015a930 | 176 | `method_getCappedLevel__FPQ24NPpu7CEngine` |
+| 0x8015a9e0 | 228 | `method_setCappedLevel__FPQ24NPpu7CEngine` |
+| 0x8015aad0 | 176 | `method_getAP__FPQ24NPpu7CEngine` |
+| 0x8015ab80 | 228 | `method_setAP__FPQ24NPpu7CEngine` |
+| 0x8015ac70 | 176 | `method_getDP__FPQ24NPpu7CEngine` |
+| 0x8015ad20 | 228 | `method_setDP__FPQ24NPpu7CEngine` |
+| 0x8015ae10 | 176 | `method_getSPD__FPQ24NPpu7CEngine` |
+| 0x8015aec0 | 228 | `method_setSPD__FPQ24NPpu7CEngine` |
+| 0x8015afb0 | 176 | `method_getBonusAP__FPQ24NPpu7CEngine` |
+| 0x8015b060 | 228 | `method_setBonusAP__FPQ24NPpu7CEngine` |
+| 0x8015b150 | 176 | `method_getBonusDP__FPQ24NPpu7CEngine` |
+| 0x8015b200 | 228 | `method_setBonusDP__FPQ24NPpu7CEngine` |
+| 0x8015b2f0 | 176 | `method_getBonusSPD__FPQ24NPpu7CEngine` |
+| 0x8015b3a0 | 228 | `method_setBonusSPD__FPQ24NPpu7CEngine` |
+| 0x8015b490 | 176 | `method_getBP__FPQ24NPpu7CEngine` |
+| 0x8015b540 | 228 | `method_setBP__FPQ24NPpu7CEngine` |
+
+## Source and native behavior
+
+The source uses the merged F-272-1 public contracts and ordinary shared ownership. Getters return their property, or the native missing-owner default. Setters pop their numeric argument, obtain the strong personal-data owner, call the existing setter only when valid, and return the script result. WazaID dispatches selector32 to slot0 and every other selector to slot1, exactly as the two native branches do. Numeric selector spelling remains descriptive/unknown; no unchecked index or guessed third slot is introduced.
+
+No copied executable bytes, explicit template instantiations, assembly, opaque private layout view, changed compiler flags or forced register operations are present. Source names preserve the original binding table spellings. All class storage and member interfaces come from the canonical complete headers.
+
+## Verification
+
+The initial NonMatching split build and the subsequent Matching build both pass default Ninja's frozen DOL check. Unitdiff reports25/25 functions,5324/5324 code bytes at100%. The strict audit on the actual registered `build/wpse-v1/src/game/ScriptPiiStats.o` applies every relocation operand and proves all5324 code bytes, all actual targets and1208EH bytes/cleanup targets exact. A fresh mapped source link proves each retained function's native address, size and bytes; the Ninja input query selects only the source object, excluding the original object. All three retained allocated ranges, including every exception index and alignment byte, match frozen native bytes.
+
+The complete default build, all_source and explicit frozen verifier pass. The source PR's official land wrapper repeats fresh same-base all-source controls, the full native/exception audit, and fresh source-only MAP acceptance after every rebase. Its immutable archive retains the actual source object, main.elf, main.dol, raw MAP, build.ninja and linker input query for independent review, in addition to JSON proof. The exact verified merge head is recorded by the official local land loop; no GitHub CI is used.
+
+The interface prerequisite PR1210 merged as2c76819025, with exact verifiedhead3d807e4a692c57a648867a0a7221991a727299c3. It preserved all762 existing consumers at that head after only the three explicitly proved pointee-name aliases and numeric metadata. This source change adds one actual source object and uses those canonical interfaces without further header changes.
