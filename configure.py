@@ -226,7 +226,7 @@ config.libs = [
             Object(NonMatching, "game/BWorldCamera.cpp"),
             Object(Matching, "game/BWorldLightSet.cpp"),
             Object(Matching, "game/CControllerClassic.cpp"),
-            Object(NonMatching, "game/CControllerComposition.cpp"),
+            Object(Matching, "game/CControllerComposition.cpp"),
             Object(Matching, "game/CControllerGCPad.cpp"),
             Object(Matching, "game/CControllerNunchaku.cpp"),
             Object(Matching, "game/CControllerWiiRemote.cpp"),
