@@ -436,6 +436,27 @@ game/CTitleSession.cpp:
 	.sdata      start:0x804B73F0 end:0x804B74B8
 	.sdata2     start:0x804BA138 end:0x804BA140
 
+game/CUIStar.cpp:
+	extab       start:0x8002B228 end:0x8002B260
+	extabindex  start:0x8004C638 end:0x8004C65C
+	.text       start:0x8011FC80 end:0x8011FE38
+	.data       start:0x803AF868 end:0x803AF8D0
+	.sdata      start:0x804B7690 end:0x804B76B0
+
+game/CUIType.cpp:
+	extab       start:0x8002B260 end:0x8002B2B0
+	extabindex  start:0x8004C65C end:0x8004C68C
+	.text       start:0x8011FE40 end:0x80120000
+	.data       start:0x803AF8D0 end:0x803AF938
+	.sdata      start:0x804B76B0 end:0x804B76D8
+
+game/CWarpZone.cpp:
+	extab       start:0x8002B2B0 end:0x8002B374
+	extabindex  start:0x8004C68C end:0x8004C6B0
+	.text       start:0x80120000 end:0x801202C8
+	.data       start:0x803AF938 end:0x803AFA18
+	.sdata      start:0x804B76D8 end:0x804B76E0
+
 game/ControllerTable.cpp:
 	extab       start:0x8002C200 end:0x8002C230
 	extabindex  start:0x8004C818 end:0x8004C860
