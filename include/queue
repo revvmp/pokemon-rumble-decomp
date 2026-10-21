@@ -12,6 +12,7 @@ public:
     bool empty() const { return c.empty(); }
     size_type size() const { return c.size(); }
     T& front() { return c.front(); }
+    void push(const T& x) { c.push_back(x); }
     void pop() { c.pop_front(); }
 
 protected:

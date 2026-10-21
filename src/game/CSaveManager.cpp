@@ -43,6 +43,7 @@ public:
     void Work(WorkType type);
     void WaitIdle();
     void StartWork(WorkType type);
+    void RequestWork(WorkType type);
 
 private:
     std::tr1::shared_ptr<CFiber> mFiber;
@@ -139,7 +140,6 @@ void CSaveManager::Work(WorkType type) {
     }
 }
 
-#pragma force_active on
 void CSaveManager::WaitIdle() {
     while (mFiber && !mFiber->IsFinished()) {
         YieldFiber();
@@ -148,6 +148,52 @@ void CSaveManager::WaitIdle() {
 
 void CSaveManager::StartWork(WorkType type) {
     mFiber.reset(new CFiber("CSaveManager", std::tr1::bind(&CSaveManager::Work, this, type), 0x8000));
+}
+#pragma force_active on
+void CSaveManager::LoadSync() {
+    WaitIdle();
+    StartWork(WORK_LOAD);
+    WaitIdle();
+}
+
+void CSaveManager::RequestWork(WorkType type) {
+    if (mFiber && !mFiber->IsFinished()) {
+        mQueue.push(type);
+    } else {
+        StartWork(type);
+    }
+}
+
+void CSaveManager::RequestSave() {
+    RequestWork(WORK_SAVE);
+}
+
+void CSaveManager::RequestSaveWithoutBackup() {
+    RequestWork(WORK_SAVE_WITHOUT_BACKUP);
+}
+
+void CSaveManager::RequestSaveCommitOnly() {
+    RequestWork(WORK_SAVE_COMMIT_ONLY);
+}
+
+bool CSaveManager::IsIdle() {
+    return !mFiber || mFiber->IsFinished();
+}
+
+void CSaveManager::RequestDelete() {
+    RequestWork(WORK_DELETE);
+}
+
+void CSaveManager::Calc() {
+    if (mFiber) {
+        mFiber->Resume();
+    }
+    if (mLayout) {
+        mLayout->Calc();
+    }
+    if (mMsgWin) {
+        mMsgWin->Calc();
+    }
 }
 #pragma force_active off
 

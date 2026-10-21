@@ -18,7 +18,7 @@ private:
 };
 template<class T0, class T1> class tuple<T0,T1,nat,nat,nat,nat,nat,nat,nat,nat> {
 public:
-    tuple(T0 rFirst,T1 rSecond) : mFirst(rFirst),mSecond(rSecond) {}
+    tuple(const T0& rFirst,const T1& rSecond) : mFirst(rFirst),mSecond(rSecond) {}
 private:
     friend struct detail::tuple_get<0>;
     friend struct detail::tuple_get<1>;

@@ -28,7 +28,7 @@ All 26 functions pair with the original at 100% in `unitdiff.py` except `StartWo
 
 ## F-200-3: force_active moved from Work to its callers
 
-`StartWork` references `Work`, so the pragma around `Work` is removed. `WaitIdle` and `StartWork` are still unreferenced because the `ISaveManager` slots belong to later issues, and the unreferenced anonymous-namespace class would be dropped entirely, so `#pragma force_active` now wraps those two. Remove it when `LoadSync` and the other callers are written (#201, #202).
+`StartWork` references `Work`, so the pragma around `Work` is removed. `WaitIdle` and `StartWork` are still unreferenced because the `ISaveManager` slots belong to later issues, and the unreferenced anonymous-namespace class would be dropped entirely, so `#pragma force_active` now wraps those two. Superseded by [F-201-3](201-csavemanager-3.md#f-201-3-force_active).
 
 ## Traps
 

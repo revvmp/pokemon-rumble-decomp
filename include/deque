@@ -54,6 +54,10 @@ public:
     T& front() { return first(); }
     T& first() { return buf()[start_ / block_size][start_ % block_size]; }
 
+    void push_back(const T& x) { append(x); }
+    void append(const T& x) { push_back(x, pod_type()); }
+    void push_back(const T& x, Metrowerks::int2type<false>);
+
     void pop_front() { pop_front(1); }
     void pop_front(size_type n) { pop_front(n, pod_type()); }
     void pop_front(size_type n, Metrowerks::int2type<false>);
@@ -78,6 +82,7 @@ public:
     size_type size() const { return base::size(); }
     bool empty() const { return base::empty(); }
     T& front() { return base::front(); }
+    void push_back(const T& x) { base::push_back(x); }
     void pop_front() { base::pop_front(); }
     T& operator[](size_type n) { return base::operator[](n); }
 };
