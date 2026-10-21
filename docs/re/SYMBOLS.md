@@ -3498,3 +3498,7 @@ Original vector storage owns begin/end: native 800C62E0 (BUILayout end,20), 800C
 ### Issue 274 script descriptor and audio contracts
 
 CPpuEngine +0x90 is a four-byte MapIndex, copied whole from MapDesc and passed to existing IGameSession descriptor APIs. Its target getters/setters preserve the native word; StageID remains separate. StageDesc +4 is the eight-byte CPpuRegister owner (DescParamTable descriptive alias). BSoundSource adds nonvirtual StartSE(u32), StopSE(f32), SetPitch(f32), and GetPitch() const without layout or virtual-order changes. See [F-274-1](findings/274-script-audio-table.md) for typed caller/callee evidence and strict current-consumer controls.
+
+### F-152-10: Borrowed Balloon interfaces
+
+Native 800968D0 is a 112-byte position-transform wrapper (output VEC3 pointer, const MTX34 pointer, const input VEC3 pointer; returns output). TransformPoint is a descriptive inferred spelling, distinct from the SDK VEC3Transform at 8023F120. Its body remains an original CDlgPiiSelector fallback. The wstring representation/accessor, formatter and shared-owner identities recorded in F-152-10 retain their original native definitions; no borrowed source coverage is claimed.
