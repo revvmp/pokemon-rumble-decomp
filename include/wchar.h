@@ -13,7 +13,7 @@ wchar_t* wmemcpy(wchar_t* dest, const wchar_t* src, size_t count);
 wchar_t* wmemmove(wchar_t* dest, const wchar_t* src, size_t count);
 wchar_t* wmemset(wchar_t* dest, wchar_t value, size_t count);
 wchar_t* wmemchr(const wchar_t* src, wchar_t value, size_t count);
-int wmemcmp(const wchar_t* lhs, const wchar_t* rhs, size_t count);
+int wmemcmp(const wchar_t* lhs, const wchar_t* rhs, size_t count) __attribute__((nothrow));
 long wcstol(const wchar_t* str, wchar_t** end, int base);
 float wcstof(const wchar_t* str, wchar_t** end);
 int vswprintf(wchar_t* dst, size_t count, const wchar_t* format, va_list args);

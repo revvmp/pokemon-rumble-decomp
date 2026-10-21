@@ -32,6 +32,11 @@ public:
     explicit length_error(const char* pWhat) : logic_error(pWhat) {}
 };
 
+class out_of_range : public logic_error {
+public:
+    explicit out_of_range(const char* pWhat) : logic_error(pWhat) {}
+};
+
 }
 
 #endif

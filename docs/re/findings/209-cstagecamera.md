@@ -1,6 +1,6 @@
 # CStageCamera unit and the rest of #209
 
-Target `wpse-v1`, immutable `orig/wpse-v1/main.dol`, analysed in the linked `build/wpse-v1/main.elf`, which verifies byte-identical. Compiler and flags are the game settings of [F-735-1](735-game-compiler.md). Issue #209 lists 34 functions in `.text` `0x80110140`–`0x80112EE8`. The last nine form the complete unit `game/CStageCamera.cpp`; the others belong to two earlier units (F-209-4).
+Target `wpse-v1`, immutable `orig/wpse-v1/main.dol`, analysed in the linked `build/wpse-v1/main.elf`, which verifies byte-identical. Compiler and flags are the game settings of [F-735-1](735-game-compiler.md). Issue #209 lists 34 functions in `.text` `0x80110140`â€“`0x80112EE8`. The last nine form the complete unit `game/CStageCamera.cpp`; the others belong to two earlier units (F-209-4).
 
 ## F-209-1: CStageCamera unit boundaries
 
@@ -8,12 +8,12 @@ The unit is registered as `game/CStageCamera.cpp` (descriptive file name; no sou
 
 | Section | Range | Evidence |
 | --- | --- | --- |
-| `extab` | `0x80029534`–`0x800295E8` | Entries of the eight `extabindex` records below; `0x800295E8` is the entry of `0x80112EF0` |
-| `extabindex` | `0x8004BEAC`–`0x8004BF0C` | First record names `0x801128C0`; the record before it names `0x80112880`, the next names `0x80112EF0` |
-| `.text` | `0x801128C0`–`0x80112EE8` | The previous function `0x80112880` is slot 0 of the `shared_ptr_deleter<vector<NPpu::Slice> >` vtable `0x803ADE0C` and belongs to the preceding unit; `0x80112EF0` uses the `CStatistic` unit's `"vector length error"` at `0x803ADFC8` |
-| `.data` | `0x803ADF30`–`0x803ADFC8` | `"CStageCamera.pkc"` (used by `0x801129B0`), the vtable `0x803ADF44`, the RTTI name `"CStageCamera"` and its base list; `0x803ADFC8` starts the `CStatistic` unit's exception-string cluster |
-| `.sdata` | `0x804B7380`–`0x804B7388` | `CStageCamera` type info; `0x804B7378` is the `default_delete<vector<NPpu::Slice> >` type info used by `0x801126B8`, `0x804B7388` is used by `0x80113910` |
-| `.sdata2` | `0x804BA108`–`0x804BA128` | Eight floats used only here (`0`, `256/360`, `90`, `360/256`, `-45`, `20.2561665`, `0.01`, `1000`); `0x804BA100` is a double of `0x8010CD94`, `0x804BA128` is used by `0x80118F3C` |
+| `extab` | `0x80029534`â€“`0x800295E8` | Entries of the eight `extabindex` records below; `0x800295E8` is the entry of `0x80112EF0` |
+| `extabindex` | `0x8004BEAC`â€“`0x8004BF0C` | First record names `0x801128C0`; the record before it names `0x80112880`, the next names `0x80112EF0` |
+| `.text` | `0x801128C0`â€“`0x80112EE8` | The previous function `0x80112880` is slot 0 of the `shared_ptr_deleter<vector<NPpu::Slice> >` vtable `0x803ADE0C` and belongs to the preceding unit; `0x80112EF0` uses the `CStatistic` unit's `"vector length error"` at `0x803ADFC8` |
+| `.data` | `0x803ADF30`â€“`0x803ADFC8` | `"CStageCamera.pkc"` (used by `0x801129B0`), the vtable `0x803ADF44`, the RTTI name `"CStageCamera"` and its base list; `0x803ADFC8` starts the `CStatistic` unit's exception-string cluster |
+| `.sdata` | `0x804B7380`â€“`0x804B7388` | `CStageCamera` type info; `0x804B7378` is the `default_delete<vector<NPpu::Slice> >` type info used by `0x801126B8`, `0x804B7388` is used by `0x80113910` |
+| `.sdata2` | `0x804BA108`â€“`0x804BA128` | Eight floats used only here (`0`, `256/360`, `90`, `360/256`, `-45`, `20.2561665`, `0.01`, `1000`); `0x804BA100` is a double of `0x8010CD94`, `0x804BA128` is used by `0x80118F3C` |
 
 The unit has no `.ctors`, `.bss` or `.sbss` contribution. The whole unit lies inside #209.
 
@@ -23,7 +23,7 @@ The class is 0x74 bytes: `ScriptBinding_NewStageCamera` allocates `new(0x74)` an
 
 | Offset | Member | Type | Evidence |
 | --- | --- | --- | --- |
-| `0x00`–`0x68` | base | `BWorldCamera` | Constructor `0x801128C0` calls `BWorldCamera(type | 8)` at `0x80066460`; destructor ends with `~BWorldCamera` `0x800665B0` |
+| `0x00`â€“`0x68` | base | `BWorldCamera` | Constructor `0x801128C0` calls `BWorldCamera(type | 8)` at `0x80066460`; destructor ends with `~BWorldCamera` `0x800665B0` |
 | `0x68` | `mReserved` | `u32` | Zeroed by the constructor and never read in the unit, by the script camera bindings or by any reader found in a scan of game code; name is a placeholder for an unknown purpose (low) |
 | `0x6C` | `mEngine` | `std::tr1::shared_ptr<CPpuEngine>` | `0x801129B0` creates a 0xC4-byte `CPpuEngine` and resets the pointer; `Calc` and `OnLeaveWorld` use it; the destructor releases it |
 
@@ -55,10 +55,10 @@ objdiff with `src/game/CStageCamera.cpp`: 9/9 functions and 1,520/1,520 code byt
 
 ## F-209-4: the other functions of #209
 
-`0x80110140`–`0x801128BC` belong to two earlier units, separated by duplicate exception-string clusters (with `-str reuse` one unit pools identical literals):
+`0x80110140`â€“`0x801128BC` belong to two earlier units, separated by duplicate exception-string clusters (with `-str reuse` one unit pools identical literals):
 
-- **`0x80110140`–`0x801119A4`** continue a unit that starts in #208. Its functions use the first `"vector length error"`/`"tree::insert length error"` cluster at `0x803ADD58`–`0x803ADDBE` (`0x8010F150` in #208, `0x80110990` and `0x80110F90` here) and the `.sdata` bytes `0x804B7368`–`0x804B736B` (`0x801104AC`, `0x801108A0`). The split belongs to #208.
-- **`0x801119B0`–`0x801128BC`** are a separate unit, entirely inside #209. Its data is the second cluster `0x803ADDC0`, the `shared_ptr_deleter<vector<NPpu::Slice> >` vtable `0x803ADE0C` with its type names, through `0x803ADF30`; `.sdata` `0x804B7370`–`0x804B7380`. `0x80111A50` and `0x80111D80` use that cluster and the deleter vtable. The unit starts with the out-of-line constructor `0x801119B0` and destructor `0x801119C0` (with a deleting flag) of an 8-byte class holding one `shared_ptr`; `BWorldObj`'s constructor and destructor, `CPpuEngine` (member 0x88) and other game classes call them, so they are not weak template copies of an earlier unit. Its script users are the register and parameter bindings (`SetMapDescParams`, `SetStageDescParams`, `GetNewObjRegister`, `method_ppdGetRegister`, `method_ppdSetRegister`), and `BWorldObj` `0x8006A480`, `0x8006A490` and `0x8006A4A0` call `0x80111D20`, `0x80111D80` and `0x80112590`. Confidence in the `0x801119B0` start is medium: `0x801119B0` and `0x801119C0` could also close the previous unit. The file name is not evidenced, so the unit is not split yet.
+- **`0x80110140`â€“`0x801119A4`** continue a unit that starts in #208. Its functions use the first `"vector length error"`/`"tree::insert length error"` cluster at `0x803ADD58`â€“`0x803ADDBE` (`0x8010F150` in #208, `0x80110990` and `0x80110F90` here) and the `.sdata` bytes `0x804B7368`â€“`0x804B736B` (`0x801104AC`, `0x801108A0`). The split belongs to #208.
+- **`0x801119B0`â€“`0x801128BC`** are a separate unit, entirely inside #209. Its data is the second cluster `0x803ADDC0`, the `shared_ptr_deleter<vector<NPpu::Slice> >` vtable `0x803ADE0C` with its type names, through `0x803ADF30`; `.sdata` `0x804B7370`â€“`0x804B7380`. `0x80111A50` and `0x80111D80` use that cluster and the deleter vtable. The unit starts with the out-of-line constructor `0x801119B0` and destructor `0x801119C0` (with a deleting flag) of an 8-byte class holding one `shared_ptr`; `BWorldObj`'s constructor and destructor, `CPpuEngine` (member 0x88) and other game classes call them, so they are not weak template copies of an earlier unit. Its script users are the register and parameter bindings (`SetMapDescParams`, `SetStageDescParams`, `GetNewObjRegister`, `method_ppdGetRegister`, `method_ppdSetRegister`), and `BWorldObj` `0x8006A480`, `0x8006A490` and `0x8006A4A0` call `0x80111D20`, `0x80111D80` and `0x80112590`. Confidence in the `0x801119B0` start is medium: `0x801119B0` and `0x801119C0` could also close the previous unit. The file name is not evidenced, so the unit is not split yet.
 
 ## Method
 
@@ -91,11 +91,11 @@ Matching two-word layouts alone does not establish a base class. Native ownershi
 
 ## F-209-6: CPpuRegister producer and primary vector contracts
 
-The complete CPpuRegister unit is independently split at text 0x801119B0–0x801128C0, extab 0x800292DC–0x80029534, extabindex 0x8004BE28–0x8004BEAC, data 0x803ADDC0–0x803ADF30, and sdata 0x804B7370–0x804B7380. The last instruction is at 0x801128BC; the exclusive text end is 0x801128C0. Duplicate exception-string clusters and the register-specific ownership RTTI separate this unit from MapPiiTable and CStageCamera. CPpuRegister is an evidenced class name; the filename is descriptive. The split-only full executable verifies against the frozen manifest.
+The complete CPpuRegister unit is independently split at text 0x801119B0â€“0x801128C0, extab 0x800292DCâ€“0x80029534, extabindex 0x8004BE28â€“0x8004BEAC, data 0x803ADDC0â€“0x803ADF30, and sdata 0x804B7370â€“0x804B7380. The last instruction is at 0x801128BC; the exclusive text end is 0x801128C0. Duplicate exception-string clusters and the register-specific ownership RTTI separate this unit from MapPiiTable and CStageCamera. CPpuRegister is an evidenced class name; the filename is descriptive. The split-only full executable verifies against the frozen manifest.
 
 The actual seven-method producer naturally emits its five owned ownership helpers. Reserve lazily allocates the value vector and reserves capacity; Set grows the vector, initializes intervening elements through Slice::SetInt(0), then copies the requested value. Reset releases the vector. Swap copies the other register owner, assigns this owner to the other register, and assigns the saved owner to this register.
 
-The original 2006 MSL vector header supplies four missing source contracts: the public reserve wrapper (lines 2425–2433), distinct move_construct_to_end using a strict pointer comparison (936–943), append_realloc clearing the moved-from owner before direct std::swap operations (1278–1289), and resize reading the size member directly (1985–1993). The ordinary copy loop retains its != comparison. The primary header is pinned by the 2006 manifest recorded in #198. The outside candidate preserves existing POD dispatch semantics and introduces no compiler flags or retention attributes.
+The original 2006 MSL vector header supplies four missing source contracts: the public reserve wrapper (lines 2425â€“2433), distinct move_construct_to_end using a strict pointer comparison (936â€“943), append_realloc clearing the moved-from owner before direct std::swap operations (1278â€“1289), and resize reading the size member directly (1985â€“1993). The ordinary copy loop retains its != comparison. The primary header is pinned by the 2006 manifest recorded in #198. The outside candidate preserves existing POD dispatch semantics and introduces no compiler flags or retention attributes.
 
 These contracts make all twelve native instruction streams exact: constructor 16, destructor 136, Reserve 720, GetValue 92, Set 1960, Reset 96, Swap 272, deleter query 76, dispose 96, shared-owner destructor 132, move-owner destructor 152, and deleter destructor 64. Strict audit applies all 118 code relocations; all 600 owned exception bytes and17 cleanup relocations also match. The compiler emits extra duplicate library definitions normally; source-only full-link acceptance remains necessary to show they are discarded correctly.
 
@@ -112,3 +112,18 @@ After canonical vector prerequisite PR1200, the actual CPpuRegister source is se
 The source-selection audit is preserved as `209-reference/209-final-source-audit.py` and its JSON receipt. The whole-original inventory auditor separately requires all 34 functions / 11,528 bytes, including the MapPiiTable continuation. This PR accepts one complete original source unit; original #209 remains partial until the #208 owner accepts the complete MapPiiTable unit. CStageCamera remains source-selected unchanged.
 
 The two external cleanup names at 0x80110920 and 0x80111930 follow the actual register exception actions; their sizes and owning MapPiiTable split are unchanged. The primary reserve/move interface corrections and all current-consumer controls are in PR1200. No temporary header overlay or compiler flag is retained in this source integration.
+
+
+## F-209-5: Primary string comparison exception contract
+
+The recovered 2006 CodeWarrior string header defines the four-argument comparison outside the class and checks `pos1 > size`, throwing `out_of_range("string compare: pos > len")` before comparing characters. The same release's `stdexcept` defines `out_of_range` as a fieldless `logic_error` subclass, and `MSL_C/MSL_Common/Include/wmem.h:32` declares `wmemcmp` with `_MSL_CANT_THROW`. The proposed declarations preserve those contracts; no optimizer flags or inferred exception annotations are used. Primary files and manifest remain outside the repository under `198-reference/primary-header-research/alpha2006/`.
+
+The actual MapPiiTable producer with the separately owned primary public-tree prerequisite retains both insertion instruction streams (1004 and 1008 bytes) and every relocation. The comparison guard restores the narrow insertion's complete 24-byte exception record; the evidenced wide-memory declaration restores the wide insertion's complete 24-byte record. Independent original #209 continuation auditing passes all 13 functions/6196 code bytes and their exception records. This does not establish final MapPiiTable source placement, which remains owned by #208.
+
+Fresh baseline commit `9895f7df44ca20075f2346de7a374cb344f10a47` contains 760 configured source objects. All 68 dependent consumers compile with the isolated three-header proposal. Of all 760 objects, 759 preserve every allocated section's bytes, metadata and relocation identities; only NonMatching MapPiiTable gains the expected exception type and exception metadata. Compiler-generated local names are normalized exclusively by exact section, value and size. No external symbol names are normalized. CLayout's apparent relocation difference is only its compiler-generated `__FUNCTION__$` numbering; its entire text and actual relocation destinations are unchanged. Full configure, ninja and frozen verification exit zero.
+
+Reproducers and immutable baseline objects are outside at `209-reference/209-compare-consumer-control.py`, `209-reference/209-compare-strict-consumers.py`, `209-compare-controls/`, and `209-reference/209-map-context/209-map-continuation-strict.py`. This is a prerequisite only: original #209 remains 21/34 accepted functions and 5332/11528 accepted code bytes until MapPiiTable's remaining original inventory is accepted.
+
+### Traps
+
+A dependency control must contain only the proposed headers. Combining another owner's diagnostic tree/set overlay produces unrelated native changes and cannot be used as the isolated prerequisite receipt. Compiler-local `__FUNCTION__$` names can be renumbered by harmless declarations; validate exact defined-section destinations rather than accepting or rejecting name spelling alone.
