@@ -100,6 +100,10 @@ public:
     };
 
     static iterator erase(__list_deleter* pList, iterator first, iterator last);
+    T& back() { return tail().prev_->data_; }
+    const T& back() const { return tail().prev_->data_; }
+    iterator erase(iterator position);
+    void pop_back() { erase(__pointer2iterator(tail().prev_)); }
     iterator insert(iterator position, const T& x);
     void splice_all(iterator position, __list_deleter& rOther);
 
@@ -169,6 +173,17 @@ typename __list_deleter<T, Allocator>::iterator __list_deleter<T, Allocator>::er
         --pList->size_ref();
     }
     return last;
+}
+
+template <typename T, typename Allocator>
+typename __list_deleter<T, Allocator>::iterator __list_deleter<T, Allocator>::erase(iterator position) {
+    node* oldnode = static_cast<node*>(position.base());
+    ++position;
+    unlink_nodes(oldnode, oldnode);
+    alloc().destroy(&oldnode->data_);
+    node_alloc().deallocate(oldnode, 1);
+    --size_ref();
+    return position;
 }
 
 template <typename T, typename Allocator> void __list_deleter<T, Allocator>::splice_all(iterator position, __list_deleter& rOther) {
@@ -257,6 +272,8 @@ public:
         return *this;
     }
 
+    using base::back;
+    using base::pop_back;
     using base::begin;
     using base::end;
     using base::push_front;
