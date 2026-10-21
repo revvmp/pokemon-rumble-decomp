@@ -32,7 +32,7 @@ static int AddItem(NPpu::CEngine* pBaseEngine, std::tr1::shared_ptr<CItem> sourc
     }
 
     std::tr1::shared_ptr<CItem> item = source;
-    item->SetOwner(pEngine->GetOwner());
+    item->SwapRegister(pEngine->GetRegister());
     item->Initialize(false);
     if (pParent != nullptr) {
         item->SetParent(pParent->shared_from_this());
