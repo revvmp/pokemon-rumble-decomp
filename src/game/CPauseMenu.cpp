@@ -209,6 +209,73 @@ public:
     }
 
 private:
+    void ShowMenu(bool simplified) {
+        UIMenuItem resume = {nullptr, MENU_RESUME};
+        UIMenuItem screenshot = {nullptr, MENU_SCREENSHOT};
+        UIMenuItem remoteMemory = {nullptr, MENU_REMOTE_MEMORY};
+        UIMenuItem controllers = {nullptr, MENU_CONTROLLERS};
+        std::vector<UIMenuItem> items;
+        {
+            UIMenuItem item = resume;
+            item.mText = GetMessageText(0x60080, gEmptyText);
+            items.push_back(item);
+        }
+        if (!simplified) {
+            UIMenuItem leave = {nullptr, MENU_LEAVE};
+            leave.mText = GetMessageText(0x60081 + IsHubMap(), gEmptyText);
+            items.push_back(leave);
+        }
+        {
+            UIMenuItem item = screenshot;
+            item.mText = GetMessageText(0x60083, gEmptyText);
+            items.push_back(item);
+        }
+        if (!simplified) {
+            UIMenuItem item = remoteMemory;
+            item.mText = GetMessageText(0x60084, gEmptyText);
+            items.push_back(item);
+        }
+        if (!simplified && IsHubMap() && IsGameFlagSet(3)) {
+            UIMenuItem item = controllers;
+            item.mText = GetMessageText(0x60086, gEmptyText);
+            items.push_back(item);
+        }
+
+        UIMenuParam baseParam = {nullptr, nullptr, 0, 1, 0, -1, nullptr, "menu"};
+        UIMenuParam param = baseParam;
+        param.mTitle = GetMessageText(0x6007E, gEmptyText);
+        param.mpItems = &items[0];
+        param.mItemCount = items.size();
+        param.mRowCount = items.size();
+        param.mpArchives = gSharedLayoutArchives;
+        PlaySound(9);
+
+        while (true) {
+            CPauseMenuInput input;
+            CUIMenuCallbacks callbacks(0);
+            int choice = RunUIMenu(param, callbacks, &input, mBackManager, GetDefaultFontMap(), true);
+            switch (choice) {
+            default:
+                return;
+            case MENU_LEAVE:
+                LeaveStage();
+                return;
+            case MENU_CONTROLLERS:
+                GetCurrentGameMap()->GetDlgPiiSelector()->ShowMultiPlayerEntrance();
+                return;
+            case MENU_SCREENSHOT:
+                TakeScreenshot();
+                return;
+            case MENU_REMOTE_MEMORY:
+                if (RunRemoteMemoryMenu()) {
+                    return;
+                }
+                YieldFiber();
+                break;
+            }
+        }
+    }
+
     std::tr1::shared_ptr<CUIManager> mBackManager;
     std::tr1::shared_ptr<CUIManager> mFrontManager;
     std::tr1::shared_ptr<BUILayout> mBackgroundLayout;
@@ -237,11 +304,6 @@ std::tr1::shared_ptr<IPauseMenu> IPauseMenu::Create(const MapDesc* pDesc, bool h
 
 void CPauseMenu::Run() {
     YieldFiberStarted();
-    UIMenuItem resume = {nullptr, MENU_RESUME};
-    UIMenuItem screenshot = {nullptr, MENU_SCREENSHOT};
-    UIMenuItem remoteMemory = {nullptr, MENU_REMOTE_MEMORY};
-    UIMenuItem controllers = {nullptr, MENU_CONTROLLERS};
-    UIMenuParam baseParam = {nullptr, nullptr, 0, 1, 0, -1, nullptr, "menu"};
     while (true) {
         mIsOpen = false;
         while (true) {
@@ -259,8 +321,7 @@ void CPauseMenu::Run() {
         PauseGameAudio();
 
         bool simplified = mHideBackground;
-        MapIndex index = GetCurrentGameMap()->GetMapDesc().mIndex;
-        if (IsStage7EvenMap(index)) {
+        if (IsStage7EvenMap(GetCurrentGameMap()->GetMapDesc().mIndex)) {
             if (GetCurrentGameMap()->GetBattleRoyalDisplay() != nullptr) {
                 simplified = GetCurrentGameMap()->GetBattleRoyalDisplay()->GetRound() == 0;
             }
@@ -269,66 +330,7 @@ void CPauseMenu::Run() {
             simplified = true;
         }
 
-        std::vector<UIMenuItem> items;
-        UIMenuItem item = resume;
-        item.mText = GetMessageText(0x60080, gEmptyText);
-        items.push_back(item);
-        if (!simplified) {
-            UIMenuItem leave = {nullptr, MENU_LEAVE};
-            leave.mText = GetMessageText(0x60081 + IsHubMap(), gEmptyText);
-            items.push_back(leave);
-        }
-        item = screenshot;
-        item.mText = GetMessageText(0x60083, gEmptyText);
-        items.push_back(item);
-        if (!simplified) {
-            item = remoteMemory;
-            item.mText = GetMessageText(0x60084, gEmptyText);
-            items.push_back(item);
-        }
-        if (!simplified && IsHubMap() && IsGameFlagSet(3)) {
-            item = controllers;
-            item.mText = GetMessageText(0x60086, gEmptyText);
-            items.push_back(item);
-        }
-
-        UIMenuParam param = baseParam;
-        param.mTitle = GetMessageText(0x6007E, gEmptyText);
-        param.mpItems = &items[0];
-        param.mItemCount = items.size();
-        param.mRowCount = items.size();
-        param.mpArchives = gSharedLayoutArchives;
-        PlaySound(9);
-
-        bool done = false;
-        while (!done) {
-            CPauseMenuInput input;
-            CUIMenuCallbacks callbacks(0);
-            int choice = RunUIMenu(param, callbacks, &input, mBackManager, GetDefaultFontMap(), true);
-            switch (choice) {
-            case MENU_LEAVE:
-                LeaveStage();
-                done = true;
-                break;
-            case MENU_CONTROLLERS:
-                GetCurrentGameMap()->GetDlgPiiSelector()->ShowMultiPlayerEntrance();
-                done = true;
-                break;
-            case MENU_SCREENSHOT:
-                TakeScreenshot();
-                done = true;
-                break;
-            case MENU_REMOTE_MEMORY:
-                done = RunRemoteMemoryMenu();
-                if (!done) {
-                    YieldFiber();
-                }
-                break;
-            default:
-                done = true;
-                break;
-            }
-        }
+        ShowMenu(simplified);
 
         ResumeGameAudio();
         YieldFiber();
