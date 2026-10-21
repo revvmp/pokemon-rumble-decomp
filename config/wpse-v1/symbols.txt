@@ -12270,7 +12270,7 @@ first__Q310Metrowerks6detail81CompressedPairStorage<Ul,Q23std45allocator<Q33std3
 construct__Q23std45allocator<Q33std3tr122shared_ptr<9BUILayout>>FPQ33std3tr122shared_ptr<9BUILayout>RCQ33std3tr122shared_ptr<9BUILayout> = .text:0x800C6260; // type:function size:0x58
 alloc__Q23std103__vec_deleter<Q33std3tr122shared_ptr<9BUILayout>,Q23std45allocator<Q33std3tr122shared_ptr<9BUILayout>>>Fv = .text:0x800C62C0; // type:function size:0x8
 second__Q310Metrowerks6detail81CompressedPairStorage<Ul,Q23std45allocator<Q33std3tr122shared_ptr<9BUILayout>>,2>Fv = .text:0x800C62D0; // type:function size:0x4
-end__Q23std109__vec_constructor<Q33std3tr122shared_ptr<9BUILayout>,Q23std45allocator<Q33std3tr122shared_ptr<9BUILayout>>,0>Fv = .text:0x800C62E0; // type:function size:0x14
+end__Q23std103__vec_deleter<Q33std3tr122shared_ptr<9BUILayout>,Q23std45allocator<Q33std3tr122shared_ptr<9BUILayout>>>Fv = .text:0x800C62E0; // type:function size:0x14
 push_back_realloc__Q23std109__vec_constructor<Q33std3tr122shared_ptr<9BUILayout>,Q23std45allocator<Q33std3tr122shared_ptr<9BUILayout>>,0>FRCQ33std3tr122shared_ptr<9BUILayout> = .text:0x800C6300; // type:function size:0x2C
 __ct<11CMsgBalloon>__Q33std3tr125shared_ptr<11IMsgBalloon>FRCQ33std3tr125shared_ptr<11CMsgBalloon>Pv_Pv = .text:0x800C6330; // type:function size:0x4C
 reset<10CUIManager>__Q33std3tr124shared_ptr<10CUIManager>FP10CUIManager_v = .text:0x800C6380; // type:function size:0x48
@@ -12338,7 +12338,7 @@ __as__Q33std92vector<Q33std3tr120shared_ptr<7CPiiTex>,Q23std43allocator<Q33std3t
 begin__Q23std92vector<Q33std3tr120shared_ptr<7CPiiTex>,Q23std43allocator<Q33std3tr120shared_ptr<7CPiiTex>>>Fv = .text:0x800C71C0; // type:function size:0x3C
 make_iterator__Q23std92vector<Q33std3tr120shared_ptr<7CPiiTex>,Q23std43allocator<Q33std3tr120shared_ptr<7CPiiTex>>>FRCPQ33std3tr120shared_ptr<7CPiiTex> = .text:0x800C7200; // type:function size:0x28
 __ct__Q33std92vector<Q33std3tr120shared_ptr<7CPiiTex>,Q23std43allocator<Q33std3tr120shared_ptr<7CPiiTex>>>8iteratorFRCPQ33std3tr120shared_ptr<7CPiiTex> = .text:0x800C7230; // type:function size:0xC
-begin__Q23std105__vec_constructor<Q33std3tr120shared_ptr<7CPiiTex>,Q23std43allocator<Q33std3tr120shared_ptr<7CPiiTex>>,0>Fv = .text:0x800C7240; // type:function size:0x8
+begin__Q23std99__vec_deleter<Q33std3tr120shared_ptr<7CPiiTex>,Q23std43allocator<Q33std3tr120shared_ptr<7CPiiTex>>>Fv = .text:0x800C7240; // type:function size:0x8
 __rf__Q33std3tr120shared_ptr<7CPiiTex>CFv = .text:0x800C7250; // type:function size:0x8
 __ml__Q33std92vector<Q33std3tr120shared_ptr<7CPiiTex>,Q23std43allocator<Q33std3tr120shared_ptr<7CPiiTex>>>8iteratorCFv = .text:0x800C7260; // type:function size:0x8
 __pp__Q33std92vector<Q33std3tr120shared_ptr<7CPiiTex>,Q23std43allocator<Q33std3tr120shared_ptr<7CPiiTex>>>8iteratorFv = .text:0x800C7270; // type:function size:0x10
@@ -12346,7 +12346,7 @@ __ne__Q33std92vector<Q33std3tr120shared_ptr<7CPiiTex>,Q23std43allocator<Q33std3t
 __eq__Q33std92vector<Q33std3tr120shared_ptr<7CPiiTex>,Q23std43allocator<Q33std3tr120shared_ptr<7CPiiTex>>>8iteratorCFRCQ33std92vector<Q33std3tr120shared_ptr<7CPiiTex>,Q23std43allocator<Q33std3tr120shared_ptr<7CPiiTex>>>8iterator = .text:0x800C72B0; // type:function size:0x50
 base__Q33std92vector<Q33std3tr120shared_ptr<7CPiiTex>,Q23std43allocator<Q33std3tr120shared_ptr<7CPiiTex>>>8iteratorCFv = .text:0x800C7300; // type:function size:0x8
 end__Q23std92vector<Q33std3tr120shared_ptr<7CPiiTex>,Q23std43allocator<Q33std3tr120shared_ptr<7CPiiTex>>>Fv = .text:0x800C7310; // type:function size:0x3C
-end__Q23std105__vec_constructor<Q33std3tr120shared_ptr<7CPiiTex>,Q23std43allocator<Q33std3tr120shared_ptr<7CPiiTex>>,0>Fv = .text:0x800C7350; // type:function size:0x14
+end__Q23std99__vec_deleter<Q33std3tr120shared_ptr<7CPiiTex>,Q23std43allocator<Q33std3tr120shared_ptr<7CPiiTex>>>Fv = .text:0x800C7350; // type:function size:0x14
 CalcMtx__11CMsgBalloonFv = .text:0x800C7370; // type:function size:0xA0
 Calc__11CMsgBalloonFv = .text:0x800C7410; // type:function size:0x92C
 size__Q23std68list<Q211CMsgBalloon5Entry,Q23std32allocator<Q211CMsgBalloon5Entry>>CFv = .text:0x800C7D40; // type:function size:0x24
