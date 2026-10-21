@@ -223,6 +223,46 @@ Its notice is preserved here because source comments are prohibited:
 The reference attributes the insertion and removal algorithms to Cormen,
 Leiserson, and Rivest, *Introduction to Algorithms* (MIT Press, 1990).
 
+## F-152-7: Complete Balloon instruction and exception producer
+
+The post-1203 outside producer covers all 436 original functions from
+800C59D0 through 800CD728, totaling 29,012 instruction bytes. Every code
+relocation is resolved consistently, and all 226 exception records totaling
+3,664 bytes match with their actual cleanup targets. There is one source
+function per native address, no instruction differences, no unresolved
+targets, and no conflicting symbol bindings. Twenty reachable RTTI/vtable
+objects also match individually. The immutable source, overlay, object,
+compiler command, audit scripts and SHA-256 manifest are at
+`152-reference/152-native436-unique-positive`.
+
+This is not Matching acceptance. The object still fails section placement
+constraints. Defined weak functions outside this unit, including the
+visible formatter constructor, are not claimed reconstructed and require
+explicit foreign fallback and dead-stripping proof in the real source link.
+The shared header adaptations have not passed current-consumer controls.
+
+The remaining instruction gaps resolve through original declaration and
+class roles: the list default constructor initializes its size and node
+allocator separately; public list begin/end expose storage methods rather
+than duplicating them; map iterator assignment is implicit; vector cleanup
+uses allocator accessors and natural decrement expressions; split-buffer
+loops use the original pointer expressions; expansion carries its capacity
+output; append reallocation uses begin/end; and clear uses the one-argument
+erase API. String assignment needs the original reference-returning
+long_size and unsigned-char short_size accessors, ordinary out-of-class
+assignment/append forwarding, and mutable-pointer dispatch through the
+const-pointer implementation. The formatter constructor body already
+present in SaveData.cpp supplies genuine visibility for retained string
+constructor and allocator cleanup helpers.
+
+The audit starts from actual strong game functions, follows real code,
+vtable and exception relocations, and separately checks the retained
+primary string constructor and allocator destructor. Seeding every old
+template name from symbols.txt instead creates false conflicts because
+several provisional names assign the wrong vector specialization to an
+otherwise identical accessor. Those names are not treated as independent
+evidence.
+
 ## Traps
 
 - A flattened container reconstruction can produce each native helper
