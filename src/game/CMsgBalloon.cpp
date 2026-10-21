@@ -1,6 +1,12 @@
 #include <game/CMsgBalloon.h>
 
 #include <game/CBattleRoyalBox.h>
+#include <game/COyaInfo.h>
+#include <game/CPiiCollectionBox.h>
+#include <game/MapDesc.h>
+#include <game/NPpuVM.h>
+#include <game/PiiSpeciesData.h>
+#include <map>
 #include <game/CPiiPersonalData.h>
 #include <game/CPiiTex.h>
 #include <game/CPlayerPii.h>
@@ -387,4 +393,119 @@ inline void CMsgBalloon::SetupStageWarp(StageID stageID) {
     if (cleared) {
         pLayout->SetText("CLEAR", FormatMessage(GetMessageString(0x600C7, nullptr), clearCount).c_str());
     }
+}
+
+inline void CMsgBalloon::SetupStageModels(StageID stageID) {
+    std::map<u32, bool> unlocked;
+    MapIndex& rIndex = reinterpret_cast<MapIndex&>(stageID);
+    bool anyCleared = false;
+    bool allCleared = true;
+    for (int i = 1; i < 10; i++) {
+        rIndex.mMap = i;
+        MapDesc* pDesc = IGameSession::GetInstance()->GetMapDesc(rIndex);
+        if (pDesc == nullptr) {
+            continue;
+        }
+        bool cleared = GetMapRecord(rIndex)->IsFlagSet(2);
+        anyCleared |= cleared;
+        allCleared &= cleared;
+        MapPiiTable* pTable = &pDesc->mPiiTable;
+        for (int row = 0; row < pTable->GetRowCount(); row++) {
+            if (pTable->GetCell(row, 2)->ToInt() == 7) {
+                continue;
+            }
+            u16 first = pTable->GetCell(row, 0)->ToInt();
+            u16 second = pTable->GetCell(row, 1)->ToInt();
+            if (1 <= first && first < 496) {
+                if (unlocked.find(first) == unlocked.end()) {
+                    unlocked[first] = cleared;
+                } else {
+                    unlocked[first] |= cleared;
+                }
+            }
+            if (1 <= second && second < 496) {
+                if (unlocked.find(second) == unlocked.end()) {
+                    unlocked[second] = cleared;
+                } else {
+                    unlocked[second] |= cleared;
+                }
+            }
+        }
+    }
+
+    bool stageCleared = IsStageCleared(rIndex);
+    unsigned long total = unlocked.size();
+    if (total > 18) {
+        total = 18;
+    }
+    mModelTextures.resize(total);
+
+    CPiiCollectionBox* pBox = IGameSession::GetInstance()->GetPiiCollectionBox();
+    u32 index = 0;
+    std::map<u32, bool>::iterator it;
+    bool anyCollected = false;
+    for (it = unlocked.begin(); it != unlocked.end(); ++it) {
+        if (it->second) {
+            int collectionType = pBox->GetCollectionType(it->first);
+            if (collectionType == 2 || collectionType == 3) {
+                anyCollected = true;
+            }
+        }
+    }
+
+    int collectedCount = 0;
+    for (it = unlocked.begin(); it != unlocked.end(); ++it) {
+        u16 monsno = it->first;
+        const PiiSpeciesData* pSpeciesData = GetPiiSpeciesData(monsno, 0);
+        std::tr1::shared_ptr<CPiiPersonalData> personalData;
+        personalData = CreatePiiPersonalData(IGameSession::GetInstance()->GetOyaInfo(), pSpeciesData, 0);
+        std::tr1::shared_ptr<CPiiTex> texture;
+        texture.reset(new CPiiTex(personalData, 256, 256));
+        mModelTextures[index] = texture;
+        mModelLayouts[index]->SetVisible(true);
+        int collectionType = pBox->GetCollectionType(monsno);
+        mModelLayouts[index]->GetLayout()->SetTexture("PII_TEX", texture->GetTexMap(), -1);
+        mModelLayouts[index]->GetLayout()->SetTexture("PII_TEX_GRAY", texture->GetTexMap(), -1);
+        bool collected = false;
+        bool seen = false;
+        bool unknown = false;
+        if (anyCollected) {
+            if (it->second) {
+                switch (collectionType) {
+                case 3:
+                    collected = true;
+                    collectedCount++;
+                    break;
+                case 2:
+                    seen = true;
+                    break;
+                case 0:
+                case 1:
+                    unknown = true;
+                    break;
+                }
+            } else {
+                unknown = true;
+            }
+        }
+        mModelLayouts[index]->GetLayout()->SetPaneVisible("PII_TEX", collected);
+        mModelLayouts[index]->GetLayout()->SetPaneVisible("PII_TEX_GRAY", seen);
+        nw4r::lyt::Pane* pPane = mModelLayouts[index]->GetLayout()->FindPane("NOT_YET");
+        if (pPane != nullptr) {
+            mModelLayouts[index]->GetLayout()->SetVisible(pPane, collected);
+            const char* pMotion = collected ? "pii_not_yet" : "init";
+            mModelLayouts[index]->GetLayout()->CreateMotion(pMotion, pPane, 0.0f, 1.0f);
+        }
+        mModelLayouts[index]->GetLayout()->SetPaneVisible("PII_UNKNOWN", unknown);
+        index++;
+        if (index >= 18) {
+            break;
+        }
+    }
+
+    for (; index < 18; index++) {
+        mModelLayouts[index]->SetVisible(false);
+    }
+    total = unlocked.size();
+    mWarpLayout->GetLayout()->SetText("OBTAIN", FormatMessage(GetMessageString(0x600C9, nullptr), collectedCount, total).c_str());
 }

@@ -89,7 +89,20 @@ inline tree_node_base* tree_next(tree_node_base* x) {
     return x;
 }
 
-template <typename T, typename Compare, typename Allocator> class tree_imp : private Allocator {
+struct tree_root_ptr {
+    tree_root_ptr(tree_node_base* pNode = nullptr) : node_(pNode) {}
+    tree_node_base* node_;
+};
+
+template <typename Compare> class tree_begin_holder : private Compare {
+public:
+    tree_node_base*& second() { return node_; }
+
+private:
+    tree_node_base* node_;
+};
+
+template <typename T, typename Compare, typename Allocator> class tree_imp {
 public:
     typedef T value_type;
     typedef unsigned long size_type;
@@ -103,6 +116,14 @@ public:
         iterator() {}
         iterator(const iterator& rOther) : node_(rOther.node_) {}
         iterator(tree_node_base* pNode) : node_(pNode) {}
+        bool operator==(const iterator& rOther) const { return node_ == rOther.node_; }
+        bool operator!=(const iterator& rOther) const { return !(*this == rOther); }
+        iterator& operator++() {
+            node_ = tree_next(node_);
+            return *this;
+        }
+        T& operator*() const { return static_cast<node*>(node_)->value_; }
+        T* operator->() const { return &static_cast<node*>(node_)->value_; }
 
         tree_node_base* node_;
     };
@@ -110,21 +131,24 @@ public:
 
     typedef typename Allocator::template rebind<node>::other node_allocator;
 
-    tree_imp() : size_(0), begin_(end_node()) {}
+    tree_imp() : size_(0) { begin_node() = end_node(); }
     ~tree_imp() {
-        if (root_.second() != nullptr) {
-            destroy(static_cast<node*>(root_.second()));
+        if (root() != nullptr) {
+            destroy(static_cast<node*>(root()));
         }
     }
 
-    size_type size() const { return size_; }
+    size_type size() const { return size_.first(); }
+
+    iterator begin() { return iterator(begin_node()); }
+    iterator end() { return iterator(end_node()); }
 
     void clear() {
-        if (root_.second() != nullptr) {
-            destroy(static_cast<node*>(root_.second()));
-            size_ = 0;
-            root_.second() = nullptr;
-            begin_ = end_node();
+        if (root() != nullptr) {
+            destroy(static_cast<node*>(root()));
+            size_.first() = 0;
+            root() = nullptr;
+            begin_node() = end_node();
         }
     }
 
@@ -141,18 +165,18 @@ public:
 
     pair<iterator, bool> insert(const value_type& rValue);
 
-    iterator find(const value_type& rValue) {
+    template <typename Key> iterator find(const Key& rKey) {
         tree_node_base* pResult = end_node();
-        tree_node_base* pNode = root_.second();
+        tree_node_base* pNode = root();
         while (pNode != nullptr) {
-            if (!Compare()(static_cast<node*>(pNode)->value_, rValue)) {
+            if (!Compare()(static_cast<node*>(pNode)->value_, rKey)) {
                 pResult = pNode;
                 pNode = pNode->left_;
             } else {
                 pNode = pNode->right_;
             }
         }
-        if (pResult == end_node() || Compare()(rValue, static_cast<node*>(pResult)->value_)) {
+        if (pResult == end_node() || Compare()(rKey, static_cast<node*>(pResult)->value_)) {
             pResult = end_node();
         }
         return iterator(pResult);
@@ -160,16 +184,19 @@ public:
 
     void erase(iterator position) {
         tree_node_base* pNode = position.node_;
-        if (pNode == begin_) {
-            begin_ = tree_next(pNode);
+        if (pNode == begin_node()) {
+            begin_node() = tree_next(pNode);
         }
-        tree_balance_for_erase(pNode, root_.second());
-        this->Allocator::destroy(&static_cast<node*>(pNode)->value_);
+        tree_balance_for_erase(pNode, root());
+        alloc().destroy(&static_cast<node*>(pNode)->value_);
         ::operator delete(pNode);
-        --size_;
+        --size_.first();
     }
 
     tree_node_base* end_node() { return reinterpret_cast<tree_node_base*>(&root_.second()); }
+    tree_node_base*& begin_node() { return begin_.second(); }
+    tree_node_base*& root() { return *reinterpret_cast<tree_node_base**>(end_node()); }
+    Allocator& alloc() { return size_.second(); }
 
     tree_node_base* find_leaf(const value_type& rValue, node*& rpPred, bool& rLeft, bool& rLeftmost);
     node* insert_node_at(tree_node_base* pParent, bool left, bool leftmost, const value_type& rValue);
@@ -177,16 +204,16 @@ public:
     void destroy(node* pNode);
 
 private:
-    size_type size_;
-    Metrowerks::compressed_pair<node_allocator, tree_node_base*> root_;
-    tree_node_base* begin_;
+    Metrowerks::compressed_pair<size_type, Allocator> size_;
+    Metrowerks::compressed_pair<node_allocator, tree_root_ptr> root_;
+    tree_begin_holder<Compare> begin_;
 };
 
 template <typename T, typename Compare, typename Allocator>
 tree_node_base* tree_imp<T, Compare, Allocator>::find_leaf(const value_type& rValue, node*& rpPred, bool& rLeft, bool& rLeftmost) {
     rpPred = nullptr;
     node* pLeaf = static_cast<node*>(end_node());
-    node* pNode = static_cast<node*>(root_.second());
+    node* pNode = static_cast<node*>(root());
     rLeft = true;
     rLeftmost = true;
     while (pNode != nullptr) {
@@ -206,11 +233,11 @@ tree_node_base* tree_imp<T, Compare, Allocator>::find_leaf(const value_type& rVa
 
 template <typename T, typename Compare, typename Allocator>
 typename tree_imp<T, Compare, Allocator>::node* tree_imp<T, Compare, Allocator>::insert_node_at(tree_node_base* pParent, bool left, bool leftmost, const value_type& rValue) {
-    if (size_ == size_type(-1)) {
+    if (size_.first() == size_type(-1)) {
         __throw_tree_length_error();
     }
     Metrowerks::alloc_ptr<node, node_allocator&> holder(root_.first().allocate(1), root_.first());
-    this->Allocator::construct(&holder.get()->value_, rValue);
+    alloc().construct(&holder.get()->value_, rValue);
     node* pNode = holder.release();
     pNode->right_ = nullptr;
     pNode->left_ = nullptr;
@@ -220,10 +247,10 @@ typename tree_imp<T, Compare, Allocator>::node* tree_imp<T, Compare, Allocator>:
     } else {
         pParent->right_ = pNode;
     }
-    ++size_;
-    tree_balance_after_insert(pNode, root_.second());
+    ++size_.first();
+    tree_balance_after_insert(pNode, root());
     if (leftmost) {
-        begin_ = pNode;
+        begin_node() = pNode;
     }
     return pNode;
 }
@@ -248,7 +275,7 @@ void tree_imp<T, Compare, Allocator>::destroy(node* pNode) {
     if (pNode->right_ != nullptr) {
         destroy(static_cast<node*>(pNode->right_));
     }
-    this->Allocator::destroy(&pNode->value_);
+    alloc().destroy(&pNode->value_);
     ::operator delete(pNode);
 }
 

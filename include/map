@@ -15,7 +15,7 @@ template <typename T> struct map_pointer_key<T*> { enum { value = true }; };
 
 template <typename Key, typename T, typename Compare> struct map_transform { enum { value = false }; };
 template <typename Key, typename T> struct map_transform<Key, T, less<Key> > {
-    enum { value = Metrowerks::is_POD<T>::value || map_pointer_key<Key>::value };
+    enum { value = (Metrowerks::is_POD<T>::value && sizeof(T) == sizeof(void*)) || map_pointer_key<Key>::value };
 };
 
 template <typename Key, typename T, typename Compare> struct map_base_value_compare {
@@ -24,53 +24,31 @@ template <typename Key, typename T, typename Compare> struct map_base_value_comp
     }
 };
 
-template <typename T, typename Compare, typename Allocator> class map_tree : private Allocator {
-public:
-    typedef unsigned long size_type;
-
-    struct node : tree_node_base {
-        T value_;
-    };
-
-    class iterator {
-    public:
-        iterator() {}
-        iterator(const iterator& rOther) : node_(rOther.node_) {}
-        iterator(tree_node_base* pNode) : node_(pNode) {}
-        T* operator->() const { return &static_cast<node*>(node_)->value_; }
-        tree_node_base* node_;
-    };
-
-    map_tree() : size_(0), root_(nullptr), begin_(reinterpret_cast<tree_node_base*>(&root_)) {}
-    ~map_tree() {
-        if (root_ != nullptr) {
-            destroy(static_cast<node*>(root_));
-        }
-    }
-
-    iterator begin() { return iterator(begin_); }
-    size_type size() const { return size_; }
-
-    void destroy(node* pNode);
-
-private:
-    size_type size_;
-    tree_node_base* root_;
-    Compare comp_;
-    tree_node_base* begin_;
+template <typename Key, typename T, typename Compare> struct map_value_compare {
+    typedef pair<const Key, T> value_type;
+    map_value_compare() {}
+    bool operator()(const value_type& rLeft, const value_type& rRight) const { return Compare()(rLeft.first, rRight.first); }
+    bool operator()(const value_type& rLeft, const Key& rKey) const { return Compare()(rLeft.first, rKey); }
+    bool operator()(const Key& rKey, const value_type& rRight) const { return Compare()(rKey, rRight.first); }
 };
 
-template <typename T, typename Compare, typename Allocator>
-void map_tree<T, Compare, Allocator>::destroy(node* pNode) {
-    if (pNode->left_ != nullptr) {
-        destroy(static_cast<node*>(pNode->left_));
-    }
-    if (pNode->right_ != nullptr) {
-        destroy(static_cast<node*>(pNode->right_));
-    }
-    this->Allocator::destroy(&pNode->value_);
-    ::operator delete(pNode);
-}
+template <typename Key, typename T, typename Compare> class map_member_compare {
+public:
+    typedef pair<const Key, T> value_type;
+    bool operator()(const value_type& rLeft, const value_type& rRight) const { return comp(rLeft.first, rRight.first); }
+    bool operator()(const value_type& rLeft, const Key& rKey) const { return comp(rLeft.first, rKey); }
+    bool operator()(const Key& rKey, const value_type& rRight) const { return comp(rKey, rRight.first); }
+
+protected:
+    Compare comp;
+};
+
+template <typename Key, typename T, typename Compare, bool IsPOD> struct map_tree_compare {
+    typedef map_member_compare<Key, T, Compare> type;
+};
+template <typename Key, typename T, typename Compare> struct map_tree_compare<Key, T, Compare, true> {
+    typedef map_value_compare<Key, T, Compare> type;
+};
 
 template <typename T, typename Compare, typename Allocator> class map_compact_tree : private Compare, private Allocator {
 public:
@@ -178,7 +156,7 @@ tree_node_base* map_compact_tree<T, Compare, Allocator>::find_leaf(const value_t
 }
 
 template <typename T, typename Compare, typename BaseCompare, typename Allocator, bool Compact> struct map_tree_selection {
-    typedef map_tree<T, Compare, Allocator> type;
+    typedef tree<T, Compare, Allocator> type;
 };
 template <typename T, typename Compare, typename BaseCompare, typename Allocator> struct map_tree_selection<T, Compare, BaseCompare, Allocator, true> {
     typedef map_compact_tree<T, BaseCompare, Allocator> type;
@@ -186,8 +164,9 @@ template <typename T, typename Compare, typename BaseCompare, typename Allocator
 
 }
 
-template <typename Key, typename T, typename Compare = less<Key>, typename Allocator = allocator<pair<const Key, T> > >
-class map {
+namespace detail {
+
+template <typename Key, typename T, typename Compare, typename Allocator> class map_base {
 public:
     typedef Key key_type;
     typedef T mapped_type;
@@ -195,33 +174,59 @@ public:
     typedef Compare key_compare;
     typedef Allocator allocator_type;
 
-    class value_compare {
-    public:
-        bool operator()(const value_type& rLeft, const value_type& rRight) const { return comp(rLeft.first, rRight.first); }
-
-    protected:
-        Compare comp;
-    };
+    typedef typename map_tree_compare<Key, T, Compare, Metrowerks::is_POD<T>::value>::type value_compare;
 
 private:
-    typedef detail::map_base_value_compare<Key, T, Compare> base_value_compare;
-    typedef typename detail::map_tree_selection<value_type, value_compare, base_value_compare, allocator_type, detail::map_transform<Key, T, Compare>::value>::type tree_type;
+    typedef map_base_value_compare<Key, T, Compare> base_value_compare;
+    typedef typename map_tree_selection<value_type, value_compare, base_value_compare, allocator_type, map_transform<Key, T, Compare>::value>::type tree_type;
 
 public:
     typedef typename tree_type::size_type size_type;
-    typedef typename tree_type::iterator iterator;
 
-    map() {}
-    ~map() {}
+    class iterator {
+    public:
+        iterator() {}
+        iterator(const iterator& rOther) : mIterator(rOther.mIterator) {}
+        iterator(const typename tree_type::iterator& rIterator) : mIterator(rIterator) {}
+        iterator& operator=(const iterator& rOther) {
+            mIterator = rOther.mIterator;
+            return *this;
+        }
+        value_type* operator->() const { return mIterator.operator->(); }
+        value_type& operator*() const { return *mIterator; }
+        iterator& operator++() {
+            ++mIterator;
+            return *this;
+        }
+        bool operator==(const iterator& rOther) const { return mIterator == rOther.mIterator; }
+        bool operator!=(const iterator& rOther) const { return mIterator != rOther.mIterator; }
 
-    iterator begin() { return tree_.begin(); }
+        typename tree_type::iterator mIterator;
+    };
+
+    iterator begin() { return iterator(tree_.begin()); }
+    iterator end() { return iterator(tree_.end()); }
     size_type size() const { return tree_.size(); }
     bool empty() const { return tree_.size() == 0; }
 
-    pair<iterator, bool> insert(const value_type& rValue) { return tree_.insert_one(rValue); }
+    pair<iterator, bool> insert(const value_type& rValue) {
+        pair<typename tree_type::iterator, bool> result = tree_.insert_one(rValue);
+        return pair<iterator, bool>(iterator(result.first), result.second);
+    }
+    iterator find(const key_type& rKey) { return iterator(tree_.find(rKey)); }
+    mapped_type& operator[](const key_type& rKey) { return insert(value_type(rKey, mapped_type())).first->second; }
 
 private:
     tree_type tree_;
+};
+
+}
+
+template <typename Key, typename T, typename Compare = less<Key>, typename Allocator = allocator<pair<const Key, T> > >
+class map : public detail::map_base<Key, T, Compare, Allocator> {
+public:
+    map() {}
+    ~map() {}
 };
 
 template <typename Key, typename T> class map<Key*, T*, less<Key*>, allocator<pair<Key* const, T*> > > {
