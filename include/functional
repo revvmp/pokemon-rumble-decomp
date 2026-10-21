@@ -41,6 +41,23 @@ public:
 private:
     Function mFunction;
 };
+template<class R,class F,class T> class bound_func<R,F,tuple<T,nat> > {
+public:
+    bound_func(const F& rFunction,const tuple<T>& rArguments) : mFunction(rFunction),mArguments(rArguments) {}
+    R operator()() { return mFunction(std::tr1::get<0>(mArguments)); }
+private:
+    F mFunction;
+    tuple<T> mArguments;
+};
+template<class R,class F,class T0,class T1> class bound_func<R,F,tuple<T0,T1> > {
+public:
+    typedef tuple<T0,T1> Arguments;
+    bound_func(const F& rFunction,const Arguments& rArguments) : mFunction(rFunction),mArguments(rArguments) {}
+    R operator()() { return mFunction(std::tr1::get<0>(mArguments),std::tr1::get<1>(mArguments)); }
+private:
+    F mFunction;
+    Arguments mArguments;
+};
 template<class A> A& resolve_bound_argument(const placeholders::detail::ph<1>&,tuple<A&> rArguments) { return std::tr1::get<0>(rArguments); }
 template<class R,class F,class T> class bound_func<R,F,tuple<T,placeholders::detail::ph<1> > > {
 public:
@@ -56,6 +73,10 @@ private:
 }
 template<class R, class C, class T> detail::bound_func<R, detail::mem_fn_0<R, C>, tuple<T> > bind(R (C::*pFunction)(), T value) {
     return detail::bound_func<R, detail::mem_fn_0<R, C>, tuple<T> >(detail::mem_fn_0<R, C>(pFunction), tuple<T>(value));
+}
+template<class R,class C,class A,class T> detail::bound_func<R,detail::mem_fn_1<R,C,A>,tuple<T,A> > bind(R (C::*pFunction)(A),T value,A argument) {
+    typedef tuple<T,A> Arguments;
+    return detail::bound_func<R,detail::mem_fn_1<R,C,A>,Arguments>(detail::mem_fn_1<R,C,A>(pFunction),Arguments(value,argument));
 }
 template<class R,class C,class A,class T> detail::bound_func<R,detail::mem_fn_1<R,C,A>,tuple<T,placeholders::detail::ph<1> > > bind(R (C::*pFunction)(A),T value,placeholders::detail::ph<1> placeholder) {
     typedef tuple<T,placeholders::detail::ph<1> > Arguments;
@@ -105,6 +126,8 @@ public:
 private:
     F f_;
 };
+struct unused_argument;
+
 inline bool is_null(...) {
     return false;
 }
@@ -125,8 +148,8 @@ template <typename R> class function<R()> {
 public:
     typedef R result_type;
 
-    function() : f_(nullptr) {}
-    template <typename F> function(F f) : f_(nullptr) {
+    function(detail::unused_argument* = nullptr) : f_(nullptr) {}
+    template <typename F> function(F f, detail::unused_argument* = nullptr) : f_(nullptr) {
         if (!detail::is_null(f)) {
             typedef detail::function_imp<R (*)(), F, false, false> imp;
             if (sizeof(imp) <= sizeof(buf_)) {

@@ -10,6 +10,7 @@
 #include <game/Message.h>
 #include <game/SaveData.h>
 #include <game/SystemMessage.h>
+#include <functional>
 #include <memory>
 #include <queue>
 #include <vector>
@@ -40,6 +41,8 @@ public:
     virtual bool IsIdle();
 
     void Work(WorkType type);
+    void WaitIdle();
+    void StartWork(WorkType type);
 
 private:
     std::tr1::shared_ptr<CFiber> mFiber;
@@ -48,7 +51,6 @@ private:
     std::tr1::shared_ptr<IDlgMsgWin> mMsgWin;
 };
 
-#pragma force_active on
 void CSaveManager::Work(WorkType type) {
     CScopedActivity activity;
     YieldFiberStarted();
@@ -135,6 +137,17 @@ void CSaveManager::Work(WorkType type) {
         type = mQueue.front();
         mQueue.pop();
     }
+}
+
+#pragma force_active on
+void CSaveManager::WaitIdle() {
+    while (mFiber && !mFiber->IsFinished()) {
+        YieldFiber();
+    }
+}
+
+void CSaveManager::StartWork(WorkType type) {
+    mFiber.reset(new CFiber("CSaveManager", std::tr1::bind(&CSaveManager::Work, this, type), 0x8000));
 }
 #pragma force_active off
 

@@ -3,6 +3,7 @@
 
 #include <MSL_CPP/allocator.h>
 #include <MSL_CPP/compressed_pair.h>
+#include <MSL_CPP/msl_utility.h>
 
 namespace std {
 
@@ -42,18 +43,20 @@ public:
     typedef unsigned long size_type;
     typedef __cdeque<T*, typename Allocator::template rebind<T*>::other> buf_type;
 
+    typedef Metrowerks::int2type<Metrowerks::is_POD<T>::value> pod_type;
+
     enum { block_size = 1024 / sizeof(T) };
 
     size_type size() const { return size_; }
     bool empty() const { return size_ == 0; }
     buf_type& buf() { return buf_.first(); }
 
-    T& front() { return buf()[start_ / block_size][start_ % block_size]; }
+    T& front() { return first(); }
+    T& first() { return buf()[start_ / block_size][start_ % block_size]; }
 
-    void pop_front() {
-        ++start_;
-        --size_;
-    }
+    void pop_front() { pop_front(1); }
+    void pop_front(size_type n) { pop_front(n, pod_type()); }
+    void pop_front(size_type n, Metrowerks::int2type<false>);
 
     T& operator[](size_type n) {
         size_type i = n + start_;
