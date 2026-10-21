@@ -3359,3 +3359,12 @@ The original anonymous `CIconCollection_cpp` class `CIconCollection` is 468 byte
 | --- | --- | --- |
 | 801CA130 / 801CA180 / 801CA240 | CArchiveFontWithBuf, complete size 40; ArchiveFont base 0–31, shared_ptr<u8> mBuffer 32–39; constructor, virtual destructor and Load(const char*, bool) | Native RTTI, all three actual producer instruction streams and 348 exception bytes; [F-229-1](findings/229-main-contracts.md) |
 | 801EF970 | SetMsgRes(int, shared_ptr<CMsgRes>) by value | Real main initializer argument-copy lifetime, exact 380-byte caller and unchanged 164-byte callee; [F-229-1](findings/229-main-contracts.md) |
+
+# Game: session disconnect-message interface (#226)
+
+| Address / offset | Symbol / type | Evidence and confidence |
+| --- | --- | --- |
+| `800B2040` | `CGameSession(IDisconMsg*)` | Original constructor forwards its argument into `0xC70`; source name descriptive, pointer type high confidence from native producer and consumer |
+| `800BAC40` | `IGameSession::Create(IDisconMsg*)` | Factory forwards the same CMain-owned disconnect-message pointer; high confidence |
+| `800BABC0` | `CGameSession::GetDisconMsg()` | Slot 40 returns the word at `0xC70`; descriptive name, pointer type high confidence |
+| `CGameSession + 0xC70` | `IDisconMsg* mpDisconMsg` | Non-owning session reference; CMain's shared owner at 20 outlives each session; [F-226-4](findings/226-main-continuation.md#f-226-4-canonical-disconnect-message-pointer-prerequisite) |

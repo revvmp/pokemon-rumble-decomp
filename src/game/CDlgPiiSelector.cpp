@@ -627,7 +627,7 @@ public:
         GetCurrentGameMap()->SetPausing(true);
         mMultiPlayerData.reset(new MultiPlayerData);
         mMultiPlayerData->mState = 0;
-        mMultiPlayerData->mDisconMsgDisable.reset(new IDisconMsg::CDisable(reinterpret_cast<IDisconMsg*>(IGameSession::GetInstance()->GetPendingMapChange())));
+        mMultiPlayerData->mDisconMsgDisable.reset(new IDisconMsg::CDisable(IGameSession::GetInstance()->GetDisconMsg()));
         mMultiPlayerData->mMsgWin = IDlgMsgWin::Create(false, false);
         for (int player = 0; player < 4; player++) {
             CPlayer* pPlayer = IGameSession::GetInstance()->GetPlayer(player);
