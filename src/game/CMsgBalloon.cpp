@@ -33,6 +33,8 @@
 
 #pragma dont_inline on
 
+static const StageID sInvalidStageID = {-1, -1, -1, -1};
+
 CMapRecord* GetMapRecord(MapIndex index) {
     int mode = index.mMode;
     int area = index.mArea;
@@ -122,6 +124,66 @@ inline void CMsgBalloon::Show(bool show) {
     }
 }
 
+inline bool CMsgBalloon::Close() {
+    return true;
+}
+
+inline void CMsgBalloon::Add(const wchar_t* pText, f32 z, f32 x) {
+    std::list<Entry>::iterator it;
+    Entry entry;
+    mEntries.push_back(Entry());
+    it = --mEntries.end();
+    it->mPosition.x = x;
+    it->mPosition.y = 0.0f;
+    it->mPosition.z = z;
+    it->mDistanceScale = 1.0f;
+    it->mText = pText;
+    it->mStageID = sInvalidStageID;
+}
+
+inline void CMsgBalloon::Register(BWorldObj* pObject, const wchar_t* pText, f32 radius) {
+    std::list<Entry>::iterator it;
+    Entry entry;
+    mEntries.push_back(Entry());
+    it = --mEntries.end();
+    it->mObject = pObject->shared_from_this();
+    it->mPosition.x = 0.0f;
+    it->mPosition.y = 0.0f;
+    it->mPosition.z = 0.0f;
+    it->mDistanceScale = 1.0f / (radius * radius);
+    it->mText = pText;
+    it->mStageID = sInvalidStageID;
+}
+
+inline void CMsgBalloon::RegisterWarpzone(BWorldObj* pObject, f32 radius, const StageID& rStageID) {
+    std::list<Entry>::iterator it;
+    Entry entry;
+    mEntries.push_back(Entry());
+    it = --mEntries.end();
+    it->mObject = pObject->shared_from_this();
+    it->mPosition.x = 0.0f;
+    it->mPosition.y = 0.0f;
+    it->mPosition.z = 0.0f;
+    it->mDistanceScale = 1.0f / (radius * radius);
+    it->mText = L"";
+    it->mStageID = rStageID;
+}
+
+inline bool CMsgBalloon::IsShown(int index) {
+    Entry* pEntry = mShownEntries[index];
+    return pEntry != nullptr && mCurrentEntry == pEntry;
+}
+
+inline void CMsgBalloon::AdjustY(BWorldObj* pObject, const nw4r::math::VEC3& rPosition) {
+    std::list<Entry>::iterator it;
+    for (it = mEntries.begin(); it != mEntries.end(); ++it) {
+        if (it->mObject.lock().get() == pObject) {
+            it->mPosition = rPosition;
+            break;
+        }
+    }
+}
+
 inline void CMsgBalloon::Draw() {
     mUIManager->Draw();
 }
@@ -197,7 +259,7 @@ inline void CMsgBalloon::Calc() {
                 const nw4r::math::VEC3& rPiiPosition = pPii->GetPositionRef();
                 f32 sinValue;
                 f32 cosValue;
-                nw4r::math::SinCosFIdx(&sinValue, &cosValue, 0.71111f * pPii->GetRotation());
+                nw4r::math::SinCosFIdx(&sinValue, &cosValue, 0.71111112f * pPii->GetRotation());
                 f32 dz = position.z - (rPiiPosition.z + 0.33f * cosValue);
                 f32 dx = position.x - (rPiiPosition.x + 0.33f * sinValue);
                 f32 distance = (dz * dz + dx * dx) * it->mDistanceScale;
