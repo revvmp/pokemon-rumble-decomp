@@ -350,6 +350,15 @@ game/CPlayer.cpp:
 	.data       start:0x803A9320 end:0x803A93C8
 	.sdata      start:0x804B7108 end:0x804B7120
 
+game/CPlayerPii.cpp:
+	extab       start:0x80026418 end:0x800269D4
+	extabindex  start:0x8004AA84 end:0x8004B108
+	.text       start:0x800F8D60 end:0x800FD4F8
+	.rodata     start:0x80352E90 end:0x80352EA0
+	.data       start:0x803A93C8 end:0x803A9588
+	.sdata      start:0x804B7120 end:0x804B7128
+	.sbss       start:0x804B9030 end:0x804B9048
+
 game/CPpuEngine.cpp:
 	extab       start:0x80026DC4 end:0x80027C60
 	extabindex  start:0x8004B198 end:0x8004B39C

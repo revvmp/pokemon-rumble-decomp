@@ -30,6 +30,7 @@ public:
     bool IsJoined() const;
     std::tr1::shared_ptr<CPiiPersonalData> GetPersonalData() const;
     std::tr1::shared_ptr<CPiiPersonalData> GetPendingPersonalData() const;
+    int GetPlayerNo() const { return mPlayerNo; }
     void SetPii(CPlayerPii* pPii);
     CPlayerPii* GetPii();
     IController* GetController();
