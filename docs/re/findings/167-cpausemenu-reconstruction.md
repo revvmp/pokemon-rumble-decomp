@@ -89,3 +89,20 @@ New headers: `IPauseMenu.h` (extends the stub from #117), `IBattleRoyalDisplay.h
 - **objdiff cannot reach 100% for any function that loads a literal.** `Create` has zero instruction differences and scores 99.93% because `lbl_804BA000` and `@14423` are different names; compare with literal names normalised.
 - **A symbol named from the reference revision can hide the real class.** `0x800DC990` was labelled `__vec_constructor<...,1>::~` and no source made it match; the extab local layout showed a split buffer. Check the object layout of the local before rewriting vector code.
 - **A vector template change is shared by every unit.** Switching the reallocation overload globally regressed two other units; use a per-type trait and compare `report.json` against the seed build.
+
+## F-167-8: inlining collapse in Run, flattened push_back and the ShowMenu helper
+
+Measured with `python tools/re/unitdiff.py CPauseMenu`. Run 49.9% to 98.3%, TakeScreenshot 82.5% to 84.2%, `vector<UIMenuItem>::push_back` 95.9% to 93.9%; the full report.json comparison against a baseline built from the same tree shows no other function changing.
+
+- **Cause of the Run collapse.** `-pragma "warn_notinlined on"` lists the refused inlines. Once a function inlines `vector::push_back` twice, the compiler abandons all inlining in that function: `GetLayout`, `shared_ptr::operator*`, `~vector`, the `CMotionProgram` destructor and `IsHubMap` all became calls in Run, and the original keeps them inline while calling `push_back` out of line. Two inlined `push_back` calls plus the `CUIMenuCallbacks` locals in one function trigger it; fewer locals or one call do not.
+- **Making `push_back` a non-candidate.** A non-inline (out-of-class) member whose own statement count is above roughly 15 is never attempted, and nothing else is disturbed. `include/vector` now defines `vector::push_back` out of class with a flattened POD body (fast path, `grow_by`, split-buffer reallocation); the non-POD branch still calls `base::push_back`. In-class definitions, explicit specialisations and `#pragma dont_inline` or `inline_max_size` do not have this effect. Cost: `push_back` itself drops to 93.9% (the original has an extra exception flag byte at frame offset 0x8 and a 0x10 larger frame).
+- **Run structure.** The original destroys the callbacks and the item vector on every exit edge, which a `return` from an inlined helper produces; `break`, `switch` with a shared exit and `done` flags merge the cleanup. `CPauseMenu::ShowMenu`, an in-class inline member taking the four constant items and the base parameter block by reference, reproduces it, with the `switch` written `default: return;` first. Items are separate block-scope locals, and `IsStage7EvenMap` takes the map index directly.
+- **Remaining Run rows.** Register choices (`_savegpr_24` against 25), the `neg`/`or`/`srwi` normalisation of `0x60081 + IsHubMap()` (bool helper variants, ternaries and casts do not change it), and the pairing of constant items to stack slots.
+
+### Traps
+
+- **Two inlined `vector::push_back` calls switch off all inlining in a large function.** Symptom: every small accessor is a call. Check the refusal list with `warn_notinlined on` in a scratch compile.
+- **Dead padding statements count toward auto-inline size.** `if (a) { a = 1; }` repeated eight times rejects an out-of-class function; empty statements do not.
+- **Local slot order is not declaration order.** Permuting the declarations of the four constant items did not change the score; the order follows first use.
+- **Wrapping `basic_formatter` in a named local, an `=` copy, or constructor-body variants leaves both `FormatMessage` instances at 93.1%.** The retained-address behaviour matches [F-61](61-cdividedground-second-block.md); no source form found.
+- **`CUIMenuCallbacks` destructors are inlined by this build but not by the original.** A non-inline destructor with about ten dead statements restores the call but is not plausible source and destabilises `RunRemoteMemoryMenu`; not committed.
