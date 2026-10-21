@@ -41,6 +41,8 @@ public:
     virtual void RequestDelete();
     virtual bool IsIdle();
 
+    static CSaveManager* GetInstance();
+
     void Work(WorkType type);
     void WaitIdle();
     void StartWork(WorkType type);
@@ -62,6 +64,12 @@ CSaveManager::CSaveManager() {
 CSaveManager::~CSaveManager() {
     sInstance = nullptr;
 }
+
+#pragma force_active on
+CSaveManager* CSaveManager::GetInstance() {
+    return sInstance;
+}
+#pragma force_active off
 
 void CSaveManager::Work(WorkType type) {
     CScopedActivity activity;

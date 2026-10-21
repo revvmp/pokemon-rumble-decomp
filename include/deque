@@ -4,17 +4,50 @@
 #include <MSL_CPP/allocator.h>
 #include <MSL_CPP/compressed_pair.h>
 #include <MSL_CPP/msl_utility.h>
+#include <algorithm>
+#include <stdexcept>
 
 namespace std {
+
+inline void __throw_deque_length_error(const char* pMessage) {
+    throw length_error(pMessage);
+}
 
 template <typename T, typename Allocator> class __cdeque_buf {
 public:
     typedef unsigned long size_type;
 
+    class iterator {
+    public:
+        iterator(const iterator& rOther);
+        T& operator*();
+        iterator& operator++();
+        bool operator!=(const iterator& rOther) const;
+
+    private:
+        T* cur_;
+        T* first_;
+        T* begin_;
+        T* last_;
+    };
+
     ~__cdeque_buf();
 
     size_type& cap() { return capacity_.first(); }
     T& operator[](size_type i) { return data_[(start_ + i) % cap()]; }
+
+    size_type size() const { return size_; }
+    bool empty() const { return size_ == 0; }
+    size_type capacity();
+    void reserve(size_type n);
+    void clear();
+    iterator begin();
+    iterator end();
+    T& front();
+    T& back();
+    void pop_front();
+    void push_back(const T& rValue);
+    void swap(__cdeque_buf& rOther);
 
     T* data_;
     size_type start_;
@@ -26,7 +59,29 @@ template <typename T, typename Allocator> class __cdeque_pointer : public __cdeq
     typedef __cdeque_buf<void*, allocator<void*> > base;
 
 public:
+    class iterator : public base::iterator {
+        typedef typename base::iterator base_iterator;
+
+    public:
+        iterator(const base_iterator& rBase) : base_iterator(rBase) {}
+        T*& operator*() { return reinterpret_cast<T*&>(base_iterator::operator*()); }
+        iterator& operator++() {
+            base_iterator::operator++();
+            return *this;
+        }
+        bool operator!=(const iterator& rOther) const { return base_iterator::operator!=(rOther); }
+        iterator operator-(int n) const;
+    };
+
     T*& operator[](size_type i) { return reinterpret_cast<T*&>(base::operator[](i)); }
+
+    iterator begin() { return iterator(base::begin()); }
+    iterator end() { return iterator(base::end()); }
+    T*& front() { return reinterpret_cast<T*&>(base::front()); }
+    T*& back() { return reinterpret_cast<T*&>(base::back()); }
+    void push_back(T* const& rPtr) { base::push_back(reinterpret_cast<void* const&>(rPtr)); }
+    void swap(__cdeque_pointer& rOther) { base::swap(rOther); }
+    void insert(iterator pos, iterator first, iterator last, int n);
 };
 
 template <typename T, typename Allocator> class __cdeque;
@@ -36,8 +91,24 @@ template <typename T, typename Allocator> class __cdeque<T*, Allocator> : privat
 
 public:
     typedef unsigned long size_type;
+    typedef typename base::iterator iterator;
 
     T*& operator[](size_type i) { return base::operator[](i); }
+
+    using base::size;
+    using base::empty;
+    using base::capacity;
+    using base::reserve;
+    using base::clear;
+    using base::begin;
+    using base::end;
+    using base::front;
+    using base::back;
+    using base::insert;
+
+    void pop_front() { base::pop_front(); }
+    void push_back(T* const& rPtr) { base::push_back(rPtr); }
+    void swap(__cdeque& rOther) { base::swap(rOther); }
 };
 
 template <typename T, typename Allocator> class __deque_imp {
@@ -49,23 +120,79 @@ public:
 
     enum { block_size = 1024 / sizeof(T) };
 
+    class iterator {
+    public:
+        iterator(__deque_imp& rDeque, size_type pos);
+        T& operator*() { return *cur_; }
+
+    private:
+        typename buf_type::iterator block_;
+        T* cur_;
+    };
+
     size_type size() const { return size_; }
     bool empty() const { return size_ == 0; }
     buf_type& buf() { return buf_.first(); }
+    Allocator& alloc() { return buf_.second(); }
+    iterator end() { return iterator(*this, size_); }
+    size_type front_capacity() const { return start_; }
+    size_type back_capacity() { return capacity() - (start_ + size_); }
+    size_type capacity() const;
+    size_type max_size() const;
 
     T& front() { return first(); }
     T& first() { return buf()[start_ / block_size][start_ % block_size]; }
 
     __deque_imp() : start_(0), size_(0) {}
-    ~__deque_imp() {}
+    explicit __deque_imp(const Allocator& rAlloc) : start_(0), size_(0), buf_(buf_type(), rAlloc) {}
+    ~__deque_imp() {
+        destroy_all();
+        buf_type& rBuf = buf();
+        if (!rBuf.empty()) {
+            Allocator& rAlloc = alloc();
+            typename buf_type::iterator last = rBuf.end();
+            typename buf_type::iterator it = rBuf.begin();
+            for (; it != last; ++it) {
+                if (*it) {
+                    rAlloc.deallocate(*it, block_size);
+                }
+            }
+        }
+    }
+
+    void destroy_all() { destroy_all(pod_type()); }
+    void destroy_all(pod_type) { size_ = 0; }
 
     void push_back(const T& x) { append(x); }
     void append(const T& x) { push_back(x, pod_type()); }
-    void push_back(const T& x, Metrowerks::int2type<false>);
+    void push_back(const T& x, Metrowerks::int2type<false>) {
+        if (back_capacity() == 0) {
+            allocate_back(1);
+        }
+        alloc().construct(&*end(), x);
+        ++size_;
+    }
+
+    void allocate_back(size_type n);
 
     void pop_front() { pop_front(1); }
     void pop_front(size_type n) { pop_front(n, pod_type()); }
-    void pop_front(size_type n, Metrowerks::int2type<false>);
+    void pop_front(size_type n, Metrowerks::int2type<false>) {
+        if (n != 0) {
+            Allocator& rAlloc = alloc();
+            buf_type& rBuf = buf();
+            size_ -= n;
+            start_ += n;
+            while (start_ >= 2 * block_size) {
+                rAlloc.deallocate(rBuf.front(), block_size);
+                rBuf.pop_front();
+                start_ -= block_size;
+            }
+            if (size_ == 0) {
+                start_ = block_size / 2;
+            }
+        }
+    }
 
     T& operator[](size_type n) {
         size_type i = n + start_;
@@ -76,6 +203,51 @@ public:
     size_type size_;
     Metrowerks::compressed_pair<buf_type, Allocator> buf_;
 };
+
+template <typename T, typename Allocator> void __deque_imp<T, Allocator>::allocate_back(size_type n) {
+    buf_type& rBuf = buf();
+    Allocator& rAlloc = alloc();
+    T* pBlock;
+    size_type count;
+    size_type limit;
+    size_type blocks = n / block_size + (n % block_size != 0);
+    for (; blocks != 0 && front_capacity() >= block_size; --blocks) {
+        pBlock = rBuf.front();
+        rBuf.pop_front();
+        rBuf.back() = pBlock;
+        rBuf.push_back(nullptr);
+        start_ -= block_size;
+    }
+    if (blocks != 0) {
+        count = blocks * block_size;
+        if (count > max_size() || capacity() > max_size() - count) {
+            __throw_deque_length_error("deque:: length error");
+        }
+        limit = rBuf.capacity();
+        if (blocks + rBuf.size() <= limit) {
+            for (; blocks != 0; --blocks) {
+                pBlock = rAlloc.allocate(block_size);
+                rBuf.back() = pBlock;
+                rBuf.push_back(nullptr);
+            }
+        } else {
+            __deque_imp spare(rAlloc);
+            buf_type& rSpare = spare.buf();
+            rSpare.reserve(max(rBuf.capacity() * 2, rBuf.size() + blocks + 1));
+            rSpare.push_back(nullptr);
+            for (; blocks != 0; --blocks) {
+                pBlock = rAlloc.allocate(block_size);
+                rSpare.back() = pBlock;
+                rSpare.push_back(nullptr);
+            }
+            if (!rBuf.empty()) {
+                rSpare.insert(rSpare.begin(), rBuf.begin(), rBuf.end() - 1, 0);
+            }
+            rBuf.swap(rSpare);
+            rSpare.clear();
+        }
+    }
+}
 
 template <typename T, typename Allocator> class __deque_storage : public __deque_imp<T, Allocator> {};
 
