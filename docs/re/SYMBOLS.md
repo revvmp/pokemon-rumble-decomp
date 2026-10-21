@@ -3537,3 +3537,7 @@ Factory cleanup records establish native move_ptr<CUIManager> at8007DD50 and mov
 ### F-261-1: generic motion dispatch bindings
 
 The twenty-six original binding-table names at `0x801504C0–0x80151224` name ordinary free functions taking `NPpu::CEngine*` and returning int. Existing CPii, BWorldCamera, CNullObj, BWorldLightSet TYPE enums select the actual typed script callees, with BModelObj as the final fallback. Only the complete dispatch unit is reconstructed; outside callee names retain their original addresses, extents and types. See [F-261-1](findings/261-motion-dispatch.md#f-261-1-complete-source-selected-dispatch-unit).
+
+### F-217-5: complete CRemoteMemory storage
+
+The64-byte CRemoteMemory retains its canonical COyaInfo owner pointer and public constructor/Update/Wait interfaces. Native constructor/destructor and read/write accesses establish its flags0, owner4, channel8, list12, CPiiBox24, retry44/wait48, unsigned-short transfer52/54/56, active-block58 and write-mode60 fields. IsBusy observes bit0; ConsumeFatalError observes and clears bit0x80 while returning its former state. Names are descriptive inferences, with actual typed CUI/controller callers proving the inline operations. See [F-217-5](findings/217-pii-ui.md#f-217-5-primary-string-update-and-complete-remote-memory-contract).
