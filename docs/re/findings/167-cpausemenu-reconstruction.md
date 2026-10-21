@@ -41,12 +41,12 @@ Measured with `python tools/re/unitdiff.py CPauseMenu` after renaming the outsid
 | `~IPauseMenu` | `0x800D90D0` | 0x40 | 100% | 0 |
 | `CPauseMenu::Run` | `0x800D9110` | 0x6F4 | 49.6% | 358 rows |
 | `vector<UIMenuItem>::~vector` | `0x800D9810` | 0x78 | 100% | 0 |
-| `vector<UIMenuItem>::push_back` | `0x800D9890` | 0x4D4 | 80.1% | 176 rows |
+| `vector<UIMenuItem>::push_back` | `0x800D9890` | 0x4D4 | 95.9% | frame slots of the exception flags |
 | `~CUIMenuCallbacks`, `~CUICallbackLists`, `BUI::CCallbackListOwner::~` | `0x800D9D70`, `0x800D9FB0`, `0x800DA1E0` | 0x234, 0x230, 0xF0 | 100% | 0 |
 | `CPauseMenu::LeaveStage` | `0x800DA2D0` | 0x340 | 98.4% | 21 rows |
 | `CPauseMenu::TakeScreenshot` | `0x800DA610` | 0xB14 | 82.5% | 428 rows |
 | `CaptureTexture::GetBufferOwner` | `0x800DB130` | 0x28 | 100% | 0 |
-| `CPauseMenu::RunRemoteMemoryMenu` | `0x800DB160` | 0x62C | 99.9% | 5 rows |
+| `CPauseMenu::RunRemoteMemoryMenu` | `0x800DB160` | 0x62C | 99.99% | 2 rows (slots of two exception-specification records) |
 | `FormatMessage<const wchar_t*, const wchar_t*>`, `<..., ..., ...>` | `0x800DB790`, `0x800DBC50` | 0x4BC, 0x4C8 | 74% | about 200 rows each |
 | `Draw`, `CalcView`, `CalcMtx`, `Calc`, `IsOpen` | `0x800DC120`-`0x800DC340` | | 100% | 0 |
 | `CPauseMenuInput` slots 6 to 0 | `0x800DC350`-`0x800DC4B0` | | 100% | 0 |
@@ -54,16 +54,23 @@ Measured with `python tools/re/unitdiff.py CPauseMenu` after renaming the outsid
 | `shared_ptr_deleter<CPauseMenu>` `get_deleter`, `dispose`, deleting destructor | `0x800DC5E0`, `0x800DC630`, `0x800DC950` | | 100% | 0 |
 | `shared_ptr<CPauseMenu>::~`, `move_ptr<CPauseMenu>::~` | `0x800DC660`, `0x800DC6F0` | | 100% | 0 |
 | `~CPauseMenu` | `0x800DC770` | 0x194 | 100% | 0 |
-| `__vec_constructor<UIMenuItem>::~` | `0x800DC990` | 0x74 | 85.5% | 8 rows |
+| `__vec_split_buffer<UIMenuItem>::~` (formerly misnamed `__vec_constructor<UIMenuItem>::~`) | `0x800DC990` | 0x74 | 100% | 0 |
 
-29 of the 37 functions have no instruction difference. The eight that differ are `Run`, `push_back`, `LeaveStage`, `TakeScreenshot`, `RunRemoteMemoryMenu`, the two `FormatMessage` instances and the `__vec_constructor` destructor. Remaining causes, in order of understanding:
+30 of the 37 functions have no instruction difference ([F-167-7](#f-167-7-split-buffer-destructor-and-push_back-reallocation) resolved the destructor). The seven that differ are `Run`, `push_back`, `LeaveStage`, `TakeScreenshot`, `RunRemoteMemoryMenu` and the two `FormatMessage` instances. Remaining causes, in order of understanding:
 
 - **`Run` (358 rows).** The original keeps the four constant `UIMenuItem` values and the base `UIMenuParam` in stack memory and reloads them each pass, while the reconstruction keeps them in `r21`-`r30`; the frame is `0x180` against `0x110`. The register pressure that spills them in the original has not been reproduced.
 - **`TakeScreenshot` (428 rows).** The float geometry and the second `CaptureTexture` follow the original structure; the divergence starts in the register assignment of the size computation.
 - **`FormatMessage` (about 200 rows each).** The loop is structurally identical. The original materialises `rep_.l.is_long_ == 0` with `cntlzw`/`srwi.` once per iteration, keeps the short-data address `this + 2` in a register across the loop and tests that flag at every `data()` and `size()`. The reconstruction branches on the raw bit and recomputes the address. Wrapping the test in an inline `is_short()` did not change this.
-- **`push_back` (176 rows).** The fast path matches the repository's `int2type<true>` path (`++size; back() = x`), but the original reallocation copies the old elements with the element loop of `construct_at_front(..., int2type<false>)`, which the repository ties to a non-POD element. `UIMenuItem` is declared POD in `CUIMenu.h` so the fast path matches. With the non-POD path the fast path gets a placement-new null check that the original lacks. The vector header has no combination of the two.
+- **`push_back`.** Fixed to 95.9% by F-167-7; what remains is the frame position of the fourteen exception-state flag bytes (the original zeroes two flags before the element loop where the reconstruction zeroes one).
 - **`LeaveStage`, `RunRemoteMemoryMenu`.** Register numbers of a few temporaries and the frame slot of two exception-specification records.
-- **`__vec_constructor<UIMenuItem>::~`.** The original stores `size = 0` before the base destructor body; adding that destructor to `__vec_constructor` would also change the vector-of-pointer destructors that other units link.
+
+## F-167-7: split-buffer destructor and push_back reallocation
+
+- The function at `0x800DC990` is the destructor of `std::__vec_split_buffer<UIMenuItem, allocator<UIMenuItem>>`, not of `__vec_constructor`: the local at frame offset `0x8C` of `push_back` has the five words data, size, capacity, allocator reference and start, and the destructor stores `size = 0` first, as `~__vec_split_buffer` does. Renaming the symbol in `symbols.txt` made it 100%; the previous name came from the reference revision's guess.
+- The original reallocation moves the old elements with the element loop (`construct_at_front(..., int2type<false>)`) while the fast path stays POD. `std::__vec_bulk_move<T>` in `include/vector` selects that overload per element type (default `is_POD<T>`), and `CUIMenu.h` specialises it to `false` for `UIMenuItem`. Changing the overload for every vector regressed `BWorld::GetObjects` (94% to 58%) and `CDividedGround` `push_back<const char*>` (98% to 79%), so the trait must stay per type.
+- `mDialog->WaitUntilClosed()` without a `pDialog` local moves the polled dialog pointer in `RunRemoteMemoryMenu` to the original register (`r29`).
+- The remaining `RunRemoteMemoryMenu` rows swap the frame slots of the first and last `__unexpected` records; the original allocates them in the order reset, temporary, assignment. No reordering of the three `mDialog` statements tried so far changed it.
+- `Run` calls `IsHubMap` out of line while the original inlines it everywhere with the `neg`/`or`/`srwi` bool normalisation of the sum `0x60081 + IsHubMap()`; `#pragma always_inline on` around the helper did not change the score.
 
 ## Source additions
 
@@ -80,3 +87,5 @@ New headers: `IPauseMenu.h` (extends the stub from #117), `IBattleRoyalDisplay.h
 - **`nw4r/lyt/lyt_texMap.h` must precede the other lyt and ut includes.** Its `lyt_common.h` defines a `RoundUp` macro that breaks `ut_algorithm.h` when included later.
 - **The vector element trait decides both the fast path and the reallocation.** There is no setting that reproduces a POD fast path with a loop reallocation (see `push_back` above).
 - **objdiff cannot reach 100% for any function that loads a literal.** `Create` has zero instruction differences and scores 99.93% because `lbl_804BA000` and `@14423` are different names; compare with literal names normalised.
+- **A symbol named from the reference revision can hide the real class.** `0x800DC990` was labelled `__vec_constructor<...,1>::~` and no source made it match; the extab local layout showed a split buffer. Check the object layout of the local before rewriting vector code.
+- **A vector template change is shared by every unit.** Switching the reallocation overload globally regressed two other units; use a per-type trait and compare `report.json` against the seed build.

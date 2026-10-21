@@ -14,6 +14,10 @@ static inline void __throw_vector_length_error() {
     throw length_error("vector length error");
 }
 
+template <typename T> struct __vec_bulk_move {
+    enum { value = Metrowerks::is_POD<T>::value };
+};
+
 template <typename T, typename Allocator, bool IsPOD> class __vec_constructor;
 
 template <typename T, typename Allocator> class __vec_deleter {
@@ -245,7 +249,7 @@ protected:
         buffer.start_ = this->size_;
         *buffer.end() = x;
         ++buffer.size_;
-        buffer.construct_at_front(this->data_, this->data_ + this->size_, pod_type());
+        buffer.construct_at_front(this->data_, this->data_ + this->size_, Metrowerks::int2type<__vec_bulk_move<T>::value>());
         this->size_ = 0;
         swap(buffer, pod_type());
     }

@@ -7,6 +7,7 @@
 #include <MSL_CPP/msl_utility.h>
 #include <list>
 #include <memory>
+#include <vector>
 #include <revolution/types.h>
 
 class CUIManager;
@@ -19,6 +20,12 @@ struct UIMenuItem {
 namespace Metrowerks {
 template <> struct is_POD<UIMenuItem> {
     enum { value = true };
+};
+}
+
+namespace std {
+template <> struct __vec_bulk_move<UIMenuItem> {
+    enum { value = false };
 };
 }
 

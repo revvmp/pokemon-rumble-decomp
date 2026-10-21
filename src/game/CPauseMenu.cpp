@@ -479,8 +479,7 @@ bool CPauseMenu::TakeScreenshot() {
 
     mDialog = IDlgMsgWin::Create(false, true);
     SaveScreenshotToRemoteMemory(mDialog.get(), mRemoteMemoryLayout.get(), pJpeg, jpegSize);
-    IDlgMsgWin* pDialog = mDialog.get();
-    pDialog->WaitUntilClosed();
+    mDialog->WaitUntilClosed();
     mDialog.reset();
 
     mScreenshotLayout.CreateMotion("end", "SS_ROOT", 0.0f, 1.0f)->Wait();
@@ -506,8 +505,7 @@ bool CPauseMenu::RunRemoteMemoryMenu() {
 
     mDialog = IDlgMsgWin::Create(false, true);
     OpenRemoteMemoryDialog(mDialog.get(), mRemoteMemoryLayout.get());
-    IDlgMsgWin* pDialog = mDialog.get();
-    pDialog->WaitUntilClosed();
+    mDialog->WaitUntilClosed();
     mDialog.reset();
     return true;
 }
