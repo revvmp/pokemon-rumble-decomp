@@ -491,6 +491,13 @@ game/l10n_files.cpp:
 	.sdata      start:0x804B7840 end:0x804B7880
 	.sbss       start:0x804B90A0 end:0x804B90B8
 
+game/ScriptPiiPropData.cpp:
+	extab       start:0x80031B28 end:0x80031C30
+	extabindex  start:0x8004F41C end:0x8004F524
+	.text       start:0x80157DE0 end:0x80158FF4
+	.data       start:0x803B72F8 end:0x803B7344
+	.sdata2     start:0x804BA2E0 end:0x804BA2E4
+
 ControllerTableAlignmentPadding:
 	.sdata      start:0x804B77D9 end:0x804B77E0 align:1
 
