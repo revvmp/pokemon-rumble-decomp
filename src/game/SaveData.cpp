@@ -147,11 +147,15 @@ template <typename T> u32 SerializeStruct(T& rStruct, u32 size, u8* pBuffer, u32
 }
 
 static inline void SetBannerIconSpeed(NANDBanner* pBanner, int index, int speed) {
-    pBanner->iconSpeed = (pBanner->iconSpeed & ~(3 << (index * 2))) | (speed << (index * 2));
+    pBanner->iconSpeed = (speed << (index * 2)) | (pBanner->iconSpeed & ~(3 << (index * 2)));
 }
 
 static inline TPLPalette* GetPalette(const std::tr1::shared_ptr<FileList>& rFiles) {
     return static_cast<TPLPalette*>(rFiles->front()->GetData());
+}
+
+static inline void InitBanner(NANDBanner* pBanner, const u16* pTitle, const u16* pSubtitle) {
+    NANDInitBanner(pBanner, NAND_BANNER_FLAG_NOTCOPY, pTitle, pSubtitle);
 }
 
 bool WriteBanner(int mode) {
@@ -171,8 +175,8 @@ bool WriteBanner(int mode) {
 
         std::tr1::shared_ptr<NANDBanner> banner(static_cast<NANDBanner*>(GameMemory::Allocate(sizeof(NANDBanner), 64)),
                                                 GameMemory::Free);
-        NANDInitBanner(banner.get(), NAND_BANNER_FLAG_NOTCOPY, reinterpret_cast<const u16*>(GetMessageText(1, gEmptyText)),
-                       reinterpret_cast<const u16*>(GetMessageText(0x600D3, gEmptyText)));
+        InitBanner(banner.get(), reinterpret_cast<const u16*>(GetMessageText(1, gEmptyText)),
+                   reinterpret_cast<const u16*>(GetMessageText(0x600D3, gEmptyText)));
 
         std::list<std::tr1::shared_ptr<FileList> > fileLists;
         std::tr1::shared_ptr<FileList> files = LoadFileList(nullptr, "savebanner.arc/arc/timg/banner.tpl", 0, true, nullptr);
@@ -203,7 +207,8 @@ bool WriteBanner(int mode) {
         fileLists.clear();
 
         u32 size = offsetof(NANDBanner, iconTexture) + icon * sizeof(banner->iconTexture[0]);
-        if (WaitNandWrite(&info, banner.get(), size) != size) {
+        u32 written = WaitNandWrite(&info, banner.get(), size);
+        if (written != size) {
             WaitNandClose(&info);
             ReportNandError(NAND_RESULT_UNKNOWN);
             return false;
