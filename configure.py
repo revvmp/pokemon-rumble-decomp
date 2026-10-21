@@ -287,6 +287,7 @@ config.libs = [
             Object(Matching, "game/ScriptUtilities.cpp"),
             Object(Matching, "game/ScriptPiiStats.cpp"),
             Object(Matching, "game/ScriptPiiProperties.cpp"),
+            Object(Matching, "game/ScriptAudio.cpp"),
             Object(NonMatching, "game/ScriptModel.cpp"),
             Object(Matching, "game/ControllerTable.cpp"),
             Object(Matching, "game/DCIM.cpp"),

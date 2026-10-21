@@ -37,3 +37,25 @@ The actual complete producer currently matches 24/28 original instruction stream
 - A const-reference target getter removed the native local snapshot before CreateMapDesc. Returning the four-byte record by value restores the native dataflow without manual storage or retention mechanisms.
 - Reusing an old outside header after another contributor's merge silently loses newly accepted declarations. Rebuild sparse overlays from current main and apply only the owned additive changes; this control retains the incoming CPiiPersonalData APIs.
 - Literal-address binding must verify payload as well as the relocated instruction. The audio audit explicitly verifies StopBGM's 0.1f native bytes, rather than binding any source float to the expected address.
+
+
+# F-274-2: Complete audio binding module
+
+The first nine original functions form the self-contained descriptive module `src/game/ScriptAudio.cpp`. No recovered filename is asserted. As with F-272-2, the survey bind_7 grouping is not an original source-boundary claim. This module owns native text `0x8015CA00–0x8015D144`, extab `0x80032790–0x800327D8`, extabindex `0x8004F86C–0x8004F8D8`, and the three float constants `0x804BA2E8–0x804BA2F4`. Its nine instruction bodies total1,804 bytes; text also contains56 native alignment bytes. There are no owned constructors, static initializers or hidden static state. Emitted weak class RTTI resolves to the earlier canonical definitions and is discarded from this module.
+
+The source uses the original binding-table names and canonical complete headers. PopSoundID preserves the native int/string/reference branches and the observed sound-player lookup before popping a label. Dynamic casts obtain the existing BSoundSource mixin; absent owners preserve the native default pitch or no-op setter behavior. The single-argument ContinueGameBGM callee name and four BSoundSource method names are descriptive native API names, not recovered debug symbols. All outside symbols retain their original ranges and sizes.
+
+Initial NonMatching split validation passed the full frozen executable. The actual registered source object has9/9 functions,1,804/1,804 code bytes,72EH bytes,108 exception-index bytes and12constant bytes at100% in unitdiff. Strict auditors apply every code relocation, verify literal payloads, and compare every exception record without masking. Matching source selection also passes the full frozen executable. A fresh mapped link independently proves every function's unique native address, exact size and `ScriptAudio.o` source column. The linker input query selects the source object and excludes its original fallback. All four retained allocated ranges, including padding and exception-index relocations, equal native bytes.
+
+The original inferred eight-byte float symbol at804BA2F0 was refined to its evidenced four-byte payload; the following four bytes remain native alignment outside this module. No source padding array, executable-byte storage, flags change, retention directive or explicit instantiation is used.
+
+Reproducers: `274-source-audio-audit.py`, `274-source-audio-eh.py`, and `274-source-audio-acceptance.py` under the retained outside `274-reference` directory. Official source landing repeats all_source, strict audits, a fresh mapped source-only link, and frozen verification after rebasing. The accepted artifact archive contains the source object, native receipts, ELF, DOL, MAP, source config, Ninja graph and hash manifest.
+
+## Original issue remains partial
+
+This accepts9/28 original functions and1,804/5,644 code bytes. The remaining19functions/3,840bytes belong to the table/callback/world module. Four of those bodies still have code differences; the other15 are strict outside evidence only. The issue must remain open and receives no whole-issue completion credit.
+
+## Additional traps
+
+- A source object's weak RTTI sections are not necessarily retained allocations. Check the actual mapped link before assigning ownership; this module's class RTTI is supplied by earlier canonical definitions.
+- Wii/1.3 gives the same complete28-function instruction streams as Wii/1.1 for this producer. It does not resolve the four remaining table-binding gaps. Direct reverse-index reassociation and direct record-member construction were bounded negative controls; they are not adopted as register-retention workarounds.
