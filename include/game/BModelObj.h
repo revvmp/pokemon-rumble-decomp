@@ -54,7 +54,7 @@ public:
     virtual void SetModelScaleDirect(const nw4r::math::VEC3& rScale);
     virtual void SetBoundingEnable(bool enable);
     virtual void SetSizeMode(int mode);
-    virtual void AddDrawLayer(const std::tr1::shared_ptr<IDrawLayer>& rLayer);
+    virtual void AddDrawLayer(const std::tr1::shared_ptr<IWorldObjStat>& rLayer);
 
     void ChangeModel(const std::tr1::shared_ptr<CModel>& rModel, u32 flags);
     int GetMotionLength(const char* pName);

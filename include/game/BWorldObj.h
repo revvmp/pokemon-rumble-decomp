@@ -10,9 +10,11 @@ class BWorld;
 class CMiniMapMarker;
 class BWorldObjOwner;
 class CPpuEngine;
-class IDrawLayer;
+class IWorldObjStat;
 
-typedef std::set<std::tr1::shared_ptr<IDrawLayer> > DrawLayerSet;
+typedef IWorldObjStat IDrawLayer;
+
+typedef std::set<std::tr1::shared_ptr<IWorldObjStat> > DrawLayerSet;
 
 class BWorldObj : public ICalc, public std::tr1::enable_shared_from_this<BWorldObj> {
 public:

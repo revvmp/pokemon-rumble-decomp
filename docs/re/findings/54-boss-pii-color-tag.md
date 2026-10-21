@@ -77,6 +77,32 @@ An independently compiled boss consumer proves the new contract before any boss 
 
 All 34 existing compiled game objects retain identical allocated section payloads, section metadata and normalized relocation semantics after the header change. Compiler-generated local numeric identifiers change in `ScriptCamera.o`; normalization uses their section, value, size and ELF type rather than spelling. The fresh source-selected-game control recompiles all 16 current linked game sources against `origin/main`'s old headers in a separate include overlay and compares them to the candidate objects; all pass. This control is repeated after every rebase inside the official landing verifier, together with the boss contract probe and full frozen-DOL verification. No #115 split, source body or configure object is taken.
 
+# F-54-4: Complete HUD helper header prerequisites
+
+The canonical `CLayout` declaration from #329/#1040 is reused unchanged. Native consumers independently prove its `0xE8` extent inside both HUD helpers. `CHPBar` is `0x13C` bytes and derives from the original `IWorldObjStat` interface, whose class spelling is pinned by RTTI at `0x803A4564`. Its six virtual slots are destructor, world-object update, view/projection calculation, visibility query, draw, and type query. The descriptive method names and const qualifications are inferred; the pointer and matrix parameter types follow native accesses and canonical matrix calls. The interface occupies four bytes and has no data members or inherited base.
+
+| CHPBar offset | Complete member type and role |
+| --- | --- |
+| `0x04`, `0x08` | `u32` flags and type |
+| `0x0C` | Four-byte kind enum: player, enemy, boss, uninitialized |
+| `0x10`, `0x14` | `int` player number and animation state |
+| `0x18`, `0x1C` | `f32` current and delayed HP ratios |
+| `0x20` | `int` HP delay frames |
+| `0x24` | `VEC3` world position |
+| `0x30` | Complete `CLayout` |
+| `0x118`, `0x11C` | Bar pane pointer and `f32` original width |
+| `0x120`, `0x124`, `0x128` | Yellow, green and level pane pointers |
+| `0x12C` | `list<shared_ptr<CHPBar::CDamage>>`; exact nested class spelling from deleter RTTI `0x803A44C4` |
+| `0x138` | `bool` damage-sound ownership; destructor releases the shared sound when the final owner leaves |
+
+`CMiniMapMarker` is `0xF0` bytes: an `int` type at zero, a `CLayout` at four, and a pane pointer at `0xEC`. It has no vtable. Both helpers' initialization calls forward `bool background` to the same canonical layout/resource loader; `CHPBar` also takes the player index and a `CPiiPersonalData*`, while the marker takes its type and layout-name pointer. No opaque member array or fixed-size allocation substitute is introduced.
+
+Independent consumers built against these canonical headers reproduce every resolved byte of the `CHPBar` constructor (164), `IWorldObjStat` destructor (64), damage-list destructor (220), all 32 bytes of the `CHPBar` vtable, and the marker constructor/destructor (72/92). The HP constructor also reproduces the exact original `1.0f` and `0.0f` pool values and SDA references. The HP destructor used solely to emit its consumer vtable is a probe stub and is explicitly excluded from source or native-code credit; its native body is not reconstructed by this prerequisite.
+
+The recovered base type also corrects the earlier inferred `IDrawLayer` spelling. `CPii::SetHPBar` converts a `shared_ptr<CHPBar>` and dispatches to the `BModelObj::AddDrawLayer` slot. The canonical declaration and `DrawLayerSet` now use `IWorldObjStat`. A temporary `typedef IWorldObjStat IDrawLayer` preserves the external #39 owner's existing source signature without editing that source. It denotes the same complete original interface, not a second opaque class. The outside callee name at `0x800570D0` is updated to the actual compiler-emitted `AddDrawLayer__9BModelObjFRCQ33std3tr127shared_ptr<13IWorldObjStat>`; its size, split, body and type attributes are unchanged. The existing source body emits the same 144-byte instruction stream; objdiff reports 99.72% because two tree-helper calls still carry the old inferred pointee names. Those helper renames remain with the source-unit owner; no matching claim is added for that outside function.
+
+The current source-selected game-object controls are repeated against `origin/main`'s prior headers in an isolated include overlay after every rebase, together with all three native consumer probes and frozen full-DOL verification. These headers add no source-completion credit and take no outside split or source body.
+
 ## Traps
 
 The issue's last two functions belong to the next class's unit. Preserve that class's initializer, registration records and neighboring #55 methods together; the survey issue boundary is not a source-file boundary.
