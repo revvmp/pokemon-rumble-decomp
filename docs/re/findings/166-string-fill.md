@@ -12,6 +12,8 @@ The actual #347 formatter producer reproduces both 340-byte `VFormatString` wrap
 
 The complete original MSL oracle separately reproduces all 876 wide-replacement instruction words, including those four offsets. The recovered source, rather than a change of compiler options, establishes the generic algorithm and declaration layers used here.
 
+The native `std::out_of_range` vtable at `8039A040` identifies its destructor at `80068530`. The compiled 148-byte destructor matches its non-relocation words and all three actual call targets. Naming that existing placeholder preserves its original extent and prevents a duplicate source-selected exception destructor from growing the link. The separate length-error vtable points to `8005A830`, independently distinguishing the otherwise similar bodies.
+
 ## Consumer controls
 
 On baseline `8b07def40fc95f17cff823c74e92e1ffa5265857`, all 767 actual source objects were rebuilt before and after this header change. Exactly 708 whole objects are byte-identical. The other 59 preserve every allocated section byte, symbol attribute, and relocation after normalizing compiler-generated numeric labels. The linked ELF preserves allocated bytes and the frozen DOL verifies exactly. No previously exact instruction stream changes.
