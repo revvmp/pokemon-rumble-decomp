@@ -3072,3 +3072,7 @@ The singleton is `0x803E6590` (16 bytes), start colors `0x803E65AC` (five four-b
 ## F-336-4: Complete BUI and BUILayout base declarations
 
 Original RTTI names BUI (`0x4C`) and BUILayout (`0x134`) identify ICalcDraw/enable_shared_from_this inheritance and an embedded CLayout at `+0x4C`. Complete typed storage, nine base virtual slots, four Load overload slots and the preserved nonvirtual GetLayout are recorded in [F-336-4](findings/336-bui-contract.md). Callback/hook/input spellings and the private noncopyable CCallbackListOwner are descriptive source inferences; no standard-library owner identity or transfer semantics are asserted. Native exception tables bind all three callback-list owners to the same retained deletion helper at `0x800DA1E0`. Independent instruction, target, EH, vtable and RTTI controls establish the contract; source selection remains with the owning issues.
+
+## CLayout attachment owner correction (#329)
+
+[F-329-3](findings/329-clayout-attachment.md) supersedes the DC/E0 exception-callback interpretation: native allocation and control-block vtable `0x803C0640`, RTTI `0x804B83A0` and name `0x803C0654` prove `shared_ptr<CLayout::CAttach>`. CAttach is an original nested name; `mAttach` is descriptive. The complete CLayout remains E8. CAttach allocates twenty bytes and stores a parent CLayout pointer and SDK Pane pointer at zero/four; its remaining tree contract is not yet declared.

@@ -24,7 +24,7 @@ Native constructor stores and destructor cleanup establish a complete `0xE8` CLa
 | `0xB8` | `12` | `map<Pane*, shared_ptr<PaneMP>>` | `0x801D2180` uses pane pointer key or SDK root pane and a shared mapped owner; PaneMP deleter RTTI |
 | `0xC4` | `16` | `nw4r::ut::Rect` | Four floating values, viewport calculations and constructor stores |
 | `0xD4` | `8` | `nw4r::math::VEC2` | Paired floating view-scale values |
-| `0xDC` | `8` | `shared_ptr<function<void(const CInitializeException&)>>` | Exact native deleter and function signature RTTI strings |
+| `0xDC` | `8` | `shared_ptr<CAttach>` | Attachment allocation, control-block RTTI and hierarchy traversal; corrected by [F-329-3](329-clayout-attachment.md) |
 | `0xE4` | `4` | `GXCompare` | Native draw reads the word and passes it directly as the SDK GXSetZMode comparison argument |
 
 No opaque storage or synthetic padding is used. FontMap is a descriptive typedef for the exact RTTI map of strings to `shared_ptr<nw4r::ut::Font>`; it occupies sixteen bytes. Member spellings, descriptive typedef, Load and FindPane names are inferred where no mangled native name is available. Existing CMotionProgram fields and public motion/visibility declarations are preserved.
@@ -46,3 +46,5 @@ Actual Wii/1.1 game compilation measures complete size `0xE8` and all fourteen m
 The archive argument is an array of paths, and the font argument is a shared owner of a font map. A single CFileData owner or single font owner would produce a plausible-looking declaration but contradicts the native iteration, owner copies, node accesses and RTTI.
 
 The animation map stores AnimTransform pointers, not Pane pointers. Follow the return value from SDK animation creation through the tree insertion before naming its mapped type.
+
+The original DC member interpretation as an initialization-exception callback was incorrect. Its RTTI string existed nearby but was not tied to this member. [F-329-3](329-clayout-attachment.md) supersedes that interpretation with a direct allocation-to-control-block-to-member trace. The E8 layout and all offsets remain unchanged.

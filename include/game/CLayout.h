@@ -23,16 +23,11 @@ class Font;
 }
 }
 
-namespace std {
-namespace tr1 {
-template <typename Signature> class function;
-}
-}
-
 class CFileData;
 
 class CLayout : public ICalcDraw {
 public:
+    class CAttach;
     class CInitializeException;
     class PaneMP;
     typedef std::map<std::string, std::tr1::shared_ptr<nw4r::ut::Font> > FontMap;
@@ -75,7 +70,7 @@ private:
     std::map<nw4r::lyt::Pane*, std::tr1::shared_ptr<PaneMP> > mPanePrograms;
     nw4r::ut::Rect mViewRect;
     nw4r::math::VEC2 mViewScale;
-    std::tr1::shared_ptr<std::tr1::function<void(const CInitializeException&)> > mInitializeErrorCallback;
+    std::tr1::shared_ptr<CAttach> mAttach;
     GXCompare mDepthCompare;
 };
 
