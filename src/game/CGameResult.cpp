@@ -223,6 +223,7 @@ private:
     void CollectPiis();
     void SetPiiPositions(int row, int center);
     void UpdatePiiWindow();
+    void UpdateMirrorCamera();
 
     const MapDesc* mpMapDesc;
     std::tr1::shared_ptr<CUIManager> mUIManager;
@@ -615,12 +616,27 @@ inline void CGameResult::CalcMtx()
     mPauseMenu->CalcMtx();
 }
 
-inline void CGameResult::Calc()
+inline nw4r::math::VEC3 GetCameraUp(nw4r::math::MTX34& rInvCameraMtx)
 {
-    mWorlds[0]->SetOutlineAlpha(255);
-    mWorlds[1]->SetOutlineAlpha(255);
-    mWorlds[0]->Calc();
-    mWorlds[1]->Calc();
+    nw4r::math::VEC3 origin(0.0f, 0.0f, 0.0f);
+    nw4r::math::VEC3 eye;
+    PSMTXMultVec(rInvCameraMtx, reinterpret_cast<Vec*>(&origin), reinterpret_cast<Vec*>(&eye));
+    nw4r::math::VEC3 down(0.0f, -1.0f, 0.0f);
+    nw4r::math::VEC3 downWorld;
+    PSMTXMultVec(rInvCameraMtx, reinterpret_cast<Vec*>(&down), reinterpret_cast<Vec*>(&downWorld));
+    return downWorld - eye;
+}
+
+inline nw4r::math::VEC3 GetCameraTarget(nw4r::math::MTX34& rInvCameraMtx)
+{
+    nw4r::math::VEC3 forward(0.0f, 0.0f, -1.0f);
+    nw4r::math::VEC3 target;
+    PSMTXMultVec(rInvCameraMtx, reinterpret_cast<Vec*>(&forward), reinterpret_cast<Vec*>(&target));
+    return target;
+}
+
+inline void CGameResult::UpdateMirrorCamera()
+{
     nw4r::math::VEC3 position = mCameras[0]->GetPositionRef();
     position.y = -position.y;
     mCameras[1]->SetPosition(position);
@@ -632,19 +648,11 @@ inline void CGameResult::Calc()
     if (PSMTXInverse(cameraMtx, invCameraMtx)) {
         nw4r::g3d::Camera::PostureInfo info;
         info.tp = nw4r::g3d::Camera::POSTURE_LOOKAT;
-        nw4r::math::VEC3 origin(0.0f, 0.0f, 0.0f);
-        nw4r::math::VEC3 eye;
-        PSMTXMultVec(invCameraMtx, reinterpret_cast<Vec*>(&origin), reinterpret_cast<Vec*>(&eye));
-        nw4r::math::VEC3 down(0.0f, -1.0f, 0.0f);
-        nw4r::math::VEC3 downWorld;
-        PSMTXMultVec(invCameraMtx, reinterpret_cast<Vec*>(&down), reinterpret_cast<Vec*>(&downWorld));
-        nw4r::math::VEC3 up = downWorld - eye;
+        nw4r::math::VEC3 up = GetCameraUp(invCameraMtx);
         info.cameraUp.x = up.x;
         info.cameraUp.y = -up.y;
         info.cameraUp.z = up.z;
-        nw4r::math::VEC3 forward(0.0f, 0.0f, -1.0f);
-        nw4r::math::VEC3 target;
-        PSMTXMultVec(invCameraMtx, reinterpret_cast<Vec*>(&forward), reinterpret_cast<Vec*>(&target));
+        nw4r::math::VEC3 target = GetCameraTarget(invCameraMtx);
         info.cameraTarget.x = target.x;
         info.cameraTarget.y = -target.y;
         info.cameraTarget.z = target.z;
@@ -658,6 +666,15 @@ inline void CGameResult::Calc()
             mirrorCamera.SetPerspective(rData.projFovy, rData.projAspect, rData.projNear, rData.projFar);
         }
     }
+}
+
+inline void CGameResult::Calc()
+{
+    mWorlds[0]->SetOutlineAlpha(255);
+    mWorlds[1]->SetOutlineAlpha(255);
+    mWorlds[0]->Calc();
+    mWorlds[1]->Calc();
+    UpdateMirrorCamera();
     mUIManager->Calc();
     if (mPostEffect) {
         mPostEffect->Calc();
