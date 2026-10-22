@@ -373,24 +373,9 @@ public:
             f_ = new (buf_) imp(pFunction);
         }
     }
-    template <typename F> function(F f, detail::unused_argument* = nullptr) : f_(nullptr) {
-        if (!is_empty(f)) {
-            typedef detail::function_imp<R (*)(A), F, false, true> imp;
-            if (sizeof(imp) <= sizeof(buf_)) {
-                f_ = new (buf_) imp(f);
-            } else {
-                f_ = new imp(f);
-            }
-        }
-    }
+    template <typename F> function(F f, detail::unused_argument* = nullptr);
     function(const function& r);
-    ~function() {
-        if (f_ == local()) {
-            f_->~base();
-        } else if (f_ != nullptr) {
-            delete f_;
-        }
-    }
+    ~function();
 
     function& operator=(const function& r) {
         function tmp(r);
@@ -435,6 +420,17 @@ private:
     union { char buf_[8]; unsigned long words_[2]; };
 };
 
+template <typename R, typename A> template <typename F> function<R(A)>::function(F f, detail::unused_argument*) : f_(nullptr) {
+    if (!is_empty(f)) {
+        typedef detail::function_imp<R (*)(A), F, false, true> imp;
+        if (sizeof(imp) <= sizeof(buf_)) {
+            f_ = new (buf_) imp(f);
+        } else {
+            f_ = new imp(f);
+        }
+    }
+}
+
 template <typename R, typename A>
 function<R(A)>::function(const function& r) : f_(nullptr) {
     if (r.f_ != nullptr) {
@@ -443,6 +439,14 @@ function<R(A)>::function(const function& r) : f_(nullptr) {
         } else {
             f_ = r.f_->clone();
         }
+    }
+}
+
+template <typename R, typename A> function<R(A)>::~function() {
+    if (f_ == local()) {
+        f_->~base();
+    } else if (f_ != nullptr) {
+        delete f_;
     }
 }
 

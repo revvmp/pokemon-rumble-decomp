@@ -145,7 +145,6 @@ public:
 class CDlgPiiList : public IDlgPiiList, public std::tr1::enable_shared_from_this<CDlgPiiList> {
 public:
     CDlgPiiList() {}
-    virtual ~CDlgPiiList() {}
     virtual bool IsClosable() { return false; }
     virtual bool Close() {
         if (mImpl) {
