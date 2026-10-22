@@ -528,11 +528,9 @@ inline void CDlgPiiListImpl::Run() {
         }
     }
     RunList();
-    Finish();
 }
 
 inline void CDlgPiiListImpl::Finish() {
-    mRootLayout->GetLayout()->CreateMotion("end")->Wait();
     switch (mType) {
     case 1:
         RunRemoteTransfer();
@@ -607,7 +605,8 @@ inline void CDlgPiiListImpl::RunList() {
                     joined++;
                 }
             }
-            ShowMessage((formatter.format(L"%d") % static_cast<int>(std::max(joined, sMinUnmarkedCount))).c_str());
+            formatter.format(L"%d") % static_cast<int>(std::max(joined, sMinUnmarkedCount));
+            ShowMessage(formatter.c_str());
             break;
         }
         case 10:
@@ -622,7 +621,8 @@ inline void CDlgPiiListImpl::RunList() {
         case 14: {
             YieldFiber();
             NIntl::basic_formatter<wchar_t> formatter(GetMessageString(0x60094, nullptr));
-            ShowMessage((formatter.format(L"%d") % sMaxRemoteMarkedCount).c_str());
+            formatter.format(L"%d") % sMaxRemoteMarkedCount;
+            ShowMessage(formatter.c_str());
             break;
         }
         case 15:
@@ -638,7 +638,8 @@ inline void CDlgPiiListImpl::RunList() {
                     joined++;
                 }
             }
-            ShowMessage((formatter.format(L"%d") % static_cast<int>(std::max(joined, sMinUnmarkedCount))).c_str());
+            formatter.format(L"%d") % static_cast<int>(std::max(joined, sMinUnmarkedCount));
+            ShowMessage(formatter.c_str());
             break;
         }
         case 17:
@@ -647,10 +648,13 @@ inline void CDlgPiiListImpl::RunList() {
             break;
         case 1:
             YieldFiber();
-            return;
+            goto finished;
         }
         YieldFiber();
     }
+finished:
+    mRootLayout->GetLayout()->CreateMotion("end")->Wait();
+    Finish();
 }
 
 #pragma dont_inline on
