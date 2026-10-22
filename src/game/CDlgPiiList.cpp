@@ -9,6 +9,9 @@
 #include <game/CLayout.h>
 #include <game/CPiiListFilterSort.h>
 #include <game/COyaInfo.h>
+
+template std::tr1::shared_ptr<CPiiPersonalData>::shared_ptr(const std::tr1::shared_ptr<CPiiPersonalData>&);
+
 #include <game/CPlayer.h>
 #include <game/CPpuEngine.h>
 #include <game/CPiiBox.h>
