@@ -776,9 +776,9 @@ public:
             --mPointer;
             return previous;
         }
-        iterator operator+(long n) const { return iterator(mPointer + n); }
-        iterator operator-(long n) const { return iterator(mPointer - n); }
-        long operator-(const iterator& rOther) const { return mPointer - rOther.mPointer; }
+        iterator operator+(long n) const { iterator result(*this); result += n; return result; }
+        iterator operator-(long n) const { iterator result(*this); result -= n; return result; }
+        friend long operator-(iterator lhs, iterator rhs) { return lhs.mPointer - rhs.mPointer; }
         iterator& operator+=(long n) {
             mPointer += n;
             return *this;
@@ -790,6 +790,7 @@ public:
         bool operator==(const iterator& rOther) const { return base() == rOther.base(); }
         bool operator!=(const iterator& rOther) const { return !(*this == rOther); }
         bool operator<(const iterator& rOther) const { return mPointer < rOther.mPointer; }
+        bool operator>=(const iterator& rOther) const { return !(*this < rOther); }
 
         T* base() const { return mPointer; }
         operator T*() const { return base(); }
@@ -936,10 +937,11 @@ public:
         iterator& operator-=(long offset) { mPointer -= offset; return *this; }
         iterator operator+(long offset) const { iterator result(*this); result += offset; return result; }
         iterator operator-(long offset) const { iterator result(*this); result -= offset; return result; }
-        long operator-(const iterator& rOther) const { return mPointer - rOther.mPointer; }
-        bool operator==(const iterator& rOther) const { return mPointer == rOther.mPointer; }
+        friend long operator-(iterator lhs, iterator rhs) { return lhs.mPointer - rhs.mPointer; }
+        friend bool operator==(iterator lhs, iterator rhs) { return lhs.mPointer == rhs.mPointer; }
         bool operator!=(const iterator& rOther) const { return mPointer != rOther.mPointer; }
         bool operator<(const iterator& rOther) const { return mPointer < rOther.mPointer; }
+        bool operator>=(const iterator& rOther) const { return !(*this < rOther); }
     private:
         void** mPointer;
     };

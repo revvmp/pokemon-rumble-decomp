@@ -184,12 +184,11 @@ void sort(TIt first, TIt last, TCompare compare) {
                     ;
                 }
 
-                if (m < i1) {
-                    swap(*m, *i1);
-                    m++;
-                } else {
+                if (m >= i1) {
                     break;
                 }
+                swap(*m, *i1);
+                m++;
             }
         }
 
@@ -218,12 +217,11 @@ void sort(TIt first, TIt last, TCompare compare) {
                         ;
                     }
 
-                    if (m < i1) {
-                        swap(*m, *i1);
-                        m++;
-                    } else {
+                    if (m >= i1) {
                         break;
                     }
+                    swap(*m, *i1);
+                    m++;
                 }
             }
 
