@@ -40,6 +40,11 @@ struct Page {
     std::vector<Line> mLines;
 };
 
+inline f32 GetTextWidth(nw4r::lyt::TextBox* pText) {
+    nw4r::ut::Rect rect = pText->GetTextDrawRect();
+    return ceil(rect.right - rect.left);
+}
+
 class CDlgInfoItemLine {
 public:
     CDlgInfoItemLine() : mInitialized(false) {}
@@ -63,6 +68,17 @@ public:
                     mRectangles[j] = NErrMsg::GetPaneRectangle(line->FindPane(sColumnPaneNames[j]));
                 }
             }
+    }
+
+    void Calc() {
+        for (unsigned i = 0; i < mLayouts.size(); i++) {
+            mLayouts[i]->Calc();
+        }
+    }
+    void Draw() {
+        for (unsigned i = 0; i < mLayouts.size(); i++) {
+            mLayouts[i]->Draw();
+        }
     }
 
     bool mInitialized;
@@ -103,9 +119,8 @@ public:
                             NErrMsg::PaneRectangle bounds = NErrMsg::GetPaneRectangle(pText);
                             bounds.right = bounds.left + 1.0f;
                             NErrMsg::SetPaneRectangle(pText, bounds);
-                            nw4r::ut::Rect rect = pText->GetTextDrawRect();
-                            f32 width = ceil(rect.right - rect.left);
-                            widths[j] = std::max(widths[j], width);
+                            f32 width = GetTextWidth(pText);
+                            widths[j] = std::max(width, widths[j]);
                         }
                     }
                 }
@@ -170,8 +185,8 @@ public:
         mItemLine->Load(false);
         mUIManager->SetFocusedUI(mList.get());
         for (std::vector<std::tr1::shared_ptr<Page> >::const_iterator it = rPages.begin(); it != rPages.end(); ++it) {
-            mList->GetItems().push_back(
-                std::tr1::shared_ptr<CDlgInfoItem>(new CDlgInfoItem(mItemLine, **it)));
+            std::tr1::shared_ptr<CDlgInfoItem> item(new CDlgInfoItem(mItemLine, **it));
+            mList->GetItems().push_back(item);
         }
         mList->UpdateSelection();
         mFiber.Start(std::tr1::bind(&CDlgInfoImpl::Run, this), 0x8000);
@@ -199,6 +214,10 @@ public:
             mRootLayout->GetLayout()->CreateMotion("end")->Wait();
     }
 
+    void CalcLines() { mItemLine->Calc(); }
+
+    void DrawLines() { mItemLine->Draw(); }
+
     int mPlayer;
     int mState;
     std::tr1::shared_ptr<CUIManager> mUIManager;
@@ -216,10 +235,7 @@ public:
             CDlgInfoImpl* pImpl = mImpl.get();
             if (mImpl) {
                 pImpl->mUIManager->Calc();
-                CDlgInfoItemLine* pItemLine = pImpl->mItemLine.get();
-                for (unsigned i = 0; i < pItemLine->mLayouts.size(); i++) {
-                    pItemLine->mLayouts[i]->Calc();
-                }
+                pImpl->CalcLines();
                 pImpl->mFiber.Resume();
                 if (mImpl->mFiber.IsFinished()) {
                     mImpl.reset();
@@ -231,10 +247,7 @@ public:
             CDlgInfoImpl* pImpl = mImpl.get();
             if (mImpl) {
                 pImpl->mUIManager->Draw();
-                CDlgInfoItemLine* pItemLine = pImpl->mItemLine.get();
-                for (unsigned i = 0; i < pItemLine->mLayouts.size(); i++) {
-                    pItemLine->mLayouts[i]->Draw();
-                }
+                pImpl->DrawLines();
             }
     }
     virtual bool Close() {
@@ -246,17 +259,13 @@ public:
     }
     virtual bool IsShown() { return mImpl; }
     virtual bool Show(int player) {
-            if (mImpl) {
-                return true;
-            }
-            {
+            if (!mImpl) {
                 if (!GetCurrentGameMap()->RegisterDialog(shared_from_this())) {
                     return false;
                 }
                 GetCurrentGameMap()->SetPausing(true);
                 mImpl.reset(new CDlgInfoImpl(player));
-                CDlgInfoImpl* pImpl = mImpl.get();
-                mImpl->Init(mPages);
+                Initialize();
             }
             return true;
     }
@@ -278,6 +287,8 @@ public:
     }
 
 private:
+    void Initialize() { mImpl->Init(mPages); }
+
     Line& GetLine(int page, unsigned int line) {
             std::tr1::shared_ptr<Page> pPage = GetPage(page);
             if (pPage->mLines.size() <= line) {
@@ -288,11 +299,10 @@ private:
 
     std::tr1::shared_ptr<Page> GetPage(int page) {
             if (mPages.size() <= page) {
-                unsigned oldSize = mPages.size();
                 mPages.resize(page + 1);
-                for (unsigned i = oldSize; i < mPages.size(); i++) {
-                    mPages[i].reset(new Page);
-                }
+            }
+            if (!mPages[page]) {
+                mPages[page].reset(new Page);
             }
             return mPages[page];
     }

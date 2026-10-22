@@ -293,10 +293,10 @@ public:
                     PlaySound(0x8);
                     break;
                 case MODE_YES_NO:
-                    if (mCursor == 0) {
-                        PlaySound(0x9);
-                    } else {
+                    if (mCursor != 0) {
                         PlaySound(0x5a);
+                    } else {
+                        PlaySound(0x9);
                     }
                     break;
                 }
