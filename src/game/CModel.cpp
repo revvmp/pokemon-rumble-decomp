@@ -401,14 +401,15 @@ CModel::BPartialAnm* CModel::GetPartialAnm(u32 nodeId) {
     return partial.get();
 }
 
-std::tr1::shared_ptr<CModel::CMotionProgram> CModel::SetupMotion(const std::tr1::shared_ptr<CMotionProgram>& rProgram, f32 frame, f32 rate, BPartialAnm** ppPartial) {
+std::tr1::shared_ptr<CModel::CMotionProgram> CModel::SetupMotion(std::tr1::shared_ptr<CMotionProgram>& rProgram, f32 frame, f32 rate, BPartialAnm** ppPartial) {
     nw4r::g3d::ResAnmChr resource = rProgram->mResource;
     if (!resource.IsValid()) {
         return std::tr1::shared_ptr<CMotionProgram>();
     }
     const nw4r::g3d::ResAnmChrNodeData* pNodeAnm = resource.GetNodeAnm(0);
+    nw4r::g3d::ResName name(reinterpret_cast<const u8*>(pNodeAnm) + (pNodeAnm->name - 4));
     nw4r::g3d::ResMdl mdl = GetResMdl();
-    nw4r::g3d::ResNode node = mdl.GetResNode(nw4r::g3d::ResName(reinterpret_cast<const u8*>(pNodeAnm) + pNodeAnm->name - 4));
+    nw4r::g3d::ResNode node = mdl.GetResNode(name);
     if (!node.IsValid()) {
         return std::tr1::shared_ptr<CMotionProgram>();
     }

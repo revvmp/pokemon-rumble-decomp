@@ -171,7 +171,7 @@ public:
 
     std::tr1::shared_ptr<CMotionProgram> CreateMotion(const char* pName, f32 frame, f32 rate, BPartialAnm** ppPartial);
     std::tr1::shared_ptr<CMotionProgram> CreateMotion(int index, f32 frame, f32 rate, BPartialAnm** ppPartial);
-    std::tr1::shared_ptr<CMotionProgram> SetupMotion(const std::tr1::shared_ptr<CMotionProgram>& rProgram, f32 frame, f32 rate, BPartialAnm** ppPartial);
+    std::tr1::shared_ptr<CMotionProgram> SetupMotion(std::tr1::shared_ptr<CMotionProgram>& rProgram, f32 frame, f32 rate, BPartialAnm** ppPartial);
     BPartialAnm* GetPartialAnm(u32 nodeId);
     void Unload() {
         mAnimations.clear();
