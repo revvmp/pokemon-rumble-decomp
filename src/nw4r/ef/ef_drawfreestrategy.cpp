@@ -69,11 +69,9 @@ void DrawFreeStrategy::Draw(const DrawInfo& rInfo, ParticleManager* pManager) {
     const EmitterDrawSetting& rSetting =
         *pManager->mResource->GetEmitterDrawSetting();
 
-    int texCoord;
+    int texCoord = 0;
     if (mNumTexmap > 0) {
         texCoord = 1;
-    } else {
-        texCoord = 0;
     }
 
     math::MTX34 glbMtx;
