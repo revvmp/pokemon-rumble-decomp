@@ -323,7 +323,7 @@ template <typename T> shared_ptr<T> weak_ptr<T>::lock() const {
     return locked;
 }
 
-template <typename T, typename U> bool operator==(const shared_ptr<T>& a, const shared_ptr<U>& b) {
+template <typename T, typename U> inline bool operator==(const shared_ptr<T>& a, const shared_ptr<U>& b) {
     return a.get() == b.get();
 }
 
