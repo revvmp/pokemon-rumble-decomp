@@ -907,6 +907,7 @@ config.libs = [
             Object(Matching, "RVL_SDK/dvd/dvdidutils.c"),
             Object(Matching, "RVL_SDK/dvd/dvdFatal.c"),
             Object(Matching, "RVL_SDK/dvd/dvdDeviceError.c"),
+            Object(Matching, "RVL_SDK/dvd/dvd_broadway.c"),
             Object(Matching, "RVL_SDK/ai/ai.c"),
             Object(Matching, "RVL_SDK/ax/AX.c"),
             Object(Matching, "RVL_SDK/ax/AXAlloc.c"),
