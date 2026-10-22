@@ -25,3 +25,17 @@
 - `ScriptLayout` `NewLayout`: `LoadFileList(&e, p, 0, false, nullptr)` still compiles `mr r7,r6` where the target has `li r7,0` (F-161-3 constant merge). `#pragma peephole off` around the function removes it but changes the rest of the function (85%).
 - `ScriptGame` near misses (`MakeMapID`, `ShowDlgPiiList`, `MapStatus_*`, `IncMapClearedNum`, `GetStageClearedNum`, `OpenScriptChoices`, `AddMessageBalloon`) are non-volatile register or stack-slot permutations. All 24 orders of the `MakeMapID` field assignments, declaration orders and local copies of the popped values were tried.
 - `CPpuEnv`: `LoadScriptCode` 91%, `CollectGarbage` 96.3% (the end-node address `this+0x30` is hoisted into a register by us and recomputed at the store in the target), 27/33 functions at 100%. The 670-entry binding table and binding-name strings are not reconstructed.
+
+## Session 3: CPpuEnv binding table
+
+- The 670-entry binding table is now source in `src/game/CPpuEnv.cpp` (`gScriptNativeBindings`, entries `{function, name, argCount}` with a null first entry, count 0x29E in `.sdata`) with declarations in `include/game/ScriptBindings.h`. The built `.rodata` is byte-identical (8040 bytes) and the `.data` table strings are in the same order.
+- CPpuEnv derives from `enable_shared_from_this<CPpuEnv>` (target RTTI string), not `<NPpu::CEnvironment>`. The two placeholder names at `0x801035D0` and `0x801055A0` were renamed accordingly.
+- Linking the unit as `Matching` fails on `lbl_804B72F0`/`lbl_804B72F8` (NPpu::CEnvironment and NPpu::CCode RTTI referenced from NPpuVM); not renamed yet.
+
+### Traps
+
+- `git checkout <file>` to drop an experiment also drops all uncommitted work in that file. Commit before experimenting.
+- `std::string("script.arc/") + pName` as a temporary (no named `directory`) raised `LoadScriptCode` from 91.0% to 92.2%.
+- `script.arc/` is the last string in the target `.data`, after all RTTI name strings; ours places it before them. Moving `LoadScriptCode` later in the source did not change this.
+- The target `weak_ptr<CPpuCode>` destructor (`0x80105F80`) calls `operator delete` where ours calls `release_weak`; unresolved.
+- `CollectGarbage` (96.3%): tried a local root copy, direct `root_.second().node_` store, store reordering and a `reset_empty()` helper in `tree_imp::clear`; none stops the hoisting of `this+0x30`.
