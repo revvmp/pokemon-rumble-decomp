@@ -330,7 +330,7 @@ config.libs = [
             Object(NonMatching, "game/ScriptNullObj.cpp"),
             Object(NonMatching, "game/ScriptWorldObj.cpp"),
             Object(Matching, "game/ScriptMotion.cpp"),
-            Object(NonMatching, "game/ScriptInput.cpp"),
+            Object(Matching, "game/ScriptInput.cpp"),
             Object(NonMatching, "game/ScriptPii.cpp"),
             Object(Matching, "game/ControllerTable.cpp"),
             Object(Matching, "game/DCIM.cpp"),

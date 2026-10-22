@@ -13,7 +13,18 @@
 #include <revolution/wpad.h>
 
 IController* GetUIInput();
-extern const MotorPattern gMotorPatterns[];
+extern const RumbleStep gMotorPatternShortWii[];
+extern const RumbleStep gMotorPatternShortGC[];
+extern const RumbleStep gMotorPatternLongWii[];
+extern const RumbleStep gMotorPatternLongGC[];
+extern const RumbleStep gMotorPatternPulseWii[];
+extern const RumbleStep gMotorPatternPulseGC[];
+
+extern const MotorPattern gMotorPatterns[] = {
+    {0, gMotorPatternShortWii, gMotorPatternShortGC},
+    {1, gMotorPatternLongWii, gMotorPatternLongGC},
+    {2, gMotorPatternPulseWii, gMotorPatternPulseGC},
+};
 
 namespace {
 
@@ -58,41 +69,6 @@ bool IsLowBattery(IController* pController) {
     return false;
 }
 
-}
-
-int method_BWorldCamera_mpResume(NPpu::CEngine* pEngine);
-int method_CNullObj_mpResume(NPpu::CEngine* pEngine);
-int method_BWorldLightSet_mpResume(NPpu::CEngine* pEngine);
-int method_BModelObj_mpResume(NPpu::CEngine* pEngine);
-
-int method_mpResume(NPpu::CEngine* pBaseEngine) {
-    CPpuEngine* pEngine = static_cast<CPpuEngine*>(pBaseEngine);
-    u32 type = pEngine->PeekWorldObjType(1);
-    if (type & BWorldCamera::TYPE) {
-        return method_BWorldCamera_mpResume(pBaseEngine);
-    } else if (type & CNullObj::TYPE) {
-        return method_CNullObj_mpResume(pBaseEngine);
-    } else if (type & BWorldLightSet::TYPE) {
-        return method_BWorldLightSet_mpResume(pBaseEngine);
-    }
-    return method_BModelObj_mpResume(pBaseEngine);
-}
-int method_BWorldCamera_mpIsPausing(NPpu::CEngine* pEngine);
-int method_CNullObj_mpIsPausing(NPpu::CEngine* pEngine);
-int method_BWorldLightSet_mpIsPausing(NPpu::CEngine* pEngine);
-int method_BModelObj_mpIsPausing(NPpu::CEngine* pEngine);
-
-int method_mpIsPausing(NPpu::CEngine* pBaseEngine) {
-    CPpuEngine* pEngine = static_cast<CPpuEngine*>(pBaseEngine);
-    u32 type = pEngine->PeekWorldObjType(1);
-    if (type & BWorldCamera::TYPE) {
-        return method_BWorldCamera_mpIsPausing(pBaseEngine);
-    } else if (type & CNullObj::TYPE) {
-        return method_CNullObj_mpIsPausing(pBaseEngine);
-    } else if (type & BWorldLightSet::TYPE) {
-        return method_BWorldLightSet_mpIsPausing(pBaseEngine);
-    }
-    return method_BModelObj_mpIsPausing(pBaseEngine);
 }
 
 int GetPadDirValue(NPpu::CEngine* pEngine) {
