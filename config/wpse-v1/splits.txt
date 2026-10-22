@@ -530,6 +530,13 @@ game/ControllerTable.cpp:
 	.bss        start:0x803E8D28 end:0x803E90C8
 	.sdata      start:0x804B77D8 end:0x804B77D9
 
+game/CPath.cpp:
+	extab       start:0x80037AA8 end:0x80037BEC
+	extabindex  start:0x800505E0 end:0x80050640
+	.text       start:0x801AE670 end:0x801AF774
+	.data       start:0x803BF000 end:0x803BF2E0
+	.sdata      start:0x804B81A0 end:0x804B81D8
+
 ControllerTableAlignmentPadding:
 	.sdata      start:0x804B77D9 end:0x804B77E0 align:1
 
@@ -954,9 +961,9 @@ game/CFiber.cpp:
 	.sbss       start:0x804B9120 end:0x804B9128
 
 game/CFileData.cpp:
-	extab       start:0x800353CC end:0x80037A98
-	extabindex  start:0x800500F4 end:0x800505C8
-	.text       start:0x8019EBA0 end:0x801ADC38
+	extab       start:0x800353CC end:0x80037AA8
+	extabindex  start:0x800500F4 end:0x800505E0
+	.text       start:0x8019EBA0 end:0x801AE664
 	.ctors      start:0x80352A10 end:0x80352A14
 	.data       start:0x803BE478 end:0x803BF000
 	.bss        start:0x803EA838 end:0x803EA890

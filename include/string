@@ -103,6 +103,7 @@ public:
     int compare(size_type pos1, size_type n1, const charT* s, size_type n2) const;
 
     int compare(const basic_string& str) const;
+    int compare(const charT* s) const { return compare(0, size(), s, traits::length(s)); }
 
     basic_string& operator+=(const charT* s) { return append(s); }
     basic_string& operator+=(const basic_string& str) { return append(str); }

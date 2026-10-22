@@ -325,6 +325,7 @@ config.libs = [
             Object(Matching, "game/CFiber.cpp"),
             Object(NonMatching, "game/CLayout.cpp"),
             Object(NonMatching, "game/CFileData.cpp"),
+            Object(NonMatching, "game/CPath.cpp"),
             Object(Matching, "game/CResFont.cpp"),
             Object(Matching, "game/CRomFont.cpp"),
             Object(NonMatching, "game/CUIList.cpp"),
