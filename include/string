@@ -82,7 +82,7 @@ public:
 
     size_type max_size() const { return (sizeof(value_type) > 1 ? alloc().max_size() : alloc().max_size() / 2) - 1; }
     size_type size() const { return !is_long() ? short_size() : long_size(); }
-    const charT* data() const { return !is_long() ? reinterpret_cast<const charT*>(&r_.first().r) + 1 : r_.first().r.l.data_; }
+    const charT* data() const { return buffer(); }
     const charT* c_str() const { return data(); }
     const_iterator begin() const { return data(); }
     const_iterator end() const { return data() + size(); }
@@ -139,11 +139,11 @@ public:
 
     void get_buffer(const_pointer& rData, size_type& rSize) const {
         if (!is_long()) {
-            rData = reinterpret_cast<const charT*>(&r_.first().r) + 1;
-            rSize = r_.first().r.s.size_;
+            rData = short_data();
+            rSize = short_size();
         } else {
-            rData = r_.first().r.l.data_;
-            rSize = r_.first().r.l.size_;
+            rData = long_data();
+            rSize = long_size();
         }
     }
 
@@ -196,9 +196,11 @@ private:
 
     bool is_short() const { return !r_.first().r.l.is_long_; }
     charT* short_data() { return r_.first().r.s.data_; }
+    const charT* short_data() const { return r_.first().r.s.data_; }
     charT*& long_data() { return r_.first().r.l.data_; }
     const charT* long_data() const { return r_.first().r.l.data_; }
     charT* buffer() { return !is_long() ? short_data() : long_data(); }
+    const charT* buffer() const { return !is_long() ? short_data() : long_data(); }
     void init(const_iterator first, const_iterator last, forward_iterator_tag);
     typedef size_type (&word_array)[3];
     word_array words() { return r_.first().r.raw.words_; }

@@ -78,18 +78,21 @@ template <> struct shared_ptr_reference<void> { typedef void type; };
 
 template <typename T, typename D> class shared_ptr_holder {
 public:
-    shared_ptr_holder(T* pObject, D& rDeleter) : mpObject(pObject), mrDeleter(rDeleter) {}
+    shared_ptr_holder(T* pObject, D& rDeleter) : ptr_(pObject, rDeleter) {}
     ~shared_ptr_holder();
-    void release() { mpObject = nullptr; }
+    T* release() {
+        T* p = ptr_.first();
+        ptr_.first() = nullptr;
+        return p;
+    }
 
 private:
-    T* mpObject;
-    D& mrDeleter;
+    Metrowerks::compressed_pair<T*, D&> ptr_;
 };
 
 template <typename T, typename D> shared_ptr_holder<T, D>::~shared_ptr_holder() {
-    if (mpObject != nullptr) {
-        mrDeleter(mpObject);
+    if (ptr_.first()) {
+        ptr_.second()(ptr_.first());
     }
 }
 
@@ -123,6 +126,7 @@ public:
         detail::shared_ptr_holder<Y, D> holder(p, d);
         s_ = new detail::shared_ptr_deleter<Y, D>(p, d);
         holder.release();
+        enable_from_this(p, p);
     }
     template <typename Y> explicit shared_ptr(const weak_ptr<Y>& r);
     template <typename Y>

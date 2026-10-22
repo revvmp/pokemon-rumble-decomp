@@ -69,7 +69,7 @@ public:
         bool IsStarted() const { return mState != 0; }
         bool IsFinished() const { return mState == 3 || mState == 2; }
         bool IsEnded() const { return mState == 3; }
-        bool IsEnded(bool includeFinished) const { return includeFinished ? IsFinished() : IsEnded(); }
+        bool IsEnded(bool includeFinished) const { return includeFinished ? (mState == 3 || mState == 2) : mState == 3; }
         void Finish() { mState = 3; }
         f32 GetFrame() const;
         void Wait();
@@ -137,6 +137,7 @@ public:
     void SetVisible(nw4r::lyt::Pane* pPane, bool visible);
     bool SetTexture(const char* pName, const nw4r::lyt::TexMap& rTexture, int index);
     bool SetTexture(nw4r::lyt::Pane* pPane, const nw4r::lyt::TexMap& rTexture, int index);
+    bool SetImage(const char* pPaneName, const char* pImageName, int index);
     nw4r::lyt::Layout* GetLayout() const { return mLayout.get(); }
     void SetDepthCompare(GXCompare compare) { mDepthCompare = compare; }
 

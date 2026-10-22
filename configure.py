@@ -249,6 +249,8 @@ config.libs = [
             Object(NonMatching, "game/CDividedGround.cpp"),
             Object(NonMatching, "game/CDlgCollection.cpp"),
             Object(NonMatching, "game/CDlgInfo.cpp"),
+            Object(NonMatching, "game/CDlgMsgWin.cpp"),
+            Object(NonMatching, "game/ButtonMessage.cpp"),
             Object(NonMatching, "game/CDlgPiiList.cpp"),
             Object(Matching, "game/EncodingConverter.cpp"),
             Object(NonMatching, "game/memory.cpp"),
