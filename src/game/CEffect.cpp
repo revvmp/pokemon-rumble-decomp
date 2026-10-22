@@ -84,8 +84,9 @@ public:
             static_cast<EmitterWithParam*>(pEmitter)->mParam = mParam;
         } else if (IsEqual(pName, "sub", 3)) {
             pEmitter->mWaitTime = mParam.mFrames.mLife + 1;
-            f32 halfHeight = mParam.mFrames.mHeight;
-            halfHeight = halfHeight * 0.5f;
+            f32 height = mParam.mFrames.mHeight;
+            f32 halfHeight = height;
+            halfHeight *= 0.5f;
             pEmitter->mParameter.mParams[0] = halfHeight / scale.x;
             pEmitter->SetTranslate(nw4r::math::VEC3(0.0f, 0.0f, mParam.mFrames.mRadius * mParam.mFrames.mLife));
             pEmitter->SetMtxDirty();
