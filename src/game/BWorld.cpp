@@ -231,8 +231,7 @@ void BWorld::SetCamera(std::tr1::shared_ptr<BWorldCamera> camera, u32 index) {
     mCameras[index] = camera;
     camera->SetIndex(index);
 
-    std::tr1::shared_ptr<CShadowCamera> shadowCamera = DynamicCast<CShadowCamera>(camera);
-    if (shadowCamera) {
+    if (std::tr1::shared_ptr<CShadowCamera> shadowCamera = DynamicCast<CShadowCamera>(camera)) {
         mShadowCamera = shadowCamera;
     }
     camera->UpdateIndex(-1);
