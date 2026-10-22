@@ -29,9 +29,10 @@ static inline NullObjMotionArgs PopNullObjMotionArgsEx(NPpu::CEngine* pEngine) {
     return args;
 }
 
-int method_CNullObj_play(NPpu::CEngine* pEngine) {
-    NullObjMotionArgs args = PopNullObjMotionArgs(pEngine);
-    CNullObj* pObject = DynamicCast<CNullObj>(static_cast<CPpuEngine*>(pEngine)->PopWorldObj());
+int method_CNullObj_play(NPpu::CEngine* pBaseEngine) {
+    CPpuEngine* pEngine = static_cast<CPpuEngine*>(pBaseEngine);
+    NullObjMotionArgs args = PopNullObjMotionArgs(pBaseEngine);
+    CNullObj* pObject = DynamicCast<CNullObj>(pEngine->PopWorldObj());
     if (pObject != nullptr) {
         CNullObj::MotionPtr motion = pObject->Play(args.mpName, args.mStartFrame, args.mRate);
         if (motion) {
@@ -57,9 +58,10 @@ int method_CNullObj_playEx(NPpu::CEngine* pEngine) {
     return 0;
 }
 
-int method_CNullObj_request(NPpu::CEngine* pEngine) {
-    NullObjMotionArgs args = PopNullObjMotionArgs(pEngine, -1.0f);
-    CNullObj* pObject = DynamicCast<CNullObj>(static_cast<CPpuEngine*>(pEngine)->PopWorldObj());
+int method_CNullObj_request(NPpu::CEngine* pBaseEngine) {
+    CPpuEngine* pEngine = static_cast<CPpuEngine*>(pBaseEngine);
+    NullObjMotionArgs args = PopNullObjMotionArgs(pBaseEngine, -1.0f);
+    CNullObj* pObject = DynamicCast<CNullObj>(pEngine->PopWorldObj());
     if (pObject != nullptr) {
         CNullObj::MotionPtr motion = pObject->Request(args.mpName, args.mStartFrame, args.mRate);
         if (motion) {
@@ -85,9 +87,10 @@ int method_CNullObj_requestEx(NPpu::CEngine* pEngine) {
     return 0;
 }
 
-int method_CNullObj_requestNext(NPpu::CEngine* pEngine) {
-    NullObjMotionArgs args = PopNullObjMotionArgs(pEngine, -1.0f);
-    CNullObj* pObject = DynamicCast<CNullObj>(static_cast<CPpuEngine*>(pEngine)->PopWorldObj());
+int method_CNullObj_requestNext(NPpu::CEngine* pBaseEngine) {
+    CPpuEngine* pEngine = static_cast<CPpuEngine*>(pBaseEngine);
+    NullObjMotionArgs args = PopNullObjMotionArgs(pBaseEngine, -1.0f);
+    CNullObj* pObject = DynamicCast<CNullObj>(pEngine->PopWorldObj());
     if (pObject != nullptr) {
         CNullObj::MotionPtr motion = pObject->RequestNext(args.mpName, args.mStartFrame, args.mRate);
         if (motion) {
@@ -116,8 +119,8 @@ int method_CNullObj_requestNextEx(NPpu::CEngine* pEngine) {
 int method_CNullObj_getMotionLength(NPpu::CEngine* pBaseEngine) {
     CPpuEngine* pEngine = static_cast<CPpuEngine*>(pBaseEngine);
     NPpu::CValue value;
-    pEngine->Pop(value);
-    const char* pName = pEngine->ToString(value);
+    pBaseEngine->Pop(value);
+    const char* pName = pBaseEngine->ToString(value);
     CNullObj* pObject = DynamicCast<CNullObj>(pEngine->PopWorldObj());
     pEngine->PushInt(pObject != nullptr ? pObject->GetMotionLength(pName) : 0);
     return 0;

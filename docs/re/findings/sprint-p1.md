@@ -1,0 +1,11 @@
+# Sprint p1: script-binding pop scheduling
+
+## Rules
+
+1. **Mixing the engine parameter and its `CPpuEngine*` cast moves the string pop's frame address late.** A binding that pops a string first, then calls `CPpuEngine::PopWorldObj`, has two target shapes. The early shape (`addi r4,r1,8` hoisted to the prologue, then `add`/`lwzx`) comes from using one engine variable throughout: either the `NPpu::CEngine*` parameter with an inline `static_cast` (`method_CItem_loadModel`, `method_layoutGetLength`) or one `CPpuEngine* pEngine` local for every access. The late shape (`addi r4` after `slwi`, then `lwzux`, with the stack pointer loaded into r4) comes from a `CPpuEngine* pEngine = static_cast<CPpuEngine*>(pBaseEngine);` local declared first, the pops made through `pBaseEngine`, and `PopWorldObj` plus the pushes made through `pEngine`. In `getMotionLength`, every mix of the two variables over Pop, ToString and PushInt gave the late shape; only all-parameter and all-local gave the early one. In `play`, `PopWorldObj` through the local alone was not enough: the pushes also had to use it. Sixteen functions in the camera, light, null object and model bindings use this form, and the four units are now Matching.
+2. **Sandbox evidence for rule 1.** With identical visible code, the only difference is the scheduling before register allocation. `#pragma scheduling off` keeps the `addi` next to the call and reproduces the target's register choice, so a hoisted `addi` creates the interference that pushes the stack-pointer load from r4 to r5. Compiler versions (Wii 1.0 to 1.7, GC 3.0a5.2), scheduling models, Pop body forms (index, pointer, field copy, return by value or reference), inline depth up to four, special members on `Slice`, and aggregate locals did not change the early shape.
+3. **Unpaired helper placeholders.** `fn_80144EA0` (0x154) is `PopLightMotion`, the light counterpart of `PopCameraMotion`.
+
+## Traps
+
+- **An inline engine cast is not the same as a cast local.** `static_cast<CPpuEngine*>(pEngine)->PopWorldObj()` and a `CPpuEngine*` local used only for `PopWorldObj` both keep the early shape. Look at the non-volatile register order first (target engine in r31 and string in r30 means the local is declared before the pop), then mix the variables as in rule 1.

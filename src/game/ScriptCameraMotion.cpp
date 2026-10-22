@@ -29,9 +29,10 @@ static inline CameraMotionArgs PopCameraMotionArgsEx(NPpu::CEngine* pEngine) {
     return args;
 }
 
-int method_BWorldCamera_play(NPpu::CEngine* pEngine) {
-    CameraMotionArgs args = PopCameraMotionArgs(pEngine);
-    BWorldCamera* pCamera = DynamicCast<BWorldCamera>(static_cast<CPpuEngine*>(pEngine)->PopWorldObj());
+int method_BWorldCamera_play(NPpu::CEngine* pBaseEngine) {
+    CPpuEngine* pEngine = static_cast<CPpuEngine*>(pBaseEngine);
+    CameraMotionArgs args = PopCameraMotionArgs(pBaseEngine);
+    BWorldCamera* pCamera = DynamicCast<BWorldCamera>(pEngine->PopWorldObj());
     if (pCamera != nullptr) {
         BWorldCamera::MotionPtr motion = pCamera->Play(args.mpName, args.mStartFrame, args.mRate);
         if (motion) {
@@ -57,9 +58,10 @@ int method_BWorldCamera_playEx(NPpu::CEngine* pEngine) {
     return 0;
 }
 
-int method_BWorldCamera_request(NPpu::CEngine* pEngine) {
-    CameraMotionArgs args = PopCameraMotionArgs(pEngine, -1.0f);
-    BWorldCamera* pCamera = DynamicCast<BWorldCamera>(static_cast<CPpuEngine*>(pEngine)->PopWorldObj());
+int method_BWorldCamera_request(NPpu::CEngine* pBaseEngine) {
+    CPpuEngine* pEngine = static_cast<CPpuEngine*>(pBaseEngine);
+    CameraMotionArgs args = PopCameraMotionArgs(pBaseEngine, -1.0f);
+    BWorldCamera* pCamera = DynamicCast<BWorldCamera>(pEngine->PopWorldObj());
     if (pCamera != nullptr) {
         BWorldCamera::MotionPtr motion = pCamera->Request(args.mpName, args.mStartFrame, args.mRate);
         if (motion) {
@@ -85,9 +87,10 @@ int method_BWorldCamera_requestEx(NPpu::CEngine* pEngine) {
     return 0;
 }
 
-int method_BWorldCamera_requestNext(NPpu::CEngine* pEngine) {
-    CameraMotionArgs args = PopCameraMotionArgs(pEngine, -1.0f);
-    BWorldCamera* pCamera = DynamicCast<BWorldCamera>(static_cast<CPpuEngine*>(pEngine)->PopWorldObj());
+int method_BWorldCamera_requestNext(NPpu::CEngine* pBaseEngine) {
+    CPpuEngine* pEngine = static_cast<CPpuEngine*>(pBaseEngine);
+    CameraMotionArgs args = PopCameraMotionArgs(pBaseEngine, -1.0f);
+    BWorldCamera* pCamera = DynamicCast<BWorldCamera>(pEngine->PopWorldObj());
     if (pCamera != nullptr) {
         BWorldCamera::MotionPtr motion = pCamera->RequestNext(args.mpName, args.mStartFrame, args.mRate);
         if (motion) {
@@ -116,8 +119,8 @@ int method_BWorldCamera_requestNextEx(NPpu::CEngine* pEngine) {
 int method_BWorldCamera_getMotionLength(NPpu::CEngine* pBaseEngine) {
     CPpuEngine* pEngine = static_cast<CPpuEngine*>(pBaseEngine);
     NPpu::CValue value;
-    pEngine->Pop(value);
-    const char* pName = pEngine->ToString(value);
+    pBaseEngine->Pop(value);
+    const char* pName = pBaseEngine->ToString(value);
     BWorldCamera* pCamera = DynamicCast<BWorldCamera>(pEngine->PopWorldObj());
     pEngine->PushInt(pCamera != nullptr ? pCamera->GetMotionLength(pName) : 0);
     return 0;

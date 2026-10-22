@@ -65,9 +65,10 @@ static inline LightMotionArgs PopLightMotionArgsEx(NPpu::CEngine* pEngine) {
     return args;
 }
 
-int method_BWorldLightSet_play(NPpu::CEngine* pEngine) {
-    LightMotionArgs args = PopLightMotionArgs(pEngine);
-    BWorldLightSet* pLightSet = DynamicCast<BWorldLightSet>(static_cast<CPpuEngine*>(pEngine)->PopWorldObj());
+int method_BWorldLightSet_play(NPpu::CEngine* pBaseEngine) {
+    CPpuEngine* pEngine = static_cast<CPpuEngine*>(pBaseEngine);
+    LightMotionArgs args = PopLightMotionArgs(pBaseEngine);
+    BWorldLightSet* pLightSet = DynamicCast<BWorldLightSet>(pEngine->PopWorldObj());
     if (pLightSet != nullptr) {
         BWorldLightSet::MotionPtr motion = pLightSet->Play(args.mpName, args.mStartFrame, args.mRate);
         if (motion) {
@@ -93,9 +94,10 @@ int method_BWorldLightSet_playEx(NPpu::CEngine* pEngine) {
     return 0;
 }
 
-int method_BWorldLightSet_request(NPpu::CEngine* pEngine) {
-    LightMotionArgs args = PopLightMotionArgs(pEngine, -1.0f);
-    BWorldLightSet* pLightSet = DynamicCast<BWorldLightSet>(static_cast<CPpuEngine*>(pEngine)->PopWorldObj());
+int method_BWorldLightSet_request(NPpu::CEngine* pBaseEngine) {
+    CPpuEngine* pEngine = static_cast<CPpuEngine*>(pBaseEngine);
+    LightMotionArgs args = PopLightMotionArgs(pBaseEngine, -1.0f);
+    BWorldLightSet* pLightSet = DynamicCast<BWorldLightSet>(pEngine->PopWorldObj());
     if (pLightSet != nullptr) {
         BWorldLightSet::MotionPtr motion = pLightSet->Request(args.mpName, args.mStartFrame, args.mRate);
         if (motion) {
@@ -121,9 +123,10 @@ int method_BWorldLightSet_requestEx(NPpu::CEngine* pEngine) {
     return 0;
 }
 
-int method_BWorldLightSet_requestNext(NPpu::CEngine* pEngine) {
-    LightMotionArgs args = PopLightMotionArgs(pEngine, -1.0f);
-    BWorldLightSet* pLightSet = DynamicCast<BWorldLightSet>(static_cast<CPpuEngine*>(pEngine)->PopWorldObj());
+int method_BWorldLightSet_requestNext(NPpu::CEngine* pBaseEngine) {
+    CPpuEngine* pEngine = static_cast<CPpuEngine*>(pBaseEngine);
+    LightMotionArgs args = PopLightMotionArgs(pBaseEngine, -1.0f);
+    BWorldLightSet* pLightSet = DynamicCast<BWorldLightSet>(pEngine->PopWorldObj());
     if (pLightSet != nullptr) {
         BWorldLightSet::MotionPtr motion = pLightSet->RequestNext(args.mpName, args.mStartFrame, args.mRate);
         if (motion) {
@@ -150,8 +153,8 @@ int method_BWorldLightSet_requestNextEx(NPpu::CEngine* pEngine) {
 }
 
 int method_BWorldLightSet_getMotionLength(NPpu::CEngine* pBaseEngine) {
-    const char* pName = PopString(pBaseEngine);
     CPpuEngine* pEngine = static_cast<CPpuEngine*>(pBaseEngine);
+    const char* pName = PopString(pBaseEngine);
     BWorldLightSet* pLightSet = DynamicCast<BWorldLightSet>(pEngine->PopWorldObj());
     pEngine->PushInt(pLightSet != nullptr ? pLightSet->GetMotionLength(pName) : 0);
     return 0;

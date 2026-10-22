@@ -28,9 +28,10 @@ static inline MotionArgs PopMotionArgs(NPpu::CEngine* pEngine, bool extended, f3
     return args;
 }
 
-int method_BModelObj_play(NPpu::CEngine* pEngine) {
-    MotionArgs args = PopMotionArgs(pEngine, false, 0.0f);
-    BModelObj* pObject = DynamicCast<BModelObj>(static_cast<CPpuEngine*>(pEngine)->PopWorldObj());
+int method_BModelObj_play(NPpu::CEngine* pBaseEngine) {
+    CPpuEngine* pEngine = static_cast<CPpuEngine*>(pBaseEngine);
+    MotionArgs args = PopMotionArgs(pBaseEngine, false, 0.0f);
+    BModelObj* pObject = DynamicCast<BModelObj>(pEngine->PopWorldObj());
     if (pObject != nullptr) {
         std::tr1::shared_ptr<CModel::CMotionProgram> motion = pObject->Play(args.mpName, args.mStartFrame, args.mRate);
         if (motion) {
@@ -70,9 +71,10 @@ int method_BModelObj_lengthPlay(NPpu::CEngine* pEngine) {
     return 0;
 }
 
-int method_BModelObj_request(NPpu::CEngine* pEngine) {
-    MotionArgs args = PopMotionArgs(pEngine, false, -1.0f);
-    BModelObj* pObject = DynamicCast<BModelObj>(static_cast<CPpuEngine*>(pEngine)->PopWorldObj());
+int method_BModelObj_request(NPpu::CEngine* pBaseEngine) {
+    CPpuEngine* pEngine = static_cast<CPpuEngine*>(pBaseEngine);
+    MotionArgs args = PopMotionArgs(pBaseEngine, false, -1.0f);
+    BModelObj* pObject = DynamicCast<BModelObj>(pEngine->PopWorldObj());
     if (pObject != nullptr) {
         std::tr1::shared_ptr<CModel::CMotionProgram> motion = pObject->PlayLoop(args.mpName, args.mStartFrame, args.mRate);
         if (motion) {
@@ -112,9 +114,10 @@ int method_BModelObj_lengthRequest(NPpu::CEngine* pEngine) {
     return 0;
 }
 
-int method_BModelObj_requestNext(NPpu::CEngine* pEngine) {
-    MotionArgs args = PopMotionArgs(pEngine, false, -1.0f);
-    BModelObj* pObject = DynamicCast<BModelObj>(static_cast<CPpuEngine*>(pEngine)->PopWorldObj());
+int method_BModelObj_requestNext(NPpu::CEngine* pBaseEngine) {
+    CPpuEngine* pEngine = static_cast<CPpuEngine*>(pBaseEngine);
+    MotionArgs args = PopMotionArgs(pBaseEngine, false, -1.0f);
+    BModelObj* pObject = DynamicCast<BModelObj>(pEngine->PopWorldObj());
     if (pObject != nullptr) {
         std::tr1::shared_ptr<CModel::CMotionProgram> motion = pObject->PlayOnce(args.mpName, args.mStartFrame, args.mRate);
         if (motion) {
@@ -154,9 +157,10 @@ int method_BModelObj_lengthRequestNext(NPpu::CEngine* pEngine) {
     return 0;
 }
 
-int method_BModelObj_getMotionLength(NPpu::CEngine* pEngine) {
-    const char* pName = PopString(pEngine);
-    BModelObj* pObject = DynamicCast<BModelObj>(static_cast<CPpuEngine*>(pEngine)->PopWorldObj());
+int method_BModelObj_getMotionLength(NPpu::CEngine* pBaseEngine) {
+    CPpuEngine* pEngine = static_cast<CPpuEngine*>(pBaseEngine);
+    const char* pName = PopString(pBaseEngine);
+    BModelObj* pObject = DynamicCast<BModelObj>(pEngine->PopWorldObj());
     int length;
     if (pObject != nullptr) {
         length = pObject->GetMotionLength(pName);
@@ -322,9 +326,10 @@ int method_nullSetTarget(NPpu::CEngine* pEngine) {
     return 0;
 }
 
-int method_nullLoadAnm(NPpu::CEngine* pEngine) {
-    const char* pName = PopString(pEngine);
-    CNullObj* pObject = DynamicCast<CNullObj>(static_cast<CPpuEngine*>(pEngine)->PopWorldObj());
+int method_nullLoadAnm(NPpu::CEngine* pBaseEngine) {
+    CPpuEngine* pEngine = static_cast<CPpuEngine*>(pBaseEngine);
+    const char* pName = PopString(pBaseEngine);
+    CNullObj* pObject = DynamicCast<CNullObj>(pEngine->PopWorldObj());
     if (pObject != nullptr && pName != nullptr) {
         std::string name(pName);
         pObject->LoadAnm(("5:" + name).c_str(), false);
