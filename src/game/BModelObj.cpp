@@ -248,30 +248,31 @@ void BModelObj::SetOutlineType(int type) {
 }
 
 void BModelObj::UpdateOutline() {
-    if ((mFlags & FLAG_OUTLINE) && mWorld != nullptr && mModel && mWorld->HasOutlineData()) {
-        u8 level;
-        switch (mOutlineType) {
-        case 0:
-            level = 0;
-            break;
-        default:
-            level = mId & 0x3F;
-            if (level == 0 || level == 0x20) {
-                level++;
-            }
-            break;
-        case 2:
-            level = 0x20;
-            break;
+    if (!(mFlags & FLAG_OUTLINE) || mWorld == nullptr || !mModel || !mWorld->HasOutlineData()) {
+        return;
+    }
+    u8 level;
+    switch (mOutlineType) {
+    case 0:
+        level = 0;
+        break;
+    default:
+        level = mId & 0x3F;
+        if (level == 0 || level == 0x20) {
+            level++;
         }
-        u8 alpha = (level << 2) | (level >> 4);
+        break;
+    case 2:
+        level = 0x20;
+        break;
+    }
+    u8 alpha = (level << 2) | (level >> 4);
 
-        nw4r::g3d::ScnMdl* pScnMdl = nw4r::g3d::G3dObj::DynamicCast<nw4r::g3d::ScnMdl>(mModel->GetScnObj());
-        u32 numMats = pScnMdl->GetResMdl().GetResMatNumEntries();
-        for (u32 i = 0; i < numMats; i++) {
-            nw4r::g3d::ScnMdl::CopiedMatAccess access(pScnMdl, i);
-            access.GetResMatPix(false).GXSetDstAlpha(true, alpha);
-        }
+    nw4r::g3d::ScnMdl* pScnMdl = nw4r::g3d::G3dObj::DynamicCast<nw4r::g3d::ScnMdl>(mModel->GetScnObj());
+    u32 numMats = pScnMdl->GetResMdl().GetResMatNumEntries();
+    for (u32 i = 0; i < numMats; i++) {
+        nw4r::g3d::ScnMdl::CopiedMatAccess access(pScnMdl, i);
+        access.GetResMatPix(false).GXSetDstAlpha(true, alpha);
     }
 }
 
