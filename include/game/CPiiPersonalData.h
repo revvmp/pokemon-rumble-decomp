@@ -112,11 +112,13 @@ private:
     bool HasFlag(u32 flag) { return (mFlags & flag) != 0; }
     void SetFlag(u32 flag, bool enable) {
         if (enable) {
-            mFlags |= flag;
+            AddFlag(flag);
         } else {
-            mFlags &= ~flag;
+            RemoveFlag(flag);
         }
     }
+    void AddFlag(u32 flag) { mFlags |= flag; }
+    void RemoveFlag(u32 flag) { mFlags &= ~flag; }
 
     u32 mFlags;
     int mId;

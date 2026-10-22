@@ -373,7 +373,8 @@ void CDataPerPlayer::OnSelectionChanged(BUI* pUI) {
     std::tr1::shared_ptr<IUIListItem> selected = mPiiList->GetSelectedItem();
     if (selected) {
         std::tr1::shared_ptr<CUIPiiListItem> item = std::tr1::static_pointer_cast<CUIPiiListItem>(selected);
-        if (item->GetPPD()->IsSpecHidden()) {
+        const CPiiPersonalData* pPPD = item->GetPPD().operator->();
+        if (pPPD->IsSpecHidden()) {
             item->GetPPD()->SetNewlyDisclosed(true);
             item->GetPPD()->SetSpecHidden(false);
             mPiiList->UpdateSelection();

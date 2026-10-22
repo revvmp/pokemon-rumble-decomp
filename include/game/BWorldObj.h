@@ -61,7 +61,15 @@ public:
     u32 GetStateFlags(u32 mask) const { return mState & mask; }
     bool IsVisible() const { return GetStateFlags(STATE_VISIBLE); }
     bool HasStateFlag(u32 mask) const { return (mState & mask) != 0; }
-    void SetStateFlag(u32 mask, bool enable);
+    void SetStateFlag(u32 mask, bool enable) {
+        if (enable) {
+            AddStateFlag(mask);
+        } else {
+            RemoveStateFlag(mask);
+        }
+    }
+    void AddStateFlag(u32 mask) { mState |= mask; }
+    void RemoveStateFlag(u32 mask) { mState &= ~mask; }
     void EnablePauseForUI(bool enable) { SetStateFlag(STATE_PAUSE_FOR_UI, enable); }
     bool IsPauseForUIEnabled() const { return HasStateFlag(STATE_PAUSE_FOR_UI); }
     void EnableHitstop(bool enable) { SetStateFlag(STATE_HITSTOP, enable); }
