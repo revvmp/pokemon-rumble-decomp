@@ -60,6 +60,9 @@ public:
         mDrawCacheFlags |= 1;
     }
 
+    const Size& GetFontSize() const { return mFontSize; }
+    f32 GetCharSpace() const { return mCharSpace; }
+
     ut::Color GetTextColor(u32 index) const {
         return mTextColors[index];
     }
