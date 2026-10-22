@@ -8,7 +8,7 @@
 #include <game/CStrapReminder.h>
 #include <game/HomeButton.h>
 #include <stdio.h>
-void ShutdownHomeButton();
+void FinalizeHomeButton();
 
 
 #include <game/ISession.h>
@@ -25,11 +25,11 @@ void ShutdownHomeButton();
 #include <revolution/gx.h>
 
 extern "C" void GXInvalidateTexAll();
-ISaveManager* GetSaveManager();
-void DrawHomeButtonMenu();
-bool IsHomeButtonMenuActive();
+
+void DrawHomeButton();
+bool IsHomeButtonActive();
 void UpdateResourceFiles();
-void UpdateHomeButtonMenu();
+void UpdateHomeButton();
 void ProcessResetRequest();
 
 
@@ -58,8 +58,8 @@ public:
     UpdatePad();
     UpdateControllers();
     UpdateSound();
-    UpdateHomeButtonMenu();
-    if (!IsHomeButtonMenuActive()) {
+    UpdateHomeButton();
+    if (!IsHomeButtonActive()) {
         if (!mDisconMsg || (mDisconMsg->Calc(), !mDisconMsg->IsActive())) {
             if (IGameMap* pMap = GetActiveGameMap()) {
                 if (IPauseMenu* pMenu = pMap->GetPauseMenu()) {
@@ -69,7 +69,7 @@ public:
             }
         }
     }
-    if (ISaveManager* pSave = GetSaveManager()) pSave->Calc();
+    if (ISaveManager* pSave = ISaveManager::GetInstance()) pSave->Calc();
     ProcessResetRequest();
 }
     virtual bool ShouldRender() {
@@ -81,7 +81,7 @@ public:
             if (pMenu->IsOpen()) return false;
         }
     }
-    return !IsHomeButtonMenuActive();
+    return !IsHomeButtonActive();
 }
     virtual void Prepare() {
     mFiber->Resume();
@@ -110,8 +110,8 @@ public:
         if (IPauseMenu* pMenu = pMap->GetPauseMenu()) pMenu->Draw();
     }
     if (mDisconMsg) mDisconMsg->Draw();
-    if (ISaveManager* pSave = GetSaveManager()) pSave->Draw();
-    DrawHomeButtonMenu();
+    if (ISaveManager* pSave = ISaveManager::GetInstance()) pSave->Draw();
+    DrawHomeButton();
     Graphics::CopyFrameBuffer();
 }
     virtual void Present() { Graphics::DisplayFrameBuffer(); }
@@ -188,44 +188,15 @@ void ShowLayoutFailureMessage(const CLayout::CInitializeException& rError) {
 #include <game/SystemMessage.h>
 #include <revolution/os.h>
 
-inline bool UsesAlternateErrorMessage(int drive) {
-    if (drive < 2 || drive >= 512) {
-        return false;
-    }
-    return drive != 5 && drive != 6;
-}
+bool UsesAlternateErrorMessage(CPath::Drive drive);
 
-void HandleFileError(int drive, const char* pPath, long error, unsigned long flags) {
+void HandleFileError(CPath::Drive drive, const char* pPath, long error, unsigned long flags) {
     if ((flags & 0x8000) && error == -6007) {
         return;
     }
-    if (drive >= 2 && drive < 512) {
-        switch (error) {
-        case -5013:
-            ShowSystemMessage(GetMessageText(5 + !!UsesAlternateErrorMessage(drive), gEmptyText), true);
-            break;
-        case -5011:
-            ShowSystemMessage(GetMessageText(65565, gEmptyText), false);
-            break;
-        case -5012:
-            ShowSystemMessage(GetMessageText(5 + !!UsesAlternateErrorMessage(drive), gEmptyText), true);
-            break;
-        case -5063:
-            ShowSystemMessage(GetMessageText(65568, gEmptyText), false);
-            break;
-        }
-        if (!(flags & 0x2000)) {
-            if (UsesAlternateErrorMessage(drive)) {
-                ShowSystemMessage(GetMessageText(6, gEmptyText), true);
-            } else {
-                ShowSystemMessage(GetMessageText(5, gEmptyText), true);
-            }
-        }
-    } else if ((drive >= 512 && drive <= 537) || drive == 539) {
-        if (!(flags & 0x2000)) {
-            OSPanic("main.cpp", 496, "fatal error\n");
-        }
-    } else if (drive == CPath::DEVICE_NAND) {
+    switch (drive) {
+    case CPath::DEVICE_NAND:
+
         switch (error) {
         case -2:
             ShowSystemMessage(GetMessageText(65567, gEmptyText), true);
@@ -249,6 +220,55 @@ void HandleFileError(int drive, const char* pPath, long error, unsigned long fla
         if (!(flags & 0x2000)) {
             ShowSystemMessage(GetMessageText(5, gEmptyText), true);
         }
+        break;
+    case 2 ... 511:
+
+        switch (error) {
+        case -5013:
+            ShowSystemMessage(GetMessageText(5 + !!UsesAlternateErrorMessage(drive), gEmptyText), true);
+            break;
+        case -5011:
+            ShowSystemMessage(GetMessageText(65565, gEmptyText), false);
+            break;
+        case -5012:
+            ShowSystemMessage(GetMessageText(5 + !!UsesAlternateErrorMessage(drive), gEmptyText), true);
+            break;
+        case -5063:
+            ShowSystemMessage(GetMessageText(65568, gEmptyText), false);
+            break;
+        }
+        if (!(flags & 0x2000)) {
+            if (UsesAlternateErrorMessage(drive)) {
+                ShowSystemMessage(GetMessageText(6, gEmptyText), true);
+            } else {
+                ShowSystemMessage(GetMessageText(5, gEmptyText), true);
+            }
+        }
+        break;
+    case 512 ... 537:
+    case CPath::DEVICE_UNC:
+
+        if (!(flags & 0x2000)) {
+            OSPanic("main.cpp", 496, "fatal error\n");
+        }
+        break;
+    default:
+        break;
+    }
+}
+inline bool UsesAlternateErrorMessage(CPath::Drive drive) {
+    if (drive < 2) {
+        return false;
+    }
+    if (drive >= 512) {
+        return false;
+    }
+    switch (drive) {
+    case 5:
+    case 6:
+        return false;
+    default:
+        return true;
     }
 }
 
@@ -377,7 +397,7 @@ void main() {
         ResourceFileConfig config;
         CPath path;
         path.ParseDevice(GetResourceBasePath());
-        config.mErrorHandler = HandleFileError;
+        config.SetErrorHandler(HandleFileError);
         config.mUseDriveWorker = (path.GetDevice() >= CPath::DEVICE_MCS_BASE && path.GetDevice() <= CPath::DEVICE_MCS_LAST) || path.GetDevice() == CPath::DEVICE_UNC;
         InitializeResourceFiles(config);
     }
@@ -389,12 +409,12 @@ void main() {
     RegisterSystemMessageCallback(PrepareSystemMessageAudio, 2);
     RegisterSystemMessageCallback(UpdateSystemMessageAudio, 1);
     InitializeCalculationWorker();
-    InitializeLocalizedFiles();
+    InitLocalizedFiles();
     {
         CMain application;
         RunGameLoop(&application);
     }
-    ShutdownLocalizedFiles();
+    ResetLocalizedFiles();
     ShutdownCalculationWorker();
     ShutdownWorkBuffer();
     ShutdownSound();
@@ -402,6 +422,11 @@ void main() {
     ShutdownResourceFiles();
     ShutdownControllers();
     ShutdownRandom();
+}
+
+void ResourceFileConfig::SetErrorHandler(const FileErrorHandler& rHandler) {
+    FileErrorHandler handler(rHandler);
+    mErrorHandler.swap(handler);
 }
 
 #include <game/HomeButton.h>
@@ -579,7 +604,7 @@ CMain::~CMain() {
     mFiber.reset();
     FinalizeColorConstants();
     ShutdownIconCollection();
-    ShutdownHomeButton();
+    FinalizeHomeButton();
 }
 
 

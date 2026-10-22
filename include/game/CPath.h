@@ -7,7 +7,7 @@
 
 class CPath {
 public:
-    enum Device {
+    enum Drive {
         DEVICE_DVD,
         DEVICE_NAND,
         DEVICE_MCS_BASE = 512,
