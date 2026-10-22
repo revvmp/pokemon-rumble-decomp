@@ -70,3 +70,29 @@ ScriptPii reached 100% in every function. Data-label naming (`@NNNN` labels, RTT
 - **`IsKindOf` copies are file-local.** ScriptPii keeps its own `IsKindOf<CPlayerPii>` and `IsKindOf<CEnemyPii>` while ScriptWorldObj has global ones, so the template is `static` in `BWorldObj.h`. Without that, a Matching ScriptPii loses 0xA0 bytes of `.text` to weak dedupe. No other unit changed.
 - **The pointer-list `push_back` is a forwarding member.** ScriptPii calls `__list_imp<T*>::push_back`, which tail-branches to the `end()`/`insert` body (named `append`). Making `list::push_back` forward for all element types lost 35 functions elsewhere. Only the pointer specialisation forwards.
 - **Inline members defined in the .cpp before first use are emitted ahead of that function's template instances.** Defining `CPlayerPii::Initialize`/`LoadScript` as `inline` above `NewPlayerPii` put them before `NewPlayerPii`'s template instances, as in the target.
+
+## Tail wave (library long tail)
+
+### Fixes
+
+- **puh_msc_blk (now Matching).** `uhf_msc_blk_pread`/`pwrite` clamp the block count with `if (count > max_block) num_block = max_block; else num_block = count;`. Assigning `max_block` first and overriding it gave the `r26`/`r27` swap (99.4%).
+- **snd_SeqSound (now Matching).** The target stores both volatile flags before `mTempSpecialHandle`. Clearing them in a comma expression inside the `mTempSpecialHandle` initializer reproduces the order (zeldaret/ss uses the same device and marks it fake).
+- **ut_TextWriterBase, 77 to 79 of 81.** `Font::GetCharStrmReader` is an in-class NRV body marked `__attribute__((never_inline))` (as in zeldaret/ss). Every caller in this unit and `lyt_textBox` calls it out of line, but the inliners inline everything else around it. `~CharStrmReader() { return; }` makes CodeWarrior call the destructor in over-budget `PrintToDisplayListImpl`; an empty `{}` body is elided and the weak destructor is never emitted.
+- **TMC JPEG setup.** `((h % 4 != 0) + h / 4) * 4` raises both setup functions from 94.75% to 99.83%; one `add` operand order remains (F-764-1).
+
+### Unsolved (unit, function, match, cause)
+
+| Unit | Function | Match | Cause |
+| --- | --- | --- | --- |
+| ut_TextWriterBase | `PrintToDisplayListImpl<c/w>` | 98.5% | `posX`/`posZ` take `f22`/`f23` swapped; the target loads `posZ` after the `GetBaselinePos` call. Declaration orders tried change the constant registers instead. |
+| hbm lyt_window | `DrawFrame` | 92.5% | scheduling in the first quad only; local orders, `Size` copy and split `bool` tried. |
+| pdm_mbr | `pdm_mbr_check_master_boot_record` | 89.2% | byte-load scheduling; operand order, casts, dead stores and unrolled loops tried. |
+| ef_drawfree / ef_drawdirectional | `Draw` / `DrawDirectional` | 97.5% | see trap below. |
+| ef_particlemanager | `Calc` | 94.2% | frame is 0x20 larger and the register assignment differs throughout. |
+| ef_animcurve | 7 functions | 93-99.7% | Baked: frame length takes `r4` instead of `r8`; Texture: parameter registers. |
+| auto_03_8027C8B8 | `IOStream::GetOffsetAlign` | n/a | weak copy owned by `snd_MemorySoundArchive.cpp` (F-424-2); needs a dead-stripped first function that calls it, for which there is no evidence. |
+
+### Traps
+
+- **The ef "partly unoptimized" functions are not compiler or flag differences.** Every Wii compiler, `-O2`/`-O3`, each `-opt no*` and each `opt_*` pragma give the same chained switch and branch-free flag. Only `global_optimizer off` gives the target's binary switch tree, but it also adds a frame pointer and stops constant folding. `ef_drawbillboardstrategy` inlines the same `GetViewMtxCooked` switch as a chain, so the cause is in the source of the two draw strategies. Function size, local count, struct returns, later-defined inlines and inline asm do not trigger it.
+- **`try.py`-style text replacement replaces every occurrence.** PrintImpl and PrintToDisplayListImpl share statements; a whole-file replace silently changed PrintImpl. Replace by index.
