@@ -14,7 +14,7 @@ public:
                           const nw4r::math::MTX44& rProjection) = 0;
     virtual bool IsVisible() const = 0;
     virtual void Draw() = 0;
-    virtual u32 GetType() const = 0;
+    virtual int GetType() const = 0;
 };
 
 #endif

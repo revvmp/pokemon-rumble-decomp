@@ -63,6 +63,6 @@ void CTextWorldObjStat::Draw() {
     mLayout.Draw();
 }
 
-u32 CTextWorldObjStat::GetType() const {
+int CTextWorldObjStat::GetType() const {
     return mType;
 }

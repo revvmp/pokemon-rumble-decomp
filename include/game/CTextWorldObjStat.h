@@ -16,7 +16,7 @@ public:
     virtual void CalcView(const nw4r::math::MTX34& rView, const nw4r::math::MTX44& rProjection);
     virtual bool IsVisible() const;
     virtual void Draw();
-    virtual u32 GetType() const;
+    virtual int GetType() const;
 
     void Load(int kind, const wchar_t* pText, bool background);
 
