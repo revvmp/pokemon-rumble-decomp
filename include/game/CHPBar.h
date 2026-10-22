@@ -20,7 +20,7 @@ public:
                           const nw4r::math::MTX44& rProjection);
     virtual bool IsVisible() const;
     virtual void Draw();
-    virtual u32 GetType() const;
+    virtual int GetType() const;
 
     void Initialize(int playerNo, CPiiPersonalData* pPersonalData, bool background);
 
