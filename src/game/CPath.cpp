@@ -6,6 +6,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+CPath::CPath() : mDevice(DEVICE_UNSPECIFIED) {}
+
+CPath::CPath(int device, const std::list<std::string>& rComponents) : mDevice(device), mComponents(rComponents) {}
+
+CPath::~CPath() {}
+
 namespace {
 
 std::string GetDeviceNameFor(int device) {
@@ -32,13 +38,8 @@ std::string GetDeviceNameFor(int device) {
 
 }
 
-CPath::CPath() : mDevice(DEVICE_UNSPECIFIED) {}
-
-CPath::CPath(int device, const std::list<std::string>& rComponents) : mDevice(device), mComponents(rComponents) {}
-
-CPath::~CPath() {}
-
 std::string CPath::ToString(bool includeDevice) const {
+    std::string::size_type length = 0;
     std::string device;
     char separator[2];
     char separatorChar;
@@ -56,8 +57,8 @@ std::string CPath::ToString(bool includeDevice) const {
         device.reserve(5);
         device = GetDeviceName();
         device += ":";
+        length = device.size();
     }
-    std::string::size_type length = device.size();
     for (std::list<std::string>::const_iterator it = mComponents.begin(); it != mComponents.end(); ++it) {
         length += (*it).size() + 1;
     }
