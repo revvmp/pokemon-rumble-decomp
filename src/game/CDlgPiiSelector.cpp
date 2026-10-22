@@ -187,7 +187,7 @@ public:
     void SetInputDisabled(bool disabled) { mInputDisabled = disabled; }
     void OnSelectionChanged(BUI* pUI);
     void OnAccept(BUI* pUI) { mMode = 3; }
-    void OnSortChanged(const CPiiListFilterSort* pFilterSort);
+    void OnSortChanged(const CPiiListFilterSort* pFilterSort) { UpdateList(true); }
     void Run();
     void RunDialog();
     void RunSelection();
@@ -1019,6 +1019,12 @@ void CDataPerPlayer::RemoveChangeCircle() {
         }
         mChangeCircle.reset();
     }
+}
+
+CDataPerPlayer::~CDataPerPlayer() {
+    RemovePreviewPii();
+    RemoveBall();
+    RemoveChangeCircle();
 }
 
 bool CDataPerPlayer::IsSkipPressed() {

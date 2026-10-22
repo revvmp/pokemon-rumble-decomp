@@ -6,7 +6,9 @@
 #include <MSL_C/math.h>
 #include <nw4r/math/math_types.h>
 
-nw4r::math::VEC3* TransformPoint(nw4r::math::VEC3* pOut, const nw4r::math::MTX34* pMtx, const nw4r::math::VEC3* pPoint);
+inline nw4r::math::VEC3* TransformPoint(nw4r::math::VEC3* pOut, const nw4r::math::MTX34* pMtx, const nw4r::math::VEC3* pPoint) {
+    return nw4r::math::VEC3Transform(pOut, pMtx, pPoint);
+}
 
 f32 NormalizeSignedAngle(f32 degrees);
 f32 NormalizeAngle(f32 degrees);
@@ -14,7 +16,7 @@ f32 IntegerPower(f32 value, int exponent);
 
 inline nw4r::math::VEC3 Transform(const nw4r::math::MTX34& rMtx, const nw4r::math::VEC3& rVec) {
     nw4r::math::VEC3 result;
-    nw4r::math::VEC3Transform(&result, &rMtx, &rVec);
+    TransformPoint(&result, &rMtx, &rVec);
     return result;
 }
 
