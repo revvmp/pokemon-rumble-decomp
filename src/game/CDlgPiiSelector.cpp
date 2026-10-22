@@ -1267,11 +1267,37 @@ public:
 
     CDlgPiiSelector() : mIsPausing(false), mInputLocked(false), mErrorState(0), mError(0) {}
     virtual ~CDlgPiiSelector() {}
+    virtual bool Close() { return false; }
+    virtual bool IsClosable() { return false; }
     virtual bool IsShown(int player) {
         if (mIsPausing) {
             return true;
         }
         return !mMultiPlayerData && mDataPerPlayer[player] && mDataPerPlayer[player]->IsShown();
+    }
+
+    virtual void Show(int player, bool flag) {
+        if (mMultiPlayerData) {
+            return;
+        }
+        if (flag) {
+            if (GetCurrentGameMap()->GetMapDesc().mIndex.mStage == 0) {
+                if (IsAnyShown()) {
+                    return;
+                }
+                flag = true;
+                GetCurrentGameMap()->SetPausing(true);
+                mIsPausing = true;
+            } else {
+                flag = false;
+            }
+            if (!mDataPerPlayer[player]) {
+                mDataPerPlayer[player].reset(new CDataPerPlayer(this, flag, player));
+                mDataPerPlayer[player]->Setup();
+            }
+        } else if (mDataPerPlayer[player]) {
+            mDataPerPlayer[player]->RequestClose();
+        }
     }
 
     virtual bool IsMultiPlayerEntranceShown() { return mMultiPlayerData; }
@@ -1327,32 +1353,6 @@ public:
     }
 
     inline virtual void UpdateDlgOpenState();
-    virtual bool Close() { return false; }
-    virtual bool IsClosable() { return false; }
-    virtual void Show(int player, bool flag) {
-        if (mMultiPlayerData) {
-            return;
-        }
-        if (flag) {
-            if (GetCurrentGameMap()->GetMapDesc().mIndex.mStage == 0) {
-                if (IsAnyShown()) {
-                    return;
-                }
-                flag = true;
-                GetCurrentGameMap()->SetPausing(true);
-                mIsPausing = true;
-            } else {
-                flag = false;
-            }
-            if (!mDataPerPlayer[player]) {
-                mDataPerPlayer[player].reset(new CDataPerPlayer(this, flag, player));
-                mDataPerPlayer[player]->Setup();
-            }
-        } else if (mDataPerPlayer[player]) {
-            mDataPerPlayer[player]->RequestClose();
-        }
-    }
-
     virtual void Calc() {
         if (mMultiPlayerData) {
             CalcEntrance();
