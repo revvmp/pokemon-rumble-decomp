@@ -124,16 +124,112 @@ void CModel::SetAimTarget(const nw4r::math::VEC3& rTarget, bool snap) {
     }
 }
 
-int CModel::GetMotionLength(const char* pName) {
-    std::vector<std::tr1::shared_ptr<CFileData> >& rFiles = mModelData.GetFiles();
-    std::vector<std::tr1::shared_ptr<CFileData> >::iterator it = rFiles.begin();
-    nw4r::g3d::ResAnmChr resource;
-    for (; it != rFiles.end(); ++it) {
-        resource = nw4r::g3d::ResFile((*it)->GetData()).GetResAnmChr(pName);
-        if (resource.IsValid()) {
-            break;
+namespace {
+
+struct ChrAnimTraits {
+    typedef nw4r::g3d::ResAnmChr Res;
+    template <class Key> static Res Find(std::vector<std::tr1::shared_ptr<CFileData> >& rFiles, Key key) {
+        Res resource;
+        std::vector<std::tr1::shared_ptr<CFileData> >::iterator it = rFiles.begin();
+        for (; it != rFiles.end(); ++it) {
+            nw4r::g3d::ResFile file((*it)->GetData());
+            resource = file.GetResAnmChr(key);
+            if (resource.IsValid()) {
+                break;
+            }
         }
+        return resource;
     }
+};
+
+struct VisAnimTraits {
+    typedef nw4r::g3d::ResAnmVis Res;
+    template <class Key> static Res Find(std::vector<std::tr1::shared_ptr<CFileData> >& rFiles, Key key) {
+        Res resource;
+        std::vector<std::tr1::shared_ptr<CFileData> >::iterator it = rFiles.begin();
+        for (; it != rFiles.end(); ++it) {
+            nw4r::g3d::ResFile file((*it)->GetData());
+            resource = file.GetResAnmVis(key);
+            if (resource.IsValid()) {
+                break;
+            }
+        }
+        return resource;
+    }
+};
+
+struct MatClrAnimTraits {
+    typedef nw4r::g3d::AnmObjMatClrRes Obj;
+    typedef nw4r::g3d::ResAnmClr Res;
+    template <class Key> static Res Find(std::vector<std::tr1::shared_ptr<CFileData> >& rFiles, Key key) {
+        Res resource;
+        std::vector<std::tr1::shared_ptr<CFileData> >::iterator it = rFiles.begin();
+        for (; it != rFiles.end(); ++it) {
+            nw4r::g3d::ResFile file((*it)->GetData());
+            resource = file.GetResAnmClr(key);
+            if (resource.IsValid()) {
+                break;
+            }
+        }
+        return resource;
+    }
+};
+
+struct TexPatAnimTraits {
+    typedef nw4r::g3d::AnmObjTexPatRes Obj;
+    typedef nw4r::g3d::ResAnmTexPat Res;
+    template <class Key> static Res Find(std::vector<std::tr1::shared_ptr<CFileData> >& rFiles, Key key) {
+        Res resource;
+        std::vector<std::tr1::shared_ptr<CFileData> >::iterator it = rFiles.begin();
+        for (; it != rFiles.end(); ++it) {
+            nw4r::g3d::ResFile file((*it)->GetData());
+            resource = file.GetResAnmTexPat(key);
+            if (resource.IsValid()) {
+                break;
+            }
+        }
+        return resource;
+    }
+};
+
+struct TexSrtAnimTraits {
+    typedef nw4r::g3d::AnmObjTexSrtRes Obj;
+    typedef nw4r::g3d::ResAnmTexSrt Res;
+    template <class Key> static Res Find(std::vector<std::tr1::shared_ptr<CFileData> >& rFiles, Key key) {
+        Res resource;
+        std::vector<std::tr1::shared_ptr<CFileData> >::iterator it = rFiles.begin();
+        for (; it != rFiles.end(); ++it) {
+            nw4r::g3d::ResFile file((*it)->GetData());
+            resource = file.GetResAnmTexSrt(key);
+            if (resource.IsValid()) {
+                break;
+            }
+        }
+        return resource;
+    }
+};
+
+struct ShpAnimTraits {
+    typedef nw4r::g3d::AnmObjShpRes Obj;
+    typedef nw4r::g3d::ResAnmShp Res;
+    template <class Key> static Res Find(std::vector<std::tr1::shared_ptr<CFileData> >& rFiles, Key key) {
+        Res resource;
+        std::vector<std::tr1::shared_ptr<CFileData> >::iterator it = rFiles.begin();
+        for (; it != rFiles.end(); ++it) {
+            nw4r::g3d::ResFile file((*it)->GetData());
+            resource = file.GetResAnmShp(key);
+            if (resource.IsValid()) {
+                break;
+            }
+        }
+        return resource;
+    }
+};
+
+}
+
+int CModel::GetMotionLength(const char* pName) {
+    nw4r::g3d::ResAnmChr resource = ChrAnimTraits::Find(mModelData.GetFiles(), pName);
     return resource.IsValid() ? resource.GetNumFrame() : 0;
 }
 
@@ -169,8 +265,7 @@ std::tr1::shared_ptr<CModel::CMotionProgram> CModel::FindMotion(u32 id) {
     if (mPartialAnimations) {
         for (std::map<u32, std::tr1::shared_ptr<TPartialAnm<false> > >::iterator partial = mPartialAnimations->mPartials.begin();
              partial != mPartialAnimations->mPartials.end(); ++partial) {
-            std::list<std::tr1::shared_ptr<CMotionProgram> >& rMotions = partial->second->mMotions;
-            for (std::list<std::tr1::shared_ptr<CMotionProgram> >::iterator it = rMotions.begin(); it != rMotions.end(); ++it) {
+            for (std::list<std::tr1::shared_ptr<CMotionProgram> >::iterator it = partial->second->mMotions.begin(); it != partial->second->mMotions.end(); ++it) {
                 if ((*it)->mId == id) {
                     return *it;
                 }
@@ -297,8 +392,8 @@ CModel::BPartialAnm* CModel::GetPartialAnm(u32 nodeId) {
         if (it != mPartialAnimations->mPartials.end()) {
             return it->second.get();
         }
-        mPartialAnimations->mAnimObj.reset();
     }
+    mPartialAnimations->mAnimObj.reset();
     std::tr1::shared_ptr<TPartialAnm<false> > partial(new TPartialAnm<false>);
     mPartialAnimations->mPartials[nodeId] = partial;
     return partial.get();
@@ -310,16 +405,18 @@ std::tr1::shared_ptr<CModel::CMotionProgram> CModel::SetupMotion(const std::tr1:
         return std::tr1::shared_ptr<CMotionProgram>();
     }
     const nw4r::g3d::ResAnmChrNodeData* pNodeAnm = resource.GetNodeAnm(0);
-    nw4r::g3d::ResNode node = GetResMdl().GetResNode(nw4r::g3d::ResName(reinterpret_cast<const u8*>(pNodeAnm) + pNodeAnm->name - 4));
+    nw4r::g3d::ResMdl mdl = GetResMdl();
+    nw4r::g3d::ResNode node = mdl.GetResNode(nw4r::g3d::ResName(reinterpret_cast<const u8*>(pNodeAnm) + pNodeAnm->name - 4));
     if (!node.IsValid()) {
         return std::tr1::shared_ptr<CMotionProgram>();
     }
-    *ppPartial = GetPartialAnm(node.IsValid() ? node.ref().id : 0);
+    BPartialAnm* pPartial = GetPartialAnm(node.IsValid() ? node.ref().id : 0);
+    *ppPartial = pPartial;
     rProgram->mId = mNextMotionID;
     rProgram->mStartFrame = frame;
     rProgram->mRate = rate;
     rProgram->mpUserData = nullptr;
-    rProgram->mpCurrentFrame = &(*ppPartial)->mFrame;
+    rProgram->mpCurrentFrame = &pPartial->mFrame;
     rProgram->mLength = rProgram->mResource.GetNumFrame();
     rProgram.get()->SetPlaybackState(CMotionProgram::FLAG_PENDING);
     if (++mNextMotionID == 0) {
@@ -335,15 +432,7 @@ std::tr1::shared_ptr<CModel::CMotionProgram> CModel::CreateMotion(const char* pN
     std::tr1::shared_ptr<CMotionProgram> program(new CMotionProgram);
     program->mFlags = 0;
     program->mFlags |= CMotionProgram::FLAG_CREATED;
-    std::vector<std::tr1::shared_ptr<CFileData> >& rFiles = mModelData.GetFiles();
-    std::vector<std::tr1::shared_ptr<CFileData> >::iterator it = rFiles.begin();
-    nw4r::g3d::ResAnmChr resource;
-    for (; it != rFiles.end(); ++it) {
-        resource = nw4r::g3d::ResFile((*it)->GetData()).GetResAnmChr(pName);
-        if (resource.IsValid()) {
-            break;
-        }
-    }
+    nw4r::g3d::ResAnmChr resource = ChrAnimTraits::Find(mModelData.GetFiles(), pName);
     program->mResource = resource;
     program->mName = pName;
     return SetupMotion(program, frame, rate, ppPartial);
@@ -352,90 +441,10 @@ std::tr1::shared_ptr<CModel::CMotionProgram> CModel::CreateMotion(const char* pN
 std::tr1::shared_ptr<CModel::CMotionProgram> CModel::CreateMotion(int index, f32 frame, f32 rate, BPartialAnm** ppPartial) {
     std::tr1::shared_ptr<CMotionProgram> program(new CMotionProgram);
     program->mFlags = 0;
-    std::vector<std::tr1::shared_ptr<CFileData> >& rFiles = mModelData.GetFiles();
-    std::vector<std::tr1::shared_ptr<CFileData> >::iterator it = rFiles.begin();
-    nw4r::g3d::ResAnmChr resource;
-    for (; it != rFiles.end(); ++it) {
-        resource = nw4r::g3d::ResFile((*it)->GetData()).GetResAnmChr(index);
-        if (resource.IsValid()) {
-            break;
-        }
-    }
+    nw4r::g3d::ResAnmChr resource = ChrAnimTraits::Find(mModelData.GetFiles(), index);
     program->mResource = resource;
     program->mReserved = index;
     return SetupMotion(program, frame, rate, ppPartial);
-}
-
-namespace {
-
-struct MatClrAnimTraits {
-    typedef nw4r::g3d::AnmObjMatClrRes Obj;
-    typedef nw4r::g3d::ResAnmClr Res;
-    template <class Key> static Res Find(std::vector<std::tr1::shared_ptr<CFileData> >& rFiles, Key key) {
-        Res resource;
-        std::vector<std::tr1::shared_ptr<CFileData> >::iterator it = rFiles.begin();
-        for (; it != rFiles.end(); ++it) {
-            nw4r::g3d::ResFile file((*it)->GetData());
-            resource = file.GetResAnmClr(key);
-            if (resource.IsValid()) {
-                break;
-            }
-        }
-        return resource;
-    }
-};
-
-struct TexPatAnimTraits {
-    typedef nw4r::g3d::AnmObjTexPatRes Obj;
-    typedef nw4r::g3d::ResAnmTexPat Res;
-    template <class Key> static Res Find(std::vector<std::tr1::shared_ptr<CFileData> >& rFiles, Key key) {
-        Res resource;
-        std::vector<std::tr1::shared_ptr<CFileData> >::iterator it = rFiles.begin();
-        for (; it != rFiles.end(); ++it) {
-            nw4r::g3d::ResFile file((*it)->GetData());
-            resource = file.GetResAnmTexPat(key);
-            if (resource.IsValid()) {
-                break;
-            }
-        }
-        return resource;
-    }
-};
-
-struct TexSrtAnimTraits {
-    typedef nw4r::g3d::AnmObjTexSrtRes Obj;
-    typedef nw4r::g3d::ResAnmTexSrt Res;
-    template <class Key> static Res Find(std::vector<std::tr1::shared_ptr<CFileData> >& rFiles, Key key) {
-        Res resource;
-        std::vector<std::tr1::shared_ptr<CFileData> >::iterator it = rFiles.begin();
-        for (; it != rFiles.end(); ++it) {
-            nw4r::g3d::ResFile file((*it)->GetData());
-            resource = file.GetResAnmTexSrt(key);
-            if (resource.IsValid()) {
-                break;
-            }
-        }
-        return resource;
-    }
-};
-
-struct ShpAnimTraits {
-    typedef nw4r::g3d::AnmObjShpRes Obj;
-    typedef nw4r::g3d::ResAnmShp Res;
-    template <class Key> static Res Find(std::vector<std::tr1::shared_ptr<CFileData> >& rFiles, Key key) {
-        Res resource;
-        std::vector<std::tr1::shared_ptr<CFileData> >::iterator it = rFiles.begin();
-        for (; it != rFiles.end(); ++it) {
-            nw4r::g3d::ResFile file((*it)->GetData());
-            resource = file.GetResAnmShp(key);
-            if (resource.IsValid()) {
-                break;
-            }
-        }
-        return resource;
-    }
-};
-
 }
 
 template <class Traits, class Key> std::tr1::shared_ptr<typename Traits::Obj> CModel::CreateAnimObj(Key key, f32 frame) {
@@ -597,11 +606,11 @@ void CModel::ExecCallbackA(nw4r::g3d::ChrAnmResult* pResult, nw4r::g3d::ResMdl m
             if (nw4r::math::MTX34Inv(&inverse, &mAim.mBindTransform)) {
                 nw4r::math::MTX34 combined;
                 PSMTXConcat(inverse, rotTrans, combined);
+                nw4r::math::VEC3 direction;
                 nw4r::math::VEC3 forward;
                 forward.x = 0.0f;
                 forward.y = 0.0f;
                 forward.z = 1.0f;
-                nw4r::math::VEC3 direction;
                 nw4r::math::VEC3Transform(&direction, &combined, &forward);
                 if (direction.x != 0.0f || direction.z != 0.0f) {
                     mAim.mYaw = nw4r::math::Atan2Rad(direction.x, direction.z);
