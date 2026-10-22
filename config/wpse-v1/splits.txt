@@ -332,14 +332,13 @@ game/CItem.cpp:
 	.text       start:0x800C0C60 end:0x800C1218
 	.rodata     start:0x80352BA8 end:0x80352BC0
 	.data       start:0x803A4938 end:0x803A49C8
-	.sdata      start:0x804B6A30 end:0x804B6A48
 
 game/CLayoutManager.cpp:
 	extab       start:0x8001CA94 end:0x8001CEF8
 	extabindex  start:0x80048AA4 end:0x80048B40
 	.text       start:0x800C1220 end:0x800C2678
 	.data       start:0x803A49C8 end:0x803A4B48
-	.sdata      start:0x804B6A48 end:0x804B6A68
+	.sdata      start:0x804B6A30 end:0x804B6A68
 
 game/CMiniMap.cpp:
 	extab       start:0x8001CEF8 end:0x8001D4A8

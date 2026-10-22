@@ -272,7 +272,7 @@ config.libs = [
             Object(NonMatching, "game/CGloballyReusableTexBuf.cpp"),
             Object(NonMatching, "game/CHPBar.cpp"),
             Object(Matching, "game/CIconCollection.cpp"),
-            Object(NonMatching, "game/CItem.cpp"),
+            Object(Matching, "game/CItem.cpp"),
             Object(NonMatching, "game/CLayoutManager.cpp"),
             Object(NonMatching, "game/CMiniMap.cpp"),
             Object(Matching, "game/CMiniMapMarker.cpp"),
