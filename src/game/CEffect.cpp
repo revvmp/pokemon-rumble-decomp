@@ -72,7 +72,9 @@ public:
         nw4r::math::VEC3 scale(static_cast<const nw4r::math::_VEC3&>(pEmitter->mParameter.mScale));
         const char* pName = pEmitter->mResource->GetName();
         if (IsEqual(pName, "main", 4)) {
-            pEmitter->mParameter.mParams[0] = mParam.mFrames.mHeight * 0.5f / scale.x;
+            f32 halfHeight = mParam.mFrames.mHeight;
+            halfHeight *= 0.5f;
+            pEmitter->mParameter.mParams[0] = halfHeight / scale.x;
             pEmitter->SetTranslate(nw4r::math::VEC3(0.0f, 0.0f, 0.0f));
             pEmitter->SetMtxDirty();
             pEmitter->mParameter.mVelDiffusionSpecDir = 0.0f;
@@ -82,7 +84,9 @@ public:
             static_cast<EmitterWithParam*>(pEmitter)->mParam = mParam;
         } else if (IsEqual(pName, "sub", 3)) {
             pEmitter->mWaitTime = mParam.mFrames.mLife + 1;
-            pEmitter->mParameter.mParams[0] = mParam.mFrames.mHeight * 0.5f / scale.x;
+            f32 halfHeight = mParam.mFrames.mHeight;
+            halfHeight = halfHeight * 0.5f;
+            pEmitter->mParameter.mParams[0] = halfHeight / scale.x;
             pEmitter->SetTranslate(nw4r::math::VEC3(0.0f, 0.0f, mParam.mFrames.mRadius * mParam.mFrames.mLife));
             pEmitter->SetMtxDirty();
         }
@@ -93,8 +97,12 @@ public:
             return;
         }
 
-        pEmitter->mParameter.mParams[2] = NW4R_MATH_PI + -mParam.mFrames.mHeight * 0.5f;
-        pEmitter->mParameter.mParams[3] = NW4R_MATH_PI + mParam.mFrames.mHeight * 0.5f;
+        f32 startAngle = -mParam.mFrames.mHeight;
+        startAngle *= 0.5f;
+        pEmitter->mParameter.mParams[2] = NW4R_MATH_PI + startAngle;
+        f32 endAngle = mParam.mFrames.mHeight;
+        endAngle *= 0.5f;
+        pEmitter->mParameter.mParams[3] = NW4R_MATH_PI + endAngle;
         nw4r::math::VEC3 scale(static_cast<const nw4r::math::_VEC3&>(pEmitter->mParameter.mScale));
         pEmitter->SetTranslate(nw4r::math::VEC3(0.0f, 0.0f, 0.0f));
         pEmitter->SetMtxDirty();
@@ -868,7 +876,7 @@ void CEffect::CalcMtx() {
         BModelObj* pModelObj = DynamicCast<BModelObj>(pFollow.get());
         if (pModelObj != nullptr && pModelObj->GetModel()) {
             nw4r::g3d::ScnMdlSimple* pScnMdl =
-                static_cast<nw4r::g3d::ScnMdlSimple*>(pModelObj->GetModel()->GetScnObj());
+                pModelObj->GetModel()->mModelData.GetModel();
             u32 nodeID = 0xFFFFFFFF;
             if (mParam.mInfo->mNodeName != nullptr) {
                 nw4r::g3d::ResNode node = pScnMdl->GetResMdl().GetResNode(mParam.mInfo->mNodeName);
@@ -914,7 +922,7 @@ void CEffect::CalcMtx() {
             if (pModelObj != nullptr && pModelObj->GetModel()) {
                 u32 nodeID = 0xFFFFFFFF;
                 nw4r::g3d::ScnMdlSimple* pScnMdl =
-                    static_cast<nw4r::g3d::ScnMdlSimple*>(pModelObj->GetModel()->GetScnObj());
+                    pModelObj->GetModel()->mModelData.GetModel();
                 if (mParam.mInfo->mTargetNodeName != nullptr) {
                     nw4r::g3d::ResNode node = pScnMdl->GetResMdl().GetResNode(mParam.mInfo->mTargetNodeName);
                     if (node.IsValid()) {
@@ -978,8 +986,9 @@ void CEffect::CalcMtx() {
         if (mParam.mFrames.mLife <= tick) {
             pEmitter->mParameter.mParams[0] = pEmitter->mParameter.mParams[4] = mParam.mFrames.mRadius;
         } else {
-            pEmitter->mParameter.mParams[0] = pEmitter->mParameter.mParams[4] =
-                mParam.mFrames.mRadius * (static_cast<f32>(tick) / mParam.mFrames.mLife);
+            f32 radius = static_cast<f32>(tick) / mParam.mFrames.mLife;
+            radius = radius * mParam.mFrames.mRadius;
+            pEmitter->mParameter.mParams[0] = pEmitter->mParameter.mParams[4] = radius;
         }
         break;
     }
