@@ -113,11 +113,12 @@ s32 uhf_msc_blk_mount(PDM_DISK* p_disk) {
 
 s32 uhf_msc_blk_pread(PDM_DISK* p_disk, u8* p_buf, u32 block, u32 count, u32* p_success) {
     u8 sense[3] = {0, 0, 0};
-    u32 bytes_per_sector;
-    UHFMscBlkUnit* p_unit;
-    s32 result;
-    u8* p_transfer;
     u16 num_block;
+    UHFMscBlkUnit* p_unit;
+    u32 size;
+    s32 result;
+    u32 bytes_per_sector;
+    u8* p_transfer;
     u32 max_block;
     BOOL direct;
 
@@ -160,8 +161,9 @@ s32 uhf_msc_blk_pread(PDM_DISK* p_disk, u8* p_buf, u32 block, u32 count, u32* p_
         result = usbh_msc_read10(p_unit, block, num_block, p_transfer, sense);
         if (result == 0) {
             if (!direct) {
-                memcpy(p_buf, p_transfer, num_block * bytes_per_sector);
-                p_buf += num_block * bytes_per_sector;
+                size = num_block * bytes_per_sector;
+                memcpy(p_buf, p_transfer, size);
+                p_buf += size;
             } else {
                 p_transfer += num_block * bytes_per_sector;
             }
@@ -187,13 +189,13 @@ s32 uhf_msc_blk_pread(PDM_DISK* p_disk, u8* p_buf, u32 block, u32 count, u32* p_
 
 s32 uhf_msc_blk_pwrite(PDM_DISK* p_disk, const u8* p_buf, u32 block, u32 count, u32* p_success) {
     u8 sense[3] = {0, 0, 0};
+    u16 num_block;
     UHFMscBlkUnit* p_unit;
-    BOOL direct;
-    s32 result;
     u32 bytes_per_sector;
     u8* p_transfer;
     u32 max_block;
-    u16 num_block;
+    BOOL direct;
+    s32 result;
 
     *p_success = 0;
     if (p_disk == NULL || p_buf == NULL) {

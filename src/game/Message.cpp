@@ -125,6 +125,7 @@ void SetTimeMessageIDs(const TimeMessageIDs& rIDs) {
 void FormatTime(std::wstring& rResult, int hour, int minute, int second, u32 flags) {
     wchar_t text[256];
 
+    const wchar_t* pMeridiem;
     int hourCycle;
     if (flags & TIME_12_HOUR) {
         hourCycle = 12;
@@ -158,7 +159,6 @@ void FormatTime(std::wstring& rResult, int hour, int minute, int second, u32 fla
     if (hourCycle == 24) {
         rResult = text;
     } else {
-        const wchar_t* pMeridiem;
         if (hour < 12) {
             pMeridiem = GetMessageText(sTimeMessageIDs.mAm, L"AM");
         } else {

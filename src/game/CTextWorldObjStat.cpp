@@ -43,7 +43,8 @@ void CTextWorldObjStat::CalcView(const nw4r::math::MTX34& rView, const nw4r::mat
     }
 
     const nw4r::ut::Rect& rRect = mLayout.GetViewRect();
-    position.x = position.x * (rRect.right - rRect.left) * 0.5f;
+    position.x *= rRect.right - rRect.left;
+    position.x *= 0.5f;
     position.y = -position.y * (rRect.bottom - rRect.top);
     position.y *= 0.5f;
     position.z = 0.0f;
