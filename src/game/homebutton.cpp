@@ -231,22 +231,22 @@ void InitializeHomeButtonInfo(HBMDataInfo* pInfo, HBMDataInfoEx* pInfoEx, bool a
         message = OpenHomeButtonFile(spParam->GetMessagePath(), 0);
     std::tr1::shared_ptr<CFileData> networkMessage = OpenHomeButtonFile(spParam->GetNetworkMessagePath(), 0);
     std::tr1::shared_ptr<CFileData> config = OpenHomeButtonFile((spParam->GetResourceRoot() + "/HomeButton3/config.txt").c_str(), 0);
-    WaitFileData(layout.get(), allowYield);
+    WaitFileData(layout.operator->(), allowYield);
     pData->mLayout = DecompressLZ(layout->GetData());
     pInfo->layoutBuf = pData->mLayout.get();
-    WaitFileData(extension.get(), allowYield);
+    WaitFileData(extension.operator->(), allowYield);
     pData->mExtensionLayout = DecompressLZ(extension->GetData());
     pInfoEx->layoutBuf = pData->mExtensionLayout.get();
-    WaitFileData(speaker.get(), allowYield);
+    WaitFileData(speaker.operator->(), allowYield);
     pData->mSpeaker = DecompressHuffman(speaker->GetData());
     pInfo->spkSeBuf = pData->mSpeaker.get();
-    WaitFileData(message.get(), allowYield);
+    WaitFileData(message.operator->(), allowYield);
     pData->mMessage = message;
     pInfo->msgBuf = pData->mMessage->GetData();
-    WaitFileData(networkMessage.get(), allowYield);
+    WaitFileData(networkMessage.operator->(), allowYield);
     pData->mExtensionMessage = networkMessage;
     pInfoEx->msgBuf = pData->mExtensionMessage->GetData();
-    WaitFileData(config.get(), allowYield);
+    WaitFileData(config.operator->(), allowYield);
     pData->mConfig = config;
     pInfo->configBuf = pData->mConfig->GetData();
     pInfo->configBufSize = pData->mConfig->GetSize();
@@ -268,7 +268,7 @@ void InitializeHomeButtonInfo(HBMDataInfo* pInfo, HBMDataInfoEx* pInfoEx, bool a
     if (spParam->HasFlags(CHBMParam::NoSaveAll))
         pInfo->messageFlag = HBMMSG_NOSAVE_ALL;
     pData->mModel = OpenHomeButtonFile(spParam->GetModelPath(), 0);
-    WaitFileData(pData->mModel.get(), false);
+    WaitFileData(pData->mModel.operator->(), false);
     nw4r::g3d::ResFile model(pData->mModel->GetData());
     nw4r::g3d::ResTex texture(model.GetResTex(spParam->GetTextureName()));
     float minLod;
@@ -286,7 +286,7 @@ void InitializeSoundData(bool allowYield) {
         spSound.reset(new InitSoundData);
         InitSoundData* pSound = spSound.get();
         std::tr1::shared_ptr<CFileData> file = OpenHomeButtonFile((spParam->GetSoundRoot() + "/HomeButtonSe/Huf8_HomeButtonSe.arc").c_str(), 0x4000);
-        WaitFileData(file.get(), allowYield);
+        WaitFileData(file.operator->(), allowYield);
         pSound->mArchive = DecompressHuffman(file->GetData());
         pSound->mWork.reset(static_cast<unsigned char*>(GameMemory::AllocateMEM2(100096, 32)), GameMemory::Free);
     }
@@ -346,7 +346,7 @@ bool InitializeHomeButton(const CHBMParam& rParam, bool allowYield) {
     }
     spParam.reset(new CHBMParam(rParam));
     spIcon = OpenHomeButtonFile((spParam->GetResourceRoot() + "/HomeButton3/homeBtnIcon.tpl").c_str(), 0);
-    WaitFileData(spIcon.get(), allowYield);
+    WaitFileData(spIcon.operator->(), allowYield);
     TPLBind(static_cast<TPLPalette*>(spIcon->GetData()));
     if (spParam->HasFlags(0x10)) {
         InitializeHomeButtonInfo(&sInfo, &sInfoEx, allowYield);
@@ -377,31 +377,34 @@ void UpdateHomeButton() {
         return;
     int errors[4];
     for (int i = 0; i < 4; ++i) {
+        HBMKPadData& rCon = sController.wiiCon[i];
+        KPADStatus& rRead = sReadStatus[i];
+        KPADStatus& rFiltered = sFilteredStatus[i];
         unsigned int deviceType;
         errors[i] = GetWiiPadDevice(i, &deviceType);
-        sController.wiiCon[i].use_devtype = deviceType;
-        sReadStatus[i] = *static_cast<KPADStatus*>(GetWiiPad(i));
-        sFilteredStatus[i] = sReadStatus[i];
-        if (spParam->HasFlags(8) && sController.wiiCon[i].use_devtype == WPAD_DEV_CLASSIC)
-            sController.wiiCon[i].use_devtype = 0;
+        rCon.use_devtype = deviceType;
+        rRead = *static_cast<KPADStatus*>(GetWiiPad(i));
+        rFiltered = rRead;
+        if (spParam->HasFlags(8) && rCon.use_devtype == WPAD_DEV_CLASSIC)
+            rCon.use_devtype = 0;
         if (errors[i] != 0 && errors[i] != -2 && errors[i] != -3 && errors[i] != -4 && errors[i] != -7) {
-            sController.wiiCon[i].kpad = nullptr;
-            memset(&sFilteredStatus[i], 0, sizeof(KPADStatus));
+            rCon.kpad = nullptr;
+            memset(&rFiltered, 0, sizeof(KPADStatus));
         } else {
-            sController.wiiCon[i].kpad = &sFilteredStatus[i];
-            bool padMoved = MoveClassicCursor(sFilteredStatus[i].ex_status.cl.hold, &sController.wiiCon[i].pos);
-            float dx = nw4r::ut::Clamp(sController.wiiCon[i].kpad->ex_status.cl.lstick.x / (256.0f / 9.0f), -1.0f, 1.0f);
-            float dy = nw4r::ut::Clamp(sController.wiiCon[i].kpad->ex_status.cl.lstick.y / (256.0f / 9.0f), -1.0f, 1.0f);
+            rCon.kpad = &rFiltered;
+            bool padMoved = MoveClassicCursor(rFiltered.ex_status.cl.hold, &rCon.pos);
+            float dx = nw4r::ut::Clamp(rCon.kpad->ex_status.cl.lstick.x / (256.0f / 9.0f), -1.0f, 1.0f);
+            float dy = nw4r::ut::Clamp(rCon.kpad->ex_status.cl.lstick.y / (256.0f / 9.0f), -1.0f, 1.0f);
             bool stickMoved;
             if (dx == 0.0f && dy == 0.0f) {
                 stickMoved = false;
             } else {
-                sController.wiiCon[i].pos.x = nw4r::ut::Clamp(sController.wiiCon[i].pos.x + dx, -1.0f, 1.0f);
-                sController.wiiCon[i].pos.y = nw4r::ut::Clamp(sController.wiiCon[i].pos.y - dy, -1.0f, 1.0f);
+                rCon.pos.x = nw4r::ut::Clamp(rCon.pos.x + dx, -1.0f, 1.0f);
+                rCon.pos.y = nw4r::ut::Clamp(rCon.pos.y - dy, -1.0f, 1.0f);
                 stickMoved = true;
             }
-            if (!(padMoved | stickMoved) && sController.wiiCon[i].kpad->dpd_valid_fg > 0)
-                sController.wiiCon[i].pos = sController.wiiCon[i].kpad->pos;
+            if (!(padMoved | stickMoved) && rCon.kpad->dpd_valid_fg > 0)
+                rCon.pos = rCon.kpad->pos;
         }
     }
     if (!sActive && !sWaitingToOpen) {
