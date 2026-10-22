@@ -18,8 +18,9 @@ struct DefaultParametersInit {
         ModelAim::Parameters& r = ModelAim::sDefaultParameters;
         r.maxPitchStep = 0.017453292f;
         r.maxYawStep = 0.017453292f;
-        r.pitchFollowRate = Complement(0.9f);
-        r.yawFollowRate = Complement(0.9f);
+        f32 keepRate = 0.9f;
+        r.pitchFollowRate = Complement(keepRate);
+        r.yawFollowRate = Complement(keepRate);
         r.pitchInnerMin = 1.0471976f;
         r.pitchInnerMax = -0.34906584f;
         r.pitchOuterMin = 1.5707964f;
