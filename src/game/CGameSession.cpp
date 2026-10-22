@@ -202,10 +202,12 @@ f32 CGameSession::GetPlayTimeSeconds() {
 }
 
 void CGameSession::GetSnapshot(SessionSnapshot* pSnapshot) {
-    OSTime now = OSGetTime();
-    pSnapshot->mPlayTime = mPlayTime + (now - mStartTime);
-    pSnapshot->mMoney = mMoney;
-    pSnapshot->mRegistryCount = mOyaInfo.GetCount();
+    OSTime playTime = mPlayTime + (OSGetTime() - mStartTime);
+    int money = mMoney;
+    u32 registryCount = mOyaInfo.GetCount();
+    pSnapshot->mPlayTime = playTime;
+    pSnapshot->mMoney = money;
+    pSnapshot->mRegistryCount = registryCount;
     mTeamPiiBox->ExportPersonalData(pSnapshot->mPiiPersonalData);
     mPiiCollectionBox->ExportCollectionData(pSnapshot->mPiiCollectionData);
     mBattleRoyalBox->ExportBattleRoyalData(pSnapshot->mBattleRoyalData);

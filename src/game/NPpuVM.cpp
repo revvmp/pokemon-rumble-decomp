@@ -251,7 +251,6 @@ const SNativeFunction* CEnvironment::GetNative(int index) const {
     return nullptr;
 }
 
-int CEngine::sNextID = 1;
 int CEngine::sGCMark;
 int CEngine::sGCAllocCount;
 std::map<const char*, SGCString<char>* >* CEngine::sStrings;
@@ -1458,6 +1457,8 @@ inline std::wstring ToUnicode(const std::string& rString) {
     ENCConvertStringSjisToUnicode(reinterpret_cast<u16*>(pBuffer), &size, reinterpret_cast<const u8*>(rString.c_str()), nullptr);
     return std::wstring(pBuffer);
 }
+
+int CEngine::sNextID = 1;
 
 inline std::string ToSjis(const std::wstring& rString) {
     s32 size;
