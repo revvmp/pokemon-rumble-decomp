@@ -20,12 +20,12 @@ int CUIList::GetSelectedIndex() {
     return mSelectedIndex;
 }
 
-void CUIList::Load(const char* pArchive, const char* pName, const std::tr1::shared_ptr<CLayout::FontMap>& rFonts, bool background) {
+void CUIList::Load(const char* pArchive, const char* pName, const std::tr1::shared_ptr<CLayout::FontMap>& rFonts, int background) {
     const char* archives[] = {pArchive, nullptr};
     Load(archives, pName, rFonts, background);
 }
 
-void CUIList::Load(const char* const* pArchives, const char* pName, const std::tr1::shared_ptr<CLayout::FontMap>& rFonts, bool background) {
+void CUIList::Load(const char* const* pArchives, const char* pName, const std::tr1::shared_ptr<CLayout::FontMap>& rFonts, int background) {
     BUILayout::Load(pArchives,pName,rFonts,background);
     std::string itemName(pName);
     itemName += "_item";

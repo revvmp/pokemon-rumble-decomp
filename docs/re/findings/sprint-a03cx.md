@@ -56,3 +56,45 @@ The final report was generated with tools/local/objdiff-cli.exe report generate 
 - Further splitting Collection's model initialization into a helper regressed Calc. Adding another whole-loop forwarding layer also regressed it. A named model accessor, reference local, and &*shared_ptr access did not resolve the remaining model/index swap.
 - Info Update: direct rectangle-width subtraction, direct HasText expansion, reversing min arguments, and moving the gaps declaration did not improve the retained form.
 - Remaining requested work is Collection Calc and its item constructor, and Info item-line Update. The complete units also contain other unmatched library/template functions and data/exception-section differences. Do not promote them based on the newly matching individual methods.
+
+
+## 2026-10-22: equal-constant calls use an integer loading flag
+
+### Result
+
+`game/ScriptLayout` now has 15/15 functions at 100% and is enabled as Matching. The final `main.dol` passes the frozen `config/targets/wpse-v1.json` verifier: 4,094,880 bytes, SHA-256 `ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da`. The report-wide count of `fuzzy_match_percent == 100` increased from 12,999 to 13,003. Work stayed in this checkout; changes are uncommitted. No manifests, original artifacts, code comments, assembly, or repository scratch files were added or changed. Session notes are confined to this file.
+
+### Matching source and interface evidence
+
+The loading flag is represented as `int`, not `bool`, through the resource-loading call chain. `NewLayout` itself retains `LoadFileList(&pEntry, pArchive, 0, false, nullptr)`: parameter conversion now yields a word-sized constant. At `NewLayout` (0x801434B0), offsets 0x114, 0x118 and 0x11C are respectively `li r6,0`, `li r7,0`, and `li r8,0`, followed by the same callee at 0x120. Its full 528-byte function compares at 100%.
+
+Changing only the LoadFileList declaration is insufficient. An isolated int parameter gives NewLayout the exact instruction sequence but introduces `neg/or/srwi` boolean normalization inside the callee when forwarding to still-bool APIs. Propagating the integer type through LoadFiles, LoadLocalizedFiles, LoadFile, LoadResourceFile, LoadLocalizedFile, CreateFileData and WaitFileData removes those spurious conversions. The corresponding resource-list inline wrapper also needs the new signature. WaitFileData tests the argument against zero and already uses a full-register comparison. The exact original typedef spelling (for example, int versus a typedef of int) is not recovered; the retained int interface is supported by caller, callee and full-link evidence.
+
+An additional discriminator is CPpuEngine::LoadScriptFile, which forwards an unsigned-long flags parameter to the localized resource loader. Removing the invented bool boundary removes its unwanted normalization and brings that function to report-100%.
+
+The same correction applies to the last parameter of IPauseMenu::Create; its hideBackground parameter remains bool. Its implementation forwards the integer through CLayout and BUILayout loading methods. CUIList and CUIPiiSpec must retain matching virtual override signatures, and CUIPiiSpec forwards the value to CUIType::Initialize. All of these loading interfaces were updated consistently. The public and implementation signatures, forwarding declarations in BWorld, BWorldCamera, main and homebutton, and 21 corresponding names in symbols.txt were updated. Symbol addresses, sizes and other attributes were preserved. The unused RequestFile declaration was left unchanged.
+
+Report gains are NewLayout, CPpuEngine::LoadScriptFile, IGameEnding::Create and IMultiRanking::Create. IGameEnding::Create and IMultiRanking::Create now score 100%. IGameResult::Create has the corrected pause-menu constant setup but remains 99.083015% due to other differences. CNoticeDisplay uses the corrected loading signatures but still has other differences; its perfect-function count remains 98. IPauseMenu::Create retains report-100%. All eight CModel::CreateAnimObj template instances remain 100%; their genuine bool arguments still use the matching merge.
+
+### Full-link discoveries in ScriptLayout
+
+The initial 15/15 promotion failed exact verification: the DOL was 32 bytes shorter, with the first difference at file offset 0x23. The discrepancy came from method_layoutSetString (0x801437A0), not NewLayout. Its original exception-table entry is 0x54 bytes; the __alloca reconstruction emitted only 0x38 bytes. Replacing the pointer allocated with __alloca by `wchar_t buffer[size + 1]` and enabling this unit's `-dialect c99` reproduces the dynamic-stack cleanup metadata without changing its instructions. Default C++ mode rejects the variable-length array; `-gcc_extensions on` alone also rejects it. `-dialect c99` and `-flag c99` both compile it and preserve all 15 perfect functions; configure.py retains the explicit dialect option.
+
+After that change only three bytes differed, at DOL file offsets 0x3E4659, 0x3E465B and 0x3E465D (runtime 0x804B7A19, 0x804B7A1B and 0x804B7A1D). The target's wide fallback string is `L"???"`, whereas the reconstruction used `L""`. Correcting that fallback produces exact full-DOL identity. configure.py retains `Object(Matching, "game/ScriptLayout.cpp", extra_cflags=["-dialect c99"])`.
+
+### Rejected experiments and traps
+
+- ScriptLayout and CModel originally used the same Wii/1.1 compiler and game flags; no existing per-file peephole difference explained the discrepancy.
+- Const or volatile qualification of the bool parameter, a same-type local function pointer, inline bool/int constant-return helpers, and a const-bool reference all retain NewLayout's 95.98485% result. A bool aggregate changes other scheduling but does not match.
+- An unsigned-char flag still merges. Signed char and short introduce sign-extension instructions. An int flag gives the exact instructions, with only the expected signature relocation mismatch until symbols and the forwarding chain are updated.
+- `-opt nopeep` regresses ScriptLayout to 4/15, `-O3` to 12/15, and `-ipa off` to 9/15. `-O4` without the scheduling suffix and deferred inlining retain 14/15. None is retained.
+- Widening BUILayout's virtual Load parameters without updating CUIList and CUIPiiSpec stops those methods from overriding their base slots and regresses callers. Update the complete observed override chain. Widening CUIPiiSpec without CUIType::Initialize also inserts unwanted normalization. Those temporary regressions were corrected before final validation.
+- Instruction equality does not establish exception-table or literal-data equality. The variable-length-array cleanup and three question marks were required for the Matching promotion. dtk/objdiff still warn about exception action 30 in method_layoutSetString, now identically present in target and rebuilt code; do not remove that metadata to silence the warning.
+
+### Validation and build-tool limitation
+
+Normal Ninja execution, including the build step inside unitdiff, stalled before producing a compiler command. Interrupted those attempts. Ninja's read-only `-t commands`, `-t compdb` and `-t deps` queries worked. Used the actual generated commands directly, including sjiswrap, with dependencies selected from the changed headers and sources. The final pass rebuilt 77 affected objects with four compiler processes; all exited zero. No source encoding conversion or alternate compiler flags were used beyond the retained per-unit C99 extension.
+
+Ran dtk dol split and python configure.py successfully after symbol changes. Generated the link response file from the actual build.ninja link inputs, deleted build/wpse-v1/main.dol, ran the configured Wii/1.1 linker and dtk elf2dol, and checked each exit status before verification. Both exited zero. objdiff-cli report generation exited zero and covered 1,475 units. This is a completed build through the generated compile/link pipeline, not a successful Ninja invocation; Ninja's stored dependency timestamps may still require a rebuild on the next normal run.
+
+Final function inspection used `python tools/re/unitdiff.py game/ScriptLayout --no-build --function NewLayout__FPQ24NPpu7CEngine` against the freshly compiled object, plus whole-unit inspection. Final acceptance used `python tools/verify/verify.py verify --manifest config/targets/wpse-v1.json --reference-dir orig/wpse-v1 --build-dir build/wpse-v1`, which reported PASS. No unrelated unit was promoted. GameResult and CNoticeDisplay remain NonMatching; their other mismatches are outside this correction.

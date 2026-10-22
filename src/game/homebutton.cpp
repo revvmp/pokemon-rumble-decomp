@@ -26,7 +26,7 @@
 #include <string.h>
 
 std::tr1::shared_ptr<CFileData> OpenFileData(const char* pPath, unsigned long flags);
-void WaitFileData(CFileData* pFile, bool allowYield);
+void WaitFileData(CFileData* pFile, int allowYield);
 std::tr1::shared_ptr<unsigned char> DecompressLZ(const void* pData);
 std::tr1::shared_ptr<unsigned char> DecompressHuffman(const void* pData);
 

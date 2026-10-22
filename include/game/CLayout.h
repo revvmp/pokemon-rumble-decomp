@@ -104,8 +104,8 @@ public:
     virtual void Calc();
     virtual void Draw();
 
-    void Load(const char* pArchive, const char* pLayoutName, const std::tr1::shared_ptr<FontMap>& rFonts, bool background);
-    void Load(const char* const* pArchives, const char* pLayoutName, const std::tr1::shared_ptr<FontMap>& rFonts, bool background);
+    void Load(const char* pArchive, const char* pLayoutName, const std::tr1::shared_ptr<FontMap>& rFonts, int background);
+    void Load(const char* const* pArchives, const char* pLayoutName, const std::tr1::shared_ptr<FontMap>& rFonts, int background);
     void Load(const char* const* pArchives, const char* pLayoutName, const std::tr1::shared_ptr<FontMap>& rFonts) {
         Load(pArchives, pLayoutName, rFonts, false);
     }
@@ -147,8 +147,8 @@ public:
     void SetDepthCompare(GXCompare compare) { mDepthCompare = compare; }
 
 private:
-    int LoadArchive(const char* pArchive, const char* pLayoutName, const std::tr1::shared_ptr<FontMap>& rFonts, bool background);
-    int LoadArchives(const char* const* pArchives, const char* pLayoutName, const std::tr1::shared_ptr<FontMap>& rFonts, bool background);
+    int LoadArchive(const char* pArchive, const char* pLayoutName, const std::tr1::shared_ptr<FontMap>& rFonts, int background);
+    int LoadArchives(const char* const* pArchives, const char* pLayoutName, const std::tr1::shared_ptr<FontMap>& rFonts, int background);
     int LoadLayout(const char* pLayoutName, const std::tr1::shared_ptr<FontMap>& rFonts) throw();
     void SetFlags(u32 flags) { mFlags |= flags; }
     bool HasFlags(u32 flags) const { return (mFlags & flags) != 0; }

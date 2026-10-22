@@ -161,7 +161,7 @@ public:
         mDialog.reset();
     }
 
-    void Init(const MapDesc* pDesc, bool hideBackground, bool background) {
+    void Init(const MapDesc* pDesc, bool hideBackground, int background) {
         mHideBackground = hideBackground;
         const GXRenderModeObj* pMode = nw4r::g3d::G3DState::GetRenderModeObj();
         mCapture.Create(pMode->fbWidth, pMode->efbHeight, GX_TF_RGBA8, GX_CLAMP, GX_LINEAR);
@@ -302,7 +302,7 @@ private:
 
 }
 
-std::tr1::shared_ptr<IPauseMenu> IPauseMenu::Create(const MapDesc* pDesc, bool hideBackground, bool background) {
+std::tr1::shared_ptr<IPauseMenu> IPauseMenu::Create(const MapDesc* pDesc, bool hideBackground, int background) {
     std::tr1::shared_ptr<CPauseMenu> menu(new CPauseMenu);
     menu->Init(pDesc, hideBackground, background);
     return menu;

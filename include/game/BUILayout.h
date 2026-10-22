@@ -10,8 +10,8 @@ public:
     virtual ~BUILayout();
     virtual void Calc();
     virtual void Draw();
-    virtual void Load(const char* pArchive, const char* pLayoutName, const std::tr1::shared_ptr<CLayout::FontMap>& rFonts, bool background);
-    virtual void Load(const char* const* pArchives, const char* pLayoutName, const std::tr1::shared_ptr<CLayout::FontMap>& rFonts, bool background);
+    virtual void Load(const char* pArchive, const char* pLayoutName, const std::tr1::shared_ptr<CLayout::FontMap>& rFonts, int background);
+    virtual void Load(const char* const* pArchives, const char* pLayoutName, const std::tr1::shared_ptr<CLayout::FontMap>& rFonts, int background);
     virtual void Load(const char* pArchive, const char* pLayoutName, const std::tr1::shared_ptr<CLayout::FontMap>& rFonts) {
         Load(pArchive, pLayoutName, rFonts, false);
     }

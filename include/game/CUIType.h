@@ -7,7 +7,7 @@ class CUIType : public BUILayout {
 public:
     CUIType();
     virtual ~CUIType();
-    void Initialize(bool background);
+    void Initialize(int background);
     void SetType(int type);
 };
 

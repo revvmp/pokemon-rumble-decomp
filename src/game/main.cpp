@@ -535,8 +535,8 @@ struct FileLoadParam {
     u32 mFlags;
 };
 
-std::tr1::shared_ptr<FileList> LoadFiles(const FileLoadParam* pFiles, unsigned int count, bool background);
-inline std::tr1::shared_ptr<FileList> LoadLocalizedFiles(const FileLoadParam* pFiles, unsigned int count, bool background) {
+std::tr1::shared_ptr<FileList> LoadFiles(const FileLoadParam* pFiles, unsigned int count, int background);
+inline std::tr1::shared_ptr<FileList> LoadLocalizedFiles(const FileLoadParam* pFiles, unsigned int count, int background) {
     return LoadFiles(pFiles, count, background);
 }
 

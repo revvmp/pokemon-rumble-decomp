@@ -326,7 +326,7 @@ config.libs = [
             Object(NonMatching, "game/ScriptGame.cpp"),
             Object(Matching, "game/ScriptItem.cpp"),
             Object(Matching, "game/ScriptMessages.cpp"),
-            Object(NonMatching, "game/ScriptLayout.cpp"),
+            Object(Matching, "game/ScriptLayout.cpp", extra_cflags=["-dialect c99"]),
             Object(Matching, "game/ScriptLightMotion.cpp"),
             Object(Matching, "game/ScriptUtilities.cpp"),
             Object(Matching, "game/ScriptPiiMotion.cpp"),

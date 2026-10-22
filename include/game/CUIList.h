@@ -15,8 +15,8 @@ public:
     virtual void Calc();
     virtual void Draw();
     virtual void OnInput(const IUIInput* pInput);
-    virtual void Load(const char*, const char*, const std::tr1::shared_ptr<CLayout::FontMap>&, bool);
-    virtual void Load(const char* const*, const char*, const std::tr1::shared_ptr<CLayout::FontMap>&, bool);
+    virtual void Load(const char*, const char*, const std::tr1::shared_ptr<CLayout::FontMap>&, int);
+    virtual void Load(const char* const*, const char*, const std::tr1::shared_ptr<CLayout::FontMap>&, int);
     virtual void UpdateSelection();
     unsigned long GetLayoutCount() const;
     void SetSelectedIndex(int index);

@@ -20,7 +20,7 @@ struct FileLoadParam {
     u32 mFlags;
 };
 
-std::tr1::shared_ptr<FileList> LoadFiles(const FileLoadParam* pFiles, unsigned int count, bool background);
+std::tr1::shared_ptr<FileList> LoadFiles(const FileLoadParam* pFiles, unsigned int count, int background);
 
 static std::map<std::string, std::tr1::weak_ptr<CFileData> > sFileCache;
 
@@ -269,7 +269,7 @@ bool CFileData::OpenArchiveEntry() {
     return true;
 }
 
-bool WaitFileData(CFileData* pFile, bool background) {
+bool WaitFileData(CFileData* pFile, int background) {
     if (!background) {
         return CFileData::WaitUntilLoaded(pFile);
     }
@@ -630,7 +630,7 @@ std::tr1::shared_ptr<CFileData> OpenFileData(const CPath& rPath, u32 flags, long
     return file;
 }
 
-std::tr1::shared_ptr<CFileData> CreateFileData(const char* pPath, u32 flags, bool background) {
+std::tr1::shared_ptr<CFileData> CreateFileData(const char* pPath, u32 flags, int background) {
     std::tr1::shared_ptr<CFileData> file = OpenFileData(pPath, flags);
     if (file) {
         WaitFileData(file.get(), background);
@@ -641,7 +641,7 @@ std::tr1::shared_ptr<CFileData> CreateFileData(const char* pPath, u32 flags, boo
     return file;
 }
 
-std::tr1::shared_ptr<FileList> LoadFiles(const FileLoadParam* pFiles, unsigned int count, bool background) {
+std::tr1::shared_ptr<FileList> LoadFiles(const FileLoadParam* pFiles, unsigned int count, int background) {
     std::list<std::tr1::shared_ptr<CFileData> > opened;
     const FileLoadParam* pParam = pFiles;
     for (; count != 0 && pParam->mpPath != nullptr; --count, ++pParam) {

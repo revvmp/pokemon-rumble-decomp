@@ -4,11 +4,11 @@ BUILayout::BUILayout() {}
 
 BUILayout::~BUILayout() {}
 
-void BUILayout::Load(const char* pArchive, const char* pLayoutName, const std::tr1::shared_ptr<CLayout::FontMap>& rFonts, bool background) {
+void BUILayout::Load(const char* pArchive, const char* pLayoutName, const std::tr1::shared_ptr<CLayout::FontMap>& rFonts, int background) {
     mLayout.Load(pArchive, pLayoutName, rFonts, background);
 }
 
-void BUILayout::Load(const char* const* pArchives, const char* pLayoutName, const std::tr1::shared_ptr<CLayout::FontMap>& rFonts, bool background) {
+void BUILayout::Load(const char* const* pArchives, const char* pLayoutName, const std::tr1::shared_ptr<CLayout::FontMap>& rFonts, int background) {
     mLayout.Load(pArchives, pLayoutName, rFonts, background);
 }
 

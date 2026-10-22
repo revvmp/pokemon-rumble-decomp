@@ -12,7 +12,7 @@ public:
     virtual bool IsOpen() = 0;
     virtual bool TakeScreenshot() = 0;
 
-    static std::tr1::shared_ptr<IPauseMenu> Create(const MapDesc* pDesc, bool hideBackground, bool background);
+    static std::tr1::shared_ptr<IPauseMenu> Create(const MapDesc* pDesc, bool hideBackground, int background);
 };
 
 #endif

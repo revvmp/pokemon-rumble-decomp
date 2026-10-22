@@ -173,7 +173,7 @@ void CLayout::HandleInitializeError(const CInitializeException& rError) {
     }
 }
 
-void CLayout::Load(const char* pArchive, const char* pLayoutName, const std::tr1::shared_ptr<FontMap>& rFonts, bool background) {
+void CLayout::Load(const char* pArchive, const char* pLayoutName, const std::tr1::shared_ptr<FontMap>& rFonts, int background) {
     int error = LoadArchive(pArchive, pLayoutName, rFonts, background);
     if (error != 0) {
         CInitializeException exception(error, pArchive, pLayoutName, rFonts);
@@ -181,7 +181,7 @@ void CLayout::Load(const char* pArchive, const char* pLayoutName, const std::tr1
     }
 }
 
-void CLayout::Load(const char* const* pArchives, const char* pLayoutName, const std::tr1::shared_ptr<FontMap>& rFonts, bool background) {
+void CLayout::Load(const char* const* pArchives, const char* pLayoutName, const std::tr1::shared_ptr<FontMap>& rFonts, int background) {
     int error = LoadArchives(pArchives, pLayoutName, rFonts, background);
     if (error != 0) {
         CInitializeException exception(error, pArchives, pLayoutName, rFonts);
@@ -189,7 +189,7 @@ void CLayout::Load(const char* const* pArchives, const char* pLayoutName, const 
     }
 }
 
-int CLayout::LoadArchive(const char* pArchive, const char* pLayoutName, const std::tr1::shared_ptr<FontMap>& rFonts, bool background) {
+int CLayout::LoadArchive(const char* pArchive, const char* pLayoutName, const std::tr1::shared_ptr<FontMap>& rFonts, int background) {
     std::tr1::shared_ptr<CFileData> file = LoadResourceFile(pArchive, 0, background);
     if (!file || !file->IsLoaded()) {
         return 1;
@@ -213,7 +213,7 @@ int CLayout::LoadFromMemory(void* pArchive, const char* pLayoutName, const std::
 }
 
 #pragma dont_inline on
-int CLayout::LoadArchives(const char* const* pArchives, const char* pLayoutName, const std::tr1::shared_ptr<FontMap>& rFonts, bool background) {
+int CLayout::LoadArchives(const char* const* pArchives, const char* pLayoutName, const std::tr1::shared_ptr<FontMap>& rFonts, int background) {
     std::list<std::tr1::shared_ptr<CFileData> > files;
     for (; *pArchives != nullptr; ++pArchives) {
         std::tr1::shared_ptr<CFileData> file = LoadResourceFile(*pArchives, 0, background);

@@ -438,7 +438,7 @@ bool BWorld::LoadLightScene(const char* pPath, const char* pName, bool backgroun
     return loaded;
 }
 
-std::tr1::shared_ptr<CFileData> LoadFile(const char* pPath, u32 flags, bool background) {
+std::tr1::shared_ptr<CFileData> LoadFile(const char* pPath, u32 flags, int background) {
     return CreateFileData(pPath, flags, background);
 }
 

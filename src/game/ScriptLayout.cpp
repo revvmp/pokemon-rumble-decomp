@@ -82,12 +82,12 @@ int method_layoutSetString(NPpu::CEngine* pEngine) {
             const char* pText = pEngine->ToString(text);
             s32 size;
             ENCConvertStringSjisToUnicode(nullptr, &size, reinterpret_cast<const u8*>(pText), nullptr);
-            wchar_t* pBuffer = static_cast<wchar_t*>(__alloca((size + 1) * sizeof(wchar_t)));
-            pBuffer[size] = L'\0';
-            ENCConvertStringSjisToUnicode(reinterpret_cast<u16*>(pBuffer), &size, reinterpret_cast<const u8*>(pText), nullptr);
-            CColorBtnTagProc::Attach(owner->SetText(pName, pBuffer));
+            wchar_t buffer[size + 1];
+            buffer[size] = L'\0';
+            ENCConvertStringSjisToUnicode(reinterpret_cast<u16*>(buffer), &size, reinterpret_cast<const u8*>(pText), nullptr);
+            CColorBtnTagProc::Attach(owner->SetText(pName, buffer));
         } else {
-            CColorBtnTagProc::Attach(owner->SetText(pName, text.IsWString() ? pEngine->ToWString(text) : L""));
+            CColorBtnTagProc::Attach(owner->SetText(pName, text.IsWString() ? pEngine->ToWString(text) : L"???"));
         }
         pEngine->PushInt(1);
     } else {

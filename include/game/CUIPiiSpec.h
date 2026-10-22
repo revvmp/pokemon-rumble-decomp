@@ -16,7 +16,7 @@ public:
     virtual void Calc();
     virtual void CalcMtx();
     virtual void CalcView();
-    virtual void Load(const char* const* pArchives, const char* pLayoutName, const std::tr1::shared_ptr<CLayout::FontMap>& rFonts, bool background);
+    virtual void Load(const char* const* pArchives, const char* pLayoutName, const std::tr1::shared_ptr<CLayout::FontMap>& rFonts, int background);
     virtual void SetPii(std::tr1::shared_ptr<CPiiPersonalData> pii, int player);
 
 private:

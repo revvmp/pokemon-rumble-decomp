@@ -12,8 +12,8 @@ struct FileLoadParam {
     u32 mFlags;
 };
 
-std::tr1::shared_ptr<FileList> LoadFiles(const FileLoadParam* pFiles, unsigned int count, bool background);
-inline std::tr1::shared_ptr<FileList> LoadLocalizedFiles(const FileLoadParam* pFiles, unsigned int count, bool background) {
+std::tr1::shared_ptr<FileList> LoadFiles(const FileLoadParam* pFiles, unsigned int count, int background);
+inline std::tr1::shared_ptr<FileList> LoadLocalizedFiles(const FileLoadParam* pFiles, unsigned int count, int background) {
     return LoadFiles(pFiles, count, background);
 }
 
@@ -94,7 +94,7 @@ void ResetLocalizedFiles() {
     sArchives.reset();
 }
 
-std::tr1::shared_ptr<FileList> LoadFileList(void** ppEntry, const char* pPath, u32 flags, bool background,
+std::tr1::shared_ptr<FileList> LoadFileList(void** ppEntry, const char* pPath, u32 flags, int background,
                                          const char* pRegion) {
     pPath = InternPath(pPath);
     FileSetMap::iterator found = sFileSets->find(pPath);
@@ -139,7 +139,7 @@ std::tr1::shared_ptr<FileList> LoadFileList(void** ppEntry, const char* pPath, u
 
 
 
-std::tr1::shared_ptr<CFileData> LoadLocalizedFile(const char* pPath, u32 flags, bool background, const char* pRegion) {
+std::tr1::shared_ptr<CFileData> LoadLocalizedFile(const char* pPath, u32 flags, int background, const char* pRegion) {
     pPath = InternPath(pPath);
     ArchiveMap::iterator found = sArchives->find(pPath);
     std::tr1::shared_ptr<CFileData> file;

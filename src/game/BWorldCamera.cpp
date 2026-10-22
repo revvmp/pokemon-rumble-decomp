@@ -42,7 +42,7 @@ bool BWorldCamera::Load(const char* pPath, bool background) {
     return Load(file);
 }
 
-std::tr1::shared_ptr<CFileData> LoadResourceFile(const char* pPath, u32 flags, bool background) {
+std::tr1::shared_ptr<CFileData> LoadResourceFile(const char* pPath, u32 flags, int background) {
     return CreateFileData(pPath, flags | 0x2000, background);
 }
 

@@ -69,7 +69,7 @@ CUIPiiSpec::CUIPiiSpec() : mPiiTexDelay(0) {
 
 CUIPiiSpec::~CUIPiiSpec() {}
 
-void CUIPiiSpec::Load(const char* const* pArchives, const char* pLayoutName, const std::tr1::shared_ptr<CLayout::FontMap>& rFonts, bool background) {
+void CUIPiiSpec::Load(const char* const* pArchives, const char* pLayoutName, const std::tr1::shared_ptr<CLayout::FontMap>& rFonts, int background) {
     BUILayout::Load(pArchives, pLayoutName, rFonts, background);
     SetText("BP_TITLE", GetMessageString(0x600C0, nullptr));
     SetText("HP_TITLE", GetMessageString(0x600C1, nullptr));

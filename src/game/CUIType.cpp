@@ -7,7 +7,7 @@ CUIType::CUIType() {}
 
 CUIType::~CUIType() {}
 
-void CUIType::Initialize(bool background) {
+void CUIType::Initialize(int background) {
     Load(gSharedLayoutArchives, "type", GetDefaultFontMap(), background);
 }
 
