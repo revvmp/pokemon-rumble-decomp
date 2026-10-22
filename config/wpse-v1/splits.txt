@@ -392,7 +392,7 @@ game/CNullObj.cpp:
 	extabindex  start:0x80049B60 end:0x80049C74
 	.text       start:0x800D4B50 end:0x800D6790
 	.data       start:0x803A6BD0 end:0x803A6D10
-	.sdata      start:0x804B6E80 end:0x804B6EB8
+	.sdata      start:0x804B6E80 end:0x804B6E98
 	.sdata2     start:0x804B9FC0 end:0x804B9FD8
 
 game/CNumericInput.cpp:
@@ -401,7 +401,7 @@ game/CNumericInput.cpp:
 	.text       start:0x800D6790 end:0x800D83B0
 	.rodata     start:0x80352BC0 end:0x80352C10
 	.data       start:0x803A6D10 end:0x803A75A0
-	.sdata      start:0x804B6EB8 end:0x804B6EF0
+	.sdata      start:0x804B6E98 end:0x804B6EF0
 	.sdata2     start:0x804B9FD8 end:0x804B9FE0
 
 game/CPauseMenu.cpp:

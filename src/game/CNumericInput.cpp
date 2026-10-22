@@ -167,7 +167,7 @@ foundCancel:
                 {
                     if (mText.size() < 8) {
                         PlaySound(9);
-                        mText.push_back(selected + 47);
+                        mText += static_cast<wchar_t>(selected + 47);
                         if (mText.size() == 8) {
                             key = 12;
                             for (row = 0; row < 5; ++row) {
