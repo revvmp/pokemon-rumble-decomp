@@ -81,8 +81,8 @@ void CPostEffect::Show(int effect) {
     }
     const EffectInfo& rInfo = gPostEffectInfos[effect];
     std::tr1::shared_ptr<CModel> model(new CModel);
-    std::string path("5:/post_effect.arc/");
-    path += rInfo.mModelName;
+    std::string path = "5:/post_effect.arc/";
+    path.append(rInfo.mModelName);
     const char* files[2] = {path.c_str(), nullptr};
     CModel::LoadParams params = {files, false, 1, 1, nullptr};
     if (!model->Load(params, false)) {

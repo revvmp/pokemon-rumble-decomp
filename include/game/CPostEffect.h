@@ -40,7 +40,7 @@ private:
     void BindCaptureTexture(std::tr1::shared_ptr<CModel> model);
 
     std::tr1::shared_ptr<CFileData> mFile;
-    bool mFlag;
+    int mFlag;
     std::list<std::tr1::shared_ptr<CModel> > mModels;
     std::tr1::shared_ptr<nw4r::g3d::ScnRoot> mScnRoot;
     CaptureTexture mTexture;
