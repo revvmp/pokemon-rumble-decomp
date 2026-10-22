@@ -601,12 +601,6 @@ game/ControllerTable.cpp:
 	.bss        start:0x803E8D28 end:0x803E90C8
 	.sdata      start:0x804B77D8 end:0x804B77D9
 
-game/homebutton.cpp:
-	extab       start:0x800400B0 end:0x8004123C
-	extabindex  start:0x80051E58 end:0x80051FB4
-	.text       start:0x801E2110 end:0x801E5D98
-	.ctors      start:0x80352A2C end:0x80352A30
-
 ControllerTableAlignmentPadding:
 	.sdata      start:0x804B77D9 end:0x804B77E0 align:1
 
@@ -1258,6 +1252,12 @@ game/CUIMenu.cpp:
 	extab       start:0x8003F20C end:0x8003F8E8
 	extabindex  start:0x80051B10 end:0x80051CF0
 	.text       start:0x801DC6C0 end:0x801DF650
+
+game/homebutton.cpp:
+	extab       start:0x800400B0 end:0x8004123C
+	extabindex  start:0x80051E58 end:0x80051FB4
+	.text       start:0x801E2110 end:0x801E5D98
+	.ctors      start:0x80352A2C end:0x80352A30
 
 game/CBSPTree.cpp:
 	extab       start:0x80041348 end:0x80041358
