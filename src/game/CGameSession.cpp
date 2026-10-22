@@ -154,7 +154,6 @@ private:
 #pragma force_active on
 
 CGameSession* sGameSession;
-int sMaxMoney = 9999999;
 
 CGameSession::CGameSession(IDisconMsg* pDisconMsg) :
     mPlayTime(0), mStartTime(0), mMoney(0), mLoadedMoney(0), mPendingMap(MakeMapIndex(0, 1, 0, 1)), mMapChangeMode(0),
@@ -506,7 +505,8 @@ int CGameSession::GetCollectionType(u16 monsno) {
 
 std::wstring CGameSession::GetWazaName(int waza) {
     if (mWazaDescData.GetColumnCount() > 0 && waza < mWazaDescData.GetRowCount()) {
-        NPpu::CValue value = *mWazaDescData.GetCell(waza, 0);
+        NPpu::CValue value;
+        value = *mWazaDescData.GetCell(waza, 0);
         return GetMessageString(value.ToInt(), nullptr);
     }
     return std::wstring(L"");
@@ -569,6 +569,8 @@ void CGameSession::RegisterTeamPiiCollection() {
         mPiiCollectionBox->RecordCollection(monsno, form, 3, (*it)->IsRareColor());
     }
 }
+
+int sMaxMoney = 9999999;
 
 int CGameSession::GetMoney() {
     return mMoney;
