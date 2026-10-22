@@ -147,6 +147,7 @@ private:
     void SetFlags(u32 flags) { mFlags |= flags; }
     bool HasFlags(u32 flags) const { return (mFlags & flags) != 0; }
     void UpdateViewRect();
+    void AdvancePaneMotions(PaneMP* pPaneMP, f32 frames);
 
     u32 mFlags;
     std::string mName;

@@ -363,3 +363,18 @@ bool CLayout::SetTexture(const char* pName, const nw4r::lyt::TexMap& rTexture, i
     }
     return false;
 }
+
+nw4r::math::_VEC2 CLayout::NormalizeViewPosition(const nw4r::math::VEC2& rPosition) const {
+    nw4r::math::_VEC2 result;
+    result.y = -2.0f * ((rPosition.y - mViewRect.bottom) / (mViewRect.top - mViewRect.bottom) - 0.5f);
+    result.x = 2.0f * ((rPosition.x - mViewRect.left) / (mViewRect.right - mViewRect.left) - 0.5f);
+    return result;
+}
+
+void CLayout::Calc() {
+    if (!mPanePrograms.empty()) {
+        for (PaneProgramMap::iterator it = mPanePrograms.begin(); it != mPanePrograms.end(); ++it) {
+            AdvancePaneMotions((*it).second.get(), 1.0f);
+        }
+    }
+}
