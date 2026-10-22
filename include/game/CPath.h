@@ -27,7 +27,7 @@ public:
     const std::list<std::string>& GetComponents() const { return mComponents; }
     void SetComponents(const std::list<std::string>& rComponents) { mComponents = rComponents; }
     const char* ParseDevice(const char* pPath);
-    int GetDevice() const { return mDevice; }
+    Drive GetDevice() const { return static_cast<Drive>(mDevice); }
 
 private:
     void ParseRelative(const char* pPath, const char* pOriginal);

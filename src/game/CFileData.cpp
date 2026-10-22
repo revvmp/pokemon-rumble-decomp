@@ -390,7 +390,7 @@ inline std::tr1::shared_ptr<nw4r::ut::FileStream> OpenFileStream(const CPath& rP
 
 failed:
     if (!quietNotFound || rError != CFileData::ERROR_NOT_FOUND) {
-        sConfig.mErrorHandler(static_cast<CPath::Drive>(rPath.GetDevice()), rPath.ToString(false).c_str(), rError, flags);
+        sConfig.mErrorHandler(rPath.GetDevice(), rPath.ToString(false).c_str(), rError, flags);
     }
     return std::tr1::shared_ptr<nw4r::ut::FileStream>();
 }
@@ -513,7 +513,7 @@ std::tr1::shared_ptr<CFileData> OpenFileData(const CPath& rPath, u32 flags, long
         if (archivePath.GetComponents().size() != 0) {
             archive = OpenFileData(archivePath, flags, rError);
             if (!archive) {
-                sConfig.mErrorHandler(static_cast<CPath::Drive>(rPath.GetDevice()), rPath.ToString(false).c_str(), rError, flags);
+                sConfig.mErrorHandler(rPath.GetDevice(), rPath.ToString(false).c_str(), rError, flags);
                 return std::tr1::shared_ptr<CFileData>();
             }
 
@@ -523,7 +523,7 @@ std::tr1::shared_ptr<CFileData> OpenFileData(const CPath& rPath, u32 flags, long
                 kind = 0;
             }
             file->mFlags = flags | kind;
-            file->SetDrive(static_cast<CPath::Drive>(rPath.GetDevice()));
+            file->SetDrive(rPath.GetDevice());
             file->mPath = rPath.ToString();
             file->mSize = 0;
             file->mData = nullptr;
@@ -531,7 +531,7 @@ std::tr1::shared_ptr<CFileData> OpenFileData(const CPath& rPath, u32 flags, long
             if (archive->IsLoaded()) {
                 if (!file.get()->OpenArchiveEntry()) {
                     rError = CFileData::ERROR_ARCHIVE_OPEN;
-                    sConfig.mErrorHandler(static_cast<CPath::Drive>(rPath.GetDevice()), rPath.ToString(false).c_str(), rError, flags);
+                    sConfig.mErrorHandler(rPath.GetDevice(), rPath.ToString(false).c_str(), rError, flags);
                     return std::tr1::shared_ptr<CFileData>();
                 }
                 sFileCache[rPath.ToString()] = file;
@@ -589,7 +589,7 @@ std::tr1::shared_ptr<CFileData> OpenFileData(const CPath& rPath, u32 flags, long
         kind = 0;
     }
     file->mFlags = flags | kind;
-    file->SetDrive(static_cast<CPath::Drive>(rPath.GetDevice()));
+    file->SetDrive(rPath.GetDevice());
     file->mPath = rPath.ToString();
     file->mSize = stream.get()->GetSize();
     file->mData = nullptr;
@@ -598,7 +598,7 @@ std::tr1::shared_ptr<CFileData> OpenFileData(const CPath& rPath, u32 flags, long
         file->mBuffer.reset(static_cast<char*>(CFileData::AllocateByPlacement(alignedSize, std::max<int>(stream.get()->GetBufferAlign(), 32), flags)), GameMemory::Free);
         if (!file->mBuffer) {
             rError = CFileData::ERROR_OUT_OF_MEMORY;
-            sConfig.mErrorHandler(static_cast<CPath::Drive>(rPath.GetDevice()), rPath.ToString(false).c_str(), rError, flags);
+            sConfig.mErrorHandler(rPath.GetDevice(), rPath.ToString(false).c_str(), rError, flags);
             return std::tr1::shared_ptr<CFileData>();
         }
     }
@@ -615,7 +615,7 @@ std::tr1::shared_ptr<CFileData> OpenFileData(const CPath& rPath, u32 flags, long
         if (!pJob->mBuffer) {
             delete pJob;
             rError = CFileData::ERROR_OUT_OF_MEMORY;
-            sConfig.mErrorHandler(static_cast<CPath::Drive>(rPath.GetDevice()), rPath.ToString(false).c_str(), rError, flags);
+            sConfig.mErrorHandler(rPath.GetDevice(), rPath.ToString(false).c_str(), rError, flags);
             return std::tr1::shared_ptr<CFileData>();
         }
         file->mBuffer.reset();
