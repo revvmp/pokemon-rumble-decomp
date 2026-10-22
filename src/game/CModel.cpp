@@ -357,13 +357,15 @@ void CModel::UpdateFrame(f32 step) {
         bool erased = false;
         std::map<u32, std::tr1::shared_ptr<TPartialAnm<false> > >::iterator it = mPartialAnimations->mPartials.begin();
         while (it != mPartialAnimations->mPartials.end()) {
-            std::map<u32, std::tr1::shared_ptr<TPartialAnm<false> > >::iterator current = it;
-            ++it;
-            current->second->Update(this, step);
-            if (current->second->mMotions.size() == 0) {
+            std::map<u32, std::tr1::shared_ptr<TPartialAnm<false> > >::iterator next = it;
+            ++next;
+            TPartialAnm<false>* pPartial = it->second.get();
+            pPartial->Update(this, step);
+            if (pPartial->mMotions.size() == 0) {
                 erased = true;
-                mPartialAnimations->mPartials.erase(current);
+                mPartialAnimations->mPartials.erase(it);
             }
+            it = next;
         }
         if (erased) {
             if (mPartialAnimations->mPartials.size() != 0) {
