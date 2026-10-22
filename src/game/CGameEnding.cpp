@@ -27,6 +27,7 @@ public:
     inline void Init(bool background);
     inline virtual ~CGameEnding();
     inline virtual void Calc();
+    inline void ScrollStaffRoll();
     inline virtual void CalcMtx();
     inline virtual void CalcView();
     inline virtual void Draw();
@@ -209,6 +210,37 @@ inline void CGameEnding::CalcMtx() {
     mpPauseMenu->CalcMtx();
 }
 
+inline void CGameEnding::ScrollStaffRoll() {
+    if (!mLineTexts.empty()) {
+        mLineTexts.erase(mLineTexts.begin());
+        mTitleTexts.erase(mTitleTexts.begin());
+    }
+    mStaffRoll.SetPaneVisible("SCROLL", true);
+    mpScrollMotion = mStaffRoll.CreateMotion("scroll", "SCROLL", 0.0f, 1.0f);
+    std::list<std::wstring>::iterator line = mLineTexts.begin();
+    std::list<std::wstring>::iterator title = mTitleTexts.begin();
+    std::wstring lines;
+    std::wstring titles;
+    int i = 0;
+    for (; i < mLineCount && line != mLineTexts.end(); ++i, ++line, ++title) {
+        if (i > 0) {
+            lines += L"\n";
+            titles += L"\n";
+        }
+        lines += *line;
+        titles += *title;
+    }
+    for (; i < mLineCount; ++i) {
+        if (i > 0) {
+            lines += L"\n";
+            titles += L"\n";
+        }
+    }
+    mStaffRoll.SetText("LINES", lines.c_str());
+    mStaffRoll.SetText("TITLES", titles.c_str());
+    mState = STATE_SCROLL_DONE;
+}
+
 inline void CGameEnding::Calc() {
     mpWorld->SetOutlineAlpha(255);
     mpWorld->SetOutlineWidth(1);
@@ -216,36 +248,8 @@ inline void CGameEnding::Calc() {
     mStaffRoll.Calc();
     mNext.Calc();
     mCongratulations.Calc();
-    if ((mState == STATE_SCROLLING || mState == STATE_SCROLL_DONE) && mpScrollMotion->IsEnded()) {
-        if (!mLineTexts.empty()) {
-            mLineTexts.erase(mLineTexts.begin());
-            mTitleTexts.erase(mTitleTexts.begin());
-        }
-        mStaffRoll.SetPaneVisible("SCROLL", true);
-        mpScrollMotion = mStaffRoll.CreateMotion("scroll", "SCROLL", 0.0f, 1.0f);
-        std::list<std::wstring>::iterator title = mTitleTexts.begin();
-        std::list<std::wstring>::iterator line = mLineTexts.begin();
-        std::wstring titles;
-        std::wstring lines;
-        int i = 0;
-        for (; i < mLineCount && line != mLineTexts.end(); ++i, ++line, ++title) {
-            if (i > 0) {
-                lines += L"\n";
-                titles += L"\n";
-            }
-            lines += *line;
-            titles += *title;
-        }
-        for (; i < mLineCount; ++i) {
-            if (i > 0) {
-                lines += L"\n";
-                titles += L"\n";
-            }
-        }
-        mStaffRoll.SetText("LINES", lines.c_str());
-        mStaffRoll.SetText("TITLES", titles.c_str());
-        mState = STATE_SCROLL_DONE;
-    }
+    if ((mState == STATE_SCROLLING || mState == STATE_SCROLL_DONE) && mpScrollMotion->IsEnded())
+        ScrollStaffRoll();
     if (mpNextMotion && mpNextMotion->IsEnded()) {
         mpNextMotion.reset();
         mNext.SetVisible(false);
