@@ -16,3 +16,4 @@ Status: every function in the range compiles; all non-pool instructions match ex
 - Nested out-of-line inline functions are emitted in order of first parse: `VEC2LenSq(VEC2Sub(&d, &a, &b))` emits LenSq before Sub, matching the original order.
 - `a || (a != nullptr && c)` reproduces a redundant second `beq` that the plain `||` does not.
 - Computing the Z difference into a local before the X difference reproduces the original load order in getDirDeg/getDistance helpers.
+- The binary keeps separate copies of the same std::list<BWorldObj*> weak functions in ScriptWorldObjMove (0x8014CF80-0x8014D1C0) and ScriptWorldObjQuery (0x8014E3xx). Two NonMatching split objects that define the same mangled name fail to link (multiply-defined), so the copies in this unit keep fn_ names in symbols.txt until the units are merged or the Query copies are renamed.
