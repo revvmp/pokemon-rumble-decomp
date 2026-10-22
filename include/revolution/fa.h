@@ -30,6 +30,7 @@ typedef struct FADta {
     s8 LongName[522];
 } FADta;
 typedef struct PF_DRV_TBL FADrvTbl;
+struct PF_DEV_INF;
 
 typedef struct FANandInfo {
     s8 nandFilePath[78];
@@ -43,7 +44,22 @@ typedef struct FACommandBlock {
 } FACommandBlock;
 
 typedef void (*FACallback)(s32 result, FACommandBlock* block);
+typedef void (*FAMediaCallback)(s8 drive);
 
+s32 FAInit(long config);
+s32 FARegistCB(u8 device, FAMediaCallback inserted, FAMediaCallback ejected);
+void FANotifySDInsert(s8 drive);
+void FANotifySDEject(s8 drive);
+void FANotifyUSBInsert(s8 drive);
+void FANotifyUSBEject(s8 drive);
+s32 FABuffering(s8 drive, s32 mode);
+s32 FADetach(s8 drive);
+s32 FAFclose(FAFile* p_file);
+s32 FAGetdev(s8 drive, struct PF_DEV_INF* p_info);
+s32 FAIsWriteProtected(s8 drive);
+s32 FARemove(const char* path);
+s32 FASetupFSI(s8 drive, s16 flags);
+s32 FAUnmount(s8 drive, u32 mode);
 s32 FAChdir(const char* pPath);
 s32 FAErrnum(void);
 

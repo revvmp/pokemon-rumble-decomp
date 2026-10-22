@@ -82,5 +82,14 @@ s32 pfstub_fsnext(FACommandBlock* p_request);
 s32 pfstub_fwrite(FACommandBlock* p_request);
 s32 pfstub_devinf(s8 drive, struct PF_DEV_INF* p_info);
 s32 pfstub_init_prfile2(s32 config, void* p_parameter);
+s32 pfstub_iswriteprotected(s8 drive);
+s32 pfstub_mkdir_async(FACommandBlock* p_request);
+s32 pfstub_mount_async(FACommandBlock* p_request);
+s32 pfstub_remove(const char* path);
+s32 pfstub_remove_async(FACommandBlock* p_request);
+s32 pfstub_rmdir_async(FACommandBlock* p_request);
+s32 pfstub_setupfsi(s8 drive, u32 flags);
+s32 pfstub_unmount(s8 drive, u32 mode);
+s32 pfstub_unmount_async(FACommandBlock* p_request);
 
 #endif
