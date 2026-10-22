@@ -54,3 +54,13 @@ CDlgPiiSelector 623 to 635 of 645 functions at 100%; CDlgCollection gained one t
 | CModel | Update<0>, Update<1> | 99.6-99.8 | The first `pop_front` node takes r30 (sharing `advanced`) instead of r27; moving `advanced = true`, `erase(begin())` and hoisting the front pointer did not change it. |
 | CModel | Load, ~CModel | 99.8, 99.9 | Inlined `ScnMdlSimpleData::Reset`: wrapping the vector swap in a one-level inline helper fixes the register swap (99.99%), but the `reset()` and element-release `__unexpected` frame slots stay reversed (0x90/0xA8). |
 | CModel | AddResourceFile | 97.0 | `std::find` keeps `first` in memory; the MSL `for (; first != last; ++first) if (*first == value) break;` form fixes the loop shape but not the spill. |
+
+### CDlgPiiSelector restructure (follow-up)
+
+`.text` order against the target went from 708 misplaced of 645 to 214, measured with `scratchpad/e1/var.py`. Every change kept 635/645 and the project 100% count (13286), and verify passed.
+
+- All CDataPerPlayer and CDlgPiiSelector members are `inline`. The free helpers BuildItems, LoadItems, LoadEntranceItems, IsCurrentMapStage7Even and `IDlgPiiSelector::Create` are the only strong functions, matching the target's leading order.
+- CDlgPiiSelector declares its overrides as `~, Close, IsClosable, IsShown, Show, IsMultiPlayerEntranceShown, ShowMultiPlayerEntrance, SetEntrancePPD, GetEntrancePPD, UpdateDlgOpenState, Calc, CalcMtx, CalcView, Draw`. Vtable-only inlines are emitted in reverse order, so Calc's call tree comes first, then the entrance overrides (ShowMultiPlayerEntrance pulls in the CDataPerPlayer constructor, Setup and the rest), then Show, IsClosable and Close, as in the target.
+- `std::tr1::bind`, `mem_fn` and `shared_ptr` `operator==` are `inline` and `Clamp` is not; this puts their instances where the target has them, with no change in any other unit.
+
+Still blocking the flip: the vector helper rounds (`insert_prepare`, `assign_reallocate`, `__vec_split_buffer` members are emitted early in ours, deferred in the target); the callee order inside BuildItems (target emits `swap` and the loop operators before `insert`); a second `min<int>` copy the target emits for Clamp; SetStateFlag/AddStateFlag/RemoveStateFlag after `__rf<CPii>` in SpawnPreview; `.data` order (40 of 53 misplaced); and the ten functions below 100%.
