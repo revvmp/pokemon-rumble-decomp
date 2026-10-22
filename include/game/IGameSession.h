@@ -53,7 +53,7 @@ public:
     virtual CPlayer* GetPlayer(int player) = 0;
     virtual CRemoteMemory* GetRemoteMemory(int player) = 0;
     virtual COyaInfo* GetOyaInfo() = 0;
-    virtual std::tr1::shared_ptr<CPpuEnv> GetEnvironment() = 0;
+    virtual std::tr1::shared_ptr<CPpuEnv> GetEnvironment() const = 0;
     virtual int AddPPDToPlayerPiiBox(int player, std::tr1::shared_ptr<CPiiPersonalData> ppd) = 0;
     virtual bool CanAddPPDToPlayerPiiBox(int player, std::tr1::shared_ptr<CPiiPersonalData> ppd) = 0;
     virtual bool IsReplacePiiAvailable(int player) = 0;

@@ -97,7 +97,7 @@ public:
     virtual CPlayer* GetPlayer(int player);
     virtual CRemoteMemory* GetRemoteMemory(int player);
     virtual COyaInfo* GetOyaInfo();
-    virtual std::tr1::shared_ptr<CPpuEnv> GetEnvironment();
+    virtual std::tr1::shared_ptr<CPpuEnv> GetEnvironment() const;
     virtual int AddPPDToPlayerPiiBox(int player, std::tr1::shared_ptr<CPiiPersonalData> ppd);
     virtual bool CanAddPPDToPlayerPiiBox(int player, std::tr1::shared_ptr<CPiiPersonalData> ppd);
     virtual bool IsReplacePiiAvailable(int player);
@@ -637,7 +637,7 @@ COyaInfo* CGameSession::GetOyaInfo() {
     return &mOyaInfo;
 }
 
-std::tr1::shared_ptr<CPpuEnv> CGameSession::GetEnvironment() {
+inline std::tr1::shared_ptr<CPpuEnv> CGameSession::GetEnvironment() const {
     return mEnvironment;
 }
 

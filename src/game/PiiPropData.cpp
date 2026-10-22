@@ -110,7 +110,7 @@ void PiiPropData::SetWazaLevels(u16 monsno, u8 form, int formScope, const std::v
 }
 
 const NPpu::CValue& PiiPropData::GetProperty(u16 monsno, u8 form, int column) const {
-    return *mProperties.GetCell(GetPropertyRow(monsno, form), column);
+    return *const_cast<MapPiiTable&>(mProperties).GetCell(GetPropertyRow(monsno, form), column);
 }
 
 std::vector<s16> PiiPropData::GetWazaLevels(u16 monsno, u8 form, int level) const {
