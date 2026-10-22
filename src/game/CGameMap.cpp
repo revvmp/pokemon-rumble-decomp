@@ -65,6 +65,7 @@ public:
     explicit CGameMap(const Param& rParam);
     inline virtual ~CGameMap();
     void Initialize();
+    void Finalize() {}
     void LoadStageResources();
 
     virtual void Calc();
@@ -254,6 +255,7 @@ CGameMap::CGameMap(const Param& rParam)
 
 inline CGameMap::~CGameMap()
 {
+    Finalize();
 }
 
 bool CGameMap::IsPausing()
