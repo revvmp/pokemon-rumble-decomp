@@ -71,11 +71,7 @@ public:
     basic_string(const basic_string& str);
     basic_string(const basic_string& str, size_type pos, size_type n, const allocator_type& a);
     basic_string substr(size_type pos = 0, size_type n = npos) const;
-    ~basic_string() {
-        if (is_long()) {
-            alloc().deallocate(r_.first().r.l.data_, r_.first().r.l.cap_);
-        }
-    }
+    ~basic_string();
 
     basic_string& operator=(const charT* s) { return assign(s); }
     basic_string& assign(const charT* s);
@@ -390,7 +386,7 @@ basic_string<charT, traits, Allocator>& basic_string<charT, traits, Allocator>::
     }
     if (pos > oldSize) throw out_of_range("basic_string: out_of_range");
     size_type erased = min(n1, oldSize - pos);
-    size_type inserted = last - first;
+    size_type inserted = distance(first, last);
     size_type maximumSize = max_size();
     if (inserted > maximumSize || oldSize - erased > maximumSize - inserted) throw length_error("basic_string: length_error");
     size_type newSize = oldSize - erased + inserted;
@@ -590,6 +586,13 @@ basic_string<charT, traits, Allocator>& basic_string<charT, traits, Allocator>::
     size_type size;
     str.get_buffer(p, size);
     return do_replace(pos, count, p, p + size, tag);
+}
+
+template <class charT, class traits, class Allocator>
+basic_string<charT, traits, Allocator>::~basic_string() {
+    if (is_long()) {
+        alloc().deallocate(r_.first().r.l.data_, r_.first().r.l.cap_);
+    }
 }
 
 typedef basic_string<char> string;
