@@ -144,6 +144,21 @@ class CDlgPiiList : public IDlgPiiList, public std::tr1::enable_shared_from_this
 public:
     CDlgPiiList() {}
     virtual ~CDlgPiiList() {}
+    virtual bool IsClosable() { return false; }
+    virtual bool Close() {
+        if (mImpl) {
+            mImpl->mResult = 1;
+        }
+        GetCurrentGameMap()->UnregisterDialog(shared_from_this());
+        return true;
+    }
+    virtual int GetType() {
+        if (mImpl) {
+            return mImpl->mType;
+        }
+        return 0;
+    }
+    virtual bool Show(int player, int type);
     virtual void Calc() {
         if (mImpl) {
             CDlgPiiListImpl* pImpl = mImpl.get();
@@ -186,21 +201,7 @@ public:
             }
         }
     }
-    virtual bool IsClosable() { return false; }
-    virtual bool Close() {
-        if (mImpl) {
-            mImpl->mResult = 1;
-        }
-        GetCurrentGameMap()->UnregisterDialog(shared_from_this());
-        return true;
-    }
-    virtual int GetType() {
-        if (mImpl) {
-            return mImpl->mType;
-        }
-        return 0;
-    }
-    virtual bool Show(int player, int type);
+
 
 private:
     std::tr1::shared_ptr<CDlgPiiListImpl> mImpl;
@@ -214,7 +215,7 @@ std::tr1::shared_ptr<IDlgPiiList> IDlgPiiList::Create(bool) {
 
 namespace {
 
-bool CDlgPiiList::Show(int player, int type) {
+inline bool CDlgPiiList::Show(int player, int type) {
     if (mImpl) {
         if (mImpl->mType != type) {
             Close();
@@ -251,7 +252,7 @@ inline CDlgPiiListImpl::CDlgPiiListImpl(int player, int type)
     mFiber.Start(std::tr1::bind(&CDlgPiiListImpl::Run, this), 0x8000);
 }
 
-void CDlgPiiListImpl::ShowMessage(const wchar_t* pText) {
+inline void CDlgPiiListImpl::ShowMessage(const wchar_t* pText) {
     if (!mMsgWin) {
         mMsgWin = IDlgMsgWin::Create(false, true);
         mMsgWin->SetControllerSlot(mPlayer);
@@ -260,7 +261,7 @@ void CDlgPiiListImpl::ShowMessage(const wchar_t* pText) {
     mMsgWin->WaitUntilClosed();
 }
 
-bool CDlgPiiListImpl::AskYesNo(const wchar_t* pText) {
+inline bool CDlgPiiListImpl::AskYesNo(const wchar_t* pText) {
     if (!mMsgWin) {
         mMsgWin = IDlgMsgWin::Create(false, true);
         mMsgWin->SetControllerSlot(mPlayer);
@@ -358,7 +359,7 @@ inline void CDlgPiiListImpl::Setup(bool background) {
     mUIManager->SetFocusedUI(mPiiList.get());
 }
 
-void CDlgPiiListImpl::OnSelectionChanged(BUI* pUI) {
+inline void CDlgPiiListImpl::OnSelectionChanged(BUI* pUI) {
     if (!mFlag400) {
         mFlag400 = true;
     } else {
@@ -392,7 +393,7 @@ void CDlgPiiListImpl::OnSelectionChanged(BUI* pUI) {
 
 }
 
-void CDlgPiiListImpl::OnAccept(BUI* pUI) {
+inline void CDlgPiiListImpl::OnAccept(BUI* pUI) {
     IController* pController = IGameSession::GetInstance()->GetPlayer(mPlayer)->GetController();
     bool holdMode = false;
     if (pController != nullptr && (pController->GetTrig() & 0x20)) {
@@ -521,12 +522,12 @@ void CDlgPiiListImpl::OnAccept(BUI* pUI) {
     }
 }
 
-void CDlgPiiListImpl::OnSortChanged(const CPiiListFilterSort* pFilterSort) {
+inline void CDlgPiiListImpl::OnSortChanged(const CPiiListFilterSort* pFilterSort) {
     const_cast<CPiiListFilterSort*>(pFilterSort)->Filter(mPiiList, mItems, mPlayer);
     mPiiList->SelectIndex(0);
 }
 
-void CDlgPiiListImpl::Run() {
+inline void CDlgPiiListImpl::Run() {
     YieldFiberStarted();
     if (mType == 1 && !CheckRemoteMemory()) {
         return;
@@ -657,7 +658,7 @@ inline void CDlgPiiListImpl::RunList() {
 
 typedef std::list<std::tr1::shared_ptr<CPiiPersonalData> > PiiList;
 
-void CDlgPiiListImpl::RunRemoteTransfer() {
+inline void CDlgPiiListImpl::RunRemoteTransfer() {
     NResetMgr::CDisable resetDisable;
     CDisableHBM homeButtonDisable;
     bool changed = false;
@@ -808,7 +809,7 @@ void CDlgPiiListImpl::RunRemoteTransfer() {
 
 #pragma dont_inline reset
 
-void CDlgPiiListImpl::RunSell() {
+inline void CDlgPiiListImpl::RunSell() {
     PiiList sellList;
     for (PiiItemVector::iterator it = mItems.begin(); it != mItems.end(); ++it) {
         if ((*it)->IsSellMarked()) {
