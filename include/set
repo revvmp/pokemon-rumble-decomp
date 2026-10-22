@@ -67,7 +67,25 @@ public:
         bool operator!=(const iterator& rOther) const { return mIterator != rOther.mIterator; }
         typename tree_type::iterator mIterator;
     };
-    typedef iterator const_iterator;
+    class const_iterator {
+    public:
+        typedef long difference_type;
+        typedef T* value_type;
+        typedef T* const* pointer;
+        typedef T* const& reference;
+        typedef bidirectional_iterator_tag iterator_category;
+        const_iterator() {}
+        const_iterator(const iterator& rOther) : mIterator(rOther.mIterator) {}
+        explicit const_iterator(const typename tree_type::const_iterator& rIterator) : mIterator(rIterator) {}
+        value_type operator*() const { return static_cast<value_type>(const_cast<void*>(*mIterator)); }
+        const_iterator& operator++() {
+            ++mIterator;
+            return *this;
+        }
+        bool operator==(const const_iterator& rOther) const { return mIterator == rOther.mIterator; }
+        bool operator!=(const const_iterator& rOther) const { return mIterator != rOther.mIterator; }
+        typename tree_type::const_iterator mIterator;
+    };
     set() {}
     ~set() {}
     iterator begin() { return iterator(mTree.begin()); }

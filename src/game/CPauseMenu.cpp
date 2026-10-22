@@ -409,10 +409,8 @@ inline void CPauseMenu::CaptureScreenshot() {
         width = static_cast<u16>(ceil(maxWidth));
         height = static_cast<u16>(ceil(maxWidth / shotAspect));
     }
-    u16 limitWidth = static_cast<u16>(maxWidth);
-    width = std::min(width, limitWidth);
-    u16 limitHeight = static_cast<u16>(maxHeight);
-    height = std::min(height, limitHeight);
+    width = std::min(static_cast<u16>(maxWidth), width);
+    height = std::min(static_cast<u16>(maxHeight), height);
 
     nw4r::lyt::Pane* pPicture = mCopyrightLayout.FindPane("PICTURE");
     nw4r::lyt::TexMap texMap(mCapture.GetTexObj());
@@ -422,14 +420,14 @@ inline void CPauseMenu::CaptureScreenshot() {
     mCopyrightLayout.SetTexture(pPicture, texMap, -1);
     pPicture->SetSize(nw4r::lyt::Size(width, height));
     nw4r::lyt::Pane* pCopyright = mCopyrightLayout.FindPane("COPYRIGHT");
-    pCopyright->SetTranslate(nw4r::math::VEC2(width * 0.5f, -height * 0.5f));
+    pCopyright->SetTranslate(nw4r::math::VEC2(width / 2.0f, -height / 2.0f));
 
     nw4r::g3d::G3DState::Invalidate(0x7ff);
     nw4r::g3d::G3dReset();
     GXInvalidateVtxCache();
     GXInvalidateTexAll();
     GXSetPixelFmt(GX_PF_RGB8_Z24, GX_ZC_LINEAR);
-    mCopyrightLayout.Render(nw4r::math::VEC2(height, width));
+    mCopyrightLayout.Render(nw4r::math::VEC2(width, height));
     GXDrawDone();
 
     CaptureTexture shot;

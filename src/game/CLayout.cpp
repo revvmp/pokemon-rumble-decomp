@@ -23,6 +23,16 @@
 
 namespace {
 
+inline TPLPalette* FindImage(nw4r::lyt::MultiArcResourceAccessor& rAccessor, const char* pName) {
+    TPLPalette* pPalette = static_cast<TPLPalette*>(rAccessor.GetResource('timg', pName, nullptr));
+    if (pPalette == nullptr) {
+        std::string imageName(pName);
+        imageName.append(".tpl");
+        pPalette = static_cast<TPLPalette*>(rAccessor.GetResource('timg', imageName.c_str(), nullptr));
+    }
+    return pPalette;
+}
+
 const char* const sTextPaneSuffixes[] = {"_nw", "_n", "_ne", "_w", "_e", "_sw", "_s", "_se", "_c", "", nullptr};
 
 std::tr1::shared_ptr<std::tr1::function<void (const CLayout::CInitializeException&)> > sInitializeErrorHandler;
@@ -411,7 +421,7 @@ std::tr1::shared_ptr<CLayout::CMotionProgram> CLayout::ReplaceMotions(const std:
     SetFlags(4);
     pPaneMP->mRunning = true;
     RebindAnimations();
-    if (rProgram->mFrame >= 0.0) {
+    if (0.0 <= rProgram->mFrame) {
         pPaneMP->mFrame = rProgram->mFrame;
     } else {
         AdvancePaneMotions(pPaneMP, 1.0f);
@@ -733,7 +743,7 @@ bool CLayout::Detach() {
 void CLayout::DetachAttachedLayouts() {
     if (mAttach) {
         std::set<CLayout*> children(mAttach->mChildren);
-        std::set<CLayout*>::iterator it;
+        std::set<CLayout*>::const_iterator it;
         for (it = children.begin(); it != children.end(); ++it) {
             (*it)->Detach();
         }
@@ -752,11 +762,13 @@ nw4r::lyt::TextBox* CLayout::SetText(const char* pName, const wchar_t* pText) {
     int length = wcslen(pText);
     for (const char* const* pSuffix = sTextPaneSuffixes; *pSuffix != nullptr; ++pSuffix) {
         nw4r::lyt::Pane* pPane = FindPane((std::string(pName) + *pSuffix).c_str());
-        nw4r::lyt::TextBox* pTextBox = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(pPane);
-        if (pTextBox != nullptr) {
-            pTextBox->AllocStringBuffer(length);
-            pTextBox->SetString(pText, 0);
-            pResult = pTextBox;
+        if (pPane != nullptr) {
+            nw4r::lyt::TextBox* pTextBox = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(pPane);
+            if (pTextBox != nullptr) {
+                pTextBox->AllocStringBuffer(length);
+                pTextBox->SetString(pText, 0);
+                pResult = pTextBox;
+            }
         }
     }
     return pResult;
@@ -800,18 +812,14 @@ bool CLayout::SetTexture(const char* pName, const nw4r::lyt::TexMap& rTexture, i
 bool CLayout::SetImage(const char* pPaneName, const char* pImageName, int index) {
     nw4r::lyt::Pane* pPane = FindPane(pPaneName);
     if (pPane != nullptr) {
-        TPLPalette* pPalette = static_cast<TPLPalette*>(mAccessor.GetResource('timg', pImageName, nullptr));
+        TPLPalette* pPalette = FindImage(mAccessor, pImageName);
         if (pPalette == nullptr) {
-            std::string imageName(pImageName);
-            imageName.append(".tpl");
-            pPalette = static_cast<TPLPalette*>(mAccessor.GetResource('timg', imageName.c_str(), nullptr));
+            return false;
         }
-        if (pPalette != nullptr) {
-            nw4r::lyt::TexMap texMap(pPalette, 0);
-            texMap.SetBiasClampEnable(false);
-            texMap.SetAnisotropy(GX_ANISO_1);
-            return SetTexture(pPane, texMap, index);
-        }
+        nw4r::lyt::TexMap texMap(pPalette, 0);
+        texMap.SetBiasClampEnable(false);
+        texMap.SetAnisotropy(GX_ANISO_1);
+        return SetTexture(pPane, texMap, index);
     }
     return false;
 }
@@ -862,7 +870,7 @@ void CLayout::Render(const nw4r::math::VEC2& rSize) {
     if (HasFlags(FLAG_LOADED)) {
         CalculateMtx(false);
         Mtx44 projection;
-        C_MTXOrtho(projection, 0.5f * rSize.y, 0.5f * -rSize.y, 0.5f * -rSize.x, 0.5f * rSize.x, 0.0f, 500.0f);
+        C_MTXOrtho(projection, rSize.y / 2.0f, -rSize.y / 2.0f, -rSize.x / 2.0f, rSize.x / 2.0f, 0.0f, 500.0f);
         GXSetProjection(projection, GX_ORTHOGRAPHIC);
         GXSetViewport(0.0f, 0.0f, rSize.x, rSize.y, 0.0f, 1.0f);
         GXSetScissor(0, 0, static_cast<u32>(rSize.x), static_cast<u32>(rSize.y));
