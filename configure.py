@@ -542,7 +542,7 @@ config.libs = [
             Object(Matching, "RVL_SDK/fa/pf_fat.c"),
             Object(Matching, "RVL_SDK/fa/pf_fat32.c"),
             Object(Matching, "RVL_SDK/fa/pf_fatfs.c"),
-            Object(NonMatching, "RVL_SDK/fa/pf_file.c"),
+            Object(Matching, "RVL_SDK/fa/pf_file.c"),
             Object(Matching, "RVL_SDK/fa/pf_api_util.c"),
             Object(Matching, "RVL_SDK/fa/pf_chdir.c"),
             Object(Matching, "RVL_SDK/fa/pf_mkdir.c"),

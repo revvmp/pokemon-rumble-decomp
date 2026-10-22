@@ -527,7 +527,7 @@ static PF_SFD* PFFILE_GetSFD(PF_VOLUME* p_vol, PF_DIR_ENT* p_ent) {
     u32 i;
 
     for (i = 0; i < 5; ++i) {
-        if ((p_vol->sfds[i].stat & 1) == 0 || ((p_vol->sfds[i].stat == 0) & 2) != 0) {
+        if (!(p_vol->sfds[i].stat & 1) || ((p_vol->sfds[i].stat & 1) && !p_vol->sfds[i].stat & 2)) {
             if (p_first_free == NULL) {
                 p_first_free = &p_vol->sfds[i];
                 sfd_num = i;
