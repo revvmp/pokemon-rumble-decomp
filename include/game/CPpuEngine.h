@@ -72,6 +72,7 @@ public:
     const nw4r::math::MTX34& GetPlacement(u32 index) const { return mPlacements[index]; }
 
     CPpuRegister* GetRegister() { return &mRegister; }
+    BWorldObj* GetOwner() const { return mOwnerObj; }
 
 private:
     static std::tr1::weak_ptr<NPpu::CEnvironment> sDefaultEnv;

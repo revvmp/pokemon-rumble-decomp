@@ -73,11 +73,13 @@ public:
     void UpdateOutline();
 
     const std::tr1::shared_ptr<CModel>& GetModel() const { return mModel; }
+    const nw4r::math::VEC3& GetModelScale() const { return mModelScale; }
+    bool HasFlag(u32 flag) const { return (mFlags & flag) != 0; }
+    bool IsSizeMode() const { return HasFlag(FLAG_SIZE_MODE) != 0; }
+    nw4r::math::VEC3 CalcSize(int mode) const;
 
 private:
     static bool IsOutlineModel(const std::tr1::shared_ptr<CModel>& rModel);
-
-    nw4r::math::VEC3 CalcSize(int mode) const;
 
     void UpdateBounds() {
         mBounds.min.x = mPosition.x - mSize.x;
