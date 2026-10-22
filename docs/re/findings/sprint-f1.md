@@ -48,3 +48,7 @@ Next step: find a source form that makes the target `find_leaf` behave as an out
 
 - `scratchpad/e1/var.py` and `sweep.py` hard-code `rumble-a15`; the copies in `f1/swt` point at `rumble-a01` and accept an `OI` overlay include directory.
 - The `uo2.py` misplacement marks are minimal-edit hints. A symbol can be wrong without a mark, so read the full order (`FULL=1 uo.py`) before concluding.
+
+## Budget check on the inline lead
+
+I padded an `inline find_leaf` with dead `if (gTreeProbe == N) { ... }` statements, which count toward the inliner cost. MapPiiTable (string keys) stops inlining it at 250 to 300 such statements, and COyaInfo and l10n_files (int and `const char*` keys) at 300 to 400. That is about 10000 units: `find_leaf` alone has to exceed the whole budget (sprint-i1 F-i1-1). The target body compiles to the same 24 instructions as ours. A form that is naturally heavier (a second comparator call, extra flags, a comparator built per call) would either change the code or be folded before costing. So the inliner budget does not explain why the original keeps `find_leaf` out of line. MapPiiTable's `<c>`, `<w>` reversal is the same at every padding level, so it is not a parity effect.
