@@ -170,9 +170,9 @@ inline void CRemoteMemory::SetState(Flag state) {
         volatile u32 a = FLAG_STATE_AND_BUSY_MASK;
         volatile u32 b = a | FLAG_WRITE_COMPLETE;
         volatile u32 c = b | FLAG_DATA_CHANGED;
-        u32 flags = mFlags & ~c;
+        mFlags &= ~c;
         volatile u32 d = state | FLAG_STATE_CHANGED;
-        mFlags = flags | d;
+        mFlags |= d;
     }
 }
 

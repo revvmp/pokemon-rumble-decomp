@@ -586,8 +586,10 @@ void CGameSession::AddMoney(int money) {
     int current = mMoney;
     int total;
     if (money > 0) {
-        total = current + money;
-        if (current >= total) {
+        int sum = current + money;
+        if (current < sum) {
+            total = sum;
+        } else {
             total = limit;
         }
     } else if (money < 0) {
