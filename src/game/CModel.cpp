@@ -752,7 +752,8 @@ template <bool Main> bool CModel::TPartialAnm<Main>::Update(CModel* pModel, f32 
             step = mFrame / rMotion->mRate;
             rMotion->SetPlaybackState(CMotionProgram::FLAG_STOPPED);
             mMotions.pop_front();
-            mFrame = mMotions.front()->mStartFrame < 0.0f ? 0.0f : mMotions.front()->mStartFrame;
+            f32 start = mMotions.front()->mStartFrame;
+            mFrame = start < 0.0f ? 0.0f : start;
             mAnimObj.reset();
             advanced = true;
             mMotions.front().get()->SetPlaybackState(CMotionProgram::FLAG_PLAYING);
