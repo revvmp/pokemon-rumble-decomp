@@ -6,6 +6,26 @@
 #include <game/Message.h>
 #include <game/MessageFormat.h>
 
+template NIntl::basic_formatter<wchar_t>::basic_formatter(const wchar_t*);
+template NIntl::basic_formatter<wchar_t>::~basic_formatter();
+
+namespace std {
+
+template <class charT, class traits, class Allocator>
+basic_string<charT, traits, Allocator> operator+(const basic_string<charT, traits, Allocator>& lhs, const charT* rhs)
+{
+    basic_string<charT, traits, Allocator> result;
+    size_t rhsLength = traits::length(rhs);
+    size_t lhsLength;
+    const charT* lhsData;
+    lhs.get_buffer(lhsData, lhsLength);
+    result.reserve(lhsLength + rhsLength);
+    result.replace(0, 0, lhsData, lhsData + lhsLength).replace(lhsLength, 0, rhs, rhs + rhsLength);
+    return result;
+}
+
+}
+
 std::wstring GetButtonMessage(int player, u32 button, int messageId) {
     IController* pController = IGameSession::GetInstance()->GetPlayer(player)->GetController();
     if (pController == nullptr) {
@@ -31,6 +51,7 @@ CPlayer* FindPlayerHoldingPii(const std::tr1::shared_ptr<CPiiPersonalData>& rPii
     return nullptr;
 }
 
+#pragma scheduling off
 std::tr1::shared_ptr<CPiiPersonalData> CPlayer::GetPersonalData() const {
     return mState.mPersonalData;
 }
@@ -38,3 +59,4 @@ std::tr1::shared_ptr<CPiiPersonalData> CPlayer::GetPersonalData() const {
 std::tr1::shared_ptr<CPiiPersonalData> CPlayer::GetPendingPersonalData() const {
     return mState.mPendingPersonalData;
 }
+#pragma scheduling reset
