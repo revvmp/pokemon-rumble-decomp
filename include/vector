@@ -56,6 +56,7 @@ public:
     typedef __vec_split_buffer<T, Allocator> helper;
     typedef typename Metrowerks::compressed_pair<size_type, Allocator>::second_param allocator_param;
     typedef Metrowerks::int2type<Metrowerks::is_POD<T>::value> pod_type;
+    typedef Metrowerks::int2type<__vec_trivial_copy<T>::value> copy_type;
 
     __vec_deleter() : data_(nullptr), size_(0), capacity_(0) {}
     explicit __vec_deleter(allocator_param a) : data_(nullptr), size_(0), capacity_(0, a) {}
@@ -65,6 +66,7 @@ public:
     const T* begin() const { return this->data_; }
     T* end() { return this->data_ + this->size_; }
     const T* end() const { return this->data_ + this->size_; }
+    T& back() { return this->data_[this->size_ - 1]; }
 
     void clear() { erase_at_end(size_); }
 
@@ -79,19 +81,28 @@ public:
     void allocate(size_type n, size_type capacity, pod_type tag) { allocate(capacity, tag); }
     void allocate(size_type n, pod_type);
 
-    void move_construct_to_end(T* pFirst, T* pLast) { move_construct_to_end(pFirst, pLast, pod_type()); }
-    void move_construct_to_end(T* pFirst, T* pLast, Metrowerks::int2type<true>) {
-        ptrdiff_t n = pLast - pFirst;
-        memcpy(data_ + size_, pFirst, n * sizeof(T));
-        memset(pFirst, 0, n * sizeof(T));
-        size_ += n;
+    size_type recommend(size_type n, pod_type) { return recommend(n); }
+    size_type recommend_realloc(size_type n) { return recommend(n); }
+    size_type grow_capacity(size_type n) { return recommend_realloc(this->size_ + n - this->cap()); }
+    bool grow_by(size_type n) {
+        size_type capacity;
+        return grow_by(n, capacity, pod_type());
     }
-    void move_construct_to_end(T* pFirst, T* pLast, Metrowerks::int2type<false>) {
-        for (T* p = data_ + size_; pFirst < pLast; ++pFirst, ++p) {
-            alloc().construct(p, std::move(*pFirst));
-            ++size_;
-        }
+    size_type recommend_extra(size_type n) { return recommend(n); }
+    size_type recommend_append(size_type n) { return recommend_extra(n); }
+    bool grow_by(size_type n, pod_type) {
+        recommend_append(n);
+        return false;
     }
+    bool can_append(size_type n) { size_type capacity; return grow_by(n, capacity, pod_type()); }
+    bool grow_by(size_type n, size_type& rCapacity) { return grow_by(n, rCapacity, pod_type()); }
+    bool grow_by(size_type n, size_type& rCapacity, pod_type) {
+        rCapacity = recommend(n);
+        return false;
+    }
+
+    void reallocate(size_type n);
+    size_type recommend(size_type n);
 
     void construct_at_end(T* pFirst, T* pLast) { construct_at_end(pFirst, pLast, pod_type()); }
     void construct_at_end(T* pFirst, T* pLast, Metrowerks::int2type<true>) {
@@ -135,10 +146,36 @@ protected:
     }
 public:
     void erase_at_end(size_type n) { erase_tail(n, pod_type()); }
+    void append_realloc(size_type n, const T& x);
 protected:
     void erase_tail(size_type n, Metrowerks::int2type<false>);
     void erase_tail(size_type n, Metrowerks::int2type<true>) { size_ -= n; }
     void erase_at_end(size_type& n, Metrowerks::int2type<true>) { size_ -= n; }
+
+public:
+    void push_back_realloc(const T& x) { push_back_realloc(x, copy_type()); }
+    void push_back_realloc(const T& x, Metrowerks::int2type<false>);
+    void push_back_realloc(const T& x, Metrowerks::int2type<true>);
+
+    void move_construct_to_end(T* pFirst, T* pLast) { move_construct_to_end(pFirst, pLast, pod_type()); }
+    void move_construct_to_end(T* pFirst, T* pLast, Metrowerks::int2type<true>) {
+        ptrdiff_t n = pLast - pFirst;
+        memcpy(data_ + size_, pFirst, n * sizeof(T));
+        memset(pFirst, 0, n * sizeof(T));
+        size_ += n;
+    }
+    void move_construct_to_end(T* pFirst, T* pLast, Metrowerks::int2type<false>) {
+        for (T* p = data_ + size_; pFirst < pLast; ++pFirst, ++p) {
+            alloc().construct(p, std::move(*pFirst));
+            ++size_;
+        }
+    }
+
+    void clear_moved() { clear_moved(pod_type()); }
+    void clear_moved(Metrowerks::int2type<true>) { this->size_ = 0; }
+    void clear_moved(Metrowerks::int2type<false>) {
+        if (Metrowerks::is_same<Allocator, allocator<T> >::value && Metrowerks::has_trivial_dtor<T>::value) this->size_ = 0;
+    }
 
 private:
     __vec_deleter(const __vec_deleter&);
@@ -203,9 +240,6 @@ public:
         this->alloc().construct(end(), x);
         ++this->size_;
     }
-
-    void allocate(size_type size, size_type n) { allocate(size, n, pod_type()); }
-    void allocate(size_type, size_type n, pod_type tag) { base::allocate(n, tag); }
 
     void construct_at_end(size_type n, const T& x) { construct_at_end(n, x, Metrowerks::int2type<__vec_trivial_copy<T>::value>()); }
     void construct_at_end(size_type n, const T& x, Metrowerks::int2type<true>) {
@@ -308,7 +342,6 @@ public:
     using base::begin;
     using base::end;
     size_type size() const { return this->size_; }
-    T& back() { return this->data_[this->size_ - 1]; }
     T& operator[](size_type i) { return this->data_[i]; }
 
     void reserve(size_type n) {
@@ -426,8 +459,6 @@ public:
     }
 
 protected:
-    void reallocate(size_type n);
-
     void push_back(const T& x, Metrowerks::int2type<true>) {
         if (this->size_ < this->cap()) {
             ++this->size_;
@@ -446,30 +477,9 @@ protected:
         }
     }
 
-    void push_back_realloc(const T& x) { push_back_realloc(x, copy_type()); }
-    void push_back_realloc(const T& x, Metrowerks::int2type<false>);
-    void push_back_realloc(const T& x, Metrowerks::int2type<true>);
-
-    void append_realloc(size_type n, const T& x) {
-        typename base::helper buffer(this->alloc());
-        buffer.allocate(this->size_ + n, recommend(this->size_ + n - this->cap()));
-        buffer.start_ = this->size_;
-        buffer.construct_at_end(n, x);
-        buffer.construct_at_front(begin(), end());
-        clear_moved();
-        std::swap(this->cap(), buffer.cap());
-        std::swap(this->data_, buffer.data_);
-        std::swap(this->size_, buffer.size_);
-    }
-
     void pop_back(Metrowerks::int2type<true>) { --this->size_; }
     void clear(Metrowerks::int2type<true>) { base::clear(); }
     void clear(Metrowerks::int2type<false>) { base::clear(); }
-    void clear_moved() { clear_moved(pod_type()); }
-    void clear_moved(Metrowerks::int2type<true>) { this->size_ = 0; }
-    void clear_moved(Metrowerks::int2type<false>) {
-        if (Metrowerks::is_same<Allocator, allocator<T> >::value && Metrowerks::has_trivial_dtor<T>::value) this->size_ = 0;
-    }
 
     void allocate(size_type n, pod_type) {
         if (n > max_size()) {
@@ -491,40 +501,6 @@ protected:
         this->size_ += n;
     }
 
-    size_type recommend(size_type n) {
-        size_type maxSize = this->max_size();
-        size_type capacity = this->cap();
-        if (n > maxSize - capacity) {
-            this->throw_length_error();
-        }
-        size_type third = maxSize / 3;
-        if (capacity < third) {
-            return capacity + max((capacity + 1) * 3 / 5, n);
-        }
-        if (capacity < third * 2) {
-            return capacity + max((capacity + 1) / 2, n);
-        }
-        return maxSize;
-    }
-    size_type recommend(size_type n, pod_type) { return recommend(n); }
-    size_type recommend_realloc(size_type n) { return recommend(n); }
-    size_type grow_capacity(size_type n) { return recommend_realloc(this->size_ + n - this->cap()); }
-    bool grow_by(size_type n) {
-        size_type capacity;
-        return grow_by(n, capacity, pod_type());
-    }
-    size_type recommend_extra(size_type n) { return recommend(n); }
-    size_type recommend_append(size_type n) { return recommend_extra(n); }
-    bool grow_by(size_type n, pod_type) {
-        recommend_append(n);
-        return false;
-    }
-    bool can_append(size_type n) { size_type capacity; return grow_by(n, capacity, pod_type()); }
-    bool grow_by(size_type n, size_type& rCapacity) { return grow_by(n, rCapacity, pod_type()); }
-    bool grow_by(size_type n, size_type& rCapacity, pod_type) {
-        rCapacity = recommend(n);
-        return false;
-    }
 
     void append_realloc(size_type n);
 
@@ -672,9 +648,16 @@ protected:
     }
 };
 
-template <typename T, typename Allocator, bool IsPOD>
-void __vec_constructor<T, Allocator, IsPOD>::reallocate(size_type n) {
-    base buffer(this->alloc());
+template <typename T, typename Allocator> void __vec_deleter<T, Allocator>::allocate(size_type n, pod_type) {
+    if (n > max_size()) {
+        this->throw_length_error();
+    }
+    data_ = alloc().allocate(n, 0);
+    cap() = n;
+}
+
+template <typename T, typename Allocator> void __vec_deleter<T, Allocator>::reallocate(size_type n) {
+    __vec_deleter buffer(this->alloc());
     buffer.allocate(n);
     buffer.move_construct_to_end(begin(), end());
     clear_moved();
@@ -683,30 +666,50 @@ void __vec_constructor<T, Allocator, IsPOD>::reallocate(size_type n) {
     std::swap(this->size_, buffer.size_);
 }
 
-template <typename T, typename Allocator, bool IsPOD> void __vec_constructor<T, Allocator, IsPOD>::push_back_realloc(const T& x, Metrowerks::int2type<false>) {
-        if (grow_by(1)) {
-            this->alloc().construct(end(), x);
-            ++this->size_;
-        } else {
-            append_realloc(1, x);
-        }
-    }
-
-template <typename T, typename Allocator, bool IsPOD> void __vec_constructor<T, Allocator, IsPOD>::push_back_realloc(const T& x, Metrowerks::int2type<true>) {
-        if (grow_by(1)) {
-            ++this->size_;
-            back() = x;
-        } else {
-            append_realloc(1, x);
-        }
-    }
-
-template <typename T, typename Allocator> void __vec_deleter<T, Allocator>::allocate(size_type n, pod_type) {
-    if (n > max_size()) {
+template <typename T, typename Allocator> typename __vec_deleter<T, Allocator>::size_type __vec_deleter<T, Allocator>::recommend(size_type n) {
+    size_type maxSize = this->max_size();
+    size_type capacity = this->cap();
+    if (n > maxSize - capacity) {
         this->throw_length_error();
     }
-    data_ = alloc().allocate(n, 0);
-    cap() = n;
+    size_type third = maxSize / 3;
+    if (capacity < third) {
+        return capacity + max((capacity + 1) * 3 / 5, n);
+    }
+    if (capacity < third * 2) {
+        return capacity + max((capacity + 1) / 2, n);
+    }
+    return maxSize;
+}
+
+template <typename T, typename Allocator> void __vec_deleter<T, Allocator>::append_realloc(size_type n, const T& x) {
+    helper buffer(this->alloc());
+    buffer.allocate(this->size_ + n, recommend(this->size_ + n - this->cap()));
+    buffer.start_ = this->size_;
+    buffer.construct_at_end(n, x);
+    buffer.construct_at_front(begin(), end());
+    clear_moved();
+    std::swap(this->cap(), buffer.cap());
+    std::swap(this->data_, buffer.data_);
+    std::swap(this->size_, buffer.size_);
+}
+
+template <typename T, typename Allocator> void __vec_deleter<T, Allocator>::push_back_realloc(const T& x, Metrowerks::int2type<false>) {
+    if (grow_by(1)) {
+        this->alloc().construct(end(), x);
+        ++this->size_;
+    } else {
+        append_realloc(1, x);
+    }
+}
+
+template <typename T, typename Allocator> void __vec_deleter<T, Allocator>::push_back_realloc(const T& x, Metrowerks::int2type<true>) {
+    if (grow_by(1)) {
+        ++this->size_;
+        back() = x;
+    } else {
+        append_realloc(1, x);
+    }
 }
 
 template <typename T, typename Allocator, bool IsPOD>

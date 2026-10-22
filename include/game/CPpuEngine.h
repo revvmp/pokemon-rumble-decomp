@@ -28,8 +28,8 @@ template <> struct __vec_bulk_move<nw4r::math::MTX34> {
 };
 
 template <>
-inline void __vec_constructor<nw4r::math::MTX34, allocator<nw4r::math::MTX34>, true>::reallocate(size_type n) {
-    base buffer(this->alloc());
+inline void __vec_deleter<nw4r::math::MTX34, allocator<nw4r::math::MTX34> >::reallocate(size_type n) {
+    __vec_deleter buffer(this->alloc());
     if (n > this->max_size()) {
         this->throw_length_error();
     }
