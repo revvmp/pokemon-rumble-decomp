@@ -38,7 +38,7 @@ std::tr1::shared_ptr<NPpu::CCode> LoadScriptCode(NPpu::CEnvironment* pBaseEnv, c
     std::string key(pName);
     CPpuEnv::CodeMap::iterator it = pEnv->Codes().find(key);
     if (it != pEnv->Codes().end()) {
-        std::tr1::shared_ptr<NPpu::CCode> cached = it->second;
+        std::tr1::shared_ptr<NPpu::CCode> cached(it->second);
         if (cached) {
             return cached;
         }
@@ -48,7 +48,7 @@ std::tr1::shared_ptr<NPpu::CCode> LoadScriptCode(NPpu::CEnvironment* pBaseEnv, c
     bool loaded;
     {
         std::string directory("script.arc/");
-        std::tr1::shared_ptr<CFileData> file = LoadLocalizedFile((directory + pName).c_str(), 0, false, CPpuEngine::GetScriptRoot());
+        std::tr1::shared_ptr<CFileData> file = LoadLocalizedFile((directory + pName).c_str(), 0, wait, CPpuEngine::GetScriptRoot());
         loaded = code->Load(file, pName);
     }
     if (!loaded) {
@@ -59,5 +59,5 @@ std::tr1::shared_ptr<NPpu::CCode> LoadScriptCode(NPpu::CEnvironment* pBaseEnv, c
 }
 
 void NPpu::CEnvironment::CollectGarbage() {
-    static_cast<CPpuEnv*>(this)->Codes().clear();
+    static_cast<CPpuEnv*>(this)->ClearCodes();
 }

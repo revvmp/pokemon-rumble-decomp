@@ -69,6 +69,7 @@ public:
 
     bool& Loading() { return mLoading; }
     CodeMap& Codes() { return mCodes; }
+    void ClearCodes() { mCodes.clear(); }
 
 private:
     SelfReference<NPpu::CEnvironment> mRef;
