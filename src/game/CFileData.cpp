@@ -105,11 +105,6 @@ inline void CFileData::ValidateResource() {
     }
 }
 
-inline void CFileData::CWorker::DiscardJob(CJob* pJob) {
-    delete pJob;
-    --mFinished.mCount;
-}
-
 inline void CFileData::CWorker::ProcessFinishedJobs() {
     CJob* pDeferred = nullptr;
     for (;;) {
@@ -187,13 +182,15 @@ inline void CFileData::CWorker::ProcessFinishedJobs() {
                 break;
             }
             pJob->mFile->mPending = false;
-            DiscardJob(pJob);
+            delete pJob;
+            --mFinished.mCount;
             continue;
         case CJob::STATE_PUBLISH_BUFFER:
             pJob->mFile->mData = pJob->mFile->mBuffer.get();
             pJob->mFile->ValidateResource();
             pJob->mFile->mPending = false;
-            DiscardJob(pJob);
+            delete pJob;
+            --mFinished.mCount;
             continue;
         case CJob::STATE_FINISHED:
             break;
@@ -202,7 +199,8 @@ inline void CFileData::CWorker::ProcessFinishedJobs() {
         pJob->mFile->mBuffer.reset();
         pJob->mFile->mData = nullptr;
         pJob->mFile->mPending = false;
-        DiscardJob(pJob);
+        delete pJob;
+        --mFinished.mCount;
     }
 }
 
