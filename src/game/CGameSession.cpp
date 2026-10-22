@@ -357,9 +357,7 @@ void CGameSession::LoadFromSlot() {
         if (GetSaveData(-1)->mData.mFlags[2] == 0) {
             GetSaveData(-1)->mData.mFlags[2] = 1;
         }
-        int area = GetSaveData(-1)->mData.mFlags[2];
-        MapIndex index = MakeMapIndex(GetSaveData(-1)->mData.mFlags[3], area, 0, 1);
-        reinterpret_cast<StageID&>(mPendingMap) = reinterpret_cast<const StageID&>(index);
+        reinterpret_cast<StageID&>(mPendingMap) = reinterpret_cast<const StageID&>(MakeMapIndex(GetSaveData(-1)->mData.mFlags[3], GetSaveData(-1)->mData.mFlags[2], 0, 1));
     }
     SetGCRumbleEnabled(GetOption() == 0);
 }
