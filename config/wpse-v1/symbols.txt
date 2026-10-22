@@ -14263,11 +14263,11 @@ __ct__Q23std157set<Q33std3tr127shared_ptr<13IWorldObjStat>,Q23std45less<Q33std3t
 __ct__Q33std50vector<P9BWorldObj,Q23std22allocator<P9BWorldObj>>8iteratorFRCQ33std50vector<P9BWorldObj,Q23std22allocator<P9BWorldObj>>8iterator = .text:0x801222A0; // type:function size:0xC
 begin__Q23std50vector<P9BWorldObj,Q23std22allocator<P9BWorldObj>>Fv = .text:0x801222B0; // type:function size:0x8
 __ml__Q33std50vector<P9BWorldObj,Q23std22allocator<P9BWorldObj>>8iteratorCFv = .text:0x801222C0; // type:function size:0x8
-begin__Q23std157set<Q33std3tr127shared_ptr<13IWorldObjStat>,Q23std45less<Q33std3tr127shared_ptr<13IWorldObjStat>>,Q23std50allocator<Q33std3tr127shared_ptr<13IWorldObjStat>>>Fv = .text:0x801222D0; // type:function size:0x8
+fn_801222D0 = .text:0x801222D0; // type:function size:0x8
 __rf__Q33std3tr127shared_ptr<13IWorldObjStat>CFv = .text:0x801222E0; // type:function size:0x8
 __ml__Q43std6detail162tree_imp<Q33std3tr127shared_ptr<13IWorldObjStat>,Q23std45less<Q33std3tr127shared_ptr<13IWorldObjStat>>,Q23std50allocator<Q33std3tr127shared_ptr<13IWorldObjStat>>>21__generic_iterator<1>CFv = .text:0x801222F0; // type:function size:0xC
 insert__Q23std157set<Q33std3tr127shared_ptr<13IWorldObjStat>,Q23std45less<Q33std3tr127shared_ptr<13IWorldObjStat>>,Q23std50allocator<Q33std3tr127shared_ptr<13IWorldObjStat>>>FRCQ33std3tr127shared_ptr<13IWorldObjStat> = .text:0x80122300; // type:function size:0xA8
-end__Q23std157set<Q33std3tr127shared_ptr<13IWorldObjStat>,Q23std45less<Q33std3tr127shared_ptr<13IWorldObjStat>>,Q23std50allocator<Q33std3tr127shared_ptr<13IWorldObjStat>>>Fv = .text:0x801223B0; // type:function size:0x8
+fn_801223B0 = .text:0x801223B0; // type:function size:0x8
 __pp__Q33std50vector<P9BWorldObj,Q23std22allocator<P9BWorldObj>>8iteratorFv = .text:0x801223C0; // type:function size:0x10
 __ne__Q33std50vector<P9BWorldObj,Q23std22allocator<P9BWorldObj>>8iteratorCFRCQ33std50vector<P9BWorldObj,Q23std22allocator<P9BWorldObj>>8iterator = .text:0x801223D0; // type:function size:0x1C
 end__Q23std50vector<P9BWorldObj,Q23std22allocator<P9BWorldObj>>Fv = .text:0x801223F0; // type:function size:0x14
