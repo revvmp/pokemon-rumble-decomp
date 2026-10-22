@@ -71,7 +71,7 @@ public:
 
     void allocate(size_type n) { allocate(n, pod_type()); }
     void allocate(size_type n, size_type capacity) { allocate(n, capacity, pod_type()); }
-    void allocate(size_type n, size_type capacity, pod_type) { allocate(capacity, pod_type()); }
+    void allocate(size_type n, size_type capacity, pod_type tag) { allocate(capacity, tag); }
     void allocate(size_type n, pod_type);
 
     void move_construct_to_end(T* pFirst, T* pLast) { move_construct_to_end(pFirst, pLast, pod_type()); }
@@ -364,8 +364,21 @@ public:
     }
 
     template <typename Iterator> void assign(Iterator first, Iterator last, Metrowerks::int2type<false>) {
-        Metrowerks::int2type<0> tag;
-        assign_dispatch(first, last, tag);
+        size_type capacity;
+        size_type n = std::distance(first, last);
+        if (n <= this->cap() || grow_by(n - this->cap(), capacity)) {
+            Iterator mid(first);
+            std::advance(mid, std::min(n, this->size_));
+            copy_range(first, mid, this->data_);
+            if (n < this->size_) {
+                this->erase_at_end(this->size_ - n);
+            } else if (this->size_ < n) {
+                construct_at_end(mid, last);
+            }
+        } else {
+            assign_reallocate(n, capacity);
+            construct_at_end(first, last);
+        }
     }
 
     size_type assign_capacity(size_type n) { return recommend(n - this->cap(), pod_type()); }
@@ -574,6 +587,15 @@ protected:
     template <typename Iterator> void construct_at_end(Iterator first, Iterator last) {
         construct_at_end(first, last, pod_type());
     }
+    void construct_at_end(const T* first, const T* last, Metrowerks::int2type<false>) {
+        T* p = this->data_ + this->size_;
+        for (; first != last; ++first) {
+            this->alloc().construct(p, *first);
+            ++p;
+            ++this->size_;
+        }
+    }
+
     template <typename Iterator> void construct_at_end(Iterator first, Iterator last, Metrowerks::int2type<false>) {
         T* p = this->data_ + this->size_;
         for (; first != last; ++p) {

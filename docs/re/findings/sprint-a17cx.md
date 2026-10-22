@@ -52,3 +52,37 @@ Regenerated build/wpse-v1/report.json with objdiff-cli report generate. git diff
 - After a direct dtk split, ninja -n can list only regeneration steps; running those dry-run commands does not establish a fresh object baseline. The final validation explicitly rebuilt all game compilation commands before linking and regenerating the report.
 
 The requested two-unit flip is incomplete: CStatistic is verified Matching; CPiiCollectionBox still needs Create and the shared sort register allocation resolved.
+
+
+## 2026-10-22 post-rebase repair
+
+Starting revision: `c9811c98f`. This session stayed in the current a17 worktree, made no commits, and retained changes only in `include/vector`, `configure.py`, and this appended note. No target manifests or original artifacts changed. No scratch files were added inside the repository.
+
+### Retained repair
+
+CStatistic is again `Matching`. Restoring the direct non-POD `assign` algorithm alone is insufficient: the allocation helper and const-pointer construction order also need the forms recorded in the earlier session, which were absent from the rebased header.
+
+- `__vec_constructor::assign(first, last, int2type<false>)` performs the existing range algorithm directly, removing the two additional dispatch-tag temporaries.
+- `__vec_deleter::allocate(n, capacity, pod_type tag)` forwards `tag` to `allocate(capacity, tag)` instead of constructing another tag.
+- A const-pointer overload of `__vec_constructor::construct_at_end` advances the destination pointer before advancing the source pointer. The generic iterator overload and split-buffer loop are unchanged.
+- Public `vector::assign` still uses `assign_dispatch` and `assign_range`. CGameResult, homebutton, and main source changes from `9e3b1386f` remain intact. No type-specific exceptions, compiler flags, assembly, or source-byte substitutions were introduced.
+
+### Validation and regression gate
+
+The starting report contained **12,938** functions with `fuzzy_match_percent == 100`. The final report contains **12,951**, a gain of **13**. Comparing the identities of every initially perfect function against the final report found **zero losses**, not merely a nondecreasing aggregate count. CStatistic is **25/25**, including its four repaired assignment functions. Its `insert_node_at` still shows the anonymous-label-only discrepancy in standalone unitdiff; the report and exact linked DOL establish the retained result.
+
+The other nine newly perfect functions are CPiiCollectionBox SaveSnapshot/RestoreSnapshot, CDlgPiiSelector's three-argument vector allocation helper, five SaveData vector assignment instantiations, and CUIMenu's shared-pointer vector assignment. The final report counts are CGameResult 71/75, homebutton 48/51, and main 133/145; none of their initially perfect functions regressed. These units remain NonMatching as they were at session start.
+
+Ran `python configure.py`, then rebuilt all **156 game source units** using their configured compiler commands from `ninja -t commands all_source`. The sjiswrap invocation stalled again, so the compiler commands were executed directly. For the six game sources containing non-ASCII text (CDlgMsgWin, CDlgPiiList, CDlgPiiSelector, CMsgBalloon, CSaveManager, CTitleSession), source bytes were converted to CP932 in place only during compilation and the original UTF-8 bytes restored in a `finally` block. All compilation commands exited 0. This preserves the wrapper's required source encoding without retaining source changes or temporary source files.
+
+Generated the normal linker response file from the configured link inputs, deleted `build/wpse-v1/main.dol`, and executed the configured `mwldeppc` and `dtk elf2dol` commands. Both exited 0. With CStatistic selected as Matching, ran:
+
+`python tools/verify/verify.py verify --manifest config/targets/wpse-v1.json --reference-dir orig/wpse-v1 --build-dir build/wpse-v1`
+
+Result: **PASS main.dol; PASS: 1 declared artifact(s)**. SHA-256: `ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da`. This verifies all currently source-linked Matching units together with CStatistic; it does not claim all game source units are reconstructed. Regenerated the normal objdiff report and checked `git diff --check`.
+
+### CPiiCollectionBox follow-up and traps
+
+Both sort instantiations already score **100%** with this checkout's headers. CPiiCollectionBox now has **42/43** perfect functions; Create remains **99.17864%**, missing the two zero-count guards described above. No CPiiCollectionBox source/header changes were retained. Constructing `mEntries(496)` directly instead of default construction followed by resize reduced Create to 30.58%; value-initializing `mBestBRR` in Entry's initializer list gave 99.15% and changed store ordering. Both experiments were reverted and the original source recompiled.
+
+A direct compiler invocation must preserve Shift-JIS source encoding. Compiling UTF-8 unchanged caused apparent regressions in CDlgMsgWin OpenYesNo, CMsgBalloon Init, and CSaveManager Work, including shifted string references. Correct CP932 input restored all three to 100%. Do not attribute those differences to vector changes. Also, the initial CStatistic object/report here scored about 99.04-99.05% in its affected routines; 99.39/99.46% describes the intermediate direct-assign-only form, not the fully repaired form.
