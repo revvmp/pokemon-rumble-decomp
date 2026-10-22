@@ -59,7 +59,7 @@ public:
         bool IsPlayingNotYetLooped() const { return (mFlags & FLAG_PLAYING) != 0; }
         bool IsCompleted() const { return mFlags & (FLAG_FINISHED | FLAG_STOPPED); }
         bool IsCompletedOrIsLooped() const { return mFlags & (FLAG_LOOPED | FLAG_FINISHED | FLAG_STOPPED); }
-        f32 GetCurrentFrame() const {
+        f32 GetCurrentFrame() {
             if (mFlags & FLAG_PENDING) { return 0.0f; }
             if (mFlags & (FLAG_PLAYING | FLAG_LOOPED)) { return *mpCurrentFrame; }
             return mLength;
@@ -152,7 +152,7 @@ public:
     virtual ~CModel();
 
     bool Load(const LoadParams& rParams, bool background);
-    int GetMotionLength(const char* pName);
+    int GetMotionLength(const char* pName) const;
     std::tr1::shared_ptr<CMotionProgram> Play(const char* pName, f32 frame, f32 rate);
     std::tr1::shared_ptr<CMotionProgram> Play(int index, f32 frame, f32 rate);
     std::tr1::shared_ptr<CMotionProgram> PlayLoop(const char* pName, f32 frame, f32 rate);
@@ -180,8 +180,8 @@ public:
         mModelData.Reset();
     }
     void UpdateAnimations();
-    nw4r::g3d::ResAnmVis FindVis(const char* pName);
-    nw4r::g3d::ResAnmVis FindVis(int index);
+    nw4r::g3d::ResAnmVis FindVis(const char* pName) const;
+    nw4r::g3d::ResAnmVis FindVis(int index) const;
     static bool LoadBounds(nw4r::math::AABB* pBounds, const nw4r::g3d::ResMdl& rMdl);
     template <class Traits, class Key> std::tr1::shared_ptr<typename Traits::Obj> CreateAnimObj(Key key, f32 frame);
 

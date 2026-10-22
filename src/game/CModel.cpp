@@ -128,9 +128,9 @@ namespace {
 
 struct ChrAnimTraits {
     typedef nw4r::g3d::ResAnmChr Res;
-    template <class Key> static Res Find(std::vector<std::tr1::shared_ptr<CFileData> >& rFiles, Key key) {
+    template <class Key> static Res Find(const std::vector<std::tr1::shared_ptr<CFileData> >& rFiles, Key key) {
         Res resource;
-        std::vector<std::tr1::shared_ptr<CFileData> >::iterator it = rFiles.begin();
+        std::vector<std::tr1::shared_ptr<CFileData> >::const_iterator it = rFiles.begin();
         for (; it != rFiles.end(); ++it) {
             nw4r::g3d::ResFile file((*it)->GetData());
             resource = file.GetResAnmChr(key);
@@ -144,9 +144,9 @@ struct ChrAnimTraits {
 
 struct VisAnimTraits {
     typedef nw4r::g3d::ResAnmVis Res;
-    template <class Key> static Res Find(std::vector<std::tr1::shared_ptr<CFileData> >& rFiles, Key key) {
+    template <class Key> static Res Find(const std::vector<std::tr1::shared_ptr<CFileData> >& rFiles, Key key) {
         Res resource;
-        std::vector<std::tr1::shared_ptr<CFileData> >::iterator it = rFiles.begin();
+        std::vector<std::tr1::shared_ptr<CFileData> >::const_iterator it = rFiles.begin();
         for (; it != rFiles.end(); ++it) {
             nw4r::g3d::ResFile file((*it)->GetData());
             resource = file.GetResAnmVis(key);
@@ -161,9 +161,9 @@ struct VisAnimTraits {
 struct MatClrAnimTraits {
     typedef nw4r::g3d::AnmObjMatClrRes Obj;
     typedef nw4r::g3d::ResAnmClr Res;
-    template <class Key> static Res Find(std::vector<std::tr1::shared_ptr<CFileData> >& rFiles, Key key) {
+    template <class Key> static Res Find(const std::vector<std::tr1::shared_ptr<CFileData> >& rFiles, Key key) {
         Res resource;
-        std::vector<std::tr1::shared_ptr<CFileData> >::iterator it = rFiles.begin();
+        std::vector<std::tr1::shared_ptr<CFileData> >::const_iterator it = rFiles.begin();
         for (; it != rFiles.end(); ++it) {
             nw4r::g3d::ResFile file((*it)->GetData());
             resource = file.GetResAnmClr(key);
@@ -178,9 +178,9 @@ struct MatClrAnimTraits {
 struct TexPatAnimTraits {
     typedef nw4r::g3d::AnmObjTexPatRes Obj;
     typedef nw4r::g3d::ResAnmTexPat Res;
-    template <class Key> static Res Find(std::vector<std::tr1::shared_ptr<CFileData> >& rFiles, Key key) {
+    template <class Key> static Res Find(const std::vector<std::tr1::shared_ptr<CFileData> >& rFiles, Key key) {
         Res resource;
-        std::vector<std::tr1::shared_ptr<CFileData> >::iterator it = rFiles.begin();
+        std::vector<std::tr1::shared_ptr<CFileData> >::const_iterator it = rFiles.begin();
         for (; it != rFiles.end(); ++it) {
             nw4r::g3d::ResFile file((*it)->GetData());
             resource = file.GetResAnmTexPat(key);
@@ -195,9 +195,9 @@ struct TexPatAnimTraits {
 struct TexSrtAnimTraits {
     typedef nw4r::g3d::AnmObjTexSrtRes Obj;
     typedef nw4r::g3d::ResAnmTexSrt Res;
-    template <class Key> static Res Find(std::vector<std::tr1::shared_ptr<CFileData> >& rFiles, Key key) {
+    template <class Key> static Res Find(const std::vector<std::tr1::shared_ptr<CFileData> >& rFiles, Key key) {
         Res resource;
-        std::vector<std::tr1::shared_ptr<CFileData> >::iterator it = rFiles.begin();
+        std::vector<std::tr1::shared_ptr<CFileData> >::const_iterator it = rFiles.begin();
         for (; it != rFiles.end(); ++it) {
             nw4r::g3d::ResFile file((*it)->GetData());
             resource = file.GetResAnmTexSrt(key);
@@ -212,9 +212,9 @@ struct TexSrtAnimTraits {
 struct ShpAnimTraits {
     typedef nw4r::g3d::AnmObjShpRes Obj;
     typedef nw4r::g3d::ResAnmShp Res;
-    template <class Key> static Res Find(std::vector<std::tr1::shared_ptr<CFileData> >& rFiles, Key key) {
+    template <class Key> static Res Find(const std::vector<std::tr1::shared_ptr<CFileData> >& rFiles, Key key) {
         Res resource;
-        std::vector<std::tr1::shared_ptr<CFileData> >::iterator it = rFiles.begin();
+        std::vector<std::tr1::shared_ptr<CFileData> >::const_iterator it = rFiles.begin();
         for (; it != rFiles.end(); ++it) {
             nw4r::g3d::ResFile file((*it)->GetData());
             resource = file.GetResAnmShp(key);
@@ -228,7 +228,7 @@ struct ShpAnimTraits {
 
 }
 
-int CModel::GetMotionLength(const char* pName) {
+int CModel::GetMotionLength(const char* pName) const {
     nw4r::g3d::ResAnmChr resource = ChrAnimTraits::Find(mModelData.GetFiles(), pName);
     return resource.IsValid() ? resource.GetNumFrame() : 0;
 }
@@ -466,10 +466,10 @@ template <class Traits, class Key> std::tr1::shared_ptr<typename Traits::Obj> CM
     return animObj;
 }
 
-nw4r::g3d::ResAnmVis CModel::FindVis(const char* pName) {
+nw4r::g3d::ResAnmVis CModel::FindVis(const char* pName) const {
     nw4r::g3d::ResAnmVis resource;
-    std::vector<std::tr1::shared_ptr<CFileData> >& rFiles = mModelData.GetFiles();
-    std::vector<std::tr1::shared_ptr<CFileData> >::iterator it = rFiles.begin();
+    const std::vector<std::tr1::shared_ptr<CFileData> >& rFiles = mModelData.GetFiles();
+    std::vector<std::tr1::shared_ptr<CFileData> >::const_iterator it = rFiles.begin();
     for (; it != rFiles.end(); ++it) {
         resource = nw4r::g3d::ResFile((*it)->GetData()).GetResAnmVis(pName);
         if (resource.IsValid()) {
@@ -479,10 +479,10 @@ nw4r::g3d::ResAnmVis CModel::FindVis(const char* pName) {
     return resource;
 }
 
-nw4r::g3d::ResAnmVis CModel::FindVis(int index) {
+nw4r::g3d::ResAnmVis CModel::FindVis(int index) const {
     nw4r::g3d::ResAnmVis resource;
-    std::vector<std::tr1::shared_ptr<CFileData> >& rFiles = mModelData.GetFiles();
-    std::vector<std::tr1::shared_ptr<CFileData> >::iterator it = rFiles.begin();
+    const std::vector<std::tr1::shared_ptr<CFileData> >& rFiles = mModelData.GetFiles();
+    std::vector<std::tr1::shared_ptr<CFileData> >::const_iterator it = rFiles.begin();
     for (; it != rFiles.end(); ++it) {
         resource = nw4r::g3d::ResFile((*it)->GetData()).GetResAnmVis(index);
         if (resource.IsValid()) {
