@@ -1400,7 +1400,7 @@ bool BWorld::DrawShadow(GXColor clearColor, GXPixelFmt pixelFormat) {
 
     int levels = pShadowCamera->GetTextureLevels();
     if (levels == 1) {
-        SetCopyClear(clearColor, pixelFormat);
+        Graphics::SetCopyClear(GXColor(clearColor), 0xFFFFFF, pixelFormat);
     } else {
         SetCopyClear(GetClearColor(), GX_PF_RGBA6_Z24);
     }
@@ -1414,7 +1414,7 @@ bool BWorld::DrawShadow(GXColor clearColor, GXPixelFmt pixelFormat) {
         DrawTexture(width, height, &pShadowCamera->GetTexture(i - 1).GetTexObj());
         if (i == levels - 1) {
             DrawFrame(width, height);
-            SetCopyClear(clearColor, pixelFormat);
+            Graphics::SetCopyClear(GXColor(clearColor), 0xFFFFFF, pixelFormat);
         } else {
             SetCopyClear(GetClearColor(), GX_PF_RGBA6_Z24);
         }
