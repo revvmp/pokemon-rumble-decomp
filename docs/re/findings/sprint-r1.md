@@ -61,3 +61,49 @@ What remains, for whoever picks this up:
 - **BWorld `Calc`/`CalcMtx` skip mask.** The target's first `states |= 2` is `li r0, 0; ori r30, r0, 0x2`, a zero rematerialized from a separate value. No form of `GetSkipStates` tried (`states = states | 2`, split declaration, `int`, a flags copy, `!= 0`) reproduces it.
 - **BWorld `RemoveObject` (99.72%).** Computing `pNext` before `pPrev` fixes the load order, but the first computed pointer always takes r5 and the target has it in r6, whatever the declaration order or inline form.
 
+
+## Follow-up: iterator subtraction fixes the sort comparison (2026-10-22)
+
+The five-instruction comparison mismatch is resolved by the iterator subtraction interface, without changing `include/algorithm`. Both `vector<T>::iterator` and the pointer specialization now implement `long operator-(iterator rhs) const`. The body loads `mPointer` into a named pointer local (`T* pLeft` or `void** pLeft`) and returns `pLeft - rhs.mPointer`. This refines rule 10 above: copying both iterator operands was an intermediate improvement, not the final matching interface.
+
+This preserves const-callability, the by-value right operand, and the original pointer-difference type. A const member directly returning `mPointer - rhs.mPointer` does not produce the same allocation: the named pointer local is necessary. A non-const member also removed the five differences in the sandbox, but was not retained. This is an independently reconstructed source form supported by generated code, not a claim to have recovered the original MSL header.
+
+For CMiniMap's comparator-reference specialization, the target tail now loads `last` into r3 at function offset `0x378`, leaves `m - first` in r4 at `0x380`, subtracts from r3 at `0x384`, compares r4 at `0x390`, and stores r3 for the recursive call at `0x3B8`. All five previous instruction differences disappear. The companion specialization and the other vector sort users improve too.
+
+### Measured results
+
+All 866 configured source compilation commands were executed before and after the change. Both passes completed with zero compiler failures. `objdiff-cli report generate` compared all 1,474 configured units. There were 11 improved functions and zero regressed functions. Only the `.text` scores of the five units below changed; section sizes and all non-code section records were unchanged. Report matched functions increased from 12,686 to 12,694 and matched bytes from 2,566,524 to 2,575,052. No unit was promoted to `Matching` and linked source coverage did not change.
+
+| Unit and sort specialization | Target address | Report after | Strict unitdiff after |
+| --- | --- | --- | --- |
+| CGameResult, `shared_ptr<CPiiPersonalData>`, comparator by value | `0x800AF4A0` | 100% | 100% |
+| CMiniMap, `CMiniMapMarker*`, comparator by value | `0x800C3DC0` | 100% | 99.940475% |
+| CMiniMap, `CMiniMapMarker*`, comparator by reference | `0x800C42F0` | 100% | 99.940475% |
+| CPiiListFilterSort, `shared_ptr<CUIPiiListItem>`, comparator by value | `0x800E6570` | 100% | 100% |
+| PiiPropData, `LevelMove`, comparator by value | `0x800F3920` | 100% | 100% |
+| PiiPropData, `LevelMove`, comparator by reference | `0x800F3DA0` | 100% | 100% |
+| CWorldObjStatDisplay, `IWorldObjStat*`, comparator by value | `0x80123530` | 100% | 99.940475% |
+| CWorldObjStatDisplay, `IWorldObjStat*`, comparator by reference | `0x80123A60` | 100% | 99.940475% |
+
+The four strict 99.940475% results contain only three `shuffle` relocation-name differences per function; their instruction/register differences are gone. The comparator classifications above follow the current configured symbols; they correct the earlier status paragraph's reversed labels for CGameResult and CPiiListFilterSort. Their comparator-reference sorts improve from 97.69091% to 97.781815%, but still have the unrelated non-volatile allocation difference. PiiPropData's `vector<short>` comparator-reference sort improves from 96.333336% to 96.55556% and remains unfinished.
+
+### Build validation and limitations
+
+`python configure.py` succeeded. This session's `.venv/Scripts/ninja` hung before starting commands, including with a separate one-rule file containing only `cmd /c echo ninja-process-check`. The failure also reproduced with a copied Ninja binary and without the prior dependency database; no general cause was established. Do not treat this as a game-source failure or a universal Ninja limitation.
+
+Validation therefore executed the real compiler commands emitted by `ninja -t commands`, including configured post-processing, directly. The generated link edge's 1,474 inputs were written to its response file, and the exact generated `mwldeppc` and `dtk elf2dol` commands both exited 0. Then this command exited 0 with `PASS main.dol`:
+
+```powershell
+python tools/verify/verify.py verify --manifest config/targets/wpse-v1.json --reference-dir orig/wpse-v1 --build-dir build/wpse-v1 --report build/wpse-v1/verification.json
+```
+
+The fresh DOL is 4,094,880 bytes with SHA-256 `ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da`. This verifies the current linked build, which retains original-object fallbacks for these unfinished units; it does not establish whole-unit source reconstruction. Original manifests and symbol configuration were unchanged. Local experiment scripts, before/after reports and the report delta are under ignored `build/sort-investigation/`.
+
+### Equal-constant follow-up
+
+CGameEnding `Create` still scores 99.4733%. Passing the second pause-menu constant through an added default parameter of type `bool`, `int`, `unsigned int`, or `unsigned char`, and testing boolean-expression forms, did not change the constant-copy mismatch. These were scratch experiments only. Neither CGameEnding nor CMultiRanking was edited; Problem 2 remains open.
+
+### Reusable lesson
+
+For this iterator subtraction mismatch, distinguish a const member's implicit `this` load from a named local pointer load. The latter changes register allocation even though the arithmetic is identical. Neither the prior blanket by-value rule nor a direct const-member expression is sufficient to reproduce this tail. Keep the right operand by value and validate both vector specializations across the full report.
+

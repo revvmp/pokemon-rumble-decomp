@@ -764,7 +764,10 @@ public:
         }
         iterator operator+(long n) const { iterator result(*this); result += n; return result; }
         iterator operator-(long n) const { iterator result(*this); result -= n; return result; }
-        friend long operator-(iterator lhs, iterator rhs) { return lhs.mPointer - rhs.mPointer; }
+        long operator-(iterator rhs) const {
+            T* pLeft = mPointer;
+            return pLeft - rhs.mPointer;
+        }
         iterator& operator+=(long n) {
             mPointer += n;
             return *this;
@@ -923,7 +926,10 @@ public:
         iterator& operator-=(long offset) { mPointer -= offset; return *this; }
         iterator operator+(long offset) const { iterator result(*this); result += offset; return result; }
         iterator operator-(long offset) const { iterator result(*this); result -= offset; return result; }
-        friend long operator-(iterator lhs, iterator rhs) { return lhs.mPointer - rhs.mPointer; }
+        long operator-(iterator rhs) const {
+            void** pLeft = mPointer;
+            return pLeft - rhs.mPointer;
+        }
         friend bool operator==(iterator lhs, iterator rhs) { return lhs.mPointer == rhs.mPointer; }
         bool operator!=(const iterator& rOther) const { return mPointer != rOther.mPointer; }
         bool operator<(const iterator& rOther) const { return mPointer < rOther.mPointer; }
