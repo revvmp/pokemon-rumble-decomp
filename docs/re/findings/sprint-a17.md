@@ -64,3 +64,19 @@ CDlgPiiSelector 623 to 635 of 645 functions at 100%; CDlgCollection gained one t
 - `std::tr1::bind`, `mem_fn` and `shared_ptr` `operator==` are `inline` and `Clamp` is not; this puts their instances where the target has them, with no change in any other unit.
 
 Still blocking the flip: the vector helper rounds (`insert_prepare`, `assign_reallocate`, `__vec_split_buffer` members are emitted early in ours, deferred in the target); the callee order inside BuildItems (target emits `swap` and the loop operators before `insert`); a second `min<int>` copy the target emits for Clamp; SetStateFlag/AddStateFlag/RemoveStateFlag after `__rf<CPii>` in SpawnPreview; `.data` order (40 of 53 misplaced); and the ten functions below 100%.
+
+### Applying the sprint-ida walk model
+
+With the [sprint-ida](sprint-ida.md) model, CDlgPiiSelector went from 214 misplaced `.text` functions to 141 and from 635/645 to 639/645 at 100%. The project 100% count rose from 13286 to 13290 with no unit losing a function, and verify passed after each landing.
+
+- **Out-of-class class-template members are emitted by the template walk.** A member that is defined in the class is emitted depth first under its first caller. A member that is defined out of the class waits for the walk. The target walks `__vec_constructor::assign_reallocate(n, capacity)`, `insert_prepare`, `insert_finish` and `move_range(..., int2type<false>)`, so `include/vector` now defines these four out of class. They are declared in that order, with the forwarding `move_range` overload after `insert_finish`, because overloads share their name's scope position. The `__vec_split_buffer` constructor is emitted early in the target, so it is now defined in the class.
+- **Forward declaration order sets the walk order.** The target walks `__vec_deleter`, then `__vec_constructor`, then `__vec_split_buffer`. `__vec_split_buffer` is now forward-declared before `__vec_constructor`.
+- **An earlier user instantiates a callee before a strong function.** The CDataPerPlayer bodies used to come before BuildItems, so `vector<UI>()` was already instantiated and was emitted with BuildItems' immediate callees. BuildItems, LoadItems, LoadEntranceItems and IsCurrentMapStage7Even are now defined right after the `PiiItemVector` typedef.
+- **SetStateFlag trio:** the trio is the out-of-line callee chain of `BModelObj::SetVisible`, which the target reaches through the virtual call in SpawnPreview. BModelObj.o emits SetVisible first with the trio inlined, so the linker drops this unit's SetVisible but keeps the trio. `SetVisible` now calls `SetStateFlag(STATE_VISIBLE, visible)`.
+
+Still open:
+
+- **BuildItems:** the target emits `vector<UI>::swap` and the `PPD` iterator `!=` before the `shared_ptr<UI>(p)` chain. When a dummy earlier user instantiated them first, they moved to the front, but `swap_storage`'s callees then came out in the wrong order. The source that requests them early is still unknown.
+- **The second `min<int>`:** the unit's Clamp, `max<int>` and `min<int>` copies at 0x8009CB70-0x8009CEA0 are separate local copies, not merged with the global `min<int>` at 0x80095280. A `static` Clamp makes Clamp local but does not duplicate `min` or `max`.
+- **CDlgPiiList:** 4 `.text` misplaced. The `const_iterator` constructor and `begin` in RunRemoteTransfer's loop come after `*` and `++` in the target.
+- **vector `insert`/`assign` tag:** passing `int2type<0>()` as a temporary instead of a named local is worse (more rows differ).
