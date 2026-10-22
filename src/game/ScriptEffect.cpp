@@ -211,6 +211,10 @@ int NewWazaEffectWithPosDir(NPpu::CEngine* pBaseEngine) {
     return 0;
 }
 
+static inline int CeilFrames(f32 frames) {
+    return ceil(frames);
+}
+
 static inline bool GetWazaRangeEffectParam(int waza, CEffect::Param& rParam) {
     WazaDescData* pData = IGameSession::GetInstance()->GetWazaDescData();
     rParam.mInfo = &gEffectInfos[pData->GetCell(waza, 1)->ToInt()];
@@ -219,7 +223,7 @@ static inline bool GetWazaRangeEffectParam(int waza, CEffect::Param& rParam) {
         f32 duration = pData->GetCell(waza, 3)->ToFloat();
         f32 radius = pData->GetCell(waza, 7)->ToFloat();
         rParam.mEnable = true;
-        rParam.mFrames.mEmitSpan = ceil(duration);
+        rParam.mFrames.mEmitSpan = CeilFrames(duration);
         rParam.mFrames.mRadius = radius;
         return true;
     }
