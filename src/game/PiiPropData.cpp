@@ -113,7 +113,7 @@ const NPpu::CValue& PiiPropData::GetProperty(u16 monsno, u8 form, int column) co
 }
 
 std::vector<s16> PiiPropData::GetWazaLevels(u16 monsno, u8 form, int level) const {
-    SpeciesMoves& rMoves = mSpecies[GetPropertyRow(monsno, form)];
+    const SpeciesMoves& rMoves = mSpecies[GetPropertyRow(monsno, form)];
     std::vector<s16> result;
     if (level >= 1 && level <= 100) {
         result.reserve(rMoves.mLevelMoves.size());
