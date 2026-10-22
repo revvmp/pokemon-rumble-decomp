@@ -1132,7 +1132,7 @@ config.libs = [
             Object(Matching, "MSL_C/FILE_POS.c"),
             Object(Matching, "MSL_C/mbstring.c"),
             Object(Matching, "MSL_C/mem.c"),
-            Object(NonMatching, "MSL_C/mem_funcs.c"),
+            Object(Matching, "MSL_C/mem_funcs.c"),
             Object(Matching, "MSL_C/math_api.c"),
             Object(Matching, "MSL_C/misc_io.c"),
             Object(Matching, "MSL_C/rand.c"),
