@@ -12106,7 +12106,7 @@ __dt__Q210Metrowerks130move_ptr<Q226@unnamed@CGameSession_cpp@12CGameSession,Q33
 __dt__Q210Metrowerks58move_ptr<7MapDesc,Q33std6detail24default_delete<7MapDesc>>Fv = .text:0x800BC1F0; // type:function size:0x88
 __dt__Q210Metrowerks58move_ptr<7CPlayer,Q33std6detail24default_delete<7CPlayer>>Fv = .text:0x800BC280; // type:function size:0x74
 __dt__Q210Metrowerks72move_ptr<13CRemoteMemory,Q33std6detail31default_delete<13CRemoteMemory>>Fv = .text:0x800BC300; // type:function size:0x64
-__dt__Q33std3tr119weak_ptr<8ISession>Fv = .text:0x800BC370; // type:function size:0x60
+__dt__Q210Metrowerks207alloc_ptr<Q43std6detail53tree_imp<PCv,Q23std9less<PCv>,Q23std14allocator<PCv>>4node,RQ23std84allocator<Q43std6detail53tree_imp<PCv,Q23std9less<PCv>,Q23std14allocator<PCv>>4node>,Q210Metrowerks12number<Ul,1>>Fv = .text:0x800BC370; // type:function size:0x60
 find_leaf<PCv>__Q33std6detail53tree_imp<PCv,Q23std9less<PCv>,Q23std14allocator<PCv>>FRCPCvRPQ43std6detail53tree_imp<PCv,Q23std9less<PCv>,Q23std14allocator<PCv>>4nodeRbRb_PQ33std6detail14tree_node_base = .text:0x800BC3D0; // type:function size:0x60
 __dt__Q43std3tr16detail140shared_ptr_deleter<Q226@unnamed@CGameSession_cpp@12CGameSession,Q33std6detail60default_delete<Q226@unnamed@CGameSession_cpp@12CGameSession>>Fv = .text:0x800BC430; // type:function size:0x40
 __dt__Q43std3tr16detail68shared_ptr_deleter<7MapDesc,Q33std6detail24default_delete<7MapDesc>>Fv = .text:0x800BC470; // type:function size:0x40
