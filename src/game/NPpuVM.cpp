@@ -47,13 +47,13 @@ bool CCode::Load(const char* pName, const void* pData, u32, int, int) {
         return false;
     }
 
+    u32 size = pHeader->mWStringCount * sizeof(const wchar_t*);
     mStackSize = pHeader->mStackSize;
     mCodeSize = pHeader->mCodeSize;
     mStringCount = pHeader->mStringCount;
     mWStringCount = pHeader->mWStringCount;
     mCode = reinterpret_cast<const u32*>(pHeader + 1);
 
-    u32 size = mWStringCount * sizeof(const wchar_t*);
     if (size != 0) {
         mWStrings = static_cast<const wchar_t**>(malloc(size));
         if (pHeader->mWStringDataSize != 0) {
