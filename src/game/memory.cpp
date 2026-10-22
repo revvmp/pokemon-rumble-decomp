@@ -11,8 +11,11 @@ MEMHeapHandle sHeapMEM1;
 MEMHeapHandle sHeapMEM2;
 }
 namespace {
+inline void* AllocateAligned(u32 size) throw() {
+    return Allocate(size, 32);
+}
 void* AllocateCallback(MEMAllocator*, u32 size) throw() {
-    return Allocate(size);
+    return AllocateAligned(size);
 }
 void FreeCallback(MEMAllocator*, void* pMemory) throw() {
     Free(pMemory);

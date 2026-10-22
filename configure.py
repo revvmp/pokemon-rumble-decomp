@@ -253,7 +253,7 @@ config.libs = [
             Object(NonMatching, "game/ButtonMessage.cpp"),
             Object(NonMatching, "game/CDlgPiiList.cpp"),
             Object(Matching, "game/EncodingConverter.cpp"),
-            Object(NonMatching, "game/memory.cpp"),
+            Object(Matching, "game/memory.cpp"),
             Object(Matching, "game/pad.cpp"),
             Object(NonMatching, "game/resetmgr.cpp"),
             Object(Matching, "game/new.cpp"),

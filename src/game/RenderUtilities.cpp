@@ -179,12 +179,14 @@ f32 IntegerPower(f32 value, int exponent) {
 }
 
 f32 NormalizeSignedAngle(f32 angle) {
+    f32 adjusted;
     const f32 value = fmod(angle, 360.0);
     if (value < -180.0f) {
-        const f32 adjusted = 360.0f + value;
+        adjusted = value;
+        adjusted += 360.0f;
         return 180.0f <= adjusted ? -180.0f : adjusted;
     } else if (180.0f <= value) {
-        const f32 adjusted = value - 360.0f;
+        adjusted = value - 360.0f;
         return adjusted < -180.0f ? -180.0f : adjusted;
     }
     return value;
