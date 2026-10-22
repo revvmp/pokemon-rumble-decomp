@@ -32,8 +32,8 @@ public:
     void Calc();
     void CalcMtx();
     void CalcView();
-    unsigned InitPiis(std::tr1::shared_ptr<CPiiPersonalData> personalData);
     void SetPiiVisible(u32 index, bool visible);
+    int AddPii(std::tr1::shared_ptr<CPiiPersonalData> personalData);
     unsigned GetPiiCount() const { return mPiis.size(); }
     bool IsPiiVisible(unsigned index) const { return static_cast<BWorldObj*>(mPiis[index].get())->IsVisible(); }
     nw4r::lyt::TexMap GetTexMap() const;

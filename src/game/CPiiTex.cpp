@@ -16,7 +16,7 @@ CPiiTex::CPiiTex(u16 width, u16 height) {
 
 CPiiTex::CPiiTex(std::tr1::shared_ptr<CPiiPersonalData> personalData, u16 width, u16 height) {
     InitTexture(width, height);
-    InitPiis(personalData);
+    AddPii(personalData);
 }
 
 CPiiTex::~CPiiTex() {}
@@ -35,8 +35,16 @@ void CPiiTex::InitTexture(u16 width, u16 height) {
     mWorld->SetCurrentCamera(camera);
 }
 
-unsigned CPiiTex::InitPiis(std::tr1::shared_ptr<CPiiPersonalData> personalData) {
-    return 0;
+int CPiiTex::AddPii(std::tr1::shared_ptr<CPiiPersonalData> personalData) {
+    std::tr1::shared_ptr<CPii> pii(new CPii(personalData, 0x40));
+    mPiis.push_back(pii);
+    pii->Initialize(false);
+    pii->SetScale(nw4r::math::VEC3(1.0f, 1.0f, 1.0f));
+    mWorld->Add(pii);
+    pii->PlayMotion(0, 0.0f, 1.0f);
+    pii->SetVisible(true);
+    UpdateCamera();
+    return mPiis.size() - 1;
 }
 
 void CPiiTex::SetPiiVisible(u32 index, bool visible) {
