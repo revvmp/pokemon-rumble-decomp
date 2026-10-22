@@ -5,6 +5,8 @@
 struct PiiSpeciesData;
 
 const PiiSpeciesData* GetPiiSpeciesData(u16 monsno, int form);
+bool IsValidPiiSpecies(u16 species);
+bool IsValidPiiForm(u16 species, int form);
 
 struct PiiSpeciesData {
     int GetSpecies() const;
@@ -13,6 +15,9 @@ struct PiiSpeciesData {
     int GetFlyHeight() const;
     int GetASize() const;
     u32 GetGenderAndTypeFlags() const;
+    bool IsMaleOnly() const { return static_cast<u8>(GetGenderAndTypeFlags()) == 0; }
+    bool IsFemaleOnly() const { return static_cast<u8>(GetGenderAndTypeFlags()) == 254; }
+    bool IsGenderless() const { return static_cast<u8>(GetGenderAndTypeFlags()) == 255; }
     f32 GetWalkSpeedCoeff() const;
     f32 GetWalkAnmRate() const;
     int GetWazaKouka(int type) const;

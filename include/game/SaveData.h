@@ -55,14 +55,27 @@ public:
 class SD_PiiPersonalData : public VectorStructs {
 public:
     struct Data {
-        u16 mSpecies;
-        u8 mBytes[4];
-        u16 mField6;
-        u32 mField8;
-        u32 mFieldC;
-        u16 mField10;
-        u16 mField12;
-        u32 mTail[6];
+        u16 mSpecies : 9;
+        u16 mForm : 5;
+        u16 mSex : 2;
+        u16 mMoveIds[2];
+        u16 mLevel;
+        u16 mBonusMaxHPLow;
+        u16 mBonusAPLow;
+        u16 mBonusDPLow;
+        u16 mBonusSPDLow;
+        u16 mPrefix;
+        u16 mFlagsLow;
+        u32 mRandomSeed;
+        u16 mBonusMaxHPHigh;
+        u16 mBonusAPHigh;
+        u16 mBonusDPHigh;
+        u16 mBonusSPDHigh;
+        u32 mCreationTimeHigh;
+        u32 mCreationTimeLow;
+        u32 mOriginalTrainerId;
+
+        s64 GetCreationTime() const { return (static_cast<s64>(mCreationTimeHigh) << 32) | mCreationTimeLow; }
     };
 
     SD_PiiPersonalData() { ClearData(); }

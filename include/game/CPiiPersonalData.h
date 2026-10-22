@@ -3,10 +3,14 @@
 
 #include <game/CPpuRegister.h>
 #include <game/PiiSpeciesData.h>
+#include <game/SaveData.h>
 #include <memory>
 #include <revolution/types.h>
 class COyaInfo;
 class CPiiPersonalData;
+namespace NPpu {
+class CEnvironment;
+}
 
 std::tr1::shared_ptr<CPiiPersonalData> CreatePiiPersonalData(const COyaInfo* pOyaInfo, const PiiSpeciesData* pSpeciesData, u32 sex);
 
@@ -28,6 +32,19 @@ public:
     const PiiSpeciesData* GetSpeciesData() const { return mSpeciesData; }
     const s64& GetCreationTime() const { return mCreationTime; }
     int GetHP() const { return mHP; }
+    void SetHP(int hp);
+    f32 GetHPRatio() const;
+    void FillUpHP();
+    void ResetDamage();
+    void ResetHeal();
+    int GetDisplayKind() const;
+    const wchar_t* GetPrefixText() const;
+    void SetSelling(bool selling);
+    void SetCreationTime(const s64& rTime);
+    void RerollRandomSeed();
+    void Export(SD_PiiPersonalData::Data& rData) const;
+    static std::tr1::shared_ptr<CPiiPersonalData> Import(u32 id, const SD_PiiPersonalData::Data& rData);
+    void ExecuteInitScript(int mode, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnv);
     bool IsFainted() const { return mHP <= 0; }
     bool IsFavorite() const { return HasFlag(FLAG_FAVORITE); }
     bool IsSpecHidden() const { return HasFlag(FLAG_SPEC_HIDDEN); }
@@ -35,6 +52,7 @@ public:
     void SetNewlyDisclosed(bool disclosed) { SetFlag(FLAG_NEWLY_DISCLOSED, disclosed); }
     void SetFavorite(bool favorite);
     int GetPrefix() const { return mPrefix; }
+    int GetId() const { return mId; }
     u32 GetOriginalTrainerId() const { return mOriginalTrainerId; }
     int GetMaxHP() const { return mMaxHP; }
     void SetMaxHP(int value);
@@ -91,7 +109,7 @@ private:
     }
 
     u32 mFlags;
-    u32 mId;
+    int mId;
     const PiiSpeciesData* mSpeciesData;
     int mSex;
     int mMoveIds[2];
