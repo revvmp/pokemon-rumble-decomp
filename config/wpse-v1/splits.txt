@@ -678,7 +678,7 @@ game/ScnMdlSimpleData.cpp:
 	extabindex  start:0x800511B0 end:0x80051258
 	.text       start:0x801C7540 end:0x801C8700
 	.rodata     start:0x80367020 end:0x80367038
-	.data       start:0x803C00D8 end:0x803C0210
+	.data       start:0x803C00D8 end:0x803C0220
 	.sdata      start:0x804B8308 end:0x804B8320
 
 ControllerTableAlignmentPadding:
@@ -1305,7 +1305,7 @@ game/BUI.cpp:
 	extab       start:0x8003BEE8 end:0x8003C2F0
 	extabindex  start:0x80051258 end:0x80051318
 	.text       start:0x801C8700 end:0x801C9680
-	.data       start:0x803C0210 end:0x803C02B0
+	.data       start:0x803C0220 end:0x803C02B0
 
 game/CUIManager.cpp:
 	extab       start:0x8003C2F0 end:0x8003C630

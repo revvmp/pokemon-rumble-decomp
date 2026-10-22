@@ -1,4 +1,5 @@
 #include <game/CModel.h>
+#include <game/ScnMdlSimpleDataInline.h>
 #include <game/CFiber.h>
 #include <game/CFileData.h>
 #include <game/AnmObjChrRootScale.h>

@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <game/CPii.h>
+#include <game/ScnMdlSimpleDataInline.h>
 
 #include <game/CHPBar.h>
 #include <game/CMiniMapMarker.h>

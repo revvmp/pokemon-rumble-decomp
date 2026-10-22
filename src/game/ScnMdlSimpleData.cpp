@@ -13,7 +13,7 @@ void DestroyG3dObj(nw4r::g3d::G3dObj* pObj) {
 }
 
 namespace {
-const int sMinViewCount = 1;
+int sMinViewCount = 1;
 }
 
 bool ScnMdlSimpleData::Load(const char* pName, const char* pSubName, u32* pOptions, bool background) {
@@ -62,20 +62,17 @@ bool LoadScnMdlSimpleData(ScnMdlSimpleData* pData, const CModel::LoadParams& rPa
     }
     nw4r::g3d::ResFile modelFile(files[modelIndex]->GetData());
     if (!modelFile.Bind()) {
-        u32 i = 0;
-        for (;;) {
+        for (u32 i = 0; i < count; i++) {
             if (i != modelIndex) {
                 nw4r::g3d::ResFile other(files[i]->GetData());
                 if (modelFile.Bind(other)) {
-                    break;
+                    goto modelBound;
                 }
             }
-            i++;
-            if (i >= count) {
-                return false;
-            }
         }
+        return false;
     }
+modelBound:
     if (!resMdl.IsValid()) {
         resMdl = modelFile.GetResMdl(0);
     }

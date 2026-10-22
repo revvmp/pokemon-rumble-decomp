@@ -1,4 +1,5 @@
 #include <game/CDividedGround.h>
+#include <game/ScnMdlSimpleDataInline.h>
 #include <game/BWorld.h>
 #include <game/CBSPTree.h>
 #include <game/CFiber.h>
