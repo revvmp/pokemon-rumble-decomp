@@ -77,7 +77,7 @@ private:
     std::tr1::shared_ptr<char> mBuffer;
     void* mData;
     std::tr1::shared_ptr<CFileData> mArchive;
-    bool mPending;
+    volatile bool mPending;
     int mError;
 };
 
