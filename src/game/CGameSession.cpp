@@ -762,7 +762,7 @@ void CGameSession::Draw() {
         const GXRenderModeObj* pRenderMode = nw4r::g3d::G3DState::GetRenderModeObj();
         SetupOverlayRendering();
         SetupScreenProjection();
-        DrawScreenQuad(0.0f, 0.0f, pRenderMode->fbWidth, pRenderMode->efbHeight, 1.0f, mFadeColor);
+        DrawScreenQuad(0.0f, 0.0f, pRenderMode->fbWidth, pRenderMode->efbHeight, -0.1f, mFadeColor);
     }
 }
 
