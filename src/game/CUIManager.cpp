@@ -57,16 +57,18 @@ void CUIManager::SetFocusedUI(BUI* pUI) {
         mFocusedUI = pNew;
     }
 
+    BUI* pOldUI = pOld.get();
     if (pOld) {
-        if (pOld->mFocusCallbacks.get() != nullptr) {
-            for (BUI::CallbackList::iterator it = pOld->mFocusCallbacks.get()->begin(); it != pOld->mFocusCallbacks.get()->end(); ++it) {
-                (**it)(pOld.get());
+        if (pOldUI->mFocusCallbacks.get() != nullptr) {
+            for (BUI::CallbackList::iterator it = pOldUI->mFocusCallbacks.get()->begin(); it != pOldUI->mFocusCallbacks.get()->end(); ++it) {
+                (**it)(pOldUI);
             }
         }
     }
+    BUI* pNewUI = pNew.get();
     if (pNew) {
-        if (pNew->mFocusCallbacks.get() != nullptr) {
-            for (BUI::CallbackList::iterator it = pNew->mFocusCallbacks.get()->begin(); it != pNew->mFocusCallbacks.get()->end(); ++it) {
+        if (pNewUI->mFocusCallbacks.get() != nullptr) {
+            for (BUI::CallbackList::iterator it = pNewUI->mFocusCallbacks.get()->begin(); it != pNewUI->mFocusCallbacks.get()->end(); ++it) {
                 (**it)(pOld.get());
             }
         }
