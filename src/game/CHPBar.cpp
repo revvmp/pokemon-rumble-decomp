@@ -118,45 +118,6 @@ void CHPBar::Initialize(int playerNo, CPiiPersonalData* pPersonalData, bool back
     mLayout.SetVisible(false);
 }
 
-void CHPBar::SetAnimationState(int state) {
-    if (state == mAnimationState) {
-        return;
-    }
-    switch (state) {
-    case 0:
-        if (mAnimationState == 1) {
-            mLayout.CreateMotion("gauge_out");
-        }
-        break;
-    case 1:
-        if (mAnimationState == 2) {
-            mLayout.QueueMotion("gauge_out");
-            mLayout.QueueMotion("gauge_in");
-        } else {
-            mLayout.CreateMotion("gauge_in");
-        }
-        mLayout.QueueMotion("gauge_loop");
-        break;
-    case 2:
-        mLayout.CreateMotion("player_out");
-        break;
-    case 3:
-        if (mAnimationState == 0) {
-            if (!(mFlags & FLAG_PLAYER_DOWN)) {
-                mLayout.CreateMotion("player_loop");
-            } else {
-                mLayout.CreateMotion("player_in");
-                mLayout.QueueMotion("player_loop");
-            }
-        } else {
-            mLayout.CreateMotion("player_in");
-            mLayout.QueueMotion("player_loop");
-        }
-        break;
-    }
-    mAnimationState = state;
-}
-
 void CHPBar::Update(BWorldObj* pObj) {
     mFlags |= FLAG_UPDATED;
     CPii* pPii = DynamicCast<CPii>(pObj);
@@ -260,27 +221,6 @@ void CHPBar::SetEnabled(bool enabled) {
     }
 }
 
-bool CHPBar::IsVisible() const {
-    return (mFlags & FLAG_VISIBLE) != 0;
-}
-
-int CHPBar::GetType() const {
-    return mType;
-}
-
-void CHPBar::Draw() {
-    if (mFlags & FLAG_CALCULATED) {
-        if (!(mFlags & FLAG_VIEW_STARTED) || mKind != KIND_PLAYER) {
-            mLayout.Draw();
-        }
-        if (mFlags & FLAG_POSITION_VALID) {
-            for (std::list<std::tr1::shared_ptr<CDamage> >::iterator it = mDamage.begin(); it != mDamage.end(); ++it) {
-                (*it)->mLayout.Draw();
-            }
-        }
-    }
-}
-
 void CHPBar::CalcView(const nw4r::math::MTX34& rView, const nw4r::math::MTX44& rProjection) {
     if (!(mFlags & FLAG_UPDATED)) {
         mFlags |= FLAG_VIEW_STARTED;
@@ -361,4 +301,64 @@ void CHPBar::CalcView(const nw4r::math::MTX34& rView, const nw4r::math::MTX44& r
         mFlags |= FLAG_VISIBLE;
     }
     mFlags |= FLAG_CALCULATED;
+}
+
+bool CHPBar::IsVisible() const {
+    return (mFlags & FLAG_VISIBLE) != 0;
+}
+
+void CHPBar::Draw() {
+    if (mFlags & FLAG_CALCULATED) {
+        if (!(mFlags & FLAG_VIEW_STARTED) || mKind != KIND_PLAYER) {
+            mLayout.Draw();
+        }
+        if (mFlags & FLAG_POSITION_VALID) {
+            for (std::list<std::tr1::shared_ptr<CDamage> >::iterator it = mDamage.begin(); it != mDamage.end(); ++it) {
+                (*it)->mLayout.Draw();
+            }
+        }
+    }
+}
+
+void CHPBar::SetAnimationState(int state) {
+    if (state == mAnimationState) {
+        return;
+    }
+    switch (state) {
+    case 0:
+        if (mAnimationState == 1) {
+            mLayout.CreateMotion("gauge_out");
+        }
+        break;
+    case 1:
+        if (mAnimationState == 2) {
+            mLayout.QueueMotion("gauge_out");
+            mLayout.QueueMotion("gauge_in");
+        } else {
+            mLayout.CreateMotion("gauge_in");
+        }
+        mLayout.QueueMotion("gauge_loop");
+        break;
+    case 2:
+        mLayout.CreateMotion("player_out");
+        break;
+    case 3:
+        if (mAnimationState == 0) {
+            if (!(mFlags & FLAG_PLAYER_DOWN)) {
+                mLayout.CreateMotion("player_loop");
+            } else {
+                mLayout.CreateMotion("player_in");
+                mLayout.QueueMotion("player_loop");
+            }
+        } else {
+            mLayout.CreateMotion("player_in");
+            mLayout.QueueMotion("player_loop");
+        }
+        break;
+    }
+    mAnimationState = state;
+}
+
+int CHPBar::GetType() const {
+    return mType;
 }

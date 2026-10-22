@@ -275,7 +275,7 @@ config.libs = [
             Object(NonMatching, "game/CGameSession.cpp"),
             Object(Matching, "game/CGameStage.cpp"),
             Object(Matching, "game/CGloballyReusableTexBuf.cpp"),
-            Object(NonMatching, "game/CHPBar.cpp"),
+            Object(Matching, "game/CHPBar.cpp"),
             Object(Matching, "game/CIconCollection.cpp"),
             Object(Matching, "game/CItem.cpp"),
             Object(Matching, "game/CLayoutManager.cpp"),
