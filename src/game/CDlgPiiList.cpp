@@ -160,11 +160,11 @@ namespace {
 
 bool CDlgPiiList::Show(int player, int type) {
     if (mImpl) {
-        if (mImpl->mType == type) {
-            return true;
+        if (mImpl->mType != type) {
+            Close();
+            return false;
         }
-        Close();
-        return false;
+        return true;
     }
     if (!GetCurrentGameMap()->RegisterDialog(shared_from_this())) {
         return false;
@@ -245,6 +245,13 @@ inline bool CDlgPiiListImpl::CheckRemoteMemory() {
         ShowMessage(GetMessageString(0x6009B, nullptr));
     }
 return true;
+}
+
+void CDlgPiiListImpl::AppendItems(const std::list<std::tr1::shared_ptr<CPiiPersonalData> >& rList) {
+    for (std::list<std::tr1::shared_ptr<CPiiPersonalData> >::const_iterator it = rList.begin(); it != rList.end(); ++it) {
+        std::tr1::shared_ptr<CUIPiiListItem> item(new CUIPiiListItem(std::tr1::shared_ptr<CPiiPersonalData>(*it), mPlayer));
+        mItems.push_back(item);
+    }
 }
 
 void CDlgPiiListImpl::Setup(bool background) {
