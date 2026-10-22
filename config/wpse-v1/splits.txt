@@ -497,16 +497,6 @@ game/ControllerTable.cpp:
 	.bss        start:0x803E8D28 end:0x803E90C8
 	.sdata      start:0x804B77D8 end:0x804B77D9
 
-game/resetmgr.cpp:
-	extab       start:0x80038AB0 end:0x80038DA8
-	extabindex  start:0x800509AC end:0x80050A30
-	.text       start:0x801B5310 end:0x801B64A8
-	.ctors      start:0x80352A1C end:0x80352A20
-	.data       start:0x803BF570 end:0x803BF790
-	.bss        start:0x803EA8B0 end:0x803EA8C0
-	.sdata      start:0x804B8220 end:0x804B8238
-	.sbss       start:0x804B9148 end:0x804B9160
-
 ControllerTableAlignmentPadding:
 	.sdata      start:0x804B77D9 end:0x804B77E0 align:1
 
@@ -962,6 +952,16 @@ game/pad.cpp:
 	.sdata      start:0x804B81F8 end:0x804B8220
 	.sbss       start:0x804B9140 end:0x804B9148
 	.sdata2     start:0x804BA330 end:0x804BA3B8
+
+game/resetmgr.cpp:
+	extab       start:0x80038AB0 end:0x80038DA8
+	extabindex  start:0x800509AC end:0x80050A30
+	.text       start:0x801B5310 end:0x801B64A8
+	.ctors      start:0x80352A1C end:0x80352A20
+	.data       start:0x803BF570 end:0x803BF790
+	.bss        start:0x803EA8B0 end:0x803EA8C0
+	.sdata      start:0x804B8220 end:0x804B8238
+	.sbss       start:0x804B9148 end:0x804B9160
 
 game/QuarterTurn.cpp:
 	extab       start:0x80038DA8 end:0x80038DB0

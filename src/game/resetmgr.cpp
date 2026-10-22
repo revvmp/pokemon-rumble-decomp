@@ -12,6 +12,10 @@
 #include <revolution/pad.h>
 #include <revolution/vi.h>
 
+extern "C" void OSLaunchManualViewer(u32);
+extern "C" void OSReturnToDataManager();
+extern "C" void OSReturnToSetting(u32);
+
 namespace NResetMgr {
 namespace {
 
