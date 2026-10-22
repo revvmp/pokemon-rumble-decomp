@@ -17,6 +17,10 @@ std::tr1::shared_ptr<CPiiPersonalData> CreatePiiPersonalData(const COyaInfo* pOy
 std::tr1::shared_ptr<CPpuEnv> CreateScriptEnvironment();
 bool IsGameFlagSet(int flag);
 
+inline CRemoteMemory::Flag operator|(CRemoteMemory::Flag a, CRemoteMemory::Flag b) {
+    return static_cast<CRemoteMemory::Flag>(static_cast<u32>(a) | static_cast<u32>(b));
+}
+
 namespace {
 struct RemoteDataBlock {
     u32 mMagic;
@@ -223,7 +227,7 @@ void CRemoteMemory::Update() {
     const wchar_t* pGameTitle = GetMessageString(1, nullptr);
     if (result != 0 || wcsncmp(reinterpret_cast<const wchar_t*>(pTitle), pGameTitle, 16) != 0) {
         if (result == 0) {
-            SetState(static_cast<Flag>(FLAG_DISCONNECTED | FLAG_FOREIGN_DATA));
+            SetState(FLAG_DISCONNECTED | FLAG_FOREIGN_DATA);
         } else {
             SetState(FLAG_DISCONNECTED);
             if (result != -1) {
@@ -347,7 +351,7 @@ void CRemoteMemory::BeginRead(int channel) {
     case 0:
         return;
     case -5: {
-        pRemote->SetState(static_cast<Flag>(FLAG_DISCONNECTED | FLAG_FOREIGN_DATA));
+        pRemote->SetState(FLAG_DISCONNECTED | FLAG_FOREIGN_DATA);
         const BOOL enabled = OSDisableInterrupts();
         const u32 flags = pRemote->mFlags;
         if ((flags >> 6) & 1) {
@@ -357,7 +361,7 @@ void CRemoteMemory::BeginRead(int channel) {
         break;
     }
     case -6: {
-        pRemote->SetState(static_cast<Flag>(FLAG_DISCONNECTED | FLAG_INVALID_DATA));
+        pRemote->SetState(FLAG_DISCONNECTED | FLAG_INVALID_DATA);
         const BOOL enabled = OSDisableInterrupts();
         const u32 flags = pRemote->mFlags;
         if ((flags >> 6) & 1) {
@@ -390,7 +394,7 @@ void CRemoteMemory::FinishRead(int channel, long result) {
                 BeginRead(channel);
             } else {
                 pRemote->mFlags &= ~(FLAG_CONNECTION_CHANGED | FLAG_RETRY_PENDING);
-                pRemote->SetState(static_cast<Flag>(FLAG_DISCONNECTED | FLAG_INVALID_DATA));
+                pRemote->SetState(FLAG_DISCONNECTED | FLAG_INVALID_DATA);
             }
         } else {
             bool changed = true;
@@ -424,7 +428,7 @@ void CRemoteMemory::FinishRead(int channel, long result) {
         pRemote->mFlags |= FLAG_NO_CONTROLLER;
         break;
     case -6:
-        pRemote->SetState(static_cast<Flag>(FLAG_DISCONNECTED | FLAG_INVALID_DATA));
+        pRemote->SetState(FLAG_DISCONNECTED | FLAG_INVALID_DATA);
         break;
     case -4:
         break;
