@@ -56,3 +56,13 @@
 | homebutton | `InitializeHomeButtonInfo`, `UpdateHomeButton` | 98.57, 99.65 | parameters get the lowest non-volatile registers in ours, the highest in the target |
 | CShadowCamera | `SetupShadowModel`, `SetupShadowMaterial` | 95.20, 99.88 | argument load scheduling around the by-value `GXColor` copies |
 | CPii | `swap<vector<Data>>`, bad_function_call `what`/dtor | 97.70, missing | see sprint-tZ; the bad_function_call weak functions come from a throw site the linker dropped |
+
+### Tail wave: flip-ready units
+
+- **CUIMenuSoundCallback, CUIPiiListItem and ScriptCamera are Matching.** Only CUIMenuSoundCallback's `.data` blocked the link. The unit lacked the `shared_ptr_deleter<function<void(BUI*)>>` RTTI that the target emits right after the bind member-pointer table, together with the `shared_ptr_deleter_common` and `default_delete<function<void(BUI*)>>` names at the end. The constructor still calls `Add` out of line, but the unit has to instantiate `Add`'s body, so it defines the inline `CCallbackListOwner::Add` after `OnScroll`, as CDlgCollection and CDlgPiiList do. Including `CUIMenuItem.h` before `CUIMenu.h` puts the CUIMenu RTTI base list ahead of the CUIMenuItem name, as in the target.
+- **Duplicate weak vtables leave zeroed space in the target.** In CUIList and CUIMenuSoundCallback, 0x14 or 0x18 zero bytes come before an RTTI name string where the target object had a weak vtable whose winning copy is in an earlier unit. Treat such a zero run as a vtable this unit must also instantiate, not as padding.
+- **ut_ArchiveFontBase is not a regression.** `ConstructOpAnalyzeGLGR` has been at 99.29% since #748 (see 806-archive-font-registers). It is a pure register permutation: the target gives `glyphsPerSheet` r31, `sizeAdjustTable` r30 and the adjustment-table pointer r22, while ours gives the pointer r31. Swapping the `numSheet` and `glyphsPerSheet` declarations changes nothing.
+
+| Unit | Function | % | Cause |
+| --- | --- | --- | --- |
+| CBattleRoyalDisplay | `FormatString` position | 100 (order) | The target emits the wide `FormatString` in the second drain, after the round-1 templates and before the implicit `~CBattleRoyalDisplay`. A strong definition, an inline one, an in-class friend of a plain class, and a friend of a class template completed at parse time all put it right after `Calc` or earlier. Remaining hypothesis: the body becomes available only after `Calc`'s call-graph node is created (sprint-ida rule 10), for example a friend in a class template completed during the round-1 walk. |
