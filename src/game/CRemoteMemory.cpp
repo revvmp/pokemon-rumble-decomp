@@ -9,6 +9,8 @@
 #include <game/CPiiPersonalData.h>
 #include <game/NPpuVM.h>
 
+#pragma opt_optimizecontrolflow off
+
 void SetPadConnectionCallback(int channel, void (*pCallback)(long, long));
 extern "C" u32 OSCalcCRC32(const void* pData, u32 size);
 std::tr1::shared_ptr<CPiiPersonalData> CreatePiiPersonalData(const COyaInfo* pOyaInfo, const SD_PiiPersonalData::Data& rData);
@@ -44,6 +46,26 @@ OSMessage sMessages[16];
 OSAlarm sAlarms[5];
 u8* sThreadStack;
 bool sInitialized;
+
+u32 FindValidBlock(RemoteDataBlock* pBlocks) {
+    RemoteDataBlock* pSecond = &pBlocks[1];
+    if (pBlocks->mGeneration != pSecond->mGeneration) {
+        if (pBlocks->IsValid()) {
+            return 0;
+        }
+        if (pSecond->IsValid()) {
+            return 1;
+        }
+    } else {
+        if (pSecond->IsValid()) {
+            return 1;
+        }
+        if (pBlocks->IsValid()) {
+            return 0;
+        }
+    }
+    return 3;
+}
 
 void OnRetryAlarm(OSAlarm* pAlarm, OSContext*) {
     OSSendMessage(&sMessageQueue, OSGetAlarmUserData(pAlarm), 0);
@@ -170,14 +192,15 @@ CPiiBox* CRemoteMemory::GetPiiBox() {
 }
 
 inline void CRemoteMemory::SetState(Flag state) {
-    if (static_cast<Flag>(mFlags & FLAG_STATE_MASK) == state) {
+    u32 stateMask = FLAG_STATE_MASK;
+    if (static_cast<Flag>(mFlags & stateMask) == state) {
         mFlags &= ~FLAG_BUSY;
     } else {
-        volatile u32 a = FLAG_STATE_AND_BUSY_MASK;
+        volatile u32 a = stateMask | FLAG_BUSY;
         volatile u32 b = a | FLAG_WRITE_COMPLETE;
         volatile u32 c = b | FLAG_DATA_CHANGED;
         mFlags &= ~c;
-        volatile u32 d = state | FLAG_STATE_CHANGED;
+        volatile u32 d = FLAG_STATE_CHANGED | state;
         mFlags |= d;
     }
 }
@@ -310,6 +333,8 @@ void* CRemoteMemory::ThreadMain(void*) {
     }
 }
 
+#pragma push
+#pragma opt_propagation off
 void CRemoteMemory::BeginRead(int channel) {
     CRemoteMemory* pRemote = sRemoteMemories[channel];
     switch (WPADReadGameData(channel, sReadData[channel], sizeof(sReadData[channel]), 0, OnRead)) {
@@ -319,8 +344,9 @@ void CRemoteMemory::BeginRead(int channel) {
     case -5: {
         pRemote->SetState(static_cast<Flag>(FLAG_DISCONNECTED | FLAG_FOREIGN_DATA));
         const BOOL enabled = OSDisableInterrupts();
-        if (pRemote->mFlags & FLAG_CONNECTION_CHANGED) {
-            pRemote->mFlags = (pRemote->mFlags | FLAG_RETRY_PENDING) & ~FLAG_CONNECTION_CHANGED;
+        const u32 flags = pRemote->mFlags;
+        if ((flags >> 6) & 1) {
+            pRemote->mFlags = (flags | FLAG_RETRY_PENDING) & ~FLAG_CONNECTION_CHANGED;
         }
         OSRestoreInterrupts(enabled);
         break;
@@ -328,8 +354,9 @@ void CRemoteMemory::BeginRead(int channel) {
     case -6: {
         pRemote->SetState(static_cast<Flag>(FLAG_DISCONNECTED | FLAG_INVALID_DATA));
         const BOOL enabled = OSDisableInterrupts();
-        if (pRemote->mFlags & FLAG_CONNECTION_CHANGED) {
-            pRemote->mFlags = (pRemote->mFlags | FLAG_RETRY_PENDING) & ~FLAG_CONNECTION_CHANGED;
+        const u32 flags = pRemote->mFlags;
+        if ((flags >> 6) & 1) {
+            pRemote->mFlags = (flags | FLAG_RETRY_PENDING) & ~FLAG_CONNECTION_CHANGED;
         }
         OSRestoreInterrupts(enabled);
         break;
@@ -341,37 +368,20 @@ void CRemoteMemory::BeginRead(int channel) {
     }
 }
 
+#pragma pop
+
 void CRemoteMemory::FinishRead(int channel, long result) {
     CRemoteMemory* pRemote = sRemoteMemories[channel];
     switch (result) {
     case 0: {
-        u32 activeBlock;
-        RemoteDataBlock* pBlocks = sReadData[channel];
-        RemoteDataBlock* pSecond = &pBlocks[1];
-        if (pBlocks[0].mGeneration != pSecond->mGeneration) {
-            if (pBlocks[0].IsValid()) {
-                activeBlock = 0;
-            } else if (pSecond->IsValid()) {
-                activeBlock = 1;
-            } else {
-                activeBlock = 3;
-            }
-        } else {
-            if (pSecond->IsValid()) {
-                activeBlock = 1;
-            } else if (pBlocks[0].IsValid()) {
-                activeBlock = 0;
-            } else {
-                activeBlock = 3;
-            }
-        }
+        const u32 activeBlock = FindValidBlock(sReadData[channel]);
         if (activeBlock == 3) {
-            if (++pRemote->mValidationRetries >= 3) {
-                pRemote->mFlags &= ~(FLAG_CONNECTION_CHANGED | FLAG_RETRY_PENDING);
-                pRemote->SetState(static_cast<Flag>(FLAG_DISCONNECTED | FLAG_INVALID_DATA));
-            } else {
+            if (++pRemote->mValidationRetries < 3) {
                 pRemote->mTransferRetries = 0;
                 BeginRead(channel);
+            } else {
+                pRemote->mFlags &= ~(FLAG_CONNECTION_CHANGED | FLAG_RETRY_PENDING);
+                pRemote->SetState(static_cast<Flag>(FLAG_DISCONNECTED | FLAG_INVALID_DATA));
             }
         } else {
             bool changed = true;
@@ -406,6 +416,8 @@ void CRemoteMemory::FinishRead(int channel, long result) {
         break;
     case -6:
         pRemote->SetState(static_cast<Flag>(FLAG_DISCONNECTED | FLAG_INVALID_DATA));
+        break;
+    case -4:
         break;
     }
 }
