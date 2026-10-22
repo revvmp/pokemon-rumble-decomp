@@ -9,7 +9,7 @@
 #include <game/CDropPii.h>
 #include <game/BWorld.h>
 
-int GetMaxBP();
+int GetStrongestBP();
 
 #pragma dont_inline on
 
@@ -149,14 +149,14 @@ int NewEnemyPii(NPpu::CEngine* pState) {
     return 0;
 }
 
-int FaceHeadForward(NPpu::CEngine* pBase) {
+int method_faceHeadForward(NPpu::CEngine* pBase) {
     CPpuEngine* pEngine = static_cast<CPpuEngine*>(pBase);
     CPii* pPii = DynamicCast<CPii>(pEngine->PopWorldObj());
     if (pPii) pPii->FaceHeadForward();
     pBase->PushNull();
     return 0;
 }
-int FaceHeadTowardZX(NPpu::CEngine* pBase) {
+int method_faceHeadTowardZX(NPpu::CEngine* pBase) {
     CPpuEngine* pEngine = static_cast<CPpuEngine*>(pBase);
     float z = pBase->PopFloat();
     float x = pBase->PopFloat();
@@ -165,7 +165,7 @@ int FaceHeadTowardZX(NPpu::CEngine* pBase) {
     pBase->PushNull();
     return 0;
 }
-int FaceHeadTowardXYZ(NPpu::CEngine* pBase) {
+int method_faceHeadTowardXYZ(NPpu::CEngine* pBase) {
     CPpuEngine* pEngine = static_cast<CPpuEngine*>(pBase);
     float z = pBase->PopFloat();
     float y = pBase->PopFloat();
@@ -175,7 +175,7 @@ int FaceHeadTowardXYZ(NPpu::CEngine* pBase) {
     pBase->PushNull();
     return 0;
 }
-int FaceHeadTowardObj(NPpu::CEngine* pBase) {
+int method_faceHeadTowardObj(NPpu::CEngine* pBase) {
     CPpuEngine* pEngine = static_cast<CPpuEngine*>(pBase);
     BWorldObj* pTarget = pEngine->PopWorldObj();
     CPii* pPii = DynamicCast<CPii>(pEngine->PopWorldObj());
@@ -183,7 +183,7 @@ int FaceHeadTowardObj(NPpu::CEngine* pBase) {
     pBase->PushNull();
     return 0;
 }
-int FaceHeadTowardObjNode(NPpu::CEngine* pBase) {
+int method_faceHeadTowardObjNode(NPpu::CEngine* pBase) {
     CPpuEngine* pEngine = static_cast<CPpuEngine*>(pBase);
     const char* pNode = pBase->PopString();
     BModelObj* pTarget = DynamicCast<BModelObj>(pEngine->PopWorldObj());
@@ -192,7 +192,7 @@ int FaceHeadTowardObjNode(NPpu::CEngine* pBase) {
     pBase->PushNull();
     return 0;
 }
-int GetPlayerIndex(NPpu::CEngine* pBase) {
+int method_getPlayerIndex(NPpu::CEngine* pBase) {
     CPpuEngine* pEngine = static_cast<CPpuEngine*>(pBase);
     BWorldObj* pObj = pEngine->PopWorldObj();
     int index = -1;
@@ -211,7 +211,7 @@ int IsNewMonsno(NPpu::CEngine* pEngine) {
 }
 
 int GetMaxBP(NPpu::CEngine* pEngine) {
-    pEngine->PushInt(GetMaxBP());
+    pEngine->PushInt(GetStrongestBP());
     return 0;
 }
 

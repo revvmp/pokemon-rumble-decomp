@@ -106,6 +106,8 @@ void KeepStronger(std::tr1::shared_ptr<CPiiPersonalData>& rStrongest, const std:
     }
 }
 
+}
+
 int GetStrongestBP()
 {
     std::tr1::shared_ptr<CPiiPersonalData> pStrongest;
@@ -122,6 +124,8 @@ int GetStrongestBP()
     KeepStronger(pStrongest, IGameSession::GetInstance()->GetTeamPiiBox()->GetPersonalDataList());
     return pStrongest ? pStrongest->GetBP() : 0;
 }
+
+namespace {
 
 struct ResultPii {
     unsigned long mPlayer;
