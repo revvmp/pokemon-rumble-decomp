@@ -46,9 +46,9 @@ template <typename T> struct __vec_trivial_copy {
     enum { value = Metrowerks::is_POD<T>::value || (__builtin_trivial_members(T) & 7) == 7 };
 };
 
-template <typename T, typename Allocator, bool IsPOD> class __vec_constructor;
-
 template <typename T, typename Allocator> class __vec_split_buffer;
+
+template <typename T, typename Allocator, bool IsPOD> class __vec_constructor;
 
 template <typename T, typename Allocator> class __vec_deleter : public __vector_common<true> {
 public:
@@ -223,7 +223,7 @@ public:
     typedef typename base::size_type size_type;
     typedef typename base::pod_type pod_type;
 
-    explicit __vec_split_buffer(Allocator& a);
+    explicit __vec_split_buffer(Allocator& a) : base(a), start_(0) {}
     ~__vec_split_buffer();
 
     T* begin() { return this->data_ + start_; }
@@ -306,8 +306,6 @@ public:
 
     size_type start_;
 };
-
-template <typename T, typename Allocator> __vec_split_buffer<T, Allocator>::__vec_split_buffer(Allocator& a) : base(a), start_(0) {}
 
 template <typename T, typename Allocator> __vec_split_buffer<T, Allocator>::~__vec_split_buffer() {
     T* first = this->data_ + start_;
@@ -535,15 +533,7 @@ protected:
         }
     }
 
-    void assign_reallocate(size_type n, size_type capacity) {
-        base::clear();
-        if (this->data_) {
-            this->alloc().deallocate(this->data_, this->cap());
-            this->data_ = nullptr;
-            this->cap() = 0;
-        }
-        base::allocate(n, capacity);
-    }
+    void assign_reallocate(size_type n, size_type capacity);
 
     template <typename Iterator> void insert_range(T* pos, Iterator first, Iterator last, std::forward_iterator_tag) {
         size_type n = std::distance(first, last);
@@ -604,35 +594,10 @@ protected:
         return result;
     }
 
+    void insert_prepare(typename base::helper& buffer, T* pos, size_type n);
+    T* insert_finish(typename base::helper& buffer, T* pos);
     size_type move_range(size_type elemsAfter, size_type n, T* pEnd) { return move_range(elemsAfter, n, pEnd, pod_type()); }
-    size_type move_range(size_type elemsAfter, size_type n, T* pEnd, Metrowerks::int2type<false>) {
-        size_type count = std::min(elemsAfter, n);
-        for (size_type i = 0; i < count; ++i, ++pEnd) {
-            this->alloc().construct(pEnd, std::move(pEnd[-n]));
-            ++this->size_;
-        }
-        pEnd -= n;
-        if (elemsAfter > n) {
-            std::move_backward(pEnd - elemsAfter, pEnd - n, pEnd);
-        }
-        return count;
-    }
-
-    void insert_prepare(typename base::helper& buffer, T* pos, size_type n) {
-        buffer.allocate(this->size_ + n, recommend(this->size_ + n - this->cap()));
-        buffer.start_ = pos - begin();
-    }
-
-    T* insert_finish(typename base::helper& buffer, T* pos) {
-        size_type index = pos - begin();
-        buffer.move_construct_to_end(pos, end());
-        buffer.construct_at_front(begin(), pos);
-        clear_moved();
-        std::swap(this->cap(), buffer.cap());
-        std::swap(this->data_, buffer.data_);
-        std::swap(this->size_, buffer.size_);
-        return begin() + index;
-    }
+    size_type move_range(size_type elemsAfter, size_type n, T* pEnd, Metrowerks::int2type<false>);
 
     void swap(__vec_deleter<T, Allocator&>& r) { swap(r, pod_type()); }
     void swap(__vec_deleter<T, Allocator&>& r, pod_type) {
@@ -647,6 +612,49 @@ protected:
         r.size_ = size;
     }
 };
+
+template <typename T, typename Allocator, bool IsPOD>
+void __vec_constructor<T, Allocator, IsPOD>::assign_reallocate(size_type n, size_type capacity) {
+    base::clear();
+    if (this->data_) {
+        this->alloc().deallocate(this->data_, this->cap());
+        this->data_ = nullptr;
+        this->cap() = 0;
+    }
+    base::allocate(n, capacity);
+}
+
+template <typename T, typename Allocator, bool IsPOD>
+void __vec_constructor<T, Allocator, IsPOD>::insert_prepare(typename base::helper& buffer, T* pos, size_type n) {
+    buffer.allocate(this->size_ + n, recommend(this->size_ + n - this->cap()));
+    buffer.start_ = pos - begin();
+}
+
+template <typename T, typename Allocator, bool IsPOD>
+T* __vec_constructor<T, Allocator, IsPOD>::insert_finish(typename base::helper& buffer, T* pos) {
+    size_type index = pos - begin();
+    buffer.move_construct_to_end(pos, end());
+    buffer.construct_at_front(begin(), pos);
+    clear_moved();
+    std::swap(this->cap(), buffer.cap());
+    std::swap(this->data_, buffer.data_);
+    std::swap(this->size_, buffer.size_);
+    return begin() + index;
+}
+
+template <typename T, typename Allocator, bool IsPOD>
+typename __vec_constructor<T, Allocator, IsPOD>::size_type __vec_constructor<T, Allocator, IsPOD>::move_range(size_type elemsAfter, size_type n, T* pEnd, Metrowerks::int2type<false>) {
+    size_type count = std::min(elemsAfter, n);
+    for (size_type i = 0; i < count; ++i, ++pEnd) {
+        this->alloc().construct(pEnd, std::move(pEnd[-n]));
+        ++this->size_;
+    }
+    pEnd -= n;
+    if (elemsAfter > n) {
+        std::move_backward(pEnd - elemsAfter, pEnd - n, pEnd);
+    }
+    return count;
+}
 
 template <typename T, typename Allocator> void __vec_deleter<T, Allocator>::allocate(size_type n, pod_type) {
     if (n > max_size()) {
