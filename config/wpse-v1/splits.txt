@@ -547,11 +547,6 @@ game/ControllerTable.cpp:
 	.bss        start:0x803E8D28 end:0x803E90C8
 	.sdata      start:0x804B77D8 end:0x804B77D9
 
-game/ScriptWorld.cpp:
-	extab       start:0x800327D8 end:0x80032AA8
-	extabindex  start:0x8004F8D8 end:0x8004FA7C
-	.text       start:0x8015D150 end:0x8015EEB0
-
 ControllerTableAlignmentPadding:
 	.sdata      start:0x804B77D9 end:0x804B77E0 align:1
 
@@ -714,6 +709,11 @@ game/ScriptAudio.cpp:
 	extabindex  start:0x8004F86C end:0x8004F8D8
 	.text       start:0x8015CA00 end:0x8015D144
 	.sdata2     start:0x804BA2E8 end:0x804BA2F4
+
+game/ScriptWorld.cpp:
+	extab       start:0x800327D8 end:0x80032AA8
+	extabindex  start:0x8004F8D8 end:0x8004FA7C
+	.text       start:0x8015D150 end:0x8015EEB0
 
 game/SaveData.cpp:
 	extab       start:0x80032AA8 end:0x80033D8C
