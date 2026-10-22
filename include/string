@@ -100,6 +100,7 @@ public:
     int compare(size_type pos1, size_type n1, const charT* s, size_type n2) const;
 
     int compare(const basic_string& str) const;
+    size_type rfind(charT c, size_type pos = npos) const;
     int compare(const charT* s) const { return compare(0, size(), s, traits::length(s)); }
 
     basic_string& operator+=(const charT* s) { return append(s); }
@@ -597,6 +598,25 @@ basic_string<charT, traits, Allocator>::~basic_string() {
 
 typedef basic_string<char> string;
 typedef basic_string<wchar_t> wstring;
+
+template <class charT, class traits, class Allocator>
+typename basic_string<charT, traits, Allocator>::size_type basic_string<charT, traits, Allocator>::rfind(charT c, size_type pos) const {
+    const charT* pStr;
+    size_type length;
+    get_buffer(pStr, length);
+    if (length == 0) {
+        return npos;
+    }
+    if (pos > length - 1) {
+        pos = length - 1;
+    }
+    for (const charT* p = pStr + pos; p >= pStr; --p) {
+        if (*p == c) {
+            return p - pStr;
+        }
+    }
+    return npos;
+}
 
 }
 

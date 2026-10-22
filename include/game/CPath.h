@@ -11,6 +11,7 @@ public:
         DEVICE_DVD,
         DEVICE_NAND,
         DEVICE_MCS_BASE = 512,
+        DEVICE_MCS_LAST = 537,
         DEVICE_UNC = 539,
         DEVICE_UNSPECIFIED = 540
     };
@@ -23,9 +24,10 @@ public:
     void Set(const char* pPath);
     void Parse(const char* pPath);
     const std::list<std::string>& GetComponents() const { return mComponents; }
+    const char* ParseDevice(const char* pPath);
+    int GetDevice() const { return mDevice; }
 
 private:
-    const char* ParseDevice(const char* pPath);
     void ParseRelative(const char* pPath, const char* pOriginal);
 
     int mDevice;

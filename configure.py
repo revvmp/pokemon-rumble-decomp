@@ -331,6 +331,7 @@ config.libs = [
             Object(Matching, "game/ControllerTable.cpp"),
             Object(Matching, "game/DCIM.cpp"),
             Object(NonMatching, "game/l10n_files.cpp"),
+            Object(NonMatching, "game/main.cpp"),
             Object(Matching, "game/Font.cpp"),
             Object(NonMatching, "game/ScriptWorld.cpp"),
             Object(NonMatching, "game/SaveData.cpp"),
