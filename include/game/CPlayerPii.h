@@ -20,6 +20,7 @@ public:
     virtual bool IsVisible() const;
 
     void Initialize();
+    CPlayer* GetPlayer() { return mpPlayer; }
     bool LoadScript(const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnvironment);
     bool LoadScript(int mode, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnvironment);
 

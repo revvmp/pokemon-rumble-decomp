@@ -12,6 +12,9 @@ public:
 
     virtual void Initialize(bool background);
 
+    bool LoadScript(const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnvironment) {
+        return LoadScript(0, rEnvironment);
+    }
     bool LoadScript(int mode,
                     const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnvironment);
 };

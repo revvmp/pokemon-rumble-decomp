@@ -249,6 +249,11 @@ public:
         Pop(value);
         return value.ToInt();
     }
+    const char* PopString() {
+        CValue value;
+        Pop(value);
+        return ToString(value);
+    }
     f32 PopFloat() {
         CValue value;
         Pop(value);

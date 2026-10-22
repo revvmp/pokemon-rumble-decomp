@@ -67,8 +67,16 @@ public:
     std::tr1::shared_ptr<CPiiPersonalData> GetPersonalData() {
         return mPersonalData;
     }
+    void Initialize();
+    void FaceHeadForward();
+    void FaceHeadToward(const nw4r::math::VEC3& rPosition);
+    void FaceHeadToward(BWorldObj* pObject);
+    void FaceHeadToward(BModelObj* pObject, const char* pNode);
     void SetHPBar(std::tr1::shared_ptr<CHPBar> hpBar);
     void SetMiniMapMarker(std::tr1::shared_ptr<CMiniMapMarker> marker);
+    bool LoadScript(const char* pName, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnvironment) {
+        return LoadScript(pName, 0, rEnvironment);
+    }
     bool LoadScript(const char* pName, int mode,
                     const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnvironment);
     std::tr1::shared_ptr<CModel::CMotionProgram> PlayMotionForDuration(int index, f32 frame, f32 duration);
