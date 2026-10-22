@@ -19,7 +19,7 @@ void CDisconMsg::CalcView() {
 void CDisconMsg::CalcMtx() {
     if (mLayout) { mLayout->CalcMtx(); }
 }
-void CDisconMsg::Calc() {
+inline void CDisconMsg::Calc() {
     if (!mFiber) {
         if (GetControllerDisconnectState() && CanShow()) {
             mFiber.reset(new CFiber("CDisconMsg", std::tr1::bind(&CDisconMsg::Run, this), 0x8000));
@@ -30,8 +30,8 @@ void CDisconMsg::Calc() {
     }
     if (mLayout) { mLayout->Calc(); }
 }
-bool CDisconMsg::CanShow() const { return mSuppressCount == 0; }
-void CDisconMsg::Run() {
+inline bool CDisconMsg::CanShow() const { return mSuppressCount == 0; }
+inline void CDisconMsg::Run() {
     PauseGameAudio();
     std::tr1::shared_ptr<CLayout::FontMap> fonts = GetDefaultFontMap();
     mLayout.reset(new CLayout);
@@ -52,7 +52,7 @@ void CDisconMsg::Run() {
         case 5: message = 393448; break;
         default: message = 65557; break;
         }
-        const wchar_t* pText = GetMessageText(message, L"");
+        const wchar_t* pText = GetMessageText(message, gEmptyText);
         mLayout->SetText("TEXT", pText);
         mLayout->CreateMotion("begin");
         mLayout->QueueMotion("loop");
@@ -67,7 +67,6 @@ void CDisconMsg::Run() {
     mLayout.reset();
     ResumeGameAudio();
 }
-void CDisconMsg::AdjustSuppressCount(int amount) { mSuppressCount += amount; }
-bool CDisconMsg::IsActive() const { return bool(mFiber); }
-CDisconMsg::~CDisconMsg() {}
+inline void CDisconMsg::AdjustSuppressCount(int amount) { mSuppressCount += amount; }
+inline bool CDisconMsg::IsActive() const { return bool(mFiber); }
 }

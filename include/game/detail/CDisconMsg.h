@@ -9,15 +9,14 @@ namespace {
 class CDisconMsg : public IDisconMsg {
 public:
     CDisconMsg() : mSuppressCount(0) {}
-    virtual ~CDisconMsg();
+    virtual bool IsActive() const;
+    virtual void AdjustSuppressCount(int amount);
+    virtual bool CanShow() const;
+    void Run();
     virtual void Calc();
     virtual void CalcMtx();
     virtual void CalcView();
     virtual void Draw();
-    virtual bool IsActive() const;
-    virtual bool CanShow() const;
-    virtual void AdjustSuppressCount(int amount);
-    void Run();
 private:
     std::tr1::shared_ptr<CLayout> mLayout;
     std::tr1::shared_ptr<CFiber> mFiber;

@@ -16,8 +16,6 @@ public:
     virtual const char* what() const throw() { return "bad_function_call"; }
 };
 
-template <typename Signature> class function;
-
 namespace detail {
 template<class R, class C> class mem_fn_0 {
 public:
@@ -261,6 +259,8 @@ template <typename F> bool is_null(F* p) {
 }
 
 }
+
+template <typename Signature> class function;
 
 template <typename R> class function<R()> {
     typedef detail::function_base<R (*)()> base;
