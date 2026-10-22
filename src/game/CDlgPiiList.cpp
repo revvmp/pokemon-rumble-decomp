@@ -115,6 +115,7 @@ public:
     void RunSell();
     void Run();
     void RunList();
+    void Finish();
     void ShowMessage(const wchar_t* pText);
     bool AskYesNo(const wchar_t* pText);
     bool CheckRemoteMemory();
@@ -533,6 +534,10 @@ inline void CDlgPiiListImpl::Run() {
         return;
     }
     RunList();
+    Finish();
+}
+
+inline void CDlgPiiListImpl::Finish() {
     mRootLayout->GetLayout()->CreateMotion("end")->Wait();
     switch (mType) {
     case 1:
