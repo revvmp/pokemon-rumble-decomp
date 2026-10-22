@@ -27,8 +27,6 @@ IUIInput* GetUIInput();
 bool IsStage7EvenMap(MapIndex index);
 bool IsBattleRoyalFirstPart(MapIndex index);
 
-extern const char* const gAreaPaneNames[9];
-
 std::wstring FormatAreaName(MapIndex index) {
     std::wstring name;
     if (index.mMode == 2) {
@@ -66,6 +64,10 @@ void WaitMotionStart(std::tr1::shared_ptr<CLayout::CMotionProgram> pMotion) {
     WaitMotion(pMotion, false);
 }
 
+const char* gAreaPaneNames[9] = {
+    "AREA_nw", "AREA_n", "AREA_ne", "AREA_w", "AREA_c", "AREA_e", "AREA_sw", "AREA_s", "AREA_se",
+};
+
 namespace {
 
 class BNoticeDisplayImpl : public ICalcDraw {
@@ -100,9 +102,9 @@ protected:
 class CSimpleText : public BOther {
 public:
     CSimpleText(int type);
-    virtual ~CSimpleText();
+    virtual ~CSimpleText() {}
     virtual void Calc();
-    virtual void Close();
+    virtual void Close() { mCloseRequested = 1; }
 
     bool Init();
 
@@ -120,8 +122,10 @@ private:
 class CYouWin : public BOther {
 public:
     CYouWin(int type, int winner, f32 winnerParam);
-    virtual ~CYouWin();
-    virtual void Close();
+    virtual ~CYouWin() {}
+    virtual void Calc();
+    virtual void Draw();
+    virtual void Close() {}
 
     bool Init();
 
@@ -138,9 +142,9 @@ private:
 class CFight : public BNoticeDisplayImpl {
 public:
     CFight(int type);
-    virtual ~CFight();
+    virtual ~CFight() {}
     virtual int GetNoticeType() const { return mType; }
-    virtual void Close();
+    virtual void Close() {}
 
     bool Init();
 
@@ -154,9 +158,9 @@ private:
 class CLose : public BNoticeDisplayImpl {
 public:
     CLose(int type);
-    virtual ~CLose();
+    virtual ~CLose() {}
     virtual int GetNoticeType() const { return mType; }
-    virtual void Close();
+    virtual void Close() { mState = 1; }
 
     bool Init();
 
@@ -176,7 +180,7 @@ public:
     virtual void CalcMtx();
     virtual void CalcView();
     virtual void Draw();
-    virtual bool IsShown() const;
+    virtual bool IsShown() const { return mpImpl.get() != nullptr; }
     virtual void Show(int type);
     virtual void Close();
     virtual void AddEnemy(const PiiSpeciesData*, int) {}
@@ -190,6 +194,15 @@ private:
     f32 mWinnerParam;
 };
 
+}
+
+std::tr1::shared_ptr<INoticeDisplay> CreateNoticeDisplay(int) {
+    std::tr1::shared_ptr<CNoticeDisplay> pDisplay(new CNoticeDisplay);
+    return pDisplay;
+}
+
+namespace {
+
 CNoticeDisplay::~CNoticeDisplay() {}
 
 void BNoticeDisplayImpl::Calc() {
@@ -199,6 +212,27 @@ void BNoticeDisplayImpl::Calc() {
 
 void BNoticeDisplayImpl::Draw() {
     mLayout.Draw();
+}
+
+void CSimpleText::Calc() {
+    BNoticeDisplayImpl::Calc();
+    mFrameCount++;
+    if (mAutoCloseFrames > 0 && mAutoCloseFrames == mFrameCount && !mPauseReleased) {
+        GetCurrentGameMap()->SetPausing(false);
+        mPauseReleased = true;
+    }
+}
+
+void CYouWin::Calc() {
+    BNoticeDisplayImpl::Calc();
+    mResultLayout.Calc();
+    mWinnerLayout.Calc();
+}
+
+void CYouWin::Draw() {
+    BNoticeDisplayImpl::Draw();
+    mResultLayout.Draw();
+    mWinnerLayout.Draw();
 }
 
 void CNoticeDisplay::Calc() {
@@ -663,9 +697,4 @@ void CYouWin::Run() {
     }
 }
 
-}
-
-std::tr1::shared_ptr<INoticeDisplay> CreateNoticeDisplay(int) {
-    std::tr1::shared_ptr<CNoticeDisplay> pDisplay(new CNoticeDisplay);
-    return pDisplay;
 }
