@@ -52,60 +52,66 @@ public:
             nw4r::ef::Emitter::CreateEmitter(pResource, pSetting, pParticle, calcRemain, pTranslate);
         if (pEmitter != nullptr && mParam.mEnable) {
             switch (mParam.mInfo->mType) {
-            case CEffect::TYPE_LIFE: {
-                if (pEmitter->mResource->GetEmitterDesc()->GetFormType() != nw4r::ef::EMITFORMTYPE_CUBE) {
-                    break;
-                }
-
-                nw4r::math::VEC3 scale(static_cast<const nw4r::math::_VEC3&>(pEmitter->mParameter.mScale));
-                const char* pName = pEmitter->mResource->GetName();
-                if (IsEqual(pName, "main", 4)) {
-                    pEmitter->mParameter.mParams[0] = mParam.mFrames.mHeight * 0.5f / scale.x;
-                    pEmitter->SetTranslate(nw4r::math::VEC3(0.0f, 0.0f, 0.0f));
-                    pEmitter->SetMtxDirty();
-                    pEmitter->mParameter.mVelDiffusionSpecDir = 0.0f;
-                    pEmitter->mParameter.mVelPowerSpecDir = mParam.mFrames.mRadius / scale.x;
-                    pEmitter->mWaitTime = 1;
-                    pEmitter->mParameter.mEmitSpan = mParam.mFrames.mEmitSpan;
-                    static_cast<EmitterWithParam*>(pEmitter)->mParam = mParam;
-                } else if (IsEqual(pName, "sub", 3)) {
-                    pEmitter->mWaitTime = mParam.mFrames.mLife + 1;
-                    pEmitter->mParameter.mParams[0] = mParam.mFrames.mHeight * 0.5f / scale.x;
-                    pEmitter->SetTranslate(nw4r::math::VEC3(0.0f, 0.0f, mParam.mFrames.mRadius * mParam.mFrames.mLife));
-                    pEmitter->SetMtxDirty();
-                }
+            case CEffect::TYPE_LIFE:
+                SetupLifeEmitter(pEmitter);
                 break;
-            }
-            case CEffect::TYPE_LIFE_FOLLOW: {
-                if (pEmitter->mResource->GetEmitterDesc()->GetFormType() != nw4r::ef::EMITFORMTYPE_CYLINDER) {
-                    break;
-                }
-
-                pEmitter->mParameter.mParams[2] = NW4R_MATH_PI + -mParam.mFrames.mHeight * 0.5f;
-                pEmitter->mParameter.mParams[3] = NW4R_MATH_PI + mParam.mFrames.mHeight * 0.5f;
-                nw4r::math::VEC3 scale(static_cast<const nw4r::math::_VEC3&>(pEmitter->mParameter.mScale));
-                pEmitter->SetTranslate(nw4r::math::VEC3(0.0f, 0.0f, 0.0f));
-                pEmitter->SetMtxDirty();
-
-                const char* pName = pEmitter->mResource->GetName();
-                if (IsEqual(pName, "main", 4)) {
-                    pEmitter->mParameter.mParams[0] = pEmitter->mParameter.mParams[5] = 0.01f;
-                    pEmitter->mParameter.mVelPowerRadiationDir = mParam.mFrames.mRadius / scale.x;
-                    pEmitter->mWaitTime = 1;
-                    pEmitter->mParameter.mEmitSpan = mParam.mFrames.mEmitSpan;
-                    static_cast<EmitterWithParam*>(pEmitter)->mParam = mParam;
-                } else if (IsEqual(pName, "sub", 3)) {
-                    pEmitter->mWaitTime = mParam.mFrames.mLife + 1;
-                    f32 radius = mParam.mFrames.mRadius * mParam.mFrames.mLife;
-                    pEmitter->mParameter.mParams[0] = radius / scale.x;
-                    pEmitter->mParameter.mParams[5] = radius / scale.z;
-                }
+            case CEffect::TYPE_LIFE_FOLLOW:
+                SetupLifeFollowEmitter(pEmitter);
                 break;
-            }
             }
         }
 
         return pEmitter;
+    }
+
+    void SetupLifeEmitter(nw4r::ef::Emitter* pEmitter) {
+        if (pEmitter->mResource->GetEmitterDesc()->GetFormType() != nw4r::ef::EMITFORMTYPE_CUBE) {
+            return;
+        }
+
+        nw4r::math::VEC3 scale(static_cast<const nw4r::math::_VEC3&>(pEmitter->mParameter.mScale));
+        const char* pName = pEmitter->mResource->GetName();
+        if (IsEqual(pName, "main", 4)) {
+            pEmitter->mParameter.mParams[0] = mParam.mFrames.mHeight * 0.5f / scale.x;
+            pEmitter->SetTranslate(nw4r::math::VEC3(0.0f, 0.0f, 0.0f));
+            pEmitter->SetMtxDirty();
+            pEmitter->mParameter.mVelDiffusionSpecDir = 0.0f;
+            pEmitter->mParameter.mVelPowerSpecDir = mParam.mFrames.mRadius / scale.x;
+            pEmitter->mWaitTime = 1;
+            pEmitter->mParameter.mEmitSpan = mParam.mFrames.mEmitSpan;
+            static_cast<EmitterWithParam*>(pEmitter)->mParam = mParam;
+        } else if (IsEqual(pName, "sub", 3)) {
+            pEmitter->mWaitTime = mParam.mFrames.mLife + 1;
+            pEmitter->mParameter.mParams[0] = mParam.mFrames.mHeight * 0.5f / scale.x;
+            pEmitter->SetTranslate(nw4r::math::VEC3(0.0f, 0.0f, mParam.mFrames.mRadius * mParam.mFrames.mLife));
+            pEmitter->SetMtxDirty();
+        }
+    }
+
+    void SetupLifeFollowEmitter(nw4r::ef::Emitter* pEmitter) {
+        if (pEmitter->mResource->GetEmitterDesc()->GetFormType() != nw4r::ef::EMITFORMTYPE_CYLINDER) {
+            return;
+        }
+
+        pEmitter->mParameter.mParams[2] = NW4R_MATH_PI + -mParam.mFrames.mHeight * 0.5f;
+        pEmitter->mParameter.mParams[3] = NW4R_MATH_PI + mParam.mFrames.mHeight * 0.5f;
+        nw4r::math::VEC3 scale(static_cast<const nw4r::math::_VEC3&>(pEmitter->mParameter.mScale));
+        pEmitter->SetTranslate(nw4r::math::VEC3(0.0f, 0.0f, 0.0f));
+        pEmitter->SetMtxDirty();
+
+        const char* pName = pEmitter->mResource->GetName();
+        if (IsEqual(pName, "main", 4)) {
+            pEmitter->mParameter.mParams[0] = pEmitter->mParameter.mParams[5] = 0.01f;
+            pEmitter->mParameter.mVelPowerRadiationDir = mParam.mFrames.mRadius / scale.x;
+            pEmitter->mWaitTime = 1;
+            pEmitter->mParameter.mEmitSpan = mParam.mFrames.mEmitSpan;
+            static_cast<EmitterWithParam*>(pEmitter)->mParam = mParam;
+        } else if (IsEqual(pName, "sub", 3)) {
+            pEmitter->mWaitTime = mParam.mFrames.mLife + 1;
+            f32 radius = mParam.mFrames.mRadius * mParam.mFrames.mLife;
+            pEmitter->mParameter.mParams[0] = radius / scale.x;
+            pEmitter->mParameter.mParams[5] = radius / scale.z;
+        }
     }
 
     CEffect::Param mParam;
