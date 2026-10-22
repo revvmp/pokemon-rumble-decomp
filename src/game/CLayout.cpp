@@ -2,9 +2,15 @@
 
 #include <game/CFiber.h>
 #include <game/CFileData.h>
+#include <nw4r/ut/ut_algorithm.h>
 #include <nw4r/lyt/lyt_layout.h>
 #include <nw4r/lyt/lyt_animation.h>
 #include <nw4r/lyt/lyt_pane.h>
+#include <nw4r/lyt/lyt_material.h>
+#include <nw4r/lyt/lyt_resources.h>
+#include <nw4r/lyt/lyt_textBox.h>
+#include <nw4r/ut/ut_RuntimeTypeInfo.h>
+#include <wchar.h>
 #include <game/RenderMode.h>
 #include <functional>
 #include <nw4r/g3d/g3d_state.h>
@@ -12,6 +18,8 @@
 #include <revolution/sc.h>
 
 namespace {
+
+const char* const sTextPaneSuffixes[] = {"_nw", "_n", "_ne", "_w", "_e", "_sw", "_s", "_se", "_c", "", nullptr};
 
 std::tr1::shared_ptr<std::tr1::function<void (const CLayout::CInitializeException&)> > sInitializeErrorHandler;
 nw4r::math::_VEC2 sLocationAdjustScale = {-1.0f, -1.0f};
@@ -238,7 +246,7 @@ int CLayout::LoadLayout(const char* pLayoutName, const std::tr1::shared_ptr<Font
     }
     {
         std::string baseName(pLayoutName);
-        mName = baseName + ".brlan";
+        mName = baseName + "_";
     }
     SetFlags(FLAG_DIRTY | FLAG_LOADED);
     SetVisible(HasFlags(FLAG_VISIBLE));
@@ -297,4 +305,61 @@ void CLayout::UpdateAttachedLayouts() {
             }
         }
     }
+}
+
+void CLayout::SetPaneVisible(const char* pName, bool visible) {
+    nw4r::lyt::Pane* pPane = FindPane(pName);
+    if (pPane != nullptr) {
+        SetVisible(pPane, visible);
+    }
+}
+
+nw4r::lyt::TextBox* CLayout::SetText(const char* pName, const wchar_t* pText) {
+    nw4r::lyt::TextBox* pResult = nullptr;
+    int length = wcslen(pText);
+    for (const char* const* pSuffix = sTextPaneSuffixes; *pSuffix != nullptr; ++pSuffix) {
+        nw4r::lyt::Pane* pPane = FindPane((std::string(pName) + *pSuffix).c_str());
+        nw4r::lyt::TextBox* pTextBox = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(pPane);
+        if (pTextBox != nullptr) {
+            pTextBox->AllocStringBuffer(length);
+            pTextBox->SetString(pText, 0);
+            pResult = pTextBox;
+        }
+    }
+    return pResult;
+}
+
+bool CLayout::SetTexture(nw4r::lyt::Pane* pPane, const nw4r::lyt::TexMap& rTexture, int index) {
+    if (pPane == nullptr) {
+        return false;
+    }
+    nw4r::lyt::Material* pMaterial = pPane->GetMaterial();
+    if (index < 0) {
+        const nw4r::lyt::res::ExtUserData* pUserData = pPane->FindExtUserDataByName("REPLACE_TEXTURE");
+        if (pUserData != nullptr && static_cast<int>(pUserData->type) == 1) {
+            bool replaced = false;
+            for (u16 i = 0; i < pUserData->dataNum; i++) {
+                int texMapIndex = reinterpret_cast<const s32*>(reinterpret_cast<const u8*>(pUserData) + pUserData->dataOffset)[i];
+                if (texMapIndex < pMaterial->GetTexCoordGenNum()) {
+                    *pMaterial->GetTexturePtr(texMapIndex) = rTexture;
+                    replaced = true;
+                }
+            }
+            return replaced;
+        }
+        index = 0;
+    }
+    if (index < pMaterial->GetTexCoordGenNum()) {
+        *pMaterial->GetTexturePtr(index) = rTexture;
+        return true;
+    }
+    return false;
+}
+
+bool CLayout::SetTexture(const char* pName, const nw4r::lyt::TexMap& rTexture, int index) {
+    nw4r::lyt::Pane* pPane = FindPane(pName);
+    if (pPane != nullptr) {
+        return SetTexture(pPane, rTexture, index);
+    }
+    return false;
 }

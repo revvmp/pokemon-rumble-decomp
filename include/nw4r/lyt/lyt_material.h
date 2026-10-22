@@ -109,6 +109,9 @@ public:
     u8 GetTexCoordGenCap() const {
         return mGXMemCap.texCoordGen;
     }
+    u8 GetTexCoordGenNum() const {
+        return mGXMemNum.texCoordGen;
+    }
     u8 GetTextureCap() const {
         return mGXMemCap.texMap;
     }
