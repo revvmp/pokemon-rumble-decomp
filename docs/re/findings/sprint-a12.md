@@ -18,3 +18,12 @@
 - **`fn_800E0840` in CPii is `std::swap<std::vector<SD_PiiPersonalData::Data>>`, not `operator=`.** `std::swap(rOut, records)` reproduces ExportPersonalData at 100%.
 - **Parallel agents share the scratchpad directory.** Another agent overwrote a helper script named `fd.py`; keep personal tools in a per-agent subdirectory.
 - **Tried and rejected:** a user-declared `vector::iterator` copy constructor (Filter 100% to 86%), copying `sort` parameters into locals (sort 91% to 80%), removing the `is_POD<UIMenuItem>` specialization (CPauseMenu push_back 65% to 100% but Run 98% to 87%).
+# Sprint a12 findings
+
+## Traps
+
+- **Inlined and out-of-line copies of one helper can coexist.** CStatistic::SetWazaUsed inlines the file-local ExpandTo (unrolled zero fill visible) while Set calls it; write the same helper and let the inliner decide. Use `oldSize <= index` to get the target compare order.
+- **CStatistic::SetWazaUsed clears from the wrong vector.** The target stores `mValues[word] & ~mask` into mWazaBits when clearing; reproduce it as written.
+- **CStatistic::Add's saturating negative path is a std::max against INT_MAX**, with the limit as an addressable local.
+- **COyaInfo region 0x800ED1B0-0x800F2580** is a 20 KB block of inlined string/tree containers with EH cleanup; no source exists and it is not split. Not attempted.
+- **CPiiCollectionBox::Create** needs an inline constructor `mEntries.resize(496)`; vector operator= (Save/RestoreSnapshot, CStatistic vector assign) is about 90 to 99 percent because of register allocation in include/vector.
