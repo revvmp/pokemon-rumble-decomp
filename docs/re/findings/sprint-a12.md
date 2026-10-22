@@ -27,3 +27,28 @@
 - **CStatistic::Add's saturating negative path is a std::max against INT_MAX**, with the limit as an addressable local.
 - **COyaInfo region 0x800ED1B0-0x800F2580** is a 20 KB block of inlined string/tree containers with EH cleanup; no source exists and it is not split. Not attempted.
 - **CPiiCollectionBox::Create** needs an inline constructor `mEntries.resize(496)`; vector operator= (Save/RestoreSnapshot, CStatistic vector assign) is about 90 to 99 percent because of register allocation in include/vector.
+
+## Tail wave (a12, second shift)
+
+### Fixes
+
+- **`reverse_iterator` keeps a dereference temporary.** CPiiBox::Create's copies of an uninitialized word next to each reverse iterator are MSL's `mutable Iterator deref_tmp_` member, declared before `current_`; `operator*` assigns it and decrements it, and `operator!=` compares `base()` through `const&` parameters. `vector` gained `rbegin`/`rend` returning `reverse_iterator<const_iterator>`, with iterator traits on `const_iterator`. No other source used `reverse_iterator`; the full report kept every other unit's count.
+- **A reverse list walk is a `const_iterator` copy decremented before use.** `for (it = end(); it != begin(); --it) { const_iterator current = it; --current; ... }` gives the target's register order in resetmgr `Update` (iterator above the element) and errmsg `Present`/`ShowSystemMessage`; the `iterator` copy and `reverse_iterator` forms do not.
+- **resetmgr appends callbacks.** `RegisterResetCallback` uses `push_back` (the target inserts before the list sentinel) of a local entry whose `mFunction` is assigned before `mIgnoreMask`; the constructor-built temporary kept a `this` register.
+- **`text = a + b` versus `text.assign(a + b)`.** In CTitleSession `RefreshSlots` the swapped iterator-tag slots came from one inline level too few; `operator=` adds it.
+- **A temporary argument instead of a scoped local fixes the frame order.** errmsg `ShowSystemMessage` passes `GetFontMap(created)` straight to `LoadFromMemory`.
+- Compiler-generated `@NNNN` labels can be named in `symbols.txt` from unitdiff rows (a variant of `name_data.py` that accepts `@` names on the source side). Their numbers drift whenever an included header changes; constants still compare by value.
+
+### Unsolved
+
+| Unit | Function | % | Cause |
+| --- | --- | --- | --- |
+| CTitleSession | `Run` | 99.92 | `.data` order: the target emits the CUIManager and CTitleSession deleter vtables before `Run`'s literal pool and the BUILayout deleter after the `basic_string` pools; ours puts all three deleters after the pools. Making `shared_ptr(Y*)` inline or in-class only reorders them. |
+| CPauseMenu | `Create`, `Run`, `FormatMessage` x2 | 99.9 | same `.data` order problem: the `<u8, void (*)(void*)>` deleter vtable comes after `function_base` in the target and first in ours |
+| CPauseMenu | `LeaveStage` | 98.73 | `GetHubIndex` bitfield packing order; aggregate, member-wise and by-value forms tried |
+| CPauseMenu | `TakeScreenshot` | 99.77 | register allocation of the work buffer pointer |
+| errmsg | `GetPaneRectangle` | 88.70 | the first three instructions are scheduled above `stwu` in ours; local order, const and reference forms tried |
+| main | `HandleFileError` | 96.61 | `UsesAlternateErrorMessage` range checks: the combined `||` form folds into the switch's range compare, the two-`if` form lays the false path inline |
+| homebutton | `InitializeHomeButtonInfo` | 98.55 | parameters get the lowest non-volatile registers in ours, the highest in the target |
+| CShadowCamera | `SetupShadowModel`, `SetupShadowMaterial` | 95.20, 99.88 | argument load scheduling around the by-value `GXColor` copies |
+| CPii | `swap<vector<Data>>`, bad_function_call `what`/dtor | 97.70, missing | see sprint-tZ; the bad_function_call weak functions come from a throw site the linker dropped |
