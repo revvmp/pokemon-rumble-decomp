@@ -75,8 +75,8 @@ public:
     virtual ~CUIMenu();
     virtual void OnInput(const IUIInput* pInput);
     virtual void UpdateSelection();
-    virtual void Load(int columns, int rows, const char* pArchive, const char* pName, const std::tr1::shared_ptr<CLayout::FontMap>& rFonts, bool background);
-    virtual void Load(int columns, int rows, const char* const* pArchives, const char* pName, const std::tr1::shared_ptr<CLayout::FontMap>& rFonts, bool background);
+    virtual void Load(int columns, int rows, const char* pArchive, const char* pName, const std::tr1::shared_ptr<CLayout::FontMap>& rFonts, int background);
+    virtual void Load(int columns, int rows, const char* const* pArchives, const char* pName, const std::tr1::shared_ptr<CLayout::FontMap>& rFonts, int background);
     void SetTitle(const wchar_t* pTitle);
 
 private:

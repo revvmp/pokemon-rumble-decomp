@@ -32,12 +32,12 @@ void CUIMenu::SetTitle(const wchar_t* pTitle) {
     }
 }
 
-void CUIMenu::Load(int columns, int rows, const char* pArchive, const char* pName, const std::tr1::shared_ptr<CLayout::FontMap>& rFonts, bool background) {
+void CUIMenu::Load(int columns, int rows, const char* pArchive, const char* pName, const std::tr1::shared_ptr<CLayout::FontMap>& rFonts, int background) {
     const char* archives[] = {pArchive, nullptr};
     Load(columns, rows, archives, pName, rFonts, background);
 }
 
-void CUIMenu::Load(int columns, int rows, const char* const* pArchives, const char* pName, const std::tr1::shared_ptr<CLayout::FontMap>& rFonts, bool background) {
+void CUIMenu::Load(int columns, int rows, const char* const* pArchives, const char* pName, const std::tr1::shared_ptr<CLayout::FontMap>& rFonts, int background) {
     CUIList::Load(pArchives, pName, rFonts, background);
     CLayout* pLayout = GetLayout();
     pLayout->CalculateMtx(true);
@@ -222,7 +222,7 @@ void OnMenuSelection(BUI* pSender, const MenuCallback* pCallbacks) {
     if (pCallbacks) NotifyCallbacks(pCallbacks->mSelectionCallbacks, pSender);
 }
 
-std::tr1::shared_ptr<IUIListItem> RunMenuList(const wchar_t* pTitle, std::vector<std::tr1::shared_ptr<IUIListItem> >& rItems, int columns, int rows, int defaultIndex, const MenuCallback* pCallbacks, IUIInput* pInput, std::tr1::shared_ptr<CUIManager> manager, const char* const* pArchives, const char* pLayoutName, const std::tr1::shared_ptr<CLayout::FontMap>& rFonts, bool background) {
+std::tr1::shared_ptr<IUIListItem> RunMenuList(const wchar_t* pTitle, std::vector<std::tr1::shared_ptr<IUIListItem> >& rItems, int columns, int rows, int defaultIndex, const MenuCallback* pCallbacks, IUIInput* pInput, std::tr1::shared_ptr<CUIManager> manager, const char* const* pArchives, const char* pLayoutName, const std::tr1::shared_ptr<CLayout::FontMap>& rFonts, int background) {
     std::tr1::shared_ptr<BUILayout> pRoot(new BUILayout());
     pRoot->Load(pArchives, (std::string(pLayoutName) + "_root").c_str(), rFonts, background);
     std::tr1::shared_ptr<CUIMenu> pMenu(new CUIMenu());
