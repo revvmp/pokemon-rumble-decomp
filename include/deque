@@ -273,7 +273,13 @@ __cdeque_buf<T, Allocator>::copy_backward(iterator first, iterator last, iterato
     return result;
 }
 
-template <typename T, typename Allocator> class __cdeque_imp : public __cdeque_buf<T, Allocator> {};
+template <typename T, typename Allocator> class __cdeque_imp : public __cdeque_buf<T, Allocator> {
+    typedef __cdeque_buf<T, Allocator> base;
+
+public:
+    __cdeque_imp() {}
+    explicit __cdeque_imp(const Allocator& rAlloc) : base(rAlloc) {}
+};
 
 template <typename T, typename Allocator>
 template <typename ForwardIterator>
@@ -368,6 +374,9 @@ template <typename T, typename Allocator> class __cdeque_pointer : public __cdeq
     typedef typename base::iterator base_iterator;
 
 public:
+    __cdeque_pointer() {}
+    explicit __cdeque_pointer(const Allocator& rAlloc) : __cdeque_imp<void*, allocator<void*> >(allocator<void*>(rAlloc)) {}
+
     class iterator : public base_iterator {
     public:
         typedef int difference_type;
@@ -460,6 +469,9 @@ public:
     typedef unsigned long size_type;
     typedef typename base::iterator iterator;
 
+    __cdeque() {}
+    explicit __cdeque(const Allocator& rAlloc) : base(rAlloc) {}
+
     T*& operator[](size_type i) { return base::operator[](i); }
     T* const& operator[](size_type i) const { return base::operator[](i); }
 
@@ -490,7 +502,7 @@ public:
 
     class iterator {
     public:
-        iterator(__deque_imp& rDeque, size_type pos);
+        iterator(const typename buf_type::iterator& rBlock, T* pCur) : block_(rBlock), cur_(pCur) {}
         T& operator*() { return *cur_; }
 
     private:
@@ -501,18 +513,30 @@ public:
     size_type size() const { return size_; }
     bool empty() const { return size_ == 0; }
     buf_type& buf() { return buf_.first(); }
+    const buf_type& buf() const { return buf_.first(); }
     Allocator& alloc() { return buf_.second(); }
-    iterator end() { return iterator(*this, size_); }
+    iterator end() { return at(size_); }
+    iterator at(size_type pos) {
+        buf_type* pBuf;
+        size_type i = pos + start_;
+        pBuf = &buf();
+        typename buf_type::iterator block = pBuf->begin() + i / block_size;
+        T* pBlock = pBuf->empty() ? 0 : *block;
+        return iterator(block, pBlock + i % block_size);
+    }
     size_type front_capacity() const { return start_; }
     size_type back_capacity() { return capacity() - (start_ + size_); }
-    size_type capacity() const;
-    size_type max_size() const;
+    size_type capacity() const { return buf().empty() ? 0 : (buf().size() - 1) * block_size; }
+    size_type max_size() const {
+        static size_type n = (numeric_limits<size_type>::max() / block_size - 1) * block_size;
+        return n;
+    }
 
     T& front() { return first(); }
     T& first() { return buf()[start_ / block_size][start_ % block_size]; }
 
     __deque_imp() : start_(0), size_(0) {}
-    explicit __deque_imp(const Allocator& rAlloc) : start_(0), size_(0), buf_(buf_type(), rAlloc) {}
+    explicit __deque_imp(const Allocator& rAlloc) : start_(0), size_(0), buf_(buf_type(typename Allocator::template rebind<T*>::other(rAlloc)), rAlloc) {}
     ~__deque_imp() {
         destroy_all();
         buf_type& rBuf = buf();
@@ -641,7 +665,7 @@ public:
     };
 
     __deque_ops() : start_(0), size_(0), buf_() {}
-    explicit __deque_ops(const Allocator& rAlloc) : start_(0), size_(0), buf_(buf_type(), rAlloc) {}
+    explicit __deque_ops(const Allocator& rAlloc) : start_(0), size_(0), buf_(buf_type(typename Allocator::template rebind<T*>::other(rAlloc)), rAlloc) {}
 
     size_type size() const { return size_; }
     bool empty() const { return size_ == 0; }

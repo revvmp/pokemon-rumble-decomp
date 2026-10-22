@@ -14,6 +14,7 @@ public:
     virtual void RequestDelete() = 0;
     virtual bool IsIdle() = 0;
 
+    static ISaveManager* GetInstance();
     static std::tr1::shared_ptr<ISaveManager> Create();
 };
 
