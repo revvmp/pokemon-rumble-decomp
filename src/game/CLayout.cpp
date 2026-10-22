@@ -1,6 +1,10 @@
 #include <game/CLayout.h>
 
 #include <game/CFiber.h>
+#include <game/CFileData.h>
+#include <nw4r/lyt/lyt_layout.h>
+#include <nw4r/lyt/lyt_animation.h>
+#include <nw4r/lyt/lyt_pane.h>
 #include <game/RenderMode.h>
 #include <functional>
 #include <nw4r/g3d/g3d_state.h>
@@ -140,20 +144,157 @@ CLayout::~CLayout() {
 }
 #pragma dont_inline reset
 
+void CLayout::HandleInitializeError(const CInitializeException& rError) {
+    if (sInitializeErrorHandler) {
+        (*sInitializeErrorHandler)(rError);
+        OSPanic("CLayout.cpp", 337, rError.what());
+    } else {
+        throw rError;
+    }
+}
+
 void CLayout::Load(const char* pArchive, const char* pLayoutName, const std::tr1::shared_ptr<FontMap>& rFonts, bool background) {
     int error = LoadArchive(pArchive, pLayoutName, rFonts, background);
     if (error != 0) {
         CInitializeException exception(error, pArchive, pLayoutName, rFonts);
-        if (sInitializeErrorHandler) {
-            (*sInitializeErrorHandler)(exception);
-            OSPanic("CLayout.cpp", 337, exception.what());
-        } else {
-            throw exception;
+        HandleInitializeError(exception);
+    }
+}
+
+void CLayout::Load(const char* const* pArchives, const char* pLayoutName, const std::tr1::shared_ptr<FontMap>& rFonts, bool background) {
+    int error = LoadArchives(pArchives, pLayoutName, rFonts, background);
+    if (error != 0) {
+        CInitializeException exception(error, pArchives, pLayoutName, rFonts);
+        HandleInitializeError(exception);
+    }
+}
+
+int CLayout::LoadArchive(const char* pArchive, const char* pLayoutName, const std::tr1::shared_ptr<FontMap>& rFonts, bool background) {
+    std::tr1::shared_ptr<CFileData> file = LoadResourceFile(pArchive, 0, background);
+    if (!file || !file->IsLoaded()) {
+        return 1;
+    }
+    mFiles.push_back(file);
+    std::tr1::shared_ptr<nw4r::lyt::ArcResourceLink> link(new nw4r::lyt::ArcResourceLink);
+    link->Set(file->GetData(), "");
+    mArchives.push_back(link);
+    mAccessor.Attach(link.get());
+    return LoadLayout(pLayoutName, rFonts);
+}
+
+#pragma dont_inline on
+int CLayout::LoadArchives(const char* const* pArchives, const char* pLayoutName, const std::tr1::shared_ptr<FontMap>& rFonts, bool background) {
+    std::list<std::tr1::shared_ptr<CFileData> > files;
+    for (; *pArchives != nullptr; ++pArchives) {
+        std::tr1::shared_ptr<CFileData> file = LoadResourceFile(*pArchives, 0, background);
+        if (!file || !file->IsLoaded()) {
+            return 1;
+        }
+        files.push_back(file);
+    }
+    if (files.size() == 0) {
+        return 2;
+    }
+    mFiles = files;
+    mArchives.reserve(mFiles.size());
+    for (std::list<std::tr1::shared_ptr<CFileData> >::iterator it = mFiles.begin(); it != mFiles.end(); ++it) {
+        std::tr1::shared_ptr<nw4r::lyt::ArcResourceLink> link(new nw4r::lyt::ArcResourceLink);
+        link->Set((*it)->GetData(), "");
+        mAccessor.Attach(link.get());
+        mArchives.push_back(link);
+    }
+    return LoadLayout(pLayoutName, rFonts);
+}
+
+int CLayout::LoadLayout(const char* pLayoutName, const std::tr1::shared_ptr<FontMap>& rFonts) throw() {
+    std::vector<std::tr1::shared_ptr<nw4r::lyt::FontRefLink> > fontLinks;
+    if (rFonts) {
+        mFonts = rFonts;
+        fontLinks.reserve(mFonts->size());
+        for (FontMap::iterator it = mFonts->begin(); it != mFonts->end(); ++it) {
+            std::tr1::shared_ptr<nw4r::lyt::FontRefLink> link(new nw4r::lyt::FontRefLink);
+            link->Set((*it).first.c_str(), (*it).second.get());
+            fontLinks.push_back(link);
+            mAccessor.RegistFont(link.get());
         }
     }
+    mLayout.reset(new nw4r::lyt::Layout);
+    void* pResource;
+    {
+        std::string baseName(pLayoutName);
+        std::string layoutPath = baseName + ".brlyt";
+        pResource = mAccessor.GetResource('blyt', layoutPath.c_str(), nullptr);
+    }
+    if (!mLayout->Build(pResource, &mAccessor)) {
+        return 3;
+    }
+    mDrawInfo.SetViewRect(mLayout->GetLayoutRect());
+    if (rFonts) {
+        std::vector<std::tr1::shared_ptr<nw4r::lyt::FontRefLink> >::iterator it = fontLinks.end();
+        while (it != fontLinks.begin()) {
+            --it;
+            mAccessor.UnregistFont((*it).get());
+        }
+    }
+    {
+        std::string baseName(pLayoutName);
+        mName = baseName + ".brlan";
+    }
+    SetFlags(FLAG_DIRTY | FLAG_LOADED);
+    SetVisible(HasFlags(FLAG_VISIBLE));
+    return 0;
+}
+#pragma dont_inline reset
+
+void CLayout::SetVisible(bool visible) {
+    if (mFlags & FLAG_LOADED) {
+        SetVisible(mLayout->GetRootPane(), visible);
+    } else if (visible) {
+        mFlags |= FLAG_VISIBLE;
+    } else {
+        mFlags &= ~FLAG_VISIBLE;
+    }
+}
+
+bool CLayout::IsVisible() const {
+    if (HasFlags(FLAG_LOADED)) {
+        return mLayout->GetRootPane()->IsVisible();
+    }
+    return HasFlags(FLAG_VISIBLE);
 }
 
 void CLayout::SetViewScale(const nw4r::math::VEC2& rScale) {
     mDrawInfo.SetLocationAdjustScale(rScale);
     UpdateViewRect();
+}
+
+nw4r::math::_VEC2 CLayout::GetViewScale() const {
+    return mDrawInfo.GetLocationAdjustScale();
+}
+
+void CLayout::SetVisible(nw4r::lyt::Pane* pPane, bool visible) {
+    if (pPane == nullptr) {
+        pPane = mLayout->GetRootPane();
+    }
+    pPane->SetVisible(visible);
+    if (mAttach && mAttach->mpPane != nullptr && pPane == mLayout->GetRootPane()) {
+        mAttach->mpParent->SetVisible(mAttach->mpPane, visible);
+    } else if (visible) {
+        UpdateAttachedLayouts();
+    }
+}
+
+nw4r::lyt::Pane* CLayout::FindPane(const char* pName) {
+    return mLayout->GetRootPane()->FindPaneByName(pName, true);
+}
+
+void CLayout::UpdateAttachedLayouts() {
+    if (!(mFlags & FLAG_DIRTY)) {
+        mFlags |= FLAG_DIRTY;
+        if (mAttach && !mAttach->mChildren.empty()) {
+            for (std::set<CLayout*>::iterator it = mAttach->mChildren.begin(); it != mAttach->mChildren.end(); ++it) {
+                (*it)->UpdateAttachedLayouts();
+            }
+        }
+    }
 }

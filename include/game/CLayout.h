@@ -35,7 +35,18 @@ nw4r::lyt::Pane* spDefaultMotionPane;
 
 class CLayout : public ICalcDraw {
 public:
-    class CAttach;
+    enum Flags {
+        FLAG_VISIBLE = 1,
+        FLAG_LOADED = 2,
+        FLAG_DIRTY = 8
+    };
+
+    class CAttach {
+    public:
+        CLayout* mpParent;
+        nw4r::lyt::Pane* mpPane;
+        std::set<CLayout*> mChildren;
+    };
     class PaneMP;
     typedef std::map<std::string, std::tr1::shared_ptr<nw4r::ut::Font> > FontMap;
     typedef std::map<nw4r::lyt::Pane*, std::tr1::shared_ptr<PaneMP> > PaneProgramMap;
@@ -100,8 +111,8 @@ public:
     bool Attach(nw4r::lyt::Pane* pPane, CLayout* pChild);
     static void HandleInitializeError(const CInitializeException& rError);
     void SetViewScale(const nw4r::math::VEC2& rScale);
-    nw4r::math::VEC2 NormalizeViewPosition(const nw4r::math::VEC2& rPosition) const;
-    nw4r::math::VEC2 GetViewScale() const;
+    nw4r::math::_VEC2 NormalizeViewPosition(const nw4r::math::VEC2& rPosition) const;
+    nw4r::math::_VEC2 GetViewScale() const;
     void Render(const nw4r::math::VEC2& rSize);
     void SetPaneVisible(const char* pName, bool visible);
     void SetVisible(bool visible);
@@ -131,6 +142,10 @@ public:
 
 private:
     int LoadArchive(const char* pArchive, const char* pLayoutName, const std::tr1::shared_ptr<FontMap>& rFonts, bool background);
+    int LoadArchives(const char* const* pArchives, const char* pLayoutName, const std::tr1::shared_ptr<FontMap>& rFonts, bool background);
+    int LoadLayout(const char* pLayoutName, const std::tr1::shared_ptr<FontMap>& rFonts) throw();
+    void SetFlags(u32 flags) { mFlags |= flags; }
+    bool HasFlags(u32 flags) const { return (mFlags & flags) != 0; }
     void UpdateViewRect();
 
     u32 mFlags;
