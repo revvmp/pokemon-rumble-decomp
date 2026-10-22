@@ -31,3 +31,14 @@
 - `CAttach` is `{CLayout* parent; Pane* pane; set<CLayout*> children;}`, 20 bytes.
 - The text-pane suffix table at `0x80367038` is `_nw _n _ne _w _e _sw _s _se _c ""` followed by null; `SetText` writes the string to every existing outline and shadow pane built from it.
 - `UIMenu`/`CUIMenu` reference sources came from `337-menu-reference/CUIMenu.cpp` and matched at 99% to 100% after the vtable and constant symbols were named.
+
+## Traps (CLayout motion, attach and loader work)
+
+- **Naming a local weak helper after a template instance another unit also defines breaks the link.** Renaming `fn_801D29C0` to `find_leaf<PCv>` (set of void pointers) collided with CGameSession.o: "multiply-defined ... Previously defined in CGameSession.o". Keep the unique `fn_` name for such instances; unique-to-CLayout names (CAttach, PaneMP, CMotionProgram deleters, the pane and animation map helpers) linked fine.
+- **A shared_ptr returned from a helper wants a lifetime-extended reference, not a named local.** `CreateMotion`, `QueueMotion` and `AppendMotion` match only with `const shared_ptr<CMotionProgram>& rProgram = BuildMotion(...)`; a plain local copies through registers differently.
+- **Declaring a container iterator at the top of the function changes register allocation.** `ApplyMotionFrames` and `Calc` swapped `r28`/`r31` until `PaneProgramMap::iterator it;` was declared before the `if` and assigned in the `for`.
+- **`vector::reserve(1)` before `push_back` is source, not inlining luck.** `LoadArchive` and `LoadFromMemory` gained exactly one 312-byte inline `reallocate` chunk; adding `mArchives.reserve(1);` made both 100%.
+- **`CLayout::DetachChildren` was misnamed.** The function at `0x801D57E0` detaches the layout from its parent (now `Detach`); the function at `0x801D59E0` detaches every attached child layout (`DetachAttachedLayouts`).
+- **Functions that contain an inlined `std::list::clear` or erase keep four copies of each inlined set iterator.** StopMotion, AdvancePaneMotions and ReplaceMotions show four stores of `begin()` and three of `end()` per inlined `UpdateAttachedLayouts` level in the target; the same inline in `CalculateMtx` and `ApplyMotionFrames` has one. No source form tried (inline keyword, declaration order, pragmas for propagation, scheduling, peephole) reproduces it.
+- **The target keeps the map lookup key in memory in StopMotion and FindPaneMP (`stw r4, 8(r31)` at entry).** Our `map::find` does not; this and the set insert tail (`pair<iterator,bool>` dead stores to `0xc`/`0x10`/`0x18`) cap Attach, AttachLayout, Detach, StopMotion and FindPaneMP at 90 to 99 percent.
+- **Identical eight-byte accessors fold at link time.** `__ml__shared_ptr<FileList>`, `get__shared_ptr<Font>` and similar share one address, so a call can show a different name in the target than in the rebuilt object; those rows cannot reach 100 percent by source changes.
