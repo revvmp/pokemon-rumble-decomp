@@ -23,6 +23,7 @@ public:
     void ExportStatisticValues(std::vector<SD_StatisticValue::Data>& rOut1, std::vector<SD_StatisticValue::Data>& rOut2,
                                std::vector<SD_StatisticValue::Data>& rOut3);
 private:
+    int GetCounterStopValue(int id) const;
     std::vector<SD_StatisticValue::Data> mSystemValues;
     std::vector<SD_StatisticValue::Data> mSystemSnapshot;
     std::vector<SD_StatisticValue::Data> mValues;

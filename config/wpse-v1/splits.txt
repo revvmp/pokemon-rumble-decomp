@@ -553,6 +553,13 @@ game/CStageCamera.cpp:
 	.sdata      start:0x804B7380 end:0x804B7388
 	.sdata2     start:0x804BA108 end:0x804BA128
 
+game/CStatistic.cpp:
+	extab       start:0x800295E8 end:0x80029AA4
+	extabindex  start:0x8004BF0C end:0x8004BFE4
+	.text       start:0x80112EF0 end:0x80118180
+	.data       start:0x803ADFC8 end:0x803AE0D8
+	.sdata      start:0x804B7388 end:0x804B73A0
+
 game/CStrapReminder.cpp:
 	extab       start:0x80029AA4 end:0x80029D7C
 	extabindex  start:0x8004BFE4 end:0x8004C08C

@@ -125,7 +125,7 @@ public:
         ::operator delete(pNode);
         --sz();
     }
-    template <typename Key> iterator find_key(const Key& key) {
+    template <typename Key> iterator lower_bound_key(const Key& key) {
         tree_node_base* pBest = end_node();
         tree_node_base* pNode = root();
         while (pNode != nullptr) {
@@ -136,10 +136,14 @@ public:
                 pNode = pNode->right_;
             }
         }
-        if (pBest == end_node() || key < static_cast<node*>(pBest)->value_.first) {
-            pBest = end_node();
-        }
         return iterator(pBest);
+    }
+    template <typename Key> iterator find_key(const Key& key) {
+        iterator it = lower_bound_key(key);
+        if (it == end() || key < it->first) {
+            return end();
+        }
+        return it;
     }
     void swap(map_compact_tree& rOther) {
         if (this == &rOther) {
