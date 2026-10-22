@@ -88,9 +88,9 @@ public:
     };
     set() {}
     ~set() {}
-    iterator begin() { return iterator(mTree.begin()); }
+    iterator begin() { typename tree_type::iterator i = mTree.begin(); return reinterpret_cast<iterator&>(i); }
     const_iterator begin() const { return const_iterator(mTree.begin()); }
-    iterator end() { return iterator(mTree.end()); }
+    iterator end() { typename tree_type::iterator i = mTree.end(); return reinterpret_cast<iterator&>(i); }
     const_iterator end() const { return const_iterator(mTree.end()); }
     size_type size() const { return mTree.size(); }
     bool empty() const { return mTree.size() == 0; }

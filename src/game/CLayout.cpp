@@ -627,7 +627,7 @@ void CLayout::UpdateAttachedLayouts() {
     if (!(mFlags & FLAG_DIRTY)) {
         mFlags |= FLAG_DIRTY;
         if (mAttach && !mAttach->mChildren.empty()) {
-            for (std::set<CLayout*>::iterator it = mAttach->mChildren.begin(); it != mAttach->mChildren.end(); ++it) {
+            for (std::set<CLayout*>::const_iterator it = mAttach->mChildren.begin(); it != mAttach->mChildren.end(); ++it) {
                 (*it)->UpdateAttachedLayouts();
             }
         }
