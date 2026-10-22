@@ -70,7 +70,7 @@ inline int Reverse(int result) {
     return result != 0 ? -result : 0;
 }
 
-inline int CompareBPChain(const CPiiPersonalData* pA, const CPiiPersonalData* pB) {
+inline bool CompareBPChain(const CPiiPersonalData* pA, const CPiiPersonalData* pB) {
     int result = CompareValue(pA->GetBP(), pB->GetBP());
     if (result != 0) {
         return result > 0;
@@ -123,6 +123,10 @@ bool CompareSpeciesName(const PiiItemPtr& rA, const PiiItemPtr& rB) {
     return CompareBPDescending(rA, rB);
 }
 
+inline bool CompareItemBP(const PiiItemPtr& rA, const PiiItemPtr& rB) {
+    return CompareBPChain(rA->GetPPD().get(), rB->GetPPD().get());
+}
+
 bool CompareSpeciesOrder(const PiiItemPtr& rA, const PiiItemPtr& rB) {
     const PiiSpeciesData* pSpeciesA = rA->GetPPD()->GetSpeciesData();
     const PiiSpeciesData* pSpeciesB = rB->GetPPD()->GetSpeciesData();
@@ -130,7 +134,7 @@ bool CompareSpeciesOrder(const PiiItemPtr& rA, const PiiItemPtr& rB) {
     if (result != 0) {
         return result < 0;
     }
-    return CompareBPDescending(rA, rB);
+    return CompareItemBP(rA, rB);
 }
 
 bool CompareNewest(const PiiItemPtr& rA, const PiiItemPtr& rB) {
@@ -483,6 +487,9 @@ bool CPiiListFilterSort::ShowTypeFilterMenu(bool bySpecies, std::tr1::shared_ptr
             onChanged(this);
         }
         return true;
+    }
+    if (onChanged) {
+        onChanged(this);
     }
     return false;
 }

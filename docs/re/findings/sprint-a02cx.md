@@ -44,3 +44,34 @@ No whole unit reaches 100%, including its data and exception sections. Therefore
 ### Final report observation
 
 A subsequent read of `build/wpse-v1/report.json` counted 13,238 perfect functions, without another report-generation command or source change by this session. The cause of that report update was not established. The three investigated units retain the scores listed above. Credit this session only with the two improvements established by the controlled recompile comparison, not the additional report-count movement. The latest observed count still exceeds the entry count of 13,236. `git diff --check` passes, and the only worktree changes are the two source files and this findings file.
+
+
+## 2026-10-22: CPiiListFilterSort follow-up
+
+### Retained changes and evidence
+
+- `CompareSpeciesOrder` reaches 100% in both strict unitdiff and the report, from 96.268654%. The existing personal-data BP-chain helper now returns `bool`, matching its actual predicate result. An inline shared-pointer adapter (`CompareItemBP`) calls it, and the species-order comparator uses that adapter for its tie-break. Both the boolean result type and the additional inline level matter. The other comparators retain their baseline scores.
+- `ShowTypeFilterMenu` was missing its cancel-path `onChanged(this)` invocation. The target contains this invocation at function offsets `0x838` through `0x88C`. Restoring it reproduces the target's 0x260-byte frame and fixes the stack offsets; report score improves from 96.55621% to 99.94083%. Strict unitdiff is 99.93343%, with six shift-register operand differences and the existing placeholder relocation-name difference remaining. This was a missing behavior, not simply a frame-allocation problem.
+- No shared header, target manifest, symbol configuration, or Matching classification changed. The unit still has nine report-level non-perfect functions. `ShowOriginalTrainerFilterMenu` and `ShowSortTypeMenu` were already report-perfect at this session's baseline; their strict mismatch is the placeholder symbol at `0x804B9028`.
+
+### Validation and limitations
+
+The first command was `git reset --hard main`. It failed because the linked worktree's index is under the main repository outside the writable sandbox. Read-only checks established a clean checkout with both HEAD and main at `36186eb9eb4f307679bab4cd6f8023ca9a755747`, so the requested starting contents already held. No commit was attempted.
+
+`python configure.py` exited zero. A normal `.venv/Scripts/ninja` invocation and a later `-j 2` retry produced no output before being interrupted; neither establishes a successful full build. Used the exact compilation command from `.venv/Scripts/ninja -t commands build/wpse-v1/src/game/CPiiListFilterSort.o`, as in the earlier session's workaround. The source compiles exited zero, and comparisons used objdiff-cli and `tools/re/unitdiff.py --no-build`.
+
+For a controlled baseline, temporarily compiled the HEAD source, generated a full report to stdout, restored the retained source bytes, compiled again, and generated a second full report. Counts across 1,388 units are **13,284 to 13,285** functions with `fuzzy_match_percent == 100`; no previously perfect function loses 100%, and exactly the two functions listed above change score. The report present before this comparison counted 13,286 and was stale relative to freshly generated reports; do not use it as the source baseline. The retained report is regenerated at `build/wpse-v1/report.json`. The existing exception-table warnings for NPpu ToUnicode and method_layoutSetString persist.
+
+The unit remains NonMatching, with data and exception sections also unresolved. No fresh full-DOL verification or whole-unit completion is claimed. All experiments used in-memory source backups and restored rejected edits; no scratch files were created. Only this findings file receives appended notes.
+
+### Rejected experiments and reusable findings
+
+- Shared-pointer `.get()`, dereference syntax, and dereferencing the personal-data shared pointer do not change the BP comparator registers. Replacing the BP scalar comparison with the reference comparison does not fix those comparators and regresses CompareFavoriteFirst; reverted.
+- Wrapping the full BP comparators in raw-item or raw-personal-data helper functions worsens the standalone comparators. The personal-data helper nevertheless revealed the matching SpeciesOrder inline structure. Isolating that structure to the species-order path avoids those regressions.
+- Calling the BP-chain helper with its old `int` return type scores only 93.0597% directly and 93.731346% through one adapter. With `bool`, a direct call scores 99.32836%, and one shared-pointer adapter reaches 100%. Additional int-returning adapter levels do not help. Calling the chain directly from CompareSpeciesName lowers its score to 98.776596%; reverted.
+- Sort: named begin/end iterators, a named comparator, individual begin/end locals, a const comparator table, an unsigned index, explicit comparator construction, and pointer-arithmetic table access do not reproduce the post-begin scheduling. The const table substantially worsens the function; all reverted.
+- ShowPrefixFilterMenu: an unsigned upper-bound comparison preserves two range branches but changes the upper compare to `cmplwi` (99.69768% strict). Early negative/upper rejection with duplicated callback bodies scores 92.95349%; a switch wrapper still folds the range. Reverted all variants; baseline remains 98.76744% in the report.
+- ShowTypeFilterMenu: compound shift assignment, const-reference/int/unsigned/long kind parameters, a mask argument, a separate mask-return helper, an item reference, and a separate item-kind accessor all retain the same swapped shift registers. Passing the whole item by value or using a short kind regresses the function. Reverted these changes. The six remaining instruction differences are `li`, `lwz`, and `slw` at offsets `0x188/0x190/0x1A0` and `0x210/0x218/0x228`.
+- The UIMenuItem sorts and shared-pointer comparator-reference sort retain the register-allocation problems documented in sprint-r1 and sprint-cx. No shared algorithm/header change is retained or credited.
+
+Final recheck: after the second Ninja interruption, the generated total changed again. Repeating the controlled HEAD-source versus retained-source compilation and report comparison gives 13284 to 13285 perfect functions, with 0 perfect-function losses and only the same two CPiiListFilterSort score changes. Credit this work with one new perfect function. Changes to other pre-existing object artifacts between report generations are not credited; their cause was not established. Final git diff --check passes.
