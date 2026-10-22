@@ -587,10 +587,7 @@ inline void CDlgPiiListImpl::RunList() {
         case 6:
         case 7:
             YieldFiber();
-            {
-                const wchar_t* pName = GetMessageString(0x1003E + result, nullptr);
-                ShowMessage(FormatMessage(GetMessageString(0x60090, nullptr), pName).c_str());
-            }
+            ShowMessage(FormatMessage(GetMessageString(0x60090, nullptr), GetMessageString(0x1003E + result, nullptr)).c_str());
             break;
         case 8:
             YieldFiber();
@@ -614,8 +611,7 @@ inline void CDlgPiiListImpl::RunList() {
         case 12:
         case 13: {
             YieldFiber();
-            const wchar_t* pName = GetMessageString(0x10038 + result, nullptr);
-            ShowMessage(FormatMessage(GetMessageString(0x60093, nullptr), pName).c_str());
+            ShowMessage(FormatMessage(GetMessageString(0x60093, nullptr), GetMessageString(0x10038 + result, nullptr)).c_str());
             break;
         }
         case 14: {
