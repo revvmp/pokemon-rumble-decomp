@@ -1,3 +1,8 @@
+#include <revolution/types.h>
+#include <map>
+#include <string>
+#include <vector>
+#include <list>
 #include <game/CMsgBalloon.h>
 
 #include <game/CBattleRoyalBox.h>
