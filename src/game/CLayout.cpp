@@ -259,28 +259,18 @@ int CLayout::LoadLayout(const char* pLayoutName, const std::tr1::shared_ptr<Font
         }
     }
     mLayout.reset(new nw4r::lyt::Layout);
-    void* pResource;
-    {
-        std::string baseName(pLayoutName);
-        std::string layoutPath = baseName + ".brlyt";
-        pResource = mAccessor.GetResource('blyt', layoutPath.c_str(), nullptr);
-    }
+    void* pResource = mAccessor.GetResource('blyt', (std::string(pLayoutName) + ".brlyt").c_str(), nullptr);
     if (!mLayout->Build(pResource, &mAccessor)) {
         return 3;
     }
     nw4r::ut::Rect layoutRect = mLayout->GetLayoutRect();
     mDrawInfo.SetViewRect(layoutRect);
     if (rFonts) {
-        std::vector<std::tr1::shared_ptr<nw4r::lyt::FontRefLink> >::iterator it = fontLinks.end();
-        while (it != fontLinks.begin()) {
-            --it;
+        for (std::vector<std::tr1::shared_ptr<nw4r::lyt::FontRefLink> >::iterator it = fontLinks.begin(); it != fontLinks.end(); ++it) {
             mAccessor.UnregistFont((*it).get());
         }
     }
-    {
-        std::string baseName(pLayoutName);
-        mName = baseName + "_";
-    }
+    mName = std::string(pLayoutName) + "_";
     SetFlags(FLAG_DIRTY | FLAG_LOADED);
     SetVisible(HasFlags(FLAG_VISIBLE));
     return 0;
