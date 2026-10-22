@@ -1371,6 +1371,8 @@ game/TextLayout.cpp:
 	extab       start:0x8004123C end:0x80041348
 	extabindex  start:0x80051FB4 end:0x80051FD8
 	.text       start:0x801E5DA0 end:0x801E66FC
+	.data       start:0x803C2B88 end:0x803C2BE0
+	.sdata2     start:0x804BA570 end:0x804BA580
 
 game/CBSPTree.cpp:
 	extab       start:0x80041348 end:0x80041358

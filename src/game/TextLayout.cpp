@@ -8,13 +8,13 @@ std::wstring WrapText(const std::wstring& rText, nw4r::ut::TextWriterBase<wchar_
     std::wstring result;
     result.reserve(rText.size());
     enum State { Empty, Word, SpacedWord, Space };
+    unsigned long lineStart = 0;
+    unsigned long spaceStart;
+    unsigned long wordStart;
     State state = Empty;
     f32 completedWidth = 0.0f;
-    f32 wordWidth;
     f32 spaceWidth;
-    unsigned long lineStart = 0;
-    unsigned long wordStart;
-    unsigned long spaceStart;
+    f32 wordWidth;
     for (unsigned long i = 0; i < rText.size(); ++i) {
         wchar_t character = rText[i];
         if (character == L'\n') {
@@ -52,6 +52,7 @@ std::wstring WrapText(const std::wstring& rText, nw4r::ut::TextWriterBase<wchar_
             } else {
                 switch (state) {
                 case Empty:
+                startWord:
                     wordWidth = characterWidth;
                     wordStart = i;
                     state = Word;
@@ -62,9 +63,7 @@ std::wstring WrapText(const std::wstring& rText, nw4r::ut::TextWriterBase<wchar_
                         result.push_back(L'\n');
                         completedWidth = 0.0f;
                         lineStart = i;
-                        wordWidth = characterWidth;
-                        wordStart = i;
-                        state = Word;
+                        goto startWord;
                     } else {
                         wordWidth += characterWidth;
                     }
@@ -85,9 +84,7 @@ std::wstring WrapText(const std::wstring& rText, nw4r::ut::TextWriterBase<wchar_
                         result.push_back(L'\n');
                         completedWidth = 0.0f;
                         lineStart = i;
-                        wordWidth = characterWidth;
-                        wordStart = i;
-                        state = Word;
+                        goto startWord;
                     } else {
                         wordWidth = characterWidth;
                         wordStart = i;
