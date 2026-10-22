@@ -46,6 +46,8 @@ public:
     void CompletePiiChangeRequest();
     void BeginHoldCollection();
     void EndHoldCollection();
+    void RequestPiiChange() { SetFlag(FLAG_PII_CHANGE_REQUESTED); }
+    bool IsPiiChangeRequested() const { return IsFlagSet(FLAG_PII_CHANGE_REQUESTED); }
 
     bool IsHoldCollectionEnabled() const { return IsCollectingHold(); }
     u32 GetCollectedHold() const { return mAccumulatedHold; }

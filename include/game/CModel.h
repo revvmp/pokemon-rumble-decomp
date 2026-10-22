@@ -39,6 +39,7 @@ public:
             FLAG_PAUSED = 1 << 9
         };
 
+        void Wait();
         u32 GetId() const { return mId; }
         bool IsStarted() const { return !(mFlags & FLAG_PENDING); }
         bool IsPlaying() const { return mFlags & (FLAG_PLAYING | FLAG_LOOPED); }

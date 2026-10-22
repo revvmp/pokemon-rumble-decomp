@@ -24,6 +24,11 @@
 #include <game/MapDesc.h>
 #include <game/MathUtil.h>
 #include <game/Pad.h>
+#include <game/QuarterTurn.h>
+#include <game/SaveData.h>
+#include <game/CItem.h>
+#include <game/CPii.h>
+#include <game/PiiSpeciesData.h>
 #include <game/Message.h>
 #include <game/Sound.h>
 #include <game/CStatistic.h>
@@ -33,6 +38,8 @@
 #include <nw4r/lyt/lyt_textBox.h>
 #include <nw4r/math/math_types.h>
 #include <vector>
+
+u32 GetPokemonVoiceId(u16 species, u16 form);
 
 #pragma dont_inline on
 
@@ -112,16 +119,32 @@ int CheckRemoteMemoryErrors();
 
 struct SwapRequest {
     std::tr1::shared_ptr<CPiiPersonalData> mPii;
-    nw4r::math::VEC3 mFrom;
-    nw4r::math::VEC3 mTo;
+    nw4r::math::VEC3 mPosition;
+    f32 mRotation;
+    nw4r::math::VEC3 mModelScale;
+    int mOutlineType;
 };
+
+template <typename T> T Lerp(const T& rFrom, const T& rTo, f32 t) {
+    return rFrom + (rTo - rFrom) * t;
+}
+
+const char* const kMotionPaneNames[] = {"PIISPEC_ANM", "LIST_ANM", "PLAYERID_ANM", "HELP_ANM"};
 
 class CDataPerPlayer {
 public:
+    enum Part {
+        PART_SPEC,
+        PART_LIST,
+        PART_PLAYER_ID,
+        PART_HELP,
+        PART_COUNT
+    };
+
     CDataPerPlayer(IDlgPiiSelectorInternal* pDlg, int state, int player)
-        : mpDlg(pDlg), mState(state), mPlayer(player), mMode(0), mFavoriteMode(false), mReservedPosition(0.0f, 0.0f),
-          mReservedTargetPosition(0.0f, 0.0f), mOpen(false), mSilent(false), mInputDisabled(false),
-          mReserved6C(0), mReserved70(0), mReserved74(0), mReserved78(""), mReserved7C(""), mReserved80(""),
+        : mpDlg(pDlg), mState(state), mPlayer(player), mMode(0), mFavoriteMode(false), mOutsidePosition(0.0f, 0.0f),
+          mInsidePosition(0.0f, 0.0f), mOpen(false), mSilent(false), mInputDisabled(false),
+          mEnterFrames(0), mSpinFrames(0), mExitFrames(0), mEnterMotion(""), mSpinMotion(""), mExitMotion(""),
           mUIManager(new CUIManager), mRootLayout(new BUILayout), mListLayout(new BUILayout),
           mPiiSpec(new CUIPiiSpec), mPiiList(new CUIPiiList), mPlayerID(new CUIPlayerID), mpController(nullptr),
           mDisconnectSerial(0), mDisconnected(false), mEntranceResult(0), mFiber("CDataPerPlayer") {}
@@ -187,7 +210,20 @@ public:
     void FinishAccept();
     bool CanSwap();
     void PrepareSwap(SwapRequest& rRequest);
-    void ExecuteSwap(const SwapRequest& rRequest);
+    bool ExecuteSwap(const SwapRequest& rRequest);
+    void SpawnPreview();
+    void CalcPreviewPositions(nw4r::math::VEC3* pInside, nw4r::math::VEC3* pOutside);
+    void CreateBall();
+    nw4r::math::VEC3 GetOverheadPosition();
+    nw4r::math::VEC3 GetInsidePosition();
+    std::tr1::shared_ptr<CPii> MovePreviewPii(const nw4r::math::VEC3& rPosition);
+    void MoveChangeCircle(const nw4r::math::VEC3& rPosition);
+    void MoveBall(const nw4r::math::VEC3& rPosition);
+    void RemovePreviewPii();
+    void RemoveBall();
+    void RemoveChangeCircle();
+    bool IsSkipPressed();
+    void GetPlayerPiiTransform(nw4r::math::VEC3* pPosition, f32* pRotation);
 
 private:
     IDlgPiiSelectorInternal* mpDlg;
@@ -197,20 +233,20 @@ private:
     bool mFavoriteMode;
     PiiItemVector mItems;
     CPiiListFilterSort mFilterSort;
-    nw4r::math::VEC2 mReservedPosition;
-    nw4r::math::VEC2 mReservedTargetPosition;
+    nw4r::math::VEC2 mOutsidePosition;
+    nw4r::math::VEC2 mInsidePosition;
     bool mOpen;
     bool mSilent;
     bool mInputDisabled;
-    std::tr1::weak_ptr<IUIListItem> mReservedWeak54;
-    std::tr1::weak_ptr<BUI> mReservedWeak5C;
-    std::tr1::weak_ptr<BUI> mReservedWeak64;
-    int mReserved6C;
-    int mReserved70;
-    int mReserved74;
-    const char* mReserved78;
-    const char* mReserved7C;
-    const char* mReserved80;
+    std::tr1::weak_ptr<CPii> mPreviewPii;
+    std::tr1::weak_ptr<CItem> mChangeCircle;
+    std::tr1::weak_ptr<CItem> mBall;
+    int mEnterFrames;
+    int mSpinFrames;
+    int mExitFrames;
+    const char* mEnterMotion;
+    const char* mSpinMotion;
+    const char* mExitMotion;
     std::tr1::shared_ptr<CUIManager> mUIManager;
     std::tr1::shared_ptr<BUILayout> mRootLayout;
     std::tr1::shared_ptr<BUILayout> mListLayout;
@@ -218,10 +254,7 @@ private:
     std::tr1::shared_ptr<CUIPiiList> mPiiList;
     std::tr1::shared_ptr<CUIPlayerID> mPlayerID;
     std::tr1::shared_ptr<BUILayout> mHelpLayout;
-    bool mSpecShown;
-    bool mListShown;
-    bool mPlayerIDShown;
-    bool mHelpShown;
+    bool mShown[PART_COUNT];
     bool mReservedFlagC0;
     IController* mpController;
     u32 mDisconnectSerial;
@@ -304,18 +337,18 @@ void CDataPerPlayer::Setup(bool background) {
     mPiiSpec->SetVisible(false);
     mPiiList->SetVisible(false);
     mPlayerID->SetVisible(false);
-    mSpecShown = false;
-    mListShown = false;
-    mPlayerIDShown = false;
-    mHelpShown = false;
+    mShown[PART_SPEC] = false;
+    mShown[PART_LIST] = false;
+    mShown[PART_PLAYER_ID] = false;
+    mShown[PART_HELP] = false;
     mReservedFlagC0 = false;
     CLayout* pLayout = mListLayout->GetLayout();
     pLayout->CalculateMtx(true);
     nw4r::math::VEC3 position;
     position = Transform(pLayout->FindPane("INSIDE")->GetGlobalMtx(), nw4r::math::VEC3(0.0f, 0.0f, 0.0f));
-    mReservedTargetPosition = pLayout->NormalizeViewPosition(nw4r::math::VEC2(position.x, position.y));
+    mInsidePosition = pLayout->NormalizeViewPosition(nw4r::math::VEC2(position.x, position.y));
     position = Transform(pLayout->FindPane("OUTSIDE")->GetGlobalMtx(), nw4r::math::VEC3(0.0f, 0.0f, 0.0f));
-    mReservedPosition = pLayout->NormalizeViewPosition(nw4r::math::VEC2(position.x, position.y));
+    mOutsidePosition = pLayout->NormalizeViewPosition(nw4r::math::VEC2(position.x, position.y));
     mFiber.Start(std::tr1::bind(&CDataPerPlayer::Run, this), 0x8000);
 }
 
@@ -325,6 +358,35 @@ public:
     virtual std::tr1::shared_ptr<CPiiPersonalData> GetEntrancePPD(IController* pController) = 0;
     virtual void UpdateDlgOpenState() = 0;
 };
+
+void CDataPerPlayer::OnSelectionChanged(BUI* pUI) {
+    if (!mSilent) {
+        PlaySound(0x54);
+    }
+    std::tr1::shared_ptr<IUIListItem> selected = mPiiList->GetSelectedItem();
+    if (selected) {
+        std::tr1::shared_ptr<CUIPiiListItem> item = std::tr1::static_pointer_cast<CUIPiiListItem>(selected);
+        if (item->GetPPD()->IsSpecHidden()) {
+            item->GetPPD()->SetNewlyDisclosed(true);
+            item->GetPPD()->SetSpecHidden(false);
+            mPiiList->UpdateSelection();
+        }
+        IController* pController = IGameSession::GetInstance()->GetPlayer(mPlayer)->GetController();
+        if (pController != nullptr && (pController->GetHold() & 0x800) && !(pController->GetTrig() & 0x800)) {
+            if (item->GetPPD()->IsFavorite()) {
+                if (!mFavoriteMode) {
+                    item->GetPPD()->SetFavorite(false);
+                    PlaySound(90);
+                }
+            } else if (mFavoriteMode) {
+                item->GetPPD()->SetFavorite(true);
+                PlaySound(9);
+            }
+        }
+        CPlayer* pPlayer = IGameSession::GetInstance()->GetPlayer(mPlayer);
+        mpDlg->SetEntrancePPD(pPlayer->GetController(), std::tr1::shared_ptr<CPiiPersonalData>(item->GetPPD()));
+    }
+}
 
 void CDataPerPlayer::Run() {
     switch (mState) {
@@ -625,6 +687,553 @@ void CDataPerPlayer::FlushRemoteMemory() {
             }
         }
     }
+}
+
+std::tr1::shared_ptr<CLayout::CMotionProgram> CDataPerPlayer::PlayMotion(std::tr1::shared_ptr<BUILayout> pLayout, bool shown) {
+    if (!pLayout) {
+        return std::tr1::shared_ptr<CLayout::CMotionProgram>();
+    }
+    int part;
+    if (pLayout == mPiiSpec) {
+        part = PART_SPEC;
+    } else if (pLayout == mPiiList) {
+        part = PART_LIST;
+    } else if (pLayout == mPlayerID) {
+        part = PART_PLAYER_ID;
+    } else if (pLayout == mHelpLayout) {
+        part = PART_HELP;
+    } else {
+        return std::tr1::shared_ptr<CLayout::CMotionProgram>();
+    }
+    if (shown == mShown[part]) {
+        return std::tr1::shared_ptr<CLayout::CMotionProgram>();
+    }
+    mShown[part] = shown;
+    pLayout->SetVisible(true);
+    return mListLayout->GetLayout()->CreateMotion(shown ? "begin" : "end", kMotionPaneNames[part], 0.0f, 1.0f);
+}
+
+int CDataPerPlayer::ValidateAccept() {
+    std::tr1::shared_ptr<IUIListItem> selected = mPiiList->GetSelectedItem();
+    if (!selected) {
+        return 1;
+    }
+    std::tr1::shared_ptr<CUIPiiListItem> item = std::tr1::static_pointer_cast<CUIPiiListItem>(selected);
+    std::tr1::shared_ptr<CPiiPersonalData> ppd = item->GetPPD();
+    if (!IGameSession::GetInstance()->CanAddPPDToPlayerPiiBox(mPlayer, std::tr1::shared_ptr<CPiiPersonalData>(ppd))) {
+        if (!ppd->IsFainted()) {
+            CPlayer* pPlayer = IGameSession::GetInstance()->GetPlayer(mPlayer);
+            if (pPlayer->IsJoined() && pPlayer->GetPersonalData() == ppd) {
+                return 2;
+            }
+        }
+        return 1;
+    }
+    CPlayer* pPlayer = IGameSession::GetInstance()->GetPlayer(mPlayer);
+    pPlayer->SetPendingPersonalData(std::tr1::shared_ptr<CPiiPersonalData>(ppd));
+    PlaySound(9);
+    mPiiList->GetSelectedLayout()->CreateMotion("selected")->Wait();
+    return 0;
+}
+
+void CDataPerPlayer::ApplyAccept() {
+    SpawnPreview();
+    {
+        std::tr1::shared_ptr<CPii> pii = mPreviewPii.lock();
+        if (pii) {
+            pii->PlayMotion(0x6E, 0.0f, 1.0f);
+        }
+    }
+    if (mState == 2) {
+        BWorld* pWorld = GetCurrentGameMap()->GetWorld();
+        pWorld->RemoveObject(mBall.lock());
+    } else {
+        if (std::tr1::shared_ptr<CItem> ball = mBall.lock()) {
+            mBall.lock()->Play(mEnterMotion, 0.0f, 1.0f);
+        }
+    }
+    PlayMotion(mHelpLayout, false);
+    std::tr1::shared_ptr<CLayout::CMotionProgram> motion = PlayMotion(mPiiList, false);
+    int frames = mEnterFrames;
+    for (int i = 0; i < frames; i++) {
+        f32 t = Min(static_cast<f32>(i) / static_cast<f32>(frames), 1.0f);
+        nw4r::math::VEC3 inside;
+        nw4r::math::VEC3 outside;
+        CalcPreviewPositions(&inside, &outside);
+        nw4r::math::VEC3 position = Lerp(outside, inside, SinQuarterTurn(t));
+        MovePreviewPii(position);
+        MoveChangeCircle(position);
+        MoveBall(GetOverheadPosition());
+        YieldFiber();
+    }
+    if (motion) {
+        motion->Wait();
+    }
+}
+
+void CDataPerPlayer::SpawnPreview() {
+    BWorld* pWorld = GetCurrentGameMap()->GetWorld();
+    nw4r::math::VEC3 inside;
+    nw4r::math::VEC3 outside;
+    CalcPreviewPositions(&inside, &outside);
+    std::tr1::shared_ptr<CPii> pii(
+        new CPii(IGameSession::GetInstance()->GetPlayer(mPlayer)->GetPendingPersonalData(), 0x40));
+    pii->Initialize();
+    pii->SetVisible(true);
+    pii->SetPosition(outside);
+    pii->SetRotation(180.0f);
+    pWorld->Add(pii);
+    mPreviewPii = pii;
+    std::tr1::shared_ptr<CItem> circle(new CItem(0x800));
+    circle->Initialize();
+    circle->LoadModel("change_circle.brres");
+    circle->GetModel()->GetScnObj()->SetPriorityDrawXlu(200);
+    circle->SetVisible(true);
+    circle->SetPosition(pii->GetPositionRef());
+    pWorld->Add(circle);
+    mChangeCircle = circle;
+    CreateBall();
+}
+
+void CDataPerPlayer::CalcPreviewPositions(nw4r::math::VEC3* pInside, nw4r::math::VEC3* pOutside) {
+    nw4r::g3d::Camera camera = GetCurrentGameMap()->GetWorld()->GetG3dCamera();
+    const nw4r::g3d::CameraData& rData = camera.ref();
+    nw4r::math::MTX34 cameraMtx;
+    nw4r::math::MTX34 inverseMtx;
+    camera.GetCameraMtx(&cameraMtx);
+    Inverse(&inverseMtx, &cameraMtx);
+    f32 scale = 5.0f * nw4r::math::TanDeg(0.5f * rData.projFovy);
+    nw4r::math::VEC3 position;
+    position.x = rData.projAspect * (mInsidePosition.x * scale);
+    position.y = -mInsidePosition.y * scale;
+    position.z = -5.0f;
+    position = Transform(inverseMtx, position);
+    if (pInside != nullptr) {
+        *pInside = position;
+    }
+    if (pOutside != nullptr) {
+        nw4r::math::VEC3 outside;
+        outside.z = -5.0f;
+        outside.x = rData.projAspect * (mOutsidePosition.x * scale);
+        outside.y = -mOutsidePosition.y * scale;
+        outside = Transform(inverseMtx, outside);
+        outside.x = position.x;
+        *pOutside = outside;
+    }
+}
+
+void CDataPerPlayer::CreateBall() {
+    BWorld* pWorld = GetCurrentGameMap()->GetWorld();
+    int rank = Clamp<int>(GetSaveData(-1)->mData.mFlags[0], 1, 4);
+    mEnterMotion = "neji_EX__in";
+    mSpinMotion = "neji_EX__screw";
+    mExitMotion = "neji_EX__out";
+    const char* pModelName = "neji_EX.brres";
+    switch (GetSaveData(-1)->mData.mFlags[1]) {
+    case 0:
+        switch (rank) {
+        case 1:
+            mEnterMotion = "neji_C__in";
+            mSpinMotion = "neji_C__screw";
+            mExitMotion = "neji_C__out";
+            pModelName = "neji_C.brres";
+            break;
+        case 2:
+            mEnterMotion = "neji_B__in";
+            mSpinMotion = "neji_B__screw";
+            mExitMotion = "neji_B__out";
+            pModelName = "neji_B.brres";
+            break;
+        case 3:
+            mEnterMotion = "neji_A__in";
+            mSpinMotion = "neji_A__screw";
+            mExitMotion = "neji_A__out";
+            pModelName = "neji_A.brres";
+            break;
+        case 4:
+            mEnterMotion = "neji_S__in";
+            mSpinMotion = "neji_S__screw";
+            mExitMotion = "neji_S__out";
+            pModelName = "neji_S.brres";
+            break;
+        }
+        break;
+    case 1:
+        switch (rank) {
+        case 1:
+            mEnterMotion = "neji_another_C__in";
+            mSpinMotion = "neji_another_C__screw";
+            mExitMotion = "neji_another_C__out";
+            pModelName = "neji_another_C.brres";
+            break;
+        case 2:
+            mEnterMotion = "neji_another_B__in";
+            mSpinMotion = "neji_another_B__screw";
+            mExitMotion = "neji_another_B__out";
+            pModelName = "neji_another_B.brres";
+            break;
+        case 3:
+            mEnterMotion = "neji_another_A__in";
+            mSpinMotion = "neji_another_A__screw";
+            mExitMotion = "neji_another_A__out";
+            pModelName = "neji_another_A.brres";
+            break;
+        case 4:
+            mEnterMotion = "neji_another_S__in";
+            mSpinMotion = "neji_another_S__screw";
+            mExitMotion = "neji_another_S__out";
+            pModelName = "neji_another_S.brres";
+            break;
+        }
+        break;
+    }
+    std::tr1::shared_ptr<CItem> ball(new CItem(0x800));
+    ball->Initialize();
+    ball->LoadModel(pModelName);
+    ball->GetModel()->GetScnObj()->SetPriorityDrawXlu(200);
+    ball->SetVisible(true);
+    ball->SetPosition(GetOverheadPosition());
+    mEnterFrames = ball->GetModel()->GetMotionLength(mEnterMotion);
+    mSpinFrames = ball->GetModel()->GetMotionLength(mSpinMotion);
+    mExitFrames = ball->GetModel()->GetMotionLength(mExitMotion);
+    mBall = ball;
+    pWorld->Add(ball);
+}
+
+nw4r::math::VEC3 CDataPerPlayer::GetOverheadPosition() {
+    nw4r::math::VEC3 position = GetInsidePosition();
+    std::tr1::shared_ptr<CPii> pii = mPreviewPii.lock();
+    if (pii) {
+        position += nw4r::math::VEC3(0.0f, pii->GetModel()->GetBounds().max.y, 0.0f);
+    }
+    return position;
+}
+
+nw4r::math::VEC3 CDataPerPlayer::GetInsidePosition() {
+    nw4r::math::VEC3 position;
+    CalcPreviewPositions(&position, nullptr);
+    return position;
+}
+
+std::tr1::shared_ptr<CPii> CDataPerPlayer::MovePreviewPii(const nw4r::math::VEC3& rPosition) {
+    std::tr1::shared_ptr<CPii> pii = mPreviewPii.lock();
+    if (pii) {
+        pii->SetPosition(rPosition);
+    }
+    return pii;
+}
+
+void CDataPerPlayer::MoveChangeCircle(const nw4r::math::VEC3& rPosition) {
+    std::tr1::shared_ptr<CItem> circle = mChangeCircle.lock();
+    if (circle) {
+        circle->SetPosition(rPosition);
+    }
+}
+
+void CDataPerPlayer::MoveBall(const nw4r::math::VEC3& rPosition) {
+    std::tr1::shared_ptr<CItem> ball = mBall.lock();
+    if (ball) {
+        ball->SetPosition(rPosition);
+    }
+}
+
+void CDataPerPlayer::ProcessEntranceAccept() {
+    CPlayer* pPlayer = IGameSession::GetInstance()->GetPlayer(mPlayer);
+    mEntranceResult = 1;
+    for (;;) {
+        IController* pController = pPlayer->GetController();
+        if (mEntranceResult == 2) {
+            CreateBall();
+            if (std::tr1::shared_ptr<CItem> ball = mBall.lock()) {
+                std::tr1::shared_ptr<CModel::CMotionProgram> motion = mBall.lock()->Play(mEnterMotion, 0.0f, 1.0f);
+                if (motion) {
+                    motion->Wait();
+                }
+            }
+            return;
+        }
+        if (IsDisconnected()) {
+            mMode = 4;
+        } else if (pController != nullptr && pController->IsConnected()) {
+            if (!mInputDisabled && (pController->GetTrig() & 0x90)) {
+                mMode = 4;
+                PlaySound(90);
+            }
+        } else {
+            mMode = 4;
+        }
+        if (static_cast<u32>(TakeMode() - 4) <= 1) {
+            mEntranceResult = 0;
+            pPlayer->ResetPendingPersonalData();
+            return;
+        }
+        YieldFiber();
+    }
+}
+
+void CDataPerPlayer::FinishAccept() {
+    int frames = mEnterFrames;
+    for (int i = 0; i < frames; i++) {
+        f32 t = static_cast<f32>(i) / static_cast<f32>(frames);
+        nw4r::math::VEC3 inside;
+        nw4r::math::VEC3 outside;
+        CalcPreviewPositions(&inside, &outside);
+        nw4r::math::VEC3 position = Lerp(inside, outside, OneMinusCosQuarterTurn(t));
+        MovePreviewPii(position);
+        MoveChangeCircle(position);
+        YieldFiber();
+    }
+    RemovePreviewPii();
+    RemoveBall();
+    RemoveChangeCircle();
+}
+
+void CDataPerPlayer::RemovePreviewPii() {
+    std::tr1::shared_ptr<CPii> pii = mPreviewPii.lock();
+    if (pii) {
+        BWorld* pWorld = pii->GetWorld();
+        if (pWorld != nullptr) {
+            pWorld->RemoveObject(pii);
+        }
+        mPreviewPii.reset();
+    }
+}
+
+void CDataPerPlayer::RemoveBall() {
+    std::tr1::shared_ptr<CItem> ball = mBall.lock();
+    if (ball) {
+        BWorld* pWorld = ball->GetWorld();
+        if (pWorld != nullptr) {
+            pWorld->RemoveObject(ball);
+        }
+        mBall.reset();
+    }
+}
+
+void CDataPerPlayer::RemoveChangeCircle() {
+    std::tr1::shared_ptr<CItem> circle = mChangeCircle.lock();
+    if (circle) {
+        BWorld* pWorld = circle->GetWorld();
+        if (pWorld != nullptr) {
+            pWorld->RemoveObject(circle);
+        }
+        mChangeCircle.reset();
+    }
+}
+
+bool CDataPerPlayer::IsSkipPressed() {
+    IController* pController = IGameSession::GetInstance()->GetPlayer(mPlayer)->GetController();
+    if (pController != nullptr && pController->IsConnected()) {
+        return (pController->GetTrig() & 0x3F) != 0;
+    }
+    return false;
+}
+
+bool CDataPerPlayer::CanSwap() {
+    {
+        std::tr1::shared_ptr<CPii> pii = mPreviewPii.lock();
+        if (pii) {
+            pii->PlayMotion(0x6F, 0.0f, 1.0f);
+        }
+    }
+    if (std::tr1::shared_ptr<CItem> ball = mBall.lock()) {
+        mBall.lock()->Play(mSpinMotion, 0.0f, 1.0f);
+    }
+    {
+        std::tr1::shared_ptr<CPii> pii = mPreviewPii.lock();
+        if (pii) {
+            pii->StartSE(0x39);
+        }
+    }
+    f32 length = static_cast<f32>(mSpinFrames);
+    int hold = 0;
+    f32 rate = 1.0f;
+    for (f32 frame = 0.0f; frame < length; frame += rate) {
+        if (IsSkipPressed()) {
+            rate = 2.0f;
+            if (hold == 0) {
+                {
+                    std::tr1::shared_ptr<CPii> pii = mPreviewPii.lock();
+                    if (pii) {
+                        pii->PlayMotion(0x6F, frame, rate);
+                        pii->SetPitch(2.0f);
+                    }
+                }
+                if (std::tr1::shared_ptr<CItem> ball = mBall.lock()) {
+                    mBall.lock()->Play(mSpinMotion, frame, rate);
+                }
+            }
+            hold = 10;
+        } else if (hold > 0 && --hold == 0) {
+            rate = 1.0f;
+            {
+                std::tr1::shared_ptr<CPii> pii = mPreviewPii.lock();
+                if (pii) {
+                    pii->PlayMotion(0x6F, frame, rate);
+                    pii->SetPitch(1.0f);
+                }
+            }
+            if (std::tr1::shared_ptr<CItem> ball = mBall.lock()) {
+                mBall.lock()->Play(mSpinMotion, frame, rate);
+            }
+        }
+        nw4r::math::VEC3 inside = GetInsidePosition();
+        MovePreviewPii(inside);
+        MoveChangeCircle(inside);
+        MoveBall(GetOverheadPosition());
+        if (mState == 0 && !IsCurrentMapStage7Even()) {
+            switch (TakeMode()) {
+            case 5:
+                IGameSession::GetInstance()->GetStatistic()->Add(-99, 1);
+            case 4:
+                if (std::tr1::shared_ptr<CItem> ball = mBall.lock()) {
+                    mBall.lock()->Play(mExitMotion, 0.0f, 1.0f);
+                    IGameSession::GetInstance()->GetPlayer(mPlayer)->ResetPendingPersonalData();
+                }
+                return false;
+            }
+        }
+        YieldFiber();
+    }
+    return true;
+}
+
+void CDataPerPlayer::PrepareSwap(SwapRequest& rRequest) {
+    {
+        std::tr1::shared_ptr<CPii> pii = mPreviewPii.lock();
+        if (pii) {
+            pii->PlayMotion(1, 0.0f, 1.0f);
+        }
+    }
+    if (std::tr1::shared_ptr<CItem> ball = mBall.lock()) {
+        mBall.lock()->Play(mExitMotion, 0.0f, 1.0f);
+    }
+    PlaySound(7);
+    {
+        std::tr1::shared_ptr<CPii> pii = mPreviewPii.lock();
+        if (pii) {
+            const PiiSpeciesData* pSpeciesData = pii->GetPersonalData()->GetSpeciesData();
+            PlaySound(GetPokemonVoiceId(pSpeciesData->GetSpecies(), static_cast<u8>(pSpeciesData->GetFormNumber())));
+        }
+    }
+    int frames = mExitFrames;
+    rRequest.mPosition = nw4r::math::VEC3(0.0f, 0.0f, 0.0f);
+    rRequest.mRotation = 180.0f;
+    if (mState == 2) {
+        int joined = 0;
+        int index = 0;
+        for (int player = 0; player < 4; player++) {
+            if (IGameSession::GetInstance()->GetPlayer(player)->IsJoined()) {
+                if (player == mPlayer) {
+                    index = joined;
+                }
+                joined++;
+            }
+        }
+        rRequest.mPosition.x += 0.7f * (0.5f * static_cast<f32>(-(joined - 1)) + static_cast<f32>(index));
+    }
+    for (int i = 0; i < frames; i++) {
+        GetPlayerPiiTransform(&rRequest.mPosition, &rRequest.mRotation);
+        f32 t = static_cast<f32>(i) / static_cast<f32>(frames);
+        nw4r::math::VEC3 inside = GetInsidePosition();
+        nw4r::math::VEC3 from(rRequest.mPosition);
+        nw4r::math::VEC3 position;
+        position.x = Lerp(inside.x, from.x, t);
+        position.y = Lerp(inside.y, from.y, OneMinusCosQuarterTurn(t));
+        position.z = Lerp(inside.z, from.z, t);
+        MoveChangeCircle(inside);
+        MoveBall(GetOverheadPosition());
+        {
+            std::tr1::shared_ptr<CPii> pii = MovePreviewPii(position);
+            if (pii) {
+                f32 startRotation = 180.0f;
+                f32 endRotation = rRequest.mRotation;
+                endRotation = startRotation + NormalizeSignedAngle(endRotation - startRotation);
+                pii->SetRotation(Lerp(startRotation, endRotation, t));
+            }
+        }
+        YieldFiber();
+    }
+    RemoveBall();
+    CPlayer* pPlayer = IGameSession::GetInstance()->GetPlayer(mPlayer);
+    std::tr1::shared_ptr<CPiiPersonalData> personalData;
+    CPlayerPii* pPii = pPlayer->GetPii();
+    if (pPii != nullptr) {
+        rRequest.mPii = pPii->GetPersonalData();
+        rRequest.mModelScale = pPii->GetModelScale();
+        rRequest.mOutlineType = pPii->GetOutlineType();
+    }
+    pPlayer->RequestPiiChange();
+    IGameSession::GetInstance()->GetStatistic()->Add(-100, 1);
+    for (int i = 0; i < 60 && pPlayer->IsPiiChangeRequested(); i++) {
+        GetPlayerPiiTransform(&rRequest.mPosition, &rRequest.mRotation);
+        MoveChangeCircle(GetInsidePosition());
+        {
+            std::tr1::shared_ptr<CPii> pii = MovePreviewPii(rRequest.mPosition);
+            if (pii) {
+                pii->SetRotation(rRequest.mRotation);
+            }
+        }
+        YieldFiber();
+    }
+    RemovePreviewPii();
+}
+
+void CDataPerPlayer::GetPlayerPiiTransform(nw4r::math::VEC3* pPosition, f32* pRotation) {
+    CPlayer* pPlayer = IGameSession::GetInstance()->GetPlayer(mPlayer);
+    if (pPlayer->GetPii()) {
+        *pPosition = pPlayer->GetPii()->GetPositionRef();
+        *pRotation = pPlayer->GetPii()->GetRotation();
+    } else {
+        for (int player = 0; player < 4; player++) {
+            pPlayer = IGameSession::GetInstance()->GetPlayer(player);
+            if (pPlayer->GetPii()) {
+                *pPosition = pPlayer->GetPii()->GetPositionRef();
+                *pRotation = pPlayer->GetPii()->GetRotation();
+                break;
+            }
+        }
+    }
+}
+
+bool CDataPerPlayer::ExecuteSwap(const SwapRequest& rRequest) {
+    if (!rRequest.mPii) {
+        return false;
+    }
+    std::tr1::shared_ptr<CPii> pii(new CPii(std::tr1::shared_ptr<CPiiPersonalData>(rRequest.mPii), 0x40));
+    pii->Initialize();
+    pii->SetVisible(true);
+    pii->SetPosition(rRequest.mPosition);
+    pii->SetRotation(rRequest.mRotation);
+    pii->SetOutlineType(rRequest.mOutlineType);
+    pii->SetModelScale(rRequest.mModelScale);
+    if (rRequest.mPii->IsFainted()) {
+        pii->PlayMotion(0x68, 0.0f, 1.0f);
+    }
+    BWorld* pWorld = GetCurrentGameMap()->GetWorld();
+    pWorld->Add(pii);
+    PlaySound(0x3A);
+    mPreviewPii = pii;
+    int frames = mExitFrames;
+    for (int i = 0; i < frames; i++) {
+        f32 t = static_cast<f32>(i) / static_cast<f32>(frames);
+        nw4r::math::VEC3 from(rRequest.mPosition);
+        nw4r::math::VEC3 inside = GetInsidePosition();
+        nw4r::math::VEC3 position;
+        position.x = Lerp(from.x, inside.x, t);
+        position.y = Lerp(from.y, inside.y, SinQuarterTurn(t));
+        position.z = Lerp(from.z, inside.z, t);
+        pii = MovePreviewPii(position);
+        MoveChangeCircle(inside);
+        if (pii) {
+            f32 startRotation = rRequest.mRotation;
+            f32 endRotation = 0.0f;
+            endRotation = startRotation + NormalizeSignedAngle(endRotation - startRotation);
+            pii->SetRotation(Lerp(startRotation, endRotation, t));
+        }
+        YieldFiber();
+    }
+    return true;
 }
 
 class CDlgPiiSelector : public IDlgPiiSelectorInternal, public std::tr1::enable_shared_from_this<CDlgPiiSelector> {

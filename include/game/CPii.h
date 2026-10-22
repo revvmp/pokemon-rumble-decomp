@@ -67,7 +67,7 @@ public:
     std::tr1::shared_ptr<CPiiPersonalData> GetPersonalData() {
         return mPersonalData;
     }
-    void Initialize();
+    void Initialize() { Initialize(false); }
     void FaceHeadForward();
     void FaceHeadToward(const nw4r::math::VEC3& rPosition);
     void FaceHeadToward(BWorldObj* pObject);
