@@ -25,7 +25,7 @@ private:
 };
 template<class T0, class T1> class tuple<T0,T1,nat,nat,nat,nat,nat,nat,nat,nat> {
 public:
-    tuple(const T0& rFirst,const T1& rSecond) : mFirst(rFirst),mSecond(rSecond) {}
+    tuple(typename detail::tuple_argument<T0>::type rFirst,typename detail::tuple_argument<T1>::type rSecond) : mFirst(rFirst),mSecond(rSecond) {}
     T1& second() { return mSecond; }
 private:
     friend struct detail::tuple_get<0>;

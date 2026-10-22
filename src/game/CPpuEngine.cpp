@@ -34,12 +34,15 @@ CPpuEngine::CPpuEngine() : mFlags(0), mOwnerObj(nullptr), mStageDescTarget(sDefa
 
 CPpuEngine::~CPpuEngine() {}
 
+#pragma push
+#pragma scheduling off
 BWorld* CPpuEngine::GetWorld() const {
     if (mOwnerObj) {
         return mOwnerObj->GetWorld();
     }
     return GetCurrentGameMap()->GetWorld();
 }
+#pragma pop
 
 NPpu::CEnvironment* CPpuEngine::GetEnv() const {
     return GetEnvironment();
