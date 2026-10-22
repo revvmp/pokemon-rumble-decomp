@@ -506,6 +506,15 @@ game/CPpuEngine.cpp:
 	.sbss       start:0x804B9048 end:0x804B9068
 	.sdata2     start:0x804BA0D0 end:0x804BA0D8
 
+game/CRemoteMemory.cpp:
+	extab       start:0x800284E0 end:0x800287B0
+	extabindex  start:0x8004B510 end:0x8004B5D0
+	.text       start:0x80106240 end:0x80108290
+	.ctors      start:0x803529E0 end:0x803529E4
+	.data       start:0x803AD120 end:0x803AD140
+	.bss        start:0x803E6660 end:0x803E8D28
+	.sbss       start:0x804B9068 end:0x804B9070
+
 game/CSaveManager.cpp:
 	extab       start:0x800287B0 end:0x80028E54
 	extabindex  start:0x8004B5D0 end:0x8004BC9C

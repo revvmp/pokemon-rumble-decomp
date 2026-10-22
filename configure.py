@@ -299,6 +299,7 @@ config.libs = [
             Object(NonMatching, "game/CPlayerPii.cpp"),
             Object(NonMatching, "game/CShadowCamera.cpp"),
             Object(NonMatching, "game/MapPiiTable.cpp"),
+            Object(NonMatching, "game/CRemoteMemory.cpp"),
             Object(NonMatching, "game/CSaveManager.cpp"),
             Object(Matching, "game/CPpuRegister.cpp"),
             Object(Matching, "game/CStageCamera.cpp"),
