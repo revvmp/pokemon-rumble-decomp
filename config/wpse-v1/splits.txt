@@ -497,12 +497,6 @@ game/ControllerTable.cpp:
 	.bss        start:0x803E8D28 end:0x803E90C8
 	.sdata      start:0x804B77D8 end:0x804B77D9
 
-game/ScriptCameraMotion.cpp:
-	extab       start:0x8002E278 end:0x8002E6C0
-	extabindex  start:0x8004D520 end:0x8004D64C
-	.text       start:0x801352F0 end:0x80136EE8
-	.sdata2     start:0x804BA1E8 end:0x804BA200
-
 ControllerTableAlignmentPadding:
 	.sdata      start:0x804B77D9 end:0x804B77E0 align:1
 
@@ -539,6 +533,12 @@ game/ScriptCamera.cpp:
 	.data       start:0x803B65A0 end:0x803B66C8
 	.sdata      start:0x804B79A8 end:0x804B79B8
 	.sdata2     start:0x804BA1B8 end:0x804BA1E8
+
+game/ScriptCameraMotion.cpp:
+	extab       start:0x8002E278 end:0x8002E6C0
+	extabindex  start:0x8004D520 end:0x8004D64C
+	.text       start:0x801352F0 end:0x80136EE8
+	.sdata2     start:0x804BA1E8 end:0x804BA200
 
 game/ScriptItem.cpp:
 	extab       start:0x8002EF78 end:0x8002F32C
