@@ -553,15 +553,13 @@ bool CPiiListFilterSort::ShowPrefixFilterMenu(std::tr1::shared_ptr<CUIManager> p
     }
     IController* pInput = IGameSession::GetInstance()->GetPlayer(player)->GetController();
     int choice = RunUIMenu(param, callbacks, pInput, pManager, GetDefaultFontMap(), true);
-    if (choice >= 0) {
-        if (choice < 44) {
-            mFilterType = FILTER_PREFIX;
-            mPrefix = choice;
-            if (onChanged) {
-                onChanged(this);
-            }
-            return true;
+    if (0 <= choice && choice < 44) {
+        mFilterType = FILTER_PREFIX;
+        mPrefix = choice;
+        if (onChanged) {
+            onChanged(this);
         }
+        return true;
     }
     if (onChanged) {
         onChanged(this);
