@@ -1,0 +1,199 @@
+#include <game/CUIMenuItem.h>
+#include <game/CUIMenu.h>
+#include <nw4r/lyt/lyt_textbox.h>
+#include <game/StringFormat.h>
+#include <algorithm>
+#include <math.h>
+
+CUIMenuItem::CUIMenuItem(const std::wstring& rTitle, int kind, float width) : mWidth(width), mTitle(rTitle), mKind(kind) {}
+
+CUIMenuItem::~CUIMenuItem() {}
+
+bool CUIMenuItem::IsSelectable() const { return mKind >= 0; }
+
+void CUIMenuItem::Update(CUIList*, CLayout* pLayout) {
+    bool selectable = IsSelectable();
+    pLayout->SetPaneVisible("TITLE_c", selectable);
+    pLayout->SetPaneVisible("TITLE_DISABLED_c", !selectable);
+    if (selectable) pLayout->SetText("TITLE", mTitle.c_str());
+    else pLayout->SetText("TITLE_DISABLED", mTitle.c_str());
+}
+
+CUIMenu::CUIMenu() : mLayoutReady(false), mCursorRow(-1) {}
+
+CUIMenu::~CUIMenu() {}
+
+void CUIMenu::SetTitle(const wchar_t* pTitle) {
+    if (pTitle) {
+        nw4r::lyt::TextBox* pTextBox = GetLayout()->SetText("TITLE", pTitle);
+        if (pTextBox) mMinimumWidth = pTextBox->GetTextDrawRect().GetWidth();
+    }
+}
+
+void CUIMenu::Load(int columns, int rows, const char* pArchive, const char* pName, const std::tr1::shared_ptr<CLayout::FontMap>& rFonts, bool background) {
+    const char* archives[] = {pArchive, nullptr};
+    Load(columns, rows, archives, pName, rFonts, background);
+}
+
+void CUIMenu::Load(int columns, int rows, const char* const* pArchives, const char* pName, const std::tr1::shared_ptr<CLayout::FontMap>& rFonts, bool background) {
+    CUIList::Load(pArchives, pName, rFonts, background);
+    CLayout* pLayout = GetLayout();
+    pLayout->CalculateMtx(true);
+    mColumnCount = columns;
+    mRowCount = rows;
+    int layoutCount = GetLayoutCount();
+    NErrMsg::PaneRectangle itemBounds;
+    float itemWidth;
+    for (int i = 0; i < layoutCount; ++i) {
+        nw4r::lyt::Pane* pItem = pLayout->FindPane(FormatString("ITEM%d", i).c_str());
+        NErrMsg::PaneRectangle bounds = NErrMsg::GetPaneRectangle(pItem);
+        if (i == 0) {
+            itemBounds = bounds;
+            itemWidth = pItem->GetSize().width;
+            mCellHeight = pItem->GetSize().height;
+        } else itemBounds = NErrMsg::UnionRectangles(itemBounds, bounds);
+    }
+    mItemCenter.x = (itemBounds.left + itemBounds.right) / 2.0f;
+    mItemCenter.y = (itemBounds.bottom + itemBounds.top) / 2.0f;
+    float width = itemBounds.GetWidth();
+    float height = itemBounds.GetHeight();
+    nw4r::lyt::Pane* pBackground = pLayout->FindPane("BK");
+    if (pBackground == nullptr) pBackground = pLayout->FindPane("BK0");
+    NErrMsg::PaneRectangle backgroundBounds = NErrMsg::GetPaneRectangle(pBackground);
+    mBounds.left = backgroundBounds.left + width / 2.0f;
+    mBounds.right = backgroundBounds.right - width / 2.0f;
+    mBounds.bottom = backgroundBounds.bottom + height / 2.0f;
+    mBounds.top = backgroundBounds.top - height / 2.0f;
+    nw4r::lyt::Pane* pTitle = pLayout->FindPane("TITLE");
+    if (pTitle) {
+        mTitlePosition.x = pTitle->GetTranslate().x;
+        mTitlePosition.y = pTitle->GetTranslate().y;
+        switch (pTitle->GetBasePositionH()) {
+        case 0: mTitlePosition.x += width / 2.0f; break;
+        case 2: mTitlePosition.x -= width / 2.0f; break;
+        }
+        switch (pTitle->GetBasePositionV()) {
+        case 2: mTitlePosition.y += height / 2.0f; break;
+        case 0: mTitlePosition.y -= height / 2.0f; break;
+        }
+        mMinimumWidth = 0.0f;
+    }
+    int fittedColumns = static_cast<int>(roundf(width / itemWidth));
+    int fittedRows = static_cast<int>(roundf(height / mCellHeight));
+    fittedColumns = std::max(1, fittedColumns);
+    fittedRows = std::max(1, fittedRows);
+    if (fittedColumns * fittedRows < layoutCount) fittedColumns = (layoutCount + fittedRows - 1) / fittedRows;
+    if (fittedColumns >= 2) mColumnSpacing = (width - itemWidth * fittedColumns) / (fittedColumns - 1);
+    else mColumnSpacing = 0.0f;
+    if (fittedRows >= 2) mRowSpacing = (height - mCellHeight * fittedRows) / (fittedRows - 1);
+    else mRowSpacing = 0.0f;
+    mLayoutReady = true;
+    UpdateSelection();
+}
+
+void CUIMenu::UpdateSelection() {
+    if (mLayoutReady) {
+        CUIList::UpdateSelection();
+        int first = GetFirstVisibleIndex();
+        int layoutCount = GetLayoutCount();
+        int remaining = mItems.size() - first;
+        int visible = std::min(layoutCount, remaining);
+        CLayout* pLayout = GetLayout();
+        float itemWidth = 0.0f;
+        for (unsigned long i = 0; i < visible; ++i) {
+            std::tr1::shared_ptr<CUIMenuItem> item = std::tr1::dynamic_pointer_cast<CUIMenuItem>(mItems[i]);
+            if (item) itemWidth = std::max(itemWidth, item->GetWidth());
+        }
+        float gridWidth = mColumnCount * (itemWidth + mColumnSpacing) - mColumnSpacing;
+        float width = std::max(gridWidth, mMinimumWidth);
+        float height = mRowCount * (mCellHeight + mRowSpacing) - mRowSpacing;
+        NErrMsg::PaneRectangle bounds;
+        bounds.left = mBounds.left - width / 2.0f;
+        bounds.right = mBounds.right + width / 2.0f;
+        bounds.bottom = mBounds.bottom - height / 2.0f;
+        bounds.top = mBounds.top + height / 2.0f;
+        nw4r::lyt::Pane* pBackground = pLayout->FindPane("BK");
+        if (pBackground) NErrMsg::SetPaneRectangle(pBackground, bounds);
+        else {
+            for (int i = 0; ; ++i) {
+                nw4r::lyt::Pane* pPane = pLayout->FindPane(FormatString("BK%d", i).c_str());
+                if (!pPane) break;
+                NErrMsg::SetPaneRectangle(pPane, bounds);
+            }
+        }
+        nw4r::lyt::Pane* pTitle = pLayout->FindPane("TITLE");
+        if (pTitle) {
+            nw4r::math::VEC3 position;
+            position.x = mTitlePosition.x;
+            position.y = mTitlePosition.y;
+            position.z = pTitle->GetTranslate().z;
+            if (pTitle->GetBasePositionH() == 0) position.x -= width / 2.0f;
+            else if (pTitle->GetBasePositionH() == 2) position.x += width / 2.0f;
+            if (pTitle->GetBasePositionV() == 2) position.y -= height / 2.0f;
+            else if (pTitle->GetBasePositionV() == 0) position.y += height / 2.0f;
+            pTitle->SetTranslate(position);
+        }
+        for (int i = 0; i < visible; ++i) {
+            nw4r::lyt::Pane* pPane = pLayout->FindPane(FormatString("ITEM%d", i).c_str());
+            int column = i / mRowCount;
+            int row = i % mRowCount;
+            NErrMsg::PaneRectangle item;
+            item.left = mItemCenter.x - gridWidth / 2.0f + column * (itemWidth + mColumnSpacing);
+            item.right = item.left + itemWidth;
+            item.top = mItemCenter.y + height / 2.0f - row * (mCellHeight + mRowSpacing);
+            item.bottom = item.top - mCellHeight;
+            NErrMsg::SetPaneRectangle(pPane, item);
+        }
+        pLayout->UpdateAttachedLayouts();
+    }
+}
+
+void CUIMenu::OnInput(const IUIInput* pInput) {
+    if (mColumnCount >= 1) {
+        int direction = 0;
+        unsigned long trigger = pInput->GetTrig();
+        unsigned long buttons = trigger | pInput->GetRepeat();
+        if (buttons & 2) direction = 1;
+        else if (buttons & 8) direction = -1;
+        else if (buttons & 5) mCursorRow = -1;
+        if (direction != 0) {
+            const int itemCount = mItems.size();
+            int paddedCount = ((mRowCount + itemCount - 1) / mRowCount) * mRowCount;
+            int selected = GetSelectedIndex();
+            int candidate = selected;
+            if (mCursorRow < 0) mCursorRow = selected % mRowCount;
+            else if (mCursorRow < mRowCount) candidate = mCursorRow + (selected / mRowCount) * mRowCount;
+            while (true) {
+                candidate += mRowCount * direction;
+                if (mWrapSelection && ((direction > 0 && (trigger & 2)) || (direction < 0 && (trigger & 8)))) candidate = (candidate + paddedCount) % paddedCount;
+                if (candidate < 0 || candidate >= paddedCount || candidate == selected) break;
+                int columnBegin = (candidate / mRowCount) * mRowCount;
+                int columnEnd = std::min(itemCount, columnBegin + mRowCount);
+                if (columnBegin <= candidate && candidate < columnEnd) {
+                    std::tr1::shared_ptr<IUIListItem> item = GetItem(candidate);
+                    if (item && item->IsSelectable()) {
+                        return SetSelectedIndex(candidate);
+                    }
+                }
+                for (int distance = 1; distance < mRowCount; ++distance) {
+                    int below = candidate + distance;
+                    int above = candidate - distance;
+                    if (columnBegin <= below && below < columnEnd) {
+                        std::tr1::shared_ptr<IUIListItem> item = GetItem(below);
+                        if (item && item->IsSelectable()) {
+                            return SetSelectedIndex(below);
+                        }
+                    }
+                    if (columnBegin <= above && above < columnEnd) {
+                        std::tr1::shared_ptr<IUIListItem> item = GetItem(above);
+                        if (item && item->IsSelectable()) {
+                            return SetSelectedIndex(above);
+                        }
+                    }
+                }
+            }
+            return;
+        }
+    }
+    CUIList::OnInput(pInput);
+}

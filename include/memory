@@ -159,6 +159,7 @@ private:
     template <typename Y> friend class shared_ptr;
     template <typename Y> friend class weak_ptr;
     template <typename Y, typename U> friend shared_ptr<Y> static_pointer_cast(const shared_ptr<U>& r);
+    template <typename Y, typename U> friend shared_ptr<Y> dynamic_pointer_cast(const shared_ptr<U>& r);
 
     shared_ptr(T* p, detail::shared_ptr_deleter_common* s) : ptr_(p), s_(s) { s_->retain(); }
     template <typename Y, typename U> void enable_from_this(const enable_shared_from_this<Y>* pBase, U* p);
@@ -333,6 +334,11 @@ template <typename T, typename U> bool operator==(const shared_ptr<T>& a, const 
 
 template <typename T, typename U> shared_ptr<T> static_pointer_cast(const shared_ptr<U>& r) {
     return r.s_ ? shared_ptr<T>(static_cast<T*>(r.ptr_), r.s_) : shared_ptr<T>();
+}
+
+template <typename T, typename U> shared_ptr<T> dynamic_pointer_cast(const shared_ptr<U>& r) {
+    T* p = dynamic_cast<T*>(r.get());
+    return p ? shared_ptr<T>(p, r.s_) : shared_ptr<T>();
 }
 
 template <typename T>

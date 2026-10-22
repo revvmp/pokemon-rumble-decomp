@@ -22,6 +22,7 @@ public:
     void SetSelectedIndex(int index);
     int GetSelectedIndex();
     std::tr1::shared_ptr<IUIListItem> GetSelectedItem();
+    std::tr1::shared_ptr<IUIListItem> GetItem(int index) { return mItems[index]; }
     CLayout* GetSelectedLayout();
     void SetScrollRange(unsigned long begin,unsigned long end);
     void SetSelectionInputEnabled(bool enabled);
@@ -32,6 +33,7 @@ public:
     inline void OnFocus(BUI* pUI);
 private:
     typedef BUI::CCallbackListOwner CCallbackListOwner;
+protected:
     int mInputDirection;
     int mScrollMode;
     std::vector<std::tr1::shared_ptr<CLayout> > mLayouts;

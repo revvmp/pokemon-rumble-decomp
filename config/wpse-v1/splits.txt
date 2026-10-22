@@ -547,6 +547,11 @@ game/ControllerTable.cpp:
 	.bss        start:0x803E8D28 end:0x803E90C8
 	.sdata      start:0x804B77D8 end:0x804B77D9
 
+game/CUIMenu.cpp:
+	extab       start:0x8003F20C end:0x8003F8E8
+	extabindex  start:0x80051B10 end:0x80051CF0
+	.text       start:0x801DC6C0 end:0x801DF650
+
 ControllerTableAlignmentPadding:
 	.sdata      start:0x804B77D9 end:0x804B77E0 align:1
 

@@ -2,6 +2,8 @@
 #define GAME_CUIMENU_H
 
 #include <game/BUI.h>
+#include <game/CUIList.h>
+#include <game/PaneRectangle.h>
 #include <game/CLayout.h>
 #include <game/IUIInput.h>
 #include <MSL_CPP/msl_utility.h>
@@ -57,5 +59,29 @@ private:
 };
 
 int RunUIMenu(const UIMenuParam& rParam, CUIMenuCallbacks& rCallbacks, IUIInput* pInput, std::tr1::shared_ptr<CUIManager> manager, std::tr1::shared_ptr<CLayout::FontMap> fonts, bool flag);
+
+class CUIMenu : public CUIList {
+public:
+    CUIMenu();
+    virtual ~CUIMenu();
+    virtual void OnInput(const IUIInput* pInput);
+    virtual void UpdateSelection();
+    virtual void Load(int columns, int rows, const char* pArchive, const char* pName, const std::tr1::shared_ptr<CLayout::FontMap>& rFonts, bool background);
+    virtual void Load(int columns, int rows, const char* const* pArchives, const char* pName, const std::tr1::shared_ptr<CLayout::FontMap>& rFonts, bool background);
+    void SetTitle(const wchar_t* pTitle);
+
+private:
+    bool mLayoutReady;
+    NErrMsg::PaneRectangle mBounds;
+    float mCellHeight;
+    nw4r::math::VEC2 mItemCenter;
+    nw4r::math::VEC2 mTitlePosition;
+    float mMinimumWidth;
+    int mColumnCount;
+    int mRowCount;
+    float mColumnSpacing;
+    float mRowSpacing;
+    int mCursorRow;
+};
 
 #endif

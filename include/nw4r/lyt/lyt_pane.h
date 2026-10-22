@@ -92,6 +92,8 @@ public:
         mFlag |= visible ? 1 : 0;
     }
     u8 GetAlpha() const { return mAlpha; }
+    u8 GetBasePositionH() const { return mBasePosition % 3; }
+    u8 GetBasePositionV() const { return mBasePosition / 3; }
     const math::VEC2& GetScale() const { return mScale; }
     const math::MTX34& GetGlobalMtx() const { return mGlbMtx; }
     const Size& GetSize() const { return mSize; }
