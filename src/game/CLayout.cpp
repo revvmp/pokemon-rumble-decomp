@@ -69,7 +69,7 @@ nw4r::math::VEC2 GetLocationAdjustScale() {
     return nw4r::math::VEC2(sLocationAdjustScale.x, sLocationAdjustScale.y);
 }
 
-nw4r::math::VEC2 GetDefaultPixelScale() {
+const nw4r::math::_VEC2& GetDefaultPixelScale() {
     if (sDefaultPixelScale.x < 0.0f) {
         const GXRenderModeObj* pRenderMode = nw4r::g3d::G3DState::GetRenderModeObj();
         u32 tvMode = pRenderMode->viTVmode;
@@ -84,7 +84,7 @@ nw4r::math::VEC2 GetDefaultPixelScale() {
             sDefaultPixelScale.x *= GetAspectScale().x;
         }
     }
-    return nw4r::math::VEC2(sDefaultPixelScale.x, sDefaultPixelScale.y);
+    return sDefaultPixelScale;
 }
 
 std::string get_what(int error, const char* pArchive, const char* pLayoutName, const std::tr1::shared_ptr<CLayout::FontMap>& rFonts) {

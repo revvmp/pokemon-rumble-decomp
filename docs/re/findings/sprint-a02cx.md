@@ -106,3 +106,33 @@ python tools/verify/verify.py verify --manifest config/targets/wpse-v1.json --re
 ```
 
 The final refreshed report counts **13,303** functions with fuzzy_match_percent equal to 100, compared with the initial cached 13,291. This increase is from rebuilding existing source artifacts and is not credited as reconstruction work. No requested function gained 100%, and no unit was promoted. Only this findings file is modified. The normal Ninja entry point remains unvalidated in this session; the successful validation used its generated compilation and link commands directly.
+
+
+## 2026-10-22 CLayout remaining-functions follow-up
+
+### Retained result
+
+`CLayout::CLayout()` (`__ct__7CLayoutFv`, 852 target bytes) improves from 96.938965% to 100% in both report.json and strict unitdiff. `GetDefaultPixelScale()` now returns `const nw4r::math::_VEC2&` to the cached POD scale. The NW4R `VEC2(const _VEC2&)` conversion constructor copies its two float members. Together these produce the assignment temporary directly, removing the extra eight-byte temporary and six copy/reload instructions. Returning the cache by reference without the conversion constructor was not the earlier attempted by-value VEC2 return: the return type and conversion point both matter.
+
+Only `src/game/CLayout.cpp`, `include/nw4r/math/math_types.h`, and this appended note are retained. No comments, assembly, optimizer pragmas, target hashes, symbols, or Matching classifications were added or changed. Changes remain uncommitted. CLayout remains NonMatching, with 159 of 171 report functions at 100%; the remaining requested routines are not solved.
+
+### Controlled validation
+
+- Read CODEGEN_RULES, sprint-ida, and prior CLayout notes, including sprint-a02, sprint-a03, sprint-a05 and the relevant t1/other sprint references.
+- `python configure.py` exited zero. Normal Ninja, verbose/TTY retries, and an explicit job-limit retry stalled without build output and were interrupted. These are not successful Ninja builds. As already recorded above, used the exact configured commands from `ninja -t commands` instead, preserving sjiswrap and compiler flags.
+- Recompiled all 239 objects whose Ninja dependency records contain `math_types.h`, with four concurrent independent compiler processes. Repeated this entire affected-object sweep with the original header/source and then the retained header/source. Every compilation exited zero. No previously perfect function was lost; the only new perfect function in the controlled comparison is the CLayout constructor.
+- The report at entry counted 13,311 perfect entries and included stale objects. After rebuilding, a final original-source control counts **13,320**, versus **13,321** for the retained candidate. Do not credit the stale-object refresh as reconstruction progress. An intermediate comparison keyed by `(unit, function name)` printed 13,318 versus 13,319 because duplicate names collapse two entries; the final counts above count every report function entry, consistently with the task.
+- Deleted `build/wpse-v1/main.dol`, generated the normal linker response file from Ninja's expanded `compdb -x link` inputs, and ran the configured linker and elf2dol commands. Both exited zero. `python tools/verify/verify.py verify --manifest config/targets/wpse-v1.json --reference-dir orig/wpse-v1 --build-dir build/wpse-v1` exited zero with `PASS main.dol`. This verifies the configured source/fallback selection; CLayout itself still uses its original fallback object for linking.
+- Regenerated `build/wpse-v1/report.json` after restoring the retained sources and recompiling CLayout. Final raw perfect-entry count: 13,321. Strict unitdiff gives the constructor 100%. `git diff --check` passes. No scratch files were created; compiler outputs and the linker response file are normal build artifacts.
+
+### Rejected experiments and remaining evidence
+
+All experiments below were restored; no partial-score source changes were retained.
+
+- Constructor: a named VEC2 return object, const-qualified VEC2 return, and const named return do not remove the copy. Returning `_VEC2` by value with the conversion constructor scores 97.92488%. Both const and non-const `_VEC2&` returns score 100%; retained the const reference because callers only read the cache.
+- Archive-array helper: extracting the append loop into an inline `AppendArchives` helper gives 94.27778% versus 94.35185%. Per-function scheduling-off, propagation-off, common-subexpression-off, lifetime-off, dead-assignment-off and pointer-analysis-off trials do not reach 100%; scheduling-off falls to 65.4815%. The array exception constructor's remaining diff is actually its final shared_ptr copy: the target loads/stores the pointer before loading the control block, whereas ours hoists the control-block load and null comparison.
+- Pointer-set insert: returning the native pair through the converting pair constructor, with an implicit tree-iterator conversion, raises Attach/AttachLayout only to 99.34217%/99.363%; FindPaneMP falls to 92.76515%. Passing the converting iterator by value, including its const-iterator conversion, does not help. Explicit `tr1::get<0/1>` access raises FindPaneMP to 94.867424%, but Attach/AttachLayout remain 99.3253%/99.34426%. Const pair results and named references do not solve the tag/iterator slot arrangement. These are partial structural clues, not accepted changes.
+- DetachAttachedLayouts: making the copied children set const gives 97.721%; caching end() gives 96.966%, both below 98.37267%.
+- RebindAnimations: moving the map iterator into the for initializer lowers ReplaceMotions/AdvancePaneMotions to 95.075%/93.220%; moving the child iterator into its for initializer gives 99.092%/95.130%. Both are worse than 99.47369%/95.41799%.
+- CalculateAttachedMtx: the target really contains `cmplw r31,r31`, and reloads the attach-pane visibility. A local common-subexpression-off probe raises 94.93535% to 97.72845%; propagation-off gives 95.409485%, both together 94.905174%, and adding dead-assignment-off does not improve it. Rebuild-conditionals-off loses; control-flow, tree-transformation and scalarization-off do not help. No optimizer pragma is retained. A source-level explanation for the target's redundant compare remains unresolved.
+- StopMotion still lacks the kept map-result iterator and begin temporaries described in a05. FindAnimation still differs in frame/register allocation and two reloads. This session does not establish a new solution to those previously documented gaps.

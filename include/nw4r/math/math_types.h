@@ -16,6 +16,10 @@ struct _VEC2 {
 
 struct VEC2 : _VEC2 {
     VEC2() {}
+    VEC2(const _VEC2& rVec) {
+        x = rVec.x;
+        y = rVec.y;
+    }
     VEC2(f32 fx, f32 fy) {
         x = fx;
         y = fy;
