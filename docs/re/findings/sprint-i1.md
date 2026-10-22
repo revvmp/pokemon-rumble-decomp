@@ -63,3 +63,20 @@ A scan of `report.json` plus objdiff call lists (functions below 100% whose `bl`
 - **Check for constant folding before blaming the inliner.** A reallocation path with `new(0)` and a missing throw meant the source computed its capacity from a `bool`.
 - **Deleting a statement can change inlining everywhere in a function.** Under `-ipa file` the function being compiled is all-or-nothing against a per-function budget of flattened inline code (F-i1-1). Do not chase single refusals from `warn_notinlined`; find the level structure instead (F-i1-2).
 - **Pruned callees look like non-inline functions.** A helper the target calls out of line may still be an inline function that a nested over-budget level pruned. Check whether the same helper is inlined elsewhere in the same target function before declaring it non-inline.
+
+## F-i1-5: third shift
+
+| Function or unit | Before | After | Cause and fix |
+| --- | --- | --- | --- |
+| `KDTreeZXNode<2,9>::OnLinkRemoved`, `<0,9>::OnLinkRemoved`, `RemoveChild<2,9>`, `shared_ptr<KDTreeZXNode<2,9>>::reset` (BModelObj) | 0 to 46% | 100% | The recursive `RemoveChild` pair breaks its inline cycle at whichever specialization is instantiated first, and the newest specialization is emitted first (sprint-e1 rule 4). `CKDTree` now names `typedef KDTreeZXNode<0, DEPTH> ZNode;` before `XNode`, so the Z node exists first, `<2,9>` code is emitted first and `RemoveChild<2,9>` is the out-of-line copy. BModelObj 79/88 to 83/88. |
+| PiiPropData `0x800F5FD0`, `0x800F6040` | 0%, 82% | 100% | Mislabelled: the 112-byte function is `~__vec_deleter<LevelMove>`, the 116-byte one is `~__vec_split_buffer<LevelMove>` (the `push_back` extab destroys a split-buffer local there). |
+| `PiiPropData::GetWazaLevels` | 91.5% | 100% | `1 <= level && level <= 100` and `-5 <= level && level < 0` keep two signed compares; `level >= 1 && level <= 100` is folded into one unsigned range compare. |
+
+SaveData: the vector-copy threshold moved from five to nine dead statements since shift 2 (other header changes in between). Nine statements in `allocate(n, pod_type)` flip it the same way as nine in the copy constructor, so the gap is additive anywhere in the copy chain. Tried without effect: `base(x.alloc())`, an `init` helper, an explicit allocate-and-loop body, a user copy constructor on `CMapRecord`, dissolving the `mStatus` union, scalar `mFlags`/`mLastArea` fields, and two-statement probes in each throw-path helper (`__error_string`, `logic_error`, `length_error`, `exception`, `allocator::allocate`, `allocator::max_size`, `throw_length_error`; together they flip one function). The target's out-of-line `SlotData::Data` copy (`fn_8016B130`) copies `mFlags` and `mLastArea` byte by byte and the MAC address as a word and a half, so those are separate `s8` fields and an array in the original.
+
+Still open: `BModelObj::CalcSize` (91%): the target multiplies `volume * scale` with the volume operand first; source operand order does not change the emitted order, nor do declaration order or a scaling helper.
+
+### Traps
+
+- **Swapping clone names can break the DOL.** `permute_names.py` on CDlgPiiSelector raised objdiff matches but the build checksum failed: other Matching units link to those weak names. Run a full build before committing clone renames in shared template code.
+- **Unreferenced inline destructors are not a blocker.** `~tree` and `~red_black_tree` of a `set` member are emitted unreferenced in our objects (every set, even a local one) but absent in the target; the linker strips them, so they appear as "only in source" without affecting the DOL.
