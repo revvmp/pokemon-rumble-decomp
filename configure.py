@@ -254,7 +254,7 @@ config.libs = [
             Object(Matching, "game/EncodingConverter.cpp"),
             Object(Matching, "game/memory.cpp"),
             Object(Matching, "game/pad.cpp"),
-            Object(NonMatching, "game/resetmgr.cpp"),
+            Object(Matching, "game/resetmgr.cpp"),
             Object(Matching, "game/new.cpp"),
             Object(Matching, "game/QuarterTurn.cpp"),
             Object(Matching, "game/RenderUtilities.cpp"),

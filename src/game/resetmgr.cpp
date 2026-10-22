@@ -30,10 +30,6 @@ enum State {
 };
 
 struct IDCallback {
-    IDCallback(int id, int ignoreMask, const std::tr1::function<void()>& rFunction) : mId(id), mIgnoreMask(ignoreMask) {
-        mFunction = rFunction;
-    }
-
     void Call(int ignoreBit) const {
         if (!(mIgnoreMask & ignoreBit)) {
             mFunction();
@@ -204,6 +200,10 @@ int RegisterResetCallback(const std::tr1::function<void()>& rCallback, int ignor
     } else {
         id = sCallbacks->back().mId + 1;
     }
-    sCallbacks->push_front(IDCallback(id, ignoreMask, rCallback));
+    IDCallback callback;
+    callback.mId = id;
+    callback.mFunction = rCallback;
+    callback.mIgnoreMask = ignoreMask;
+    sCallbacks->push_back(callback);
     return id;
 }
