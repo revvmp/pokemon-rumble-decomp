@@ -119,8 +119,8 @@ typedef std::vector<std::tr1::shared_ptr<CUIPiiListItem> > PiiItemVector;
 bool LoadItems(PiiItemVector& rItems, int player);
 bool LoadEntranceItems(PiiItemVector& rItems, int player);
 bool IsCurrentMapStage7Even();
-int CheckPadErrors(int mask);
-int CheckRemoteMemoryErrors();
+inline int CheckPadErrors(int mask);
+inline int CheckRemoteMemoryErrors();
 
 struct SwapRequest {
     std::tr1::shared_ptr<CPiiPersonalData> mPii;
@@ -271,7 +271,7 @@ public:
     virtual ~CDataPerPlayer();
 };
 
-void CDataPerPlayer::Setup(bool background) {
+inline void CDataPerPlayer::Setup(bool background) {
     std::tr1::shared_ptr<CLayout::FontMap> fonts = GetDefaultFontMap();
     const char* const* pArchives = gSharedLayoutArchives;
     if (mState == 1) {
@@ -366,7 +366,7 @@ public:
     virtual void UpdateDlgOpenState() = 0;
 };
 
-void CDataPerPlayer::OnSelectionChanged(BUI* pUI) {
+inline void CDataPerPlayer::OnSelectionChanged(BUI* pUI) {
     if (!mSilent) {
         PlaySound(0x54);
     }
@@ -396,7 +396,7 @@ void CDataPerPlayer::OnSelectionChanged(BUI* pUI) {
     }
 }
 
-void CDataPerPlayer::Run() {
+inline void CDataPerPlayer::Run() {
     switch (mState) {
     case 0:
     case 1:
@@ -410,7 +410,7 @@ void CDataPerPlayer::Run() {
     SetOpen(false);
 }
 
-void CDataPerPlayer::RunDialog() {
+inline void CDataPerPlayer::RunDialog() {
     WaitForRemoteMemory();
     mpController = IGameSession::GetInstance()->GetPlayer(mPlayer)->GetController();
     mDisconnectSerial = mpController != nullptr ? mpController->GetDisconnectSerial() : 0;
@@ -427,7 +427,7 @@ void CDataPerPlayer::RunDialog() {
     }
 }
 
-void CDataPerPlayer::WaitForRemoteMemory() {
+inline void CDataPerPlayer::WaitForRemoteMemory() {
     IController* pController = IGameSession::GetInstance()->GetPlayer(mPlayer)->GetController();
     IController::Type type = pController->GetType();
     if (type >= IController::TYPE_WII_REMOTE && type <= IController::TYPE_NUNCHAKU) {
@@ -435,12 +435,12 @@ void CDataPerPlayer::WaitForRemoteMemory() {
     }
 }
 
-void CDataPerPlayer::SetOpen(bool open) {
+inline void CDataPerPlayer::SetOpen(bool open) {
     mOpen = open;
     mpDlg->UpdateDlgOpenState();
 }
 
-void CDataPerPlayer::RunSelection() {
+inline void CDataPerPlayer::RunSelection() {
     mSilent = true;
     CPlayer* pPlayer = IGameSession::GetInstance()->GetPlayer(mPlayer);
     UpdateList(false);
@@ -563,7 +563,7 @@ void CDataPerPlayer::RunSelection() {
     }
 }
 
-void CDataPerPlayer::UpdateList(bool selectFirst) {
+inline void CDataPerPlayer::UpdateList(bool selectFirst) {
     int player = mState == 2 ? -1 : mPlayer;
     mFilterSort.Filter(mPiiList, mItems, player);
     if (selectFirst) {
@@ -571,7 +571,7 @@ void CDataPerPlayer::UpdateList(bool selectFirst) {
     }
 }
 
-void CDataPerPlayer::SelectEntrancePii() {
+inline void CDataPerPlayer::SelectEntrancePii() {
     IController* pController = IGameSession::GetInstance()->GetPlayer(mPlayer)->GetController();
     {
         std::tr1::shared_ptr<CPiiPersonalData> entrance = mpDlg->GetEntrancePPD(pController);
@@ -589,7 +589,7 @@ void CDataPerPlayer::SelectEntrancePii() {
     mPiiList->SelectIndex(0);
 }
 
-void CDataPerPlayer::RunEntrance() {
+inline void CDataPerPlayer::RunEntrance() {
     SetOpen(true);
     mEntranceResult = 0;
     CPlayer* pPlayer = IGameSession::GetInstance()->GetPlayer(mPlayer);
@@ -616,7 +616,7 @@ void CDataPerPlayer::RunEntrance() {
     }
 }
 
-void CDataPerPlayer::RunEntranceController() {
+inline void CDataPerPlayer::RunEntranceController() {
     IController* pController;
     CPlayer* pPlayer = IGameSession::GetInstance()->GetPlayer(mPlayer);
     PlayMotion(mPlayerID, true);
@@ -676,7 +676,7 @@ void CDataPerPlayer::RunEntranceController() {
     }
 }
 
-void CDataPerPlayer::FlushRemoteMemory() {
+inline void CDataPerPlayer::FlushRemoteMemory() {
     IController* pController = IGameSession::GetInstance()->GetPlayer(mPlayer)->GetController();
     IController::Type type = pController->GetType();
     if (type >= IController::TYPE_WII_REMOTE && type <= IController::TYPE_NUNCHAKU) {
@@ -697,7 +697,7 @@ void CDataPerPlayer::FlushRemoteMemory() {
     }
 }
 
-std::tr1::shared_ptr<CLayout::CMotionProgram> CDataPerPlayer::PlayMotion(std::tr1::shared_ptr<BUILayout> pLayout, bool shown) {
+inline std::tr1::shared_ptr<CLayout::CMotionProgram> CDataPerPlayer::PlayMotion(std::tr1::shared_ptr<BUILayout> pLayout, bool shown) {
     if (!pLayout) {
         return std::tr1::shared_ptr<CLayout::CMotionProgram>();
     }
@@ -721,7 +721,7 @@ std::tr1::shared_ptr<CLayout::CMotionProgram> CDataPerPlayer::PlayMotion(std::tr
     return mListLayout->GetLayout()->CreateMotion(shown ? "begin" : "end", kMotionPaneNames[part], 0.0f, 1.0f);
 }
 
-int CDataPerPlayer::ValidateAccept() {
+inline int CDataPerPlayer::ValidateAccept() {
     std::tr1::shared_ptr<IUIListItem> selected = mPiiList->GetSelectedItem();
     if (!selected) {
         return 1;
@@ -744,7 +744,7 @@ int CDataPerPlayer::ValidateAccept() {
     return 0;
 }
 
-void CDataPerPlayer::ApplyAccept() {
+inline void CDataPerPlayer::ApplyAccept() {
     SpawnPreview();
     {
         std::tr1::shared_ptr<CPii> pii = mPreviewPii.lock();
@@ -779,7 +779,7 @@ void CDataPerPlayer::ApplyAccept() {
     }
 }
 
-void CDataPerPlayer::SpawnPreview() {
+inline void CDataPerPlayer::SpawnPreview() {
     BWorld* pWorld = GetCurrentGameMap()->GetWorld();
     nw4r::math::VEC3 inside;
     nw4r::math::VEC3 outside;
@@ -803,7 +803,7 @@ void CDataPerPlayer::SpawnPreview() {
     CreateBall();
 }
 
-void CDataPerPlayer::CalcPreviewPositions(nw4r::math::VEC3* pInside, nw4r::math::VEC3* pOutside) {
+inline void CDataPerPlayer::CalcPreviewPositions(nw4r::math::VEC3* pInside, nw4r::math::VEC3* pOutside) {
     nw4r::g3d::Camera camera = GetCurrentGameMap()->GetWorld()->GetG3dCamera();
     const nw4r::g3d::CameraData& rData = camera.ref();
     nw4r::math::MTX34 cameraMtx;
@@ -834,7 +834,7 @@ void CDataPerPlayer::CalcPreviewPositions(nw4r::math::VEC3* pInside, nw4r::math:
     }
 }
 
-void CDataPerPlayer::CreateBall() {
+inline void CDataPerPlayer::CreateBall() {
     BWorld* pWorld = GetCurrentGameMap()->GetWorld();
     int rank = Clamp<int>(GetSaveData(-1)->mData.mFlags[0], 1, 4);
     const char* pModelName = "neji_EX.brres";
@@ -912,7 +912,7 @@ void CDataPerPlayer::CreateBall() {
     pWorld->Add(ball);
 }
 
-nw4r::math::VEC3 CDataPerPlayer::GetOverheadPosition() {
+inline nw4r::math::VEC3 CDataPerPlayer::GetOverheadPosition() {
     nw4r::math::VEC3 position = GetInsidePosition();
     std::tr1::shared_ptr<CPii> pii = mPreviewPii.lock();
     if (pii) {
@@ -921,13 +921,13 @@ nw4r::math::VEC3 CDataPerPlayer::GetOverheadPosition() {
     return position;
 }
 
-nw4r::math::VEC3 CDataPerPlayer::GetInsidePosition() {
+inline nw4r::math::VEC3 CDataPerPlayer::GetInsidePosition() {
     nw4r::math::VEC3 position;
     CalcPreviewPositions(&position, nullptr);
     return position;
 }
 
-std::tr1::shared_ptr<CPii> CDataPerPlayer::MovePreviewPii(const nw4r::math::VEC3& rPosition) {
+inline std::tr1::shared_ptr<CPii> CDataPerPlayer::MovePreviewPii(const nw4r::math::VEC3& rPosition) {
     std::tr1::shared_ptr<CPii> pii = mPreviewPii.lock();
     if (pii) {
         pii->SetPosition(rPosition);
@@ -935,21 +935,21 @@ std::tr1::shared_ptr<CPii> CDataPerPlayer::MovePreviewPii(const nw4r::math::VEC3
     return pii;
 }
 
-void CDataPerPlayer::MoveChangeCircle(const nw4r::math::VEC3& rPosition) {
+inline void CDataPerPlayer::MoveChangeCircle(const nw4r::math::VEC3& rPosition) {
     std::tr1::shared_ptr<CItem> circle = mChangeCircle.lock();
     if (circle) {
         circle->SetPosition(rPosition);
     }
 }
 
-void CDataPerPlayer::MoveBall(const nw4r::math::VEC3& rPosition) {
+inline void CDataPerPlayer::MoveBall(const nw4r::math::VEC3& rPosition) {
     std::tr1::shared_ptr<CItem> ball = mBall.lock();
     if (ball) {
         ball->SetPosition(rPosition);
     }
 }
 
-void CDataPerPlayer::ProcessEntranceAccept() {
+inline void CDataPerPlayer::ProcessEntranceAccept() {
     CPlayer* pPlayer = IGameSession::GetInstance()->GetPlayer(mPlayer);
     mEntranceResult = 1;
     for (;;) {
@@ -983,7 +983,7 @@ void CDataPerPlayer::ProcessEntranceAccept() {
     }
 }
 
-void CDataPerPlayer::FinishAccept() {
+inline void CDataPerPlayer::FinishAccept() {
     int frames = mEnterFrames;
     for (int i = 0; i < frames; i++) {
         f32 t = static_cast<f32>(i) / static_cast<f32>(frames);
@@ -1000,7 +1000,7 @@ void CDataPerPlayer::FinishAccept() {
     RemoveChangeCircle();
 }
 
-void CDataPerPlayer::RemovePreviewPii() {
+inline void CDataPerPlayer::RemovePreviewPii() {
     std::tr1::shared_ptr<CPii> pii = mPreviewPii.lock();
     if (pii) {
         BWorld* pWorld = pii->GetWorld();
@@ -1011,7 +1011,7 @@ void CDataPerPlayer::RemovePreviewPii() {
     }
 }
 
-void CDataPerPlayer::RemoveBall() {
+inline void CDataPerPlayer::RemoveBall() {
     std::tr1::shared_ptr<CItem> ball = mBall.lock();
     if (ball) {
         BWorld* pWorld = ball->GetWorld();
@@ -1022,7 +1022,7 @@ void CDataPerPlayer::RemoveBall() {
     }
 }
 
-void CDataPerPlayer::RemoveChangeCircle() {
+inline void CDataPerPlayer::RemoveChangeCircle() {
     std::tr1::shared_ptr<CItem> circle = mChangeCircle.lock();
     if (circle) {
         BWorld* pWorld = circle->GetWorld();
@@ -1033,13 +1033,13 @@ void CDataPerPlayer::RemoveChangeCircle() {
     }
 }
 
-CDataPerPlayer::~CDataPerPlayer() {
+inline CDataPerPlayer::~CDataPerPlayer() {
     RemovePreviewPii();
     RemoveBall();
     RemoveChangeCircle();
 }
 
-bool CDataPerPlayer::IsSkipPressed() {
+inline bool CDataPerPlayer::IsSkipPressed() {
     IController* pController = IGameSession::GetInstance()->GetPlayer(mPlayer)->GetController();
     if (pController != nullptr && pController->IsConnected()) {
         return (pController->GetTrig() & 0x3F) != 0;
@@ -1047,7 +1047,7 @@ bool CDataPerPlayer::IsSkipPressed() {
     return false;
 }
 
-bool CDataPerPlayer::CanSwap() {
+inline bool CDataPerPlayer::CanSwap() {
     {
         std::tr1::shared_ptr<CPii> pii = mPreviewPii.lock();
         if (pii) {
@@ -1116,7 +1116,7 @@ bool CDataPerPlayer::CanSwap() {
     return true;
 }
 
-void CDataPerPlayer::PrepareSwap(SwapRequest& rRequest) {
+inline void CDataPerPlayer::PrepareSwap(SwapRequest& rRequest) {
     {
         std::tr1::shared_ptr<CPii> pii = mPreviewPii.lock();
         if (pii) {
@@ -1197,7 +1197,7 @@ void CDataPerPlayer::PrepareSwap(SwapRequest& rRequest) {
     RemovePreviewPii();
 }
 
-void CDataPerPlayer::GetPlayerPiiTransform(nw4r::math::VEC3* pPosition, f32* pRotation) {
+inline void CDataPerPlayer::GetPlayerPiiTransform(nw4r::math::VEC3* pPosition, f32* pRotation) {
     CPlayer* pPlayer = IGameSession::GetInstance()->GetPlayer(mPlayer);
     if (pPlayer->GetPii()) {
         *pPosition = pPlayer->GetPii()->GetPositionRef();
@@ -1214,7 +1214,7 @@ void CDataPerPlayer::GetPlayerPiiTransform(nw4r::math::VEC3* pPosition, f32* pRo
     }
 }
 
-bool CDataPerPlayer::ExecuteSwap(const SwapRequest& rRequest) {
+inline bool CDataPerPlayer::ExecuteSwap(const SwapRequest& rRequest) {
     if (!rRequest.mPii) {
         return false;
     }
@@ -1267,6 +1267,92 @@ public:
 
     CDlgPiiSelector() : mIsPausing(false), mInputLocked(false), mErrorState(0), mError(0) {}
     virtual ~CDlgPiiSelector() {}
+    virtual bool IsShown(int player) {
+        if (mIsPausing) {
+            return true;
+        }
+        return !mMultiPlayerData && mDataPerPlayer[player] && mDataPerPlayer[player]->IsShown();
+    }
+
+    virtual bool IsMultiPlayerEntranceShown() { return mMultiPlayerData; }
+    virtual void ShowMultiPlayerEntrance() {
+        if (mMultiPlayerData) {
+            return;
+        }
+        for (int player = 0; player < 4; player++) {
+            mDataPerPlayer[player].reset();
+        }
+        GetCurrentGameMap()->SetPausing(true);
+        mMultiPlayerData.reset(new MultiPlayerData);
+        mMultiPlayerData->mState = 0;
+        mMultiPlayerData->mDisconMsgDisable.reset(new IDisconMsg::CDisable(IGameSession::GetInstance()->GetDisconMsg()));
+        mMultiPlayerData->mMsgWin = IDlgMsgWin::Create(false, false);
+        for (int player = 0; player < 4; player++) {
+            CPlayer* pPlayer = IGameSession::GetInstance()->GetPlayer(player);
+            IController* pController = pPlayer->GetController();
+            if (pController != nullptr) {
+                mMultiPlayerData->mEntrancePPD[pController->GetType()][pController->GetChannel()] =
+                    pPlayer->GetPersonalData();
+            }
+            CPlayerPii* pPii = pPlayer->GetPii();
+            if (pPii != nullptr) {
+                GetCurrentGameMap()->GetWorld()->RemoveObject(pPii->GetSharedPtr());
+            }
+            pPlayer->Leave();
+            pPlayer->SetController(nullptr);
+        }
+        mMultiPlayerData->mPlayerNum =
+            std::min(static_cast<int>(IGameSession::GetInstance()->GetTeamPiiBox()->GetPersonalDataList().size()), sMaxPlayerNum);
+        std::tr1::shared_ptr<CLayout::FontMap> fonts = GetDefaultFontMap();
+        mMultiPlayerData->mLayout.Load(gSharedLayoutArchives, "dlgpiisel_confirm", fonts);
+        CColorBtnTagProc::Attach(mMultiPlayerData->mLayout.SetText(
+            "TEXT", GetMessageString(0x6008B, L"+かSTARTでけってい!")));
+        for (int player = 0; player < mMultiPlayerData->mPlayerNum; player++) {
+            mDataPerPlayer[player].reset(new CDataPerPlayer(this, 2, player));
+            mDataPerPlayer[player]->Setup();
+        }
+        AssignControllers();
+    }
+
+    virtual void SetEntrancePPD(IController* pController, const std::tr1::shared_ptr<CPiiPersonalData>& rPPD) {
+        if (pController != nullptr && mMultiPlayerData) {
+            mMultiPlayerData->mEntrancePPD[pController->GetType()][pController->GetChannel()] = rPPD;
+        }
+    }
+
+    virtual std::tr1::shared_ptr<CPiiPersonalData> GetEntrancePPD(IController* pController) {
+        return pController != nullptr && mMultiPlayerData
+                   ? mMultiPlayerData->mEntrancePPD[pController->GetType()][pController->GetChannel()]
+                   : std::tr1::shared_ptr<CPiiPersonalData>();
+    }
+
+    inline virtual void UpdateDlgOpenState();
+    virtual bool Close() { return false; }
+    virtual bool IsClosable() { return false; }
+    virtual void Show(int player, bool flag) {
+        if (mMultiPlayerData) {
+            return;
+        }
+        if (flag) {
+            if (GetCurrentGameMap()->GetMapDesc().mIndex.mStage == 0) {
+                if (IsAnyShown()) {
+                    return;
+                }
+                flag = true;
+                GetCurrentGameMap()->SetPausing(true);
+                mIsPausing = true;
+            } else {
+                flag = false;
+            }
+            if (!mDataPerPlayer[player]) {
+                mDataPerPlayer[player].reset(new CDataPerPlayer(this, flag, player));
+                mDataPerPlayer[player]->Setup();
+            }
+        } else if (mDataPerPlayer[player]) {
+            mDataPerPlayer[player]->RequestClose();
+        }
+    }
+
     virtual void Calc() {
         if (mMultiPlayerData) {
             CalcEntrance();
@@ -1330,93 +1416,6 @@ public:
         }
     }
 
-    virtual bool IsClosable() { return false; }
-    virtual bool Close() { return false; }
-    virtual bool IsShown(int player) {
-        if (mIsPausing) {
-            return true;
-        }
-        return !mMultiPlayerData && mDataPerPlayer[player] && mDataPerPlayer[player]->IsShown();
-    }
-
-    virtual void Show(int player, bool flag) {
-        if (mMultiPlayerData) {
-            return;
-        }
-        if (flag) {
-            if (GetCurrentGameMap()->GetMapDesc().mIndex.mStage == 0) {
-                if (IsAnyShown()) {
-                    return;
-                }
-                flag = true;
-                GetCurrentGameMap()->SetPausing(true);
-                mIsPausing = true;
-            } else {
-                flag = false;
-            }
-            if (!mDataPerPlayer[player]) {
-                mDataPerPlayer[player].reset(new CDataPerPlayer(this, flag, player));
-                mDataPerPlayer[player]->Setup();
-            }
-        } else if (mDataPerPlayer[player]) {
-            mDataPerPlayer[player]->RequestClose();
-        }
-    }
-
-    virtual bool IsMultiPlayerEntranceShown() { return mMultiPlayerData; }
-    virtual void ShowMultiPlayerEntrance() {
-        if (mMultiPlayerData) {
-            return;
-        }
-        for (int player = 0; player < 4; player++) {
-            mDataPerPlayer[player].reset();
-        }
-        GetCurrentGameMap()->SetPausing(true);
-        mMultiPlayerData.reset(new MultiPlayerData);
-        mMultiPlayerData->mState = 0;
-        mMultiPlayerData->mDisconMsgDisable.reset(new IDisconMsg::CDisable(IGameSession::GetInstance()->GetDisconMsg()));
-        mMultiPlayerData->mMsgWin = IDlgMsgWin::Create(false, false);
-        for (int player = 0; player < 4; player++) {
-            CPlayer* pPlayer = IGameSession::GetInstance()->GetPlayer(player);
-            IController* pController = pPlayer->GetController();
-            if (pController != nullptr) {
-                mMultiPlayerData->mEntrancePPD[pController->GetType()][pController->GetChannel()] =
-                    pPlayer->GetPersonalData();
-            }
-            CPlayerPii* pPii = pPlayer->GetPii();
-            if (pPii != nullptr) {
-                GetCurrentGameMap()->GetWorld()->RemoveObject(pPii->GetSharedPtr());
-            }
-            pPlayer->Leave();
-            pPlayer->SetController(nullptr);
-        }
-        mMultiPlayerData->mPlayerNum =
-            std::min(static_cast<int>(IGameSession::GetInstance()->GetTeamPiiBox()->GetPersonalDataList().size()), sMaxPlayerNum);
-        std::tr1::shared_ptr<CLayout::FontMap> fonts = GetDefaultFontMap();
-        mMultiPlayerData->mLayout.Load(gSharedLayoutArchives, "dlgpiisel_confirm", fonts);
-        CColorBtnTagProc::Attach(mMultiPlayerData->mLayout.SetText(
-            "TEXT", GetMessageString(0x6008B, L"+かSTARTでけってい!")));
-        for (int player = 0; player < mMultiPlayerData->mPlayerNum; player++) {
-            mDataPerPlayer[player].reset(new CDataPerPlayer(this, 2, player));
-            mDataPerPlayer[player]->Setup();
-        }
-        AssignControllers();
-    }
-
-    virtual void SetEntrancePPD(IController* pController, const std::tr1::shared_ptr<CPiiPersonalData>& rPPD) {
-        if (pController != nullptr && mMultiPlayerData) {
-            mMultiPlayerData->mEntrancePPD[pController->GetType()][pController->GetChannel()] = rPPD;
-        }
-    }
-
-    virtual std::tr1::shared_ptr<CPiiPersonalData> GetEntrancePPD(IController* pController) {
-        return pController != nullptr && mMultiPlayerData
-                   ? mMultiPlayerData->mEntrancePPD[pController->GetType()][pController->GetChannel()]
-                   : std::tr1::shared_ptr<CPiiPersonalData>();
-    }
-
-    inline virtual void UpdateDlgOpenState();
-
     void Init(bool flag) {}
 
     void CalcEntrance() {
@@ -1457,7 +1456,7 @@ private:
     int mError;
 };
 
-void CDlgPiiSelector::UpdateDlgOpenState() {
+inline void CDlgPiiSelector::UpdateDlgOpenState() {
     if (IsAnyShown()) {
         GetCurrentGameMap()->RegisterDialog(shared_from_this());
     } else {
@@ -1465,7 +1464,7 @@ void CDlgPiiSelector::UpdateDlgOpenState() {
     }
 }
 
-bool CDlgPiiSelector::IsAnyShown() {
+inline bool CDlgPiiSelector::IsAnyShown() {
     if (IsMultiPlayerEntranceShown()) {
         return true;
     }
@@ -1477,7 +1476,7 @@ bool CDlgPiiSelector::IsAnyShown() {
     return false;
 }
 
-void CDlgPiiSelector::UpdateEntrance() {
+inline void CDlgPiiSelector::UpdateEntrance() {
     int joined = 0;
     int accepted = 0;
     int nunchaku = 0;
@@ -1557,7 +1556,7 @@ update:
     UpdateErrors(connected);
 }
 
-void CDlgPiiSelector::UpdateErrors(int connected) {
+inline void CDlgPiiSelector::UpdateErrors(int connected) {
     for (;;) {
         int previous = mErrorState;
         switch (previous) {
@@ -1637,7 +1636,7 @@ void CDlgPiiSelector::UpdateErrors(int connected) {
     }
 }
 
-int CheckRemoteMemoryErrors() {
+inline int CheckRemoteMemoryErrors() {
     for (int player = 0; player < 4; player++) {
         CRemoteMemory* pRemoteMemory = IGameSession::GetInstance()->GetRemoteMemory(player);
         if (pRemoteMemory != nullptr && pRemoteMemory->ConsumeFatalError()) {
@@ -1647,7 +1646,7 @@ int CheckRemoteMemoryErrors() {
     return 0;
 }
 
-int CheckPadErrors(int mask) {
+inline int CheckPadErrors(int mask) {
     int result = mask;
     for (int channel = 0; channel < 4; channel++) {
         unsigned int device;
@@ -1667,7 +1666,7 @@ int CheckPadErrors(int mask) {
     return result;
 }
 
-void CDlgPiiSelector::SetInputLocked(bool locked) {
+inline void CDlgPiiSelector::SetInputLocked(bool locked) {
     if (locked != mInputLocked) {
         mInputLocked = locked;
         for (int player = 0; player < mMultiPlayerData->mPlayerNum; player++) {
