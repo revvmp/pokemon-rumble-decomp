@@ -35,7 +35,7 @@ public:
     iterator find(const value_type& rValue) { return tree_.find(rValue); }
     void clear() { tree_.clear(); }
     void swap(set& rOther) { tree_.swap(rOther.tree_); }
-    void erase(iterator position) { tree_.erase(position); }
+    iterator erase(iterator position) { return tree_.erase(position); }
 
 private:
     tree_type tree_;

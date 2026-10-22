@@ -26,6 +26,7 @@ template <class Pointer> class __pointer_plus_bit {
 public:
     __pointer_plus_bit(Pointer p = nullptr);
     __pointer_plus_bit& operator=(Pointer p);
+    __pointer_plus_bit& operator=(const __pointer_plus_bit& r);
     operator Pointer() const;
     Pointer operator->() const;
     bool bit() const;
@@ -37,6 +38,10 @@ private:
 template <class Pointer> inline __pointer_plus_bit<Pointer>::__pointer_plus_bit(Pointer p) : ptr_(p) {}
 template <class Pointer> inline __pointer_plus_bit<Pointer>& __pointer_plus_bit<Pointer>::operator=(Pointer p) {
     ptr_ = reinterpret_cast<Pointer>(reinterpret_cast<unsigned long>(p) | (reinterpret_cast<unsigned long>(ptr_) & 1));
+    return *this;
+}
+template <class Pointer> inline __pointer_plus_bit<Pointer>& __pointer_plus_bit<Pointer>::operator=(const __pointer_plus_bit& r) {
+    ptr_ = reinterpret_cast<Pointer>((reinterpret_cast<unsigned long>(r.ptr_) & ~1) | (reinterpret_cast<unsigned long>(ptr_) & 1));
     return *this;
 }
 template <class Pointer> inline __pointer_plus_bit<Pointer>::operator Pointer() const {
@@ -402,7 +407,6 @@ inline void tree_rotate_right(tree_node_base* x, tree_node_base*& root) {
 }
 
 
-void tree_balance_for_erase(tree_node_base* z, tree_node_base* root);
 
 inline tree_node_base* tree_next(tree_node_base* x) {
     if (x->right_ != nullptr) {
@@ -539,17 +543,20 @@ public:
     Compare& comp() { return begin_.first(); }
     const Compare& comp() const { return begin_.first(); }
 
-    void erase(iterator position) { erase(const_iterator(position)); }
+    iterator erase(iterator position) { return erase(const_iterator(position)); }
 
-    void erase(const_iterator position) {
+    iterator erase(const_iterator position) {
+        tree_node_base* pNext;
         tree_node_base* pNode = position.node_;
         if (pNode == begin_node()) {
-            begin_node() = tree_next(pNode);
+            ++position;
+            begin_node() = position.node_;
         }
-        tree_balance_for_erase(pNode, root());
+        pNext = algorithm_base::balance_erase(pNode, root());
         alloc().destroy(&static_cast<node*>(pNode)->value_);
         ::operator delete(pNode);
         --size_.first();
+        return iterator(static_cast<node*>(pNext));
     }
 
     tree_node_base* end_node() const { return reinterpret_cast<tree_node_base*>(const_cast<tree_root_ptr*>(&root_.second())); }
@@ -862,7 +869,7 @@ public:
     template <typename Key> T& find_or_insert(const Key& rKey) { return implementation::find_or_insert(rKey); }
     void clear() { base::clear(); }
     void swap(tree& rOther) { base::swap(rOther); }
-    void erase(const_iterator position) { base::erase(position); }
+    iterator erase(const_iterator position) { return base::erase(position); }
 };
 
 }
