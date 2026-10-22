@@ -25,6 +25,10 @@ public:
     virtual const MapDesc& GetMapDesc() const { return *mpMapDesc; }
     virtual IPauseMenu* GetPauseMenu() { return mPauseMenu.get(); }
     bool Init(bool background);
+    void StartRankingMotion();
+    void PlayModelMotion(int i);
+    void StartPlayerLayoutMotion(int i);
+    void StartPlayerMotion(int i);
     void SkipMotions();
 
 private:

@@ -50,6 +50,35 @@ const char* sModelNames[5] = {"ranking_p1", "ranking_p2", "ranking_p3", "ranking
 const char* sRootNames[4] = {"ROOT_p1", "ROOT_p2", "ROOT_p3", "ROOT_p4"};
 }
 
+inline void CMultiRanking::StartRankingMotion() {
+    mRankingLayout->GetLayout()->CreateMotion("begin");
+}
+
+inline void CMultiRanking::StartPlayerLayoutMotion(int i) {
+    if (mPlayerLayouts[i])
+        mPlayerLayouts[i]->GetLayout()->CreateMotion("begin");
+}
+
+inline void CMultiRanking::PlayModelMotion(int i) {
+    mMotions[i] = mModels[i]->Play(sModelNames[i], 0.0f, 1.0f);
+}
+
+inline void CMultiRanking::StartPlayerMotion(int i) {
+    if (mPlayerIDs[i] && mScores[i] > 0) {
+        PlayModelMotion(i);
+        ++mMotionCount;
+    } else {
+        mMotionFinished[i] = true;
+    }
+}
+
+inline void CMultiRanking::SkipMotions() {
+    for (int i = 0; i < 4; ++i) {
+        if (mMotions[i] && !mMotionFinished[i])
+            mModels[i]->Play(sModelNames[i], float(mScores[i]) * float(mMotions[i]->GetLength()) / float(mMaximumScore), 0.0f);
+    }
+}
+
 inline bool CMultiRanking::Init(bool background) {
     if (!IsGameFlagSet(2))
         return true;
@@ -148,13 +177,6 @@ std::tr1::shared_ptr<IMultiRanking> IMultiRanking::Create(const MapDesc* pDesc, 
     return std::tr1::shared_ptr<IMultiRanking>();
 }
 
-inline void CMultiRanking::SkipMotions() {
-    for (int i = 0; i < 4; ++i) {
-        if (mMotions[i] && !mMotionFinished[i])
-            mModels[i]->Play(sModelNames[i], float(mScores[i]) * float(mMotions[i]->GetLength()) / float(mMaximumScore), 0.0f);
-    }
-}
-
 void CMultiRanking::RunAction() {
     if (!mActive) {
         YieldFiberStarted();
@@ -166,16 +188,10 @@ void CMultiRanking::RunAction() {
         ChangeBGM(626);
     while (IGameSession::GetInstance()->GetFadeFrames() > 0)
         YieldFiber();
-    mRankingLayout->GetLayout()->CreateMotion("begin");
+    StartRankingMotion();
     for (int i = 0; i < 4; ++i) {
-        if (mPlayerIDs[i] && mScores[i] > 0) {
-            mMotions[i] = mModels[i]->Play(sModelNames[i], 0.0f, 1.0f);
-            ++mMotionCount;
-        } else {
-            mMotionFinished[i] = true;
-        }
-        if (mPlayerLayouts[i])
-            mPlayerLayouts[i]->GetLayout()->CreateMotion("begin");
+        StartPlayerMotion(i);
+        StartPlayerLayoutMotion(i);
     }
     if (mMaximumScore > 0)
         PlaySound(818, &mSound, nullptr);
