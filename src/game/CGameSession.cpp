@@ -305,37 +305,37 @@ void CGameSession::LoadFromSlot() {
     snapshot.mMoney = GetSaveData(-1)->mData.mHeader[2];
 
     snapshot.mPiiCollectionData.reserve(GetSaveData(-1)->mPiiCollectionData.size());
-    for (std::vector<SD_PiiCollectionData>::iterator it = GetSaveData(-1)->mPiiCollectionData.begin();
+    for (std::vector<SD_PiiCollectionData>::const_iterator it = GetSaveData(-1)->mPiiCollectionData.begin();
          it != GetSaveData(-1)->mPiiCollectionData.end(); ++it) {
         snapshot.mPiiCollectionData.push_back(it->mData);
     }
 
     snapshot.mPiiPersonalData.reserve(GetSaveData(-1)->mPiiPersonalData.size());
-    for (std::vector<SD_PiiPersonalData>::iterator it = GetSaveData(-1)->mPiiPersonalData.begin();
+    for (std::vector<SD_PiiPersonalData>::const_iterator it = GetSaveData(-1)->mPiiPersonalData.begin();
          it != GetSaveData(-1)->mPiiPersonalData.end(); ++it) {
         snapshot.mPiiPersonalData.push_back(it->mData);
     }
 
     snapshot.mBattleRoyalData.reserve(GetSaveData(-1)->mBattleRoyalData.size());
-    for (std::vector<SD_BattleRoyalData>::iterator it = GetSaveData(-1)->mBattleRoyalData.begin();
+    for (std::vector<SD_BattleRoyalData>::const_iterator it = GetSaveData(-1)->mBattleRoyalData.begin();
          it != GetSaveData(-1)->mBattleRoyalData.end(); ++it) {
         snapshot.mBattleRoyalData.push_back(it->mData);
     }
 
     snapshot.mStatisticValue1.reserve(GetSaveData(-1)->mStatisticValue1.size());
-    for (std::vector<SD_StatisticValue>::iterator it = GetSaveData(-1)->mStatisticValue1.begin();
+    for (std::vector<SD_StatisticValue>::const_iterator it = GetSaveData(-1)->mStatisticValue1.begin();
          it != GetSaveData(-1)->mStatisticValue1.end(); ++it) {
         snapshot.mStatisticValue1.push_back(it->mData);
     }
 
     snapshot.mStatisticValue2.reserve(GetSaveData(-1)->mStatisticValue2.size());
-    for (std::vector<SD_StatisticValue>::iterator it = GetSaveData(-1)->mStatisticValue2.begin();
+    for (std::vector<SD_StatisticValue>::const_iterator it = GetSaveData(-1)->mStatisticValue2.begin();
          it != GetSaveData(-1)->mStatisticValue2.end(); ++it) {
         snapshot.mStatisticValue2.push_back(it->mData);
     }
 
     snapshot.mStatisticValue3.reserve(GetSaveData(-1)->mStatisticValue3.size());
-    for (std::vector<SD_StatisticValue>::iterator it = GetSaveData(-1)->mStatisticValue3.begin();
+    for (std::vector<SD_StatisticValue>::const_iterator it = GetSaveData(-1)->mStatisticValue3.begin();
          it != GetSaveData(-1)->mStatisticValue3.end(); ++it) {
         snapshot.mStatisticValue3.push_back(it->mData);
     }
