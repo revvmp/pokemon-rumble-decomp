@@ -49,6 +49,12 @@ void OnRetryAlarm(OSAlarm* pAlarm, OSContext*) {
     OSSendMessage(&sMessageQueue, OSGetAlarmUserData(pAlarm), 0);
 }
 
+inline void ScheduleRetry(OSAlarm* pAlarm, OSMessage message, u32 delay) {
+    OSCancelAlarm(pAlarm);
+    OSSetAlarmUserData(pAlarm, message);
+    OSSetAlarm(pAlarm, delay, OnRetryAlarm);
+}
+
 void OnPadConnection(long channel, long result) {
     sConnectionResults[channel] = result;
     OSSendMessage(&sMessageQueue, reinterpret_cast<OSMessage>(static_cast<u16>(channel)), 0);
@@ -217,11 +223,11 @@ inline void CRemoteMemory::ReadBack(int channel) {
     case -2:
     case 0:
         break;
-    case -1:
-        pRemote->mFlags = (pRemote->mFlags & ~FLAG_BUSY) | FLAG_NO_CONTROLLER;
-        break;
     default:
         pRemote->mFlags = (pRemote->mFlags & ~FLAG_BUSY) | FLAG_TRANSFER_ERROR;
+        break;
+    case -1:
+        pRemote->mFlags = (pRemote->mFlags & ~FLAG_BUSY) | FLAG_NO_CONTROLLER;
         break;
     }
 }
@@ -248,15 +254,17 @@ void* CRemoteMemory::ThreadMain(void*) {
         const u32 command = reinterpret_cast<u32>(message);
         const int channel = static_cast<u16>(command);
         switch (command >> 16) {
-        case 0:
+        case 0: {
+            CRemoteMemory* pRemote = sRemoteMemories[channel];
             switch (sConnectionResults[channel]) {
             case 0:
                 break;
             case -1:
-                sRemoteMemories[channel]->mFlags |= FLAG_CONNECTION_CHANGED;
+                pRemote->mFlags |= FLAG_CONNECTION_CHANGED;
                 break;
             }
             break;
+        }
         case 1:
             FinishRead(channel, sTransferResults[channel]);
             break;
@@ -269,17 +277,15 @@ void* CRemoteMemory::ThreadMain(void*) {
                 break;
             case -3:
             case -2:
-                if (++pRemote->mTransferRetries >= 3) {
-                    pRemote->mFlags = (pRemote->mFlags & ~FLAG_BUSY) | FLAG_TRANSFER_ERROR;
+                if (++pRemote->mTransferRetries < 3) {
+                    ScheduleRetry(&sAlarms[channel + 1], reinterpret_cast<OSMessage>(channel | 0x50000), OS_MSEC_TO_TICKS(1000));
                 } else {
-                    OSAlarm* pAlarm = &sAlarms[channel + 1];
-                    const u32 delay = OS_MSEC_TO_TICKS(1000);
-                    OSCancelAlarm(pAlarm);
-                    OSSetAlarmUserData(pAlarm, reinterpret_cast<void*>(channel | 0x50000));
-                    OSSetAlarm(pAlarm, delay, OnRetryAlarm);
+                    pRemote->mFlags = (pRemote->mFlags & ~FLAG_BUSY) | FLAG_TRANSFER_ERROR;
                 }
                 break;
             case -1:
+                pRemote->mFlags = (pRemote->mFlags & ~FLAG_BUSY) | FLAG_NO_CONTROLLER;
+                break;
             default:
                 pRemote->mFlags = (pRemote->mFlags & ~FLAG_BUSY) | FLAG_NO_CONTROLLER;
                 break;
@@ -391,11 +397,7 @@ void CRemoteMemory::FinishRead(int channel, long result) {
             pRemote->SetState(FLAG_DISCONNECTED);
             pRemote->mFlags |= FLAG_TRANSFER_ERROR;
         } else {
-            OSAlarm* pAlarm = &sAlarms[channel + 1];
-            const u32 delay = OS_MSEC_TO_TICKS(1000);
-            OSCancelAlarm(pAlarm);
-            OSSetAlarmUserData(pAlarm, reinterpret_cast<void*>(static_cast<u16>(channel) | 0x40000));
-            OSSetAlarm(pAlarm, delay, OnRetryAlarm);
+            ScheduleRetry(&sAlarms[channel + 1], reinterpret_cast<OSMessage>(static_cast<u16>(channel) | 0x40000), OS_MSEC_TO_TICKS(1000));
         }
         break;
     case -1:
@@ -498,11 +500,7 @@ void CRemoteMemory::FinishWrite(int channel, long result) {
                 pRemote->mFlags = (pRemote->mFlags & ~FLAG_BUSY) | FLAG_TRANSFER_ERROR;
             }
         } else {
-            OSAlarm* pAlarm = &sAlarms[channel + 1];
-            const u32 delay = OS_MSEC_TO_TICKS(1000);
-            OSCancelAlarm(pAlarm);
-            OSSetAlarmUserData(pAlarm, reinterpret_cast<void*>(static_cast<u16>(channel) | 0x60000));
-            OSSetAlarm(pAlarm, delay, OnRetryAlarm);
+            ScheduleRetry(&sAlarms[channel + 1], reinterpret_cast<OSMessage>(static_cast<u16>(channel) | 0x60000), OS_MSEC_TO_TICKS(1000));
         }
         break;
     default:
