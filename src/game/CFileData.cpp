@@ -647,13 +647,12 @@ std::tr1::shared_ptr<CFileData> CreateFileData(const char* pPath, u32 flags, boo
 
 std::tr1::shared_ptr<FileList> LoadFiles(const FileLoadParam* pFiles, unsigned int count, bool background) {
     std::list<std::tr1::shared_ptr<CFileData> > opened;
-    while (count != 0 && pFiles->mpPath != nullptr) {
-        std::tr1::shared_ptr<CFileData> file = OpenFileData(pFiles->mpPath, pFiles->mFlags);
+    const FileLoadParam* pParam = pFiles;
+    for (; count != 0 && pParam->mpPath != nullptr; --count, ++pParam) {
+        std::tr1::shared_ptr<CFileData> file = OpenFileData(pParam->mpPath, pParam->mFlags);
         if (file) {
             opened.push_back(file);
         }
-        --count;
-        ++pFiles;
     }
 
     std::tr1::shared_ptr<FileList> loaded(new LoadedFileData);
