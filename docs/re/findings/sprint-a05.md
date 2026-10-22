@@ -1,20 +1,20 @@
-# Sprint a05: CDlgMsgWin and ButtonMessage
-
-## Units
-
-- `game/CDlgMsgWin.cpp` (`.text` `0x80084D40`-`0x80088C18`, `.rodata` `0x80352B00`-`0x80352B18`) and `game/ButtonMessage.cpp` (`.text` `0x80088C20`-`0x800896D8`) are split and registered `NonMatching`.
-- `CDlgMsgWin` is a global class, `IDlgMsgWin` plus `enable_shared_from_this`, with every method defined inside the class body. About 190 of 218 emitted functions have matching instruction streams; the rest differ only in symbol names or emission order.
-- `ButtonMessage.cpp` holds `GetButtonMessage`, `operator+(wstring, const wchar_t*)`, `FormatMessage<const wchar_t*>`, the `basic_formatter<wchar_t>` constructor and destructor, the player search used by the Pii dialogs, and out-of-line `CPlayer::GetPersonalData` and `GetPendingPersonalData`.
-
-## Traps
-
-- **Methods defined in a class body change string addressing.** Out-of-line definitions of the same code load a shared `.data` string base into a callee-saved register once; in-class definitions load each string with its own `lis`/`addi`, as the target does. Define game methods inside the class when the target does not CSE string addresses.
-- **Emission order is reverse declaration order for in-class virtuals.** `dont_inline on` for the whole file is needed for these dialogs; a user-declared destructor is emitted early, an implicit one late as in the target.
-- **A unit whose `.data` holds exception type-name strings cannot become Matching alone.** Other split objects reference `lbl_8039DED8` and similar by symbol name; the compiled object defines anonymous `@N` data, so linking fails with `undefined` until every referencing unit is also built from source.
-- **Renaming a target symbol to an MSL mangled name creates collisions.** Two dtk objects that both define the same name stop the link (`multiply-defined`); a Matching unit's weak copy is silently dropped in favor of a dtk strong symbol of the same name. Never give two retained copies the same name.
-- **Tiny functions are ambiguous.** Matching 4- and 8-byte template helpers by bytes alone assigns names to the wrong copy; use the caller set.
-- **`#pragma scheduling off` before a definition fixes inline getters whose stores precede the second load**; it must precede the definition, not follow it.
-- **Header edits that look local change other units.** `std::tr1::shared_ptr(Y*, D)` now calls `enable_from_this(p, p)` and `shared_ptr_holder` is a `compressed_pair<T*, D&>` holder; `basic_string::data()` goes through a const `buffer()`; `CLayout::CMotionProgram::IsEnded(bool)` is written without helper calls.
+# Sprint a05: CDlgMsgWin and ButtonMessage
+
+## Units
+
+- `game/CDlgMsgWin.cpp` (`.text` `0x80084D40`-`0x80088C18`, `.rodata` `0x80352B00`-`0x80352B18`) and `game/ButtonMessage.cpp` (`.text` `0x80088C20`-`0x800896D8`) are split and registered `NonMatching`.
+- `CDlgMsgWin` is a global class, `IDlgMsgWin` plus `enable_shared_from_this`, with every method defined inside the class body. About 190 of 218 emitted functions have matching instruction streams; the rest differ only in symbol names or emission order.
+- `ButtonMessage.cpp` holds `GetButtonMessage`, `operator+(wstring, const wchar_t*)`, `FormatMessage<const wchar_t*>`, the `basic_formatter<wchar_t>` constructor and destructor, the player search used by the Pii dialogs, and out-of-line `CPlayer::GetPersonalData` and `GetPendingPersonalData`.
+
+## Traps
+
+- **Methods defined in a class body change string addressing.** Out-of-line definitions of the same code load a shared `.data` string base into a callee-saved register once; in-class definitions load each string with its own `lis`/`addi`, as the target does. Define game methods inside the class when the target does not CSE string addresses.
+- **Emission order is reverse declaration order for in-class virtuals.** `dont_inline on` for the whole file is needed for these dialogs; a user-declared destructor is emitted early, an implicit one late as in the target.
+- **A unit whose `.data` holds exception type-name strings cannot become Matching alone.** Other split objects reference `lbl_8039DED8` and similar by symbol name; the compiled object defines anonymous `@N` data, so linking fails with `undefined` until every referencing unit is also built from source.
+- **Renaming a target symbol to an MSL mangled name creates collisions.** Two dtk objects that both define the same name stop the link (`multiply-defined`); a Matching unit's weak copy is silently dropped in favor of a dtk strong symbol of the same name. Never give two retained copies the same name.
+- **Tiny functions are ambiguous.** Matching 4- and 8-byte template helpers by bytes alone assigns names to the wrong copy; use the caller set.
+- **`#pragma scheduling off` before a definition fixes inline getters whose stores precede the second load**; it must precede the definition, not follow it.
+- **Header edits that look local change other units.** `std::tr1::shared_ptr(Y*, D)` now calls `enable_from_this(p, p)` and `shared_ptr_holder` is a `compressed_pair<T*, D&>` holder; `basic_string::data()` goes through a const `buffer()`; `CLayout::CMotionProgram::IsEnded(bool)` is written without helper calls.
 
 ## Issues 336-346 shift
 
@@ -96,3 +96,31 @@ ScriptPii reached 100% in every function. Data-label naming (`@NNNN` labels, RTT
 
 - **The ef "partly unoptimized" functions are not compiler or flag differences.** Every Wii compiler, `-O2`/`-O3`, each `-opt no*` and each `opt_*` pragma give the same chained switch and branch-free flag. Only `global_optimizer off` gives the target's binary switch tree, but it also adds a frame pointer and stops constant folding. `ef_drawbillboardstrategy` inlines the same `GetViewMtxCooked` switch as a chain, so the cause is in the source of the two draw strategies. Function size, local count, struct returns, later-defined inlines and inline asm do not trigger it.
 - **`try.py`-style text replacement replaces every occurrence.** PrintImpl and PrintToDisplayListImpl share statements; a whole-file replace silently changed PrintImpl. Replace by index.
+
+## Final tail wave (a05, second shift)
+
+CGameResult `Create` and `RunAction` reached 100% (73 of 75). CDlgInfo gained `Load` and `Show` (70 of 75). SaveData gained `WriteBanner` and `FormatWide<unsigned long>` (87 of 100).
+
+### Fixes
+
+- **Pooled string references resolve to the symbol that covers the offset.** objdiff turns `addi rX, rBase, off` after a pooled `lis`/`addi` base into a reference to whichever target symbol contains `base + off`. An oversized dtk label (`sVectorTypes__8SlotData` sized 0x7C, `lbl_803A2938`, `lbl_803B76D8`, `lbl_803A2E00`) swallows the strings that follow, so every pooled string load scored as a mismatch. Splitting the label into the compiler's `@NNNN` string objects at the same offsets fixed SaveData `WriteBanner`, `FormatWide` and CGameResult `Create` with no code change.
+- **CDlgInfo `sColumnPaneNames` is a writable table and the file does not pool data.** The target keeps the table in `.data` (not `.rodata`) and loads each string with its own `lis`/`addi`; `const char* sColumnPaneNames[4]` plus `#pragma pool_data off` matches `Load` and `Show`.
+- **A target `.data` order that places a function's strings after template vtables means the function was emitted late.** CGameResult's `RunAction`, `Draw`, `CalcView`, `CalcMtx` and `Calc` come after the `shared_ptr` member-template instances in the target, in reverse declaration order: they are `inline` (vtable-only) members. Marking them `inline` put the `RunAction` strings at pool offset 0x544 as in the target.
+- **`GetBP__25@unnamed@CGameResult_cpp@FP16CPiiPersonalData` was `CPiiPersonalData::GetBP() const`.** The target calls `shared_ptr::operator->` and then the 8-byte getter, out of line because `RunAction` is over budget; it is emitted where `FindStrongestPii` first references it.
+- **`Lerp<VEC3>` is a shared header template.** CGameResult calls the copy that CDlgPiiSelector emits, so `Lerp(const T&, const T&, f32)` lives in `MathUtil.h` and the two symbols lost their `@unnamed@CDlgPiiSelector_cpp@` qualifier. CDlgPiiSelector is unchanged.
+- **`RunAction` details.** `GetUIInput()` is called inside the wait loop (the loop branches back to the call). The first input test is `GetTrig() | (!canRepeat ? 0 : GetRepeat())` written inline, with `canRepeat` as `atEnd ? false : true`. The advance case is `default:`, so case 0 falls through the compare chain. `steps` is declared before `previous`, and `newShown` before `strongestShown`. The `min` limit is a file-scope `const int` in `.sdata2`, not a `.sdata` temporary.
+- **CGameResult `Calc` (95.94 to 96.11%).** The target's VEC3 slots fit `UpdateMirrorCamera()` as one inline level that contains two inline helpers (`GetCameraUp`, `GetCameraTarget`). The remaining difference is `&eye` held in r31 across the second `PSMTXMultVec`.
+
+### Unsolved
+
+| Unit | Function | Match | Cause |
+| --- | --- | --- | --- |
+| SaveData | `append<SlotData>`, `DeserializeVector<SlotData>`, `Load` | 0%, 7.6%, 70% | With 40 dummy statements in the `__vec_constructor` copy constructor the `SlotData` copy level overflows (the Data copy and vector copies become calls, and `construct_at_end` inlines them like the target's `fn_80169B40`), but `append` still stays under budget because its inlined `append_realloc` keeps the split-buffer helpers as calls. Five statements (sprint-i1) were not enough. Removing the status union and splitting `mFlags`/`mLastArea` into scalar members (the target copies them bytewise) change nothing on their own. |
+| CDlgInfo | `__dt__nw4r::ut::Rect` | missing | `~Rect() { return; }` emits it at 100%, but costs CTutorialMsg 3, CLayout 1 and ut_TextWriterBase 2 functions and breaks the DOL. Reverted. |
+| CGameResult, CPiiListFilterSort | `sort<..., Compare&>` (shared_ptr by reference) | 97.78% | `first`/`m` versus `j` register pairing; the by-value instantiation is 100%. |
+| ScriptGame | `IncMapClearedNum` | 99.49% | record address and value swap r4/r5; a reference local, a pointer local, a `SetClearCount` helper and four body forms did not change it. |
+| ScriptWorldObj | `tree_begin_holder<less<int>>` ctor | 8.3% | `: Compare()` in the constructor does not emit a call. CMsgBalloon's `map_value_compare` constructor is a separate 4-byte `blr`, so a user `less()` would conflict there. |
+
+### Traps
+
+- **Python's default text mode rewrites CRLF files as LF.** A replace-and-restore helper that reads without `newline=''` leaves whole-file line-ending changes; check `git status` after experiments.
