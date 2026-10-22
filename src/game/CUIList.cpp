@@ -90,7 +90,7 @@ void CUIList::UpdateSelection() {
     UpdateScrollRange();
     GetLayout()->SetPaneVisible("BACKWARD", mFirstVisibleIndex != 0);
     GetLayout()->SetPaneVisible("FORWARD", mFirstVisibleIndex + mLayouts.size() < mItems.size());
-    bool scroll = static_cast<int>(mLayouts.size()) < static_cast<int>(mItems.size());
+    bool scroll = static_cast<int>(mItems.size()) > static_cast<int>(mLayouts.size());
     GetLayout()->SetPaneVisible("VSCROLL", scroll);
     GetLayout()->SetPaneVisible("HSCROLL", scroll);
     float position = mItems.empty() ? 0.0f : static_cast<float>(static_cast<unsigned long>(mFirstVisibleIndex)) / mItems.size();
@@ -101,8 +101,7 @@ void CUIList::UpdateSelection() {
         nw4r::lyt::Pane* pTrack = GetLayout()->FindPane("VSCROLL_BK");
         if (pTrack) {
             nw4r::lyt::Size trackSize = pTrack->GetSize();
-            nw4r::lyt::Size thumbSize(trackSize.width, trackSize.height*size);
-            pThumb->SetSize(thumbSize);
+            pThumb->SetSize(nw4r::lyt::Size(trackSize.width, trackSize.height*size));
             nw4r::math::VEC3 translation(0.0f, -trackSize.height*position, 0.0f);
             pThumb->SetTranslate(translation);
         }
@@ -112,8 +111,7 @@ void CUIList::UpdateSelection() {
         nw4r::lyt::Pane* pTrack = GetLayout()->FindPane("HSCROLL_BK");
         if (pTrack) {
             nw4r::lyt::Size trackSize = pTrack->GetSize();
-            nw4r::lyt::Size thumbSize(trackSize.width*size, trackSize.height);
-            pThumb->SetSize(thumbSize);
+            pThumb->SetSize(nw4r::lyt::Size(trackSize.width*size, trackSize.height));
             nw4r::math::VEC3 translation(trackSize.width*position, 0.0f, 0.0f);
             pThumb->SetTranslate(translation);
         }
@@ -165,14 +163,14 @@ void CUIList::OnInput(const IUIInput* pInput) {
     u32 trigger = pInput->GetTrig();
     u32 buttons = trigger | pInput->GetRepeat();
     unsigned long pageSize = mLayouts.size();
-    if (buttons & pButtons[2]) {
+    if (pButtons[2] & buttons) {
         GetSelectedIndex();
-        if (static_cast<unsigned long>(mSelectedIndex) >= pageSize) mSelectedIndex -= pageSize;
+        if (pageSize <= static_cast<unsigned long>(mSelectedIndex)) mSelectedIndex -= pageSize;
         else if ((trigger & pButtons[2]) && mWrapSelection && !mItems.empty()) {
             mSelectedIndex += mItems.size()/pageSize*pageSize;
-            mSelectedIndex = Min(static_cast<unsigned long>(mSelectedIndex),mItems.size()-1);
+            mSelectedIndex = std::min(mSelectedIndex,mItems.size()-1);
         } else mSelectedIndex=0;
-    } else if (buttons & pButtons[3]) {
+    } else if (pButtons[3] & buttons) {
         GetSelectedIndex();
         if (mSelectedIndex+pageSize < mItems.size()) mSelectedIndex += pageSize;
         else if (!mItems.empty()) {
