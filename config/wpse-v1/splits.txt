@@ -697,6 +697,15 @@ game/PiiSpeciesData.cpp:
 	.data       start:0x803B3070 end:0x803B3090
 	.sdata2     start:0x804BA148 end:0x804BA158
 
+game/GameUtil.cpp:
+	extab       start:0x8002C248 end:0x8002C2A8
+	extabindex  start:0x8004C884 end:0x8004C8E4
+	.text       start:0x80125180 end:0x80125B08
+	.rodata     start:0x8035BA58 end:0x8035BBA0
+	.data       start:0x803B4120 end:0x803B45A8
+	.sbss       start:0x804B9080 end:0x804B908C
+	.sdata2     start:0x804BA158 end:0x804BA1B0
+
 game/DCIM.cpp:
 	extab       start:0x8002C2A8 end:0x8002C2C0
 	extabindex  start:0x8004C8E4 end:0x8004C908
