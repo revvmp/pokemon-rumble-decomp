@@ -146,7 +146,9 @@ bool CompareOldest(const PiiItemPtr& rA, const PiiItemPtr& rB) {
 }
 
 bool HasPrefixedItem(const PiiItemVector& rItems) {
-    for (PiiItemVector::const_iterator it = rItems.begin(); it != rItems.end(); ++it) {
+    const PiiItemPtr* first = &*rItems.begin();
+    const PiiItemPtr* end = first + rItems.size();
+    for (const PiiItemPtr* it = first; it != end; ++it) {
         if ((*it)->GetPPD()->GetPrefix() != 0) {
             return true;
         }
@@ -155,7 +157,9 @@ bool HasPrefixedItem(const PiiItemVector& rItems) {
 }
 
 bool HasItemWithPrefix(const PiiItemVector& rItems, int prefix) {
-    for (PiiItemVector::const_iterator it = rItems.begin(); it != rItems.end(); ++it) {
+    const PiiItemPtr* first = &*rItems.begin();
+    const PiiItemPtr* end = first + rItems.size();
+    for (const PiiItemPtr* it = first; it != end; ++it) {
         if ((*it)->GetPPD()->GetPrefix() == prefix) {
             return true;
         }
