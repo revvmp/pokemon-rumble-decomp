@@ -197,6 +197,7 @@ int CLayout::LoadArchive(const char* pArchive, const char* pLayoutName, const st
     mFiles.push_back(file);
     std::tr1::shared_ptr<nw4r::lyt::ArcResourceLink> link(new nw4r::lyt::ArcResourceLink);
     link->Set(file->GetData(), "");
+    mArchives.reserve(1);
     mArchives.push_back(link);
     mAccessor.Attach(link.get());
     return LoadLayout(pLayoutName, rFonts);
@@ -205,6 +206,7 @@ int CLayout::LoadArchive(const char* pArchive, const char* pLayoutName, const st
 int CLayout::LoadFromMemory(void* pArchive, const char* pLayoutName, const std::tr1::shared_ptr<FontMap>& rFonts) throw() {
     std::tr1::shared_ptr<nw4r::lyt::ArcResourceLink> link(new nw4r::lyt::ArcResourceLink);
     link->Set(pArchive, "");
+    mArchives.reserve(1);
     mArchives.push_back(link);
     mAccessor.Attach(link.get());
     return LoadLayout(pLayoutName, rFonts);
@@ -218,14 +220,14 @@ int CLayout::LoadArchives(const char* const* pArchives, const char* pLayoutName,
         if (!file || !file->IsLoaded()) {
             return 1;
         }
-        files.push_back(file);
+        AppendLoadedFile(files, file);
     }
     if (files.size() == 0) {
         return 2;
     }
     mFiles.swap(files);
     mArchives.reserve(mFiles.size());
-    for (std::list<std::tr1::shared_ptr<CFileData> >::iterator it = mFiles.begin(); it != mFiles.end(); ++it) {
+    for (std::list<std::tr1::shared_ptr<CFileData> >::const_iterator it = mFiles.begin(); it != mFiles.end(); ++it) {
         std::tr1::shared_ptr<nw4r::lyt::ArcResourceLink> link(new nw4r::lyt::ArcResourceLink);
         link->Set((*it)->GetData(), "");
         mAccessor.Attach(link.get());

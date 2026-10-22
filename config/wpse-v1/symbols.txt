@@ -17105,7 +17105,7 @@ LoadFromMemory__7CLayoutFPvPCcRCQ33std3tr1359shared_ptr<Q23std338map<Q23std59bas
 LoadLayout__7CLayoutFPCcRCQ33std3tr1359shared_ptr<Q23std338map<Q23std59basic_string<c,Q23std14char_traits<c>,Q23std12allocator<c>>,Q33std3tr127shared_ptr<Q34nw4r2ut4Font>,Q23std73less<Q23std59basic_string<c,Q23std14char_traits<c>,Q23std12allocator<c>>>,Q23std134allocator<Q23std114pair<CQ23std59basic_string<c,Q23std14char_traits<c>,Q23std12allocator<c>>,Q33std3tr127shared_ptr<Q34nw4r2ut4Font>>>>> = .text:0x801CF010; // type:function size:0x33C
 SetViewRect__Q34nw4r3lyt8DrawInfoFRCQ34nw4r2ut4Rect = .text:0x801CF350; // type:function size:0x24
 SetFlags__7CLayoutFUl = .text:0x801CF380; // type:function size:0x10
-fn_801CF390 = .text:0x801CF390; // type:function size:0x8
+__or__FQ27CLayout5FlagsQ27CLayout5Flags = .text:0x801CF390; // type:function size:0x8
 HasFlags__7CLayoutCFUl = .text:0x801CF3A0; // type:function size:0x18
 __ne__Q33std124vector<Q33std3tr136shared_ptr<Q34nw4r3lyt11FontRefLink>,Q23std59allocator<Q33std3tr136shared_ptr<Q34nw4r3lyt11FontRefLink>>>8iteratorCFRCQ33std124vector<Q33std3tr136shared_ptr<Q34nw4r3lyt11FontRefLink>,Q23std59allocator<Q33std3tr136shared_ptr<Q34nw4r3lyt11FontRefLink>>>8iterator = .text:0x801CF3C0; // type:function size:0x1C
 reset<Q34nw4r3lyt6Layout>__Q33std3tr130shared_ptr<Q34nw4r3lyt6Layout>FPQ34nw4r3lyt6Layout_v = .text:0x801CF3E0; // type:function size:0xD8

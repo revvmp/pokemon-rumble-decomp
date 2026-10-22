@@ -182,4 +182,8 @@ private:
     GXCompare mDepthCompare;
 };
 
+inline CLayout::Flags operator|(CLayout::Flags lhs, CLayout::Flags rhs) {
+    return static_cast<CLayout::Flags>(static_cast<int>(lhs) | static_cast<int>(rhs));
+}
+
 #endif
