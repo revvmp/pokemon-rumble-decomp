@@ -847,10 +847,10 @@ private:
     void push_back_pod(const T& x) {
         if (this->size_ < this->cap()) {
             ++this->size_;
-            this->back() = x;
+            reinterpret_cast<storage_type&>(this->back()) = reinterpret_cast<const storage_type&>(x);
         } else if (base::grow_by(1, pod_type())) {
             ++this->size_;
-            this->back() = x;
+            reinterpret_cast<storage_type&>(this->back()) = reinterpret_cast<const storage_type&>(x);
         } else {
             __vec_split_buffer<storage_type, storage_allocator> buffer(this->alloc());
             size_type capacity = base::recommend(this->size_ + 1 - this->cap());
