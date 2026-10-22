@@ -407,11 +407,10 @@ void CRemoteMemory::PrepareWrite(int mode) {
     const int channel = mChannel;
     mValidationRetries = 0;
     mTransferRetries = 0;
-    int nextBlock;
-    if (mActiveBlock == 3) {
-        nextBlock = 0;
-    } else {
-        nextBlock = (mActiveBlock + 1) & 1;
+    int nextBlock = 0;
+    if (mActiveBlock != 3) {
+        nextBlock = mActiveBlock + 1;
+        nextBlock &= 1;
     }
     if (mWriteMode != 2) {
         u8 generation = sStoredData[channel][(nextBlock - 1) & 1].mGeneration;

@@ -69,7 +69,7 @@ private:
     u16 mTransferOffset;
     u16 mBlockOffset;
     u8 mActiveBlock;
-    u32 mWriteMode;
+    int mWriteMode;
 };
 
 #endif

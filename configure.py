@@ -343,6 +343,7 @@ config.libs = [
             Object(Matching, "game/ScriptInput.cpp"),
             Object(NonMatching, "game/ScriptPii.cpp"),
             Object(Matching, "game/ControllerTable.cpp"),
+            Object(NonMatching, "game/PiiSpeciesData.cpp"),
             Object(Matching, "game/DCIM.cpp"),
             Object(NonMatching, "game/l10n_files.cpp"),
             Object(NonMatching, "game/main.cpp"),
