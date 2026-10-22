@@ -530,13 +530,6 @@ game/ControllerTable.cpp:
 	.bss        start:0x803E8D28 end:0x803E90C8
 	.sdata      start:0x804B77D8 end:0x804B77D9
 
-RVL_SDK/dvd/dvd_broadway.c:
-	.text       start:0x802D7830 end:0x802D9ED8
-	.data       start:0x803D75E0 end:0x803D84E8
-	.bss        start:0x804591E0 end:0x804593A0
-	.sdata      start:0x804B8BB8 end:0x804B8BC8
-	.sbss       start:0x804B97D8 end:0x804B9800
-
 ControllerTableAlignmentPadding:
 	.sdata      start:0x804B77D9 end:0x804B77E0 align:1
 
@@ -2988,6 +2981,13 @@ RVL_SDK/dvd/dvdDeviceError.c:
 	.sdata      start:0x804B8BB0 end:0x804B8BB4
 	.sbss       start:0x804B97D0 end:0x804B97D4
 	.sdata2     start:0x804BB3F0 end:0x804BB3F4
+
+RVL_SDK/dvd/dvd_broadway.c:
+	.text       start:0x802D7830 end:0x802D9ED8
+	.data       start:0x803D75E0 end:0x803D84E8
+	.bss        start:0x804591E0 end:0x804593A0
+	.sdata      start:0x804B8BB8 end:0x804B8BC8
+	.sbss       start:0x804B97D8 end:0x804B9800
 
 RVL_SDK/ai/ai.c:
 	.text       start:0x802D9EE0 end:0x802DA48C
