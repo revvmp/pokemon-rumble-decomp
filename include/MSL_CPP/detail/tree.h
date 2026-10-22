@@ -505,7 +505,6 @@ public:
         }
     }
 
-    template <typename Key> tree_node_base* find_leaf(const Key& rKey, node*& rpPred, bool& rLeft, bool& rLeftmost);
     pair<iterator, bool> insert_one(const value_type& rValue);
     template <typename Key> pair<iterator, bool> insert_key(const Key& rKey) {
         node* pPred;
@@ -520,6 +519,8 @@ public:
 
     pair<iterator, bool> insert(const value_type& rValue);
 
+    template <typename Key> value_type& find_or_insert(const Key& rKey);
+
     template <typename Key> iterator find(const Key& rKey) const;
 
     template <typename Key> tree_node_base* do_lower_bound(const Key& rKey, tree_node_base* pNode, tree_node_base* pResult) const {
@@ -533,6 +534,8 @@ public:
         }
         return pResult;
     }
+
+    template <typename Key> tree_node_base* find_leaf(const Key& rKey, node*& rpPred, bool& rLeft, bool& rLeftmost);
 
     Compare& comp() { return begin_.first(); }
     const Compare& comp() const { return begin_.first(); }
@@ -575,8 +578,6 @@ public:
     size_type& sz() { return size_.first(); }
     tree_node_base*& front() { return begin_node(); }
     tree_node_base* front() const { return const_cast<tree_imp*>(this)->begin_node(); }
-
-    template <typename Key> value_type& find_or_insert(const Key& rKey);
 
     node* insert_node_at(tree_node_base* pParent, bool left, bool leftmost, const value_type& rValue);
 

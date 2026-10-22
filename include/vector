@@ -598,19 +598,6 @@ protected:
     T* insert_finish(typename base::helper& buffer, T* pos);
     size_type move_range(size_type elemsAfter, size_type n, T* pEnd) { return move_range(elemsAfter, n, pEnd, pod_type()); }
     size_type move_range(size_type elemsAfter, size_type n, T* pEnd, Metrowerks::int2type<false>);
-
-    void swap(__vec_deleter<T, Allocator&>& r) { swap(r, pod_type()); }
-    void swap(__vec_deleter<T, Allocator&>& r, pod_type) {
-        size_type capacity = this->cap();
-        this->cap() = r.cap();
-        r.cap() = capacity;
-        T* data = this->data_;
-        this->data_ = r.data_;
-        r.data_ = data;
-        size_type size = this->size_;
-        this->size_ = r.size_;
-        r.size_ = size;
-    }
 };
 
 template <typename T, typename Allocator, bool IsPOD>

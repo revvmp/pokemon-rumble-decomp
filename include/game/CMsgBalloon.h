@@ -53,6 +53,10 @@ public:
         void ClearFlags(u32 flags) { mFlags &= ~flags; }
     };
 
+    typedef std::list<Entry> EntryList;
+    typedef std::vector<std::tr1::shared_ptr<CPiiTex> > TextureList;
+    typedef std::vector<std::tr1::shared_ptr<BUILayout> > LayoutList;
+
     virtual bool Close();
     virtual bool IsShown(int index);
     virtual void Register(BWorldObj* pObject, const wchar_t* pText, f32 radius);
@@ -80,9 +84,9 @@ private:
     std::tr1::shared_ptr<BUILayout> mLayout;
     std::tr1::shared_ptr<BUILayout> mMsgLayout;
     std::tr1::shared_ptr<BUILayout> mWarpLayout;
-    std::vector<std::tr1::shared_ptr<BUILayout> > mModelLayouts;
-    std::vector<std::tr1::shared_ptr<CPiiTex> > mModelTextures;
-    std::list<Entry> mEntries;
+    LayoutList mModelLayouts;
+    TextureList mModelTextures;
+    EntryList mEntries;
     Entry* mCurrentEntry;
     int mCurrentIndex;
     Entry* mShownEntries[4];

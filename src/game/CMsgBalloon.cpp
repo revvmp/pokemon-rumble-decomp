@@ -6,12 +6,12 @@
 #include <map>
 #include <vector>
 #include <list>
+#include <game/MapDesc.h>
 #include <game/CMsgBalloon.h>
 
 #include <game/CBattleRoyalBox.h>
 #include <game/COyaInfo.h>
 #include <game/CPiiCollectionBox.h>
-#include <game/MapDesc.h>
 #include <game/NPpuVM.h>
 #include <game/PiiSpeciesData.h>
 #include <map>

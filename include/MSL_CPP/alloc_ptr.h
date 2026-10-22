@@ -19,13 +19,13 @@ public:
         }
     }
     T* operator->() const { return get(); }
-    typename call_traits<Allocator>::reference allocator() { return ptr_.first(); }
     T* get() const { return ptr_.second().second(); }
     T* release() {
         T* p = get();
         ptr_.second().second() = nullptr;
         return p;
     }
+    typename call_traits<Allocator>::reference allocator() { return ptr_.first(); }
     size_t capacity() const { return ptr_.second().first(); }
 private:
     alloc_ptr(const alloc_ptr&);
