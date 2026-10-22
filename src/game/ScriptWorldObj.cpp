@@ -773,37 +773,39 @@ static int PushZeroCount(NPpu::CEngine* pEngine, NPpu::Slice*, int) {
     return 0;
 }
 
-template <int Mode> static int SearchArc(NPpu::CEngine* pEngine, FoundFunc pFound, NoneFunc pNone) {
+template <int Mode> static int SearchArc(NPpu::CEngine* pBase, FoundFunc pFound, NoneFunc pNone) {
+    CPpuEngine* pEngine = static_cast<CPpuEngine*>(pBase);
     f32 width = pEngine->PopFloat();
     f32 outerRadius = pEngine->PopFloat();
     f32 innerRadius = pEngine->PopFloat();
     int type = pEngine->PopInt();
     int capacity = 0;
     NPpu::Slice* pSlices = pEngine->PopArray(&capacity);
-    BWorldObj* pObject = static_cast<CPpuEngine*>(pEngine)->PopWorldObj();
+    BWorldObj* pObject = pEngine->PopWorldObj();
     if (pObject != nullptr) {
         f32 rotation = pObject->GetRotation();
         f32 halfWidth = width / 2.0f;
         f32 start = rotation - halfWidth;
         f32 end = rotation + halfWidth;
-        std::list<BWorldObj*> objects = static_cast<CPpuEngine*>(pEngine)->GetWorld()->FindObjectsInSector(type, pObject->GetPositionRef(), innerRadius, outerRadius, start, end);
+        std::list<BWorldObj*> objects = pEngine->GetWorld()->FindObjectsInSector(type, pObject->GetPositionRef(), innerRadius, outerRadius, start, end);
         return pFound(pEngine, pSlices, capacity, objects);
     }
     return pNone(pEngine, pSlices, capacity);
 }
 
-static int CountArc(NPpu::CEngine* pEngine, FoundFunc pFound, NoneFunc pNone) {
+static int CountArc(NPpu::CEngine* pBase, FoundFunc pFound, NoneFunc pNone) {
+    CPpuEngine* pEngine = static_cast<CPpuEngine*>(pBase);
     f32 width = pEngine->PopFloat();
     f32 outerRadius = pEngine->PopFloat();
     f32 innerRadius = pEngine->PopFloat();
     int type = pEngine->PopInt();
-    BWorldObj* pObject = static_cast<CPpuEngine*>(pEngine)->PopWorldObj();
+    BWorldObj* pObject = pEngine->PopWorldObj();
     if (pObject != nullptr) {
         f32 rotation = pObject->GetRotation();
         f32 halfWidth = width / 2.0f;
         f32 start = rotation - halfWidth;
         f32 end = rotation + halfWidth;
-        std::list<BWorldObj*> objects = static_cast<CPpuEngine*>(pEngine)->GetWorld()->FindObjectsInSector(type, pObject->GetPositionRef(), innerRadius, outerRadius, start, end);
+        std::list<BWorldObj*> objects = pEngine->GetWorld()->FindObjectsInSector(type, pObject->GetPositionRef(), innerRadius, outerRadius, start, end);
         return pFound(pEngine, nullptr, 0, objects);
     }
     return pNone(pEngine, nullptr, 0);
@@ -821,55 +823,59 @@ int method_countObjInArcZX(NPpu::CEngine* pEngine) {
     return CountArc(pEngine, PushObjectCount, PushZeroCount);
 }
 
-template <int Mode> static int SearchCircle(NPpu::CEngine* pEngine, FoundFunc pFound, NoneFunc pNone) {
+template <int Mode> static int SearchCircle(NPpu::CEngine* pBase, FoundFunc pFound, NoneFunc pNone) {
+    CPpuEngine* pEngine = static_cast<CPpuEngine*>(pBase);
     f32 outerRadius = pEngine->PopFloat();
     f32 innerRadius = pEngine->PopFloat();
     int type = pEngine->PopInt();
     int capacity = 0;
     NPpu::Slice* pSlices = pEngine->PopArray(&capacity);
-    BWorldObj* pObject = static_cast<CPpuEngine*>(pEngine)->PopWorldObj();
+    BWorldObj* pObject = pEngine->PopWorldObj();
     if (pObject != nullptr) {
-        std::list<BWorldObj*> objects = static_cast<CPpuEngine*>(pEngine)->GetWorld()->FindObjectsInRing(type, pObject->GetPositionRef(), innerRadius, outerRadius);
+        std::list<BWorldObj*> objects = pEngine->GetWorld()->FindObjectsInRing(type, pObject->GetPositionRef(), innerRadius, outerRadius);
         return pFound(pEngine, pSlices, capacity, objects);
     }
     return pNone(pEngine, pSlices, capacity);
 }
 
-static int CountCircle(NPpu::CEngine* pEngine, FoundFunc pFound, NoneFunc pNone) {
+static int CountCircle(NPpu::CEngine* pBase, FoundFunc pFound, NoneFunc pNone) {
+    CPpuEngine* pEngine = static_cast<CPpuEngine*>(pBase);
     f32 outerRadius = pEngine->PopFloat();
     f32 innerRadius = pEngine->PopFloat();
     int type = pEngine->PopInt();
-    BWorldObj* pObject = static_cast<CPpuEngine*>(pEngine)->PopWorldObj();
+    BWorldObj* pObject = pEngine->PopWorldObj();
     if (pObject != nullptr) {
-        std::list<BWorldObj*> objects = static_cast<CPpuEngine*>(pEngine)->GetWorld()->FindObjectsInRing(type, pObject->GetPositionRef(), innerRadius, outerRadius);
+        std::list<BWorldObj*> objects = pEngine->GetWorld()->FindObjectsInRing(type, pObject->GetPositionRef(), innerRadius, outerRadius);
         return pFound(pEngine, nullptr, 0, objects);
     }
     return pNone(pEngine, nullptr, 0);
 }
 
-template <int Mode> static int SearchRectangle(NPpu::CEngine* pEngine, FoundFunc pFound, NoneFunc pNone) {
+template <int Mode> static int SearchRectangle(NPpu::CEngine* pBase, FoundFunc pFound, NoneFunc pNone) {
+    CPpuEngine* pEngine = static_cast<CPpuEngine*>(pBase);
     f32 width = pEngine->PopFloat();
     f32 maxZ = pEngine->PopFloat();
     f32 minZ = pEngine->PopFloat();
     int type = pEngine->PopInt();
     int capacity = 0;
     NPpu::Slice* pSlices = pEngine->PopArray(&capacity);
-    BWorldObj* pObject = static_cast<CPpuEngine*>(pEngine)->PopWorldObj();
+    BWorldObj* pObject = pEngine->PopWorldObj();
     if (pObject != nullptr) {
-        std::list<BWorldObj*> objects = static_cast<CPpuEngine*>(pEngine)->GetWorld()->FindObjectsInRect(type, pObject->GetPositionRef(), pObject->GetRotation(), minZ, maxZ, -width * 0.5f, width * 0.5f);
+        std::list<BWorldObj*> objects = pEngine->GetWorld()->FindObjectsInRect(type, pObject->GetPositionRef(), pObject->GetRotation(), minZ, maxZ, -width / 2.0f, width / 2.0f);
         return pFound(pEngine, pSlices, capacity, objects);
     }
     return pNone(pEngine, pSlices, capacity);
 }
 
-static int CountRectangle(NPpu::CEngine* pEngine, FoundFunc pFound, NoneFunc pNone) {
+static int CountRectangle(NPpu::CEngine* pBase, FoundFunc pFound, NoneFunc pNone) {
+    CPpuEngine* pEngine = static_cast<CPpuEngine*>(pBase);
     f32 width = pEngine->PopFloat();
     f32 maxZ = pEngine->PopFloat();
     f32 minZ = pEngine->PopFloat();
     int type = pEngine->PopInt();
-    BWorldObj* pObject = static_cast<CPpuEngine*>(pEngine)->PopWorldObj();
+    BWorldObj* pObject = pEngine->PopWorldObj();
     if (pObject != nullptr) {
-        std::list<BWorldObj*> objects = static_cast<CPpuEngine*>(pEngine)->GetWorld()->FindObjectsInRect(type, pObject->GetPositionRef(), pObject->GetRotation(), minZ, maxZ, -width * 0.5f, width * 0.5f);
+        std::list<BWorldObj*> objects = pEngine->GetWorld()->FindObjectsInRect(type, pObject->GetPositionRef(), pObject->GetRotation(), minZ, maxZ, -width / 2.0f, width / 2.0f);
         return pFound(pEngine, nullptr, 0, objects);
     }
     return pNone(pEngine, nullptr, 0);
