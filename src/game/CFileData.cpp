@@ -1,4 +1,3 @@
-#define MSL_VECTOR_OUTLINE_ASSIGN
 
 #include <game/CFileData.h>
 
