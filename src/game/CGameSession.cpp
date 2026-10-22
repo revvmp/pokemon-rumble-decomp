@@ -877,6 +877,10 @@ IGameSession* IGameSession::GetInstance() {
     return sGameSession;
 }
 
+IGameSession* GetGameSession() {
+    return sGameSession;
+}
+
 std::tr1::shared_ptr<IGameSession> IGameSession::Create(IDisconMsg* pDisconMsg) {
     std::tr1::shared_ptr<IGameSession> session(new CGameSession(pDisconMsg));
     return session;
