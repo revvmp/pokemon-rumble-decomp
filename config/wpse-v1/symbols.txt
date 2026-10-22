@@ -16777,7 +16777,7 @@ __dt__Q23std124list<Q33std3tr137shared_ptr<Q26CModel14CMotionProgram>,Q23std60al
 __dt__Q26CModel11BPartialAnmFv = .text:0x801B7590; // type:function size:0x1EC
 front__Q23std124list<Q33std3tr137shared_ptr<Q26CModel14CMotionProgram>,Q23std60allocator<Q33std3tr137shared_ptr<Q26CModel14CMotionProgram>>>Fv = .text:0x801B7780; // type:function size:0xC
 CreateAnimObj__Q26CModel11BPartialAnmFQ34nw4r3g3d6ResMdl = .text:0x801B7790; // type:function size:0x2A4
-GetCurrentFrame__Q26CModel14CMotionProgramFv = .text:0x801B7A40; // type:function size:0x54
+GetCurrentFrame__Q26CModel14CMotionProgramCFv = .text:0x801B7A40; // type:function size:0x54
 __ct__6CModelFv = .text:0x801B7AA0; // type:function size:0xC4
 __dt__Q34nw4r3g3d15IScnObjCallbackFv = .text:0x801B7B70; // type:function size:0x40
 __dt__Q34nw4r3g3d18ICalcWorldCallbackFv = .text:0x801B7BB0; // type:function size:0x40

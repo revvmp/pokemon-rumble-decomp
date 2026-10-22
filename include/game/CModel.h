@@ -59,7 +59,7 @@ public:
         bool IsPlayingNotYetLooped() const { return (mFlags & FLAG_PLAYING) != 0; }
         bool IsCompleted() const { return mFlags & (FLAG_FINISHED | FLAG_STOPPED); }
         bool IsCompletedOrIsLooped() const { return mFlags & (FLAG_LOOPED | FLAG_FINISHED | FLAG_STOPPED); }
-        f32 GetCurrentFrame() {
+        f32 GetCurrentFrame() const {
             if (mFlags & FLAG_PENDING) { return 0.0f; }
             if (mFlags & (FLAG_PLAYING | FLAG_LOOPED)) { return *mpCurrentFrame; }
             return mLength;
