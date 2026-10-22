@@ -85,7 +85,7 @@ void CModel::AddResourceFile(std::tr1::shared_ptr<CFileData> file) {
 
 bool CModel::Load(const LoadParams& rParams, bool background) {
     Unload();
-    LoadParams params = rParams;
+    LoadParams params = {rParams.mpFileNames, false, rParams.mSimple, rParams.mOptions, rParams.mMode, rParams.mpModelName};
     if (!LoadScnMdlSimpleData(&mModelData, params, 0, background)) {
         return false;
     }
