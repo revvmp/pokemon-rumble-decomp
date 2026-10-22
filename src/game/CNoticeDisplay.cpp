@@ -34,7 +34,7 @@ std::wstring FormatAreaName(MapIndex index) {
             typedef NIntl::basic_formatter<wchar_t> Formatter;
             Formatter formatter(GetMessageText(0x600E7, gEmptyText));
             int area = static_cast<s8>(GetSaveData(-1)->mData.mStatus[19]);
-            int part = 2 - IsBattleRoyalFirstPart(index);
+            int part = IsBattleRoyalFirstPart(index) ? 1 : 2;
             formatter % Formatter::format_spec(L"%d") % area;
             formatter % Formatter::format_spec(L"%d") % part;
             name = formatter.str().c_str();
@@ -103,7 +103,14 @@ class CSimpleText : public BOther {
 public:
     CSimpleText(int type);
     virtual ~CSimpleText() {}
-    virtual void Calc();
+    virtual void Calc() {
+        BNoticeDisplayImpl::Calc();
+        mFrameCount++;
+        if (mAutoCloseFrames > 0 && mAutoCloseFrames == mFrameCount && !mPauseReleased) {
+            GetCurrentGameMap()->SetPausing(false);
+            mPauseReleased = true;
+        }
+    }
     virtual void Close() { mCloseRequested = 1; }
 
     bool Init();
@@ -123,8 +130,16 @@ class CYouWin : public BOther {
 public:
     CYouWin(int type, int winner, f32 winnerParam);
     virtual ~CYouWin() {}
-    virtual void Calc();
-    virtual void Draw();
+    virtual void Draw() {
+        BNoticeDisplayImpl::Draw();
+        mResultLayout.Draw();
+        mWinnerLayout.Draw();
+    }
+    virtual void Calc() {
+        BNoticeDisplayImpl::Calc();
+        mResultLayout.Calc();
+        mWinnerLayout.Calc();
+    }
     virtual void Close() {}
 
     bool Init();
@@ -175,7 +190,7 @@ private:
 class CNoticeDisplay : public INoticeDisplay {
 public:
     CNoticeDisplay() : mWinner(0), mWinnerParam(0.0f) {}
-    virtual ~CNoticeDisplay();
+    virtual ~CNoticeDisplay() {}
     virtual void Calc();
     virtual void CalcMtx();
     virtual void CalcView();
@@ -183,9 +198,9 @@ public:
     virtual bool IsShown() const { return mpImpl.get() != nullptr; }
     virtual void Show(int type);
     virtual void Close();
-    virtual void AddEnemy(const PiiSpeciesData*, int) {}
-    virtual void SetWinner(int winner) { mWinner = winner; }
-    virtual void SetWinnerParam(f32 param) { mWinnerParam = param; }
+    virtual void AddEnemy(const PiiSpeciesData*, int);
+    virtual void SetWinner(int winner);
+    virtual void SetWinnerParam(f32 param);
     virtual int GetType() const;
 
 private:
@@ -203,37 +218,30 @@ std::tr1::shared_ptr<INoticeDisplay> CreateNoticeDisplay(int) {
 
 namespace {
 
-CNoticeDisplay::~CNoticeDisplay() {}
-
-void BNoticeDisplayImpl::Calc() {
-    mFiber.Resume();
-    mLayout.Calc();
+void CNoticeDisplay::Draw() {
+    if (mpImpl) {
+        mpImpl->Draw();
+    }
 }
 
 void BNoticeDisplayImpl::Draw() {
     mLayout.Draw();
 }
 
-void CSimpleText::Calc() {
-    BNoticeDisplayImpl::Calc();
-    mFrameCount++;
-    if (mAutoCloseFrames > 0 && mAutoCloseFrames == mFrameCount && !mPauseReleased) {
-        GetCurrentGameMap()->SetPausing(false);
-        mPauseReleased = true;
+
+void CNoticeDisplay::CalcView() {
+    if (mpImpl) {
+        mpImpl->CalcView();
     }
 }
 
-void CYouWin::Calc() {
-    BNoticeDisplayImpl::Calc();
-    mResultLayout.Calc();
-    mWinnerLayout.Calc();
+
+void CNoticeDisplay::CalcMtx() {
+    if (mpImpl) {
+        mpImpl->CalcMtx();
+    }
 }
 
-void CYouWin::Draw() {
-    BNoticeDisplayImpl::Draw();
-    mResultLayout.Draw();
-    mWinnerLayout.Draw();
-}
 
 void CNoticeDisplay::Calc() {
     if (mpImpl) {
@@ -244,23 +252,11 @@ void CNoticeDisplay::Calc() {
     }
 }
 
-void CNoticeDisplay::CalcMtx() {
-    if (mpImpl) {
-        mpImpl->CalcMtx();
-    }
+void BNoticeDisplayImpl::Calc() {
+    mFiber.Resume();
+    mLayout.Calc();
 }
 
-void CNoticeDisplay::CalcView() {
-    if (mpImpl) {
-        mpImpl->CalcView();
-    }
-}
-
-void CNoticeDisplay::Draw() {
-    if (mpImpl) {
-        mpImpl->Draw();
-    }
-}
 
 int CNoticeDisplay::GetType() const {
     if (mpImpl) {
@@ -269,11 +265,23 @@ int CNoticeDisplay::GetType() const {
     return 10;
 }
 
+
+void CNoticeDisplay::SetWinnerParam(f32 param) {
+    mWinnerParam = param;
+}
+
+void CNoticeDisplay::SetWinner(int winner) {
+    mWinner = winner;
+}
+
+void CNoticeDisplay::AddEnemy(const PiiSpeciesData*, int) {}
+
 void CNoticeDisplay::Close() {
     if (mpImpl) {
         mpImpl->Close();
     }
 }
+
 
 #pragma dont_inline on
 void CNoticeDisplay::Show(int type) {
