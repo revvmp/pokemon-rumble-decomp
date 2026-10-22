@@ -577,6 +577,11 @@ int YesNoGetResult(NPpu::CEngine* pEngine) {
     return 0;
 }
 
+static inline void SetScriptOption(IDlgMsgWin* pWindow, int index, NPpu::CEngine* pEngine, NPpu::CValue& rLabel, NPpu::CValue& rText) {
+    std::wstring label(GetMessageText(pEngine, rLabel));
+    pWindow->SetOption(index, label.c_str(), GetMessageText(pEngine, rText));
+}
+
 int OpenScriptChoices(NPpu::CEngine* pEngine, bool withDefault, bool withItemCount) {
     int argCount = pEngine->FetchArgCount();
     IGameMap* pMap = GetActiveGameMap();
@@ -611,12 +616,11 @@ int OpenScriptChoices(NPpu::CEngine* pEngine, bool withDefault, bool withItemCou
                 pEngine->Drop(dropped);
             }
             for (int i = 0; i < itemArgs / 2; ++i) {
-                NPpu::CValue label;
                 NPpu::CValue text;
-                pEngine->GetArg(itemArgs - 1 - i * 2, label);
+                NPpu::CValue label;
+                pEngine->GetArg(-1 - (i * 2 - itemArgs), label);
                 pEngine->GetArg(itemArgs - 2 - i * 2, text);
-                std::wstring labelCopy(GetMessageText(pEngine, label));
-                pWindow->SetOption(i, labelCopy.c_str(), GetMessageText(pEngine, text));
+                SetScriptOption(pWindow, i, pEngine, label, text);
             }
             pWindow->SetControllerSlot(player);
             pWindow->OpenOptions(GetMessageText(pEngine, title));
