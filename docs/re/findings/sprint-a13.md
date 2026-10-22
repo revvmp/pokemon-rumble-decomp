@@ -39,3 +39,22 @@
 - `script.arc/` is the last string in the target `.data`, after all RTTI name strings; ours places it before them. Moving `LoadScriptCode` later in the source did not change this.
 - The target `weak_ptr<CPpuCode>` destructor (`0x80105F80`) calls `operator delete` where ours calls `release_weak`; unresolved.
 - `CollectGarbage` (96.3%): tried a local root copy, direct `root_.second().node_` store, store reordering and a `reset_empty()` helper in `tree_imp::clear`; none stops the hoisting of `this+0x30`.
+
+## Session 4: CPpuEnv Matching
+
+`game/CPpuEnv.cpp` is Matching (33/33, DOL verified). What it took:
+
+- **The script environment pointer type is `shared_ptr<CPpuEnv>`.** The RTTI makes the base `enable_shared_from_this<CPpuEnv>`, and ScriptPiiMotion passes `shared_from_this()` straight to `CPiiPersonalData::ExecuteInitScript` with no converting copy. Every `shared_ptr<NPpu::CEnvironment>`/`weak_ptr<NPpu::CEnvironment>` in the game sources became `shared_ptr<CPpuEnv>` (headers forward-declare `CPpuEnv`), and 25 symbol names were renamed (`33shared_ptr<Q24NPpu12CEnvironment>` to `20shared_ptr<7CPpuEnv>`). Code is unchanged in every other unit.
+- **The code cache is `map<string, shared_ptr<CPpuCode>>`.** The only extab difference after the flip was the `operator[]` default value temporary, destroyed as `shared_ptr<CPpuCode>`.
+- `0x80105F80` is the map node `alloc_ptr` destructor, not `weak_ptr<CPpuCode>::~weak_ptr` (its `operator delete` call is the node deallocation). The CGameSession `weak_ptr<ISession>` destructor at `0x800BC370` has the same shape and is probably misnamed too.
+- `LoadScriptCode` takes `bool wait`; `CPpuCode::Load(const char* pName, bool wait)` is an in-class inline that loads `"script.arc/" + pName` into a local `shared_ptr<CFileData>`, so the file is released on both return paths and `"script.arc/"` becomes `@STRING@Load__8CPpuCodeFPCcb`, the last `.data` string. `LoadScriptCode` is a friend and reads `pEnv->mCodes` directly: an accessor returning `CodeMap&` is an inline return value, which CodeWarrior keeps in a register and reuses instead of recomputing `env+0x2c`.
+- `CollectGarbage`: `tree_imp::clear` resets the begin node with `static_cast<const tree_imp*>(this)->end_node()`. The non-const `end_node()` result is merged with the earlier `root()` address and hoisted into a register for the whole function.
+- Text order: the constructor and destructor are out of line at the top of the file (the constructor is inlined into `CreateScriptEnvironment` and dead-stripped, but it emits the base and member destructors first), `CPpuEnv` is declared before `CPpuCode`, and `CreateScriptEnvironment` is defined last. `include/map` takes the in-class `find_or_insert` path when the key is not POD, so `find_leaf` follows `LoadScriptCode`. `include/MSL_CPP/allocator.h` includes `alloc_ptr.h` first, so the `allocator` group precedes the `alloc_ptr` group in each round.
+- The split no longer has a `.bss` line. The 0x18 bytes at `0x803E6648` are alignment padding for CRemoteMemory's `.bss`.
+
+### Traps
+
+- **Check extab dtor names after a flip.** When the DOL differs only in extab, the difference is a destructor relocation: a local or temporary of a different type (here `shared_ptr<CCode>` against `shared_ptr<CPpuCode>`). The extab action lists local offsets, so the type can be found from the function's frame.
+- **CodeWarrior did not inline any function with a by-value class parameter that has a destructor** (Wii/1.1, `-ipa file`, even a two-line body). If the target looks like a by-value parameter destroyed on each return path, try a local inside the inline function.
+- **Splitting the result of an inline accessor.** `CodeMap& Codes()`, `end_node()` and similar accessors return a value that CodeWarrior keeps in a register and reuses across the function. If the target recomputes `this+N` late, read the member directly or use an accessor whose expression differs.
+- Shared scratch files: `order.py`, `sec.py` and `rep.py` in the session scratchpad were overwritten by this session. Keep helpers in a per-agent subdirectory (`scratchpad/w2o/`).
