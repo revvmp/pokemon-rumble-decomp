@@ -22,6 +22,14 @@ int GetStrongestBP();
 
 #pragma dont_inline on
 
+inline void CPlayerPii::Initialize() {
+    Initialize(false);
+}
+
+inline bool CPlayerPii::LoadScript(const std::tr1::shared_ptr<CPpuEnv>& rEnvironment) {
+    return LoadScript(0, rEnvironment);
+}
+
 int NewPlayerPii(NPpu::CEngine* pBase) {
     CPpuEngine* pEngine = static_cast<CPpuEngine*>(pBase);
     int player = pEngine->PopInt();
@@ -82,14 +90,6 @@ int NewPlayerPii(NPpu::CEngine* pBase) {
     }
     pEngine->PushInt(id);
     return 0;
-}
-
-void CPlayerPii::Initialize() {
-    Initialize(false);
-}
-
-bool CPlayerPii::LoadScript(const std::tr1::shared_ptr<CPpuEnv>& rEnvironment) {
-    return LoadScript(0, rEnvironment);
 }
 
 int CreatePii(CPpuEngine* pEngine, bool drop) {
@@ -224,7 +224,7 @@ static int PushObjectIds(NPpu::CEngine* pEngine, NPpu::Slice* pSlices, int capac
     for (; i < count; ++it, ++i) {
         pSlices[i].SetInt((*it)->GetId());
     }
-    if (count >= 0) {
+    if (count > 0) {
         pSlices[count].SetInt(0);
     }
     pEngine->PushInt(count);
@@ -249,11 +249,11 @@ static int SearchByGroupNo(NPpu::CEngine* pBase, FoundFunc pFound, NoneFunc pNon
     CPpuEngine* pEngine = static_cast<CPpuEngine*>(pBase);
     int capacity = 0;
     NPpu::Slice* pSlices = pBase->PopArray(&capacity);
-    CPii* pPii = DynamicCast<CPii>(pEngine->PopWorldObj());
-    if (pPii) {
+    CEnemyPii* pEnemy = DynamicCast<CEnemyPii>(pEngine->PopWorldObj());
+    if (pEnemy) {
         std::vector<BWorldObj*> objects = pEngine->GetWorld()->GetObjects(0x100);
         std::list<BWorldObj*> found;
-        int groupNo = pPii->GetPersonalData()->GetGroupNo();
+        int groupNo = pEnemy->GetPersonalData()->GetGroupNo();
         if (groupNo != 0) {
             for (std::vector<BWorldObj*>::iterator it = objects.begin(); it != objects.end(); ++it) {
                 if (DynamicCast<CPii>(*it)->GetPersonalData()->GetGroupNo() == groupNo) {

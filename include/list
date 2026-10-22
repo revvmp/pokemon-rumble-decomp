@@ -311,7 +311,8 @@ public:
     const_iterator end() const { return deleter::end(); }
 
     void push_front(T* const& x) { this->insert(deleter::begin(), x); }
-    void push_back(T* const& x) { this->insert(deleter::end(), x); }
+    void push_back(T* const& x) { append(x); }
+    void append(T* const& x) { this->insert(deleter::end(), x); }
 
 private:
     template <typename InputIterator> void insert_dispatch(InputIterator first, InputIterator last, Metrowerks::int2type<0>) {
