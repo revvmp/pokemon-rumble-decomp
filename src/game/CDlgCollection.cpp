@@ -179,7 +179,8 @@ public:
             if (mComplete && !IsGameFlagSet(0x12)) {
                 PlaySound(0x17);
                 mMsgWin = IDlgMsgWin::Create(false, true);
-                mMsgWin->OpenMessage(GetMessageString(0x60075, nullptr));
+                const wchar_t* pText = GetMessageString(0x60075, nullptr);
+                mMsgWin->OpenMessage(pText);
                 while (!mMsgWin->IsMessageClosed()) {
                     YieldFiber();
                 }
@@ -285,7 +286,7 @@ public:
                                 normalMask = 1;
                             }
                             pModel->mModels[i]->mTex.reset(new CPiiTex(256, 256));
-                            pItem->mLayout.SetTexture("GOT_TEX", pItem->mTex->GetTexMap(), -1);
+                            pItem->mLayout.SetTexture("GOT_TEX", pModel->mModels[i]->mTex->GetTexMap(), -1);
                             for (u8 form = 0; form < 32; form++) {
                                 if (!IsValidPiiForm(species, form)) {
                                     break;
@@ -325,7 +326,7 @@ public:
                                 IGameSession::GetInstance()->GetOyaInfo(), pSpecies, pSpecies->GetDefaultSex());
                             personalData->SetNormalColorRnd();
                             pModel->mModels[i]->mTex.reset(new CPiiTex(personalData, 256, 256));
-                            pItem->mLayout.SetTexture("DEFEATED_TEX", pItem->mTex->GetTexMap(), -1);
+                            pItem->mLayout.SetTexture("DEFEATED_TEX", pModel->mModels[i]->mTex->GetTexMap(), -1);
                         }
                         pItem->mLayout.SetText("NAME", GetPiiSpeciesData(species, 0)->GetName());
                         pItem->mLayout.SetVisible(true);
@@ -333,7 +334,7 @@ public:
                         canInitialize = false;
                     }
                     CPiiTex* pTex = pModel->mModels[i]->mTex.get();
-                    if (pTex) {
+                    if (pModel->mModels[i]->mTex) {
                         if (pModel->mAnimFrame == 0 && pTex->GetPiiCount() >= 2) {
                             unsigned current = 0;
                             while (current < pTex->GetPiiCount()) {
@@ -343,7 +344,7 @@ public:
                                 }
                                 current++;
                             }
-                            pTex->SetPiiVisible((current + 1) % pTex->GetPiiCount(), true);
+                            pModel->mModels[i]->mTex->SetPiiVisible((current + 1) % pTex->GetPiiCount(), true);
                         }
                         pModel->mModels[i]->mTex->Calc();
                     }
