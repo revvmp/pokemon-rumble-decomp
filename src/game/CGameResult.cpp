@@ -398,20 +398,18 @@ void CGameResult::SetPiiPositions(int row, int center)
 
 void CGameResult::UpdatePiiWindow()
 {
-    int tail = mEntries.size() - 35;
     int i = 0;
+    int tail = mEntries.size() - 35;
     for (std::vector<ResultPii>::iterator it = mEntries.begin(); it != mEntries.end(); ++it, ++i) {
-        if ((mSelected - 5 <= i && i < mSelected + 30) || i >= tail) {
+        if ((mSelected - 5 <= i && i < mSelected + 30) || tail <= i) {
             if (!it->mPiis[0]) {
-                std::tr1::shared_ptr<CPii> pPii(new CPii(it->mPersonalData, 0x40));
-                it->mPiis[0] = pPii;
+                it->mPiis[0].reset(new CPii(it->mPersonalData, 0x40));
                 it->mPiis[0]->Initialize(false);
                 it->mPiis[0]->SetVisible(true);
                 it->mPiis[0]->SetBoundingEnable(false);
                 it->mPiis[0]->PlayMotion(0, 0.0f, 1.0f);
                 mWorlds[0]->Add(it->mPiis[0]);
-                std::tr1::shared_ptr<CPii> pMirrorPii(new CPii(it->mPersonalData, 0x40));
-                it->mPiis[1] = pMirrorPii;
+                it->mPiis[1].reset(new CPii(it->mPersonalData, 0x40));
                 it->mPiis[1]->Initialize(false);
                 it->mPiis[1]->SetVisible(true);
                 it->mPiis[1]->SetBoundingEnable(false);
@@ -622,17 +620,25 @@ void CGameResult::Calc()
     nw4r::math::MTX34 cameraMtx;
     camera.GetCameraMtx(&cameraMtx);
     nw4r::math::MTX34 invCameraMtx;
-    if (Inverse(&invCameraMtx, &cameraMtx)) {
+    if (PSMTXInverse(cameraMtx, invCameraMtx)) {
         nw4r::g3d::Camera::PostureInfo info;
         info.tp = nw4r::g3d::Camera::POSTURE_LOOKAT;
-        nw4r::math::VEC3 eye(0.0f, 0.0f, 0.0f);
-        nw4r::math::VEC3 worldEye = Transform(invCameraMtx, eye);
-        nw4r::math::VEC3 up(0.0f, -1.0f, 0.0f);
-        nw4r::math::VEC3 upDir = Transform(invCameraMtx, up) - worldEye;
-        info.cameraUp = nw4r::math::VEC3(upDir.x, -upDir.y, upDir.z);
+        nw4r::math::VEC3 origin(0.0f, 0.0f, 0.0f);
+        nw4r::math::VEC3 eye;
+        PSMTXMultVec(invCameraMtx, reinterpret_cast<Vec*>(&origin), reinterpret_cast<Vec*>(&eye));
+        nw4r::math::VEC3 down(0.0f, -1.0f, 0.0f);
+        nw4r::math::VEC3 downWorld;
+        PSMTXMultVec(invCameraMtx, reinterpret_cast<Vec*>(&down), reinterpret_cast<Vec*>(&downWorld));
+        nw4r::math::VEC3 up = downWorld - eye;
+        info.cameraUp.x = up.x;
+        info.cameraUp.y = -up.y;
+        info.cameraUp.z = up.z;
         nw4r::math::VEC3 forward(0.0f, 0.0f, -1.0f);
-        nw4r::math::VEC3 target = Transform(invCameraMtx, forward);
-        info.cameraTarget = nw4r::math::VEC3(target.x, -target.y, target.z);
+        nw4r::math::VEC3 target;
+        PSMTXMultVec(invCameraMtx, reinterpret_cast<Vec*>(&forward), reinterpret_cast<Vec*>(&target));
+        info.cameraTarget.x = target.x;
+        info.cameraTarget.y = -target.y;
+        info.cameraTarget.z = target.z;
         mirrorCamera.SetPosture(info);
         const nw4r::g3d::CameraData& rData = camera.ref();
         if (rData.flags & nw4r::g3d::CameraData::FLAG_PROJ_ORTHO) {
