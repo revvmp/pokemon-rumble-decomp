@@ -736,7 +736,7 @@ std::list<BWorldObj*> BWorld::FindObjectsInSector(u32 type, const nw4r::math::VE
             continue;
         }
 
-        objs.push_back(pObj);
+        objs.insert(objs.end(), pObj);
     }
     return objs;
 }
@@ -770,7 +770,7 @@ std::list<BWorldObj*> BWorld::FindObjectsInRing(u32 type, const nw4r::math::VEC3
             continue;
         }
 
-        objs.push_back(pObj);
+        objs.insert(objs.end(), pObj);
     }
     return objs;
 }
@@ -807,7 +807,7 @@ std::list<BWorldObj*> BWorld::FindObjectsInRect(u32 type, const nw4r::math::VEC3
         f32 radius = pObj->GetSize().z;
         if (minZ - radius <= local.z && local.z <= maxZ + radius && minX - radius <= local.x &&
             local.x <= maxX + radius) {
-            objs.push_back(pObj);
+            objs.insert(objs.end(), pObj);
         }
     }
     return objs;
