@@ -318,7 +318,7 @@ inline basic_string<charT, traits, Allocator> basic_string<charT, traits, Alloca
 }
 
 template <class charT, class traits, class Allocator>
-basic_string<charT, traits, Allocator>::basic_string(const basic_string& str) : r_(str.alloc()) {
+basic_string<charT, traits, Allocator>::basic_string(const basic_string& str) : r_(const_cast<basic_string&>(str).alloc()) {
     if (!str.is_long()) {
         r_.first().r.raw = str.r_.first().r.raw;
     } else {
