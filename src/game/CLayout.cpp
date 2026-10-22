@@ -73,8 +73,8 @@ nw4r::math::VEC2 GetDefaultPixelScale() {
     if (sDefaultPixelScale.x < 0.0f) {
         const GXRenderModeObj* pRenderMode = nw4r::g3d::G3DState::GetRenderModeObj();
         u32 tvMode = pRenderMode->viTVmode;
-        f32 ratio = GetPixelAspectRatio(tvMode, SCGetAspectRatio());
-        sDefaultPixelScale.x = ratio;
+        u8 aspect = SCGetAspectRatio();
+        sDefaultPixelScale.x = GetPixelAspectRatio(tvMode, aspect);
         sDefaultPixelScale.y = 1.0f;
         if (tvMode - 4 <= 1u) {
             sDefaultPixelScale.x *= 0.83623695f;
