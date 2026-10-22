@@ -1,3 +1,4 @@
+#include <game/MathUtil.h>
 #include <game/luckyhelper.h>
 #include <game/CBattleRoyalBox.h>
 #include <algorithm>
@@ -770,7 +771,7 @@ int HideBRDisplay(NPpu::CEngine* pEngine) {
 }
 
 int ShowDlgPiiList(NPpu::CEngine* pEngine) {
-    int type = pEngine->PopInt();
+    s32 type = pEngine->PopInt();
     int player = pEngine->PopInt();
     IGameMap* pMap = GetActiveGameMap();
     if (pMap) {
@@ -906,14 +907,18 @@ int LoadGroundAttr(NPpu::CEngine* pEngine) {
     return 0;
 }
 
+static inline void AddPoppedBalloon(IMsgBalloon* pBalloon, NPpu::CEngine* pEngine) {
+    const wchar_t* pText = PopMessageText(pEngine);
+    float x = pEngine->PopFloat();
+    float z = pEngine->PopFloat();
+    pBalloon->Add(pText, z, x);
+}
+
 int AddMessageBalloon(NPpu::CEngine* pEngine) {
     IGameMap* pMap = GetActiveGameMap();
     IMsgBalloon* pBalloon = pMap ? pMap->GetMsgBalloon() : nullptr;
     if (pBalloon) {
-        const wchar_t* pText = PopMessageText(pEngine);
-        float x = pEngine->PopFloat();
-        float z = pEngine->PopFloat();
-        pBalloon->Add(pText, z, x);
+        AddPoppedBalloon(pBalloon, pEngine);
     }
     pEngine->PushNull();
     return 0;
@@ -1280,17 +1285,18 @@ int GetWazaUsedCount(NPpu::CEngine* pEngine) {
     return 0;
 }
 
+static inline CMapRecord& GetSavedMapRecord(const MapIndex& rIndex) {
+    int mode = rIndex.mMode;
+    int area = rIndex.mArea;
+    int stage = rIndex.mStage;
+    return GetSaveData(-1)->mData.mMapRecords[mode][area][stage][rIndex.mMap];
+}
+
 int MapStatus_allFlags(NPpu::CEngine* pEngine) {
     int flags = pEngine->PopInt();
     MapIndex index;
     *reinterpret_cast<int*>(&index) = pEngine->PopInt();
-    int stage;
-    int area;
-    int mode;
-    mode = index.mMode;
-    area = index.mArea;
-    stage = index.mStage;
-    pEngine->PushInt(GetSaveData(-1)->mData.mMapRecords[mode][area][stage][index.mMap].IsFlagSet(flags));
+    pEngine->PushInt(GetSavedMapRecord(index).IsFlagSet(flags));
     return 0;
 }
 
@@ -1298,13 +1304,7 @@ int MapStatus_setFlags(NPpu::CEngine* pEngine) {
     int flags = pEngine->PopInt();
     MapIndex index;
     *reinterpret_cast<int*>(&index) = pEngine->PopInt();
-    int stage;
-    int area;
-    int mode;
-    mode = index.mMode;
-    area = index.mArea;
-    stage = index.mStage;
-    GetSaveData(-1)->mData.mMapRecords[mode][area][stage][index.mMap].SetFlags(flags);
+    GetSavedMapRecord(index).SetFlags(flags);
     pEngine->PushNull();
     return 0;
 }
@@ -1389,9 +1389,7 @@ int GetStageClearedNum(NPpu::CEngine* pEngine) {
     *reinterpret_cast<int*>(&index) = pEngine->PopInt();
     int map = IGameSession::GetInstance()->GetStageDesc(index)->mMapDescs.size() - 1;
     int count = GetSaveData(-1)->mData.mMapRecords[index.mMode][index.mArea][index.mStage][map].GetClearCount();
-    int low = 0;
-    int high = 999;
-    pEngine->PushInt(std::min(std::max(count, low), high));
+    pEngine->PushInt(Clamp(count, 0, 999));
     return 0;
 }
 
