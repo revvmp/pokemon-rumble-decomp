@@ -372,7 +372,7 @@ bool CGameSession::CanAddPPDToPlayerPiiBox(int player, const std::tr1::shared_pt
     return true;
 }
 
-bool CGameSession::IsReplacePiiAvailable(int player, const std::tr1::shared_ptr<CPiiPersonalData>& rPPD) {
+bool CGameSession::IsReplacePiiAvailable(int player) {
     CPlayer* pPlayer = GetPlayer(player);
     if (!pPlayer->IsJoined()) {
         return false;
