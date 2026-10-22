@@ -188,14 +188,14 @@ public:
                 int count;
                 int part = IsBattleRoyalFirstPart(pDesc->mIndex) ? 1 : 2;
                 count = static_cast<s8>(GetSaveData(-1)->mData.mStatus[0x13]);
-                title.assign(FormatMessage(GetMessageText(0x6007D, gEmptyText), count, part));
+                title = FormatMessage(GetMessageText(0x6007D, gEmptyText), count, part);
             } else {
-                title.assign(FormatMessage(GetMessageText(0x6007C, gEmptyText), pStageText));
+                title = FormatMessage(GetMessageText(0x6007C, gEmptyText), pStageText);
             }
         } else if (static_cast<s8>(GetSaveData(-1)->mData.mFlags[1]) >= 1) {
-            title.assign(FormatMessage(GetMessageText(0x6007B, gEmptyText), pModeText, pAreaText, pStageText));
+            title = FormatMessage(GetMessageText(0x6007B, gEmptyText), pModeText, pAreaText, pStageText);
         } else {
-            title.assign(FormatMessage(GetMessageText(0x6007A, gEmptyText), pAreaText, pStageText));
+            title = FormatMessage(GetMessageText(0x6007A, gEmptyText), pAreaText, pStageText);
         }
         mBackgroundLayout->GetLayout()->SetText("MAPID", title.c_str());
         if (mHideBackground) {

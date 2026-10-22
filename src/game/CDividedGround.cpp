@@ -229,9 +229,9 @@ void CDividedGround::BuildScene(const StageID* pStageID, int stageNo, bool backg
     std::map<std::string, std::list<nw4r::math::MTX34> > layers;
     std::string animName;
     if (pStageID->mKind == 2) {
-        animName.assign(FormatString("rep_EX%02d", stageNo));
+        animName = FormatString("rep_EX%02d", stageNo);
     } else {
-        animName.assign(FormatString("rep_%s%02d", gStageRanks[pStageID->mRank].mName, stageNo));
+        animName = FormatString("rep_%s%02d", gStageRanks[pStageID->mRank].mName, stageNo);
     }
 
     nw4r::g3d::ResAnmChr anm(nullptr);

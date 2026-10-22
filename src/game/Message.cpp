@@ -107,9 +107,9 @@ void FormatDate(std::wstring& rResult, int year, int month, int day, u32 flags) 
         }
 
         if (GetMessageNumber(sDateMessageIDs.mWeekdayAfterDate) == 0) {
-            rResult.assign(std::wstring(pWeekday) + L' ' + text);
+            rResult = std::wstring(pWeekday) + L' ' + text;
         } else {
-            rResult.assign(std::wstring(text) + L' ' + pWeekday);
+            rResult = std::wstring(text) + L' ' + pWeekday;
         }
     }
 
@@ -166,9 +166,9 @@ void FormatTime(std::wstring& rResult, int hour, int minute, int second, u32 fla
         }
 
         if (GetMessageNumber(sTimeMessageIDs.mMeridiemAfterTime) == 0) {
-            rResult.assign(std::wstring(pMeridiem) + L' ' + text);
+            rResult = std::wstring(pMeridiem) + L' ' + text;
         } else {
-            rResult.assign(std::wstring(text) + L' ' + pMeridiem);
+            rResult = std::wstring(text) + L' ' + pMeridiem;
         }
     }
 }

@@ -1497,7 +1497,7 @@ void CEngine::GetThrown(CValue& rValue) const {
 const char* CEngine::AllocString(const std::string& rString) {
     sGCAllocCount++;
     SGCString<char>* pString = new SGCString<char>;
-    pString->mString.assign(rString);
+    pString->mString = rString;
     pString->mMark = sGCMark;
     sStrings->insert(std::map<const char*, SGCString<char>* >::value_type(pString->mString.c_str(), pString));
     return pString->mString.c_str();
@@ -1506,7 +1506,7 @@ const char* CEngine::AllocString(const std::string& rString) {
 const wchar_t* CEngine::AllocWString(const std::wstring& rString) {
     sGCAllocCount++;
     SGCString<wchar_t>* pString = new SGCString<wchar_t>;
-    pString->mString.assign(rString);
+    pString->mString = rString;
     pString->mMark = sGCMark;
     sWStrings->insert(std::map<const wchar_t*, SGCString<wchar_t>* >::value_type(pString->mString.c_str(), pString));
     return pString->mString.c_str();
