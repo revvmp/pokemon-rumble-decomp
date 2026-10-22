@@ -42,7 +42,7 @@ private:
         mParsed = false;
         unsigned long maxArg = 0;
         for (unsigned long i = 0; i < mFormat.size(); i++) {
-            charT c = mFormat[i];
+            int c = mFormat[i];
             if (c == '{') {
                 if (!(i + 2 < mFormat.size() && isdigit(mFormat[i + 1]) && mFormat[i + 2] == '}')) {
                     throw InvalidFormatException();
@@ -62,7 +62,7 @@ private:
                     i += 2;
                 }
             } else {
-                mResult += c;
+                mResult += static_cast<charT>(c);
             }
         }
         mParsed = true;
