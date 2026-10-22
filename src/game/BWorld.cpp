@@ -642,8 +642,8 @@ struct SectorPlane {
 
     f32 GetDistance(const nw4r::math::SPHERE& rSphere) const {
         f32 dist = rSphere.C.z * mNormal.z;
-        dist += rSphere.C.x * mNormal.x;
-        dist -= GetOriginDistance();
+        dist = dist + rSphere.C.x * mNormal.x;
+        dist = dist - GetOriginDistance();
         if (rSphere.r <= dist) {
             return dist - rSphere.r;
         }
