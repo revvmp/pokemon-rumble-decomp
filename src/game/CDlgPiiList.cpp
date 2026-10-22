@@ -116,6 +116,10 @@ public:
     void Finish();
     void ShowMessage(const wchar_t* pText);
     bool AskYesNo(const wchar_t* pText);
+    int CountRemoteMarked();
+    int CountRemoteUnmarked();
+    int CountSellUnmarked();
+    int GetMinUnmarkedCount();
 
     int mPlayer;
     int mType;
@@ -356,6 +360,46 @@ inline void CDlgPiiListImpl::OnSelectionChanged(BUI* pUI) {
 
 }
 
+inline int CDlgPiiListImpl::CountRemoteMarked() {
+    int count = 0;
+    for (PiiItemVector::iterator it = mItems.begin(); it != mItems.end(); ++it) {
+        if ((*it)->IsRemoteMarked()) {
+            count++;
+        }
+    }
+    return count;
+}
+
+inline int CDlgPiiListImpl::CountRemoteUnmarked() {
+    int count = 0;
+    for (PiiItemVector::iterator it = mItems.begin(); it != mItems.end(); ++it) {
+        if (!(*it)->IsRemoteMarked()) {
+            count++;
+        }
+    }
+    return count;
+}
+
+inline int CDlgPiiListImpl::CountSellUnmarked() {
+    int count = 0;
+    for (PiiItemVector::iterator it = mItems.begin(); it != mItems.end(); ++it) {
+        if (!(*it)->IsSellMarked()) {
+            count++;
+        }
+    }
+    return count;
+}
+
+inline int CDlgPiiListImpl::GetMinUnmarkedCount() {
+    int joined = 0;
+    for (int player = 0; player < 4; player++) {
+        if (IGameSession::GetInstance()->GetPlayer(player)->IsJoined()) {
+            joined++;
+        }
+    }
+    return std::max(joined, sMinUnmarkedCount);
+}
+
 inline void CDlgPiiListImpl::OnAccept(BUI* pUI) {
     IController* pController = IGameSession::GetInstance()->GetPlayer(mPlayer)->GetController();
     bool holdMode = false;
@@ -377,13 +421,7 @@ inline void CDlgPiiListImpl::OnAccept(BUI* pUI) {
             break;
         }
         if ((holdMode && item->IsRemoteMarked()) || (!holdMode && !mHolding)) {
-            int unmarked = 0;
-            for (PiiItemVector::iterator it = mItems.begin(); it != mItems.end(); ++it) {
-                if (!(*it)->IsRemoteMarked()) {
-                    unmarked++;
-                }
-            }
-            if (unmarked < 1000) {
+            if (CountRemoteUnmarked() < 1000) {
                 sound = 0;
                 if (item->IsRemoteMarked()) {
                     sound = 2;
@@ -399,29 +437,11 @@ inline void CDlgPiiListImpl::OnAccept(BUI* pUI) {
                 mResult = pHolder->GetPlayerNo() + 10;
                 break;
             }
-            int marked = 0;
-            for (PiiItemVector::iterator it = mItems.begin(); it != mItems.end(); ++it) {
-                if ((*it)->IsRemoteMarked()) {
-                    marked++;
-                }
-            }
-            if (marked + 1 > 12) {
+            if (CountRemoteMarked() + 1 > 12) {
                 mResult = 0xE;
                 break;
             }
-            int unmarked = 0;
-            for (PiiItemVector::iterator it = mItems.begin(); it != mItems.end(); ++it) {
-                if (!(*it)->IsRemoteMarked()) {
-                    unmarked++;
-                }
-            }
-            int joined = 0;
-            for (int player = 0; player < 4; player++) {
-                if (IGameSession::GetInstance()->GetPlayer(player)->IsJoined()) {
-                    joined++;
-                }
-            }
-            if (unmarked <= std::max(joined, sMinUnmarkedCount) && !item->IsRemoteMarked()) {
+            if (CountRemoteUnmarked() <= GetMinUnmarkedCount() && !item->IsRemoteMarked()) {
                 mResult = 0x10;
                 break;
             }
@@ -450,19 +470,7 @@ inline void CDlgPiiListImpl::OnAccept(BUI* pUI) {
                 mResult = pHolder->GetPlayerNo() + 4;
                 break;
             }
-            int unmarked = 0;
-            for (PiiItemVector::iterator it = mItems.begin(); it != mItems.end(); ++it) {
-                if (!(*it)->IsSellMarked()) {
-                    unmarked++;
-                }
-            }
-            int joined = 0;
-            for (int player = 0; player < 4; player++) {
-                if (IGameSession::GetInstance()->GetPlayer(player)->IsJoined()) {
-                    joined++;
-                }
-            }
-            if (unmarked <= std::max(joined, sMinUnmarkedCount) && !item->IsSellMarked()) {
+            if (CountSellUnmarked() <= GetMinUnmarkedCount() && !item->IsSellMarked()) {
                 mResult = 9;
                 break;
             }
@@ -594,13 +602,7 @@ inline void CDlgPiiListImpl::RunList() {
         case 9: {
             YieldFiber();
             NIntl::basic_formatter<wchar_t> formatter(GetMessageString(0x60092, nullptr));
-            int joined = 0;
-            for (int player = 0; player < 4; player++) {
-                if (IGameSession::GetInstance()->GetPlayer(player)->IsJoined()) {
-                    joined++;
-                }
-            }
-            formatter.format(L"%d") % static_cast<int>(std::max(joined, sMinUnmarkedCount));
+            formatter.format(L"%d") % GetMinUnmarkedCount();
             ShowMessage(formatter.c_str());
             break;
         }
@@ -626,13 +628,7 @@ inline void CDlgPiiListImpl::RunList() {
         case 16: {
             YieldFiber();
             NIntl::basic_formatter<wchar_t> formatter(GetMessageString(0x60096, nullptr));
-            int joined = 0;
-            for (int player = 0; player < 4; player++) {
-                if (IGameSession::GetInstance()->GetPlayer(player)->IsJoined()) {
-                    joined++;
-                }
-            }
-            formatter.format(L"%d") % static_cast<int>(std::max(joined, sMinUnmarkedCount));
+            formatter.format(L"%d") % GetMinUnmarkedCount();
             ShowMessage(formatter.c_str());
             break;
         }
