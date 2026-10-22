@@ -530,6 +530,12 @@ game/ControllerTable.cpp:
 	.bss        start:0x803E8D28 end:0x803E90C8
 	.sdata      start:0x804B77D8 end:0x804B77D9
 
+game/RenderUtilities.cpp:
+	extab       start:0x80038DB0 end:0x80038E48
+	extabindex  start:0x80050A3C end:0x80050AC0
+	.text       start:0x801B6510 end:0x801B7378
+	.sdata2     start:0x804BA3C8 end:0x804BA3FC
+
 ControllerTableAlignmentPadding:
 	.sdata      start:0x804B77D9 end:0x804B77E0 align:1
 

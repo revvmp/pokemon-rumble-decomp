@@ -253,6 +253,7 @@ config.libs = [
             Object(NonMatching, "game/resetmgr.cpp"),
             Object(Matching, "game/new.cpp"),
             Object(Matching, "game/QuarterTurn.cpp"),
+            Object(NonMatching, "game/RenderUtilities.cpp"),
             Object(Matching, "game/Graphics.cpp"),
             Object(NonMatching, "game/BUI.cpp"),
             Object(NonMatching, "game/CUIManager.cpp"),
