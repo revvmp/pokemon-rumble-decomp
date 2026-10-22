@@ -344,12 +344,16 @@ CHBMParam::CHBMParam() : mFlags(0), mFrameRate(60.0f) {}
 
 CHBMParam::~CHBMParam() {}
 
+inline void LoadHomeButtonIcon(const char* pPath) {
+    spIcon = OpenHomeButtonFile(pPath, 0);
+}
+
 bool InitializeHomeButton(const CHBMParam& rParam, bool allowYield) {
     if (sInitialized) {
         return true;
     }
     spParam.reset(new CHBMParam(rParam));
-    spIcon = OpenHomeButtonFile((spParam->GetResourceRoot() + "/HomeButton3/homeBtnIcon.tpl").c_str(), 0);
+    LoadHomeButtonIcon((spParam->GetResourceRoot() + "/HomeButton3/homeBtnIcon.tpl").c_str());
     WaitFileData(spIcon.operator->(), allowYield);
     TPLBind(static_cast<TPLPalette*>(spIcon->GetData()));
     if (spParam->HasFlags(0x10)) {

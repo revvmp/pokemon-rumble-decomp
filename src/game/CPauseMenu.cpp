@@ -217,13 +217,9 @@ public:
 
 private:
     void ShowMenu(bool simplified) {
-        UIMenuItem controllers = {nullptr, MENU_CONTROLLERS};
-        UIMenuItem remoteMemory = {nullptr, MENU_REMOTE_MEMORY};
-        UIMenuItem screenshot = {nullptr, MENU_SCREENSHOT};
-        UIMenuItem resume = {nullptr, MENU_RESUME};
         std::vector<UIMenuItem> items;
         {
-            UIMenuItem item = resume;
+            UIMenuItem item = {nullptr, MENU_RESUME};
             item.mText = GetMessageString(0x60080, nullptr);
             items.push_back(item);
         }
@@ -233,17 +229,17 @@ private:
             items.push_back(leave);
         }
         {
-            UIMenuItem item = screenshot;
+            UIMenuItem item = {nullptr, MENU_SCREENSHOT};
             item.mText = GetMessageString(0x60083, nullptr);
             items.push_back(item);
         }
         if (!simplified) {
-            UIMenuItem item = remoteMemory;
+            UIMenuItem item = {nullptr, MENU_REMOTE_MEMORY};
             item.mText = GetMessageString(0x60084, nullptr);
             items.push_back(item);
         }
         if (!simplified && IsHubMap() && IsGameFlagSet(3)) {
-            UIMenuItem item = controllers;
+            UIMenuItem item = {nullptr, MENU_CONTROLLERS};
             item.mText = GetMessageString(0x60086, nullptr);
             items.push_back(item);
         }
