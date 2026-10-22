@@ -610,14 +610,6 @@ game/ControllerTable.cpp:
 	.bss        start:0x803E8D28 end:0x803E90C8
 	.sdata      start:0x804B77D8 end:0x804B77D9
 
-nw4r/ut/ut_TextWriterBase.cpp:
-	.text       start:0x8029A790 end:0x802A1944
-	.ctors      start:0x80352A80 end:0x80352A84
-	.bss        start:0x804524D8 end:0x804524F0
-	.sdata      start:0x804B8A00 end:0x804B8A08
-	.sbss       start:0x804B93E0 end:0x804B93F8
-	.sdata2     start:0x804BB0D8 end:0x804BB0F8
-
 ControllerTableAlignmentPadding:
 	.sdata      start:0x804B77D9 end:0x804B77E0 align:1
 
@@ -2710,6 +2702,14 @@ nw4r/ut/ut_CharWriter.cpp:
 	.bss        start:0x804524C8 end:0x804524D8
 	.sbss       start:0x804B93D8 end:0x804B93E0
 	.sdata2     start:0x804BB0C8 end:0x804BB0D8
+
+nw4r/ut/ut_TextWriterBase.cpp:
+	.text       start:0x8029A790 end:0x802A1944
+	.ctors      start:0x80352A80 end:0x80352A84
+	.bss        start:0x804524D8 end:0x804524F0
+	.sdata      start:0x804B8A00 end:0x804B8A08
+	.sbss       start:0x804B93E0 end:0x804B93F8
+	.sdata2     start:0x804BB0D8 end:0x804BB0F8
 
 nw4r/db/db_DbgPrintBase.cpp:
 	.text       start:0x802A1950 end:0x802A346C
