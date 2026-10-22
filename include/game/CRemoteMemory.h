@@ -31,6 +31,10 @@ public:
         const volatile u32& rFlags = mFlags;
         return (rFlags & flag) != 0;
     }
+    bool HasFlags(const u32& mask, u32 value) const {
+        bool result = (mFlags & mask) == value;
+        return result;
+    }
     bool HasPiiBox() const { return (mFlags & 0x1A) != 0; }
     bool IsBusy() const { return HasFlag(FLAG_BUSY); }
     CPiiBox* GetPiiBox();

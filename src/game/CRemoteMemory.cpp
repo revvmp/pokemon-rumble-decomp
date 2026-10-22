@@ -170,7 +170,7 @@ CPiiBox* CRemoteMemory::GetPiiBox() {
     if (!IsGameFlagSet(3)) {
         return &sEmptyBox;
     }
-    if ((mFlags & (FLAG_HAS_DATA | FLAG_DATA_CHANGED)) == FLAG_HAS_DATA) {
+    if (HasFlags(FLAG_HAS_DATA | FLAG_DATA_CHANGED, FLAG_HAS_DATA)) {
         mRemoteBox.Clear();
         RemoteDataBlock* pBlock = &sStoredData[mChannel][mActiveBlock];
         for (int i = 0; i < 12; ++i) {
@@ -183,7 +183,7 @@ CPiiBox* CRemoteMemory::GetPiiBox() {
         mRemoteBox.ApplyEnvironment(false, CreateScriptEnvironment());
         mPersonalData.assign(mRemoteBox.GetPersonalDataList().begin(), mRemoteBox.GetPersonalDataList().end());
         mFlags |= FLAG_DATA_CHANGED;
-    } else if ((mFlags & (FLAG_DISCONNECTED | FLAG_DATA_CHANGED)) == FLAG_DISCONNECTED) {
+    } else if (HasFlags(FLAG_DISCONNECTED | FLAG_DATA_CHANGED, FLAG_DISCONNECTED)) {
         mRemoteBox.Clear();
         mPersonalData.clear();
         mFlags |= FLAG_DATA_CHANGED;
