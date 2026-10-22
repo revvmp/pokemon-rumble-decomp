@@ -313,10 +313,10 @@ bool HasItemWithPrefix(const PiiItemVector& rItems, int prefix) {
 
 bool HasMixedOriginalTrainers(const PiiItemVector& rItems) {
     u32 trainerId = IGameSession::GetInstance()->GetOyaInfo()->GetCount();
+    const PiiItemPtr* end = &*rItems.begin() + rItems.size();
+    const PiiItemPtr* it = &*rItems.begin();
     bool hasOwn = false;
     bool hasOther = false;
-    const PiiItemPtr* it = &*rItems.begin();
-    const PiiItemPtr* end = it + rItems.size();
     for (; it != end; ++it) {
         if ((*it)->GetPPD()->GetOriginalTrainerId() == trainerId) {
             hasOwn = true;
