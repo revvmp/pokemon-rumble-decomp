@@ -314,3 +314,20 @@ Restored `configure.py` byte-for-byte and regenerated configuration. Final DOL S
 ### Reusable lessons and remaining blocker
 
 Taking an inline template-class member's address can retain its symbol without giving it the desired inline-pass placement, and CodeWarrior can keep the member-pointer runtime dispatch even when the initializer is a known member. Check the call relocations as well as symbol order. An inherited lookup's emission group can change, but a `using` declaration does not change the class named in its mangling. These tested approaches do not resolve the blocker. Only this findings file is changed; no source/configuration candidate met the retention gates.
+
+## 2026-10-22: CEffect register allocation follow-up
+
+No source or configuration changes retained. InitializeEffect remains 99.6206%, with CEffect at 57/58 functions at 100%. The original r23 differences remain: numEffects uses r24, and the emitter, particle-manager and particle pool pointers use r27. CEffect remains NonMatching; its full-link acceptance gate was not attempted because the function never reached 100%.
+
+Read sprint-w10, sprint-r1 and sprint-t1 before experimenting. Additional source forms were compiled using the exact CEffect compiler command emitted by `ninja -t commands build/wpse-v1/src/game/CEffect.o`, then compared with `python tools/re/unitdiff.py game/CEffect --no-build --json`:
+
+- Unchanged at 99.6206%: separate scopes around each pool; size or buffer constructor parameters by const reference; unsigned MemoryManagerTmp count; an InitializeHeap helper; two nested pool-initialization helpers; swapping the buffer parameter with each other constructor parameter and updating its call; long local counts; an effect-count accessor; an incremented pointer cursor in MemoryManagerTmp; checking mNumEffect directly; a const-reference pool pointer parameter; reversing MemoryManagerTmp constructor argument order; a byte-pointer heap-buffer parameter.
+- Worse: count taken from the constructor argument (97.22222%); signed pool loop index (98.97019%); one pool-initialization helper (99.00271%); unsigned local counts (99.5664%); u16 local counts (97.80488%); short local counts (97.85908%); const-reference MemoryManagerTmp count (94.90515%); null pointer assignment in an else branch instead of before the condition (97.72358%); initializing mBuffer in the member initializer list (98.53658%); reusing the array count in the corresponding pool constructor (98.55013% for Effect, 98.49593% for each other pool).
+
+BWorld follow-up also retained no changes. A radius const reference, outer-radius compound assignment, inner-radius compound assignment, and reversed SetCopyClear helper arguments did not improve Sector (99.86339%), Ring (99.37037%) or DrawShadow (98.35391%). Naming the returned size vector lowered Sector to 99.63388%; starting the outer compound sum from radius lowered it to 99.849724%. Baseline BWorld remains 188/196 functions at 100%.
+
+### Validation and traps
+
+Ninja stalled when recompilation was needed, as previously reported in sprint-r1. Direct execution of its emitted compiler command succeeded for both units; no compiler flags or build tools were changed. All experiments restored the original source bytes in finally blocks and recompiled the restored source. No scratch files were created. Focused unitdiff checks of InitializeEffect and FindObjectsInSector confirmed the original remaining differences.
+
+Regenerated build/wpse-v1/report.json through its emitted `objdiff-cli report generate` command (exit 0). The count of functions whose fuzzy_match_percent equals 100 remained **13,076 before and after**. The report command emitted exception-table decoding warnings for method_layoutSetString and ToUnicode. These warnings were not investigated in this task. No new artifact-match claim is made: no fresh link or manifest verification was run, and main.dol was not deleted. No commits, target-manifest edits, or shared-header changes were made.
