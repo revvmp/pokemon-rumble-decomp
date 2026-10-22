@@ -27,9 +27,9 @@ public:
 
     CRemoteMemory(int channel, COyaInfo* pOyaInfo);
     ~CRemoteMemory();
-    bool HasFlag(const u32& flag) const { return (mFlags & flag) != 0; }
+    bool HasFlag(volatile u32 flag) const { return (mFlags & flag) != 0; }
     bool HasPiiBox() const { return (mFlags & 0x1A) != 0; }
-    bool IsBusy() const { return (mFlags & 1) != 0; }
+    bool IsBusy() const { return HasFlag(FLAG_BUSY); }
     CPiiBox* GetPiiBox();
     void WaitUntilIdle(bool waitForWrite);
     void Update();
@@ -58,7 +58,7 @@ private:
     static void FinishWrite(int channel, long result);
     void SetState(Flag state);
 
-    u32 mFlags;
+    volatile u32 mFlags;
     COyaInfo* mpOyaInfo;
     int mChannel;
     std::list<std::tr1::shared_ptr<CPiiPersonalData> > mPersonalData;
