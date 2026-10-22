@@ -10,9 +10,11 @@
 #include <game/CStatistic.h>
 #include <game/ControllerTable.h>
 #include <game/MapIndex.h>
+#include <game/Pad.h>
 #include <game/PiiPropData.h>
 #include <game/SaveData.h>
 #include <game/StageDesc.h>
+#include <game/StageID.h>
 #include <game/WazaDescData.h>
 #include <memory>
 #include <nw4r/ut/ut_Color.h>
@@ -276,6 +278,71 @@ void CGameSession::SaveToSlot() {
         statistic3.push_back(element);
     }
     GetSaveData(-1)->mStatisticValue3.swap(statistic3);
+}
+
+void CGameSession::LoadFromSlot() {
+    SessionSnapshot snapshot;
+    snapshot.mPlayTime = GetSaveData(-1)->mData.mTime;
+    snapshot.mRegistryCount = GetSaveData(-1)->mData.mRegistryCount;
+    snapshot.mHeaderValue = GetSaveData(-1)->mData.mHeader[2];
+
+    snapshot.mPiiCollectionData.reserve(GetSaveData(-1)->mPiiCollectionData.size());
+    for (std::vector<SD_PiiCollectionData>::iterator it = GetSaveData(-1)->mPiiCollectionData.begin();
+         it != GetSaveData(-1)->mPiiCollectionData.end(); ++it) {
+        snapshot.mPiiCollectionData.push_back(it->mData);
+    }
+
+    snapshot.mPiiPersonalData.reserve(GetSaveData(-1)->mPiiPersonalData.size());
+    for (std::vector<SD_PiiPersonalData>::iterator it = GetSaveData(-1)->mPiiPersonalData.begin();
+         it != GetSaveData(-1)->mPiiPersonalData.end(); ++it) {
+        snapshot.mPiiPersonalData.push_back(it->mData);
+    }
+
+    snapshot.mBattleRoyalData.reserve(GetSaveData(-1)->mBattleRoyalData.size());
+    for (std::vector<SD_BattleRoyalData>::iterator it = GetSaveData(-1)->mBattleRoyalData.begin();
+         it != GetSaveData(-1)->mBattleRoyalData.end(); ++it) {
+        snapshot.mBattleRoyalData.push_back(it->mData);
+    }
+
+    snapshot.mStatisticValue1.reserve(GetSaveData(-1)->mStatisticValue1.size());
+    for (std::vector<SD_StatisticValue>::iterator it = GetSaveData(-1)->mStatisticValue1.begin();
+         it != GetSaveData(-1)->mStatisticValue1.end(); ++it) {
+        snapshot.mStatisticValue1.push_back(it->mData);
+    }
+
+    snapshot.mStatisticValue2.reserve(GetSaveData(-1)->mStatisticValue2.size());
+    for (std::vector<SD_StatisticValue>::iterator it = GetSaveData(-1)->mStatisticValue2.begin();
+         it != GetSaveData(-1)->mStatisticValue2.end(); ++it) {
+        snapshot.mStatisticValue2.push_back(it->mData);
+    }
+
+    snapshot.mStatisticValue3.reserve(GetSaveData(-1)->mStatisticValue3.size());
+    for (std::vector<SD_StatisticValue>::iterator it = GetSaveData(-1)->mStatisticValue3.begin();
+         it != GetSaveData(-1)->mStatisticValue3.end(); ++it) {
+        snapshot.mStatisticValue3.push_back(it->mData);
+    }
+
+    mPlayTime = snapshot.mPlayTime;
+    mOyaInfo.SetCount(snapshot.mRegistryCount);
+    SetMoney(snapshot.mHeaderValue);
+    mStartTime = OSGetTime();
+    mTeamPiiBox = CPiiBox::Create(snapshot.mPiiPersonalData, 1, 1200, &mOyaInfo);
+    mPiiCollectionBox = CPiiCollectionBox::Create(snapshot.mPiiCollectionData);
+    mBattleRoyalBox = CBattleRoyalBox::Create(snapshot.mBattleRoyalData);
+    mStatistic = CStatistic::Create(snapshot.mStatisticValue1, snapshot.mStatisticValue2, snapshot.mStatisticValue3);
+    UnanalyzedSlot42();
+    if (GetSaveData(-1)->mData.mFlags[0] == 0) {
+        GetSaveData(-1)->mData.mFlags[0] = 1;
+    }
+    if (IsGameFlagSet(3)) {
+        if (GetSaveData(-1)->mData.mFlags[2] == 0) {
+            GetSaveData(-1)->mData.mFlags[2] = 1;
+        }
+        int area = GetSaveData(-1)->mData.mFlags[2];
+        MapIndex index = MakeMapIndex(GetSaveData(-1)->mData.mFlags[3], area, 0, 1);
+        reinterpret_cast<StageID&>(mPendingMap) = reinterpret_cast<const StageID&>(index);
+    }
+    SetGCRumbleEnabled(GetOption() == 0);
 }
 #pragma force_active reset
 

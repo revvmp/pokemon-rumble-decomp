@@ -17,6 +17,7 @@ private:
 
 class CBattleRoyalBox {
 public:
+    static std::tr1::shared_ptr<CBattleRoyalBox> Create(const std::vector<SD_BattleRoyalData::Data>& rData);
     std::tr1::shared_ptr<CBattleRoyalData> GetData(int mode, int area);
     void ExportBattleRoyalData(std::vector<SD_BattleRoyalData::Data>& rOut);
 };

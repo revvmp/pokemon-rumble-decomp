@@ -8,6 +8,7 @@ public:
     COyaInfo();
     ~COyaInfo();
 
+    void SetCount(u32 count);
     u32 GetCount() const { return mCount; }
 
 private:
