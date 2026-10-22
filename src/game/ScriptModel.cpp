@@ -254,8 +254,12 @@ int method_BModelObj_mpIsCompletedOrIsLooped(NPpu::CEngine* pEngine) {
 
 int method_BModelObj_mpGetCurrentFrame(NPpu::CEngine* pEngine) {
     std::tr1::shared_ptr<CModel::CMotionProgram> motion = PopModelMotion(pEngine);
-    if (motion) { pEngine->PushFloat(motion->GetCurrentFrame()); }
-    else { pEngine->PushFloat(0.0f); }
+    if (motion) {
+        const CModel::CMotionProgram& rMotion = *motion;
+        pEngine->PushFloat(rMotion.GetCurrentFrame());
+    } else {
+        pEngine->PushFloat(0.0f);
+    }
     return 0;
 }
 
