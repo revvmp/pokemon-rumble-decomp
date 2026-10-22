@@ -5,9 +5,9 @@ namespace {
 
 void CBattleRoyalDisplay::Load(const std::tr1::shared_ptr<CLayout::FontMap>& rFonts, bool background) {
     mLayout.Load(gSharedLayoutArchives, "battleroyal", rFonts, background);
-    mLayout.SetText("ato_c", GetMessageText(393454, gEmptyText));
-    mLayout.SetText("hiki_c", GetMessageText(393455, gEmptyText));
-    mLayout.SetText("title", GetMessageText(393456, gEmptyText));
+    mLayout.SetText("ato_c", GetMessageString(393454, nullptr));
+    mLayout.SetText("hiki_c", GetMessageString(393455, nullptr));
+    mLayout.SetText("title", GetMessageString(393456, nullptr));
     mTimePhase.SetTarget(&mLayout, "TIME");
     mEnemyPhase.SetTarget(&mLayout, "ENEMY");
 }

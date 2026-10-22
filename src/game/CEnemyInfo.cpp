@@ -77,8 +77,8 @@ inline void CEnemyInfo::Show(const std::tr1::shared_ptr<CPiiPersonalData>& rData
     mFlash = flash;
     mFrames = frames;
     mLayout.SetText("NAME", species->GetName());
-    mLayout.SetText("TYPE0", GetMessageText(firstType + 0x40000, gEmptyText));
-    mLayout.SetText("TYPE1", GetMessageText(secondType + 0x40000, gEmptyText));
+    mLayout.SetText("TYPE0", GetMessageString(firstType + 0x40000, nullptr));
+    mLayout.SetText("TYPE1", GetMessageString(secondType + 0x40000, nullptr));
     GetColorConstants()->ApplyVertexColor(mPanes[0], firstType + 11, 4);
     GetColorConstants()->ApplyVertexColor(mPanes[1], secondType + 11, 4);
     mLayout.SetVisible(mPanes[3], firstType != secondType);

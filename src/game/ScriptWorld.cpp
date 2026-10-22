@@ -136,7 +136,7 @@ int GetMapDescEnemyRowSize(NPpu::CEngine* pEngine) {
 }
 
 int GetStageTypeName(NPpu::CEngine* pEngine) {
-    pEngine->PushWString(GetMessageText(gStageWorlds[pEngine->PopInt()].mMessageID, gEmptyText));
+    pEngine->PushWString(GetMessageString(gStageWorlds[pEngine->PopInt()].mMessageID, nullptr));
     return 0;
 }
 

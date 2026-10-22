@@ -179,7 +179,7 @@ public:
             if (mComplete && !IsGameFlagSet(0x12)) {
                 PlaySound(0x17);
                 mMsgWin = IDlgMsgWin::Create(false, true);
-                mMsgWin->OpenMessage(GetMessageText(0x60075, gEmptyText));
+                mMsgWin->OpenMessage(GetMessageString(0x60075, nullptr));
                 while (!mMsgWin->IsMessageClosed()) {
                     YieldFiber();
                 }

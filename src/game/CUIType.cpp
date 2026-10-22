@@ -12,7 +12,7 @@ void CUIType::Initialize(bool background) {
 }
 
 void CUIType::SetType(int type) {
-    GetLayout()->SetText("TYPE", GetMessageText(type + 0x40000, gEmptyText));
+    GetLayout()->SetText("TYPE", GetMessageString(type + 0x40000, nullptr));
     nw4r::lyt::Pane* pPane = GetLayout()->FindPane("COLOR");
     GetColorConstants()->ApplyVertexColor(pPane, type + 11, 4);
 }

@@ -13,8 +13,8 @@ void CUIPlayerID::Setup(int player, int mode, const char* const* pArchives, cons
         std::string name = FormatString("BK_P%d", i);
         GetLayout()->SetPaneVisible(name.c_str(), i == player);
     }
-    GetLayout()->SetText("PLAYER", GetMessageString(0x10042 + player, gEmptyText));
-    GetLayout()->SetText("LOADING", GetMessageString(0x60079, gEmptyText));
+    GetLayout()->SetText("PLAYER", GetMessageString(0x10042 + player, nullptr));
+    GetLayout()->SetText("LOADING", GetMessageString(0x60079, nullptr));
     mPlayerNo = player;
     mDisplayMode = mode;
 }
@@ -35,16 +35,16 @@ void CUIPlayerID::Update() {
             pLayout->SetPaneVisible("PLAYER", true);
         } else if (mDisplayMode == 2) {
             pLayout->SetTexture("ENTRY_BUTTON", GetIconCollection()->GetButtonIcon(pController, 32), -1);
-            pLayout->SetText("ENTRY", GetMessageString(0x60078, gEmptyText));
+            pLayout->SetText("ENTRY", GetMessageString(0x60078, nullptr));
             pLayout->SetPaneVisible("ENTRY", true);
         } else {
             pLayout->SetTexture("ENTRY_BUTTON", GetIconCollection()->GetButtonIcon(pController, 16), -1);
-            pLayout->SetText("ENTRY", GetMessageString(0x60077, gEmptyText));
+            pLayout->SetText("ENTRY", GetMessageString(0x60077, nullptr));
             pLayout->SetPaneVisible("ENTRY", true);
         }
     } else {
         pLayout->SetTexture("ENTRY_BUTTON", GetIconCollection()->GetButtonIcon(pController, 32), -1);
-        pLayout->SetText("ENTRY", GetMessageString(0x60076, gEmptyText));
+        pLayout->SetText("ENTRY", GetMessageString(0x60076, nullptr));
         pLayout->SetPaneVisible("ENTRY", true);
     }
 }

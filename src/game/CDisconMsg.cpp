@@ -52,7 +52,7 @@ inline void CDisconMsg::Run() {
         case 5: message = 393448; break;
         default: message = 65557; break;
         }
-        const wchar_t* pText = GetMessageText(message, gEmptyText);
+        const wchar_t* pText = GetMessageString(message, nullptr);
         mLayout->SetText("TEXT", pText);
         mLayout->CreateMotion("begin");
         mLayout->QueueMotion("loop");

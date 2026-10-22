@@ -253,11 +253,11 @@ void CPiiListFilterSort::Sort(PiiItemVector& rItems, int player) {
 bool CPiiListFilterSort::ShowSortMenu(std::tr1::shared_ptr<CUIManager> pManager, int player, PiiItemVector& rItems,
                                       std::tr1::function<void(const CPiiListFilterSort*)> onChanged) {
     UIMenuItem items[3] = {{nullptr, 0}, {nullptr, 1}, {nullptr, 2}};
-    items[0].mText = GetMessageText(0x600A8, gEmptyText);
-    items[1].mText = GetMessageText(0x600A9, gEmptyText);
-    items[2].mText = GetMessageText(0x600AA, gEmptyText);
+    items[0].mText = GetMessageString(0x600A8, nullptr);
+    items[1].mText = GetMessageString(0x600A9, nullptr);
+    items[2].mText = GetMessageString(0x600AA, nullptr);
     UIMenuParam param = {nullptr, nullptr, 3, 1, 3, 0, nullptr, "menu"};
-    param.mTitle = GetMessageText(0x600A7, gEmptyText);
+    param.mTitle = GetMessageString(0x600A7, nullptr);
     param.mpItems = items;
     param.mpArchives = gSharedLayoutArchives;
     CUIMenuCallbacks callbacks(0);
@@ -436,23 +436,23 @@ bool CPiiListFilterSort::ShowTypeFilterMenu(bool bySpecies, std::tr1::shared_ptr
     UIMenuItem items[17] = {{nullptr, 0},  {nullptr, 1},  {nullptr, 2},  {nullptr, 3},  {nullptr, 4},  {nullptr, 5},
                             {nullptr, 6},  {nullptr, 7},  {nullptr, 8},  {nullptr, 10}, {nullptr, 11}, {nullptr, 12},
                             {nullptr, 13}, {nullptr, 14}, {nullptr, 15}, {nullptr, 16}, {nullptr, 17}};
-    items[0].mText = GetMessageText(0x40000, gEmptyText);
-    items[1].mText = GetMessageText(0x40001, gEmptyText);
-    items[2].mText = GetMessageText(0x40002, gEmptyText);
-    items[3].mText = GetMessageText(0x40003, gEmptyText);
-    items[4].mText = GetMessageText(0x40004, gEmptyText);
-    items[5].mText = GetMessageText(0x40005, gEmptyText);
-    items[6].mText = GetMessageText(0x40006, gEmptyText);
-    items[7].mText = GetMessageText(0x40007, gEmptyText);
-    items[8].mText = GetMessageText(0x40008, gEmptyText);
-    items[9].mText = GetMessageText(0x4000A, gEmptyText);
-    items[10].mText = GetMessageText(0x4000B, gEmptyText);
-    items[11].mText = GetMessageText(0x4000C, gEmptyText);
-    items[12].mText = GetMessageText(0x4000D, gEmptyText);
-    items[13].mText = GetMessageText(0x4000E, gEmptyText);
-    items[14].mText = GetMessageText(0x4000F, gEmptyText);
-    items[15].mText = GetMessageText(0x40010, gEmptyText);
-    items[16].mText = GetMessageText(0x40011, gEmptyText);
+    items[0].mText = GetMessageString(0x40000, nullptr);
+    items[1].mText = GetMessageString(0x40001, nullptr);
+    items[2].mText = GetMessageString(0x40002, nullptr);
+    items[3].mText = GetMessageString(0x40003, nullptr);
+    items[4].mText = GetMessageString(0x40004, nullptr);
+    items[5].mText = GetMessageString(0x40005, nullptr);
+    items[6].mText = GetMessageString(0x40006, nullptr);
+    items[7].mText = GetMessageString(0x40007, nullptr);
+    items[8].mText = GetMessageString(0x40008, nullptr);
+    items[9].mText = GetMessageString(0x4000A, nullptr);
+    items[10].mText = GetMessageString(0x4000B, nullptr);
+    items[11].mText = GetMessageString(0x4000C, nullptr);
+    items[12].mText = GetMessageString(0x4000D, nullptr);
+    items[13].mText = GetMessageString(0x4000E, nullptr);
+    items[14].mText = GetMessageString(0x4000F, nullptr);
+    items[15].mText = GetMessageString(0x40010, nullptr);
+    items[16].mText = GetMessageString(0x40011, nullptr);
     if (bySpecies) {
         for (int i = 0; i < 17; ++i) {
             if (!HasItemWithSpeciesType(rItems, items[i].mKind)) {
@@ -467,7 +467,7 @@ bool CPiiListFilterSort::ShowTypeFilterMenu(bool bySpecies, std::tr1::shared_ptr
         }
     }
     UIMenuParam param = {nullptr, nullptr, 17, 1, 17, 0, nullptr, "menu"};
-    param.mTitle = GetMessageText(bySpecies ? 0x600B1 : 0x600B2, gEmptyText);
+    param.mTitle = GetMessageString(bySpecies ? 0x600B1 : 0x600B2, nullptr);
     param.mpItems = items;
     bool filterActive = mFilterType == FILTER_SPECIES_TYPE || mFilterType == FILTER_MOVE_TYPE;
     param.mDefaultIndex = filterActive ? mTypeIndex : -1;
@@ -587,10 +587,10 @@ void CPiiListFilterSort::PreviewPrefixFilter(BUI* pBui, const std::tr1::function
 bool CPiiListFilterSort::ShowOriginalTrainerFilterMenu(std::tr1::shared_ptr<CUIManager> pManager, int player,
                                                        const std::tr1::function<void(const CPiiListFilterSort*)>& onChanged) {
     UIMenuItem items[2] = {{nullptr, 0}, {nullptr, 1}};
-    items[0].mText = GetMessageText(0x600B6, gEmptyText);
-    items[1].mText = GetMessageText(0x600B7, gEmptyText);
+    items[0].mText = GetMessageString(0x600B6, nullptr);
+    items[1].mText = GetMessageString(0x600B7, nullptr);
     UIMenuParam param = {nullptr, nullptr, 2, 1, 2, 0, nullptr, "menu"};
-    param.mTitle = GetMessageText(0x600B5, gEmptyText);
+    param.mTitle = GetMessageString(0x600B5, nullptr);
     param.mpItems = items;
     param.mDefaultIndex = mFilterType == FILTER_ORIGINAL_TRAINER ? mInvertOriginalTrainer : -1;
     param.mpArchives = gSharedLayoutArchives;
@@ -639,15 +639,15 @@ void CPiiListFilterSort::PreviewOriginalTrainerFilter(BUI* pBui, const std::tr1:
 bool CPiiListFilterSort::ShowSortTypeMenu(std::tr1::shared_ptr<CUIManager> pManager, int player,
                                           const std::tr1::function<void(const CPiiListFilterSort*)>& onChanged) {
     UIMenuItem items[7] = {{nullptr, 1}, {nullptr, 2}, {nullptr, 3}, {nullptr, 4}, {nullptr, 5}, {nullptr, 6}, {nullptr, 0}};
-    items[0].mText = GetMessageText(0x600BA, gEmptyText);
-    items[1].mText = GetMessageText(0x600BB, gEmptyText);
-    items[2].mText = GetMessageText(0x600BC, gEmptyText);
-    items[3].mText = GetMessageText(0x600BD, gEmptyText);
-    items[4].mText = GetMessageText(0x600BE, gEmptyText);
-    items[5].mText = GetMessageText(0x600BF, gEmptyText);
-    items[6].mText = GetMessageText(0x600B9, gEmptyText);
+    items[0].mText = GetMessageString(0x600BA, nullptr);
+    items[1].mText = GetMessageString(0x600BB, nullptr);
+    items[2].mText = GetMessageString(0x600BC, nullptr);
+    items[3].mText = GetMessageString(0x600BD, nullptr);
+    items[4].mText = GetMessageString(0x600BE, nullptr);
+    items[5].mText = GetMessageString(0x600BF, nullptr);
+    items[6].mText = GetMessageString(0x600B9, nullptr);
     UIMenuParam param = {nullptr, nullptr, 7, 1, 7, 0, nullptr, "menu"};
-    param.mTitle = GetMessageText(0x600B8, gEmptyText);
+    param.mTitle = GetMessageString(0x600B8, nullptr);
     param.mpItems = items;
     param.mDefaultIndex = mSortType;
     param.mpArchives = gSharedLayoutArchives;

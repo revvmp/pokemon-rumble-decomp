@@ -163,7 +163,7 @@ void CPiiPersonalData::SetPrefix(int value) {
 }
 
 const wchar_t* CPiiPersonalData::GetPrefixText() const {
-    return GetMessageText(mPrefix + 0x6001D, gEmptyText);
+    return GetMessageString(mPrefix + 0x6001D, nullptr);
 }
 
 void CPiiPersonalData::SetBoss(bool boss) {

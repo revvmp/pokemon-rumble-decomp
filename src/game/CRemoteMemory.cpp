@@ -180,7 +180,7 @@ void CRemoteMemory::Update() {
     const int channel = mChannel;
     u16* pTitle;
     const s32 result = WPADGetGameTitleUtf16(channel, &pTitle);
-    const wchar_t* pGameTitle = GetMessageText(1, gEmptyText);
+    const wchar_t* pGameTitle = GetMessageString(1, nullptr);
     if (result != 0 || wcsncmp(reinterpret_cast<const wchar_t*>(pTitle), pGameTitle, 16) != 0) {
         if (result == 0) {
             SetState(static_cast<Flag>(FLAG_DISCONNECTED | FLAG_FOREIGN_DATA));
@@ -434,7 +434,7 @@ void CRemoteMemory::PrepareWrite(int mode) {
             }
         }
         pBlock->mChecksum = OSCalcCRC32(sReadData[channel], 536);
-        WPADSetGameTitleUtf16(reinterpret_cast<const u16*>(GetMessageText(1, gEmptyText)));
+        WPADSetGameTitleUtf16(reinterpret_cast<const u16*>(GetMessageString(1, nullptr)));
     }
     if (mWriteMode > 1) {
         mTransferOffset = 536;

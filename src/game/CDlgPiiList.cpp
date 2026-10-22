@@ -63,7 +63,7 @@ std::wstring GetButtonMessage(int player, u32 button, int messageId) {
     if (pSymbol == nullptr || *pSymbol == 0) {
         return L"";
     }
-    return FormatMessage(GetMessageText(messageId, gEmptyText), pSymbol) + L"\n";
+    return FormatMessage(GetMessageString(messageId, nullptr), pSymbol) + L"\n";
 }
 
 

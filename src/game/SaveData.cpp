@@ -60,7 +60,7 @@ static std::tr1::shared_ptr<SaveData> sSaveData;
 static inline void ReportNandError(s32 result) {
     switch (result) {
     case NAND_RESULT_CORRUPT:
-        ShowSystemMessage(GetMessageText(0x1001D, gEmptyText), false);
+        ShowSystemMessage(GetMessageString(0x1001D, nullptr), false);
         break;
     case NAND_RESULT_FATAL_ERROR:
     case NAND_RESULT_MAXFILES:
@@ -68,10 +68,10 @@ static inline void ReportNandError(s32 result) {
     case NAND_RESULT_INVALID:
     case NAND_RESULT_BUSY:
     case NAND_RESULT_ALLOC_FAILED:
-        ShowSystemMessage(GetMessageText(0x1001F, gEmptyText), true);
+        ShowSystemMessage(GetMessageString(0x1001F, nullptr), true);
         break;
     case NAND_RESULT_UNKNOWN:
-        ShowSystemMessage(GetMessageText(0x10020, gEmptyText), false);
+        ShowSystemMessage(GetMessageString(0x10020, nullptr), false);
         break;
     }
 }
@@ -180,8 +180,8 @@ bool WriteBanner(int mode) {
 
         std::tr1::shared_ptr<NANDBanner> banner(static_cast<NANDBanner*>(GameMemory::Allocate(sizeof(NANDBanner), 64)),
                                                 GameMemory::Free);
-        InitBanner(banner.get(), reinterpret_cast<const u16*>(GetMessageText(1, gEmptyText)),
-                   reinterpret_cast<const u16*>(GetMessageText(0x600D3, gEmptyText)));
+        InitBanner(banner.get(), reinterpret_cast<const u16*>(GetMessageString(1, nullptr)),
+                   reinterpret_cast<const u16*>(GetMessageString(0x600D3, nullptr)));
 
         std::list<std::tr1::shared_ptr<FileList> > fileLists;
         std::tr1::shared_ptr<FileList> files = LoadFileList(nullptr, "savebanner.arc/arc/timg/banner.tpl", 0, true, nullptr);
@@ -531,15 +531,15 @@ bool CheckNandSpace() {
     if ((answer & NAND_CHECK_BLOCKS_MASK) != 0) {
         u32 neededBlocks = (blocks + 7) >> 3;
         if (neededBlocks > 1) {
-            std::wstring message = FormatWide(GetMessageText(0x10018, gEmptyText), neededBlocks);
+            std::wstring message = FormatWide(GetMessageString(0x10018, nullptr), neededBlocks);
             ShowSystemMessage(message.c_str(), 2);
         } else {
-            ShowSystemMessage(GetMessageText(0x10019, gEmptyText), 2);
+            ShowSystemMessage(GetMessageString(0x10019, nullptr), 2);
         }
         return false;
     }
     if ((answer & NAND_CHECK_INODES_MASK) != 0) {
-        ShowSystemMessage(GetMessageText(0x1001A, gEmptyText), 2);
+        ShowSystemMessage(GetMessageString(0x1001A, nullptr), 2);
         return false;
     }
     return true;

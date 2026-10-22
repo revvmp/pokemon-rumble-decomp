@@ -32,17 +32,17 @@ std::wstring FormatAreaName(MapIndex index) {
     if (index.mMode == 2) {
         if (IsStage7EvenMap(index)) {
             typedef NIntl::basic_formatter<wchar_t> Formatter;
-            Formatter formatter(GetMessageText(0x600E7, gEmptyText));
+            Formatter formatter(GetMessageString(0x600E7, nullptr));
             int area = static_cast<s8>(GetSaveData(-1)->mData.mStatus[19]);
             int part = IsBattleRoyalFirstPart(index) ? 1 : 2;
             formatter % Formatter::format_spec(L"%d") % area;
             formatter % Formatter::format_spec(L"%d") % part;
             name = formatter.str().c_str();
         } else {
-            name = GetMessageText(0x60002, gEmptyText);
+            name = GetMessageString(0x60002, nullptr);
         }
     } else {
-        name = GetMessageText(gStageRanks[index.mArea].mMessageID, gEmptyText);
+        name = GetMessageString(gStageRanks[index.mArea].mMessageID, nullptr);
     }
     return name;
 }
@@ -386,7 +386,7 @@ inline bool BOther::LoadLayouts() {
     mLayout.SetPaneVisible("START", false);
     mLayout.SetPaneVisible("CLEAR", false);
     mLayout.SetPaneVisible("YOUWIN", false);
-    mLayout.SetText("AREA", GetMessageText(gStageWorlds[rDesc.mIndex.mStage].mMessageID, gEmptyText));
+    mLayout.SetText("AREA", GetMessageString(gStageWorlds[rDesc.mIndex.mStage].mMessageID, nullptr));
     mLayout.SetText("STAGE", FormatAreaName(rDesc.mIndex).c_str());
 
     const nw4r::lyt::Material* pSrcMaterial = mSubLayout.FindPane("BAR_AREA")->GetMaterial();
@@ -498,7 +498,7 @@ inline bool CFight::StartNotice() {
     const MapDesc& rDesc = GetCurrentGameMap()->GetMapDesc();
     std::tr1::shared_ptr<CLayout::FontMap> pFonts = GetDefaultFontMap();
     mLayout.Load(static_cast<const char* const*>(pEntry), "beginning_count", pFonts, false);
-    mLayout.SetText("AREA", GetMessageText(gStageWorlds[rDesc.mIndex.mStage].mMessageID, gEmptyText));
+    mLayout.SetText("AREA", GetMessageString(gStageWorlds[rDesc.mIndex.mStage].mMessageID, nullptr));
     mLayout.SetText("GRADE", FormatAreaName(rDesc.mIndex).c_str());
     mFiber.Start(std::tr1::bind(&CFight::Run, this), 0x8000);
     return true;
@@ -583,17 +583,17 @@ inline bool CYouWin::StartNotice() {
     hundredths = total % 100;
     {
         typedef NIntl::basic_formatter<wchar_t> Formatter;
-        Formatter formatter(GetMessageText(0x600E4, gEmptyText));
+        Formatter formatter(GetMessageString(0x600E4, nullptr));
         formatter % Formatter::format_spec(L"%d") % minutes;
         formatter % Formatter::format_spec(L"%02d") % seconds;
         formatter % Formatter::format_spec(L"%02d") % hundredths;
         clearTime = formatter.str().c_str();
     }
 
-    mWinnerLayout.SetText("CLEARTIME", GetMessageText(0x600E3, gEmptyText));
+    mWinnerLayout.SetText("CLEARTIME", GetMessageString(0x600E3, nullptr));
     mWinnerLayout.SetText("TIME", clearTime.c_str());
     mWinnerLayout.SetText("TIME_SHADOW", clearTime.c_str());
-    mWinnerLayout.SetText("NEWRECORD", GetMessageText(0x600E5, gEmptyText));
+    mWinnerLayout.SetText("NEWRECORD", GetMessageString(0x600E5, nullptr));
 
     const MapDesc& rDesc = GetCurrentGameMap()->GetMapDesc();
     int mode = rDesc.mIndex.mMode;
@@ -616,7 +616,7 @@ inline bool CYouWin::StartNotice() {
     mWinnerLayout.SetPaneVisible("NEWRECORD", newRecord);
 
     mResultLayout.Load(static_cast<const char* const*>(pEntry), "prize", pFonts, false);
-    mResultLayout.SetText("PRIZE", GetMessageText(0x600E6, gEmptyText));
+    mResultLayout.SetText("PRIZE", GetMessageString(0x600E6, nullptr));
     mResultLayout.SetText("MONEY", L"");
     mResultLayout.SetText("MONEY_SHADOW", L"");
 

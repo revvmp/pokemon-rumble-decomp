@@ -183,7 +183,7 @@ void UpdateSystemMessageAudio() {
 }
 
 void ShowLayoutFailureMessage(const CLayout::CInitializeException& rError) {
-    ShowSystemMessage(GetMessageText(5, gEmptyText), true);
+    ShowSystemMessage(GetMessageString(5, nullptr), true);
 }
 
 #include <game/MainRuntime.h>
@@ -202,49 +202,49 @@ void HandleFileError(CPath::Drive drive, const char* pPath, long error, unsigned
 
         switch (error) {
         case -2:
-            ShowSystemMessage(GetMessageText(65567, gEmptyText), true);
+            ShowSystemMessage(GetMessageString(65567, nullptr), true);
             break;
         case -3:
-            ShowSystemMessage(GetMessageText(65567, gEmptyText), true);
+            ShowSystemMessage(GetMessageString(65567, nullptr), true);
             break;
         case -4:
-            ShowSystemMessage(GetMessageText(65565, gEmptyText), false);
+            ShowSystemMessage(GetMessageString(65565, nullptr), false);
             break;
         case -9:
-            ShowSystemMessage(GetMessageText(5, gEmptyText), true);
+            ShowSystemMessage(GetMessageString(5, nullptr), true);
             break;
         case -11:
-            ShowSystemMessage(GetMessageText(5, gEmptyText), true);
+            ShowSystemMessage(GetMessageString(5, nullptr), true);
             break;
         case -64:
-            ShowSystemMessage(GetMessageText(65568, gEmptyText), false);
+            ShowSystemMessage(GetMessageString(65568, nullptr), false);
             break;
         }
         if (!(flags & 0x2000)) {
-            ShowSystemMessage(GetMessageText(5, gEmptyText), true);
+            ShowSystemMessage(GetMessageString(5, nullptr), true);
         }
         break;
     case 2 ... 511:
 
         switch (error) {
         case -5013:
-            ShowSystemMessage(GetMessageText(5 + !!UsesAlternateErrorMessage(drive), gEmptyText), true);
+            ShowSystemMessage(GetMessageString(5 + !!UsesAlternateErrorMessage(drive), nullptr), true);
             break;
         case -5011:
-            ShowSystemMessage(GetMessageText(65565, gEmptyText), false);
+            ShowSystemMessage(GetMessageString(65565, nullptr), false);
             break;
         case -5012:
-            ShowSystemMessage(GetMessageText(5 + !!UsesAlternateErrorMessage(drive), gEmptyText), true);
+            ShowSystemMessage(GetMessageString(5 + !!UsesAlternateErrorMessage(drive), nullptr), true);
             break;
         case -5063:
-            ShowSystemMessage(GetMessageText(65568, gEmptyText), false);
+            ShowSystemMessage(GetMessageString(65568, nullptr), false);
             break;
         }
         if (!(flags & 0x2000)) {
             if (UsesAlternateErrorMessage(drive)) {
-                ShowSystemMessage(GetMessageText(6, gEmptyText), true);
+                ShowSystemMessage(GetMessageString(6, nullptr), true);
             } else {
-                ShowSystemMessage(GetMessageText(5, gEmptyText), true);
+                ShowSystemMessage(GetMessageString(5, nullptr), true);
             }
         }
         break;

@@ -196,8 +196,8 @@ inline void CNumericInput::Initialize(bool background) {
     mBackground->Load(pArchives, "fs_VK_bg_a", fonts, background);
     mManager->AddChild(mBackground);
     mKeyboard->Load(pArchives, "fs_VK_cellPhone_a", fonts, background);
-    mKeyboard->SetText("T_BT_confirm", GetMessageText(393457, gEmptyText));
-    mKeyboard->SetText("T_BT_cancel", GetMessageText(393458, gEmptyText));
+    mKeyboard->SetText("T_BT_confirm", GetMessageString(393457, nullptr));
+    mKeyboard->SetText("T_BT_cancel", GetMessageString(393458, nullptr));
     mKeyboard->GetLayout()->SetDepthCompare(GX_LEQUAL);
     mManager->AddChild(mKeyboard);
     mTextBox->Load(pArchives, "fs_VK_textBox_b", fonts, background);

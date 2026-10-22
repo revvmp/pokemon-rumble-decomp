@@ -505,7 +505,7 @@ int CGameSession::GetCollectionType(u16 monsno) {
 std::wstring CGameSession::GetWazaName(int waza) {
     if (mWazaDescData.GetColumnCount() > 0 && waza < mWazaDescData.GetRowCount()) {
         NPpu::CValue value = *mWazaDescData.GetCell(waza, 0);
-        return GetMessageText(value.ToInt(), gEmptyText);
+        return GetMessageString(value.ToInt(), nullptr);
     }
     return std::wstring(L"");
 }

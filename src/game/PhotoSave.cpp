@@ -68,9 +68,9 @@ inline size_t CopyPhotoText(wchar_t* pDestination, const wchar_t* pSource, size_
 inline const wchar_t* GetPhotoSpaceMessage(u32 clusters, const PF_DEV_INF& rInfo, wchar_t* pBuffer) {
     int blocks = (clusters * rInfo.bps * rInfo.spc + 0x1ffff) >> 17;
     if (blocks == 1) {
-        return GetMessageText(393481, gEmptyText);
+        return GetMessageString(393481, nullptr);
     }
-    std::wstring message = FormatMessage(GetMessageText(393482, gEmptyText), blocks);
+    std::wstring message = FormatMessage(GetMessageString(393482, nullptr), blocks);
     CopyPhotoText(pBuffer, message.c_str(), 256);
     return pBuffer;
 }
@@ -84,15 +84,15 @@ void SaveScreenshotToRemoteMemory(IDlgMsgWin* pDialog, BUILayout* pLayout, const
     PF_CACHE_SETTING cache = {cachePages, reinterpret_cast<u8 (*)[512]>(cacheMemory.get()), 256, 4, 64, 1};
     FADrvTbl drive = {nullptr, &cache, '0', 0};
     YieldFiber();
-    if (pDialog->AskYesNo(GetMessageText(393462, gEmptyText))) {
-        pMessage = GetMessageText(393483, gEmptyText);
+    if (pDialog->AskYesNo(GetMessageString(393462, nullptr))) {
+        pMessage = GetMessageString(393483, nullptr);
         if (!FARegistCB(0, OnPhotoCardInserted, OnPhotoCardRemoved) && !WaitFaAttach(0, nullptr, 0, &drive) && (drive.stat & 1) && isupper(drive.drive)) {
             sCardChanged = false;
             sCardPresent = (drive.stat & 0x10) != 0;
             do {
                 while (!sCardPresent) {
-                    pDialog->ShowMessage(GetMessageText(393477, gEmptyText));
-                    if (!pDialog->AskYesNo(GetMessageText(393462, gEmptyText))) {
+                    pDialog->ShowMessage(GetMessageString(393477, nullptr));
+                    if (!pDialog->AskYesNo(GetMessageString(393462, nullptr))) {
                         pMessage = nullptr;
                         goto detachPhotoCard;
                     }
@@ -100,9 +100,9 @@ void SaveScreenshotToRemoteMemory(IDlgMsgWin* pDialog, BUILayout* pLayout, const
                 sCardChanged = false;
                 if (WaitFaMount(drive.drive)) {
                     if (FAErrnum() == 5) {
-                        pMessage = GetMessageText(393480, gEmptyText);
+                        pMessage = GetMessageString(393480, nullptr);
                     } else if (FAErrnum() == 8) {
-                        pMessage = GetMessageText(393479, gEmptyText);
+                        pMessage = GetMessageString(393479, nullptr);
                     }
                     break;
                 }
@@ -111,14 +111,14 @@ void SaveScreenshotToRemoteMemory(IDlgMsgWin* pDialog, BUILayout* pLayout, const
                     break;
                 }
                 if (protection == 1) {
-                    pMessage = GetMessageText(393478, gEmptyText);
+                    pMessage = GetMessageString(393478, nullptr);
                     break;
                 }
                 pLayout->GetLayout()->CreateMotion("begin");
                 pLayout->GetLayout()->AppendMotion("loop");
-                pLayout->SetText("text", GetMessageText(393470, gEmptyText));
-                pLayout->SetText("caution", GetMessageText(393471, gEmptyText));
-                pMessage = GetMessageText(393486, gEmptyText);
+                pLayout->SetText("text", GetMessageString(393470, nullptr));
+                pLayout->SetText("caution", GetMessageString(393471, nullptr));
+                pMessage = GetMessageString(393486, nullptr);
                 discon.reset(new IDisconMsg::CDisable(IGameSession::GetInstance()->GetDisconMsg()));
                 do {
                     CPhotoDeviceQuery query;
@@ -172,7 +172,7 @@ void SaveScreenshotToRemoteMemory(IDlgMsgWin* pDialog, BUILayout* pLayout, const
                             }
                             pLayout->GetLayout()->CreateMotion("end")->Wait();
                         }
-                        pMessage = GetMessageText(393483, gEmptyText);
+                        pMessage = GetMessageString(393483, nullptr);
                         break;
                         case DcfIndexFull:
                         {
@@ -181,7 +181,7 @@ void SaveScreenshotToRemoteMemory(IDlgMsgWin* pDialog, BUILayout* pLayout, const
                             }
                             pLayout->GetLayout()->CreateMotion("end")->Wait();
                         }
-                        pMessage = GetMessageText(393488, gEmptyText);
+                        pMessage = GetMessageString(393488, nullptr);
                         break;
                         case DcfRootMissing:
                         if (query.mInfo.ecl < clusters + 2) {
@@ -271,8 +271,8 @@ void SaveScreenshotToRemoteMemory(IDlgMsgWin* pDialog, BUILayout* pLayout, const
                         }
                         pLayout->GetLayout()->CreateMotion("begin");
                         pLayout->GetLayout()->AppendMotion("loop");
-                        pLayout->SetText("text", GetMessageText(393485, gEmptyText));
-                        pLayout->SetText("caution", GetMessageText(393471, gEmptyText));
+                        pLayout->SetText("text", GetMessageString(393485, nullptr));
+                        pLayout->SetText("caution", GetMessageString(393471, nullptr));
                         if (!sCardPresent) {
                             {
                                 for (int frame = 60; frame > 0; --frame) {
@@ -289,7 +289,7 @@ void SaveScreenshotToRemoteMemory(IDlgMsgWin* pDialog, BUILayout* pLayout, const
                                 }
                                 pLayout->GetLayout()->CreateMotion("end")->Wait();
                             }
-                            pMessage = GetMessageText(393491, gEmptyText);
+                            pMessage = GetMessageString(393491, nullptr);
                             break;
                         }
                         {
@@ -342,7 +342,7 @@ void SaveScreenshotToRemoteMemory(IDlgMsgWin* pDialog, BUILayout* pLayout, const
                                 swprintf(directoryName, 32, L"\\DCIM\\%03dNIN01", directory);
                             }
                             swprintf(fileName, 32, L"%.3s_%04d.JPG", OSGetAppGamename(), file);
-                            std::wstring message = FormatPhotoMessage(GetMessageText(393463, gEmptyText), directoryName, fileName);
+                            std::wstring message = FormatPhotoMessage(GetMessageString(393463, nullptr), directoryName, fileName);
                             CopyPhotoText(messageBuffer, message.c_str(), 256);
                             pMessage = messageBuffer;
                             PlaySound(9);
@@ -361,9 +361,9 @@ void SaveScreenshotToRemoteMemory(IDlgMsgWin* pDialog, BUILayout* pLayout, const
     }
     if (pMessage) {
         if (FAErrnum() == -1) {
-            pMessage = GetMessageText(393490, gEmptyText);
+            pMessage = GetMessageString(393490, nullptr);
         } else if (!sCardPresent) {
-            pMessage = GetMessageText(393477, gEmptyText);
+            pMessage = GetMessageString(393477, nullptr);
         }
         pDialog->ShowMessage(pMessage);
     }
@@ -382,29 +382,29 @@ void OpenRemoteMemoryDialog(IDlgMsgWin* pDialog, BUILayout* pLayout) {
     PF_CACHE_SETTING cache = {cachePages, reinterpret_cast<u8 (*)[512]>(cacheMemory.get()), 4, 4, 1, 1};
     FADrvTbl drive = {nullptr, &cache, '0', 0};
     YieldFiber();
-    pDialog->ShowMessage(GetMessageText(393464, gEmptyText));
-    pDialog->ShowMessage(GetMessageText(393465, gEmptyText));
+    pDialog->ShowMessage(GetMessageString(393464, nullptr));
+    pDialog->ShowMessage(GetMessageString(393465, nullptr));
     pDialog->SetDefaultYes(false);
-    if (pDialog->AskYesNo(GetMessageText(393466, gEmptyText))) {
-        pMessage = GetMessageText(393483, gEmptyText);
+    if (pDialog->AskYesNo(GetMessageString(393466, nullptr))) {
+        pMessage = GetMessageString(393483, nullptr);
         if (!FARegistCB(0, OnPhotoCardInserted, OnPhotoCardRemoved) && !WaitFaAttach(0, nullptr, 0, &drive) && (drive.stat & 1) && isupper(drive.drive)) {
             do {
                 if (!(drive.stat & 0x10)) {
-                    pMessage = GetMessageText(393477, gEmptyText);
+                    pMessage = GetMessageString(393477, nullptr);
                     break;
                 }
                 sCardPresent = true;
                 sCardChanged = false;
                 s32 mounted = WaitFaMount(drive.drive);
                 if (!sCardPresent) {
-                    pMessage = GetMessageText(393477, gEmptyText);
+                    pMessage = GetMessageString(393477, nullptr);
                     break;
                 }
                 if (mounted) {
                     if (FAErrnum() == 5) {
-                        pMessage = GetMessageText(393480, gEmptyText);
+                        pMessage = GetMessageString(393480, nullptr);
                     } else if (FAErrnum() == 8) {
-                        pMessage = GetMessageText(393479, gEmptyText);
+                        pMessage = GetMessageString(393479, nullptr);
                     }
                     break;
                 }
@@ -413,7 +413,7 @@ void OpenRemoteMemoryDialog(IDlgMsgWin* pDialog, BUILayout* pLayout) {
                     goto unmountPhotoCard;
                 }
                 if (protection == 1) {
-                    pMessage = GetMessageText(393478, gEmptyText);
+                    pMessage = GetMessageString(393478, nullptr);
                     goto unmountPhotoCard;
                 }
                 if (FABuffering(drive.drive, 1)) {
@@ -421,8 +421,8 @@ void OpenRemoteMemoryDialog(IDlgMsgWin* pDialog, BUILayout* pLayout) {
                 }
                 pLayout->GetLayout()->CreateMotion("begin");
                 pLayout->GetLayout()->AppendMotion("loop");
-                pLayout->SetText("text", GetMessageText(393470, gEmptyText));
-                pLayout->SetText("caution", GetMessageText(393471, gEmptyText));
+                pLayout->SetText("text", GetMessageString(393470, nullptr));
+                pLayout->SetText("caution", GetMessageString(393471, nullptr));
                 discon.reset(new IDisconMsg::CDisable(IGameSession::GetInstance()->GetDisconMsg()));
                 {
                     int count = 0;
@@ -436,7 +436,7 @@ void OpenRemoteMemoryDialog(IDlgMsgWin* pDialog, BUILayout* pLayout) {
                             }
                             pLayout->GetLayout()->CreateMotion("end")->Wait();
                         }
-                        pMessage = GetMessageText(393472, gEmptyText);
+                        pMessage = GetMessageString(393472, nullptr);
                         goto unmountPhotoCard;
                     }
                     int result = WaitFaFsfirst("???NIN01", 0x10, &directories);
@@ -519,18 +519,18 @@ void OpenRemoteMemoryDialog(IDlgMsgWin* pDialog, BUILayout* pLayout) {
                         for (int frame = 60; frame > 0; --frame) {
                             YieldFiber();
                         }
-                        pMessage = GetMessageText(393472, gEmptyText);
+                        pMessage = GetMessageString(393472, nullptr);
                         goto unmountPhotoCard;
                     }
                     const wchar_t* pQuestion;
                     if (count == 1) {
-                        pQuestion = GetMessageText(393467, gEmptyText);
+                        pQuestion = GetMessageString(393467, nullptr);
                     } else if (count < 1000) {
-                        std::wstring message = FormatMessage(GetMessageText(393468, gEmptyText), count);
+                        std::wstring message = FormatMessage(GetMessageString(393468, nullptr), count);
                         CopyPhotoText(messageBuffer, message.c_str(), 256);
                         pQuestion = messageBuffer;
                     } else {
-                        pQuestion = GetMessageText(393469, gEmptyText);
+                        pQuestion = GetMessageString(393469, nullptr);
                     }
                     pDialog->SetDefaultYes(false);
                     discon.reset();
@@ -540,20 +540,20 @@ void OpenRemoteMemoryDialog(IDlgMsgWin* pDialog, BUILayout* pLayout) {
                         goto unmountPhotoCard;
                     }
                     if (!sCardPresent) {
-                        pMessage = GetMessageText(393477, gEmptyText);
+                        pMessage = GetMessageString(393477, nullptr);
                         goto unmountPhotoCard;
                     }
                     if (sCardChanged) {
-                        pMessage = GetMessageText(393489, gEmptyText);
+                        pMessage = GetMessageString(393489, nullptr);
                         goto unmountPhotoCard;
                     }
                     NResetMgr::CDisable reset;
                     pLayout->GetLayout()->CreateMotion("begin");
                     pLayout->GetLayout()->AppendMotion("loop");
-                    pLayout->SetText("text", GetMessageText(393474, gEmptyText));
-                    pLayout->SetText("caution", GetMessageText(393471, gEmptyText));
+                    pLayout->SetText("text", GetMessageString(393474, nullptr));
+                    pLayout->SetText("caution", GetMessageString(393471, nullptr));
                     discon.reset(new IDisconMsg::CDisable(IGameSession::GetInstance()->GetDisconMsg()));
-                    pMessage = GetMessageText(393476, gEmptyText);
+                    pMessage = GetMessageString(393476, nullptr);
                     if (FAChdir("/DCIM")) {
                         {
                             for (int frame = 60; frame > 0; --frame) {
@@ -674,7 +674,7 @@ void OpenRemoteMemoryDialog(IDlgMsgWin* pDialog, BUILayout* pLayout) {
                         pLayout->GetLayout()->CreateMotion("end")->Wait();
                     }
                     if (count == removed) {
-                        pMessage = GetMessageText(393475, gEmptyText);
+                        pMessage = GetMessageString(393475, nullptr);
                     }
                 }
                 unmountPhotoCard:
@@ -687,9 +687,9 @@ void OpenRemoteMemoryDialog(IDlgMsgWin* pDialog, BUILayout* pLayout) {
     }
     if (pMessage) {
         if (FAErrnum() == -1) {
-            pMessage = GetMessageText(393490, gEmptyText);
+            pMessage = GetMessageString(393490, nullptr);
         } else if (!sCardPresent) {
-            pMessage = GetMessageText(393477, gEmptyText);
+            pMessage = GetMessageString(393477, nullptr);
         }
         pDialog->ShowMessage(pMessage);
     }

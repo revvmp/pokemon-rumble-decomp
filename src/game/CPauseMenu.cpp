@@ -163,7 +163,7 @@ public:
         mBlackLayout->Load(pArchives, "black", fonts, background);
         mRemoteMemoryLayout->Load(pArchives, "remote_memory", fonts, background);
         mCopyrightLayout.Load(pArchives, "copyright", fonts, background);
-        mCopyrightLayout.SetText("COPYRIGHT", GetMessageText(0x6008A, gEmptyText));
+        mCopyrightLayout.SetText("COPYRIGHT", GetMessageString(0x6008A, nullptr));
         nw4r::math::VEC2 copyrightScale(1.0f, 1.0f);
         mCopyrightLayout.SetViewScale(copyrightScale);
         mCopyrightLayout.Calc();
@@ -179,23 +179,23 @@ public:
         std::wstring title;
         MapIndex index = pDesc->mIndex;
         int mode = index.mMode;
-        const wchar_t* pModeText = GetMessageText(gStageKindMessageIDs[mode], gEmptyText);
-        const wchar_t* pAreaText = GetMessageText(gStageRanks[index.mArea].mMessageID, gEmptyText);
+        const wchar_t* pModeText = GetMessageString(gStageKindMessageIDs[mode], nullptr);
+        const wchar_t* pAreaText = GetMessageString(gStageRanks[index.mArea].mMessageID, nullptr);
         int stage = index.mStage;
-        const wchar_t* pStageText = GetMessageText(gStageWorlds[stage].mMessageID, gEmptyText);
+        const wchar_t* pStageText = GetMessageString(gStageWorlds[stage].mMessageID, nullptr);
         if (mode == 2) {
             if (stage == 7) {
                 int count;
                 int part = IsBattleRoyalFirstPart(pDesc->mIndex) ? 1 : 2;
                 count = static_cast<s8>(GetSaveData(-1)->mData.mStatus[0x13]);
-                title = FormatMessage(GetMessageText(0x6007D, gEmptyText), count, part);
+                title = FormatMessage(GetMessageString(0x6007D, nullptr), count, part);
             } else {
-                title = FormatMessage(GetMessageText(0x6007C, gEmptyText), pStageText);
+                title = FormatMessage(GetMessageString(0x6007C, nullptr), pStageText);
             }
         } else if (static_cast<s8>(GetSaveData(-1)->mData.mFlags[1]) >= 1) {
-            title = FormatMessage(GetMessageText(0x6007B, gEmptyText), pModeText, pAreaText, pStageText);
+            title = FormatMessage(GetMessageString(0x6007B, nullptr), pModeText, pAreaText, pStageText);
         } else {
-            title = FormatMessage(GetMessageText(0x6007A, gEmptyText), pAreaText, pStageText);
+            title = FormatMessage(GetMessageString(0x6007A, nullptr), pAreaText, pStageText);
         }
         mBackgroundLayout->GetLayout()->SetText("MAPID", title.c_str());
         if (mHideBackground) {
@@ -215,33 +215,33 @@ private:
         std::vector<UIMenuItem> items;
         {
             UIMenuItem item = resume;
-            item.mText = GetMessageText(0x60080, gEmptyText);
+            item.mText = GetMessageString(0x60080, nullptr);
             items.push_back(item);
         }
         if (!simplified) {
             UIMenuItem leave = {nullptr, MENU_LEAVE};
-            leave.mText = GetMessageText(IsHubMap() ? 0x60082 : 0x60081, gEmptyText);
+            leave.mText = GetMessageString(IsHubMap() ? 0x60082 : 0x60081, nullptr);
             items.push_back(leave);
         }
         {
             UIMenuItem item = screenshot;
-            item.mText = GetMessageText(0x60083, gEmptyText);
+            item.mText = GetMessageString(0x60083, nullptr);
             items.push_back(item);
         }
         if (!simplified) {
             UIMenuItem item = remoteMemory;
-            item.mText = GetMessageText(0x60084, gEmptyText);
+            item.mText = GetMessageString(0x60084, nullptr);
             items.push_back(item);
         }
         if (!simplified && IsHubMap() && IsGameFlagSet(3)) {
             UIMenuItem item = controllers;
-            item.mText = GetMessageText(0x60086, gEmptyText);
+            item.mText = GetMessageString(0x60086, nullptr);
             items.push_back(item);
         }
 
         UIMenuParam baseParam = {nullptr, nullptr, 0, 1, 0, -1, nullptr, "menu"};
         UIMenuParam param = baseParam;
-        param.mTitle = GetMessageText(0x6007E, gEmptyText);
+        param.mTitle = GetMessageString(0x6007E, nullptr);
         param.mpItems = &items[0];
         param.mItemCount = items.size();
         param.mRowCount = items.size();
@@ -340,7 +340,7 @@ void CPauseMenu::LeaveStage() {
     if (!IsHubMap()) {
         mDialog = IDlgMsgWin::Create(false, true);
         int stage = GetCurrentGameMap()->GetMapDesc().mIndex.mStage;
-        const wchar_t* pMessage = GetMessageText(stage == 7 ? 0x60088 : 0x60087, gEmptyText);
+        const wchar_t* pMessage = GetMessageString(stage == 7 ? 0x60088 : 0x60087, nullptr);
         IDlgMsgWin* pDialog = mDialog.get();
         if (!pDialog->AskYesNo(pMessage)) {
             pDialog = mDialog.get();
@@ -486,10 +486,10 @@ bool CPauseMenu::TakeScreenshot() {
 
 bool CPauseMenu::RunRemoteMemoryMenu() {
     UIMenuItem items[2] = {{nullptr, 0}, {nullptr, MENU_RESUME}};
-    items[0].mText = GetMessageText(0x60085, gEmptyText);
-    items[1].mText = GetMessageText(0x60089, gEmptyText);
+    items[0].mText = GetMessageString(0x60085, nullptr);
+    items[1].mText = GetMessageString(0x60089, nullptr);
     UIMenuParam param = {nullptr, nullptr, 2, 1, 2, -1, nullptr, "menu"};
-    param.mTitle = GetMessageText(0x6007F, gEmptyText);
+    param.mTitle = GetMessageString(0x6007F, nullptr);
     param.mpItems = items;
     param.mpArchives = gSharedLayoutArchives;
     CUIMenuCallbacks callbacks(0);

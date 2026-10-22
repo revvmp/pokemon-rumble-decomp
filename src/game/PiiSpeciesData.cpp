@@ -141,7 +141,7 @@ f32 PiiSpeciesData::GetWalkAnmRate() const {
 }
 
 const wchar_t* PiiSpeciesData::GetName() const {
-    return GetMessageText(GetSpecies() + 0x30000 - 1, gEmptyText);
+    return GetMessageString(GetSpecies() + 0x30000 - 1, nullptr);
 }
 
 int PiiSpeciesData::GetWazaKouka(int type) const {

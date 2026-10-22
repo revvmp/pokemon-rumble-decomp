@@ -468,7 +468,7 @@ bool CTitleSession::RefreshSlots() {
     s64 latest = 0;
     for (int i = 0; i < SLOT_COUNT; ++i) {
         bool used = GetSaveData(i)->mData.mTime > 0;
-        std::wstring text(GetMessageText(0x600D2, gEmptyText));
+        std::wstring text(GetMessageString(0x600D2, nullptr));
         if (used) {
             if (mFirstUsedSlot < 0) {
                 mFirstUsedSlot = i;
@@ -488,13 +488,13 @@ bool CTitleSession::RefreshSlots() {
             int level = GetSaveData(i)->mData.mFlags[3];
             int mode = GetSaveData(i)->mData.mFlags[2];
             if (GetSaveData(i)->mData.mFlags[1] > 0) {
-                text.assign(text + L" " + GetMessageText(sLevelMessageIds[level][mode], gEmptyText));
+                text.assign(text + L" " + GetMessageString(sLevelMessageIds[level][mode], nullptr));
             } else {
-                text.assign(text + L" " + GetMessageText(sModeMessageIds[mode], gEmptyText));
+                text.assign(text + L" " + GetMessageString(sModeMessageIds[mode], nullptr));
             }
             u16 monsno = GetSaveData(i)->mData.mLeadPiiMonsno;
             if (monsno != 0) {
-                text.assign(text + L" " + GetMessageText(monsno + 0x30000 - 1, gEmptyText));
+                text.assign(text + L" " + GetMessageString(monsno + 0x30000 - 1, nullptr));
             }
             ++mSlotsInUse;
         } else if (mFirstEmptySlot < 0) {

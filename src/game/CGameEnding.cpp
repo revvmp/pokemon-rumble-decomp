@@ -174,8 +174,8 @@ inline void CGameEnding::Init(bool background) {
 
     pFiles = LoadFileList(&pEpilogueArchives, "event/epilogue.arc/event2d.arc", 0, background, nullptr);
     mNext.Load(static_cast<const char* const*>(pEpilogueArchives), "next", pFonts, background);
-    mNext.SetText("TextBox_C_01", GetMessageText(0x60115, gEmptyText));
-    const wchar_t* pNextText = GetMessageText(0x60114, gEmptyText);
+    mNext.SetText("TextBox_C_01", GetMessageString(0x60115, nullptr));
+    const wchar_t* pNextText = GetMessageString(0x60114, nullptr);
     mNext.SetText("TextBox", pNextText);
     mNext.SetText("TextBox2", pNextText);
     mNext.SetVisible(false);

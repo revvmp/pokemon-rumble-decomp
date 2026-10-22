@@ -148,7 +148,7 @@ public:
     std::tr1::shared_ptr<CLayout::FontMap> pFonts = GetDefaultFontMap();
     const char* const* pArchives = gSharedLayoutArchives;
     mLayout->Load(pArchives, "gameresult", pFonts, background);
-    mLayout->SetText("time", GetMessageText(0x600F3, gEmptyText));
+    mLayout->SetText("time", GetMessageString(0x600F3, nullptr));
     mPiiSpec->Load(pArchives, "piispec", pFonts, background);
     mUIManager->AddChild(mLayout);
     mLayout->AttachChild("PIISPEC", mPiiSpec);

@@ -71,11 +71,11 @@ CUIPiiSpec::~CUIPiiSpec() {}
 
 void CUIPiiSpec::Load(const char* const* pArchives, const char* pLayoutName, const std::tr1::shared_ptr<CLayout::FontMap>& rFonts, bool background) {
     BUILayout::Load(pArchives, pLayoutName, rFonts, background);
-    SetText("BP_TITLE", GetMessageText(0x600C0, gEmptyText));
-    SetText("HP_TITLE", GetMessageText(0x600C1, gEmptyText));
-    SetText("prefix_title", GetMessageText(0x600C2, gEmptyText));
-    SetText("AP_TITLE", GetMessageText(0x600C3, gEmptyText));
-    SetText("DP_TITLE", GetMessageText(0x600C4, gEmptyText));
+    SetText("BP_TITLE", GetMessageString(0x600C0, nullptr));
+    SetText("HP_TITLE", GetMessageString(0x600C1, nullptr));
+    SetText("prefix_title", GetMessageString(0x600C2, nullptr));
+    SetText("AP_TITLE", GetMessageString(0x600C3, nullptr));
+    SetText("DP_TITLE", GetMessageString(0x600C4, nullptr));
     mSpeciesTypes[0]->Initialize(background);
     mSpeciesTypes[1]->Initialize(background);
     mWazaTypes[0]->Initialize(background);
@@ -114,7 +114,7 @@ void CUIPiiSpec::SetPii(std::tr1::shared_ptr<CPiiPersonalData> pii, int player) 
         GetLayout()->SetText("PREFIX_NAME", pii->GetSpeciesData()->GetName());
         GetColorConstants()->ApplyTextColor(GetLayout(), "PREFIX", colorIndex, 2);
         GetColorConstants()->ApplyTextColor(GetLayout(), "PREFIX_NAME", colorIndex, 2);
-        GetLayout()->SetText("PREFIX_DESC", GetMessageText(0x60049 + pii->GetPrefix(), gEmptyText));
+        GetLayout()->SetText("PREFIX_DESC", GetMessageString(0x60049 + pii->GetPrefix(), nullptr));
     } else {
         GetLayout()->SetText("NAME", pii->GetSpeciesData()->GetName());
         GetColorConstants()->ApplyTextColor(GetLayout(), "NAME", colorIndex, 2);
@@ -164,7 +164,7 @@ void CUIPiiSpec::SetPii(std::tr1::shared_ptr<CPiiPersonalData> pii, int player) 
             mWazaTypes[i]->SetType(type);
             int power = pWazaData->GetCell(waza, 9)->ToInt();
             mWazaStars[i]->SetStars(power, type == primaryType || type == secondaryType);
-            GetLayout()->SetText(FormatString("WAZA%d_DESC", i).c_str(), GetMessageText(pWazaData->GetCell(waza, 10)->ToInt(), gEmptyText));
+            GetLayout()->SetText(FormatString("WAZA%d_DESC", i).c_str(), GetMessageString(pWazaData->GetCell(waza, 10)->ToInt(), nullptr));
             if (pController) {
                 GetLayout()->SetTexture(FormatString("WAZA%d_BUTTON", i).c_str(), GetIconCollection()->GetButtonIcon(pController, i == 0 ? 0x20 : 0x10), -1);
             }
