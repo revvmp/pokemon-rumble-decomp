@@ -71,7 +71,7 @@ void OnRetryAlarm(OSAlarm* pAlarm, OSContext*) {
     OSSendMessage(&sMessageQueue, OSGetAlarmUserData(pAlarm), 0);
 }
 
-inline void ScheduleRetry(OSAlarm* pAlarm, OSMessage message, u32 delay) {
+inline void ScheduleRetry(OSAlarm* const& pAlarm, const OSMessage& message, const u32& delay) {
     OSCancelAlarm(pAlarm);
     OSSetAlarmUserData(pAlarm, message);
     OSSetAlarm(pAlarm, delay, OnRetryAlarm);
@@ -380,7 +380,8 @@ void CRemoteMemory::FinishRead(int channel, long result) {
     CRemoteMemory* pRemote = sRemoteMemories[channel];
     switch (result) {
     case 0: {
-        const u32 activeBlock = FindValidBlock(sReadData[channel]);
+        RemoteDataBlock* pBlocks = sReadData[channel];
+        const u32 activeBlock = FindValidBlock(pBlocks);
         if (activeBlock == 3) {
             if (++pRemote->mValidationRetries < 3) {
                 pRemote->mTransferRetries = 0;
@@ -391,7 +392,7 @@ void CRemoteMemory::FinishRead(int channel, long result) {
             }
         } else {
             bool changed = true;
-            if (pRemote->mFlags & FLAG_HAS_DATA) {
+            if ((pRemote->mFlags >> 1) & 1) {
                 changed = memcmp(&sReadData[channel][activeBlock], &sStoredData[channel][activeBlock], 540) != 0;
                 if (changed) {
                     pRemote->mFlags = (pRemote->mFlags & ~FLAG_DATA_CHANGED) | FLAG_STATE_CHANGED;
