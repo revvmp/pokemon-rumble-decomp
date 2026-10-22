@@ -611,8 +611,8 @@ void CDataPerPlayer::RunEntrance() {
 }
 
 void CDataPerPlayer::RunEntranceController() {
-    CPlayer* pPlayer = IGameSession::GetInstance()->GetPlayer(mPlayer);
     IController* pController;
+    CPlayer* pPlayer = IGameSession::GetInstance()->GetPlayer(mPlayer);
     PlayMotion(mPlayerID, true);
     {
         std::tr1::shared_ptr<CLayout::CMotionProgram> motion = PlayMotion(mPlayerID, true);
@@ -1529,25 +1529,21 @@ void CDlgPiiSelector::UpdateEntrance() {
             mMultiPlayerData->mState = 0;
         }
         break;
-    case 2: {
-        int player;
-        for (player = 0; player < 4; player++) {
+    case 2:
+        for (int player = 0; player < 4; player++) {
             CPlayer* pPlayer = IGameSession::GetInstance()->GetPlayer(player);
             if (!pPlayer->IsJoined()) {
                 pPlayer->SetController(nullptr);
             }
             if (mDataPerPlayer[player] && mDataPerPlayer[player]->IsShown()) {
-                break;
+                goto update;
             }
         }
-        if (player == 4) {
-            mMultiPlayerData.reset();
-            GetCurrentGameMap()->SetPausing(false);
-            return;
-        }
-        break;
+        mMultiPlayerData.reset();
+        GetCurrentGameMap()->SetPausing(false);
+        return;
     }
-    }
+update:
     UpdateErrors(connected);
 }
 
