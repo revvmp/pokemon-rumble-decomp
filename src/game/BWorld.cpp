@@ -809,7 +809,7 @@ std::list<BWorldObj*> BWorld::FindObjectsInRect(u32 type, const nw4r::math::VEC3
 
         BWorldObj* const& pObj = pEntry->mObj.get();
         nw4r::math::VEC3 local;
-        PSMTXMultVec(mtx, pObj->mPosition, local);
+        PSMTXMultVec(mtx, pEntry->mObj->mPosition, local);
 
         f32 radius = pObj->GetSize().z;
         f32 bottom = maxZ + radius;
