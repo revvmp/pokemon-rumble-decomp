@@ -1597,8 +1597,7 @@ void CDlgPiiSelector::UpdateErrors(int connected) {
             bool finished = connected == 0;
             for (int channel = 0; channel < 4; channel++) {
                 IController* pRemote = GetController(IController::TYPE_WII_REMOTE, channel);
-                int bit = 1 << channel;
-                if (mError & bit) {
+                if (mError & (1 << channel)) {
                     bool extensionPressed = false;
                     if (!IGameSession::GetInstance()->IsControllerAssigned(pRemote) && IsExtensionControllerEnabled()) {
                         IController* pExtension = GetController(IController::TYPE_NUNCHAKU, channel);
@@ -1610,7 +1609,7 @@ void CDlgPiiSelector::UpdateErrors(int connected) {
                         }
                     }
                     if ((pRemote->GetTrig() & 0x20) || !pRemote->IsConnected() || extensionPressed) {
-                        mError &= ~bit;
+                        mError &= ~(1 << channel);
                         finished = true;
                     }
                     break;
