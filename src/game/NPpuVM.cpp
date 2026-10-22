@@ -592,8 +592,8 @@ void CEngine::BinaryOp(int op) {
     ConvertToNumber(operands[1]);
     Pop(operands[0]);
     ConvertToNumber(operands[0]);
-    CValue& right = operands[1];
-    CValue& left = operands[0];
+    const CValue& right = operands[1];
+    const CValue& left = operands[0];
 
     CValue result;
     bool rightIsReference = right.mType == CValue::TYPE_REFERENCE;
@@ -707,8 +707,8 @@ void CEngine::BitwiseOp(int op) {
     ConvertToNumber(operands[1]);
     Pop(operands[0]);
     ConvertToNumber(operands[0]);
-    CValue& right = operands[1];
-    CValue& left = operands[0];
+    const CValue& right = operands[1];
+    const CValue& left = operands[0];
 
     if (right.mType == CValue::TYPE_REFERENCE || left.mType == CValue::TYPE_REFERENCE) {
         mStack[mSP++].SetReference(nullptr);
@@ -750,8 +750,8 @@ void CEngine::CompareOp(int op) {
     ConvertToNumber(operands[1]);
     Pop(operands[0]);
     ConvertToNumber(operands[0]);
-    CValue& right = operands[1];
-    CValue& left = operands[0];
+    const CValue& right = operands[1];
+    const CValue& left = operands[0];
 
     int value = 0;
     bool rightIsReference = right.mType == CValue::TYPE_REFERENCE;
