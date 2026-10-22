@@ -7,7 +7,8 @@
 #include <nw4r/math/math_types.h>
 
 inline nw4r::math::VEC3* TransformPoint(nw4r::math::VEC3* pOut, const nw4r::math::MTX34* pMtx, const nw4r::math::VEC3* pPoint) {
-    return nw4r::math::VEC3Transform(pOut, pMtx, pPoint);
+    PSMTXMultVec(*pMtx, *pPoint, *pOut);
+    return pOut;
 }
 
 f32 NormalizeSignedAngle(f32 degrees);
