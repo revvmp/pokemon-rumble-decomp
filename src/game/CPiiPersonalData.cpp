@@ -203,23 +203,23 @@ void CPiiPersonalData::Export(SD_PiiPersonalData::Data& rData) const {
     rData.mLevel = mLevel;
     {
         int bonus = mBonusMaxHP;
-        rData.mBonusMaxHPLow = bonus;
-        rData.mBonusMaxHPHigh = bonus >> 16;
+        rData.mBonusLow[0] = bonus;
+        rData.mBonusHigh[0] = bonus >> 16;
     }
     {
         int bonus = mBonusAP;
-        rData.mBonusAPLow = bonus;
-        rData.mBonusAPHigh = bonus >> 16;
+        rData.mBonusLow[1] = bonus;
+        rData.mBonusHigh[1] = bonus >> 16;
     }
     {
         int bonus = mBonusDP;
-        rData.mBonusDPLow = bonus;
-        rData.mBonusDPHigh = bonus >> 16;
+        rData.mBonusLow[2] = bonus;
+        rData.mBonusHigh[2] = bonus >> 16;
     }
     {
         int bonus = mBonusSPD;
-        rData.mBonusSPDLow = bonus;
-        rData.mBonusSPDHigh = bonus >> 16;
+        rData.mBonusLow[3] = bonus;
+        rData.mBonusHigh[3] = bonus >> 16;
     }
     rData.mPrefix = mPrefix;
     rData.mFlagsLow = mFlags;
@@ -245,10 +245,10 @@ std::tr1::shared_ptr<CPiiPersonalData> CPiiPersonalData::Import(u32 id, const SD
     data->mMoveIds[0] = rData.mMoveIds[0];
     data->mMoveIds[1] = rData.mMoveIds[1];
     data->mLevel = rData.mLevel;
-    data->mBonusMaxHP = (u32(rData.mBonusMaxHPHigh) << 16) | rData.mBonusMaxHPLow;
-    data->mBonusAP = (u32(rData.mBonusAPHigh) << 16) | rData.mBonusAPLow;
-    data->mBonusDP = (u32(rData.mBonusDPHigh) << 16) | rData.mBonusDPLow;
-    data->mBonusSPD = (u32(rData.mBonusSPDHigh) << 16) | rData.mBonusSPDLow;
+    data->mBonusMaxHP = (u32(rData.mBonusHigh[0]) << 16) | rData.mBonusLow[0];
+    data->mBonusAP = (u32(rData.mBonusHigh[1]) << 16) | rData.mBonusLow[1];
+    data->mBonusDP = (u32(rData.mBonusHigh[2]) << 16) | rData.mBonusLow[2];
+    data->mBonusSPD = (u32(rData.mBonusHigh[3]) << 16) | rData.mBonusLow[3];
     data->mPrefix = rData.mPrefix;
     data->mFlags = rData.mFlagsLow | (data->mFlags & 0xFFFF0000);
     data->mRandomSeed = rData.mRandomSeed;

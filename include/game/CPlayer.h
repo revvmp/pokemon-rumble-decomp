@@ -37,7 +37,6 @@ public:
     bool HasJoinedFlag() const { return mState.mJoined; }
     CPiiBox& GetPiiBox() { return mState.mPiiBox; }
     int GetPlayerNo() const { return mPlayerNo; }
-    CPiiBox& GetPiiBox() { return mState.mPiiBox; }
     void SetPii(CPlayerPii* pPii);
     CPlayerPii* GetPii();
     IController* GetController() { return mController; }
