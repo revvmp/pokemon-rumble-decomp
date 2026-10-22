@@ -29,24 +29,15 @@ public:
     int GetFirstVisibleIndex();
     void SetScrollMode(int mode);
     void UpdateScrollRange();
-    void OnFocus(BUI* pUI);
+    inline void OnFocus(BUI* pUI);
 private:
-    class CCallbackListOwner {
-    public:
-        explicit CCallbackListOwner(CallbackList* pList = nullptr) : mpList(pList) {}
-        ~CCallbackListOwner() { delete mpList; }
-        Callback Add(const std::tr1::function<void(BUI*)>& rFunction);
-    private:
-        CCallbackListOwner(const CCallbackListOwner&);
-        CCallbackListOwner& operator=(const CCallbackListOwner&);
-        CallbackList* mpList;
-    };
+    typedef BUI::CCallbackListOwner CCallbackListOwner;
     int mInputDirection;
     int mScrollMode;
     std::vector<std::tr1::shared_ptr<CLayout> > mLayouts;
     std::vector<std::tr1::shared_ptr<IUIListItem> > mItems;
-    int mSelectedIndex;
-    int mFirstVisibleIndex;
+    unsigned long mSelectedIndex;
+    unsigned long mFirstVisibleIndex;
     int mScrollRangeBegin;
     int mScrollRangeEnd;
     bool mSelectionInputEnabled;

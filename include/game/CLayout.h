@@ -97,6 +97,8 @@ public:
     nw4r::lyt::Pane* FindPane(const char* pName);
     void CalculateMtx(bool recursive);
     bool AttachLayout(const char* pPaneName, CLayout* pChild);
+    bool Attach(nw4r::lyt::Pane* pPane, CLayout* pChild);
+    static void HandleInitializeError(const CInitializeException& rError);
     void SetViewScale(const nw4r::math::VEC2& rScale);
     nw4r::math::VEC2 NormalizeViewPosition(const nw4r::math::VEC2& rPosition) const;
     nw4r::math::VEC2 GetViewScale() const;

@@ -29,15 +29,11 @@ public:
 
     bool AddChild(const Child& rChild);
     bool IsFocused();
+    BUI* GetNeighbor(int direction) { return mNeighbors[direction].lock().get(); }
     BUI* NavigateTo(int direction);
     BUI* FindFocusableFrom(int direction);
     bool RemoveChild(const Child& rChild);
     void SetVisible(bool visible);
-
-private:
-    friend class CUICallbackLists;
-    friend class CUIManager;
-    friend class BUILayout;
 
     class CCallbackListOwner {
     public:
@@ -60,6 +56,11 @@ private:
 
         CallbackList* mpList;
     };
+
+private:
+    friend class CUICallbackLists;
+    friend class CUIManager;
+    friend class BUILayout;
 
     u32 mFlags;
     BUI* mpParent;
