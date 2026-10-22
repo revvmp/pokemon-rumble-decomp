@@ -121,7 +121,7 @@ public:
                         normalMask = 1;
                     }
                     mModels[i]->mTex.reset(new CPiiTex(256, 256));
-                    pItem->mLayout.SetTexture("GOT_TEX", mModels[i]->mTex->GetTexMap(), -1);
+                    mModels[i]->mLayout.SetTexture("GOT_TEX", mModels[i]->mTex->GetTexMap(), -1);
                     for (u8 form = 0; form < 32; form++) {
                         if (!IsValidPiiForm(species, form)) {
                             break;
@@ -160,7 +160,7 @@ public:
                         IGameSession::GetInstance()->GetOyaInfo(), pSpecies, pSpecies->GetDefaultSex());
                     personalData->SetNormalColorRnd();
                     mModels[i]->mTex.reset(new CPiiTex(personalData, 256, 256));
-                    pItem->mLayout.SetTexture("DEFEATED_TEX", mModels[i]->mTex->GetTexMap(), -1);
+                    mModels[i]->mLayout.SetTexture("DEFEATED_TEX", mModels[i]->mTex->GetTexMap(), -1);
                 }
                 pItem->mLayout.SetText("NAME", GetPiiSpeciesData(species, 0)->GetName());
                 pItem->mLayout.SetVisible(true);

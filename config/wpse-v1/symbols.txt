@@ -10410,7 +10410,7 @@ insert_node_at__Q33std6detail50tree_imp<Us,Q23std8less<Us>,Q23std13allocator<Us>
 destroy__Q33std6detail50tree_imp<Us,Q23std8less<Us>,Q23std13allocator<Us>>FPQ43std6detail50tree_imp<Us,Q23std8less<Us>,Q23std13allocator<Us>>4node = .text:0x8007B4E0; // type:function size:0x290
 balance_erase__Q23std48__red_black_tree<PQ33std6detail14tree_node_base>FPQ33std6detail14tree_node_basePQ33std6detail14tree_node_base = .text:0x8007B770; // type:function size:0x6E4
 __dt__Q33std3tr118function<FP3BUI_v>Fv = .text:0x8007BE60; // type:function size:0xA0
-__dt__Q43std3tr16detail24function_base<PFP3BUI_v>Fv = .text:0x8007BF00; // type:function size:0x40 scope:local
+__dt__Q43std3tr16detail24function_base<PFP3BUI_v>Fv = .text:0x8007BF00; // type:function size:0x40
 get_deleter__Q43std3tr16detail148shared_ptr_deleter<Q228@unnamed@CDlgCollection_cpp@14CDlgCollection,Q33std6detail64default_delete<Q228@unnamed@CDlgCollection_cpp@14CDlgCollection>>CFRCQ23std9type_info = .text:0x8007BF40; // type:function size:0x4C
 dispose__Q43std3tr16detail148shared_ptr_deleter<Q228@unnamed@CDlgCollection_cpp@14CDlgCollection,Q33std6detail64default_delete<Q228@unnamed@CDlgCollection_cpp@14CDlgCollection>>Fv = .text:0x8007BF90; // type:function size:0x24
 __dt__Q33std3tr164shared_ptr<Q228@unnamed@CDlgCollection_cpp@18CDlgCollectionItem>Fv = .text:0x8007BFC0; // type:function size:0x84
