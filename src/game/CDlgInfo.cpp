@@ -30,6 +30,9 @@ struct Line {
     std::wstring mSecond;
     std::wstring mThird;
     std::wstring mText;
+
+    bool HasText() const { return mText.size() != 0; }
+    bool HasColumns() const { return mFirst.size() != 0 && mSecond.size() != 0; }
 };
 
 struct Page {
@@ -74,15 +77,15 @@ public:
                 }
             }
             pLayout->SetText("TITLE", rPage.mTitle.c_str());
-            unsigned count = std::min(rPage.mLines.size(), mLayouts.size());
+            unsigned count = std::min(mLayouts.size(), rPage.mLines.size());
             f32 widths[4] = {0.0f, 0.0f, 0.0f, 0.0f};
             unsigned i = 0;
             for (; i < count; i++) {
                 std::tr1::shared_ptr<CLayout> line = mLayouts[i];
                 const Line& rLine = rPage.mLines[i];
-                bool hasText = rLine.mText.size() != 0;
+                bool hasText = rLine.HasText();
                 bool hasColumns = false;
-                if (!hasText && rLine.mFirst.size() != 0 && rLine.mSecond.size() != 0) {
+                if (!hasText && rLine.HasColumns()) {
                     hasColumns = true;
                 }
                 line->SetPaneVisible("CAPTION", hasColumns);
@@ -110,6 +113,27 @@ public:
             }
             for (; i < mLayouts.size(); i++) {
                 mLayouts[i]->SetVisible(false);
+            }
+            f32 gaps[3];
+            gaps[0] = mRectangles[1].left - mRectangles[0].right;
+            gaps[1] = mRectangles[2].left - mRectangles[1].right;
+            gaps[2] = mRectangles[3].left - mRectangles[2].right;
+            widths[1] = mRectangles[1].GetWidth();
+            NErrMsg::PaneRectangle columns[4];
+            columns[0] = mRectangles[0];
+            f32 totalWidth = widths[0] + gaps[0] + widths[1] + gaps[1] + widths[2] + gaps[2] + widths[3];
+            columns[0].left = -totalWidth * 0.5f;
+            columns[0].right = columns[0].left + widths[0];
+            for (int j = 1; j < 4; j++) {
+                columns[j] = mRectangles[j];
+                columns[j].left = columns[j - 1].right + gaps[j - 1];
+                columns[j].right = columns[j].left + widths[j];
+            }
+            for (unsigned k = 0; k < count; k++) {
+                std::tr1::shared_ptr<CLayout> line = mLayouts[k];
+                for (int j = 0; j < 4; j++) {
+                    NErrMsg::SetPaneRectangle(line->FindPane(sColumnPaneNames[j]), columns[j]);
+                }
             }
     }
 };
@@ -240,24 +264,25 @@ public:
             GetPage(page)->mTitle = pTitle;
     }
     virtual void SetLine(int page, unsigned int line, const wchar_t* pFirst, const wchar_t* pSecond, const wchar_t* pThird) {
-            std::tr1::shared_ptr<Page> pPage = GetPage(page);
-            if (pPage->mLines.size() <= line) {
-                pPage->mLines.resize(line + 1);
-            }
-            Line& rLine = pPage->mLines[line];
+            Line& rLine = GetLine(page, line);
             rLine.mFirst = pFirst;
             rLine.mSecond = pSecond;
             rLine.mThird = pThird;
+            rLine.mText.clear();
     }
     virtual void SetText(int page, unsigned int line, const wchar_t* pText) {
+            GetLine(page, line).mText = pText;
+    }
+
+private:
+    Line& GetLine(int page, unsigned int line) {
             std::tr1::shared_ptr<Page> pPage = GetPage(page);
             if (pPage->mLines.size() <= line) {
                 pPage->mLines.resize(line + 1);
             }
-            pPage->mLines[line].mText = pText;
+            return pPage->mLines[line];
     }
 
-private:
     std::tr1::shared_ptr<Page> GetPage(int page) {
             if (mPages.size() <= page) {
                 unsigned oldSize = mPages.size();
