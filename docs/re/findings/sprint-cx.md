@@ -269,3 +269,48 @@ The refreshed report contains 12,981 perfect functions, up from 12,980. The thre
 The signed-state Update baseline was displayed as 98.90%; the earlier extra decimal digits in this session entry are not a separately captured baseline measurement.
 
 CRemoteMemory is now 14/20 live perfect functions; ef_animcurve remains 1/8. Full-DOL PASS validates the current selection of Matching objects and original fallbacks. It does not validate either requested unit linked from source. No promotion was attempted because neither passed the all-functions gate. Remaining work includes ef_animcurve allocation/inlining, CRemoteMemory's state-mask helper and switch structure, list iterator/exception frame fidelity, and data/function emission order. configure.py and config/targets remain unchanged.
+
+
+## 2026-10-22: second look at deferred value-type find_leaf
+
+Starting revision: `33d74ac444de0be2f9afd6ddf0a129fdaf587b0a`. The checkout was clean. Work used the current checkout only; no worktree, commit, target-manifest edit, or retained source change was made. Read sprint-f1, sprint-e1, sprint-cx2 and sprint-w1o before the experiments. This investigation did not solve the four-unit ordering problem.
+
+### New compiler experiments
+
+All real-unit probes used the current generated Wii/1.1 game flags, with an external header overlay ahead of `include`. An intentional preprocessor error confirmed that the overlay was actually consumed. Scratch scripts, headers, objects, logs and the baseline report are outside the repository, under `%TEMP%/rumble-cx-tree`. The adapted `uo.py` uses this checkout, not the older scratch tools' hard-coded rumble-a01 checkout.
+
+- An out-of-class `inline` value-type `find_leaf`, called through a local pointer-to-member, retains the lookup symbol but does not move it into the desired phase. Tested mutable local, const local, static const local, and immediate explicitly cast member-pointer expressions on COyaInfo, l10n_files and MapPiiTable. The ordinary local form was also tested on BWorld. Declaring `inline` on both declaration and definition does not help.
+- Moving the complete lookup definition into the class and retaining the member-pointer call gives the same late placement in all four units.
+- These are not instruction-preserving ways to suppress inlining. The in-class member-pointer l10n_files object contains five `R_PPC_REL24 __ptmf_scall` relocations. Direct object comparisons of the local and static-local pointer forms also lose caller matches. No member-pointer form was retained.
+- A non-inline out-of-class `locate_leaf<Value>` member template forwarding to the non-template lookup does not help. Tested all four combinations of inline/non-inline lookup and direct/member-pointer forwarding on all four units. With a direct call to an inline lookup, the lookup is inlined away; otherwise its retained copy stays too late. The wrapper itself did not add a retained symbol in these probes.
+- The plain inline control removes the target lookup symbol: one missing target symbol in COyaInfo and l10n_files, two in MapPiiTable. The order script's `ORDER OK` on such a result is not acceptance: its sequence comparison omits missing symbols.
+
+For the retained pointer and forwarding forms, COyaInfo still has target index 18 (`recommend`) before index 17 (`find_leaf`), followed by the pre-existing split-buffer/copy ordering differences. l10n_files still has implicit deleter destructor indices 49-52 before lookup index 48. MapPiiTable retains its existing correct relative order. BWorld's tree_imp lookup remains after the late destructor group; these tree.h probes do not alter the separate map_compact_tree lookup in `include/map`.
+
+A separate base-class compiler probe confirmed a narrower point: an earlier-declared `Leaf<T>` base can emit its out-of-line lookup after `AllocPtr` destructors, newest specialization first. With `Tree<T> : Leaf<T>` and `using Leaf<T>::find_leaf`, the retained names are `find_leaf__7Leaf<s>FRCs` and `find_leaf__7Leaf<i>FRCi`, not members of Tree. The probe uses a recursive body solely to retain an out-of-line function; it is not a candidate tree implementation or an instruction-match claim. This demonstrates an ordering mechanism but does not establish a header structure preserving the recorded tree_imp member signatures. No symbol renaming or wrapper substitution was used to disguise that ownership difference. More general base arrangements remain unproved.
+
+### Fresh compilation and requested source-selection checks
+
+Ninja again stalled before launching a child process and was interrupted. Its tool modes worked. Ran all 865 actual configured compiler commands from `ninja -t compdb` directly: zero compiler failures. Generated a fresh objdiff report over 1,475 units. `cnt100.py` counted 12,990 perfect functions. COyaInfo remains 26/26, l10n_files 54/54, and MapPiiTable 28/29.
+
+For each link, regenerated configuration as needed, derived the response-file inputs from the generated main.elf edge, deleted `build/wpse-v1/main.dol`, and ran the configured linker and elf2dol commands. Both commands exited 0 in every case. This validates those generated build commands, not successful completion of a normal Ninja invocation. The source-selection checks below use the unchanged baseline header; the experimental variants had already failed the local instruction/order gates.
+
+| Source selection | Frozen-manifest result | First differing file byte |
+| --- | --- | --- |
+| Original Matching selections | PASS | None |
+| COyaInfo additionally Matching | FAIL | `0x9D63E` |
+| l10n_files additionally Matching | FAIL | `0xD8736` |
+| Both additionally Matching | FAIL | `0x9D63E` |
+| Both restored to NonMatching | PASS | None |
+
+Every acceptance check used:
+
+```text
+python tools/verify/verify.py verify --manifest config/targets/wpse-v1.json --reference-dir orig/wpse-v1 --build-dir build/wpse-v1
+```
+
+Restored `configure.py` byte-for-byte and regenerated configuration. Final DOL SHA-256 is `ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da`. Regenerated `build/wpse-v1/report.json`; `cnt100.py` again returns 12,990, with no per-unit count changes relative to the fresh baseline. Existing objdiff exception-table warnings for method_layoutSetString and NPpu::ToUnicode remain. Final PASS still includes original fallbacks for the requested units and is not evidence that those units can be promoted.
+
+### Reusable lessons and remaining blocker
+
+Taking an inline template-class member's address can retain its symbol without giving it the desired inline-pass placement, and CodeWarrior can keep the member-pointer runtime dispatch even when the initializer is a known member. Check the call relocations as well as symbol order. An inherited lookup's emission group can change, but a `using` declaration does not change the class named in its mangling. These tested approaches do not resolve the blocker. Only this findings file is changed; no source/configuration candidate met the retention gates.
