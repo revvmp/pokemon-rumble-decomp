@@ -357,20 +357,20 @@ std::tr1::shared_ptr<CLayout::CMotionProgram> CLayout::BuildMotion(const char* p
         return std::tr1::shared_ptr<CMotionProgram>();
     }
     nw4r::lyt::AnimTransform* pAnim = FindAnimation(pName);
-    if (pAnim == nullptr) {
-        return std::tr1::shared_ptr<CMotionProgram>();
+    if (pAnim != nullptr) {
+        std::tr1::shared_ptr<CMotionProgram> pProgram(new CMotionProgram);
+        pProgram->mFrame = startFrame;
+        pProgram->mRate = rate;
+        pProgram->mpAnimTransform = pAnim;
+        pProgram->mpTarget = FindPaneMP(pPane);
+        pProgram->mLastFrame = pProgram->mpAnimTransform->GetFrameSize();
+        if (!pProgram->mpAnimTransform->IsLoopData()) {
+            pProgram->mLastFrame--;
+        }
+        pProgram->mState = 0;
+        return pProgram;
     }
-    std::tr1::shared_ptr<CMotionProgram> pProgram(new CMotionProgram);
-    pProgram->mFrame = startFrame;
-    pProgram->mRate = rate;
-    pProgram->mpAnimTransform = pAnim;
-    pProgram->mpTarget = FindPaneMP(pPane);
-    pProgram->mLastFrame = pAnim->GetFrameSize();
-    if (!pProgram->mpAnimTransform->IsLoopData()) {
-        pProgram->mLastFrame--;
-    }
-    pProgram->mState = 0;
-    return pProgram;
+    return std::tr1::shared_ptr<CMotionProgram>();
 }
 
 inline void CLayout::RebindAnimations() {
