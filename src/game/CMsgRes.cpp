@@ -180,7 +180,7 @@ void CMsgRes::ConvertEscape() {
             case 'x': {
                 int value = 0;
                 int c;
-                for (int i = 0; i < 2 && IsHexDigit(c = *pSrc); i++, pSrc++) {
+                for (int i = 0; i < 2 && IsHexDigit(c = *pSrc); pSrc++, i++) {
                     value = (value << 4) | (IsDigit(c) ? c - '0' : ToLower(c) - 'a' + 10);
                 }
                 *pDst++ = value;
