@@ -76,20 +76,21 @@ int CStatistic::GetWazaUsedCount() {
 }
 
 void CStatistic::Set(int id, int value) {
-    value = std::min<long>(GetCounterStopValue(id), value);
+    long limited = value;
+    limited = std::min<long>(GetCounterStopValue(id), limited);
     if (id < -97) {
         if (id >= -100) {
             id += 100;
             ExpandTo(mSystemValues, id);
-            mSystemValues[id].mValue = value;
+            mSystemValues[id].mValue = limited;
         } else if (id == -200) {
-            GetSaveData(-1)->mData.mCounters[0] = value;
+            GetSaveData(-1)->mData.mCounters[0] = limited;
         } else if (id == -199) {
-            GetSaveData(-1)->mData.mCounters[1] = value;
+            GetSaveData(-1)->mData.mCounters[1] = limited;
         }
     } else if (id >= 0) {
         ExpandTo(mValues, id);
-        mValues[id].mValue = value;
+        mValues[id].mValue = limited;
     }
 }
 
