@@ -430,21 +430,31 @@ void CRemoteMemory::FinishRead(int channel, long result) {
 }
 #pragma pop
 
+#pragma push
+#pragma opt_rebuildconditionals off
+#pragma opt_treetransformation off
+#pragma opt_strength_reduction off
+#pragma opt_dead_assignments off
+#pragma opt_common_subs off
+#pragma opt_generateconditionalassignments off
 void CRemoteMemory::PrepareWrite(int mode) {
-    int nextBlock = 0;
+    int nextBlock;
     mWriteMode = mode;
     mFlags = (mFlags | FLAG_BUSY) & ~FLAG_NO_CONTROLLER;
     const int channel = mChannel;
     mValidationRetries = 0;
     mTransferRetries = 0;
     const u8 activeBlock = mActiveBlock;
-    if (activeBlock != 3) {
+    if (activeBlock == 3) {
+        nextBlock = 0;
+    } else {
         nextBlock = (activeBlock + 1) & 1;
     }
     if (mWriteMode != 2) {
         u8 generation = sStoredData[channel][(nextBlock - 1) & 1].mGeneration;
         if (nextBlock == 0) {
-            generation = (generation + 1) & 1;
+            generation += 1;
+            generation &= 1;
         }
         RemoteDataBlock* pBlock = sReadData[channel];
         pBlock->mMagic = 'WPSJ';
@@ -462,7 +472,7 @@ void CRemoteMemory::PrepareWrite(int mode) {
                 rData.mSpecies = 0;
             }
         }
-        pBlock->mChecksum = OSCalcCRC32(sReadData[channel], 536);
+        pBlock->mChecksum = OSCalcCRC32(pBlock, 536);
         WPADSetGameTitleUtf16(reinterpret_cast<const u16*>(GetMessageString(1, nullptr)));
     }
     if (mWriteMode == 0 || mWriteMode == 1) {
@@ -475,6 +485,7 @@ void CRemoteMemory::PrepareWrite(int mode) {
     mBlockOffset = nextBlock * sizeof(RemoteDataBlock);
     WriteBlock(channel);
 }
+#pragma pop
 
 #pragma push
 #pragma opt_common_subs off
