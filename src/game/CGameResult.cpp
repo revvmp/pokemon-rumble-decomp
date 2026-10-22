@@ -66,11 +66,6 @@ std::tr1::shared_ptr<CPiiPersonalData> FindStrongestPii(const std::list<std::tr1
     return pStrongest;
 }
 
-int GetBP(CPiiPersonalData* pPii)
-{
-    return pPii->GetBP();
-}
-
 inline nw4r::g3d::ScnMdl* ToScnMdl(nw4r::g3d::ScnObj* pScnObj) {
     return pScnObj ? nw4r::g3d::G3dObj::DynamicCast<nw4r::g3d::ScnMdl>(pScnObj) : nullptr;
 }
@@ -434,7 +429,7 @@ enum {
 };
 
 #pragma dont_inline on
-void CGameResult::RunAction()
+inline void CGameResult::RunAction()
 {
     IGameSession::GetInstance()->SetFade(0, -1);
     YieldFiberStarted();
@@ -454,11 +449,11 @@ void CGameResult::RunAction()
     std::tr1::weak_ptr<CEffect> pPreviousEffect;
     for (;;) {
         bool atEnd = mSelected == static_cast<int>(mEntries.size()) - 1;
-        bool canRepeat = atEnd == false;
+        bool canRepeat = atEnd ? false : true;
         IUIInput* pInput = GetUIInput();
         int action;
         for (;;) {
-            u32 repeat = canRepeat ? pInput->GetRepeat() : 0;
+            u32 repeat = !canRepeat ? 0 : pInput->GetRepeat();
             if ((pInput->GetTrig() | repeat) & BUTTON_NEXT) {
                 action = 0;
                 break;
@@ -503,7 +498,7 @@ void CGameResult::RunAction()
         UpdatePiiWindow();
         pPreviousEffect = pCurrentEffect;
         pCurrentEffect.reset();
-        if (GetBP(pPii.get()) == mStrongestBP) {
+        if (pPii->GetBP() == mStrongestBP) {
             PlaySound(0x33C);
             CEffect::Param param;
             param.mInfo = &gEffectInfos[57];
@@ -552,7 +547,7 @@ void CGameResult::RunAction()
             f32 t = SinQuarterTurn(static_cast<f32>(step) / static_cast<f32>(steps));
             for (std::vector<ResultPii>::iterator it = mEntries.begin(); it != mEntries.end(); ++it) {
                 if (it->mPiis[0]) {
-                    nw4r::math::VEC3 position = Lerp(t, it->mPositions[0], it->mPositions[1]);
+                    nw4r::math::VEC3 position = Lerp(it->mPositions[0], it->mPositions[1], t);
                     it->mPiis[0]->SetPosition(position);
                     it->mPiis[1]->SetPosition(position);
                 }
@@ -589,7 +584,7 @@ finish:
 
 #pragma dont_inline reset
 
-void CGameResult::Draw()
+inline void CGameResult::Draw()
 {
     mWorlds[1]->Draw();
     mCapture.CopyFromEFB(true);
@@ -600,7 +595,7 @@ void CGameResult::Draw()
     }
 }
 
-void CGameResult::CalcView()
+inline void CGameResult::CalcView()
 {
     mWorlds[0]->CalcView();
     mWorlds[1]->CalcView();
@@ -610,7 +605,7 @@ void CGameResult::CalcView()
     mPauseMenu->CalcView();
 }
 
-void CGameResult::CalcMtx()
+inline void CGameResult::CalcMtx()
 {
     mWorlds[0]->CalcMtx();
     mWorlds[1]->CalcMtx();
@@ -620,7 +615,7 @@ void CGameResult::CalcMtx()
     mPauseMenu->CalcMtx();
 }
 
-void CGameResult::Calc()
+inline void CGameResult::Calc()
 {
     mWorlds[0]->SetOutlineAlpha(255);
     mWorlds[1]->SetOutlineAlpha(255);

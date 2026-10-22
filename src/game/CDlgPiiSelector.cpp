@@ -171,10 +171,6 @@ struct SwapRequest {
     int mOutlineType;
 };
 
-template <typename T> T Lerp(const T& rFrom, const T& rTo, f32 t) {
-    return (rTo - rFrom) * t + rFrom;
-}
-
 const char* kMotionPaneNames[] = {"PIISPEC_ANM", "LIST_ANM", "PLAYERID_ANM", "HELP_ANM"};
 
 class CDataPerPlayer {

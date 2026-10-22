@@ -21,7 +21,7 @@ inline nw4r::math::VEC3 Transform(const nw4r::math::MTX34& rMtx, const nw4r::mat
     return result;
 }
 
-inline nw4r::math::VEC3 Lerp(f32 t, const nw4r::math::VEC3& rFrom, const nw4r::math::VEC3& rTo) {
+template <typename T> T Lerp(const T& rFrom, const T& rTo, f32 t) {
     return (rTo - rFrom) * t + rFrom;
 }
 
