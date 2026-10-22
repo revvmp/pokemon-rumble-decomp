@@ -345,6 +345,7 @@ config.libs = [
             Object(Matching, "game/CRomFont.cpp"),
             Object(NonMatching, "game/CUIList.cpp"),
             Object(NonMatching, "game/CUIMenu.cpp"),
+            Object(NonMatching, "game/homebutton.cpp"),
             Object(NonMatching, "game/CMsgRes.cpp"),
             Object(NonMatching, "game/Message.cpp"),
             Object(Matching, "game/Locale.cpp"),

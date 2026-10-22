@@ -7,7 +7,7 @@
 
 class CHBMParam {
 public:
-    enum Flags { NoSaveAll = 4, PreloadResources = 16 };
+    enum Flags { NoSaveWiiMenu = 1, NoSaveReset = 2, NoSaveAll = 4, PreloadResources = 16 };
 
     CHBMParam();
     ~CHBMParam();
@@ -31,6 +31,8 @@ public:
     const char* GetModelPath() const { return mModelPath.c_str(); }
     const char* GetTextureName() const { return mTextureName.c_str(); }
     bool HasFlags(unsigned long flags) const { return (mFlags & flags) != 0; }
+    const std::tr1::function<void()>& GetOpenCallback() const { return mOpenCallback; }
+    const std::tr1::function<bool(HBMSelectBtnNum)>& GetCloseCallback() const { return mCloseCallback; }
     float GetFrameRate() const { return mFrameRate; }
 
 private:
