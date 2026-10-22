@@ -19,7 +19,6 @@
 #include <revolution/wpad.h>
 #include <algorithm>
 #include <functional>
-#include <iterator>
 #include <list>
 #include <math.h>
 
@@ -240,10 +239,7 @@ int RegisterSystemMessageCallback(const std::tr1::function<void()>& rCallback, i
 void ShowSystemMessage(const wchar_t* pText, int action) {
     CLayout layout;
     bool created = false;
-    {
-        std::tr1::shared_ptr<CLayout::FontMap> fonts = GetFontMap(created);
-        layout.LoadFromMemory(sWork->mpArchive, sWork->mpLayoutName, fonts);
-    }
+    layout.LoadFromMemory(sWork->mpArchive, sWork->mpLayoutName, GetFontMap(created));
     if (pText) {
         nw4r::lyt::TextBox* pTextBox = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(layout.FindPane("text_c"));
         if (created) {
@@ -270,9 +266,10 @@ void ShowSystemMessage(const wchar_t* pText, int action) {
         NResetMgr::ClearDisableCount();
         layout.CreateMotion("button_a", layout.FindPane("button"), 0.0f, 1.0f);
     }
-    typedef std::reverse_iterator<std::list<CallbackEntry>::iterator> Iterator;
-    for (Iterator it(sWork->mCallbacks.end()); it != Iterator(sWork->mCallbacks.begin()); ++it) {
-        if ((it->mFlags & 2) != 0) it->mCallback();
+    for (std::list<CallbackEntry>::iterator it = sWork->mCallbacks.end(); it != sWork->mCallbacks.begin(); --it) {
+        std::list<CallbackEntry>::const_iterator current = it;
+        --current;
+        if (((*current).mFlags & 2) != 0) (*current).mCallback();
     }
     CErrMsgFatalLoop loop(&layout, motion, action);
     RunGameLoop(&loop);
