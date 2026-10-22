@@ -309,17 +309,16 @@ inline void* AllocateStagingBuffer(u32 size, int alignment, u32 flags) {
     if (flags & CFileData::FLAG_TOP_DOWN) {
         alignment = -alignment;
     }
-    int staging = -alignment;
     void* pMemory;
-    if ((flags & CFileData::FLAG_PLACEMENT_MASK) == CFileData::FLAG_PLACEMENT_PREFER_MEM2) {
-        pMemory = GameMemory::TryAllocateMEM2(size, staging);
+    if ((flags & CFileData::FLAG_PLACEMENT_MASK) == CFileData::FLAG_PLACEMENT_MEM1) {
+        pMemory = GameMemory::TryAllocateMEM2(size, -alignment);
         if (pMemory == nullptr) {
-            pMemory = GameMemory::TryAllocateMEM1(size, staging);
+            pMemory = GameMemory::TryAllocateMEM1(size, -alignment);
         }
     } else {
-        pMemory = GameMemory::TryAllocateMEM1(size, staging);
+        pMemory = GameMemory::TryAllocateMEM1(size, -alignment);
         if (pMemory == nullptr) {
-            pMemory = GameMemory::TryAllocateMEM2(size, staging);
+            pMemory = GameMemory::TryAllocateMEM2(size, -alignment);
         }
     }
     return pMemory;
@@ -707,38 +706,50 @@ void DefaultFileErrorHandler(CPath::Drive drive, const char* pPath, long error, 
     if ((flags & CFileData::FLAG_ALLOW_OUT_OF_MEMORY) && error == CFileData::ERROR_OUT_OF_MEMORY) {
         return;
     }
-    if (drive >= 2 && drive < 512) {
-        if (error == -5013 || error == -5012) {
-            OSPanic("CFileData.cpp", 1588, "fatal error: WARE_99(if shared) or WARE_01_01(not shared)");
-        } else if (error == -5011) {
-            OSPanic("CFileData.cpp", 1593, "fatal error: NAND_08");
-        }
-        if (!(flags & CFileData::FLAG_OPTIONAL)) {
-            OSPanic("CFileData.cpp", 1597, "fatal error: WARE_99(if shared) or WARE_01_01(not shared)");
-        }
-    } else if (drive >= 512 && drive <= 537) {
-        if (!(flags & CFileData::FLAG_OPTIONAL)) {
-            OSPanic("CFileData.cpp", 1606, "fatal error");
-        }
-    } else if (drive == CPath::DEVICE_NAND) {
-        if (error == -3 || error == -2) {
-            OSPanic("CFileData.cpp", 1573, "fatal error: NAND_11");
-        } else if (error == -4) {
+    switch (drive) {
+    case CPath::DEVICE_NAND:
+        switch (error) {
+        case -4:
             OSPanic("CFileData.cpp", 1563, "fatal error: NAND_08");
-        } else if (error == -9) {
+            break;
+        case -9:
             OSPanic("CFileData.cpp", 1566, "fatal error: NAND_05");
-        } else if (error == -11) {
+            break;
+        case -11:
             OSPanic("CFileData.cpp", 1569, "fatal error: NAND_06");
-        } else if (error == -64) {
+            break;
+        case -3:
+        case -2:
+            OSPanic("CFileData.cpp", 1573, "fatal error: NAND_11");
+            break;
+        case -64:
             OSPanic("CFileData.cpp", 1576, "fatal error: NAND_98");
+            break;
         }
         if (!(flags & CFileData::FLAG_OPTIONAL)) {
             OSPanic("CFileData.cpp", 1580, "fatal error: WARE_01_01");
         }
-    } else if (drive == CPath::DEVICE_UNC) {
+        break;
+    case 2 ... 511:
+        switch (error) {
+        case -5013:
+        case -5012:
+            OSPanic("CFileData.cpp", 1588, "fatal error: WARE_99(if shared) or WARE_01_01(not shared)");
+            break;
+        case -5011:
+            OSPanic("CFileData.cpp", 1593, "fatal error: NAND_08");
+            break;
+        }
+        if (!(flags & CFileData::FLAG_OPTIONAL)) {
+            OSPanic("CFileData.cpp", 1597, "fatal error: WARE_99(if shared) or WARE_01_01(not shared)");
+        }
+        break;
+    case CPath::DEVICE_MCS_BASE ... CPath::DEVICE_MCS_LAST:
+    case CPath::DEVICE_UNC:
         if (!(flags & CFileData::FLAG_OPTIONAL)) {
             OSPanic("CFileData.cpp", 1606, "fatal error");
         }
+        break;
     }
 }
 
