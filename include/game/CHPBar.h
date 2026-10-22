@@ -44,7 +44,7 @@ private:
 
     u32 mFlags;
     u32 mType;
-    u32 mKind;
+    Kind mKind;
     int mPlayerNo;
     int mAnimationState;
     f32 mHPRate;
