@@ -656,6 +656,16 @@ finished:
 }
 
 
+inline BUI::Callback BUI::CCallbackListOwner::Add(const std::tr1::function<void(BUI*)>& rCallback) {
+    if (rCallback) {
+        Callback callback(new std::tr1::function<void(BUI*)>(rCallback));
+        if (mpList == nullptr) mpList = new CallbackList();
+        mpList->push_back(callback);
+        return callback;
+    }
+    return Callback();
+}
+
 inline void CDlgPiiListImpl::Setup(bool background) {
     std::tr1::shared_ptr<CLayout::FontMap> fonts = GetDefaultFontMap();
     const char* const* pArchives = gSharedLayoutArchives;

@@ -80,3 +80,15 @@ Still open:
 - **The second `min<int>`:** the unit's Clamp, `max<int>` and `min<int>` copies at 0x8009CB70-0x8009CEA0 are separate local copies, not merged with the global `min<int>` at 0x80095280. A `static` Clamp makes Clamp local but does not duplicate `min` or `max`.
 - **CDlgPiiList:** 4 `.text` misplaced. The `const_iterator` constructor and `begin` in RunRemoteTransfer's loop come after `*` and `++` in the target.
 - **vector `insert`/`assign` tag:** passing `int2type<0>()` as a temporary instead of a named local is worse (more rows differ).
+
+### CDlgPiiList flip attempt
+
+All 139 functions are present. 136 score 100%, and the other three differ only in `.data` relocation targets. With the unit marked `Matching`, the link succeeds but verify fails at DOL header byte 0x36. The cause is that `.data` was 0xE0 bytes short.
+
+- **Missing objects:** the shared_ptr_deleter vtable and RTTI for `std::tr1::function<void (BUI*)>`, and the matching `default_delete` RTTI, were not in the unit. They come from `BUI::CCallbackListOwner::Add`, which the target also emits in this unit; the linker drops this copy in favour of CDlgCollection's. The unit now defines `Add` inline, as CDlgCollection does. Placed after Setup, the definition keeps `.text` at 4 misplaced functions; placed before the CDlgPiiListImpl constructor, 12 are misplaced. `.data` is now the right size.
+- **Weak vtable order:** the `.data` vtable and RTTI order is the reverse of the order of the vtable-only destructors in `.text`.
+  - Target shared_ptr_deleter order: CDlgPiiList, `char`, `function_imp<void()>`, CPpuEngine, CUIManager, CUIPiiListItem, BUILayout, CUIPiiSpec, CUIPiiList, CUIPlayerID, CDisable, `function_imp` (CPiiListFilterSort), `function_imp` (BUI*), `function<void(BUI*)>`, CDlgPiiListImpl.
+  - Ours puts `function<void(BUI*)>` right after `function_imp<void()>`, CUIPiiListItem before CUIManager, and CPpuEngine after the `function_imp` pair.
+  - These had no effect: moving AppendItems or the `Add` definition, and reordering the constructor's mem-initializers. Moving RunSell into the `dont_inline` region breaks code.
+  - The order seems to follow when each `shared_ptr(Y*)` instance is generated, not the source position. This is unresolved.
+- **The 4 `.text` misplaced functions:** they are in OnAccept's inlined `CountRemoteUnmarked` loop. A `while` loop, a `continue` body or a ternary all raise the count to 12.
