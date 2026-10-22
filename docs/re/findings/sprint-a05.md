@@ -124,3 +124,29 @@ CGameResult `Create` and `RunAction` reached 100% (73 of 75). CDlgInfo gained `L
 ### Traps
 
 - **Python's default text mode rewrites CRLF files as LF.** A replace-and-restore helper that reads without `newline=''` leaves whole-file line-ending changes; check `git status` after experiments.
+
+## Final tail wave: CLayout and CFileData (fresh eyes)
+
+Gained: CFileData `map<CNTHandleWithMutex*, weak_ptr>::insert` (100%), `OpenFileData` (unitdiff call name), `OpenFileStream` 97.4 to 99.89%. CLayout `StopMotion` 90.9 to 98.1%, `AdvancePaneMotions` 91.2 to 95.4%, `ReplaceMotions` 97.8 to 99.5%, `FindPaneMP` 91.9 to 93.5%, `FindAnimation` 98.1 to 98.2%. No unit's 100% count dropped; both units stay `NonMatching`.
+
+### Traps
+
+- **A type-punned reference keeps a variable in memory.** CodeWarrior keeps a local in its stack slot and reloads it when its address is read through a reference of another type. The compact map's pointer-key `find` now reads the key as `reinterpret_cast<const void* const&>(key)` (a `find(Key* const&)` overload, so string keys keep their inline depth). This reproduced the target's `stw r4, 8(r31)` and the per-iteration key reload in `StopMotion` and `FindPaneMP`.
+- **`set<T*>::begin()` and `end()` pun the tree iterator.** `typename tree_type::iterator i = mTree.begin(); return reinterpret_cast<iterator&>(i);` gives each call one extra kept object. With a `const_iterator` loop variable this matches the target's copy counts in functions with an inlined `throw()` (four stores for `begin`, three for `end`). Functions without one drop the dead stores, so standalone loops are unaffected.
+- **The CLayout set loops use `const_iterator`.** `UpdateAttachedLayouts` (for-init form) and `RebindAnimations` (declared `child`, assigned in the loop) iterate with `std::set<...>::const_iterator`; the out-of-line `operator++` at `0x801D37D0` is the `const_iterator` one and was renamed. Declaring the `UpdateAttachedLayouts` iterator before the loop overflows the inline budget (the recursion inlines one level fewer, 73%).
+- **Selective `insert_one` forwarding.** `map_compact_tree_adapter::insert_one` forwards to the base (one more inline level), which fixes the `left`/`leftmost` slot swap of CFileData's map insert. The `map<unsigned long, T*>` specialisation calls `map_compact_tree<...>::insert_one` by qualified name, so BWorld keeps its shallower path. This resolves the conflict recorded in sprint-a03.
+- **A null check that jumps to a shared error report destroys its handle on a separate path.** `OpenFileStream` needed `if (!handle) { goto failed; }` with the label on the error report; a nested `if (handle) {...}` shares the destructor tail.
+
+### Open, with what was tried
+
+| Unit | Function | % | Cause and attempts |
+| --- | --- | --- | --- |
+| CLayout | `StopMotion`, `AdvancePaneMotions` | 98.1, 95.4 | Inlined `UpdateAttachedLayouts` needs one more kept `begin()` object per level, and the map `find` result `it` is stored (target `stw r30, 0x64`). Named returns, by-value conversion constructors, a user copy constructor on `const_iterator`, a conversion operator on `iterator`, a pun in the map `find`, friend comparison operators and a `std::map::find` wrapper either change nothing or break other functions. |
+| CLayout | `ReplaceMotions` | 99.5 | Set iterator objects are grouped by inline level differently (target: pun local and return copy together, conversion temporaries apart), and the map `begin()` assignment keeps a temporary the target does not have. |
+| CLayout | `DetachAttachedLayouts` | 98.4 | Object counts now match, but `end()` is recomputed and one register shifts after the `begin()` pun (was 99.3). |
+| CLayout | `CalculateAttachedMtx` | 94.9 | `GetPaneAlpha(pRoot)`, `mLayout.get()`, `(*mLayout)`, `mAttach->mpPane->IsVisible()` and an nw4r `TestBit` `IsVisible` do not stop the `root == root` fold. |
+| CLayout | `__ct__7CLayout` | 96.9 | Binding the result to a reference, a named local, or assigning `.x` alone do not remove the extra `VEC2` copy. |
+| CFileData | `WaitUntilLoaded`, `OpenFileStream` | 99.95, 99.89 | `mErrorHandler` arguments: the target gives the error value the lowest register. `int` instead of `long` in the handler type, `long mError`, `GetError()` and `GetPath()` accessors, `ReportError()` and a config reference do not change the allocation. |
+| CFileData | `map_base::erase` | 96.7 | The target copies the node into `r3` before the `front()` compare. Seven placements of the iterator copy and increment were tried. |
+| CFileData | `reset<CWorker>` | 99.4 | The inlined `PushFinished` in `BThread::Stop` keeps a dead volatile reload of `mpHead`; ours drops it. A `for` tail walk does not change it. |
+| CFileData | `UpdateResourceFiles` | 99.9 | Swapping `it` and `end` moves both registers by one; a third variable from the inlined job processing holds `r28`. |
