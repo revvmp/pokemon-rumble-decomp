@@ -66,6 +66,8 @@ python -m venv .venv
 
 `configure.py` uses these local paths by default. Without them, the vendored build system downloads its pinned tags into `build/tools/`, including the x86-64 dtk, whose digest differs from the pinned x86 build (F-0006).
 
+Assembly-source units (`.s`, allowed only by [D-0015](DECISIONS.md#d-0015-assembly-source-only-where-the-original-was-assembly)) are assembled with the binutils `powerpc-eabi-as` above; no extra tool is needed.
+
 ### Build
 
 ```powershell
