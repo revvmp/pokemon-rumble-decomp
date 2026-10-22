@@ -14,12 +14,19 @@
 #include <nw4r/lyt/lyt_pane.h>
 #include <nw4r/snd/snd_SoundHandle.h>
 
+#pragma pool_data off
+
+
 namespace {
 
 nw4r::snd::SoundHandle sDamageSoundHandle;
 int sDamageSoundCount;
 
-const char* const sPlayerPaneNames[4] = {"P0_P", "P1_P", "P2_P", "P3_P"};
+const char* sPlayerPaneNames[4] = {"P0_P", "P1_P", "P2_P", "P3_P"};
+
+inline void SetPaneWidth(nw4r::lyt::Pane* pPane, f32 width) {
+    pPane->SetSize(nw4r::lyt::Size(width, pPane->GetSize().height));
+}
 
 }
 
@@ -46,6 +53,14 @@ public:
     void Move() {
         mCount++;
         mLayout.AppendMotion(FormatString("move%d", mCount).c_str());
+    }
+
+    bool IsPlaying() const {
+        bool playing = mMotion;
+        if (playing) {
+            playing = !mMotion->IsEnded();
+        }
+        return playing;
     }
 
     int mCount;
@@ -286,11 +301,9 @@ void CHPBar::CalcView(const nw4r::math::MTX34& rView, const nw4r::math::MTX44& r
     }
     const nw4r::ut::Rect& rRect = mLayout.GetViewRect();
     f32 width = rRect.right - rRect.left;
-    position.x *= width;
-    position.x *= 0.5f;
+    position.x = position.x * width / 2.0f;
     f32 height = rRect.bottom - rRect.top;
-    position.y = -position.y * height;
-    position.y *= 0.5f;
+    position.y = -position.y * height / 2.0f;
     position.z = 0.0f;
     if (static_cast<u32>(mKind) <= KIND_ENEMY) {
         mLayout.GetLayout()->GetRootPane()->SetTranslate(position);
@@ -305,24 +318,27 @@ void CHPBar::CalcView(const nw4r::math::MTX34& rView, const nw4r::math::MTX44& r
         if (mHPRate < mDelayedHPRate) {
             f32 speed;
             if (mDelayFrames > 0) {
-                speed = (mDelayedHPRate - mHPRate) / mDelayFrames * gFrameStep;
+                speed = (mDelayedHPRate - mHPRate) / mDelayFrames;
+                speed *= gFrameStep;
                 mDelayFrames -= gFrameStep;
             } else {
                 speed = 0.0f;
             }
-            speed = Max(speed, 0.004f * gFrameStep);
-            mDelayedHPRate = Min(1.0f, Max(mHPRate, mDelayedHPRate - speed));
+            speed = Max(0.004f * gFrameStep, speed);
+            mDelayedHPRate = Min(Max(mHPRate, mDelayedHPRate - speed), 1.0f);
         } else {
             mDelayedHPRate = mHPRate;
         }
         if (mAnimationState == 1 && mDelayedHPRate == mHPRate) {
-            if (mKind != KIND_PLAYER || mHPRate > 0.2f) {
+            if (!(mKind == KIND_PLAYER && mHPRate <= 0.2f)) {
                 SetAnimationState(0);
             }
         }
-        mpYellow->SetSize(nw4r::lyt::Size(mBarWidth * mDelayedHPRate, mpYellow->GetSize().height));
-        f32 greenWidth = mBarWidth * mHPRate;
-        mpGreen->SetSize(nw4r::lyt::Size(greenWidth, mpGreen->GetSize().height));
+        nw4r::lyt::Size size(mBarWidth * mDelayedHPRate, mpYellow->GetSize().height);
+        mpYellow->SetSize(size);
+        size.height = mpGreen->GetSize().height;
+        size.width = mBarWidth * mHPRate;
+        mpGreen->SetSize(size);
         if (mHPRate != mDelayedHPRate) {
             mFlags |= FLAG_VISIBLE;
         }
@@ -334,7 +350,7 @@ void CHPBar::CalcView(const nw4r::math::MTX34& rView, const nw4r::math::MTX44& r
             CDamage* pDamage = it->get();
             pDamage->mLayout.GetLayout()->GetRootPane()->SetTranslate(position);
             pDamage->mLayout.Calc();
-            if (!pDamage->mMotion || pDamage->mMotion->IsEnded()) {
+            if (!pDamage->IsPlaying()) {
                 it = mDamage.erase(it);
             } else {
                 ++it;
