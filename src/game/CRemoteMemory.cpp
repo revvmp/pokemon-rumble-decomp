@@ -279,12 +279,9 @@ void* CRemoteMemory::ThreadMain(void*) {
         switch (command >> 16) {
         case 0: {
             CRemoteMemory* pRemote = sRemoteMemories[channel];
-            switch (sConnectionResults[channel]) {
-            case 0:
-                break;
-            case -1:
+            const long result = sConnectionResults[channel];
+            if (result != 0 && result == -1) {
                 pRemote->mFlags |= FLAG_CONNECTION_CHANGED;
-                break;
             }
             break;
         }
