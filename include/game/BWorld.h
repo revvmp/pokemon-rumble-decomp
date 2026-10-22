@@ -162,6 +162,9 @@ public:
     nw4r::g3d::Camera GetG3dCamera();
     nw4r::g3d::ScnRoot* GetScnRoot() const { return mScnRoot.get(); }
     nw4r::g3d::ScnGroup* GetModelGroup() const { return mModelGroup.get(); }
+    nw4r::g3d::ScnGroup* GetOutlineGroup() const { return mOutlineGroup.get(); }
+    CKDTree<BModelObj>* GetModelTree() const { return mModelTree.get(); }
+    bool HasOutlineData() const { return mOutlineData; }
     void SetOutlineAlpha(u8 alpha);
     void SetOutlineWidth(int width);
     bool AddGround(std::tr1::shared_ptr<BWorldObj> obj);

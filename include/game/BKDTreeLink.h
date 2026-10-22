@@ -23,6 +23,13 @@ public:
         pHead->mNext = this;
     }
 
+    void Detach() {
+        mNext->mPrev = mPrev;
+        mPrev->mNext = mNext;
+        mNext = this;
+        mPrev = this;
+    }
+
     void Unlink() {
         if (mNext != this) {
             IKDTreeLinkRemoved* pOwner = mOwner;

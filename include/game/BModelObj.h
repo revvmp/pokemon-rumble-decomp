@@ -6,6 +6,8 @@
 #include <game/BWorldObj.h>
 #include <nw4r/math/math_geometry.h>
 
+#include <game/BWorld.h>
+#include <game/CKDTree.h>
 #include <game/CModel.h>
 
 class BModelObj : public BWorldObj, public BSoundSource, public BKDTreeLink {
@@ -77,9 +79,20 @@ public:
     bool HasFlag(u32 flag) const { return (mFlags & flag) != 0; }
     bool IsSizeMode() const { return HasFlag(FLAG_SIZE_MODE) != 0; }
     nw4r::math::VEC3 CalcSize(int mode) const;
+    const nw4r::math::AABB& GetBounds() const { return mBounds; }
 
 private:
     static bool IsOutlineModel(const std::tr1::shared_ptr<CModel>& rModel);
+
+    nw4r::math::VEC3 CalcExtent(const nw4r::math::AABB& box, int mode) const;
+
+    void AddToWorldScene();
+
+    void LinkKDTree() {
+        if (IsVisible() && (mFlags & FLAG_KDTREE) && !IsLinked() && mWorld != nullptr) {
+            mWorld->GetModelTree()->Insert(this);
+        }
+    }
 
     void UpdateBounds() {
         mBounds.min.x = mPosition.x - mSize.x;

@@ -314,7 +314,7 @@ __red_black_tree<Pointer>::rotate_left(pointer x, pointer& root)
 	x->right_ = y->left_;
 	if (y->left_ != nullptr)
 		y->left_->parent_ = x;
-	y->parent_ = x->parent_;
+	y->parent_ = pointer(x->parent_);
 	if (x == x->parent_->left_)
 		x->parent_->left_ = y;
 	else
@@ -333,7 +333,7 @@ __red_black_tree<Pointer>::rotate_right(pointer x, pointer& root)
 	x->left_ = y->right_;
 	if (y->right_ != nullptr)
 		y->right_->parent_ = x;
-	y->parent_ = x->parent_;
+	y->parent_ = pointer(x->parent_);
 	if (x == x->parent_->left_)
 		x->parent_->left_ = y;
 	else
@@ -346,7 +346,7 @@ __red_black_tree<Pointer>::rotate_right(pointer x, pointer& root)
 namespace detail {
 
 struct tree_node_base {
-    __tree_color color() const { return __tree_color(parent_.bit()); }
+    unsigned color() const { return parent_.bit(); }
     void set_color(__tree_color c) { parent_.bit(bool(c)); }
     tree_node_base* parent() const { return parent_; }
     void set_parent(tree_node_base* p) { parent_ = p; }
