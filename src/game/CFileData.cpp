@@ -677,14 +677,7 @@ void InitializeResourceFiles(const ResourceFileConfig& rConfig) {
     sConfig = rConfig;
 }
 
-void UpdateResourceFiles() {
-    if (sWorker) {
-        sWorker.get()->ProcessFinishedJobs();
-    }
-}
-
-void ShutdownResourceFiles() {
-    sWorker.reset();
+inline void RemoveExpiredFiles() {
     std::map<std::string, std::tr1::weak_ptr<CFileData> >::iterator it = sFileCache.begin();
     while (it != sFileCache.end()) {
         std::map<std::string, std::tr1::weak_ptr<CFileData> >::iterator next = it;
@@ -694,6 +687,21 @@ void ShutdownResourceFiles() {
         }
         it = next;
     }
+}
+
+void UpdateResourceFiles() {
+    if (sWorker) {
+        sWorker.get()->ProcessFinishedJobs();
+        if (sWorker.get()->IsIdle()) {
+            sWorker.reset();
+        }
+        RemoveExpiredFiles();
+    }
+}
+
+void ShutdownResourceFiles() {
+    sWorker.reset();
+    RemoveExpiredFiles();
 }
 
 void DefaultFileErrorHandler(CPath::Drive drive, const char* pPath, long error, unsigned long flags) {
