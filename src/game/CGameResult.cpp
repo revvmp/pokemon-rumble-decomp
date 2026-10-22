@@ -98,11 +98,10 @@ bool SetMaterialTexture(nw4r::g3d::ScnMdl* pScnMdl, const char* pMaterialName, c
     return replaced;
 }
 
-void KeepStronger(std::tr1::shared_ptr<CPiiPersonalData>& rStrongest, const std::list<std::tr1::shared_ptr<CPiiPersonalData> >& rList)
+void KeepStronger(std::tr1::shared_ptr<CPiiPersonalData>& rStrongest, const std::tr1::shared_ptr<CPiiPersonalData>& rCandidate)
 {
-    std::tr1::shared_ptr<CPiiPersonalData> pPii = FindStrongestPii(rList);
-    if (pPii && (!rStrongest || rStrongest->GetBP() < pPii->GetBP())) {
-        rStrongest = pPii;
+    if (rCandidate && (!rStrongest || rStrongest->GetBP() < rCandidate->GetBP())) {
+        rStrongest = rCandidate;
     }
 }
 
@@ -114,14 +113,14 @@ int GetStrongestBP()
     for (int player = 0; player < 4; player++) {
         CPlayer* pPlayer = IGameSession::GetInstance()->GetPlayer(player);
         if (pPlayer->IsJoined()) {
-            KeepStronger(pStrongest, pPlayer->GetPiiBox().GetPersonalDataList());
+            KeepStronger(pStrongest, FindStrongestPii(pPlayer->GetPiiBox().GetPersonalDataList()));
             IController* pController = pPlayer->GetController();
             if (pController && pController->IsConnected() && pController->GetType() == IController::TYPE_WII_REMOTE) {
-                KeepStronger(pStrongest, IGameSession::GetInstance()->GetRemoteMemory(pController->GetChannel())->GetPiiBox()->GetPersonalDataList());
+                KeepStronger(pStrongest, FindStrongestPii(IGameSession::GetInstance()->GetRemoteMemory(pController->GetChannel())->GetPiiBox()->GetPersonalDataList()));
             }
         }
     }
-    KeepStronger(pStrongest, IGameSession::GetInstance()->GetTeamPiiBox()->GetPersonalDataList());
+    KeepStronger(pStrongest, FindStrongestPii(IGameSession::GetInstance()->GetTeamPiiBox()->GetPersonalDataList()));
     return pStrongest ? pStrongest->GetBP() : 0;
 }
 

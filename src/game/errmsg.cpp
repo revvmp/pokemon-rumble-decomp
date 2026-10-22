@@ -112,6 +112,10 @@ public:
     virtual void Update() { UpdatePad(); NResetMgr::Update(); }
     virtual bool ShouldRender() { return true; }
     virtual void Prepare();
+    void StartEndMotion() {
+        mMotion = mpLayout->CreateMotion("end");
+        mState = 2;
+    }
     virtual void Calc() {}
     virtual void Draw() {}
     virtual void Render();
@@ -140,16 +144,14 @@ inline void CErrMsgFatalLoop::Prepare() {
             for (int channel = 0; channel < 4; ++channel) {
                 WiiPadState* pPad = GetWiiPad(channel);
                 if (CanReadWiiPad(pPad) && (pPad->trig & sWork->mWiiButtons)) {
-                    mMotion = mpLayout->CreateMotion("end");
-                    mState = 2;
+                    StartEndMotion();
                     goto calcLayout;
                 }
             }
             for (int channel = 0; channel < 4; ++channel) {
                 GCPadState* pPad = GetGCPad(channel);
                 if (IsGCPadConnected(pPad) && (pPad->mTrigger & sWork->mGCButtons)) {
-                    mMotion = mpLayout->CreateMotion("end");
-                    mState = 2;
+                    StartEndMotion();
                     goto calcLayout;
                 }
             }
