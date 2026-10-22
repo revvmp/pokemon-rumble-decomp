@@ -29,3 +29,22 @@ Issues 61-65 (`game/CDividedGround.cpp`) and 113-114 (`game/CEffect.cpp`).
 - Flipping CDlgCollection to Matching fails to link: sibling NonMatching objects still reference its sdata RTTI (`lbl_804B6058`) and the local-scope `function_base<PFP3BUI_v>` destructor copy (`_8007BF00`). Dialog units sharing weak data must flip together or the shared symbols need real names first.
 - **Explicit versus implicit cdeque iterator copy constructor is budget-sensitive.** Removing the user copy constructor of `__cdeque_buf::iterator` makes `distance`, `copy_construct` and `cdeque_imp` copy inline as in the target, but `insert<void_iterator>` (CPlayerPii, CSaveManager) then inlines the copies where the target calls the out-of-line constructor, and the derived `__cdeque_pointer::iterator` needs its own explicit copy constructor. Net result was one function worse, so the header was left unchanged. The target `insert` exceeds the inline budget while `distance` does not.
 - **Argument-before-receiver order.** `mMsgWin->OpenMessage(GetMessageText(...))` hoists the shared_ptr dereference before the call; the target evaluates the text first. Binding the text to a local and then calling reproduced `CDlgCollectionImpl::Run` exactly.
+
+## Tail wave (CLayout, CFileData, NPpuVM, CPiiTex, CPpuEngine)
+
+- **`CaptureTexture` is `COffScreenTexture`.** The `shared_ptr_deleter<COffScreenTexture>` dispose (`0x800F74A0`) and the `move_ptr<COffScreenTexture>` destructor (`0x800F7540`) call the destructor at `0x801C4930` directly with the delete flag, so `delete` of a `COffScreenTexture*` is that class's own destructor, not a derived wrapper's. The class, header and unit were renamed (`17COffScreenTexture`); CPiiTex then matched once its functions followed the target order (InitTexture first, UpdateCamera last) and is `Matching`.
+- **A flag forwarded raw needs `int` all the way.** `CPpuEngine::Load(const char*, int, ...)` passes `mode` to `LoadScriptCode` with no bool conversion, and `LoadScriptCode` passes it on to `CPpuCode::Load` and `LoadLocalizedFile(..., int background, ...)`. Both now take `int wait`.
+- **A specialised `reallocate` dropped value-initialised tags.** `CPpuEngine.h` carried an `is_POD<MTX34>` specialisation and a hand-written `__vec_deleter<MTX34>::reallocate`; the target uses the generic path, whose `allocate(n, pod_type())` and `move_construct_to_end(..., pod_type())` create two one-byte tag slots. Removing both specialisations matched LoadPlacement with no regressions. The node name is read as `reinterpret_cast<const char*>(node.name + reinterpret_cast<u32>(&node))` (integer add, offset operand first).
+- **Data labels of NonMatching units.** `lbl_` constants used by otherwise identical functions were renamed to the build's `@NNNN` names (CLayout, CFileData, NPpuVM, CPpuEngine). report.json already scored these functions 100%; only unitdiff changes.
+
+### Open, with what was tried
+
+| Unit | Function | % | Cause and attempts |
+| --- | --- | --- | --- |
+| CPpuEngine | SendMessage, `dtor_801021A0` | 82.6, 0 | The `vector<int>(list::iterator, list::iterator)` range constructor in the target keeps 8-byte iterator copies (word plus byte) in memory for `distance` and `construct_at_end`; the extra-level `vector<int>` destructor is that local's. Our list iterator is 4 bytes; not modelled. |
+| NPpuVM | `CCode::Load` | 88.1 | Target hoists the header loads (magic, sizes) above the member stores; a `const SHeader&` changes nothing. |
+| NPpuVM | `~CEngine` | 95.1 | Inlined `set<T*>::erase`: target ranks the tree pointer above the node. Declaring `pNode` before `pNext` in `tree_imp::erase` and a named find result do nothing. |
+| CFileData | `map<CNTHandleWithMutex*, weak_ptr>::insert` | 99.9 | The `left`/`leftmost` slots are swapped. `map::insert` calling `tree_.insert_one` directly (one inline level fewer) gives 100% but breaks COyaInfo and l10n_files (DOL fails); swapping the declarations in `insert_one` loses 2 elsewhere. |
+| CFileData | `CWorker::CWorker` | 99.8 | Target stores `BThread::mpHead` before the vtable; making `mpHead` non-volatile regresses eight functions. |
+| CLayout | `Attach`, `AttachLayout`, `DetachAttachedLayouts` | 99.2-99.3 | The target `set<T*>` insert and copy paths have two more empty-tag slots and one more iterator copy than the hand-written pointer specialisation in `include/set`. |
+| CLayout | `GetPaneAlpha` | 98.2 | Inlined recursive copies carry an extra `b`; early-return shapes compile larger (0-87%). |
