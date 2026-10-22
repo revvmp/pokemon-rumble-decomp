@@ -208,11 +208,9 @@ void DrawDirectionalStrategy::DrawDirectional(const DrawInfo& rInfo,
     AheadContext context(viewMtx, pManager);
     CalcAheadFunc pCalcAheadFunc = GetCalcAheadFunc(pManager);
 
-    int texCoord;
+    int texCoord = 0;
     if (mNumTexmap > 0) {
         texCoord = 1;
-    } else {
-        texCoord = 0;
     }
 
     math::VEC3 emAxisY;
