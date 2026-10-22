@@ -154,8 +154,9 @@ s32 uhf_msc_blk_pread(PDM_DISK* p_disk, u8* p_buf, u32 block, u32 count, u32* p_
         direct = TRUE;
     }
     for (;;) {
-        num_block = (u16)max_block;
-        if (count <= max_block) {
+        if (count > max_block) {
+            num_block = (u16)max_block;
+        } else {
             num_block = (u16)count;
         }
         result = usbh_msc_read10(p_unit, block, num_block, p_transfer, sense);
@@ -228,8 +229,9 @@ s32 uhf_msc_blk_pwrite(PDM_DISK* p_disk, const u8* p_buf, u32 block, u32 count, 
         direct = TRUE;
     }
     for (;;) {
-        num_block = (u16)max_block;
-        if (count <= max_block) {
+        if (count > max_block) {
+            num_block = (u16)max_block;
+        } else {
             num_block = (u16)count;
         }
         if (!direct) {

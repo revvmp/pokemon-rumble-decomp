@@ -629,7 +629,7 @@ config.libs = [
             Object(Matching, "RVL_SDK/fa/msc_drv.c"),
             Object(Matching, "RVL_SDK/fa/puh_msc.c"),
             Object(Matching, "RVL_SDK/fa/puh_msc_cmd.c"),
-            Object(NonMatching, "RVL_SDK/fa/puh_msc_blk.c"),
+            Object(Matching, "RVL_SDK/fa/puh_msc_blk.c"),
             Object(Matching, "RVL_SDK/fa/sdi_api.c"),
             Object(Matching, "RVL_SDK/fa/puh_ker_mem.c"),
             Object(Matching, "RVL_SDK/fa/puh_ker_msg.c"),
