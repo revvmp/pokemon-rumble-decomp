@@ -112,3 +112,22 @@ The target's whole call structure can be reproduced, but only with a change to t
 ### Traps
 
 - **An experiment helper that runs `git checkout` on a header also reverts your earlier uncommitted edits to it.** Re-apply them and check `git diff --stat` before trusting a full-build comparison.
+
+## CRemoteMemory tail (final wave)
+
+GetPiiBox 85.80% to 100% (CRemoteMemory 14 to 15 of 20). BeginRead 96.51% to 97.27%. The unit stays `NonMatching`.
+
+- **GetPiiBox is not a `global_optimizer off` function.** A greedy pass search from full optimization gave `opt_dead_assignments`, `opt_propagation`, `opt_common_subs`, `opt_strength_reduction`, `opt_scalarize` and `opt_lifetimes` off (96.02%). With these passes off, the list iterator `!=` and `==` compare results become values (`subf; subf; or; srwi.` and `subf; cntlzw; srwi.`) through the unchanged `include/list`, so the header does not need a `bool` temporary.
+- **One pass set fits all six partly optimized functions.** The union of the GetPiiBox set and the a05 PrepareWrite set (adding `opt_rebuildconditionals`, `opt_treetransformation` and `opt_generateconditionalassignments`) leaves every function at its best score. All six blocks now use it. Adding any further pass changes nothing.
+- **The target `list::assign` dispatches twice.** `assign(const_iterator, const_iterator)` calls `choose_assign(first, last, int2type<0>())`, which calls `do_assign(first, last, iterator_category())`. This reproduces the two zero-stored tags and the copied third tag. Only CRemoteMemory calls `list::assign`, and the full build count was unchanged apart from +1.
+- **The extra iterator copies come from const access.** `assign` is called on `const CPiiBox& rBox = mRemoteBox` (const `begin()` gives the target's copies). The final loop needs `PersonalDataList::const_iterator it = PersonalDataList::iterator(mPersonalData.begin())`, which makes three begin copies. The flags chain reads `mFlags` once into a local and tests it through `MatchesFlags(flags, const u32& mask, value)` and `(flags >> 4) & 1`.
+- **Removing the non-const `CPiiBox::GetPersonalDataList` breaks other units.** ScriptPiiMotion and two other files need it.
+
+### Unsolved
+
+| Unit | Function | % | Cause and attempts |
+| --- | --- | --- | --- |
+| CRemoteMemory | BeginRead | 97.27 | The composite `SetState` argument: the target `li r0, 0x200; ori r5, r0, 0x28`, and ours folds `0x228`. A named result in `operator|` gives the unfolded form, but then the compare also uses the register (91.80). `changed` locals, casts and a `FlagSet` class with `opt_scalarize` off were tried. The `li r6, 0` before `li r5, 0x440` argument order did not move with any argument spelling. No further pass helps. |
+| CRemoteMemory | FinishRead | 97.46 | The same composite `SetState` form, plus register allocation. |
+| CRemoteMemory | ThreadMain | 98.62 | Inlined ReadBack holds `mTransferOffset` in `r8` in the target. An offset local (`u16`, `int`) and the operand order (98.67) were tried. |
+| CRemoteMemory | PrepareWrite, FinishWrite | 99.47, 98.19 | Register allocation only. A pointer local, unsigned and `u8` index casts were tried. Removing any pass from the set loses. |
