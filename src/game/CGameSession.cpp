@@ -97,7 +97,7 @@ public:
     virtual CRemoteMemory* GetRemoteMemory(int player);
     virtual COyaInfo* GetOyaInfo();
     virtual std::tr1::shared_ptr<NPpu::CEnvironment> GetEnvironment();
-    virtual int GetPPDColorIndex(int player, std::tr1::shared_ptr<CPiiPersonalData> pii);
+    virtual int AddPPDToPlayerPiiBox(int player, const std::tr1::shared_ptr<CPiiPersonalData>& rPPD);
     virtual bool CanAddPPDToPlayerPiiBox(int player, const std::tr1::shared_ptr<CPiiPersonalData>& rPPD);
     virtual bool IsReplacePiiAvailable(int player);
     virtual f32 GetPlayTimeSeconds();

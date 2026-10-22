@@ -51,7 +51,7 @@ void CUIPiiListItem::Update(CUIList* pList, CLayout* pLayout)
 {
     pLayout->SetText("NAME", mPPD->GetSpeciesData()->GetName());
     pLayout->SetText("VALUE", FormatString(L"%d", mPPD->GetBP()).c_str());
-    GetColorConstants()->ApplyTextColor(pLayout, "NAME", IGameSession::GetInstance()->GetPPDColorIndex(mPlayer, mPPD), 2);
+    GetColorConstants()->ApplyTextColor(pLayout, "NAME", IGameSession::GetInstance()->AddPPDToPlayerPiiBox(mPlayer, std::tr1::shared_ptr<CPiiPersonalData>(mPPD)), 2);
     pLayout->SetPaneVisible("NEW", mPPD->IsSpecHidden());
     nw4r::lyt::Pane* pGreen = pLayout->FindPane("HP_GREEN");
     nw4r::lyt::Pane* pRed = pLayout->FindPane("HP_RED");
