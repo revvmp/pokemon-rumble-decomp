@@ -43,13 +43,6 @@ inline bool IsGCPadConnected(const GCPadState* pPad) {
 }
 std::wstring WrapText(const std::wstring& rText, const nw4r::lyt::TextBox& rTextBox);
 
-void ProcessResetRequest();
-
-namespace NResetMgr {
-bool RequestDataManager();
-bool RequestMenu();
-}
-
 namespace NErrMsg {
 PaneRectangle GetPaneRectangle(const nw4r::lyt::Pane* pPane) {
     const nw4r::math::VEC3 position(pPane->GetTranslate());
@@ -116,7 +109,7 @@ public:
     ~CErrMsgFatalLoop();
     virtual bool IsRunning() { return true; }
     virtual void ResetTiming() { SetPadReadDelay(1); }
-    virtual void Update() { UpdatePad(); ProcessResetRequest(); }
+    virtual void Update() { UpdatePad(); NResetMgr::Update(); }
     virtual bool ShouldRender() { return true; }
     virtual void Prepare();
     virtual void Calc() {}
@@ -164,8 +157,8 @@ inline void CErrMsgFatalLoop::Prepare() {
         break;
     case 2:
         if (mMotion->IsEnded()) {
-            if (mAction == 2) NResetMgr::RequestDataManager();
-            else NResetMgr::RequestMenu();
+            if (mAction == 2) NResetMgr::RequestReturnToDataManager();
+            else NResetMgr::RequestReturnToMenu();
         }
         break;
     }
