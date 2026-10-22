@@ -60,14 +60,14 @@ void CPiiTex::UpdateCamera() {
         pSpecies = GetPiiSpeciesData(1, 0);
     } else {
         pSpecies = mPiis[0]->GetPersonalData()->GetSpeciesData();
-        for (std::vector<std::tr1::shared_ptr<CPii> >::iterator it = mPiis.begin(), end = mPiis.end(); it != end; ++it) {
+        for (std::vector<std::tr1::shared_ptr<CPii> >::iterator it = mPiis.begin(); it != mPiis.end(); ++it) {
             if ((*it)->BWorldObj::IsVisible()) {
                 pSpecies = (*it)->GetPersonalData()->GetSpeciesData();
                 break;
             }
         }
     }
-    PiiTexCameraParams params = gPiiTexCameraParams[pSpecies->GetSpecies()];
+    PiiTexCameraParams params = gPiiTexCameraParams[static_cast<u16>(pSpecies->GetSpecies())];
     if (params.mDistance == 0) {
         params.mDistance = 1000;
         params.mHeight = 500;
@@ -80,8 +80,9 @@ void CPiiTex::UpdateCamera() {
     f32 sinValue;
     f32 cosValue;
     nw4r::math::SinCosFIdx(&sinValue, &cosValue, 0.7111111f * params.mAngle);
-    f32 extent = params.mDistance / 1000.0f * 0.5f;
     nw4r::math::VEC3 position(50.5f * sinValue, params.mHeight / 1000.0f, 50.5f * cosValue);
+    f32 extent = params.mDistance / 1000.0f;
+    extent *= 0.5f;
     camera.SetOrtho(extent, -extent, -extent, extent, 1.0f, 100.0f);
     camera.SetPosition(position);
     nw4r::g3d::Camera::PostureInfo posture;

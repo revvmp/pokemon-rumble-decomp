@@ -20,8 +20,6 @@ extern const PiiTexCameraParams gPiiTexCameraParams[];
 
 class COffScreenTexture : public CaptureTexture {
 public:
-    COffScreenTexture() {}
-    ~COffScreenTexture() {}
 };
 
 class CPiiTex {
