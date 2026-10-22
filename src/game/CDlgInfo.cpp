@@ -94,9 +94,10 @@ public:
                 }
             }
             pLayout->SetText("TITLE", rPage.mTitle.c_str());
+            unsigned i;
             unsigned count = std::min(mLayouts.size(), rPage.mLines.size());
             f32 widths[4] = {0.0f, 0.0f, 0.0f, 0.0f};
-            unsigned i = 0;
+            i = 0;
             for (; i < count; i++) {
                 std::tr1::shared_ptr<CLayout> line = mLayouts[i];
                 const Line& rLine = rPage.mLines[i];
@@ -136,17 +137,17 @@ public:
             gaps[2] = mRectangles[3].left - mRectangles[2].right;
             widths[1] = mRectangles[1].GetWidth();
             NErrMsg::PaneRectangle columns[4];
-            columns[0] = mRectangles[0];
             f32 totalWidth = widths[0] + gaps[0] + widths[1] + gaps[1] + widths[2] + gaps[2] + widths[3];
-            columns[0].left = -totalWidth * 0.5f;
+            columns[0] = mRectangles[0];
+            columns[0].left = -totalWidth / 2.0f;
             columns[0].right = columns[0].left + widths[0];
             for (int j = 1; j < 4; j++) {
                 columns[j] = mRectangles[j];
                 columns[j].left = columns[j - 1].right + gaps[j - 1];
                 columns[j].right = columns[j].left + widths[j];
             }
-            for (unsigned k = 0; k < count; k++) {
-                std::tr1::shared_ptr<CLayout> line = mLayouts[k];
+            for (i = 0; i < count; i++) {
+                std::tr1::shared_ptr<CLayout> line = mLayouts[i];
                 for (int j = 0; j < 4; j++) {
                     NErrMsg::SetPaneRectangle(line->FindPane(sColumnPaneNames[j]), columns[j]);
                 }
