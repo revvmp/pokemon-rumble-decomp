@@ -10,6 +10,9 @@
 #include <revolution/GX.h>
 #include <revolution/gx/GXTexture.h>
 #include <revolution/gx/GXVert.h>
+#include <revolution/gd/GDBase.h>
+#include <revolution/gd/GDGeometry.h>
+#include <revolution/gd/GDTexture.h>
 
 namespace nw4r {
 namespace ut {
@@ -35,6 +38,7 @@ public:
     void SetupGXForDisplayList();
     void EnableLinearFilter(bool atSmall, bool atLarge);
     f32 Print(u16 ch);
+    f32 PrintForDisplayList(u16 ch);
 
     void SetColorMapping(Color min, Color max) {
         mColorMapping.min = min;
@@ -153,7 +157,7 @@ public:
     f32 GetFontAscent() const;
     f32 GetFontDescent() const;
 
-private:
+protected:
     struct ColorMapping {
         Color min;
         Color max;
@@ -200,7 +204,7 @@ private:
     static const u32 DEFAULT_COLOR_MAPPING_MIN = 0x00000000;
     static const u32 DEFAULT_COLOR_MAPPING_MAX = 0xFFFFFFFF;
 
-private:
+protected:
     static void SetupVertexFormat();
     static void SetupGXDefault();
     static void SetupGXWithColorMapping(Color min, Color max);
@@ -213,13 +217,15 @@ private:
 
     void UpdateVertexColor();
     void PrintGlyph(f32 x, f32 y, f32 z, const Glyph& rGlyph);
+    void PrintGlyphForDisplayList(f32 x, f32 y, f32 z, const Glyph& rGlyph);
+    void LoadTextureForDisplayList(const Glyph& rGlyph, GXTexMapID slot);
 
     void LoadTexture(const Glyph& rGlyph, GXTexMapID slot);
     void ResetTextureCache() {
         mLoadingTexture.Reset();
     }
 
-private:
+protected:
     ColorMapping mColorMapping;
     VertexColor mVertexColor;
     TextColor mTextColor;
@@ -304,6 +310,77 @@ inline void CharWriter::LoadTexture(const Glyph& rGlyph, GXTexMapID slot) {
         GXInitTexObjLOD(&texObj, mFilter.atSmall, mFilter.atLarge, 0.0f, 0.0f, 0.0f, GX_FALSE, GX_FALSE, GX_ANISO_1);
         GXLoadTexObj(&texObj, slot);
 
+        mLoadingTexture.texture = rGlyph.pTexture;
+    }
+}
+
+inline f32 CharWriter::PrintForDisplayList(u16 code) {
+    f32 width;
+    f32 left;
+
+    Glyph glyph;
+    mFont->GetGlyph(&glyph, code);
+
+    if (mIsWidthFixed) {
+        width = mFixedWidth;
+        left = (width - glyph.widths.charWidth * mScale.x) / 2 + (glyph.widths.left * mScale.x);
+    } else {
+        width = glyph.widths.charWidth * mScale.x;
+        left = glyph.widths.left * mScale.x;
+    }
+
+    f32 posX = mCursorPos.x + left;
+    f32 posY = mCursorPos.y - mFont->GetBaselinePos(code) * mScale.y;
+
+    PrintGlyphForDisplayList(posX, posY, mCursorPos.z, glyph);
+    mCursorPos.x += width;
+
+    return width;
+}
+
+inline void CharWriter::PrintGlyphForDisplayList(f32 x, f32 y, f32 z, const Glyph& rGlyph) {
+    f32 posLeft = x;
+    f32 posTop = y;
+    f32 posRight = posLeft + rGlyph.widths.glyphWidth * mScale.x;
+    f32 posBottom = posTop + rGlyph.height * mScale.y;
+    f32 posZ = z;
+
+    u16 texLeft = static_cast<u32>(rGlyph.cellX << 15) / rGlyph.texWidth;
+    u16 texTop = static_cast<u32>(rGlyph.cellY << 15) / rGlyph.texHeight;
+    u16 texRight = static_cast<u32>((rGlyph.cellX + rGlyph.widths.glyphWidth) << 15) / rGlyph.texWidth;
+    u16 texBottom = static_cast<u32>((rGlyph.cellY + rGlyph.height) << 15) / rGlyph.texHeight;
+
+    LoadTextureForDisplayList(rGlyph, GX_TEXMAP0);
+
+    GDBegin(GX_QUADS, GX_VTXFMT0, 4);
+
+    GDPosition3f32(posLeft, posTop, posZ);
+    GDColor1u32(0);
+    GDTexCoord2u16(texLeft, texTop);
+
+    GDPosition3f32(posRight, posTop, posZ);
+    GDColor1u32(0);
+    GDTexCoord2u16(texRight, texTop);
+
+    GDPosition3f32(posRight, posBottom, posZ);
+    GDColor1u32(0xFFFFFFFF);
+    GDTexCoord2u16(texRight, texBottom);
+
+    GDPosition3f32(posLeft, posBottom, posZ);
+    GDColor1u32(0xFFFFFFFF);
+    GDTexCoord2u16(texLeft, texBottom);
+
+    GDEnd();
+}
+
+inline void CharWriter::LoadTextureForDisplayList(const Glyph& rGlyph, GXTexMapID slot) {
+    if (rGlyph.pTexture != mLoadingTexture.texture) {
+        GDSetTexImgAttr(slot, rGlyph.texWidth, rGlyph.texHeight, rGlyph.texFormat);
+        GDSetTexCached(slot, 0, GX_TEXCACHE_32K, 0x80000, GX_TEXCACHE_32K);
+        GDSetTexLookupMode(slot, GX_CLAMP, GX_CLAMP, mFilter.atSmall, mFilter.atLarge, 0.0f, 0.0f, 0.0f, GX_FALSE,
+                           GX_FALSE, GX_ANISO_1);
+        GDSetTexCoordScale(GX_TEXCOORD0, rGlyph.texWidth, rGlyph.texHeight);
+        GDSetTexImgPtr(slot, rGlyph.pTexture);
         mLoadingTexture.texture = rGlyph.pTexture;
     }
 }

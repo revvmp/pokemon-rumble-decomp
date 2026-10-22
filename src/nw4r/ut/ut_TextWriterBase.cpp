@@ -415,7 +415,66 @@ f32 TextWriterBase<T>::PrintImpl(const T *str, int len, bool m) {
 
             charSpace = true;
 
-            CharWriter::Print(ch);
+            Glyph glyph;
+            f32 width;
+            f32 left;
+
+            mFont->GetGlyph(&glyph, ch);
+
+            if (mIsWidthFixed) {
+                width = mFixedWidth;
+                left = (width - glyph.widths.charWidth * mScale.x) / 2 + (glyph.widths.left * mScale.x);
+            } else {
+                width = glyph.widths.charWidth * mScale.x;
+                left = glyph.widths.left * mScale.x;
+            }
+
+            f32 posX = mCursorPos.x + left;
+            f32 posY = mCursorPos.y - mFont->GetBaselinePos(ch) * mScale.y;
+            f32 posZ = mCursorPos.z;
+
+            f32 posLeft = posX;
+            f32 posTop = posY;
+            f32 posRight = posLeft + glyph.widths.glyphWidth * mScale.x;
+            f32 posBottom = posTop + glyph.height * mScale.y;
+
+            u16 texLeft = static_cast<u32>(glyph.cellX << 15) / glyph.texWidth;
+            u16 texTop = static_cast<u32>(glyph.cellY << 15) / glyph.texHeight;
+            u16 texRight = static_cast<u32>((glyph.cellX + glyph.widths.glyphWidth) << 15) / glyph.texWidth;
+            u16 texBottom = static_cast<u32>((glyph.cellY + glyph.height) << 15) / glyph.texHeight;
+
+            if (mLoadingTexture.texture != glyph.pTexture) {
+                GXTexObj texObj;
+
+                GXInitTexObj(&texObj, glyph.pTexture, glyph.texWidth, glyph.texHeight, glyph.texFormat, GX_CLAMP,
+                             GX_CLAMP, GX_FALSE);
+                GXInitTexObjLOD(&texObj, mFilter.atSmall, mFilter.atLarge, 0.0f, 0.0f, 0.0f, GX_FALSE, GX_FALSE,
+                                GX_ANISO_1);
+                GXLoadTexObj(&texObj, GX_TEXMAP0);
+
+                mLoadingTexture.texture = glyph.pTexture;
+            }
+
+            GXBegin(GX_QUADS, GX_VTXFMT0, 4);
+
+            GXPosition3f32(posLeft, posTop, posZ);
+            GXColor1u32(mVertexColor.lu);
+            GXTexCoord2u16(texLeft, texTop);
+
+            GXPosition3f32(posRight, posTop, posZ);
+            GXColor1u32(mVertexColor.ru);
+            GXTexCoord2u16(texRight, texTop);
+
+            GXPosition3f32(posRight, posBottom, posZ);
+            GXColor1u32(mVertexColor.rd);
+            GXTexCoord2u16(texRight, texBottom);
+
+            GXPosition3f32(posLeft, posBottom, posZ);
+            GXColor1u32(mVertexColor.ld);
+            GXTexCoord2u16(texLeft, texBottom);
+
+            GXEnd();
+            mCursorPos.x += width;
         }
 
         if (useLimit) {
@@ -440,6 +499,200 @@ f32 TextWriterBase<T>::PrintImpl(const T *str, int len, bool m) {
 
     return textWidth;
 }
+
+template <typename T>
+f32 TextWriterBase<T>::PrintToDisplayListImpl(const T *str, int len, bool m) {
+    f32 cursorX = GetCursorX();
+    f32 cursorY = GetCursorY();
+
+    bool useLimit = mWidthLimit < NW4R_MATH_FLT_MAX;
+
+    f32 orgCursorX = cursorX;
+    f32 orgCursorY = cursorY;
+
+    f32 cursorXAdj = 0.0f;
+    f32 cursorYAdj = 0.0f;
+
+    bool charSpace = false;
+
+    const T *prevStream = str;
+    const T *prevNewline = str;
+
+    f32 textWidth = AdjustCursor(&cursorX, &cursorY, str, len);
+
+    cursorXAdj = orgCursorX - GetCursorX();
+    cursorYAdj = orgCursorY - GetCursorY();
+
+    PrintContext<T> context = {this, str, cursorX, cursorY};
+
+    CharStrmReader reader = GetFont()->GetCharStrmReader();
+    reader.Set(str);
+
+    typename TagProcessorBase<T>::Operation oper;
+    u16 ch = reader.Next();
+
+    while (static_cast<const T *>(reader.GetCurrentPos()) - str <= len) {
+        if (ch < ' ') {
+            context.str = static_cast<const T *>(reader.GetCurrentPos());
+            context.flags = charSpace ? 0 : PrintContext<T>::FLAGS_CHARSPACE;
+
+            if (useLimit && ch != '\n' && prevStream != prevNewline) {
+                PrintContext<T> context2 = context;
+                TextWriterBase<T> clone(*this);
+                Rect rect;
+
+                context2.writer = &clone;
+                oper = mTagProcessor->CalcRect(&rect, ch, &context2);
+
+                if (rect.GetWidth() > 0.0f && clone.GetCursorX() - context.x > mWidthLimit) {
+                    ch = '\n';
+                    reader.Set(prevStream);
+                    continue;
+                }
+            }
+
+            oper = mTagProcessor->Process(ch, &context);
+            if (oper == TagProcessorBase<T>::OPERATION_NEXT_LINE) {
+                if (IsDrawFlagSet(0x3, 0x1)) {
+                    int remain = len - (context.str - str);
+                    f32 width = CalcLineWidth(context.str, remain);
+                    f32 offset = (textWidth - width) / 2.0f;
+                    SetCursorX(context.x + offset);
+                } else if (IsDrawFlagSet(0x3, 0x2)) {
+                    int remain = len - (context.str - str);
+                    f32 width = CalcLineWidth(context.str, remain);
+                    f32 offset = textWidth - width;
+                    SetCursorX(context.x + offset);
+                } else {
+                    f32 width = GetCursorX() - context.x;
+                    textWidth = Max(textWidth, width);
+                    SetCursorX(context.x);
+                }
+
+                if (useLimit) {
+                    prevNewline = static_cast<const T *>(reader.GetCurrentPos());
+                }
+
+                charSpace = false;
+            } else if (oper == TagProcessorBase<T>::OPERATION_NO_CHAR_SPACE) {
+                charSpace = false;
+            } else if (oper == TagProcessorBase<T>::OPERATION_CHAR_SPACE) {
+                charSpace = true;
+            } else if (oper == TagProcessorBase<T>::OPERATION_END_DRAW) {
+                break;
+            }
+
+            reader.Set(context.str);
+        } else {
+            GetCursorY();
+
+            if (useLimit && prevStream != prevNewline) {
+                f32 baseX = GetCursorX();
+                f32 space = charSpace ? GetCharSpace() : 0.0f;
+                f32 width = IsWidthFixed() ? GetFixedWidth() : GetFont()->GetCharWidth(ch) * GetScaleH();
+                if (baseX - cursorX + space + width > mWidthLimit) {
+                    ch = '\n';
+                    reader.Set(prevStream);
+                    continue;
+                }
+            }
+
+            if (charSpace) {
+                MoveCursorX(GetCharSpace());
+            }
+
+            charSpace = true;
+
+            Glyph glyph;
+            f32 width;
+            f32 left;
+
+            mFont->GetGlyph(&glyph, ch);
+
+            if (mIsWidthFixed) {
+                width = mFixedWidth;
+                left = (width - glyph.widths.charWidth * mScale.x) / 2 + (glyph.widths.left * mScale.x);
+            } else {
+                width = glyph.widths.charWidth * mScale.x;
+                left = glyph.widths.left * mScale.x;
+            }
+
+            f32 posZ = mCursorPos.z;
+            f32 posX = mCursorPos.x + left;
+            f32 posY = mCursorPos.y - mFont->GetBaselinePos(ch) * mScale.y;
+
+            f32 posLeft = posX;
+            f32 posTop = posY;
+            f32 posRight = posLeft + glyph.widths.glyphWidth * mScale.x;
+            f32 posBottom = posTop + glyph.height * mScale.y;
+
+            u16 texLeft = static_cast<u32>(glyph.cellX << 15) / glyph.texWidth;
+            u16 texTop = static_cast<u32>(glyph.cellY << 15) / glyph.texHeight;
+            u16 texRight = static_cast<u32>((glyph.cellX + glyph.widths.glyphWidth) << 15) / glyph.texWidth;
+            u16 texBottom = static_cast<u32>((glyph.cellY + glyph.height) << 15) / glyph.texHeight;
+
+            LoadingTexture loadingTexture;
+            loadingTexture.slot = GX_TEXMAP0;
+            loadingTexture.texture = glyph.pTexture;
+            loadingTexture.filter = mFilter;
+
+            if (mLoadingTexture.texture != glyph.pTexture) {
+                GDSetTexImgAttr(GX_TEXMAP0, glyph.texWidth, glyph.texHeight, glyph.texFormat);
+                GDSetTexCached(GX_TEXMAP0, 0, GX_TEXCACHE_32K, 0x80000, GX_TEXCACHE_32K);
+                GDSetTexLookupMode(GX_TEXMAP0, GX_CLAMP, GX_CLAMP, mFilter.atSmall, mFilter.atLarge, 0.0f, 0.0f, 0.0f,
+                                   GX_FALSE, GX_FALSE, GX_ANISO_1);
+                GDSetTexCoordScale(GX_TEXCOORD0, glyph.texWidth, glyph.texHeight);
+                GDSetTexImgPtr(GX_TEXMAP0, glyph.pTexture);
+                mLoadingTexture.texture = glyph.pTexture;
+            }
+
+            GDBegin(GX_QUADS, GX_VTXFMT0, 4);
+
+            GDPosition3f32(posLeft, posTop, posZ);
+            GDColor1u32(0);
+            GDTexCoord2u16(texLeft, texTop);
+
+            GDPosition3f32(posRight, posTop, posZ);
+            GDColor1u32(0);
+            GDTexCoord2u16(texRight, texTop);
+
+            GDPosition3f32(posRight, posBottom, posZ);
+            GDColor1u32(0xFFFFFFFF);
+            GDTexCoord2u16(texRight, texBottom);
+
+            GDPosition3f32(posLeft, posBottom, posZ);
+            GDColor1u32(0xFFFFFFFF);
+            GDTexCoord2u16(texLeft, texBottom);
+
+            GDEnd();
+            mCursorPos.x += width;
+        }
+
+        if (useLimit) {
+            prevStream = static_cast<const T *>(reader.GetCurrentPos());
+        }
+
+        ch = reader.Next();
+    }
+
+    f32 width = GetCursorX() - context.x;
+    textWidth = Max(textWidth, width);
+
+    if (IsDrawFlagSet(0x300, 0x100) || IsDrawFlagSet(0x300, 0x200)) {
+        SetCursorY(orgCursorY);
+    } else if (m) {
+        if (IsDrawFlagSet(0x300, 0)) {
+            SetCursorY(GetCursorY() - GetFontAscent());
+        }
+    } else {
+        MoveCursorY(cursorYAdj);
+    }
+
+    return textWidth;
+}
+
+template <typename T>
+f32 TextWriterBase<T>::PrintMutableToDisplayList(const T* str, int len) { return PrintToDisplayListImpl(str, len, true); }
 
 template <typename T>
 f32 TextWriterBase<T>::AdjustCursor(f32 *x1, f32 *y1, const T *str, int len) {

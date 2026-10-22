@@ -58,6 +58,37 @@ static inline void GDWrite_u32(u32 data) {
     __GDWrite((u8)((data >> 0) & 0xFF));
 }
 
+static inline void GDWrite_u16(u16 data) {
+    GDOverflowCheck(2);
+    __GDWrite((u8)(data >> 8));
+    __GDWrite((u8)(data & 0xFF));
+}
+
+static inline void GDWrite_f32(f32 data) {
+    union FloatInt {
+        f32 f;
+        u32 u;
+    };
+    union FloatInt value;
+    value.f = data;
+    GDWrite_u32(value.u);
+}
+
+static void GDPosition3f32(f32 x, f32 y, f32 z) {
+    GDWrite_f32(x);
+    GDWrite_f32(y);
+    GDWrite_f32(z);
+}
+
+static void GDColor1u32(u32 color) {
+    GDWrite_u32(color);
+}
+
+static void GDTexCoord2u16(u16 s, u16 t) {
+    GDWrite_u16(s);
+    GDWrite_u16(t);
+}
+
 static inline void GDWriteBPCmd(u32 regval) {
     GDWrite_u8(GX_CMD_LOAD_BP_REG);
     GDWrite_u32(regval);
