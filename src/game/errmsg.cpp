@@ -110,7 +110,7 @@ public:
     virtual bool IsRunning() { return true; }
     virtual void ResetTiming() { SetPadReadDelay(1); }
     virtual void Update() { UpdatePad(); NResetMgr::Update(); }
-    virtual bool ShouldRender() { return true; }
+    virtual bool ShouldRender() const { return true; }
     virtual void Prepare();
     void StartEndMotion() {
         mMotion = mpLayout->CreateMotion("end");

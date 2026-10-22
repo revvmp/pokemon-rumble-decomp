@@ -75,7 +75,7 @@ public:
     if (ISaveManager* pSave = ISaveManager::GetInstance()) pSave->Calc();
     NResetMgr::Update();
 }
-    virtual bool ShouldRender() {
+    virtual bool ShouldRender() const {
     if (mDisconMsg) {
         if (mDisconMsg->IsActive()) return false;
     }

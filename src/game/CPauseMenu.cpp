@@ -252,8 +252,8 @@ private:
         UIMenuParam param = baseParam;
         param.mTitle = GetMessageString(0x6007E, nullptr);
         param.mpItems = &items[0];
-        param.mItemCount = items.size();
         param.mRowCount = items.size();
+        param.mItemCount = items.size();
         param.mpArchives = gSharedLayoutArchives;
         PlaySound(9);
 

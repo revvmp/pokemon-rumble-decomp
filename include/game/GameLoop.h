@@ -8,7 +8,7 @@ public:
     virtual bool IsRunning() = 0;
     virtual void ResetTiming() = 0;
     virtual void Update() = 0;
-    virtual bool ShouldRender() = 0;
+    virtual bool ShouldRender() const = 0;
     virtual void Prepare() = 0;
     virtual void Calc() = 0;
     virtual void Draw() = 0;
