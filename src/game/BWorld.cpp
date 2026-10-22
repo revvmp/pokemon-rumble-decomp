@@ -812,8 +812,11 @@ std::list<BWorldObj*> BWorld::FindObjectsInRect(u32 type, const nw4r::math::VEC3
         PSMTXMultVec(mtx, pObj->mPosition, local);
 
         f32 radius = pObj->GetSize().z;
-        if (minZ - radius <= local.z && local.z <= maxZ + radius && minX - radius <= local.x &&
-            local.x <= maxX + radius) {
+        f32 bottom = maxZ + radius;
+        f32 top = minZ - radius;
+        f32 right = maxX + radius;
+        f32 left = minX - radius;
+        if (top <= local.z && local.z <= bottom && left <= local.x && local.x <= right) {
             objs.insert(objs.end(), pObj);
         }
     }
