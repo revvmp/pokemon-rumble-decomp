@@ -142,6 +142,161 @@ public:
     bool mFlag400;
 };
 
+#pragma dont_inline on
+
+typedef std::list<std::tr1::shared_ptr<CPiiPersonalData> > PiiList;
+
+inline void CDlgPiiListImpl::RunRemoteTransfer() {
+    NResetMgr::CDisable resetDisable;
+    CDisableHBM homeButtonDisable;
+    bool changed = false;
+    for (PiiItemVector::const_iterator it = mItems.begin(); it != mItems.end(); ++it) {
+        if ((*it)->IsRemoteMarked() != (*it)->GetPPD()->IsInWiiRemote()) {
+            changed = true;
+            break;
+        }
+    }
+    if (!changed) {
+        PlaySound(0x5A);
+        return;
+    }
+    PlaySound(9);
+    if (!AskYesNo(GetMessageString(0x60099, nullptr))) {
+        return;
+    }
+    CRemoteMemory* pRemote = IGameSession::GetInstance()->GetRemoteMemory(
+        IGameSession::GetInstance()->GetPlayer(mPlayer)->GetController()->GetChannel());
+    pRemote->Update();
+    pRemote->WaitUntilIdle(true);
+    if (pRemote->ConsumeFatalError()) {
+        ShowMessage(GetMessageString(0x1000F, nullptr));
+        return;
+    }
+    if (pRemote->IsAborted() || pRemote->HasFailed()) {
+        ShowMessage(GetMessageString(0x6009E, nullptr));
+        GetCurrentGameMap()->GetDlgPiiSelector()->ShowMultiPlayerEntrance();
+        return;
+    }
+    std::tr1::shared_ptr<IDisconMsg::CDisable> disconDisable(new IDisconMsg::CDisable(IGameSession::GetInstance()->GetDisconMsg()));
+    mRemoteMemoryLayout->GetLayout()->CreateMotion("begin");
+    mRemoteMemoryLayout->GetLayout()->AppendMotion("loop");
+    mRemoteMemoryLayout->GetLayout()->SetText("text", GetMessageString(0x600EC, L"ここで Wiiリモコンに\nかきこみ"));
+    mRemoteMemoryLayout->GetLayout()->SetText("caution", GetMessageString(0x600ED, nullptr));
+    mSavingLayout->GetLayout()->CreateMotion("begin");
+    mSavingLayout->GetLayout()->AppendMotion("loop");
+    OSTick start = OSGetTick();
+    u32 minimumTicks = OS_MSEC_TO_TICKS(RandInt(0, 7000));
+    while (OSGetTick() - start < minimumTicks) {
+        YieldFiber();
+    }
+    PiiList fromRemote;
+    PiiList toRemote;
+    PiiItemVector::iterator it;
+    for (it = mItems.begin(); it != mItems.end(); ++it) {
+        std::tr1::shared_ptr<CPiiPersonalData> ppd = (*it)->GetPPD();
+        if ((*it)->IsRemoteMarked() == ppd->IsInWiiRemote()) {
+            continue;
+        }
+        if ((*it)->IsRemoteMarked()) {
+            pRemote->QueueAdd(ppd);
+            toRemote.push_back(ppd);
+        } else {
+            pRemote->QueueRemove(ppd);
+            fromRemote.push_back(ppd);
+        }
+    }
+    CPiiCollectionBox* pCollection = IGameSession::GetInstance()->GetPiiCollectionBox();
+    pCollection->SaveSnapshot();
+    for (PiiList::iterator it = fromRemote.begin(); it != fromRemote.end(); ++it) {
+        std::tr1::shared_ptr<CPiiPersonalData> ppd = *it;
+        IGameSession::GetInstance()->GetTeamPiiBox()->AddPersonalData(ppd);
+        int species = ppd->GetSpeciesData()->GetSpecies();
+        int form = ppd->GetSpeciesData()->GetFormNumber();
+        bool rare = ppd->IsRareColor();
+        pCollection->RecordCollection(species, form, 3, rare);
+    }
+    for (PiiList::iterator it = toRemote.begin(); it != toRemote.end(); ++it) {
+        IGameSession::GetInstance()->GetTeamPiiBox()->RemovePersonalData(*it);
+    }
+    IGameSession::GetInstance()->StartMapTransitionIn();
+    pRemote->PrepareWrite(1);
+    while (!IGameSession::GetInstance()->IsMapChangeFinished()) {
+        YieldFiber();
+    }
+    pRemote->WaitUntilIdle(true);
+    bool hasBlockError = pRemote->IsBlockInvalid();
+    pRemote->HasFailed();
+    bool failed = false;
+    if (pRemote->HasFailed() || hasBlockError) {
+        failed = true;
+    }
+    bool restoreMap = false;
+    if (!failed) {
+        if (RandBool(0.5f)) {
+            pRemote->PrepareWrite(2);
+            pRemote->WaitUntilIdle(true);
+            failed = pRemote->HasFailed();
+            if (!failed) {
+                IGameSession::GetInstance()->UpdateMapTransition();
+                while (!IGameSession::GetInstance()->IsMapChangeFinished()) {
+                    YieldFiber();
+                }
+            }
+        } else {
+            IGameSession::GetInstance()->UpdateMapTransition();
+            while (!IGameSession::GetInstance()->IsMapChangeFinished()) {
+                YieldFiber();
+            }
+            pRemote->PrepareWrite(2);
+            pRemote->WaitUntilIdle(true);
+            failed = pRemote->HasFailed();
+            restoreMap = failed;
+        }
+    }
+    if (failed) {
+        CPiiBox* pBox = pRemote->GetPiiBox();
+        for (PiiList::iterator it = fromRemote.begin(); it != fromRemote.end(); ++it) {
+            pBox->RemovePersonalData(*it);
+            pBox->AddPersonalData(*it);
+            pRemote->QueueAdd(*it);
+        }
+        for (PiiList::iterator it = toRemote.begin(); it != toRemote.end(); ++it) {
+            pRemote->QueueRemove(*it);
+        }
+        IGameSession::GetInstance()->GetPiiCollectionBox()->RestoreSnapshot();
+        for (PiiList::iterator it = fromRemote.begin(); it != fromRemote.end(); ++it) {
+            IGameSession::GetInstance()->GetTeamPiiBox()->RemovePersonalData(*it);
+        }
+        for (PiiList::iterator it = toRemote.begin(); it != toRemote.end(); ++it) {
+            IGameSession::GetInstance()->GetTeamPiiBox()->AddPersonalData(*it);
+        }
+        if (restoreMap) {
+            IGameSession::GetInstance()->StartMapTransitionOut();
+            while (!IGameSession::GetInstance()->IsMapChangeFinished()) {
+                YieldFiber();
+            }
+        }
+    }
+    while (OSGetTick() - start < OS_SEC_TO_TICKS(10)) {
+        YieldFiber();
+    }
+    std::tr1::shared_ptr<CLayout::CMotionProgram> endMotion = mSavingLayout->GetLayout()->QueueMotion("end");
+    endMotion->WaitStart();
+    mRemoteMemoryLayout->GetLayout()->CreateMotion("end")->Wait();
+    endMotion->Wait();
+    disconDisable.reset();
+    if (pRemote->HasFailed() || hasBlockError) {
+        if (pRemote->ConsumeFatalError()) {
+            ShowMessage(GetMessageString(0x1000F, nullptr));
+        } else {
+            ShowMessage(GetMessageString(0x6009C, nullptr));
+        }
+    }
+    pRemote->GetPiiBox();
+}
+
+#pragma dont_inline reset
+
 class CDlgPiiList : public IDlgPiiList, public std::tr1::enable_shared_from_this<CDlgPiiList> {
 public:
     CDlgPiiList() {}
@@ -646,160 +801,6 @@ finished:
     Finish();
 }
 
-#pragma dont_inline on
-
-typedef std::list<std::tr1::shared_ptr<CPiiPersonalData> > PiiList;
-
-inline void CDlgPiiListImpl::RunRemoteTransfer() {
-    NResetMgr::CDisable resetDisable;
-    CDisableHBM homeButtonDisable;
-    bool changed = false;
-    for (PiiItemVector::const_iterator it = mItems.begin(); it != mItems.end(); ++it) {
-        if ((*it)->IsRemoteMarked() != (*it)->GetPPD()->IsInWiiRemote()) {
-            changed = true;
-            break;
-        }
-    }
-    if (!changed) {
-        PlaySound(0x5A);
-        return;
-    }
-    PlaySound(9);
-    if (!AskYesNo(GetMessageString(0x60099, nullptr))) {
-        return;
-    }
-    CRemoteMemory* pRemote = IGameSession::GetInstance()->GetRemoteMemory(
-        IGameSession::GetInstance()->GetPlayer(mPlayer)->GetController()->GetChannel());
-    pRemote->Update();
-    pRemote->WaitUntilIdle(true);
-    if (pRemote->ConsumeFatalError()) {
-        ShowMessage(GetMessageString(0x1000F, nullptr));
-        return;
-    }
-    if (pRemote->IsAborted() || pRemote->HasFailed()) {
-        ShowMessage(GetMessageString(0x6009E, nullptr));
-        GetCurrentGameMap()->GetDlgPiiSelector()->ShowMultiPlayerEntrance();
-        return;
-    }
-    std::tr1::shared_ptr<IDisconMsg::CDisable> disconDisable(new IDisconMsg::CDisable(IGameSession::GetInstance()->GetDisconMsg()));
-    mRemoteMemoryLayout->GetLayout()->CreateMotion("begin");
-    mRemoteMemoryLayout->GetLayout()->AppendMotion("loop");
-    mRemoteMemoryLayout->GetLayout()->SetText("text", GetMessageString(0x600EC, L"ここで Wiiリモコンに\nかきこみ"));
-    mRemoteMemoryLayout->GetLayout()->SetText("caution", GetMessageString(0x600ED, nullptr));
-    mSavingLayout->GetLayout()->CreateMotion("begin");
-    mSavingLayout->GetLayout()->AppendMotion("loop");
-    OSTick start = OSGetTick();
-    u32 minimumTicks = OS_MSEC_TO_TICKS(RandInt(0, 7000));
-    while (OSGetTick() - start < minimumTicks) {
-        YieldFiber();
-    }
-    PiiList fromRemote;
-    PiiList toRemote;
-    PiiItemVector::iterator it;
-    for (it = mItems.begin(); it != mItems.end(); ++it) {
-        std::tr1::shared_ptr<CPiiPersonalData> ppd = (*it)->GetPPD();
-        if ((*it)->IsRemoteMarked() == ppd->IsInWiiRemote()) {
-            continue;
-        }
-        if ((*it)->IsRemoteMarked()) {
-            pRemote->QueueAdd(ppd);
-            toRemote.push_back(ppd);
-        } else {
-            pRemote->QueueRemove(ppd);
-            fromRemote.push_back(ppd);
-        }
-    }
-    CPiiCollectionBox* pCollection = IGameSession::GetInstance()->GetPiiCollectionBox();
-    pCollection->SaveSnapshot();
-    for (PiiList::iterator it = fromRemote.begin(); it != fromRemote.end(); ++it) {
-        std::tr1::shared_ptr<CPiiPersonalData> ppd = *it;
-        IGameSession::GetInstance()->GetTeamPiiBox()->AddPersonalData(ppd);
-        int species = ppd->GetSpeciesData()->GetSpecies();
-        int form = ppd->GetSpeciesData()->GetFormNumber();
-        bool rare = ppd->IsRareColor();
-        pCollection->RecordCollection(species, form, 3, rare);
-    }
-    for (PiiList::iterator it = toRemote.begin(); it != toRemote.end(); ++it) {
-        IGameSession::GetInstance()->GetTeamPiiBox()->RemovePersonalData(*it);
-    }
-    IGameSession::GetInstance()->StartMapTransitionIn();
-    pRemote->PrepareWrite(1);
-    while (!IGameSession::GetInstance()->IsMapChangeFinished()) {
-        YieldFiber();
-    }
-    pRemote->WaitUntilIdle(true);
-    bool hasBlockError = pRemote->IsBlockInvalid();
-    pRemote->HasFailed();
-    bool failed = false;
-    if (pRemote->HasFailed() || hasBlockError) {
-        failed = true;
-    }
-    bool restoreMap = false;
-    if (!failed) {
-        if (RandBool(0.5f)) {
-            pRemote->PrepareWrite(2);
-            pRemote->WaitUntilIdle(true);
-            failed = pRemote->HasFailed();
-            if (!failed) {
-                IGameSession::GetInstance()->UpdateMapTransition();
-                while (!IGameSession::GetInstance()->IsMapChangeFinished()) {
-                    YieldFiber();
-                }
-            }
-        } else {
-            IGameSession::GetInstance()->UpdateMapTransition();
-            while (!IGameSession::GetInstance()->IsMapChangeFinished()) {
-                YieldFiber();
-            }
-            pRemote->PrepareWrite(2);
-            pRemote->WaitUntilIdle(true);
-            failed = pRemote->HasFailed();
-            restoreMap = failed;
-        }
-    }
-    if (failed) {
-        CPiiBox* pBox = pRemote->GetPiiBox();
-        for (PiiList::iterator it = fromRemote.begin(); it != fromRemote.end(); ++it) {
-            pBox->RemovePersonalData(*it);
-            pBox->AddPersonalData(*it);
-            pRemote->QueueAdd(*it);
-        }
-        for (PiiList::iterator it = toRemote.begin(); it != toRemote.end(); ++it) {
-            pRemote->QueueRemove(*it);
-        }
-        IGameSession::GetInstance()->GetPiiCollectionBox()->RestoreSnapshot();
-        for (PiiList::iterator it = fromRemote.begin(); it != fromRemote.end(); ++it) {
-            IGameSession::GetInstance()->GetTeamPiiBox()->RemovePersonalData(*it);
-        }
-        for (PiiList::iterator it = toRemote.begin(); it != toRemote.end(); ++it) {
-            IGameSession::GetInstance()->GetTeamPiiBox()->AddPersonalData(*it);
-        }
-        if (restoreMap) {
-            IGameSession::GetInstance()->StartMapTransitionOut();
-            while (!IGameSession::GetInstance()->IsMapChangeFinished()) {
-                YieldFiber();
-            }
-        }
-    }
-    while (OSGetTick() - start < OS_SEC_TO_TICKS(10)) {
-        YieldFiber();
-    }
-    std::tr1::shared_ptr<CLayout::CMotionProgram> endMotion = mSavingLayout->GetLayout()->QueueMotion("end");
-    endMotion->WaitStart();
-    mRemoteMemoryLayout->GetLayout()->CreateMotion("end")->Wait();
-    endMotion->Wait();
-    disconDisable.reset();
-    if (pRemote->HasFailed() || hasBlockError) {
-        if (pRemote->ConsumeFatalError()) {
-            ShowMessage(GetMessageString(0x1000F, nullptr));
-        } else {
-            ShowMessage(GetMessageString(0x6009C, nullptr));
-        }
-    }
-    pRemote->GetPiiBox();
-}
-
-#pragma dont_inline reset
 
 inline void CDlgPiiListImpl::RunSell() {
     PiiList sellList;
