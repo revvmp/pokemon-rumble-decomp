@@ -39,6 +39,10 @@
 - **A temporary argument instead of a scoped local fixes the frame order.** errmsg `ShowSystemMessage` passes `GetFontMap(created)` straight to `LoadFromMemory`.
 - Compiler-generated `@NNNN` labels can be named in `symbols.txt` from unitdiff rows (a variant of `name_data.py` that accepts `@` names on the source side). Their numbers drift whenever an included header changes; constants still compare by value.
 
+- **errmsg's `.data` ended 0xB0 bytes early.** The `default_delete<NResetMgr::CDisable>`, `<NErrMsg::@unnamed@errmsg_cpp@::Work>` and `<CRomFont>` names at 0x803C2020 belong to errmsg; homebutton's `.data` starts at `sNormalModes` (0x803C20D0). Both units stay NonMatching and the DOL still verifies.
+- **homebutton used invented NResetMgr names.** Its local declarations (`RequestMenu`, `RequestReset`, `IsPowerOffRequested`, ...) did not exist; the target calls `RequestReturnToMenu`, `RequestRestart(0)`, `RequestLaunchManualViewer` (with the `"lmv"` address as its `u32`), `IsRestartRequested`, `CancelRestart` and `IsShutdownRequested` from `NResetMgr.h`.
+- UpdateHomeButton (96.4% to 99.65%): the controller loop increments `i` last; `canOpen` is set by `if (!sDisableCount && IsEnabled())`; the state check keeps the loaded `sWaitingToOpen` and tests `!waiting && sWaitingToOpen` after the loop; the aspect test is a `bool` with the `!wide` branch first; the stick deltas are computed `dy` first; `moved = padMoved | stickMoved` gives the `or.`; the pointer copy is per axis. Left: the `waiting` register, the merged zero constant for `use_devtype` and the `false` argument, and the divisor's float register.
+
 ### Unsolved
 
 | Unit | Function | % | Cause |
@@ -49,6 +53,6 @@
 | CPauseMenu | `TakeScreenshot` | 99.77 | register allocation of the work buffer pointer |
 | errmsg | `GetPaneRectangle` | 88.70 | the first three instructions are scheduled above `stwu` in ours; local order, const and reference forms tried |
 | main | `HandleFileError` | 96.61 | `UsesAlternateErrorMessage` range checks: the combined `||` form folds into the switch's range compare, the two-`if` form lays the false path inline |
-| homebutton | `InitializeHomeButtonInfo` | 98.55 | parameters get the lowest non-volatile registers in ours, the highest in the target |
+| homebutton | `InitializeHomeButtonInfo`, `UpdateHomeButton` | 98.57, 99.65 | parameters get the lowest non-volatile registers in ours, the highest in the target |
 | CShadowCamera | `SetupShadowModel`, `SetupShadowMaterial` | 95.20, 99.88 | argument load scheduling around the by-value `GXColor` copies |
 | CPii | `swap<vector<Data>>`, bad_function_call `what`/dtor | 97.70, missing | see sprint-tZ; the bad_function_call weak functions come from a throw site the linker dropped |
