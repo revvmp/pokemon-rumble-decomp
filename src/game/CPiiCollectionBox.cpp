@@ -26,9 +26,9 @@ void CPiiCollectionBox::RecordCollection(u16 monsno, u8 form, int type, bool rar
     }
     if (type == 3) {
         if (rare) {
-            pEntry->mCollectedForms[1] |= 1 << (form % 32);
+            pEntry->mRareForms |= 1 << (form % 32);
         } else {
-            pEntry->mCollectedForms[0] |= 1 << (form % 32);
+            pEntry->mNormalForms |= 1 << (form % 32);
         }
     }
     if (type == 2) {
@@ -41,11 +41,11 @@ int CPiiCollectionBox::GetCollectionType(u16 monsno) {
 }
 
 u32 CPiiCollectionBox::GetNormalColorMask(u16 monsno) {
-    return mEntries[monsno].mCollectedForms[0];
+    return mEntries[monsno].mNormalForms;
 }
 
 u32 CPiiCollectionBox::GetRareColorMask(u16 monsno) {
-    return mEntries[monsno].mCollectedForms[1];
+    return mEntries[monsno].mRareForms;
 }
 
 void CPiiCollectionBox::SetCollectionBRR(u16 monsno, int type, int value) {
@@ -74,10 +74,10 @@ std::tr1::shared_ptr<CPiiCollectionBox> CPiiCollectionBox::Create(const std::vec
             rEntry.mBestBRR[1] = (rSrc.mValues[0] >> 23) & 7;
             rEntry.mBestBRR[2] = (rSrc.mValues[0] >> 20) & 7;
             rEntry.mDefeatedCount = rSrc.mValues[1];
-            rEntry.mCollectedForms[0] = rSrc.mValues[2];
-            rEntry.mCollectedForms[1] = rSrc.mValues[3];
-            if ((rSrc.mValues[0] >> 19) & 1) {
-                rEntry.mCollectedForms[1] |= 1;
+            rEntry.mNormalForms = rSrc.mValues[2];
+            rEntry.mRareForms = rSrc.mValues[3];
+            if (reinterpret_cast<const PackedCollectionData&>(rSrc).mHasFirstForm) {
+                rEntry.mRareForms |= 1;
             }
         }
     }
@@ -94,11 +94,11 @@ void CPiiCollectionBox::ExportCollectionData(std::vector<SD_PiiCollectionData::D
         packed.mBestBRR0 = pEntry->mBestBRR[0];
         packed.mBestBRR1 = pEntry->mBestBRR[1];
         packed.mBestBRR2 = pEntry->mBestBRR[2];
-        packed.mDefeatedCount = pEntry->mDefeatedCount;
-        packed.mNormalForms = pEntry->mCollectedForms[0];
-        packed.mRareForms = pEntry->mCollectedForms[1];
         packed.mHasFirstForm = 0;
         packed.mReserved = 0;
+        packed.mDefeatedCount = pEntry->mDefeatedCount;
+        packed.mNormalForms = pEntry->mNormalForms;
+        packed.mRareForms = pEntry->mRareForms;
         records.push_back(reinterpret_cast<const SD_PiiCollectionData::Data&>(packed));
     }
     rOut.swap(records);

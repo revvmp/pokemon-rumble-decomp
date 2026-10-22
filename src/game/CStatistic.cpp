@@ -19,8 +19,8 @@ void ExpandTo(std::vector<SD_StatisticValue::Data>& rValues, u32 index) {
 CStatistic::CStatistic() {}
 
 int CStatistic::Get(int id) {
-    if (id < -97) {
-        if (id >= -100) {
+    if (id < 0) {
+        if (-100 <= id && id < -97) {
             u32 index = id + 100;
             if (index < mSystemValues.size()) {
                 return mSystemValues[index].mValue;
@@ -35,57 +35,30 @@ int CStatistic::Get(int id) {
         }
         return 0;
     }
-    if (id >= 0) {
-        if (static_cast<u32>(id) < mValues.size()) {
-            return mValues[id].mValue;
-        }
+    if (static_cast<u32>(id) < mValues.size()) {
+        return mValues[id].mValue;
     }
     return 0;
 }
 
-int CStatistic::GetCounterStopValue(int id) const {
-    std::map<int, int>::iterator it = mCounterStops.find(id);
-    return it != mCounterStops.end() ? it->second : INT_MAX;
-}
-
-bool CStatistic::IsWazaUsed(int waza) {
-    u32 word = waza / 32;
-    u32 mask = 1 << (waza % 32);
-    if (word < mWazaBits.size()) {
-        return (mWazaBits[word].mValue & mask) != 0;
-    }
-    return false;
-}
-
-int CStatistic::GetWazaUsedCount() {
-    int count = 0;
-    for (std::vector<SD_StatisticValue::Data>::iterator it = mWazaBits.begin(); it != mWazaBits.end(); ++it) {
-        u32 bits = it->mValue;
-        if (bits != 0) {
-            for (int i = 0; i < 32; i++) {
-                if (bits & (1 << i)) {
-                    count++;
-                }
-            }
-        }
-    }
-    return count;
-}
-
 void CStatistic::Set(int id, int value) {
+    long stop;
     long limited = value;
-    limited = std::min<long>(GetCounterStopValue(id), limited);
-    if (id < -97) {
-        if (id >= -100) {
-            id += 100;
-            ExpandTo(mSystemValues, id);
-            mSystemValues[id].mValue = limited;
+    stop = GetCounterStopValue(id);
+    limited = std::min(stop, limited);
+    if (id < 0) {
+        if (-100 <= id && id < -97) {
+            u32 index = id + 100;
+            ExpandTo(mSystemValues, index);
+            mSystemValues[index].mValue = limited;
         } else if (id == -200) {
             GetSaveData(-1)->mData.mCounters[0] = limited;
         } else if (id == -199) {
             GetSaveData(-1)->mData.mCounters[1] = limited;
+        } else {
+            return;
         }
-    } else if (id >= 0) {
+    } else {
         ExpandTo(mValues, id);
         mValues[id].mValue = limited;
     }
@@ -119,6 +92,20 @@ void CStatistic::SetCounterStopValue(int id, int value) {
     mCounterStops[id] = value;
 }
 
+int CStatistic::GetCounterStopValue(int id) const {
+    std::map<int, int>::iterator it = mCounterStops.find(id);
+    return it != mCounterStops.end() ? it->second : INT_MAX;
+}
+
+bool CStatistic::IsWazaUsed(int waza) {
+    u32 word = waza / 32;
+    u32 mask = 1 << (waza % 32);
+    if (word < mWazaBits.size()) {
+        return (mWazaBits[word].mValue & mask) != 0;
+    }
+    return false;
+}
+
 void CStatistic::SetWazaUsed(int waza, bool used) {
     if (waza != 0) {
         u32 word = waza / 32;
@@ -130,6 +117,21 @@ void CStatistic::SetWazaUsed(int waza, bool used) {
             mWazaBits[word].mValue = mValues[word].mValue & ~mask;
         }
     }
+}
+
+int CStatistic::GetWazaUsedCount() {
+    int count = 0;
+    for (std::vector<SD_StatisticValue::Data>::iterator it = mWazaBits.begin(); it != mWazaBits.end(); ++it) {
+        u32 bits = it->mValue;
+        if (bits != 0) {
+            for (int i = 0; i < 32; i++) {
+                if (bits & (1 << i)) {
+                    count++;
+                }
+            }
+        }
+    }
+    return count;
 }
 
 void CStatistic::SaveSnapshot() {

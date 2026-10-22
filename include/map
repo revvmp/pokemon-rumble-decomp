@@ -264,16 +264,7 @@ public:
     node* insert_node_at(tree_node_base* pParent, bool left, bool leftmost, const value_type& rValue);
 
     size_type size() const { return sz(); }
-    void destroy(node* pNode) {
-        if (pNode->left_ != nullptr) {
-            destroy(static_cast<node*>(pNode->left_));
-        }
-        if (pNode->right_ != nullptr) {
-            destroy(static_cast<node*>(pNode->right_));
-        }
-        alloc_.first().destroy(&pNode->value_);
-        ::operator delete(pNode);
-    }
+    void destroy(node* pNode);
 
 private:
     struct anchor { anchor() : left_(nullptr) {} tree_node_base* left_; };
@@ -287,6 +278,18 @@ private:
     tree_node_base*& front() { return comp_.second(); }
     tree_node_base* front() const { return comp_.second(); }
 };
+
+template <typename T, typename Compare, typename Allocator>
+void map_compact_tree<T, Compare, Allocator>::destroy(node* pNode) {
+    if (pNode->left_ != nullptr) {
+        destroy(static_cast<node*>(pNode->left_));
+    }
+    if (pNode->right_ != nullptr) {
+        destroy(static_cast<node*>(pNode->right_));
+    }
+    alloc_.first().destroy(&pNode->value_);
+    ::operator delete(pNode);
+}
 
 template <typename T, typename Compare, typename Allocator>
 template <typename Key> tree_node_base* map_compact_tree<T, Compare, Allocator>::find_leaf(const Key& key, node*& rpPred, bool& rLeft, bool& rLeftmost) {
@@ -422,7 +425,7 @@ public:
     }
     native_iterator find(const key_type& rKey) { return tree_.find(rKey); }
     native_iterator erase(native_iterator position);
-    native_iterator find(const key_type& rKey) const { return const_cast<map_base*>(this)->find(rKey); }
+    native_iterator find(const key_type& rKey) const { return const_cast<tree_type&>(tree_).find(rKey); }
     native_iterator end() const { return const_cast<map_base*>(this)->end(); }
     mapped_type& operator[](const key_type& rKey) { return find_or_insert(rKey).second; }
 

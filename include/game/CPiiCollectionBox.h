@@ -23,10 +23,15 @@ public:
 
 private:
     struct Entry {
+        Entry() : mCollectionType(0), mDefeatedCount(0), mNormalForms(0), mRareForms(0) {
+            mBestBRR[2] = mBestBRR[1] = mBestBRR[0] = 0;
+        }
+
         int mCollectionType;
         int mBestBRR[3];
         int mDefeatedCount;
-        u32 mCollectedForms[2];
+        u32 mNormalForms;
+        u32 mRareForms;
     };
 
     static bool CompareDefeatCount(const Entry* pLeft, const Entry* pRight);

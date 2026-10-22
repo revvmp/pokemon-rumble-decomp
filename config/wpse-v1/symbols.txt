@@ -12110,9 +12110,9 @@ __dt__Q43std3tr16detail82shared_ptr_deleter<13CRemoteMemory,Q33std6detail31defau
 dtor_800BC530 = .text:0x800BC530; // type:function size:0x74
 __dt__Q23std98__vec_split_buffer<Q220SD_PiiCollectionData4Data,Q23std40allocator<Q220SD_PiiCollectionData4Data>>Fv = .text:0x800BC5B0; // type:function size:0x74
 __dt__Q23std94__vec_split_buffer<Q218SD_PiiPersonalData4Data,Q23std38allocator<Q218SD_PiiPersonalData4Data>>Fv = .text:0x800BC630; // type:function size:0x74
-__dt__Q23std92__vec_split_buffer<Q217SD_StatisticValue4Data,Q23std37allocator<Q217SD_StatisticValue4Data>>Fv = .text:0x800BC6B0; // type:function size:0x74
+__dt__Q23std80__vec_split_buffer<18SD_BattleRoyalData,Q23std31allocator<18SD_BattleRoyalData>>Fv = .text:0x800BC6B0; // type:function size:0x74
 __dt__Q23std78__vec_split_buffer<17SD_StatisticValue,Q23std30allocator<17SD_StatisticValue>>Fv = .text:0x800BC730; // type:function size:0x74
-__dt__Q23std80__vec_split_buffer<18SD_BattleRoyalData,Q23std31allocator<18SD_BattleRoyalData>>Fv = .text:0x800BC7B0; // type:function size:0x74
+__dt__Q23std92__vec_split_buffer<Q217SD_StatisticValue4Data,Q23std37allocator<Q217SD_StatisticValue4Data>>Fv = .text:0x800BC7B0; // type:function size:0x74
 __dt__Q23std84__vec_split_buffer<20SD_PiiCollectionData,Q23std33allocator<20SD_PiiCollectionData>>Fv = .text:0x800BC830; // type:function size:0x74
 __dt__Q23std104__vec_split_buffer<Q33std3tr120shared_ptr<7MapDesc>,Q23std43allocator<Q33std3tr120shared_ptr<7MapDesc>>>Fv = .text:0x800BC8B0; // type:function size:0x11C
 __dt__Q23std99__vec_deleter<Q33std3tr120shared_ptr<7MapDesc>,Q23std43allocator<Q33std3tr120shared_ptr<7MapDesc>>>Fv = .text:0x800BC9D0; // type:function size:0xC4
@@ -29933,7 +29933,7 @@ __RTTI__Q33std6detail78default_delete<Q23std54vector<Q24NPpu5Slice,Q23std24alloc
 __RTTI__12CStageCamera = .sdata:0x804B7380; // type:object size:0x8
 lbl_804B7388 = .sdata:0x804B7388; // type:object size:0x8 data:4byte
 lbl_804B7390 = .sdata:0x804B7390; // type:object size:0x8
-lbl_804B7398 = .sdata:0x804B7398; // type:object size:0x8 data:4byte
+__RTTI__Q33std6detail28default_delete<10CStatistic> = .sdata:0x804B7398; // type:object size:0x8 data:4byte
 __RTTI__Q43std3tr16detail84shared_ptr_deleter<14CStrapReminder,Q33std6detail32default_delete<14CStrapReminder>> = .sdata:0x804B73A0; // type:object size:0x8
 __RTTI__Q43std3tr16detail278function_imp<PFv_v,Q43std3tr16detail234bound_func<v,Q43std3tr16detail28mem_fn_0<v,14CStrapReminder>,Q33std3tr1159tuple<P14CStrapReminder,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat>>,0,0> = .sdata:0x804B73A8; // type:object size:0x8
 __RTTI__14CStrapReminder = .sdata:0x804B73B0; // type:object size:0x8
