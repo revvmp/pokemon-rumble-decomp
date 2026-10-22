@@ -79,14 +79,14 @@
 
 ### Fixes
 
-- CRemoteMemory: `opt_optimizecontrolflow off` for the file. A file-local `FindValidBlock` selects the read block with early returns, which gives the target's shared `li 3` block. FinishRead has an explicit `case -4`. BeginRead runs with `opt_propagation off` and a local state mask in `SetState`, and reads the connection bit as `(flags >> 6) & 1` from one load. ThreadMain tests the connection result with `result != 0 && result == -1` (linear in the target). Scores: ThreadMain 78.97 to 81.74, BeginRead 87.98 to 95.82, FinishRead 56.93 to 63.44, PrepareWrite 77.19 to 82.24, FinishWrite 44.66 to 51.05. GetPiiBox stays at 65.14; with `global_optimizer off` it reaches 85.80, but that does not combine with the file-wide pragma.
+- CRemoteMemory: `opt_optimizecontrolflow off` for the file. A file-local `FindValidBlock` selects the read block with early returns, which gives the target's shared `li 3` block. FinishRead has an explicit `case -4`. BeginRead runs with `opt_propagation off` and a local state mask in `SetState`, and reads the connection bit as `(flags >> 6) & 1` from one load. ThreadMain tests the connection result with `result != 0 && result == -1` (linear in the target). Scores: ThreadMain 78.97 to 81.74, BeginRead 87.98 to 95.82, FinishRead 56.93 to 63.44, PrepareWrite 77.19 to 82.24, FinishWrite 44.66 to 51.05. GetPiiBox 65.14 to 85.80 with `global_optimizer off` in a push/pop region (it combines with the file-wide pragma). Per-function `opt_common_subs off` or `opt_propagation off` add 2 to 4 points to PrepareWrite and FinishRead; not kept.
 - CPpuEngine: `HandlerList` (derived from `vector<int>`, built from the callback list range) is the local in `SendMessage`; `0x801021A0` is its destructor (now 100%).
 
 ### Unsolved
 
 | Unit | Function | % | Cause |
 | --- | --- | --- | --- |
-| CRemoteMemory | GetPiiBox | 65.14 | Target looks optimizer-off (materialised `(mFlags & mask) == value` with mask and value in registers, frame pointer); `global_optimizer off` gives 85.80 but the list-assign iterator copies and slots still differ |
+| CRemoteMemory | GetPiiBox | 85.80 | Optimizer-off in the target (materialised `(mFlags & mask) == value` with mask and value in registers, frame pointer); the list-assign iterator copies and stack slots still differ |
 | CRemoteMemory | BeginRead, FinishRead | 95.82, 63.44 | `0x200 \| state` unfolded for the two composite states; FinishRead keeps `channel * 0x440` in a saved register where the target recomputes it |
 | CRemoteMemory | ThreadMain, PrepareWrite, FinishWrite | 81.74, 82.24, 51.05 | ReadBack's tree root is -1 in ours and -2 in the target (the target has an extra `-4` node going to the default body); PrepareWrite's list `!=` is materialised in the target |
 | CPpuEngine | SendMessage | 82.94 | The range construction copies 8-byte iterator objects (word plus uninitialised byte) in the target |

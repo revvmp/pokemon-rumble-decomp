@@ -160,6 +160,8 @@ void CRemoteMemory::WaitUntilIdle(bool) {
     }
 }
 
+#pragma push
+#pragma global_optimizer off
 CPiiBox* CRemoteMemory::GetPiiBox() {
     if (!IsGameFlagSet(3)) {
         return &sEmptyBox;
@@ -190,6 +192,8 @@ CPiiBox* CRemoteMemory::GetPiiBox() {
     }
     return &mRemoteBox;
 }
+
+#pragma pop
 
 inline void CRemoteMemory::SetState(Flag state) {
     u32 stateMask = FLAG_STATE_MASK;
