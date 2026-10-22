@@ -10,6 +10,7 @@ nw4r::math::VEC3* TransformPoint(nw4r::math::VEC3* pOut, const nw4r::math::MTX34
 
 f32 NormalizeSignedAngle(f32 degrees);
 f32 NormalizeAngle(f32 degrees);
+f32 IntegerPower(f32 value, int exponent);
 
 inline nw4r::math::VEC3 Transform(const nw4r::math::MTX34& rMtx, const nw4r::math::VEC3& rVec) {
     nw4r::math::VEC3 result;
