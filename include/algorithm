@@ -6,6 +6,8 @@
 
 namespace std {
 
+template <typename T> inline void swap(T& a, T& b);
+
 template <typename T> inline const T& max(const T& a, const T& b) {
     return (a < b) ? b : a;
 }
