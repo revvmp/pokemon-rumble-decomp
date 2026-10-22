@@ -21,9 +21,11 @@
 #include <string>
 #include <vector>
 
+#pragma pool_data off
+
 namespace {
 
-const char* const sColumnPaneNames[4] = {"CAPTION", "COLON", "VALUE", "UNIT"};
+const char* sColumnPaneNames[4] = {"CAPTION", "COLON", "VALUE", "UNIT"};
 
 struct Line {
     std::wstring mFirst;
