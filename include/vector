@@ -462,9 +462,9 @@ public:
         base::construct_at_end(first, last, pod_type());
     }
 
-    template <typename Iterator> static void copy_assign(const Iterator& first, const Iterator& last, T* result) {
-        for (Iterator it = first; it != last; ++it, ++result) {
-            *result = *it;
+    template <typename Iterator> static void copy_assign(Iterator first, Iterator last, T* result) {
+        for (; first != last; ++first, ++result) {
+            *result = *first;
         }
     }
     static void copy_assign(T* const& first, T* const& last, T* result) {
@@ -889,6 +889,26 @@ private:
 };
 
 
+template <typename T, typename Iterator> class __implicit_convert_iterator {
+public:
+    typedef typename iterator_traits<Iterator>::difference_type difference_type;
+    typedef T value_type;
+    typedef T* pointer;
+    typedef T& reference;
+    typedef typename iterator_traits<Iterator>::iterator_category iterator_category;
+    explicit __implicit_convert_iterator(const Iterator& rIterator) : mIterator(rIterator) {}
+    value_type operator*() const { return *mIterator; }
+    __implicit_convert_iterator& operator++() {
+        ++mIterator;
+        return *this;
+    }
+    bool operator==(const __implicit_convert_iterator& rOther) const { return mIterator == rOther.mIterator; }
+    bool operator!=(const __implicit_convert_iterator& rOther) const { return mIterator != rOther.mIterator; }
+private:
+    Iterator mIterator;
+    T mValue;
+};
+
 template <typename T, typename Allocator> class __vec_pointer : public __vec_constructor<void*, allocator<void*>, true> {
     typedef __vec_constructor<void*, allocator<void*>, true> base;
 
@@ -984,17 +1004,16 @@ public:
     }
 
     void reserve(size_type n) { base::reserve(n); }
-    template <typename Iterator> void assign(Iterator first, Iterator last) {
-        size_type n = std::distance(first, last);
+    template <typename Iterator> static size_type count(const Iterator& first, const Iterator& last) {
+        return std::__distance(first, last, std::input_iterator_tag());
+    }
+    template <typename Iterator> void assign(Iterator firstIt, Iterator lastIt) {
+        __implicit_convert_iterator<void*, Iterator> first(firstIt);
+        __implicit_convert_iterator<void*, Iterator> last(lastIt);
+        size_type n = count(first, last);
         if (n > this->cap()) {
             size_type capacity = this->recommend(n - this->cap());
-            this->clear();
-            if (this->data_) {
-                this->alloc().deallocate(this->data_, this->cap());
-                this->data_ = nullptr;
-                this->cap() = 0;
-            }
-            this->allocate(capacity, Metrowerks::int2type<true>());
+            this->assign_reallocate(n, capacity);
         }
         this->copy_assign(first, last, this->data_);
         this->size_ = n;
