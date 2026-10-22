@@ -113,3 +113,51 @@ These are live `tools/re/unitdiff.py` results against the freshly compiled objec
 | `__dt__Q43std3tr16detail391function_imp<PFP3BUI_v,Q43std3tr16detail343bound_func<v,Q43std3tr16detail90mem_fn_3<v,18CPiiListFilterSort,P3BUI,i,RCQ33std3tr135function<FPC18CPiiListFilterSort_v>>,Q33std3tr1206tuple<P18CPiiListFilterSort,Q53std3tr112placeholders6detail5ph<1>,i,Q33std3tr135function<FPC18CPiiListFilterSort_v>,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat>>,0,1>Fv` | 99.93182% |
 
 Final verified main.dol SHA-256: `ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da`.
+
+## 2026-10-22: CWorldObjStatDisplay source-link acceptance
+
+CWorldObjStatDisplay is now selected as Matching in configure.py. The final changes are confined to that registration, src/game/CWorldObjStatDisplay.cpp, and this appended record. No shared header changes remain, no original hashes changed, and no commits or repository scratch files were created.
+
+### Source changes and emission evidence
+
+- Declare the derived overrides in the order Add, Calc, Draw. Their inherited virtual slots remain unchanged. Define all three out of class with inline, making the compiler emit them from the vtable in reverse declaration order: Draw, Calc, Add. Each method is followed by its requested inline helpers, following sprint-e1 rules 1 and 6.
+- Remove the explicitly declared and defined empty derived destructor. The implicit virtual destructor retains member destruction and is generated late, following rule 7.
+- Mark the file-local CompareType function inline. Its address is requested by Draw, placing it after the pointer-vector begin/end helpers instead of among the strong definitions.
+- Keep the original explicit empty constructor, factory location, allocation expression, includes, and shared headers. Moving the factory, using an implicit constructor, and changing interface-destructor declarations were unnecessary and reverted. No primary-template forward declaration or rule 4a change was needed.
+
+The retained text begins with Create, then Draw and its helpers, Calc and its helpers, and Add. The deferred tail is copy_children at 0x801231F0, get_deleter at 0x801233A0, dispose at 0x801233F0, shared_ptr<CWorldObjStatDisplay> destruction at 0x80123420, move_ptr destruction at 0x801234B0, the by-value comparator sort at 0x80123530, __sort132 at 0x80123920, the reference-comparator sort at 0x80123A60, and the derived destructor at 0x80123E50.
+
+Retained data now has the exact target layout without header reordering:
+
+| Address | Retained object |
+| --- | --- |
+| 0x803AFAA0 | Display shared_ptr_deleter vtable |
+| 0x803AFAB4, 0x803AFB24 | Deleter type name and base descriptor |
+| 0x803AFB30, 0x803AFB44 | Vector length-error message and exception type string |
+| 0x803AFB80 | CWorldObjStatDisplay vtable |
+| 0x803AFBA0, 0x803AFBB8 | Derived type name and base descriptor |
+| 0x803AFBD4, 0x803AFBEC | Interface type name and base descriptor |
+| 0x803AFC00 | default_delete<CWorldObjStatDisplay> type name |
+| 0x804B76F8, 0x804B7700, 0x804B7708 | Deleter, derived-class, and interface RTTI |
+| 0x804B7710, 0x804B7711 | Tree insertion boolean constants |
+| 0x804B7714, 0x804B7718 | By-value and reference-comparator sort shuffle statics |
+| 0x804B7720 | default_delete<CWorldObjStatDisplay> RTTI |
+
+### Validation
+
+python configure.py completed successfully with Matching selected. Ninja stalled without output on both the initial object request and a subsequent single-job DOL request; both were interrupted. The unit was compiled with the exact version and flags read from its generated build.ninja edge. The configured Wii/1.1 linker was then invoked with -fp hardware -nodefaults -lcf build/wpse-v1/ldscript.lcf and a response file generated from the actual main.elf link edge. That response file explicitly selected build/wpse-v1/src/game/CWorldObjStatDisplay.o. main.dol was deleted before linking; the compiler, linker, and dtk elf2dol each exited 0. The existing FORCEACTIVE warnings remained, but the complete output passed exact acceptance.
+
+The requested command returned PASS after the final minimized source changes:
+
+```text
+python tools/verify/verify.py verify --manifest config/targets/wpse-v1.json --reference-dir orig/wpse-v1 --build-dir build/wpse-v1
+```
+
+main.dol SHA-256: ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da.
+
+Live unitdiff reports 48/48 functions at 100%, covering 13,396/13,396 instruction bytes. objdiff-cli report generate refreshed build/wpse-v1/report.json; cnt100.py reports 12,910 before and after, with no per-unit count changes. No shared header changes remain. Full-DOL identity also validates the currently Matching units. git diff --check passed.
+
+### Traps
+
+- An object-order comparison by symbol name can suggest a remaining mismatch even after exact source-link acceptance. The target symbol at 0x80124880 is currently named __dt__20IWorldObjStatDisplayFv, whereas the accepted linked ELF names the retained 64-byte function as the display shared_ptr_deleter destructor. The earlier source copy of the interface destructor is discarded. All DOL bytes, including the relevant vtable pointers, match. Treat the target name as questionable; do not reorder the interface destructor solely to satisfy seq.py. No symbol rename was needed or retained in this session.
+- Raw object data contains duplicate weak vtables and RTTI that are discarded at link. Compare retained linked addresses and the frozen DOL before treating those extra object entries or compiler-generated numeric label changes as a data-order failure.

@@ -9,10 +9,9 @@
 class CWorldObjStatDisplay : public IWorldObjStatDisplay {
 public:
     CWorldObjStatDisplay() {}
-    virtual ~CWorldObjStatDisplay();
+    virtual void Add(BWorldObj* pObj);
     virtual void Calc();
     virtual void Draw();
-    virtual void Add(BWorldObj* pObj);
     void SetWorld(BWorld* pWorld) { mWorld = pWorld->shared_from_this(); }
 
 private:
@@ -27,7 +26,7 @@ std::tr1::shared_ptr<IWorldObjStatDisplay> IWorldObjStatDisplay::Create(BWorld* 
     return pDisplay;
 }
 
-void CWorldObjStatDisplay::Calc() {
+inline void CWorldObjStatDisplay::Calc() {
     std::tr1::shared_ptr<BWorld> world = mWorld.lock();
     if (!world) {
         return;
@@ -63,9 +62,7 @@ void CWorldObjStatDisplay::Calc() {
     }
 }
 
-CWorldObjStatDisplay::~CWorldObjStatDisplay() {}
-
-void CWorldObjStatDisplay::Add(BWorldObj* pObj) {
+inline void CWorldObjStatDisplay::Add(BWorldObj* pObj) {
     if (pObj == nullptr) {
         return;
     }
@@ -95,11 +92,11 @@ void CWorldObjStatDisplay::Add(BWorldObj* pObj) {
     }
 }
 
-static bool CompareType(IWorldObjStat* pLeft, IWorldObjStat* pRight) {
+static inline bool CompareType(IWorldObjStat* pLeft, IWorldObjStat* pRight) {
     return pLeft->GetType() < pRight->GetType();
 }
 
-void CWorldObjStatDisplay::Draw() {
+inline void CWorldObjStatDisplay::Draw() {
     std::vector<IWorldObjStat*> objects;
     objects.reserve(mHidden.size() + mVisible.size());
     for (DrawLayerSet::iterator it = mHidden.begin(); it != mHidden.end(); ++it) {
