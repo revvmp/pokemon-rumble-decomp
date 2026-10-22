@@ -313,7 +313,7 @@ template <typename Key> tree_node_base* map_compact_tree<T, Compare, Allocator>:
 template <typename T, typename Compare, typename Allocator>
 typename map_compact_tree<T, Compare, Allocator>::node* map_compact_tree<T, Compare, Allocator>::insert_node_at(tree_node_base* pParent, bool left, bool leftmost, const value_type& rValue) {
     if (sz() == size_type(-1)) {
-        __throw_tree_length_error();
+        throw length_error("tree::insert length error");
     }
     Metrowerks::alloc_ptr<node, node_allocator&> holder(node_alloc_.first().allocate(1), node_alloc_.first());
     alloc_.first().construct(&holder.get()->value_, rValue);

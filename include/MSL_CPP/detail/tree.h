@@ -360,10 +360,6 @@ struct tree_node_base {
     __pointer_plus_bit<tree_node_base*> parent_;
 };
 
-static inline void __throw_tree_length_error() {
-    throw length_error("tree::insert length error");
-}
-
 inline void tree_rotate_left(tree_node_base* x, tree_node_base*& root) {
     tree_node_base* y = x->right_;
     if (root == x) {
