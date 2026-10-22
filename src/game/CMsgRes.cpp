@@ -153,11 +153,11 @@ void CMsgRes::ConvertEscape() {
         return;
     }
 
-    bool isSjis = mpHeader->mEncoding == ENCODING_SJIS;
     char* pSrc = reinterpret_cast<char*>(mpData->mData);
     char* pDst = pSrc;
     char* pEnd = reinterpret_cast<char*>(mpData) + mpData->mHeader.mSize;
     bool isTrailByte = false;
+    bool isSjis = mpHeader->mEncoding == ENCODING_SJIS;
 
     while (pSrc < pEnd) {
         if (isTrailByte) {
@@ -191,6 +191,7 @@ void CMsgRes::ConvertEscape() {
                 break;
             }
         } else if (c == '\0') {
+            isTrailByte = false;
             *pDst = '\0';
             pSrc++;
             pDst = pSrc;
