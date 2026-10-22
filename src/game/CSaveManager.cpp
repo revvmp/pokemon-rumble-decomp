@@ -55,21 +55,9 @@ private:
 
 CSaveManager* sInstance;
 
-CSaveManager::CSaveManager() {
+inline CSaveManager::CSaveManager() {
     sInstance = this;
 }
-
-CSaveManager::~CSaveManager() {
-    sInstance = nullptr;
-}
-
-}
-
-ISaveManager* ISaveManager::GetInstance() {
-    return sInstance;
-}
-
-namespace {
 
 void CSaveManager::Work(WorkType type) {
     CScopedActivity activity;
@@ -227,4 +215,16 @@ void CSaveManager::Draw() {
 
 std::tr1::shared_ptr<ISaveManager> ISaveManager::Create() {
     return std::tr1::shared_ptr<ISaveManager>(new CSaveManager);
+}
+
+ISaveManager* ISaveManager::GetInstance() {
+    return sInstance;
+}
+
+namespace {
+
+CSaveManager::~CSaveManager() {
+    sInstance = nullptr;
+}
+
 }
