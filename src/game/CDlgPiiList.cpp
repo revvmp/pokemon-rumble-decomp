@@ -118,7 +118,6 @@ public:
     void Finish();
     void ShowMessage(const wchar_t* pText);
     bool AskYesNo(const wchar_t* pText);
-    bool CheckRemoteMemory();
 
     int mPlayer;
     int mType;
@@ -270,41 +269,6 @@ inline bool CDlgPiiListImpl::AskYesNo(const wchar_t* pText) {
     bool yes = mMsgWin->AskYesNo(pText);
     mMsgWin->WaitUntilClosed();
     return yes;
-}
-
-inline bool CDlgPiiListImpl::CheckRemoteMemory() {
-    IController* pController = IGameSession::GetInstance()->GetPlayer(mPlayer)->GetController();
-    if (pController == nullptr || !pController->IsConnected() || pController->GetType() != IController::TYPE_WII_REMOTE) {
-        ShowMessage(GetMessageString(0x6008F, nullptr));
-        YieldFiber();
-        return false;
-    }
-    CRemoteMemory* pRemote = IGameSession::GetInstance()->GetRemoteMemory(pController->GetChannel());
-    pRemote->WaitUntilIdle(true);
-    if (pRemote->ConsumeFatalError()) {
-        ShowMessage(GetMessageString(0x1000F, nullptr));
-        return false;
-    }
-    pRemote->Update();
-    pRemote->WaitUntilIdle(true);
-    if (pRemote->ConsumeFatalError()) {
-        ShowMessage(GetMessageString(0x1000F, nullptr));
-        return false;
-    }
-    if (pRemote->IsAborted() || pRemote->HasFailed()) {
-        ShowMessage(GetMessageString(0x6009E, nullptr));
-        GetCurrentGameMap()->GetDlgPiiSelector()->ShowMultiPlayerEntrance();
-        return false;
-    }
-    if (pRemote->IsRecoveryPending()) {
-        if (!AskYesNo(GetMessageString(0x6009A, nullptr))) {
-            return false;
-        }
-    }
-    if (pRemote->IsStorageLocked()) {
-        ShowMessage(GetMessageString(0x6009B, nullptr));
-    }
-    return true;
 }
 
 inline void CDlgPiiListImpl::AppendItems(const std::list<std::tr1::shared_ptr<CPiiPersonalData> >& rList) {
@@ -530,8 +494,38 @@ inline void CDlgPiiListImpl::OnSortChanged(const CPiiListFilterSort* pFilterSort
 
 inline void CDlgPiiListImpl::Run() {
     YieldFiberStarted();
-    if (mType == 1 && !CheckRemoteMemory()) {
-        return;
+    if (mType == 1) {
+        IController* pController = IGameSession::GetInstance()->GetPlayer(mPlayer)->GetController();
+        if (pController == nullptr || !pController->IsConnected() || pController->GetType() != IController::TYPE_WII_REMOTE) {
+            ShowMessage(GetMessageString(0x6008F, nullptr));
+            YieldFiber();
+            return;
+        }
+        CRemoteMemory* pRemote = IGameSession::GetInstance()->GetRemoteMemory(pController->GetChannel());
+        pRemote->WaitUntilIdle(true);
+        if (pRemote->ConsumeFatalError()) {
+            ShowMessage(GetMessageString(0x1000F, nullptr));
+            return;
+        }
+        pRemote->Update();
+        pRemote->WaitUntilIdle(true);
+        if (pRemote->ConsumeFatalError()) {
+            ShowMessage(GetMessageString(0x1000F, nullptr));
+            return;
+        }
+        if (pRemote->IsAborted() || pRemote->HasFailed()) {
+            ShowMessage(GetMessageString(0x6009E, nullptr));
+            GetCurrentGameMap()->GetDlgPiiSelector()->ShowMultiPlayerEntrance();
+            return;
+        }
+        if (pRemote->IsRecoveryPending()) {
+            if (!AskYesNo(GetMessageString(0x6009A, nullptr))) {
+                return;
+            }
+        }
+        if (pRemote->IsStorageLocked()) {
+            ShowMessage(GetMessageString(0x6009B, nullptr));
+        }
     }
     RunList();
     Finish();
