@@ -12,7 +12,7 @@ public:
         FLAG_REMOTE_MARKED = 1 << 2
     };
 
-    CUIPiiListItem(const std::tr1::shared_ptr<CPiiPersonalData>& rPersonalData, int player);
+    CUIPiiListItem(std::tr1::shared_ptr<CPiiPersonalData> personalData, int player);
     virtual ~CUIPiiListItem();
     virtual bool IsSelectable() const;
     virtual void Update(CUIList* pList, CLayout* pLayout);

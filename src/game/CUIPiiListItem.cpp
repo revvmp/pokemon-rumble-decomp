@@ -6,20 +6,21 @@
 #include <game/StringFormat.h>
 #include <nw4r/lyt/lyt_pane.h>
 
-CUIPiiListItem::CUIPiiListItem(const std::tr1::shared_ptr<CPiiPersonalData>& rPersonalData, int player)
-    : mFlags(1), mPPD(rPersonalData), mPlayer(player), mSpeciesTypeMask(0), mMoveTypeMask(0)
+CUIPiiListItem::CUIPiiListItem(std::tr1::shared_ptr<CPiiPersonalData> personalData, int player)
+    : mFlags(1), mPPD(personalData), mPlayer(player), mSpeciesTypeMask(0), mMoveTypeMask(0)
 {
-    const PiiSpeciesData* pSpecies = rPersonalData->GetSpeciesData();
+    const PiiSpeciesData* pSpecies = personalData->GetSpeciesData();
     mSpeciesTypeMask |= 1 << pSpecies->GetPrimaryType();
     mSpeciesTypeMask |= 1 << pSpecies->GetSecondaryType();
     WazaDescData* pWazaData = IGameSession::GetInstance()->GetWazaDescData();
     for (int i = 0; i < 2; ++i) {
-        int waza = rPersonalData->GetWazaID(i);
+        int waza = personalData->GetWazaID(i);
         if (waza != 0) {
-            mMoveTypeMask |= 1 << pWazaData->GetCell(waza, 2)->ToInt();
+            int type = pWazaData->GetCell(waza, 2)->ToInt();
+            mMoveTypeMask |= 1 << type;
         }
     }
-    if (rPersonalData->IsInWiiRemote()) {
+    if (personalData->IsInWiiRemote()) {
         mFlags |= FLAG_REMOTE_MARKED;
     }
 }
