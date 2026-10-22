@@ -9,6 +9,7 @@ __flush_cache = .init:0x80004330; // type:function size:0x34 scope:global
 memcpy = .init:0x80004364; // type:function size:0x29C scope:global
 __fill_mem = .init:0x80004600; // type:function size:0xB4 scope:global
 memset = .init:0x800046B4; // type:function size:0x30 scope:global
+gTRKInterruptVectorTable = .init:0x800046E4; // type:function size:0x1F34 scope:global
 gTRKInterruptVectorTable = .init:0x800046E4; // type:label scope:global
 _rom_copy_info = .init:0x80006618; // type:object size:0x84 scope:global
 gTRKInterruptVectorTableEnd = .init:0x80006618; // type:label scope:global data:4byte

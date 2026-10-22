@@ -1232,6 +1232,7 @@ config.libs = [
             Object(Matching, "MetroTRK/debugger/embedded/MetroTRK/Portable/msgbuf.c", extra_cflags=["-sdata 8", "-str reuse,pool,noreadonly"]),
             Object(Matching, "MetroTRK/debugger/embedded/MetroTRK/Portable/msghndlr.c", extra_cflags=["-sdata 8", "-str reuse,pool,noreadonly"]),
             Object(Matching, "MetroTRK/debugger/embedded/MetroTRK/Export/mslsupp.c", extra_cflags=["-sdata 8"]),
+            Object(Matching, "MetroTRK/debugger/embedded/MetroTRK/Processor/ppc/Generic/__exception.s"),
             Object(Matching, "MetroTRK/debugger/embedded/MetroTRK/Processor/ppc/Generic/targimpl.c", mw_version="Wii/1.0a", extra_cflags=["-sdata 8"]),
             Object(Matching, "MetroTRK/debugger/embedded/MetroTRK/Os/dolphin/target_options.c", extra_cflags=["-sdata 8"]),
         ],

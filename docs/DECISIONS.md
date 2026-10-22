@@ -84,6 +84,15 @@ Accepted to stop contributors from naming the same outside callees one by one an
 - An imported name is evidence of medium strength. A contributor whose matched source or code evidence shows a different name or signature renames the symbol and notes it in their findings file.
 - Maintainers rerun the tool after new references or revisions appear. It only touches placeholders, so a rerun does not undo contributor names.
 
+## D-0015: Assembly source only where the original was assembly
+
+Accepted with the repository owner's approval so that MetroTRK's hand-written exception vector table can be built from source. `configure.py` builds a `.s` unit with the pinned binutils `powerpc-eabi-as` (`config.asflags`, then `dtk elf fixup`), the same path dtk-template uses for its generated assembly; no new tool is needed.
+
+- An assembly-source unit is allowed only where evidence shows the original unit was assembly, such as `__exception.s` (`gTRKInterruptVectorTable` to `gTRKInterruptVectorTableEnd`, a fixed-offset vector table no compiler emits). Compiled code must never be recovered as assembly.
+- The source must read as hand-written assembly: real symbol references with relocations instead of absolute addresses, named macros and constants for repeated vector bodies, `.org` for vector offsets, and no comments.
+- The unit follows the same acceptance rule as any other: 100% in objdiff and a full build plus `verify.py` PASS before it is marked `Matching`.
+- The first such unit is `src/MetroTRK/debugger/embedded/MetroTRK/Processor/ppc/Generic/__exception.s`. Its symbol is a function spanning the whole table so objdiff can compare it; dtk keeps the original label beside it.
+
 ## Future decisions
 
 Use stable identifiers and record status, problem, approach, evidence, consequences, and superseded decisions. Put reverse engineering evidence in `re/` and link it here rather than duplicating it.

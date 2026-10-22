@@ -4359,3 +4359,6 @@ MetroTRK/debugger/embedded/MetroTRK/Processor/ppc/Generic/targimpl.c:
 MetroTRK/debugger/embedded/MetroTRK/Os/dolphin/target_options.c:
 	.text       start:0x803529AC end:0x803529BC
 	.sbss       start:0x804B9C40 end:0x804B9C41
+
+MetroTRK/debugger/embedded/MetroTRK/Processor/ppc/Generic/__exception.s:
+	.init       start:0x800046E4 end:0x80006618
