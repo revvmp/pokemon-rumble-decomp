@@ -23,7 +23,7 @@ template<class R, class C> class mem_fn_0 {
 public:
     typedef R (C::*Function)();
     explicit mem_fn_0(Function function) : mFunction(function) {}
-    R operator()(C* pObject) { return (pObject->*mFunction)(); }
+    R operator()(C* const& rObject) const { return (rObject->*mFunction)(); }
 private:
     Function mFunction;
 };
@@ -54,18 +54,28 @@ private:
 template<class R,class F,class T> class bound_func<R,F,tuple<T,nat> > {
 public:
     bound_func(const F& rFunction,const tuple<T>& rArguments) : mFunction(rFunction),mArguments(rArguments) {}
-    R operator()() { return mFunction(std::tr1::get<0>(mArguments)); }
+    R operator()();
 private:
     F mFunction;
     tuple<T> mArguments;
 };
 struct no_arguments {};
 template<class A,class Arguments> A& resolve_bound_argument(A& rArgument, const Arguments&) { return rArgument; }
+template<class R,class F,class Tuple,class Arguments> R call_bound(F& rFunction, Tuple& rTuple, const Arguments& arguments, Metrowerks::int2type<1>) {
+    return rFunction(resolve_bound_argument(get_bound<0>(rTuple), arguments));
+}
+template<class Tuple> struct bound_arity { typedef Metrowerks::int2type<0> type; };
+template<class T0> struct bound_arity<tuple<T0> > { typedef Metrowerks::int2type<1> type; };
 template<class R,class F,class Tuple,class Arguments> R call_bound(F& rFunction, Tuple& rTuple, const Arguments& arguments, Metrowerks::int2type<0>) {
     return rFunction(resolve_bound_argument(get_bound<0>(rTuple), arguments), resolve_bound_argument(get_bound<1>(rTuple), arguments));
 }
 template<class R,class F,class Tuple,class Arguments> R call_bound(F& rFunction, Tuple& rTuple, const Arguments& arguments) {
-    return call_bound<R>(rFunction, rTuple, arguments, Metrowerks::int2type<0>());
+    return call_bound<R>(rFunction, rTuple, arguments, typename bound_arity<Tuple>::type());
+}
+template<class R,class F,class T>
+inline R bound_func<R,F,tuple<T,nat> >::operator()() {
+    no_arguments arguments;
+    return call_bound<R>(mFunction, mArguments, arguments);
 }
 template<class R,class F,class T0,class T1> class bound_func<R,F,tuple<T0,T1> > {
 public:

@@ -20,6 +20,7 @@ public:
     explicit tuple(typename detail::tuple_argument<T0>::type rValue) : mValue(rValue) {}
 private:
     friend struct detail::tuple_get<0>;
+    template<int Index, class U0, class U1> friend class detail::bound_element;
     T0 mValue;
 };
 template<class T0, class T1> class tuple<T0,T1,nat,nat,nat,nat,nat,nat,nat,nat> {
@@ -61,6 +62,13 @@ public:
 private:
     tuple<T0,T1>* mTuple;
 };
+template<class T0> class bound_element<0,T0,nat> {
+public:
+    explicit bound_element(tuple<T0>& rTuple) : mTuple(&rTuple) {}
+    T0& get() { return mTuple->mValue; }
+private:
+    tuple<T0>* mTuple;
+};
 template<class T0,class T1> class bound_element<1,T0,T1> {
 public:
     explicit bound_element(tuple<T0,T1>& rTuple) : mTuple(&rTuple) {}
@@ -74,6 +82,7 @@ template<class T0> struct TupleTwoElement<0,T0,nat> {};
 template<class T0> struct TupleTwoElement<1,T0,nat> {};
 }
 template<int Index,class T0,class T1> typename detail::TupleTwoElement<Index,T0,T1>::type& get_bound(tuple<T0,T1>& rTuple) { return detail::bound_element<Index,T0,T1>(rTuple).get(); }
+template<int Index,class T0> T0& get_bound(tuple<T0>& rTuple) { return detail::bound_element<Index,T0,nat>(rTuple).get(); }
 template<int Index, class T0> T0& get(tuple<T0>& rTuple) { return detail::tuple_get<Index>::get(rTuple); }
 template<int Index, class T0> const T0& get(const tuple<T0>& rTuple) { return detail::tuple_get<Index>::get(rTuple); }
 template<int Index,class T0,class T1> typename detail::TupleTwoElement<Index,T0,T1>::type& get(tuple<T0,T1>& rTuple) { return detail::tuple_get<Index>::get_two(rTuple); }
