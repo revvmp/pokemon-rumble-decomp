@@ -559,54 +559,20 @@ public:
 
     __deque_imp() : start_(0), size_(0) {}
     explicit __deque_imp(const Allocator& rAlloc) : start_(0), size_(0), buf_(buf_type(typename Allocator::template rebind<T*>::other(rAlloc)), rAlloc) {}
-    ~__deque_imp() {
-        destroy_all();
-        buf_type& rBuf = buf();
-        if (!rBuf.empty()) {
-            Allocator& rAlloc = alloc();
-            typename buf_type::iterator last = rBuf.end();
-            typename buf_type::iterator it = rBuf.begin();
-            for (; it != last; ++it) {
-                if (*it) {
-                    rAlloc.deallocate(*it, block_size);
-                }
-            }
-        }
-    }
-
-    void destroy_all() { destroy_all(pod_type()); }
-    void destroy_all(pod_type) { size_ = 0; }
+    ~__deque_imp();
 
     void push_back(const T& x) { append(x); }
     void append(const T& x) { push_back(x, pod_type()); }
-    void push_back(const T& x, Metrowerks::int2type<false>) {
-        if (back_capacity() == 0) {
-            allocate_back(1);
-        }
-        alloc().construct(&*end(), x);
-        ++size_;
-    }
+    void push_back(const T& x, Metrowerks::int2type<false>);
 
     void allocate_back(size_type n);
 
     void pop_front() { pop_front(1); }
     void pop_front(size_type n) { pop_front(n, pod_type()); }
-    void pop_front(size_type n, Metrowerks::int2type<false>) {
-        if (n != 0) {
-            Allocator& rAlloc = alloc();
-            buf_type& rBuf = buf();
-            size_ -= n;
-            start_ += n;
-            while (start_ >= 2 * block_size) {
-                rAlloc.deallocate(rBuf.front(), block_size);
-                rBuf.pop_front();
-                start_ -= block_size;
-            }
-            if (size_ == 0) {
-                start_ = block_size / 2;
-            }
-        }
-    }
+    void pop_front(size_type n, Metrowerks::int2type<false>);
+
+    void destroy_all();
+    void destroy_all(pod_type);
 
     T& operator[](size_type n) {
         size_type i = n + start_;
@@ -617,6 +583,54 @@ public:
     size_type size_;
     Metrowerks::compressed_pair<buf_type, Allocator> buf_;
 };
+
+template <typename T, typename Allocator> __deque_imp<T, Allocator>::~__deque_imp() {
+    destroy_all();
+    buf_type& rBuf = buf();
+    if (!rBuf.empty()) {
+        Allocator& rAlloc = alloc();
+        typename buf_type::iterator last = rBuf.end();
+        typename buf_type::iterator it = rBuf.begin();
+        for (; it != last; ++it) {
+            if (*it) {
+                rAlloc.deallocate(*it, block_size);
+            }
+        }
+    }
+}
+
+template <typename T, typename Allocator> void __deque_imp<T, Allocator>::push_back(const T& x, Metrowerks::int2type<false>) {
+    if (back_capacity() == 0) {
+        allocate_back(1);
+    }
+    alloc().construct(&*end(), x);
+    ++size_;
+}
+
+template <typename T, typename Allocator> void __deque_imp<T, Allocator>::pop_front(size_type n, Metrowerks::int2type<false>) {
+    if (n != 0) {
+        Allocator& rAlloc = alloc();
+        buf_type& rBuf = buf();
+        size_ -= n;
+        start_ += n;
+        while (start_ >= 2 * block_size) {
+            rAlloc.deallocate(rBuf.front(), block_size);
+            rBuf.pop_front();
+            start_ -= block_size;
+        }
+        if (size_ == 0) {
+            start_ = block_size / 2;
+        }
+    }
+}
+
+template <typename T, typename Allocator> void __deque_imp<T, Allocator>::destroy_all() {
+    destroy_all(pod_type());
+}
+
+template <typename T, typename Allocator> void __deque_imp<T, Allocator>::destroy_all(pod_type) {
+    size_ = 0;
+}
 
 template <typename T, typename Allocator> void __deque_imp<T, Allocator>::allocate_back(size_type n) {
     buf_type& rBuf = buf();
