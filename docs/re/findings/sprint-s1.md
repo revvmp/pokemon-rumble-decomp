@@ -30,3 +30,13 @@ No unit flipped. Gains and what is left:
 ## Traps
 
 - Several sources mix LF and CRLF line endings (`CTitleSession.cpp`, `homebutton.cpp`, `errmsg.cpp`). Multi-line text replacements must match both.
+
+## Shift 2
+
+- `CUIPiiSpec::CUIPiiSpec` now 100%: the target constructs `mWazaTypes[i]` and `mWazaStars[i]` in one loop (a single deferred loop condition at the end), not two loops.
+- `BUI::AddChild`: `(*rChild).`, getters returning references and `Parent()`/`Flags()` accessors do not change the reloads; the prologue also differs (target loads `rChild.px` before saving callee-saved registers).
+- `CBattleRoyalBox::GetData`: target indexes `px` as `(this + area*8) + mode*40` and `pn` as `(this + mode*40) + area*8`; direct return, flat index and pointer-arithmetic forms are all worse than the reference local (89.3%).
+- `pdm_mbr_check_master_boot_record`: reassociating the four-byte little-endian sums does not reproduce the target load order (best 89.2%).
+- `SeqSound` constructor: removing `volatile` from either flag lowers the match (84.6%).
+- `PFFILE_GetSFD`: target loads `stat` into `r0` and the `& 1` result into `r5`; a local `stat`, condition rewrites and a `p_sfd` base pointer do not help.
+- `CTextWorldObjStat::CalcView`: comparison operand order variants never beat 98.7%.
