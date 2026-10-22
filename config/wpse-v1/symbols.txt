@@ -10700,8 +10700,8 @@ __ct__Q43std3tr16detail56shared_ptr_holder<c,Q33std6detail20default_delete<A0_c>
 __ct__Q210Metrowerks56compressed_pair<Pc,RQ33std6detail20default_delete<A0_c>>FPcRQ33std6detail20default_delete<A0_c> = .text:0x800877E0; // type:function size:0x30
 __ct__Q310Metrowerks6detail64CompressedPairStorage<Pc,RQ33std6detail20default_delete<A0_c>,0>FPcRQ33std6detail20default_delete<A0_c> = .text:0x80087810; // type:function size:0xC
 __ct__Q43std3tr16detail57shared_ptr_deleter<c,Q33std6detail20default_delete<A0_c>>FPcRCQ33std6detail20default_delete<A0_c> = .text:0x80087820; // type:function size:0x6C
-__ct__Q210Metrowerks55compressed_pair<Pc,Q33std6detail20default_delete<A0_c>>FPcQ33std6detail20default_delete<A0_c> = .text:0x80087890; // type:function size:0x3C
-__ct__Q310Metrowerks6detail63CompressedPairStorage<Pc,Q33std6detail20default_delete<A0_c>,2>FPcQ33std6detail20default_delete<A0_c> = .text:0x800878D0; // type:function size:0x8
+fn_80087890 = .text:0x80087890; // type:function size:0x3C
+fn_800878D0 = .text:0x800878D0; // type:function size:0x8
 release__Q43std3tr16detail56shared_ptr_holder<c,Q33std6detail20default_delete<A0_c>>Fv = .text:0x800878E0; // type:function size:0x4C
 first__Q310Metrowerks6detail64CompressedPairStorage<Pc,RQ33std6detail20default_delete<A0_c>,0>Fv = .text:0x80087930; // type:function size:0x4
 enable_from_this__Q33std3tr113shared_ptr<c>FPCvPCv = .text:0x80087940; // type:function size:0x4
