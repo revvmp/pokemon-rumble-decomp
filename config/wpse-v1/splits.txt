@@ -1375,6 +1375,7 @@ game/CLayout.cpp:
 	.ctors      start:0x80352A24 end:0x80352A28
 	.rodata     start:0x80367038 end:0x80367068
 	.data       start:0x803C0530 end:0x803C0FB0
+	.bss        start:0x803EA8F0 end:0x803EA8FC
 	.sdata      start:0x804B8348 end:0x804B8430
 	.sbss       start:0x804B9180 end:0x804B9188
 	.sdata2     start:0x804BA490 end:0x804BA4D0
