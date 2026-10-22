@@ -184,6 +184,7 @@ public:
         return pPred->value_;
     }
     template <typename Key> iterator find(const Key& key) { return find_key(key); }
+    template <typename Key> iterator find(Key* const& key) { return find_key(reinterpret_cast<const void* const&>(key)); }
     iterator end() { return iterator(end_node()); }
     void erase(iterator position) {
         tree_node_base* pNode = position.node_;

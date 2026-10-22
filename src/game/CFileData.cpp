@@ -522,7 +522,7 @@ std::tr1::shared_ptr<CFileData> OpenFileData(const CPath& rPath, u32 flags, long
             }
             file->mFlags = flags | kind;
             file->SetDrive(static_cast<CPath::Drive>(rPath.GetDevice()));
-            file->mPath.assign(rPath.ToString());
+            file->mPath = rPath.ToString();
             file->mSize = 0;
             file->mData = nullptr;
             file->mArchive = archive;
@@ -588,7 +588,7 @@ std::tr1::shared_ptr<CFileData> OpenFileData(const CPath& rPath, u32 flags, long
     }
     file->mFlags = flags | kind;
     file->SetDrive(static_cast<CPath::Drive>(rPath.GetDevice()));
-    file->mPath.assign(rPath.ToString());
+    file->mPath = rPath.ToString();
     file->mSize = stream.get()->GetSize();
     file->mData = nullptr;
     u32 alignedSize = AlignUp(file->mSize, stream.get()->GetSizeAlign());
