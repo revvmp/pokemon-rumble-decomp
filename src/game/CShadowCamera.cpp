@@ -285,6 +285,13 @@ static void SetupShadowMaterial(nw4r::g3d::ResMat mat, nw4r::g3d::ScnMdl::Copied
     tev.DCStore(false);
 }
 
+static inline void ApplyShadowMaterial(CShadowCamera* pCamera, nw4r::g3d::ResMat mat,
+                                       nw4r::g3d::ScnMdl::CopiedMatAccess& rAccess, GXColor color) {
+    int index = pCamera->GetIndex();
+    SetupShadowMaterial(mat, rAccess, pCamera->GetTexture(pCamera->GetTextureLevels() - 1), color, index,
+                        pCamera->IsTextureAlpha());
+}
+
 void CShadowCamera::SetupShadowModel(std::tr1::shared_ptr<CModel> model) {
     nw4r::g3d::ScnMdl* pScnMdl = nw4r::g3d::G3dObj::DynamicCast<nw4r::g3d::ScnMdl>(model->GetScnObj());
     nw4r::g3d::ResMdl resMdl = pScnMdl->GetResMdl();
@@ -308,7 +315,7 @@ void CShadowCamera::SetupShadowModel(std::tr1::shared_ptr<CModel> model) {
         }
 
         nw4r::g3d::ScnMdl::CopiedMatAccess access(pScnMdl, i);
-        SetupShadowMaterial(mat, access, mTextures[mTextureLevels - 1], color, GetIndex(), mUseTextureAlpha);
+        ApplyShadowMaterial(this, mat, access, color);
     }
 }
 
