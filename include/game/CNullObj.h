@@ -63,8 +63,11 @@ public:
         int mLength;
     };
     typedef std::tr1::shared_ptr<CMotionProgram> MotionPtr;
+    MotionPtr Play(MotionPtr& rMotion);
     MotionPtr Play(const char* pName, f32 frame, f32 rate);
+    MotionPtr Request(MotionPtr& rMotion);
     MotionPtr Request(const char* pName, f32 frame, f32 rate);
+    MotionPtr RequestNext(MotionPtr& rMotion);
     MotionPtr RequestNext(const char* pName, f32 frame, f32 rate);
     MotionPtr FindMotion(u32 id);
     MotionPtr GetCurrentMotion();
@@ -80,6 +83,11 @@ public:
     bool LoadAnm(const char* pPath, bool background);
 
 private:
+    void UpdateFrame(f32 step);
+    MotionPtr CreateMotion(MotionPtr& rMotion, f32 frame, f32 rate);
+    MotionPtr CreateMotion(const char* pName, f32 frame, f32 rate);
+    void ApplyFrame();
+
     u32 mNextMotionID;
     std::tr1::shared_ptr<CFileData> mAnmFile;
     MotionList mMotionPrograms;
