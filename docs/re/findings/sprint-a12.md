@@ -113,3 +113,13 @@ CPiiListFilterSort 60 to 64 of 71 functions at 100% (CompareBPAscending, Compare
 | CPiiListFilterSort | ShowTypeFilterMenu | 99.93 | `li 1` and `kind` swap r3/r4 in `1 << kind`. Mask type, a caller-computed mask, `const int&`, an item parameter, a `TypeBit` helper, a `kind` local and `mask <<= kind` did not change this. |
 | CModel | TPartialAnm<1> QueueMotion/AppendMotion/Update | 99.4-99.6 | The `IsIdle` value temporaries are swapped. `IsReplaceable` written as `if`, a local, a `&&`/`||` mix, `!= false` or a folded `Main &&` term, and `IsEmpty`/`IsLastFinished`/`IsFinished` helpers did not change this. |
 | CModel | Update<0> | 99.80 | Moving `advanced = true` before `pop_front` fixes the node register (r27) but puts `li r30, 1` before the pop. The target sets it after the `mAnimObj.reset()` block. `advanced |= true` did not change this. |
+
+### Follow-up attempts (no change, all reverted)
+
+- **`sort` instances:** a `__sort_ref` trait that collapses `TCompare&` in the recursion and the inner calls left every score unchanged. A user-declared `vector::iterator` copy constructor regressed the unit from 63 to 59 functions.
+- **`Sort`:** a `Comparator` local before the call scored 74%. Reading `mSortType` again after the call changed nothing.
+- **ShowTypeFilterMenu:**
+  - Swapping the helper's parameter order, a `begin()` local before the mask, and `mask & G()` versus `G() & mask` did not move the registers. A `const_iterator`, an `end` local and a `>> kind` test all scored worse.
+  - `(1 << kind)` written inside the loop gives `li r3, 1` but shuffles r4 to r6 (99.74%).
+- **IsIdle:** a size local (`u32` or `int`) scores worse (94-98%). A dummy local and an explicit `!= 0` changed nothing.
+- **Update:** moving `pop_front`, the start frame or `mAnimObj.reset()` into inline helpers scored worse or the same.
