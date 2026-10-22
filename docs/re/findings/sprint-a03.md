@@ -21,3 +21,9 @@ Issues 61-65 (`game/CDividedGround.cpp`) and 113-114 (`game/CEffect.cpp`).
 - **Out-of-line `string::assign(const string&)` and inlined `operator=` need different tag locals.** `assign` goes through `replace_tagged(pos, n, const string&)` (named `random_access_iterator_tag` local, tag slot at 8 and copy at 0xc); `operator=` keeps the unnamed temporary through `assign_copy`. Mixing them shifts `Load` and `LoadPkc`.
 - **`LoadAttr` first `file && file->IsValid()` check stays at 99.27%.** `!file || !file->IsValid()`, a `bool valid` temporary, a separately declared `file` and a positive `goto loaded` all give the same or worse output; the second check already matches.
 - **`AllocEffectGroupID` needs a materialised `false` at stack slot 8.** `const bool&` constructor parameters, `bool()` defaults, an `Allocator` default argument and a local copy of `x` do not reproduce it.
+
+## Traps (w7 shift)
+
+- Most "0% missing" template and deleter functions in the Pii dialog units are naming artifacts: the target has an unnamed copy (fn_/dtor_) of a weak function that the source already compiles under its mangled name. Vtable slots (get_deleter/dispose/dtor) and sort/reset callees can be renamed by pairing target and source vtable slot order; names that already exist in symbols.txt (a weak copy in another unit) must stay placeholders or the link reports multiply-defined symbols.
+- Renaming `__vt__` of shared_ptr_deleter/BWorldObj list_deleter/CompressedPairStorage placeholders to the names used by Matching units changed the DOL (verify failed even though the build linked). Keep them as placeholders.
+- Flipping CDlgCollection to Matching fails to link: sibling NonMatching objects still reference its sdata RTTI (`lbl_804B6058`) and the local-scope `function_base<PFP3BUI_v>` destructor copy (`_8007BF00`). Dialog units sharing weak data must flip together or the shared symbols need real names first.
