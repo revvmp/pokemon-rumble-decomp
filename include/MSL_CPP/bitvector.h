@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <MSL_CPP/allocator.h>
 #include <MSL_CPP/compressed_pair.h>
+#include <MSL_CPP/msl_utility.h>
 
 namespace std {
 
@@ -44,39 +45,52 @@ public:
 };
 
 inline void __bit_fill_n(__bit_iterator::__storage_type* p, __bit_iterator::__storage_type mask,
-                         __bit_iterator::size_type n, const bool& x) {
+                         __bit_iterator::size_type& n, Metrowerks::int2type<1>) {
     typedef __bit_iterator::__storage_type __storage_type;
     typedef __bit_iterator::size_type size_type;
 
+    size_type clz = __cntlzw(mask);
+    for (;;) {
+        size_type dn = min(clz + 1, n);
+        __storage_type m = (~__storage_type(0) << (31 - clz)) & (~__storage_type(0) >> (clz + 1 - dn));
+        *p |= m;
+        n -= dn;
+        if (n == 0) {
+            break;
+        }
+        clz = 31;
+        ++p;
+    }
+}
+
+inline void __bit_fill_n(__bit_iterator::__storage_type* p, __bit_iterator::__storage_type mask,
+                         __bit_iterator::size_type& n, Metrowerks::int2type<0>) {
+    typedef __bit_iterator::__storage_type __storage_type;
+    typedef __bit_iterator::size_type size_type;
+
+    size_type clz = __cntlzw(mask);
+    for (;;) {
+        size_type dn = min(clz + 1, n);
+        __storage_type m = (~__storage_type(0) << (31 - clz)) & (~__storage_type(0) >> (clz + 1 - dn));
+        *p &= ~m;
+        n -= dn;
+        if (n == 0) {
+            break;
+        }
+        clz = 31;
+        ++p;
+    }
+}
+
+inline void __bit_fill_n(__bit_iterator::__storage_type* p, __bit_iterator::__storage_type mask,
+                         __bit_iterator::size_type n, const bool& x) {
     if (n == 0) {
         return;
     }
-
-    size_type clz = __cntlzw(mask);
     if (x) {
-        for (;;) {
-            size_type dn = min(clz + 1, n);
-            __storage_type m = (~__storage_type(0) << (31 - clz)) & (~__storage_type(0) >> (clz + 1 - dn));
-            *p |= m;
-            n -= dn;
-            if (n == 0) {
-                break;
-            }
-            clz = 31;
-            ++p;
-        }
+        __bit_fill_n(p, mask, n, Metrowerks::int2type<1>());
     } else {
-        for (;;) {
-            size_type dn = min(clz + 1, n);
-            __storage_type m = (~__storage_type(0) << (31 - clz)) & (~__storage_type(0) >> (clz + 1 - dn));
-            *p &= ~m;
-            n -= dn;
-            if (n == 0) {
-                break;
-            }
-            clz = 31;
-            ++p;
-        }
+        __bit_fill_n(p, mask, n, Metrowerks::int2type<0>());
     }
 }
 
