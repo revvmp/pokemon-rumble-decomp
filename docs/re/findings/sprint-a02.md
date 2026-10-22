@@ -61,3 +61,26 @@ Matched: CGameSession `GetEnvironment` (PiiPropData reads its species table thro
 | CPiiListFilterSort | ShowTypeFilterMenu, ShowPrefixFilterMenu | 96.6, 98.8 | Frame 0x10 smaller and a shift operand swap |
 | CRemoteMemory | ThreadMain | 78.97 | The target builds binary trees for three-range switches where ours compares linearly; the retry user data is computed before `OSCancelAlarm` in the target and after it in ours, which keeps `channel` in a saved register |
 | CRemoteMemory | SetState callers (BeginRead and others) | 56-88 | the constant ORs on 0x42a and 0x200 stay unfolded in the target; locals, inline operators and out-of-line definitions all fold |
+
+## Register-allocation wave (CLayout, CFileData, SaveData)
+
+Fixed:
+
+- CFileData `WaitUntilLoaded` (99.95% to 100%): the error argument is `pFile->GetError()` with `long GetError() const`. The handler call goes through the inline `function::operator()`, whose parameters rank above the argument expressions' inline return variables. An accessor whose return type equals the parameter type keeps its return variable, which ranks with the other inline results. A converting accessor (`int` to `long`) or a direct member read leaves the value in the `operator()` parameter, which is coloured first.
+- CFileData `OpenFileStream` (99.89% to 100%): the same rule for the drive argument. `CPath::GetDevice()` returns `CPath::Drive`, so the `static_cast` at every call disappears. `OpenFileData` (over budget) calls `GetDevice` out of line, which confirms the name.
+- CFileData `FindLoadedFile` and `__sinit`, CLayout `__sinit`, `Load(const char*)` and `HandleInitializeError`: relocation targets only. `sFileCache` is 0x10 bytes followed by two 0xC destructor-chain objects, and `sConfig` is 0x1C. CLayout's split had no `.bss`; its 0xC chain object at `0x803EA8F0` now belongs to it. The CLayout `.data` label at `0x803C0550` is four strings.
+
+### Traps
+
+- **A `.bss` destructor-chain object outside the unit's split shows as a relocation mismatch in `__sinit`.** Add the unit's `.bss` range, ending at the last object rather than the padding, and give the object its real 0xC size.
+
+### Diagnosed, not fixed
+
+| Unit | Function | % | Cause |
+| --- | --- | --- | --- |
+| CFileData | UpdateResourceFiles | 99.91 | `it`, `end` and the `sWorker` pointer are all high-degree nodes. The target colours the `sWorker` node before `it`, so `it` reuses r26. Writing the loop directly in the function (named locals), a `for` loop and a hoisted `next` change nothing; the IR renames all three to `@` variables. |
+| CFileData | CWorker constructor | 99.80 | Store order: the target stores the volatile `mpHead` before the vtable pointer. |
+| CLayout | MakeArchiveList(const char* const*), CInitializeException (array) | 94.35, 98.10 | The target treats the const source as aliasing the new object's stores, so it does not hoist `*pArchives` or `rFonts.s_`. This is the opposite of the sprint-w1o const rule, and the mangled names fix both parameters as const. A `while (*pArchives++)` form is worse. |
+| CLayout | CalculateAttachedMtx | 94.94 | The target neither folds `root == root` nor reuses the visibility load across the inlined `GetPaneAlpha`. `#pragma opt_common_subs off` around the function gives 97.73% (not kept). Moving `GetLayoutAlpha` after `GetPaneAlpha` does nothing. |
+| CLayout | Load(const char* const*) | 98.50 | The target keeps four dead moves of the arguments into r4 to r7 before the inlined exception constructor. A temporary exception object instead of a named one does not change it. |
+| SaveData | Load, DeserializeVector<SlotData>, append<SlotData> | 70, 7.6, 0 | Unchanged; see the sprint-a03 SlotData chain notes. |
