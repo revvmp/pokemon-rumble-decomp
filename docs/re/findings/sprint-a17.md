@@ -33,7 +33,7 @@
 
 ## Tail wave (CDlgPiiSelector, CModel)
 
-CDlgPiiSelector 623 to 636 of 645 functions at 100%; CDlgCollection gained one through the shared `function_base` rename. CModel stays at 151 of 158.
+CDlgPiiSelector 623 to 635 of 645 functions at 100%; CDlgCollection gained one through the shared `function_base` rename. CModel stays at 151 of 158.
 
 ### Traps
 
