@@ -5,6 +5,20 @@
 #include <game/NPpuVM.h>
 #include <game/CPpuEngine.h>
 #include <game/PiiSpeciesData.h>
+#include <game/CPiiCollectionBox.h>
+#include <game/CPiiPersonalData.h>
+#include <game/CPlayer.h>
+
+int RandInt(int minimum, int maximum);
+int GetTypeEfficacy(int attackType, int defendType);
+
+struct EvolutionData {
+    u16 mTargets[7];
+    u16 mCount;
+};
+
+extern const EvolutionData gEvolutionData[494];
+extern const u16 gRootSpecies[496];
 
 int GetPiiProp(NPpu::CEngine* pEngine) {
     int form = pEngine->FetchArgCount() >= 2 ? pEngine->PopInt() : 0;
@@ -219,5 +233,91 @@ Finished:
         (pEnd - 1)->SetInt(0);
     }
     pEngine->PushInt(pOutput - pBegin);
+    return 0;
+}
+
+int method_pprGetSexByRnd(NPpu::CEngine* pBaseEngine) {
+    CPpuEngine* pEngine = static_cast<CPpuEngine*>(pBaseEngine);
+    u32 random = pEngine->FetchArgCount() < 2 ? RandInt(0, 255) : pEngine->PopInt();
+    const PiiSpeciesData* pSpecies = pEngine->PopSpeciesData();
+    int sex = 2;
+    if (pSpecies) {
+        int ratio = pSpecies->GetGenderAndTypeFlags() & 0xFF;
+        switch (ratio) {
+        case 0: sex = 0; break;
+        case 254: sex = 1; break;
+        case 255: sex = 2; break;
+        default: sex = (random & 0xFF) < ratio; break;
+        }
+    }
+    pEngine->PushInt(sex);
+    return 0;
+}
+
+int method_pprGetCollectionType(NPpu::CEngine* pBaseEngine) {
+    CPpuEngine* pEngine = static_cast<CPpuEngine*>(pBaseEngine);
+    const PiiSpeciesData* pSpecies = pEngine->PopSpeciesData();
+    if (pSpecies) {
+        int species = pSpecies->GetSpecies();
+        pEngine->PushInt(IGameSession::GetInstance()->GetPiiCollectionBox()->GetCollectionType(species));
+    } else {
+        pEngine->PushNull();
+    }
+    return 0;
+}
+
+int method_pprSetCollectionBRR(NPpu::CEngine* pBaseEngine) {
+    CPpuEngine* pEngine = static_cast<CPpuEngine*>(pBaseEngine);
+    int value = pEngine->PopInt();
+    int type = pEngine->PopInt();
+    const PiiSpeciesData* pSpecies = pEngine->PopSpeciesData();
+    if (pSpecies) {
+        int species = pSpecies->GetSpecies();
+        IGameSession::GetInstance()->GetPiiCollectionBox()->SetCollectionBRR(species, type, value);
+    }
+    pEngine->PushNull();
+    return 0;
+}
+
+int method_pprGetDefeatCount(NPpu::CEngine* pBaseEngine) {
+    CPpuEngine* pEngine = static_cast<CPpuEngine*>(pBaseEngine);
+    const PiiSpeciesData* pSpecies = pEngine->PopSpeciesData();
+    if (pSpecies) {
+        int species = pSpecies->GetSpecies();
+        pEngine->PushInt(IGameSession::GetInstance()->GetPiiCollectionBox()->GetDefeatCount(species));
+    } else {
+        pEngine->PushNull();
+    }
+    return 0;
+}
+
+int GetRootMonsno(NPpu::CEngine* pEngine) {
+    int species = pEngine->PopInt();
+    pEngine->PushInt(gRootSpecies[species]);
+    return 0;
+}
+
+int GetNextSinkaMonsno(NPpu::CEngine* pEngine) {
+    NPpu::Slice* pOutput = pEngine->PopReference();
+    int mode = pEngine->PopInt();
+    int species = pEngine->PopInt();
+    int count = 0;
+    if (mode == 0) {
+        for (count = 0; count < gEvolutionData[species].mCount; ++count) {
+            pOutput[count].SetInt(gEvolutionData[species].mTargets[count]);
+        }
+    } else if (mode == 1) {
+        for (count = 0; count < 7 && gEvolutionData[species].mTargets[count]; ++count) {
+            pOutput[count].SetInt(gEvolutionData[species].mTargets[count]);
+        }
+    }
+    pEngine->PushInt(count);
+    return 0;
+}
+
+int GetTypeOnTypeEfficacy(NPpu::CEngine* pEngine) {
+    int defend = pEngine->PopInt();
+    int attack = pEngine->PopInt();
+    pEngine->PushInt(GetTypeEfficacy(attack, defend));
     return 0;
 }

@@ -44,6 +44,8 @@ public:
     void SetPendingPersonalData(const std::tr1::shared_ptr<CPiiPersonalData>& rPersonalData);
     void ResetPendingPersonalData();
     void CompletePiiChangeRequest();
+    bool IsPiiChangeRequested() const { return IsFlagSet(FLAG_PII_CHANGE_REQUESTED); }
+    void IncrementDefeatCount() { ++mRankingScore; }
     void BeginHoldCollection();
     void EndHoldCollection();
     void RequestPiiChange() { SetFlag(FLAG_PII_CHANGE_REQUESTED); }
