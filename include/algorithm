@@ -39,9 +39,7 @@ template <typename T> inline T& move(T& x) {
 template <typename InputIterator, typename OutputIterator>
 OutputIterator __move_backward(InputIterator first, InputIterator last, OutputIterator result) {
     while (last > first) {
-        --result;
-        --last;
-        *result = move(*last);
+        *--result = *--last;
     }
     return result;
 }
