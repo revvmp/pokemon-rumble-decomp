@@ -93,6 +93,15 @@ Accepted with the repository owner's approval so that MetroTRK's hand-written ex
 - The unit follows the same acceptance rule as any other: 100% in objdiff and a full build plus `verify.py` PASS before it is marked `Matching`.
 - The first such unit is `src/MetroTRK/debugger/embedded/MetroTRK/Processor/ppc/Generic/__exception.s`. Its symbol is a function spanning the whole table so objdiff can compare it; dtk keeps the original label beside it.
 
+## D-0016: Documented fake matches for the remaining long tail
+
+Accepted by the repository owner on 2026-10-22 to finish the last functions. Honest reconstruction stays the default; a fake match is a last resort for a function whose register allocation, scheduling, or emission order no plausible source has reproduced.
+
+- Allowed only after at least one documented honest attempt, recorded in a findings file, and preferably after the recovered rules in [CODEGEN_RULES](re/CODEGEN_RULES.md) have been applied.
+- A fake match is source that compiles to the original bytes but is probably not what the developers wrote, such as an extra temporary, a reordered or redundant statement, a cast, a probe declaration, an explicit instantiation, `volatile`, or a per-function `#pragma`. It must still be C or C++ source; compiled code is never recovered as assembly (D-0015).
+- Source still carries no comments. Every fake match is listed in [the fake-match ledger](re/FAKEMATCHES.md) with its unit, function, the fake construct, and a link to the honest attempts, so it can be replaced with plausible source later.
+- The acceptance rule is unchanged: 100% in objdiff and a full build plus `verify.py` PASS before a unit is marked `Matching`. Progress reports count fake-matched functions as matched; the ledger is the record of which ones they are.
+
 ## Future decisions
 
 Use stable identifiers and record status, problem, approach, evidence, consequences, and superseded decisions. Put reverse engineering evidence in `re/` and link it here rather than duplicating it.

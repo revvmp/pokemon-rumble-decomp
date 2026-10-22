@@ -24,6 +24,7 @@ Aim for the readability of the Super Mario Galaxy decompilation (Petari): source
 - Give every class a header in `include/` with complete, correctly ordered members and exact types. Use original integer types where mangling or code generation requires them (`int` versus `s32`), `nullptr` in C++, `NULL` in C, and `f` suffixes on float literals.
 - Petari explains members with comments; this project does not allow comments. Achieve clarity through names, types, small functions, and enums instead, and record field offsets, sizes, evidence, and naming confidence in [symbols](docs/re/SYMBOLS.md).
 - Never paste raw decompiler output. Rewrite it into idiomatic source that a person could have written, then prove it matches.
+- Exception: after a documented honest attempt fails, a fake match is allowed under [D-0016](docs/DECISIONS.md#d-0016-documented-fake-matches-for-the-remaining-long-tail). List every one in [the fake-match ledger](docs/re/FAKEMATCHES.md).
 
 ## Session memory: traps and findings
 
