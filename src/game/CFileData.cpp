@@ -298,7 +298,7 @@ void CFileData::SetDrive(CPath::Drive drive) {
 
 
 inline u32 AlignUp(u32 value, u32 alignment) {
-    u32 mask = ~(alignment - 1);
+    int mask = ~(alignment - 1);
     return (alignment + value - 1) & mask;
 }
 
@@ -822,14 +822,21 @@ void CFileData::CWorker::LoaderThread::Run() {
         }
         if (!mStopping) {
             pJob = mpHead;
-            mpHead = pJob->mpNext;
+            mpHead = mpHead->mpNext;
             pJob->mpNext = nullptr;
         }
         OSUnlockMutex(&mMutex);
         if (pJob == nullptr) {
             break;
         }
-        if (pJob->mState <= CJob::STATE_READ_COMPRESSED + 1) {
+        switch (pJob->mState) {
+        default:
+            pJob->mState = CJob::STATE_FINISHED;
+            pJob->mFile->mError = ERROR_BAD_JOB;
+            mpWorker->PushFinished(pJob);
+            break;
+        case CJob::STATE_READ_COMPRESSED:
+        case CJob::STATE_READ_COMPRESSED + 1: {
             u32 alignment = pJob->mStream->GetSizeAlign();
             s32 size = pJob->mStream->Read(pJob->mBuffer.get(), AlignUp(pJob->mFile->mSize, alignment));
             if (size > 0) {
@@ -840,7 +847,9 @@ void CFileData::CWorker::LoaderThread::Run() {
                 pJob->mFile->mError = size;
             }
             mpWorker->PushFinished(pJob);
-        } else if (pJob->mState == CJob::STATE_READ_RAW) {
+            break;
+        }
+        case CJob::STATE_READ_RAW: {
             u32 alignment = pJob->mStream->GetSizeAlign();
             s32 size = pJob->mStream->Read(pJob->mFile->mBuffer.get(), AlignUp(pJob->mFile->mSize, alignment));
             if (size > 0 || (pJob->mFile->mFlags & CFileData::FLAG_ALLOW_EMPTY)) {
@@ -850,10 +859,8 @@ void CFileData::CWorker::LoaderThread::Run() {
                 pJob->mFile->mError = size;
             }
             mpWorker->PushFinished(pJob);
-        } else {
-            pJob->mState = CJob::STATE_FINISHED;
-            pJob->mFile->mError = ERROR_BAD_JOB;
-            mpWorker->PushFinished(pJob);
+            break;
+        }
         }
     } while (pJob != nullptr);
 }
