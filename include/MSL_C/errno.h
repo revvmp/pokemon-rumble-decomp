@@ -7,6 +7,7 @@ extern "C" {
 
 #define EDOM 33
 #define ERANGE 34
+#define ESPIPE 40
 
 extern int errno;
 

@@ -530,6 +530,52 @@ game/ControllerTable.cpp:
 	.bss        start:0x803E8D28 end:0x803E90C8
 	.sdata      start:0x804B77D8 end:0x804B77D9
 
+MSL_C/file_io.c:
+	.text       start:0x80344EB4 end:0x803450A4
+
+MSL_C/strnicmp.c:
+	.text       start:0x803450A4 end:0x8034515C
+
+MSL_C/FILE_POS.c:
+	.text       start:0x8034515C end:0x803453CC
+
+MSL_C/mbstring.c:
+	.text       start:0x803453CC end:0x803455C4
+
+MSL_C/mem.c:
+	.text       start:0x803455C4 end:0x80345734
+
+MSL_C/mem_funcs.c:
+	.text       start:0x80345734 end:0x80345A04
+
+MSL_C/math_api.c:
+	.text       start:0x80345A04 end:0x80345AF8
+
+MSL_C/misc_io.c:
+	.text       start:0x80345AF8 end:0x80345B08
+
+MSL_C/rand.c:
+	.text       start:0x80345B08 end:0x80345B30
+	.sdata      start:0x804B8FA8 end:0x804B8FB0
+
+MSL_C/scanf.c:
+	.text       start:0x80345B30 end:0x80345BB8
+
+MSL_C/signal.c:
+	.text       start:0x80345BB8 end:0x80345C60
+	.bss        start:0x804B3530 end:0x804B3550
+
+MSL_C/string.c:
+	.text       start:0x80345C60 end:0x80345FD4
+
+MSL_C/strtold.c:
+	.text       start:0x80345FD4 end:0x80347384
+	.rodata     start:0x80398990 end:0x803989A0
+	.sdata2     start:0x804BB698 end:0x804BB6B8
+
+MSL_C/strtoul.c:
+	.text       start:0x80347384 end:0x80347904
+
 ControllerTableAlignmentPadding:
 	.sdata      start:0x804B77D9 end:0x804B77E0 align:1
 

@@ -7,6 +7,11 @@ extern "C" {
 
 #define SIGABRT 1
 
+typedef void (*__signal_func_ptr)(int);
+
+#define SIG_DFL ((__signal_func_ptr)0)
+#define SIG_IGN ((__signal_func_ptr)1)
+
 int raise(int sig);
 
 #ifdef __cplusplus

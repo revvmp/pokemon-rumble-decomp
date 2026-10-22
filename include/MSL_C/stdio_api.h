@@ -21,10 +21,17 @@ enum __WReadProcActions {
 };
 
 typedef struct {
+    char* next_char;
+    int null_char_detected;
+} __InStrCtrl;
+
+typedef struct {
     wchar_t* wNextChar;
     int wNullCharDetected;
 } __wInStrCtrl;
 
+int __StringRead(void* isc, int ch, int action);
+int __StringRead(void* isc, int ch, int action);
 wint_t __wStringRead(void* isc, wint_t ch, int action);
 
 #ifdef __cplusplus

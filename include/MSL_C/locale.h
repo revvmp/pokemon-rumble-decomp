@@ -20,6 +20,8 @@ struct _loc_ctype_cmpt {
     const unsigned short* wctype_map_ptr;
     const wchar_t* wupper_map_ptr;
     const wchar_t* wlower_map_ptr;
+    int (*decode_mb)(wchar_t* pwc, const char* s, unsigned long n);
+    int (*encode_wc)(char* s, wchar_t wchar);
 };
 
 struct __locale {
