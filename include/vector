@@ -159,6 +159,20 @@ public:
     T* begin() { return this->data_ + start_; }
     T* end() { return begin() + this->size_; }
 
+    void move_construct_to_end(T* pFirst, T* pLast) { move_construct_to_end(pFirst, pLast, pod_type()); }
+    void move_construct_to_end(T* pFirst, T* pLast, Metrowerks::int2type<true>) {
+        ptrdiff_t n = pLast - pFirst;
+        memcpy(this->data_ + start_ + this->size_, pFirst, n * sizeof(T));
+        memset(pFirst, 0, n * sizeof(T));
+        this->size_ += n;
+    }
+    void move_construct_to_end(T* pFirst, T* pLast, Metrowerks::int2type<false>) {
+        for (T* p = this->data_ + start_ + this->size_; pFirst < pLast; ++pFirst, ++p) {
+            this->alloc().construct(p, std::move(*pFirst));
+            ++this->size_;
+        }
+    }
+
     void construct_at_end(size_type n) { construct_at_end(n, pod_type()); }
     void construct_at_end(size_type n, Metrowerks::int2type<false>) {
         for (T* p = this->data_ + start_ + this->size_; n; --n, ++p, ++this->size_) {
@@ -598,7 +612,7 @@ protected:
     size_type move_range(size_type elemsAfter, size_type n, T* pEnd, Metrowerks::int2type<false>) {
         size_type count = std::min(elemsAfter, n);
         for (size_type i = 0; i < count; ++i, ++pEnd) {
-            this->alloc().construct(pEnd, std::move(*(pEnd - n)));
+            this->alloc().construct(pEnd, std::move(pEnd[-n]));
             ++this->size_;
         }
         pEnd -= n;

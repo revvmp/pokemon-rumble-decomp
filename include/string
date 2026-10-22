@@ -113,11 +113,11 @@ public:
 
     void clear() {
         if (!is_long()) {
-            r_.first().r.s.data_[0] = charT();
-            r_.first().r.s.size_ = 0;
+            short_data()[0] = charT();
+            short_size(0);
         } else {
-            r_.first().r.l.data_[0] = charT();
-            r_.first().r.l.size_ = 0;
+            long_data()[0] = charT();
+            long_size() = 0;
         }
     }
 
