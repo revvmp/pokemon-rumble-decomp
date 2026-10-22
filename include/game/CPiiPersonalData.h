@@ -50,6 +50,7 @@ public:
     bool IsFainted() const { return mHP <= 0; }
     bool IsFavorite() const { return HasFlag(FLAG_FAVORITE); }
     bool IsSpecHidden() const { return HasFlag(FLAG_SPEC_HIDDEN); }
+    bool IsSpecHidden() { return HasFlag(FLAG_SPEC_HIDDEN); }
     void SetSpecHidden(bool hidden) { SetFlag(FLAG_SPEC_HIDDEN, hidden); }
     void SetNewlyDisclosed(bool disclosed) { SetFlag(FLAG_NEWLY_DISCLOSED, disclosed); }
     void SetFavorite(bool favorite);
@@ -104,6 +105,7 @@ public:
     void SetInWiiRemote(bool inWiiRemote) { SetFlag(FLAG_IN_WII_REMOTE, inWiiRemote); }
 private:
     bool HasFlag(u32 flag) const { return (mFlags & flag) != 0; }
+    bool HasFlag(u32 flag) { return (mFlags & flag) != 0; }
     void SetFlag(u32 flag, bool enable) {
         if (enable) {
             mFlags |= flag;

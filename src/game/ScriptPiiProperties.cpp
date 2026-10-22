@@ -207,7 +207,7 @@ int method_setIsSpecHidden(NPpu::CEngine* pBaseEngine) {
 int method_isSpecHidden(NPpu::CEngine* pBaseEngine) {
     CPpuEngine* pEngine = static_cast<CPpuEngine*>(pBaseEngine);
     std::tr1::shared_ptr<CPiiPersonalData> data = pEngine->PopPersonalData();
-    pEngine->PushInt(data ? data->IsSpecHidden() : false);
+    pEngine->PushInt(data ? static_cast<const CPiiPersonalData&>(*data).IsSpecHidden() : false);
     return 0;
 }
 
