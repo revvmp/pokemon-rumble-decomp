@@ -45,7 +45,7 @@ public:
 
     CDlgCollectionItemModel() : mInitialized(false), mAnimFrame(0) {}
 
-    void Load(bool background) {
+    __attribute__((noinline)) void Load(bool background) {
             std::tr1::shared_ptr<CLayout::FontMap> fonts = GetDefaultFontMap();
             const char* const* pArchives = gSharedLayoutArchives;
             CLayout layout;
@@ -95,7 +95,7 @@ public:
 
 class CDlgCollectionItem : public IUIListItem {
 public:
-    CDlgCollectionItem(const std::tr1::shared_ptr<CDlgCollectionItemModel>& rModel, const std::vector<u16>& rSpecies)
+    CDlgCollectionItem(const std::tr1::shared_ptr<CDlgCollectionItemModel>& rModel, const std::vector<u16>& rSpecies) __attribute__((noinline))
         : mModel(rModel), mSpecies(rSpecies) {}
     virtual ~CDlgCollectionItem() {}
     virtual bool IsSelectable() const { return true; }
@@ -108,7 +108,7 @@ private:
 
 class CSpeciesIdSet {
 public:
-    CSpeciesIdSet() {
+    CSpeciesIdSet() __attribute__((noinline)) {
             int level = std::min(std::max(0, static_cast<int>(GetSaveData(-1)->mData.mFlags[1])), 2);
             if (level >= 0) {
                 for (u16 id = 1; id <= 0x96; id++) {
