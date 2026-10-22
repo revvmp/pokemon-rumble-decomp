@@ -217,6 +217,7 @@ config.libs = [
         "game",
         [
             Object(Matching, "game/BController.cpp"),
+            Object(NonMatching, "game/CModel.cpp"),
             Object(Matching, "game/CaptureTexture.cpp"),
             Object(NonMatching, "game/ModelAim.cpp"),
             Object(NonMatching, "game/RenderPrimitive.cpp"),

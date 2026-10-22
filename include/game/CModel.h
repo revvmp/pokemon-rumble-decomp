@@ -3,9 +3,11 @@
 
 #include <game/ModelAim.h>
 #include <nw4r/g3d/res/g3d_resanmchr.h>
+#include <nw4r/g3d/g3d_anmchrext.h>
 #include <game/ScnMdlSimpleData.h>
 #include <functional>
 #include <list>
+#include <map>
 #include <string>
 #include <nw4r/g3d/g3d_anmobj.h>
 #include <nw4r/g3d/g3d_scnmdlsmpl.h>
@@ -40,6 +42,7 @@ public:
         };
 
         void Wait();
+        u32 TestFlags(u32 mask) const;
         u32 GetId() const { return mId; }
         bool IsStarted() const { return !(mFlags & FLAG_PENDING); }
         bool IsPlaying() const { return mFlags & (FLAG_PLAYING | FLAG_LOOPED); }
@@ -67,7 +70,6 @@ public:
             }
         }
 
-    private:
         u32 mFlags;
         u32 mId;
         f32 mStartFrame;
@@ -80,27 +82,37 @@ public:
         int mLength;
     };
     typedef std::tr1::function<void(CModel*, const std::tr1::shared_ptr<CMotionProgram>&)> MotionCallback;
+    friend void NotifyMotionCallback(const std::tr1::shared_ptr<CMotionProgram>& rMotion, bool notify, CModel* pModel);
 
     class BPartialAnm {
-    protected:
-        std::tr1::shared_ptr<CMotionProgram> mCurrentMotion;
+    public:
+        std::tr1::shared_ptr<nw4r::g3d::AnmObjChrOverride> mAnimObj;
         std::list<std::tr1::shared_ptr<CMotionProgram> > mMotions;
         f32 mFrame;
     public:
         BPartialAnm() : mFrame(0.0f) {}
         virtual ~BPartialAnm();
-        virtual bool SetMotion(CModel* pModel, const std::tr1::shared_ptr<CMotionProgram>& rMotion, f32 step) = 0;
-        virtual bool QueueMotion(CModel* pModel, const std::tr1::shared_ptr<CMotionProgram>& rMotion, f32 step) = 0;
-        virtual bool AppendMotion(CModel* pModel, const std::tr1::shared_ptr<CMotionProgram>& rMotion, f32 step) = 0;
+        virtual bool SetMotion(CModel* pModel, const std::tr1::shared_ptr<CMotionProgram>& rMotion) = 0;
+        virtual bool QueueMotion(CModel* pModel, const std::tr1::shared_ptr<CMotionProgram>& rMotion) = 0;
+        virtual bool AppendMotion(CModel* pModel, const std::tr1::shared_ptr<CMotionProgram>& rMotion) = 0;
+        void Reset();
+        bool IsIdle() {
+            return mMotions.size() == 0 || (mMotions.size() == 1 && (mMotions.front()->mFlags & CMotionProgram::FLAG_FINISHED));
+        }
     };
     template<bool Main> class TPartialAnm : public BPartialAnm {
     public:
         virtual ~TPartialAnm();
-        virtual bool SetMotion(CModel* pModel, const std::tr1::shared_ptr<CMotionProgram>& rMotion, f32 step);
-        virtual bool QueueMotion(CModel* pModel, const std::tr1::shared_ptr<CMotionProgram>& rMotion, f32 step);
-        virtual bool AppendMotion(CModel* pModel, const std::tr1::shared_ptr<CMotionProgram>& rMotion, f32 step);
+        virtual bool SetMotion(CModel* pModel, const std::tr1::shared_ptr<CMotionProgram>& rMotion);
+        virtual bool QueueMotion(CModel* pModel, const std::tr1::shared_ptr<CMotionProgram>& rMotion);
+        virtual bool AppendMotion(CModel* pModel, const std::tr1::shared_ptr<CMotionProgram>& rMotion);
+        bool Update(CModel* pModel, f32 step);
     };
-    class PartialAnmManager;
+    class PartialAnmManager {
+    public:
+        std::tr1::shared_ptr<nw4r::g3d::AnmObjChrOverride> mAnimObj;
+        std::map<int, std::tr1::shared_ptr<TPartialAnm<false> > > mPartials;
+    };
 
     struct LoadParams {
         const char** mpFileNames;
@@ -131,6 +143,12 @@ public:
     void DisableAimLimit();
     void SetMotionCallback(const MotionCallback& rCallback);
 
+    std::tr1::shared_ptr<CMotionProgram> CreateMotion(const char* pName, f32 frame, f32 rate, BPartialAnm** ppPartial);
+    std::tr1::shared_ptr<CMotionProgram> CreateMotion(int index, f32 frame, f32 rate, BPartialAnm** ppPartial);
+    std::tr1::shared_ptr<CMotionProgram> SetupMotion(const std::tr1::shared_ptr<CMotionProgram>& rProgram, f32 frame, f32 rate, BPartialAnm** ppPartial);
+    BPartialAnm* GetPartialAnm(int nodeId);
+    void Unload();
+
     ModelAim& GetAim() { return mAim; }
     const nw4r::math::AABB& GetBounds() const { return mBounds; }
     nw4r::g3d::ScnObj* GetScnObj() const { return mModelData.GetModel(); }
@@ -139,7 +157,6 @@ public:
 
     ScnMdlSimpleData mModelData;
     std::tr1::shared_ptr<nw4r::g3d::AnmObjChrRootScale> mRootScale;
-private:
     std::vector<std::tr1::shared_ptr<nw4r::g3d::AnmObj> > mAnimations;
     int mNextMotionID;
     TPartialAnm<true> mMainAnimation;

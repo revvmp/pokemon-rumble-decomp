@@ -23,6 +23,8 @@ public:
     ~ModelAim();
     bool Initialize(nw4r::g3d::ScnMdlSimple* pModel, nw4r::g3d::ResNode node);
     void SetParameters(const Parameters& rParameters);
+    void EnableLimit() { mLimitEnabled = true; }
+    void DisableLimit() { mLimitEnabled = false; }
     void AimAtPoint(const nw4r::math::VEC3& rTarget, int steps);
     void AimAtMatrixOrigin(const nw4r::math::MTX34& rMatrix, int steps);
     const Parameters& GetParameters() const { return *mpParameters; }
