@@ -1,6 +1,8 @@
 #ifndef _UTILITY
 #define _UTILITY
 
+#include <MSL_CPP/msl_utility.h>
+
 namespace std {
 
 template <typename T1, typename T2> struct pair;
@@ -20,7 +22,10 @@ template <typename T1, typename T2> struct pair {
     pair() : first(), second() {}
     pair(const T1& rFirst, const T2& rSecond) : first(rFirst), second(rSecond) {}
 
-    template <typename U, typename V> pair(const pair<U, V>& rOther) : first(tr1::get<0>(rOther)), second(tr1::get<1>(rOther)) {}
+    template <typename U, typename V>
+    pair(const pair<U, V>& rOther,
+         typename Metrowerks::restrict_to<Metrowerks::is_convertible<U, T1>::value && Metrowerks::is_convertible<V, T2>::value>::type* = nullptr)
+        : first(tr1::get<0>(rOther)), second(tr1::get<1>(rOther)) {}
 
     T1 first;
     T2 second;

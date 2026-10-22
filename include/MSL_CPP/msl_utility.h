@@ -3,6 +3,24 @@
 
 namespace Metrowerks {
 
+template <bool B, typename T = void> struct restrict_to {};
+template <typename T> struct restrict_to<true, T> {
+    typedef T type;
+};
+
+template <typename From, typename To> struct is_convertible {
+private:
+    struct Yes {
+        char mValue[2];
+    };
+    static Yes Test(To);
+    static char Test(...);
+    static From Make();
+
+public:
+    enum { value = sizeof(Test(Make())) == sizeof(Yes) };
+};
+
 template <int N> struct int2type {
     enum { value = N };
 };
