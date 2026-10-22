@@ -66,3 +66,30 @@
 | Unit | Function | % | Cause |
 | --- | --- | --- | --- |
 | CBattleRoyalDisplay | `FormatString` position | 100 (order) | The target emits the wide `FormatString` in the second drain, after the round-1 templates and before the implicit `~CBattleRoyalDisplay`. A strong definition, an inline one, an in-class friend of a plain class, and a friend of a class template completed at parse time all put it right after `Calc` or earlier. Remaining hypothesis: the body becomes available only after `Calc`'s call-graph node is created (sprint-ida rule 10), for example a friend in a class template completed during the round-1 walk. |
+
+## Final tail wave (a12, third shift): CRemoteMemory, CPpuEngine and others
+
+### Traps
+
+- **`#pragma opt_optimizecontrolflow off` keeps switches as binary trees.** With the global optimizer on, CodeWarrior Wii/1.1 rewrites a switch with fewer than about eight cases into a linear compare chain (or a `cmplwi` range check). This happens in every Wii compiler version and with every `-O`, `-ipa` and `-inline` flag. GameCube compilers and `global_optimizer off` keep the backend's binary tree instead. The undocumented pragma `opt_optimizecontrolflow off` keeps the tree and leaves every other optimization on. It also keeps redundant compares and does not merge branch targets. At file scope it is right for CRemoteMemory (Update stays 100%, every switch function improves). It is wrong for NPpuVM and ef_animcurve (both drop). In ef_drawfreestrategy `Draw` it raised 97.50 to 98.39 and in ef_drawdirectionalstrategy `DrawDirectional` 97.53 to 98.10, but other functions in those units dropped. Try it per function with `#pragma push`/`pop` wherever a target has `cmpwi; beq; bge` trees for a short switch. Other `opt_*` names in the compiler binary (`opt_foldconstants`, `opt_propagation`, `opt_rebuildconditionals`, ...) are accepted, and `opt_propagation off` works inside push/pop.
+- **`global_optimizer off` adds a frame pointer only when a block-scope local exists.** Any local declared in a nested scope, including a `for` init or an inlined `case {}` block, gives `mr r31, r1`. Inline-function top-scope locals do not. A function with no frame pointer in the target can still be optimizer-off if all its locals are at function scope.
+- **Arguments that are constant expressions fold even through two inline levels.** `SetState(static_cast<Flag>(A | B))` folds into the callee's `state | C` at parse time. Only a plain enumerator argument folds differently in the target (BeginRead's third `SetState` loads `0x208`, the first two load `0x200` and OR the state). No source form was found for the unfolded pair.
+- **A vector-like destructor with one extra `beq` can be a class derived from the vector.** CPpuEngine `SendMessage`'s extab lists `DESTROYBASE vector<int>` and a local whose destructor is `dtor_801021A0`. That local is a struct derived from `vector<int>` (`HandlerList`), not a POD vector with a deeper MSL chain. Adding a `__vec_constructor<T,A,true> : <T,A,false>` level to all POD vectors is wrong: the target's own `vector<int>` destructor keeps the short chain.
+- **A materialised `||` with the result preset to false (`li 0; beq set; bne end; set: li 1`) is `bool r = false; if (a || b) r = true; return r;`.** NPpuVM `BitwiseOp` inlines its integer test in this shape. Changing `CValue::IsInt` this way breaks Slice and ScriptGame, which use the plain `||` shape, so a separate helper is needed. That helper gained only 0.1% (register reuse of the loaded type still differs), so it was not kept.
+
+### Fixes
+
+- CRemoteMemory: `opt_optimizecontrolflow off` for the file. A file-local `FindValidBlock` selects the read block with early returns, which gives the target's shared `li 3` block. FinishRead has an explicit `case -4`. BeginRead runs with `opt_propagation off` and a local state mask in `SetState`, and reads the connection bit as `(flags >> 6) & 1` from one load. ThreadMain tests the connection result with `result != 0 && result == -1` (linear in the target). Scores: ThreadMain 78.97 to 81.74, BeginRead 87.98 to 95.82, FinishRead 56.93 to 63.44, PrepareWrite 77.19 to 82.24, FinishWrite 44.66 to 51.05. GetPiiBox stays at 65.14; with `global_optimizer off` it reaches 85.80, but that does not combine with the file-wide pragma.
+- CPpuEngine: `HandlerList` (derived from `vector<int>`, built from the callback list range) is the local in `SendMessage`; `0x801021A0` is its destructor (now 100%).
+
+### Unsolved
+
+| Unit | Function | % | Cause |
+| --- | --- | --- | --- |
+| CRemoteMemory | GetPiiBox | 65.14 | Target looks optimizer-off (materialised `(mFlags & mask) == value` with mask and value in registers, frame pointer); `global_optimizer off` gives 85.80 but the list-assign iterator copies and slots still differ |
+| CRemoteMemory | BeginRead, FinishRead | 95.82, 63.44 | `0x200 \| state` unfolded for the two composite states; FinishRead keeps `channel * 0x440` in a saved register where the target recomputes it |
+| CRemoteMemory | ThreadMain, PrepareWrite, FinishWrite | 81.74, 82.24, 51.05 | ReadBack's tree root is -1 in ours and -2 in the target (the target has an extra `-4` node going to the default body); PrepareWrite's list `!=` is materialised in the target |
+| CPpuEngine | SendMessage | 82.94 | The range construction copies 8-byte iterator objects (word plus uninitialised byte) in the target |
+| CPiiListFilterSort | CompareBPAscending/Descending, CompareSpeciesName | 99.3-99.6 | Item pointers r5/r3 versus r3/r4. Without locals the items get r3/r4 but B loads first (right-to-left argument evaluation); item locals plus data locals return to r5/r3 |
+| CPiiListFilterSort | Sort | 96.16 | `*(comparators + n)`, explicit template arguments and named iterators do not move the `mSortType` load |
+| CGameSession | GetSnapshot | 88.24 | Store order of play time, money and count; direct member stores, a separate `now`, a reference alias and local-order variants are worse or unchanged |
