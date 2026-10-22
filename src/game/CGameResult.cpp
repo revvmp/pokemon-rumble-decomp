@@ -133,49 +133,12 @@ struct ResultPii {
 
 class CGameResult : public IGameResult {
 public:
-    explicit CGameResult(const MapDesc* pDesc)
+    CGameResult(const MapDesc* pDesc, bool background)
         : mpMapDesc(pDesc), mUIManager(new CUIManager), mLayout(new BUILayout), mPiiSpec(new CUIPiiSpec), mSelected(0)
     {
         const GXRenderModeObj* pRenderMode = nw4r::g3d::G3DState::GetRenderModeObj();
         mCapture.Init(GetWorkBuffer(0)->GetBuffer(), GetWorkBuffer(0)->GetSize(), pRenderMode->fbWidth,
                       pRenderMode->efbHeight, GX_TF_RGB565, GX_CLAMP, GX_NEAR);
-    }
-    inline void Initialize(bool background);
-    inline virtual ~CGameResult();
-    virtual void Calc();
-    virtual void CalcMtx();
-    virtual void CalcView();
-    virtual void Draw();
-    virtual void RunAction();
-    virtual const MapDesc& GetMapDesc() const { return *mpMapDesc; }
-    virtual BWorld* GetWorld() const { return mWorlds[0].get(); }
-    virtual IPauseMenu* GetPauseMenu() { return mPauseMenu.get(); }
-
-private:
-    void CollectPiis();
-    void SetPiiPositions(int row, int center);
-    void UpdatePiiWindow();
-
-    const MapDesc* mpMapDesc;
-    std::tr1::shared_ptr<CUIManager> mUIManager;
-    std::tr1::shared_ptr<BUILayout> mLayout;
-    std::tr1::shared_ptr<CUIPiiSpec> mPiiSpec;
-    std::tr1::shared_ptr<IPostEffect> mPostEffect;
-    std::tr1::shared_ptr<IPauseMenu> mPauseMenu;
-    std::tr1::shared_ptr<BWorld> mWorlds[2];
-    std::tr1::shared_ptr<BWorldCamera> mCameras[2];
-    std::vector<ResultPii> mEntries;
-    int mSelected;
-    int mStrongestBP;
-    CaptureTexture mCapture;
-};
-
-inline CGameResult::~CGameResult()
-{
-}
-
-inline void CGameResult::Initialize(bool background)
-{
     std::tr1::shared_ptr<CLayout::FontMap> pFonts = GetDefaultFontMap();
     const char* const* pArchives = gSharedLayoutArchives;
     mLayout->Load(pArchives, "gameresult", pFonts, background);
@@ -240,14 +203,45 @@ inline void CGameResult::Initialize(bool background)
     UpdatePiiWindow();
     mStrongestBP = GetStrongestBP();
     mPiiSpec->SetVisible(mEntries.size() != 0);
+    }
+    inline virtual ~CGameResult();
+    virtual void Calc();
+    virtual void CalcMtx();
+    virtual void CalcView();
+    virtual void Draw();
+    virtual void RunAction();
+    virtual const MapDesc& GetMapDesc() const { return *mpMapDesc; }
+    virtual BWorld* GetWorld() const { return mWorlds[0].get(); }
+    virtual IPauseMenu* GetPauseMenu() { return mPauseMenu.get(); }
+
+private:
+    void CollectPiis();
+    void SetPiiPositions(int row, int center);
+    void UpdatePiiWindow();
+
+    const MapDesc* mpMapDesc;
+    std::tr1::shared_ptr<CUIManager> mUIManager;
+    std::tr1::shared_ptr<BUILayout> mLayout;
+    std::tr1::shared_ptr<CUIPiiSpec> mPiiSpec;
+    std::tr1::shared_ptr<IPostEffect> mPostEffect;
+    std::tr1::shared_ptr<IPauseMenu> mPauseMenu;
+    std::tr1::shared_ptr<BWorld> mWorlds[2];
+    std::tr1::shared_ptr<BWorldCamera> mCameras[2];
+    std::vector<ResultPii> mEntries;
+    int mSelected;
+    int mStrongestBP;
+    CaptureTexture mCapture;
+};
+
+inline CGameResult::~CGameResult()
+{
 }
 
 }
 
 std::tr1::shared_ptr<IGameResult> IGameResult::Create(const MapDesc* pDesc, bool background)
 {
-    std::tr1::shared_ptr<CGameResult> pResult(new CGameResult(pDesc));
-    pResult->Initialize(background);
+    std::tr1::shared_ptr<CGameResult> pResult(new CGameResult(pDesc, background));
     return pResult;
 }
 
