@@ -394,8 +394,8 @@ void UpdateHomeButton() {
         if (*pError == -2 || *pError == -3 || *pError == -4 || *pError == -7 || *pError == 0) {
             rCon.kpad = &rFiltered;
             bool padMoved = MoveClassicCursor(rFiltered.ex_status.cl.hold, &rCon.pos);
-            float dx = rCon.kpad->ex_status.cl.lstick.x / (256.0f / 9.0f);
             float dy = rCon.kpad->ex_status.cl.lstick.y / (256.0f / 9.0f);
+            float dx = rCon.kpad->ex_status.cl.lstick.x / (256.0f / 9.0f);
             dx = nw4r::ut::Clamp(dx, -1.0f, 1.0f);
             dy = nw4r::ut::Clamp(dy, -1.0f, 1.0f);
             bool stickMoved;
@@ -406,8 +406,11 @@ void UpdateHomeButton() {
                 rCon.pos.y = nw4r::ut::Clamp(rCon.pos.y - dy, -1.0f, 1.0f);
                 stickMoved = true;
             }
-            if (!(padMoved | stickMoved) && rCon.kpad->dpd_valid_fg > 0)
-                rCon.pos = rCon.kpad->pos;
+            bool moved = padMoved | stickMoved;
+            if (!moved && rCon.kpad->dpd_valid_fg > 0) {
+                rCon.pos.x = rCon.kpad->pos.x;
+                rCon.pos.y = rCon.kpad->pos.y;
+            }
         } else {
             rCon.kpad = nullptr;
             memset(&rFiltered, 0, sizeof(KPADStatus));
