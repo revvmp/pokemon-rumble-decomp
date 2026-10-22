@@ -246,7 +246,7 @@ bool CHPBar::IsVisible() const {
     return (mFlags & FLAG_VISIBLE) != 0;
 }
 
-u32 CHPBar::GetType() const {
+int CHPBar::GetType() const {
     return mType;
 }
 
