@@ -13205,7 +13205,7 @@ __rf__Q33std106vector<Q311PiiPropData12SpeciesMoves9LevelMove,Q23std50allocator<
 __pp__Q33std106vector<Q311PiiPropData12SpeciesMoves9LevelMove,Q23std50allocator<Q311PiiPropData12SpeciesMoves9LevelMove>>14const_iteratorFv = .text:0x800F5EC0; // type:function size:0x10
 end__Q23std106vector<Q311PiiPropData12SpeciesMoves9LevelMove,Q23std50allocator<Q311PiiPropData12SpeciesMoves9LevelMove>>CFv = .text:0x800F5ED0; // type:function size:0x14
 __dt__Q23std93__vec_deleter<Q211PiiPropData12SpeciesMoves,Q23std40allocator<Q211PiiPropData12SpeciesMoves>>Fv = .text:0x800F5EF0; // type:function size:0xD8
-__dt__Q23std39__vec_deleter<Us,Q23std13allocator<Us>>Fv = .text:0x800F5FD0; // type:function size:0x70 scope:weak
+dtor_800F5FD0 = .text:0x800F5FD0; // type:function size:0x70
 __dt__Q23std113__vec_deleter<Q311PiiPropData12SpeciesMoves9LevelMove,Q23std50allocator<Q311PiiPropData12SpeciesMoves9LevelMove>>Fv = .text:0x800F6040; // type:function size:0x74
 InitTexture__7CPiiTexFUsUs = .text:0x800F60C0; // type:function size:0x3A0
 __ct__7CPiiTexFUsUs = .text:0x800F6460; // type:function size:0x50
