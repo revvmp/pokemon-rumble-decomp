@@ -485,6 +485,7 @@ public:
 
     tree_imp() : size_(0) { begin_node() = end_node(); }
     tree_imp(const Compare& rCompare, const Allocator& rAllocator) : size_(size_type(0), rAllocator), root_(NodeAllocator(rAllocator)), begin_(Compare(rCompare)) { begin_node() = end_node(); }
+    tree_node_base*& root() { return *reinterpret_cast<tree_node_base**>(end_node()); }
     ~tree_imp();
 
     size_type size() const { return sz(); }
@@ -568,7 +569,6 @@ public:
     tree_node_base* end_node() const { return reinterpret_cast<tree_node_base*>(const_cast<tree_root_ptr*>(&root_.second())); }
     tree_node_base* end_node() { return reinterpret_cast<tree_node_base*>(&root_.second()); }
     tree_node_base*& begin_node() { return begin_.second(); }
-    tree_node_base*& root() { return *reinterpret_cast<tree_node_base**>(end_node()); }
     Allocator& alloc() { return size_.second(); }
     const Allocator& alloc() const { return size_.second(); }
     NodeAllocator& node_alloc() { return root_.first(); }
