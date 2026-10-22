@@ -6,7 +6,7 @@ namespace {
 
 void ExpandTo(std::vector<SD_StatisticValue::Data>& rValues, u32 index) {
     u32 oldSize = rValues.size();
-    if (index >= oldSize) {
+    if (oldSize <= index) {
         rValues.resize(index + 1);
         for (u32 i = oldSize; i < index; i++) {
             rValues[i].mValue = 0;
@@ -119,4 +119,17 @@ void CStatistic::Add(int id, int amount) {
 
 void CStatistic::SetCounterStopValue(int id, int value) {
     mCounterStops[id] = value;
+}
+
+void CStatistic::SetWazaUsed(int waza, bool used) {
+    if (waza != 0) {
+        u32 word = waza / 32;
+        u32 mask = 1 << (waza % 32);
+        ExpandTo(mWazaBits, word);
+        if (used) {
+            mWazaBits[word].mValue |= mask;
+        } else {
+            mWazaBits[word].mValue = mValues[word].mValue & ~mask;
+        }
+    }
 }
