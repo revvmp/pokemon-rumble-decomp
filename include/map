@@ -66,9 +66,82 @@ public:
     typedef typename Allocator::template rebind<node>::other node_allocator;
 
     map_compact_tree() : alloc_(Allocator(), size_type(0)), comp_(Compare(), reinterpret_cast<node*>(&node_alloc_.second())) {}
+    map_compact_tree(const map_compact_tree& rOther) : alloc_(Allocator(), size_type(0)), comp_(Compare(), reinterpret_cast<node*>(&node_alloc_.second())) {
+        copy(rOther);
+    }
     ~map_compact_tree() {
         if (root() != nullptr) {
             destroy(static_cast<node*>(root()));
+        }
+    }
+    map_compact_tree& operator=(const map_compact_tree& rOther) {
+        if (this != &rOther) {
+            clear();
+            copy(rOther);
+        }
+        return *this;
+    }
+    void clear() {
+        if (root() != nullptr) {
+            destroy(static_cast<node*>(root()));
+            sz() = 0;
+            root() = nullptr;
+            front() = end_node();
+        }
+    }
+    __attribute__((noinline)) void copy_children(node* pDestination, node* pSource, bool left) {
+        node_allocator& nodeAllocator = node_alloc_.first();
+        Metrowerks::alloc_ptr<node, node_allocator&> pNode(nodeAllocator.allocate(1), nodeAllocator);
+        pNode.get()->left_ = pNode.get()->right_ = nullptr;
+        pNode.get()->set_parent(pDestination);
+        if (left) {
+            alloc_.first().construct(&pNode.get()->value_, static_cast<node*>(pSource->left_)->value_);
+            front() = pNode.get();
+            pDestination->left_ = pNode.release();
+            pDestination = static_cast<node*>(pDestination->left_);
+            pSource = static_cast<node*>(pSource->left_);
+        } else {
+            alloc_.first().construct(&pNode.get()->value_, static_cast<node*>(pSource->right_)->value_);
+            pDestination->right_ = pNode.release();
+            pDestination = static_cast<node*>(pDestination->right_);
+            pSource = static_cast<node*>(pSource->right_);
+        }
+        if (pSource->parent_.bit()) {
+            pDestination->set_red();
+        } else {
+            pDestination->set_black();
+        }
+        ++sz();
+        if (pSource->right_ != nullptr) {
+            copy_children(pDestination, pSource, false);
+        }
+        if (pSource->left_ != nullptr) {
+            copy_children(pDestination, pSource, true);
+        }
+    }
+    __attribute__((noinline)) void copy(const map_compact_tree& rOther) {
+        if (rOther.root() != nullptr) {
+            node_allocator& nodeAllocator = node_alloc_.first();
+            Metrowerks::alloc_ptr<node, node_allocator&> pNode(nodeAllocator.allocate(1), nodeAllocator);
+            alloc_.first().construct(&pNode.get()->value_, static_cast<node*>(rOther.root())->value_);
+            map_compact_tree temporary;
+            pNode.get()->left_ = pNode.get()->right_ = nullptr;
+            pNode.get()->set_parent(temporary.end_node());
+            if (rOther.root()->parent_.bit()) {
+                pNode.get()->set_red();
+            } else {
+                pNode.get()->set_black();
+            }
+            temporary.root() = pNode.release();
+            temporary.sz() = 1;
+            temporary.front() = temporary.root();
+            if (rOther.root()->right_ != nullptr) {
+                temporary.copy_children(static_cast<node*>(temporary.root()), static_cast<node*>(rOther.root()), false);
+            }
+            if (rOther.root()->left_ != nullptr) {
+                temporary.copy_children(static_cast<node*>(temporary.root()), static_cast<node*>(rOther.root()), true);
+            }
+            swap(temporary);
         }
     }
 

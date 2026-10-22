@@ -9,12 +9,6 @@
 #include <stdexcept>
 #include <string.h>
 
-#ifdef MSL_VECTOR_OUTLINE_ASSIGN
-#define MSL_VECTOR_OUTLINE __attribute__((noinline))
-#else
-#define MSL_VECTOR_OUTLINE
-#endif
-
 namespace std {
 
 template <bool> struct __vector_common {
@@ -125,7 +119,7 @@ protected:
         }
     }
 public:
-    MSL_VECTOR_OUTLINE void erase_at_end(size_type n) { erase_tail(n, pod_type()); }
+    void erase_at_end(size_type n) { erase_tail(n, pod_type()); }
 protected:
     void erase_tail(size_type n, Metrowerks::int2type<false>);
     void erase_tail(size_type n, Metrowerks::int2type<true>) { size_ -= n; }
@@ -195,7 +189,7 @@ public:
         }
     }
 
-    template <typename Iterator> MSL_VECTOR_OUTLINE void construct_at_end(Iterator first, Iterator last) {
+    template <typename Iterator> void construct_at_end(Iterator first, Iterator last) {
         construct_at_end(first, last, pod_type());
     }
     template <typename Iterator> void construct_at_end(Iterator first, Iterator last, Metrowerks::int2type<false>) {
@@ -488,7 +482,7 @@ protected:
         return false;
     }
     bool can_append(size_type n) { size_type capacity; return grow_by(n, capacity, pod_type()); }
-    MSL_VECTOR_OUTLINE bool grow_by(size_type n, size_type& rCapacity) { return grow_by(n, rCapacity, pod_type()); }
+    bool grow_by(size_type n, size_type& rCapacity) { return grow_by(n, rCapacity, pod_type()); }
     bool grow_by(size_type n, size_type& rCapacity, pod_type) {
         rCapacity = recommend(n);
         return false;
@@ -508,6 +502,21 @@ protected:
     template <typename Iterator> void assign_range(Iterator first, Iterator last, std::forward_iterator_tag) {
         size_type capacity;
         size_type n = std::distance(first, last);
+#ifdef MSL_VECTOR_OUTLINE_ASSIGN
+        if (n <= this->cap() || grow_by_outline(n - this->cap(), capacity)) {
+            Iterator mid(first);
+            std::advance(mid, std::min(n, this->size_));
+            copy_range_outline(first, mid, this->data_);
+            if (n < this->size_) {
+                this->erase_at_end_outline(this->size_ - n);
+            } else if (this->size_ < n) {
+                construct_at_end_outline(mid, last);
+            }
+        } else {
+            assign_reallocate_outline(n, capacity);
+            construct_at_end_outline(first, last);
+        }
+#else
         if (n <= this->cap() || grow_by(n - this->cap(), capacity)) {
             Iterator mid(first);
             std::advance(mid, std::min(n, this->size_));
@@ -521,9 +530,18 @@ protected:
             assign_reallocate(n, capacity);
             construct_at_end(first, last);
         }
+#endif
     }
 
-    MSL_VECTOR_OUTLINE void assign_reallocate(size_type n, size_type capacity) {
+#ifdef MSL_VECTOR_OUTLINE_ASSIGN
+    __attribute__((noinline)) bool grow_by_outline(size_type n, size_type& rCapacity) { return grow_by(n, rCapacity); }
+    template <typename Iterator> __attribute__((noinline)) static T* copy_range_outline(Iterator first, Iterator last, T* result) { return copy_range(first, last, result); }
+    __attribute__((noinline)) void erase_at_end_outline(size_type n) { this->erase_at_end(n); }
+    template <typename Iterator> __attribute__((noinline)) void construct_at_end_outline(Iterator first, Iterator last) { construct_at_end(first, last); }
+    __attribute__((noinline)) void assign_reallocate_outline(size_type n, size_type capacity) { assign_reallocate(n, capacity); }
+#endif
+
+    void assign_reallocate(size_type n, size_type capacity) {
         base::clear();
         if (this->data_) {
             this->alloc().deallocate(this->data_, this->cap());
@@ -557,7 +575,7 @@ protected:
         }
     }
 
-    template <typename Iterator> MSL_VECTOR_OUTLINE void construct_at_end(Iterator first, Iterator last) {
+    template <typename Iterator> void construct_at_end(Iterator first, Iterator last) {
         construct_at_end(first, last, pod_type());
     }
     template <typename Iterator> void construct_at_end(Iterator first, Iterator last, Metrowerks::int2type<false>) {
@@ -569,7 +587,7 @@ protected:
         }
     }
 
-    template <typename Iterator> MSL_VECTOR_OUTLINE static T* copy_range(Iterator first, Iterator last, T* result) {
+    template <typename Iterator> static T* copy_range(Iterator first, Iterator last, T* result) {
         for (; first != last; ++first, ++result) {
             *result = *first;
         }
