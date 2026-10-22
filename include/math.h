@@ -26,6 +26,10 @@ double tan(double x);
 double sqrt(double x);
 double nan(const char* tag);
 
+static inline double fabs(double x) {
+    return __fabs(x);
+}
+
 static inline float sqrtf(float x) {
     return (float)sqrt(x);
 }

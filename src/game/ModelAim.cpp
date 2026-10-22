@@ -9,18 +9,14 @@
 ModelAim::Parameters ModelAim::sDefaultParameters;
 
 namespace {
-inline f32 Complement(f32 value) {
-    return 1.0f - value;
-}
-
 struct DefaultParametersInit {
     DefaultParametersInit() {
         ModelAim::Parameters& r = ModelAim::sDefaultParameters;
         r.maxPitchStep = 0.017453292f;
         r.maxYawStep = 0.017453292f;
         f32 keepRate = 0.9f;
-        r.pitchFollowRate = Complement(keepRate);
-        r.yawFollowRate = Complement(keepRate);
+        r.pitchFollowRate = 1.0f - keepRate;
+        r.yawFollowRate = 1.0f - keepRate;
         r.pitchInnerMin = 1.0471976f;
         r.pitchInnerMax = -0.34906584f;
         r.pitchOuterMin = 1.5707964f;
@@ -144,9 +140,9 @@ void ModelAim::Update(const nw4r::math::VEC3& rLocalTarget, int steps) {
     f32 pitchDelta = pitch - mPitch;
     f32 pitchFollow;
     if (steps == 1) {
-        pitchFollow = static_cast<f32>(__fabs(pitchDelta * mpParameters->pitchFollowRate));
+        pitchFollow = fabs(pitchDelta * mpParameters->pitchFollowRate);
     } else {
-        pitchFollow = static_cast<f32>(__fabs(pitchDelta * IntegerPower(1.0f - mpParameters->pitchFollowRate, steps) - pitchDelta));
+        pitchFollow = fabs(pitchDelta * IntegerPower(1.0f - mpParameters->pitchFollowRate, steps) - pitchDelta);
     }
     f32 pitchStep = Max(pitchFollow, mpParameters->maxPitchStep * steps);
     if (-pitchStep <= pitchDelta && pitchDelta <= pitchStep) {
@@ -159,9 +155,9 @@ void ModelAim::Update(const nw4r::math::VEC3& rLocalTarget, int steps) {
     f32 yawDelta = yaw - mYaw;
     f32 yawFollow;
     if (steps == 1) {
-        yawFollow = static_cast<f32>(__fabs(yawDelta * mpParameters->yawFollowRate));
+        yawFollow = fabs(yawDelta * mpParameters->yawFollowRate);
     } else {
-        yawFollow = static_cast<f32>(__fabs(yawDelta * IntegerPower(1.0f - mpParameters->yawFollowRate, steps) - yawDelta));
+        yawFollow = fabs(yawDelta * IntegerPower(1.0f - mpParameters->yawFollowRate, steps) - yawDelta);
     }
     f32 yawStep = Max(yawFollow, mpParameters->maxYawStep * steps);
     if (-yawStep <= yawDelta && yawDelta <= yawStep) {
