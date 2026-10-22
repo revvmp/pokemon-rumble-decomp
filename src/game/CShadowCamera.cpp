@@ -346,7 +346,7 @@ CSimpleGround::~CSimpleGround() {}
 
 void CSimpleGround::Initialize(bool background) {}
 
-void CSimpleGround::LoadScript(const char* pName, int mode, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnvironment) {
+void CSimpleGround::LoadScript(const char* pName, int mode, const std::tr1::shared_ptr<CPpuEnv>& rEnvironment) {
     mPpuEngine.reset(new CPpuEngine);
     mPpuEngine->Load(this, pName, mode, rEnvironment);
 }

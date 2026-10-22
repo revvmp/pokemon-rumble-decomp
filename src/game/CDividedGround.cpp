@@ -34,7 +34,7 @@ CDividedGround::CDividedGround(u32 type) : BModelObj(type | TYPE) {}
 
 CDividedGround::~CDividedGround() {}
 
-bool CDividedGround::LoadPkc(int mode, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnv, const char* pPrefix) {
+bool CDividedGround::LoadPkc(int mode, const std::tr1::shared_ptr<CPpuEnv>& rEnv, const char* pPrefix) {
     mPpuEngine.reset(new CPpuEngine);
 
     pPrefix = pPrefix ? pPrefix : "";

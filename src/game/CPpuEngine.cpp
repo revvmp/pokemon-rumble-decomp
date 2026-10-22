@@ -12,11 +12,12 @@
 #include <game/CPiiPersonalData.h>
 #include <string>
 #include <string.h>
+#include <game/CPpuEnv.h>
 
 void YieldFiber();
 std::tr1::shared_ptr<NPpu::CCode> LoadScriptCode(NPpu::CEnvironment* pEnv, const char* pName, bool wait);
 
-std::tr1::weak_ptr<NPpu::CEnvironment> CPpuEngine::sDefaultEnv;
+std::tr1::weak_ptr<CPpuEnv> CPpuEngine::sDefaultEnv;
 MapIndex CPpuEngine::sDefaultStageDescTarget;
 std::tr1::shared_ptr<std::string> CPpuEngine::sScriptRoot;
 
@@ -44,7 +45,7 @@ NPpu::CEnvironment* CPpuEngine::GetEnv() const {
     return GetEnvironment();
 }
 
-void CPpuEngine::SetDefaultEnvironment(const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnv) {
+void CPpuEngine::SetDefaultEnvironment(const std::tr1::shared_ptr<CPpuEnv>& rEnv) {
     sDefaultEnv = rEnv;
 }
 
@@ -120,8 +121,8 @@ std::tr1::shared_ptr<CFileData> CPpuEngine::LoadScriptFile(const char* pName, u3
     return std::tr1::shared_ptr<CFileData>();
 }
 
-bool CPpuEngine::Load(const char* pName, int mode, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnv) {
-    std::tr1::shared_ptr<NPpu::CEnvironment> env(rEnv ? rEnv : sDefaultEnv.lock());
+bool CPpuEngine::Load(const char* pName, int mode, const std::tr1::shared_ptr<CPpuEnv>& rEnv) {
+    std::tr1::shared_ptr<CPpuEnv> env(rEnv ? rEnv : sDefaultEnv.lock());
     if (!env) {
         return false;
     }
@@ -134,7 +135,7 @@ bool CPpuEngine::Load(const char* pName, int mode, const std::tr1::shared_ptr<NP
     return true;
 }
 
-bool CPpuEngine::Load(BWorldObj* pOwner, const char* pName, int mode, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnv) {
+bool CPpuEngine::Load(BWorldObj* pOwner, const char* pName, int mode, const std::tr1::shared_ptr<CPpuEnv>& rEnv) {
     SetID(pOwner->GetId());
     if (!Load(pName, mode, rEnv)) {
         return false;
@@ -148,7 +149,7 @@ bool CPpuEngine::Load(BWorldObj* pOwner, const char* pName, int mode, const std:
     return true;
 }
 
-bool CPpuEngine::Execute(const char* pName, int mode, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnv) {
+bool CPpuEngine::Execute(const char* pName, int mode, const std::tr1::shared_ptr<CPpuEnv>& rEnv) {
     InitTemporaryID();
     if (!Load(pName, mode, rEnv)) {
         return false;
@@ -352,7 +353,7 @@ int CPpuEngine::SendMessage(const Message& rMessage) {
 }
 
 
-bool RunScript(const char* pName, int mode, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnvironment) {
+bool RunScript(const char* pName, int mode, const std::tr1::shared_ptr<CPpuEnv>& rEnvironment) {
     std::tr1::shared_ptr<CPpuEngine> engine(new CPpuEngine);
     return engine->Execute(pName, mode, rEnvironment);
 }

@@ -75,7 +75,7 @@ int NewPlayerPii(NPpu::CEngine* pBase) {
             pii->SetPosition(position);
             pii->SetRotation(rotation);
             if (pEngine->GetWorld()->Add(pii)) {
-                pii->LoadScript(std::tr1::shared_ptr<NPpu::CEnvironment>());
+                pii->LoadScript(std::tr1::shared_ptr<CPpuEnv>());
                 id = pii->GetId();
             }
         }
@@ -88,7 +88,7 @@ void CPlayerPii::Initialize() {
     Initialize(false);
 }
 
-bool CPlayerPii::LoadScript(const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnvironment) {
+bool CPlayerPii::LoadScript(const std::tr1::shared_ptr<CPpuEnv>& rEnvironment) {
     return LoadScript(0, rEnvironment);
 }
 
@@ -123,7 +123,7 @@ int CreatePii(CPpuEngine* pEngine, bool drop) {
             pii->SetPosition(nw4r::math::VEC3(0.0f, 0.3f, 0.0f));
         }
         if (pScript != nullptr) {
-            pii->LoadScript(pScript, std::tr1::shared_ptr<NPpu::CEnvironment>());
+            pii->LoadScript(pScript, std::tr1::shared_ptr<CPpuEnv>());
         }
         pEngine->PushInt(pii->GetId());
     } else {
@@ -150,7 +150,7 @@ int NewEnemyPii(NPpu::CEngine* pState) {
         if (personalData->GetSpeciesData()->IsFlying()) {
             pii->SetPosition(nw4r::math::VEC3(0.0f, 0.3f, 0.0f));
         }
-        pii->LoadScript(std::tr1::shared_ptr<NPpu::CEnvironment>());
+        pii->LoadScript(std::tr1::shared_ptr<CPpuEnv>());
         pEngine->PushInt(pii->GetId());
     } else {
         pEngine->PushInt(0);

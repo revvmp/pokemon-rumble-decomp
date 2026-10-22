@@ -227,7 +227,7 @@ int NewWaza(NPpu::CEngine* pBaseEngine) {
         SetupScriptWaza(waza.get(), id, std::tr1::shared_ptr<BWorldObj>());
     }
     if (pEngine->GetWorld()->Add(waza)) {
-        waza->LoadScript(0, std::tr1::shared_ptr<NPpu::CEnvironment>());
+        waza->LoadScript(0, std::tr1::shared_ptr<CPpuEnv>());
         pEngine->PushInt(waza->GetId());
     } else {
         pEngine->PushNull();

@@ -7,6 +7,8 @@
 #include <game/SaveData.h>
 #include <vector>
 
+class CPpuEnv;
+
 class CPiiPersonalData;
 class COyaInfo;
 
@@ -25,7 +27,7 @@ public:
     void Clear();
     void RestoreAll();
     void ShowAllSpecs();
-    void ApplyEnvironment(bool enable, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnvironment);
+    void ApplyEnvironment(bool enable, const std::tr1::shared_ptr<CPpuEnv>& rEnvironment);
     u32 GetCount() const { return mPersonalDataList.size(); }
     int GetCapacity() const { return mCapacity; }
     const std::list<std::tr1::shared_ptr<CPiiPersonalData> >& GetPersonalDataList() const { return mPersonalDataList; }

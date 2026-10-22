@@ -1501,7 +1501,7 @@ int NewSimpleGround(NPpu::CEngine* pBaseEngine) {
     ground->Initialize(false);
     if (pParent) { ground->SetParent(pParent->shared_from_this()); }
     if (pEngine->GetWorld()->AddGround(ground)) {
-        if (pName) { ground->LoadScript(pName, 0, std::tr1::shared_ptr<NPpu::CEnvironment>()); }
+        if (pName) { ground->LoadScript(pName, 0, std::tr1::shared_ptr<CPpuEnv>()); }
         pEngine->PushInt(ground->GetId());
     } else {
         pEngine->PushInt(0);

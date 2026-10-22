@@ -7,6 +7,8 @@
 #include <nw4r/g3d/g3d_scnobj.h>
 #include <vector>
 
+class CPpuEnv;
+
 namespace nw4r {
 namespace g3d {
 class ScnGroupEx;
@@ -40,7 +42,7 @@ public:
     virtual void UpdateVisible() {}
 
     bool Load(const StageID* pStageID, int stageNo, bool background);
-    bool LoadPkc(int mode, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnv, const char* pPrefix);
+    bool LoadPkc(int mode, const std::tr1::shared_ptr<CPpuEnv>& rEnv, const char* pPrefix);
     bool LoadAttr(const char* pName, bool background);
     bool IsOutOfBounds(const nw4r::math::VEC3& rPos);
     CBSPTree* GetBSPTree(int index) { return mBSPTrees[index].get(); }

@@ -5,6 +5,8 @@
 #include <game/MapIndex.h>
 #include <memory>
 
+class CPpuEnv;
+
 class IGameMap;
 
 namespace NPpu {
@@ -15,7 +17,7 @@ class IGameStage : public ICalcDraw, public std::tr1::enable_shared_from_this<IG
 public:
     struct Param {
         MapIndex mMapIndex;
-        std::tr1::shared_ptr<NPpu::CEnvironment> mEnvironment;
+        std::tr1::shared_ptr<CPpuEnv> mEnvironment;
         ~Param() {}
     };
 

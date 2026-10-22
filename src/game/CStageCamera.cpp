@@ -10,7 +10,7 @@ CStageCamera::CStageCamera(u32 type) : BWorldCamera(type | TYPE), mReserved(0) {
 
 CStageCamera::~CStageCamera() {}
 
-void CStageCamera::LoadScript(int mode, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnv) {
+void CStageCamera::LoadScript(int mode, const std::tr1::shared_ptr<CPpuEnv>& rEnv) {
     mEngine.reset(new CPpuEngine);
     mEngine->Load(this, "CStageCamera.pkc", mode, rEnv);
 }

@@ -418,7 +418,7 @@ void CGameMap::RunAction()
     MapIndex target = mParam.mMapDesc->mIndex;
     CPpuEngine::SetDefaultStageDescTarget(target);
     CDividedGround* pGround = DynamicCast<CDividedGround>(mWorld->GetGround());
-    pGround->LoadPkc(1, std::tr1::shared_ptr<NPpu::CEnvironment>(), nullptr);
+    pGround->LoadPkc(1, std::tr1::shared_ptr<CPpuEnv>(), nullptr);
 }
 
 bool CGameMap::RegisterDialog(std::tr1::shared_ptr<IDlg> dialog)

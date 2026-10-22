@@ -6,6 +6,8 @@
 #include <map>
 #include <revolution/types.h>
 
+class CPpuEnv;
+
 namespace NPpu {
 class CEnvironment;
 }
@@ -20,7 +22,7 @@ public:
     ~COyaInfo();
 
     void SetCount(u32 count);
-    void ApplyEnvironment(bool enable, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnvironment);
+    void ApplyEnvironment(bool enable, const std::tr1::shared_ptr<CPpuEnv>& rEnvironment);
     u32 GetCount() const { return mCount; }
     int GetNextId() const { return mNextId; }
     std::tr1::shared_ptr<CPiiPersonalData> FindPersonalData(u32 key) const;

@@ -7,6 +7,8 @@
 #include <game/ScnMdlSimpleData.h>
 #include <vector>
 
+class CPpuEnv;
+
 namespace nw4r {
 namespace g3d {
 class AnmObjTexSrtRes;
@@ -74,11 +76,11 @@ public:
     void FaceHeadToward(BModelObj* pObject, const char* pNode);
     void SetHPBar(std::tr1::shared_ptr<CHPBar> hpBar);
     void SetMiniMapMarker(std::tr1::shared_ptr<CMiniMapMarker> marker);
-    bool LoadScript(const char* pName, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnvironment) {
+    bool LoadScript(const char* pName, const std::tr1::shared_ptr<CPpuEnv>& rEnvironment) {
         return LoadScript(pName, 0, rEnvironment);
     }
     bool LoadScript(const char* pName, int mode,
-                    const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnvironment);
+                    const std::tr1::shared_ptr<CPpuEnv>& rEnvironment);
     std::tr1::shared_ptr<CModel::CMotionProgram> PlayMotionForDuration(int index, f32 frame, f32 duration);
     std::tr1::shared_ptr<CModel::CMotionProgram> QueueMotionForDuration(int index, f32 frame, f32 duration);
     std::tr1::shared_ptr<CModel::CMotionProgram> AppendMotionForDuration(int index, f32 frame, f32 duration);

@@ -6,6 +6,8 @@
 #include <game/SaveData.h>
 #include <memory>
 #include <revolution/types.h>
+
+class CPpuEnv;
 class COyaInfo;
 class CPiiPersonalData;
 namespace NPpu {
@@ -48,7 +50,7 @@ public:
     void RerollRandomSeed();
     void Export(SD_PiiPersonalData::Data& rData);
     static std::tr1::shared_ptr<CPiiPersonalData> Import(u32 id, const SD_PiiPersonalData::Data& rData);
-    void ExecuteInitScript(int mode, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnv);
+    void ExecuteInitScript(int mode, const std::tr1::shared_ptr<CPpuEnv>& rEnv);
     bool IsFainted() const { return mHP <= 0; }
     bool IsFavorite() const { return HasFlag(FLAG_FAVORITE); }
     bool IsSpecHidden() const { return HasFlag(FLAG_SPEC_HIDDEN); }

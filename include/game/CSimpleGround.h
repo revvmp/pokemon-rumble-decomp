@@ -4,6 +4,8 @@
 #include <game/BModelObj.h>
 #include <memory>
 
+class CPpuEnv;
+
 namespace NPpu {
 class CEnvironment;
 }
@@ -21,7 +23,7 @@ public:
     virtual void OnLeaveWorld(BWorld* pWorld);
     virtual void Initialize(bool background);
 
-    void LoadScript(const char* pName, int mode, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnvironment);
+    void LoadScript(const char* pName, int mode, const std::tr1::shared_ptr<CPpuEnv>& rEnvironment);
     void LoadModel(const char* pName, bool background);
 
 private:

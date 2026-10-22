@@ -5,6 +5,8 @@
 #include <game/CPpuEngine.h>
 #include <memory>
 
+class CPpuEnv;
+
 class IUIInput;
 
 class CStageCamera : public BWorldCamera {
@@ -19,8 +21,8 @@ public:
     virtual void OnLeaveWorld(BWorld* pWorld);
     virtual void UpdateIndex(int prevIndex);
 
-    void LoadScript(int mode, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnv);
-    void LoadScript(const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnv) { LoadScript(0, rEnv); }
+    void LoadScript(int mode, const std::tr1::shared_ptr<CPpuEnv>& rEnv);
+    void LoadScript(const std::tr1::shared_ptr<CPpuEnv>& rEnv) { LoadScript(0, rEnv); }
     f32 GetStickWorldAngle(const IUIInput* pInput);
 
 private:

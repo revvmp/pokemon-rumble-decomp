@@ -40,7 +40,7 @@ static int AddItem(NPpu::CEngine* pBaseEngine, std::tr1::shared_ptr<CItem> sourc
 
     if (pEngine->GetWorld()->Add(item)) {
         if (pScriptName != nullptr) {
-            item->LoadScript(pScriptName, 0, std::tr1::shared_ptr<NPpu::CEnvironment>());
+            item->LoadScript(pScriptName, 0, std::tr1::shared_ptr<CPpuEnv>());
         }
         pEngine->PushInt(item->GetId());
     } else {

@@ -57,7 +57,7 @@ void CPii::Initialize(bool background)
     LoadModel(background);
 }
 
-bool CPii::LoadScript(const char* pName, int mode, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnvironment)
+bool CPii::LoadScript(const char* pName, int mode, const std::tr1::shared_ptr<CPpuEnv>& rEnvironment)
 {
     mPpuEngine.reset(new CPpuEngine);
     return mPpuEngine->Load(this, pName, mode, rEnvironment);
@@ -712,7 +712,7 @@ std::tr1::shared_ptr<CPiiBox> CPiiBox::Create(const std::vector<SD_PiiPersonalDa
     return box;
 }
 
-void CPiiBox::ApplyEnvironment(bool enable, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnvironment)
+void CPiiBox::ApplyEnvironment(bool enable, const std::tr1::shared_ptr<CPpuEnv>& rEnvironment)
 {
     typedef std::list<std::tr1::shared_ptr<CPiiPersonalData> >::iterator Iterator;
     for (Iterator it = mPersonalDataList.begin(); it != mPersonalDataList.end(); ++it) {

@@ -14,6 +14,8 @@
 #include <set>
 #include <vector>
 
+class CPpuEnv;
+
 namespace Metrowerks {
 template <> struct is_POD<nw4r::math::MTX34> {
     enum { value = true };
@@ -72,7 +74,7 @@ public:
         NPpu::CValue mArgument;
     };
 
-    static void SetDefaultEnvironment(const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnv);
+    static void SetDefaultEnvironment(const std::tr1::shared_ptr<CPpuEnv>& rEnv);
     static void SetDefaultStageDescTarget(const MapIndex& rTarget);
     static const char* GetScriptRoot();
 
@@ -89,9 +91,9 @@ public:
     void SetPPD(std::tr1::shared_ptr<CPiiPersonalData> ppd);
     void LeaveInitPart();
     static std::tr1::shared_ptr<CFileData> LoadScriptFile(const char* pName, u32 flags);
-    bool Load(const char* pName, int mode, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnv);
-    bool Load(BWorldObj* pOwner, const char* pName, int mode, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnv);
-    bool Execute(const char* pName, int mode, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnv);
+    bool Load(const char* pName, int mode, const std::tr1::shared_ptr<CPpuEnv>& rEnv);
+    bool Load(BWorldObj* pOwner, const char* pName, int mode, const std::tr1::shared_ptr<CPpuEnv>& rEnv);
+    bool Execute(const char* pName, int mode, const std::tr1::shared_ptr<CPpuEnv>& rEnv);
     BWorldObj* PopWorldObj();
     CEffect* PopEffect();
     const PiiSpeciesData* PopSpeciesData();
@@ -107,7 +109,7 @@ public:
     BWorldObj* GetOwner() const { return mOwnerObj; }
 
 private:
-    static std::tr1::weak_ptr<NPpu::CEnvironment> sDefaultEnv;
+    static std::tr1::weak_ptr<CPpuEnv> sDefaultEnv;
     static MapIndex sDefaultStageDescTarget;
     static std::tr1::shared_ptr<std::string> sScriptRoot;
 
@@ -127,7 +129,7 @@ public:
     virtual void Calc();
 };
 
-std::tr1::shared_ptr<NPpu::CEnvironment> CreateScriptEnvironment();
-bool RunScript(const char* pName, int mode, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnvironment);
+std::tr1::shared_ptr<CPpuEnv> CreateScriptEnvironment();
+bool RunScript(const char* pName, int mode, const std::tr1::shared_ptr<CPpuEnv>& rEnvironment);
 
 #endif

@@ -45,7 +45,7 @@ std::tr1::shared_ptr<CPiiPersonalData> COyaInfo::FindPersonalData(u32 key) const
     return it->second.lock();
 }
 
-void COyaInfo::ApplyEnvironment(bool enable, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnvironment) {
+void COyaInfo::ApplyEnvironment(bool enable, const std::tr1::shared_ptr<CPpuEnv>& rEnvironment) {
     for (std::vector<PersonalDataMap>::iterator bucket = mPersonalData.begin(); bucket != mPersonalData.end(); ++bucket) {
         for (PersonalDataMap::iterator it = bucket->begin(); it != bucket->end(); ++it) {
             std::tr1::shared_ptr<CPiiPersonalData> personalData = it->second.lock();

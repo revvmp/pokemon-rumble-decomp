@@ -37,6 +37,7 @@
 #include <set>
 #include <string>
 #include <vector>
+#include <game/CPpuEnv.h>
 
 namespace NPpu {
 class CEnvironment;
@@ -96,7 +97,7 @@ public:
     virtual CPlayer* GetPlayer(int player);
     virtual CRemoteMemory* GetRemoteMemory(int player);
     virtual COyaInfo* GetOyaInfo();
-    virtual std::tr1::shared_ptr<NPpu::CEnvironment> GetEnvironment();
+    virtual std::tr1::shared_ptr<CPpuEnv> GetEnvironment();
     virtual int AddPPDToPlayerPiiBox(int player, std::tr1::shared_ptr<CPiiPersonalData> ppd);
     virtual bool CanAddPPDToPlayerPiiBox(int player, std::tr1::shared_ptr<CPiiPersonalData> ppd);
     virtual bool IsReplacePiiAvailable(int player);
@@ -132,7 +133,7 @@ private:
     std::tr1::shared_ptr<CPiiBox> mTeamPiiBox;
     std::tr1::shared_ptr<CPlayer> mPlayers[4];
     std::tr1::shared_ptr<CRemoteMemory> mRemoteMemories[4];
-    std::tr1::shared_ptr<NPpu::CEnvironment> mEnvironment;
+    std::tr1::shared_ptr<CPpuEnv> mEnvironment;
     WazaDescData mWazaDescData;
     PiiPropData mPiiPropData;
     std::tr1::shared_ptr<CPiiCollectionBox> mPiiCollectionBox;
@@ -633,7 +634,7 @@ COyaInfo* CGameSession::GetOyaInfo() {
     return &mOyaInfo;
 }
 
-std::tr1::shared_ptr<NPpu::CEnvironment> CGameSession::GetEnvironment() {
+std::tr1::shared_ptr<CPpuEnv> CGameSession::GetEnvironment() {
     return mEnvironment;
 }
 

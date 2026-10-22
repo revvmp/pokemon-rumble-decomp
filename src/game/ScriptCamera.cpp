@@ -27,7 +27,7 @@ int NewStageCamera(NPpu::CEngine* pEngine) {
     BWorld* pWorld = pPpuEngine->GetWorld();
     if (pWorld->Add(camera)) {
         pWorld->SetCurrentCamera(camera);
-        camera->LoadScript(std::tr1::shared_ptr<NPpu::CEnvironment>());
+        camera->LoadScript(std::tr1::shared_ptr<CPpuEnv>());
         pEngine->PushInt(camera->GetId());
     } else {
         pEngine->PushInt(0);

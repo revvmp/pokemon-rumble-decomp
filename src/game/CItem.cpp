@@ -12,7 +12,7 @@ CItem::~CItem() {}
 
 void CItem::Initialize(bool background) {}
 
-bool CItem::LoadScript(const char* pName, int mode, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnvironment) {
+bool CItem::LoadScript(const char* pName, int mode, const std::tr1::shared_ptr<CPpuEnv>& rEnvironment) {
     mPpuEngine.reset(new CPpuEngine);
     return mPpuEngine->Load(this, pName, mode, rEnvironment);
 }

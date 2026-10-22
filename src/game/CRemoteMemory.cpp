@@ -12,7 +12,7 @@
 void SetPadConnectionCallback(int channel, void (*pCallback)(long, long));
 extern "C" u32 OSCalcCRC32(const void* pData, u32 size);
 std::tr1::shared_ptr<CPiiPersonalData> CreatePiiPersonalData(const COyaInfo* pOyaInfo, const SD_PiiPersonalData::Data& rData);
-std::tr1::shared_ptr<NPpu::CEnvironment> CreatePpuEnvironment();
+std::tr1::shared_ptr<CPpuEnv> CreatePpuEnvironment();
 bool IsGameFlagSet(int flag);
 
 namespace {

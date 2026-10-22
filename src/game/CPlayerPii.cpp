@@ -5,6 +5,7 @@
 #include <game/CMiniMapMarker.h>
 #include <game/CPlayer.h>
 #include <game/IGameMap.h>
+#include <game/CPpuEnv.h>
 
 CPlayerPii::CPlayerPii(CPlayer* pPlayer, std::tr1::shared_ptr<CPiiPersonalData> personalData, u32 type)
     : CPii(personalData, type | TYPE), mpPlayer(pPlayer) {}
@@ -24,7 +25,7 @@ void CPlayerPii::Initialize(bool background)
     SetMiniMapMarker(marker);
 }
 
-bool CPlayerPii::LoadScript(int mode, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnvironment)
+bool CPlayerPii::LoadScript(int mode, const std::tr1::shared_ptr<CPpuEnv>& rEnvironment)
 {
     SetEnvironment(rEnvironment.get());
     return CPii::LoadScript("CPlayerPii.pkc", mode, rEnvironment);

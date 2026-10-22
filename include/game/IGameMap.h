@@ -4,6 +4,8 @@
 #include <game/ICalcDraw.h>
 #include <memory>
 
+class CPpuEnv;
+
 class BWorld;
 struct MapDesc;
 
@@ -37,7 +39,7 @@ public:
         Param() : mMapDesc(nullptr) {}
 
         MapDesc* mMapDesc;
-        std::tr1::shared_ptr<NPpu::CEnvironment> mEnvironment;
+        std::tr1::shared_ptr<CPpuEnv> mEnvironment;
     };
 
     virtual ~IGameMap() {}

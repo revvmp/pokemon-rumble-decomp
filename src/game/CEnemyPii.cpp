@@ -23,7 +23,7 @@ void CEnemyPii::Initialize(bool background)
 }
 
 bool CEnemyPii::LoadScript(int mode,
-                         const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnvironment)
+                         const std::tr1::shared_ptr<CPpuEnv>& rEnvironment)
 {
     return CPii::LoadScript("CEnemyPii.pkc", mode, rEnvironment);
 }

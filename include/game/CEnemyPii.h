@@ -3,6 +3,8 @@
 
 #include <game/CPii.h>
 
+class CPpuEnv;
+
 class CEnemyPii : public CPii {
 public:
     enum { TYPE = 1 << 8 };
@@ -12,11 +14,11 @@ public:
 
     virtual void Initialize(bool background);
 
-    bool LoadScript(const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnvironment) {
+    bool LoadScript(const std::tr1::shared_ptr<CPpuEnv>& rEnvironment) {
         return LoadScript(0, rEnvironment);
     }
     bool LoadScript(int mode,
-                    const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnvironment);
+                    const std::tr1::shared_ptr<CPpuEnv>& rEnvironment);
 };
 
 #endif

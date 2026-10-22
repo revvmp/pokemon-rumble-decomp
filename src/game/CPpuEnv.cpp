@@ -717,6 +717,6 @@ void NPpu::CEnvironment::CollectGarbage() {
     static_cast<CPpuEnv*>(this)->ClearCodes();
 }
 
-std::tr1::shared_ptr<NPpu::CEnvironment> CreateScriptEnvironment() {
-    return std::tr1::shared_ptr<NPpu::CEnvironment>(new CPpuEnv(0x400, gScriptNativeBindings, gScriptNativeBindingCount));
+std::tr1::shared_ptr<CPpuEnv> CreateScriptEnvironment() {
+    return std::tr1::shared_ptr<CPpuEnv>(new CPpuEnv(0x400, gScriptNativeBindings, gScriptNativeBindingCount));
 }

@@ -85,7 +85,7 @@ void CWaza::Setup(int id, std::tr1::shared_ptr<BWorldObj> parent) {
     }
 }
 
-bool CWaza::LoadScript(int mode, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnvironment) {
+bool CWaza::LoadScript(int mode, const std::tr1::shared_ptr<CPpuEnv>& rEnvironment) {
     mPpuEngine.reset(new CPpuEngine);
     return mPpuEngine->Load(this, "CWaza.pkc", mode, rEnvironment);
 }

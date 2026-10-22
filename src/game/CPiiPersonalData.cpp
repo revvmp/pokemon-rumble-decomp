@@ -257,7 +257,7 @@ std::tr1::shared_ptr<CPiiPersonalData> CPiiPersonalData::Import(u32 id, const SD
     return data;
 }
 
-void CPiiPersonalData::ExecuteInitScript(int mode, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnv) {
+void CPiiPersonalData::ExecuteInitScript(int mode, const std::tr1::shared_ptr<CPpuEnv>& rEnv) {
     std::tr1::shared_ptr<CPpuEngine> engine(new CPpuEngine);
     NPpu::CValue self;
     self.SetInt(mId | 0x80000000);
