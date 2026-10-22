@@ -106,11 +106,8 @@ bool CompareFavoriteFirst(const PiiItemPtr& rA, const PiiItemPtr& rB) {
     if (result != 0) {
         return result < 0;
     }
-    result = CompareValue(pA->GetBP(), pB->GetBP());
-    if (result == 0) {
-        result = CompareValue(pA->GetCreationTime(), pB->GetCreationTime());
-    }
-    if (result != 0) {
+    if ((result = CompareValue(pA->GetBP(), pB->GetBP())) != 0 ||
+        (result = CompareValue(pA->GetCreationTime(), pB->GetCreationTime())) != 0) {
         return result > 0;
     }
     return pB->GetId() < pA->GetId();
