@@ -343,6 +343,10 @@ template <typename T, typename U> bool operator==(const shared_ptr<T>& a, const 
     return a.get() == b.get();
 }
 
+template <typename T, typename U> bool operator!=(const shared_ptr<T>& a, const shared_ptr<U>& b) {
+    return a.get() != b.get();
+}
+
 template <typename T, typename U> shared_ptr<T> static_pointer_cast(const shared_ptr<U>& r) {
     return r.s_ ? shared_ptr<T>(static_cast<T*>(r.ptr_), r.s_) : shared_ptr<T>();
 }
