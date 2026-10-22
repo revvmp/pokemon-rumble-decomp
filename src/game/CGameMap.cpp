@@ -4,6 +4,7 @@
 #include <game/CFileData.h>
 #include <game/CEnemyInfo.h>
 #include <game/IGameMap.h>
+#include <game/IGameStage.h>
 
 #include <game/BWorld.h>
 #include <game/CPlayer.h>
@@ -163,7 +164,9 @@ void CGameMap::LoadStageResources()
     lights[0].assign("light" + rank + number);
     lights[1].assign("light" + rank);
     lights[2].assign("light" + number);
-    std::tr1::shared_ptr<CFileData> file = LoadFile(("5:/stage/" + world + "/" + number + ".arc/stage.brres").c_str(), 0, true);
+    const std::tr1::shared_ptr<CFileData>& stage = LoadFile(("5:/stage/" + world + "/" + number + ".arc/stage.brres").c_str(), 0, true);
+    std::tr1::shared_ptr<CFileData> common;
+    std::tr1::shared_ptr<CFileData> file = stage;
     for (int i = 0; i < 2; i++) {
         if (file && file->IsLoaded()) {
             for (int j = 0; j < 3; j++) {
@@ -177,7 +180,8 @@ void CGameMap::LoadStageResources()
                 }
             }
         }
-        file = LoadResourceFile(("5:/stage/" + world + "/common.arc/stage.brres").c_str(), 0, true);
+        common = LoadResourceFile(("5:/stage/" + world + "/common.arc/stage.brres").c_str(), 0, true);
+        file = common;
     }
     mWorld->GetShadowCamera()->SelectLight();
 }
@@ -471,4 +475,16 @@ std::tr1::shared_ptr<IGameMap> IGameMap::Create(const Param& rParam)
     std::tr1::shared_ptr<CGameMap> map(new CGameMap(rParam));
     map->Initialize();
     return map;
+}
+
+IGameMap* GetCurrentGameMap()
+{
+    IGameStage* pStage = GetCurrentGameStage();
+    return pStage != nullptr ? pStage->GetGameMap() : nullptr;
+}
+
+IGameMap* GetActiveGameMap()
+{
+    IGameStage* pStage = GetCurrentGameStage();
+    return pStage != nullptr ? pStage->GetGameMap() : nullptr;
 }
