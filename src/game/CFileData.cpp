@@ -708,44 +708,44 @@ void DefaultFileErrorHandler(CPath::Drive drive, const char* pPath, long error, 
     case CPath::DEVICE_NAND:
         switch (error) {
         case -4:
-            OSPanic("CFileData.cpp", 1563, "fatal error: NAND_08");
+            OSPanic("CFileData.cpp", 1563, "fatal error: NAND_08\n");
             break;
         case -9:
-            OSPanic("CFileData.cpp", 1566, "fatal error: NAND_05");
+            OSPanic("CFileData.cpp", 1566, "fatal error: NAND_05\n");
             break;
         case -11:
-            OSPanic("CFileData.cpp", 1569, "fatal error: NAND_06");
+            OSPanic("CFileData.cpp", 1569, "fatal error: NAND_06\n");
             break;
         case -3:
         case -2:
-            OSPanic("CFileData.cpp", 1573, "fatal error: NAND_11");
+            OSPanic("CFileData.cpp", 1573, "fatal error: NAND_11\n");
             break;
         case -64:
-            OSPanic("CFileData.cpp", 1576, "fatal error: NAND_98");
+            OSPanic("CFileData.cpp", 1576, "fatal error: NAND_98\n");
             break;
         }
         if (!(flags & CFileData::FLAG_OPTIONAL)) {
-            OSPanic("CFileData.cpp", 1580, "fatal error: WARE_01_01");
+            OSPanic("CFileData.cpp", 1580, "fatal error: WARE_01_01\n");
         }
         break;
     case 2 ... 511:
         switch (error) {
         case -5013:
         case -5012:
-            OSPanic("CFileData.cpp", 1588, "fatal error: WARE_99(if shared) or WARE_01_01(not shared)");
+            OSPanic("CFileData.cpp", 1588, "fatal error: WARE_99(if shared) or WARE_01_01(not shared)\n");
             break;
         case -5011:
-            OSPanic("CFileData.cpp", 1593, "fatal error: NAND_08");
+            OSPanic("CFileData.cpp", 1593, "fatal error: NAND_08\n");
             break;
         }
         if (!(flags & CFileData::FLAG_OPTIONAL)) {
-            OSPanic("CFileData.cpp", 1597, "fatal error: WARE_99(if shared) or WARE_01_01(not shared)");
+            OSPanic("CFileData.cpp", 1597, "fatal error: WARE_99(if shared) or WARE_01_01(not shared)\n");
         }
         break;
     case CPath::DEVICE_MCS_BASE ... CPath::DEVICE_MCS_LAST:
     case CPath::DEVICE_UNC:
         if (!(flags & CFileData::FLAG_OPTIONAL)) {
-            OSPanic("CFileData.cpp", 1606, "fatal error");
+            OSPanic("CFileData.cpp", 1606, "fatal error\n");
         }
         break;
     }
