@@ -71,3 +71,11 @@ std::tr1::shared_ptr<CPiiCollectionBox> CPiiCollectionBox::Create(const std::vec
     }
     return box;
 }
+
+void CPiiCollectionBox::SaveSnapshot() {
+    mSnapshot = mEntries;
+}
+
+void CPiiCollectionBox::RestoreSnapshot() {
+    mEntries = mSnapshot;
+}
