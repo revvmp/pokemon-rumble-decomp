@@ -312,7 +312,7 @@ config.libs = [
             Object(NonMatching, "game/CTextWorldObjStat.cpp"),
             Object(NonMatching, "game/CTitleSession.cpp"),
             Object(NonMatching, "game/ScriptCamera.cpp"),
-            Object(NonMatching, "game/CTutorialMsg.cpp", extra_cflags=["-inline off", "-str noreuse,nopool"]),
+            Object(Matching, "game/CTutorialMsg.cpp", extra_cflags=["-inline off", "-str noreuse,nopool"]),
             Object(NonMatching, "game/CUIPiiListItem.cpp"),
             Object(Matching, "game/CUIPiiSpec.cpp"),
             Object(Matching, "game/CUIPlayerID.cpp"),
