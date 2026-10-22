@@ -4,6 +4,12 @@
 #include <game/ModelAim.h>
 #include <nw4r/g3d/res/g3d_resanmchr.h>
 #include <nw4r/g3d/g3d_anmchrext.h>
+#include <nw4r/g3d/g3d_anmchr.h>
+#include <nw4r/g3d/g3d_anmvis.h>
+#include <nw4r/g3d/g3d_anmclr.h>
+#include <nw4r/g3d/g3d_anmtexpat.h>
+#include <nw4r/g3d/g3d_anmtexsrt.h>
+#include <nw4r/g3d/g3d_anmshp.h>
 #include <game/ScnMdlSimpleData.h>
 #include <functional>
 #include <list>
@@ -31,6 +37,7 @@ public:
     public:
         enum Flag {
             FLAG_CREATED = 1 << 0,
+            FLAG_BIND_FAILED = 1 << 1,
             FLAG_LOOP_TEXTURE_ANIMATION = 1 << 2,
             FLAG_NOTIFY_CALLBACK = 1 << 3,
             FLAG_PENDING = 1 << 4,
@@ -41,8 +48,11 @@ public:
             FLAG_PAUSED = 1 << 9
         };
 
+        enum { PLAYBACK_STATE_MASK = FLAG_PENDING | FLAG_PLAYING | FLAG_LOOPED | FLAG_FINISHED | FLAG_STOPPED };
+        void SetPlaybackState(u32 state) { mFlags = (mFlags & ~PLAYBACK_STATE_MASK) | state; }
         void Wait();
         u32 TestFlags(u32 mask) const;
+        bool IsOneShotTexture() const { return !(mFlags & FLAG_LOOP_TEXTURE_ANIMATION); }
         u32 GetId() const { return mId; }
         bool IsStarted() const { return !(mFlags & FLAG_PENDING); }
         bool IsPlaying() const { return mFlags & (FLAG_PLAYING | FLAG_LOOPED); }
@@ -76,7 +86,7 @@ public:
         f32 mRate;
         const void* mpUserData;
         std::string mName;
-        u32 mReserved;
+        int mReserved;
         f32* mpCurrentFrame;
         nw4r::g3d::ResAnmChr mResource;
         int mLength;
@@ -86,7 +96,7 @@ public:
 
     class BPartialAnm {
     public:
-        std::tr1::shared_ptr<nw4r::g3d::AnmObjChrOverride> mAnimObj;
+        std::tr1::shared_ptr<nw4r::g3d::AnmObjChrRes> mAnimObj;
         std::list<std::tr1::shared_ptr<CMotionProgram> > mMotions;
         f32 mFrame;
     public:
@@ -95,7 +105,14 @@ public:
         virtual bool SetMotion(CModel* pModel, const std::tr1::shared_ptr<CMotionProgram>& rMotion) = 0;
         virtual bool QueueMotion(CModel* pModel, const std::tr1::shared_ptr<CMotionProgram>& rMotion) = 0;
         virtual bool AppendMotion(CModel* pModel, const std::tr1::shared_ptr<CMotionProgram>& rMotion) = 0;
-        void Reset();
+        void Reset() {
+            mAnimObj.reset();
+            for (std::list<std::tr1::shared_ptr<CMotionProgram> >::iterator it = mMotions.begin(); it != mMotions.end(); ++it) {
+                (*it)->SetPlaybackState(CMotionProgram::FLAG_STOPPED);
+            }
+            mMotions.clear();
+        }
+        bool CreateAnimObj(nw4r::g3d::ResMdl mdl);
         bool IsIdle() {
             return mMotions.size() == 0 || (mMotions.size() == 1 && (mMotions.front()->mFlags & CMotionProgram::FLAG_FINISHED));
         }
@@ -111,7 +128,7 @@ public:
     class PartialAnmManager {
     public:
         std::tr1::shared_ptr<nw4r::g3d::AnmObjChrOverride> mAnimObj;
-        std::map<int, std::tr1::shared_ptr<TPartialAnm<false> > > mPartials;
+        std::map<u32, std::tr1::shared_ptr<TPartialAnm<false> > > mPartials;
     };
 
     struct LoadParams {
@@ -146,8 +163,18 @@ public:
     std::tr1::shared_ptr<CMotionProgram> CreateMotion(const char* pName, f32 frame, f32 rate, BPartialAnm** ppPartial);
     std::tr1::shared_ptr<CMotionProgram> CreateMotion(int index, f32 frame, f32 rate, BPartialAnm** ppPartial);
     std::tr1::shared_ptr<CMotionProgram> SetupMotion(const std::tr1::shared_ptr<CMotionProgram>& rProgram, f32 frame, f32 rate, BPartialAnm** ppPartial);
-    BPartialAnm* GetPartialAnm(int nodeId);
-    void Unload();
+    BPartialAnm* GetPartialAnm(u32 nodeId);
+    void Unload() {
+        mAnimations.clear();
+        mPartialAnimations.reset();
+        mMainAnimation.Reset();
+        mModelData.Reset();
+    }
+    void UpdateAnimations();
+    nw4r::g3d::ResAnmVis FindVis(const char* pName);
+    nw4r::g3d::ResAnmVis FindVis(int index);
+    static bool LoadBounds(nw4r::math::AABB* pBounds, const nw4r::g3d::ResMdl& rMdl);
+    template <class Traits, class Key> std::tr1::shared_ptr<typename Traits::Obj> CreateAnimObj(Key key, f32 frame);
 
     ModelAim& GetAim() { return mAim; }
     const nw4r::math::AABB& GetBounds() const { return mBounds; }
@@ -170,13 +197,8 @@ public:
     bool mAimTargetPending;
     nw4r::math::AABB mBounds;
     virtual void ExecCallback_CALC_WORLD(nw4r::g3d::ScnObj::Timing timing, nw4r::g3d::ScnObj* pObject, u32 param, void* pInfo);
-    virtual void ExecCallback_CALC_MAT(nw4r::g3d::ScnObj::Timing timing, nw4r::g3d::ScnObj* pObject, u32 param, void* pInfo);
     virtual void ExecCallback_CALC_VIEW(nw4r::g3d::ScnObj::Timing timing, nw4r::g3d::ScnObj* pObject, u32 param, void* pInfo);
-    virtual void ExecCallback_DRAW_OPA(nw4r::g3d::ScnObj::Timing timing, nw4r::g3d::ScnObj* pObject, u32 param, void* pInfo);
-    virtual void ExecCallback_DRAW_XLU(nw4r::g3d::ScnObj::Timing timing, nw4r::g3d::ScnObj* pObject, u32 param, void* pInfo);
     virtual void ExecCallbackA(nw4r::g3d::ChrAnmResult* pResult, nw4r::g3d::ResMdl mdl, nw4r::g3d::FuncObjCalcWorld* pFuncObj);
-    virtual void ExecCallbackB(nw4r::g3d::WorldMtxManip* pManip, nw4r::g3d::ResMdl mdl, nw4r::g3d::FuncObjCalcWorld* pFuncObj);
-    virtual void ExecCallbackC(nw4r::math::MTX34* pMtxArray, nw4r::g3d::ResMdl mdl, nw4r::g3d::FuncObjCalcWorld* pFuncObj);
 
 };
 
