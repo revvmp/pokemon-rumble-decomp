@@ -297,7 +297,7 @@ config.libs = [
             Object(NonMatching, "game/CPiiPersonalData.cpp"),
             Object(NonMatching, "game/COyaInfo.cpp"),
             Object(Matching, "game/CPiiCollectionBox.cpp"),
-            Object(NonMatching, "game/CPiiInfoWorldObjStat.cpp"),
+            Object(Matching, "game/CPiiInfoWorldObjStat.cpp"),
             Object(NonMatching, "game/PiiPropData.cpp"),
             Object(NonMatching, "game/CPiiTex.cpp"),
             Object(Matching, "game/CPlayer.cpp"),
