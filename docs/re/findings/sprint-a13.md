@@ -108,3 +108,16 @@
     - Inline helpers at one and two levels that take `MapIndex` by value or by `const&`, return the packed `int`, or do the pops themselves.
     - Aggregate and field-wise initialisation.
   - **Result:** the register numbering never moved. Target ranks the engine parameter below all four pop results (map r31, stage r30, area r29, engine r28). Ours gives stage r31, map r30, engine r29, area r28.
+
+## Session 6: auto-split game units
+
+New units: `game/CPiiInfoWorldObjStat.cpp` (`0x800E5090`), `game/CUIMenuSoundCallback.cpp` (`0x8011D090`), `game/GameUtil.cpp` (`0x80125180`) and `game/BSoundSource.cpp` (`0x801E8740`, Matching). `game/ScriptWorldObj.cpp` now runs to `0x801504B8` and owns `.data` `0x803B6F50`-`0x803B6FA8` and `.sdata` `0x804B7A58`-`0x804B7A60`, which hold its set and list template instances and their strings.
+
+- The class constructed at `0x8011D090` binds its own members through `mem_fn_1<void, CUIMenuSoundCallback, BUI *>` (type string at `0x803AF038`). It was renamed from `CUIMenuCallbacks` to `CUIMenuSoundCallback`. Its `.data` still differs: the target also has a `shared_ptr_deleter<function<void (BUI *)>>` name and RTTI base lists, so the unit stays NonMatching even though every function matches.
+- `GameUtil.cpp` is a descriptive file name. Its BGM effect presets (`0x803B4120`, ten 0x74-byte entries) hold the effect kinds as static `.data`, and `InitBgmFxPresets` (`0x80125360`) writes the parameters at run time. With the nw4r `FxReverbStdParam`, `FxDelayParam` and `FxChorusParam` constructors, a brace-initialised table produces a `__sinit` that the target does not have. The original therefore used constructor-less parameter types. The function itself reaches 92.07%: the target hoists 16 constant loads where ours hoists 11.
+- `CPiiInfoWorldObjStat::CalcView` has the same unsolved FPR swap as `CTextWorldObjStat::CalcView` (98.76%). In `Load` (99.94%), `species` is an `int` declared before `color`, and the rare-colour flag is a named `bool`.
+
+## Traps
+
+- **A `.data` split that starts after a pad can create a gap symbol that crosses the previous split.** Starting `CPiiInfoWorldObjStat` `.data` at `0x803A8B70` made dtk extend the previous unit's gap symbol to `0x803A8B70` (`size out of section bounds`). Start the split at the pad (`0x803A8B6C`) instead.
+- **A `.sbss` symbol can be sized over the padding.** `lbl_804B9088` had size 8 and ran past the new split end. Shrink it to its real size (4).
