@@ -123,3 +123,18 @@ Matched `CMsgRes` `MakeCollationKeys` (81.85% to 100%) and `CDlgPiiSelector` `CD
 | CShadowCamera | `SetupShadowMaterial` | 99.88 | Reordering `second`, `postMtx` and `map`, and naming the texture object pointer, leave the two argument address orders unchanged |
 | CDlgPiiSelector | vector `insert`/`assign` from list const_iterator | 80.6, 99.8 | An unnamed `int2type<0>()` value-initialises the tag; a user-declared `int2type` constructor is called out of line under the unit's `#pragma dont_inline on` |
 | homebutton | `UpdateHomeButton` | 99.65 | Float register of the stick divisor constant; pre-declared, compound, reordered and reference forms tried |
+
+## Tail wave 5 (a15)
+
+- **A by-value struct argument copied at the call site needs an explicit temporary.** BWorld `DrawShadow` passed `clearColor` through the inline `SetCopyClear(GXColor, GXPixelFmt)`; the target sets up the color address before the pixel format register. `Graphics::SetCopyClear(GXColor(clearColor), 0xFFFFFF, pixelFormat)` at both `clearColor` sites gives 100%. Changing the inline (const reference, swapped parameters, an extra level, a named copy, default depth) did not.
+- **An empty `if` whose compare survives.** NPpuVM `Execute` `OP_CHECK_ARG` keeps `cmpwi; blt loop; b loop` in the target. `break`, `continue`, `goto next`, empty bodies, dead stores to `code`, `op` or a local, and `modifier = modifier` all delete the compare; a call or a live store keeps it but adds code. `return returnCount` gives 99.88% (the compare matches, the return adds two instructions).
+
+### Unsolved
+
+| Unit | Function | % | Attempts |
+| --- | --- | --- | --- |
+| CPlayerPii | `GetShadowName` | 88.86 | Target order of loads: table word 0, `mpPlayer`, words 1-3. `const char* const` names puts `mpPlayer` last; non-const names hoists it above the `lr` save (79.86). A `CPlayer*` local before or after the table, `int` or `u32` index locals, a struct wrapper, pointer arithmetic, a const reference to the player and a `GetPlayer() const` accessor (out of line under the unit's `dont_inline`) do not give the middle position. Deque order not applied |
+| BWorld | `Calc`, `CalcMtx` | 99.70, 99.37 | Target `li r0, 0; ori r30, r0, 2` for the first skip state (unfolded `0 | 2` in a new register). `states = states | 2`, `2 | states`, `+=`, `(states & ~2) | 2` (folds to `li 2`), a by-value `AddState` helper (folds), `int`/`u8` types, a flags local, a bool local, ternaries, if/else and writing the checks in the caller do not reproduce it |
+| BWorld | `FindObjectsInSector`, `FindObjectsInRing` | 99.86, 99.37 | Target radius in f0 and the sum in f1; ours the reverse. Ring also has `distSq` in f31 above both radius parameters. A named outer sum, swapped operands, `>` compare, a `Square` inline, a VEC3 size local, an `IsInRing` inline and a `DistSqXZ` inline do not fix it |
+| BWorld | `AddObject` | 99.31 | `pEntries` is r29 in the target (between `obj` and `pEntry`), r27 in ours. A `GetEntries()` accessor, `&mObjEntries[slot]` before or after `pEntries`, and `&mObjEntries[0]` per use do not fix it |
+| BWorld | `RemoveObject` | 99.72 | Target computes `pNext` (0x4) before `pPrev` (0x6) but gives `pNext` r6. Swapping the two lines fixes the order and swaps the registers (99.52); split declarations, explicit ternaries and `GetNextEntry` are worse |
