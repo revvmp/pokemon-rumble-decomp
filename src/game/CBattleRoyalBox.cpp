@@ -1,17 +1,5 @@
 #include <game/CBattleRoyalBox.h>
 
-bool CBattleRoyalData::UpdateBestTime(f32 time) {
-    if (mBestTime < 0.0f) {
-        mBestTime = time;
-        return true;
-    }
-    if (time < mBestTime) {
-        mBestTime = time;
-        return true;
-    }
-    return false;
-}
-
 std::tr1::shared_ptr<CBattleRoyalData> CreateBattleRoyalData(const f32& rTime) {
     return std::tr1::shared_ptr<CBattleRoyalData>(new CBattleRoyalData(rTime));
 }
@@ -29,6 +17,18 @@ CBattleRoyalBox::CBattleRoyalBox(const std::vector<SD_BattleRoyalData::Data>& rD
             }
         }
     }
+}
+
+bool CBattleRoyalData::UpdateBestTime(f32 time) {
+    if (mBestTime < 0.0f) {
+        mBestTime = time;
+        return true;
+    }
+    if (time < mBestTime) {
+        mBestTime = time;
+        return true;
+    }
+    return false;
 }
 
 std::tr1::shared_ptr<CBattleRoyalData> CBattleRoyalBox::GetData(int mode, int area) {
@@ -50,5 +50,6 @@ void CBattleRoyalBox::ExportBattleRoyalData(std::vector<SD_BattleRoyalData::Data
 }
 
 std::tr1::shared_ptr<CBattleRoyalBox> CBattleRoyalBox::Create(const std::vector<SD_BattleRoyalData::Data>& rData) {
-    return std::tr1::shared_ptr<CBattleRoyalBox>(new CBattleRoyalBox(rData));
+    std::tr1::shared_ptr<CBattleRoyalBox> box(new CBattleRoyalBox(rData));
+    return box;
 }
