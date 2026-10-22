@@ -6,6 +6,7 @@
 #include <limits>
 #include <stddef.h>
 #include <revolution/types.h>
+#include <MSL_CPP/alloc_ptr.h>
 
 namespace std {
 template <class T> class allocator {
