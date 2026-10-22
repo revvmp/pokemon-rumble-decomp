@@ -53,67 +53,6 @@ int GetStageClearCount(MapIndex index) {
     return Clamp(GetSaveData(-1)->mData.mMapRecords[index.mMode][index.mArea][index.mStage][lastMap].GetClearCount(), 0, 999);
 }
 
-inline void CMsgBalloon::Init(bool flag) {
-    mCurrentEntry = nullptr;
-    mCurrentIndex = -1;
-    mIsShown = false;
-    Show(true);
-
-    std::tr1::shared_ptr<CLayout::FontMap> fonts = GetDefaultFontMap();
-
-    mUIManager.reset(new CUIManager);
-    mLayout.reset(new BUILayout);
-    mUIManager->AddChild(mLayout);
-    const char* const* archives = gSharedLayoutArchives;
-    mLayout->Load(archives, "msg_balloon", fonts, flag);
-
-    mMsgLayout.reset(new BUILayout);
-    mMsgLayout->Load(archives, "msg_balloon_msg", fonts, flag);
-
-    mWarpLayout.reset(new BUILayout);
-    mWarpLayout->Load(archives, "msg_balloon_warp", fonts, flag);
-
-    mWarpLayout->SetText("LABEL_c", GetMessageString(0x600C8, L"なかまに できる ポケモン"));
-    mWarpLayout->SetText("UNKNOWN_c", GetMessageString(0x600C5, L"まだ クリアしていません"));
-    mWarpLayout->SetText("LABEL_CLEAR_BR", GetMessageString(0x600CA, L"クリアタイム"));
-    mWarpLayout->SetText("EXTRA_c", GetMessageString(0x600CB, L"いろんな ポケモンが とうじょうします"));
-    mWarpLayout->SetText("CLEAR_00", GetMessageString(0x600C6, L"クリア"));
-
-    for (int i = 0; i < 18; i++) {
-        std::tr1::shared_ptr<BUILayout> model(new BUILayout);
-        model->Load(archives, "msg_balloon_warp_model", fonts, flag);
-        mModelLayouts.push_back(model);
-        std::string name = FormatString("MODEL%02d", i);
-        mWarpLayout->AttachChild(name.c_str(), model);
-    }
-
-    mLayout->AttachChild("above_site", mWarpLayout);
-    mLayout->AttachChild("below_site", mMsgLayout);
-    mLayout->GetLayout()->SetVisible(false);
-}
-
-inline void CMsgBalloon::Show(bool show) {
-    if (mIsShown == show) {
-        return;
-    }
-
-    mIsShown = show;
-    if (show) {
-        mShownEntries[0] = nullptr;
-        mShownEntries[1] = nullptr;
-        mShownEntries[2] = nullptr;
-        mShownEntries[3] = nullptr;
-        mCurrentEntry = nullptr;
-        mCurrentIndex = -1;
-        mShowWait = 5;
-        mMotion.reset();
-    } else {
-        mLayout->GetLayout()->SetVisible(false);
-        mMotion = mLayout->GetLayout()->CreateMotion("end");
-        PlaySound(0x59);
-    }
-}
-
 inline bool CMsgBalloon::Close() {
     return true;
 }
@@ -143,20 +82,6 @@ inline void CMsgBalloon::Register(BWorldObj* pObject, const wchar_t* pText, f32 
     it->mDistanceScale = 1.0f / (radius * radius);
     it->mText = pText;
     it->mStageID = sInvalidStageID;
-}
-
-inline void CMsgBalloon::RegisterWarpzone(BWorldObj* pObject, f32 radius, const StageID& rStageID) {
-    std::list<Entry>::iterator it;
-    Entry entry;
-    mEntries.push_back(Entry());
-    it = --mEntries.end();
-    it->mObject = pObject->shared_from_this();
-    it->mPosition.x = 0.0f;
-    it->mPosition.y = 0.0f;
-    it->mPosition.z = 0.0f;
-    it->mDistanceScale = 1.0f / (radius * radius);
-    it->mText = L"";
-    it->mStageID = rStageID;
 }
 
 inline bool CMsgBalloon::IsShown(int index) {
@@ -367,25 +292,6 @@ inline void CMsgBalloon::Calc() {
     mUIManager->Calc();
 }
 
-inline void CMsgBalloon::UpdateBalloon(BWorldCamera* pCamera, CLayout* pLayout, bool* pBehind) {
-    nw4r::math::MTX34 viewMtx;
-    nw4r::math::MTX44 projectionMtx;
-    pCamera->GetG3dCamera().GetCameraMtx(&viewMtx);
-    pCamera->GetG3dCamera().GetProjectionMtx(&projectionMtx);
-    nw4r::math::VEC3 position(mOffset);
-    TransformPoint(&position, &viewMtx, &position);
-    nw4r::math::VEC3TransformCoord(&position, &projectionMtx, &position);
-    const nw4r::ut::Rect& rRect = pLayout->GetViewRect();
-    position.x = position.x * rRect.GetWidth() / 2.0f;
-    position.y = -position.y * rRect.GetHeight() / 2.0f;
-    position.z = 0.0f;
-    pLayout->FindPane("root")->SetTranslate(position);
-    pLayout->UpdateAttachedLayouts();
-    if (pBehind != nullptr) {
-        *pBehind = position.y <= 0.0f;
-    }
-}
-
 inline void CMsgBalloon::SetupBattleWarp(StageID stageID) {
     MapIndex& rIndex = reinterpret_cast<MapIndex&>(stageID);
     int clearCount = GetStageClearCount(rIndex);
@@ -562,6 +468,100 @@ inline void CMsgBalloon::SetupStageModels(StageID stageID) {
     mWarpLayout->GetLayout()->SetText("OBTAIN", FormatMessage(GetMessageString(0x600C9, nullptr), collectedCount, total).c_str());
 }
 
+inline void CMsgBalloon::UpdateBalloon(BWorldCamera* pCamera, CLayout* pLayout, bool* pBehind) {
+    nw4r::math::MTX34 viewMtx;
+    nw4r::math::MTX44 projectionMtx;
+    pCamera->GetG3dCamera().GetCameraMtx(&viewMtx);
+    pCamera->GetG3dCamera().GetProjectionMtx(&projectionMtx);
+    nw4r::math::VEC3 position(mOffset);
+    TransformPoint(&position, &viewMtx, &position);
+    nw4r::math::VEC3TransformCoord(&position, &projectionMtx, &position);
+    const nw4r::ut::Rect& rRect = pLayout->GetViewRect();
+    position.x = position.x * rRect.GetWidth() / 2.0f;
+    position.y = -position.y * rRect.GetHeight() / 2.0f;
+    position.z = 0.0f;
+    pLayout->FindPane("root")->SetTranslate(position);
+    pLayout->UpdateAttachedLayouts();
+    if (pBehind != nullptr) {
+        *pBehind = position.y <= 0.0f;
+    }
+}
+
+inline void CMsgBalloon::RegisterWarpzone(BWorldObj* pObject, f32 radius, const StageID& rStageID) {
+    std::list<Entry>::iterator it;
+    Entry entry;
+    mEntries.push_back(Entry());
+    it = --mEntries.end();
+    it->mObject = pObject->shared_from_this();
+    it->mPosition.x = 0.0f;
+    it->mPosition.y = 0.0f;
+    it->mPosition.z = 0.0f;
+    it->mDistanceScale = 1.0f / (radius * radius);
+    it->mText = L"";
+    it->mStageID = rStageID;
+}
+
+inline void CMsgBalloon::Show(bool show) {
+    if (mIsShown == show) {
+        return;
+    }
+
+    mIsShown = show;
+    if (show) {
+        mShownEntries[0] = nullptr;
+        mShownEntries[1] = nullptr;
+        mShownEntries[2] = nullptr;
+        mShownEntries[3] = nullptr;
+        mCurrentEntry = nullptr;
+        mCurrentIndex = -1;
+        mShowWait = 5;
+        mMotion.reset();
+    } else {
+        mLayout->GetLayout()->SetVisible(false);
+        mMotion = mLayout->GetLayout()->CreateMotion("end");
+        PlaySound(0x59);
+    }
+}
+
+inline void CMsgBalloon::Init(bool flag) {
+    mCurrentEntry = nullptr;
+    mCurrentIndex = -1;
+    mIsShown = false;
+    Show(true);
+
+    std::tr1::shared_ptr<CLayout::FontMap> fonts = GetDefaultFontMap();
+
+    mUIManager.reset(new CUIManager);
+    mLayout.reset(new BUILayout);
+    mUIManager->AddChild(mLayout);
+    const char* const* archives = gSharedLayoutArchives;
+    mLayout->Load(archives, "msg_balloon", fonts, flag);
+
+    mMsgLayout.reset(new BUILayout);
+    mMsgLayout->Load(archives, "msg_balloon_msg", fonts, flag);
+
+    mWarpLayout.reset(new BUILayout);
+    mWarpLayout->Load(archives, "msg_balloon_warp", fonts, flag);
+
+    mWarpLayout->SetText("LABEL_c", GetMessageString(0x600C8, L"なかまに できる ポケモン"));
+    mWarpLayout->SetText("UNKNOWN_c", GetMessageString(0x600C5, L"まだ クリアしていません"));
+    mWarpLayout->SetText("LABEL_CLEAR_BR", GetMessageString(0x600CA, L"クリアタイム"));
+    mWarpLayout->SetText("EXTRA_c", GetMessageString(0x600CB, L"いろんな ポケモンが とうじょうします"));
+    mWarpLayout->SetText("CLEAR_00", GetMessageString(0x600C6, L"クリア"));
+
+    for (int i = 0; i < 18; i++) {
+        std::tr1::shared_ptr<BUILayout> model(new BUILayout);
+        model->Load(archives, "msg_balloon_warp_model", fonts, flag);
+        mModelLayouts.push_back(model);
+        std::string name = FormatString("MODEL%02d", i);
+        mWarpLayout->AttachChild(name.c_str(), model);
+    }
+
+    mLayout->AttachChild("above_site", mWarpLayout);
+    mLayout->AttachChild("below_site", mMsgLayout);
+    mLayout->GetLayout()->SetVisible(false);
+}
+
 std::tr1::shared_ptr<IMsgBalloon> IMsgBalloon::Create(bool flag) {
     std::tr1::shared_ptr<CMsgBalloon> balloon(new CMsgBalloon);
     balloon->Init(flag);
@@ -569,5 +569,4 @@ std::tr1::shared_ptr<IMsgBalloon> IMsgBalloon::Create(bool flag) {
 }
 
 inline CMsgBalloon::CMsgBalloon() {}
-
-inline CMsgBalloon::~CMsgBalloon() {}
+

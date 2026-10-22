@@ -53,7 +53,6 @@ public:
     };
 
     CMsgBalloon();
-    virtual ~CMsgBalloon();
     virtual bool Close();
     virtual bool IsShown(int index);
     virtual void Register(BWorldObj* pObject, const wchar_t* pText, f32 radius);
