@@ -247,12 +247,14 @@ inline bool CDlgPiiListImpl::CheckRemoteMemory() {
 return true;
 }
 
+#pragma auto_inline off
 void CDlgPiiListImpl::AppendItems(const std::list<std::tr1::shared_ptr<CPiiPersonalData> >& rList) {
     for (std::list<std::tr1::shared_ptr<CPiiPersonalData> >::const_iterator it = rList.begin(); it != rList.end(); ++it) {
         std::tr1::shared_ptr<CUIPiiListItem> item(new CUIPiiListItem(std::tr1::shared_ptr<CPiiPersonalData>(*it), mPlayer));
         mItems.push_back(item);
     }
 }
+#pragma auto_inline reset
 
 void CDlgPiiListImpl::Setup(bool background) {
     std::tr1::shared_ptr<CLayout::FontMap> fonts = GetDefaultFontMap();
