@@ -39,13 +39,15 @@ int Compare(const T& rA, const T& rB) {
 }
 
 bool CompareBPAscending(const PiiItemPtr& rA, const PiiItemPtr& rB) {
+    int bpA = rA->GetPPD()->GetBP();
+    int bpB = rB->GetPPD()->GetBP();
     const CPiiPersonalData* pA = rA->GetPPD().get();
     const CPiiPersonalData* pB = rB->GetPPD().get();
-    int result = CompareValue(pA->GetBP(), pB->GetBP());
+    int result = CompareValue(bpA, bpB);
     if (result != 0) {
         return result < 0;
     }
-    result = CompareValue(pA->GetCreationTime(), pB->GetCreationTime());
+    result = Compare(pA->GetCreationTime(), pB->GetCreationTime());
     if (result != 0) {
         return result < 0;
     }
@@ -53,13 +55,15 @@ bool CompareBPAscending(const PiiItemPtr& rA, const PiiItemPtr& rB) {
 }
 
 bool CompareBPDescending(const PiiItemPtr& rA, const PiiItemPtr& rB) {
+    int bpA = rA->GetPPD()->GetBP();
+    int bpB = rB->GetPPD()->GetBP();
     const CPiiPersonalData* pA = rA->GetPPD().get();
     const CPiiPersonalData* pB = rB->GetPPD().get();
-    int result = CompareValue(pA->GetBP(), pB->GetBP());
+    int result = CompareValue(bpA, bpB);
     if (result != 0) {
         return result > 0;
     }
-    result = CompareValue(pA->GetCreationTime(), pB->GetCreationTime());
+    result = Compare(pA->GetCreationTime(), pB->GetCreationTime());
     if (result != 0) {
         return result > 0;
     }
