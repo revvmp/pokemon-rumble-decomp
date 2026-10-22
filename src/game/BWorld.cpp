@@ -640,13 +640,13 @@ namespace {
 struct SectorPlane {
     f32 GetOriginDistance() const { return -mD; }
 
-    f32 GetDistance(const nw4r::math::VEC3& rCenter, f32 radius) const {
-        f32 dist = rCenter.z * mNormal.z + rCenter.x * mNormal.x - GetOriginDistance();
-        if (radius <= dist) {
-            return dist - radius;
+    f32 GetDistance(const nw4r::math::SPHERE& rSphere) const {
+        f32 dist = rSphere.C.z * mNormal.z + rSphere.C.x * mNormal.x - GetOriginDistance();
+        if (rSphere.r <= dist) {
+            return dist - rSphere.r;
         }
-        if (dist <= -radius) {
-            return dist + radius;
+        if (dist <= -rSphere.r) {
+            return dist + rSphere.r;
         }
         return 0.0f;
     }
@@ -719,18 +719,18 @@ std::list<BWorldObj*> BWorld::FindObjectsInSector(u32 type, const nw4r::math::VE
         }
 
         nw4r::math::SPHERE sphere;
+        sphere.C.z = pos.z;
         sphere.C.x = pos.x;
         sphere.C.y = 0.0f;
-        sphere.C.z = pos.z;
         sphere.r = pObj->GetSize().z;
         if (narrow) {
-            if (!(0.0f <= startPlane.GetDistance(sphere.C, sphere.r)) ||
-                !(0.0f <= endPlane.GetDistance(sphere.C, sphere.r)) ||
-                !(0.0f <= midPlane.GetDistance(sphere.C, sphere.r))) {
+            if (!(0.0f <= startPlane.GetDistance(sphere)) ||
+                !(0.0f <= endPlane.GetDistance(sphere)) ||
+                !(0.0f <= midPlane.GetDistance(sphere))) {
                 continue;
             }
-        } else if (startPlane.GetDistance(sphere.C, sphere.r) < 0.0f &&
-                   endPlane.GetDistance(sphere.C, sphere.r) < 0.0f) {
+        } else if (startPlane.GetDistance(sphere) < 0.0f &&
+                   endPlane.GetDistance(sphere) < 0.0f) {
             continue;
         }
 
