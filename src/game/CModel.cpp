@@ -743,12 +743,11 @@ template <bool Main> bool CModel::TPartialAnm<Main>::Update(CModel* pModel, f32 
             return true;
         }
         f32 length = static_cast<f32>(rMotion->mLength);
-        f32 frame = mFrame + step * rMotion->mRate;
-        mFrame = frame;
-        if (frame < length) {
+        mFrame += step * rMotion->mRate;
+        if (mFrame < length) {
             return !advanced;
         }
-        mFrame = frame - length;
+        mFrame -= length;
         if (mMotions.size() >= 2) {
             step = mFrame / rMotion->mRate;
             rMotion->SetPlaybackState(CMotionProgram::FLAG_STOPPED);
@@ -768,7 +767,7 @@ template <bool Main> bool CModel::TPartialAnm<Main>::Update(CModel* pModel, f32 
             if (rMotion->mRate != 0.0f) {
                 mFrame = mFrame / rMotion->mRate;
             }
-            rMotion->SetPlaybackState(CMotionProgram::FLAG_FINISHED);
+            rMotion->SetPlaybackState(Main ? CMotionProgram::FLAG_FINISHED : CMotionProgram::FLAG_STOPPED);
             if (!Main) {
                 mMotions.pop_front();
                 mAnimObj.reset();
