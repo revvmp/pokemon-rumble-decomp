@@ -5,6 +5,18 @@ namespace {
 
 const long kMaxDefeatCount = 9999999;
 
+struct PackedCollectionData {
+    u32 mCollectionType : 3;
+    u32 mBestBRR0 : 3;
+    u32 mBestBRR1 : 3;
+    u32 mBestBRR2 : 3;
+    u8 mHasFirstForm : 1;
+    u32 mReserved : 19;
+    u32 mDefeatedCount;
+    u32 mNormalForms;
+    u32 mRareForms;
+};
+
 }
 
 void CPiiCollectionBox::RecordCollection(u16 monsno, u8 form, int type, bool rare) {
@@ -70,6 +82,50 @@ std::tr1::shared_ptr<CPiiCollectionBox> CPiiCollectionBox::Create(const std::vec
         }
     }
     return box;
+}
+
+void CPiiCollectionBox::ExportCollectionData(std::vector<SD_PiiCollectionData::Data>& rOut) {
+    std::vector<SD_PiiCollectionData::Data> records;
+    records.reserve(496);
+    PackedCollectionData packed;
+    for (u16 monsno = 0; monsno < 496; monsno++) {
+        const Entry* pEntry = &mEntries[monsno];
+        packed.mCollectionType = pEntry->mCollectionType;
+        packed.mBestBRR0 = pEntry->mBestBRR[0];
+        packed.mBestBRR1 = pEntry->mBestBRR[1];
+        packed.mBestBRR2 = pEntry->mBestBRR[2];
+        packed.mDefeatedCount = pEntry->mDefeatedCount;
+        packed.mNormalForms = pEntry->mCollectedForms[0];
+        packed.mRareForms = pEntry->mCollectedForms[1];
+        packed.mHasFirstForm = 0;
+        packed.mReserved = 0;
+        records.push_back(reinterpret_cast<const SD_PiiCollectionData::Data&>(packed));
+    }
+    rOut.swap(records);
+}
+
+bool CPiiCollectionBox::CompareDefeatCount(const Entry* pLeft, const Entry* pRight) {
+    if (pLeft->mDefeatedCount != pRight->mDefeatedCount) {
+        return pLeft->mDefeatedCount > pRight->mDefeatedCount;
+    }
+    return pLeft < pRight;
+}
+
+std::vector<u16> CPiiCollectionBox::GetManyDefeatedPii() {
+    std::vector<Entry*> entries;
+    entries.reserve(mEntries.size());
+    for (std::vector<Entry>::iterator it = mEntries.begin(); it != mEntries.end(); ++it) {
+        if (it != mEntries.begin()) {
+            entries.push_back(&*it);
+        }
+    }
+    std::sort(entries.begin(), entries.end(), CompareDefeatCount);
+    std::vector<u16> monsnos;
+    monsnos.reserve(entries.size());
+    for (std::vector<Entry*>::iterator it = entries.begin(); it != entries.end(); ++it) {
+        monsnos.push_back(*it - &mEntries[0]);
+    }
+    return monsnos;
 }
 
 void CPiiCollectionBox::SaveSnapshot() {

@@ -29,6 +29,8 @@ private:
         u32 mCollectedForms[2];
     };
 
+    static bool CompareDefeatCount(const Entry* pLeft, const Entry* pRight);
+
     std::vector<Entry> mEntries;
     std::vector<Entry> mSnapshot;
 };
