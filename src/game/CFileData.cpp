@@ -204,19 +204,23 @@ inline void CFileData::CWorker::ProcessFinishedJobs() {
     }
 }
 
+inline bool CFileData::CWorker::WaitUntilLoaded(CFileData* pFile) {
+    while (pFile->mPending) {
+        mFinished.Wait();
+        ProcessFinishedJobs();
+    }
+
+    if (!pFile->IsLoaded()) {
+        sConfig.mErrorHandler(pFile->GetDrive(), pFile->mPath.c_str(), pFile->mError, pFile->mFlags);
+        return false;
+    }
+    return true;
+}
+
 bool CFileData::WaitUntilLoaded(CFileData* pFile) {
     CWorker* pWorker = sWorker.get();
     if (sWorker) {
-        while (pFile->mPending) {
-            pWorker->mFinished.Wait();
-            pWorker->ProcessFinishedJobs();
-        }
-
-        if (!pFile->IsLoaded()) {
-            pFile->ReportError();
-            return false;
-        }
-        return true;
+        return pWorker->WaitUntilLoaded(pFile);
     }
     return pFile->IsLoaded();
 }

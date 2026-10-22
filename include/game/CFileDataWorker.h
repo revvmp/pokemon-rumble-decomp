@@ -93,6 +93,7 @@ public:
     void PushFinished(CJob* pJob);
     bool WaitInFiber(CFileData* pFile);
     void ProcessFinishedJobs();
+    bool WaitUntilLoaded(CFileData* pFile);
     bool IsIdle() const { return mFinished.mCount == 0 && mFinished.mYieldDepth == 0; }
 
     LoaderThread mLoaderThread;
