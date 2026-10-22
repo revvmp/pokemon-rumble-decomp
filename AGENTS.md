@@ -101,7 +101,7 @@ Keep entries concise and actionable. Distinguish confirmed findings from hypothe
 - **Template emission is newest first, and header inline bodies create instances at include time.** A weak-function or vtable order flip is fixed by include order and first-declaration position, not by moving definitions. See [CODEGEN_RULES](docs/re/CODEGEN_RULES.md#emission-order-of-weak-functions-and-data).
 - **`const&` parameters cache loads across stores.** A target that reloads after each store means a non-const reference or by-value parameter, and the mangled name changes with it. See [CODEGEN_RULES](docs/re/CODEGEN_RULES.md#loads-and-constants).
 - **`name_callees.py` and `permute_names.py` renames outside your unit can break the DOL.** Apply only `symbols.txt` changes inside the unit's address range and confirm `ninja` exits 0. See [CODEGEN_RULES](docs/re/CODEGEN_RULES.md#tooling-traps).
-- **Codex sessions could not commit from worktrees in this sprint** (cause unconfirmed). Leave changes uncommitted for the maintainer or commit from the main checkout; see [collaboration](docs/COLLABORATION.md).
+- **Codex cannot commit from a linked worktree.** Its sandbox write root is the worktree, but the worktree's index lives under the main checkout's `.git/worktrees/`, so `git commit` fails on `index.lock`. Launch Codex from the worktree directory, have it leave changes uncommitted, and commit and land them yourself; see [collaboration](docs/COLLABORATION.md).
 
 ## Current project state
 
