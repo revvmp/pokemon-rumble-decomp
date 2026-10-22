@@ -148,6 +148,13 @@ std::tr1::shared_ptr<IMultiRanking> IMultiRanking::Create(const MapDesc* pDesc, 
     return std::tr1::shared_ptr<IMultiRanking>();
 }
 
+inline void CMultiRanking::SkipMotions() {
+    for (int i = 0; i < 4; ++i) {
+        if (mMotions[i] && !mMotionFinished[i])
+            mModels[i]->Play(sModelNames[i], float(mScores[i]) * float(mMotions[i]->GetLength()) / float(mMaximumScore), 0.0f);
+    }
+}
+
 void CMultiRanking::RunAction() {
     if (!mActive) {
         YieldFiberStarted();
@@ -183,10 +190,7 @@ void CMultiRanking::RunAction() {
                     IController* pController = pPlayer->mController;
                     if (pController && pController->IsConnected() && (pController->GetTrig() & 0x30)) {
                         if (mFinishedMotionCount != mMotionCount) {
-                            for (int j = 0; j < 4; ++j) {
-                                if (mMotions[j] && !mMotionFinished[j])
-                                    mModels[j]->Play(sModelNames[j], float(mScores[j]) * float(mMotions[j]->GetLength()) / float(mMaximumScore), 0.0f);
-                            }
+                            SkipMotions();
                         } else {
                             if (!mIDVisible[i]) {
                                 PlaySound(8);

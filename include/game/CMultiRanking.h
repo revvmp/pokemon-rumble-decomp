@@ -25,6 +25,7 @@ public:
     virtual const MapDesc& GetMapDesc() const { return *mpMapDesc; }
     virtual IPauseMenu* GetPauseMenu() { return mPauseMenu.get(); }
     bool Init(bool background);
+    void SkipMotions();
 
 private:
     const MapDesc* mpMapDesc;
