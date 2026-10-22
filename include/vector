@@ -876,38 +876,12 @@ public:
     size_type size() const { return this->size_; }
     bool empty() const { return this->size_ == 0; }
     void push_back(const T& x) {
-        if (!Metrowerks::is_POD<T>::value) base::push_back(x);
-        else push_back_pod(x);
+        base::push_back(x);
     }
     T& operator[](size_type i) { return base::operator[](i); }
     const T& operator[](size_type i) const { return reinterpret_cast<const T&>(this->data_[i]); }
 
 private:
-    void push_back_pod(const T& x) {
-        if (this->size_ < this->cap()) {
-            ++this->size_;
-            reinterpret_cast<storage_type&>(this->back()) = reinterpret_cast<const storage_type&>(x);
-        } else if (base::grow_by(1, pod_type())) {
-            ++this->size_;
-            reinterpret_cast<storage_type&>(this->back()) = reinterpret_cast<const storage_type&>(x);
-        } else {
-            __vec_split_buffer<storage_type, storage_allocator> buffer(this->alloc());
-            size_type capacity = base::recommend(this->size_ + 1 - this->cap());
-            if (capacity > this->max_size()) {
-                this->throw_length_error();
-            }
-            buffer.data_ = buffer.alloc().allocate(capacity);
-            buffer.cap() = capacity;
-            buffer.start_ = this->size_;
-            *buffer.end() = reinterpret_cast<const storage_type&>(x);
-            ++buffer.size_;
-            storage_type* pFirst = this->data_;
-            storage_type* pLast = this->data_ + this->size_;
-            buffer.construct_at_front(pFirst, pLast, Metrowerks::int2type<__vec_bulk_move<T>::value>());
-            this->size_ = 0;
-            base::swap(buffer, pod_type());
-        }
-    }
     iterator make_iterator(T* const& rPointer) { return iterator(rPointer); }
 };
 
