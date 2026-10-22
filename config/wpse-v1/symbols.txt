@@ -15165,7 +15165,7 @@ __ct__Q23std12allocator<i>Fv = .text:0x8014E060; // type:function size:0x4
 __ct__Q210Metrowerks132compressed_pair<Q23std78allocator<Q43std6detail47tree_imp<i,Q23std7less<i>,Q23std12allocator<i>>4node>,Q33std6detail13tree_root_ptr>Fv = .text:0x8014E070; // type:function size:0x30
 __ct__Q310Metrowerks6detail140CompressedPairStorage<Q23std78allocator<Q43std6detail47tree_imp<i,Q23std7less<i>,Q23std12allocator<i>>4node>,Q33std6detail13tree_root_ptr,1>Fv = .text:0x8014E0A0; // type:function size:0x3C
 __ct__Q23std78allocator<Q43std6detail47tree_imp<i,Q23std7less<i>,Q23std12allocator<i>>4node>Fv = .text:0x8014E0E0; // type:function size:0x4
-__ct__Q33std6detail13tree_root_ptrFPQ33std6detail14tree_node_base = .text:0x8014E0F0; // type:function size:0x8
+fn_8014E0F0 = .text:0x8014E0F0; // type:function size:0x8
 __ct__Q33std6detail33tree_begin_holder<Q23std7less<i>>Fv = .text:0x8014E100; // type:function size:0x30
 fn_8014E130 = .text:0x8014E130; // type:function size:0x4
 begin_node__Q33std6detail47tree_imp<i,Q23std7less<i>,Q23std12allocator<i>>Fv = .text:0x8014E140; // type:function size:0x8
@@ -15184,7 +15184,7 @@ __cl__Q43std3tr16detail99get_pair<0,Q43std6detail47tree_imp<i,Q23std7less<i>,Q23
 __ct__Q43std6detail47tree_imp<i,Q23std7less<i>,Q23std12allocator<i>>21__generic_iterator<1>FRCQ43std6detail47tree_imp<i,Q23std7less<i>,Q23std12allocator<i>>21__generic_iterator<0> = .text:0x8014E3D0; // type:function size:0xC
 insert_one__Q33std6detail43tree<i,Q23std7less<i>,Q23std12allocator<i>>FRCi = .text:0x8014E3E0; // type:function size:0x4
 end__Q23std58__list_deleter<P9BWorldObj,Q23std22allocator<P9BWorldObj>>Fv = .text:0x8014E3F0; // type:function size:0x34
-tail__Q23std58__list_deleter<P9BWorldObj,Q23std22allocator<P9BWorldObj>>Fv = .text:0x8014E430; // type:function size:0x30
+fn_8014E430 = .text:0x8014E430; // type:function size:0x30
 fn_8014E460 = .text:0x8014E460; // type:function size:0x8
 __ne__Q33std58__list_deleter<P9BWorldObj,Q23std22allocator<P9BWorldObj>>19generic_iterator<0>CFRCQ33std58__list_deleter<P9BWorldObj,Q23std22allocator<P9BWorldObj>>19generic_iterator<0> = .text:0x8014E470; // type:function size:0x4
 fn_8014E480 = .text:0x8014E480; // type:function size:0x1C
