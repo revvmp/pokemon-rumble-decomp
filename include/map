@@ -421,7 +421,10 @@ public:
         return tree_.insert_one(rValue);
     }
     native_iterator find(const key_type& rKey) { return tree_.find(rKey); }
-    native_iterator erase(native_iterator position) { return erase_impl(position, Metrowerks::int2type<map_iterator_transform<Key, T, Compare>::value>()); }
+    native_iterator erase(native_iterator position) {
+        Metrowerks::int2type<map_iterator_transform<Key, T, Compare>::value> tag;
+        return erase_impl(position, tag);
+    }
     native_iterator find(const key_type& rKey) const { return const_cast<map_base*>(this)->find(rKey); }
     native_iterator end() const { return const_cast<map_base*>(this)->end(); }
     mapped_type& operator[](const key_type& rKey) { return tree_.find_or_insert(rKey).second; }
