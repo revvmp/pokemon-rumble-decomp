@@ -550,6 +550,11 @@ int basic_string<charT, traits, Allocator>::compare(size_type pos1, size_type n1
 
 template <class charT, class traits, class Allocator>
 basic_string<charT, traits, Allocator>& basic_string<charT, traits, Allocator>::operator=(const basic_string& str) {
+    return assign(str);
+}
+
+template <class charT, class traits, class Allocator>
+basic_string<charT, traits, Allocator>& basic_string<charT, traits, Allocator>::assign(const basic_string& str) {
     bool lhsLong = is_long();
     if (!lhsLong) {
         if (str.is_long()) { goto doLong; }
@@ -561,22 +566,6 @@ doLong:
 }
 
 template <class charT, class traits, class Allocator>
-basic_string<charT, traits, Allocator>& basic_string<charT, traits, Allocator>::assign(const basic_string& str) {
-    const_pointer p;
-    size_type size;
-    bool lhsLong = is_long();
-    if (!lhsLong) {
-        if (str.is_long()) { goto doLong; }
-        r_.first().r.raw = str.r_.first().r.raw;
-        return *this;
-    }
-doLong:
-    size_type count = lhsLong ? long_size() : short_size();
-    str.get_buffer(p, size);
-    return replace(0, count, p, p + size, forward_iterator_tag());
-}
-
-template <class charT, class traits, class Allocator>
 basic_string<charT, traits, Allocator>& basic_string<charT, traits, Allocator>::operator+=(charT c) { return do_replace(size(), 0, &c, &c + 1, random_access_iterator_tag()); }
 
 template <class charT, class traits, class Allocator>
@@ -584,11 +573,10 @@ basic_string<charT, traits, Allocator>& basic_string<charT, traits, Allocator>::
 
 template <class charT, class traits, class Allocator>
 basic_string<charT, traits, Allocator>& basic_string<charT, traits, Allocator>::replace(size_type pos, size_type count, const basic_string& str) {
-    random_access_iterator_tag tag;
     const_pointer p;
     size_type size;
     str.get_buffer(p, size);
-    return do_replace(pos, count, p, p + size, tag);
+    return do_replace(pos, count, p, p + size, random_access_iterator_tag());
 }
 
 template <class charT, class traits, class Allocator>
