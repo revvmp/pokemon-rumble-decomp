@@ -262,9 +262,9 @@ void InitializeHomeButtonInfo(HBMDataInfo* pInfo, HBMDataInfoEx* pInfoEx, bool a
     if (spParam->HasFlags(CHBMParam::NoSaveReset))
         pInfo->messageFlag |= HBMMSG_NOSAVE_RESET;
     if (spParam->HasFlags(CHBMParam::NoSaveAll))
-        pInfo->messageFlag = HBMMSG_NOSAVE_ALL;
+        pInfo->messageFlag |= HBMMSG_NOSAVE_ALL;
     pData->mModel = OpenHomeButtonFile(spParam->GetModelPath(), 0);
-    WaitFileData(pData->mModel.operator->(), false);
+    CFileData::WaitUntilLoaded(pData->mModel.operator->());
     nw4r::g3d::ResFile model(pData->mModel->GetData());
     nw4r::g3d::ResTex texture(model.GetResTex(spParam->GetTextureName()));
     float minLod;
