@@ -123,11 +123,6 @@ int GetStrongestBP()
     return pStrongest ? pStrongest->GetBP() : 0;
 }
 
-bool IsFlyingSpecies(const PiiSpeciesData* pSpecies)
-{
-    return pSpecies->GetFlyHeight() != 0;
-}
-
 struct ResultPii {
     unsigned long mPlayer;
     nw4r::math::VEC3 mPositions[2];
@@ -372,7 +367,7 @@ void CGameResult::CollectPiis()
             break;
         case 473:
         default:
-            if (IsFlyingSpecies(pSpecies)) {
+            if (pSpecies->IsFlying()) {
                 entry.mScale = 0.15f;
             } else {
                 switch (pSpecies->GetBoneType()) {
@@ -524,8 +519,8 @@ void CGameResult::RunAction()
             }
         }
         nw4r::math::VEC3 target = mCameras[0]->GetPositionRef();
-        rEntry.mPiis[0]->LookAt(target);
-        rEntry.mPiis[1]->LookAt(target);
+        rEntry.mPiis[0]->FaceHeadToward(target);
+        rEntry.mPiis[1]->FaceHeadToward(target);
         mPiiSpec->SetPii(rEntry.mPersonalData, rEntry.mPlayer);
         if (!piiSpecShown) {
             pLayout->CreateMotion("begin", "PIISPEC", 0.0f, 1.0f);
@@ -535,7 +530,7 @@ void CGameResult::RunAction()
         int species = pPii->GetSpeciesData()->GetSpecies();
         int form = pPii->GetSpeciesData()->GetFormNumber();
         if (pCollection->GetCollectionType(species) != 3) {
-            pCollection->SetCollectionType(species, form, 3, pPii->IsRareColor());
+            pCollection->RecordCollection(species, form, 3, pPii->IsRareColor());
             pLayout->CreateMotion("new_begin", "NEW", 0.0f, 1.0f);
             pLayout->QueueMotion("new_loop", "NEW", 0.0f, 1.0f);
             newShown = true;

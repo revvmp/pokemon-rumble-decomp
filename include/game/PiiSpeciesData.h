@@ -14,7 +14,7 @@ struct PiiSpeciesData {
     int GetFormNumber() const;
     int GetBoneType() const;
     int GetFlyHeight() const;
-    bool IsFlying() const;
+    bool IsFlying() const { return GetFlyHeight() != 0; }
     int GetASize() const;
     u32 GetGenderAndTypeFlags() const;
     bool IsMaleOnly() const { return static_cast<u8>(GetGenderAndTypeFlags()) == 0; }

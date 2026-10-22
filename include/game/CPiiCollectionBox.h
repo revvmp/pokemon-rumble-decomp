@@ -11,7 +11,6 @@ public:
     int GetCollectionType(u16 monsno);
     void SetCollectionBRR(u16 monsno, int type, int value);
     int GetDefeatCount(u16 monsno);
-    void SetCollectionType(u16 monsno, u8 form, int type, bool rareColor);
     std::vector<u16> GetManyDefeatedPii();
     void SaveSnapshot();
     void RestoreSnapshot();
