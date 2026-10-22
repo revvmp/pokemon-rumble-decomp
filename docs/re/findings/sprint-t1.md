@@ -15,11 +15,16 @@ Every object that needs memory (an address-taken local, a class temporary, a by-
 4. **Consequence: only parity matters, and only relative to the closest common inline ancestor.** Two objects from different expansions keep the order of those expansions in their common caller, flipped once per level between that caller and the function being compiled. Adding a level deeper inside one expansion (for example around a destructor) never moves it relative to its siblings.
 5. **Named versus unnamed is itself a parity flip.** A named tag (`random_access_iterator_tag tag; f(tag);`) creates `[tag, copy]`; an unnamed one (`f(random_access_iterator_tag())`) creates `[copy, temporary]`. At the same depth they are mirror images, so "named at depth d" lays out like "unnamed at depth d plus or minus 1".
 
+6. **Named locals versus temporaries.** A named local initialised from a call (`MapIndex index = MakeMapIndex(...);`) is created at its declaration, ahead of every temporary, so it sits at the top of its bucket. The same value used directly as an argument (`= MakeMapIndex(...)`) is a temporary and sits below the named locals. A target slot at the bottom of the bucket for a value that our source names usually means the original used it inline.
+7. **A call's by-value argument copy comes before the expression that produces it.** For `GXSetTevColor(reg, color)` with a named `color`, the copy is below `color`; with the colour produced by an inline function or a temporary, the copy is created first and sits above it.
+
 ## Recipes
 
 - **Find the pair and the direction.** Pure slot swaps show as rows that differ only in `0x..(r1)` or `0x..(r31)` offsets (`scratchpad/t1/cls.py <unit>` counts them per function). Read which object is which from the code that uses the slot: `lbz` from the uninitialised tag and `stb` to the argument copy for tag passing, the `addi r3, r31, X; bl __unexpected` handlers for exception-specification frames (one per inlined `~shared_ptr() throw()`, in code order).
 - **Fix by changing one level between the objects and their common ancestor**, choosing the form that is more plausible source: an operator instead of a member call, a shared inline helper for repeated code, or a different wrapper in a library header. Then gate the header change across the build, because every caller at another depth flips too.
 - **A parity mismatch can identify the original API.** If one header form fixes some callers and breaks others, the callers are at depths that differ by one in our source but not in the original. The string `assign` case below showed that the original sources used `operator=`, not `assign()`, and that the out-of-line function at `0x80072280` is `operator=` with `assign` inlined.
+- **Repeated blocks that come out upside down point to an inline helper per block.** In CEffect `CreateEmitter` the target reverses the objects of each `switch` case separately while keeping the cases in order, which is exactly one inline level per case. The same reasoning found the shared `StartEndMotion` helper in errmsg and the helper boundary in `GetStrongestBP`.
+- **Initialiser constants reveal declaration order.** Aggregate initialisers (`UIMenuItem item = {nullptr, MENU_RESUME};`) are pooled in `.sdata2` in declaration order, so the constant order in the target tells which local was declared first even when the slots do not.
 - **A sandbox reproduces the real unit.** Compiling the real source file with the unit's flags (`scratchpad/t1/ub.py <unit source> <copy> <function>`) and grepping the `r1`/`r31` offsets confirms a prediction in about a second, without `ninja`.
 
 ## Fixes landed
@@ -32,6 +37,12 @@ Every object that needs memory (an address-taken local, a class temporary, a by-
 | `operator==`/`operator!=(const string&, const charT*)`, each calling `compare` directly; CPath `Parse` compares with them | 1: CPath `Parse` |
 | CGameResult `KeepStronger` takes the candidate pointer; the callers pass `FindStrongestPii(...)` | 1: `GetStrongestBP` |
 | CErrMsgFatalLoop: inline `StartEndMotion` shared by both pad loops | 1: `Prepare` |
+| CGameResult `SetMaterialTexture` compares with `name != pTextureName` | 1 |
+| homebutton: inline `GetNoticeColor(alpha)` produces the `GXSetTevColor` argument | 1: `DrawHomeButtonNotice` |
+| `AppendLoadedFile` calls `insert(end(), file)` (one level shallower than `push_back`) | 1 |
+| `__vec_constructor::assign(first, last, int2type<false>)` goes through `assign_dispatch` with a named tag | 1 (`vector<map>::operator=` in CFileData); about 15 other `vector::operator=` copies in SaveData, CStatistic, CUIMenu, PiiPropData and CPiiCollectionBox rose by 1 to 1.5 points |
+| CGameSession `LoadFromSlot` assigns the pending map from the `MakeMapIndex` temporary | 1 |
+| CEffect `CreateEmitter`: one inline member per effect type (`SetupLifeEmitter`, `SetupLifeFollowEmitter`) | slots fixed, 99.17% to 99.27%; two `fmuls` operand orders remain |
 
 ## Open cases
 
@@ -41,7 +52,12 @@ Every object that needs memory (an address-taken local, a class temporary, a by-
 - **ScriptGame `AddMessageBalloon`.** The three `CValue` slots of `PopMessageText`, `PopFloat` and `PopFloat` are reversed relative to `RegisterMessageBalloon`, which matches with the same calls. The target therefore has the three pops one level deeper (or reversed), and nested blocks do not change the order. No plausible helper was tried.
 - **Structural slot differences.** `vector<UIMenuItem>::push_back`, CLayout `Attach`/`AttachLayout` and `__ct__7CLayout` have extra or missing frame objects (zero-stored tags, a `bool` temporary next to `insert`'s result), not swapped ones.
 
+- **CPauseMenu `ShowMenu` (inlined into `Run`).** The `.sdata2` initialiser order shows that the original declares `resume`, `screenshot`, `remoteMemory`, `controllers`. With that order the four slots still come out rotated (screenshot highest, resume lowest) instead of the target's declaration order, so the block-local `item` copies also take part. Not solved.
+- **CLayout constructor.** `mPixelScale = GetDefaultPixelScale()` gets an extra return object in our build (a `VEC2(x, y)` built at the bottom of the frame and copied), while the target builds the value straight into the assignment temporary with float loads and stores. `return static_cast<const VEC2&>(sDefaultPixelScale)` fixes the slots but copies with integer loads; adding NW4R's `VEC2(const _VEC2&)` brings back the extra object.
+- **CDlgPiiSelector `vector::assign<list::const_iterator>`.** The target has the tag copy above the tag with no zero store. A named tag one inline level down would do it, but every such helper drags `assign_dispatch` into the inline budget and nothing is inlined.
+
 ## Traps
 
 - **unitdiff's left column is the target.** It is easy to read the direction backwards; the left column carries the original `lbl_` names.
+- **Not every `r31` offset is a frame slot.** In functions without `mr r31, r1`, `r31` is often the base of the string pool, so `addi rX, r31, N` differences are string layout (e1), not frame order. `scratchpad/t1/cls.py` only counts `r31` as the frame when the function sets it from `r1`.
 - **A slot swap is not cosmetic.** One swapped pair makes a function non-matching, and the same header form is shared by many units. Measure a library-header change with the full 100%-function count, not only the unit at hand.
