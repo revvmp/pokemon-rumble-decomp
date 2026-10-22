@@ -296,6 +296,21 @@ std::tr1::shared_ptr<CLayout::CMotionProgram> CLayout::BuildMotion(const char* p
     return pProgram;
 }
 
+inline void CLayout::RebindAnimations() {
+    PaneProgramMap::iterator it;
+    std::set<nw4r::lyt::Pane*>::iterator child;
+    for (it = mPanePrograms.begin(); it != mPanePrograms.end(); ++it) {
+        if (!(*it).second->mMotions.empty()) {
+            MotionList::iterator front = (*it).second->mMotions.begin();
+            (*it).second->mpPane->UnbindAnimation((*front)->mpAnimTransform, true);
+            (*it).second->mpPane->BindAnimation((*front)->mpAnimTransform, true, false);
+            for (child = (*it).second->mDescendants.begin(); child != (*it).second->mDescendants.end(); ++child) {
+                (*child)->UnbindAnimation((*front)->mpAnimTransform, true);
+            }
+        }
+    }
+}
+
 std::tr1::shared_ptr<CLayout::CMotionProgram> CLayout::CreateMotion(const char* pName, nw4r::lyt::Pane* pPane, f32 startFrame, f32 rate) {
     const std::tr1::shared_ptr<CMotionProgram>& rProgram = BuildMotion(pName, pPane, startFrame, rate);
     if (!rProgram) {
@@ -306,8 +321,6 @@ std::tr1::shared_ptr<CLayout::CMotionProgram> CLayout::CreateMotion(const char* 
 
 std::tr1::shared_ptr<CLayout::CMotionProgram> CLayout::ReplaceMotions(const std::tr1::shared_ptr<CMotionProgram>& rProgram) {
     PaneMP* pPaneMP = rProgram->mpTarget;
-    PaneProgramMap::iterator it;
-    std::set<nw4r::lyt::Pane*>::iterator child;
     if (!pPaneMP->mMotions.empty()) {
         pPaneMP->mpPane->UnbindAnimation(pPaneMP->mMotions.front()->mpAnimTransform, true);
         for (MotionList::iterator motion = pPaneMP->mMotions.begin(); motion != pPaneMP->mMotions.end(); ++motion) {
@@ -319,16 +332,7 @@ std::tr1::shared_ptr<CLayout::CMotionProgram> CLayout::ReplaceMotions(const std:
     rProgram->mState = 1;
     SetFlags(4);
     pPaneMP->mRunning = true;
-    for (it = mPanePrograms.begin(); it != mPanePrograms.end(); ++it) {
-        if (!(*it).second->mMotions.empty()) {
-            MotionList::iterator front = (*it).second->mMotions.begin();
-            (*it).second->mpPane->UnbindAnimation((*front)->mpAnimTransform, true);
-            (*it).second->mpPane->BindAnimation((*front)->mpAnimTransform, true, false);
-            for (child = (*it).second->mDescendants.begin(); child != (*it).second->mDescendants.end(); ++child) {
-                (*child)->UnbindAnimation((*front)->mpAnimTransform, true);
-            }
-        }
-    }
+    RebindAnimations();
     if (rProgram->mFrame >= 0.0) {
         pPaneMP->mFrame = rProgram->mFrame;
     } else {
@@ -459,6 +463,46 @@ void CLayout::SetVisible(nw4r::lyt::Pane* pPane, bool visible) {
         mAttach->mpParent->SetVisible(mAttach->mpPane, visible);
     } else if (visible) {
         UpdateAttachedLayouts();
+    }
+}
+
+void CLayout::AdvancePaneMotions(PaneMP* pPaneMP, f32 frames) {
+    for (;;) {
+        if (pPaneMP->mMotions.empty()) {
+            pPaneMP->mFrame += frames;
+            return;
+        }
+        MotionList::iterator front = pPaneMP->mMotions.begin();
+        pPaneMP->mFrame += frames * (*front)->mRate;
+        f32 lastFrame = (*front)->mLastFrame;
+        if (pPaneMP->mFrame < lastFrame) {
+            pPaneMP->mRunning = true;
+            return;
+        }
+        pPaneMP->mFrame -= lastFrame;
+        if (pPaneMP->mMotions.size() >= 2) {
+            frames = pPaneMP->mFrame / (*front)->mRate;
+            pPaneMP->mpPane->UnbindAnimation((*front)->mpAnimTransform, true);
+            (*front)->Finish();
+            pPaneMP->mMotions.pop_front();
+            f32 startFrame = (*pPaneMP->mMotions.begin())->mFrame;
+            pPaneMP->mFrame = startFrame >= 0.0f ? startFrame : 0.0f;
+            (*pPaneMP->mMotions.begin())->mState = 1;
+            RebindAnimations();
+        } else if ((*front)->mpAnimTransform->IsLoopData()) {
+            (*front)->mState = 2;
+            frames = 0.0f;
+        } else {
+            pPaneMP->mFrame /= (*front)->mRate;
+            (*front)->mpAnimTransform->SetFrame((*front)->mpAnimTransform->GetFrameSize());
+            pPaneMP->mpPane->Animate(0);
+            pPaneMP->mpPane->UnbindAnimation((*front)->mpAnimTransform, true);
+            (*front)->Finish();
+            pPaneMP->mMotions.pop_front();
+            pPaneMP->mRunning = false;
+            UpdateAttachedLayouts();
+            return;
+        }
     }
 }
 
@@ -672,6 +716,25 @@ bool CLayout::SetTexture(const char* pName, const nw4r::lyt::TexMap& rTexture, i
     nw4r::lyt::Pane* pPane = FindPane(pName);
     if (pPane != nullptr) {
         return SetTexture(pPane, rTexture, index);
+    }
+    return false;
+}
+
+bool CLayout::SetImage(const char* pPaneName, const char* pImageName, int index) {
+    nw4r::lyt::Pane* pPane = FindPane(pPaneName);
+    if (pPane != nullptr) {
+        TPLPalette* pPalette = static_cast<TPLPalette*>(mAccessor.GetResource('timg', pImageName, nullptr));
+        if (pPalette == nullptr) {
+            std::string imageName(pImageName);
+            imageName.append(".tpl");
+            pPalette = static_cast<TPLPalette*>(mAccessor.GetResource('timg', imageName.c_str(), nullptr));
+        }
+        if (pPalette != nullptr) {
+            nw4r::lyt::TexMap texMap(pPalette, 0);
+            texMap.SetBiasClampEnable(false);
+            texMap.SetAnisotropy(GX_ANISO_1);
+            return SetTexture(pPane, texMap, index);
+        }
     }
     return false;
 }

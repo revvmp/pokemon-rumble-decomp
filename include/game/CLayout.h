@@ -154,6 +154,7 @@ private:
     bool HasFlags(u32 flags) const { return (mFlags & flags) != 0; }
     void UpdateViewRect();
     void ApplyMotionFrames();
+    void RebindAnimations();
     void CalculateAttachedMtx();
     f32 GetPaneAlpha(nw4r::lyt::Pane* pPane);
     f32 GetLayoutAlpha();
