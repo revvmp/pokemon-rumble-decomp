@@ -8,6 +8,9 @@
 #include <game/CBossPii.h>
 #include <game/CDropPii.h>
 #include <game/BWorld.h>
+#include <list>
+#include <vector>
+#include <algorithm>
 
 int GetStrongestBP();
 
@@ -201,6 +204,84 @@ int method_getPlayerIndex(NPpu::CEngine* pBase) {
         if (pPii) index = pPii->GetPlayer()->GetPlayerNo();
     }
     pEngine->PushInt(index);
+    return 0;
+}
+
+typedef int (*FoundFunc)(NPpu::CEngine*, NPpu::Slice*, int, std::list<BWorldObj*>&);
+typedef int (*NoneFunc)(NPpu::CEngine*, NPpu::Slice*, int);
+
+static int PushObjectIds(NPpu::CEngine* pEngine, NPpu::Slice* pSlices, int capacity, std::list<BWorldObj*>& rObjects) {
+    int i = 0;
+    int count = std::min(capacity - 1, static_cast<int>(rObjects.size()));
+    const std::list<BWorldObj*>& rList = rObjects;
+    std::list<BWorldObj*>::const_iterator it = rList.begin();
+    for (; i < count; ++it, ++i) {
+        pSlices[i].SetInt((*it)->GetId());
+    }
+    if (count >= 0) {
+        pSlices[count].SetInt(0);
+    }
+    pEngine->PushInt(count);
+    return 0;
+}
+
+static int PushNoObjects(NPpu::CEngine* pEngine, NPpu::Slice* pSlices, int capacity) {
+    if (capacity > 0) {
+        pSlices[0].SetInt(0);
+    }
+    pEngine->PushInt(0);
+    return 0;
+}
+
+static int SearchByGroupNo(NPpu::CEngine* pEngine, FoundFunc pFound, NoneFunc pNone);
+
+int method_findObjByGroupNo(NPpu::CEngine* pEngine) {
+    return SearchByGroupNo(pEngine, PushObjectIds, PushNoObjects);
+}
+
+static int SearchByGroupNo(NPpu::CEngine* pBase, FoundFunc pFound, NoneFunc pNone) {
+    CPpuEngine* pEngine = static_cast<CPpuEngine*>(pBase);
+    int capacity = 0;
+    NPpu::Slice* pSlices = pBase->PopArray(&capacity);
+    CPii* pPii = DynamicCast<CPii>(pEngine->PopWorldObj());
+    if (pPii) {
+        std::vector<BWorldObj*> objects = pEngine->GetWorld()->GetObjects(0x100);
+        std::list<BWorldObj*> found;
+        int groupNo = pPii->GetPersonalData()->GetGroupNo();
+        for (std::vector<BWorldObj*>::iterator it = objects.begin(); it != objects.end(); ++it) {
+            if (DynamicCast<CPii>(*it)->GetPersonalData()->GetGroupNo() == groupNo) {
+                found.push_back(*it);
+            }
+        }
+        return pFound(pEngine, pSlices, capacity, found);
+    }
+    return pNone(pEngine, pSlices, capacity);
+}
+
+int FindEnemyByGroupNo(NPpu::CEngine* pBase) {
+    int groupNo = pBase->PopInt();
+    int capacity = 0;
+    NPpu::Slice* pSlices = pBase->PopArray(&capacity);
+    std::vector<BWorldObj*> objects = static_cast<CPpuEngine*>(pBase)->GetWorld()->GetObjects(0x100);
+    std::list<BWorldObj*> found;
+    for (std::vector<BWorldObj*>::iterator it = objects.begin(); it != objects.end(); ++it) {
+        if (DynamicCast<CPii>(*it)->GetPersonalData()->GetGroupNo() == groupNo) {
+            found.push_back(*it);
+        }
+    }
+    return PushObjectIds(pBase, pSlices, capacity, found);
+}
+
+int CountEnemyByGroupNo(NPpu::CEngine* pBase) {
+    int groupNo = pBase->PopInt();
+    std::vector<BWorldObj*> objects = static_cast<CPpuEngine*>(pBase)->GetWorld()->GetObjects(0x100);
+    int count = 0;
+    for (std::vector<BWorldObj*>::iterator it = objects.begin(); it != objects.end(); ++it) {
+        if (DynamicCast<CPii>(*it)->GetPersonalData()->GetGroupNo() == groupNo) {
+            count++;
+        }
+    }
+    pBase->PushInt(count);
     return 0;
 }
 
