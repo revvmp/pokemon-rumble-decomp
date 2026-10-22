@@ -1,0 +1,10 @@
+# Sprint w1o findings (COyaInfo)
+
+## Traps
+
+- **COyaInfo is its own unit, `game/COyaInfo.cpp` at 0x800ED1B0-0x800F2580.** Its `.data` starts at 0x803A9160; the `shared_ptr_deleter<CPiiPersonalData>` RTTI strings at 0x803A90B8-0x803A9160 belong to `CPiiPersonalData.cpp`, whose split now ends there. The unit is a `std::vector<std::map<int, std::tr1::weak_ptr<CPiiPersonalData> > >` of 511 buckets keyed by `id % size()`.
+- **MSL map move and swap.** The vector split buffer moves a `map` by default-constructing it and swapping (`__vec_swap_move` in `include/vector`), and `tree_imp::swap` swaps the compare and the begin node separately, not the begin holder as a whole.
+- **The tree's allocator constructor builds its compare from a temporary** (`begin_(Compare(rCompare))`), and the `red_black_tree` copy constructor uses that constructor. Without the temporary every inlined map copy is missing one `stb` to a stack byte and its frame is 8 to 16 bytes short.
+- **A const member that searches a bucket needs a non-const map reference.** Through `const map&` CodeWarrior keeps `end_node()` in a register; the target recomputes it (FindPersonalData 88% to 100% with `const_cast`).
+- **Trailing padding:** with the unit built from source, `GetPropertyRow__Fii` (PiiPropData) moved to 0x800F257C; `align:16` on it in `symbols.txt` restores 0x800F2580.
+- **Open, blocks Matching:** all 26 functions match (insert_node_at differs only by the name of its local string), but the weak template order differs. Target: `insert_node_at`, `destroy`, `weak_ptr::lock`, `allocator::destroy`, `alloc_ptr` dtor, `find_leaf`, `recommend`, split buffer dtor, `construct_at_end`, `construct_at_front`, tree `copy`, `copy_children`, split buffer `allocate`, `__vec_deleter` dtor. Ours emits `find_leaf` first (the known sprint-e1 problem), reverses `alloc_ptr`/`allocator`/`lock`, and puts the split buffer functions after `copy`. Header include order (`map`, `vector`, `memory` after `revolution/types.h`) fixes only the `lock` position. A split buffer constructor that allocates moves `allocate` but is itself emitted.
