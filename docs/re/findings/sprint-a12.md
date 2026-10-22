@@ -123,3 +123,24 @@ CPiiListFilterSort 60 to 64 of 71 functions at 100% (CompareBPAscending, Compare
   - `(1 << kind)` written inside the loop gives `li r3, 1` but shuffles r4 to r6 (99.74%).
 - **IsIdle:** a size local (`u32` or `int`) scores worse (94-98%). A dummy local and an explicit `!= 0` changed nothing.
 - **Update:** moving `pop_front`, the start frame or `mAnimObj.reset()` into inline helpers scored worse or the same.
+
+## Register-allocation wave (a12)
+
+Diagnoses use `tools/re/ra_trace.py` and the rules in [sprint-ra](sprint-ra.md).
+
+### Fixes
+
+- CMsgRes `ConvertEscape` 95.57% to 96.40%: the hex digit in the `\x` loop is a named local declared before `pEnd`. Named locals are coloured in declaration order, so the digit now takes r11 before `pEnd` takes r12, and `isTrailByte` opens r31, as in the target. Declaring `i` before the `value = 0` initialisation (`int value; int i = 0; for (value = 0; ...)`) also reorders the two `li` and gives 96.47%; not kept. All 120 orders of the five leading declarations were tried; none beats 96.47%. The rest is the preheader schedule (`srwi` and the locale `addi` before `mr r4`) and the escape byte: an `int escape` gives the target's single register but renumbers the function (92.56%).
+
+### Diagnosed, not fixed
+
+- CPauseMenu `TakeScreenshot`: the swapped registers are `pMode` (temporary r102) and the `fbWidth` and `efbHeight` loads (temporaries r105, r106). The target colours `pMode` first, then `efbHeight`, then `fbWidth`, so the two loads must be variables (named locals, or inline variables with the height created first). Declared locals are deleted by the IR in every form tried (top-of-function declarations, either order).
+- CRemoteMemory `PrepareWrite`: generation order is channel multiply, pool base, block index; the target needs multiply, index, base (the base is coloured first and gets r0). Pointer-arithmetic and commuted index spellings generate the same order.
+- BWorld `RemoveObject`: `pNext` and `pPrev` are inline return variables of `GetNext` and `GetPrev`; the first expanded is coloured first. The target computes `pNext` first but colours `pPrev` first. A spelled-out ternary for `pNext` with `GetPrev` for `pPrev` reuses the `mNext` load (97.73%).
+- NPpuVM `~CEngine`: the in-charge flag and `this` have degree K (29) and wait; the node (a merged copy chain) is coloured second, before `this` and the tree. The target colours flag, `this`, tree, node.
+- CShadowCamera `SetupShadowModel`: inline-call arguments are generated right to left (`IsTextureAlpha`, `GetIndex`, the `color` copy, `GetTexture`, `mat`). The target order is the `color` copy, the `mat` copy, then texture, index and alpha left to right, which is what plain member reads give: direct `mTextures[mTextureLevels - 1]`, `mIndex` and `mUseTextureAlpha` (with the members made public) reproduce the order but not the `mat` store position (91.86%). `mIndex` is private to BWorldCamera, so this was not kept.
+- CShadowCamera `SetupShadowMaterial`: the `postMtx` temporary gets r3 because `addi r3` (the `GetTexObj` argument) comes after it in the pre-allocation schedule. The six orders of `second`, `postMtx` and `map` do not move it (best 99.88%).
+- CPiiPersonalData `Import`: the target stores `mRandomSeed` before `mCreationTime` but loads the low creation word before `mFlags`. Moving the seed assignment first fixes the store order and loses the hoisted load (95.45%). All 24 orders of the last four assignments, a `lo | hi << 32` getter, a `u64` cast and an `s64` local are no better than the current 97.08%.
+- CPiiListFilterSort `Sort`: the pre-allocation order is the store of the `begin()` result, the iterator addresses, then the `mSortType` load. The target hoists the load above the store, so in the target the two accesses do not alias.
+- homebutton `UpdateHomeButton`: the `false` argument of `InitializeHomeButtonInfo` is merged with the `use_devtype = 0` constant before scheduling; the target keeps two `li`. `WPAD_DEV_CORE` changes nothing.
+- BWorld `Calc` and `CalcMtx`, CPlayerPii `GetShadowName`, CPauseMenu `LeaveStage`, main `HandleFileError`, NPpuVM `CCode::Load`, and the CNoticeDisplay and homebutton `.data` layouts are unchanged; see the earlier tables.
