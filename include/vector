@@ -890,7 +890,7 @@ private:
             this->back() = x;
         } else {
             __vec_split_buffer<storage_type, storage_allocator> buffer(this->alloc());
-            size_type capacity = base::grow_by(1);
+            size_type capacity = base::recommend(this->size_ + 1 - this->cap());
             if (capacity > this->max_size()) {
                 this->throw_length_error();
             }
