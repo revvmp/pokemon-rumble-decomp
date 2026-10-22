@@ -250,6 +250,8 @@ inline void CRemoteMemory::ReadBack(int channel) {
     case -2:
     case 0:
         break;
+    case -6:
+    case -5:
     default:
         pRemote->mFlags = (pRemote->mFlags & ~FLAG_BUSY) | FLAG_TRANSFER_ERROR;
         break;
