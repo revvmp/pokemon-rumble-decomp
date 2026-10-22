@@ -376,7 +376,7 @@ config.libs = [
             Object(Matching, "game/luckyhelper.cpp"),
             Object(Matching, "game/CBSPTree.cpp"),
             Object(Matching, "game/sound.cpp"),
-            Object(NonMatching, "game/BSoundSource.cpp"),
+            Object(Matching, "game/BSoundSource.cpp"),
         ],
     ),
     library(
