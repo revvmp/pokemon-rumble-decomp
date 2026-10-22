@@ -775,20 +775,27 @@ std::list<BWorldObj*> BWorld::FindObjectsInRing(u32 type, const nw4r::math::VEC3
     return objs;
 }
 
-std::list<BWorldObj*> BWorld::FindObjectsInRect(u32 type, const nw4r::math::VEC3& rCenter, f32 rotation, f32 minZ,
-                                                f32 maxZ, f32 minX, f32 maxX) {
-    std::list<BWorldObj*> objs;
-    nw4r::math::VEC3 center(rCenter.x, 0.0f, rCenter.z);
-    nw4r::math::VEC3 trans = -center;
-    nw4r::math::MTX34 transMtx(1.0f, 0.0f, 0.0f, trans.x, 0.0f, 1.0f, 0.0f, trans.y, 0.0f, 0.0f, 1.0f, trans.z);
+namespace {
+
+inline void CalcRectMtx(nw4r::math::MTX34* pMtx, const nw4r::math::VEC3& rTrans, f32 rotation) {
+    nw4r::math::MTX34 transMtx(1.0f, 0.0f, 0.0f, rTrans.x, 0.0f, 1.0f, 0.0f, rTrans.y, 0.0f, 0.0f, 1.0f, rTrans.z);
 
     f32 sin;
     f32 cos;
     nw4r::math::SinCosDeg(&sin, &cos, -rotation);
     nw4r::math::MTX34 rotMtx(cos, 0.0f, sin, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, -sin, 0.0f, cos, 0.0f);
 
+    PSMTXConcat(rotMtx, transMtx, *pMtx);
+}
+
+}
+
+std::list<BWorldObj*> BWorld::FindObjectsInRect(u32 type, const nw4r::math::VEC3& rCenter, f32 rotation, f32 minZ,
+                                                f32 maxZ, f32 minX, f32 maxX) {
+    std::list<BWorldObj*> objs;
+    nw4r::math::VEC3 center(rCenter.x, 0.0f, rCenter.z);
     nw4r::math::MTX34 mtx;
-    PSMTXConcat(rotMtx, transMtx, mtx);
+    CalcRectMtx(&mtx, -center, rotation);
 
     u32 stopTypes = GetStopTypes(type);
     for (ObjEntry* pEntry = mObjHead; pEntry != nullptr; pEntry = GetNextEntry(pEntry)) {
