@@ -127,6 +127,7 @@ public:
     bool SetTexture(const char* pName, const nw4r::lyt::TexMap& rTexture, int index);
     bool SetTexture(nw4r::lyt::Pane* pPane, const nw4r::lyt::TexMap& rTexture, int index);
     nw4r::lyt::Layout* GetLayout() const { return mLayout.get(); }
+    void SetDepthCompare(GXCompare compare) { mDepthCompare = compare; }
 
 private:
     int LoadArchive(const char* pArchive, const char* pLayoutName, const std::tr1::shared_ptr<FontMap>& rFonts, bool background);
