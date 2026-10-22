@@ -55,7 +55,7 @@ inline bool IsHubMap() {
     return GetCurrentGameMap()->GetMapDesc().mIndex.mStage == 0;
 }
 
-inline MapIndex GetHubIndex(MapIndex index) {
+inline MapIndex GetHubIndex(const MapIndex& index) {
     MapIndex hub = {index.mMode, index.mArea, 0, 0};
     return hub;
 }
@@ -149,9 +149,17 @@ public:
     }
 
     virtual bool TakeScreenshot();
+    void CaptureScreenshot();
     void Run();
     void LeaveStage();
     bool RunRemoteMemoryMenu();
+
+    void ShowRemoteMemoryDialog() {
+        mDialog = IDlgMsgWin::Create(false, true);
+        OpenRemoteMemoryDialog(mDialog.get(), mRemoteMemoryLayout.get());
+        mDialog->WaitUntilClosed();
+        mDialog.reset();
+    }
 
     void Init(const MapDesc* pDesc, bool hideBackground, bool background) {
         mHideBackground = hideBackground;
@@ -356,7 +364,8 @@ void CPauseMenu::LeaveStage() {
     if (IsHubMap()) {
         IGameSession::GetInstance()->RequestSceneChange(3, 4);
     } else {
-        IGameSession::GetInstance()->RequestMapChange(GetHubIndex(GetCurrentGameMap()->GetMapDesc().mIndex), 2, 4);
+        MapIndex index = GetCurrentGameMap()->GetMapDesc().mIndex;
+        IGameSession::GetInstance()->RequestMapChange(GetHubIndex(index), 2, 4);
     }
     ResumeGameAudio();
     mIsOpen = false;
@@ -365,17 +374,11 @@ void CPauseMenu::LeaveStage() {
     }
 }
 
-bool CPauseMenu::TakeScreenshot() {
-    if (mScreenshotBusy) {
-        return false;
-    }
-    mScreenshotBusy = true;
-
+inline void CPauseMenu::CaptureScreenshot() {
     std::tr1::shared_ptr<u8> work(static_cast<u8*>(GameMemory::Allocate(0x1c00, 32)), GameMemory::Free);
     if (work.get() == nullptr) {
         OSReport("%s(%d): not enough memory\n", "CPauseMenu.cpp", 439);
-        mScreenshotBusy = false;
-        return true;
+        return;
     }
 
     const GXRenderModeObj* pMode = nw4r::g3d::G3DState::GetRenderModeObj();
@@ -412,15 +415,14 @@ bool CPauseMenu::TakeScreenshot() {
     height = std::min(height, limitHeight);
 
     nw4r::lyt::Pane* pPicture = mCopyrightLayout.FindPane("PICTURE");
-    nw4r::lyt::TexMap texMap;
-    texMap.Set(mCapture.GetTexObj());
+    nw4r::lyt::TexMap texMap(mCapture.GetTexObj());
     texMap.SetPalette(nullptr);
     texMap.SetPaletteFormat(GX_TL_IA8);
     texMap.SetPaletteEntryNum(0);
     mCopyrightLayout.SetTexture(pPicture, texMap, -1);
     pPicture->SetSize(nw4r::lyt::Size(width, height));
     nw4r::lyt::Pane* pCopyright = mCopyrightLayout.FindPane("COPYRIGHT");
-    pCopyright->SetTranslate(nw4r::math::VEC3(width * 0.5f, -height * 0.5f, 0.0f));
+    pCopyright->SetTranslate(nw4r::math::VEC2(width * 0.5f, -height * 0.5f));
 
     nw4r::g3d::G3DState::Invalidate(0x7ff);
     nw4r::g3d::G3dReset();
@@ -434,15 +436,18 @@ bool CPauseMenu::TakeScreenshot() {
     shot.Init(mCapture.GetBufferOwner(), mCapture.GetBufferSize(), width, height, mCapture.GetFormat(), GX_CLAMP, GX_LINEAR);
     shot.CopyFromEFB(true);
 
-    nw4r::lyt::TexMap shotMap;
-    shotMap.Set(shot.GetTexObj());
+    nw4r::lyt::TexMap shotMap(shot.GetTexObj());
     shotMap.SetPalette(nullptr);
     shotMap.SetPaletteFormat(GX_TL_IA8);
     shotMap.SetPaletteEntryNum(0);
     mScreenshotLayout.SetTexture("PICTURE", shotMap, -1);
 
-    f32 shotRatio = static_cast<f32>(shot.GetWidth()) / static_cast<f32>(shot.GetHeight());
-    f32 frameRatio = (mPictureSize.x / mScreenshotLayout.GetViewScale().x) / (mPictureSize.y / mScreenshotLayout.GetViewScale().y);
+    f32 capturedWidth = shot.GetWidth();
+    f32 capturedHeight = shot.GetHeight();
+    f32 shotRatio = capturedWidth / capturedHeight;
+    f32 frameWidth = mPictureSize.x / mScreenshotLayout.GetViewScale().x;
+    f32 frameHeight = mPictureSize.y / mScreenshotLayout.GetViewScale().y;
+    f32 frameRatio = frameWidth / frameHeight;
     nw4r::math::VEC2 scale = mScreenshotScale;
     if (frameRatio <= shotRatio) {
         scale.y *= frameRatio / shotRatio;
@@ -462,12 +467,14 @@ bool CPauseMenu::TakeScreenshot() {
     std::tr1::shared_ptr<u8> jpeg(static_cast<u8*>(GameMemory::AllocateMEM2(jpegSize, 32)), GameMemory::Free);
     if (jpeg.get() == nullptr) {
         OSReport("%s(%d): not enough memory\n", "CPauseMenu.cpp", 556);
-        mScreenshotBusy = false;
-        return true;
+        return;
     }
     TMCJPEGEncodeToBuffer(work.get(), shot.GetBufferOwner().get(), shot.GetWidth(), shot.GetHeight(), shot.GetFormat(), 400, jpeg.get(), jpegSize, &jpegSize);
 
-    while (!(GetControllerTable()->GetTrig() & 0x20)) {
+    while (true) {
+        if (GetControllerTable()->GetTrig() & 0x20) {
+            break;
+        }
         YieldFiber();
     }
     PlaySound(8);
@@ -480,6 +487,14 @@ bool CPauseMenu::TakeScreenshot() {
 
     mScreenshotLayout.CreateMotion("end", "SS_ROOT", 0.0f, 1.0f)->Wait();
     mScreenshotLayout.SetVisible(false);
+}
+
+bool CPauseMenu::TakeScreenshot() {
+    if (mScreenshotBusy) {
+        return false;
+    }
+    mScreenshotBusy = true;
+    CaptureScreenshot();
     mScreenshotBusy = false;
     return true;
 }
@@ -499,10 +514,7 @@ bool CPauseMenu::RunRemoteMemoryMenu() {
         return false;
     }
 
-    mDialog = IDlgMsgWin::Create(false, true);
-    OpenRemoteMemoryDialog(mDialog.get(), mRemoteMemoryLayout.get());
-    mDialog->WaitUntilClosed();
-    mDialog.reset();
+    ShowRemoteMemoryDialog();
     return true;
 }
 

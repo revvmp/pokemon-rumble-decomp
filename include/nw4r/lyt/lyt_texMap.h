@@ -13,6 +13,10 @@ public:
         Set(pTPLPalette, id);
     }
 
+    TexMap(const GXTexObj &texObj) {
+        Set(texObj);
+    }
+
     TexMap() {
         mpImage = nullptr;
         mWidth = 0;

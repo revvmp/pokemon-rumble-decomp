@@ -121,6 +121,7 @@ public:
     }
     const math::VEC3& GetTranslate() const { return mTranslate; }
     void SetTranslate(const math::VEC3& rTranslate) { mTranslate = rTranslate; }
+    void SetTranslate(const math::VEC2& rTranslate) { SetTranslate(math::VEC3(rTranslate.x, rTranslate.y, 0.0f)); }
     void SetName(const char* pName);
     void SetUserData(const char* pUserData);
     const res::ExtUserData* FindExtUserDataByName(const char* pName);
