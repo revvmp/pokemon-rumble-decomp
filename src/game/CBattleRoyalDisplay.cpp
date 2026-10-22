@@ -1,11 +1,5 @@
 #include <game/detail/CBattleRoyalDisplay.h>
 
-std::tr1::shared_ptr<IBattleRoyalDisplay> IBattleRoyalDisplay::Create(bool background) {
-    std::tr1::shared_ptr<CBattleRoyalDisplay> pDisplay(new CBattleRoyalDisplay);
-    CBattleRoyalDisplay* pBattleRoyalDisplay = pDisplay.get();
-    pBattleRoyalDisplay->Load(GetDefaultFontMap(), background);
-    return pDisplay;
-}
 
 namespace {
 
@@ -75,6 +69,13 @@ inline void CBattleRoyalDisplay::Finish() {
     mFinished = true;
 }
 
+}
+
+std::tr1::shared_ptr<IBattleRoyalDisplay> IBattleRoyalDisplay::Create(bool background) {
+    std::tr1::shared_ptr<CBattleRoyalDisplay> pDisplay(new CBattleRoyalDisplay);
+    CBattleRoyalDisplay* pBattleRoyalDisplay = pDisplay.get();
+    pBattleRoyalDisplay->Load(GetDefaultFontMap(), background);
+    return pDisplay;
 }
 
 std::wstring FormatString(const wchar_t* pFormat, ...) {
