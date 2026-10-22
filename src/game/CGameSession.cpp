@@ -121,6 +121,17 @@ public:
     void RunStage();
     const CPiiBox* GetTeamPiiBoxView() const { return mTeamPiiBox.get(); }
     void LoadFromSlot();
+    void SavePlayerStates() {
+        for (int i = 0; i < 4; i++) {
+            mPlayers[i]->SaveState();
+        }
+    }
+    void RestorePlayerStates() {
+        for (int i = 0; i < 4; i++) {
+            mPlayers[i]->RestoreState();
+            mPlayers[i]->GetPiiBox().RestoreAll();
+        }
+    }
     void GetSnapshot(SessionSnapshot* pSnapshot);
     void SaveToSlot();
 
@@ -365,9 +376,7 @@ void CGameSession::LoadFromSlot() {
 
 void CGameSession::RunStage() {
     mTeamPiiBox->ShowAllSpecs();
-    for (int i = 0; i < 4; i++) {
-        mPlayers[i]->SaveState();
-    }
+    SavePlayerStates();
     mPiiCollectionBox->SaveSnapshot();
     mStatistic->SaveSnapshot();
     mLoadedMoney = mMoney;
@@ -388,10 +397,7 @@ void CGameSession::RunStage() {
         MovePlayerPiisToTeamPiiBox();
         break;
     case 2:
-        for (int i = 0; i < 4; i++) {
-            mPlayers[i]->RestoreState();
-            mPlayers[i]->GetPiiBox().RestoreAll();
-        }
+        RestorePlayerStates();
         mPiiCollectionBox->RestoreSnapshot();
         mStatistic->RestoreSnapshot();
         mMoney = mLoadedMoney;
