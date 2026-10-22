@@ -177,7 +177,7 @@ void CUIMenu::OnInput(const IUIInput* pInput) {
                     std::tr1::shared_ptr<IUIListItem> item = GetItem(candidate);
                     if (item && item->IsSelectable()) {
                         SetSelectedIndex(candidate);
-                        return;
+                        goto done;
                     }
                 }
                 for (int distance = 1; distance < mRowCount; ++distance) {
@@ -187,14 +187,14 @@ void CUIMenu::OnInput(const IUIInput* pInput) {
                         std::tr1::shared_ptr<IUIListItem> item = GetItem(below);
                         if (item && item->IsSelectable()) {
                             SetSelectedIndex(below);
-                            return;
+                            goto done;
                         }
                     }
                     if (columnBegin <= above && above < columnEnd) {
                         std::tr1::shared_ptr<IUIListItem> item = GetItem(above);
                         if (item && item->IsSelectable()) {
                             SetSelectedIndex(above);
-                            return;
+                            goto done;
                         }
                     }
                 }
@@ -203,6 +203,8 @@ void CUIMenu::OnInput(const IUIInput* pInput) {
         }
     }
     CUIList::OnInput(pInput);
+done:
+    return;
 }
 
 namespace {
