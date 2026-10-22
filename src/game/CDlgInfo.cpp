@@ -43,8 +43,7 @@ struct Page {
 };
 
 inline f32 GetTextWidth(nw4r::lyt::TextBox* pText) {
-    nw4r::ut::Rect rect = pText->GetTextDrawRect();
-    return ceil(rect.right - rect.left);
+    return ceil(pText->GetTextDrawRect().GetWidth());
 }
 
 class CDlgInfoItemLine {
