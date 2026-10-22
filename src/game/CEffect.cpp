@@ -618,15 +618,13 @@ u32 AllocEffectGroupID() {
 }
 
 void FreeEffectGroupID(u32 id) {
-    if (sNumUsedEffectGroupID == 0) {
+    if (sNumUsedEffectGroupID == 0 || id >= sUsedEffectGroupID->size()) {
         return;
     }
-    if (id < sUsedEffectGroupID->size()) {
-        if ((*sUsedEffectGroupID)[id]) {
-            (*sUsedEffectGroupID)[id] = false;
-            if (--sNumUsedEffectGroupID == 0) {
-                sUsedEffectGroupID.reset();
-            }
+    if ((*sUsedEffectGroupID)[id]) {
+        (*sUsedEffectGroupID)[id] = false;
+        if (--sNumUsedEffectGroupID == 0) {
+            sUsedEffectGroupID.reset();
         }
     }
 }
