@@ -17,9 +17,9 @@
 #include <game/IGameSession.h>
 #include <game/LayoutResources.h>
 #include <game/MapDesc.h>
+#include <game/MessageFormat.h>
 #include <game/Memory.h>
 #include <game/Message.h>
-#include <game/NIntl.h>
 #include <game/RenderMode.h>
 #include <game/Pad.h>
 #include <game/SaveData.h>
@@ -46,8 +46,6 @@ void ResumeGameAudio();
 void SaveScreenshotToRemoteMemory(IDlgMsgWin* pDialog, BUILayout* pLayout, const void* pJpeg, u32 size);
 void OpenRemoteMemoryDialog(IDlgMsgWin* pDialog, BUILayout* pLayout);
 
-template <typename A> std::wstring FormatMessage(const wchar_t* pFormat, const A& rFirst);
-template <typename A, typename B> std::wstring FormatMessage(const wchar_t* pFormat, const A& rFirst, const B& rSecond);
 template <typename A, typename B, typename C>
 std::wstring FormatMessage(const wchar_t* pFormat, const A& rFirst, const B& rSecond, const C& rThird);
 
@@ -512,15 +510,8 @@ bool CPauseMenu::RunRemoteMemoryMenu() {
     return true;
 }
 
-template <typename A> std::wstring FormatMessage(const wchar_t* pFormat, const A& rFirst) {
-    return (NIntl::basic_formatter<wchar_t>(pFormat) % rFirst).str();
-}
-
-template <typename A, typename B> std::wstring FormatMessage(const wchar_t* pFormat, const A& rFirst, const B& rSecond) {
-    return (NIntl::basic_formatter<wchar_t>(pFormat) % rFirst % rSecond).str();
-}
-
 template <typename A, typename B, typename C>
 std::wstring FormatMessage(const wchar_t* pFormat, const A& rFirst, const B& rSecond, const C& rThird) {
-    return (NIntl::basic_formatter<wchar_t>(pFormat) % rFirst % rSecond % rThird).str();
+    NIntl::basic_formatter<wchar_t> formatter(pFormat);
+    return (formatter % rFirst % rSecond % rThird).str();
 }
