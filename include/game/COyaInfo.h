@@ -2,8 +2,8 @@
 #define GAME_COYAINFO_H
 
 #include <memory>
-#include <vector>
 #include <map>
+#include <vector>
 #include <revolution/types.h>
 
 class CPpuEnv;
