@@ -203,7 +203,8 @@ void CUIList::OnInput(const IUIInput* pInput) {
             if (!mItems.empty()) while (true) {
                 if (static_cast<unsigned long>(mSelectedIndex)==mItems.size()-1) {
                     if (!mWrapSelection || !(trigger&pButtons[1])) { mSelectedIndex=previousIndex; break; }
-                    mSelectedIndex=-1;
+                    mSelectedIndex=0;
+                    mSelectedIndex--;
                 }
                 ++mSelectedIndex;
                 if (mSelectedIndex==previousIndex) break;
