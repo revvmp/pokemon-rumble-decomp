@@ -6,10 +6,6 @@
 #include <game/Message.h>
 #include <game/MessageFormat.h>
 
-template <class charT> NIntl::basic_formatter<charT>::basic_formatter(const charT* pFormat) : mFormat(pFormat), mParsed(false) {}
-
-template <class charT> NIntl::basic_formatter<charT>::~basic_formatter() {}
-
 std::wstring GetButtonMessage(int player, u32 button, int messageId) {
     IController* pController = IGameSession::GetInstance()->GetPlayer(player)->GetController();
     if (pController == nullptr) {
