@@ -809,6 +809,10 @@ public:
             ++mPointer;
             return *this;
         }
+        const_iterator& operator--() {
+            --mPointer;
+            return *this;
+        }
         bool operator==(const const_iterator& rOther) const { return base() == rOther.base(); }
         bool operator!=(const const_iterator& rOther) const { return base() != rOther.base(); }
         bool operator!=(const iterator& rOther) const { return base() != rOther.base(); }

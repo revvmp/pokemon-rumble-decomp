@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <game/CPii.h>
 
 #include <game/CHPBar.h>
@@ -683,7 +684,7 @@ void CPiiBox::ExportPersonalData(std::vector<SD_PiiPersonalData::Data>& rOut)
         (*it)->Export(data);
         records.push_back(data);
     }
-    rOut = records;
+    std::swap(rOut, records);
 }
 
 std::tr1::shared_ptr<CPiiBox> CPiiBox::Create(const std::vector<SD_PiiPersonalData::Data>& rData, int type, int capacity, const COyaInfo* pOyaInfo)
