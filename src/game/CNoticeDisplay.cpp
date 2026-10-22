@@ -64,9 +64,7 @@ void WaitMotionStart(std::tr1::shared_ptr<CLayout::CMotionProgram> pMotion) {
     WaitMotion(pMotion, false);
 }
 
-const char* gAreaPaneNames[9] = {
-    "AREA_nw", "AREA_n", "AREA_ne", "AREA_w", "AREA_c", "AREA_e", "AREA_sw", "AREA_s", "AREA_se",
-};
+extern const char* gAreaPaneNames[9];
 
 namespace {
 
@@ -707,3 +705,7 @@ void CYouWin::Run() {
 }
 
 }
+
+const char* gAreaPaneNames[9] = {
+    "AREA_nw", "AREA_n", "AREA_ne", "AREA_w", "AREA_c", "AREA_e", "AREA_sw", "AREA_s", "AREA_se",
+};
