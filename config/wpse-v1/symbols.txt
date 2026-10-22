@@ -10797,7 +10797,7 @@ CalcView__Q225@unnamed@CDlgPiiList_cpp@11CDlgPiiListFv = .text:0x80089900; // ty
 CalcMtx__Q225@unnamed@CDlgPiiList_cpp@11CDlgPiiListFv = .text:0x80089970; // type:function size:0x70
 Calc__Q225@unnamed@CDlgPiiList_cpp@11CDlgPiiListFv = .text:0x800899E0; // type:function size:0x170
 shared_from_this__Q33std3tr167enable_shared_from_this<Q225@unnamed@CDlgPiiList_cpp@11CDlgPiiList>Fv = .text:0x80089B50; // type:function size:0xD0
-fn_80089C20 = .text:0x80089C20; // type:function size:0x748
+Show__Q225@unnamed@CDlgPiiList_cpp@11CDlgPiiListFii = .text:0x80089C20; // type:function size:0x748
 Close__Q225@unnamed@CDlgPiiList_cpp@11CDlgPiiListFv = .text:0x8008A370; // type:function size:0xDC
 __dt__Q23std108vector<Q33std3tr128shared_ptr<14CUIPiiListItem>,Q23std51allocator<Q33std3tr128shared_ptr<14CUIPiiListItem>>>Fv = .text:0x8008A450; // type:function size:0xCC
 fn_8008A520 = .text:0x8008A520; // type:function size:0x98
@@ -10819,7 +10819,7 @@ __ne__Q33std108vector<Q33std3tr128shared_ptr<14CUIPiiListItem>,Q23std51allocator
 end__Q23std108vector<Q33std3tr128shared_ptr<14CUIPiiListItem>,Q23std51allocator<Q33std3tr128shared_ptr<14CUIPiiListItem>>>Fv = .text:0x8008C0C0; // type:function size:0x14
 Run__Q225@unnamed@CDlgPiiList_cpp@15CDlgPiiListImplFv = .text:0x8008C0E0; // type:function size:0x101C
 ShowMessage__Q225@unnamed@CDlgPiiList_cpp@15CDlgPiiListImplFPCw = .text:0x8008D100; // type:function size:0x158
-fn_8008D260 = .text:0x8008D260; // type:function size:0x14
+ConsumeFatalError__13CRemoteMemoryFv = .text:0x8008D260; // type:function size:0x14
 IsAborted__13CRemoteMemoryCFv = .text:0x8008D280; // type:function size:0xC
 HasFailed__13CRemoteMemoryCFv = .text:0x8008D290; // type:function size:0x18
 GetDlgPiiSelector__8IGameMapFv = .text:0x8008D2B0; // type:function size:0x8 scope:weak

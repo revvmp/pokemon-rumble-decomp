@@ -162,35 +162,7 @@ public:
         }
         return 0;
     }
-    virtual bool Show(int player, int type) {
-        if (mImpl) {
-            if (mImpl->GetType() == type) {
-                return true;
-            }
-            Close();
-            return false;
-        }
-        if (!GetCurrentGameMap()->RegisterDialog(shared_from_this())) {
-            return false;
-        }
-        GetCurrentGameMap()->SetPausing(true);
-        CDlgPiiListImpl* pImpl = new CDlgPiiListImpl(player, type);
-        pImpl->ClearItems();
-        pImpl->AppendItems(IGameSession::GetInstance()->GetTeamPiiBox()->GetPersonalDataList());
-        if (type == 1) {
-            CPlayer* pPlayer = IGameSession::GetInstance()->GetPlayer(player);
-            if (pPlayer->IsJoined()) {
-                IController* pController = pPlayer->GetController();
-                if (pController != nullptr && pController->IsConnected() && pController->GetType() == IController::TYPE_WII_REMOTE) {
-                    pImpl->AppendItems(IGameSession::GetInstance()->GetRemoteMemory(pController->GetChannel())->GetPiiBox()->GetPersonalDataList());
-                }
-            }
-        }
-        pImpl->Setup(false);
-        pImpl->StartFiber();
-        mImpl.reset(pImpl);
-        return true;
-    }
+    virtual bool Show(int player, int type);
 
 private:
     std::tr1::shared_ptr<CDlgPiiListImpl> mImpl;
@@ -204,7 +176,37 @@ std::tr1::shared_ptr<IDlgPiiList> IDlgPiiList::Create(bool) {
 
 namespace {
 
-inline void CDlgPiiListImpl::ShowMessage(const wchar_t* pText) {
+bool CDlgPiiList::Show(int player, int type) {
+    if (mImpl) {
+        if (mImpl->GetType() == type) {
+            return true;
+        }
+        Close();
+        return false;
+    }
+    if (!GetCurrentGameMap()->RegisterDialog(shared_from_this())) {
+        return false;
+    }
+    GetCurrentGameMap()->SetPausing(true);
+    CDlgPiiListImpl* pImpl = new CDlgPiiListImpl(player, type);
+    pImpl->ClearItems();
+    pImpl->AppendItems(IGameSession::GetInstance()->GetTeamPiiBox()->GetPersonalDataList());
+    if (type == 1) {
+        CPlayer* pPlayer = IGameSession::GetInstance()->GetPlayer(player);
+        if (pPlayer->IsJoined()) {
+            IController* pController = pPlayer->GetController();
+            if (pController != nullptr && pController->IsConnected() && pController->GetType() == IController::TYPE_WII_REMOTE) {
+                pImpl->AppendItems(IGameSession::GetInstance()->GetRemoteMemory(pController->GetChannel())->GetPiiBox()->GetPersonalDataList());
+            }
+        }
+    }
+    pImpl->Setup(false);
+    pImpl->StartFiber();
+    mImpl.reset(pImpl);
+    return true;
+}
+
+void CDlgPiiListImpl::ShowMessage(const wchar_t* pText) {
     if (!mMsgWin) {
         mMsgWin = IDlgMsgWin::Create(false, true);
         mMsgWin->SetControllerSlot(mPlayer);
@@ -213,7 +215,7 @@ inline void CDlgPiiListImpl::ShowMessage(const wchar_t* pText) {
     mMsgWin->WaitUntilClosed();
 }
 
-inline bool CDlgPiiListImpl::AskYesNo(const wchar_t* pText) {
+bool CDlgPiiListImpl::AskYesNo(const wchar_t* pText) {
     if (!mMsgWin) {
         mMsgWin = IDlgMsgWin::Create(false, true);
         mMsgWin->SetControllerSlot(mPlayer);
@@ -340,7 +342,6 @@ void CDlgPiiListImpl::OnSelectionChanged(BUI* pUI) {
 void CDlgPiiListImpl::OnAccept(BUI* pUI) {
     IController* pController = IGameSession::GetInstance()->GetPlayer(mPlayer)->GetController();
     bool holdMode = false;
-    int sound = 0;
     if (pController != nullptr && (pController->GetTrig() & 0x20)) {
         holdMode = true;
     }
@@ -350,6 +351,7 @@ void CDlgPiiListImpl::OnAccept(BUI* pUI) {
     std::tr1::shared_ptr<IUIListItem> selected = mPiiList->GetSelectedItem();
     if (selected) {
     std::tr1::shared_ptr<CUIPiiListItem> item = std::tr1::static_pointer_cast<CUIPiiListItem>(selected);
+    int sound = 0;
     switch (mType) {
     case 1:
         if (IGameSession::GetInstance()->GetOyaInfo()->GetCount() != item->GetPPD()->GetOriginalTrainerId() &&
@@ -374,7 +376,8 @@ void CDlgPiiListImpl::OnAccept(BUI* pUI) {
                 mResult = 0xF;
             }
         } else {
-            CPlayer* pHolder = FindPlayerHoldingPii(item->GetPPD(), mPlayer);
+            CPlayer* pHolder;
+            pHolder = FindPlayerHoldingPii(item->GetPPD(), mPlayer);
             if (pHolder != nullptr) {
                 mResult = pHolder->GetPlayerNo() + 10;
                 break;
@@ -424,7 +427,8 @@ void CDlgPiiListImpl::OnAccept(BUI* pUI) {
             }
             item->SetSellMarked(false);
         } else {
-            CPlayer* pHolder = FindPlayerHoldingPii(item->GetPPD(), -1);
+            CPlayer* pHolder;
+            pHolder = FindPlayerHoldingPii(item->GetPPD(), -1);
             if (pHolder != nullptr) {
                 mResult = pHolder->GetPlayerNo() + 4;
                 break;
@@ -465,7 +469,7 @@ void CDlgPiiListImpl::OnAccept(BUI* pUI) {
 }
 
 void CDlgPiiListImpl::OnSortChanged(const CPiiListFilterSort* pFilterSort) {
-    mFilterSort.Filter(mPiiList, mItems, mPlayer);
+    const_cast<CPiiListFilterSort*>(pFilterSort)->Filter(mPiiList, mItems, mPlayer);
     mPiiList->SelectIndex(0);
 }
 
