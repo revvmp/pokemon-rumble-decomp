@@ -849,8 +849,10 @@ inline void CDataPerPlayer::CalcPreviewPositions(nw4r::math::VEC3* pInside, nw4r
     Inverse(&inverseMtx, &cameraMtx);
     f32 scale = 5.0f * nw4r::math::TanDeg(0.5f * rData.projFovy);
     nw4r::math::VEC3 position;
-    f32 x = mInsidePosition.x;
-    f32 y = mInsidePosition.y;
+    f32 y;
+    f32 x;
+    x = mInsidePosition.x;
+    y = mInsidePosition.y;
     position.x = rData.projAspect * (x * scale);
     position.y = -y * scale;
     position.z = -5.0f;
@@ -860,8 +862,10 @@ inline void CDataPerPlayer::CalcPreviewPositions(nw4r::math::VEC3* pInside, nw4r
     }
     if (pOutside != nullptr) {
         nw4r::math::VEC3 outside;
-        f32 x = mOutsidePosition.x;
-        f32 y = mOutsidePosition.y;
+        f32 y;
+        f32 x;
+        x = mOutsidePosition.x;
+        y = mOutsidePosition.y;
         outside.x = rData.projAspect * (x * scale);
         outside.y = -y * scale;
         outside.z = -5.0f;
