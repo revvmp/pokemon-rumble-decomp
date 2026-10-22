@@ -11292,7 +11292,7 @@ clear_moved__Q23std125__vec_constructor<Q33std3tr130shared_ptr<16CPiiPersonalDat
 clear_moved__Q23std125__vec_constructor<Q33std3tr130shared_ptr<16CPiiPersonalData>,Q23std53allocator<Q33std3tr130shared_ptr<16CPiiPersonalData>>,0>FQ210Metrowerks11int2type<0> = .text:0x8009B610; // type:function size:0x4
 __dt__Q23std124__vec_split_buffer<Q33std3tr130shared_ptr<16CPiiPersonalData>,Q23std53allocator<Q33std3tr130shared_ptr<16CPiiPersonalData>>>Fv = .text:0x8009B620; // type:function size:0xB0
 move_construct_to_end__Q23std120__vec_deleter<Q33std3tr130shared_ptr<16CPiiPersonalData>,RQ23std53allocator<Q33std3tr130shared_ptr<16CPiiPersonalData>>>FPQ33std3tr130shared_ptr<16CPiiPersonalData>PQ33std3tr130shared_ptr<16CPiiPersonalData> = .text:0x8009B6D0; // type:function size:0x2C
-fn_8009B700 = .text:0x8009B700; // type:function size:0x94
+move_construct_to_end__Q23std120__vec_deleter<Q33std3tr130shared_ptr<16CPiiPersonalData>,RQ23std53allocator<Q33std3tr130shared_ptr<16CPiiPersonalData>>>FPQ33std3tr130shared_ptr<16CPiiPersonalData>PQ33std3tr130shared_ptr<16CPiiPersonalData>Q210Metrowerks11int2type<0> = .text:0x8009B700; // type:function size:0x94
 construct_at_front__Q23std124__vec_split_buffer<Q33std3tr130shared_ptr<16CPiiPersonalData>,Q23std53allocator<Q33std3tr130shared_ptr<16CPiiPersonalData>>>FPQ33std3tr130shared_ptr<16CPiiPersonalData>PQ33std3tr130shared_ptr<16CPiiPersonalData> = .text:0x8009B7A0; // type:function size:0x2C
 construct_at_front__Q23std124__vec_split_buffer<Q33std3tr130shared_ptr<16CPiiPersonalData>,Q23std53allocator<Q33std3tr130shared_ptr<16CPiiPersonalData>>>FPQ33std3tr130shared_ptr<16CPiiPersonalData>PQ33std3tr130shared_ptr<16CPiiPersonalData>Q210Metrowerks11int2type<0> = .text:0x8009B7D0; // type:function size:0x94
 fn_8009B870 = .text:0x8009B870; // type:function size:0x4C
@@ -11542,7 +11542,7 @@ __ct__Q310Metrowerks6detail88CompressedPairStorage<Ul,RQ23std51allocator<Q33std3
 allocate__Q23std120__vec_split_buffer<Q33std3tr128shared_ptr<14CUIPiiListItem>,Q23std51allocator<Q33std3tr128shared_ptr<14CUIPiiListItem>>>FUlUl = .text:0x8009F890; // type:function size:0x2C
 allocate__Q23std120__vec_split_buffer<Q33std3tr128shared_ptr<14CUIPiiListItem>,Q23std51allocator<Q33std3tr128shared_ptr<14CUIPiiListItem>>>FUlUlQ210Metrowerks11int2type<0> = .text:0x8009F8C0; // type:function size:0x30
 cap__Q23std116__vec_deleter<Q33std3tr128shared_ptr<14CUIPiiListItem>,RQ23std51allocator<Q33std3tr128shared_ptr<14CUIPiiListItem>>>Fv = .text:0x8009F8F0; // type:function size:0x8 scope:local
-fn_8009F900 = .text:0x8009F900; // type:function size:0x4
+first__Q310Metrowerks6detail88CompressedPairStorage<Ul,RQ23std51allocator<Q33std3tr128shared_ptr<14CUIPiiListItem>>,0>Fv = .text:0x8009F900; // type:function size:0x4 scope:local
 max_size__Q23std115__vec_deleter<Q33std3tr128shared_ptr<14CUIPiiListItem>,Q23std51allocator<Q33std3tr128shared_ptr<14CUIPiiListItem>>>CFv = .text:0x8009F910; // type:function size:0x24
 alloc__Q23std115__vec_deleter<Q33std3tr128shared_ptr<14CUIPiiListItem>,Q23std51allocator<Q33std3tr128shared_ptr<14CUIPiiListItem>>>CFv = .text:0x8009F940; // type:function size:0x8
 second__Q310Metrowerks6detail87CompressedPairStorage<Ul,Q23std51allocator<Q33std3tr128shared_ptr<14CUIPiiListItem>>,2>CFv = .text:0x8009F950; // type:function size:0x4
@@ -24047,7 +24047,7 @@ lbl_8039E400 = .data:0x8039E400; // type:object size:0x2E0
 __vt__Q43std3tr16detail338function_imp<PFv_v,Q43std3tr16detail294bound_func<v,Q43std3tr16detail58mem_fn_0<v,Q225@unnamed@CDlgPiiList_cpp@15CDlgPiiListImpl>,Q33std3tr1189tuple<PQ225@unnamed@CDlgPiiList_cpp@15CDlgPiiListImpl,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat>>,0,0> = .data:0x8039E6E0; // type:object size:0x18
 lbl_8039E6F8 = .data:0x8039E6F8; // type:object size:0x171 data:string
 lbl_8039E86C = .data:0x8039E86C; // type:object size:0x104
-lbl_8039E970 = .data:0x8039E970; // type:object size:0x14
+__vt__Q43std3tr16detail84shared_ptr_deleter<14CUIPiiListItem,Q33std6detail32default_delete<14CUIPiiListItem>> = .data:0x8039E970; // type:object size:0x14
 lbl_8039E984 = .data:0x8039E984; // type:object size:0x62 data:string
 lbl_8039E9E8 = .data:0x8039E9E8; // type:object size:0x84
 __vt__Q43std3tr16detail76shared_ptr_deleter<10CUIPiiSpec,Q33std6detail28default_delete<10CUIPiiSpec>> = .data:0x8039EA6C; // type:object size:0x14
