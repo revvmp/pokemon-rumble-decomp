@@ -437,6 +437,7 @@ private:
     native_iterator erase_impl(native_iterator position, Metrowerks::int2type<1>) { return iterator(tree_.erase_next(position)); }
     native_iterator erase_impl(native_iterator position, Metrowerks::int2type<0>) { return tree_.erase(position); }
     tree_type tree_;
+    template <typename, typename, typename, typename> friend class std::map;
 };
 
 template <typename Key, typename T, typename Compare, typename Allocator>
@@ -502,6 +503,50 @@ public:
     }
 private:
     tree_type mTree;
+};
+
+template <typename T> class map<unsigned long, T*, less<unsigned long>, allocator<pair<const unsigned long, T*> > > {
+    typedef pair<const unsigned long, unsigned long> base_value_type;
+    typedef detail::map_base_value_compare<unsigned long, unsigned long, less<unsigned long> > base_compare;
+    typedef detail::map_base<unsigned long, unsigned long, less<unsigned long>, allocator<base_value_type> > base_type;
+    typedef detail::map_compact_tree_adapter<base_value_type, base_compare, allocator<base_value_type> > tree_type;
+public:
+    typedef unsigned long key_type;
+    typedef T* mapped_type;
+    typedef pair<key_type const, mapped_type> value_type;
+    typedef less<unsigned long> key_compare;
+    typedef allocator<value_type> allocator_type;
+    typedef unsigned long size_type;
+    class iterator {
+    public:
+        iterator() {}
+        iterator(const iterator& rOther) : mIterator(rOther.mIterator) {}
+        explicit iterator(const typename tree_type::iterator& rIterator) : mIterator(rIterator) {}
+        value_type* operator->() const { return reinterpret_cast<value_type*>(mIterator.operator->()); }
+        value_type& operator*() const { return *operator->(); }
+        iterator& operator++() {
+            ++mIterator;
+            return *this;
+        }
+        bool operator==(const iterator& rOther) const { return mIterator == rOther.mIterator; }
+        bool operator!=(const iterator& rOther) const { return mIterator != rOther.mIterator; }
+        typename tree_type::iterator mIterator;
+    };
+    typedef iterator const_iterator;
+    map() {}
+    ~map() {}
+    iterator begin() { return iterator(mBase.tree_.begin()); }
+    iterator end() { return iterator(mBase.tree_.end()); }
+    iterator find(const key_type& rKey) { return iterator(mBase.tree_.find(rKey)); }
+    void erase(iterator position) { mBase.tree_.erase(position.mIterator); }
+    size_type size() const { return mBase.tree_.size(); }
+    bool empty() const { return mBase.tree_.size() == 0; }
+    pair<iterator, bool> insert(const value_type& rValue) {
+        pair<typename tree_type::iterator, bool> result = mBase.tree_.insert_one(reinterpret_cast<const base_value_type&>(rValue));
+        return pair<iterator, bool>(iterator(result.first), result.second);
+    }
+private:
+    base_type mBase;
 };
 
 }
