@@ -12,7 +12,10 @@ class CPiiPersonalData;
 class CPlayerPii;
 class IController;
 
+class CMultiRanking;
+
 class CPlayer : public ICalc {
+    friend class CMultiRanking;
 public:
     enum Flag {
         FLAG_COLLECT_HOLD = 1 << 0,
@@ -67,7 +70,7 @@ private:
     State mState;
     State mSavedState;
     std::tr1::weak_ptr<CPlayerPii> mPii;
-    u32 mReserved;
+    int mRankingScore;
     u32 mAccumulatedHold;
     u32 mCurrentHold;
 };

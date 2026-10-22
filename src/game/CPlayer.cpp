@@ -6,7 +6,7 @@
 
 CPlayer::State::State() : mJoined(false), mPiiBox(0, 1200) {}
 
-CPlayer::CPlayer(int playerNo) : mFlags(0), mPlayerNo(playerNo), mController(nullptr), mReserved(0), mAccumulatedHold(0), mCurrentHold(0) {}
+CPlayer::CPlayer(int playerNo) : mFlags(0), mPlayerNo(playerNo), mController(nullptr), mRankingScore(0), mAccumulatedHold(0), mCurrentHold(0) {}
 
 CPlayer::~CPlayer() {}
 

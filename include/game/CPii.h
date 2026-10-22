@@ -57,6 +57,9 @@ public:
     virtual bool IsVisible() const;
     virtual void UpdateShadowMtx();
 
+    std::tr1::shared_ptr<CModel::CMotionProgram> PlayMotion(int motion, f32 frame, f32 rate);
+    std::tr1::shared_ptr<CModel::CMotionProgram> QueueMotion(int motion, f32 frame, f32 rate);
+    std::tr1::shared_ptr<CModel::CMotionProgram> AppendMotion(int motion, f32 frame, f32 rate);
     std::tr1::shared_ptr<CHPBar> GetHPBar() { return mHPBar; }
     std::tr1::shared_ptr<CPiiPersonalData> GetPersonalData() {
         return mPersonalData;
