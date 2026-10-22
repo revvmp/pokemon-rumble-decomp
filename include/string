@@ -108,7 +108,7 @@ public:
     size_type rfind(charT c, size_type pos = npos) const;
     int compare(const charT* s) const { return compare(0, size(), s, traits::length(s)); }
 
-    basic_string& operator+=(const charT* s) { return append(s); }
+    basic_string& operator+=(const charT* s) { return replace_tagged(size(), 0, s); }
     basic_string& operator+=(const basic_string& str) { return append(str); }
     charT& operator[](size_type n) { return buffer()[n]; }
     basic_string& operator+=(charT c);
