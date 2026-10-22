@@ -1,0 +1,9 @@
+# Sprint a04 findings
+
+## Traps
+
+- Symptom: a large in-class `Show` (CDlgCollection, CDlgInfo, CDlgPiiList) compiles with every shared_ptr/vector helper called out of line (2344 target bytes versus about 1068), so the match stays near 20 to 30 percent. Compiling with `-pragma "warn_notinlined on"` lists each refused inline. Verified: the refusal is function-wide, not per call. In CDlgInfo, `reset(new Impl)` plus the page loop plus `Fiber::Start(bind(...))` together refuse even the first `if (mImpl)`; removing any one restores inlining. Adding `push_back(shared_ptr<CDlgInfoItem>(new ...))` to the loop moved the refusal count from 3 to 16. `#pragma inline_max_size`, `inline_max_total_size`, `inline_depth` and `-inline level=n` had no effect. `#pragma always_inline on` inlines everything, which is too much. Making `Load`, `Update` and `Run` out-of-class did not fix it. Unresolved; the original source shape that avoids the refusal is unknown.
+- Symptom: loop registers differ in Draw, Calc, CalcView and CalcMtx (Collection and Info). The target gives the index the highest callee-saved register and the byte offset the next; ours is reversed. while, pre-increment, reference, hoisted-index and direct-access variants all left the result unchanged.
+- `CDlgInfoItem` takes its model `shared_ptr` by value (caller makes a temp copy). `Line` helpers `HasText`/`HasColumns` and `PaneRectangle::GetWidth` reproduce the target's temporaries in `ItemLine::Update`.
+- Several shared names (`__dt__5ICalcFv`, `IDlg::IsClosable`, `shared_ptr<CLayout>` helpers) are already defined in other units. Pair-naming by size and match percent must be followed by a link to catch multiply-defined symbols; revert those names to `fn_`/`dtor_`.
+- The scratchpad directory is shared between agents; use a private subdirectory for helper scripts.

@@ -140,8 +140,8 @@ public:
 
 class CDlgInfoItem : public IUIListItem {
 public:
-    CDlgInfoItem(const std::tr1::shared_ptr<CDlgInfoItemLine>& rModel, const Page& rPage) __attribute__((noinline))
-        : mModel(rModel), mPage(rPage) {}
+    CDlgInfoItem(std::tr1::shared_ptr<CDlgInfoItemLine> model, const Page& rPage) __attribute__((noinline))
+        : mModel(model), mPage(rPage) {}
     virtual ~CDlgInfoItem() {}
     virtual bool IsSelectable() const { return true; }
     virtual void Update(CUIList* pList, CLayout* pLayout) { mModel->Update(pLayout, mPage); }
