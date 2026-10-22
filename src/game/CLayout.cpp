@@ -393,7 +393,7 @@ std::tr1::shared_ptr<CLayout::CMotionProgram> CLayout::BuildMotion(const char* p
 
 inline void CLayout::RebindAnimations() {
     PaneProgramMap::iterator it;
-    std::set<nw4r::lyt::Pane*>::iterator child;
+    std::set<nw4r::lyt::Pane*>::const_iterator child;
     for (it = mPanePrograms.begin(); it != mPanePrograms.end(); ++it) {
         if (!(*it).second->mMotions.empty()) {
             MotionList::iterator front = (*it).second->mMotions.begin();
