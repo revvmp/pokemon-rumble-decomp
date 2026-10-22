@@ -59,6 +59,7 @@ public:
     void RunRemoteTransfer();
     void RunSell();
     void Run();
+    void RunList();
     void ShowMessage(const wchar_t* pText);
     bool AskYesNo(const wchar_t* pText);
     bool CheckRemoteMemory();
@@ -171,28 +172,29 @@ bool CDlgPiiList::Show(int player, int type) {
     }
     GetCurrentGameMap()->SetPausing(true);
     CDlgPiiListImpl* pImpl = new CDlgPiiListImpl(player, type);
-    pImpl->mItems.clear();
-    pImpl->AppendItems(IGameSession::GetInstance()->GetTeamPiiBox()->GetPersonalDataList());
-    if (type == 1) {
-        CPlayer* pPlayer = IGameSession::GetInstance()->GetPlayer(player);
-        if (pPlayer->IsJoined()) {
-            IController* pController = pPlayer->GetController();
-            if (pController != nullptr && pController->IsConnected() && pController->GetType() == IController::TYPE_WII_REMOTE) {
-                pImpl->AppendItems(IGameSession::GetInstance()->GetRemoteMemory(pController->GetChannel())->GetPiiBox()->GetPersonalDataList());
-            }
-        }
-    }
-    pImpl->Setup(false);
-    pImpl->mFiber.Start(std::tr1::bind(&CDlgPiiListImpl::Run, pImpl), 0x8000);
     mImpl.reset(pImpl);
     return true;
 }
 
-CDlgPiiListImpl::CDlgPiiListImpl(int player, int type)
+inline CDlgPiiListImpl::CDlgPiiListImpl(int player, int type)
     : mPlayer(player), mType(type), mResult(0), mHolding(false), mFavoriteMode(false), mUIManager(new CUIManager),
       mRootLayout(new BUILayout), mPiiSpec(new CUIPiiSpec), mPiiList(new CUIPiiList), mPlayerID(new CUIPlayerID),
       mHelpLayout(new BUILayout), mTitleLayout(new BUILayout), mRemoteMemoryLayout(new BUILayout),
-      mSavingLayout(new BUILayout), mFlag400(false) {}
+      mSavingLayout(new BUILayout), mFlag400(false) {
+    mItems.clear();
+    AppendItems(IGameSession::GetInstance()->GetTeamPiiBox()->GetPersonalDataList());
+    if (mType == 1) {
+        CPlayer* pPlayer = IGameSession::GetInstance()->GetPlayer(mPlayer);
+        if (pPlayer->IsJoined()) {
+            IController* pController = pPlayer->GetController();
+            if (pController != nullptr && pController->IsConnected() && pController->GetType() == IController::TYPE_WII_REMOTE) {
+                AppendItems(IGameSession::GetInstance()->GetRemoteMemory(pController->GetChannel())->GetPiiBox()->GetPersonalDataList());
+            }
+        }
+    }
+    Setup(false);
+    mFiber.Start(std::tr1::bind(&CDlgPiiListImpl::Run, this), 0x8000);
+}
 
 void CDlgPiiListImpl::ShowMessage(const wchar_t* pText) {
     if (!mMsgWin) {
@@ -244,19 +246,17 @@ inline bool CDlgPiiListImpl::CheckRemoteMemory() {
     if (pRemote->IsStorageLocked()) {
         ShowMessage(GetMessageString(0x6009B, nullptr));
     }
-return true;
+    return true;
 }
 
-#pragma auto_inline off
-void CDlgPiiListImpl::AppendItems(const std::list<std::tr1::shared_ptr<CPiiPersonalData> >& rList) {
+inline void CDlgPiiListImpl::AppendItems(const std::list<std::tr1::shared_ptr<CPiiPersonalData> >& rList) {
     for (std::list<std::tr1::shared_ptr<CPiiPersonalData> >::const_iterator it = rList.begin(); it != rList.end(); ++it) {
         std::tr1::shared_ptr<CUIPiiListItem> item(new CUIPiiListItem(std::tr1::shared_ptr<CPiiPersonalData>(*it), mPlayer));
         mItems.push_back(item);
     }
 }
-#pragma auto_inline reset
 
-void CDlgPiiListImpl::Setup(bool background) {
+inline void CDlgPiiListImpl::Setup(bool background) {
     std::tr1::shared_ptr<CLayout::FontMap> fonts = GetDefaultFontMap();
     const char* const* pArchives = gSharedLayoutArchives;
     mRootLayout->Load(pArchives, "dlgpiilist_root", fonts, background);
@@ -475,6 +475,10 @@ void CDlgPiiListImpl::Run() {
     if (mType == 1 && !CheckRemoteMemory()) {
         return;
     }
+    RunList();
+}
+
+inline void CDlgPiiListImpl::RunList() {
     mFilterSort.Filter(mPiiList, mItems, mPlayer);
     mPiiList->SelectIndex(0);
     mRootLayout->GetLayout()->CreateMotion("begin")->Wait();
@@ -495,18 +499,6 @@ void CDlgPiiListImpl::Run() {
         int result = mResult;
         mResult = 0;
         switch (result) {
-        case 1:
-            YieldFiber();
-            mRootLayout->GetLayout()->CreateMotion("end")->Wait();
-            switch (mType) {
-            case 1:
-                RunRemoteTransfer();
-                break;
-            case 2:
-                RunSell();
-                break;
-            }
-            return;
         case 2:
             YieldFiber();
             mFilterSort.ShowSortMenu(mUIManager, mPlayer, mItems,
@@ -588,6 +580,18 @@ void CDlgPiiListImpl::Run() {
             YieldFiber();
             ShowMessage(GetMessageString(0x60097, nullptr));
             break;
+        case 1:
+            YieldFiber();
+            mRootLayout->GetLayout()->CreateMotion("end")->Wait();
+            switch (mType) {
+            case 1:
+                RunRemoteTransfer();
+                break;
+            case 2:
+                RunSell();
+                break;
+            }
+            return;
         }
         YieldFiber();
     }

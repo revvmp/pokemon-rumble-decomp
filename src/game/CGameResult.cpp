@@ -137,12 +137,15 @@ struct ResultPii {
 
 class CGameResult : public IGameResult {
 public:
-    CGameResult(const MapDesc* pDesc, bool background)
+    explicit CGameResult(const MapDesc* pDesc)
         : mpMapDesc(pDesc), mUIManager(new CUIManager), mLayout(new BUILayout), mPiiSpec(new CUIPiiSpec), mSelected(0)
     {
         const GXRenderModeObj* pRenderMode = nw4r::g3d::G3DState::GetRenderModeObj();
         mCapture.Init(GetWorkBuffer(0)->GetBuffer(), GetWorkBuffer(0)->GetSize(), pRenderMode->fbWidth,
                       pRenderMode->efbHeight, GX_TF_RGB565, GX_CLAMP, GX_NEAR);
+    }
+
+    void Load(bool background) {
     std::tr1::shared_ptr<CLayout::FontMap> pFonts = GetDefaultFontMap();
     const char* const* pArchives = gSharedLayoutArchives;
     mLayout->Load(pArchives, "gameresult", pFonts, background);
@@ -161,44 +164,44 @@ public:
     worldDesc.SetScnObjCapacity(1024);
     worldDesc.SetSoundListenerEnable(true);
     for (int i = 0; i < 2; i++) {
-        mWorlds[i].reset(new BWorld(worldDesc));
-        mCameras[i].reset(new BWorldCamera(2));
-        mWorlds[i]->AddCamera(mCameras[i]);
-        mWorlds[i]->SetCurrentCamera(mCameras[i]);
-        if (i == 0) {
-            mCameras[i]->Load("5:/event/result.arc/event.brres", background);
-            mCameras[i]->Play("result", 0.0f, 1.0f);
-        }
+    mWorlds[i].reset(new BWorld(worldDesc));
+    mCameras[i].reset(new BWorldCamera(2));
+    mWorlds[i]->AddCamera(mCameras[i]);
+    mWorlds[i]->SetCurrentCamera(mCameras[i]);
+    if (i == 0) {
+        mCameras[i]->Load("5:/event/result.arc/event.brres", background);
+        mCameras[i]->Play("result", 0.0f, 1.0f);
+    }
     }
 
     {
-        std::tr1::shared_ptr<CModel> pModel(new CModel);
-        std::string path("5:/event/result.arc/result2.brres");
-        const char* fileNames[2] = {nullptr, nullptr};
-        fileNames[0] = path.c_str();
-        CModel::LoadParams params = {fileNames, false, 1, 0, nullptr};
-        if (pModel->Load(params, background)) {
-            nw4r::g3d::ScnMdl* pScnMdl = nw4r::g3d::G3dObj::DynamicCast<nw4r::g3d::ScnMdl>(pModel->GetScnObj());
-            SetMaterialTexture(pScnMdl, "TUBE", "ref_dummy", mCapture.GetTexObj());
-            std::tr1::shared_ptr<BModelObj> pObj(new BModelObj(0x20));
-            pObj->ChangeModel(pModel, 1);
-            pObj->SetVisible(true);
-            mWorlds[0]->Add(pObj);
-        }
+    std::tr1::shared_ptr<CModel> pModel(new CModel);
+    std::string path("5:/event/result.arc/result2.brres");
+    const char* fileNames[2] = {nullptr, nullptr};
+    fileNames[0] = path.c_str();
+    CModel::LoadParams params = {fileNames, false, 1, 0, nullptr};
+    if (pModel->Load(params, background)) {
+        nw4r::g3d::ScnMdl* pScnMdl = nw4r::g3d::G3dObj::DynamicCast<nw4r::g3d::ScnMdl>(pModel->GetScnObj());
+        SetMaterialTexture(pScnMdl, "TUBE", "ref_dummy", mCapture.GetTexObj());
+        std::tr1::shared_ptr<BModelObj> pObj(new BModelObj(0x20));
+        pObj->ChangeModel(pModel, 1);
+        pObj->SetVisible(true);
+        mWorlds[0]->Add(pObj);
+    }
     }
 
     {
-        std::tr1::shared_ptr<CModel> pModel(new CModel);
-        std::string path("5:/event/result.arc/result.brres");
-        const char* fileNames[2] = {nullptr, nullptr};
-        fileNames[0] = path.c_str();
-        CModel::LoadParams params = {fileNames, false, 0, 0, nullptr};
-        if (pModel->Load(params, background)) {
-            std::tr1::shared_ptr<BModelObj> pObj(new BModelObj(0x20));
-            pObj->ChangeModel(pModel, 1);
-            pObj->SetVisible(true);
-            mWorlds[1]->Add(pObj);
-        }
+    std::tr1::shared_ptr<CModel> pModel(new CModel);
+    std::string path("5:/event/result.arc/result.brres");
+    const char* fileNames[2] = {nullptr, nullptr};
+    fileNames[0] = path.c_str();
+    CModel::LoadParams params = {fileNames, false, 0, 0, nullptr};
+    if (pModel->Load(params, background)) {
+        std::tr1::shared_ptr<BModelObj> pObj(new BModelObj(0x20));
+        pObj->ChangeModel(pModel, 1);
+        pObj->SetVisible(true);
+        mWorlds[1]->Add(pObj);
+    }
     }
 
     CollectPiis();
@@ -245,13 +248,14 @@ inline CGameResult::~CGameResult()
 
 std::tr1::shared_ptr<IGameResult> IGameResult::Create(const MapDesc* pDesc, bool background)
 {
-    std::tr1::shared_ptr<CGameResult> pResult(new CGameResult(pDesc, background));
+    std::tr1::shared_ptr<CGameResult> pResult(new CGameResult(pDesc));
+    pResult->Load(background);
     return pResult;
 }
 
 namespace {
 
-void CGameResult::CollectPiis()
+inline void CGameResult::CollectPiis()
 {
     std::map<const void*, unsigned long> playerOf;
     std::vector<std::tr1::shared_ptr<CPiiPersonalData> > piis;
@@ -377,7 +381,7 @@ void CGameResult::CollectPiis()
     }
 }
 
-void CGameResult::SetPiiPositions(int row, int center)
+inline void CGameResult::SetPiiPositions(int row, int center)
 {
     for (unsigned long i = 0; i < mEntries.size(); i++) {
         ResultPii& rEntry = mEntries[i];
@@ -388,7 +392,7 @@ void CGameResult::SetPiiPositions(int row, int center)
     }
 }
 
-void CGameResult::UpdatePiiWindow()
+inline void CGameResult::UpdatePiiWindow()
 {
     int i = 0;
     int tail = mEntries.size() - 35;

@@ -45,7 +45,7 @@ public:
 
     CDlgCollectionItemModel() : mInitialized(false), mAnimFrame(0) {}
 
-    __attribute__((noinline)) void Load(bool background) {
+    void Load(bool background) {
             std::tr1::shared_ptr<CLayout::FontMap> fonts = GetDefaultFontMap();
             const char* const* pArchives = gSharedLayoutArchives;
             CLayout layout;
@@ -95,7 +95,7 @@ public:
 
 class CDlgCollectionItem : public IUIListItem {
 public:
-    CDlgCollectionItem(const std::tr1::shared_ptr<CDlgCollectionItemModel>& rModel, const std::vector<u16>& rSpecies) __attribute__((noinline))
+    CDlgCollectionItem(const std::tr1::shared_ptr<CDlgCollectionItemModel>& rModel, const std::vector<u16>& rSpecies)
         : mModel(rModel), mSpecies(rSpecies) {}
     virtual ~CDlgCollectionItem() {}
     virtual bool IsSelectable() const { return true; }
@@ -108,7 +108,7 @@ private:
 
 class CSpeciesIdSet {
 public:
-    CSpeciesIdSet() __attribute__((noinline)) {
+    CSpeciesIdSet() {
             int level = std::min(std::max(0, static_cast<int>(GetSaveData(-1)->mData.mFlags[1])), 2);
             if (level >= 0) {
                 for (u16 id = 1; id <= 0x96; id++) {
@@ -134,6 +134,45 @@ public:
         : mPlayer(player), mState(0), mComplete(false), mUIManager(new CUIManager), mRootLayout(new BUILayout),
           mList(new CUIList) {}
 
+    void Init() {
+        std::tr1::shared_ptr<CLayout::FontMap> fonts = GetDefaultFontMap();
+        const char* const* pArchives = gSharedLayoutArchives;
+        mRootLayout->Load(pArchives, "collection_root", fonts, false);
+        mList->Load(pArchives, "collection_list", fonts, false);
+        mUIManager->AddChild(mRootLayout);
+        mRootLayout->AttachChild("COLLECTION_LIST", mList);
+        mList->SetScrollMode(1);
+        mList->GetScrollCallbacks().Add(
+            std::tr1::bind(&CDlgCollectionImpl::PlayScrollSound, this, std::tr1::placeholders::_1));
+        mItemModel.reset(new CDlgCollectionItemModel);
+        mItemModel->Load(false);
+        mUIManager->SetFocusedUI(mList.get());
+        int collected = 0;
+        CPiiCollectionBox* pBox = IGameSession::GetInstance()->GetPiiCollectionBox();
+        CSpeciesIdSet species;
+        int total = species.mIds.size();
+        unsigned perRow = mItemModel->mModels.size();
+        while (!species.mIds.empty()) {
+            std::vector<u16> row;
+            while (row.size() < perRow && !species.mIds.empty()) {
+                std::set<u16>::iterator it = species.mIds.begin();
+                u16 id = *it;
+                row.push_back(id);
+                species.mIds.erase(it);
+                int type = pBox->GetCollectionType(id);
+                if (type != 2 && type == 3) {
+                    collected++;
+                }
+            }
+            mList->GetItems().push_back(
+                std::tr1::shared_ptr<CDlgCollectionItem>(new CDlgCollectionItem(mItemModel, row)));
+        }
+        mList->UpdateSelection();
+        mRootLayout->SetText("COMP_NUM_GOT", FormatString(L"%d", collected).c_str());
+        mRootLayout->SetText("COMP_NUM_MAX", FormatString(L"%d", total).c_str());
+        mComplete = GetSaveData(-1)->mData.mFlags[1] >= 1 && collected == total;
+        mFiber.Start(std::tr1::bind(&CDlgCollectionImpl::Run, this), 0x8000);
+    }
     void PlayScrollSound(BUI* pUI) { PlaySound(0x16); }
     void Run() {
             YieldFiberStarted();
@@ -201,43 +240,7 @@ public:
                 GetCurrentGameMap()->SetPausing(true);
                 mImpl.reset(new CDlgCollectionImpl(player));
                 CDlgCollectionImpl* pImpl = mImpl.get();
-                std::tr1::shared_ptr<CLayout::FontMap> fonts = GetDefaultFontMap();
-                const char* const* pArchives = gSharedLayoutArchives;
-                pImpl->mRootLayout->Load(pArchives, "collection_root", fonts, false);
-                pImpl->mList->Load(pArchives, "collection_list", fonts, false);
-                pImpl->mUIManager->AddChild(pImpl->mRootLayout);
-                pImpl->mRootLayout->AttachChild("COLLECTION_LIST", pImpl->mList);
-                pImpl->mList->SetScrollMode(1);
-                pImpl->mList->GetScrollCallbacks().Add(
-                    std::tr1::bind(&CDlgCollectionImpl::PlayScrollSound, pImpl, std::tr1::placeholders::_1));
-                pImpl->mItemModel.reset(new CDlgCollectionItemModel);
-                pImpl->mItemModel->Load(false);
-                pImpl->mUIManager->SetFocusedUI(pImpl->mList.get());
-                int collected = 0;
-                CPiiCollectionBox* pBox = IGameSession::GetInstance()->GetPiiCollectionBox();
-                CSpeciesIdSet species;
-                int total = species.mIds.size();
-                unsigned perRow = pImpl->mItemModel->mModels.size();
-                while (!species.mIds.empty()) {
-                    std::vector<u16> row;
-                    while (row.size() < perRow && !species.mIds.empty()) {
-                        std::set<u16>::iterator it = species.mIds.begin();
-                        u16 id = *it;
-                        row.push_back(id);
-                        species.mIds.erase(it);
-                        int type = pBox->GetCollectionType(id);
-                        if (type != 2 && type == 3) {
-                            collected++;
-                        }
-                    }
-                    pImpl->mList->GetItems().push_back(
-                        std::tr1::shared_ptr<CDlgCollectionItem>(new CDlgCollectionItem(pImpl->mItemModel, row)));
-                }
-                pImpl->mList->UpdateSelection();
-                pImpl->mRootLayout->SetText("COMP_NUM_GOT", FormatString(L"%d", collected).c_str());
-                pImpl->mRootLayout->SetText("COMP_NUM_MAX", FormatString(L"%d", total).c_str());
-                pImpl->mComplete = GetSaveData(-1)->mData.mFlags[1] >= 1 && collected == total;
-                pImpl->mFiber.Start(std::tr1::bind(&CDlgCollectionImpl::Run, pImpl), 0x8000);
+                pImpl->Init();
             }
             return true;
     }

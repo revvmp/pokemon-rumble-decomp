@@ -140,7 +140,7 @@ public:
 
 class CDlgInfoItem : public IUIListItem {
 public:
-    CDlgInfoItem(std::tr1::shared_ptr<CDlgInfoItemLine> model, const Page& rPage) __attribute__((noinline))
+    CDlgInfoItem(std::tr1::shared_ptr<CDlgInfoItemLine> model, const Page& rPage)
         : mModel(model), mPage(rPage) {}
     virtual ~CDlgInfoItem() {}
     virtual bool IsSelectable() const { return true; }
@@ -156,6 +156,26 @@ public:
     explicit CDlgInfoImpl(int player)
         : mPlayer(player), mState(0), mUIManager(new CUIManager), mRootLayout(new BUILayout), mList(new CUIList) {}
 
+    void Init(const std::vector<std::tr1::shared_ptr<Page> >& rPages) {
+        std::tr1::shared_ptr<CLayout::FontMap> fonts = GetDefaultFontMap();
+        const char* const* pArchives = gSharedLayoutArchives;
+        mRootLayout->Load(pArchives, "info_root", fonts, false);
+        mList->Load(pArchives, "info_list", fonts, false);
+        mUIManager->AddChild(mRootLayout);
+        mRootLayout->AttachChild("INFO_LIST", mList);
+        mList->SetScrollMode(1);
+        mList->GetScrollCallbacks().Add(
+            std::tr1::bind(&CDlgInfoImpl::PlayScrollSound, this, std::tr1::placeholders::_1));
+        mItemLine.reset(new CDlgInfoItemLine);
+        mItemLine->Load(false);
+        mUIManager->SetFocusedUI(mList.get());
+        for (std::vector<std::tr1::shared_ptr<Page> >::const_iterator it = rPages.begin(); it != rPages.end(); ++it) {
+            mList->GetItems().push_back(
+                std::tr1::shared_ptr<CDlgInfoItem>(new CDlgInfoItem(mItemLine, **it)));
+        }
+        mList->UpdateSelection();
+        mFiber.Start(std::tr1::bind(&CDlgInfoImpl::Run, this), 0x8000);
+    }
     void PlayScrollSound(BUI* pUI) { PlaySound(0x16); }
     void Run() {
             YieldFiberStarted();
@@ -236,24 +256,7 @@ public:
                 GetCurrentGameMap()->SetPausing(true);
                 mImpl.reset(new CDlgInfoImpl(player));
                 CDlgInfoImpl* pImpl = mImpl.get();
-                std::tr1::shared_ptr<CLayout::FontMap> fonts = GetDefaultFontMap();
-                const char* const* pArchives = gSharedLayoutArchives;
-                pImpl->mRootLayout->Load(pArchives, "info_root", fonts, false);
-                pImpl->mList->Load(pArchives, "info_list", fonts, false);
-                pImpl->mUIManager->AddChild(pImpl->mRootLayout);
-                pImpl->mRootLayout->AttachChild("INFO_LIST", pImpl->mList);
-                pImpl->mList->SetScrollMode(1);
-                pImpl->mList->GetScrollCallbacks().Add(
-                    std::tr1::bind(&CDlgInfoImpl::PlayScrollSound, pImpl, std::tr1::placeholders::_1));
-                pImpl->mItemLine.reset(new CDlgInfoItemLine);
-                pImpl->mItemLine->Load(false);
-                pImpl->mUIManager->SetFocusedUI(pImpl->mList.get());
-                for (std::vector<std::tr1::shared_ptr<Page> >::iterator it = mPages.begin(); it != mPages.end(); ++it) {
-                    pImpl->mList->GetItems().push_back(
-                        std::tr1::shared_ptr<CDlgInfoItem>(new CDlgInfoItem(pImpl->mItemLine, **it)));
-                }
-                pImpl->mList->UpdateSelection();
-                pImpl->mFiber.Start(std::tr1::bind(&CDlgInfoImpl::Run, pImpl), 0x8000);
+                mImpl->Init(mPages);
             }
             return true;
     }
