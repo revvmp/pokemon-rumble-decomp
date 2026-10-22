@@ -78,9 +78,12 @@ nw4r::g3d::ResFile CModel::GetResFile() const {
 
 void CModel::AddResourceFile(std::tr1::shared_ptr<CFileData> file) {
     std::vector<std::tr1::shared_ptr<CFileData> >& rFiles = mModelData.GetFiles();
-    if (std::find(rFiles.begin(), rFiles.end(), file) == rFiles.end()) {
-        rFiles.push_back(file);
+    for (std::vector<std::tr1::shared_ptr<CFileData> >::iterator it = rFiles.begin(); it != rFiles.end(); ++it) {
+        if (*it == file) {
+            return;
+        }
     }
+    rFiles.push_back(file);
 }
 
 bool CModel::Load(const LoadParams& rParams, bool background) {
