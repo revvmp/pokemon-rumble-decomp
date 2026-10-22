@@ -485,17 +485,17 @@ bool CTitleSession::RefreshSlots() {
             FormatDate(date, calendar.year, calendar.mon + 1, calendar.mday, 0);
             std::wstring time;
             FormatTime(time, calendar.hour, calendar.min, calendar.sec, 8);
-            text.assign(date + L" " + time);
+            text = date + L" " + time;
             int level = GetSaveData(i)->mData.mFlags[3];
             int mode = GetSaveData(i)->mData.mFlags[2];
             if (GetSaveData(i)->mData.mFlags[1] > 0) {
-                text.assign(text + L" " + GetMessageString(sLevelMessageIds[level][mode], nullptr));
+                text = text + L" " + GetMessageString(sLevelMessageIds[level][mode], nullptr);
             } else {
-                text.assign(text + L" " + GetMessageString(sModeMessageIds[mode], nullptr));
+                text = text + L" " + GetMessageString(sModeMessageIds[mode], nullptr);
             }
             u16 monsno = GetSaveData(i)->mData.mLeadPiiMonsno;
             if (monsno != 0) {
-                text.assign(text + L" " + GetMessageString(monsno + 0x30000 - 1, nullptr));
+                text = text + L" " + GetMessageString(monsno + 0x30000 - 1, nullptr);
             }
             ++mSlotsInUse;
         } else if (mFirstEmptySlot < 0) {
@@ -507,7 +507,7 @@ bool CTitleSession::RefreshSlots() {
         mButtonEnabled[SCREEN_NEW_GAME][i] = !used;
         mButtonEnabled[SCREEN_CONTINUE][i] = used;
         mButtonEnabled[SCREEN_DELETE][i] = used;
-        mSlotTexts[i].assign(text);
+        mSlotTexts[i] = text;
     }
 
     bool hasSlots = true;
