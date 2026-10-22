@@ -352,10 +352,10 @@ void CDataPerPlayer::Setup(bool background) {
     nw4r::math::VEC3 position;
     position = Transform(pLayout->FindPane("INSIDE")->GetGlobalMtx(), nw4r::math::VEC3(0.0f, 0.0f, 0.0f));
     nw4r::math::_VEC2 normalized = pLayout->NormalizeViewPosition(nw4r::math::VEC2(position.x, position.y));
-    mInsidePosition = nw4r::math::VEC2(normalized.x, normalized.y);
+    mInsidePosition = static_cast<nw4r::math::VEC2&>(normalized);
     position = Transform(pLayout->FindPane("OUTSIDE")->GetGlobalMtx(), nw4r::math::VEC3(0.0f, 0.0f, 0.0f));
     normalized = pLayout->NormalizeViewPosition(nw4r::math::VEC2(position.x, position.y));
-    mOutsidePosition = nw4r::math::VEC2(normalized.x, normalized.y);
+    mOutsidePosition = static_cast<nw4r::math::VEC2&>(normalized);
     mFiber.Start(std::tr1::bind(&CDataPerPlayer::Run, this), 0x8000);
 }
 
