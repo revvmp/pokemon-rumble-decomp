@@ -273,16 +273,7 @@ public:
     typedef R result_type;
 
     function(detail::unused_argument* = nullptr) : f_(nullptr) {}
-    template <typename F> function(F f, detail::unused_argument* = nullptr) : f_(nullptr) {
-        if (!detail::is_null(f)) {
-            typedef detail::function_imp<R (*)(), F, false, false> imp;
-            if (sizeof(imp) <= sizeof(buf_)) {
-                f_ = new (buf_) imp(f);
-            } else {
-                f_ = new imp(f);
-            }
-        }
-    }
+    template <typename F> function(F f, detail::unused_argument* = nullptr);
     function(const function& r) : f_(nullptr) {
         if (r.f_ != nullptr) {
             if (r.f_ == r.local()) {
@@ -292,13 +283,7 @@ public:
             }
         }
     }
-    ~function() {
-        if (f_ == local()) {
-            f_->~base();
-        } else if (f_ != nullptr) {
-            delete f_;
-        }
-    }
+    ~function();
 
     function& operator=(const function& r) {
         function tmp(r);
@@ -338,6 +323,25 @@ private:
     base* f_;
     union { char buf_[8]; unsigned long words_[2]; };
 };
+
+template <typename R> template <typename F> function<R()>::function(F f, detail::unused_argument*) : f_(nullptr) {
+    if (!detail::is_null(f)) {
+        typedef detail::function_imp<R (*)(), F, false, false> imp;
+        if (sizeof(imp) <= sizeof(buf_)) {
+            f_ = new (buf_) imp(f);
+        } else {
+            f_ = new imp(f);
+        }
+    }
+}
+
+template <typename R> function<R()>::~function() {
+    if (f_ == local()) {
+        f_->~base();
+    } else if (f_ != nullptr) {
+        delete f_;
+    }
+}
 
 namespace detail {
 template<class R,class A,class F> class function_imp<R (*)(A),F,false,false> : public function_base<R (*)(A)> {

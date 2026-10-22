@@ -1,5 +1,7 @@
-#include <game/INumericInput.h>
+#include <memory>
 #include <game/CFiber.h>
+#include <string>
+#include <game/INumericInput.h>
 #include <game/CUIManager.h>
 #include <game/BUILayout.h>
 #include <game/LayoutResources.h>
@@ -40,20 +42,7 @@ public:
     virtual std::wstring GetText() const { return mText; }
     virtual void Run();
 
-    void Initialize(bool background) {
-        const char* const* pArchives = gSharedLayoutArchives;
-        std::tr1::shared_ptr<CLayout::FontMap> fonts = GetDefaultFontMap();
-        mBackground->Load(pArchives, "fs_VK_bg_a", fonts, background);
-        mManager->AddChild(mBackground);
-        mKeyboard->Load(pArchives, "fs_VK_cellPhone_a", fonts, background);
-        mKeyboard->SetText("T_BT_cancel", GetMessageText(393457, gEmptyText));
-        mKeyboard->SetText("T_BT_confirm", GetMessageText(393458, gEmptyText));
-        mKeyboard->GetLayout()->SetDepthCompare(GX_LEQUAL);
-        mManager->AddChild(mKeyboard);
-        mTextBox->Load(pArchives, "fs_VK_textBox_b", fonts, background);
-        mManager->AddChild(mTextBox);
-        mFiber.Start(std::tr1::bind(&CNumericInput::Run, this), 0x8000);
-    }
+    void Initialize(bool background);
 
 private:
     void UpdateText() {
@@ -199,6 +188,21 @@ finish:
         mStarted = false;
         if (pMap) pMap->SetPausing(true);
     }
+}
+
+inline void CNumericInput::Initialize(bool background) {
+    const char* const* pArchives = gSharedLayoutArchives;
+    std::tr1::shared_ptr<CLayout::FontMap> fonts = GetDefaultFontMap();
+    mBackground->Load(pArchives, "fs_VK_bg_a", fonts, background);
+    mManager->AddChild(mBackground);
+    mKeyboard->Load(pArchives, "fs_VK_cellPhone_a", fonts, background);
+    mKeyboard->SetText("T_BT_confirm", GetMessageText(393457, gEmptyText));
+    mKeyboard->SetText("T_BT_cancel", GetMessageText(393458, gEmptyText));
+    mKeyboard->GetLayout()->SetDepthCompare(GX_LEQUAL);
+    mManager->AddChild(mKeyboard);
+    mTextBox->Load(pArchives, "fs_VK_textBox_b", fonts, background);
+    mManager->AddChild(mTextBox);
+    mFiber.Start(std::tr1::bind(&CNumericInput::Run, this), 0x8000);
 }
 
 std::tr1::shared_ptr<INumericInput> INumericInput::Create(bool background) {
