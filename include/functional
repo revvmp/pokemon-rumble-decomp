@@ -61,6 +61,7 @@ private:
 };
 struct no_arguments {};
 template<class A,class Arguments> A& resolve_bound_argument(A& rArgument, const Arguments&) { return rArgument; }
+template<class A> A& resolve_bound_argument(placeholders::detail::ph<1>,const tuple<A&>& rArguments) { return std::tr1::get<0>(const_cast<tuple<A&>&>(rArguments)); }
 template<class R,class F,class Tuple,class Arguments> R call_bound(F& rFunction, Tuple& rTuple, const Arguments& arguments, Metrowerks::int2type<1>) {
     return rFunction(resolve_bound_argument(get_bound<0>(rTuple), arguments));
 }
@@ -89,7 +90,6 @@ private:
     F mFunction;
     Arguments mArguments;
 };
-template<class A> A& resolve_bound_argument(const placeholders::detail::ph<1>&,tuple<A&> rArguments) { return std::tr1::get<0>(rArguments); }
 template<class R,class F,class T> class bound_func<R,F,tuple<T,placeholders::detail::ph<1> > > {
 public:
     typedef tuple<T,placeholders::detail::ph<1> > Arguments;
@@ -561,13 +561,13 @@ private:
 template<class R,class F,class T> template<class A>
 inline R detail::bound_func<R,F,tuple<T,placeholders::detail::ph<1> > >::operator()(const A& argument) const {
     tuple<const A&> arguments(argument);
-    return mFunction(std::tr1::get<0>(mArguments),resolve_bound_argument(std::tr1::get<1>(mArguments),arguments));
+    return call_bound<R>(const_cast<F&>(mFunction), const_cast<Arguments&>(mArguments), arguments);
 }
 
 template<class R,class F,class T> template<class A>
 inline R detail::bound_func<R,F,tuple<T,placeholders::detail::ph<1> > >::operator()(A& argument) const {
     tuple<A&> arguments(argument);
-    return mFunction(std::tr1::get<0>(mArguments),resolve_bound_argument(std::tr1::get<1>(mArguments),arguments));
+    return call_bound<R>(const_cast<F&>(mFunction), const_cast<Arguments&>(mArguments), arguments);
 }
 
 }
