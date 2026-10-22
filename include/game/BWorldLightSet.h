@@ -28,6 +28,25 @@ public:
 
         void SetState(u32 state) { mFlags = (mFlags & ~FLAG_STATE_MASK) | state; }
 
+        u32 GetId() const { return mId; }
+        int GetLength() const { return mLength; }
+        u32 GetLoopCount() const { return mFlags >> 16; }
+        f32 GetSpeed() const { return mRate; }
+        bool IsStarted() const { return !(mFlags & 2); }
+        bool IsPlaying() const { return (mFlags & 0xC) != 0; }
+        bool IsPlayingNotYetLooped() const { return (mFlags & 4) != 0; }
+        bool IsCompleted() const { return (mFlags & 0x30) != 0; }
+        bool IsCompletedOrLooped() const { return (mFlags & 0x38) != 0; }
+        f32 GetFrame() const {
+            if (mFlags & 2) { return 0.0f; }
+            if (mFlags & 0xC) { return *mpCurrentFrame; }
+            return mLength;
+        }
+        void Pause(bool pause) {
+            if (pause) { mFlags |= 0x40; }
+            else { mFlags &= ~0x40; }
+        }
+        bool IsPausing() const { return (mFlags & 0x40) != 0; }
         u32 mFlags;
         u32 mId;
         f32 mStartFrame;

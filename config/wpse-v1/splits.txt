@@ -505,6 +505,12 @@ game/ControllerTable.cpp:
 	.bss        start:0x803E8D28 end:0x803E90C8
 	.sdata      start:0x804B77D8 end:0x804B77D9
 
+game/ScriptLightMotion.cpp:
+	extab       start:0x8002F700 end:0x8002FB20
+	extabindex  start:0x8004E024 end:0x8004E144
+	.text       start:0x801440A0 end:0x80145A94
+	.sdata2     start:0x804BA228 end:0x804BA240
+
 ControllerTableAlignmentPadding:
 	.sdata      start:0x804B77D9 end:0x804B77E0 align:1
 
