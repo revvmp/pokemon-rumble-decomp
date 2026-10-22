@@ -122,7 +122,10 @@ void CPii::LoadModel(bool background)
 
     const char* pShadowName = GetShadowName();
     if (pShadowName) {
-        mShadowModel.Load(pShadowName ? pShadowName : "5:/misc.arc/shadow.brres", 0, nullptr, background);
+        if (!pShadowName) {
+            pShadowName = "5:/misc.arc/shadow.brres";
+        }
+        mShadowModel.Load(pShadowName, 0, nullptr, background);
         mPiiFlags |= 1;
         mPiiFlags &= ~2;
         mShadowModel.GetModel()->SetPriorityDrawXlu(100);
@@ -131,7 +134,8 @@ void CPii::LoadModel(bool background)
         }
     }
 
-    f32 scaleValue = mPersonalData->GetSpeciesData()->GetModelScale() * sizeScales[mPersonalData->GetSpeciesData()->GetASize()];
+    f32 sizeScale = sizeScales[mPersonalData->GetSpeciesData()->GetASize()];
+    f32 scaleValue = sizeScale * mPersonalData->GetSpeciesData()->GetModelScale();
     SetScale(nw4r::math::VEC3(scaleValue, scaleValue, scaleValue));
     gFrameTimingReset = true;
 }
@@ -186,7 +190,7 @@ void CPii::ApplyTextureVariant(ScnMdlSimpleData& rData, const char* pSuffix)
         nw4r::g3d::ResTexObj texObj = access.GetResTexObj(false);
         nw4r::g3d::ResTlutObj tlutObj = access.GetResTlutObj(false);
         for (u32 texIndex = 0; texIndex < numTexs; texIndex++) {
-            nw4r::g3d::ResTexPlttInfo info = resMat.GetResTexPlttInfo(texIndex);
+            const nw4r::g3d::ResTexPlttInfo info = resMat.GetResTexPlttInfo(texIndex);
             std::string texName(info.GetTexResName().GetName());
             texName += pSuffix;
             nw4r::g3d::ResFile file;
