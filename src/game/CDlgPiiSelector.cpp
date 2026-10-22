@@ -163,9 +163,15 @@ public:
     void RunDialog();
     void RunSelection();
     void RunEntrance();
+    void RunEntranceController();
+    void FlushRemoteMemory();
     void WaitForRemoteMemory();
     void SetOpen(bool open);
-    int TakeMode();
+    int TakeMode() {
+        int mode = mMode;
+        mMode = 0;
+        return mode;
+    }
     void UpdateList(bool selectFirst);
     void SelectEntrancePii();
     std::tr1::shared_ptr<CLayout::CMotionProgram> PlayMotion(std::tr1::shared_ptr<BUILayout> pLayout, bool shown);
@@ -505,6 +511,114 @@ void CDataPerPlayer::SelectEntrancePii() {
         }
     }
     mPiiList->SelectIndex(0);
+}
+
+void CDataPerPlayer::RunEntrance() {
+    SetOpen(true);
+    mEntranceResult = 0;
+    CPlayer* pPlayer = IGameSession::GetInstance()->GetPlayer(mPlayer);
+    mItems.clear();
+    PlayMotion(mPiiSpec, false);
+    PlayMotion(mPiiList, false);
+    PlayMotion(mPlayerID, false);
+    YieldFiberStarted();
+    for (;;) {
+        IController* pController = pPlayer->GetController();
+        if (pController != nullptr && pController->IsConnected() && !mInputDisabled) {
+            mpController = pController;
+            mDisconnectSerial = pController->GetDisconnectSerial();
+            mDisconnected = false;
+            RunEntranceController();
+        }
+        if (mEntranceResult == 2) {
+            PlayMotion(mPiiSpec, false);
+            PlayMotion(mPiiList, false);
+            PlayMotion(mPlayerID, false);
+            break;
+        }
+        YieldFiber();
+    }
+}
+
+void CDataPerPlayer::RunEntranceController() {
+    CPlayer* pPlayer = IGameSession::GetInstance()->GetPlayer(mPlayer);
+    IController* pController;
+    PlayMotion(mPlayerID, true);
+    {
+        std::tr1::shared_ptr<CLayout::CMotionProgram> motion = PlayMotion(mPlayerID, true);
+        if (motion) {
+            motion->Wait();
+        }
+    }
+    FlushRemoteMemory();
+    if (!IsDisconnected()) {
+        mItems.resize(mPlayer);
+        for (;;) {
+            pController = pPlayer->GetController();
+            if (mEntranceResult == 2) {
+                mMode = 4;
+            } else if (IsDisconnected()) {
+                mMode = 4;
+            } else if (pController != nullptr && pController->IsConnected()) {
+                if (!mInputDisabled) {
+                    if (pController->GetTrig() & 0x20) {
+                        mMode = 2;
+                        PlaySound(9);
+                    } else {
+                        bool hasEntrance = mpDlg->GetEntrancePPD(pController);
+                        if (hasEntrance) {
+                            mMode = 2;
+                        }
+                    }
+                }
+            } else {
+                mMode = 4;
+            }
+            int mode = TakeMode();
+            if (static_cast<u32>(mode - 4) <= 1) {
+                break;
+            }
+            if (mode == 2) {
+                pPlayer->Join();
+                RunSelection();
+                if (mEntranceResult == 2) {
+                    return;
+                }
+                pPlayer->Leave();
+                PlayMotion(mPiiSpec, false);
+                std::tr1::shared_ptr<CLayout::CMotionProgram> motion = PlayMotion(mPiiList, false);
+                if (motion) {
+                    motion->Wait();
+                }
+            }
+            YieldFiber();
+        }
+    }
+    std::tr1::shared_ptr<CLayout::CMotionProgram> motion = PlayMotion(mPlayerID, false);
+    if (motion) {
+        motion->Wait();
+    }
+}
+
+void CDataPerPlayer::FlushRemoteMemory() {
+    IController* pController = IGameSession::GetInstance()->GetPlayer(mPlayer)->GetController();
+    IController::Type type = pController->GetType();
+    if (type >= IController::TYPE_WII_REMOTE && type <= IController::TYPE_NUNCHAKU) {
+        CRemoteMemory* pRemoteMemory = IGameSession::GetInstance()->GetRemoteMemory(pController->GetChannel());
+        while (pRemoteMemory->IsBusy()) {
+            YieldFiber();
+            if (IsDisconnected()) {
+                return;
+            }
+        }
+        pRemoteMemory->Update();
+        while (pRemoteMemory->IsBusy()) {
+            YieldFiber();
+            if (IsDisconnected()) {
+                return;
+            }
+        }
+    }
 }
 
 class CDlgPiiSelector : public IDlgPiiSelectorInternal, public std::tr1::enable_shared_from_this<CDlgPiiSelector> {

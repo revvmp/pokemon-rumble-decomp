@@ -7,7 +7,8 @@ class CRemoteMemory {
 public:
     CRemoteMemory(int channel, COyaInfo* pOyaInfo);
     ~CRemoteMemory();
-    bool IsBusy() const { return (mFlags & 1) != 0; }
+    bool HasFlag(const u32& flag) const { return (mFlags & flag) != 0; }
+    bool IsBusy() const { return HasFlag(1); }
     void WaitUntilIdle(bool waitForWrite);
     void Update();
     bool ConsumeFatalError() {

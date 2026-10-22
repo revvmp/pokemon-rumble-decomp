@@ -565,6 +565,8 @@ public:
 
     void resize(size_type n) { base::resize(n); }
 
+    void clear() { base::clear(); }
+
     void reserve(size_type n) { base::reserve(n); }
     void clear() { base::clear(); }
 
