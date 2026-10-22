@@ -438,27 +438,6 @@ void DrawDirectionalStrategy::DrawDirectionalBillboard(
     }
 }
 
-DrawStrategyImpl::CalcAheadFunc
-DrawDirectionalStrategy::GetCalcAheadFunc(ParticleManager* pManager) {
-    switch (pManager->mResource->GetEmitterDesc()->drawSetting.typeDir) {
-    case 0:
-        return CalcAhead_Speed;
-    case 1:
-        return CalcAhead_EmitterCenter;
-    case 2:
-        return CalcAhead_EmitterDesign;
-    case 3:
-        return CalcAhead_Particle;
-    case 5:
-    case 7:
-        return CalcAhead_NoDesign;
-    case 6:
-        return CalcAhead_ParticleBoth;
-    default:
-        return CalcAhead_Speed;
-    }
-}
-
 void DrawDirectionalStrategy::InitGraphics(const DrawInfo& rInfo,
                                            ParticleManager* pManager) {
     NW4R_ASSERT_VALID_PTR(pManager);
@@ -483,6 +462,27 @@ void DrawDirectionalStrategy::InitGraphics(const DrawInfo& rInfo,
     GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_U8, 0);
 
     GXSetCurrentMtx(GX_PNMTX0);
+}
+
+DrawStrategyImpl::CalcAheadFunc
+DrawDirectionalStrategy::GetCalcAheadFunc(ParticleManager* pManager) {
+    switch (pManager->mResource->GetEmitterDesc()->drawSetting.typeDir) {
+    case 0:
+        return CalcAhead_Speed;
+    case 1:
+        return CalcAhead_EmitterCenter;
+    case 2:
+        return CalcAhead_EmitterDesign;
+    case 3:
+        return CalcAhead_Particle;
+    case 5:
+    case 7:
+        return CalcAhead_NoDesign;
+    case 6:
+        return CalcAhead_ParticleBoth;
+    default:
+        return CalcAhead_Speed;
+    }
 }
 
 }
