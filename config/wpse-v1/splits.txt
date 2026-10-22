@@ -1310,13 +1310,13 @@ game/BUI.cpp:
 	extab       start:0x8003BEE8 end:0x8003C2F0
 	extabindex  start:0x80051258 end:0x80051318
 	.text       start:0x801C8700 end:0x801C9680
-	.data       start:0x803C0220 end:0x803C02B0
+	.data       start:0x803C0220 end:0x803C0280
 
 game/CUIManager.cpp:
 	extab       start:0x8003C2F0 end:0x8003C630
 	extabindex  start:0x80051318 end:0x8005136C
 	.text       start:0x801C9680 end:0x801C9EE0
-	.data       start:0x803C02B0 end:0x803C0338
+	.data       start:0x803C0280 end:0x803C0338
 	.sdata      start:0x804B8320 end:0x804B8328
 
 game/BUILayout.cpp:

@@ -6,22 +6,6 @@ CUIManager::CUIManager() {
 
 CUIManager::~CUIManager() {}
 
-void CUIManager::Calc() {
-    BUI::Calc();
-}
-
-void CUIManager::CalcMtx() {
-    BUI::CalcMtx();
-}
-
-void CUIManager::CalcView() {
-    BUI::CalcView();
-}
-
-void CUIManager::Draw() {
-    BUI::Draw();
-}
-
 CUIManager* CUIManager::GetManager() {
     return this;
 }
@@ -34,8 +18,16 @@ void CUIManager::ValidateFocusedUI() {
     mFocusedUI.reset();
 }
 
-BUI* CUIManager::GetFocusedUI() {
-    return mFocusedUI.lock().get();
+namespace {
+
+inline void NotifyFocusChanged(BUI* pUI, BUI* pPrevious) {
+    if (pUI->GetFocusCallbacks().get() != nullptr) {
+        for (BUI::CallbackList::iterator it = pUI->GetFocusCallbacks().get()->begin(); it != pUI->GetFocusCallbacks().get()->end(); ++it) {
+            (**it)(pPrevious);
+        }
+    }
+}
+
 }
 
 void CUIManager::SetFocusedUI(BUI* pUI) {
@@ -59,20 +51,16 @@ void CUIManager::SetFocusedUI(BUI* pUI) {
 
     BUI* pOldUI = pOld.get();
     if (pOld) {
-        if (pOldUI->mFocusCallbacks.get() != nullptr) {
-            for (BUI::CallbackList::iterator it = pOldUI->mFocusCallbacks.get()->begin(); it != pOldUI->mFocusCallbacks.get()->end(); ++it) {
-                (**it)(pOldUI);
-            }
-        }
+        NotifyFocusChanged(pOldUI, pOldUI);
     }
     BUI* pNewUI = pNew.get();
     if (pNew) {
-        if (pNewUI->mFocusCallbacks.get() != nullptr) {
-            for (BUI::CallbackList::iterator it = pNewUI->mFocusCallbacks.get()->begin(); it != pNewUI->mFocusCallbacks.get()->end(); ++it) {
-                (**it)(pOldUI);
-            }
-        }
+        NotifyFocusChanged(pNewUI, pOld.get());
     }
+}
+
+BUI* CUIManager::GetFocusedUI() {
+    return mFocusedUI.lock().get();
 }
 
 void CUIManager::DispatchFocusedInput(const IUIInput* pInput) {
@@ -82,3 +70,20 @@ void CUIManager::DispatchFocusedInput(const IUIInput* pInput) {
         pFocused->OnInput(pInput);
     }
 }
+
+void CUIManager::Calc() {
+    BUI::Calc();
+}
+
+void CUIManager::CalcMtx() {
+    BUI::CalcMtx();
+}
+
+void CUIManager::CalcView() {
+    BUI::CalcView();
+}
+
+void CUIManager::Draw() {
+    BUI::Draw();
+}
+

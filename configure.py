@@ -261,7 +261,7 @@ config.libs = [
             Object(Matching, "game/Graphics.cpp"),
             Object(Matching, "game/ScnMdlSimpleData.cpp"),
             Object(NonMatching, "game/BUI.cpp"),
-            Object(NonMatching, "game/CUIManager.cpp"),
+            Object(Matching, "game/CUIManager.cpp"),
             Object(Matching, "game/BUILayout.cpp"),
             Object(Matching, "game/CArchiveFontWithBuf.cpp"),
             Object(NonMatching, "game/CDlgPiiSelector.cpp"),
