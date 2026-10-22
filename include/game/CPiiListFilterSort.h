@@ -28,6 +28,8 @@ public:
                       std::tr1::function<void(const CPiiListFilterSort*)> onChanged);
 
 private:
+    void Sort(std::vector<std::tr1::shared_ptr<CUIPiiListItem> >& rItems, int player);
+
     int mFilterType;
     int mTypeIndex;
     int mPrefix;

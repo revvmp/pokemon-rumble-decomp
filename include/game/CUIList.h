@@ -23,6 +23,7 @@ public:
     int GetSelectedIndex();
     std::tr1::shared_ptr<IUIListItem> GetSelectedItem();
     std::tr1::shared_ptr<IUIListItem> GetItem(int index) { return mItems[index]; }
+    std::vector<std::tr1::shared_ptr<IUIListItem> >& GetItems() { return mItems; }
     CLayout* GetSelectedLayout();
     void SetScrollRange(unsigned long begin,unsigned long end);
     void SetSelectionInputEnabled(bool enabled);

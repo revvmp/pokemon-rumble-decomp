@@ -288,6 +288,8 @@ void shared_ptr<T>::swap(shared_ptr& r) {
     r.s_ = static_cast<detail::shared_ptr_deleter_common*>(temporary);
 }
 
+template <typename T> inline void swap(shared_ptr<T>& a, shared_ptr<T>& b) { a.swap(b); }
+
 template <typename T> template <typename Y>
 void shared_ptr<T>::reset(Y* p) { shared_ptr(p).swap(*this); }
 

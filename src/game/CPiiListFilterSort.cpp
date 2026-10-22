@@ -1,6 +1,10 @@
 #include <game/CPiiListFilterSort.h>
 #include <game/CMsgRes.h>
 #include <game/CUIPiiListItem.h>
+#include <game/CUIList.h>
+#include <game/IGameSession.h>
+#include <game/COyaInfo.h>
+#include <algorithm>
 #include <vector>
 
 typedef std::tr1::shared_ptr<CUIPiiListItem> PiiItemPtr;
@@ -165,3 +169,70 @@ bool IsNameBefore(const wchar_t* const& rNameA, const wchar_t* const& rNameB) {
 CPiiListFilterSort::CPiiListFilterSort() : mFilterType(FILTER_NONE), mSortType(0), mPlayerIndex(-1) {}
 
 CPiiListFilterSort::~CPiiListFilterSort() {}
+
+#pragma dont_inline on
+
+void CPiiListFilterSort::Filter(std::tr1::shared_ptr<CUIList> pList, PiiItemVector& rItems, int player) {
+    typedef PiiItemVector::iterator Iterator;
+    Sort(rItems, player);
+    std::vector<std::tr1::shared_ptr<IUIListItem> >& rList = pList->GetItems();
+    rList.clear();
+    switch (mFilterType) {
+    default:
+        for (Iterator it = rItems.begin(); it != rItems.end(); ++it) {
+            rList.push_back(std::tr1::shared_ptr<IUIListItem>(*it));
+        }
+        break;
+    case FILTER_SPECIES_TYPE: {
+        u32 mask = 1 << mTypeIndex;
+        for (Iterator it = rItems.begin(); it != rItems.end(); ++it) {
+            if (mask & (*it)->GetSpeciesTypeMask()) {
+                rList.push_back(std::tr1::shared_ptr<IUIListItem>(*it));
+            }
+        }
+        break;
+    }
+    case FILTER_MOVE_TYPE: {
+        u32 mask = 1 << mTypeIndex;
+        for (Iterator it = rItems.begin(); it != rItems.end(); ++it) {
+            if (mask & (*it)->GetMoveTypeMask()) {
+                rList.push_back(std::tr1::shared_ptr<IUIListItem>(*it));
+            }
+        }
+        break;
+    }
+    case FILTER_PREFIX:
+        for (Iterator it = rItems.begin(); it != rItems.end(); ++it) {
+            if (mPrefix == (*it)->GetPPD()->GetPrefix()) {
+                rList.push_back(std::tr1::shared_ptr<IUIListItem>(*it));
+            }
+        }
+        break;
+    case FILTER_ORIGINAL_TRAINER: {
+        u32 trainerId = IGameSession::GetInstance()->GetOyaInfo()->GetCount();
+        if (mInvertOriginalTrainer == 0) {
+            for (Iterator it = rItems.begin(); it != rItems.end(); ++it) {
+                if (trainerId == (*it)->GetPPD()->GetOriginalTrainerId()) {
+                    rList.push_back(std::tr1::shared_ptr<IUIListItem>(*it));
+                }
+            }
+        } else {
+            for (Iterator it = rItems.begin(); it != rItems.end(); ++it) {
+                if (trainerId != (*it)->GetPPD()->GetOriginalTrainerId()) {
+                    rList.push_back(std::tr1::shared_ptr<IUIListItem>(*it));
+                }
+            }
+        }
+        break;
+    }
+    }
+}
+
+#pragma dont_inline reset
+
+void CPiiListFilterSort::Sort(PiiItemVector& rItems, int player) {
+    typedef bool (*Comparator)(const PiiItemPtr&, const PiiItemPtr&);
+    Comparator comparators[7] = {CompareFavoriteFirst, CompareBPDescending, CompareBPAscending, CompareNewest, CompareOldest,
+                                 CompareSpeciesName, CompareSpeciesOrder};
+    std::sort(rItems.begin(), rItems.end(), comparators[mSortType]);
+}
