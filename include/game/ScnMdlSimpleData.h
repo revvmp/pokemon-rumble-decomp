@@ -14,6 +14,7 @@ public:
     std::vector<std::tr1::shared_ptr<CFileData> >& GetFiles() { return mFiles; }
     bool Load(const char* pName, const char* pSubName, u32* pOptions, bool background);
     void Reset();
+    void Release();
     const std::vector<std::tr1::shared_ptr<CFileData> >& GetFiles() const { return mFiles; }
     std::tr1::shared_ptr<nw4r::g3d::ScnMdlSimple> mModel;
     std::vector<std::tr1::shared_ptr<CFileData> > mFiles;
