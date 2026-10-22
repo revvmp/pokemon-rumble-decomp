@@ -17,6 +17,6 @@ struct PiiPropData {
     void SetWazaLevels(u16 monsno, u8 form, int formScope, const std::vector<s16>& rLevels);
     std::vector<s16> GetWazaLevels(u16 monsno, u8 form, int level) const;
     std::vector<SpeciesMoves> mSpecies;
-    MapPiiTable mProperties;
+    mutable MapPiiTable mProperties;
 };
 #endif
