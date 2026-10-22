@@ -1414,7 +1414,7 @@ game/errmsg.cpp:
 	extabindex  start:0x80051CF0 end:0x80051E58
 	.text       start:0x801DF650 end:0x801E2110
 	.ctors      start:0x80352A28 end:0x80352A2C
-	.data       start:0x803C1DD8 end:0x803C2020
+	.data       start:0x803C1DD8 end:0x803C20D0
 	.bss        start:0x803EA900 end:0x803EA910
 	.sdata      start:0x804B8530 end:0x804B85C8
 	.sbss       start:0x804B9190 end:0x804B9198
@@ -1425,7 +1425,7 @@ game/homebutton.cpp:
 	extabindex  start:0x80051E58 end:0x80051FB4
 	.text       start:0x801E2110 end:0x801E5D98
 	.ctors      start:0x80352A2C end:0x80352A30
-	.data       start:0x803C2020 end:0x803C2B88
+	.data       start:0x803C20D0 end:0x803C2B88
 	.bss        start:0x803EA910 end:0x803EAF88
 	.sdata      start:0x804B85C8 end:0x804B8608
 	.sbss       start:0x804B9198 end:0x804B91E0
