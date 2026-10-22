@@ -24,6 +24,31 @@ BModelObj::BModelObj(u32 type) :
 
 BModelObj::~BModelObj() {}
 
+inline void BModelObj::AddToWorldScene() {
+    BWorld* pWorld = mWorld;
+    if (pWorld != nullptr && mModel) {
+        if (mFlags & FLAG_OUTLINE) {
+            UpdateOutline();
+            pWorld->GetOutlineGroup()->PushBack(mModel->GetScnObj());
+        } else {
+            if (mFlags & FLAG_SHADOW) {
+                CShadowCamera* pShadowCamera = pWorld->GetShadowCamera();
+                if (pShadowCamera != nullptr) {
+                    pShadowCamera->SetupShadowModel(mModel);
+                }
+            }
+            pWorld->GetModelGroup()->PushBack(mModel->GetScnObj());
+        }
+    }
+}
+
+void BModelObj::ChangeModel(const std::tr1::shared_ptr<CModel>& rModel, u32 flags) {
+    Unlink();
+    SetModel(rModel, flags);
+
+    AddToWorldScene();
+}
+
 bool BModelObj::IsOutlineModel(const std::tr1::shared_ptr<CModel>& rModel) {
     nw4r::g3d::ResNode node = static_cast<nw4r::g3d::ScnMdlSimple*>(rModel->GetScnObj())->GetResMdl().GetResNode(0);
     if (node.IsValid()) {
@@ -215,45 +240,6 @@ void BModelObj::SetBoundingEnable(bool enable) {
     }
 }
 
-inline void BModelObj::AddToWorldScene() {
-    BWorld* pWorld = mWorld;
-    if (pWorld != nullptr && mModel) {
-        if (mFlags & FLAG_OUTLINE) {
-            UpdateOutline();
-            pWorld->GetOutlineGroup()->PushBack(mModel->GetScnObj());
-        } else {
-            if (mFlags & FLAG_SHADOW) {
-                CShadowCamera* pShadowCamera = pWorld->GetShadowCamera();
-                if (pShadowCamera != nullptr) {
-                    pShadowCamera->SetupShadowModel(mModel);
-                }
-            }
-            pWorld->GetModelGroup()->PushBack(mModel->GetScnObj());
-        }
-    }
-}
-
-void BModelObj::ChangeModel(const std::tr1::shared_ptr<CModel>& rModel, u32 flags) {
-    Unlink();
-    SetModel(rModel, flags);
-
-    AddToWorldScene();
-}
-
-void BModelObj::SetSizeMode(int mode) {
-    if (mode != ((mFlags & FLAG_SIZE_MODE) != 0)) {
-        Unlink();
-        if (mode == 1) {
-            mFlags |= FLAG_SIZE_MODE;
-        } else {
-            mFlags &= ~FLAG_SIZE_MODE;
-        }
-        mSize = CalcSize((mFlags & FLAG_SIZE_MODE) != 0);
-        UpdateBounds();
-        LinkKDTree();
-    }
-}
-
 void BModelObj::SetOutlineType(int type) {
     if (type != mOutlineType) {
         mOutlineType = type;
@@ -289,7 +275,27 @@ void BModelObj::UpdateOutline() {
     }
 }
 
-inline nw4r::math::VEC3 BModelObj::CalcExtent(const nw4r::math::AABB& box, int mode) const {
+void BModelObj::SetSizeMode(int mode) {
+    if (mode != ((mFlags & FLAG_SIZE_MODE) != 0)) {
+        Unlink();
+        if (mode == 1) {
+            mFlags |= FLAG_SIZE_MODE;
+        } else {
+            mFlags &= ~FLAG_SIZE_MODE;
+        }
+        mSize = CalcSize((mFlags & FLAG_SIZE_MODE) != 0);
+        UpdateBounds();
+        LinkKDTree();
+    }
+}
+
+inline void BModelObj::LinkKDTree() {
+    if (IsVisible() && (mFlags & FLAG_KDTREE) && !IsLinked() && mWorld != nullptr) {
+        mWorld->GetModelTree()->Insert(this);
+    }
+}
+
+inline void BModelObj::CalcExtent(const nw4r::math::AABB& box, int mode, nw4r::math::VEC3& size) const {
     f32 maxX = static_cast<f32>(__fabs(box.max.x));
     f32 minX = static_cast<f32>(__fabs(box.min.x));
     maxX = (minX < maxX) ? maxX : minX;
@@ -298,7 +304,6 @@ inline nw4r::math::VEC3 BModelObj::CalcExtent(const nw4r::math::AABB& box, int m
     f32 minZ = static_cast<f32>(__fabs(box.min.z));
     maxZ = (minZ < maxZ) ? maxZ : minZ;
     f32 extentZ = mScale.z * maxZ;
-    nw4r::math::VEC3 size;
     if (mode == 1) {
         size.x = (extentZ < extentX) ? extentZ : extentX;
     } else {
@@ -312,7 +317,6 @@ inline nw4r::math::VEC3 BModelObj::CalcExtent(const nw4r::math::AABB& box, int m
     }
 
     size.z = size.x;
-    return size;
 }
 
 nw4r::math::VEC3 BModelObj::CalcSize(int mode) const {
@@ -322,6 +326,7 @@ nw4r::math::VEC3 BModelObj::CalcSize(int mode) const {
 
     if (mFlags & FLAG_MODEL_SCALE_SIZE) {
         nw4r::math::VEC3 scale = mModelScale;
+        nw4r::math::VEC3 size;
         nw4r::math::AABB bounds = mModel->GetBounds();
         nw4r::g3d::ResMdlInfo info = static_cast<nw4r::g3d::ScnMdlSimple*>(mModel->GetScnObj())->GetResMdl().GetResMdlInfo();
         bounds.min.x *= scale.x;
@@ -349,9 +354,10 @@ nw4r::math::VEC3 BModelObj::CalcSize(int mode) const {
                 bounds = volume;
             }
         }
-        nw4r::math::VEC3 size = CalcExtent(bounds, mode);
+        CalcExtent(bounds, mode, size);
         return size;
     } else {
+        nw4r::math::VEC3 size;
         nw4r::math::VEC3 scale = mModelScale;
         nw4r::math::AABB bounds = mModel->GetBounds();
         nw4r::g3d::ResMdlInfo info = static_cast<nw4r::g3d::ScnMdlSimple*>(mModel->GetScnObj())->GetResMdl().GetResMdlInfo();
@@ -374,28 +380,8 @@ nw4r::math::VEC3 BModelObj::CalcSize(int mode) const {
             bounds.max.x *= scale.x;
             bounds.max.z *= scale.z;
         }
-        f32 maxX = static_cast<f32>(__fabs(bounds.max.x));
-        f32 minX = static_cast<f32>(__fabs(bounds.min.x));
-        maxX = (minX < maxX) ? maxX : minX;
-        f32 extentX = mScale.x * maxX;
-        f32 maxZ = static_cast<f32>(__fabs(bounds.max.z));
-        f32 minZ = static_cast<f32>(__fabs(bounds.min.z));
-        maxZ = (minZ < maxZ) ? maxZ : minZ;
-        f32 extentZ = mScale.z * maxZ;
-        f32 radius;
-        if (mode == 1) {
-            radius = (extentZ < extentX) ? extentZ : extentX;
-        } else {
-            radius = (extentX < extentZ) ? extentZ : extentX;
-        }
-
-        f32 height;
-        if (0.0f < bounds.max.y) {
-            height = bounds.max.y * mScale.y * 0.5f;
-        } else {
-            height = 0.0f;
-        }
-        return nw4r::math::VEC3(radius, height, radius);
+        CalcExtent(bounds, mode, size);
+        return size;
     }
 }
 
@@ -405,6 +391,12 @@ nw4r::math::VEC3 BModelObj::GetSize() {
 
 DrawLayerSet* BModelObj::GetDrawLayers() {
     return &mDrawLayers;
+}
+
+void BModelObj::AddDrawLayer(const std::tr1::shared_ptr<IDrawLayer>& rLayer) {
+    if (rLayer) {
+        mDrawLayers.insert(rLayer);
+    }
 }
 
 void BModelObj::OnEnterWorld() {
@@ -424,12 +416,6 @@ void BModelObj::Calc() {
         mModel->UpdateFrame(1.0f);
     }
     BSoundSource::SetPosition(mPosition);
-}
-
-void BModelObj::AddDrawLayer(const std::tr1::shared_ptr<IDrawLayer>& rLayer) {
-    if (rLayer) {
-        mDrawLayers.insert(rLayer);
-    }
 }
 
 static inline nw4r::math::MTX34 MakeTransformMtx(
@@ -491,23 +477,4 @@ void BModelObj::CalcMtx() {
     } else {
         mModel->GetScnObj()->SetMtx(nw4r::g3d::ScnObj::MTX_LOCAL, mBaseMtx);
     }
-}
-
-void BModelObj::SetVisible(bool visible) {
-    if (visible) {
-        mState |= STATE_VISIBLE;
-    } else {
-        mState &= ~STATE_VISIBLE;
-    }
-
-    if (visible) {
-        LinkKDTree();
-    } else {
-        Unlink();
-    }
-}
-
-void BModelObj::SetRotation(f32 rotation) {
-    mRotation = rotation;
-    mFlags |= FLAG_DIRTY_MTX;
 }

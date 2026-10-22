@@ -77,7 +77,7 @@ public:
     size_type size() const { return mTree.size(); }
     bool empty() const { return mTree.size() == 0; }
     pair<iterator, bool> insert(const value_type& rValue) {
-        pair<typename tree_type::iterator, bool> result = mTree.insert_one(static_cast<const void*>(rValue));
+        pair<typename tree_type::iterator, bool> result = mTree.insert_key(static_cast<const void*>(rValue));
         return pair<iterator, bool>(iterator(result.first), result.second);
     }
     iterator find(const value_type& rValue) {

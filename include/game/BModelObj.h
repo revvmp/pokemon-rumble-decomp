@@ -41,9 +41,24 @@ public:
     virtual void CalcMtx();
     virtual void SetPosition(const nw4r::math::VEC3& rPosition);
     virtual void SetScale(const nw4r::math::VEC3& rScale);
-    virtual void SetRotation(f32 rotation);
+    virtual void SetRotation(f32 rotation) {
+        mRotation = rotation;
+        mFlags |= FLAG_DIRTY_MTX;
+    }
     virtual nw4r::math::VEC3 GetSize();
-    virtual void SetVisible(bool visible);
+    virtual void SetVisible(bool visible) {
+        if (visible) {
+            mState |= STATE_VISIBLE;
+        } else {
+            mState &= ~STATE_VISIBLE;
+        }
+
+        if (visible) {
+            LinkKDTree();
+        } else {
+            Unlink();
+        }
+    }
     virtual DrawLayerSet* GetDrawLayers();
     virtual void OnEnterWorld();
     virtual void OnLeaveWorld(BWorld* pWorld);
@@ -85,15 +100,11 @@ public:
 private:
     static bool IsOutlineModel(const std::tr1::shared_ptr<CModel>& rModel);
 
-    nw4r::math::VEC3 CalcExtent(const nw4r::math::AABB& box, int mode) const;
+    void CalcExtent(const nw4r::math::AABB& box, int mode, nw4r::math::VEC3& size) const;
 
     void AddToWorldScene();
 
-    void LinkKDTree() {
-        if (IsVisible() && (mFlags & FLAG_KDTREE) && !IsLinked() && mWorld != nullptr) {
-            mWorld->GetModelTree()->Insert(this);
-        }
-    }
+    void LinkKDTree();
 
     void UpdateBounds() {
         mBounds.min.x = mPosition.x - mSize.x;

@@ -528,8 +528,8 @@ void BWorld::RemoveObject(std::tr1::shared_ptr<BWorldObj> obj) {
     pEntry->mObj.reset();
     pEntry->mFlags = 0;
 
-    ObjEntry* pNext = pEntry->GetNext(pEntries);
     ObjEntry* pPrev = pEntry->GetPrev(pEntries);
+    ObjEntry* pNext = pEntry->GetNext(pEntries);
     if (pEntry->mPrev == 0) {
         if (pEntry->mNext == 0) {
             mObjTail = nullptr;

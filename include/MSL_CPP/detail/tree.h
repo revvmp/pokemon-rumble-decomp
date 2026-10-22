@@ -509,6 +509,16 @@ public:
     }
 
     pair<iterator, bool> insert_one(const value_type& rValue);
+    template <typename Key> pair<iterator, bool> insert_key(const Key& rKey) {
+        node* pPred;
+        bool leftmost;
+        bool left;
+        tree_node_base* pParent = find_leaf<Key>(rKey, pPred, left, leftmost);
+        if (pPred == nullptr || comp()(pPred->value_, rKey)) {
+            return pair<iterator, bool>(iterator(insert_node_at(pParent, left, leftmost, rKey)), true);
+        }
+        return pair<iterator, bool>(iterator(pPred), false);
+    }
 
     pair<iterator, bool> insert(const value_type& rValue);
 
@@ -581,6 +591,28 @@ tree_imp<T, Compare, Allocator>::~tree_imp() {
     if (root() != nullptr) {
         destroy(static_cast<node*>(root()));
     }
+}
+
+template <typename T, typename Compare, typename Allocator>
+tree_node_base* tree_imp<T, Compare, Allocator>::find_leaf(const value_type& rValue, node*& rpPred, bool& rLeft, bool& rLeftmost) {
+    rpPred = nullptr;
+    node* pLeaf = static_cast<node*>(end_node());
+    node* pNode = static_cast<node*>(root());
+    rLeft = true;
+    rLeftmost = true;
+    while (pNode != nullptr) {
+        pLeaf = pNode;
+        if (comp()(rValue, pNode->value_)) {
+            pNode = static_cast<node*>(pNode->left_);
+            rLeft = true;
+        } else {
+            rpPred = pLeaf;
+            pNode = static_cast<node*>(pNode->right_);
+            rLeft = false;
+            rLeftmost = false;
+        }
+    }
+    return pLeaf;
 }
 
 template <typename T, typename Compare, typename Allocator>
@@ -846,6 +878,7 @@ public:
     template <typename Key> iterator find(const Key& rKey) { return implementation::find(rKey); }
     template <typename Key> const_iterator find(const Key& rKey) const { return implementation::find(rKey); }
     pair<iterator, bool> insert_one(const value_type& rValue) { return base::insert_one(rValue); }
+    template <typename Key> pair<iterator, bool> insert_key(const Key& rKey) { return base::insert_key(rKey); }
     pair<iterator, bool> insert(const value_type& rValue) { return base::insert(rValue); }
     template <typename Key> T& find_or_insert(const Key& rKey) { return implementation::find_or_insert(rKey); }
     void clear() { base::clear(); }
