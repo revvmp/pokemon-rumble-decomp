@@ -146,8 +146,9 @@ bool CShadowCamera::CalcLightProjection() {
     }
 
     nw4r::g3d::Camera shadowCamera = GetG3dCamera();
-    f32 orthoMin = -1.0f;
-    f32 orthoMax = 1.0f;
+    f32 orthoMin, orthoMax;
+    orthoMax = 1.0f;
+    orthoMin = -1.0f;
     f32 viewNear = pCamera->GetG3dCamera().ref().projNear;
     f32 viewFar = pCamera->GetG3dCamera().ref().projFar;
     shadowCamera.SetOrtho(orthoMax, orthoMin, orthoMin, orthoMax, viewNear, viewFar);

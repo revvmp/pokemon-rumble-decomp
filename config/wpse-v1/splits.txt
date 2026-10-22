@@ -541,6 +541,7 @@ game/CShadowCamera.cpp:
 	extab       start:0x80028E54 end:0x800290E8
 	extabindex  start:0x8004BC9C end:0x8004BD44
 	.text       start:0x8010C490 end:0x8010DDD8
+	.rodata     start:0x80354E20 end:0x80354E38
 	.data       start:0x803ADA30 end:0x803ADD58
 	.sdata      start:0x804B7358 end:0x804B7368
 	.sdata2     start:0x804BA0D8 end:0x804BA108
