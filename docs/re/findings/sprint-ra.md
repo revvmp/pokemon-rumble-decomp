@@ -157,6 +157,8 @@ Each rule was checked in sandbox compiles with the game flags. The sandbox files
 
 - BWorld `FindObjectsInSector` (99.86% to 100%, commit `0f5081f9e`): rule 4.
 - homebutton `InitializeHomeButtonInfo` (98.73% to 100%, commit `33c676572`): rule 6. `pInfo->messageFlag |= HBMMSG_NOSAVE_ALL;` and `CFileData::WaitUntilLoaded(pData->mModel.operator->());`.
+- BWorld `FindObjectsInRing` (99.37% to 100%, commit `c3616dbbf`): rule 4, as in `FindObjectsInSector`.
+- CMsgRes `ConvertEscape` (94.66% to 95.57%, commit `91578f171`): rule 2. Declaring `isSjis` after `isTrailByte` gives it the lower number, and `isTrailByte = false;` before the terminator store restores the target's block structure. On its own the store lowered the score to 93.32%; only the declaration move made it an improvement. Register differences remain.
 
 ## Diagnosed, not fixed
 
