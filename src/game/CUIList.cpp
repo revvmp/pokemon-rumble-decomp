@@ -74,9 +74,7 @@ int CUIList::GetFirstVisibleIndex() { UpdateScrollRange(); return mFirstVisibleI
 void CUIList::SetScrollMode(int mode) { mScrollMode = mode; UpdateSelection(); }
 void CUIList::UpdateScrollRange() {
     GetSelectedIndex();
-    unsigned long items = mItems.size();
-    unsigned long layouts = mLayouts.size();
-    if (items <= layouts) mFirstVisibleIndex = 0;
+    if (mItems.size() <= mLayouts.size()) mFirstVisibleIndex = 0;
     else if (mScrollMode != 1) {
         int selected = mSelectedIndex;
         int first = mFirstVisibleIndex;
@@ -84,19 +82,20 @@ void CUIList::UpdateScrollRange() {
         int end = mScrollRangeEnd;
         if (selected < first+begin) first = selected-begin;
         else if (first+end <= selected) first = selected-end+1;
-        mFirstVisibleIndex = Clamp(first,0,static_cast<int>(items-layouts));
-    } else mFirstVisibleIndex = mSelectedIndex / layouts * layouts;
+        int last = mItems.size()-mLayouts.size();
+        mFirstVisibleIndex = Clamp(first,0,last);
+    } else mFirstVisibleIndex = mSelectedIndex / mLayouts.size() * mLayouts.size();
 }
 void CUIList::UpdateSelection() {
     UpdateScrollRange();
     GetLayout()->SetPaneVisible("BACKWARD", mFirstVisibleIndex != 0);
     GetLayout()->SetPaneVisible("FORWARD", mFirstVisibleIndex + mLayouts.size() < mItems.size());
-    bool scroll = static_cast<int>(mItems.size()) > static_cast<int>(mLayouts.size());
+    bool scroll = static_cast<int>(mLayouts.size()) < static_cast<int>(mItems.size());
     GetLayout()->SetPaneVisible("VSCROLL", scroll);
     GetLayout()->SetPaneVisible("HSCROLL", scroll);
     float position = mItems.empty() ? 0.0f : static_cast<float>(static_cast<unsigned long>(mFirstVisibleIndex)) / mItems.size();
     float size = mItems.size() <= mLayouts.size() ? 1.0f : static_cast<float>(mLayouts.size()) / mItems.size();
-    if (size > 1.0f-position) size = 1.0f-position;
+    if (1.0f-position < size) size = 1.0f-position;
     nw4r::lyt::Pane* pThumb = GetLayout()->FindPane("VSCROLL_THUMB");
     if (pThumb) {
         nw4r::lyt::Pane* pTrack = GetLayout()->FindPane("VSCROLL_BK");
