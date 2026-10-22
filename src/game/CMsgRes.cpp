@@ -551,51 +551,47 @@ wchar_t ConvertCase(wchar_t c, int type) {
     case CASE_UPPER:
         if (c < 0x0080) {
             return _current_locale.ctype_cmpt_ptr->wupper_map_ptr[c];
-        } else if (c < 0x00C0) {
-            return c;
-        } else if (c < 0x0100) {
+        }
+        if (0x00C0 <= c && c < 0x0100) {
             return sUpperLatin1[c - 0x00C0];
-        } else if (c < 0x0180) {
+        }
+        if (0x0100 <= c && c < 0x0180) {
             return sUpperLatinExtA[c - 0x0100];
-        } else if (c < 0x0380) {
-            return c;
-        } else if (c < 0x03D0) {
+        }
+        if (0x0380 <= c && c < 0x03D0) {
             return sUpperGreek[c - 0x0380];
-        } else if (c < 0x0430) {
-            return c;
-        } else if (c < 0x0450) {
+        }
+        if (0xFF41 <= c && c < 0xFF5B) {
             return c - 0x20;
-        } else if (c < 0x0460) {
+        }
+        if (0x0430 <= c && c < 0x0450) {
+            return c - 0x20;
+        }
+        if (0x0450 <= c && c < 0x0460) {
             return c - 0x50;
-        } else if (c < 0xFF41) {
-            return c;
-        } else if (c < 0xFF5B) {
-            return c - 0x20;
         }
         return c;
     case CASE_LOWER:
         if (c < 0x0080) {
             return _current_locale.ctype_cmpt_ptr->wlower_map_ptr[c];
-        } else if (c < 0x00C0) {
-            return c;
-        } else if (c < 0x0100) {
+        }
+        if (0x00C0 <= c && c < 0x0100) {
             return sLowerLatin1[c - 0x00C0];
-        } else if (c < 0x0180) {
+        }
+        if (0x0100 <= c && c < 0x0180) {
             return sLowerLatinExtA[c - 0x0100];
-        } else if (c < 0x0380) {
-            return c;
-        } else if (c < 0x03D0) {
+        }
+        if (0x0380 <= c && c < 0x03D0) {
             return sLowerGreek[c - 0x0380];
-        } else if (c < 0x0400) {
-            return c;
-        } else if (c < 0x0410) {
+        }
+        if (0xFF21 <= c && c < 0xFF3B) {
+            return c + 0x20;
+        }
+        if (0x0410 <= c && c < 0x0430) {
+            return c + 0x20;
+        }
+        if (0x0400 <= c && c < 0x0410) {
             return c + 0x50;
-        } else if (c < 0x0430) {
-            return c + 0x20;
-        } else if (c < 0xFF21) {
-            return c;
-        } else if (c < 0xFF3B) {
-            return c + 0x20;
         }
         return c;
     }
