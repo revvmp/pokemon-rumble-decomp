@@ -770,12 +770,17 @@ std::list<BWorldObj*> BWorld::FindObjectsInRing(u32 type, const nw4r::math::VEC3
         f32 distSq = diff.z * diff.z + diff.x * diff.x;
 
         f32 radius = pObj->GetSize().z;
-        if ((outerRadius + radius) * (outerRadius + radius) < distSq) {
+        f32 outer = outerRadius + radius;
+        outer *= outer;
+        if (outer < distSq) {
             continue;
         }
         f32 inner = innerRadius - radius;
-        if (0.0f < inner && distSq < inner * inner) {
-            continue;
+        if (0.0f < inner) {
+            inner *= inner;
+            if (distSq < inner) {
+                continue;
+            }
         }
 
         objs.insert(objs.end(), pObj);
