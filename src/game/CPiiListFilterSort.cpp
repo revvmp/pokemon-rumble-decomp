@@ -50,6 +50,76 @@ bool CompareBPDescending(const PiiItemPtr& rA, const PiiItemPtr& rB) {
     return pB->GetId() < pA->GetId();
 }
 
+inline int Reverse(int result) {
+    return result != 0 ? -result : 0;
+}
+
+inline int CompareBPChain(const CPiiPersonalData* pA, const CPiiPersonalData* pB) {
+    int result = CompareValue(pA->GetBP(), pB->GetBP());
+    if (result != 0) {
+        return result > 0;
+    }
+    result = CompareValue(pA->GetCreationTime(), pB->GetCreationTime());
+    if (result != 0) {
+        return result > 0;
+    }
+    return pB->GetId() < pA->GetId();
+}
+
+inline int CompareSpeciesNames(const PiiSpeciesData* pA, const PiiSpeciesData* pB) {
+    if (pA == pB) {
+        return 0;
+    }
+    const wchar_t* pNameA = pA->GetName();
+    const wchar_t* pNameB = pB->GetName();
+    if (pNameA == pNameB) {
+        return 0;
+    }
+    return CompareCollation(pNameA, pNameB);
+}
+
+bool CompareFavoriteFirst(const PiiItemPtr& rA, const PiiItemPtr& rB) {
+    const CPiiPersonalData* pA = rA->GetPPD().get();
+    const CPiiPersonalData* pB = rB->GetPPD().get();
+    int result = CompareValue(int(pA->IsSpecHidden()), int(pB->IsSpecHidden()));
+    if (result != 0) {
+        result = -result;
+    } else {
+        result = Reverse(CompareValue(int(pA->IsFavorite()), int(pB->IsFavorite())));
+    }
+    if (result != 0) {
+        return result < 0;
+    }
+    result = CompareValue(pA->GetBP(), pB->GetBP());
+    if (result == 0) {
+        result = CompareValue(pA->GetCreationTime(), pB->GetCreationTime());
+    }
+    if (result != 0) {
+        return result > 0;
+    }
+    return pB->GetId() < pA->GetId();
+}
+
+bool CompareSpeciesName(const PiiItemPtr& rA, const PiiItemPtr& rB) {
+    const PiiSpeciesData* pSpeciesA = rA->GetPPD()->GetSpeciesData();
+    const PiiSpeciesData* pSpeciesB = rB->GetPPD()->GetSpeciesData();
+    int result = CompareSpeciesNames(pSpeciesA, pSpeciesB);
+    if (result != 0) {
+        return result < 0;
+    }
+    return CompareBPDescending(rA, rB);
+}
+
+bool CompareSpeciesOrder(const PiiItemPtr& rA, const PiiItemPtr& rB) {
+    const PiiSpeciesData* pSpeciesA = rA->GetPPD()->GetSpeciesData();
+    const PiiSpeciesData* pSpeciesB = rB->GetPPD()->GetSpeciesData();
+    int result = Compare(pSpeciesA, pSpeciesB);
+    if (result != 0) {
+        return result < 0;
+    }
+    return CompareBPDescending(rA, rB);
+}
+
 bool CompareNewest(const PiiItemPtr& rA, const PiiItemPtr& rB) {
     const CPiiPersonalData* pA = rA->GetPPD().get();
     const CPiiPersonalData* pB = rB->GetPPD().get();
