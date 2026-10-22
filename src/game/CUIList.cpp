@@ -89,9 +89,9 @@ void CUIList::UpdateSelection() {
     UpdateScrollRange();
     GetLayout()->SetPaneVisible("BACKWARD", mFirstVisibleIndex != 0);
     GetLayout()->SetPaneVisible("FORWARD", mFirstVisibleIndex + mLayouts.size() < mItems.size());
-    bool scroll = static_cast<int>(mItems.size()) > static_cast<int>(mLayouts.size());
-    GetLayout()->SetPaneVisible("VSCROLL", scroll);
-    GetLayout()->SetPaneVisible("HSCROLL", scroll);
+    bool allVisible = mItems.size() <= mLayouts.size();
+    GetLayout()->SetPaneVisible("VSCROLL", allVisible);
+    GetLayout()->SetPaneVisible("HSCROLL", allVisible);
     float position = mItems.empty() ? 0.0f : static_cast<float>(static_cast<unsigned long>(mFirstVisibleIndex)) / mItems.size();
     float size = mItems.size() <= mLayouts.size() ? 1.0f : static_cast<float>(mLayouts.size()) / mItems.size();
     if (1.0f-position < size) size = 1.0f-position;
@@ -173,9 +173,8 @@ void CUIList::OnInput(const IUIInput* pInput) {
         GetSelectedIndex();
         if (mSelectedIndex+pageSize < mItems.size()) mSelectedIndex += pageSize;
         else if (!mItems.empty()) {
-            unsigned long page=mSelectedIndex/pageSize;
-            if (page < (mItems.size()+pageSize-1)/pageSize-1) mSelectedIndex=mItems.size()-1;
-            else if ((trigger&pButtons[3]) && mWrapSelection) mSelectedIndex-=page*pageSize;
+            if (mSelectedIndex/pageSize < (mItems.size()+pageSize-1)/pageSize-1) mSelectedIndex=mItems.size()-1;
+            else if ((trigger&pButtons[3]) && mWrapSelection) mSelectedIndex%=pageSize;
             else mSelectedIndex=mItems.size()-1;
         } else mSelectedIndex=0;
     } else if (trigger & 0x20) {
