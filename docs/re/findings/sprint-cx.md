@@ -209,3 +209,63 @@ Reproduction helpers and rejected candidate snapshots are outside the repository
 - Filtered target-name order and fuzzy function counts omit additional emitted wrappers. Inspect the source-selected ELF and DOL section sizes before assuming that only ordering remains.
 - Do not try to force the apparent vector interleaving solely with primary-template forward declarations until the algorithm owner names have been checked against the original storage/constructor split.
 - Next steps are to resolve the map forwarding wrappers without regressing their deferred-tree consumers, then prove or reject the vector owner corrections across current units. The 46-name diagnostic is not safe to retain as a partial fix.
+
+
+## 2026-10-22: ef_animcurve and CRemoteMemory near-miss investigation
+
+Both requested units remain NonMatching. This session did not finish either unit and made no Matching registration changes. Work stayed in the current checkout, without commits, assembly, added code comments, target-manifest edits, or scratch source files in the repository. Build objects, dependency files, the linker response file, and reports are ordinary configured build outputs.
+
+### Retained source changes
+
+- In both baked curve executors, declare one `u32 loop` before `count` and assign it in the integer and fitted paths. Each live function improves from 99.407585% to 99.739334%, retaining its 844-byte size. This removes ten register-operand differences; eleven remain, principally frame length in r4 instead of r8 and the fitted lifetime temporary in r6 instead of r4. No other ef_animcurve function improves or regresses. The unit remains 1/8 perfect functions.
+- Compare the masked CRemoteMemory state as the existing signed `Flag` enum. The two `cmplwi` instructions in Update become the target's `cmpwi`; Update improves from 98.89908% to 100%. No new volatile variables were introduced. The existing volatile temporaries were retained because the target Update actually contains their corresponding stack stores and loads.
+- GetPiiBox now calls the evidenced `CreateScriptEnvironment`, instead of `CreatePpuEnvironment`. Its target relocation at function offset 0x12C names the former. It assigns the remote list through an iterator range. The new `list::assign(const_iterator, const_iterator)` overload advances at most the destination size and delegates to the existing `__assign_range`, preserving existing copy-assignment behavior. Live GetPiiBox improves from 45.31% to 65.14%. This overload reconstructs the same-list-iterator interface used here; it does not claim a complete generic input-iterator assign implementation.
+- RemoteDataBlock has an inline IsValid method with an early magic rejection followed by CRC equality. FinishRead tests unequal generations first, preserving the previous block-selection semantics while following target branch order, and uses an unsigned active-block index. Live FinishRead improves from 49.80% to 56.07%.
+- PrepareWrite tests modes 0 and 1 explicitly before selecting the 536-byte payload transfer; all other modes use the checksum transfer. The target has both comparisons, so the previous `mode > 1` formulation was wrong for negative modes. Live matching changes from 77.40% to 77.19%; the count of perfect functions is unaffected. Register allocation and the WriteBlock switch remain unresolved.
+
+### Investigated but not retained
+
+- Widening or making the baked frame count const, reading frameLength directly, moving count declarations, hoisting flags, and rewriting period uses did not finish the baked functions. Extracting the whole baked-time helper also changed the inlining of U8/F32 and regressed those functions; it was reverted. An inline frame-length accessor did not change the remaining allocation.
+- Texture parameter-copy permutations and replacing its pointer setup with SplitCurveResource left its 99.61126% score unchanged; those edits were removed. U8, F32, Rotate, Texture, and Child retain their original scores and source.
+- Duplicating the WriteBlock -1/default bodies, splitting flag assignments, moving error handling after the switch, and casting switch selectors did not reproduce the target's explicit -1 tree. WriteBlock and FinishWrite retain their initial source. Extracting block selection into another helper made FinishRead's frame larger; that helper was removed.
+- A one-pass list assignment implementation worsened GetPiiBox. The retained range overload uses the already-existing assignment helper and was checked by recompiling the configured source set. Large target iterator frames and materialized boolean comparisons remain unresolved; the function is not close to exact source-link acceptance.
+
+### Validation procedure and traps
+
+The initial report counted 12,980 functions with `fuzzy_match_percent == 100`. Unit investigation used `tools/re/unitdiff.py <unit> --function <exact name>` and the JSON/unit summaries. Ninja stalled after an edit and was interrupted, so subsequent investigation invoked the generated compiler command directly and used `unitdiff --no-build`. `python configure.py` succeeded.
+
+An initial full compilation bypassed sjiswrap. After restoring it for the six non-ASCII C++ files, the count was 12,981, but a fresh link failed frozen verification at DOL header byte 0x36 with 192 extra data bytes. This was not accepted. Comparing corresponding data blocks traced the growth to localized SDK DVD strings: `dvdFatal.c` and `dvdDeviceError.c` also contain non-ASCII source. All 865 configured compilation commands were therefore rerun with their exact sjiswrap and post-processing commands, not just the C++ subset.
+
+Verified lesson: a direct-compiler fallback is safe for an ASCII investigation source but must not silently replace sjiswrap across the build. Check C as well as C++ sources; successful compilation and the perfect-function count alone do not establish correct string bytes. No frozen hash was changed.
+
+
+### Final acceptance and remaining work
+
+All 865 exact configured source compilation commands completed with zero compiler failures. After deleting main.dol, the configured linker and elf2dol both exited 0. The link retained 29 existing FORCEACTIVE warnings. The following command returned PASS:
+
+```text
+python tools/verify/verify.py verify --manifest config/targets/wpse-v1.json --reference-dir orig/wpse-v1 --build-dir build/wpse-v1
+```
+
+Final main.dol SHA-256: `ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da`.
+
+The refreshed report contains 12,981 perfect functions, up from 12,980. The three temporary encoding-related losses (CDlgMsgWin::OpenYesNo, CMsgBalloon::Init, and CSaveManager::Work) are restored to 100%. Report generation retains its existing exception-table decoding warnings for ScriptLayout::method_layoutSetString and NPpu::ToUnicode.
+
+| Target function | Final live unitdiff | Final report fuzzy match |
+| --- | ---: | ---: |
+| AnimCurveExecuteU8 | 93.206955% | 93.206955% |
+| AnimCurveExecuteF32 | 94.47577% | 94.47577% |
+| AnimCurveExecuteRotate | 93.434135% | 93.434135% |
+| AnimCurveExecuteTexture | 99.61126% | 99.61126% |
+| AnimCurveExecuteChild | 96.31% | 96.31834% |
+| AnimCurveExecuteBakedU8 | 99.739334% | 99.739334% |
+| AnimCurveExecuteBakedF32 | 99.739334% | 99.739334% |
+| CRemoteMemory::Update | 100% | 100% |
+| CRemoteMemory::GetPiiBox | 65.14% | 65.135086% |
+| CRemoteMemory::FinishRead | 56.07% | 56.64939% |
+| CRemoteMemory::PrepareWrite | 77.19% | 78.48855% |
+| CRemoteMemory::FinishWrite | 44.60% | 46.19608% |
+
+The signed-state Update baseline was displayed as 98.90%; the earlier extra decimal digits in this session entry are not a separately captured baseline measurement.
+
+CRemoteMemory is now 14/20 live perfect functions; ef_animcurve remains 1/8. Full-DOL PASS validates the current selection of Matching objects and original fallbacks. It does not validate either requested unit linked from source. No promotion was attempted because neither passed the all-functions gate. Remaining work includes ef_animcurve allocation/inlining, CRemoteMemory's state-mask helper and switch structure, list iterator/exception frame fidelity, and data/function emission order. configure.py and config/targets remain unchanged.

@@ -357,6 +357,13 @@ public:
         return *this;
     }
 
+    void assign(const_iterator first, const_iterator last) {
+        const_iterator mid = first;
+        size_type count = size();
+        for (; count != 0 && mid != last; --count, ++mid) {}
+        __assign_range(*this, first, mid, last);
+    }
+
     using base::back;
     using base::pop_back;
     using base::begin;

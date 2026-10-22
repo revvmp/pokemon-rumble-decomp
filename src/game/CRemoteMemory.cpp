@@ -12,7 +12,7 @@
 void SetPadConnectionCallback(int channel, void (*pCallback)(long, long));
 extern "C" u32 OSCalcCRC32(const void* pData, u32 size);
 std::tr1::shared_ptr<CPiiPersonalData> CreatePiiPersonalData(const COyaInfo* pOyaInfo, const SD_PiiPersonalData::Data& rData);
-std::tr1::shared_ptr<CPpuEnv> CreatePpuEnvironment();
+std::tr1::shared_ptr<CPpuEnv> CreateScriptEnvironment();
 bool IsGameFlagSet(int flag);
 
 namespace {
@@ -23,6 +23,13 @@ struct RemoteDataBlock {
     u8 mGeneration;
     SD_PiiPersonalData::Data mPii[12];
     u32 mChecksum;
+
+    bool IsValid() const {
+        if (mMagic != 'WPSJ') {
+            return false;
+        }
+        return OSCalcCRC32(this, 536) == mChecksum;
+    }
 } ATTRIBUTE_ALIGN(32);
 
 CRemoteMemory* sRemoteMemories[4];
@@ -139,8 +146,8 @@ CPiiBox* CRemoteMemory::GetPiiBox() {
                 mRemoteBox.AddPersonalData(personalData);
             }
         }
-        mRemoteBox.ApplyEnvironment(false, CreatePpuEnvironment());
-        mPersonalData = mRemoteBox.GetPersonalDataList();
+        mRemoteBox.ApplyEnvironment(false, CreateScriptEnvironment());
+        mPersonalData.assign(mRemoteBox.GetPersonalDataList().begin(), mRemoteBox.GetPersonalDataList().end());
         mFlags |= FLAG_DATA_CHANGED;
     } else if ((mFlags & (FLAG_DISCONNECTED | FLAG_DATA_CHANGED)) == FLAG_DISCONNECTED) {
         mRemoteBox.Clear();
@@ -157,7 +164,7 @@ CPiiBox* CRemoteMemory::GetPiiBox() {
 }
 
 inline void CRemoteMemory::SetState(Flag state) {
-    if ((mFlags & FLAG_STATE_MASK) == state) {
+    if (static_cast<Flag>(mFlags & FLAG_STATE_MASK) == state) {
         mFlags &= ~FLAG_BUSY;
     } else {
         volatile u32 a = FLAG_STATE_AND_BUSY_MASK;
@@ -332,22 +339,22 @@ void CRemoteMemory::FinishRead(int channel, long result) {
     CRemoteMemory* pRemote = sRemoteMemories[channel];
     switch (result) {
     case 0: {
-        int activeBlock;
+        u32 activeBlock;
         RemoteDataBlock* pBlocks = sReadData[channel];
         RemoteDataBlock* pSecond = &pBlocks[1];
-        if (pBlocks[0].mGeneration == pSecond->mGeneration) {
-            if (pSecond->mMagic == 'WPSJ' && OSCalcCRC32(pSecond, 536) == pSecond->mChecksum) {
-                activeBlock = 1;
-            } else if (pBlocks[0].mMagic == 'WPSJ' && OSCalcCRC32(&pBlocks[0], 536) == pBlocks[0].mChecksum) {
+        if (pBlocks[0].mGeneration != pSecond->mGeneration) {
+            if (pBlocks[0].IsValid()) {
                 activeBlock = 0;
+            } else if (pSecond->IsValid()) {
+                activeBlock = 1;
             } else {
                 activeBlock = 3;
             }
         } else {
-            if (pBlocks[0].mMagic == 'WPSJ' && OSCalcCRC32(&pBlocks[0], 536) == pBlocks[0].mChecksum) {
-                activeBlock = 0;
-            } else if (pSecond->mMagic == 'WPSJ' && OSCalcCRC32(pSecond, 536) == pSecond->mChecksum) {
+            if (pSecond->IsValid()) {
                 activeBlock = 1;
+            } else if (pBlocks[0].IsValid()) {
+                activeBlock = 0;
             } else {
                 activeBlock = 3;
             }
@@ -436,12 +443,12 @@ void CRemoteMemory::PrepareWrite(int mode) {
         pBlock->mChecksum = OSCalcCRC32(sReadData[channel], 536);
         WPADSetGameTitleUtf16(reinterpret_cast<const u16*>(GetMessageString(1, nullptr)));
     }
-    if (mWriteMode > 1) {
-        mTransferOffset = 536;
-        mTransferSize = 4;
-    } else {
+    if (mWriteMode == 0 || mWriteMode == 1) {
         mTransferOffset = 0;
         mTransferSize = 536;
+    } else {
+        mTransferOffset = 536;
+        mTransferSize = 4;
     }
     mBlockOffset = nextBlock * sizeof(RemoteDataBlock);
     WriteBlock(channel);

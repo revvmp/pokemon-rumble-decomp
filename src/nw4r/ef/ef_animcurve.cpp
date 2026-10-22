@@ -1003,6 +1003,7 @@ void AnimCurveExecuteBakedU8(u8* pCmdList, u8* pTarget, u32 tick, u32 life) {
         const u8* pNames;
         u16 frame;
         detail::SplitCurveResource(pCmdList, &pHeader, &pKey, &pRanges, &pRandom, &pNames);
+        u32 loop;
         u16 count = pHeader->frameLength;
         if (count <= 1) {
             frame = 0;
@@ -1028,7 +1029,7 @@ void AnimCurveExecuteBakedU8(u8* pCmdList, u8* pTarget, u32 tick, u32 life) {
                 }
             } else if (!(flags & AnimCurveHeader::PROC_FLAG_FITTING)) {
                 u32 span = count - 1;
-                u32 loop = tick / span;
+                loop = tick / span;
                 if (!(flags & AnimCurveHeader::PROC_FLAG_TURN)) {
                     if (infiniteLoop == 0 && loop >= pHeader->loopCount) {
                         frame = span;
@@ -1057,7 +1058,7 @@ void AnimCurveExecuteBakedU8(u8* pCmdList, u8* pTarget, u32 tick, u32 life) {
                 } else {
                     s32 span = count - 1;
                     f32 rate = static_cast<f32>(pHeader->loopCount) * (static_cast<f32>(span) / static_cast<f32>(last));
-                    u32 loop = static_cast<u32>(static_cast<f32>(tick) * rate / static_cast<f32>(span));
+                    loop = static_cast<u32>(static_cast<f32>(tick) * rate / static_cast<f32>(span));
                     f32 value = static_cast<f32>(tick) * rate - static_cast<f32>(loop * span);
                     if (!(flags & AnimCurveHeader::PROC_FLAG_TURN)) {
                         frame = value;
@@ -1091,6 +1092,7 @@ void AnimCurveExecuteBakedF32(u8* pCmdList, f32* pTarget, u32 tick, u32 life) {
         const u8* pNames;
         u16 frame;
         detail::SplitCurveResource(pCmdList, &pHeader, &pKey, &pRanges, &pRandom, &pNames);
+        u32 loop;
         u16 count = pHeader->frameLength;
         if (count <= 1) {
             frame = 0;
@@ -1116,7 +1118,7 @@ void AnimCurveExecuteBakedF32(u8* pCmdList, f32* pTarget, u32 tick, u32 life) {
                 }
             } else if (!(flags & AnimCurveHeader::PROC_FLAG_FITTING)) {
                 u32 span = count - 1;
-                u32 loop = tick / span;
+                loop = tick / span;
                 if (!(flags & AnimCurveHeader::PROC_FLAG_TURN)) {
                     if (infiniteLoop == 0 && loop >= pHeader->loopCount) {
                         frame = span;
@@ -1145,7 +1147,7 @@ void AnimCurveExecuteBakedF32(u8* pCmdList, f32* pTarget, u32 tick, u32 life) {
                 } else {
                     s32 span = count - 1;
                     f32 rate = static_cast<f32>(pHeader->loopCount) * (static_cast<f32>(span) / static_cast<f32>(last));
-                    u32 loop = static_cast<u32>(static_cast<f32>(tick) * rate / static_cast<f32>(span));
+                    loop = static_cast<u32>(static_cast<f32>(tick) * rate / static_cast<f32>(span));
                     f32 value = static_cast<f32>(tick) * rate - static_cast<f32>(loop * span);
                     if (!(flags & AnimCurveHeader::PROC_FLAG_TURN)) {
                         frame = value;
