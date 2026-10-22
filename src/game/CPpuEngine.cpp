@@ -1,8 +1,15 @@
 #include <game/CPpuEngine.h>
 #include <game/BWorld.h>
 #include <game/BWorldObj.h>
+#include <game/CFileData.h>
+#include <game/IGameMap.h>
+#include <nw4r/g3d/res/g3d_resanmchr.h>
+#include <nw4r/g3d/res/g3d_resfile.h>
+#include <string>
+#include <string.h>
 
 void YieldFiber();
+std::tr1::shared_ptr<NPpu::CCode> LoadScriptCode(NPpu::CEnvironment* pEnv, const char* pName, int mode);
 
 std::tr1::weak_ptr<NPpu::CEnvironment> CPpuEngine::sDefaultEnv;
 MapIndex CPpuEngine::sDefaultStageDescTarget;
@@ -21,6 +28,13 @@ CPpuEngine::CPpuEngine() : mFlags(0), mOwnerObj(nullptr), mStageDescTarget(sDefa
 
 CPpuEngine::~CPpuEngine() {}
 
+BWorld* CPpuEngine::GetWorld() const {
+    if (mOwnerObj) {
+        return mOwnerObj->GetWorld();
+    }
+    return GetCurrentGameMap()->GetWorld();
+}
+
 NPpu::CEnvironment* CPpuEngine::GetEnv() const {
     return GetEnvironment();
 }
@@ -37,12 +51,82 @@ void CPpuEngine::SetDefaultStageDescTarget(const MapIndex& rTarget) {
     sDefaultStageDescTarget = rTarget;
 }
 
+static inline u32 GetNodeCount(const nw4r::g3d::ResAnmChr& rAnm) {
+    return rAnm.ofs_to_obj<nw4r::g3d::ResDic>(rAnm.ref().toChrDataDic).GetNumData();
+}
+
+std::tr1::shared_ptr<CFileData> CPpuEngine::LoadFile(const char* pName, bool background) {
+    std::tr1::shared_ptr<CFileData> file = LoadResourceFile(pName, 0, background);
+    if (!file || !file->IsLoaded()) {
+        return std::tr1::shared_ptr<CFileData>();
+    }
+    mFiles.insert(file);
+    return file;
+}
+
+bool CPpuEngine::LoadPlacement(const char* pFileName, const char* pAnmName, const char* pNodePrefix, bool background) {
+    std::tr1::shared_ptr<CFileData> file = LoadResourceFile(pFileName, 0, background);
+    if (!file || !file->IsLoaded()) {
+        return false;
+    }
+    const nw4r::g3d::ResAnmChr anm = nw4r::g3d::ResFile(file->GetData()).GetResAnmChr(pAnmName);
+    if (!anm.IsValid()) {
+        return false;
+    }
+    size_t prefixLength = strlen(pNodePrefix);
+    u32 nodeCount = GetNodeCount(anm);
+    std::vector<nw4r::math::MTX34> placements;
+    placements.reserve(nodeCount);
+    for (u32 i = 0; i < nodeCount; i++) {
+        const nw4r::g3d::ResAnmChrNodeData* pNode = anm.GetNodeAnm(i);
+        const char* pNodeName = reinterpret_cast<const char*>(pNode) + pNode->name;
+        if (strncmp(pNodeName, pNodePrefix, prefixLength) == 0) {
+            nw4r::g3d::ChrAnmResult result;
+            anm.GetAnmResult(&result, i, 0.0f);
+            nw4r::math::MTX34 mtx;
+            result.GetMtx(&mtx);
+            placements.push_back(mtx);
+        }
+    }
+    mPlacements.swap(placements);
+    return true;
+}
+
 void CPpuEngine::SetPPD(std::tr1::shared_ptr<CPiiPersonalData> ppd) {
     mPPD = ppd;
 }
 
 void CPpuEngine::LeaveInitPart() {
     mFlags |= FLAG_LEFT_INIT_PART;
+}
+
+const char* CPpuEngine::GetScriptRoot() {
+    if (sScriptRoot) {
+        return sScriptRoot->c_str();
+    }
+    return "5:";
+}
+
+std::tr1::shared_ptr<CFileData> CPpuEngine::LoadScriptFile(const char* pName, u32 flags) {
+    std::tr1::shared_ptr<CFileData> file = LoadResourceFile((std::string("script.arc/") + pName).c_str(), 0, flags, GetScriptRoot());
+    if (file && file->IsLoaded()) {
+        return file;
+    }
+    return std::tr1::shared_ptr<CFileData>();
+}
+
+bool CPpuEngine::Load(const char* pName, int mode, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnv) {
+    std::tr1::shared_ptr<NPpu::CEnvironment> env(rEnv ? rEnv : sDefaultEnv.lock());
+    if (!env) {
+        return false;
+    }
+    std::tr1::shared_ptr<NPpu::CCode> code = LoadScriptCode(env.get(), pName, mode);
+    if (!code) {
+        return false;
+    }
+    mStageDescTarget = sDefaultStageDescTarget;
+    Init(code.get(), env.get(), FRAME_CAPACITY, BASE_COUNT, HANDLER_CAPACITY);
+    return true;
 }
 
 bool CPpuEngine::Load(BWorldObj* pOwner, const char* pName, int mode, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnv) {
@@ -108,4 +192,45 @@ void CPpuEngine::Calc() {
             return;
         }
     }
+}
+
+BWorldObj* CPpuEngine::PopWorldObj() {
+    u32 id = PopInt();
+    if (id & 0x80000000) {
+        return nullptr;
+    }
+    if (mOwnerObj != nullptr && id == mOwnerObj->GetId()) {
+        return mOwnerObj;
+    }
+    return GetWorld()->GetObject(id);
+}
+
+CEffect* CPpuEngine::PopEffect() {
+    u32 id = PopInt();
+    return GetWorld()->GetEffect(id);
+}
+
+const PiiSpeciesData* CPpuEngine::PopSpeciesData() {
+    int id = PopInt();
+    if (id == 0) {
+        return nullptr;
+    }
+    return reinterpret_cast<const PiiSpeciesData*>(id);
+}
+
+u32 CPpuEngine::PeekWorldObjType(int argIndex) {
+    NPpu::CValue value;
+    GetArg(argIndex, value);
+    u32 id = value.ToInt();
+    if (id != 0) {
+        BWorldObj* pObj = GetWorld()->GetObject(id);
+        if (pObj != nullptr) {
+            return pObj->GetType();
+        }
+    }
+    return 0;
+}
+
+bool CPpuEngine::HasCallback(int messageID) const {
+    return mCallbacks.find(messageID) != mCallbacks.end();
 }

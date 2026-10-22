@@ -28,5 +28,10 @@ std::tr1::shared_ptr<CFileData> CreateFileData(const char* pPath, u32 flags, boo
 std::tr1::shared_ptr<CFileData> LoadFile(const char* pPath, u32 flags, bool background);
 std::tr1::shared_ptr<CFileData> LoadResourceFile(const char* pPath, u32 flags, bool background);
 std::tr1::shared_ptr<CFileData> RequestFile(const char* pPath, u32 flags, bool background);
+std::tr1::shared_ptr<CFileData> LoadFile(const char* pPath, u32 flags, u32 mode, const char* pRegion);
+
+inline std::tr1::shared_ptr<CFileData> LoadResourceFile(const char* pPath, u32 flags, u32 mode, const char* pRegion) {
+    return LoadFile(pPath, flags | 0x2000, mode, pRegion);
+}
 
 #endif

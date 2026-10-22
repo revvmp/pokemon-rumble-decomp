@@ -14,10 +14,42 @@
 #include <set>
 #include <vector>
 
+namespace Metrowerks {
+template <> struct is_POD<nw4r::math::MTX34> {
+    enum { value = true };
+};
+}
+
+namespace std {
+template <> struct __vec_bulk_move<nw4r::math::MTX34> {
+    enum { value = false };
+};
+
+template <>
+inline void __vec_constructor<nw4r::math::MTX34, allocator<nw4r::math::MTX34>, true>::reallocate(size_type n) {
+    base buffer(this->alloc());
+    if (n > this->max_size()) {
+        this->throw_length_error();
+    }
+    buffer.data_ = buffer.alloc().allocate(n, 0);
+    buffer.cap() = n;
+    const nw4r::math::MTX34* pFirst = begin();
+    const nw4r::math::MTX34* pLast = end();
+    for (nw4r::math::MTX34* p = buffer.data_ + buffer.size_; pFirst < pLast; ++pFirst, ++p) {
+        buffer.alloc().construct(p, *pFirst);
+        ++buffer.size_;
+    }
+    clear_moved();
+    std::swap(this->cap(), buffer.cap());
+    std::swap(this->data_, buffer.data_);
+    std::swap(this->size_, buffer.size_);
+}
+}
+
 class BWorld;
 class BWorldObj;
-class CFileData;
 class CEffect;
+class CFileData;
 struct PiiSpeciesData;
 class CPiiPersonalData;
 
@@ -48,8 +80,8 @@ public:
 
     BWorld* GetWorld() const;
     NPpu::CEnvironment* GetEnv() const;
-    std::tr1::shared_ptr<CFileData> LoadFile(const char* pName, u32 flags = 0);
-    bool LoadPlacement(const char* pFileName, const char* pAnmName, const char* pNodePrefix, u32 flags);
+    std::tr1::shared_ptr<CFileData> LoadFile(const char* pName, bool background = false);
+    bool LoadPlacement(const char* pFileName, const char* pAnmName, const char* pNodePrefix, bool background);
     void SetStageDescTarget(const MapIndex& rTarget);
     MapIndex GetStageDescTarget() const { return mStageDescTarget; }
     int InsertCallback(int messageID, int functionID, int position);
