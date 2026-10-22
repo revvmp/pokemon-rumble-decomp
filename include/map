@@ -67,8 +67,8 @@ public:
 
     typedef typename Allocator::template rebind<node>::other node_allocator;
 
-    map_compact_tree() : alloc_(Allocator(), size_type(0)), comp_(Compare(), reinterpret_cast<node*>(&node_alloc_.second())) {}
-    map_compact_tree(const map_compact_tree& rOther) : alloc_(Allocator(), size_type(0)), comp_(Compare(), reinterpret_cast<node*>(&node_alloc_.second())) {
+    map_compact_tree() : alloc_(Allocator(), size_type(0)), comp_(reinterpret_cast<tree_node_base*>(&node_alloc_.second())) {}
+    map_compact_tree(const map_compact_tree& rOther) : alloc_(Allocator(), size_type(0)), comp_(reinterpret_cast<tree_node_base*>(&node_alloc_.second())) {
         copy(rOther);
     }
     ~map_compact_tree() {
@@ -235,9 +235,9 @@ public:
         if (this == &rOther) {
             return;
         }
-        std::swap(alloc_, rOther.alloc_);
-        std::swap(node_alloc_, rOther.node_alloc_);
-        std::swap(comp_, rOther.comp_);
+        alloc_.swap(rOther.alloc_);
+        node_alloc_.swap(rOther.node_alloc_);
+        comp_.swap(rOther.comp_);
         if (root() != nullptr) {
             root()->set_parent(end_node());
         } else {
