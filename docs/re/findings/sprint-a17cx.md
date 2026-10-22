@@ -123,3 +123,65 @@ BModelObj CalcSize was investigated but no change was retained. Compound assignm
 Restored CPiiCollectionBox to NonMatching and ran `python configure.py`. Recompiled all **156 game source units** with the configured commands from `ninja -t commands all_source`, bypassing sjiswrap as in the preceding sessions. Non-ASCII source was converted to CP932 only during compilation and restored in a finally block. Every compilation exited 0. Regenerated the normal linker response file, deleted main.dol, ran the configured linker (exit 0), and ran dtk elf2dol (exit 0). Regenerated report.json: **12,959 perfect functions, zero baseline losses**, CPiiCollectionBox **43/43**.
 
 Ran `python tools/verify/verify.py verify --manifest config/targets/wpse-v1.json --reference-dir orig/wpse-v1 --build-dir build/wpse-v1`: **PASS main.dol; PASS: 1 declared artifact(s)**. SHA-256: `ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da`. This PASS uses CPiiCollectionBox's original fallback; the Matching flip remains incomplete. `git diff --check` passes. Retained changes are only the Entry array-initialization loop and this appended note.
+
+## 2026-10-22 CPiiCollectionBox Matching acceptance
+
+CPiiCollectionBox is now selected as Matching. Work stayed in the current checkout, with no commits, no repository scratch files, no changes to config/targets, and notes appended only here. The starting working tree was clean. Final changes are configure.py, src/game/CPiiCollectionBox.cpp, include/game/CPiiCollectionBox.h, include/vector, config/wpse-v1/symbols.txt, and this record.
+
+### Retained source and emission changes
+
+- Move the existing constructor body from the header to the beginning of the source. Its resize behavior is unchanged; this makes the retained Entry-vector destructor the first function, at 0x800E1AD0. The unused standalone constructor is discarded by the linker.
+- Put ExportCollectionData before Create, matching 0x800E1CE0 and 0x800E23A0.
+- Add the private GetEntry accessor, defined after GetCollectionType, and use it in RecordCollection. File IPA inlines the accessor and the unused standalone accessor is discarded. This preserves RecordCollection's exact instructions while making the first parsed direct subscript use belong to GetCollectionType. The retained subscript helper consequently follows GetCollectionType at 0x800E1C20 rather than preceding it. No additional function survives the link.
+- In GetManyDefeatedPii explicitly select the free std::operator!= for its three iterator comparisons. The generic overload compares iterator base pointers. Both vector iterator classes expose a comparison_result typedef, so substitution excludes unrelated types; the pointer iterator gains the same base accessor already present on the value iterator. Existing member operators are retained for other consumers and for sort. No CPiiCollectionBox-specific template specialization, compiler option, assembly, padding injection, or byte substitution is used.
+- Correct the two provisional member-operator symbol names to the emitted free-template names. The pointer-iterator comparison is at 0x800E2D40, immediately before sort; the Entry-iterator comparison is at 0x800E3680, immediately after __sort132 and before the remaining vector helpers. These free-template emission points reproduce all target instructions and retained addresses. This is a validated source model, not proof that the original source used the same spelling or comparison_result typedef.
+- Keep the implicit class destruction and the existing Entry constructor loop. No primary-template forward-declaration change from sprint-e1 rule 4a was necessary. Moving the member operators out of class, with inline on their declarations, reproduced their old wrong order; changing class-template group order was not the solution to these free-function emission points.
+
+### Destructor identities and exception tables
+
+The initial ordered-source link retained an extra 0x70-byte vector-storage destructor. Exception-table relocations in ExportCollectionData and in CGameSession's reserve/push_back routines identify the actual types:
+
+| Address | Correct identity | Evidence |
+| --- | --- | --- |
+| 0x800BADF0 | __vec_deleter<SD_PiiCollectionData::Data, allocator<SD_PiiCollectionData::Data>> destructor | Collection-data reserve cleanup; previously misnamed as BattleRoyalData with an allocator reference |
+| 0x800BC530 | __vec_split_buffer<SD_PiiCollectionData::Data, allocator<SD_PiiCollectionData::Data>> destructor | Collection-data push_back cleanup and ExportCollectionData; previously dtor_800BC530 |
+| 0x800BC5B0 | __vec_split_buffer<SD_PiiPersonalData, allocator<SD_PiiPersonalData>> destructor | CGameSession push_back<vector<SD_PiiPersonalData>> cleanup, extab offsets 0xC44 and 0xC60; previously misnamed as collection-data storage |
+
+The last identity is SD_PiiPersonalData itself, not its nested Data record. Naming it also raises CGameSession's perfect-function count by one. These corrections eliminate the additional destructor and restore ExportCollectionData's exception cleanup targets.
+
+All existing split boundaries are correct and remain unchanged:
+
+| Section | Start | End |
+| --- | --- | --- |
+| extab | 0x80023AA0 | 0x80023E58 |
+| extabindex | 0x8004A190 | 0x8004A274 |
+| .text | 0x800E1AD0 | 0x800E5084 |
+| .data | 0x803A8A68 | 0x803A8B6C |
+| .sdata | 0x804B7040 | 0x804B7058 |
+| .sdata2 | 0x804BA058 | 0x804BA05C |
+
+After the destructor corrections and subscript-order correction, the remaining exception differences were one relocated byte at 0x80023C63 and seven extabindex bytes. They followed the misplaced comparison/vector functions; they were not extra exception entries or bad boundaries. Correcting the comparison emission order removes them. Anonymous data labels differ in raw object naming, but their retained addresses and bytes match, including sort statics, deleter RTTI/vtable, and exception strings.
+
+### Rejected alternatives and reusable lessons
+
+Replacing iterator member inequalities globally with a generic free inequality initially passed the CPiiCollectionBox-only full link, but failed the shared-consumer gate. An unconstrained generic overload conflicted with allocator inequality. Even after constraining it, removing members changed other units' sort inlining and removed equality helpers, reducing the perfect-function count. That replacement was rejected. The retained overload is explicitly selected only by CPiiCollectionBox; existing member operators and unrelated call sites are preserved.
+
+A standard rel_ops-style inequality implemented through operator== produced the right order, but the pointer iterator's by-value friend equality reversed load/register selection in the emitted comparison. Direct comparison of base pointers matches both 0x1C-byte routines. Making GetCollectionType inline removed its externally required symbol and failed to link. Using begin()+monsno in RecordCollection preserved its instructions but incorrectly moved begin and iterator-copy helpers ahead of GetCollectionType. None of those alternatives is retained.
+
+### Final validation
+
+Ran python configure.py and rebuilt all 156 configured game source units with their generated Wii compiler commands. Every compilation exited 0. As in the earlier sessions, direct compiler execution bypassed the stalled wrapper, with non-ASCII sources converted to CP932 only during compilation and restored byte-for-byte in a finally block. The final whitespace cleanup in vector was followed by recompiling CPiiCollectionBox.
+
+The requested Ninja DOL build was attempted after deleting main.dol, but stalled without output and was stopped. No successful Ninja exit is claimed. The configured linker was invoked using the actual generated main.elf input list, Wii/1.1, -fp hardware -nodefaults, and build/wpse-v1/ldscript.lcf. Its response file was outside the repository and explicitly selected src/game/CPiiCollectionBox.o. main.dol was deleted again before that link. Linker and dtk elf2dol both exited 0; only the pre-existing FORCEACTIVE warnings remained.
+
+The final prescribed command returned PASS main.dol and PASS: 1 declared artifact(s):
+
+`python tools/verify/verify.py verify --manifest config/targets/wpse-v1.json --reference-dir orig/wpse-v1 --build-dir build/wpse-v1`
+
+- Final DOL size: 4,094,880 bytes.
+- SHA-256: ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da.
+- Live unitdiff: 43/43 functions at 100%.
+- seq.py over 0x800E1AD0..0x800E5084: one equal sequence of all 43 functions.
+- unitcmp.py over that range: no target-only functions, no source-only functions, and no moved function.
+- Refreshed report.json and ran the supplied cnt100.py against the saved starting report: 12,983 -> 12,984. No per-unit count decreased; CGameSession changed from 208 to 209, and CPiiCollectionBox remains 43.
+- git diff --check passes. No original hashes or split boundaries changed. All changes are uncommitted.

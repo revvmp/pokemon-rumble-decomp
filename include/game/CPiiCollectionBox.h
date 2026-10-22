@@ -7,7 +7,7 @@
 
 class CPiiCollectionBox {
 public:
-    CPiiCollectionBox() { mEntries.resize(496); }
+    CPiiCollectionBox();
     static std::tr1::shared_ptr<CPiiCollectionBox> Create(const std::vector<SD_PiiCollectionData::Data>& rData);
     int GetCollectionType(u16 monsno);
     void SetCollectionBRR(u16 monsno, int type, int value);
@@ -35,6 +35,8 @@ private:
         u32 mNormalForms;
         u32 mRareForms;
     };
+
+    Entry* GetEntry(u16 monsno);
 
     static bool CompareDefeatCount(const Entry* pLeft, const Entry* pRight);
 

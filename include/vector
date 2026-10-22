@@ -11,6 +11,11 @@
 
 namespace std {
 
+template <typename Iterator>
+typename Iterator::comparison_result operator!=(const Iterator& rLeft, const Iterator& rRight) {
+    return rLeft.base() != rRight.base();
+}
+
 template <bool> struct __vector_common {
     static void throw_length_error();
 };
@@ -757,6 +762,7 @@ public:
 
     class iterator {
     public:
+        typedef bool comparison_result;
         typedef T value_type;
         iterator() {}
         iterator(T* const& rPointer) : mPointer(rPointer) {}
@@ -938,6 +944,7 @@ public:
     typedef unsigned long size_type;
     class iterator {
     public:
+        typedef bool comparison_result;
         iterator() {}
         explicit iterator(void** const& pPointer) : mPointer(pPointer) {}
         T*& operator*() const { return reinterpret_cast<T*&>(*mPointer); }
@@ -953,6 +960,7 @@ public:
             void** pLeft = mPointer;
             return pLeft - rhs.mPointer;
         }
+        void** base() const { return mPointer; }
         friend bool operator==(iterator lhs, iterator rhs) { return lhs.mPointer == rhs.mPointer; }
         bool operator!=(const iterator& rOther) const { return mPointer != rOther.mPointer; }
         bool operator<(const iterator& rOther) const { return mPointer < rOther.mPointer; }
