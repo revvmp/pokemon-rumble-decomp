@@ -9,8 +9,6 @@ std::tr1::shared_ptr<IBattleRoyalDisplay> IBattleRoyalDisplay::Create(bool backg
 
 namespace {
 
-int kMinSeconds = 0;
-
 void CBattleRoyalDisplay::Load(const std::tr1::shared_ptr<CLayout::FontMap>& rFonts, bool background) {
     mLayout.Load(gSharedLayoutArchives, "battleroyal", rFonts, background);
     mLayout.SetText("ato_c", GetMessageText(393454, gEmptyText));
@@ -55,7 +53,7 @@ void CBattleRoyalDisplay::Calc() {
     mEnemyPhase.Calc();
 
     int seconds = GetCurrentGameMap()->GetTimerFrame() / 60;
-    seconds = std::max(kMinSeconds, seconds);
+    seconds = std::max(0, seconds);
     mLayout.SetText("time", FormatString(L"%d", seconds).c_str());
     mLayout.SetText("count", FormatString(L"%d", mEnemyCount).c_str());
 
@@ -63,7 +61,8 @@ void CBattleRoyalDisplay::Calc() {
     f32 remaining = 60 - GetCurrentGameMap()->GetTimerFrame() % 60;
     mLayout.CreateMotion("loop", "ROTATE_ANM", length * (remaining / 60.0f), 1.0f);
 
-    if (mTimePhase.IsActive() == true && mFinished) {
+    u32 timeActive = mTimePhase.IsActive();
+    if (timeActive == 1 && mFinished) {
         mFinished = false;
         mLayout.CreateMotion("get", "TIME", 0.0f, 1.0f);
         mLayout.QueueMotion("loop", "TIME", 0.0f, 1.0f);
