@@ -610,14 +610,6 @@ game/ControllerTable.cpp:
 	.bss        start:0x803E8D28 end:0x803E90C8
 	.sdata      start:0x804B77D8 end:0x804B77D9
 
-game/ModelAim.cpp:
-	extab       start:0x8003BB24 end:0x8003BB54
-	extabindex  start:0x80050FDC end:0x80051024
-	.text       start:0x801C4EC0 end:0x801C5808
-	.ctors      start:0x80352A20 end:0x80352A24
-	.bss        start:0x803EA8C0 end:0x803EA8F0
-	.sdata2     start:0x804BA428 end:0x804BA464
-
 ControllerTableAlignmentPadding:
 	.sdata      start:0x804B77D9 end:0x804B77E0 align:1
 
@@ -1174,6 +1166,14 @@ game/CaptureTexture.cpp:
 	extabindex  start:0x80050FA0 end:0x80050FDC
 	.text       start:0x801C4910 end:0x801C4EB4
 	.sdata2     start:0x804BA420 end:0x804BA424
+
+game/ModelAim.cpp:
+	extab       start:0x8003BB24 end:0x8003BB54
+	extabindex  start:0x80050FDC end:0x80051024
+	.text       start:0x801C4EC0 end:0x801C5808
+	.ctors      start:0x80352A20 end:0x80352A24
+	.bss        start:0x803EA8C0 end:0x803EA8F0
+	.sdata2     start:0x804BA428 end:0x804BA464
 
 game/RenderPrimitive.cpp:
 	extab       start:0x8003BB54 end:0x8003BB74
