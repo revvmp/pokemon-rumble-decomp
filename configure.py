@@ -241,7 +241,7 @@ config.libs = [
             Object(NonMatching, "game/CBattleRoyalDisplay.cpp"),
             Object(Matching, "game/CBossPii.cpp"),
             Object(Matching, "game/CColorBtnTagProc.cpp"),
-            Object(NonMatching, "game/CColorConst.cpp"),
+            Object(Matching, "game/CColorConst.cpp"),
             Object(Matching, "game/CComboDisplay.cpp"),
             Object(Matching, "game/BWorldObj.cpp"),
             Object(NonMatching, "game/CDisconMsg.cpp"),

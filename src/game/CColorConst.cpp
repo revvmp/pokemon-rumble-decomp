@@ -126,7 +126,7 @@ bool CColorConst::ApplyTextColor(nw4r::lyt::Pane* pPane, int index, int mode) co
     return false;
 }
 
-bool CColorConst::ApplyTextColor(CLayout* pLayout, const char* pName, int index, int mode) const
+inline bool CColorConst::ApplyTextColor(CLayout* pLayout, const char* pName, int index, int mode) const
 {
     bool applied = ApplyTextColor(pLayout->FindPane((std::string(pName) + "_c").c_str()), index, mode);
     if (applied) {
