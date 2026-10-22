@@ -220,7 +220,7 @@ config.libs = [
             Object(NonMatching, "game/CModel.cpp"),
             Object(Matching, "game/CaptureTexture.cpp"),
             Object(NonMatching, "game/ModelAim.cpp"),
-            Object(NonMatching, "game/RenderPrimitive.cpp"),
+            Object(Matching, "game/RenderPrimitive.cpp"),
             Object(Matching, "game/AnmObjChrGroup.cpp"),
             Object(Matching, "game/AnmObjChrOverride.cpp"),
             Object(Matching, "game/AnmObjChrRootScale.cpp"),

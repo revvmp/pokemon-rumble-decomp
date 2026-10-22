@@ -33,7 +33,8 @@ void SetupScreenProjection() {
     const f32 height = pMode->efbHeight;
     const f32 width = pMode->fbWidth;
     Mtx44 projection;
-    C_MTXOrtho(projection, 0.0f, height, 0.0f, width, 0.0f, 1.0f);
+    f32 zero = 0.0f;
+    C_MTXOrtho(projection, zero, height, zero, width, zero, 1.0f);
     GXSetProjection(projection, GX_ORTHOGRAPHIC);
     GXSetViewport(0.0f, 0.0f, pMode->fbWidth, pMode->efbHeight, 0.0f, 1.0f);
     GXSetScissor(0, 0, pMode->fbWidth, pMode->efbHeight);
