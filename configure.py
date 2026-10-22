@@ -296,6 +296,7 @@ config.libs = [
             Object(NonMatching, "game/CPii.cpp"),
             Object(NonMatching, "game/CPiiListFilterSort.cpp"),
             Object(NonMatching, "game/CPiiPersonalData.cpp"),
+            Object(NonMatching, "game/COyaInfo.cpp"),
             Object(NonMatching, "game/CPiiCollectionBox.cpp"),
             Object(NonMatching, "game/PiiPropData.cpp"),
             Object(NonMatching, "game/CPiiTex.cpp"),

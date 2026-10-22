@@ -458,9 +458,15 @@ game/CPiiPersonalData.cpp:
 	extab       start:0x800250BC end:0x8002523C
 	extabindex  start:0x8004A4CC end:0x8004A580
 	.text       start:0x800EC3D0 end:0x800ED1B0
-	.data       start:0x803A9088 end:0x803A90B8
+	.data       start:0x803A9088 end:0x803A9160
 	.sdata      start:0x804B70D0 end:0x804B70E8
 	.sdata2     start:0x804BA070 end:0x804BA080
+
+game/COyaInfo.cpp:
+	extab       start:0x8002523C end:0x80025684
+	extabindex  start:0x8004A580 end:0x8004A694
+	.text       start:0x800ED1B0 end:0x800F2580
+	.data       start:0x803A9160 end:0x803A91C8
 
 game/PiiPropData.cpp:
 	extab       start:0x80025684 end:0x80025BAC
