@@ -219,6 +219,7 @@ inline bool CDlgPiiListImpl::CheckRemoteMemory() {
     IController* pController = IGameSession::GetInstance()->GetPlayer(mPlayer)->GetController();
     if (pController == nullptr || !pController->IsConnected() || pController->GetType() != IController::TYPE_WII_REMOTE) {
         ShowMessage(GetMessageString(0x6008F, nullptr));
+        YieldFiber();
         return false;
     }
     CRemoteMemory* pRemote = IGameSession::GetInstance()->GetRemoteMemory(pController->GetChannel());
@@ -476,6 +477,15 @@ void CDlgPiiListImpl::Run() {
         return;
     }
     RunList();
+    mRootLayout->GetLayout()->CreateMotion("end")->Wait();
+    switch (mType) {
+    case 1:
+        RunRemoteTransfer();
+        break;
+    case 2:
+        RunSell();
+        break;
+    }
 }
 
 inline void CDlgPiiListImpl::RunList() {
@@ -582,15 +592,6 @@ inline void CDlgPiiListImpl::RunList() {
             break;
         case 1:
             YieldFiber();
-            mRootLayout->GetLayout()->CreateMotion("end")->Wait();
-            switch (mType) {
-            case 1:
-                RunRemoteTransfer();
-                break;
-            case 2:
-                RunSell();
-                break;
-            }
             return;
         }
         YieldFiber();
