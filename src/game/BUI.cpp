@@ -44,27 +44,27 @@ bool BUI::IsFocused() {
     return false;
 }
 
-bool BUI::AddChild(const Child& rChild) {
-    if (!rChild || (rChild->mFlags & 1)) {
+bool BUI::AddChild(Child child) {
+    if (!child || (child->mFlags & 1)) {
         return false;
     }
-    mChildren.push_back(rChild);
-    rChild->mpParent = this;
-    rChild->mFlags |= 1;
-    rChild->OnAttached();
+    mChildren.push_back(child);
+    child->mpParent = this;
+    child->mFlags |= 1;
+    child->OnAttached();
     return true;
 }
 
-bool BUI::RemoveChild(const Child& rChild) {
-    if (!rChild || rChild->mpParent != this) {
+bool BUI::RemoveChild(Child child) {
+    if (!child || child->mpParent != this) {
         return false;
     }
     for (std::list<Child>::iterator it = mChildren.begin(); it != mChildren.end(); ++it) {
-        if ((*it).get() == rChild.get()) {
+        if ((*it).get() == child.get()) {
             mChildren.erase(it);
-            rChild->mpParent = nullptr;
-            rChild->mFlags &= ~1;
-            rChild->OnDetached(this);
+            child->mpParent = nullptr;
+            child->mFlags &= ~1;
+            child->OnDetached(this);
             CUIManager* pManager = GetManager();
             if (pManager != nullptr) {
                 pManager->ValidateFocusedUI();

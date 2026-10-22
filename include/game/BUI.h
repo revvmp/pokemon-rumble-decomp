@@ -27,12 +27,12 @@ public:
     virtual void OnDetached(BUI* pParent);
     virtual void OnInput(const IUIInput* pInput);
 
-    bool AddChild(const Child& rChild);
+    bool AddChild(Child child);
     bool IsFocused();
     BUI* GetNeighbor(int direction) { return mNeighbors[direction].lock().get(); }
     BUI* NavigateTo(int direction);
     BUI* FindFocusableFrom(int direction);
-    bool RemoveChild(const Child& rChild);
+    bool RemoveChild(Child child);
     void SetVisible(bool visible);
 
     class CCallbackListOwner {
