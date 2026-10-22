@@ -14,11 +14,16 @@ BWorld rose from 183 to 188 of 196 functions; CEffect from 55 to 56 of 58. Neith
 | BWorld `LoadLightScene` | The scene is applied in an inline helper taking `ResAnmScn` by value and the `shared_ptr<ScnRoot>` by `const&`; the caller names the scene first. 100%. |
 | BWorld `DrawShadow` | The zero clear colour comes from an inline `GetClearColor()`; all slots now match (98.35%, one `mr r5` schedule left). |
 
+## Shift 2
+
+- CEffect `AllocEffectGroupID` matches. The dead byte store at the bottom of the frame is a value-initialized `int2type` tag: `__bit_fill_n(p, mask, n, const bool& x)` returns when `n` is 0, then dispatches to `__bit_fill_n(p, mask, n&, int2type<1>/int2type<0>())`. The inner loops take `n` by reference, so the caller's `n` keeps its slot below the `min` temporary. Its `shared_ptr_deleter<vector<bool>>` vtable at 0x803A1108 is named in `symbols.txt`.
+
 ## Traps
 
 - **Misnamed weak template copies hide a header difference.** BWorld's `insert_node_at` and `destroy` at 0x80063DE0 were named for `map<Ul,Ul>` and CWaza (Matching) calls BWorld's copy. That is evidence that `map<u32, CEffect*>` used the `unsigned long` tree, not a naming accident. The map dtor's inlined null checks (four `beq` after `addic.`) gave the wrapper depth: the specialization holds a `map_base<unsigned long, unsigned long>` and inserts through `tree_.insert_one` directly (a `friend class std::map` in `map_base`), so exactly one `pair<iterator, bool>` result is materialized. Holding the tree directly drops one null check; going through `map_base::insert` adds a pair copy.
 - **Extra or misplaced stack objects often mean an inline helper with by-value parameters.** LoadLightScene's two dead `ResAnmScn` copies and its scene slot at the bottom of the bucket, FindObjectsInRect's matrix and `sin`/`cos` slots, and DrawShadow's clear-colour temporaries below `SetupFlatColor`'s objects were all fixed by moving code into an inline helper (t1 rule 3), not by reordering declarations.
 - **A `const&` bound to a temporary pointer keeps the pointer in memory only while its address is still in use.** FindObjectsInRect reloads `pObj` from its slot after `PSMTXMultVec` only when the transform reads `pEntry->mObj->mPosition` instead of `pObj->mPosition`.
+- **A dead zero byte store at the bottom of the frame is a value-initialized empty tag** (r1 rule 12), even when no tag exists in the reconstruction yet. Look for a library helper that could dispatch on `int2type` at that point.
 - **Name compiler-generated data with the build's `@` numbers.** RemoveOldestEffect, both `insert_node_at` and CEffect's `get_deleter` were 99.x% only because of `lbl_` data names. The `@` numbers change when the unit's source changes, so recheck them before a flip.
 
 ## Open
@@ -30,4 +35,4 @@ BWorld rose from 183 to 188 of 196 functions; CEffect from 55 to 56 of 58. Neith
 - BWorld `vector<ObjEntry>(n)`: an inline `init(n)` level fixes the 16-byte slots but reverses the byte flags (t1 open case, header-wide).
 - BWorld `DrawShadow`: `mr r5, r25` is scheduled before `addi r3` in the `clearColor` calls only.
 - CEffect `InitializeEffect`: the target colours `numEffects` and the later pool pointers into r23 (ours r24/r27); declaration order has no effect, and a template `CreatePool<T>` helper reverses the per-block EH slots.
-- CEffect `AllocEffectGroupID`: unchanged (r1 open case); a `const bool&` constructor makes the `false` an `.sdata` constant, and by-value forms never keep the store.
+- CEffect `InitializeEffect` (shift 2): signed-`int`/`u32` constructor parameters, shared `num` variables, top-of-constructor pointer declarations, a named manager or system local, `GameMemory::Allocate` as an argument, swapped heap-end/start stores and one- or two-level `CreatePool<T>`/`CreateArray<T>` helpers all failed to move `numEffects` and the later pool pointers into r23. The two-level helper fixes the EH slots but changes the loop registers.
