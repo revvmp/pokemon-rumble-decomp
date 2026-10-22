@@ -365,6 +365,7 @@ public:
 template <typename T, typename Compare, typename Allocator> class map_compact_tree_adapter : public map_compact_red_black_tree<T, Compare, Allocator> {
 public:
     template <typename Key> T& find_or_insert(const Key& key) { return map_compact_red_black_tree<T, Compare, Allocator>::find_or_insert(key); }
+    pair<typename map_compact_tree<T, Compare, Allocator>::iterator, bool> insert_one(const T& rValue) { return map_compact_red_black_tree<T, Compare, Allocator>::insert_one(rValue); }
 };
 
 template <typename T, typename Compare, typename BaseCompare, typename Allocator, bool Compact> struct map_tree_selection {
@@ -544,7 +545,7 @@ public:
     size_type size() const { return mBase.tree_.size(); }
     bool empty() const { return mBase.tree_.size() == 0; }
     pair<iterator, bool> insert(const value_type& rValue) {
-        pair<typename tree_type::iterator, bool> result = mBase.tree_.insert_one(reinterpret_cast<const base_value_type&>(rValue));
+        pair<typename tree_type::iterator, bool> result = mBase.tree_.detail::map_compact_tree<base_value_type, base_compare, allocator<base_value_type> >::insert_one(reinterpret_cast<const base_value_type&>(rValue));
         return pair<iterator, bool>(iterator(result.first), result.second);
     }
 private:
