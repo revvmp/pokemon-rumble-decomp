@@ -175,3 +175,9 @@ ef_drawfreestrategy and ef_drawdirectionalstrategy are Matching. CRemoteMemory: 
 | CRemoteMemory | ThreadMain | 98.62 | ReadBack argument registers (`r8`/`r6` against `r6`/`r0`); an offset local and `sizeof` spellings were tried. |
 | ef_particlemanager | Calc | 94.20 | Register and stack-slot allocation; swapping the NoTrans matrix blocks fixes the slot order only with controlflow off. |
 | ef_animcurve | seven functions | 93 to 99.7 | Register allocation; no optimizer pass helps. |
+
+### Follow-up (a05)
+
+- CRemoteMemory: BeginRead 95.82 to 96.51%, FinishRead to 97.46% through a file-local `operator|` for `Flag` (the composite `0x200 | state` is still folded). GetPiiBox 85.80 to 88.12% with an inline `HasFlags(const u32& mask, u32 value)` that stores its result in a `bool` (optimizer-off code materialises it like the target).
+- **GetPiiBox needs a materialised list iterator `!=`.** Writing `operator!=` in `include/list` as `bool result = ...; return result;` raised GetPiiBox to 94.37% but cost ten functions in CDividedGround, CFileData, CLayout, CPath, CPpuEngine and l10n_files and broke the DOL, so it was reverted. The target list `assign` also keeps several more iterator copies and one-byte tag objects than ours. CRemoteMemory cannot flip until the list header reproduces both without changing optimized callers; its extab difference follows from the unmatched functions.
+- **NPpuVM is fully optimized.** A greedy file-scope search over every `opt_*` pass found no pass that raises the unit, and per-function sweeps of Load, ~CEngine, BinaryOp and CollectGarbage only lose (best: `opt_lifetimes` +1% on CollectGarbage). Its seven open functions are register and inlining problems, not optimizer settings.
