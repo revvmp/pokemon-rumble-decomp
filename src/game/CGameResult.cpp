@@ -428,6 +428,7 @@ void CGameResult::UpdatePiiWindow()
     }
 }
 
+#pragma dont_inline on
 void CGameResult::RunAction()
 {
     IGameSession::GetInstance()->SetFade(0, -1);
@@ -574,6 +575,8 @@ void CGameResult::RunAction()
         YieldFiber();
     }
 }
+
+#pragma dont_inline off
 
 void CGameResult::Draw()
 {
