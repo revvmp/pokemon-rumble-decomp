@@ -6,7 +6,6 @@
 
 class ITutorialMsg : public ICalcDraw {
 public:
-    virtual ~ITutorialMsg() {}
     virtual void Clear() = 0;
     virtual void Show(const wchar_t* pText) = 0;
     virtual void Close() = 0;
