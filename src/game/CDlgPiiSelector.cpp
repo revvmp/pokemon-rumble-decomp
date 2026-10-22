@@ -134,7 +134,7 @@ template <typename T> T Lerp(const T& rFrom, const T& rTo, f32 t) {
     return (rTo - rFrom) * t + rFrom;
 }
 
-const char* const kMotionPaneNames[] = {"PIISPEC_ANM", "LIST_ANM", "PLAYERID_ANM", "HELP_ANM"};
+const char* kMotionPaneNames[] = {"PIISPEC_ANM", "LIST_ANM", "PLAYERID_ANM", "HELP_ANM"};
 
 class CDataPerPlayer {
 public:
@@ -1558,10 +1558,9 @@ update:
 }
 
 void CDlgPiiSelector::UpdateErrors(int connected) {
-    int previous;
     for (;;) {
-        previous = mErrorState;
-        switch (mErrorState) {
+        int previous = mErrorState;
+        switch (previous) {
         case 0: {
             int mask = CheckRemoteMemoryErrors();
             if (mask != 0) {
