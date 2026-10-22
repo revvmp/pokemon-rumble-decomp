@@ -373,20 +373,22 @@ inline std::tr1::shared_ptr<nw4r::ut::FileStream> OpenFileStream(const CPath& rP
         rError = CFileData::ERROR_NOT_FOUND;
     } else if (2 <= device && device < 512) {
         std::tr1::shared_ptr<nw4r::ut::CNTHandleWithMutex> handle = AcquireCNTHandle(device, rError, rTable);
-        if (handle) {
-            std::tr1::shared_ptr<nw4r::ut::CntFileStream> stream(new nw4r::ut::CntFileStream);
-            bool opened = stream.get()->Open(handle.get(), rPath.ToString(false).c_str());
-            OSUnlockMutex(&handle.get()->mMutex);
-            if (opened) {
-                rHandle = handle;
-                return stream;
-            }
-            rError = CFileData::ERROR_NOT_FOUND;
+        if (!handle) {
+            goto failed;
         }
+        std::tr1::shared_ptr<nw4r::ut::CntFileStream> stream(new nw4r::ut::CntFileStream);
+        bool opened = stream.get()->Open(handle.get(), rPath.ToString(false).c_str());
+        OSUnlockMutex(&handle.get()->mMutex);
+        if (opened) {
+            rHandle = handle;
+            return stream;
+        }
+        rError = CFileData::ERROR_NOT_FOUND;
     } else if ((512 <= device && device < 538) || device == 539) {
         rError = CFileData::ERROR_NOT_FOUND;
     }
 
+failed:
     if (!quietNotFound || rError != CFileData::ERROR_NOT_FOUND) {
         sConfig.mErrorHandler(static_cast<CPath::Drive>(rPath.GetDevice()), rPath.ToString(false).c_str(), rError, flags);
     }
