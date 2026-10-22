@@ -42,7 +42,7 @@ public:
     virtual std::wstring GetWazaName(int waza) = 0;
     virtual StageDesc* GetStageDesc(MapIndex index) = 0;
     virtual MapDesc* GetMapDesc(MapIndex index) = 0;
-    virtual MapDesc* CreateMapDesc(const MapIndex& rIndex) = 0;
+    virtual MapDesc* CreateMapDesc(MapIndex index) = 0;
     virtual int MovePlayerPiisToTeamPiiBox() = 0;
     virtual int GetMoney() = 0;
     virtual void SetMoney(int money) = 0;

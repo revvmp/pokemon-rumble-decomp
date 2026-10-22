@@ -86,7 +86,7 @@ public:
     virtual std::wstring GetWazaName(int waza);
     virtual StageDesc* GetStageDesc(MapIndex index);
     virtual MapDesc* GetMapDesc(MapIndex index);
-    virtual MapDesc* CreateMapDesc(const MapIndex& rIndex);
+    virtual MapDesc* CreateMapDesc(MapIndex index);
     virtual int MovePlayerPiisToTeamPiiBox();
     virtual int GetMoney();
     virtual void SetMoney(int money);
@@ -376,13 +376,13 @@ void CGameSession::RunStage() {
     mPlayers[2]->ResetRankingScore();
     mPlayers[3]->ResetRankingScore();
     mOyaInfo.ApplyEnvironment(true, mEnvironment);
-    IGameStage::Param param;
+    IGameStage::Param param = {};
     param.mMapIndex = mPendingMap;
     param.mEnvironment = mEnvironment;
     mGameStage = IGameStage::Create(param);
     mGameStage->Run();
     mGameStage.reset();
-    switch (mMapChangeMode) {
+    switch (mMapChangeType) {
     case 0:
     case 1:
         MovePlayerPiisToTeamPiiBox();
@@ -524,18 +524,19 @@ MapDesc* CGameSession::GetMapDesc(MapIndex index) {
     return nullptr;
 }
 
-MapDesc* CGameSession::CreateMapDesc(const MapIndex& rIndex) {
-    MapDesc* pExisting = GetMapDesc(rIndex);
+MapDesc* CGameSession::CreateMapDesc(MapIndex index) {
+    MapDesc* pExisting = GetMapDesc(index);
     if (pExisting) {
         return pExisting;
     }
     std::tr1::shared_ptr<MapDesc> desc(new MapDesc);
-    desc->mIndex = rIndex;
-    StageDesc* pStage = GetStageDesc(rIndex);
-    if (pStage->mMapDescs.size() <= rIndex.mMap) {
-        pStage->mMapDescs.resize(rIndex.mMap + 1);
+    desc->mIndex = index;
+    StageDesc* pStage = GetStageDesc(index);
+    int map = index.mMap;
+    if (pStage->mMapDescs.size() <= map) {
+        pStage->mMapDescs.resize(map + 1);
     }
-    pStage->mMapDescs[rIndex.mMap] = desc;
+    pStage->mMapDescs[map] = desc;
     return desc.get();
 }
 
