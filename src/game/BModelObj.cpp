@@ -297,12 +297,12 @@ inline void BModelObj::LinkKDTree() {
 }
 
 inline void BModelObj::CalcExtent(const nw4r::math::AABB& box, int mode, nw4r::math::VEC3& size) const {
-    f32 maxX = static_cast<f32>(__fabs(box.max.x));
-    f32 minX = static_cast<f32>(__fabs(box.min.x));
+    f32 maxX = fabs(box.max.x);
+    f32 minX = fabs(box.min.x);
     maxX = (minX < maxX) ? maxX : minX;
     f32 extentX = mScale.x * maxX;
-    f32 maxZ = static_cast<f32>(__fabs(box.max.z));
-    f32 minZ = static_cast<f32>(__fabs(box.min.z));
+    f32 maxZ = fabs(box.max.z);
+    f32 minZ = fabs(box.min.z);
     maxZ = (minZ < maxZ) ? maxZ : minZ;
     f32 extentZ = mScale.z * maxZ;
     if (mode == 1) {
@@ -339,12 +339,13 @@ nw4r::math::VEC3 BModelObj::CalcSize(int mode) const {
 
         if (info.ref().is_valid_volume) {
             nw4r::math::AABB volume;
-            volume.min.x = info.ref().volume_min.x * scale.x;
-            volume.min.y = info.ref().volume_min.y * scale.y;
-            volume.min.z = info.ref().volume_min.z * scale.z;
-            volume.max.x = info.ref().volume_max.x * scale.x;
-            volume.max.y = info.ref().volume_max.y * scale.y;
-            volume.max.z = info.ref().volume_max.z * scale.z;
+            const nw4r::g3d::ResMdlInfoData& rInfo = info.ref();
+            volume.min.x = rInfo.volume_min.x * scale.x;
+            volume.min.y = rInfo.volume_min.y * scale.y;
+            volume.min.z = rInfo.volume_min.z * scale.z;
+            volume.max.x = rInfo.volume_max.x * scale.x;
+            volume.max.y = rInfo.volume_max.y * scale.y;
+            volume.max.z = rInfo.volume_max.z * scale.z;
             if (!(mFlags & FLAG_NO_BOUNDING)) {
                 mModel->GetScnObj()->SetBoundingVolume(nw4r::g3d::ScnObj::BOUNDINGVOLUME_AABB_LOCAL, &volume);
             } else {
@@ -364,12 +365,13 @@ nw4r::math::VEC3 BModelObj::CalcSize(int mode) const {
         nw4r::g3d::ResMdlInfo info = static_cast<nw4r::g3d::ScnMdlSimple*>(mModel->GetScnObj())->GetResMdl().GetResMdlInfo();
 
         if (info.ref().is_valid_volume) {
-            bounds.min.x = info.ref().volume_min.x * scale.x;
-            bounds.min.y = info.ref().volume_min.y * scale.y;
-            bounds.min.z = info.ref().volume_min.z * scale.z;
-            bounds.max.x = info.ref().volume_max.x * scale.x;
-            bounds.max.y = info.ref().volume_max.y * scale.y;
-            bounds.max.z = info.ref().volume_max.z * scale.z;
+            const nw4r::g3d::ResMdlInfoData& rInfo = info.ref();
+            bounds.min.x = rInfo.volume_min.x * scale.x;
+            bounds.min.y = rInfo.volume_min.y * scale.y;
+            bounds.min.z = rInfo.volume_min.z * scale.z;
+            bounds.max.x = rInfo.volume_max.x * scale.x;
+            bounds.max.y = rInfo.volume_max.y * scale.y;
+            bounds.max.z = rInfo.volume_max.z * scale.z;
             if (!(mFlags & FLAG_NO_BOUNDING)) {
                 mModel->GetScnObj()->SetBoundingVolume(nw4r::g3d::ScnObj::BOUNDINGVOLUME_AABB_LOCAL, &bounds);
             } else {
