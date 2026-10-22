@@ -28,6 +28,10 @@ static std::tr1::shared_ptr<CFileData::CWorker> sWorker;
 
 static ResourceFileConfig sConfig;
 
+inline void CFileData::ReportError() {
+    sConfig.mErrorHandler(GetDrive(), mPath.c_str(), mError, mFlags);
+}
+
 CFileData::CFileData() : mFlags(0), mSize(0), mData(nullptr), mPending(false), mError(0) {}
 
 inline CFileData::~CFileData() {
@@ -211,8 +215,7 @@ bool CFileData::WaitUntilLoaded(CFileData* pFile) {
         }
 
         if (!pFile->IsLoaded()) {
-            sConfig.mErrorHandler(pFile->GetDrive(), pFile->mPath.c_str(),
-                                  pFile->mError, pFile->mFlags);
+            pFile->ReportError();
             return false;
         }
         return true;
@@ -283,8 +286,7 @@ bool CFileData::CWorker::WaitInFiber(CFileData* pFile) {
     }
 
     if (!pFile->IsLoaded()) {
-        sConfig.mErrorHandler(pFile->GetDrive(), pFile->mPath.c_str(),
-                              pFile->mError, pFile->mFlags);
+        pFile->ReportError();
         return false;
     }
     return true;

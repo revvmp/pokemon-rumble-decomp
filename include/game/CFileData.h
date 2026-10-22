@@ -55,6 +55,7 @@ public:
     const std::string& GetPath() const { return mPath; }
     bool IsLoaded() const { return !mPending && mData != nullptr; }
 
+    void ReportError();
     void SetDrive(CPath::Drive drive);
     CPath::Drive GetDrive() const { return static_cast<CPath::Drive>(mFlags & FLAG_DRIVE_MASK); }
     bool OpenArchiveEntry();
