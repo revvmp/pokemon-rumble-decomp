@@ -40,7 +40,7 @@ private:
     void UpdateCamera();
 
     std::vector<std::tr1::shared_ptr<CPii> > mPiis;
-    std::tr1::shared_ptr<COffScreenTexture> mTexture;
+    mutable std::tr1::shared_ptr<COffScreenTexture> mTexture;
     std::tr1::shared_ptr<BWorld> mWorld;
 };
 
