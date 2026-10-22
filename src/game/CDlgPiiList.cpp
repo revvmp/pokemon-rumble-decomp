@@ -607,7 +607,7 @@ inline void CDlgPiiListImpl::RunList() {
                     joined++;
                 }
             }
-            ShowMessage((formatter.format(L"%d") % std::min(joined, sMinUnmarkedCount)).c_str());
+            ShowMessage((formatter.format(L"%d") % static_cast<int>(std::max(joined, sMinUnmarkedCount))).c_str());
             break;
         }
         case 10:
@@ -638,7 +638,7 @@ inline void CDlgPiiListImpl::RunList() {
                     joined++;
                 }
             }
-            ShowMessage((formatter.format(L"%d") % std::min(joined, sMinUnmarkedCount)).c_str());
+            ShowMessage((formatter.format(L"%d") % static_cast<int>(std::max(joined, sMinUnmarkedCount))).c_str());
             break;
         }
         case 17:
