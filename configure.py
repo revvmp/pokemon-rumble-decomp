@@ -323,6 +323,7 @@ config.libs = [
             Object(Matching, "game/DCIM.cpp"),
             Object(NonMatching, "game/l10n_files.cpp"),
             Object(Matching, "game/Font.cpp"),
+            Object(NonMatching, "game/ScriptWorld.cpp"),
             Object(NonMatching, "game/SaveData.cpp"),
             Object(NonMatching, "game/NPpuVM.cpp"),
             Object(NonMatching, "game/NPpuLibrary.cpp"),
