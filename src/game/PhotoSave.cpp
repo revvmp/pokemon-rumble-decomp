@@ -124,7 +124,8 @@ void SaveScreenshotToRemoteMemory(IDlgMsgWin* pDialog, BUILayout* pLayout, const
                     CPhotoDeviceQuery query;
                     query.mDrive = drive.drive;
                     {
-                        std::tr1::shared_ptr<u8> stack(static_cast<u8*>(GameMemory::Allocate(4096, 32)), GameMemory::Free);
+                        u8* pStack = static_cast<u8*>(GameMemory::Allocate(4096, 32));
+                        std::tr1::shared_ptr<u8> stack(pStack, GameMemory::Free);
                         OSThread thread;
                         if (!OSCreateThread(&thread, QueryPhotoDevice, &query, stack.get() + 4096, 4096, 24, 1)) {
                             {
