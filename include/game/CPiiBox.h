@@ -20,7 +20,7 @@ public:
     ~CPiiBox();
     static std::tr1::shared_ptr<CPiiBox> Create(const std::vector<SD_PiiPersonalData::Data>& rData, int type, int capacity, const COyaInfo* pOyaInfo);
     bool AddPersonalData(std::tr1::shared_ptr<CPiiPersonalData> ppd);
-    void RemovePersonalData(std::tr1::shared_ptr<CPiiPersonalData> ppd);
+    bool RemovePersonalData(std::tr1::shared_ptr<CPiiPersonalData> ppd);
     void ExportPersonalData(std::vector<SD_PiiPersonalData::Data>& rOut);
     void Clear();
     void RestoreAll();
@@ -31,6 +31,8 @@ public:
     std::list<std::tr1::shared_ptr<CPiiPersonalData> >& GetPersonalDataList() { return mPersonalDataList; }
 
 private:
+    bool RemoveItem(std::tr1::shared_ptr<CPiiPersonalData> ppd);
+
     int mType;
     int mCapacity;
     std::list<std::tr1::shared_ptr<CPiiPersonalData> > mPersonalDataList;

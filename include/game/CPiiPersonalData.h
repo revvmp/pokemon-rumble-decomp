@@ -13,6 +13,7 @@ class CEnvironment;
 }
 
 std::tr1::shared_ptr<CPiiPersonalData> CreatePiiPersonalData(const COyaInfo* pOyaInfo, const PiiSpeciesData* pSpeciesData, u32 sex);
+std::tr1::shared_ptr<CPiiPersonalData> CreatePiiPersonalData(const COyaInfo* pOyaInfo, const SD_PiiPersonalData::Data& rData);
 
 class CPiiPersonalData : public std::tr1::enable_shared_from_this<CPiiPersonalData> {
 public:
@@ -21,6 +22,7 @@ public:
 
     enum Flag {
         FLAG_FAVORITE = 1 << 1,
+        FLAG_IN_TEAM = 1 << 16,
         FLAG_IN_WII_REMOTE = 1 << 17,
         FLAG_SPEC_HIDDEN = 1 << 18,
         FLAG_NEWLY_DISCLOSED = 1 << 19,
@@ -98,6 +100,8 @@ public:
     void SetRareColorRnd();
     void SetNormalColorRnd();
     bool IsInWiiRemote() const { return HasFlag(FLAG_IN_WII_REMOTE); }
+    void SetInTeam(bool inTeam) { SetFlag(FLAG_IN_TEAM, inTeam); }
+    void SetInWiiRemote(bool inWiiRemote) { SetFlag(FLAG_IN_WII_REMOTE, inWiiRemote); }
 private:
     bool HasFlag(u32 flag) const { return (mFlags & flag) != 0; }
     void SetFlag(u32 flag, bool enable) {

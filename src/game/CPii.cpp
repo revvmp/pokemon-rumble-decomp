@@ -7,6 +7,8 @@
 #include <game/BWorld.h>
 #include <game/CFiber.h>
 #include <game/CPiiPersonalData.h>
+#include <game/CPiiBox.h>
+#include <game/COyaInfo.h>
 #include <game/VideoTiming.h>
 #include <game/AnmObjChrRootScale.h>
 #include <game/CFileData.h>
@@ -605,5 +607,114 @@ void CPii::OnLeaveWorld(BWorld* pWorld)
     BModelObj::OnLeaveWorld(pWorld);
     if (mPpuEngine) {
         mPpuEngine->Reset();
+    }
+}
+
+CPiiBox::CPiiBox(int type, int capacity) : mType(type), mCapacity(capacity) {}
+
+CPiiBox::~CPiiBox() {}
+
+bool CPiiBox::AddPersonalData(std::tr1::shared_ptr<CPiiPersonalData> ppd)
+{
+    if (ppd) {
+        ppd->SetInTeam(false);
+        ppd->SetInWiiRemote(false);
+        switch (mType) {
+        case 1:
+            ppd->SetInTeam(true);
+            break;
+        case 2:
+            ppd->SetInWiiRemote(true);
+            break;
+        }
+    }
+    RemoveItem(ppd);
+    if (mPersonalDataList.size() + 1 > mCapacity) {
+        return false;
+    }
+    mPersonalDataList.push_front(ppd);
+    return true;
+}
+
+bool CPiiBox::RemovePersonalData(std::tr1::shared_ptr<CPiiPersonalData> ppd)
+{
+    return RemoveItem(ppd);
+}
+
+bool CPiiBox::RemoveItem(std::tr1::shared_ptr<CPiiPersonalData> ppd)
+{
+    typedef std::list<std::tr1::shared_ptr<CPiiPersonalData> >::iterator Iterator;
+    for (Iterator it = mPersonalDataList.begin(); it != mPersonalDataList.end(); ++it) {
+        if (it->get() == ppd.get()) {
+            mPersonalDataList.erase(it);
+            return true;
+        }
+    }
+    return false;
+}
+
+void CPiiBox::Clear()
+{
+    mPersonalDataList.clear();
+}
+
+void CPiiBox::RestoreAll()
+{
+    typedef std::list<std::tr1::shared_ptr<CPiiPersonalData> >::iterator Iterator;
+    for (Iterator it = mPersonalDataList.begin(); it != mPersonalDataList.end(); ++it) {
+        (*it)->FillUpHP();
+    }
+}
+
+void CPiiBox::ShowAllSpecs()
+{
+    typedef std::list<std::tr1::shared_ptr<CPiiPersonalData> >::iterator Iterator;
+    for (Iterator it = mPersonalDataList.begin(); it != mPersonalDataList.end(); ++it) {
+        (*it)->SetSpecHidden(false);
+    }
+}
+
+void CPiiBox::ExportPersonalData(std::vector<SD_PiiPersonalData::Data>& rOut)
+{
+    typedef std::list<std::tr1::shared_ptr<CPiiPersonalData> >::iterator Iterator;
+    std::vector<SD_PiiPersonalData::Data> records;
+    records.reserve(mPersonalDataList.size());
+    for (Iterator it = mPersonalDataList.begin(); it != mPersonalDataList.end(); ++it) {
+        SD_PiiPersonalData::Data data;
+        (*it)->Export(data);
+        records.push_back(data);
+    }
+    rOut = records;
+}
+
+std::tr1::shared_ptr<CPiiBox> CPiiBox::Create(const std::vector<SD_PiiPersonalData::Data>& rData, int type, int capacity, const COyaInfo* pOyaInfo)
+{
+    typedef std::list<std::tr1::shared_ptr<CPiiPersonalData> >::iterator Iterator;
+    std::tr1::shared_ptr<CPiiBox> box(new CPiiBox(type, capacity));
+    const SD_PiiPersonalData::Data* pBegin = rData.begin();
+    for (const SD_PiiPersonalData::Data* pData = rData.end(); pData != pBegin;) {
+        --pData;
+        std::tr1::shared_ptr<CPiiPersonalData> ppd = CreatePiiPersonalData(pOyaInfo, *pData);
+        if (!ppd) {
+            return std::tr1::shared_ptr<CPiiBox>();
+        }
+        box->AddPersonalData(ppd);
+    }
+    s64 serial = 1;
+    std::list<std::tr1::shared_ptr<CPiiPersonalData> >& rList = box->GetPersonalDataList();
+    for (Iterator it = rList.begin(); it != rList.end(); ++it) {
+        if ((*it)->GetCreationTime() == 0) {
+            (*it)->SetCreationTime(serial);
+            ++serial;
+        }
+    }
+    return box;
+}
+
+void CPiiBox::ApplyEnvironment(bool enable, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnvironment)
+{
+    typedef std::list<std::tr1::shared_ptr<CPiiPersonalData> >::iterator Iterator;
+    for (Iterator it = mPersonalDataList.begin(); it != mPersonalDataList.end(); ++it) {
+        (*it)->ExecuteInitScript(enable, rEnvironment);
     }
 }
