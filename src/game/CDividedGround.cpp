@@ -332,7 +332,8 @@ found:
                 LoadScnMdlSimpleData(data.get(), simple, 0, background);
                 data->GetModel()->SetPriorityDrawXlu(priority);
                 mSimpleModels.push_back(data);
-                group->PushBack(static_cast<const ScnMdlSimpleData&>(*data).GetModel());
+                const ScnMdlSimpleData* pData = data.operator->();
+                group->PushBack(pData->GetModel());
                 data->GetModel()->SetMtx(nw4r::g3d::ScnObj::MTX_LOCAL, *matrix);
             }
         }

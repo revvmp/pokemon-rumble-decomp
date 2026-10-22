@@ -76,25 +76,19 @@ int CStatistic::GetWazaUsedCount() {
 }
 
 void CStatistic::Set(int id, int value) {
-    value = std::min(value, GetCounterStopValue(id));
-    switch (id) {
-    case -200:
-        GetSaveData(-1)->mData.mCounters[0] = value;
-        break;
-    case -199:
-        GetSaveData(-1)->mData.mCounters[1] = value;
-        break;
-    case -100:
-    case -99:
-    case -98:
-        ExpandTo(mSystemValues, id + 100);
-        mSystemValues[id + 100].mValue = value;
-        break;
-    default:
-        if (id >= 0) {
-            ExpandTo(mValues, id);
-            mValues[id].mValue = value;
+    value = std::min<long>(GetCounterStopValue(id), value);
+    if (id < -97) {
+        if (id >= -100) {
+            id += 100;
+            ExpandTo(mSystemValues, id);
+            mSystemValues[id].mValue = value;
+        } else if (id == -200) {
+            GetSaveData(-1)->mData.mCounters[0] = value;
+        } else if (id == -199) {
+            GetSaveData(-1)->mData.mCounters[1] = value;
         }
-        break;
+    } else if (id >= 0) {
+        ExpandTo(mValues, id);
+        mValues[id].mValue = value;
     }
 }
