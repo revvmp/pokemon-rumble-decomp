@@ -1,4 +1,6 @@
 #include <game/CArchiveFontWithBuf.h>
+#include <game/CPpuEngine.h>
+#include <game/NResetMgr.h>
 #include <game/CLayout.h>
 #include <game/FileList.h>
 #include <game/ITitleSession.h>
@@ -391,12 +393,12 @@ void main() {
     }
     SetExtensionControllerEnabled(GetGameRegion() != REGION_USA);
     InitializeMainMessages();
-    InitializeResetCallbacks();
+    NResetMgr::Initialize();
     RegisterResetCallback(reinterpret_cast<void (*)()>(CNTShutdown), -33);
     {
         ResourceFileConfig config;
         CPath path;
-        path.ParseDevice(GetResourceBasePath());
+        path.ParseDevice(CPpuEngine::GetScriptRoot());
         config.SetErrorHandler(HandleFileError);
         config.mUseDriveWorker = (path.GetDevice() >= CPath::DEVICE_MCS_BASE && path.GetDevice() <= CPath::DEVICE_MCS_LAST) || path.GetDevice() == CPath::DEVICE_UNC;
         InitializeResourceFiles(config);
