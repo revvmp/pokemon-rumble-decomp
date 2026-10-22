@@ -95,3 +95,16 @@
   - **`IncMapClearedNum`:**
     - Tried six `IncrementClearCount` bodies.
     - Tried a reference local and a pointer local.
+- **Coordinator follow-up, also unsolved (OpenScriptChoices, MakeMapID):**
+  - **OpenScriptChoices (99.10%):**
+    - r1 rule 13 forms: a `CPpuEngine*` cast local, bool locals copied from the parameters, or both.
+    - `const bool` parameters.
+    - All 23 orderings of the four leading local declarations.
+    - A named loop count.
+    - `dropped` operand order.
+    - A condition declaration for `pWindow`.
+  - **MakeMapID (96.46%):**
+    - Rule 13 forms: a cast local and written-out `CValue` pops, both alone and combined.
+    - Inline helpers at one and two levels that take `MapIndex` by value or by `const&`, return the packed `int`, or do the pops themselves.
+    - Aggregate and field-wise initialisation.
+  - **Result:** the register numbering never moved. Target ranks the engine parameter below all four pop results (map r31, stage r30, area r29, engine r28). Ours gives stage r31, map r30, engine r29, area r28.
