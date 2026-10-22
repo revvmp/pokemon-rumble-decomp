@@ -177,10 +177,10 @@ bool CDividedGround::LoadAttr(const StageID* pStageID, int stageNo, const char* 
             name.assign(prefix + number);
             file = LoadResourceFile((archivePath + "/" + name + ".bsp").c_str(), 0, background);
             if (!(file && file->IsValid())) {
-                if (i != 0) {
-                    continue;
+                if (i == 0) {
+                    return false;
                 }
-                return false;
+                continue;
             }
         }
 

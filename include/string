@@ -95,6 +95,7 @@ public:
 
     basic_string& append(const charT* s);
     basic_string& replace(size_type pos, size_type count, const charT* s);
+    basic_string& replace_tagged(size_type pos, size_type count, const charT* s);
     basic_string& replace(size_type pos, size_type count, const charT* s, size_type length);
 
     basic_string& append(const basic_string& str);
@@ -334,7 +335,13 @@ basic_string<charT, traits, Allocator>::basic_string(const charT* s) {
 
 template <class charT, class traits, class Allocator>
 basic_string<charT, traits, Allocator>& basic_string<charT, traits, Allocator>::append(const charT* s) {
-    return replace(size(), 0, s);
+    return replace_tagged(size(), 0, s);
+}
+
+template <class charT, class traits, class Allocator>
+basic_string<charT, traits, Allocator>& basic_string<charT, traits, Allocator>::replace_tagged(size_type pos, size_type count, const charT* s) {
+    random_access_iterator_tag tag;
+    return do_replace(pos, count, s, s + traits::length(s), tag);
 }
 
 template <class charT, class traits, class Allocator>
@@ -345,8 +352,7 @@ basic_string<charT, traits, Allocator>& basic_string<charT, traits, Allocator>::
 
 template <class charT, class traits, class Allocator>
 basic_string<charT, traits, Allocator>& basic_string<charT, traits, Allocator>::replace(size_type pos, size_type count, const charT* s) {
-    random_access_iterator_tag tag;
-    return do_replace(pos, count, s, s + traits::length(s), tag);
+    return do_replace(pos, count, s, s + traits::length(s), random_access_iterator_tag());
 }
 
 template <class charT, class traits, class Allocator>
