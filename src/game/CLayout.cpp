@@ -1,6 +1,7 @@
 #include <game/CLayout.h>
 
 #include <game/CFiber.h>
+#include <game/MainRuntime.h>
 #include <game/CFileData.h>
 #include <nw4r/ut/ut_algorithm.h>
 #include <nw4r/lyt/lyt_layout.h>
@@ -155,6 +156,14 @@ CLayout::~CLayout() {
 }
 #pragma dont_inline reset
 
+void SetLayoutInitializeExceptionHandler(const std::tr1::function<void(const CLayout::CInitializeException&)>& rHandler) {
+    if (rHandler) {
+        sInitializeErrorHandler.reset(new std::tr1::function<void(const CLayout::CInitializeException&)>(rHandler));
+    } else {
+        sInitializeErrorHandler.reset();
+    }
+}
+
 void CLayout::HandleInitializeError(const CInitializeException& rError) {
     if (sInitializeErrorHandler) {
         (*sInitializeErrorHandler)(rError);
@@ -273,6 +282,72 @@ void CLayout::SetVisible(bool visible) {
     } else {
         mFlags &= ~FLAG_VISIBLE;
     }
+}
+
+nw4r::lyt::AnimTransform* CLayout::FindAnimation(const char* pName) {
+    std::map<std::string, nw4r::lyt::AnimTransform*>::iterator it = mAnimations.find(std::string(pName));
+    if (it == mAnimations.end()) {
+        void* pResource = mAccessor.GetResource('anim', pName, nullptr);
+        if (pResource != nullptr) {
+            std::string animName(pName);
+            nw4r::lyt::AnimTransform* pAnim = mLayout->CreateAnimTransform(pResource, &mAccessor);
+            std::pair<std::map<std::string, nw4r::lyt::AnimTransform*>::iterator, bool> inserted = mAnimations.insert(std::pair<const std::string, nw4r::lyt::AnimTransform*>(animName, pAnim));
+            return pAnim;
+        }
+        std::string path = mName + pName + ".brlan";
+        pResource = mAccessor.GetResource('anim', path.c_str(), nullptr);
+        if (pResource != nullptr) {
+            std::string animName(pName);
+            nw4r::lyt::AnimTransform* pAnim = mLayout->CreateAnimTransform(pResource, &mAccessor);
+            std::pair<std::map<std::string, nw4r::lyt::AnimTransform*>::iterator, bool> inserted = mAnimations.insert(std::pair<const std::string, nw4r::lyt::AnimTransform*>(animName, pAnim));
+            return pAnim;
+        }
+        return nullptr;
+    }
+    return (*it).second;
+}
+
+CLayout::PaneMP* CLayout::FindPaneMP(nw4r::lyt::Pane* pPane) {
+    if (pPane == nullptr) {
+        pPane = mLayout->GetRootPane();
+    }
+    std::tr1::shared_ptr<PaneMP>& rEntry = mPanePrograms[pPane];
+    if (!rEntry) {
+        rEntry.reset(new PaneMP);
+        rEntry->mpPane = pPane;
+        rEntry->mFrame = 0.0f;
+        rEntry->mRunning = false;
+        PaneProgramMap::iterator it;
+        for (it = mPanePrograms.begin(); it != mPanePrograms.end(); ++it) {
+            nw4r::lyt::Pane* pKey = (*it).first;
+            for (nw4r::lyt::Pane* pAncestor = pKey->GetParent(); pAncestor != nullptr; pAncestor = pAncestor->GetParent()) {
+                PaneProgramMap::iterator found = mPanePrograms.find(pAncestor);
+                if (found != mPanePrograms.end()) {
+                    (*found).second->mDescendants.insert(pKey);
+                }
+            }
+        }
+        for (it = mPanePrograms.begin(); it != mPanePrograms.end(); ++it) {
+            PaneMP* pOther = (*it).second.get();
+            std::set<nw4r::lyt::Pane*>::iterator descendant = pOther->mDescendants.begin();
+            while (descendant != pOther->mDescendants.end()) {
+                bool nested = false;
+                for (nw4r::lyt::Pane* pAncestor = (*descendant)->GetParent(); pAncestor != nullptr; pAncestor = pAncestor->GetParent()) {
+                    if (pOther->mDescendants.find(pAncestor) != pOther->mDescendants.end()) {
+                        nested = true;
+                        break;
+                    }
+                }
+                if (nested) {
+                    pOther->mDescendants.erase(descendant);
+                    descendant = pOther->mDescendants.begin();
+                } else {
+                    ++descendant;
+                }
+            }
+        }
+    }
+    return rEntry.get();
 }
 
 std::tr1::shared_ptr<CLayout::CMotionProgram> CLayout::BuildMotion(const char* pName, nw4r::lyt::Pane* pPane, f32 startFrame, f32 rate) {
