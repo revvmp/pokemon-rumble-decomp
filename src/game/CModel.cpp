@@ -371,52 +371,80 @@ namespace {
 struct MatClrAnimTraits {
     typedef nw4r::g3d::AnmObjMatClrRes Obj;
     typedef nw4r::g3d::ResAnmClr Res;
-    static Res Find(nw4r::g3d::ResFile file, const char* pName) { return file.GetResAnmClr(pName); }
-    static Res Find(nw4r::g3d::ResFile file, int index) { return file.GetResAnmClr(index); }
-    static Obj* Make(Res res, nw4r::g3d::ResMdl mdl) { return Obj::Construct(GetDefaultAllocator(), nullptr, res, mdl, false); }
+    template <class Key> static Res Find(std::vector<std::tr1::shared_ptr<CFileData> >& rFiles, Key key) {
+        Res resource;
+        std::vector<std::tr1::shared_ptr<CFileData> >::iterator it = rFiles.begin();
+        for (; it != rFiles.end(); ++it) {
+            nw4r::g3d::ResFile file((*it)->GetData());
+            resource = file.GetResAnmClr(key);
+            if (resource.IsValid()) {
+                break;
+            }
+        }
+        return resource;
+    }
 };
 
 struct TexPatAnimTraits {
     typedef nw4r::g3d::AnmObjTexPatRes Obj;
     typedef nw4r::g3d::ResAnmTexPat Res;
-    static Res Find(nw4r::g3d::ResFile file, const char* pName) { return file.GetResAnmTexPat(pName); }
-    static Res Find(nw4r::g3d::ResFile file, int index) { return file.GetResAnmTexPat(index); }
-    static Obj* Make(Res res, nw4r::g3d::ResMdl mdl) { return Obj::Construct(GetDefaultAllocator(), nullptr, res, mdl, false); }
+    template <class Key> static Res Find(std::vector<std::tr1::shared_ptr<CFileData> >& rFiles, Key key) {
+        Res resource;
+        std::vector<std::tr1::shared_ptr<CFileData> >::iterator it = rFiles.begin();
+        for (; it != rFiles.end(); ++it) {
+            nw4r::g3d::ResFile file((*it)->GetData());
+            resource = file.GetResAnmTexPat(key);
+            if (resource.IsValid()) {
+                break;
+            }
+        }
+        return resource;
+    }
 };
 
 struct TexSrtAnimTraits {
     typedef nw4r::g3d::AnmObjTexSrtRes Obj;
     typedef nw4r::g3d::ResAnmTexSrt Res;
-    static Res Find(nw4r::g3d::ResFile file, const char* pName) { return file.GetResAnmTexSrt(pName); }
-    static Res Find(nw4r::g3d::ResFile file, int index) { return file.GetResAnmTexSrt(index); }
-    static Obj* Make(Res res, nw4r::g3d::ResMdl mdl) { return Obj::Construct(GetDefaultAllocator(), nullptr, res, mdl, false); }
+    template <class Key> static Res Find(std::vector<std::tr1::shared_ptr<CFileData> >& rFiles, Key key) {
+        Res resource;
+        std::vector<std::tr1::shared_ptr<CFileData> >::iterator it = rFiles.begin();
+        for (; it != rFiles.end(); ++it) {
+            nw4r::g3d::ResFile file((*it)->GetData());
+            resource = file.GetResAnmTexSrt(key);
+            if (resource.IsValid()) {
+                break;
+            }
+        }
+        return resource;
+    }
 };
 
 struct ShpAnimTraits {
     typedef nw4r::g3d::AnmObjShpRes Obj;
     typedef nw4r::g3d::ResAnmShp Res;
-    static Res Find(nw4r::g3d::ResFile file, const char* pName) { return file.GetResAnmShp(pName); }
-    static Res Find(nw4r::g3d::ResFile file, int index) { return file.GetResAnmShp(index); }
-    static Obj* Make(Res res, nw4r::g3d::ResMdl mdl) { return Obj::Construct(GetDefaultAllocator(), nullptr, res, mdl, false); }
+    template <class Key> static Res Find(std::vector<std::tr1::shared_ptr<CFileData> >& rFiles, Key key) {
+        Res resource;
+        std::vector<std::tr1::shared_ptr<CFileData> >::iterator it = rFiles.begin();
+        for (; it != rFiles.end(); ++it) {
+            nw4r::g3d::ResFile file((*it)->GetData());
+            resource = file.GetResAnmShp(key);
+            if (resource.IsValid()) {
+                break;
+            }
+        }
+        return resource;
+    }
 };
 
 }
 
 template <class Traits, class Key> std::tr1::shared_ptr<typename Traits::Obj> CModel::CreateAnimObj(Key key, f32 frame) {
-    std::vector<std::tr1::shared_ptr<CFileData> >& rFiles = mModelData.GetFiles();
-    std::vector<std::tr1::shared_ptr<CFileData> >::iterator it = rFiles.begin();
-    typename Traits::Res resource;
-    for (; it != rFiles.end(); ++it) {
-        resource = Traits::Find(nw4r::g3d::ResFile((*it)->GetData()), key);
-        if (resource.IsValid()) {
-            break;
-        }
-    }
+    typename Traits::Res resource = Traits::Find(mModelData.GetFiles(), key);
     if (!resource.IsValid()) {
         return std::tr1::shared_ptr<typename Traits::Obj>();
     }
     nw4r::g3d::ResMdl mdl = GetResMdl();
-    std::tr1::shared_ptr<typename Traits::Obj> animObj(Traits::Make(resource, mdl), DestroyG3dObj);
+    std::tr1::shared_ptr<typename Traits::Obj> animObj(Traits::Obj::Construct(GetDefaultAllocator(), nullptr, resource, mdl, false), DestroyG3dObj);
     animObj->SetFrame(frame);
     if (!animObj->Bind(mdl)) {
         return std::tr1::shared_ptr<typename Traits::Obj>();
