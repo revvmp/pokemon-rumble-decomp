@@ -302,6 +302,31 @@ const TimeMessageIDs gMainTimeMessageIDs = {
     131134, 131132, 131133, 131136
 };
 
+#include <game/FileList.h>
+
+struct FileLoadParam {
+    const char* mpPath;
+    u32 mFlags;
+};
+
+std::tr1::shared_ptr<FileList> LoadFiles(const FileLoadParam* pFiles, unsigned int count, int background);
+inline std::tr1::shared_ptr<FileList> LoadLocalizedFiles(const FileLoadParam* pFiles, unsigned int count, int background) {
+    return LoadFiles(pFiles, count, background);
+}
+
+inline std::tr1::shared_ptr<FileList> CMain::LoadStartupArchives() {
+    FileLoadParam requests[] = {
+        {"5:/pii_1-151_387-492.arc", 0},
+        {"5:/item.arc", 0},
+        {"5:/game2d.arc", 0},
+        {"5:/font.arc", 0},
+        {"5:/effect/main.breff", 0},
+        {"5:/effect/main.breft", 0},
+        {"5:/sound/waza_p.brsar", 0}
+    };
+    return LoadLocalizedFiles(requests, 7, true);
+}
+
 extern const char* gMainFontPaths[6];
 const char* gMainFontPaths[6] = {
     "5:/font.arc/fot_extensions.brfnt",
@@ -527,31 +552,6 @@ void CMain::Run() {
     }
 }
 
-
-#include <game/FileList.h>
-
-struct FileLoadParam {
-    const char* mpPath;
-    u32 mFlags;
-};
-
-std::tr1::shared_ptr<FileList> LoadFiles(const FileLoadParam* pFiles, unsigned int count, int background);
-inline std::tr1::shared_ptr<FileList> LoadLocalizedFiles(const FileLoadParam* pFiles, unsigned int count, int background) {
-    return LoadFiles(pFiles, count, background);
-}
-
-std::tr1::shared_ptr<FileList> CMain::LoadStartupArchives() {
-    FileLoadParam requests[] = {
-        {"5:/pii_1-151_387-492.arc", 0},
-        {"5:/item.arc", 0},
-        {"5:/game2d.arc", 0},
-        {"5:/font.arc", 0},
-        {"5:/effect/main.breff", 0},
-        {"5:/effect/main.breft", 0},
-        {"5:/sound/waza_p.brsar", 0}
-    };
-    return LoadLocalizedFiles(requests, 7, true);
-}
 
 void AppendLoadedFile(FileList& rFiles, const std::tr1::shared_ptr<CFileData>& rFile) {
     rFiles.insert(rFiles.end(), rFile);
