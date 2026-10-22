@@ -51,16 +51,22 @@ public:
     BUI::CCallbackListOwner mScrollCallbacks;
 };
 
-class CUIMenuCallbacks : public MenuCallback {
+class CUIMenuSoundCallback : public MenuCallback {
 public:
-    explicit CUIMenuCallbacks(int param);
+    explicit CUIMenuSoundCallback(int mode);
+
+    void OnAccept(BUI* pSender);
+    void OnSelectionChange(BUI* pSender);
+    void OnScroll(BUI* pSender);
 
 private:
-    int mParam;
-    bool mEnabled;
+    enum { MODE_NO_SCROLL_SOUND = 1 };
+
+    int mMode;
+    bool mMuteSelection;
 };
 
-int RunUIMenu(const UIMenuParam& rParam, CUIMenuCallbacks& rCallbacks, IUIInput* pInput, std::tr1::shared_ptr<CUIManager> manager, std::tr1::shared_ptr<CLayout::FontMap> fonts, bool flag);
+int RunUIMenu(const UIMenuParam& rParam, CUIMenuSoundCallback& rCallbacks, IUIInput* pInput, std::tr1::shared_ptr<CUIManager> manager, std::tr1::shared_ptr<CLayout::FontMap> fonts, bool flag);
 
 class CUIMenu : public CUIList {
 public:

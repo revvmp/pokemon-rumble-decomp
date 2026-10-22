@@ -259,7 +259,7 @@ private:
 
         while (true) {
             CPauseMenuInput input;
-            CUIMenuCallbacks callbacks(0);
+            CUIMenuSoundCallback callbacks(0);
             int choice = RunUIMenu(param, callbacks, &input, mBackManager, GetDefaultFontMap(), true);
             switch (choice) {
             default:
@@ -506,7 +506,7 @@ bool CPauseMenu::RunRemoteMemoryMenu() {
     param.mTitle = GetMessageString(0x6007F, nullptr);
     param.mpItems = items;
     param.mpArchives = gSharedLayoutArchives;
-    CUIMenuCallbacks callbacks(0);
+    CUIMenuSoundCallback callbacks(0);
     IUIInput* pInput = GetControllerTable();
     int choice = RunUIMenu(param, callbacks, pInput, mBackManager, GetDefaultFontMap(), true);
     if (choice != 0) {

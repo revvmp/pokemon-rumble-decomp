@@ -285,7 +285,7 @@ std::tr1::shared_ptr<IUIListItem> RunMenuList(const wchar_t* pTitle, std::vector
 
 }
 
-int RunUIMenu(const UIMenuParam& rParam, CUIMenuCallbacks& rCallbacks, IUIInput* pInput, std::tr1::shared_ptr<CUIManager> manager, std::tr1::shared_ptr<CLayout::FontMap> fonts, bool background) {
+int RunUIMenu(const UIMenuParam& rParam, CUIMenuSoundCallback& rCallbacks, IUIInput* pInput, std::tr1::shared_ptr<CUIManager> manager, std::tr1::shared_ptr<CLayout::FontMap> fonts, bool background) {
     std::tr1::shared_ptr<CLayout> pMeasure(new CLayout());
     pMeasure->Load(rParam.mpArchives, (std::string(rParam.mpLayoutName) + "_item").c_str(), fonts, background);
     NErrMsg::PaneRectangle titleBounds = NErrMsg::GetPaneRectangle(pMeasure->FindPane("TITLE_SIZE"));

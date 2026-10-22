@@ -314,6 +314,7 @@ config.libs = [
             Object(NonMatching, "game/CTitleSession.cpp"),
             Object(NonMatching, "game/ScriptCamera.cpp"),
             Object(Matching, "game/CTutorialMsg.cpp", extra_cflags=["-inline off", "-str noreuse,nopool"]),
+            Object(NonMatching, "game/CUIMenuSoundCallback.cpp"),
             Object(NonMatching, "game/CUIPiiListItem.cpp"),
             Object(Matching, "game/CUIPiiSpec.cpp"),
             Object(Matching, "game/CUIPlayerID.cpp"),

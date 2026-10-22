@@ -257,7 +257,7 @@ bool CPiiListFilterSort::ShowSortMenu(std::tr1::shared_ptr<CUIManager> pManager,
     param.mTitle = GetMessageString(0x600A7, nullptr);
     param.mpItems = items;
     param.mpArchives = gSharedLayoutArchives;
-    CUIMenuCallbacks callbacks(0);
+    CUIMenuSoundCallback callbacks(0);
     PlaySound(9);
 
     while (true) {
@@ -363,7 +363,7 @@ bool CPiiListFilterSort::ShowFilterMenu(std::tr1::shared_ptr<CUIManager> pManage
         param.mDefaultIndex = 4;
         break;
     }
-    CUIMenuCallbacks callbacks(0);
+    CUIMenuSoundCallback callbacks(0);
 
     while (true) {
         IController* pInput = IGameSession::GetInstance()->GetPlayer(player)->GetController();
@@ -469,7 +469,7 @@ bool CPiiListFilterSort::ShowTypeFilterMenu(bool bySpecies, std::tr1::shared_ptr
     bool filterActive = mFilterType == FILTER_SPECIES_TYPE || mFilterType == FILTER_MOVE_TYPE;
     param.mDefaultIndex = filterActive ? mTypeIndex : -1;
     param.mpArchives = gSharedLayoutArchives;
-    CUIMenuCallbacks callbacks(0);
+    CUIMenuSoundCallback callbacks(0);
     if (onChanged) {
         callbacks.mSelectionCallbacks.Add(
             std::tr1::bind(&CPiiListFilterSort::PreviewTypeFilter, this, std::tr1::placeholders::_1, int(bySpecies ? FILTER_SPECIES_TYPE : FILTER_MOVE_TYPE), onChanged));
@@ -536,7 +536,7 @@ bool CPiiListFilterSort::ShowPrefixFilterMenu(std::tr1::shared_ptr<CUIManager> p
     param.mRowCount = columnCount;
     param.mDefaultIndex = mFilterType == FILTER_PREFIX ? mPrefix : -1;
     param.mpArchives = gSharedLayoutArchives;
-    CUIMenuCallbacks callbacks(0);
+    CUIMenuSoundCallback callbacks(0);
     if (onChanged) {
         callbacks.mSelectionCallbacks.Add(std::tr1::bind(&CPiiListFilterSort::PreviewPrefixFilter, this, std::tr1::placeholders::_1, onChanged));
     }
@@ -591,7 +591,7 @@ bool CPiiListFilterSort::ShowOriginalTrainerFilterMenu(std::tr1::shared_ptr<CUIM
     param.mpItems = items;
     param.mDefaultIndex = mFilterType == FILTER_ORIGINAL_TRAINER ? mInvertOriginalTrainer : -1;
     param.mpArchives = gSharedLayoutArchives;
-    CUIMenuCallbacks callbacks(0);
+    CUIMenuSoundCallback callbacks(0);
     if (onChanged) {
         callbacks.mSelectionCallbacks.Add(
             std::tr1::bind(&CPiiListFilterSort::PreviewOriginalTrainerFilter, this, std::tr1::placeholders::_1, onChanged));
@@ -648,7 +648,7 @@ bool CPiiListFilterSort::ShowSortTypeMenu(std::tr1::shared_ptr<CUIManager> pMana
     param.mpItems = items;
     param.mDefaultIndex = mSortType;
     param.mpArchives = gSharedLayoutArchives;
-    CUIMenuCallbacks callbacks(0);
+    CUIMenuSoundCallback callbacks(0);
     if (onChanged) {
         callbacks.mSelectionCallbacks.Add(std::tr1::bind(&CPiiListFilterSort::PreviewSortType, this, std::tr1::placeholders::_1, onChanged));
     }
