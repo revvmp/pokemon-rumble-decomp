@@ -14,6 +14,8 @@ public:
     int Get(int id);
     void Set(int id, int value);
     void Add(int id, int amount);
+    void SaveSnapshot();
+    void RestoreSnapshot();
     void SetCounterStopValue(int id, int value);
     bool IsWazaUsed(int waza);
     void SetWazaUsed(int waza, bool used);

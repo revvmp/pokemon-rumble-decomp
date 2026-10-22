@@ -9,6 +9,7 @@ struct PiiPropData {
         std::vector<s16> mMoveGroups[5];
     };
     PiiPropData();
+    void Reset();
     ~PiiPropData();
     void Initialize(int columns);
     void SetProperty(u16 monsno, u8 form, int formScope, int column, const NPpu::CValue& rValue, const NPpu::CEngine* pEngine);

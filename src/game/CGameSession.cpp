@@ -12,6 +12,8 @@
 #include <game/ControllerTable.h>
 #include <game/IController.h>
 #include <game/IDisconMsg.h>
+#include <game/CFiber.h>
+#include <game/CPpuEngine.h>
 #include <game/IGameStage.h>
 #include <game/ISaveManager.h>
 #include <game/MapIndex.h>
@@ -115,6 +117,7 @@ public:
     void ClearInstance();
     void UpdateFade();
     void InitStageDescs();
+    void RunStage();
     void LoadFromSlot();
     void GetSnapshot(SessionSnapshot* pSnapshot);
     void SaveToSlot();
@@ -123,7 +126,7 @@ private:
     s64 mPlayTime;
     s64 mStartTime;
     u32 mMoney;
-    u32 mLoadedHeaderValue;
+    u32 mLoadedMoney;
     COyaInfo mOyaInfo;
     std::tr1::shared_ptr<CPiiBox> mTeamPiiBox;
     std::tr1::shared_ptr<CPlayer> mPlayers[4];
@@ -152,7 +155,7 @@ CGameSession* sGameSession;
 int sMaxMoney = 9999999;
 
 CGameSession::CGameSession(IDisconMsg* pDisconMsg) :
-    mPlayTime(0), mStartTime(0), mMoney(0), mLoadedHeaderValue(0), mPendingMap(MakeMapIndex(0, 1, 0, 1)), mMapChangeMode(0),
+    mPlayTime(0), mStartTime(0), mMoney(0), mLoadedMoney(0), mPendingMap(MakeMapIndex(0, 1, 0, 1)), mMapChangeMode(0),
     mMapChangeType(0), mFadeColor(0, 0, 0, 255), mFadeTargetColor(0, 0, 0, 255), mFadeFrames(0), mpDisconMsg(pDisconMsg) {
     sGameSession = this;
     for (int i = 0; i < 4; i++) {
@@ -359,6 +362,96 @@ void CGameSession::LoadFromSlot() {
     SetGCRumbleEnabled(GetOption() == 0);
 }
 
+void CGameSession::RunStage() {
+    mTeamPiiBox->ShowAllSpecs();
+    for (int i = 0; i < 4; i++) {
+        mPlayers[i]->SaveState();
+    }
+    mPiiCollectionBox->SaveSnapshot();
+    mStatistic->SaveSnapshot();
+    mLoadedMoney = mMoney;
+    mPlayers[0]->ResetRankingScore();
+    mPlayers[1]->ResetRankingScore();
+    mPlayers[2]->ResetRankingScore();
+    mPlayers[3]->ResetRankingScore();
+    mOyaInfo.ApplyEnvironment(true, mEnvironment);
+    IGameStage::Param param;
+    param.mMapIndex = mPendingMap;
+    param.mEnvironment = mEnvironment;
+    mGameStage = IGameStage::Create(param);
+    mGameStage->Run();
+    mGameStage.reset();
+    switch (mMapChangeMode) {
+    case 0:
+    case 1:
+        MovePlayerPiisToTeamPiiBox();
+        break;
+    case 2:
+        for (int i = 0; i < 4; i++) {
+            mPlayers[i]->RestoreState();
+            mPlayers[i]->GetPiiBox().RestoreAll();
+        }
+        mPiiCollectionBox->RestoreSnapshot();
+        mStatistic->RestoreSnapshot();
+        mMoney = mLoadedMoney;
+        for (int i = 0; i < 4; i++) {
+            mRemoteMemories[i]->GetPiiBox()->RestoreAll();
+        }
+        mTeamPiiBox->RestoreAll();
+    case 3:
+        SetFade(1, 15);
+        while (GetFadeFrames() > 0) {
+            YieldFiber();
+        }
+        SetFade(0, 0);
+        StartMapTransitionOut();
+        while (!IsMapChangeFinished()) {
+            YieldFiber();
+        }
+        SetFade(1, 0);
+        break;
+    }
+}
+
+void CGameSession::Run() {
+    mEnvironment.reset();
+    do {
+        mWazaDescData.Clear();
+        mPiiPropData.Reset();
+        InitStageDescs();
+        mEnvironment = CreateScriptEnvironment();
+        RunScript("StageDescData.pkc", 1, mEnvironment);
+        RunScript("WazaDescData.pkc", 1, mEnvironment);
+        RunScript("PiiPropData.pkc", 1, mEnvironment);
+        RunScript("WazaTableData.pkc", 1, mEnvironment);
+        RunScript("CGameSession.pkc", 1, mEnvironment);
+        RunScript("CStatistic.pkc", 1, mEnvironment);
+        mTeamPiiBox->ApplyEnvironment(true, mEnvironment);
+        mEnvironment->CollectGarbage();
+        s64 leadId = (static_cast<s64>(GetSaveData(-1)->mData.mLeadPiiIdHigh) << 32) | GetSaveData(-1)->mData.mLeadPiiIdLow;
+        std::tr1::shared_ptr<CPiiPersonalData> lead;
+        int bestBP = 0;
+        std::list<std::tr1::shared_ptr<CPiiPersonalData> >& rList = mTeamPiiBox->GetPersonalDataList();
+        for (std::list<std::tr1::shared_ptr<CPiiPersonalData> >::iterator it = rList.begin(); it != rList.end(); ++it) {
+            if ((*it)->GetCreationTime() == leadId) {
+                lead = *it;
+                break;
+            }
+            if ((*it)->GetBP() > bestBP) {
+                lead = *it;
+                bestBP = (*it)->GetBP();
+            }
+        }
+        mPlayers[0]->SetPendingPersonalData(lead);
+        mPlayers[0]->Join();
+        do {
+            RunStage();
+            mEnvironment->CollectGarbage();
+        } while (mMapChangeMode != 1 && mMapChangeMode != 3);
+    } while (mMapChangeMode == 3);
+    mEnvironment.reset();
+}
+
 WazaDescData* CGameSession::GetWazaDescData() {
     return &mWazaDescData;
 }
@@ -419,6 +512,21 @@ MapDesc* CGameSession::GetMapDesc(MapIndex index) {
     return nullptr;
 }
 
+MapDesc* CGameSession::CreateMapDesc(const MapIndex& rIndex) {
+    MapDesc* pExisting = GetMapDesc(rIndex);
+    if (pExisting) {
+        return pExisting;
+    }
+    std::tr1::shared_ptr<MapDesc> desc(new MapDesc);
+    desc->mIndex = rIndex;
+    StageDesc* pStage = GetStageDesc(rIndex);
+    if (pStage->mMapDescs.size() <= rIndex.mMap) {
+        pStage->mMapDescs.resize(rIndex.mMap + 1);
+    }
+    pStage->mMapDescs[rIndex.mMap] = desc;
+    return desc.get();
+}
+
 int CGameSession::MovePlayerPiisToTeamPiiBox() {
     int moved = 0;
     for (int i = 0; i < 4; i++) {
@@ -426,7 +534,7 @@ int CGameSession::MovePlayerPiisToTeamPiiBox() {
         CPiiBox& rBox = player->GetPiiBox();
         const std::list<std::tr1::shared_ptr<CPiiPersonalData> >& rList = rBox.GetPersonalDataList();
         for (std::list<std::tr1::shared_ptr<CPiiPersonalData> >::const_iterator it = rList.begin(); it != rList.end(); ++it) {
-            if (sGameSession->GetTeamPiiBox()->Add(*it)) {
+            if (sGameSession->GetTeamPiiBox()->AddPersonalData(*it)) {
                 moved++;
             }
         }
@@ -518,14 +626,18 @@ std::tr1::shared_ptr<NPpu::CEnvironment> CGameSession::GetEnvironment() {
 }
 int CGameSession::AddPPDToPlayerPiiBox(int player, const std::tr1::shared_ptr<CPiiPersonalData>& rPPD) {
     int result = rPPD->GetDisplayKind();
-    if (rPPD->GetHP() > 0 && player >= 0 && player < 4) {
-        bool isCurrent = GetPlayer(player)->GetPersonalData() == rPPD;
-        if (isCurrent) {
-            result = 4;
-        } else {
-            bool canAdd = CanAddPPDToPlayerPiiBox(player, rPPD);
-            if (!canAdd) {
-                result = 5;
+    if (rPPD->GetHP() > 0 && 0 <= player && player < 4) {
+        {
+            {
+                bool isCurrent = rPPD == GetPlayer(player)->GetPersonalData();
+                if (isCurrent) {
+                    result = 4;
+                } else {
+                    bool canAdd = CanAddPPDToPlayerPiiBox(player, std::tr1::shared_ptr<CPiiPersonalData>(rPPD));
+                    if (!canAdd) {
+                        result = 5;
+                    }
+                }
             }
         }
     }

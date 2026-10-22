@@ -150,6 +150,7 @@ public:
     virtual void Release() {}
 
     const SNativeFunction* GetNative(int index) const;
+    void CollectGarbage();
 
 private:
     void AllocGlobals();
