@@ -24,7 +24,9 @@ public:
 private:
     struct Entry {
         Entry() : mCollectionType(0), mDefeatedCount(0), mNormalForms(0), mRareForms(0) {
-            mBestBRR[2] = mBestBRR[1] = mBestBRR[0] = 0;
+            for (int i = 0; i < 3; ++i) {
+                mBestBRR[i] = 0;
+            }
         }
 
         int mCollectionType;

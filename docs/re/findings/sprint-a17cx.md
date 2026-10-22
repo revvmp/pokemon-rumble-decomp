@@ -86,3 +86,40 @@ Result: **PASS main.dol; PASS: 1 declared artifact(s)**. SHA-256: `ad1a59896d3ad
 Both sort instantiations already score **100%** with this checkout's headers. CPiiCollectionBox now has **42/43** perfect functions; Create remains **99.17864%**, missing the two zero-count guards described above. No CPiiCollectionBox source/header changes were retained. Constructing `mEntries(496)` directly instead of default construction followed by resize reduced Create to 30.58%; value-initializing `mBestBRR` in Entry's initializer list gave 99.15% and changed store ordering. Both experiments were reverted and the original source recompiled.
 
 A direct compiler invocation must preserve Shift-JIS source encoding. Compiling UTF-8 unchanged caused apparent regressions in CDlgMsgWin OpenYesNo, CMsgBalloon Init, and CSaveManager Work, including shifted string references. Correct CP932 input restored all three to 100%. Do not attribute those differences to vector changes. Also, the initial CStatistic object/report here scored about 99.04-99.05% in its affected routines; 99.39/99.46% describes the intermediate direct-assign-only form, not the fully repaired form.
+
+
+## 2026-10-22 Create resolved; Matching integration remains blocked
+
+This follow-up used only the current a17 checkout and made no commits. The retained code change is in `include/game/CPiiCollectionBox.h`: Entry initializes its three `mBestBRR` elements with `for (int i = 0; i < 3; ++i)` instead of a chained assignment. The vector header, algorithm header, CPiiCollectionBox source ordering, BModelObj source, and configure.py are restored to their starting contents. No target manifests or original artifacts were edited. Experimental backups were outside the repository; no scratch files were added inside it.
+
+### Create and the regression gate
+
+The indexed array-initialization loop changes the compiler's treatment of the surrounding vector construction loops: Create now contains both zero-count guards without an explicit guard in the vector header. This is a constructor/inlining interaction, not evidence that the original used a different vector API. The retained source is ordinary C++ and leaves `mEntries.resize(496)` intact. All **43/43** CPiiCollectionBox functions score **100%**. The starting report contained **12,958** perfect functions; a rebuild of all 156 game units with the retained loop produced **12,959**, with **zero losses** by function identity. The sole new perfect function is Create.
+
+The earlier note that a for loop necessarily damages Create's inlining is superseded for this checkout: the exact increasing-index loop above is verified to match. `std::fill_n(mBestBRR, 3, value)` with a local zero-valued int also reached 100%, but was not retained because the indexed loop is simpler. Passing literal `0` to fill_n produced a static constant load and scored 99.38398%; an explicit pointer loop scored 93.702255%. The chained assignment remains 99.17864%.
+
+### Rejected Matching link
+
+After obtaining 43/43, CPiiCollectionBox was set to Matching, main.dol was deleted, and all game objects were rebuilt with their configured compiler commands. The configured linker and dtk elf2dol both exited 0. The prescribed frozen-manifest verification **failed**, first at DOL header offset **0x1E**. The source-linked DOL was 4,095,072 bytes rather than the required 4,094,880. Matching was therefore reverted as required. Perfect function scores do not establish matching layout or exception tables.
+
+Observed integration problems:
+
+- The existing source defines Create before ExportCollectionData, whereas target addresses put ExportCollectionData at 0x800E1CE0 and Create at 0x800E23A0.
+- Defining CPiiCollectionBox's constructor in its source before RecordCollection, and moving ExportCollectionData before Create, preserved 43/43 and placed the Entry-vector destructor first, but did not make the full link match. These experimental ordering changes were reverted.
+- The emitted vector subscript helper precedes GetCollectionType; the target puts GetCollectionType at 0x800E1C10 and the helper at 0x800E1C20. The two Entry/Entry-pointer iterator inequality helpers also appear in a different order relative to sort and other vector helpers.
+- ExportCollectionData's source exception table references `__vec_deleter<SD_PiiCollectionData::Data, allocator<...>>`, which has no matching name in symbols.txt and is emitted as an extra 0x70-byte routine. The corresponding target relocation names the allocator-reference BattleRoyalData destructor at 0x800BADF0. This is evidence of a naming/type discrepancy to investigate, not a retained rename.
+- ExportCollectionData's split-buffer cleanup points to target `dtor_800BC530`, while the current named SD_PiiCollectionData::Data split-buffer destructor is at 0x800BC5B0. Confirm the identities of these clones from their callers and exception tables before renaming. No symbol names were changed in this session.
+
+Moving the three affected vector member definitions out of class merely moved their emission to the end of the object. Adding explicit inline restored the old order. An explicit instantiation after implicit use, including an attempted extern-template declaration, was rejected as a redefinition by this compiler. Adding inline to std::sort changed its code and was reverted. No template-order workaround was retained.
+
+### Other rejected investigations
+
+A fill-resize overload and `resize(496, Entry())` scored 85.67967%; forcing per-element split-buffer filling reached 88.54209%. Guards at append call sites scored 96.704315%. Explicit guards inside both default-construction functions reached 100% only with destination-pointer calculation before the guard, but the all-game perfect-function count fell to 12,941 with 18 losses. All vector changes were rejected.
+
+BModelObj CalcSize was investigated but no change was retained. Compound assignments after copying the resource-volume components fixed the twelve multiply-operand differences. The reference's second branch also uses absolute maximum Y, model-scale Y, and object-scale Y for height; replacing the current helper result improved an experimental function to 93.15951%, but left redundant computation and other differences. That partial rewrite was reverted. SaveData and CDlgCollection source were not edited.
+
+### Final retained-state validation
+
+Restored CPiiCollectionBox to NonMatching and ran `python configure.py`. Recompiled all **156 game source units** with the configured commands from `ninja -t commands all_source`, bypassing sjiswrap as in the preceding sessions. Non-ASCII source was converted to CP932 only during compilation and restored in a finally block. Every compilation exited 0. Regenerated the normal linker response file, deleted main.dol, ran the configured linker (exit 0), and ran dtk elf2dol (exit 0). Regenerated report.json: **12,959 perfect functions, zero baseline losses**, CPiiCollectionBox **43/43**.
+
+Ran `python tools/verify/verify.py verify --manifest config/targets/wpse-v1.json --reference-dir orig/wpse-v1 --build-dir build/wpse-v1`: **PASS main.dol; PASS: 1 declared artifact(s)**. SHA-256: `ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da`. This PASS uses CPiiCollectionBox's original fallback; the Matching flip remains incomplete. `git diff --check` passes. Retained changes are only the Entry array-initialization loop and this appended note.
