@@ -154,7 +154,6 @@ void ParticleManager::Calc() {
         (mtxEmToGlb._00 + mtxEmToGlb._01) + mtxEmToGlb._02,
         (mtxEmToGlb._10 + mtxEmToGlb._11) + mtxEmToGlb._12,
         (mtxEmToGlb._20 + mtxEmToGlb._21) + mtxEmToGlb._22);
-    f32 emitterScale = 0.57735026f * math::VEC3Len(&axisSum);
 
     math::MTX34 mtxEmToLoc;
     math::MTX34Mult(&mtxEmToLoc, &mtxGlbToLoc, &mtxEmToGlb);
@@ -249,7 +248,7 @@ void ParticleManager::Calc() {
             if (static_cast<u8>(pHeader->magic + 0x55) > 1) {
                 continue;
             }
-            u8 kind = pHeader->kindType;
+            const u8 kind = pHeader->kindType;
             switch (pHeader->curveFlag) {
             case AC_TYPE_PARTICLE_TEXTURE:
                 AnimCurveExecuteTexture(pTrack, pIt, tick, seed, life);
@@ -328,7 +327,7 @@ void ParticleManager::Calc() {
                     math::VEC3Transform(&affect, &mtxGlbToLocNoTrans, &affect);
                     break;
                 case 3:
-                    affect *= emitterScale;
+                    affect *= 0.57735026f * math::VEC3Len(&axisSum);
                     math::VEC3Transform(&affect, &mtxGlbToLocNoTrans, &affect);
                     break;
                 }
