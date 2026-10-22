@@ -10,3 +10,7 @@
 ## Traps
 
 - **An inline engine cast is not the same as a cast local.** `static_cast<CPpuEngine*>(pEngine)->PopWorldObj()` and a `CPpuEngine*` local used only for `PopWorldObj` both keep the early shape. Look at the non-volatile register order first (target engine in r31 and string in r30 means the local is declared before the pop), then mix the variables as in rule 1.
+
+## Not affected
+
+An exhaustive search over parameter and local choices at every engine access site (`scratchpad/p1tools/mix.py`) left these unchanged: ScriptGame `MakeMapID`, `ShowDlgPiiList`, `MapStatus_allFlags`, `MapStatus_setFlags`, `GetStageClearedNum`, `IncMapClearedNum`, and ScriptWorld `SetStageDescTarget`. ScriptWorld `SetMapDescEnemyRow` only got worse. ScriptWorldObj `findMostVitalPiiInCircleZX` and `findMostVitalPiiInArcZX` improved slightly but did not reach 100%. Their misses are stack-slot or register permutations, not the pop schedule. ScriptLayout `NewLayout` keeps `mr r7,r6`. Explicit zero forms, default arguments, the resource wrapper and declaration order did not split the constant.
