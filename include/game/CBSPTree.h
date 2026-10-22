@@ -15,11 +15,18 @@ public:
                 u32 mPayloadOffset;
             } mLeaf;
         };
+
+        f32 CalcDistance(const nw4r::math::VEC3& rPoint) const {
+            return mDistance + mNormal.Dot(rPoint);
+        }
     };
 
-    struct Trace {
+    struct Ray {
         nw4r::math::VEC3 mStart;
         nw4r::math::VEC3 mDirection;
+    };
+
+    struct Trace : Ray {
         f32 mFraction;
         const Node* mpNode;
         const void* mpPayload;

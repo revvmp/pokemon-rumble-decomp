@@ -43,6 +43,7 @@ public:
     bool LoadPkc(int mode, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnv, const char* pPrefix);
     bool LoadAttr(const char* pName, bool background);
     bool IsOutOfBounds(const nw4r::math::VEC3& rPos);
+    CBSPTree* GetBSPTree(int index) { return mBSPTrees[index].get(); }
 
 private:
     void BuildScene(const StageID* pStageID, int stageNo, bool background);

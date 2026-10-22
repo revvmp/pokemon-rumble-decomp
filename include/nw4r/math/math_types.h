@@ -54,6 +54,16 @@ struct VEC2 : _VEC2 {
     }
 };
 
+inline f32 VEC2LenSq(const VEC2* pVec) {
+    return pVec->x * pVec->x + pVec->y * pVec->y;
+}
+
+inline VEC2* VEC2Sub(VEC2* pOut, const VEC2* pA, const VEC2* pB) {
+    pOut->x = pA->x - pB->x;
+    pOut->y = pA->y - pB->y;
+    return pOut;
+}
+
 struct VEC3;
 VEC3* VEC3Add(VEC3* pOut, const VEC3* pA, const VEC3* pB);
 VEC3* VEC3Sub(VEC3* pOut, const VEC3* pA, const VEC3* pB);

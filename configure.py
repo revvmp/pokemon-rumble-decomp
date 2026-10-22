@@ -324,6 +324,7 @@ config.libs = [
             Object(NonMatching, "game/ScriptModel.cpp"),
             Object(NonMatching, "game/ScriptNullObj.cpp"),
             Object(NonMatching, "game/ScriptWorldObj.cpp"),
+            Object(NonMatching, "game/ScriptWorldObjMove.cpp"),
             Object(NonMatching, "game/ScriptWorldObjQuery.cpp"),
             Object(Matching, "game/ScriptMotion.cpp"),
             Object(NonMatching, "game/ScriptInput.cpp"),
