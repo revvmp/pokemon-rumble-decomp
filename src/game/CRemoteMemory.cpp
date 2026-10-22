@@ -22,6 +22,13 @@ inline CRemoteMemory::Flag operator|(CRemoteMemory::Flag a, CRemoteMemory::Flag 
 }
 
 namespace {
+
+typedef std::list<std::tr1::shared_ptr<CPiiPersonalData> > PersonalDataList;
+
+inline bool MatchesFlags(u32 flags, const u32& mask, u32 value) {
+    return (flags & mask) == value;
+}
+
 struct RemoteDataBlock {
     u32 mMagic;
     u16 mVersion;
@@ -165,12 +172,18 @@ void CRemoteMemory::WaitUntilIdle(bool) {
 }
 
 #pragma push
-#pragma global_optimizer off
+#pragma opt_dead_assignments off
+#pragma opt_propagation off
+#pragma opt_common_subs off
+#pragma opt_strength_reduction off
+#pragma opt_scalarize off
+#pragma opt_lifetimes off
 CPiiBox* CRemoteMemory::GetPiiBox() {
     if (!IsGameFlagSet(3)) {
         return &sEmptyBox;
     }
-    if (HasFlags(FLAG_HAS_DATA | FLAG_DATA_CHANGED, FLAG_HAS_DATA)) {
+    const u32 flags = mFlags;
+    if (MatchesFlags(flags, FLAG_HAS_DATA | FLAG_DATA_CHANGED, FLAG_HAS_DATA)) {
         mRemoteBox.Clear();
         RemoteDataBlock* pBlock = &sStoredData[mChannel][mActiveBlock];
         for (int i = 0; i < 12; ++i) {
@@ -181,18 +194,19 @@ CPiiBox* CRemoteMemory::GetPiiBox() {
             }
         }
         mRemoteBox.ApplyEnvironment(false, CreateScriptEnvironment());
-        mPersonalData.assign(mRemoteBox.GetPersonalDataList().begin(), mRemoteBox.GetPersonalDataList().end());
+        const CPiiBox& rBox = mRemoteBox;
+        mPersonalData.assign(rBox.GetPersonalDataList().begin(), rBox.GetPersonalDataList().end());
         mFlags |= FLAG_DATA_CHANGED;
-    } else if (HasFlags(FLAG_DISCONNECTED | FLAG_DATA_CHANGED, FLAG_DISCONNECTED)) {
+    } else if (MatchesFlags(flags, FLAG_DISCONNECTED | FLAG_DATA_CHANGED, FLAG_DISCONNECTED)) {
         mRemoteBox.Clear();
         mPersonalData.clear();
         mFlags |= FLAG_DATA_CHANGED;
-    } else if (mFlags & FLAG_WRITE_COMPLETE) {
+    } else if ((flags >> 4) & 1) {
         mRemoteBox.Clear();
-        for (std::list<std::tr1::shared_ptr<CPiiPersonalData> >::iterator it = mPersonalData.begin(); it != mPersonalData.end(); ++it) {
+        for (PersonalDataList::const_iterator it = PersonalDataList::iterator(mPersonalData.begin()); it != mPersonalData.end(); ++it) {
             mRemoteBox.AddPersonalData(*it);
         }
-        mFlags = (mFlags & ~(FLAG_WRITE_COMPLETE | FLAG_HAS_DATA | FLAG_DATA_CHANGED)) | (FLAG_HAS_DATA | FLAG_DATA_CHANGED);
+        mFlags = (mFlags & ~FLAG_WRITE_COMPLETE) | (FLAG_HAS_DATA | FLAG_DATA_CHANGED);
     }
     return &mRemoteBox;
 }

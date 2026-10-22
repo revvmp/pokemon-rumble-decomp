@@ -359,6 +359,12 @@ public:
     }
 
     void assign(const_iterator first, const_iterator last) {
+        choose_assign(first, last, Metrowerks::int2type<0>());
+    }
+    template <class InputIterator> void choose_assign(InputIterator first, InputIterator last, Metrowerks::int2type<0>) {
+        do_assign(first, last, typename iterator_traits<InputIterator>::iterator_category());
+    }
+    template <class InputIterator> void do_assign(InputIterator first, InputIterator last, input_iterator_tag) {
         const_iterator mid = first;
         size_type count = size();
         for (; count != 0 && mid != last; --count, ++mid) {}
