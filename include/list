@@ -304,6 +304,7 @@ public:
     }
 
     iterator erase(iterator position);
+    iterator erase(iterator first, iterator last) { return base::erase(this, first, last); }
 
     void swap(list& rOther) {
         if (this != &rOther) {

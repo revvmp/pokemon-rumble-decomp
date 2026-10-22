@@ -272,6 +272,165 @@ void CLayout::SetVisible(bool visible) {
     }
 }
 
+std::tr1::shared_ptr<CLayout::CMotionProgram> CLayout::BuildMotion(const char* pName, nw4r::lyt::Pane* pPane, f32 startFrame, f32 rate) {
+    if (pName == nullptr) {
+        return std::tr1::shared_ptr<CMotionProgram>();
+    }
+    nw4r::lyt::AnimTransform* pAnim = FindAnimation(pName);
+    if (pAnim == nullptr) {
+        return std::tr1::shared_ptr<CMotionProgram>();
+    }
+    std::tr1::shared_ptr<CMotionProgram> pProgram(new CMotionProgram);
+    pProgram->mFrame = startFrame;
+    pProgram->mRate = rate;
+    pProgram->mpAnimTransform = pAnim;
+    pProgram->mpTarget = FindPaneMP(pPane);
+    pProgram->mLastFrame = pAnim->GetFrameSize();
+    if (!pProgram->mpAnimTransform->IsLoopData()) {
+        pProgram->mLastFrame--;
+    }
+    pProgram->mState = 0;
+    return pProgram;
+}
+
+std::tr1::shared_ptr<CLayout::CMotionProgram> CLayout::CreateMotion(const char* pName, nw4r::lyt::Pane* pPane, f32 startFrame, f32 rate) {
+    const std::tr1::shared_ptr<CMotionProgram>& rProgram = BuildMotion(pName, pPane, startFrame, rate);
+    if (!rProgram) {
+        return rProgram;
+    }
+    return ReplaceMotions(rProgram);
+}
+
+std::tr1::shared_ptr<CLayout::CMotionProgram> CLayout::ReplaceMotions(const std::tr1::shared_ptr<CMotionProgram>& rProgram) {
+    PaneMP* pPaneMP = rProgram->mpTarget;
+    PaneProgramMap::iterator it;
+    std::set<nw4r::lyt::Pane*>::iterator child;
+    if (!pPaneMP->mMotions.empty()) {
+        pPaneMP->mpPane->UnbindAnimation(pPaneMP->mMotions.front()->mpAnimTransform, true);
+        for (MotionList::iterator motion = pPaneMP->mMotions.begin(); motion != pPaneMP->mMotions.end(); ++motion) {
+            (*motion)->Finish();
+        }
+        pPaneMP->mMotions.clear();
+    }
+    pPaneMP->mMotions.push_back(rProgram);
+    rProgram->mState = 1;
+    SetFlags(4);
+    pPaneMP->mRunning = true;
+    for (it = mPanePrograms.begin(); it != mPanePrograms.end(); ++it) {
+        if (!(*it).second->mMotions.empty()) {
+            MotionList::iterator front = (*it).second->mMotions.begin();
+            (*it).second->mpPane->UnbindAnimation((*front)->mpAnimTransform, true);
+            (*it).second->mpPane->BindAnimation((*front)->mpAnimTransform, true, false);
+            for (child = (*it).second->mDescendants.begin(); child != (*it).second->mDescendants.end(); ++child) {
+                (*child)->UnbindAnimation((*front)->mpAnimTransform, true);
+            }
+        }
+    }
+    if (rProgram->mFrame >= 0.0) {
+        pPaneMP->mFrame = rProgram->mFrame;
+    } else {
+        AdvancePaneMotions(pPaneMP, 1.0f);
+    }
+    return rProgram;
+}
+
+std::tr1::shared_ptr<CLayout::CMotionProgram> CLayout::CreateMotion(const char* pName, const char* pPaneName, f32 startFrame, f32 rate) {
+    nw4r::lyt::Pane* pPane = FindPane(pPaneName);
+    if (pPane != nullptr) {
+        return CreateMotion(pName, pPane, startFrame, rate);
+    }
+    return std::tr1::shared_ptr<CMotionProgram>();
+}
+
+std::tr1::shared_ptr<CLayout::CMotionProgram> CLayout::QueueMotion(const char* pName, nw4r::lyt::Pane* pPane, f32 startFrame, f32 rate) {
+    const std::tr1::shared_ptr<CMotionProgram>& rProgram = BuildMotion(pName, pPane, startFrame, rate);
+    if (!rProgram) {
+        return rProgram;
+    }
+    return ReplaceQueuedMotions(rProgram);
+}
+
+std::tr1::shared_ptr<CLayout::CMotionProgram> CLayout::ReplaceQueuedMotions(const std::tr1::shared_ptr<CMotionProgram>& rProgram) {
+    PaneMP* pPaneMP = rProgram->mpTarget;
+    if (pPaneMP->mMotions.empty()) {
+        return ReplaceMotions(rProgram);
+    }
+    MotionList::iterator first = ++pPaneMP->mMotions.begin();
+    for (MotionList::iterator it = first; it != pPaneMP->mMotions.end(); ++it) {
+        (*it)->Finish();
+    }
+    pPaneMP->mMotions.erase(first, pPaneMP->mMotions.end());
+    pPaneMP->mMotions.push_back(rProgram);
+    return rProgram;
+}
+
+std::tr1::shared_ptr<CLayout::CMotionProgram> CLayout::QueueMotion(const char* pName, const char* pPaneName, f32 startFrame, f32 rate) {
+    nw4r::lyt::Pane* pPane = FindPane(pPaneName);
+    if (pPane != nullptr) {
+        return QueueMotion(pName, pPane, startFrame, rate);
+    }
+    return std::tr1::shared_ptr<CMotionProgram>();
+}
+
+std::tr1::shared_ptr<CLayout::CMotionProgram> CLayout::AppendMotion(const char* pName, nw4r::lyt::Pane* pPane, f32 startFrame, f32 rate) {
+    const std::tr1::shared_ptr<CMotionProgram>& rProgram = BuildMotion(pName, pPane, startFrame, rate);
+    if (!rProgram) {
+        return rProgram;
+    }
+    return AppendProgram(rProgram);
+}
+
+std::tr1::shared_ptr<CLayout::CMotionProgram> CLayout::AppendProgram(const std::tr1::shared_ptr<CMotionProgram>& rProgram) {
+    PaneMP* pPaneMP = rProgram->mpTarget;
+    if (pPaneMP->mMotions.empty()) {
+        return ReplaceMotions(rProgram);
+    }
+    if (pPaneMP->mMotions.size() == 1) {
+        return ReplaceQueuedMotions(rProgram);
+    }
+    pPaneMP->mMotions.push_back(rProgram);
+    return rProgram;
+}
+
+std::tr1::shared_ptr<CLayout::CMotionProgram> CLayout::AppendMotion(const char* pName, const char* pPaneName, f32 startFrame, f32 rate) {
+    nw4r::lyt::Pane* pPane = FindPane(pPaneName);
+    if (pPane != nullptr) {
+        return AppendMotion(pName, pPane, startFrame, rate);
+    }
+    return std::tr1::shared_ptr<CMotionProgram>();
+}
+
+void CLayout::StopMotion(nw4r::lyt::Pane* pPane) {
+    if (pPane == nullptr) {
+        pPane = mLayout->GetRootPane();
+    }
+    PaneProgramMap::iterator it = mPanePrograms.find(pPane);
+    if (it != mPanePrograms.end()) {
+        if (!(*it).second->mMotions.empty()) {
+            MotionList::iterator front = (*it).second->mMotions.begin();
+            (*front)->mpAnimTransform->SetFrame((*it).second->mFrame);
+            (*it).second->mpPane->Animate(0);
+            (*it).second->mpPane->UnbindAnimation((*front)->mpAnimTransform, true);
+            for (MotionList::iterator motion = (*it).second->mMotions.begin(); motion != (*it).second->mMotions.end(); ++motion) {
+                (*motion)->Finish();
+            }
+            (*it).second->mMotions.clear();
+            (*it).second->mRunning = false;
+            UpdateAttachedLayouts();
+        }
+    }
+}
+
+u16 CLayout::GetMotionLength(const char* pName) {
+    if (pName != nullptr) {
+        nw4r::lyt::AnimTransform* pAnim = FindAnimation(pName);
+        if (pAnim != nullptr) {
+            return pAnim->GetFrameSize();
+        }
+    }
+    return 0;
+}
+
 bool CLayout::IsVisible() const {
     if (HasFlags(FLAG_LOADED)) {
         return mLayout->GetRootPane()->IsVisible();

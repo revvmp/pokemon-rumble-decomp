@@ -65,6 +65,8 @@ public:
     };
 
     class CMotionProgram {
+        friend class CLayout;
+
     public:
         bool IsStarted() const { return mState != 0; }
         bool IsFinished() const { return mState == 3 || mState == 2; }
@@ -150,6 +152,12 @@ private:
     bool HasFlags(u32 flags) const { return (mFlags & flags) != 0; }
     void UpdateViewRect();
     void AdvancePaneMotions(PaneMP* pPaneMP, f32 frames);
+    std::tr1::shared_ptr<CMotionProgram> BuildMotion(const char* pName, nw4r::lyt::Pane* pPane, f32 startFrame, f32 rate);
+    std::tr1::shared_ptr<CMotionProgram> ReplaceMotions(const std::tr1::shared_ptr<CMotionProgram>& rProgram);
+    std::tr1::shared_ptr<CMotionProgram> ReplaceQueuedMotions(const std::tr1::shared_ptr<CMotionProgram>& rProgram);
+    std::tr1::shared_ptr<CMotionProgram> AppendProgram(const std::tr1::shared_ptr<CMotionProgram>& rProgram);
+    nw4r::lyt::AnimTransform* FindAnimation(const char* pName);
+    PaneMP* FindPaneMP(nw4r::lyt::Pane* pPane);
 
     u32 mFlags;
     std::string mName;
