@@ -40,6 +40,7 @@ PiiPropData::~PiiPropData() {}
 void PiiPropData::Reset() {
     std::vector<SpeciesMoves> species(508);
     mSpecies.swap(species);
+    mProperties.Clear();
 }
 
 #pragma dont_inline on

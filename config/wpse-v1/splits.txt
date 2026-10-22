@@ -660,8 +660,8 @@ game/CWorldObjStatDisplay.cpp:
 	extab       start:0x8002B4C4 end:0x8002C200
 	extabindex  start:0x8004C71C end:0x8004C818
 	.text       start:0x80121340 end:0x801248C0
-	.data       start:0x803AFAA0 end:0x803B3030
-	.sdata      start:0x804B76F8 end:0x804B77D8
+	.data       start:0x803AFAA0 end:0x803AFC38
+	.sdata      start:0x804B76F8 end:0x804B7728
 
 game/ControllerTable.cpp:
 	extab       start:0x8002C200 end:0x8002C230

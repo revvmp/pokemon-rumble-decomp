@@ -39,7 +39,7 @@ void CWorldObjStatDisplay::Calc() {
     DrawLayerSet stats(mVisible);
     std::vector<BWorldObj*> objects = world->GetObjects(1);
     for (std::vector<BWorldObj*>::iterator it = objects.begin(); it != objects.end(); ++it) {
-        DrawLayerSet* pLayers = (*it)->GetDrawLayers();
+        const DrawLayerSet* pLayers = (*it)->GetDrawLayers();
         if (pLayers != nullptr) {
             for (DrawLayerSet::iterator itStat = pLayers->begin(); itStat != pLayers->end(); ++itStat) {
                 (*itStat)->Update(*it);
