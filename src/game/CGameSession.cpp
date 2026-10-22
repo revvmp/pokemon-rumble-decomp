@@ -530,9 +530,8 @@ void CGameSession::Calc() {
         }
     }
     std::vector<IController*> controllerList;
-    for (std::set<IController*>::iterator it = controllers.begin(); it != controllers.end(); ++it) {
-        controllerList.push_back(*it);
-    }
+    controllerList.reserve(controllers.size());
+    controllerList.assign(controllers.begin(), controllers.end());
     GetControllerTable()->SetControllers(controllerList);
 }
 

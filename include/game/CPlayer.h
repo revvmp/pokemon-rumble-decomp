@@ -31,7 +31,7 @@ public:
     void SaveState();
     void RestoreState();
     void SetController(IController* pController);
-    bool IsJoined() const;
+    bool IsJoined() const { return mState.mJoined; }
     std::tr1::shared_ptr<CPiiPersonalData> GetPersonalData() const;
     std::tr1::shared_ptr<CPiiPersonalData> GetPendingPersonalData() const;
     int GetPlayerNo() const { return mPlayerNo; }

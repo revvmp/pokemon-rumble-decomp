@@ -2,6 +2,7 @@
 #define _SET
 
 #include <MSL_CPP/detail/tree.h>
+#include <iterator>
 
 namespace std {
 
@@ -50,6 +51,11 @@ public:
     typedef unsigned long size_type;
     class iterator {
     public:
+        typedef long difference_type;
+        typedef T* value_type;
+        typedef T** pointer;
+        typedef T*& reference;
+        typedef bidirectional_iterator_tag iterator_category;
         iterator() {}
         explicit iterator(const typename tree_type::iterator& rIterator) : mIterator(rIterator) {}
         value_type operator*() const { return static_cast<value_type>(const_cast<void*>(*mIterator)); }
