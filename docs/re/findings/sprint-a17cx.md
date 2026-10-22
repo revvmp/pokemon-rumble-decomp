@@ -185,3 +185,58 @@ The final prescribed command returned PASS main.dol and PASS: 1 declared artifac
 - unitcmp.py over that range: no target-only functions, no source-only functions, and no moved function.
 - Refreshed report.json and ran the supplied cnt100.py against the saved starting report: 12,983 -> 12,984. No per-unit count decreased; CGameSession changed from 208 to 209, and CPiiCollectionBox remains 43.
 - git diff --check passes. No original hashes or split boundaries changed. All changes are uncommitted.
+
+
+## 2026-10-22: ScriptGame and ScriptWorld register-allocation follow-up
+
+Worked only in the current `rumble-a17` checkout. No commits, target-manifest changes, assembly, compiler-option changes, or retained shared-header changes. The requested two unit flips were not achieved. Two of the four named functions now match; both units remain `NonMatching` in `configure.py`.
+
+### Retained source changes
+
+- `ScriptGame.cpp`: replaced the single-option inline helper with `SetScriptOptions`, which owns the whole option loop. Within that helper, declare `label` before `text`, construct the option label string locally, and call `SetOption` directly. Declare and initialize `player` before `itemArgs` in `OpenScriptChoices`. Add `OpenOptionsWithTitle`, an inline wrapper around the final `GetMessageText` and `OpenOptions` call. `OpenScriptChoices` improves from 99.0991% to 100% (1,332 bytes).
+- `ScriptWorld.cpp`: name `count - 2` as `lastColumnArg`. Declare it before `row`, assign it after `value.ToInt()`, and use it in `GetArg(lastColumnArg - i, value)`. `SetMapDescEnemyRow` improves from 99.27419% to 100% (248 bytes).
+
+### Verified lessons
+
+- The option-loop inline boundary is material to allocation. Moving the loop into `SetScriptOptions`, removing the former inner helper, and declaring `label` before `text` fixes the loop registers and frame slots. Declaring `player` before `itemArgs` fixes their r21/r20 assignment. The resulting function is 99.84985%; the final title conversion still exchanges r18/r20. The additional `OpenOptionsWithTitle` boundary fixes that last exchange without changing the emitted instruction sequence or frame layout.
+- A named loop invariant needs separate declaration and assignment here. Naming `count - 2` immediately after `row` gives 99.67742%: descriptor and count are correct, but row and last-column argument exchange r26/r27. Declaring `lastColumnArg` before `row`, while leaving its assignment after `ToInt`, reaches 100%. Initializing the invariant earlier changes scheduling instead.
+
+### Unresolved functions and additional checkout blockers
+
+- `MakeMapID`: still 96.46342%. Target map/stage/area/engine are r31/r30/r29/r28; current stage/map/engine/area are r31/r30/r29/r28.
+- `SetStageDescTarget`: still 99.710144%. Four instructions exchange the world/rank r30/r29 allocation.
+- The handoff counts are not the complete current-checkout inventory. Recompiling the unchanged HEAD sources gives ScriptGame 167/170 strict functions at 100%, including an existing `IncMapClearedNum` miss at 99.49%. The retained source gives 168/170. ScriptWorld starts at 29/37 and ends at 30/37.
+- ScriptWorld also has six unpaired target functions, totaling 552 bytes: `SetupScriptWaza__FP5CWazaiRCQ33std3tr122shared_ptr<9BWorldObj>`, `fn_8015ECE0`, `fn_8015ED30`, `dtor_8015ED60`, `dtor_8015EDF0`, and `fn_8015EE70`. No speculative symbol renames were retained. Full unit data, exception-table, and link acceptance still need attention before either promotion.
+
+### Rejected experiments
+
+All experiments below were reverted unless described under retained changes. These results extend the failed attempts in sprint-a13, sprint-r1, sprint-p1, sprint-t1, and sprint-w1o.
+
+- Selectively expand each PopInt into a CValue/Pop/ToInt sequence: all seven nonempty subsets for SetStageDescTarget and all fifteen for MakeMapID. No improvement.
+- Assign bitfields immediately after each pop, with uninitialized, empty-initialized, and explicit-zero MapIndex objects. Substantial regressions.
+- Inline output-reference pop helpers, both forwarding PopInt and explicitly calling Pop/ToInt; all declaration permutations and nonempty helper-use subsets for SetStageDescTarget. No match. Also tested all declaration permutations with selectively explicit pops and ordinary assignments, without the helper.
+- Selective const-int references, const ints, register ints, unsigned ints, and const-s32 references for popped components. No improvement.
+- One- and two-level inline pop wrappers, including named return locals and explicit Pop/ToInt bodies, selectively applied to each component. No improvement.
+- All 24 permutations of masked shift/OR packing for MakeMapID, as one expression and as compound assignments. No improvement.
+- The existing CGameSession MakeMapIndex inline body, with local pop results or direct pop arguments, and helpers that combine packing with PushInt or SetStageDescTarget. No improvement.
+- A four-component MapIndex constructor, using member initialization or field assignments. MakeMapID regressed to 89.902435%.
+- Temporary MapIndex bitfield base types: unsigned int, long, unsigned long unchanged; signed/unsigned char and short regressed. A union exposing an integer mValue, including explicit whole-word zero initialization, did not help. All header edits reverted.
+- Temporary ToInt and PopInt return-type combinations of int/s32/u32: unchanged. Header reverted.
+- Component arrays, initialized from pops or assigned in either index direction: unchanged.
+- SetScriptOption parameter-order/reference variations and moving the caller loop-index declaration did not solve OpenScriptChoices. A loop helper with the former inner helper retained required another forwarding level and was less clear than the retained single-loop-helper form. A named final title pointer did not fix r18/r20; the final-call inline wrapper did.
+
+### Validation and build limitation
+
+Initial whole-report count of `fuzzy_match_percent == 100`: **13,007**. Final regenerated report: **13,009**. Both source units were independently compiled from unchanged HEAD contents and then from the retained source, using the configured game compiler flags. Comparing the matched-function sets found no losses; the only gains are OpenScriptChoices and SetMapDescEnemyRow.
+
+Used `python tools/re/unitdiff.py <unit> --function <mangled-name>` for initial instruction comparisons, and `--no-build` for comparisons after direct compilation. The final exact compiler commands emitted by `ninja -t commands <object>` were also executed successfully for both units. The ordinary Ninja build repeatedly stalled after compilation, including with `-j1`; only this checkout's stalled Ninja processes were stopped. Direct compiler and sjiswrap commands completed. The cause of Ninja's stall is unverified. `ninja -t restat` did not solve it because stored dependency metadata remained out of date. No successful full Ninja run is claimed.
+
+For fresh artifact verification, deleted `build/wpse-v1/main.dol`, obtained the configured linker inputs through `ninja -t compdb -x link`, generated the normal linker response file, ran the emitted linker command (exit 0), and ran `dtk elf2dol` (exit 0). Removed the response file afterward. The link printed FORCEACTIVE-symbol warnings. Then ran:
+
+```
+python tools/verify/verify.py verify --manifest config/targets/wpse-v1.json --reference-dir orig/wpse-v1 --build-dir build/wpse-v1
+```
+
+Result: **PASS main.dol; PASS: 1 declared artifact**. This verifies the normal fallback build; neither script unit was promoted or linked from the changed source.
+
+Regenerated `build/wpse-v1/report.json` with the emitted `objdiff-cli report generate -o build/wpse-v1/report.json` command (exit 0). It reported exception-table decoding warnings for method_layoutSetString and NPpu::ToUnicode. Final count remains 13,009. `git diff --check` passed. Shared-header contents were restored exactly, and their timestamps were reset to their last Git modification time to avoid rebuilding unchanged dependencies after temporary experiments. No scratch source files were created.

@@ -577,9 +577,19 @@ int YesNoGetResult(NPpu::CEngine* pEngine) {
     return 0;
 }
 
-static inline void SetScriptOption(IDlgMsgWin* pWindow, int index, NPpu::CEngine* pEngine, NPpu::CValue& rLabel, NPpu::CValue& rText) {
-    std::wstring label(GetMessageText(pEngine, rLabel));
-    pWindow->SetOption(index, label.c_str(), GetMessageText(pEngine, rText));
+static inline void SetScriptOptions(IDlgMsgWin* pWindow, NPpu::CEngine* pEngine, int itemArgs) {
+    for (int i = 0; i < itemArgs / 2; ++i) {
+        NPpu::CValue label;
+        NPpu::CValue text;
+        pEngine->GetArg(-1 - (i * 2 - itemArgs), label);
+        pEngine->GetArg(itemArgs - 2 - i * 2, text);
+        std::wstring optionLabel(GetMessageText(pEngine, label));
+        pWindow->SetOption(i, optionLabel.c_str(), GetMessageText(pEngine, text));
+    }
+}
+
+static inline void OpenOptionsWithTitle(IDlgMsgWin* pWindow, NPpu::CEngine* pEngine, const NPpu::CValue& rTitle) {
+    pWindow->OpenOptions(GetMessageText(pEngine, rTitle));
 }
 
 int OpenScriptChoices(NPpu::CEngine* pEngine, bool withDefault, bool withItemCount) {
@@ -587,9 +597,9 @@ int OpenScriptChoices(NPpu::CEngine* pEngine, bool withDefault, bool withItemCou
     IGameMap* pMap = GetActiveGameMap();
     IDlgMsgWin* pWindow = pMap ? pMap->GetDlgMsgWin() : nullptr;
     if (pWindow) {
+        int player = -1;
         int itemArgs = argCount - 1;
         int argIndex = argCount - 1;
-        int player = -1;
         NPpu::CValue title;
         pEngine->GetArg(argIndex, title);
         if (title.IsInt()) {
@@ -615,15 +625,9 @@ int OpenScriptChoices(NPpu::CEngine* pEngine, bool withDefault, bool withItemCou
                 itemArgs -= dropped;
                 pEngine->Drop(dropped);
             }
-            for (int i = 0; i < itemArgs / 2; ++i) {
-                NPpu::CValue text;
-                NPpu::CValue label;
-                pEngine->GetArg(-1 - (i * 2 - itemArgs), label);
-                pEngine->GetArg(itemArgs - 2 - i * 2, text);
-                SetScriptOption(pWindow, i, pEngine, label, text);
-            }
+            SetScriptOptions(pWindow, pEngine, itemArgs);
             pWindow->SetControllerSlot(player);
-            pWindow->OpenOptions(GetMessageText(pEngine, title));
+            OpenOptionsWithTitle(pWindow, pEngine, title);
         }
     }
     pEngine->Drop(argCount);

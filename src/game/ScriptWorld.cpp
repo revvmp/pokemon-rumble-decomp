@@ -103,9 +103,11 @@ int SetMapDescEnemyRow(NPpu::CEngine* pEngine) {
     MapDesc* pDesc = IGameSession::GetInstance()->CreateMapDesc(static_cast<CPpuEngine*>(pEngine)->GetStageDescTarget());
     NPpu::CValue value;
     pEngine->GetArg(count - 1, value);
+    int lastColumnArg;
     int row = value.ToInt();
+    lastColumnArg = count - 2;
     for (int i = 0; i < count - 1; ++i) {
-        pEngine->GetArg((count - 2) - i, value);
+        pEngine->GetArg(lastColumnArg - i, value);
         pDesc->mPiiTable.SetValue(row, i, value, pEngine);
     }
     pEngine->Drop(count);
