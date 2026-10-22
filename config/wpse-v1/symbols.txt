@@ -11933,8 +11933,8 @@ __ne__Q33std82vector<Q218SD_PiiPersonalData4Data,Q23std38allocator<Q218SD_PiiPer
 swap__Q23std72vector<20SD_PiiCollectionData,Q23std33allocator<20SD_PiiCollectionData>>FRQ23std72vector<20SD_PiiCollectionData,Q23std33allocator<20SD_PiiCollectionData>> = .text:0x800B34D0; // type:function size:0x34
 __ne__Q33std86vector<Q220SD_PiiCollectionData4Data,Q23std40allocator<Q220SD_PiiCollectionData4Data>>8iteratorCFRCQ33std86vector<Q220SD_PiiCollectionData4Data,Q23std40allocator<Q220SD_PiiCollectionData4Data>>8iterator = .text:0x800B3510; // type:function size:0x1C
 __ct__Q226@unnamed@CGameSession_cpp@15SessionSnapshotFv = .text:0x800B3530; // type:function size:0x50
-dtor_800B3580 = .text:0x800B3580; // type:function size:0x7C
-dtor_800B3600 = .text:0x800B3600; // type:function size:0x78
+__dt__Q23std82vector<Q218SD_PiiPersonalData4Data,Q23std38allocator<Q218SD_PiiPersonalData4Data>>Fv = .text:0x800B3580; // type:function size:0x7C
+__dt__Q23std86vector<Q220SD_PiiCollectionData4Data,Q23std40allocator<Q220SD_PiiCollectionData4Data>>Fv = .text:0x800B3600; // type:function size:0x78
 __dt__Q226@unnamed@CGameSession_cpp@15SessionSnapshotFv = .text:0x800B3680; // type:function size:0x160
 size__Q23std86vector<Q220SD_PiiCollectionData4Data,Q23std40allocator<Q220SD_PiiCollectionData4Data>>CFv = .text:0x800B37E0; // type:function size:0x8
 reserve__Q23std72vector<20SD_PiiCollectionData,Q23std33allocator<20SD_PiiCollectionData>>FUl = .text:0x800B37F0; // type:function size:0x204

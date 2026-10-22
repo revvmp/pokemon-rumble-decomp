@@ -50,7 +50,14 @@ public:
 class SD_PiiPersonalData : public VectorStructs {
 public:
     struct Data {
-        u32 mValues[11];
+        u16 mSpecies;
+        u8 mBytes[4];
+        u16 mField6;
+        u32 mField8;
+        u32 mFieldC;
+        u16 mField10;
+        u16 mField12;
+        u32 mTail[6];
     };
 
     SD_PiiPersonalData() { ClearData(); }
