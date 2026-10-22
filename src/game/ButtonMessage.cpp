@@ -38,18 +38,20 @@ std::wstring GetButtonMessage(int player, u32 button, int messageId) {
     return FormatMessage(GetMessageText(messageId, gEmptyText), pSymbol) + L"\n";
 }
 
-CPlayer* FindPlayerHoldingPii(const std::tr1::shared_ptr<CPiiPersonalData>& rPii, int exceptPlayer) {
+CPlayer* FindPlayerHoldingPii(std::tr1::shared_ptr<CPiiPersonalData> pii, int exceptPlayer) {
     for (int i = 0; i < 4; i++) {
         if (i == exceptPlayer) {
             continue;
         }
         CPlayer* pPlayer = IGameSession::GetInstance()->GetPlayer(i);
-        if (pPlayer->IsJoined() && (pPlayer->GetPersonalData() == rPii || pPlayer->GetPendingPersonalData() == rPii)) {
+        if (pPlayer->IsJoined() && (pPlayer->GetPersonalData() == pii || pPlayer->GetPendingPersonalData() == pii)) {
             return pPlayer;
         }
     }
     return nullptr;
 }
+
+template std::tr1::shared_ptr<CPiiPersonalData>::shared_ptr(const std::tr1::shared_ptr<CPiiPersonalData>&);
 
 #pragma scheduling off
 std::tr1::shared_ptr<CPiiPersonalData> CPlayer::GetPersonalData() const {
