@@ -110,6 +110,7 @@ template <typename T> class enable_shared_from_this;
 
 class bad_weak_ptr : public exception {
 public:
+    bad_weak_ptr() throw() {}
     virtual const char* what() const throw() { return "bad_weak_ptr"; }
 };
 
