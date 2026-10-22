@@ -92,7 +92,7 @@ public:
     virtual std::tr1::shared_ptr<NPpu::CEnvironment> GetEnvironment();
     virtual int AddPPDToPlayerPiiBox(int player, const std::tr1::shared_ptr<CPiiPersonalData>& rPPD);
     virtual bool CanAddPPDToPlayerPiiBox(int player, const std::tr1::shared_ptr<CPiiPersonalData>& rPPD);
-    virtual bool IsReplacePiiAvailable(int player, const std::tr1::shared_ptr<CPiiPersonalData>& rPPD);
+    virtual bool IsReplacePiiAvailable(int player);
     virtual f32 GetPlayTimeSeconds();
     virtual int GetMapChangeType();
     virtual void SetFade(int type, int frames);

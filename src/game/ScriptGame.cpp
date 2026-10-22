@@ -465,7 +465,7 @@ int IsMultiPlayerEntranceShown(NPpu::CEngine* pEngine) {
 int IsReplacePiiAvailable(NPpu::CEngine* pEngine) {
     int player = pEngine->PopInt();
     if (GetActiveGameMap()) {
-        pEngine->PushInt(IGameSession::GetInstance()->IsReplacePiiAvailable(player, std::tr1::shared_ptr<CPiiPersonalData>()));
+        pEngine->PushInt(IGameSession::GetInstance()->IsReplacePiiAvailable(player));
     } else {
         pEngine->PushInt(false);
     }
@@ -720,9 +720,10 @@ int IsInEvent(NPpu::CEngine* pEngine) {
 
 int StartTimer(NPpu::CEngine* pBaseEngine) {
     CPpuEngine* pEngine = static_cast<CPpuEngine*>(pBaseEngine);
+    int frames;
     int step = -1;
     if (pEngine->FetchArgCount() > 1) { step = pEngine->PopInt(); }
-    int frames = ceil(pEngine->PopFloat() * 60.0f);
+    frames = ceil(pEngine->PopFloat() * 60.0f);
     GetCurrentGameMap()->StartTimer(frames, step);
     pEngine->PushNull();
     return 0;
@@ -957,7 +958,9 @@ int IsMessageBalloonShown(NPpu::CEngine* pEngine) {
     IGameMap* pMap = GetActiveGameMap();
     IMsgBalloon* pBalloon = pMap != nullptr ? pMap->GetMsgBalloon() : nullptr;
     int index = pEngine->PopInt();
-    pEngine->PushInt(pBalloon != nullptr ? pBalloon->IsShown(index) : false);
+    bool shown = false;
+    if (pBalloon != nullptr) { shown = pBalloon->IsShown(index); }
+    pEngine->PushInt(shown);
     return 0;
 }
 
