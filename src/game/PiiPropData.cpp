@@ -33,6 +33,13 @@ static int GetPropertyRow(int monsno, int form) {
 
 PiiPropData::PiiPropData() : mSpecies(508) {}
 
+PiiPropData::~PiiPropData() {}
+
+void PiiPropData::Reset() {
+    std::vector<SpeciesMoves> species(508);
+    mSpecies.swap(species);
+}
+
 #pragma dont_inline on
 
 void PiiPropData::Initialize(int columns) {
@@ -57,3 +64,5 @@ void PiiPropData::SetProperty(u16 monsno, u8 form, int formScope, int column, co
 const NPpu::CValue& PiiPropData::GetProperty(u16 monsno, u8 form, int column) const {
     return *mProperties.GetCell(GetPropertyRow(monsno, form), column);
 }
+
+#pragma dont_inline reset

@@ -5,7 +5,11 @@
 #include <vector>
 struct PiiPropData {
     struct SpeciesMoves {
-        std::vector<std::pair<s16, s16> > mLevelMoves;
+        struct LevelMove {
+            s16 mLevel;
+            s16 mMove;
+        };
+        std::vector<LevelMove> mLevelMoves;
         std::vector<s16> mMoveGroups[5];
     };
     PiiPropData();
