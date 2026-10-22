@@ -49,6 +49,10 @@ The ledger is kept per area in [ledger](ledger/README.md). It has one linked uni
 
 Exposed the existing `take-issue` Claude skill to Codex through a repository-local `.agents/skills/take-issue/SKILL.md` entry point that loads the shared procedure. Updated agent navigation and handoff usage. See [validation](VALIDATION.md#codex-skill-port-validation) for checks and limits. No new reverse engineering findings or observed tooling traps emerged; measured progress is unchanged.
 
+## 2026-10-22: codegen rules promoted
+
+Latest checkpoint: 90.67% of code matched, 13,064 of 13,953 functions, game 84.90% matched, 59.69% linked. The sprint compiler-behaviour rules (inline budget, register allocation, stack-slot order, emission order, const-reference load caching) are consolidated in [codegen rules](re/CODEGEN_RULES.md). Remaining work is long-tail near-misses and emission-order flips. No new trap beyond those promoted to `AGENTS.md`.
+
 ## Earlier session: per-block issues
 
 Replaced the 36 placeholder issues with 507 per-block decomp issues that together list every function in the executable:

@@ -96,6 +96,12 @@ Keep entries concise and actionable. Distinguish confirmed findings from hypothe
 - **A failed link leaves the old `main.dol` for verification.** `verify.py` printed `PASS` after `ninja` failed to link, because it checked the previous build's DOL. Check the `ninja` exit status first; linking a `Matching` unit also needs every callee renamed from `fn_` in `symbols.txt`. See [F-472-4](docs/re/findings/472-exi-si-db-units.md#f-472-4-verification-can-pass-on-a-stale-maindol).
 
 - **Imported library names can carry the wrong signature.** About 1,260 library placeholders were renamed from public symbol maps (D-0014); their mangled names come from the reference revision, so a matched unit can fail to link on a signature such as `snd::PanMode` versus this target's `snd::detail::PanMode`. Rename the symbol to your source's name when code evidence disagrees, and check `docs/re/reference-symbols.tsv` for the tier and sources. See [F-0013](docs/re/FINDINGS.md#f-0013-reference-symbol-maps-name-library-functions-by-size-alignment).
+- **The inline budget is all-or-nothing.** A function whose direct inline callees exceed about 10000 units inlines none of them, so adding or deleting one statement can flip inlining across the whole function. Move heavy bodies into an inline helper; flags and pragmas do not change it. See [CODEGEN_RULES](docs/re/CODEGEN_RULES.md#inlining).
+- **Stack slots depend on inline-depth parity.** Frame objects sort into power-of-two size buckets, first-created highest, and each inline level reverses its callee's objects. A swapped pair of slots usually means one inline level too few or too many, not a declaration-order problem. See [CODEGEN_RULES](docs/re/CODEGEN_RULES.md#stack-frame-slots).
+- **Template emission is newest first, and header inline bodies create instances at include time.** A weak-function or vtable order flip is fixed by include order and first-declaration position, not by moving definitions. See [CODEGEN_RULES](docs/re/CODEGEN_RULES.md#emission-order-of-weak-functions-and-data).
+- **`const&` parameters cache loads across stores.** A target that reloads after each store means a non-const reference or by-value parameter, and the mangled name changes with it. See [CODEGEN_RULES](docs/re/CODEGEN_RULES.md#loads-and-constants).
+- **`name_callees.py` and `permute_names.py` renames outside your unit can break the DOL.** Apply only `symbols.txt` changes inside the unit's address range and confirm `ninja` exits 0. See [CODEGEN_RULES](docs/re/CODEGEN_RULES.md#tooling-traps).
+- **Codex sessions could not commit from worktrees in this sprint** (cause unconfirmed). Leave changes uncommitted for the maintainer or commit from the main checkout; see [collaboration](docs/COLLABORATION.md).
 
 ## Current project state
 
@@ -108,4 +114,4 @@ Keep entries concise and actionable. Distinguish confirmed findings from hypothe
 | Verification entry point | `python tools/verify/verify.py --help` |
 | Progress images | `python tools/progress/progress.py render --phases config/progress.json --output-dir docs/images` |
 | Extraction entry point | `python tools/reference/extract_reference.py`; see `docs/re/EXTRACTION.md` |
-| Next action | Split library translation units and reconstruct sources; see `docs/HANDOFF.md` |
+| Next action | Remaining work is long-tail near-misses and emission-order flips; see `docs/re/CODEGEN_RULES.md` and `docs/HANDOFF.md` |
