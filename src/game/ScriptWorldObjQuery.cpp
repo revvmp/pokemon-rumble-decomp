@@ -109,9 +109,12 @@ static int PushNoObjects(NPpu::CEngine* pEngine, NPpu::Slice* pSlices, int capac
 }
 
 static int CountMergedIds(NPpu::CEngine* pEngine, NPpu::Slice* pSlices, int capacity) {
+    NPpu::Slice* pSlice = pSlices;
     int count = 0;
-    while (count < capacity && pSlices[count].ToInt() != 0) {
-        ++count;
+    for (; count < capacity; ++pSlice, ++count) {
+        if (pSlice->ToInt() == 0) {
+            break;
+        }
     }
     if (count == capacity && count > 0) {
         pSlices[count - 1].SetInt(0);
