@@ -24,10 +24,21 @@ public:
     ~CPiiListFilterSort();
 
     void Filter(std::tr1::shared_ptr<CUIList> pList, std::vector<std::tr1::shared_ptr<CUIPiiListItem> >& rItems, int player);
-    void ShowSortMenu(std::tr1::shared_ptr<CUIManager> pManager, int player, std::vector<std::tr1::shared_ptr<CUIPiiListItem> >& rItems,
+    bool ShowSortMenu(std::tr1::shared_ptr<CUIManager> pManager, int player, std::vector<std::tr1::shared_ptr<CUIPiiListItem> >& rItems,
                       std::tr1::function<void(const CPiiListFilterSort*)> onChanged);
 
 private:
+    bool ShowFilterMenu(std::tr1::shared_ptr<CUIManager> pManager, int player, std::vector<std::tr1::shared_ptr<CUIPiiListItem> >& rItems,
+                        const std::tr1::function<void(const CPiiListFilterSort*)>& onChanged);
+    bool ShowTypeFilterMenu(bool bySpecies, std::tr1::shared_ptr<CUIManager> pManager, int player,
+                            std::vector<std::tr1::shared_ptr<CUIPiiListItem> >& rItems,
+                            const std::tr1::function<void(const CPiiListFilterSort*)>& onChanged);
+    bool ShowPrefixFilterMenu(std::tr1::shared_ptr<CUIManager> pManager, int player, std::vector<std::tr1::shared_ptr<CUIPiiListItem> >& rItems,
+                              const std::tr1::function<void(const CPiiListFilterSort*)>& onChanged);
+    bool ShowOriginalTrainerFilterMenu(std::tr1::shared_ptr<CUIManager> pManager, int player,
+                                       const std::tr1::function<void(const CPiiListFilterSort*)>& onChanged);
+    bool ShowSortTypeMenu(std::tr1::shared_ptr<CUIManager> pManager, int player,
+                          const std::tr1::function<void(const CPiiListFilterSort*)>& onChanged);
     void Sort(std::vector<std::tr1::shared_ptr<CUIPiiListItem> >& rItems, int player);
 
     int mFilterType;

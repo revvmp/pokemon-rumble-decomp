@@ -5,6 +5,16 @@
 #include <game/IGameSession.h>
 #include <game/CPlayer.h>
 #include <game/COyaInfo.h>
+#include <game/CUIMenu.h>
+#include <game/IGameMap.h>
+#include <game/IPauseMenu.h>
+#include <game/LayoutResources.h>
+#include <game/Message.h>
+#include <game/Sound.h>
+#include <game/Font.h>
+#include <game/CFiber.h>
+#include <game/SystemMessage.h>
+#include <game/IController.h>
 #include <algorithm>
 #include <vector>
 
@@ -145,28 +155,6 @@ bool CompareOldest(const PiiItemPtr& rA, const PiiItemPtr& rB) {
     return pA->GetId() < pB->GetId();
 }
 
-bool HasPrefixedItem(const PiiItemVector& rItems) {
-    const PiiItemPtr* first = &*rItems.begin();
-    const PiiItemPtr* end = first + rItems.size();
-    for (const PiiItemPtr* it = first; it != end; ++it) {
-        if ((*it)->GetPPD()->GetPrefix() != 0) {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool HasItemWithPrefix(const PiiItemVector& rItems, int prefix) {
-    const PiiItemPtr* first = &*rItems.begin();
-    const PiiItemPtr* end = first + rItems.size();
-    for (const PiiItemPtr* it = first; it != end; ++it) {
-        if ((*it)->GetPPD()->GetPrefix() == prefix) {
-            return true;
-        }
-    }
-    return false;
-}
-
 bool IsNameBefore(const wchar_t* const& rNameA, const wchar_t* const& rNameB) {
     return CompareCollation(rNameA, rNameB) < 0;
 }
@@ -257,6 +245,166 @@ void CPiiListFilterSort::Sort(PiiItemVector& rItems, int player) {
                 rItems = sorted;
             }
         }
+    }
+}
+#pragma dont_inline reset
+
+bool CPiiListFilterSort::ShowSortMenu(std::tr1::shared_ptr<CUIManager> pManager, int player, PiiItemVector& rItems,
+                                      std::tr1::function<void(const CPiiListFilterSort*)> onChanged) {
+    UIMenuItem items[3] = {{nullptr, 0}, {nullptr, 1}, {nullptr, 2}};
+    items[0].mText = GetMessageText(0x600A8, gEmptyText);
+    items[1].mText = GetMessageText(0x600A9, gEmptyText);
+    items[2].mText = GetMessageText(0x600AA, gEmptyText);
+    UIMenuParam param = {nullptr, nullptr, 3, 1, 3, 0, nullptr, "menu"};
+    param.mTitle = GetMessageText(0x600A7, gEmptyText);
+    param.mpItems = items;
+    param.mpArchives = gSharedLayoutArchives;
+    CUIMenuCallbacks callbacks(0);
+    PlaySound(9);
+
+    while (true) {
+        IController* pInput = IGameSession::GetInstance()->GetPlayer(player)->GetController();
+        int choice = RunUIMenu(param, callbacks, pInput, pManager, GetDefaultFontMap(), true);
+        switch (choice) {
+        case 0:
+            if (ShowFilterMenu(pManager, player, rItems, onChanged)) {
+                return true;
+            }
+            param.mDefaultIndex = 0;
+            break;
+        case 1:
+            if (ShowSortTypeMenu(pManager, player, onChanged)) {
+                return true;
+            }
+            param.mDefaultIndex = 1;
+            break;
+        case 2:
+            GetCurrentGameMap()->GetPauseMenu()->TakeScreenshot();
+            return false;
+        default:
+            return false;
+        }
+        YieldFiber();
+    }
+}
+
+bool HasPrefixedItem(const PiiItemVector& rItems) {
+    const PiiItemPtr* first = &*rItems.begin();
+    const PiiItemPtr* end = first + rItems.size();
+    for (const PiiItemPtr* it = first; it != end; ++it) {
+        if ((*it)->GetPPD()->GetPrefix() != 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool HasItemWithPrefix(const PiiItemVector& rItems, int prefix) {
+    const PiiItemPtr* first = &*rItems.begin();
+    const PiiItemPtr* end = first + rItems.size();
+    for (const PiiItemPtr* it = first; it != end; ++it) {
+        if ((*it)->GetPPD()->GetPrefix() == prefix) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool HasMixedOriginalTrainers(const PiiItemVector& rItems) {
+    u32 trainerId = IGameSession::GetInstance()->GetOyaInfo()->GetCount();
+    bool hasOwn = false;
+    bool hasOther = false;
+    const PiiItemPtr* it = &*rItems.begin();
+    const PiiItemPtr* end = it + rItems.size();
+    for (; it != end; ++it) {
+        if ((*it)->GetPPD()->GetOriginalTrainerId() == trainerId) {
+            hasOwn = true;
+            if (hasOther) {
+                return true;
+            }
+        } else {
+            hasOther = true;
+            if (hasOwn) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+#pragma dont_inline on
+
+bool CPiiListFilterSort::ShowFilterMenu(std::tr1::shared_ptr<CUIManager> pManager, int player, PiiItemVector& rItems,
+                                        const std::tr1::function<void(const CPiiListFilterSort*)>& onChanged) {
+    UIMenuItem items[5] = {{nullptr, 0}, {nullptr, 1}, {nullptr, 0}, {nullptr, 0}, {nullptr, 2}};
+    items[0].mText = GetMessageString(0x600AC, nullptr);
+    items[1].mText = GetMessageString(0x600AD, nullptr);
+    items[2].mText = GetMessageString(0x600AE, nullptr);
+    items[2].mKind = HasPrefixedItem(rItems) ? 3 : -1;
+    items[3].mText = GetMessageString(0x600AF, nullptr);
+    items[3].mKind = HasMixedOriginalTrainers(rItems) ? 4 : -1;
+    items[4].mText = GetMessageString(0x600B0, nullptr);
+    UIMenuParam param = {nullptr, nullptr, 5, 1, 5, 0, nullptr, "menu"};
+    param.mTitle = GetMessageString(0x600AB, nullptr);
+    param.mpItems = items;
+    param.mpArchives = gSharedLayoutArchives;
+    switch (mFilterType) {
+    default:
+        param.mDefaultIndex = 2;
+        break;
+    case FILTER_SPECIES_TYPE:
+        param.mDefaultIndex = 0;
+        break;
+    case FILTER_MOVE_TYPE:
+        param.mDefaultIndex = 1;
+        break;
+    case FILTER_PREFIX:
+        param.mDefaultIndex = 3;
+        break;
+    case FILTER_ORIGINAL_TRAINER:
+        param.mDefaultIndex = 4;
+        break;
+    }
+    CUIMenuCallbacks callbacks(0);
+
+    while (true) {
+        IController* pInput = IGameSession::GetInstance()->GetPlayer(player)->GetController();
+        int choice = RunUIMenu(param, callbacks, pInput, pManager, GetDefaultFontMap(), true);
+        switch (choice) {
+        case 0:
+            if (ShowTypeFilterMenu(true, pManager, player, rItems, onChanged)) {
+                return true;
+            }
+            param.mDefaultIndex = 0;
+            break;
+        case 1:
+            if (ShowTypeFilterMenu(false, pManager, player, rItems, onChanged)) {
+                return true;
+            }
+            param.mDefaultIndex = 1;
+            break;
+        case 3:
+            if (ShowPrefixFilterMenu(pManager, player, rItems, onChanged)) {
+                return true;
+            }
+            param.mDefaultIndex = 3;
+            break;
+        case 4:
+            if (ShowOriginalTrainerFilterMenu(pManager, player, onChanged)) {
+                return true;
+            }
+            param.mDefaultIndex = 4;
+            break;
+        case 2:
+            mFilterType = FILTER_NONE;
+            if (onChanged) {
+                onChanged(this);
+            }
+            return true;
+        default:
+            return false;
+        }
+        YieldFiber();
     }
 }
 
