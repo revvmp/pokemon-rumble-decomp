@@ -23,6 +23,22 @@
 
 namespace {
 
+struct Viewport {
+    void Set(f32 left, f32 top, f32 w, f32 h) {
+        x = left;
+        y = top;
+        width = w;
+        height = h;
+    }
+    void SetSize(f32 w, f32 h) { Set(x, y, w, h); }
+
+    f32 x, y, width, height;
+};
+
+struct ScissorBox {
+    u32 x, y, width, height;
+};
+
 inline TPLPalette* FindImage(nw4r::lyt::MultiArcResourceAccessor& rAccessor, const char* pName) {
     TPLPalette* pPalette = static_cast<TPLPalette*>(rAccessor.GetResource('timg', pName, nullptr));
     if (pPalette == nullptr) {
@@ -830,23 +846,26 @@ void CLayout::Calc() {
     }
 }
 
+inline void CLayout::SetupScreen(Mtx44 projection) {
+    const GXRenderModeObj* pRenderMode = nw4r::g3d::G3DState::GetRenderModeObj();
+    nw4r::ut::Rect rect = mViewRect;
+    C_MTXOrtho(projection, rect.top, rect.bottom, rect.left, rect.right, 0.0f, 500.0f);
+    GXSetProjection(projection, GX_ORTHOGRAPHIC);
+    Viewport viewport = {0.0f, 0.0f, 0.0f, 0.0f};
+    f32 width = pRenderMode->fbWidth;
+    f32 height = pRenderMode->efbHeight;
+    viewport.SetSize(width, height);
+    ScissorBox scissor = {0, 0, pRenderMode->fbWidth, pRenderMode->efbHeight};
+    GXSetViewport(viewport.x, viewport.y, viewport.width, viewport.height, 0.0f, 1.0f);
+    GXSetScissor(scissor.x, scissor.y, scissor.width, scissor.height);
+}
+
 void CLayout::Draw() {
     if (HasFlags(FLAG_LOADED)) {
         CalculateMtx(false);
         if (IsVisible()) {
-            const GXRenderModeObj* pRenderMode = nw4r::g3d::G3DState::GetRenderModeObj();
             Mtx44 projection;
-            nw4r::ut::Rect rect = mViewRect;
-            C_MTXOrtho(projection, rect.top, rect.bottom, rect.left, rect.right, 0.0f, 500.0f);
-            GXSetProjection(projection, GX_ORTHOGRAPHIC);
-            struct {
-                f32 x, y, width, height;
-            } viewport = {0.0f, 0.0f, pRenderMode->fbWidth, pRenderMode->efbHeight};
-            struct {
-                u32 x, y, width, height;
-            } scissor = {0, 0, pRenderMode->fbWidth, pRenderMode->efbHeight};
-            GXSetViewport(viewport.x, viewport.y, viewport.width, viewport.height, 0.0f, 1.0f);
-            GXSetScissor(scissor.x, scissor.y, scissor.width, scissor.height);
+            SetupScreen(projection);
             mDrawInfo.SetViewMtx(nw4r::math::MTX34(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, -250.0f));
             GXSetZMode(mDepthCompare != GX_NEVER, mDepthCompare, mDepthCompare != GX_NEVER);
             GXSetCullMode(GX_CULL_NONE);

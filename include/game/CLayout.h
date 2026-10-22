@@ -153,6 +153,7 @@ private:
     void SetFlags(u32 flags) { mFlags |= flags; }
     bool HasFlags(u32 flags) const { return (mFlags & flags) != 0; }
     void UpdateViewRect();
+    void SetupScreen(Mtx44 projection);
     void ApplyMotionFrames();
     void RebindAnimations();
     void CalculateAttachedMtx();
