@@ -89,7 +89,6 @@ public:
     bool IsBossHideHP() const { return HasFlag(FLAG_BOSS_HIDE_HP); }
     void SetBossHideHP(bool hidden) { SetFlag(FLAG_BOSS_HIDE_HP, hidden); }
     bool IsSelling() const { return HasFlag(FLAG_SELLING); }
-    void SetSelling(bool selling);
     bool IsNewlyDisclosed() const { return HasFlag(FLAG_NEWLY_DISCLOSED); }
     CPpuRegister* GetRegister() { return &mRegister; }
     void SetOriginalTrainerId(u32 id);
