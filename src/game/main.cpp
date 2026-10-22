@@ -1,6 +1,8 @@
 #include <game/CArchiveFontWithBuf.h>
 #include <game/CPpuEngine.h>
 #include <game/NResetMgr.h>
+#include <game/CPpuEngine.h>
+#include <game/NResetMgr.h>
 #include <game/CLayout.h>
 #include <game/FileList.h>
 #include <game/ITitleSession.h>
@@ -32,7 +34,6 @@ void DrawHomeButton();
 bool IsHomeButtonActive();
 void UpdateResourceFiles();
 void UpdateHomeButton();
-void ProcessResetRequest();
 
 
 #ifndef GAME_CMAIN_H
@@ -72,7 +73,7 @@ public:
         }
     }
     if (ISaveManager* pSave = ISaveManager::GetInstance()) pSave->Calc();
-    ProcessResetRequest();
+    NResetMgr::Update();
 }
     virtual bool ShouldRender() {
     if (mDisconMsg) {
@@ -494,7 +495,7 @@ void CMain::Run() {
         snprintf(path, sizeof(path), "5:/%s/msg.arc/%s", GetGameLocale(), gMainMessageFiles[i].mpPath);
         bool convertEscape = gMainMessageFiles[i].mConvertEscape;
         std::tr1::shared_ptr<CFileData> file = LoadFile(path, 0, true);
-        AppendLoadedFile(*archives, file);
+        AppendLoadedFile(*archives.operator->(), file);
         std::tr1::shared_ptr<CMsgRes> messages(new CMsgRes(file->GetData(), convertEscape));
         SetMsgRes(messages->GetGroupID(), messages);
     }
@@ -529,15 +530,18 @@ void CMain::Run() {
 
 #include <game/FileList.h>
 
-struct ResourceFileRequest {
+struct FileLoadParam {
     const char* mpPath;
     u32 mFlags;
 };
 
-std::tr1::shared_ptr<FileList> LoadResourceFiles(const ResourceFileRequest* pRequests, int count, bool background);
+std::tr1::shared_ptr<FileList> LoadFiles(const FileLoadParam* pFiles, unsigned int count, bool background);
+inline std::tr1::shared_ptr<FileList> LoadLocalizedFiles(const FileLoadParam* pFiles, unsigned int count, bool background) {
+    return LoadFiles(pFiles, count, background);
+}
 
 std::tr1::shared_ptr<FileList> CMain::LoadStartupArchives() {
-    ResourceFileRequest requests[] = {
+    FileLoadParam requests[] = {
         {"5:/pii_1-151_387-492.arc", 0},
         {"5:/item.arc", 0},
         {"5:/game2d.arc", 0},
@@ -546,7 +550,7 @@ std::tr1::shared_ptr<FileList> CMain::LoadStartupArchives() {
         {"5:/effect/main.breft", 0},
         {"5:/sound/waza_p.brsar", 0}
     };
-    return LoadResourceFiles(requests, 7, true);
+    return LoadLocalizedFiles(requests, 7, true);
 }
 
 void AppendLoadedFile(FileList& rFiles, const std::tr1::shared_ptr<CFileData>& rFile) {
