@@ -161,3 +161,51 @@ Live unitdiff reports 48/48 functions at 100%, covering 13,396/13,396 instructio
 
 - An object-order comparison by symbol name can suggest a remaining mismatch even after exact source-link acceptance. The target symbol at 0x80124880 is currently named __dt__20IWorldObjStatDisplayFv, whereas the accepted linked ELF names the retained 64-byte function as the display shared_ptr_deleter destructor. The earlier source copy of the interface destructor is discarded. All DOL bytes, including the relevant vtable pointers, match. Treat the target name as questionable; do not reorder the interface destructor solely to satisfy seq.py. No symbol rename was needed or retained in this session.
 - Raw object data contains duplicate weak vtables and RTTI that are discarded at link. Compare retained linked addresses and the frozen DOL before treating those extra object entries or compiler-generated numeric label changes as a data-order failure.
+
+## 2026-10-22: CMsgBalloon emission investigation (not accepted)
+
+CMsgBalloon remains NonMatching. No source, header, symbol, split, or configure.py changes are retained from this investigation. Only this record is appended; no commits were made and no repository scratch files were created. All experiments were reverted before the final successful frozen-manifest verification.
+
+### Current-checkout source-link result
+
+The fresh baseline still reports 436/436 functions at 100% in objdiff report generation, with 166 target names misplaced in the filtered object-order comparison. Its first 218 target names are in the correct relative order. However, the assumption that the current source-selected link differs only in ordering is no longer true: the current map header emits two extra forwarding functions in this dont_inline translation unit.
+
+At native address 0x800C95B0 the target has tree<int,bool>::find_or_insert<int>. The source-selected link instead retains map_base<int,bool>::find_or_insert at 0x800C95B0 and its generic find_or_insert_impl<Tree> at 0x800C95C0, shifting the intended function to 0x800C95D0. Each extra wrapper has four instruction bytes and occupies sixteen aligned bytes. The call chain is map_base::operator[] -> find_or_insert -> find_or_insert_impl<Tree> -> tree::find_or_insert. See include/map around its operator[] and deferred_tree_type overloads. These wrappers are additional to the 436 named target functions, so a 436/436 report does not detect their retained footprint.
+
+Validation procedure and result:
+
+- Temporarily selected Object(Matching, "game/CMsgBalloon.cpp") and ran python configure.py successfully.
+- Deleted build/wpse-v1/main.dol before building. The requested Ninja run produced no output and was interrupted; no successful Ninja exit is claimed.
+- Compiled CMsgBalloon with its actual mwcc_sjis edge: the configured sjiswrap, Wii/1.1 compiler, and exact generated cflags. The compile exited 0.
+- Invoked the configured Wii/1.1 linker with the generated main.elf edge's actual inputs, its -fp hardware -nodefaults flags, and build/wpse-v1/ldscript.lcf. The response file explicitly selected src/game/CMsgBalloon.o. Linker and dtk elf2dol both exited 0, with the existing FORCEACTIVE warnings.
+- The requested frozen-manifest verify command returned FAIL, first differing byte 0x1F. Source-selected main.dol was 4,094,912 bytes versus 4,094,880 reference bytes. Its .text size was 0x3004E0 versus 0x3004C0. Failed output SHA-256: d3181368476f97312c0d9930214977d6405a7fc1871f3dd82cc640fd7263070c.
+- Restored NonMatching, reran configure.py, deleted main.dol, and repeated the configured linker/elf2dol steps with obj/game/CMsgBalloon.o selected. Frozen verification returned PASS. Accepted SHA-256 remains ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da.
+- Refreshed report.json. cnt100.py is 12,941 before and after, with no per-unit count changes. No shared-header candidate passed a complete consumer gate, so none is retained.
+
+### Source-local controls
+
+Moving the existing dont_inline directive before the includes, moving the CMsgBalloon header after the other includes, and forward-declaring Entry inside CMsgBalloon while defining it immediately after the class each left the 166-name ordering discrepancy unchanged. These controls were restored byte-for-byte.
+
+### New vector ownership evidence and rejected diagnostic
+
+The apparent interleaving of __vec_deleter and __vec_constructor may reflect provisional owner names rather than an undocumented compiler scheduling rule. The archived original 2006 MSL vector header places append, append_realloc, growth, sub_push_back, and construct_at_end in __vec_deleter. Its untransformed __vec_constructor is a thin constructor/swap layer. In contrast, this repository puts many of those algorithms in __vec_constructor. This extends the already documented storage-owner corrections in F-152-9; it is not yet proof that every current constructor-owned symbol should be renamed.
+
+Reference: C:/MassStorage/GitHub/198-reference/primary-header-research/alpha2006/CW_RVL/PowerPC_EABI_Support/MSL/MSL_C++/MSL_Common/Include/vector, SHA-256 ed11b3e9b051ed59c78e57f853e985012814be2100f676ee6279aca5a508f3ee. Relevant ranges are the deleter declaration around lines 330-650 and the constructor layers around lines 2030-2110. The reference was read, not copied into the repository.
+
+A temporary source/header diagnostic moved the reconstructed append/growth/construction families to the storage base, preserved their bodies, and restored the following declaration/definition contexts:
+
+- alloc/cap and max_size before the destructor; append before erase_tail; can_append/grow_by and count construction after it.
+- All construct_at_end overload declarations in one late group, so the first overload does not accidentally anchor the name earlier.
+- Ordinary out-of-class recommend and append_realloc definitions, plus ordinary out-of-class split-buffer construction definitions.
+- Tree root accessor before the destructor and find_or_insert declaration before find; string operator+= declarations before append; alloc_ptr allocator accessor after release.
+
+For order diagnosis only, the target-name view mapped the moved constructor-owned methods to their new deleter-owned names. No config symbols or reference objects were changed. The ownership move alone reduced the normalized order discrepancy to 122, restoring the previously unexplained first CPiiTex/BUILayout interleaving. The vector declaration/definition changes reduced it to 68; the additional tree/string/alloc_ptr declaration changes reduced it to 46. These numbers describe normalized name-order experiments, not binary acceptance, not a live cnt100 improvement, and not a completed reconstruction. Remaining clusters include allocator specialization order, shared-pointer member templates relative to FormatMessage, and later split-buffer/deleter helpers. Complete symbol provenance, shared-consumer instruction checks, retained link bindings, and frozen verification are all still required before adopting this direction.
+
+Reproduction helpers and rejected candidate snapshots are outside the repository under the session temporary directory: cx_balloon.py, cx_move_vector.py, cx_vector_outline.py, cx_normal.py, and cx-balloon-baseline/candidate46. The final working tree contains none of the candidate code. Start future work from current source rather than copying those snapshots over newer headers.
+
+### Traps and next work
+
+- Use the actual sjiswrap build edge when compiling CMsgBalloon. Calling mwcceppc directly with its -enc SJIS flags on the UTF-8 source lowers Init and the report count even without a source change. The direct call was corrected; the proper wrapper restores 436/436 and 12,941 globally.
+- Filtered target-name order and fuzzy function counts omit additional emitted wrappers. Inspect the source-selected ELF and DOL section sizes before assuming that only ordering remains.
+- Do not try to force the apparent vector interleaving solely with primary-template forward declarations until the algorithm owner names have been checked against the original storage/constructor split.
+- Next steps are to resolve the map forwarding wrappers without regressing their deferred-tree consumers, then prove or reject the vector owner corrections across current units. The 46-name diagnostic is not safe to retain as a partial fix.
