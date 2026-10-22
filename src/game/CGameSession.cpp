@@ -681,8 +681,8 @@ bool CGameSession::IsReplacePiiAvailable(int player) {
     if (!pPlayer->IsJoined()) {
         return false;
     }
-    std::list<std::tr1::shared_ptr<CPiiPersonalData> >& rList = pPlayer->GetPiiBox().GetPersonalDataList();
-    for (std::list<std::tr1::shared_ptr<CPiiPersonalData> >::iterator it = rList.begin(); it != rList.end(); ++it) {
+    const std::list<std::tr1::shared_ptr<CPiiPersonalData> >& rList = pPlayer->GetPiiBox().GetPersonalDataList();
+    for (std::list<std::tr1::shared_ptr<CPiiPersonalData> >::const_iterator it = rList.begin(); it != rList.end(); ++it) {
         if (CanAddPPDToPlayerPiiBox(player, std::tr1::shared_ptr<CPiiPersonalData>(*it))) {
             return true;
         }
@@ -690,17 +690,17 @@ bool CGameSession::IsReplacePiiAvailable(int player) {
     IController* pController = pPlayer->GetController();
     if (pController && pController->IsConnected()) {
         CRemoteMemory* pRemoteMemory = mRemoteMemories[pController->GetChannel()].get();
-        if (pRemoteMemory->HasFlag(0x1A)) {
-            std::list<std::tr1::shared_ptr<CPiiPersonalData> >& rRemoteList = pRemoteMemory->GetPiiBox()->GetPersonalDataList();
-            for (std::list<std::tr1::shared_ptr<CPiiPersonalData> >::iterator it = rRemoteList.begin(); it != rRemoteList.end(); ++it) {
+        if (pRemoteMemory->HasPiiBox()) {
+            const std::list<std::tr1::shared_ptr<CPiiPersonalData> >& rRemoteList = pRemoteMemory->GetPiiBox()->GetPersonalDataList();
+            for (std::list<std::tr1::shared_ptr<CPiiPersonalData> >::const_iterator it = rRemoteList.begin(); it != rRemoteList.end(); ++it) {
                 if (CanAddPPDToPlayerPiiBox(player, std::tr1::shared_ptr<CPiiPersonalData>(*it))) {
                     return true;
                 }
             }
         }
     }
-    std::list<std::tr1::shared_ptr<CPiiPersonalData> >& rTeamList = mTeamPiiBox->GetPersonalDataList();
-    for (std::list<std::tr1::shared_ptr<CPiiPersonalData> >::iterator it = rTeamList.begin(); it != rTeamList.end(); ++it) {
+    const std::list<std::tr1::shared_ptr<CPiiPersonalData> >& rTeamList = mTeamPiiBox->GetPersonalDataList();
+    for (std::list<std::tr1::shared_ptr<CPiiPersonalData> >::const_iterator it = rTeamList.begin(); it != rTeamList.end(); ++it) {
         if (CanAddPPDToPlayerPiiBox(player, std::tr1::shared_ptr<CPiiPersonalData>(*it))) {
             return true;
         }
@@ -722,10 +722,10 @@ void CGameSession::UpdateFade() {
     f32 g = mFadeColor.g + ratio * (mFadeTargetColor.g - mFadeColor.g);
     f32 b = mFadeColor.b + ratio * (mFadeTargetColor.b - mFadeColor.b);
     f32 a = mFadeColor.a + ratio * (mFadeTargetColor.a - mFadeColor.a);
-    mFadeColor.r = Clamp(r, 0.0f, 255.0f);
-    mFadeColor.g = Clamp(g, 0.0f, 255.0f);
-    mFadeColor.b = Clamp(b, 0.0f, 255.0f);
-    mFadeColor.a = Clamp(a, 0.0f, 255.0f);
+    mFadeColor.r = Min(Max(0.0f, r), 255.0f);
+    mFadeColor.g = Min(Max(0.0f, g), 255.0f);
+    mFadeColor.b = Min(Max(0.0f, b), 255.0f);
+    mFadeColor.a = Min(Max(0.0f, a), 255.0f);
     if (mFadeColor.ToU32() == mFadeTargetColor.ToU32()) {
         mFadeFrames = 0;
     }
@@ -840,13 +840,21 @@ void CGameSession::Calc() {
 }
 
 void CGameSession::SetFade(int type, int frames) {
-    mFadeFrames = frames < 0 ? 15 : frames;
-    if (type == 1) {
-        mFadeTargetColor = nw4r::ut::Color(0x000000FF);
-    } else if (type == 2) {
-        mFadeTargetColor = nw4r::ut::Color(0xFFFFFFFF);
+    if (frames < 0) {
+        mFadeFrames = 15;
     } else {
+        mFadeFrames = frames;
+    }
+    switch (type) {
+    default:
         mFadeTargetColor = nw4r::ut::Color(0x00000000);
+        break;
+    case 1:
+        mFadeTargetColor = nw4r::ut::Color(0x000000FF);
+        break;
+    case 2:
+        mFadeTargetColor = nw4r::ut::Color(0xFFFFFFFF);
+        break;
     }
     if (mFadeFrames == 0) {
         mFadeColor = mFadeTargetColor;
