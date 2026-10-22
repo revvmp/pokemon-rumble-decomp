@@ -310,14 +310,6 @@ inline void BModelObj::CalcExtent(const nw4r::math::AABB& box, int mode, nw4r::m
     } else {
         size.x = (extentX < extentZ) ? extentZ : extentX;
     }
-
-    if (0.0f < box.max.y) {
-        size.y = box.max.y * mScale.y * 0.5f;
-    } else {
-        size.y = 0.0f;
-    }
-
-    size.z = size.x;
 }
 
 nw4r::math::VEC3 BModelObj::CalcSize(int mode) const {
@@ -357,6 +349,12 @@ nw4r::math::VEC3 BModelObj::CalcSize(int mode) const {
             }
         }
         CalcExtent(bounds, mode, size);
+        if (0.0f < bounds.max.y) {
+            size.y = bounds.max.y * mScale.y * 0.5f;
+        } else {
+            size.y = 0.0f;
+        }
+        size.z = size.x;
         return size;
     } else {
         nw4r::math::VEC3 size;
@@ -384,6 +382,8 @@ nw4r::math::VEC3 BModelObj::CalcSize(int mode) const {
             bounds.max.z *= scale.z;
         }
         CalcExtent(bounds, mode, size);
+        size.z = size.x;
+        size.y = mScale.y * (scale.y * static_cast<f32>(fabs(bounds.max.y))) / 2.0f;
         return size;
     }
 }
