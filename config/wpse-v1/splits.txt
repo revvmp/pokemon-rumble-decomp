@@ -679,15 +679,15 @@ game/ControllerTable.cpp:
 	.bss        start:0x803E8D28 end:0x803E90C8
 	.sdata      start:0x804B77D8 end:0x804B77D9
 
+ControllerTableAlignmentPadding:
+	.sdata      start:0x804B77D9 end:0x804B77E0 align:1
+
 game/PiiSpeciesData.cpp:
 	extab       start:0x8002C230 end:0x8002C248
 	extabindex  start:0x8004C860 end:0x8004C884
 	.text       start:0x80124C80 end:0x80125180
 	.data       start:0x803B3070 end:0x803B3090
 	.sdata2     start:0x804BA148 end:0x804BA158
-
-ControllerTableAlignmentPadding:
-	.sdata      start:0x804B77D9 end:0x804B77E0 align:1
 
 game/DCIM.cpp:
 	extab       start:0x8002C2A8 end:0x8002C2C0
