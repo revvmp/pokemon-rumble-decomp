@@ -12158,7 +12158,7 @@ __dt__Q43std3tr16detail144shared_ptr_deleter<Q237@unnamed@CGloballyReusableTexBu
 __dt__Q43std3tr16detail29shared_ptr_deleter<Uc,PFPv_v>Fv = .text:0x800BE770; // type:function size:0x40
 __dt__Q23std64__vec_split_buffer<10WorkBuffer,Q23std23allocator<10WorkBuffer>>Fv = .text:0x800BE7B0; // type:function size:0x124
 __dt__Q23std60__vec_deleter<10WorkBuffer,RQ23std23allocator<10WorkBuffer>>Fv = .text:0x800BE8E0; // type:function size:0xC8
-fn_800BE9B0 = .text:0x800BE9B0; // type:function size:0x28
+__sinit_\CGloballyReusableTexBuf_cpp = .text:0x800BE9B0; // type:function size:0x28
 __ct__6CHPBarFUl = .text:0x800BE9E0; // type:function size:0xA4
 dtor_800BEA90 = .text:0x800BEA90; // type:function size:0x40
 dtor_800BEAD0 = .text:0x800BEAD0; // type:function size:0xDC
