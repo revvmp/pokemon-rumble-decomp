@@ -1038,6 +1038,11 @@ inline void SetCopyClear(GXColor color, GXPixelFmt pixelFormat) {
     Graphics::SetCopyClear(color, 0xFFFFFF, pixelFormat);
 }
 
+inline GXColor GetClearColor() {
+    GXColor color = {0, 0, 0, 0};
+    return color;
+}
+
 inline void SetupFlatColor(nw4r::ut::Color color) {
     GXSetNumTexGens(0);
     GXSetNumChans(1);
@@ -1397,7 +1402,7 @@ bool BWorld::DrawShadow(GXColor clearColor, GXPixelFmt pixelFormat) {
     if (levels == 1) {
         SetCopyClear(clearColor, pixelFormat);
     } else {
-        SetCopyClear(GXColor(), GX_PF_RGBA6_Z24);
+        SetCopyClear(GetClearColor(), GX_PF_RGBA6_Z24);
     }
     pShadowCamera->GetTexture(0).CopyFromEFB(GX_CTF_A8, true);
     GXInvalidateTexAll();
@@ -1411,7 +1416,7 @@ bool BWorld::DrawShadow(GXColor clearColor, GXPixelFmt pixelFormat) {
             DrawFrame(width, height);
             SetCopyClear(clearColor, pixelFormat);
         } else {
-            SetCopyClear(GXColor(), GX_PF_RGBA6_Z24);
+            SetCopyClear(GetClearColor(), GX_PF_RGBA6_Z24);
         }
         rTexture.CopyFromEFB(GX_CTF_A8, true);
         GXInvalidateTexAll();
