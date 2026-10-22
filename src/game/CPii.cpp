@@ -10,6 +10,7 @@
 #include <game/VideoTiming.h>
 #include <game/AnmObjChrRootScale.h>
 #include <game/CFileData.h>
+#include <game/FrameStep.h>
 #include <game/Memory.h>
 #include <nw4r/g3d/g3d_anmtexsrt.h>
 #include <revolution/gx/GXTexture.h>
@@ -25,6 +26,8 @@ enum {
 
 const f32 sizeScales[5] = {1.0f, 1.0f, 0.9f, 0.85f, 0.85f};
 }
+
+void SetSceneObjectEnabled(nw4r::g3d::ScnObj* pScnObj, bool enable);
 
 static std::tr1::shared_ptr<CFileData> LoadFileForMotion(const char* pPath, u32 flags)
 {
@@ -455,4 +458,152 @@ std::tr1::shared_ptr<CModel::CMotionProgram> CPii::PlayMotionForDuration(int ind
     LoadMotionResource(rInfo);
     f32 rate = CalcPlayRate(rInfo.mName, frame, duration);
     return ApplyMotionInfo(GetModel()->Play(rInfo.mName, frame, rate), rInfo);
+}
+
+std::tr1::shared_ptr<CModel::CMotionProgram> CPii::QueueMotionForDuration(int index, f32 frame, f32 duration)
+{
+    const PiiMotionInfo& rInfo = GetMotionInfo(index);
+    LoadMotionResource(rInfo);
+    f32 rate = CalcPlayRate(rInfo.mName, frame, duration);
+    return ApplyMotionInfo(GetModel()->PlayLoop(rInfo.mName, frame, rate), rInfo);
+}
+
+std::tr1::shared_ptr<CModel::CMotionProgram> CPii::AppendMotionForDuration(int index, f32 frame, f32 duration)
+{
+    const PiiMotionInfo& rInfo = GetMotionInfo(index);
+    LoadMotionResource(rInfo);
+    f32 rate = CalcPlayRate(rInfo.mName, frame, duration);
+    return ApplyMotionInfo(GetModel()->PlayOnce(rInfo.mName, frame, rate), rInfo);
+}
+
+bool CPii::IsPlayingMotion(int id)
+{
+    std::tr1::shared_ptr<CModel::CMotionProgram> current = GetModel()->GetCurrentMotion();
+    if (current && current->IsPlaying()) {
+        const PiiMotionInfo* pInfo = static_cast<const PiiMotionInfo*>(current->GetUserData());
+        if (pInfo && pInfo->mId == id) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void CPii::ClearFollowTarget()
+{
+    mFollowTarget.reset();
+    GetModel()->DisableAimLimit();
+}
+
+void CPii::LookAt(const nw4r::math::VEC3& rTarget)
+{
+    mFollowTarget.reset();
+    GetModel()->SetAimTarget(rTarget, false);
+}
+
+void CPii::SetFollowTarget(BWorldObj* pTarget)
+{
+    if (pTarget) {
+        mFollowTarget = pTarget->shared_from_this();
+        mFollowNode = -1;
+    } else {
+        ClearFollowTarget();
+    }
+}
+
+void CPii::SetFollowTarget(BModelObj* pTarget, const char* pNodeName)
+{
+    if (pTarget) {
+        mFollowTarget = pTarget->shared_from_this();
+        mFollowNode = -1;
+        if (pTarget->GetModel()) {
+            nw4r::g3d::ResMdl resMdl = pTarget->GetModel()->mModelData.GetModel()->GetResMdl();
+            if (resMdl.IsValid()) {
+                nw4r::g3d::ResNode node = resMdl.GetResNode(pNodeName);
+                if (node.IsValid()) {
+                    mFollowNode = node.GetID();
+                }
+            }
+        }
+    } else {
+        ClearFollowTarget();
+    }
+}
+
+nw4r::math::VEC3 CPii::GetPosition()
+{
+    nw4r::math::VEC3 size = GetSize();
+    return nw4r::math::VEC3(mPosition.x, mPosition.y + 0.5f * size.y, mPosition.z);
+}
+
+void CPii::Calc()
+{
+    BModelObj::Calc();
+    if (mPpuEngine) {
+        mPpuEngine->Calc();
+    }
+    std::tr1::shared_ptr<BWorldObj> target = Lock(mFollowTarget);
+    if (target) {
+        nw4r::math::VEC3 position = target->GetPosition();
+        if (mFollowNode != -1) {
+            std::tr1::shared_ptr<BModelObj> modelObj = DynamicCast<BModelObj>(target);
+            if (modelObj) {
+                nw4r::math::MTX34 mtx;
+                modelObj->GetModel()->mModelData.GetModel()->GetScnMtxPos(&mtx, nw4r::g3d::ScnObj::MTX_WORLD, mFollowNode);
+                position = nw4r::math::VEC3(mtx._03, mtx._13, mtx._23);
+            }
+        }
+        GetModel()->SetAimTarget(position, false);
+    } else {
+        mFollowTarget.reset();
+    }
+}
+
+void CPii::CalcMtx()
+{
+    BModelObj::CalcMtx();
+    if (mTextureAnimation) {
+        mTextureFrame += mTextureRate * gFrameStep;
+    }
+    bool visible = IsVisible();
+    if (mShadowModel.IsLoaded()) {
+        nw4r::g3d::ScnMdlSimple* pShadow = mShadowModel.GetModel();
+        if (visible) {
+            if (mPiiFlags & 2) {
+                mPiiFlags &= ~2;
+                SetSceneObjectEnabled(pShadow, true);
+            }
+        } else if (!(mPiiFlags & 2)) {
+            mPiiFlags |= 2;
+            SetSceneObjectEnabled(pShadow, false);
+        }
+    }
+    if (visible) {
+        UpdateShadowMtx();
+    }
+}
+
+void CPii::UpdateVisible()
+{
+    if (mTextureAnimation) {
+        mTextureAnimation->SetFrame(mTextureFrame);
+    }
+}
+
+void CPii::OnEnterWorld()
+{
+    BModelObj::OnEnterWorld();
+    if (GetWorld() && mShadowModel.IsLoaded()) {
+        GetWorld()->GetModelGroup()->PushBack(mShadowModel.GetModel());
+    }
+}
+
+void CPii::OnLeaveWorld(BWorld* pWorld)
+{
+    if (mShadowModel.IsLoaded()) {
+        pWorld->GetModelGroup()->Remove(mShadowModel.GetModel());
+    }
+    BModelObj::OnLeaveWorld(pWorld);
+    if (mPpuEngine) {
+        mPpuEngine->Reset();
+    }
 }

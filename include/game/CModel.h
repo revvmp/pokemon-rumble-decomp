@@ -126,6 +126,7 @@ public:
     void SetRootScale(const std::tr1::shared_ptr<nw4r::g3d::AnmObjChrRootScale>& rRootScale);
     void AddResourceFile(std::tr1::shared_ptr<CFileData> file);
     bool SetAimNode(const char* pNodeName);
+    void SetAimTarget(const nw4r::math::VEC3& rTarget, bool snap);
     void DisableAimLimit();
     void SetMotionCallback(const MotionCallback& rCallback);
 

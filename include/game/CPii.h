@@ -80,6 +80,13 @@ public:
     bool LoadScript(const char* pName, int mode,
                     const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnvironment);
     std::tr1::shared_ptr<CModel::CMotionProgram> PlayMotionForDuration(int index, f32 frame, f32 duration);
+    std::tr1::shared_ptr<CModel::CMotionProgram> QueueMotionForDuration(int index, f32 frame, f32 duration);
+    std::tr1::shared_ptr<CModel::CMotionProgram> AppendMotionForDuration(int index, f32 frame, f32 duration);
+    bool IsPlayingMotion(int id);
+    void ClearFollowTarget();
+    void LookAt(const nw4r::math::VEC3& rTarget);
+    void SetFollowTarget(BWorldObj* pTarget);
+    void SetFollowTarget(BModelObj* pTarget, const char* pNodeName);
     int GetMotionLengthByIndex(int index);
 
 private:
@@ -101,7 +108,7 @@ private:
     std::tr1::shared_ptr<CPpuEngine> mPpuEngine;
     std::tr1::shared_ptr<CHPBar> mHPBar;
     std::tr1::weak_ptr<BWorldObj> mFollowTarget;
-    int mFollowNode;
+    u32 mFollowNode;
     std::tr1::shared_ptr<CMiniMapMarker> mMiniMapMarker;
     ScnMdlSimpleData mShadowModel;
 };
