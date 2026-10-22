@@ -12107,7 +12107,7 @@ __dt__Q43std3tr16detail140shared_ptr_deleter<Q226@unnamed@CGameSession_cpp@12CGa
 fn_800BC470 = .text:0x800BC470; // type:function size:0x40
 __dt__Q43std3tr16detail68shared_ptr_deleter<7CPlayer,Q33std6detail24default_delete<7CPlayer>>Fv = .text:0x800BC4B0; // type:function size:0x40
 __dt__Q43std3tr16detail82shared_ptr_deleter<13CRemoteMemory,Q33std6detail31default_delete<13CRemoteMemory>>Fv = .text:0x800BC4F0; // type:function size:0x40
-__dt__Q23std94__vec_split_buffer<Q218SD_BattleRoyalData4Data,Q23std38allocator<Q218SD_BattleRoyalData4Data>>Fv = .text:0x800BC530; // type:function size:0x74
+dtor_800BC530 = .text:0x800BC530; // type:function size:0x74
 __dt__Q23std98__vec_split_buffer<Q220SD_PiiCollectionData4Data,Q23std40allocator<Q220SD_PiiCollectionData4Data>>Fv = .text:0x800BC5B0; // type:function size:0x74
 __dt__Q23std94__vec_split_buffer<Q218SD_PiiPersonalData4Data,Q23std38allocator<Q218SD_PiiPersonalData4Data>>Fv = .text:0x800BC630; // type:function size:0x74
 __dt__Q23std92__vec_split_buffer<Q217SD_StatisticValue4Data,Q23std37allocator<Q217SD_StatisticValue4Data>>Fv = .text:0x800BC6B0; // type:function size:0x74
