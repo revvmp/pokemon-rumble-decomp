@@ -34,6 +34,12 @@ public:
 
     class iterator {
         friend class __cdeque_buf;
+    public:
+        typedef random_access_iterator_tag iterator_category;
+        typedef T value_type;
+        typedef long difference_type;
+        typedef T* pointer;
+        typedef T& reference;
 
     public:
         iterator(const iterator& rOther) : cur_(rOther.cur_), first_(rOther.first_), begin_(rOther.begin_), last_(rOther.last_) {}
@@ -133,7 +139,7 @@ public:
     iterator begin() const { return iterator(*this, data_ + start_); }
     iterator end() const { return iterator(*this, data_ + (cap() ? (start_ + size_) % cap() : 0)); }
     template <typename Iterator> void copy_construct(Iterator first, const Iterator& rLast, Allocator) {
-        size_type n = rLast - first;
+        size_type n = std::distance(first, rLast);
         if (n != 0) {
             allocate(n);
             construct_at_end(first, rLast);
@@ -170,11 +176,15 @@ public:
     void allocate(size_type n, Metrowerks::int2type<true>);
     void allocate(size_type size, size_type n) { allocate(size, n, pod_type()); }
     void allocate(size_type, size_type n, Metrowerks::int2type<true> t) { allocate(n, t); }
-    template <typename Iterator> void construct_at_end(const Iterator& rFirst, const Iterator& rLast);
+    template <typename Iterator> void construct_at_end(const Iterator& rFirst, const Iterator& rLast) {
+        construct_at_end(rFirst, rLast, pod_type());
+    }
+    template <typename Iterator> void construct_at_end(const Iterator& rFirst, const Iterator& rLast, Metrowerks::int2type<true>);
     template <typename Iterator> void construct_at_front(const Iterator& rFirst, const Iterator& rLast);
 
     static iterator copy(iterator first, iterator last, iterator result);
     static iterator copy_backward(iterator first, iterator last, iterator result);
+    static T* copy(iterator first, iterator last, T* result);
     static T* copy(T* first, T* last, T* result) { return copy_bytes(first, last, result); }
     static T* copy_bytes(T* first, T* last, T* result) {
         size_type bytes = (last - first) * sizeof(T);
@@ -272,6 +282,39 @@ __cdeque_buf<T, Allocator>::copy(iterator first, iterator last, iterator result)
 }
 
 template <typename T, typename Allocator>
+T* __cdeque_buf<T, Allocator>::copy(iterator first, iterator last, T* result) {
+    while (first != last) {
+        long n;
+        if (first.same_segment(last)) {
+            n = last.cur() - first.cur();
+        } else {
+            n = first.last() - first.cur();
+        }
+        result = copy(first.cur(), first.cur() + n, result);
+        first.cur_ref() += n - 1;
+        ++first;
+    }
+    return result;
+}
+
+template <typename T, typename Allocator>
+template <typename Iterator>
+void __cdeque_buf<T, Allocator>::construct_at_end(const Iterator& rFirst, const Iterator& rLast, Metrowerks::int2type<true>) {
+    if (data_) {
+        T* pDest = data_ + (start_ + size_) % cap();
+        long n = rLast - rFirst;
+        long room = (data_ + cap()) - pDest;
+        room = std::min(room, n);
+        size_ += n;
+        copy(rFirst, rFirst + room, pDest);
+        n -= room;
+        if (n != 0) {
+            copy(rFirst + room, rLast, data_);
+        }
+    }
+}
+
+template <typename T, typename Allocator>
 typename __cdeque_buf<T, Allocator>::iterator
 __cdeque_buf<T, Allocator>::copy_backward(iterator first, iterator last, iterator result) {
     while (first != last) {
@@ -298,8 +341,7 @@ public:
     __cdeque_imp() {}
     explicit __cdeque_imp(const Allocator& rAlloc) : base(rAlloc) {}
     __cdeque_imp(const __cdeque_imp& rOther) : base(rOther.alloc()) {
-        Allocator alloc;
-        this->copy_construct(rOther.begin(), rOther.end(), alloc);
+        this->copy_construct(rOther.begin(), rOther.end(), Allocator());
     }
 };
 
