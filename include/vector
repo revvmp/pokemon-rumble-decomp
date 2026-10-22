@@ -263,10 +263,22 @@ public:
 
     template <typename Iterator> void assign(Iterator first, Iterator last, Metrowerks::int2type<true>) {
         size_type n = std::distance(first, last);
-        assign_counted(first, last, n);
+        if (n > this->cap()) {
+            size_type capacity = recommend(n - this->cap());
+            clear();
+            if (this->data_) {
+                this->alloc().deallocate(this->data_, this->cap());
+                this->data_ = nullptr;
+                this->cap() = 0;
+            }
+            base::allocate(capacity);
+        }
+        copy_assign(first, last, this->data_);
+        this->size_ = n;
     }
 
-    template <typename Iterator> void assign_counted(Iterator first, Iterator last, size_type n) {
+    template <typename Iterator> void assign_iterated(Iterator first, Iterator last) {
+        size_type n = std::distance(first, last);
         if (n > this->cap()) {
             size_type capacity = recommend(n - this->cap());
             clear();
@@ -726,7 +738,7 @@ public:
     }
 
     void reserve(size_type n) { base::reserve(n); }
-    template <typename Iterator> void assign(Iterator first, Iterator last) { base::assign(first, last, Metrowerks::int2type<true>()); }
+    template <typename Iterator> void assign(Iterator first, Iterator last) { base::assign_iterated(first, last); }
     void push_back(T* const& x) { base::push_back(x); }
     T*& back() { return reinterpret_cast<T*&>(base::back()); }
     void pop_back() { base::pop_back(); }
