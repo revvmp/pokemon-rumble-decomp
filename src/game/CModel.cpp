@@ -731,6 +731,11 @@ template <bool Main> bool CModel::TPartialAnm<Main>::Update(CModel* pModel, f32 
                 mFrame = mFrame / rMotion->mRate;
             }
             rMotion->SetPlaybackState(CMotionProgram::FLAG_FINISHED);
+            if (!Main) {
+                mMotions.pop_front();
+                mAnimObj.reset();
+                return false;
+            }
             return true;
         }
     }
