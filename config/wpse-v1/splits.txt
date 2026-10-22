@@ -601,38 +601,6 @@ game/ControllerTable.cpp:
 	.bss        start:0x803E8D28 end:0x803E90C8
 	.sdata      start:0x804B77D8 end:0x804B77D9
 
-RVL_SDK/fa/pfs_iswriteprotected.c:
-	.text       start:0x8021D200 end:0x8021D24C
-
-RVL_SDK/fa/pfs_mkdir.c:
-	.text       start:0x8021D250 end:0x8021D28C
-
-RVL_SDK/fa/pfs_mount.c:
-	.text       start:0x8021D290 end:0x8021D2CC
-
-RVL_SDK/fa/pfs_remove.c:
-	.text       start:0x8021D2D0 end:0x8021D35C
-
-RVL_SDK/fa/pfs_rmdir.c:
-	.text       start:0x8021D360 end:0x8021D39C
-
-RVL_SDK/fa/pfs_setupfsi.c:
-	.text       start:0x8021D3A0 end:0x8021D3F0
-
-RVL_SDK/fa/pfs_unmount.c:
-	.text       start:0x8021D3F0 end:0x8021D47C
-
-RVL_SDK/fa/pf_stub_unicode.c:
-	.text       start:0x8021D480 end:0x8021D6C0
-	.data       start:0x803C4460 end:0x803C44C0
-
-RVL_SDK/fa/fa_api.c:
-	.text       start:0x8021D6C0 end:0x8021DFE0
-	.data       start:0x803C44C0 end:0x803C4520
-	.bss        start:0x80421510 end:0x804215F8
-	.sdata      start:0x804B88C8 end:0x804B88D8
-	.sbss       start:0x804B9208 end:0x804B9218
-
 ControllerTableAlignmentPadding:
 	.sdata      start:0x804B77D9 end:0x804B77E0 align:1
 
@@ -1808,6 +1776,38 @@ RVL_SDK/fa/pfs_getdev.c:
 
 RVL_SDK/fa/pfs_init_prfile2.c:
 	.text       start:0x8021D1F0 end:0x8021D1F4
+
+RVL_SDK/fa/pfs_iswriteprotected.c:
+	.text       start:0x8021D200 end:0x8021D24C
+
+RVL_SDK/fa/pfs_mkdir.c:
+	.text       start:0x8021D250 end:0x8021D28C
+
+RVL_SDK/fa/pfs_mount.c:
+	.text       start:0x8021D290 end:0x8021D2CC
+
+RVL_SDK/fa/pfs_remove.c:
+	.text       start:0x8021D2D0 end:0x8021D35C
+
+RVL_SDK/fa/pfs_rmdir.c:
+	.text       start:0x8021D360 end:0x8021D39C
+
+RVL_SDK/fa/pfs_setupfsi.c:
+	.text       start:0x8021D3A0 end:0x8021D3F0
+
+RVL_SDK/fa/pfs_unmount.c:
+	.text       start:0x8021D3F0 end:0x8021D47C
+
+RVL_SDK/fa/pf_stub_unicode.c:
+	.text       start:0x8021D480 end:0x8021D6C0
+	.data       start:0x803C4460 end:0x803C44C0
+
+RVL_SDK/fa/fa_api.c:
+	.text       start:0x8021D6C0 end:0x8021DFE0
+	.data       start:0x803C44C0 end:0x803C4520
+	.bss        start:0x80421510 end:0x804215F8
+	.sdata      start:0x804B88C8 end:0x804B88D8
+	.sbss       start:0x804B9208 end:0x804B9218
 
 RVL_SDK/fa/pf_kernel.c:
 	.text       start:0x8021DFE0 end:0x8021E414
