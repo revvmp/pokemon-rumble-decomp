@@ -293,24 +293,64 @@ wchar_t* CMsgRes::GetMessage(int index) const {
     return reinterpret_cast<wchar_t*>(&mpData->mData[mpInfo->mEntries[index].mOffset]);
 }
 
+namespace {
+
+inline void SetProlongedSoundKey(CollationKey& rKey, wchar_t c) {
+    if (rKey.mCategory == COLLATION_KANA) {
+        u32 category = rKey.mCategory;
+        u32 secondary = rKey.mSecondary;
+        u32 primary = rKey.mPrimary == 11 ? 11 : 1;
+        rKey.Set(category, primary, secondary, 2, 8, 2);
+    } else {
+        rKey.Set(COLLATION_SYMBOL, c >> 8, c);
+    }
+}
+
+inline void SetCharacterKey(CollationKey& rKey, wchar_t c) {
+    if (0x0020 <= c && c < 0x007F) {
+        rKey.mValue = sAsciiCollation[c - 0x0020];
+        return;
+    }
+    if (0x00A0 <= c && c < 0x0100) {
+        rKey.mValue = sLatin1Collation[c - 0x00A0];
+        return;
+    }
+    if (0x3041 <= c && c < 0x3094) {
+        rKey.mValue = sKanaCollation[c - 0x3041];
+        return;
+    }
+    if (0x30A1 <= c && c < 0x30F7) {
+        rKey.mValue = sKanaCollation[c - 0x30A1];
+        return;
+    }
+    if (0x0380 <= c && c < 0x03D0) {
+        rKey.mValue = sGreekCollation[c - 0x0380];
+        return;
+    }
+    if (0xE000 <= c && c < 0xE070) {
+        rKey.Set(COLLATION_PRIVATE, c >> 8, c);
+        return;
+    }
+    if (0xFF01 <= c && c < 0xFF5F) {
+        rKey.mValue = sFullWidthCollation[c - 0xFF01];
+        return;
+    }
+    rKey.Set(COLLATION_SYMBOL, c >> 8, c);
+}
+
+}
+
 int MakeCollationKeys(CollationKey* pKeys, const wchar_t* pString, int maxNum) {
     int num = 0;
     CollationKey key;
     key.Set(0, 0, 0);
-    bool isSecondHalf = false;
     wchar_t c;
+    bool isSecondHalf = false;
 
     while (isSecondHalf || (c = *pString++) != L'\0') {
         switch (c) {
         case 0x30FC:
-            if (key.mCategory == COLLATION_KANA) {
-                u32 category = key.mCategory;
-                u32 primary = key.mPrimary == 11 ? 11 : 1;
-                u32 secondary = key.mSecondary;
-                key.Set(category, primary, secondary, 2, 8, 2);
-            } else {
-                key.Set(COLLATION_SYMBOL, c, c);
-            }
+            SetProlongedSoundKey(key, c);
             break;
         case 0x00C6:
             key.mValue = isSecondHalf ? sSpecialCollation[1] : sSpecialCollation[0];
@@ -336,32 +376,7 @@ int MakeCollationKeys(CollationKey* pKeys, const wchar_t* pString, int maxNum) {
             key.mValue = sSpecialCollation[7];
             break;
         default:
-            switch (c) {
-            case 0x0020 ... 0x007E:
-                key.mValue = sAsciiCollation[c - 0x0020];
-                break;
-            case 0x00A0 ... 0x00FF:
-                key.mValue = sLatin1Collation[c - 0x00A0];
-                break;
-            case 0x0380 ... 0x03CF:
-                key.mValue = sGreekCollation[c - 0x0380];
-                break;
-            case 0x3041 ... 0x3093:
-                key.mValue = sKanaCollation[c - 0x3041];
-                break;
-            case 0x30A1 ... 0x30F6:
-                key.mValue = sKanaCollation[c - 0x30A1];
-                break;
-            case 0xE000 ... 0xE06F:
-                key.Set(COLLATION_PRIVATE, c, c);
-                break;
-            case 0xFF01 ... 0xFF5E:
-                key.mValue = sFullWidthCollation[c - 0xFF01];
-                break;
-            default:
-                key.Set(COLLATION_SYMBOL, c, c);
-                break;
-            }
+            SetCharacterKey(key, c);
             break;
         }
 
