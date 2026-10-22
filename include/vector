@@ -81,15 +81,23 @@ public:
     void allocate(size_type n, size_type capacity, pod_type tag) { allocate(capacity, tag); }
     void allocate(size_type n, pod_type);
 
+    size_type recommend(size_type n);
     size_type recommend(size_type n, pod_type) { return recommend(n); }
     size_type recommend_realloc(size_type n) { return recommend(n); }
     size_type grow_capacity(size_type n) { return recommend_realloc(this->size_ + n - this->cap()); }
+    size_type recommend_extra(size_type n) { return recommend(n); }
+    size_type recommend_append(size_type n) { return recommend_extra(n); }
+
+    void append_realloc(size_type n);
+    void append_realloc(size_type n, const T& x);
+
+    void append(size_type n) { append(n, pod_type()); }
+    void append(size_type n, pod_type);
+
     bool grow_by(size_type n) {
         size_type capacity;
         return grow_by(n, capacity, pod_type());
     }
-    size_type recommend_extra(size_type n) { return recommend(n); }
-    size_type recommend_append(size_type n) { return recommend_extra(n); }
     bool grow_by(size_type n, pod_type) {
         recommend_append(n);
         return false;
@@ -102,8 +110,18 @@ public:
     }
 
     void reallocate(size_type n);
-    size_type recommend(size_type n);
 
+    void construct_at_end(size_type n) { construct_at_end(n, pod_type()); }
+    void construct_at_end(size_type n, Metrowerks::int2type<false>) {
+        for (T* p = this->data_ + this->size_; n != 0; --n, ++p) {
+            this->alloc().construct(p, T());
+            ++this->size_;
+        }
+    }
+    void construct_at_end(size_type n, Metrowerks::int2type<true>) {
+        memset(this->data_ + this->size_, 0, n * sizeof(T));
+        this->size_ += n;
+    }
     void construct_at_end(T* pFirst, T* pLast) { construct_at_end(pFirst, pLast, pod_type()); }
     void construct_at_end(T* pFirst, T* pLast, Metrowerks::int2type<true>) {
         ptrdiff_t n = pLast - pFirst;
@@ -146,7 +164,6 @@ protected:
     }
 public:
     void erase_at_end(size_type n) { erase_tail(n, pod_type()); }
-    void append_realloc(size_type n, const T& x);
 protected:
     void erase_tail(size_type n, Metrowerks::int2type<false>);
     void erase_tail(size_type n, Metrowerks::int2type<true>) { size_ -= n; }
@@ -315,7 +332,7 @@ public:
     explicit __vec_constructor(size_type n) {
         if (n != 0) {
             allocate(n, pod_type());
-            construct_at_end(n, pod_type());
+            base::construct_at_end(n, pod_type());
         }
     }
     __vec_constructor(const __vec_constructor& x) : base() {
@@ -489,20 +506,6 @@ protected:
         this->cap() = n;
     }
 
-    void construct_at_end(size_type n) { construct_at_end(n, pod_type()); }
-    void construct_at_end(size_type n, Metrowerks::int2type<false>) {
-        for (T* p = this->data_ + this->size_; n != 0; --n, ++p) {
-            this->alloc().construct(p, T());
-            ++this->size_;
-        }
-    }
-    void construct_at_end(size_type n, Metrowerks::int2type<true>) {
-        memset(this->data_ + this->size_, 0, n * sizeof(T));
-        this->size_ += n;
-    }
-
-
-    void append_realloc(size_type n);
 
 public:
     template <typename Iterator> void assign_dispatch(Iterator first, Iterator last, Metrowerks::int2type<0>) {
@@ -630,10 +633,6 @@ protected:
         return begin() + index;
     }
 
-    void append(size_type n) { append(n, pod_type()); }
-
-    void append(size_type n, pod_type);
-
     void swap(__vec_deleter<T, Allocator&>& r) { swap(r, pod_type()); }
     void swap(__vec_deleter<T, Allocator&>& r, pod_type) {
         size_type capacity = this->cap();
@@ -712,8 +711,7 @@ template <typename T, typename Allocator> void __vec_deleter<T, Allocator>::push
     }
 }
 
-template <typename T, typename Allocator, bool IsPOD>
-void __vec_constructor<T, Allocator, IsPOD>::append(size_type n, pod_type) {
+template <typename T, typename Allocator> void __vec_deleter<T, Allocator>::append(size_type n, pod_type) {
         if (n <= this->cap()) {
             if (this->size_ <= this->cap() - n) {
                 goto construct;
@@ -900,9 +898,8 @@ public:
     }
 };
 
-template <typename T, typename Allocator, bool IsPOD>
-void __vec_constructor<T, Allocator, IsPOD>::append_realloc(size_type n) {
-        typename base::helper buffer(this->alloc());
+template <typename T, typename Allocator> void __vec_deleter<T, Allocator>::append_realloc(size_type n) {
+        helper buffer(this->alloc());
         buffer.allocate(this->size_ + n, recommend(this->size_ + n - this->cap()));
         buffer.start_ = this->size_;
         buffer.construct_at_end(n);
