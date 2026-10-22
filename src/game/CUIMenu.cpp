@@ -97,9 +97,7 @@ void CUIMenu::UpdateSelection() {
     if (mLayoutReady) {
         CUIList::UpdateSelection();
         int first = GetFirstVisibleIndex();
-        int layoutCount = GetLayoutCount();
-        int remaining = mItems.size() - first;
-        int visible = std::min(layoutCount, remaining);
+        int visible = std::min(static_cast<int>(mItems.size()) - first, static_cast<int>(GetLayoutCount()));
         CLayout* pLayout = GetLayout();
         float itemWidth = 0.0f;
         for (unsigned long i = 0; i < visible; ++i) {
@@ -129,10 +127,14 @@ void CUIMenu::UpdateSelection() {
             position.x = mTitlePosition.x;
             position.y = mTitlePosition.y;
             position.z = pTitle->GetTranslate().z;
-            if (pTitle->GetBasePositionH() == 0) position.x -= width / 2.0f;
-            else if (pTitle->GetBasePositionH() == 2) position.x += width / 2.0f;
-            if (pTitle->GetBasePositionV() == 2) position.y -= height / 2.0f;
-            else if (pTitle->GetBasePositionV() == 0) position.y += height / 2.0f;
+            switch (pTitle->GetBasePositionH()) {
+            case 0: position.x -= width / 2.0f; break;
+            case 2: position.x += width / 2.0f; break;
+            }
+            switch (pTitle->GetBasePositionV()) {
+            case 2: position.y -= height / 2.0f; break;
+            case 0: position.y += height / 2.0f; break;
+            }
             pTitle->SetTranslate(position);
         }
         for (int i = 0; i < visible; ++i) {
@@ -168,13 +170,14 @@ void CUIMenu::OnInput(const IUIInput* pInput) {
             while (true) {
                 candidate += mRowCount * direction;
                 if (mWrapSelection && ((direction > 0 && (trigger & 2)) || (direction < 0 && (trigger & 8)))) candidate = (candidate + paddedCount) % paddedCount;
-                if (candidate < 0 || candidate >= paddedCount || candidate == selected) break;
+                if (candidate < 0 || candidate >= paddedCount || selected == candidate) break;
                 int columnBegin = (candidate / mRowCount) * mRowCount;
-                int columnEnd = std::min(itemCount, columnBegin + mRowCount);
+                int columnEnd = std::min(columnBegin + mRowCount, itemCount);
                 if (columnBegin <= candidate && candidate < columnEnd) {
                     std::tr1::shared_ptr<IUIListItem> item = GetItem(candidate);
                     if (item && item->IsSelectable()) {
-                        return SetSelectedIndex(candidate);
+                        SetSelectedIndex(candidate);
+                        return;
                     }
                 }
                 for (int distance = 1; distance < mRowCount; ++distance) {
@@ -183,13 +186,15 @@ void CUIMenu::OnInput(const IUIInput* pInput) {
                     if (columnBegin <= below && below < columnEnd) {
                         std::tr1::shared_ptr<IUIListItem> item = GetItem(below);
                         if (item && item->IsSelectable()) {
-                            return SetSelectedIndex(below);
+                            SetSelectedIndex(below);
+                            return;
                         }
                     }
                     if (columnBegin <= above && above < columnEnd) {
                         std::tr1::shared_ptr<IUIListItem> item = GetItem(above);
                         if (item && item->IsSelectable()) {
-                            return SetSelectedIndex(above);
+                            SetSelectedIndex(above);
+                            return;
                         }
                     }
                 }
