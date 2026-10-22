@@ -2,6 +2,7 @@
 #define GAME_CUIMENU_H
 
 #include <game/BUI.h>
+#include <game/BUICallbackList.h>
 #include <game/CUIList.h>
 #include <game/PaneRectangle.h>
 #include <game/CLayout.h>

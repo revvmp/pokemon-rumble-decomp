@@ -1,4 +1,5 @@
 #include <game/CUIManager.h>
+#include <game/BUICallbackList.h>
 
 BUI::BUI() :
     mFlags(6),

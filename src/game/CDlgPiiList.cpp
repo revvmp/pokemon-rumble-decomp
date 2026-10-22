@@ -14,6 +14,7 @@ template std::tr1::shared_ptr<CPiiPersonalData>::shared_ptr(const std::tr1::shar
 
 #include <game/CPlayer.h>
 #include <game/CPpuEngine.h>
+#include <game/CPii.h>
 #include <game/CPiiBox.h>
 #include <game/CPiiCollectionBox.h>
 #include <game/CRemoteMemory.h>
@@ -656,16 +657,6 @@ finished:
 }
 
 
-inline BUI::Callback BUI::CCallbackListOwner::Add(const std::tr1::function<void(BUI*)>& rCallback) {
-    if (rCallback) {
-        Callback callback(new std::tr1::function<void(BUI*)>(rCallback));
-        if (mpList == nullptr) mpList = new CallbackList();
-        mpList->push_back(callback);
-        return callback;
-    }
-    return Callback();
-}
-
 inline void CDlgPiiListImpl::Setup(bool background) {
     std::tr1::shared_ptr<CLayout::FontMap> fonts = GetDefaultFontMap();
     const char* const* pArchives = gSharedLayoutArchives;
@@ -710,6 +701,16 @@ inline void CDlgPiiListImpl::Setup(bool background) {
         break;
     }
     mUIManager->SetFocusedUI(mPiiList.get());
+}
+
+inline BUI::Callback BUI::CCallbackListOwner::Add(const std::tr1::function<void(BUI*)>& rCallback) {
+    if (rCallback) {
+        Callback callback(new std::tr1::function<void(BUI*)>(rCallback));
+        if (mpList == nullptr) mpList = new CallbackList();
+        mpList->push_back(callback);
+        return callback;
+    }
+    return Callback();
 }
 
 inline void CDlgPiiListImpl::RunSell() {

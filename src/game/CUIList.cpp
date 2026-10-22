@@ -1,4 +1,5 @@
 #include <game/CUIList.h>
+#include <game/BUICallbackList.h>
 #include <game/StringFormat.h>
 #include <game/MathUtil.h>
 #include <game/CUIManager.h>

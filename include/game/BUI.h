@@ -39,7 +39,7 @@ public:
     class CCallbackListOwner {
     public:
         explicit CCallbackListOwner(CallbackList* pList = nullptr) : mpList(pList) {}
-        ~CCallbackListOwner() { delete mpList; }
+        ~CCallbackListOwner();
         CallbackList* get() const { return mpList; }
         Callback Add(const std::tr1::function<void(BUI*)>& rCallback);
 
