@@ -43,6 +43,11 @@ public:
         mLayout.QueueMotion("move1");
     }
 
+    void Move() {
+        mCount++;
+        mLayout.AppendMotion(FormatString("move%d", mCount).c_str());
+    }
+
     int mCount;
     CLayout mLayout;
     std::tr1::shared_ptr<CLayout::CMotionProgram> mMotion;
@@ -154,9 +159,7 @@ void CHPBar::Update(BWorldObj* pObj) {
         int heal = personalData->GetHealTotal();
         if (damage < 0 || heal > 0) {
             for (std::list<std::tr1::shared_ptr<CDamage> >::iterator it = mDamage.begin(); it != mDamage.end(); ++it) {
-                CDamage* pDamage = it->get();
-                pDamage->mCount++;
-                pDamage->mLayout.AppendMotion(FormatString("move%d", pDamage->mCount).c_str());
+                (*it)->Move();
             }
             std::tr1::shared_ptr<CDamage> newDamage;
             bool startGauge = true;
@@ -203,34 +206,34 @@ void CHPBar::Update(BWorldObj* pObj) {
         } else {
             mFlags &= ~FLAG_BOSS_HIDDEN;
         }
-        if (pPii && mKind == KIND_PLAYER) {
-            if (!(mFlags & FLAG_PLAYER_DOWN)) {
-                if (mAnimationState == 0) {
-                    if (pPii->IsPlayingMotion(109)) {
-                        SetAnimationState(3);
-                    } else {
-                        SetAnimationState(2);
-                        mFlags |= FLAG_PLAYER_DOWN;
-                    }
-                } else if (!pPii->IsPlayingMotion(109)) {
+    }
+    if (pPii && mKind == KIND_PLAYER) {
+        if (!(mFlags & FLAG_PLAYER_DOWN)) {
+            if (mAnimationState == 0) {
+                if (pPii->IsPlayingMotion(109)) {
+                    SetAnimationState(3);
+                } else {
                     SetAnimationState(2);
                     mFlags |= FLAG_PLAYER_DOWN;
                 }
-            } else {
-                CPlayer* pPlayer = IGameSession::GetInstance()->GetPlayer(mPlayerNo);
-                bool pending = pPlayer->IsJoined() && pPlayer->GetPendingPersonalData();
-                if (pending) {
-                    SetAnimationState(3);
-                } else if (mAnimationState == 3) {
-                    SetAnimationState(2);
-                } else if (mAnimationState == 2 && mHPRate <= 0.2f) {
-                    SetAnimationState(1);
-                }
+            } else if (!pPii->IsPlayingMotion(109)) {
+                SetAnimationState(2);
+                mFlags |= FLAG_PLAYER_DOWN;
+            }
+        } else {
+            CPlayer* pPlayer = IGameSession::GetInstance()->GetPlayer(mPlayerNo);
+            bool pending = pPlayer->IsJoined() && pPlayer->GetPendingPersonalData();
+            if (pending) {
+                SetAnimationState(3);
+            } else if (mAnimationState == 3) {
+                SetAnimationState(2);
+            } else if (mAnimationState == 2 && mHPRate <= 0.2f) {
+                SetAnimationState(1);
             }
         }
-        if (mpLevel) {
-            mLayout.SetVisible(mpLevel, false);
-        }
+    }
+    if (mpLevel) {
+        mLayout.SetVisible(mpLevel, false);
     }
 }
 
