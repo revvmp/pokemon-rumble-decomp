@@ -310,7 +310,7 @@ config.libs = [
             Object(Matching, "game/CStageCamera.cpp"),
             Object(Matching, "game/CStatistic.cpp"),
             Object(Matching, "game/CStrapReminder.cpp"),
-            Object(NonMatching, "game/CTextWorldObjStat.cpp"),
+            Object(Matching, "game/CTextWorldObjStat.cpp"),
             Object(NonMatching, "game/CTitleSession.cpp"),
             Object(NonMatching, "game/ScriptCamera.cpp"),
             Object(Matching, "game/CTutorialMsg.cpp", extra_cflags=["-inline off", "-str noreuse,nopool"]),

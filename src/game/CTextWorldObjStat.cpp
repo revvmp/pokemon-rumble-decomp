@@ -38,15 +38,15 @@ void CTextWorldObjStat::CalcView(const nw4r::math::MTX34& rView, const nw4r::mat
     nw4r::math::VEC3 position = mPosition;
     nw4r::math::VEC3Transform(&position, &rView, &position);
     nw4r::math::VEC3TransformCoord(&position, &rProjection, &position);
-    if (!(-1.0f < position.x && position.x < 1.0f && -1.0f < position.y && position.y < 1.0f)) {
+    if (!(-1.2f < position.x) || !(position.x < 1.2f) || !(-1.2f < position.y) || !(position.y < 1.2f)) {
         return;
     }
 
     const nw4r::ut::Rect& rRect = mLayout.GetViewRect();
-    position.x *= rRect.right - rRect.left;
-    position.x *= 0.5f;
-    position.y = -position.y * (rRect.bottom - rRect.top);
-    position.y *= 0.5f;
+    f32 width = rRect.right - rRect.left;
+    position.x = position.x * width / 2.0f;
+    f32 height = rRect.bottom - rRect.top;
+    position.y = -position.y * height / 2.0f;
     position.z = 0.0f;
     mLayout.GetLayout()->GetRootPane()->SetTranslate(position);
     mLayout.SetVisible(true);
