@@ -47,3 +47,26 @@
 - **`vector<unsigned long>` stores through `void*`.** CGameMap's exception table points at `__vec_split_buffer<void*>`'s destructor, so `__vec_integer` derives from `__vec_constructor<void*, allocator<void*>, true>`. Its `push_back(void* const&)` adds the inline level the length-error slots need, and the vector converts by value. `__vec_constructor<unsigned short, A, true>` gets a forwarding `push_back` for the same reason (CDlgCollection).
 - **Instantiation order of `shared_ptr<T>` classes follows include order.** A by-value declaration instantiates the class, and the deferred `~shared_ptr`/`operator=` group comes out in reverse. CGameMap needed the headers in alphabetical order, with `<memory>` and `<string>` first so that the exception vtables precede `ICalc`. `shared_ptr<CDividedGround>` had to be first, so `CDividedGround.h` declares a `static Create(u32)`. That declaration has no evidence of its own.
 - **CNoticeDisplay is unresolved.** The target emits `__ct<T>`/`__as<T>` for the four notice classes in the deferred group at the end, with each `__rf<T>` after that class's `Run`. Ours emits them right after `Show`, so the `function_imp` and deleter vtables come before the string pools and the `Init` pool offsets move by 0xE4. Moving or removing `#pragma dont_inline` did not change the order.
+
+## Final tail wave (tY)
+
+ScriptPii reached 100% in every function. Data-label naming (`@NNNN` labels, RTTI, vtables) raised SaveData, CPiiListFilterSort, CDlgPiiSelector, CDlgInfo, CDlgCollection, CGameResult and ScriptWorldObj. Their remaining misses are register, frame-slot or inlining problems.
+
+| Unit | Function | Match | Cause |
+| --- | --- | --- | --- |
+| ScriptPii | (unit) | all 100% | `NewPlayerPii` extab range entry `(0x6c, 0x0004, 0x78)` against the target's `(0x6c, 0x0000, 0x78)`. The code is identical. Changing the if/else form, a direct-init `data`, the `IsJoined` test form or `throw()` on `CPlayer::GetPersonalData` did not change it. The unit stays NonMatching. |
+| ScriptWorld | `SetStageDescTarget` | 99.71% | world/rank r30/r29 swap; see sprint-a17cx |
+| ScriptGame | `MakeMapID`, `IncMapClearedNum` | 96.5%, 99.5% | non-volatile order; see sprint-a13 and sprint-a17cx |
+| CDlgCollection | `CDlgCollectionItem` ctor | 94.7% | the inlined `vector<u16>` copy CSEs `memmove`'s `(pLast - pFirst) * 2` with the outer count. The target recomputes it from the pointers. |
+| CDlgCollection | `Calc` | 99.6% | loop index and `pImpl` registers (sprint-r1 open case) |
+| CGameResult | `Calc` | 95.9% | the frame slots of every local are in reverse creation order. A camera helper inline or a block scope did not help. |
+| SaveData | `append`/`DeserializeVector<SlotData>` | 0%, 7.6% | the target inlines nothing for `SlotData` (it calls `cap()`, `construct_at_end` and the member vector copy ctors out of line). Ours inlines all of it. |
+| ScriptWorldObj | `tree_begin_holder<less<int>>` ctor | 8.3% | the target calls an out-of-line `less<int>` constructor. Adding `less() {}` matches it but loses 6 functions elsewhere (COyaInfo, CMsgBalloon). |
+| ScriptWorldObj | `set<int>::insert` | 94.4% | the target passes `li r5, 0`, which suggests MSL's defaulted `restrict_to` parameter on `pair`'s converting constructor. Not tried, because `<utility>` lacks `restrict_to`. |
+
+### Traps
+
+- **`name_callees.py` can name a template clone after the wrong type.** It named ScriptPii's `0x80154450` `DynamicCast<CPii>`, but its `IsKindOf` tests mask `0x100`, which is CEnemyPii. Its `scope:local` also broke the DOL. Check the `IsKindOf` mask before accepting a `DynamicCast` name.
+- **`IsKindOf` copies are file-local.** ScriptPii keeps its own `IsKindOf<CPlayerPii>` and `IsKindOf<CEnemyPii>` while ScriptWorldObj has global ones, so the template is `static` in `BWorldObj.h`. Without that, a Matching ScriptPii loses 0xA0 bytes of `.text` to weak dedupe. No other unit changed.
+- **The pointer-list `push_back` is a forwarding member.** ScriptPii calls `__list_imp<T*>::push_back`, which tail-branches to the `end()`/`insert` body (named `append`). Making `list::push_back` forward for all element types lost 35 functions elsewhere. Only the pointer specialisation forwards.
+- **Inline members defined in the .cpp before first use are emitted ahead of that function's template instances.** Defining `CPlayerPii::Initialize`/`LoadScript` as `inline` above `NewPlayerPii` put them before `NewPlayerPii`'s template instances, as in the target.
