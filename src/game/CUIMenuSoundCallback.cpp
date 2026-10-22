@@ -1,6 +1,6 @@
-#include <game/CUIMenu.h>
-
 #include <game/CUIMenuItem.h>
+
+#include <game/CUIMenu.h>
 #include <game/Sound.h>
 #include <functional>
 
@@ -54,4 +54,14 @@ void CUIMenuSoundCallback::OnScroll(BUI* pSender) {
     if (mMode != MODE_NO_SCROLL_SOUND) {
         PlaySound(SOUND_CANCEL);
     }
+}
+
+inline BUI::Callback BUI::CCallbackListOwner::Add(const std::tr1::function<void(BUI*)>& rCallback) {
+    if (rCallback) {
+        Callback callback(new std::tr1::function<void(BUI*)>(rCallback));
+        if (mpList == nullptr) mpList = new CallbackList();
+        mpList->push_back(callback);
+        return callback;
+    }
+    return Callback();
 }
