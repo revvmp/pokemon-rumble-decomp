@@ -52,6 +52,9 @@ The traces read these object offsets:
    - After all class templates, the walk processes the function-template list. Member templates are in that list.
 6. Every nested class gets its own template record, which enters the list at the nested declaration. The walk therefore reaches a nested class before the class that encloses it.
 7. A friend function defined inside a class template is instantiated through the action list. It is emitted during a drain, not during the walk.
+8. Each class-template group visits its instances newest first. `CTemplClass_NewInstance` (`0x5F6BB0`) adds an instance to the front of the list at `+68` the first time the template-id is named. A typedef or a by-reference parameter type is enough; the class does not have to be completed.
+9. A member template of a class template becomes its own function-template entry in the function-template list. The entries are added in declaration order when the class instance is instantiated, so the loop visits the last-declared member template first. The loop only generates instances that are already referenced. An instance that is first referenced from a template generated later in the same pass waits until the next walk.
+10. A reference is registered only when the referencing function gets a call-graph node, not when it is defined. Something referenced only through an inline function that has no node yet stays unreferenced until that function gets one.
 
 In practice, if the target emits an item right after group G, then either the item belongs to the class template declared just before G, or it is a member or function template emitted in the function-template loop.
 
@@ -62,25 +65,35 @@ In practice, if the target emits an item right after group G, then either the it
   - `l10n_files.cpp` is `Matching` as of commit `662db05d7`.
   - The `.text` order of `MapPiiTable` is now exact, but `Clear` still has a register swap.
 
+## Fixes from the follow-up session
+
+- **CSaveManager is `Matching`** (commit `d65ef4386`). The changes:
+  - The deque iterators are standalone class templates declared before the classes that use them.
+  - The three `__cdeque_pointer::insert` overloads are member templates, and `__deque_imp::at` is defined out of class.
+  - `CSaveManager.cpp` includes `CFiber.h` before `CControllerComposition.h`.
+  - In `include/functional`, `function_imp` is forward-declared before `mem_fn_0`. That makes the `bound_func` template newer, so the walk visits it before `function_imp`. `bound_func::operator()` is then not yet referenced when its group is walked. It is drained after the `__cdeque_buf::insert` instances, which gives the target's depth-first `call_bound` block.
+  - The `symbols.txt` names in CSaveManager and CPlayerPii were renamed to the new mangled names.
+- **Split-buffer deleters** (commit `872d8b421`). `__vec_constructor` no longer declares `swap(__vec_deleter<T, Allocator&>&)`. That declaration named the split-buffer base when the vector was completed. In CMsgBalloon, the target walks the split buffers and their `Allocator&` deleters in opposite orders. That rules out creating both when the vector is completed, and points to creating the deleter when the split buffer is instantiated. The change costs one or two misplaced functions in BWorld, CDlgCollection and CLayout, which are all still `NonMatching`.
+- **`tree_imp` member templates** (same commit) are declared in the order `insert_key`, `find_or_insert`, `find`, `do_lower_bound`, `find_leaf`. As a result, `find` is emitted before `find_or_insert`, and `find_leaf` and `do_lower_bound` wait until the next walk.
+- **`alloc_ptr::allocator()`** is declared after `release()` (same commit).
+- **CMsgBalloon** declares `EntryList`, `TextureList` and `LayoutList` typedefs in that order (same commit). This creates the allocator instances in the target's age order. The source includes `MapDesc.h` before `CMsgBalloon.h`, so the `wstring` allocator is the oldest.
+  - Misplaced functions went from 29 to 4. All 436 functions score 100%.
+  - The four that remain:
+    - the depth-first order of `__pointer_plus_bit` `->` and the pointer conversion under `increment`;
+    - `wstring::operator=(const&)` is still defined one walk late;
+    - `shared_ptr<CPiiTex>::reset` and its converting constructor come before `FormatMessage` in the target.
+- **COyaInfo is `Matching`** (commit `16f89b7dd`). `COyaInfo.h` includes `<map>` before `<vector>`, so the tree template is older than the split buffer. The walk then reaches `tree_imp::copy` after `construct_at_front`.
+- The game sweep's misplaced total fell by about 700. Every function that scored 100% still does, and `verify` passes.
+
 ## Remaining
 
-- **COyaInfo:** two functions are misplaced, `tree_imp::copy` and `copy_children`.
-  - The target requests the map copy chain in the second walk, from the `split_buffer` front construction.
-  - Ours requests it in the first walk, through `construct(p, T())` in `construct_at_end(n)`.
-- **BWorld:** `map_compact_tree::find_leaf` is still misplaced. Its key and value overloads have different bodies, so they cannot be merged.
-- **CSaveManager:** an uncommitted restructure of the deque brings it down to 14 misplaced functions out of 243. It was not landed because it needs symbol renames.
-  - The restructure has three parts:
-    - The deque and pointer-deque iterators become standalone class templates, declared before the classes that use them.
-    - The three `__cdeque_pointer::insert` overloads become member templates.
-    - `__deque_imp::at` moves out of the class.
-  - It also requires including `CFiber.h` before `CControllerComposition.h`.
-  - The remaining gap is in the tr1 bind machinery in `include/functional`:
-    - `bound_func::operator()` is walked too early.
-    - `call_bound` and `get_bound` are emitted before the two `__cdeque_buf::insert` instances.
-- **CMsgBalloon:** the interleave of `__vec_deleter` and `__vec_constructor` has not been analysed with this model.
-- **CPlayerPii:** the deque member order has been derived but not applied. `GetShadowName` (88.86%) blocks the unit anyway.
+- **BWorld:** the target emits the non-template `map_compact_tree::find_leaf(const value_type&)` in the last walk, among the oldest class groups. It calls `insert_node_at` from the same inlined `insert_one`, but `insert_node_at` is emitted early. The unit also has eight functions below 100%.
+- **CFileData and CLayout:** the open items are stack-slot and code-generation issues, not ordering (see `sprint-a03.md`).
+- **CPlayerPii:** the deque member order is not applied. `GetShadowName` (88.86%) blocks the unit.
 
 ## Traps
 
 - A misplaced weak function usually means the template record was created too early or too late. Moving the definition does not help. Check where the class template, a nested class, or a forward declaration first appears.
+- `cc.sh` and the sweep call `mwcceppc` without `sjiswrap`, so units with Japanese literals show `.data` and `.sdata` differences that the real build does not have. Compare `.text` only.
+- Removing a declaration that names a template-id changes when that instance is created, and with it the walk order of every unit that uses the template. Sweep every game unit before landing a header change.
 - A non-template member overload is instantiated in the class walk. A member template is instantiated later, in the function-template loop. Turning an overload into a member template moves it, but it changes the mangled name, so the `symbols.txt` entries must be renamed to match.
