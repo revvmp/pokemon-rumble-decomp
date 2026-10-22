@@ -13504,7 +13504,7 @@ __ct<Q34nw4r4math4VEC3>__Q23std29allocator<PQ34nw4r4math4VEC3>FRCQ23std28allocat
 __ct__Q23std66__cdeque<PQ34nw4r4math4VEC3,Q23std29allocator<PQ34nw4r4math4VEC3>>FRCQ23std29allocator<PQ34nw4r4math4VEC3> = .text:0x800FC280; // type:function size:0x30
 __ct__Q23std73__cdeque_pointer<Q34nw4r4math4VEC3,Q23std29allocator<PQ34nw4r4math4VEC3>>FRCQ23std29allocator<PQ34nw4r4math4VEC3> = .text:0x800FC2B0; // type:function size:0x40
 __ct<PQ34nw4r4math4VEC3>__Q23std13allocator<Pv>FRCQ23std29allocator<PQ34nw4r4math4VEC3>_Pv = .text:0x800FC2F0; // type:function size:0x4
-fn_800FC300 = .text:0x800FC300; // type:function size:0x30
+__ct__Q23std38__cdeque_imp<Pv,Q23std13allocator<Pv>>FRCQ23std13allocator<Pv> = .text:0x800FC300; // type:function size:0x30
 fn_800FC330 = .text:0x800FC330; // type:function size:0x54
 __ct__Q210Metrowerks41compressed_pair<Ul,Q23std13allocator<Pv>>FUlQ23std13allocator<Pv> = .text:0x800FC390; // type:function size:0x3C scope:local
 fn_800FC3D0 = .text:0x800FC3D0; // type:function size:0x44
@@ -13514,7 +13514,7 @@ __ct__Q310Metrowerks6detail136CompressedPairStorage<Q23std66__cdeque<PQ34nw4r4ma
 __ct__Q23std28allocator<Q34nw4r4math4VEC3>FRCQ23std28allocator<Q34nw4r4math4VEC3> = .text:0x800FC4C0; // type:function size:0x4
 __ct__Q23std66__cdeque<PQ34nw4r4math4VEC3,Q23std29allocator<PQ34nw4r4math4VEC3>>FRCQ23std66__cdeque<PQ34nw4r4math4VEC3,Q23std29allocator<PQ34nw4r4math4VEC3>> = .text:0x800FC4D0; // type:function size:0x30
 __ct__Q23std73__cdeque_pointer<Q34nw4r4math4VEC3,Q23std29allocator<PQ34nw4r4math4VEC3>>FRCQ23std73__cdeque_pointer<Q34nw4r4math4VEC3,Q23std29allocator<PQ34nw4r4math4VEC3>> = .text:0x800FC500; // type:function size:0x30
-fn_800FC530 = .text:0x800FC530; // type:function size:0xAC
+__ct__Q23std38__cdeque_imp<Pv,Q23std13allocator<Pv>>FRCQ23std38__cdeque_imp<Pv,Q23std13allocator<Pv>> = .text:0x800FC530; // type:function size:0xAC
 fn_800FC5E0 = .text:0x800FC5E0; // type:function size:0xB0
 fn_800FC690 = .text:0x800FC690; // type:function size:0x2C
 fn_800FC6C0 = .text:0x800FC6C0; // type:function size:0x1AC
@@ -13533,7 +13533,7 @@ fn_800FCAE0 = .text:0x800FCAE0; // type:function size:0x24
 fn_800FCB10 = .text:0x800FCB10; // type:function size:0x74
 fn_800FCB90 = .text:0x800FCB90; // type:function size:0x10
 fn_800FCBA0 = .text:0x800FCBA0; // type:function size:0x2C
-fn_800FCBD0 = .text:0x800FCBD0; // type:function size:0x14
+__ct__Q23std38__cdeque_buf<Pv,Q23std13allocator<Pv>>FRCQ23std38__cdeque_buf<Pv,Q23std13allocator<Pv>> = .text:0x800FCBD0; // type:function size:0x14
 fn_800FCBF0 = .text:0x800FCBF0; // type:function size:0x64
 fn_800FCC60 = .text:0x800FCC60; // type:function size:0x8C
 capacity__Q23std67__deque_ops<Q34nw4r4math4VEC3,Q23std28allocator<Q34nw4r4math4VEC3>>CFv = .text:0x800FCCF0; // type:function size:0x54
