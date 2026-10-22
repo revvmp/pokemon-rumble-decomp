@@ -423,7 +423,7 @@ inline void CDlgPiiListImpl::OnAccept(BUI* pUI) {
                     joined++;
                 }
             }
-            if (unmarked <= std::min(joined, sMinUnmarkedCount) && !item->IsRemoteMarked()) {
+            if (unmarked <= std::max(joined, sMinUnmarkedCount) && !item->IsRemoteMarked()) {
                 mResult = 0x10;
                 break;
             }
@@ -464,7 +464,7 @@ inline void CDlgPiiListImpl::OnAccept(BUI* pUI) {
                     joined++;
                 }
             }
-            if (unmarked <= std::min(joined, sMinUnmarkedCount) && !item->IsSellMarked()) {
+            if (unmarked <= std::max(joined, sMinUnmarkedCount) && !item->IsSellMarked()) {
                 mResult = 9;
                 break;
             }
