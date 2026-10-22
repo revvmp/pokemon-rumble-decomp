@@ -34,6 +34,8 @@ public:
     bool IsJoined() const { return mState.mJoined; }
     std::tr1::shared_ptr<CPiiPersonalData> GetPersonalData() const;
     std::tr1::shared_ptr<CPiiPersonalData> GetPendingPersonalData() const;
+    bool HasJoinedFlag() const { return mState.mJoined; }
+    CPiiBox& GetPiiBox() { return mState.mPiiBox; }
     int GetPlayerNo() const { return mPlayerNo; }
     CPiiBox& GetPiiBox() { return mState.mPiiBox; }
     void SetPii(CPlayerPii* pPii);

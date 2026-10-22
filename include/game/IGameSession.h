@@ -67,7 +67,7 @@ public:
     virtual bool IsMapChangeFinished() = 0;
     virtual IDisconMsg* GetDisconMsg() = 0;
     virtual bool IsControllerAssigned(const IController* pController) = 0;
-    virtual void UnanalyzedSlot42() = 0;
+    virtual void RegisterTeamPiiCollection() = 0;
 
     static IGameSession* GetInstance();
     static std::tr1::shared_ptr<IGameSession> Create(IDisconMsg* pDisconMsg);

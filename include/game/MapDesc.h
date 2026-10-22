@@ -14,6 +14,7 @@ public:
     MapPiiTable();
     ~MapPiiTable();
     int GetRowCount() const { return mRowCount; }
+    int GetColumnCount() const { return mColumnCount; }
     NPpu::CValue* GetCell(int row, int column);
     void Initialize(int rowCount, int columnCount);
     void Clear();

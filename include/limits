@@ -5,6 +5,11 @@ namespace std {
 
 template <typename T> class numeric_limits;
 
+template <> class numeric_limits<int> {
+public:
+    static int max() { return 0x7FFFFFFF; }
+};
+
 template <> class numeric_limits<long> {
 public:
     static long max() { return 0x7FFFFFFF; }

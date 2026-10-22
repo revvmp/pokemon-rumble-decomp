@@ -15,9 +15,14 @@
 #include <game/IGameStage.h>
 #include <game/ISaveManager.h>
 #include <game/MapIndex.h>
+#include <game/Message.h>
 #include <game/Pad.h>
 #include <game/RenderPrimitive.h>
 #include <game/MathUtil.h>
+#include <game/SystemMessage.h>
+#include <algorithm>
+#include <limits>
+#include <list>
 #include <game/PiiPropData.h>
 #include <game/SaveData.h>
 #include <game/StageDesc.h>
@@ -50,7 +55,7 @@ namespace {
 
 struct SessionSnapshot {
     s64 mPlayTime;
-    u32 mHeaderValue;
+    u32 mMoney;
     u32 mRegistryCount;
     std::vector<SD_PiiPersonalData::Data> mPiiPersonalData;
     std::vector<SD_PiiCollectionData::Data> mPiiCollectionData;
@@ -105,7 +110,7 @@ public:
     virtual bool IsMapChangeFinished();
     virtual IDisconMsg* GetDisconMsg();
     virtual bool IsControllerAssigned(const IController* pController);
-    virtual void UnanalyzedSlot42();
+    virtual void RegisterTeamPiiCollection();
 
     void ClearInstance();
     void UpdateFade();
@@ -117,7 +122,7 @@ public:
 private:
     s64 mPlayTime;
     s64 mStartTime;
-    u32 mHeaderValue;
+    u32 mMoney;
     u32 mLoadedHeaderValue;
     COyaInfo mOyaInfo;
     std::tr1::shared_ptr<CPiiBox> mTeamPiiBox;
@@ -129,7 +134,7 @@ private:
     std::tr1::shared_ptr<CPiiCollectionBox> mPiiCollectionBox;
     std::tr1::shared_ptr<CBattleRoyalBox> mBattleRoyalBox;
     std::tr1::shared_ptr<CStatistic> mStatistic;
-    StageDesc mStageDescs[120];
+    StageDesc mStageDescs[3][5][8];
     MapIndex mPendingMap;
     std::tr1::shared_ptr<IGameStage> mGameStage;
     int mMapChangeMode;
@@ -144,9 +149,10 @@ private:
 #pragma force_active on
 
 CGameSession* sGameSession;
+int sMaxMoney = 9999999;
 
 CGameSession::CGameSession(IDisconMsg* pDisconMsg) :
-    mPlayTime(0), mStartTime(0), mHeaderValue(0), mLoadedHeaderValue(0), mPendingMap(MakeMapIndex(0, 1, 0, 1)), mMapChangeMode(0),
+    mPlayTime(0), mStartTime(0), mMoney(0), mLoadedHeaderValue(0), mPendingMap(MakeMapIndex(0, 1, 0, 1)), mMapChangeMode(0),
     mMapChangeType(0), mFadeColor(0, 0, 0, 255), mFadeTargetColor(0, 0, 0, 255), mFadeFrames(0), mpDisconMsg(pDisconMsg) {
     sGameSession = this;
     for (int i = 0; i < 4; i++) {
@@ -193,7 +199,7 @@ f32 CGameSession::GetPlayTimeSeconds() {
 void CGameSession::GetSnapshot(SessionSnapshot* pSnapshot) {
     OSTime now = OSGetTime();
     pSnapshot->mPlayTime = mPlayTime + (now - mStartTime);
-    pSnapshot->mHeaderValue = mHeaderValue;
+    pSnapshot->mMoney = mMoney;
     pSnapshot->mRegistryCount = mOyaInfo.GetCount();
     mTeamPiiBox->ExportPersonalData(pSnapshot->mPiiPersonalData);
     mPiiCollectionBox->ExportCollectionData(pSnapshot->mPiiCollectionData);
@@ -207,7 +213,7 @@ void CGameSession::SaveToSlot() {
     GetSnapshot(&snapshot);
     GetSaveData(-1)->mData.mTime = snapshot.mPlayTime;
     GetSaveData(-1)->mData.mRegistryCount = snapshot.mRegistryCount;
-    GetSaveData(-1)->mData.mHeader[2] = snapshot.mHeaderValue;
+    GetSaveData(-1)->mData.mHeader[2] = snapshot.mMoney;
     GetSaveData(-1)->mData.mElapsedSeconds = OSTicksToSeconds(OSGetTime());
 
     std::vector<SD_PiiCollectionData> collection;
@@ -292,7 +298,7 @@ void CGameSession::LoadFromSlot() {
     SessionSnapshot snapshot;
     snapshot.mPlayTime = GetSaveData(-1)->mData.mTime;
     snapshot.mRegistryCount = GetSaveData(-1)->mData.mRegistryCount;
-    snapshot.mHeaderValue = GetSaveData(-1)->mData.mHeader[2];
+    snapshot.mMoney = GetSaveData(-1)->mData.mHeader[2];
 
     snapshot.mPiiCollectionData.reserve(GetSaveData(-1)->mPiiCollectionData.size());
     for (std::vector<SD_PiiCollectionData>::iterator it = GetSaveData(-1)->mPiiCollectionData.begin();
@@ -332,13 +338,13 @@ void CGameSession::LoadFromSlot() {
 
     mPlayTime = snapshot.mPlayTime;
     mOyaInfo.SetCount(snapshot.mRegistryCount);
-    SetMoney(snapshot.mHeaderValue);
+    SetMoney(snapshot.mMoney);
     mStartTime = OSGetTime();
     mTeamPiiBox = CPiiBox::Create(snapshot.mPiiPersonalData, 1, 1200, &mOyaInfo);
     mPiiCollectionBox = CPiiCollectionBox::Create(snapshot.mPiiCollectionData);
     mBattleRoyalBox = CBattleRoyalBox::Create(snapshot.mBattleRoyalData);
     mStatistic = CStatistic::Create(snapshot.mStatisticValue1, snapshot.mStatisticValue2, snapshot.mStatisticValue3);
-    UnanalyzedSlot42();
+    RegisterTeamPiiCollection();
     if (GetSaveData(-1)->mData.mFlags[0] == 0) {
         GetSaveData(-1)->mData.mFlags[0] = 1;
     }
@@ -352,6 +358,180 @@ void CGameSession::LoadFromSlot() {
     }
     SetGCRumbleEnabled(GetOption() == 0);
 }
+
+WazaDescData* CGameSession::GetWazaDescData() {
+    return &mWazaDescData;
+}
+
+PiiPropData* CGameSession::GetPiiPropData() {
+    return &mPiiPropData;
+}
+
+CPiiCollectionBox* CGameSession::GetPiiCollectionBox() {
+    return mPiiCollectionBox.get();
+}
+
+CBattleRoyalBox* CGameSession::GetBattleRoyalBox() {
+    return mBattleRoyalBox.get();
+}
+
+CStatistic* CGameSession::GetStatistic() {
+    return mStatistic.get();
+}
+
+int CGameSession::GetCollectionType(u16 monsno) {
+    int type = mPiiCollectionBox->GetCollectionType(monsno);
+    if (type == 3) {
+        return 3;
+    }
+    for (int i = 0; i < 4; i++) {
+        std::tr1::shared_ptr<CPlayer> player = mPlayers[i];
+        if (!player->HasJoinedFlag()) {
+            continue;
+        }
+        const std::list<std::tr1::shared_ptr<CPiiPersonalData> >& rList = player->GetPiiBox().GetPersonalDataList();
+        for (std::list<std::tr1::shared_ptr<CPiiPersonalData> >::const_iterator it = rList.begin(); it != rList.end(); ++it) {
+            if (monsno == static_cast<u16>((*it)->GetSpeciesData()->GetSpecies())) {
+                return 3;
+            }
+        }
+    }
+    return type;
+}
+
+std::wstring CGameSession::GetWazaName(int waza) {
+    if (mWazaDescData.GetColumnCount() > 0 && waza < mWazaDescData.GetRowCount()) {
+        NPpu::CValue value = *mWazaDescData.GetCell(waza, 0);
+        return GetMessageText(value.ToInt(), gEmptyText);
+    }
+    return std::wstring(L"");
+}
+
+StageDesc* CGameSession::GetStageDesc(MapIndex index) {
+    return &mStageDescs[index.mMode][index.mArea][index.mStage];
+}
+
+MapDesc* CGameSession::GetMapDesc(MapIndex index) {
+    StageDesc* pStage = GetStageDesc(index);
+    if (index.mMap < pStage->mMapDescs.size()) {
+        return pStage->mMapDescs[index.mMap].get();
+    }
+    return nullptr;
+}
+
+int CGameSession::MovePlayerPiisToTeamPiiBox() {
+    int moved = 0;
+    for (int i = 0; i < 4; i++) {
+        std::tr1::shared_ptr<CPlayer> player = mPlayers[i];
+        CPiiBox& rBox = player->GetPiiBox();
+        const std::list<std::tr1::shared_ptr<CPiiPersonalData> >& rList = rBox.GetPersonalDataList();
+        for (std::list<std::tr1::shared_ptr<CPiiPersonalData> >::const_iterator it = rList.begin(); it != rList.end(); ++it) {
+            if (sGameSession->GetTeamPiiBox()->Add(*it)) {
+                moved++;
+            }
+        }
+        rBox.Clear();
+        player->GetPiiBox().RestoreAll();
+    }
+    for (int i = 0; i < 4; i++) {
+        mRemoteMemories[i]->GetPiiBox()->RestoreAll();
+    }
+    mTeamPiiBox->RestoreAll();
+    RegisterTeamPiiCollection();
+    return moved;
+}
+
+void CGameSession::RegisterTeamPiiCollection() {
+    std::list<std::tr1::shared_ptr<CPiiPersonalData> >& rList = mTeamPiiBox->GetPersonalDataList();
+    for (std::list<std::tr1::shared_ptr<CPiiPersonalData> >::iterator it = rList.begin(); it != rList.end(); ++it) {
+        int monsno = (*it)->GetSpeciesData()->GetSpecies();
+        int form = (*it)->GetSpeciesData()->GetFormNumber();
+        mPiiCollectionBox->RecordCollection(monsno, form, 3, (*it)->IsRareColor());
+    }
+}
+
+int CGameSession::GetMoney() {
+    return mMoney;
+}
+
+void CGameSession::SetMoney(int money) {
+    mMoney = std::min(money, sMaxMoney);
+}
+
+void CGameSession::AddMoney(int money) {
+    int current = mMoney;
+    int total;
+    if (money > 0) {
+        total = current + money;
+        if (current >= total) {
+            total = std::numeric_limits<int>::max();
+        }
+    } else if (money < 0) {
+        total = current + money;
+        if (current > total) {
+            total = std::min(total, std::numeric_limits<int>::max());
+        } else {
+            total = 9999999;
+        }
+    } else {
+        total = current;
+    }
+    SetMoney(total);
+    if (money > 0) {
+        mStatistic->Add(-98, money);
+    }
+}
+
+bool CGameSession::IsAllPiiBoxCapacityFull() {
+    u32 count = mTeamPiiBox->GetCount();
+    for (int i = 0; i < 4; i++) {
+        CPlayer* pPlayer = GetPlayer(i);
+        if (pPlayer->HasJoinedFlag()) {
+            count += pPlayer->GetPiiBox().GetCount();
+        }
+    }
+    return count >= mTeamPiiBox->GetCapacity();
+}
+
+IGameStage* CGameSession::GetGameStage() {
+    return mGameStage.get();
+}
+
+CPiiBox* CGameSession::GetTeamPiiBox() {
+    return mTeamPiiBox.get();
+}
+
+CPlayer* CGameSession::GetPlayer(int player) {
+    return mPlayers[player].get();
+}
+
+CRemoteMemory* CGameSession::GetRemoteMemory(int player) {
+    return mRemoteMemories[player].get();
+}
+
+COyaInfo* CGameSession::GetOyaInfo() {
+    return &mOyaInfo;
+}
+
+std::tr1::shared_ptr<NPpu::CEnvironment> CGameSession::GetEnvironment() {
+    return mEnvironment;
+}
+int CGameSession::AddPPDToPlayerPiiBox(int player, const std::tr1::shared_ptr<CPiiPersonalData>& rPPD) {
+    int result = rPPD->GetDisplayKind();
+    if (rPPD->GetHP() > 0 && player >= 0 && player < 4) {
+        bool isCurrent = GetPlayer(player)->GetPersonalData() == rPPD;
+        if (isCurrent) {
+            result = 4;
+        } else {
+            bool canAdd = CanAddPPDToPlayerPiiBox(player, rPPD);
+            if (!canAdd) {
+                result = 5;
+            }
+        }
+    }
+    return result;
+}
+
 bool CGameSession::CanAddPPDToPlayerPiiBox(int player, const std::tr1::shared_ptr<CPiiPersonalData>& rPPD) {
     if (rPPD->IsFainted()) {
         return false;
