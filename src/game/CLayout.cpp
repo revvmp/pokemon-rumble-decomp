@@ -550,9 +550,10 @@ void CLayout::AdvancePaneMotions(PaneMP* pPaneMP, f32 frames) {
             return;
         }
         MotionList::iterator front = pPaneMP->mMotions.begin();
-        pPaneMP->mFrame += frames * (*front)->mRate;
         f32 lastFrame = (*front)->mLastFrame;
-        if (pPaneMP->mFrame < lastFrame) {
+        pPaneMP->mFrame += frames * (*front)->mRate;
+        bool running = pPaneMP->mFrame < lastFrame;
+        if (running) {
             pPaneMP->mRunning = true;
             return;
         }
@@ -563,7 +564,7 @@ void CLayout::AdvancePaneMotions(PaneMP* pPaneMP, f32 frames) {
             (*front)->Finish();
             pPaneMP->mMotions.pop_front();
             f32 startFrame = (*pPaneMP->mMotions.begin())->mFrame;
-            pPaneMP->mFrame = startFrame >= 0.0f ? startFrame : 0.0f;
+            pPaneMP->mFrame = std::max(startFrame, 0.0f);
             (*pPaneMP->mMotions.begin())->mState = 1;
             RebindAnimations();
         } else if ((*front)->mpAnimTransform->IsLoopData()) {
