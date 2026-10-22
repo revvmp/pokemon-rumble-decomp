@@ -16,6 +16,39 @@ template <typename T> struct SelfReference {
     std::tr1::shared_ptr<T> mSelf;
 };
 
+class CPpuEnv : public NPpu::CEnvironment, public std::tr1::enable_shared_from_this<CPpuEnv> {
+    friend std::tr1::shared_ptr<NPpu::CCode> LoadScriptCode(NPpu::CEnvironment* pBaseEnv, const char* pName, bool wait);
+
+public:
+    typedef std::tr1::shared_ptr<CPpuEnv> SelfPtr;
+    typedef std::map<std::string, std::tr1::shared_ptr<NPpu::CCode> > CodeMap;
+
+    CPpuEnv(int globalCount, const NPpu::SNativeFunction* pNatives, u32 nativeCount)
+        : NPpu::CEnvironment(globalCount, pNatives, nativeCount), mRef(), mLoading(false) {}
+    virtual ~CPpuEnv();
+
+    virtual void AddRef() {
+        if (mRef.mCount == 0) {
+            mRef.mSelf = shared_from_this();
+        }
+        ++mRef.mCount;
+    }
+    virtual void Release() {
+        if (--mRef.mCount == 0) {
+            SelfPtr keepAlive = mRef.mSelf;
+            mRef.mSelf.reset();
+            keepAlive.reset();
+        }
+    }
+
+    void ClearCodes() { mCodes.clear(); }
+
+private:
+    SelfReference<CPpuEnv> mRef;
+    bool mLoading;
+    CodeMap mCodes;
+};
+
 class CPpuCode : public NPpu::CCode, public std::tr1::enable_shared_from_this<CPpuCode> {
 public:
     typedef std::tr1::shared_ptr<CPpuCode> SelfPtr;
@@ -50,39 +83,6 @@ private:
     SelfReference<CPpuCode> mRef;
     std::tr1::shared_ptr<CFileData> mFile;
     std::string mName;
-};
-
-class CPpuEnv : public NPpu::CEnvironment, public std::tr1::enable_shared_from_this<CPpuEnv> {
-    friend std::tr1::shared_ptr<NPpu::CCode> LoadScriptCode(NPpu::CEnvironment* pBaseEnv, const char* pName, bool wait);
-
-public:
-    typedef std::tr1::shared_ptr<CPpuEnv> SelfPtr;
-    typedef std::map<std::string, std::tr1::shared_ptr<NPpu::CCode> > CodeMap;
-
-    CPpuEnv(int globalCount, const NPpu::SNativeFunction* pNatives, u32 nativeCount)
-        : NPpu::CEnvironment(globalCount, pNatives, nativeCount), mRef(), mLoading(false) {}
-    virtual ~CPpuEnv() {}
-
-    virtual void AddRef() {
-        if (mRef.mCount == 0) {
-            mRef.mSelf = shared_from_this();
-        }
-        ++mRef.mCount;
-    }
-    virtual void Release() {
-        if (--mRef.mCount == 0) {
-            SelfPtr keepAlive = mRef.mSelf;
-            mRef.mSelf.reset();
-            keepAlive.reset();
-        }
-    }
-
-    void ClearCodes() { mCodes.clear(); }
-
-private:
-    SelfReference<CPpuEnv> mRef;
-    bool mLoading;
-    CodeMap mCodes;
 };
 
 #endif

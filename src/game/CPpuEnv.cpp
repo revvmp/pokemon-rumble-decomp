@@ -4,6 +4,8 @@
 #include <game/ScriptBindings.h>
 #include <string.h>
 
+CPpuEnv::~CPpuEnv() {}
+
 const NPpu::SNativeFunction gScriptNativeBindings[] = {
     { nullptr, nullptr, 0 },
     { NewStageCamera, "NewStageCamera", 0 },
@@ -687,10 +689,6 @@ struct ScopedFlag {
 };
 }
 
-std::tr1::shared_ptr<NPpu::CEnvironment> CreateScriptEnvironment() {
-    return std::tr1::shared_ptr<NPpu::CEnvironment>(new CPpuEnv(0x400, gScriptNativeBindings, gScriptNativeBindingCount));
-}
-
 std::tr1::shared_ptr<NPpu::CCode> LoadScriptCode(NPpu::CEnvironment* pBaseEnv, const char* pName, bool wait) {
     CPpuEnv* pEnv = static_cast<CPpuEnv*>(pBaseEnv);
     if (wait) {
@@ -717,4 +715,8 @@ std::tr1::shared_ptr<NPpu::CCode> LoadScriptCode(NPpu::CEnvironment* pBaseEnv, c
 
 void NPpu::CEnvironment::CollectGarbage() {
     static_cast<CPpuEnv*>(this)->ClearCodes();
+}
+
+std::tr1::shared_ptr<NPpu::CEnvironment> CreateScriptEnvironment() {
+    return std::tr1::shared_ptr<NPpu::CEnvironment>(new CPpuEnv(0x400, gScriptNativeBindings, gScriptNativeBindingCount));
 }
