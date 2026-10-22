@@ -47,12 +47,7 @@ public:
     }
     virtual nw4r::math::VEC3 GetSize();
     virtual void SetVisible(bool visible) {
-        if (visible) {
-            mState |= STATE_VISIBLE;
-        } else {
-            mState &= ~STATE_VISIBLE;
-        }
-
+        SetStateFlag(STATE_VISIBLE, visible);
         if (visible) {
             LinkKDTree();
         } else {
