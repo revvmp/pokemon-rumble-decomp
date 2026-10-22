@@ -83,18 +83,6 @@ CPlayer* FindPlayerHoldingPii(std::tr1::shared_ptr<CPiiPersonalData> pii, int ex
     return nullptr;
 }
 
-template std::tr1::shared_ptr<CPiiPersonalData>::shared_ptr(const std::tr1::shared_ptr<CPiiPersonalData>&);
-
-#pragma scheduling off
-std::tr1::shared_ptr<CPiiPersonalData> CPlayer::GetPersonalData() const {
-    return mState.mPersonalData;
-}
-
-std::tr1::shared_ptr<CPiiPersonalData> CPlayer::GetPendingPersonalData() const {
-    return mState.mPendingPersonalData;
-}
-#pragma scheduling reset
-
 namespace {
 
 typedef std::vector<std::tr1::shared_ptr<CUIPiiListItem> > PiiItemVector;

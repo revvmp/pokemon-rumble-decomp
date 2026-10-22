@@ -80,4 +80,14 @@ private:
     u32 mCurrentHold;
 };
 
+#pragma scheduling off
+inline std::tr1::shared_ptr<CPiiPersonalData> CPlayer::GetPersonalData() const {
+    return mState.mPersonalData;
+}
+
+inline std::tr1::shared_ptr<CPiiPersonalData> CPlayer::GetPendingPersonalData() const {
+    return mState.mPendingPersonalData;
+}
+#pragma scheduling reset
+
 #endif
