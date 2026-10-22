@@ -1004,12 +1004,13 @@ void AnimCurveExecuteBakedU8(u8* pCmdList, u8* pTarget, u32 tick, u32 life) {
         u16 frame;
         detail::SplitCurveResource(pCmdList, &pHeader, &pKey, &pRanges, &pRandom, &pNames);
         u32 loop;
-        u16 count = pHeader->frameLength;
+        u32 infiniteLoop;
+        u32 count = pHeader->frameLength;
         if (count <= 1) {
             frame = 0;
         } else {
             u32 flags = pHeader->processFlag;
-            u32 infiniteLoop = flags & AnimCurveHeader::PROC_FLAG_INFLOOP;
+            infiniteLoop = flags & AnimCurveHeader::PROC_FLAG_INFLOOP;
             if (infiniteLoop == 0 && pHeader->loopCount <= 1) {
                 if (!(flags & AnimCurveHeader::PROC_FLAG_FITTING)) {
                     if (tick >= count - 1) {
@@ -1048,8 +1049,7 @@ void AnimCurveExecuteBakedU8(u8* pCmdList, u8* pTarget, u32 tick, u32 life) {
                     frame = span * (loop + 1) - tick;
                 }
             } else {
-                u32 last = life - 1;
-                if (tick >= last) {
+                if (tick >= life - 1) {
                     if (!(flags & AnimCurveHeader::PROC_FLAG_TURN) || pHeader->loopCount % 2 != 0) {
                         frame = count - 1;
                     } else {
@@ -1057,7 +1057,7 @@ void AnimCurveExecuteBakedU8(u8* pCmdList, u8* pTarget, u32 tick, u32 life) {
                     }
                 } else {
                     s32 span = count - 1;
-                    f32 rate = static_cast<f32>(pHeader->loopCount) * (static_cast<f32>(span) / static_cast<f32>(last));
+                    f32 rate = static_cast<f32>(pHeader->loopCount) * (static_cast<f32>(span) / static_cast<f32>(life - 1));
                     loop = static_cast<u32>(static_cast<f32>(tick) * rate / static_cast<f32>(span));
                     f32 value = static_cast<f32>(tick) * rate - static_cast<f32>(loop * span);
                     if (!(flags & AnimCurveHeader::PROC_FLAG_TURN)) {
@@ -1093,12 +1093,13 @@ void AnimCurveExecuteBakedF32(u8* pCmdList, f32* pTarget, u32 tick, u32 life) {
         u16 frame;
         detail::SplitCurveResource(pCmdList, &pHeader, &pKey, &pRanges, &pRandom, &pNames);
         u32 loop;
-        u16 count = pHeader->frameLength;
+        u32 infiniteLoop;
+        u32 count = pHeader->frameLength;
         if (count <= 1) {
             frame = 0;
         } else {
             u32 flags = pHeader->processFlag;
-            u32 infiniteLoop = flags & AnimCurveHeader::PROC_FLAG_INFLOOP;
+            infiniteLoop = flags & AnimCurveHeader::PROC_FLAG_INFLOOP;
             if (infiniteLoop == 0 && pHeader->loopCount <= 1) {
                 if (!(flags & AnimCurveHeader::PROC_FLAG_FITTING)) {
                     if (tick >= count - 1) {
@@ -1137,8 +1138,7 @@ void AnimCurveExecuteBakedF32(u8* pCmdList, f32* pTarget, u32 tick, u32 life) {
                     frame = span * (loop + 1) - tick;
                 }
             } else {
-                u32 last = life - 1;
-                if (tick >= last) {
+                if (tick >= life - 1) {
                     if (!(flags & AnimCurveHeader::PROC_FLAG_TURN) || pHeader->loopCount % 2 != 0) {
                         frame = count - 1;
                     } else {
@@ -1146,7 +1146,7 @@ void AnimCurveExecuteBakedF32(u8* pCmdList, f32* pTarget, u32 tick, u32 life) {
                     }
                 } else {
                     s32 span = count - 1;
-                    f32 rate = static_cast<f32>(pHeader->loopCount) * (static_cast<f32>(span) / static_cast<f32>(last));
+                    f32 rate = static_cast<f32>(pHeader->loopCount) * (static_cast<f32>(span) / static_cast<f32>(life - 1));
                     loop = static_cast<u32>(static_cast<f32>(tick) * rate / static_cast<f32>(span));
                     f32 value = static_cast<f32>(tick) * rate - static_cast<f32>(loop * span);
                     if (!(flags & AnimCurveHeader::PROC_FLAG_TURN)) {
