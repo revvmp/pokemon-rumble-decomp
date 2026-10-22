@@ -10080,7 +10080,7 @@ get_deleter__Q43std3tr16detail86shared_ptr_deleter<15CBattleRoyalBox,Q33std6deta
 dispose__Q43std3tr16detail86shared_ptr_deleter<15CBattleRoyalBox,Q33std6detail33default_delete<15CBattleRoyalBox>>Fv = .text:0x8006B090; // type:function size:0x50
 get_deleter__Q43std3tr16detail88shared_ptr_deleter<16CBattleRoyalData,Q33std6detail34default_delete<16CBattleRoyalData>>CFRCQ23std9type_info = .text:0x8006B0E0; // type:function size:0x4C
 dispose__Q43std3tr16detail88shared_ptr_deleter<16CBattleRoyalData,Q33std6detail34default_delete<16CBattleRoyalData>>Fv = .text:0x8006B130; // type:function size:0x14
-__dt__Q33std3tr129shared_ptr<15CBattleRoyalBox>Fv = .text:0x8006B150; // type:function size:0x84
+__dt__Q33std3tr156shared_ptr<Q226@unnamed@CGameSession_cpp@12CGameSession>Fv = .text:0x8006B150; // type:function size:0x84
 __dt__Q33std3tr130shared_ptr<16CBattleRoyalData>Fv = .text:0x8006B1E0; // type:function size:0x84
 __dt__Q210Metrowerks76move_ptr<15CBattleRoyalBox,Q33std6detail33default_delete<15CBattleRoyalBox>>Fv = .text:0x8006B270; // type:function size:0x88
 __dt__Q210Metrowerks78move_ptr<16CBattleRoyalData,Q33std6detail34default_delete<16CBattleRoyalData>>Fv = .text:0x8006B300; // type:function size:0x64
@@ -10865,7 +10865,7 @@ __dt__Q33std3tr125shared_ptr<11CUIPlayerID>Fv = .text:0x8008F300; // type:functi
 dtor_8008F390 = .text:0x8008F390; // type:function size:0x84
 dtor_8008F420 = .text:0x8008F420; // type:function size:0x84
 __dt__Q33std3tr128shared_ptr<14CUIPiiListItem>Fv = .text:0x8008F4B0; // type:function size:0x84
-__dt__Q33std3tr133shared_ptr<Q24NPpu12CEnvironment>Fv = .text:0x8008F540; // type:function size:0x84
+__dt__Q33std3tr130shared_ptr<16CPiiPersonalData>Fv = .text:0x8008F540; // type:function size:0x84
 __dt__Q210Metrowerks126move_ptr<Q225@unnamed@CDlgPiiList_cpp@11CDlgPiiList,Q33std6detail58default_delete<Q225@unnamed@CDlgPiiList_cpp@11CDlgPiiList>>Fv = .text:0x8008F5D0; // type:function size:0x74
 fn_8008F650 = .text:0x8008F650; // type:function size:0xF4
 __ct<Q210IDisconMsg8CDisable>__Q33std3tr135shared_ptr<Q210IDisconMsg8CDisable>FPQ210IDisconMsg8CDisable_Pv = .text:0x8008F750; // type:function size:0x94
