@@ -16,6 +16,7 @@ public:
     struct Param {
         MapIndex mMapIndex;
         std::tr1::shared_ptr<NPpu::CEnvironment> mEnvironment;
+        ~Param() {}
     };
 
     virtual ~IGameStage() {}
