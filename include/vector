@@ -230,6 +230,17 @@ public:
         }
     }
 
+    template <typename Iterator> __vec_constructor(Iterator first, Iterator last) : base() {
+        size_type n = std::distance(first, last);
+        if (n != 0) {
+            allocate(n, pod_type());
+            for (; first != last; ++first) {
+                this->alloc().construct(this->data_ + this->size_, *first);
+                ++this->size_;
+            }
+        }
+    }
+
     using base::begin;
     using base::end;
     size_type size() const { return this->size_; }
@@ -586,6 +597,7 @@ public:
     vector() {}
     explicit vector(size_type n) : base(n) {}
     vector(const vector& x) : base(x) {}
+    template <typename Iterator> vector(Iterator first, Iterator last) : base(first, last) {}
     ~vector() {}
 
     void resize(size_type n) { base::resize(n); }

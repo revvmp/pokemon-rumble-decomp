@@ -8,6 +8,8 @@ namespace NPpu {
 class CEnvironment;
 }
 
+class CPiiPersonalData;
+
 class COyaInfo {
 public:
     COyaInfo();
@@ -16,6 +18,7 @@ public:
     void SetCount(u32 count);
     void ApplyEnvironment(bool enable, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnvironment);
     u32 GetCount() const { return mCount; }
+    std::tr1::shared_ptr<CPiiPersonalData> FindPersonalData(u32 key) const;
 
 private:
     u32 mStorage[4];

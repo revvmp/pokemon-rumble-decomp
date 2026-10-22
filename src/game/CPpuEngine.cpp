@@ -1,10 +1,15 @@
+#include <nw4r/ut/ut_algorithm.h>
 #include <game/CPpuEngine.h>
+#include <nw4r/g3d/res/g3d_resanmchr.h>
+#include <nw4r/g3d/res/g3d_resfile.h>
 #include <game/BWorld.h>
 #include <game/BWorldObj.h>
 #include <game/CFileData.h>
 #include <game/IGameMap.h>
-#include <nw4r/g3d/res/g3d_resanmchr.h>
-#include <nw4r/g3d/res/g3d_resfile.h>
+#include <game/IGameSession.h>
+#include <game/COyaInfo.h>
+#include <game/CPii.h>
+#include <game/CPiiPersonalData.h>
 #include <string>
 #include <string.h>
 
@@ -218,6 +223,27 @@ const PiiSpeciesData* CPpuEngine::PopSpeciesData() {
     return reinterpret_cast<const PiiSpeciesData*>(id);
 }
 
+std::tr1::shared_ptr<CPiiPersonalData> CPpuEngine::PopPersonalData() {
+    int key = GetArgInt(0);
+    if (key == mCachedPPDValue) {
+        Drop(1);
+        return mCachedPPD.lock();
+    }
+    std::tr1::shared_ptr<CPiiPersonalData> personalData;
+    if (key & 0x80000000) {
+        Drop(1);
+        personalData = IGameSession::GetInstance()->GetOyaInfo()->FindPersonalData(key & 0x7FFFFFFF);
+    } else {
+        CPii* pPii = DynamicCast<CPii>(PopWorldObj());
+        if (pPii) {
+            personalData = pPii->GetPersonalData();
+        }
+    }
+    mCachedPPDValue = key;
+    mCachedPPD = personalData;
+    return personalData;
+}
+
 u32 CPpuEngine::PeekWorldObjType(int argIndex) {
     NPpu::CValue value;
     GetArg(argIndex, value);
@@ -231,6 +257,102 @@ u32 CPpuEngine::PeekWorldObjType(int argIndex) {
     return 0;
 }
 
+int CPpuEngine::InsertCallback(int messageID, int functionID, int position) {
+    if (messageID < 0) {
+        return 0;
+    }
+    if (functionID == 0) {
+        return 0;
+    }
+    std::list<int>& rCallbacks = mCallbacks[messageID];
+    if (position == 0) {
+        rCallbacks.push_front(functionID);
+    } else if (position == -1) {
+        rCallbacks.push_back(functionID);
+    } else {
+        std::list<int>::iterator it;
+        for (it = rCallbacks.begin(); it != rCallbacks.end(); ++it) {
+            if (position == *it) {
+                break;
+            }
+        }
+        rCallbacks.insert(it, functionID);
+    }
+    return 1;
+}
+
+int CPpuEngine::EraseCallback(int messageID, int functionID) {
+    if (messageID < 0) {
+        return 0;
+    }
+    std::map<int, std::list<int> >::iterator it = mCallbacks.find(messageID);
+    if (it == mCallbacks.end()) {
+        return 0;
+    }
+    if (functionID == 0) {
+        mCallbacks.erase(it);
+        return 1;
+    }
+    std::list<int>& rCallbacks = it->second;
+    for (std::list<int>::iterator callback = rCallbacks.begin(); callback != rCallbacks.end(); ++callback) {
+        if (functionID == *callback) {
+            rCallbacks.erase(callback);
+            if (rCallbacks.empty()) {
+                mCallbacks.erase(it);
+            }
+            return 1;
+        }
+    }
+    return 0;
+}
+
 bool CPpuEngine::HasCallback(int messageID) const {
     return mCallbacks.find(messageID) != mCallbacks.end();
+}
+
+namespace {
+
+inline bool CallHandler(CPpuEngine& rEngine, int functionID, const CPpuEngine::Message& rMessage) {
+    NPpu::CValue args[3];
+    args[0].SetInt(rMessage.mSender);
+    args[1].SetInt(rMessage.mMessageID);
+    args[2] = rMessage.mArgument;
+    NPpu::CValue result;
+    rEngine.Call(&result, functionID, 3, args);
+    return result.ToInt() != 0;
+}
+
+}
+
+int CPpuEngine::SendMessage(const Message& rMessage) {
+    std::map<int, std::list<int> >::iterator it = mCallbacks.find(rMessage.mMessageID);
+    if (it == mCallbacks.end()) {
+        return 0;
+    }
+    std::list<int>& rCallbacks = it->second;
+    if (rCallbacks.size() == 1) {
+        CallHandler(*this, rCallbacks.front(), rMessage);
+    } else if (rCallbacks.size() < 16) {
+        int functions[16];
+        std::copy(rCallbacks.begin(), rCallbacks.end(), functions);
+        for (u32 i = 0; i < rCallbacks.size(); i++) {
+            if (CallHandler(*this, functions[i], rMessage)) {
+                break;
+            }
+        }
+    } else {
+        std::vector<int> functions(rCallbacks.begin(), rCallbacks.end());
+        for (std::vector<int>::iterator fn = functions.begin(); fn != functions.end(); ++fn) {
+            if (CallHandler(*this, *fn, rMessage)) {
+                break;
+            }
+        }
+    }
+    return 1;
+}
+
+
+bool RunScript(const char* pName, int mode, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnvironment) {
+    std::tr1::shared_ptr<CPpuEngine> engine(new CPpuEngine);
+    return engine->Execute(pName, mode, rEnvironment);
 }
