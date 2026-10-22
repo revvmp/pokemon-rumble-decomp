@@ -356,11 +356,11 @@ enum LoadResult {
 
 static const int SLOT_COUNT = 3;
 
-template <typename T> const u8* DeserializeStruct(T& rStruct, u32 size, const u8* pData);
+template <typename T> const u8* DeserializeStruct(T& rStruct, u16 size, const u8* pData);
 
 template <typename T> const u8* DeserializeVector(std::vector<T>& rVector, const u8* pData) {
     u16 count = reinterpret_cast<const u16*>(pData)[1];
-    u16 size = reinterpret_cast<const u16*>(pData)[0];
+    const u16 size = reinterpret_cast<const u16*>(pData)[0];
     pData += 4;
 
     rVector.resize(count);
@@ -370,7 +370,7 @@ template <typename T> const u8* DeserializeVector(std::vector<T>& rVector, const
     return pData;
 }
 
-template <typename T> const u8* DeserializeStruct(T& rStruct, u32 size, const u8* pData) {
+template <typename T> const u8* DeserializeStruct(T& rStruct, u16 size, const u8* pData) {
     if (size < T::GetDataSize()) {
         rStruct.ClearData();
     }
