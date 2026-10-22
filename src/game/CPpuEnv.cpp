@@ -4,6 +4,9 @@
 #include <game/ScriptBindings.h>
 #include <string.h>
 
+CPpuEnv::CPpuEnv(int globalCount, const NPpu::SNativeFunction* pNatives, u32 nativeCount)
+    : NPpu::CEnvironment(globalCount, pNatives, nativeCount), mRef(), mLoading(false) {}
+
 CPpuEnv::~CPpuEnv() {}
 
 const NPpu::SNativeFunction gScriptNativeBindings[] = {

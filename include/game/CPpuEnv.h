@@ -23,8 +23,7 @@ public:
     typedef std::tr1::shared_ptr<CPpuEnv> SelfPtr;
     typedef std::map<std::string, std::tr1::shared_ptr<NPpu::CCode> > CodeMap;
 
-    CPpuEnv(int globalCount, const NPpu::SNativeFunction* pNatives, u32 nativeCount)
-        : NPpu::CEnvironment(globalCount, pNatives, nativeCount), mRef(), mLoading(false) {}
+    CPpuEnv(int globalCount, const NPpu::SNativeFunction* pNatives, u32 nativeCount);
     virtual ~CPpuEnv();
 
     virtual void AddRef() {
