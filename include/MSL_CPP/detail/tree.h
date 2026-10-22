@@ -593,27 +593,6 @@ tree_imp<T, Compare, Allocator>::~tree_imp() {
     }
 }
 
-template <typename T, typename Compare, typename Allocator>
-tree_node_base* tree_imp<T, Compare, Allocator>::find_leaf(const value_type& rValue, node*& rpPred, bool& rLeft, bool& rLeftmost) {
-    rpPred = nullptr;
-    node* pLeaf = static_cast<node*>(end_node());
-    node* pNode = static_cast<node*>(root());
-    rLeft = true;
-    rLeftmost = true;
-    while (pNode != nullptr) {
-        pLeaf = pNode;
-        if (comp()(rValue, pNode->value_)) {
-            pNode = static_cast<node*>(pNode->left_);
-            rLeft = true;
-        } else {
-            rpPred = pLeaf;
-            pNode = static_cast<node*>(pNode->right_);
-            rLeft = false;
-            rLeftmost = false;
-        }
-    }
-    return pLeaf;
-}
 
 template <typename T, typename Compare, typename Allocator>
 template <typename Key>
