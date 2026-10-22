@@ -676,8 +676,9 @@ void InitializeResourceFiles(const ResourceFileConfig& rConfig) {
 }
 
 inline void RemoveExpiredFiles() {
+    std::map<std::string, std::tr1::weak_ptr<CFileData> >::iterator end = sFileCache.end();
     std::map<std::string, std::tr1::weak_ptr<CFileData> >::iterator it = sFileCache.begin();
-    while (it != sFileCache.end()) {
+    while (it != end) {
         std::map<std::string, std::tr1::weak_ptr<CFileData> >::iterator next = it;
         ++next;
         if (it->second.expired()) {
