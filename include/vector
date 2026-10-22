@@ -60,6 +60,13 @@ public:
 
     __vec_deleter() : data_(nullptr), size_(0), capacity_(0) {}
     explicit __vec_deleter(allocator_param a) : data_(nullptr), size_(0), capacity_(0, a) {}
+
+    size_type& cap() { return capacity_.first(); }
+    const size_type& cap() const { return capacity_.first(); }
+    Allocator& alloc() { return capacity_.second(); }
+    const Allocator& alloc() const { return capacity_.second(); }
+    size_type max_size() const { return alloc().max_size(); }
+
     ~__vec_deleter();
 
     T* begin() { return this->data_; }
@@ -69,12 +76,6 @@ public:
     T& back() { return this->data_[this->size_ - 1]; }
 
     void clear() { erase_at_end(size_); }
-
-    size_type& cap() { return capacity_.first(); }
-    const size_type& cap() const { return capacity_.first(); }
-    Allocator& alloc() { return capacity_.second(); }
-    const Allocator& alloc() const { return capacity_.second(); }
-    size_type max_size() const { return alloc().max_size(); }
 
     void allocate(size_type n) { allocate(n, pod_type()); }
     void allocate(size_type n, size_type capacity) { allocate(n, capacity, pod_type()); }
@@ -94,6 +95,38 @@ public:
     void append(size_type n) { append(n, pod_type()); }
     void append(size_type n, pod_type);
 
+    void reallocate(size_type n);
+
+    T* data_;
+    size_type size_;
+    Metrowerks::compressed_pair<size_type, Allocator> capacity_;
+
+    void swap(__vec_deleter& r) { swap_storage(r); }
+
+protected:
+    void swap_storage(__vec_deleter& r) {
+        Metrowerks::swap(capacity_, r.capacity_);
+        std::swap(data_, r.data_);
+        std::swap(size_, r.size_);
+    }
+    void erase_at_end(size_type n, Metrowerks::int2type<false>) {
+        size_type count = n;
+        T* p = data_ + size_;
+        size_ -= count;
+        for (; count != 0; --count) {
+            --p;
+            alloc().destroy(p);
+        }
+    }
+public:
+    void erase_at_end(size_type n) { erase_tail(n, pod_type()); }
+protected:
+    void erase_tail(size_type n, Metrowerks::int2type<false>);
+    void erase_tail(size_type n, Metrowerks::int2type<true>) { size_ -= n; }
+    void erase_at_end(size_type& n, Metrowerks::int2type<true>) { size_ -= n; }
+
+public:
+    bool can_append(size_type n) { size_type capacity; return grow_by(n, capacity, pod_type()); }
     bool grow_by(size_type n) {
         size_type capacity;
         return grow_by(n, capacity, pod_type());
@@ -102,14 +135,11 @@ public:
         recommend_append(n);
         return false;
     }
-    bool can_append(size_type n) { size_type capacity; return grow_by(n, capacity, pod_type()); }
     bool grow_by(size_type n, size_type& rCapacity) { return grow_by(n, rCapacity, pod_type()); }
     bool grow_by(size_type n, size_type& rCapacity, pod_type) {
         rCapacity = recommend(n);
         return false;
     }
-
-    void reallocate(size_type n);
 
     void construct_at_end(size_type n) { construct_at_end(n, pod_type()); }
     void construct_at_end(size_type n, Metrowerks::int2type<false>) {
@@ -141,35 +171,6 @@ public:
         }
     }
 
-    T* data_;
-    size_type size_;
-    Metrowerks::compressed_pair<size_type, Allocator> capacity_;
-
-    void swap(__vec_deleter& r) { swap_storage(r); }
-
-protected:
-    void swap_storage(__vec_deleter& r) {
-        Metrowerks::swap(capacity_, r.capacity_);
-        std::swap(data_, r.data_);
-        std::swap(size_, r.size_);
-    }
-    void erase_at_end(size_type n, Metrowerks::int2type<false>) {
-        size_type count = n;
-        T* p = data_ + size_;
-        size_ -= count;
-        for (; count != 0; --count) {
-            --p;
-            alloc().destroy(p);
-        }
-    }
-public:
-    void erase_at_end(size_type n) { erase_tail(n, pod_type()); }
-protected:
-    void erase_tail(size_type n, Metrowerks::int2type<false>);
-    void erase_tail(size_type n, Metrowerks::int2type<true>) { size_ -= n; }
-    void erase_at_end(size_type& n, Metrowerks::int2type<true>) { size_ -= n; }
-
-public:
     void push_back_realloc(const T& x) { push_back_realloc(x, copy_type()); }
     void push_back_realloc(const T& x, Metrowerks::int2type<false>);
     void push_back_realloc(const T& x, Metrowerks::int2type<true>);
