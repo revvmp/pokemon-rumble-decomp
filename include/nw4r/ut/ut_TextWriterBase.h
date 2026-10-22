@@ -95,13 +95,23 @@ public:
         mTagProcessor = &mDefaultTagProcessor;
     }
 
+    void SetLineHeight(f32 height);
     f32 GetLineHeight() const;
+    f32 CalcFormatStringWidth(const T* str, ...) const;
+    f32 CalcFormatStringHeight(const T* str, ...) const;
+    void CalcFormatStringRect(Rect* rect, const T* str, ...) const;
+    void CalcVStringRect(Rect* rect, const T* str, va_list args) const;
+    f32 CalcStringHeight(const T* str, int len) const;
+    f32 Printf(const T* str, ...);
+    f32 PrintfMutable(const T* str, ...);
+    f32 VPrintfMutable(const T* str, va_list args);
 
     f32 CalcLineWidth(const T* pStr, int len);
     f32 CalcStringWidth(const T* pStr, int len) const;
     void CalcStringRect(Rect* pRect, const T* pStr, int len) const;
 
-    int VSNPrintf(T* buffer, u32 count, const T* pStr, va_list args);
+    static int VSNPrintf(char* buffer, u32 count, const char* str, va_list args) { return vsnprintf(buffer, count, str, args); }
+    static int VSNPrintf(wchar_t* buffer, u32 count, const wchar_t* str, va_list args) { return vswprintf(buffer, count, str, args); }
     f32 VPrintf(const T* pStr, va_list args);
     f32 Print(const T* pStr, int len);
     f32 PrintMutable(const T* pStr, int len);
@@ -149,25 +159,10 @@ private:
     TagProcessorBase<T>* mTagProcessor;
 
     static T* mFormatBuffer;
-    static u32 mFormatBufferSize;
+    static int mFormatBufferSize;
     static TagProcessorBase<T> mDefaultTagProcessor;
 };
 
-template <>
-inline int TextWriterBase<char>::VSNPrintf(char* pBuffer, u32 count,
-                                           const char* pStr,
-                                           va_list args) {
-
-    return vsnprintf(pBuffer, count, pStr, args);
-}
-
-template <>
-inline int TextWriterBase<wchar_t>::VSNPrintf(wchar_t* pBuffer, u32 count,
-                                              const wchar_t* pStr,
-                                              va_list args) {
-
-    return vswprintf(pBuffer, count, pStr, args);
-}
 
 }
 }

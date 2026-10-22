@@ -5,8 +5,11 @@
 #include <nw4r/ut/ut_Color.h>
 
 #include <nw4r/math/math_types.h>
+#include <nw4r/ut/ut_Font.h>
 
 #include <revolution/GX.h>
+#include <revolution/gx/GXTexture.h>
+#include <revolution/gx/GXVert.h>
 
 namespace nw4r {
 namespace ut {
@@ -232,6 +235,78 @@ private:
     static LoadingTexture mLoadingTexture;
 };
 
+
+inline f32 CharWriter::Print(u16 code) {
+    f32 width;
+    f32 left;
+
+    Glyph glyph;
+    mFont->GetGlyph(&glyph, code);
+
+    if (mIsWidthFixed) {
+        width = mFixedWidth;
+        left = (width - glyph.widths.charWidth * mScale.x) / 2 + (glyph.widths.left * mScale.x);
+    } else {
+        width = glyph.widths.charWidth * mScale.x;
+        left = glyph.widths.left * mScale.x;
+    }
+
+    f32 posX = mCursorPos.x + left;
+    f32 posY = mCursorPos.y - mFont->GetBaselinePos(code) * mScale.y;
+
+    PrintGlyph(posX, posY, mCursorPos.z, glyph);
+    mCursorPos.x += width;
+
+    return width;
+}
+
+inline void CharWriter::PrintGlyph(f32 x, f32 y, f32 z, const Glyph& rGlyph) {
+    f32 posLeft = x;
+    f32 posTop = y;
+    f32 posRight = posLeft + rGlyph.widths.glyphWidth * mScale.x;
+    f32 posBottom = posTop + rGlyph.height * mScale.y;
+    f32 posZ = z;
+
+    u16 texLeft = static_cast<u32>(rGlyph.cellX << 15) / rGlyph.texWidth;
+    u16 texTop = static_cast<u32>(rGlyph.cellY << 15) / rGlyph.texHeight;
+    u16 texRight = static_cast<u32>((rGlyph.cellX + rGlyph.widths.glyphWidth) << 15) / rGlyph.texWidth;
+    u16 texBottom = static_cast<u32>((rGlyph.cellY + rGlyph.height) << 15) / rGlyph.texHeight;
+
+    LoadTexture(rGlyph, GX_TEXMAP0);
+
+    GXBegin(GX_QUADS, GX_VTXFMT0, 4);
+
+    GXPosition3f32(posLeft, posTop, posZ);
+    GXColor1u32(mVertexColor.lu);
+    GXTexCoord2u16(texLeft, texTop);
+
+    GXPosition3f32(posRight, posTop, posZ);
+    GXColor1u32(mVertexColor.ru);
+    GXTexCoord2u16(texRight, texTop);
+
+    GXPosition3f32(posRight, posBottom, posZ);
+    GXColor1u32(mVertexColor.rd);
+    GXTexCoord2u16(texRight, texBottom);
+
+    GXPosition3f32(posLeft, posBottom, posZ);
+    GXColor1u32(mVertexColor.ld);
+    GXTexCoord2u16(texLeft, texBottom);
+
+    GXEnd();
+}
+
+inline void CharWriter::LoadTexture(const Glyph& rGlyph, GXTexMapID slot) {
+    if (rGlyph.pTexture != mLoadingTexture.texture) {
+        GXTexObj texObj;
+
+        GXInitTexObj(&texObj, rGlyph.pTexture, rGlyph.texWidth, rGlyph.texHeight, rGlyph.texFormat, GX_CLAMP, GX_CLAMP,
+                     GX_FALSE);
+        GXInitTexObjLOD(&texObj, mFilter.atSmall, mFilter.atLarge, 0.0f, 0.0f, 0.0f, GX_FALSE, GX_FALSE, GX_ANISO_1);
+        GXLoadTexObj(&texObj, slot);
+
+        mLoadingTexture.texture = rGlyph.pTexture;
+    }
+}
 }
 }
 
