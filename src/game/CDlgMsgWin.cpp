@@ -156,7 +156,6 @@ public:
         mLayout.SetPaneVisible("4ITEMS", count == 4);
         CColorBtnTagProc::Attach(mLayout.SetText("MESSAGE", pText));
         mMotion = mLayout.CreateMotion("begin");
-        char itemName[] = "I3_0";
         bool hasText = false;
         for (unsigned int i = 0; i < count; i++) {
             char name[] = "I3_0";
@@ -171,7 +170,6 @@ public:
         }
         mLayout.SetPaneVisible("FOOTNOTE", hasText);
         CColorBtnTagProc::Attach(mLayout.SetText("FOOTNOTE", mOptions[mCursor].mText.c_str()));
-        char cursorName[] = "I3_0_CURSOR";
         for (unsigned int i = 0; i < count; i++) {
             char name[] = "I3_0_CURSOR";
             name[1] = '0' + count;
