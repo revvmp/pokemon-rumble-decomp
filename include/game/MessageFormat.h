@@ -6,14 +6,12 @@
 
 template <class A> std::wstring FormatMessage(const wchar_t* pFormat, const A& rA) {
     NIntl::basic_formatter<wchar_t> formatter(pFormat);
-    formatter % rA;
-    return formatter.str();
+    return (formatter % rA).str();
 }
 
 template <class A, class B> std::wstring FormatMessage(const wchar_t* pFormat, const A& rA, const B& rB) {
     NIntl::basic_formatter<wchar_t> formatter(pFormat);
-    formatter % rA % rB;
-    return formatter.str();
+    return (formatter % rA % rB).str();
 }
 
 #endif
