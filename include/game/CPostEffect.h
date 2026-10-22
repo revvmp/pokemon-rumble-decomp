@@ -30,11 +30,10 @@ public:
     };
 
     CPostEffect(bool flag, std::tr1::shared_ptr<CFileData> file);
-    virtual ~CPostEffect();
-    virtual void Calc();
-    virtual void Draw();
     virtual void Show(int effect);
     virtual void Hide();
+    virtual void Calc();
+    virtual void Draw();
 
 private:
     void BindCaptureTexture(std::tr1::shared_ptr<CModel> model);

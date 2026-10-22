@@ -37,9 +37,7 @@ CPostEffect::CPostEffect(bool flag, std::tr1::shared_ptr<CFileData> file) : mFil
                   GX_TF_RGB565, GX_CLAMP, GX_LINEAR);
 }
 
-CPostEffect::~CPostEffect() {}
-
-void CPostEffect::Draw() {
+inline void CPostEffect::Draw() {
     if (!mModels.empty()) {
         Graphics::ResetState();
         GXSetZMode(GX_FALSE, GX_NEVER, GX_FALSE);
@@ -62,7 +60,7 @@ void CPostEffect::Draw() {
     }
 }
 
-void CPostEffect::Calc() {
+inline void CPostEffect::Calc() {
     if (!mModels.empty()) {
         for (std::list<std::tr1::shared_ptr<CModel> >::iterator it = mModels.begin(); it != mModels.end(); ++it) {
             (*it)->UpdateFrame(1.0f);
@@ -70,11 +68,30 @@ void CPostEffect::Calc() {
     }
 }
 
-void CPostEffect::Hide() {
+inline void CPostEffect::Hide() {
     mModels.clear();
 }
 
-void CPostEffect::Show(int effect) {
+inline void CPostEffect::BindCaptureTexture(std::tr1::shared_ptr<CModel> model) {
+    nw4r::g3d::ScnMdl* pScnMdl = nw4r::g3d::G3dObj::DynamicCast<nw4r::g3d::ScnMdl>(model->GetScnObj());
+    nw4r::g3d::ResMdl resMdl = pScnMdl->GetResMdl();
+    u32 numMats = resMdl.GetResMatNumEntries();
+    for (u32 i = 0; i < numMats; i++) {
+        nw4r::g3d::ResMat mat = resMdl.GetResMat(i);
+        u32 numTexs = mat.GetNumResTexPlttInfo();
+        nw4r::g3d::ScnMdl::CopiedMatAccess access(pScnMdl, i);
+        nw4r::g3d::ResTexObj texObj = access.GetResTexObj(false);
+        for (u32 j = 0; j < numTexs; j++) {
+            nw4r::g3d::ResTexPlttInfo info = mat.GetResTexPlttInfo(j);
+            if (strcmp(info.GetTexResName().GetName(), "dummy_capture") == 0) {
+                *texObj.GetTexObj(info.ref().mapID) = mTexture.GetTexObj();
+                texObj.Validate(info.ref().mapID);
+            }
+        }
+    }
+}
+
+inline void CPostEffect::Show(int effect) {
     Hide();
     if (effect == EFFECT_NONE) {
         return;
@@ -113,23 +130,4 @@ void CPostEffect::Show(int effect) {
     }
     model->GetScnObj()->SetMtx(nw4r::g3d::ScnObj::MTX_LOCAL, mtx);
     mModels.push_back(model);
-}
-
-void CPostEffect::BindCaptureTexture(std::tr1::shared_ptr<CModel> model) {
-    nw4r::g3d::ScnMdl* pScnMdl = nw4r::g3d::G3dObj::DynamicCast<nw4r::g3d::ScnMdl>(model->GetScnObj());
-    nw4r::g3d::ResMdl resMdl = pScnMdl->GetResMdl();
-    u32 numMats = resMdl.GetResMatNumEntries();
-    for (u32 i = 0; i < numMats; i++) {
-        nw4r::g3d::ResMat mat = resMdl.GetResMat(i);
-        u32 numTexs = mat.GetNumResTexPlttInfo();
-        nw4r::g3d::ScnMdl::CopiedMatAccess access(pScnMdl, i);
-        nw4r::g3d::ResTexObj texObj = access.GetResTexObj(false);
-        for (u32 j = 0; j < numTexs; j++) {
-            nw4r::g3d::ResTexPlttInfo info = mat.GetResTexPlttInfo(j);
-            if (strcmp(info.GetTexResName().GetName(), "dummy_capture") == 0) {
-                *texObj.GetTexObj(info.ref().mapID) = mTexture.GetTexObj();
-                texObj.Validate(info.ref().mapID);
-            }
-        }
-    }
 }

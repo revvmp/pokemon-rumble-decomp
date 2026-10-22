@@ -285,7 +285,7 @@ config.libs = [
             Object(NonMatching, "game/CMoneyLifeDisplay.cpp"),
             Object(NonMatching, "game/CMsgBalloon.cpp"),
             Object(NonMatching, "game/CMultiRanking.cpp"),
-            Object(NonMatching, "game/CPostEffect.cpp"),
+            Object(Matching, "game/CPostEffect.cpp"),
             Object(NonMatching, "game/CPpuEngine.cpp"),
             Object(Matching, "game/CPpuEnv.cpp"),
             Object(NonMatching, "game/CNoticeDisplay.cpp"),
