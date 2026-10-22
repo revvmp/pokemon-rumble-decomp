@@ -18,18 +18,21 @@ bool CNullObj::LoadAnm(const char* pPath, bool background) {
         return false;
     }
     std::tr1::shared_ptr<CFileData> file = LoadResourceFile(pPath, 0, background);
+    bool loaded;
     if (!file || !file->IsValid()) {
-        return false;
+        loaded = false;
+    } else if (file.get() == mAnmFile.get()) {
+        loaded = true;
+    } else {
+        nw4r::g3d::ResFile resource(file->GetData());
+        if (!resource.Bind() || !resource.HasResAnmChr()) {
+            loaded = false;
+        } else {
+            mAnmFile = file;
+            loaded = true;
+        }
     }
-    if (file.get() == mAnmFile.get()) {
-        return true;
-    }
-    nw4r::g3d::ResFile resource(file->GetData());
-    if (!resource.Bind(resource) || !resource.HasResAnmChr()) {
-        return false;
-    }
-    mAnmFile = file;
-    return true;
+    return loaded;
 }
 
 CNullObj::MotionPtr CNullObj::GetCurrentMotion() {
