@@ -489,28 +489,6 @@ game/ControllerTable.cpp:
 	.bss        start:0x803E8D28 end:0x803E90C8
 	.sdata      start:0x804B77D8 end:0x804B77D9
 
-game/l10n_files.cpp:
-	extab       start:0x8002C2F0 end:0x8002CBC8
-	extabindex  start:0x8004C920 end:0x8004CB18
-	.text       start:0x801263F0 end:0x8012B5E8
-	.ctors      start:0x803529EC end:0x803529F0
-	.data       start:0x803B45B8 end:0x803B4F80
-	.bss        start:0x803E90D8 end:0x803E90FC
-	.sdata      start:0x804B7840 end:0x804B78A0
-	.sbss       start:0x804B90A0 end:0x804B90B8
-
-game/ScriptMotion.cpp:
-	extab       start:0x80030D18 end:0x80030DE8
-	extabindex  start:0x8004EBE8 end:0x8004ED20
-	.text       start:0x801504C0 end:0x80151224
-
-game/ScriptPiiPropData.cpp:
-	extab       start:0x80031B28 end:0x80031C30
-	extabindex  start:0x8004F41C end:0x8004F524
-	.text       start:0x80157DE0 end:0x80158FF4
-	.data       start:0x803B72F8 end:0x803B7344
-	.sdata2     start:0x804BA2E0 end:0x804BA2E4
-
 ControllerTableAlignmentPadding:
 	.sdata      start:0x804B77D9 end:0x804B77E0 align:1
 
@@ -528,6 +506,16 @@ game/Font.cpp:
 	.ctors      start:0x803529E8 end:0x803529EC
 	.bss        start:0x803E90C8 end:0x803E90D4
 	.sbss       start:0x804B9090 end:0x804B9098
+
+game/l10n_files.cpp:
+	extab       start:0x8002C2F0 end:0x8002CBC8
+	extabindex  start:0x8004C920 end:0x8004CB18
+	.text       start:0x801263F0 end:0x8012B5E8
+	.ctors      start:0x803529EC end:0x803529F0
+	.data       start:0x803B45B8 end:0x803B4F80
+	.bss        start:0x803E90D8 end:0x803E90FC
+	.sdata      start:0x804B7840 end:0x804B78A0
+	.sbss       start:0x804B90A0 end:0x804B90B8
 
 game/ScriptCamera.cpp:
 	extab       start:0x8002DE28 end:0x8002E278
@@ -560,6 +548,18 @@ game/ScriptModel.cpp:
 	.data       start:0x803B6EB0 end:0x803B6F50
 	.sdata      start:0x804B7A40 end:0x804B7A58
 	.sdata2     start:0x804BA250 end:0x804BA268
+
+game/ScriptMotion.cpp:
+	extab       start:0x80030D18 end:0x80030DE8
+	extabindex  start:0x8004EBE8 end:0x8004ED20
+	.text       start:0x801504C0 end:0x80151224
+
+game/ScriptPiiPropData.cpp:
+	extab       start:0x80031B28 end:0x80031C30
+	extabindex  start:0x8004F41C end:0x8004F524
+	.text       start:0x80157DE0 end:0x80158FF4
+	.data       start:0x803B72F8 end:0x803B7344
+	.sdata2     start:0x804BA2E0 end:0x804BA2E4
 
 game/ScriptPiiStats.cpp:
 	extab       start:0x80031E68 end:0x80032320
