@@ -91,4 +91,4 @@ All 139 functions are present. 136 score 100%, and the other three differ only i
   - Ours puts `function<void(BUI*)>` right after `function_imp<void()>`, CUIPiiListItem before CUIManager, and CPpuEngine after the `function_imp` pair.
   - These had no effect: moving AppendItems or the `Add` definition, and reordering the constructor's mem-initializers. Moving RunSell into the `dont_inline` region breaks code.
   - The order seems to follow when each `shared_ptr(Y*)` instance is generated, not the source position. This is unresolved.
-- **The 4 `.text` misplaced functions:** they are in OnAccept's inlined `CountRemoteUnmarked` loop. A `while` loop, a `continue` body or a ternary all raise the count to 12.
+- **The 4 `.text` misplaced functions:** they are in OnAccept's inlined `CountRemoteUnmarked` loop. A `while` loop, a `continue` body and a ternary leave the order unchanged; the ternary also changes code. The target emits the iterator's `*` and `++` before `const_iterator(iterator)` and `begin`, as if something earlier had already instantiated `*` and `++`.
