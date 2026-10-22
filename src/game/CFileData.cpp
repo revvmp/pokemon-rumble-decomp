@@ -366,18 +366,12 @@ inline std::tr1::shared_ptr<nw4r::ut::FileStream> OpenFileStream(const CPath& rP
         OSPanic("CFileData.cpp", 1170, "NANDAPP");
     } else if (device == CPath::DEVICE_NAND) {
         std::tr1::shared_ptr<nw4r::ut::NandFileStream> stream(new nw4r::ut::NandFileStream);
-        bool opened = false;
-        if (rPath.GetComponents().front().size() <= 12) {
-            std::string fullPath = rPath.ToString(false);
-            if (stream.get()->Open(fullPath.c_str(), 1)) {
-                opened = true;
-            }
-        }
+        bool opened = rPath.GetComponents().back().size() <= 12 && stream.get()->Open(rPath.ToString(false).c_str(), 1);
         if (opened) {
             return stream;
         }
         rError = CFileData::ERROR_NOT_FOUND;
-    } else if (device >= 2 && device < 512) {
+    } else if (2 <= device && device < 512) {
         std::tr1::shared_ptr<nw4r::ut::CNTHandleWithMutex> handle = AcquireCNTHandle(device, rError, rTable);
         if (handle) {
             std::tr1::shared_ptr<nw4r::ut::CntFileStream> stream(new nw4r::ut::CntFileStream);
@@ -389,7 +383,7 @@ inline std::tr1::shared_ptr<nw4r::ut::FileStream> OpenFileStream(const CPath& rP
             }
             rError = CFileData::ERROR_NOT_FOUND;
         }
-    } else if ((device >= 512 && device < 538) || device == 539) {
+    } else if ((512 <= device && device < 538) || device == 539) {
         rError = CFileData::ERROR_NOT_FOUND;
     }
 
