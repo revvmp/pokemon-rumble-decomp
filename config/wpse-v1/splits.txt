@@ -354,14 +354,14 @@ game/CLayoutManager.cpp:
 	extabindex  start:0x80048AA4 end:0x80048B40
 	.text       start:0x800C1220 end:0x800C2678
 	.data       start:0x803A49C8 end:0x803A4B48
-	.sdata      start:0x804B6A30 end:0x804B6A68
+	.sdata      start:0x804B6A30 end:0x804B6A50
 
 game/CMiniMap.cpp:
 	extab       start:0x8001CEF8 end:0x8001D4A8
 	extabindex  start:0x80048B40 end:0x80048C00
 	.text       start:0x800C2680 end:0x800C4810
 	.data       start:0x803A4B48 end:0x803A4D00
-	.sdata      start:0x804B6A68 end:0x804B6AB8
+	.sdata      start:0x804B6A50 end:0x804B6AB8
 	.sdata2     start:0x804B9F38 end:0x804B9F60
 
 game/CMiniMapMarker.cpp:

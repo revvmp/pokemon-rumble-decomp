@@ -539,7 +539,19 @@ public:
     Compare& comp() { return begin_.first(); }
     const Compare& comp() const { return begin_.first(); }
 
-    iterator erase(iterator position) { return erase(const_iterator(position)); }
+    iterator erase(iterator position) {
+        tree_node_base* pNext;
+        tree_node_base* pNode = position.node_;
+        if (pNode == begin_node()) {
+            ++position;
+            begin_node() = position.node_;
+        }
+        pNext = algorithm_base::balance_erase(pNode, root());
+        alloc().destroy(&static_cast<node*>(pNode)->value_);
+        ::operator delete(pNode);
+        --size_.first();
+        return iterator(static_cast<node*>(pNext));
+    }
 
     iterator erase(const_iterator position) {
         tree_node_base* pNext;

@@ -38,9 +38,6 @@ void MapPiiTable::SetValue(int row, int column, const NPpu::CValue& rValue, cons
 
 #pragma dont_inline reset
 
-int MapPiiTable::GetIndex(int row, int column) const {
-    return (row + 1) * mColumnCount + column;
-}
 
 NPpu::CValue& MapPiiTable::GetValue(int index) {
     return mValues[index];
@@ -50,6 +47,9 @@ NPpu::CValue* MapPiiTable::GetCell(int row, int column) {
     return &mValues[GetIndex(row, column)];
 }
 
+int MapPiiTable::GetIndex(int row, int column) const {
+    return (row + 1) * mColumnCount + column;
+}
 const char* MapPiiTable::InsertString(const char* pString) {
     std::string key(pString);
     std::set<std::string>::iterator it = mStrings.find(key);
