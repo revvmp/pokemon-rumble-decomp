@@ -12,6 +12,14 @@ public:
     CPiiBox* GetPiiBox();
     void WaitUntilIdle(bool waitForWrite);
     void Update();
+    void QueueAdd(const std::tr1::shared_ptr<CPiiPersonalData>& rPPD);
+    void QueueRemove(const std::tr1::shared_ptr<CPiiPersonalData>& rPPD);
+    void PrepareWrite(int mode);
+    bool IsAborted() const { return (mFlags >> 9) & 1; }
+    bool HasFailed() const { return (mFlags & 0x180) != 0; }
+    bool IsRecoveryPending() const { return (mFlags & 0x20) != 0; }
+    bool IsStorageLocked() const { return (mFlags & 0x400) != 0; }
+    bool IsBlockInvalid() const { return (mFlags >> 6) & 1; }
     bool ConsumeFatalError() {
         u32 flags = mFlags;
         mFlags = flags & ~0x80;

@@ -14,7 +14,12 @@ class CPiiBox {
 public:
     CPiiBox(int type, int capacity);
     ~CPiiBox();
+<<<<<<< HEAD
     static std::tr1::shared_ptr<CPiiBox> Create(const std::vector<SD_PiiPersonalData::Data>& rData, int type, int capacity, const COyaInfo* pOyaInfo);
+=======
+    void AddPersonalData(std::tr1::shared_ptr<CPiiPersonalData> ppd);
+    void RemovePersonalData(std::tr1::shared_ptr<CPiiPersonalData> ppd);
+>>>>>>> 042cc7fd4 (CDlgPiiList: reconstruct Setup, selection/accept handlers, remote transfer and sell flows)
     void ExportPersonalData(std::vector<SD_PiiPersonalData::Data>& rOut);
     std::list<std::tr1::shared_ptr<CPiiPersonalData> >& GetPersonalDataList() { return mPersonalDataList; }
 

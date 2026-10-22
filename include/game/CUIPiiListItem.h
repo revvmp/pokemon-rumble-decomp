@@ -7,7 +7,16 @@
 
 class CUIPiiListItem : public IUIListItem {
 public:
+    enum Flag {
+        FLAG_SELL_MARKED = 1 << 1,
+        FLAG_REMOTE_MARKED = 1 << 2
+    };
+
     const std::tr1::shared_ptr<CPiiPersonalData>& GetPPD() const { return mPPD; }
+    bool IsSellMarked() const { return (mFlags & FLAG_SELL_MARKED) != 0; }
+    bool IsRemoteMarked() const { return (mFlags & FLAG_REMOTE_MARKED) != 0; }
+    void SetSellMarked(bool marked);
+    void SetRemoteMarked(bool marked);
 
 private:
     u32 mFlags;
