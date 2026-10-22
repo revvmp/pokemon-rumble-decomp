@@ -33,7 +33,7 @@ std::wstring FormatAreaName(MapIndex index) {
         if (IsStage7EvenMap(index)) {
             typedef NIntl::basic_formatter<wchar_t> Formatter;
             Formatter formatter(GetMessageString(0x600E7, nullptr));
-            int area = static_cast<s8>(GetSaveData(-1)->mData.mStatus[19]);
+            int area = GetSaveData(-1)->mData.mExtraBRCurrentRound;
             int part = IsBattleRoyalFirstPart(index) ? 1 : 2;
             formatter % Formatter::format_spec(L"%d") % area;
             formatter % Formatter::format_spec(L"%d") % part;
@@ -598,7 +598,7 @@ inline bool CYouWin::StartNotice() {
     int mode = rDesc.mIndex.mMode;
     int area = rDesc.mIndex.mArea;
     if (mode == 2) {
-        area = static_cast<s8>(GetSaveData(-1)->mData.mStatus[19]);
+        area = GetSaveData(-1)->mData.mExtraBRCurrentRound;
     }
     bool newRecord = false;
     eligible = true;
