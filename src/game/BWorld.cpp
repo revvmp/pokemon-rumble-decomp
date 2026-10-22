@@ -669,14 +669,14 @@ std::list<BWorldObj*> BWorld::FindObjectsInSector(u32 type, const nw4r::math::VE
     startPlane.mNormal.x = sin;
     startPlane.mNormal.y = 0.0f;
     startPlane.mNormal.z = cos;
-    startPlane.mD = -nw4r::math::VEC3Dot(&center, &startPlane.mNormal);
+    startPlane.mD = -startPlane.mNormal.Dot(center);
 
     SectorPlane endPlane;
     nw4r::math::SinCosDeg(&sin, &cos, endAngle - 90.0f);
     endPlane.mNormal.x = sin;
     endPlane.mNormal.y = 0.0f;
     endPlane.mNormal.z = cos;
-    endPlane.mD = -nw4r::math::VEC3Dot(&center, &endPlane.mNormal);
+    endPlane.mD = -endPlane.mNormal.Dot(center);
 
     f32 range = NormalizeAngle(endAngle - startAngle);
     bool narrow = range <= 180.0f;
@@ -686,7 +686,7 @@ std::list<BWorldObj*> BWorld::FindObjectsInSector(u32 type, const nw4r::math::VE
         midPlane.mNormal.x = sin;
         midPlane.mNormal.y = 0.0f;
         midPlane.mNormal.z = cos;
-        midPlane.mD = -nw4r::math::VEC3Dot(&center, &midPlane.mNormal);
+        midPlane.mD = -midPlane.mNormal.Dot(center);
     }
 
     u32 stopTypes = GetStopTypes(type);
