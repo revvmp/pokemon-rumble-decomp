@@ -11,7 +11,7 @@ namespace {
 std::string GetDeviceNameFor(int device) {
     if (CPath::DEVICE_MCS_BASE <= device && device < CPath::DEVICE_MCS_BASE + 26) {
         const char letter = static_cast<char>(device - CPath::DEVICE_MCS_BASE + 'A');
-        return std::string(&letter, &letter + 1);
+        return std::string(&letter, 1);
     }
     if (device == CPath::DEVICE_UNC) {
         return std::string("\\");
@@ -125,11 +125,12 @@ void CPath::Set(const char* pPath) {
 }
 
 void CPath::ParseRelative(const char* pPath, const char* pOriginal) {
+    const char* pStart = pPath;
     mComponents.clear();
-    if (*pPath == '/' || *pPath == '\\') {
-        ++pPath;
+    if (*pStart == '/' || *pStart == '\\') {
+        ++pStart;
     } else if (mDevice == DEVICE_DVD) {
-        OSPanic("CPath.cpp", 155, "NAND APP cannot access DVD.\n");
+        OSPanic("CPath.cpp", 155, "NANDAPP cannot access DVD.\n");
     } else if (mDevice == DEVICE_NAND) {
         char currentDir[64];
         if (NANDGetCurrentDir(currentDir) != 0) {
@@ -139,7 +140,7 @@ void CPath::ParseRelative(const char* pPath, const char* pOriginal) {
     } else {
         OSPanic("CPath.cpp", 175, "CNT, MCS cannot use relative directory.\n");
     }
-    Parse(pPath);
+    Parse(pStart);
 }
 
 void CPath::Parse(const char* pPath) {

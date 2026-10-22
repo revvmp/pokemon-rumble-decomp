@@ -67,6 +67,7 @@ public:
         d[1] = charT();
     }
     basic_string(const charT* s);
+    basic_string(const charT* s, size_type n);
     basic_string(const_iterator first, const_iterator last, const Allocator* pAllocator = 0);
     basic_string(const basic_string& str);
     basic_string(const basic_string& str, size_type pos, size_type n, const allocator_type& a);
@@ -324,6 +325,13 @@ basic_string<charT, traits, Allocator>::basic_string(const basic_string& str) : 
         reserve(str.long_size());
         do_replace(0, 0, str.long_data(), str.long_data() + str.long_size(), random_access_iterator_tag());
     }
+}
+
+template <class charT, class traits, class Allocator>
+basic_string<charT, traits, Allocator>::basic_string(const charT* s, size_type n) {
+    init();
+    reserve(n);
+    replace(size_type(0), size_type(0), s, s + n);
 }
 
 template <class charT, class traits, class Allocator>
