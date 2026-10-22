@@ -14,11 +14,11 @@ namespace {
 class CBattleRoyalDisplay : public IBattleRoyalDisplay {
 public:
     CBattleRoyalDisplay() : mTimePhase(nullptr), mEnemyPhase(nullptr), mEnemyCount(0), mFinished(false) {}
+    virtual void Finish();
     virtual void Calc();
     virtual void Draw();
     virtual void Show();
     virtual void Hide();
-    virtual void Finish();
     virtual void SetEnemyCount(int count);
     virtual void DecEnemyCount();
     virtual int GetEnemyCount();

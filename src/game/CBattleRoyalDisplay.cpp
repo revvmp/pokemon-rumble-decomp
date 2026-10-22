@@ -18,37 +18,37 @@ void CBattleRoyalDisplay::Load(const std::tr1::shared_ptr<CLayout::FontMap>& rFo
     mEnemyPhase.SetTarget(&mLayout, "ENEMY");
 }
 
-int CBattleRoyalDisplay::GetEnemyCount() {
+inline int CBattleRoyalDisplay::GetEnemyCount() {
     return mEnemyCount;
 }
 
-void CBattleRoyalDisplay::DecEnemyCount() {
+inline void CBattleRoyalDisplay::DecEnemyCount() {
     if (mEnemyCount > 0) {
         mEnemyCount--;
     }
 }
 
-void CBattleRoyalDisplay::SetEnemyCount(int count) {
+inline void CBattleRoyalDisplay::SetEnemyCount(int count) {
     mEnemyCount = count;
 }
 
-void CBattleRoyalDisplay::Hide() {
+inline void CBattleRoyalDisplay::Hide() {
     mTimePhase.Hide();
     mEnemyPhase.Hide();
 }
 
-void CBattleRoyalDisplay::Show() {
+inline void CBattleRoyalDisplay::Show() {
     mTimePhase.Show();
     mEnemyPhase.Show();
 }
 
-void CBattleRoyalDisplay::Draw() {
+inline void CBattleRoyalDisplay::Draw() {
     if (mTimePhase.IsVisible() || mEnemyPhase.IsVisible()) {
         mLayout.Draw();
     }
 }
 
-void CBattleRoyalDisplay::Calc() {
+inline void CBattleRoyalDisplay::Calc() {
     mTimePhase.Calc();
     mEnemyPhase.Calc();
 
@@ -71,7 +71,7 @@ void CBattleRoyalDisplay::Calc() {
     mLayout.Calc();
 }
 
-void CBattleRoyalDisplay::Finish() {
+inline void CBattleRoyalDisplay::Finish() {
     mFinished = true;
 }
 
