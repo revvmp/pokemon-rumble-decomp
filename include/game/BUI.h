@@ -29,6 +29,7 @@ public:
 
     bool AddChild(Child child);
     bool IsFocused();
+    bool IsFocusable() const { return (mFlags & 4) != 0; }
     BUI* GetNeighbor(int direction) { return mNeighbors[direction].lock().get(); }
     BUI* NavigateTo(int direction);
     BUI* FindFocusableFrom(int direction);

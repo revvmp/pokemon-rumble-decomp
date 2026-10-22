@@ -78,7 +78,7 @@ void CUIManager::SetFocusedUI(BUI* pUI) {
 void CUIManager::DispatchFocusedInput(const IUIInput* pInput) {
     ValidateFocusedUI();
     std::tr1::shared_ptr<BUI> pFocused = mFocusedUI.lock();
-    if (pFocused && (pFocused->mFlags & 4)) {
+    if (pFocused && pFocused->IsFocusable()) {
         pFocused->OnInput(pInput);
     }
 }
