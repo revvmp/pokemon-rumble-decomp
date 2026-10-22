@@ -8,6 +8,12 @@
 #include <game/CBossPii.h>
 #include <game/CDropPii.h>
 #include <game/BWorld.h>
+#include <game/CHPBar.h>
+#include <game/CModel.h>
+#include <game/CPiiInfoWorldObjStat.h>
+#include <game/IGameMap.h>
+#include <game/IWorldObjStatDisplay.h>
+#include <nw4r/g3d/g3d_scnmdlsmpl.h>
 #include <list>
 #include <vector>
 #include <algorithm>
@@ -282,6 +288,52 @@ int CountEnemyByGroupNo(NPpu::CEngine* pBase) {
         }
     }
     pBase->PushInt(count);
+    return 0;
+}
+
+int method_showPiiInfoWorldObjStat(NPpu::CEngine* pBase) {
+    CPpuEngine* pEngine = static_cast<CPpuEngine*>(pBase);
+    CPii* pPii = DynamicCast<CPii>(pEngine->PopWorldObj());
+    if (pPii) {
+        std::tr1::shared_ptr<CPiiInfoWorldObjStat> stat(new CPiiInfoWorldObjStat);
+        stat->SetPersonalData(pPii->GetPersonalData());
+        pPii->AddDrawLayer(stat);
+        GetCurrentGameMap()->GetWorldObjStatDisplay()->Add(pPii);
+    }
+    pBase->PushNull();
+    return 0;
+}
+
+int method_getNodeY(NPpu::CEngine* pBase) {
+    CPpuEngine* pEngine = static_cast<CPpuEngine*>(pBase);
+    const char* pName = pEngine->PopString();
+    CPii* pPii = DynamicCast<CPii>(pEngine->PopWorldObj());
+    f32 y = 0.0f;
+    if (pPii && pPii->GetModel()) {
+        nw4r::g3d::ScnMdlSimple* pScnMdl = static_cast<nw4r::g3d::ScnMdlSimple*>(pPii->GetModel()->GetScnObj());
+        if (pScnMdl != nullptr) {
+            nw4r::g3d::ResNode node = pScnMdl->GetResMdl().GetResNode(pName);
+            if (node.IsValid()) {
+                nw4r::math::MTX34 mtx;
+                pScnMdl->GetScnMtxPos(&mtx, nw4r::g3d::ScnObj::MTX_WORLD, node.GetID());
+                y = mtx._13;
+            }
+        }
+    }
+    pEngine->PushFloat(y);
+    return 0;
+}
+
+int method_showHPBar(NPpu::CEngine* pBase) {
+    bool show = pBase->PopInt() != 0;
+    CPii* pPii = DynamicCast<CPii>(static_cast<CPpuEngine*>(pBase)->PopWorldObj());
+    if (pPii) {
+        std::tr1::shared_ptr<CHPBar> bar = pPii->GetHPBar();
+        if (bar) {
+            bar->SetEnabled(show);
+        }
+    }
+    pBase->PushNull();
     return 0;
 }
 
