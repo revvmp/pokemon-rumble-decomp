@@ -16,36 +16,11 @@
 
 class CPpuEnv;
 
-namespace Metrowerks {
-template <> struct is_POD<nw4r::math::MTX34> {
-    enum { value = true };
-};
-}
-
 namespace std {
 template <> struct __vec_bulk_move<nw4r::math::MTX34> {
     enum { value = false };
 };
 
-template <>
-inline void __vec_deleter<nw4r::math::MTX34, allocator<nw4r::math::MTX34> >::reallocate(size_type n) {
-    __vec_deleter buffer(this->alloc());
-    if (n > this->max_size()) {
-        this->throw_length_error();
-    }
-    buffer.data_ = buffer.alloc().allocate(n, 0);
-    buffer.cap() = n;
-    const nw4r::math::MTX34* pFirst = begin();
-    const nw4r::math::MTX34* pLast = end();
-    for (nw4r::math::MTX34* p = buffer.data_ + buffer.size_; pFirst < pLast; ++pFirst, ++p) {
-        buffer.alloc().construct(p, *pFirst);
-        ++buffer.size_;
-    }
-    clear_moved();
-    std::swap(this->cap(), buffer.cap());
-    std::swap(this->data_, buffer.data_);
-    std::swap(this->size_, buffer.size_);
-}
 }
 
 class BWorld;
