@@ -56,7 +56,7 @@ Matched: CGameSession `GetEnvironment` (PiiPropData reads its species table thro
 | CGameSession | CanAddPPDToPlayerPiiBox | 99.01 | The temporary-constructed flag of the `&&` comparison is kept in a non-volatile register |
 | CGameSession | GetSnapshot | 88.24 | 64-bit play-time sum register pairs and store order; ten local and helper forms tried |
 | CGameSession | vector and SessionSnapshot destructors | 96.8, 97.7 | Extra null-check level for two element types (see the earlier trap) |
-| CPiiListFilterSort | CompareBPAscending, CompareBPDescending, CompareSpeciesName, CompareSpeciesOrder | 96.3-99.6 | The item pointers take r5/r3 instead of r3/r4; pointer, reference, helper and `||` forms tried |
+| CPiiListFilterSort | CompareBPAscending, CompareBPDescending, CompareSpeciesName, CompareSpeciesOrder | 96.3-99.6 | The item pointers take r5/r3 instead of r3/r4; pointer, reference, helper and logical-or forms tried |
 | CPiiListFilterSort | Sort | 96.16 | `mSortType` is loaded after the iterator addresses instead of right after `begin()` |
 | CPiiListFilterSort | ShowTypeFilterMenu, ShowPrefixFilterMenu | 96.6, 98.8 | Frame 0x10 smaller and a shift operand swap |
 | CRemoteMemory | ThreadMain | 78.97 | The target builds binary trees for three-range switches where ours compares linearly; the retry user data is computed before `OSCancelAlarm` in the target and after it in ours, which keeps `channel` in a saved register |
