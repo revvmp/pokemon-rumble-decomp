@@ -114,7 +114,8 @@ public:
     typedef tuple<T,placeholders::detail::ph<1>,D> Arguments;
     bound_func(const F& rFunction,const Arguments& rArguments) : mFunction(rFunction),mArguments(rArguments) {}
     template<class A> R operator()(A& argument) const {
-        return mFunction(const_cast<Arguments&>(mArguments).first(),argument,const_cast<Arguments&>(mArguments).third());
+        tuple<A&> arguments(argument);
+        return mFunction(const_cast<Arguments&>(mArguments).first(),resolve_bound_argument(placeholders::detail::ph<1>(),arguments),const_cast<Arguments&>(mArguments).third());
     }
 private:
     F mFunction;
@@ -125,7 +126,9 @@ public:
     typedef tuple<T,placeholders::detail::ph<1>,B,D> Arguments;
     bound_func(const F& rFunction,const Arguments& rArguments) : mFunction(rFunction),mArguments(rArguments) {}
     template<class A> R operator()(A& argument) const {
-        return mFunction(const_cast<Arguments&>(mArguments).first(),argument,const_cast<Arguments&>(mArguments).third(),const_cast<Arguments&>(mArguments).fourth());
+        tuple<A&> arguments(argument);
+        Arguments& rArguments = const_cast<Arguments&>(mArguments);
+        return mFunction(rArguments.first(),resolve_bound_argument(placeholders::detail::ph<1>(),arguments),rArguments.third(),rArguments.fourth());
     }
 private:
     F mFunction;
