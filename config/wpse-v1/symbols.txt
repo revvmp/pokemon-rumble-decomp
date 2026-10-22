@@ -10452,10 +10452,10 @@ get_deleter__Q43std3tr16detail178shared_ptr_deleter<Q328@unnamed@CDlgCollection_
 dispose__Q43std3tr16detail178shared_ptr_deleter<Q328@unnamed@CDlgCollection_cpp@23CDlgCollectionItemModel5Model,Q33std6detail79default_delete<Q328@unnamed@CDlgCollection_cpp@23CDlgCollectionItemModel5Model>>Fv = .text:0x8007D400; // type:function size:0x84
 get_deleter__Q43std3tr16detail166shared_ptr_deleter<Q228@unnamed@CDlgCollection_cpp@23CDlgCollectionItemModel,Q33std6detail73default_delete<Q228@unnamed@CDlgCollection_cpp@23CDlgCollectionItemModel>>CFRCQ23std9type_info = .text:0x8007D490; // type:function size:0x4C
 dispose__Q43std3tr16detail166shared_ptr_deleter<Q228@unnamed@CDlgCollection_cpp@23CDlgCollectionItemModel,Q33std6detail73default_delete<Q228@unnamed@CDlgCollection_cpp@23CDlgCollectionItemModel>>Fv = .text:0x8007D4E0; // type:function size:0xC4
-get_deleter__Q43std3tr16detail76shared_ptr_deleter<10CUIManager,Q33std6detail28default_delete<10CUIManager>>CFRCQ23std9type_info = .text:0x8007D5B0; // type:function size:0x4C
-dispose__Q43std3tr16detail76shared_ptr_deleter<10CUIManager,Q33std6detail28default_delete<10CUIManager>>Fv = .text:0x8007D600; // type:function size:0x24
-get_deleter__Q43std3tr16detail72shared_ptr_deleter<9BUILayout,Q33std6detail26default_delete<9BUILayout>>CFRCQ23std9type_info = .text:0x8007D630; // type:function size:0x4C
-dispose__Q43std3tr16detail72shared_ptr_deleter<9BUILayout,Q33std6detail26default_delete<9BUILayout>>Fv = .text:0x8007D680; // type:function size:0x24
+fn_8007D5B0 = .text:0x8007D5B0; // type:function size:0x4C
+fn_8007D600 = .text:0x8007D600; // type:function size:0x24
+fn_8007D630 = .text:0x8007D630; // type:function size:0x4C
+fn_8007D680 = .text:0x8007D680; // type:function size:0x24
 get_deleter__Q43std3tr16detail68shared_ptr_deleter<7CUIList,Q33std6detail24default_delete<7CUIList>>CFRCQ23std9type_info = .text:0x8007D6B0; // type:function size:0x4C
 dispose__Q43std3tr16detail68shared_ptr_deleter<7CUIList,Q33std6detail24default_delete<7CUIList>>Fv = .text:0x8007D700; // type:function size:0x24
 fn_8007D730 = .text:0x8007D730; // type:function size:0x4C

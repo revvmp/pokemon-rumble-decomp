@@ -312,7 +312,7 @@ public:
                                     } else {
                                         personalData->SetNormalColorRnd();
                                     }
-                                    unsigned index = pModel->mModels[i]->mTex->AddPii(personalData);
+                                    unsigned index = pModel->mModels[i]->mTex->InitPiis(personalData);
                                     if (index != 0) {
                                         pModel->mModels[i]->mTex->SetPiiVisible(index, false);
                                     }
