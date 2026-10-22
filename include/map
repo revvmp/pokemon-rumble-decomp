@@ -429,7 +429,7 @@ public:
 private:
     value_type& find_or_insert(const key_type& rKey) { return find_or_insert_impl(tree_, rKey); }
     template <typename Tree> static value_type& find_or_insert_impl(Tree& rTree, const key_type& rKey) { return rTree.find_or_insert(rKey); }
-    typedef typename Metrowerks::select<Metrowerks::is_POD<T>::value, map_base, tree_type>::type deferred_tree_type;
+    typedef typename Metrowerks::select<Metrowerks::is_POD<T>::value || !map_transform<Key, T, Compare>::value, map_base, tree_type>::type deferred_tree_type;
     static value_type& find_or_insert_impl(deferred_tree_type& rTree, const key_type& rKey);
     native_iterator erase_impl(native_iterator position, Metrowerks::int2type<1>) { return iterator(tree_.erase_next(position)); }
     native_iterator erase_impl(native_iterator position, Metrowerks::int2type<0>) { return tree_.erase(position); }
