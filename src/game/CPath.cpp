@@ -161,8 +161,8 @@ void CPath::Parse(const char* pPath) {
         while (*pPath == '/' || *pPath == '\\') {
             ++pPath;
         }
-        if (component.compare(".") != 0) {
-            if (component.compare("..") == 0) {
+        if (component != ".") {
+            if (component == "..") {
                 if (!mComponents.empty()) {
                     mComponents.pop_back();
                 }

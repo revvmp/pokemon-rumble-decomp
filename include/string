@@ -609,6 +609,16 @@ basic_string<charT, traits, Allocator>::~basic_string() {
     }
 }
 
+template <class charT, class traits, class Allocator>
+inline bool operator==(const basic_string<charT, traits, Allocator>& lhs, const charT* rhs) {
+    return lhs.compare(rhs) == 0;
+}
+
+template <class charT, class traits, class Allocator>
+inline bool operator!=(const basic_string<charT, traits, Allocator>& lhs, const charT* rhs) {
+    return lhs.compare(rhs) != 0;
+}
+
 typedef basic_string<char> string;
 typedef basic_string<wchar_t> wstring;
 
