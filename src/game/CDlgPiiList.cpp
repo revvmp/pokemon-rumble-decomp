@@ -297,97 +297,6 @@ inline void CDlgPiiListImpl::RunRemoteTransfer() {
 
 #pragma dont_inline reset
 
-class CDlgPiiList : public IDlgPiiList, public std::tr1::enable_shared_from_this<CDlgPiiList> {
-public:
-    CDlgPiiList() {}
-    virtual bool IsClosable() { return false; }
-    virtual bool Close() {
-        if (mImpl) {
-            mImpl->mResult = 1;
-        }
-        GetCurrentGameMap()->UnregisterDialog(shared_from_this());
-        return true;
-    }
-    virtual int GetType() {
-        if (mImpl) {
-            return mImpl->mType;
-        }
-        return 0;
-    }
-    virtual bool Show(int player, int type);
-    virtual void Calc() {
-        if (mImpl) {
-            CDlgPiiListImpl* pImpl = mImpl.get();
-            pImpl->mPiiList->UpdateSelection();
-            pImpl->mUIManager->Calc();
-            if (pImpl->mMsgWin) {
-                pImpl->mMsgWin->Calc();
-            }
-            pImpl->mFiber.Resume();
-            if (mImpl->mFiber.IsFinished()) {
-                mImpl.reset();
-                GetCurrentGameMap()->UnregisterDialog(shared_from_this());
-            }
-        }
-    }
-    virtual void CalcMtx() {
-        if (mImpl) {
-            CDlgPiiListImpl* pImpl = mImpl.get();
-            pImpl->mUIManager->CalcMtx();
-            if (pImpl->mMsgWin) {
-                pImpl->mMsgWin->CalcMtx();
-            }
-        }
-    }
-    virtual void CalcView() {
-        if (mImpl) {
-            CDlgPiiListImpl* pImpl = mImpl.get();
-            pImpl->mUIManager->CalcView();
-            if (pImpl->mMsgWin) {
-                pImpl->mMsgWin->CalcView();
-            }
-        }
-    }
-    virtual void Draw() {
-        if (mImpl) {
-            CDlgPiiListImpl* pImpl = mImpl.get();
-            pImpl->mUIManager->Draw();
-            if (pImpl->mMsgWin) {
-                pImpl->mMsgWin->Draw();
-            }
-        }
-    }
-
-
-private:
-    std::tr1::shared_ptr<CDlgPiiListImpl> mImpl;
-};
-
-}
-
-std::tr1::shared_ptr<IDlgPiiList> IDlgPiiList::Create(bool) {
-    return std::tr1::shared_ptr<CDlgPiiList>(new CDlgPiiList);
-}
-
-namespace {
-
-inline bool CDlgPiiList::Show(int player, int type) {
-    if (mImpl) {
-        if (mImpl->mType != type) {
-            Close();
-            return false;
-        }
-        return true;
-    }
-    if (!GetCurrentGameMap()->RegisterDialog(shared_from_this())) {
-        return false;
-    }
-    GetCurrentGameMap()->SetPausing(true);
-    CDlgPiiListImpl* pImpl = new CDlgPiiListImpl(player, type);
-    mImpl.reset(pImpl);
-    return true;
-}
-
 inline CDlgPiiListImpl::CDlgPiiListImpl(int player, int type)
     : mPlayer(player), mType(type), mResult(0), mHolding(false), mFavoriteMode(false), mUIManager(new CUIManager),
       mRootLayout(new BUILayout), mPiiSpec(new CUIPiiSpec), mPiiList(new CUIPiiList), mPlayerID(new CUIPlayerID),
@@ -509,8 +418,6 @@ inline void CDlgPiiListImpl::OnSelectionChanged(BUI* pUI) {
         }
     }
     mPiiSpec->SetPii(item->GetPPD(), mPlayer);
-}
-
 }
 
 inline int CDlgPiiListImpl::CountRemoteMarked() {
@@ -825,4 +732,99 @@ inline void CDlgPiiListImpl::RunSell() {
         (*it)->SetSelling(false);
         IGameSession::GetInstance()->GetTeamPiiBox()->RemovePersonalData(*it);
     }
+}
+
+
+class CDlgPiiList : public IDlgPiiList, public std::tr1::enable_shared_from_this<CDlgPiiList> {
+public:
+    CDlgPiiList() {}
+    virtual bool IsClosable() { return false; }
+    virtual bool Close() {
+        if (mImpl) {
+            mImpl->mResult = 1;
+        }
+        GetCurrentGameMap()->UnregisterDialog(shared_from_this());
+        return true;
+    }
+    virtual int GetType() {
+        if (mImpl) {
+            return mImpl->mType;
+        }
+        return 0;
+    }
+    virtual bool Show(int player, int type);
+    virtual void Calc() {
+        if (mImpl) {
+            CDlgPiiListImpl* pImpl = mImpl.get();
+            pImpl->mPiiList->UpdateSelection();
+            pImpl->mUIManager->Calc();
+            if (pImpl->mMsgWin) {
+                pImpl->mMsgWin->Calc();
+            }
+            pImpl->mFiber.Resume();
+            if (mImpl->mFiber.IsFinished()) {
+                mImpl.reset();
+                GetCurrentGameMap()->UnregisterDialog(shared_from_this());
+            }
+        }
+    }
+    virtual void CalcMtx() {
+        if (mImpl) {
+            CDlgPiiListImpl* pImpl = mImpl.get();
+            pImpl->mUIManager->CalcMtx();
+            if (pImpl->mMsgWin) {
+                pImpl->mMsgWin->CalcMtx();
+            }
+        }
+    }
+    virtual void CalcView() {
+        if (mImpl) {
+            CDlgPiiListImpl* pImpl = mImpl.get();
+            pImpl->mUIManager->CalcView();
+            if (pImpl->mMsgWin) {
+                pImpl->mMsgWin->CalcView();
+            }
+        }
+    }
+    virtual void Draw() {
+        if (mImpl) {
+            CDlgPiiListImpl* pImpl = mImpl.get();
+            pImpl->mUIManager->Draw();
+            if (pImpl->mMsgWin) {
+                pImpl->mMsgWin->Draw();
+            }
+        }
+    }
+
+
+private:
+    std::tr1::shared_ptr<CDlgPiiListImpl> mImpl;
+};
+
+}
+
+std::tr1::shared_ptr<IDlgPiiList> IDlgPiiList::Create(bool) {
+    return std::tr1::shared_ptr<CDlgPiiList>(new CDlgPiiList);
+}
+
+namespace {
+
+inline bool CDlgPiiList::Show(int player, int type) {
+    if (mImpl) {
+        if (mImpl->mType != type) {
+            Close();
+            return false;
+        }
+        return true;
+    }
+    if (!GetCurrentGameMap()->RegisterDialog(shared_from_this())) {
+        return false;
+    }
+    GetCurrentGameMap()->SetPausing(true);
+    CDlgPiiListImpl* pImpl = new CDlgPiiListImpl(player, type);
+    mImpl.reset(pImpl);
+    return true;
+}
+
+
 }
