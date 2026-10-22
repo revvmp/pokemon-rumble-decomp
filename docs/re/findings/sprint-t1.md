@@ -46,6 +46,7 @@ Every object that needs memory (an address-taken local, a class temporary, a by-
 | CPath `ToString` reserves the device string before assigning it; the constructors move above `GetDeviceNameFor` (target text order). CPath is Matching | 1 and a unit flip |
 | CUIManager `SetFocusedUI` calls an inline `NotifyFocusChanged(pUI, pPrevious)` for the old and new UI (rule 8: the inline's parameters rank above the caller's locals); `GetFocusedUI` and the four forwarding `Calc`/`Draw` overrides follow the target text order; the CUIManager `.data` split starts at its own `bad_function_call` string (0x803C0280, not BUI's). CUIManager is Matching | 1 and a unit flip |
 | CUIPiiSpec `SetPii` reads the player through a named `CPlayer*` local (the inline `GetController` result otherwise takes r27) and tests `GetCappedLevel() < GetLevel()` for `CAP` | 1 |
+| CPostEffect: the implicit destructor replaces the user-declared one, and `Draw`, `Calc`, `Hide`, `Show` and `BindCaptureTexture` are `inline` vtable-only overrides (declared `Show, Hide, Calc, Draw`; `BindCaptureTexture` defined before `Show`). This gives the target `.text` order (e1 rules 6 and 7) and the `@STRING@` literals that the target re-addresses with `lis` and two `addi`. CPostEffect is Matching | 2 and a unit flip |
 
 ## Open cases
 
@@ -64,9 +65,16 @@ Every object that needs memory (an address-taken local, a class temporary, a by-
 
 - **CUIPiiSpec `.data` order.** Every function now matches (only string labels differ), and the CUIPiiListItem split must end at 0x803AF3F8/0x804B75B8 so that its type_info stays with it. The flip still fails: the target emits `ICalcDraw`'s type_info right after the `enable_shared_from_this<BUI>` name and then the `shared_ptr_deleter_common` vtable; ours emits the vtable and its name first. This comes from `<memory>` or BUI emission order, not from CUIPiiSpec.
 
+- **CShadowCamera `SetupShadowModel`.** The four 4-byte temporaries are in plain source order in the target (the `DynamicCast` type object highest, then the `ResDic`, then the `color` and `mat` argument copies, right to left). Ours puts the two argument copies above the inline objects. Accessor calls in the argument list and an `inline` helper (which CodeWarrior then inlines) did not help.
+- **resetmgr `Update`.** In `NotifyAndBlankScreen` the target keeps the loop iterator in r30 and the decremented copy in r29; ours swaps them. A `while` loop, `(--current)->Call`, a temporary copy, a nested inline helper and `std::reverse_iterator` did not reproduce it.
+- **CUIMenu `OnInput`.** The target computes `mCursorRow = selected % mRowCount` from the saved register (r25) and loads `mRowCount` into r3; ours reuses the call result in r3. Using `candidate` instead and an inline `SelectIfSelectable` helper did not help (the helper drops to 93%).
+- **CPiiPersonalData `Import`.** The target loads the low creation-time word first and stores `mRandomSeed` between the flags and the two time halves. Reordering the assignments and writing the time expression inline or with swapped operands did not reproduce the registers.
+
 ## Traps
 
 - **unitdiff's left column is the target.** It is easy to read the direction backwards; the left column carries the original `lbl_` names.
 - **Not every `r31` offset is a frame slot.** In functions without `mr r31, r1`, `r31` is often the base of the string pool, so `addi rX, r31, N` differences are string layout (e1), not frame order. `scratchpad/t1/cls.py` only counts `r31` as the frame when the function sets it from `r1`.
 - **Out-of-line library copies pin the header.** Before moving a level in `<string>` or `<vector>`, check whether the target has the wrapper out of line (`__as__`, `__apl__`, `assign`, `append`). Those copies show which function calls which, and a header change that inlines them away drops whole functions from the build (the link then fails).
 - **A slot swap is not cosmetic.** One swapped pair makes a function non-matching, and the same header form is shared by many units. Measure a library-header change with the full 100%-function count, not only the unit at hand.
+- **A literal re-addressed with `lis` once and `addi` twice is an object of its own.** Normal pooled literals keep the full address in one register. When the target keeps only the high half and adds the low half at each use, the literal is a separate object: an `@STRING@` literal of an inline function (CPostEffect `Show`) or a static array such as `__FUNCTION__` (CLayout `get_what`). Look for an `inline` member before inventing an array.
+- **Check the `.data` split start when a flip only shifts data.** CUIManager's split started at the second of its own strings, and CUIPiiListItem's ended before its own type_info, so the following unit was misaligned. Dump the target bytes around the boundary before changing source.
