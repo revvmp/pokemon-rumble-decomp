@@ -719,21 +719,10 @@ game/ScriptNullObj.cpp:
 	.sdata2     start:0x804BA268 end:0x804BA280
 
 game/ScriptWorldObj.cpp:
-	extab       start:0x80030758 end:0x80030808
-	extabindex  start:0x8004E54C end:0x8004E624
-	.text       start:0x8014B030 end:0x8014B904
-	.sdata2     start:0x804BA280 end:0x804BA28C
-
-game/ScriptWorldObjMove.cpp:
-	extab       start:0x80030808 end:0x800309A0
-	extabindex  start:0x8004E624 end:0x8004E7EC
-	.text       start:0x8014B910 end:0x8014D754
-	.sdata2     start:0x804BA28C end:0x804BA2A8
-
-game/ScriptWorldObjQuery.cpp:
-	extab       start:0x800309A0 end:0x80030C80
-	extabindex  start:0x8004E7EC end:0x8004EB1C
-	.text       start:0x8014D760 end:0x8014FB10
+	extab       start:0x80030758 end:0x80030C80
+	extabindex  start:0x8004E54C end:0x8004EB1C
+	.text       start:0x8014B030 end:0x8014FB10
+	.sdata2     start:0x804BA280 end:0x804BA2A8
 
 game/ScriptMotion.cpp:
 	extab       start:0x80030D18 end:0x80030DE8
