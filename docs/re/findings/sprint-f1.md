@@ -52,3 +52,10 @@ Next step: find a source form that makes the target `find_leaf` behave as an out
 ## Budget check on the inline lead
 
 I padded an `inline find_leaf` with dead `if (gTreeProbe == N) { ... }` statements, which count toward the inliner cost. MapPiiTable (string keys) stops inlining it at 250 to 300 such statements, and COyaInfo and l10n_files (int and `const char*` keys) at 300 to 400. That is about 10000 units: `find_leaf` alone has to exceed the whole budget (sprint-i1 F-i1-1). The target body compiles to the same 24 instructions as ours. A form that is naturally heavier (a second comparator call, extra flags, a comparator built per call) would either change the code or be folded before costing. So the inliner budget does not explain why the original keeps `find_leaf` out of line. MapPiiTable's `<c>`, `<w>` reversal is the same at every padding level, so it is not a parity effect.
+
+## A member-template caller does not explain it
+
+- **`template <typename V> insert_one(const V&)`:** member templates are instantiated where they are used, so the calls happen at parse time. `find_leaf` and `insert_node_at` are then both requested before the sweep. `find_leaf` moves back into the tree_imp group ahead of `insert_node_at` in COyaInfo, l10n_files, MapPiiTable, BWorld and BModelObj (worse than the landed order). CLayoutManager is unchanged.
+- **Member template requested from a deferred caller (sandbox `n1.cpp`, `t.ins_t(x)`):** the template is generated in the member-template slot. Every non-template member it requests (`leaf` and `node_at`) goes to the next iteration, after the late phase.
+
+So a non-template member requested from a member-template body is never emitted in the member-template slot.
