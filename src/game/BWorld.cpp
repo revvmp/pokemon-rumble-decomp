@@ -610,7 +610,10 @@ int BWorld::CountObjects(u32 type) {
 BWorldObj* BWorld::FindNearestObject(u32 type, BWorldObj* pOrigin) {
     BWorldObj* pNearest = nullptr;
     f32 nearestDistSq = 0.0f;
-    u32 stopTypes = GetStopTypes(type);
+    u32 stopTypes = 0xFFFFFFFF;
+    if ((type & ~ENTRY_HEAD_TYPES) == 0) {
+        stopTypes = ENTRY_HEAD_TYPES;
+    }
     for (ObjEntry* pEntry = mObjHead; pEntry != nullptr; pEntry = GetNextEntry(pEntry)) {
         u32 entryType = pEntry->mFlags & ~ENTRY_NEW;
         if (!(entryType & type)) {
@@ -623,7 +626,7 @@ BWorldObj* BWorld::FindNearestObject(u32 type, BWorldObj* pOrigin) {
         BWorldObj* pObj = pEntry->mObj.get();
         if (pObj != pOrigin && pObj->IsVisible()) {
             nw4r::math::VEC3 diff = pObj->mPosition - pOrigin->mPosition;
-            f32 distSq = nw4r::math::VEC3LenSq(&diff);
+            f32 distSq = diff.LenSq();
             if (pNearest == nullptr || distSq < nearestDistSq) {
                 pNearest = pObj;
                 nearestDistSq = distSq;
