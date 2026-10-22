@@ -285,6 +285,7 @@ config.libs = [
             Object(NonMatching, "game/CTitleSession.cpp"),
             Object(NonMatching, "game/ScriptCamera.cpp"),
             Object(NonMatching, "game/ScriptCameraMotion.cpp"),
+            Object(NonMatching, "game/ScriptEffect.cpp"),
             Object(Matching, "game/CUIStar.cpp"),
             Object(Matching, "game/CUIType.cpp"),
             Object(Matching, "game/CWarpZone.cpp"),

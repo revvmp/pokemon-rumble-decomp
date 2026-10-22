@@ -17,6 +17,7 @@
 class BWorld;
 class BWorldObj;
 class CFileData;
+class CEffect;
 struct PiiSpeciesData;
 class CPiiPersonalData;
 
@@ -60,6 +61,7 @@ public:
     bool Load(BWorldObj* pOwner, const char* pName, int mode, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnv);
     bool Execute(const char* pName, int mode, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnv);
     BWorldObj* PopWorldObj();
+    CEffect* PopEffect();
     const PiiSpeciesData* PopSpeciesData();
     std::tr1::shared_ptr<CPiiPersonalData> PopPersonalData();
     u32 PeekWorldObjType(int argIndex);
