@@ -71,6 +71,10 @@ int GetBP(CPiiPersonalData* pPii)
     return pPii->GetBP();
 }
 
+inline nw4r::g3d::ScnMdl* ToScnMdl(nw4r::g3d::ScnObj* pScnObj) {
+    return pScnObj ? nw4r::g3d::G3dObj::DynamicCast<nw4r::g3d::ScnMdl>(pScnObj) : nullptr;
+}
+
 bool SetMaterialTexture(nw4r::g3d::ScnMdl* pScnMdl, const char* pMaterialName, const char* pTextureName,
                         const GXTexObj& rTexObj)
 {
@@ -180,7 +184,7 @@ public:
     fileNames[0] = path.c_str();
     CModel::LoadParams params = {fileNames, false, false, 1, 0, nullptr};
     if (pModel->Load(params, background)) {
-        nw4r::g3d::ScnMdl* pScnMdl = nw4r::g3d::G3dObj::DynamicCast<nw4r::g3d::ScnMdl>(pModel->GetScnObj());
+        nw4r::g3d::ScnMdl* pScnMdl = ToScnMdl(pModel->GetScnObj());
         SetMaterialTexture(pScnMdl, "TUBE", "ref_dummy", mCapture.GetTexObj());
         std::tr1::shared_ptr<BModelObj> pObj(new BModelObj(0x20));
         pObj->ChangeModel(pModel, 1);
