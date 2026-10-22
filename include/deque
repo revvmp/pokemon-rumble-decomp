@@ -949,10 +949,10 @@ template <typename T, typename Allocator> __deque_ops<T, Allocator>::~__deque_op
 
 template <typename T, typename Allocator>
 typename __deque_ops<T, Allocator>::iterator __deque_ops<T, Allocator>::make_iterator(size_type pos) {
-    size_type index = pos + start_;
+    pos += start_;
     buf_type& rBuf = buf();
-    typename buf_type::iterator block = rBuf.begin() + index / block_size;
-    return iterator(block, (rBuf.empty() ? 0 : *block) + index % block_size);
+    typename buf_type::iterator block = rBuf.begin() + pos / block_size;
+    return iterator(block, (rBuf.empty() ? 0 : *block) + pos % block_size);
 }
 
 template <typename T, typename Allocator> void __deque_ops<T, Allocator>::push_back(const T& x, Metrowerks::int2type<false>) {
