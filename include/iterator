@@ -88,14 +88,14 @@ public:
     typedef typename iterator_traits<Iterator>::reference reference;
     typedef typename iterator_traits<Iterator>::pointer pointer;
     reverse_iterator() {}
-    reverse_iterator(const reverse_iterator& rOther) : current_(rOther.current_) {}
     explicit reverse_iterator(Iterator iterator) : current_(iterator) {}
     Iterator base() const { return current_; }
-    reference operator*() const { Iterator iterator = current_; return *--iterator; }
+    reference operator*() const { deref_tmp_ = current_; return *--deref_tmp_; }
     pointer operator->() const { return &operator*(); }
     reverse_iterator& operator++() { --current_; return *this; }
-    friend bool operator!=(reverse_iterator left, reverse_iterator right) { return left.current_ != right.current_; }
+    friend bool operator!=(const reverse_iterator& rLeft, const reverse_iterator& rRight) { return rLeft.base() != rRight.base(); }
 private:
+    mutable Iterator deref_tmp_;
     Iterator current_;
 };
 

@@ -696,18 +696,17 @@ std::tr1::shared_ptr<CPiiBox> CPiiBox::Create(const std::vector<SD_PiiPersonalDa
 {
     typedef std::list<std::tr1::shared_ptr<CPiiPersonalData> >::iterator Iterator;
     std::tr1::shared_ptr<CPiiBox> box(new CPiiBox(type, capacity));
-    const SD_PiiPersonalData::Data* pBegin = rData.begin();
-    for (const SD_PiiPersonalData::Data* pData = rData.end(); pData != pBegin;) {
-        --pData;
-        std::tr1::shared_ptr<CPiiPersonalData> ppd = CreatePiiPersonalData(pOyaInfo, *pData);
+    typedef std::reverse_iterator<std::vector<SD_PiiPersonalData::Data>::const_iterator> DataIterator;
+    for (DataIterator it = rData.rbegin(); it != rData.rend(); ++it) {
+        std::tr1::shared_ptr<CPiiPersonalData> ppd = CreatePiiPersonalData(pOyaInfo, *it);
         if (!ppd) {
             return std::tr1::shared_ptr<CPiiBox>();
         }
         box->AddPersonalData(ppd);
     }
-    s64 serial = 1;
-    std::list<std::tr1::shared_ptr<CPiiPersonalData> >& rList = box->GetPersonalDataList();
-    for (Iterator it = rList.begin(); it != rList.end(); ++it) {
+    int serial = 1;
+    typedef std::reverse_iterator<Iterator> ListIterator;
+    for (ListIterator it(box->GetPersonalDataList().end()); it != ListIterator(box->GetPersonalDataList().begin()); ++it) {
         if ((*it)->GetCreationTime() == 0) {
             (*it)->SetCreationTime(serial);
             ++serial;
