@@ -131,12 +131,6 @@ struct ResultPii {
     f32 mScale;
 };
 
-enum {
-    BUTTON_NEXT = 0x22,
-    BUTTON_PREVIOUS = 0x8,
-    BUTTON_FINISH = 0x10
-};
-
 class CGameResult : public IGameResult {
 public:
     explicit CGameResult(const MapDesc* pDesc)
@@ -428,6 +422,12 @@ void CGameResult::UpdatePiiWindow()
     }
 }
 
+enum {
+    BUTTON_NEXT = 0x22,
+    BUTTON_PREVIOUS = 0x8,
+    BUTTON_FINISH = 0x10
+};
+
 #pragma dont_inline on
 void CGameResult::RunAction()
 {
@@ -576,7 +576,8 @@ void CGameResult::RunAction()
     }
 }
 
-#pragma dont_inline off
+
+#pragma dont_inline reset
 
 void CGameResult::Draw()
 {
