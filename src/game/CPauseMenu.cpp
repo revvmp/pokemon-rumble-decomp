@@ -208,10 +208,10 @@ public:
 
 private:
     void ShowMenu(bool simplified) {
-        UIMenuItem resume = {nullptr, MENU_RESUME};
-        UIMenuItem screenshot = {nullptr, MENU_SCREENSHOT};
-        UIMenuItem remoteMemory = {nullptr, MENU_REMOTE_MEMORY};
         UIMenuItem controllers = {nullptr, MENU_CONTROLLERS};
+        UIMenuItem remoteMemory = {nullptr, MENU_REMOTE_MEMORY};
+        UIMenuItem screenshot = {nullptr, MENU_SCREENSHOT};
+        UIMenuItem resume = {nullptr, MENU_RESUME};
         std::vector<UIMenuItem> items;
         {
             UIMenuItem item = resume;
@@ -220,7 +220,7 @@ private:
         }
         if (!simplified) {
             UIMenuItem leave = {nullptr, MENU_LEAVE};
-            leave.mText = GetMessageText(0x60081 + IsHubMap(), gEmptyText);
+            leave.mText = GetMessageText(IsHubMap() ? 0x60082 : 0x60081, gEmptyText);
             items.push_back(leave);
         }
         {
