@@ -93,3 +93,23 @@
 | CPiiListFilterSort | CompareBPAscending/Descending, CompareSpeciesName | 99.3-99.6 | Item pointers r5/r3 versus r3/r4. Without locals the items get r3/r4 but B loads first (right-to-left argument evaluation); item locals plus data locals return to r5/r3 |
 | CPiiListFilterSort | Sort | 96.16 | `*(comparators + n)`, explicit template arguments and named iterators do not move the `mSortType` load |
 | CGameSession | GetSnapshot | 88.24 | Store order of play time, money and count; direct member stores, a separate `now`, a reference alias and local-order variants are worse or unchanged |
+
+## Final tail wave (CPiiListFilterSort, CModel)
+
+CPiiListFilterSort 60 to 64 of 71 functions at 100% (CompareBPAscending, CompareBPDescending, CompareSpeciesName, ShowPrefixFilterMenu). CModel 152 to 154 of 158 (`~CModel`, `Load`).
+
+### Traps
+
+- **Reading a value before the pointers it comes from fixes a parameter-register swap.** The BP comparators loaded the item pointers into r5/r3 instead of r3/r4. Reading `int bpA = rA->GetPPD()->GetBP(); int bpB = ...` before the `pA`/`pB` data pointers gives r3/r4. The inlined copy in CompareSpeciesName also needed the creation-time comparison through the `const T&` `Compare` template instead of the by-value `CompareValue`.
+- **Wrapping a whole inline body flips the frame-slot order of its exception objects.** `ScnMdlSimpleData::Reset` forwarding to an inline `Release()` that holds `mModel.reset()` and the vector swap reverses the two `__unexpected` slots and fixes the registers in CModel `Load` and `~CModel`. Wrappers around only one of the two statements, which earlier attempts tried, do not.
+- **`0 <= x && x < n` keeps two signed compares.** In ShowPrefixFilterMenu, nested `if (choice >= 0) { if (choice < 44)` was folded into `cmplwi 0x2b`.
+
+### Unsolved
+
+| Unit | Function | % | Cause |
+| --- | --- | --- | --- |
+| CPiiListFilterSort | Sort | 96.16 | The target loads `mSortType` before storing `begin()` into its argument temporary. A helper template, named iterators, unsigned or long `mSortType` and a `const` array did not change this. |
+| CPiiListFilterSort | `sort<..., RPF>` (shared_ptr), both `sort<UIMenuItem>` | 97.78, 99.37 | The 0x66666667 constant, `first` and `last` get different non-volatile registers. The same template matches for LevelMove and pointer elements. Non-const, reinterpret and out-of-class forms of the UIMenuItem conversion operator did not change this. CGameResult has the same 97.78 instance. |
+| CPiiListFilterSort | ShowTypeFilterMenu | 99.93 | `li 1` and `kind` swap r3/r4 in `1 << kind`. Mask type, a caller-computed mask, `const int&`, an item parameter, a `TypeBit` helper, a `kind` local and `mask <<= kind` did not change this. |
+| CModel | TPartialAnm<1> QueueMotion/AppendMotion/Update | 99.4-99.6 | The `IsIdle` value temporaries are swapped. `IsReplaceable` written as `if`, a local, a `&&`/`||` mix, `!= false` or a folded `Main &&` term, and `IsEmpty`/`IsLastFinished`/`IsFinished` helpers did not change this. |
+| CModel | Update<0> | 99.80 | Moving `advanced = true` before `pop_front` fixes the node register (r27) but puts `li r30, 1` before the pop. The target sets it after the `mAnimObj.reset()` block. `advanced |= true` did not change this. |
