@@ -1,6 +1,9 @@
 #include <revolution/types.h>
-#include <map>
+#include <MSL_CPP/alloc_ptr.h>
+#include <MSL_CPP/allocator.h>
+#include <memory>
 #include <string>
+#include <map>
 #include <vector>
 #include <list>
 #include <game/CMsgBalloon.h>
@@ -573,5 +576,4 @@ std::tr1::shared_ptr<IMsgBalloon> IMsgBalloon::Create(bool flag) {
     return balloon;
 }
 
-inline CMsgBalloon::CMsgBalloon() {}
 

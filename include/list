@@ -111,12 +111,12 @@ public:
         template <typename U, typename V> friend class list;
     };
 
+    iterator insert(iterator position, const T& x);
     static iterator erase(__list_deleter* pList, iterator first, iterator last);
     T& back() { return tail().prev_->data_; }
     const T& back() const { return tail().prev_->data_; }
     iterator erase(iterator position);
     void pop_back() { erase(__pointer2iterator(tail().prev_)); }
-    iterator insert(iterator position, const T& x);
     void splice_all(iterator position, __list_deleter& rOther);
 
     iterator begin() { return iterator(tail().next_); }
@@ -249,7 +249,7 @@ private:
     }
 };
 
-template <typename T, typename Allocator> void __list_imp<T, Allocator>::push_back(const T& x) {
+template <typename T, typename Allocator> inline void __list_imp<T, Allocator>::push_back(const T& x) {
     this->insert(this->end(), x);
 }
 

@@ -19,6 +19,7 @@ class CUIManager;
 
 class IMsgBalloon : public IDlg {
 public:
+    IMsgBalloon() {}
     virtual ~IMsgBalloon() {}
     virtual void Show(bool show) = 0;
     virtual void Add(const wchar_t* pText, f32 z, f32 x) = 0;
@@ -52,7 +53,6 @@ public:
         void ClearFlags(u32 flags) { mFlags &= ~flags; }
     };
 
-    CMsgBalloon();
     virtual bool Close();
     virtual bool IsShown(int index);
     virtual void Register(BWorldObj* pObject, const wchar_t* pText, f32 radius);
