@@ -413,28 +413,31 @@ void BWorld::DrawOutline() {
     GXSetZMode(GX_FALSE, GX_NEVER, GX_FALSE);
 }
 
+namespace {
+
+inline bool ApplyLightScene(const std::tr1::shared_ptr<nw4r::g3d::ScnRoot>& rScnRoot, nw4r::g3d::ResAnmScn scene) {
+    if (!scene.IsValid() || !scene.Bind() || !scene.HasResLightSet()) {
+        return false;
+    }
+    std::tr1::shared_ptr<nw4r::g3d::AnmScnRes> animation(
+        nw4r::g3d::AnmScnRes::Construct(GetDefaultAllocator(), nullptr, scene, true), DestroyG3dObj);
+    animation->SetFrame(0.0f);
+    if (animation->GetLightSetMaxRefNumber() != 0) {
+        animation->GetLightSetting(&rScnRoot->GetLightSetting());
+    }
+    return true;
+}
+
+}
+
 bool BWorld::LoadLightScene(const char* pPath, const char* pName, bool background) {
     std::tr1::shared_ptr<CFileData> file = LoadFile(pPath, 0, background);
     if (!file) {
         return false;
     }
-    bool loaded;
     nw4r::g3d::ResFile resource(file->GetData());
     nw4r::g3d::ResAnmScn scene = resource.GetResAnmScn(pName);
-    if (!scene.IsValid() || !scene.Bind() || !scene.HasResLightSet()) {
-        loaded = false;
-    } else {
-        {
-            std::tr1::shared_ptr<nw4r::g3d::AnmScnRes> animation(
-                nw4r::g3d::AnmScnRes::Construct(GetDefaultAllocator(), nullptr, scene, true), DestroyG3dObj);
-            animation->SetFrame(0.0f);
-            if (animation->GetLightSetMaxRefNumber() != 0) {
-                animation->GetLightSetting(&mScnRoot->GetLightSetting());
-            }
-        }
-        loaded = true;
-    }
-    return loaded;
+    return ApplyLightScene(mScnRoot, scene);
 }
 
 std::tr1::shared_ptr<CFileData> LoadFile(const char* pPath, u32 flags, int background) {
