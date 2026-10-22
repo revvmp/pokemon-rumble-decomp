@@ -70,3 +70,30 @@ Flipped `CMultiRanking` and `CHPBar` to Matching. Matched `CUIList::OnInput`; `C
 | CUIMenu | `OnInput` | 98.62 | Extra `b` after each `return` in a scope that holds a `shared_ptr`. An inline `SelectIfSelectable` helper dropped the function to 93% |
 | CEffect | `InitializeEffect` | 99.62 | Pool count and pointer registers. Tried declaration order, removing the count local, and a member template `AllocArray` |
 | CPiiPersonalData | `Import` | 97.08 | Store order of `mRandomSeed` and `mCreationTime` |
+
+## Tail wave 3 (agent a15)
+
+Matched `CUIMenu` `RunMenuList`, and `CPauseMenu` `Create`, `Run` and both `FormatMessage` instances. `CUIMenu::OnInput` rose from 98.62% to 99.89%, `IMoneyLifeDisplay::Create` from 99.30% to 99.63%, and the `CDlgMsgWin` wide string copy constructor now calls the target's `alloc()`.
+
+### Traps
+
+- **A word load of a stack parameter means a 4-byte type.** `RunMenuList` loaded its last stack argument with `lwz` and passed it on unconverted, so the flag is `int` in it and in both `CUIMenu::Load` overloads (symbols renamed from `b` to `i`). `bool` gives `lbz` at offset +3, and an `int` to `bool` conversion adds `neg`/`srwi`.
+- **A dead `b` after an inlined destructor's `__unexpected` stub comes from `return` inside the scope.** `CUIMenu::OnInput` lost all three once the early returns became `goto done` to a label before the closing brace.
+- **The basic_string copy constructor takes the allocator through the non-const `alloc()`.** The target calls `alloc__...Fv` on the const argument, so `include/string` uses `const_cast<basic_string&>(str).alloc()`. The full report kept every unit's count.
+- **`u16` locals keep their conversion late.** `GetMotionLength` returns `u16`; storing it in a `u32` moved the `clrlwi` before the float-conversion constant.
+- **objdiff base-register pseudo-relocations reveal oversized labels.** Rows with identical text but different `R_PPC_NONE` targets (`lbl_X` plus addend versus `@N`) are fixed by splitting the target label at the compiled object's boundaries where bytes agree, and by merging adjacent 4-byte `.sdata2` labels that the compiler emits as one 8-byte object (`@N+0x4` in our rows).
+
+### Unsolved
+
+| Unit | Function | % | Attempts |
+| --- | --- | --- | --- |
+| CBattleRoyalBox | `GetData` | 89.33 | Direct `return mData[mode][area]` gives the target's two address computations but schedules one add after the load (85%); row pointer, row reference, casts and const forms fail |
+| CUIMenu | `OnInput` | 99.89 | The `selected % mRowCount` branch uses the saved copy in the target and the call result in ours; candidate, inline helpers, reference and local forms tried |
+| CDividedGround | `LoadAttr` | 99.27 | An inline `IsLoaded(const shared_ptr&)` reproduces the inner `IsValid` registers exactly but materialises the helper result; negated, inverted and split forms tried |
+| CMoneyLifeDisplay | `Create` | 99.63 | Map index load before the vtable store; mode, `MapIndex&` and `MapDesc&` constructor arguments tried |
+| CDlgMsgWin | `shared_ptr_deleter<char, default_delete<char[]>>` constructor | 62.96 | Explicit `D(rDeleter)` and cast forms change nothing |
+| CPauseMenu | `LeaveStage` | 98.73 | Zero-then-assign area and mode gives the target's extraction order but the wrong insertion order |
+| Message | `InitMsgResList` | 99.99 | A named `pod_type tag = pod_type()` for `construct_at_end` puts both tags in the target slots but stores the second tag early |
+| main | `HandleFileError` | 96.61 | The target shares one `return false` block between `drive < 2` and `drive >= 512`; combined, nested, goto and result-variable forms tried |
+| BUI | `OnInput` | 91.70 | `mNeighbors[i & 3]` shows the target's unreduced address (98.44%), so the induction must be blocked some other way |
+| homebutton | `InitializeHomeButtonInfo` | 98.57 | Moving the body into an inline helper makes the helper level prune and inlines the small callees the target calls |
