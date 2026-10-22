@@ -44,7 +44,7 @@ private:
     std::string mName;
 };
 
-class CPpuEnv : public NPpu::CEnvironment, public std::tr1::enable_shared_from_this<CPpuEnv> {
+class CPpuEnv : public NPpu::CEnvironment, public std::tr1::enable_shared_from_this<NPpu::CEnvironment> {
 public:
     typedef std::tr1::shared_ptr<NPpu::CEnvironment> SelfPtr;
     typedef std::map<std::string, std::tr1::shared_ptr<NPpu::CCode> > CodeMap;

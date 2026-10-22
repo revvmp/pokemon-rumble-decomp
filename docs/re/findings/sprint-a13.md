@@ -29,7 +29,7 @@
 ## Session 3: CPpuEnv binding table
 
 - The 670-entry binding table is now source in `src/game/CPpuEnv.cpp` (`gScriptNativeBindings`, entries `{function, name, argCount}` with a null first entry, count 0x29E in `.sdata`) with declarations in `include/game/ScriptBindings.h`. The built `.rodata` is byte-identical (8040 bytes) and the `.data` table strings are in the same order.
-- CPpuEnv derives from `enable_shared_from_this<CPpuEnv>` (target RTTI string), not `<NPpu::CEnvironment>`. The two placeholder names at `0x801035D0` and `0x801055A0` were renamed accordingly.
+- The target RTTI string says CPpuEnv derives from `enable_shared_from_this<CPpuEnv>`, not `<NPpu::CEnvironment>`. Switching the base in `CPpuEnv.h` (and renaming `0x801035D0`, `0x801055A0`) made the DOL fail verification even with the unit NonMatching, because other units include the header; reverted. Do it together with the unit flip.
 - Linking the unit as `Matching` fails on `lbl_804B72F0`/`lbl_804B72F8` (NPpu::CEnvironment and NPpu::CCode RTTI referenced from NPpuVM); not renamed yet.
 
 ### Traps
