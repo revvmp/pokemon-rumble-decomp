@@ -295,6 +295,7 @@ config.libs = [
             Object(Matching, "game/ScriptAudio.cpp"),
             Object(NonMatching, "game/ScriptModel.cpp"),
             Object(Matching, "game/ScriptMotion.cpp"),
+            Object(NonMatching, "game/ScriptInput.cpp"),
             Object(Matching, "game/ControllerTable.cpp"),
             Object(Matching, "game/DCIM.cpp"),
             Object(NonMatching, "game/l10n_files.cpp"),

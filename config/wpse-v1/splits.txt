@@ -489,6 +489,14 @@ game/ControllerTable.cpp:
 	.bss        start:0x803E8D28 end:0x803E90C8
 	.sdata      start:0x804B77D8 end:0x804B77D9
 
+game/ScriptInput.cpp:
+	extab       start:0x80030DE8 end:0x80030F5C
+	extabindex  start:0x8004ED20 end:0x8004EE28
+	.text       start:0x80151230 end:0x80152D84
+	.rodata     start:0x803550B8 end:0x803550E0
+	.sdata      start:0x804B7A60 end:0x804B7A68
+	.sdata2     start:0x804BA2A8 end:0x804BA2D0
+
 ControllerTableAlignmentPadding:
 	.sdata      start:0x804B77D9 end:0x804B77E0 align:1
 

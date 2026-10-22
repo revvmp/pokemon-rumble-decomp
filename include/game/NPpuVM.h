@@ -292,6 +292,7 @@ private:
     void CompareOp(int op);
     int Execute(int isCall);
     bool Unwind();
+    static void MarkValue(const CValue& rValue);
 
 private:
     static int sNextID;

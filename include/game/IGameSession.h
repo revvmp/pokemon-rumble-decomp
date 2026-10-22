@@ -18,6 +18,7 @@ class CPiiCollectionBox;
 class CPlayer;
 class CRemoteMemory;
 class CStatistic;
+class IController;
 class IGameStage;
 class COyaInfo;
 class CPiiPersonalData;
@@ -64,7 +65,7 @@ public:
     virtual void UpdateMapTransition() = 0;
     virtual bool IsMapChangeFinished() = 0;
     virtual IDisconMsg* GetDisconMsg() = 0;
-    virtual bool IsRegisteredID(u32 id) = 0;
+    virtual bool IsControllerAssigned(const IController* pController) = 0;
     virtual void UnanalyzedSlot42() = 0;
 
     static IGameSession* GetInstance();

@@ -52,6 +52,13 @@ public:
     public:
         iterator() {}
         explicit iterator(const typename tree_type::iterator& rIterator) : mIterator(rIterator) {}
+        value_type operator*() const { return static_cast<value_type>(const_cast<void*>(*mIterator)); }
+        iterator& operator++() {
+            ++mIterator;
+            return *this;
+        }
+        bool operator==(const iterator& rOther) const { return mIterator == rOther.mIterator; }
+        bool operator!=(const iterator& rOther) const { return mIterator != rOther.mIterator; }
         typename tree_type::iterator mIterator;
     };
     typedef iterator const_iterator;

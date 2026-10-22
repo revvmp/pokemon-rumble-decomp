@@ -3,6 +3,7 @@
 
 #include <game/CPiiBox.h>
 #include <game/ICalc.h>
+#include <game/IController.h>
 #include <memory>
 #include <revolution/types.h>
 
@@ -27,7 +28,7 @@ public:
     void SaveState();
     void RestoreState();
     void SetController(IController* pController);
-    bool IsJoined() const { return mState.mJoined; }
+    bool IsJoined() const;
     std::tr1::shared_ptr<CPiiPersonalData> GetPersonalData() const;
     std::tr1::shared_ptr<CPiiPersonalData> GetPendingPersonalData() const;
     int GetPlayerNo() const { return mPlayerNo; }
@@ -40,6 +41,9 @@ public:
     void BeginHoldCollection();
     void EndHoldCollection();
 
+    bool IsHoldCollectionEnabled() const { return IsCollectingHold(); }
+    u32 GetCollectedHold() const { return mAccumulatedHold; }
+    u32 GetLastHold() const { return mCurrentHold; }
 private:
     struct State {
         State();

@@ -19,6 +19,8 @@ public:
     virtual const char* GetShadowName() const;
     virtual bool IsVisible() const;
 
+    void Initialize();
+    bool LoadScript(const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnvironment);
     bool LoadScript(int mode, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnvironment);
 
     std::tr1::shared_ptr<CPlayerPii> GetSharedPtr() {

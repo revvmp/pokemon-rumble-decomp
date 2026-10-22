@@ -1512,4 +1512,56 @@ const wchar_t* CEngine::AllocWString(const std::wstring& rString) {
     return pString->mString.c_str();
 }
 
+inline void CEngine::MarkValue(const CValue& rValue) {
+    if (rValue.mType == CValue::TYPE_STRING_PTR) {
+        std::map<const char*, SGCString<char>* >::iterator it = sStrings->find(rValue.GetStringPtr());
+        if (it != sStrings->end()) {
+            it->second->mMark = sGCMark;
+        }
+    } else if (rValue.mType == CValue::TYPE_WSTRING_PTR) {
+        std::map<const wchar_t*, SGCString<wchar_t>* >::iterator it = sWStrings->find(rValue.GetWStringPtr());
+        if (it != sWStrings->end()) {
+            it->second->mMark = sGCMark;
+        }
+    }
+}
+
+void CEngine::CollectGarbage(int threshold, int) {
+    if (sGCAllocCount > threshold) {
+        sGCAllocCount = 0;
+        sGCMark++;
+
+        CEnvironment* pEnv = nullptr;
+        for (std::set<CEngine*>::iterator it = sInstances->begin(); it != sInstances->end(); ++it) {
+            CEngine* pEngine = *it;
+            pEnv = pEngine->mEnv;
+            for (int i = 0; i < pEngine->mSP; i++) {
+                MarkValue(pEngine->mStack[i]);
+            }
+        }
+        for (int i = 0; i < pEnv->mGlobalCount; i++) {
+            MarkValue(pEnv->mGlobals[i]);
+        }
+
+        for (std::map<const char*, SGCString<char>* >::iterator it = sStrings->begin(); it != sStrings->end();) {
+            std::map<const char*, SGCString<char>* >::iterator current = it;
+            ++it;
+            SGCString<char>* pString = current->second;
+            if (pString->mMark != sGCMark) {
+                sStrings->erase(current);
+                delete pString;
+            }
+        }
+        for (std::map<const wchar_t*, SGCString<wchar_t>* >::iterator it = sWStrings->begin(); it != sWStrings->end();) {
+            std::map<const wchar_t*, SGCString<wchar_t>* >::iterator current = it;
+            ++it;
+            SGCString<wchar_t>* pString = current->second;
+            if (pString->mMark != sGCMark) {
+                sWStrings->erase(current);
+                delete pString;
+            }
+        }
+    }
+}
+
 }

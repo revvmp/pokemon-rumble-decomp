@@ -95,7 +95,7 @@ public:
     virtual void UpdateMapTransition();
     virtual bool IsMapChangeFinished();
     virtual IDisconMsg* GetDisconMsg();
-    virtual bool IsRegisteredID(u32 id);
+    virtual bool IsControllerAssigned(const IController* pController);
     virtual void UnanalyzedSlot42();
 
     void ClearInstance();
