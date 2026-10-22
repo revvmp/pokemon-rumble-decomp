@@ -1,10 +1,5 @@
 #include <revolution/fa/puh_ker.h>
 
-typedef struct UHFKerMessageSlot {
-    OSMessageQueue* p_queue;
-    u32 reserved;
-} UHFKerMessageSlot;
-
 typedef struct UHFKerSemaphoreSlot {
     OSSemaphore* p_semaphore;
     s32 initial_count;
@@ -18,7 +13,6 @@ typedef struct UHFKerSemaphoreTable {
     u32 reserved[4];
 } UHFKerSemaphoreTable;
 
-static UHFKerMessageSlot g_message_slot[UHF_KER_MESSAGE_QUEUE_MAX + 1];
 static UHFKerSemaphoreTable g_semaphore_table;
 static OSSemaphore g_semaphore_pool[UHF_KER_SEMAPHORE_MAX];
 static s32 g_lock_enabled;
@@ -37,23 +31,7 @@ static void uhf_ker_unlock(void) {
     }
 }
 
-s32 uhf_ker_send_message(int queue_id, OSMessage message) {
-    if (queue_id == 0 || queue_id > UHF_KER_MESSAGE_QUEUE_MAX) {
-        return -5;
-    }
-    if (message == NULL) {
-        return -5;
-    }
-    if (g_message_slot[queue_id - 1].p_queue == NULL) {
-        return -12;
-    }
-    if (OSSendMessage(g_message_slot[queue_id - 1].p_queue, message, 0)) {
-        return 0;
-    }
-    return -20;
-}
-
-s32 uhf_ker_create_semaphore(u32 initial_count, int attribute) {
+s32 uhf_ker_create_sem(u32 initial_count, int attribute) {
     int i;
     int wait_count;
     OSSemaphore* p_semaphore;
@@ -90,7 +68,7 @@ s32 uhf_ker_create_semaphore(u32 initial_count, int attribute) {
     return -24;
 }
 
-s32 uhf_ker_delete_semaphore(int semaphore_id) {
+s32 uhf_ker_delete_sem(int semaphore_id) {
     UHFKerSemaphoreSlot* p_slot;
 
     if (semaphore_id == 0 || semaphore_id > UHF_KER_SEMAPHORE_MAX) {
@@ -112,7 +90,7 @@ s32 uhf_ker_delete_semaphore(int semaphore_id) {
     return 0;
 }
 
-s32 uhf_ker_wait_semaphore(int semaphore_id) {
+s32 uhf_ker_get_sem(int semaphore_id) {
     if (semaphore_id == 0 || semaphore_id > UHF_KER_SEMAPHORE_MAX) {
         return -5;
     }

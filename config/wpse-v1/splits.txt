@@ -664,6 +664,25 @@ game/ControllerTable.cpp:
 	.bss        start:0x803E8D28 end:0x803E90C8
 	.sdata      start:0x804B77D8 end:0x804B77D9
 
+RVL_SDK/fa/puh_msc.c:
+	.text       start:0x80222FD0 end:0x80223248
+	.sbss       start:0x804B9270 end:0x804B927C
+
+RVL_SDK/fa/puh_msc_blk.c:
+	.text       start:0x80223630 end:0x80223E64
+	.data       start:0x803C5260 end:0x803C5280
+	.bss        start:0x80422E40 end:0x80422FC0
+	.sbss       start:0x804B9280 end:0x804B9284
+
+RVL_SDK/fa/puh_ker_msg.c:
+	.text       start:0x80225490 end:0x80225514
+	.bss        start:0x80423040 end:0x80423058
+
+RVL_SDK/fa/puh_ker_sem.c:
+	.text       start:0x80225520 end:0x80225820
+	.bss        start:0x80423058 end:0x80423190
+	.sbss       start:0x804B92A8 end:0x804B92AC
+
 ControllerTableAlignmentPadding:
 	.sdata      start:0x804B77D9 end:0x804B77E0 align:1
 
@@ -1967,11 +1986,6 @@ RVL_SDK/fa/sdi_api.c:
 
 RVL_SDK/fa/puh_ker_mem.c:
 	.text       start:0x80225420 end:0x80225488
-
-RVL_SDK/fa/puh_ker.c:
-	.text       start:0x80225490 end:0x80225820
-	.bss        start:0x80423040 end:0x80423190
-	.sbss       start:0x804B92A8 end:0x804B92AC
 
 nw4r/ef/ef_draworder.cpp:
 	.text       start:0x80225820 end:0x80225940
