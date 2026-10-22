@@ -13505,7 +13505,7 @@ __ct__Q23std66__cdeque<PQ34nw4r4math4VEC3,Q23std29allocator<PQ34nw4r4math4VEC3>>
 __ct__Q23std73__cdeque_pointer<Q34nw4r4math4VEC3,Q23std29allocator<PQ34nw4r4math4VEC3>>FRCQ23std29allocator<PQ34nw4r4math4VEC3> = .text:0x800FC2B0; // type:function size:0x40
 __ct<PQ34nw4r4math4VEC3>__Q23std13allocator<Pv>FRCQ23std29allocator<PQ34nw4r4math4VEC3>_Pv = .text:0x800FC2F0; // type:function size:0x4
 __ct__Q23std38__cdeque_imp<Pv,Q23std13allocator<Pv>>FRCQ23std13allocator<Pv> = .text:0x800FC300; // type:function size:0x30
-fn_800FC330 = .text:0x800FC330; // type:function size:0x54
+__ct__Q23std38__cdeque_buf<Pv,Q23std13allocator<Pv>>FRCQ23std13allocator<Pv> = .text:0x800FC330; // type:function size:0x54
 __ct__Q210Metrowerks41compressed_pair<Ul,Q23std13allocator<Pv>>FUlQ23std13allocator<Pv> = .text:0x800FC390; // type:function size:0x3C scope:local
 fn_800FC3D0 = .text:0x800FC3D0; // type:function size:0x44
 fn_800FC420 = .text:0x800FC420; // type:function size:0x4
