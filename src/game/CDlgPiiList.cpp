@@ -361,7 +361,7 @@ inline void CDlgPiiListImpl::OnSelectionChanged(BUI* pUI) {
 
 inline int CDlgPiiListImpl::CountRemoteMarked() {
     int count = 0;
-    for (PiiItemVector::iterator it = mItems.begin(); it != mItems.end(); ++it) {
+    for (PiiItemVector::const_iterator it = mItems.begin(); it != mItems.end(); ++it) {
         if ((*it)->IsRemoteMarked()) {
             count++;
         }
@@ -371,7 +371,7 @@ inline int CDlgPiiListImpl::CountRemoteMarked() {
 
 inline int CDlgPiiListImpl::CountRemoteUnmarked() {
     int count = 0;
-    for (PiiItemVector::iterator it = mItems.begin(); it != mItems.end(); ++it) {
+    for (PiiItemVector::const_iterator it = mItems.begin(); it != mItems.end(); ++it) {
         if (!(*it)->IsRemoteMarked()) {
             count++;
         }
@@ -381,7 +381,7 @@ inline int CDlgPiiListImpl::CountRemoteUnmarked() {
 
 inline int CDlgPiiListImpl::CountSellUnmarked() {
     int count = 0;
-    for (PiiItemVector::iterator it = mItems.begin(); it != mItems.end(); ++it) {
+    for (PiiItemVector::const_iterator it = mItems.begin(); it != mItems.end(); ++it) {
         if (!(*it)->IsSellMarked()) {
             count++;
         }
@@ -803,7 +803,7 @@ inline void CDlgPiiListImpl::RunRemoteTransfer() {
 
 inline void CDlgPiiListImpl::RunSell() {
     PiiList sellList;
-    for (PiiItemVector::iterator it = mItems.begin(); it != mItems.end(); ++it) {
+    for (PiiItemVector::const_iterator it = mItems.begin(); it != mItems.end(); ++it) {
         if ((*it)->IsSellMarked()) {
             sellList.push_back((*it)->GetPPD());
         }
