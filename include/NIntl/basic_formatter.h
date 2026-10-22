@@ -78,7 +78,7 @@ private:
     bool mParsed;
 };
 
-template <class charT> basic_formatter<charT>::basic_formatter(const charT* pFormat) : mFormat(pFormat), mParsed(false) {}
+template <class charT> inline basic_formatter<charT>::basic_formatter(const charT* pFormat) : mFormat(pFormat), mParsed(false) {}
 
 }
 

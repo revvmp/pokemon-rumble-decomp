@@ -37,9 +37,6 @@
 #include <game/HomeButton.h>
 #include <revolution/os/OSTime.h>
 
-template NIntl::basic_formatter<wchar_t>::basic_formatter(const wchar_t*);
-template NIntl::basic_formatter<wchar_t>::~basic_formatter();
-
 namespace std {
 
 template <class charT, class traits, class Allocator>
@@ -68,6 +65,7 @@ std::wstring GetButtonMessage(int player, u32 button, int messageId) {
     }
     return FormatMessage(GetMessageText(messageId, gEmptyText), pSymbol) + L"\n";
 }
+
 
 CPlayer* FindPlayerHoldingPii(std::tr1::shared_ptr<CPiiPersonalData> pii, int exceptPlayer) {
     for (int i = 0; i < 4; i++) {
