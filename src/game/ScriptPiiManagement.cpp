@@ -64,12 +64,12 @@ int method_incDefeatNum(NPpu::CEngine* pBaseEngine) {
 
 int NewPPD(NPpu::CEngine* pBaseEngine) {
     CPpuEngine* pEngine = static_cast<CPpuEngine*>(pBaseEngine);
-    int sex = pBaseEngine->PopInt();
+    int sex = pEngine->PopInt();
     const PiiSpeciesData* pSpecies = pEngine->PopSpeciesData();
     std::tr1::shared_ptr<CPiiPersonalData> data = CreatePiiPersonalData(IGameSession::GetInstance()->GetOyaInfo(), pSpecies, sex);
     data->RerollRandomSeed();
     pEngine->SetPPD(data);
-    pEngine->PushInt(data->GetId() | 0x80000000);
+    pBaseEngine->PushInt(data->GetId() | 0x80000000);
     return 0;
 }
 
