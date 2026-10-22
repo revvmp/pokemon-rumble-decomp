@@ -25,36 +25,46 @@ bool IsValidPiiForm(u16 species, int form) {
     if (!IsValidPiiSpecies(species)) {
         return false;
     }
-    switch (static_cast<u32>(species)) {
-    case 201:
+    if (species == 201) {
         return static_cast<u32>(form) <= 27;
-    case 351:
-        return static_cast<u32>(form) <= 3;
-    case 386:
-        return static_cast<u32>(form) <= 3;
-    case 412:
-        return static_cast<u32>(form) <= 2;
-    case 413:
-        return static_cast<u32>(form) <= 2;
-    case 421:
-        return static_cast<u32>(form) <= 1;
-    case 422:
-        return static_cast<u32>(form) <= 1;
-    case 423:
-        return static_cast<u32>(form) <= 1;
-    case 492:
-        return static_cast<u32>(form) <= 1;
-    case 479:
-        return static_cast<u32>(form) <= 5;
-    case 487:
-        return static_cast<u32>(form) <= 1;
-    case 493:
-        return static_cast<u32>(form) <= 17;
-    case 494:
-        return static_cast<u32>(form) <= 1;
-    default:
-        return form == 0;
     }
+    if (species == 351) {
+        return static_cast<u32>(form) <= 3;
+    }
+    if (species == 386) {
+        return static_cast<u32>(form) <= 3;
+    }
+    if (species == 412) {
+        return static_cast<u32>(form) <= 2;
+    }
+    if (species == 413) {
+        return static_cast<u32>(form) <= 2;
+    }
+    if (species == 421) {
+        return static_cast<u32>(form) <= 1;
+    }
+    if (species == 422) {
+        return static_cast<u32>(form) <= 1;
+    }
+    if (species == 423) {
+        return static_cast<u32>(form) <= 1;
+    }
+    if (species == 492) {
+        return static_cast<u32>(form) <= 1;
+    }
+    if (species == 479) {
+        return static_cast<u32>(form) <= 5;
+    }
+    if (species == 487) {
+        return static_cast<u32>(form) <= 1;
+    }
+    if (species == 493) {
+        return static_cast<u32>(form) <= 17;
+    }
+    if (species == 494) {
+        return static_cast<u32>(form) <= 1;
+    }
+    return form == 0;
 }
 
 const PiiSpeciesData* GetPiiSpeciesData(u16 species, int form) {
