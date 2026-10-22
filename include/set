@@ -85,7 +85,7 @@ public:
     }
     void erase(iterator position) { mTree.erase(position.mIterator); }
     size_type erase(const value_type& rValue) {
-        typename tree_type::const_iterator position = mTree.find(static_cast<const void*>(rValue));
+        typename tree_type::iterator position = mTree.find(static_cast<const void*>(rValue));
         if (position != mTree.end()) {
             mTree.erase(position);
             return 1;

@@ -714,29 +714,27 @@ bool CLayout::AttachLayout(const char* pPaneName, CLayout* pChild) {
 }
 
 bool CLayout::Detach() {
-    if (mAttach) {
-        CLayout* pParent = mAttach->mpParent;
-        if (pParent == nullptr) {
-            return false;
-        }
-        mAttach->mpParent = nullptr;
-        mAttach->mpPane = nullptr;
-        if (mAttach->mChildren.empty()) {
-            mAttach.reset();
-        }
-        pParent->mAttach->mChildren.erase(this);
-        if (pParent->mAttach->mChildren.empty() && pParent->mAttach->mpParent == nullptr) {
-            pParent->mAttach.reset();
-        }
-        return true;
+    if (!mAttach || mAttach->mpParent == nullptr) {
+        return false;
     }
-    return false;
+    CLayout* pParent = mAttach->mpParent;
+    mAttach->mpParent = nullptr;
+    mAttach->mpPane = nullptr;
+    if (mAttach->mChildren.empty()) {
+        mAttach.reset();
+    }
+    pParent->mAttach->mChildren.erase(this);
+    if (pParent->mAttach->mChildren.empty() && pParent->mAttach->mpParent == nullptr) {
+        pParent->mAttach.reset();
+    }
+    return true;
 }
 
 void CLayout::DetachAttachedLayouts() {
     if (mAttach) {
         std::set<CLayout*> children(mAttach->mChildren);
-        for (std::set<CLayout*>::iterator it = children.begin(); it != children.end(); ++it) {
+        std::set<CLayout*>::iterator it;
+        for (it = children.begin(); it != children.end(); ++it) {
             (*it)->Detach();
         }
     }
