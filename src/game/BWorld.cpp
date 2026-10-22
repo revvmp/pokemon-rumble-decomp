@@ -667,29 +667,34 @@ std::list<BWorldObj*> BWorld::FindObjectsInSector(u32 type, const nw4r::math::VE
     SectorPlane startPlane;
     nw4r::math::SinCosDeg(&sin, &cos, startAngle + 90.0f);
     startPlane.mNormal.x = sin;
-    startPlane.mNormal.y = 0.0f;
     startPlane.mNormal.z = cos;
+    startPlane.mNormal.y = 0.0f;
     startPlane.mD = -startPlane.mNormal.Dot(center);
 
     SectorPlane endPlane;
     nw4r::math::SinCosDeg(&sin, &cos, endAngle - 90.0f);
     endPlane.mNormal.x = sin;
-    endPlane.mNormal.y = 0.0f;
     endPlane.mNormal.z = cos;
+    endPlane.mNormal.y = 0.0f;
     endPlane.mD = -endPlane.mNormal.Dot(center);
 
     f32 range = NormalizeAngle(endAngle - startAngle);
     bool narrow = range <= 180.0f;
     SectorPlane midPlane;
     if (narrow) {
-        nw4r::math::SinCosDeg(&sin, &cos, startAngle + range * 0.5f);
+        f32 halfRange = range;
+        halfRange *= 0.5f;
+        nw4r::math::SinCosDeg(&sin, &cos, startAngle + halfRange);
         midPlane.mNormal.x = sin;
-        midPlane.mNormal.y = 0.0f;
         midPlane.mNormal.z = cos;
+        midPlane.mNormal.y = 0.0f;
         midPlane.mD = -midPlane.mNormal.Dot(center);
     }
 
-    u32 stopTypes = GetStopTypes(type);
+    u32 stopTypes = 0xFFFFFFFF;
+    if ((type & ~ENTRY_HEAD_TYPES) == 0) {
+        stopTypes = ENTRY_HEAD_TYPES;
+    }
     for (ObjEntry* pEntry = mObjHead; pEntry != nullptr; pEntry = GetNextEntry(pEntry)) {
         u32 entryType = pEntry->mFlags & ~ENTRY_NEW;
         if (!(entryType & type)) {
