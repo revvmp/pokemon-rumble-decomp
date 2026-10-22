@@ -371,6 +371,9 @@ void CRemoteMemory::BeginRead(int channel) {
 
 #pragma pop
 
+#pragma push
+#pragma opt_propagation off
+#pragma opt_common_subs off
 void CRemoteMemory::FinishRead(int channel, long result) {
     CRemoteMemory* pRemote = sRemoteMemories[channel];
     switch (result) {
@@ -403,12 +406,12 @@ void CRemoteMemory::FinishRead(int channel, long result) {
     }
     case -2:
     case -3:
-        if (++pRemote->mTransferRetries >= 3) {
+        if (++pRemote->mTransferRetries < 3) {
+            ScheduleRetry(&sAlarms[channel + 1], reinterpret_cast<OSMessage>(static_cast<u16>(channel) | 0x40000), OS_MSEC_TO_TICKS(1000));
+        } else {
             pRemote->mFlags &= ~(FLAG_CONNECTION_CHANGED | FLAG_RETRY_PENDING);
             pRemote->SetState(FLAG_DISCONNECTED);
             pRemote->mFlags |= FLAG_TRANSFER_ERROR;
-        } else {
-            ScheduleRetry(&sAlarms[channel + 1], reinterpret_cast<OSMessage>(static_cast<u16>(channel) | 0x40000), OS_MSEC_TO_TICKS(1000));
         }
         break;
     case -1:
@@ -422,6 +425,7 @@ void CRemoteMemory::FinishRead(int channel, long result) {
         break;
     }
 }
+#pragma pop
 
 void CRemoteMemory::PrepareWrite(int mode) {
     int nextBlock = 0;
