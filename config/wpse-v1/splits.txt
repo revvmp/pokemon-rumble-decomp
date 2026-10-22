@@ -610,15 +610,15 @@ game/CUIPiiListItem.cpp:
 	extab       start:0x8002A924 end:0x8002A9E0
 	extabindex  start:0x8004C518 end:0x8004C554
 	.text       start:0x8011D7E0 end:0x8011DCF0
-	.data       start:0x803AF390 end:0x803AF3CC
-	.sdata      start:0x804B7580 end:0x804B75B0
+	.data       start:0x803AF390 end:0x803AF3F8
+	.sdata      start:0x804B7580 end:0x804B75B8
 
 game/CUIPiiSpec.cpp:
 	extab       start:0x8002A9E0 end:0x8002B1F8
 	extabindex  start:0x8004C554 end:0x8004C608
 	.text       start:0x8011DCF0 end:0x8011F800
-	.data       start:0x803AF3CC end:0x803AF7E0
-	.sdata      start:0x804B75B0 end:0x804B7660
+	.data       start:0x803AF3F8 end:0x803AF7E0
+	.sdata      start:0x804B75B8 end:0x804B7660
 
 game/CUIPlayerID.cpp:
 	extab       start:0x8002B1F8 end:0x8002B228

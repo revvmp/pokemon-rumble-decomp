@@ -43,6 +43,9 @@ Every object that needs memory (an address-taken local, a class temporary, a by-
 | `__vec_constructor::assign(first, last, int2type<false>)` goes through `assign_dispatch` with a named tag | 1 (`vector<map>::operator=` in CFileData); about 15 other `vector::operator=` copies in SaveData, CStatistic, CUIMenu, PiiPropData and CPiiCollectionBox rose by 1 to 1.5 points |
 | CGameSession `LoadFromSlot` assigns the pending map from the `MakeMapIndex` temporary | 1 |
 | CEffect `CreateEmitter`: one inline member per effect type (`SetupLifeEmitter`, `SetupLifeFollowEmitter`) | slots fixed, 99.17% to 99.27%; two `fmuls` operand orders remain |
+| CPath `ToString` reserves the device string before assigning it; the constructors move above `GetDeviceNameFor` (target text order). CPath is Matching | 1 and a unit flip |
+| CUIManager `SetFocusedUI` calls an inline `NotifyFocusChanged(pUI, pPrevious)` for the old and new UI (rule 8: the inline's parameters rank above the caller's locals); `GetFocusedUI` and the four forwarding `Calc`/`Draw` overrides follow the target text order; the CUIManager `.data` split starts at its own `bad_function_call` string (0x803C0280, not BUI's). CUIManager is Matching | 1 and a unit flip |
+| CUIPiiSpec `SetPii` reads the player through a named `CPlayer*` local (the inline `GetController` result otherwise takes r27) and tests `GetCappedLevel() < GetLevel()` for `CAP` | 1 |
 
 ## Open cases
 
@@ -58,6 +61,8 @@ Every object that needs memory (an address-taken local, a class temporary, a by-
 
 - **CNoticeDisplay `FormatAreaName`.** Two tag pairs inside the inlined `basic_formatter` appends are reversed. `operator+=(const basic_string&)` must stay `append(str)` (CMsgBalloon has the out-of-line `__apl__` calling `append`), and `operator=(const charT*)` must stay `assign(s)` (CDlgMsgWin has both out of line), so the difference is in how the formatter is used, not in `<string>`.
 - **Missing exception-specification frames.** PhotoSave `SaveScreenshotToRemoteMemory` and CPauseMenu `TakeScreenshot` have one more `__unexpected` handler in the target than in ours: an extra `shared_ptr` temporary is destroyed there. That is a source difference, not a slot order.
+
+- **CUIPiiSpec `.data` order.** Every function now matches (only string labels differ), and the CUIPiiListItem split must end at 0x803AF3F8/0x804B75B8 so that its type_info stays with it. The flip still fails: the target emits `ICalcDraw`'s type_info right after the `enable_shared_from_this<BUI>` name and then the `shared_ptr_deleter_common` vtable; ours emits the vtable and its name first. This comes from `<memory>` or BUI emission order, not from CUIPiiSpec.
 
 ## Traps
 

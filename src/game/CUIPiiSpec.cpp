@@ -103,7 +103,8 @@ void CUIPiiSpec::Load(const char* const* pArchives, const char* pLayoutName, con
 
 void CUIPiiSpec::SetPii(std::tr1::shared_ptr<CPiiPersonalData> pii, int player) {
     WazaDescData* pWazaData = IGameSession::GetInstance()->GetWazaDescData();
-    IController* pController = IGameSession::GetInstance()->GetPlayer(player)->GetController();
+    CPlayer* pPlayer = IGameSession::GetInstance()->GetPlayer(player);
+    IController* pController = pPlayer->GetController();
     GetLayout()->SetPaneVisible("PREFIX", pii->GetPrefix() != 0);
     GetLayout()->SetPaneVisible("PREFIX_NAME", pii->GetPrefix() != 0);
     GetLayout()->SetPaneVisible("NAME", pii->GetPrefix() == 0);
@@ -121,7 +122,7 @@ void CUIPiiSpec::SetPii(std::tr1::shared_ptr<CPiiPersonalData> pii, int player) 
     }
     GetLayout()->SetText("BP", FormatString(L"%d", pii->GetBP()).c_str());
     if (IGameSession::GetInstance()->GetOyaInfo()->GetCount() != pii->GetOriginalTrainerId()) {
-        GetLayout()->SetPaneVisible("CAP", pii->GetCappedLevel() > pii->GetLevel());
+        GetLayout()->SetPaneVisible("CAP", pii->GetCappedLevel() < pii->GetLevel());
         GetLayout()->SetPaneVisible("CAP_OK", pii->GetCappedLevel() >= pii->GetLevel());
     } else {
         GetLayout()->SetPaneVisible("CAP", false);
