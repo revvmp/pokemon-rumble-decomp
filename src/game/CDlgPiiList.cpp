@@ -491,9 +491,8 @@ inline void CDlgPiiListImpl::OnSelectionChanged(BUI* pUI) {
         return;
     }
     std::tr1::shared_ptr<CUIPiiListItem> item = std::tr1::static_pointer_cast<CUIPiiListItem>(selected);
-    CPiiPersonalData& rPii = *item->GetPPD();
-    if (rPii.IsSpecHidden()) {
-        rPii.SetNewlyDisclosed(true);
+    if (item->GetPPD()->IsSpecHidden()) {
+        item->GetPPD()->SetNewlyDisclosed(true);
         item->GetPPD()->SetSpecHidden(false);
         mPiiList->UpdateSelection();
     }
