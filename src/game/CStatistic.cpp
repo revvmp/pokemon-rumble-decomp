@@ -92,3 +92,31 @@ void CStatistic::Set(int id, int value) {
         mValues[id].mValue = value;
     }
 }
+
+void CStatistic::Add(int id, int amount) {
+    int current = Get(id);
+    long limit = INT_MAX;
+    long result;
+    if (amount > 0) {
+        int sum = current + amount;
+        if (current < sum) {
+            result = sum;
+        } else {
+            result = limit;
+        }
+    } else if (amount < 0) {
+        int sum = current + amount;
+        if (current > sum) {
+            result = std::max<long>(sum, limit);
+        } else {
+            result = INT_MIN;
+        }
+    } else {
+        result = current;
+    }
+    Set(id, result);
+}
+
+void CStatistic::SetCounterStopValue(int id, int value) {
+    mCounterStops[id] = value;
+}
