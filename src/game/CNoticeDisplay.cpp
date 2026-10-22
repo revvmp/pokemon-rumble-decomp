@@ -25,10 +25,29 @@
 
 IUIInput* GetUIInput();
 bool IsStage7EvenMap(MapIndex index);
-std::wstring FormatAreaName(MapIndex index);
 bool IsBattleRoyalFirstPart(MapIndex index);
 
 extern const char* const gAreaPaneNames[9];
+
+std::wstring FormatAreaName(MapIndex index) {
+    std::wstring name;
+    if (index.mMode == 2) {
+        if (IsStage7EvenMap(index)) {
+            typedef NIntl::basic_formatter<wchar_t> Formatter;
+            Formatter formatter(GetMessageText(0x600E7, gEmptyText));
+            int area = static_cast<s8>(GetSaveData(-1)->mData.mStatus[19]);
+            int part = 2 - IsBattleRoyalFirstPart(index);
+            formatter % Formatter::format_spec(L"%d") % area;
+            formatter % Formatter::format_spec(L"%d") % part;
+            name = formatter.str().c_str();
+        } else {
+            name = GetMessageText(0x60002, gEmptyText);
+        }
+    } else {
+        name = GetMessageText(gStageRanks[index.mArea].mMessageID, gEmptyText);
+    }
+    return name;
+}
 
 void WaitMotion(std::tr1::shared_ptr<CLayout::CMotionProgram> pMotion, bool waitFinish) {
     while (true) {
@@ -566,6 +585,82 @@ inline bool CYouWin::StartNotice() {
     mResultLayout.SetVisible(false);
     mFiber.Start(std::tr1::bind(&CYouWin::Run, this), 0x8000);
     return true;
+}
+
+void CYouWin::Run() {
+    mLayout.CreateMotion("begin", "MISC", 0.0f, 1.0f);
+    mLayout.CreateMotion("begin", "TEXT", 0.0f, 1.0f);
+    mLayout.QueueMotion("normal", "MISC", 0.0f, 1.0f);
+    mLayout.QueueMotion("normal", "TEXT", 0.0f, 1.0f);
+    std::tr1::shared_ptr<CLayout::CMotionProgram> pMotion = mLayout.AppendMotion("end", "TEXT", 0.0f, 1.0f);
+    YieldFiberStarted();
+    PlaySound(0x5C);
+    WaitMotionStart(pMotion);
+    if (!pMotion->IsStarted()) {
+        pMotion = mLayout.CreateMotion("end", "TEXT", 0.0f, 1.0f);
+    }
+    pMotion->Wait();
+
+    if (mType == 7 || mType == 8) {
+        YieldFiber();
+        if (mType == 8) {
+            PlaySound(0x5C);
+            mWinnerLayout.SetVisible(true);
+            mWinnerLayout.CreateMotion("begin");
+            mWinnerLayout.QueueMotion("normal");
+            pMotion = mWinnerLayout.AppendMotion("end");
+            WaitMotionStart(pMotion);
+            if (!pMotion->IsStarted()) {
+                pMotion = mWinnerLayout.CreateMotion("end");
+            }
+            pMotion->Wait();
+            mWinnerLayout.SetVisible(false);
+        }
+
+        PlaySound(0x5C);
+        mResultLayout.SetVisible(true);
+        mResultLayout.CreateMotion("begin")->Wait();
+        mResultLayout.QueueMotion("normal");
+        nw4r::lyt::TextBox* pMoney = mResultLayout.SetText("MONEY", FormatString(L"%d", mWinner).c_str());
+        nw4r::ut::Rect rect = pMoney->GetTextDrawRect();
+        nw4r::lyt::Pane* pAdjust = mResultLayout.FindPane("MONEY_X_ADJUST");
+        pAdjust->SetTranslate(nw4r::math::VEC3((rect.right - rect.left) / 2.0f, 0.0f, 0.0f));
+
+        int shown = 0;
+        int place = 1;
+        while (shown < mWinner) {
+            int next = place * 10;
+            int limit = mWinner % next;
+            if (limit / place == 0 && limit + next <= mWinner) {
+                limit += next;
+            }
+            while (shown < limit) {
+                shown += place;
+                std::wstring text = FormatString(L"%d", shown);
+                mResultLayout.SetText("MONEY", text.c_str());
+                mResultLayout.SetText("MONEY_SHADOW", text.c_str());
+                YieldFiber();
+                YieldFiber();
+                YieldFiber();
+            }
+            place *= 10;
+        }
+
+        std::wstring total = FormatString(L"%d", mWinner);
+        mResultLayout.SetText("MONEY", total.c_str());
+        mResultLayout.SetText("MONEY_SHADOW", total.c_str());
+        pMotion = mResultLayout.AppendMotion("end");
+        WaitMotionStart(pMotion);
+        if (!pMotion->IsStarted()) {
+            mResultLayout.CreateMotion("end");
+        }
+    }
+
+    IGameSession::GetInstance()->SetFade(1, -1);
+    mLayout.CreateMotion("end", "TEXT", 0.0f, 1.0f)->Wait();
+    while (IGameSession::GetInstance()->GetFadeFrames()) {
+        YieldFiber();
+    }
 }
 
 }
