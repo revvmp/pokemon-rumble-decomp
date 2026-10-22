@@ -9,6 +9,9 @@ public:
     ~CMiniMapMarker();
 
     void Initialize(int type, const char* pLayoutName, bool background);
+    int GetType() const { return mType; }
+    CLayout& GetLayout() { return mLayout; }
+    nw4r::lyt::Pane* GetPane() const { return mpMarker; }
 
 private:
     int mType;
