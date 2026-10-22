@@ -97,7 +97,7 @@ public:
     }
     void construct_at_end(const T* pFirst, const T* pLast, Metrowerks::int2type<true>) {
         ptrdiff_t n = pLast - pFirst;
-        memcpy(data_ + size_, pFirst, n * sizeof(T));
+        memmove(data_ + size_, pFirst, (pLast - pFirst) * sizeof(T));
         size_ += n;
     }
     void construct_at_end(const T* pFirst, const T* pLast, Metrowerks::int2type<false>) {
