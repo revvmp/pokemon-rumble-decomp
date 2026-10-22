@@ -21,10 +21,13 @@ public:
     void SetPersonalData(std::tr1::shared_ptr<CPiiPersonalData> data) { Load(data, false); }
 
 private:
+    enum Flag { FLAG_HAS_POSITION = 1 << 0, FLAG_SHOWN = 1 << 2 };
+    enum { TYPE_PII_INFO = 107 };
+
     u32 mFlags;
     nw4r::math::VEC3 mPosition;
     CLayout mLayout;
-    std::tr1::shared_ptr<CPiiPersonalData> mPersonalData;
+    std::tr1::shared_ptr<CLayout::CMotionProgram> mMotion;
 };
 
 #endif
