@@ -85,7 +85,7 @@ bool SetMaterialTexture(nw4r::g3d::ScnMdl* pScnMdl, const char* pMaterialName, c
     for (u32 i = 0; i < numTextures; i++) {
         nw4r::g3d::ResTexPlttInfo info = mat.GetResTexPlttInfo(i);
         std::string name(info.GetTexResName().GetName());
-        if (name.compare(pTextureName) != 0 || info.IsCIFmt()) {
+        if (name != pTextureName || info.IsCIFmt()) {
             continue;
         }
         GXTexObj* pTexObj = texObj.GetTexObj(info.ref().mapID);

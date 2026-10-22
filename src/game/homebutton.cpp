@@ -138,6 +138,12 @@ void SetHomeButtonProjection() {
 }
 
 namespace {
+inline GXColor GetNoticeColor(unsigned char alpha) {
+    GXColor color = {255, 255, 255, 0};
+    color.a = alpha;
+    return color;
+}
+
 void DrawHomeButtonNotice(unsigned char alpha) {
     Mtx matrix;
     PSMTXIdentity(matrix);
@@ -153,9 +159,7 @@ void DrawHomeButtonNotice(unsigned char alpha) {
     GXSetNumTexGens(1);
     GXSetTexCoordGen2(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY, GX_FALSE, GX_PTIDENTITY);
     GXSetNumTevStages(1);
-    GXColor color = {255, 255, 255, 0};
-    color.a = alpha;
-    GXSetTevColor(GX_TEVREG0, color);
+    GXSetTevColor(GX_TEVREG0, GetNoticeColor(alpha));
     GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR_NULL);
     GXSetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_ZERO, GX_CC_ZERO, GX_CC_TEXC);
     GXSetTevColorOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, GX_ENABLE, GX_TEVPREV);

@@ -554,7 +554,7 @@ std::tr1::shared_ptr<FileList> CMain::LoadStartupArchives() {
 }
 
 void AppendLoadedFile(FileList& rFiles, const std::tr1::shared_ptr<CFileData>& rFile) {
-    rFiles.push_back(rFile);
+    rFiles.insert(rFiles.end(), rFile);
 }
 
 #include <game/CLayout.h>

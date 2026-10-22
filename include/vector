@@ -364,7 +364,8 @@ public:
     }
 
     template <typename Iterator> void assign(Iterator first, Iterator last, Metrowerks::int2type<false>) {
-        assign_range(first, last, std::forward_iterator_tag());
+        Metrowerks::int2type<0> tag;
+        assign_dispatch(first, last, tag);
     }
 
     size_type assign_capacity(size_type n) { return recommend(n - this->cap(), pod_type()); }
