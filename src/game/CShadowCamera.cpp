@@ -73,9 +73,9 @@ bool CShadowCamera::CalcLightProjection() {
 
     nw4r::g3d::Camera camera = pCamera->GetG3dCamera();
     f32 nearClip = camera.ref().projNear;
-    f32 top;
     f32 bottom;
     f32 left;
+    f32 top;
     f32 right;
     switch (camera.ref().flags & (nw4r::g3d::CameraData::FLAG_PROJ_FRUSTUM | nw4r::g3d::CameraData::FLAG_PROJ_PERSP |
                                   nw4r::g3d::CameraData::FLAG_PROJ_ORTHO)) {
@@ -86,7 +86,8 @@ bool CShadowCamera::CalcLightProjection() {
         right = camera.ref().projRight;
         break;
     case nw4r::g3d::CameraData::FLAG_PROJ_PERSP:
-        top = nearClip * nw4r::math::TanDeg(0.5f * camera.ref().projFovy);
+        top = nw4r::math::TanDeg(0.5f * camera.ref().projFovy);
+        top *= nearClip;
         right = top * camera.ref().projAspect;
         bottom = -top;
         left = -right;
@@ -153,7 +154,7 @@ bool CShadowCamera::CalcLightProjection() {
     shadowCamera.SetViewport(0.0f, 0.0f, mTextures[0].GetWidth(), mTextures[0].GetHeight());
 
     nw4r::math::VEC3 center = (corners[0] + corners[1] + corners[2] + corners[3]) / 4.0f;
-    f32 halfRange = (viewFar - viewNear) * 0.5f;
+    f32 halfRange = (viewFar - viewNear) / 2.0f;
     nw4r::math::VEC3 shadowPos = center + lightDir * halfRange;
     shadowCamera.SetPosition(shadowPos);
 
