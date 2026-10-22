@@ -174,28 +174,28 @@ private:
     Arguments mArguments;
 };
 }
-template<class R,class C> detail::mem_fn_0<R,C> mem_fn(R (C::*pFunction)()) {
+template<class R,class C> inline detail::mem_fn_0<R,C> mem_fn(R (C::*pFunction)()) {
     return detail::mem_fn_0<R,C>(pFunction);
 }
-template<class R,class C,class A> detail::mem_fn_1<R,C,A> mem_fn(R (C::*pFunction)(A)) {
+template<class R,class C,class A> inline detail::mem_fn_1<R,C,A> mem_fn(R (C::*pFunction)(A)) {
     return detail::mem_fn_1<R,C,A>(pFunction);
 }
-template<class R, class C, class T> detail::bound_func<R, detail::mem_fn_0<R, C>, tuple<T> > bind(R (C::*pFunction)(), T value) {
+template<class R, class C, class T> inline detail::bound_func<R, detail::mem_fn_0<R, C>, tuple<T> > bind(R (C::*pFunction)(), T value) {
     return detail::bound_func<R, detail::mem_fn_0<R, C>, tuple<T> >(mem_fn(pFunction), tuple<T>(value));
 }
-template<class R,class C,class A,class T> detail::bound_func<R,detail::mem_fn_1<R,C,A>,tuple<T,A> > bind(R (C::*pFunction)(A),T value,A argument) {
+template<class R,class C,class A,class T> inline detail::bound_func<R,detail::mem_fn_1<R,C,A>,tuple<T,A> > bind(R (C::*pFunction)(A),T value,A argument) {
     typedef tuple<T,A> Arguments;
     return detail::bound_func<R,detail::mem_fn_1<R,C,A>,Arguments>(mem_fn(pFunction),Arguments(value,argument));
 }
-template<class R,class C,class A,class T> detail::bound_func<R,detail::mem_fn_1<R,C,A>,tuple<T,placeholders::detail::ph<1> > > bind(R (C::*pFunction)(A),T value,placeholders::detail::ph<1> placeholder) {
+template<class R,class C,class A,class T> inline detail::bound_func<R,detail::mem_fn_1<R,C,A>,tuple<T,placeholders::detail::ph<1> > > bind(R (C::*pFunction)(A),T value,placeholders::detail::ph<1> placeholder) {
     typedef tuple<T,placeholders::detail::ph<1> > Arguments;
     return detail::bound_func<R,detail::mem_fn_1<R,C,A>,Arguments>(mem_fn(pFunction),Arguments(value,placeholder));
 }
-template<class R,class C,class A,class B,class T> detail::bound_func<R,detail::mem_fn_2<R,C,A,B>,tuple<T,placeholders::detail::ph<1>,placeholders::detail::ph<2> > > bind(R (C::*pFunction)(A,B),T value,placeholders::detail::ph<1> first,placeholders::detail::ph<2> second) {
+template<class R,class C,class A,class B,class T> inline detail::bound_func<R,detail::mem_fn_2<R,C,A,B>,tuple<T,placeholders::detail::ph<1>,placeholders::detail::ph<2> > > bind(R (C::*pFunction)(A,B),T value,placeholders::detail::ph<1> first,placeholders::detail::ph<2> second) {
     typedef tuple<T,placeholders::detail::ph<1>,placeholders::detail::ph<2> > Arguments;
     return detail::bound_func<R,detail::mem_fn_2<R,C,A,B>,Arguments>(detail::mem_fn_2<R,C,A,B>(pFunction),Arguments(value,first,second));
 }
-template<class R,class C,class A,class B,class D,class T> detail::bound_func<R,detail::mem_fn_3<R,C,A,B,const D&>,tuple<T,placeholders::detail::ph<1>,B,D> > bind(R (C::*pFunction)(A,B,const D&),T value,placeholders::detail::ph<1> first,B second,D third) {
+template<class R,class C,class A,class B,class D,class T> inline detail::bound_func<R,detail::mem_fn_3<R,C,A,B,const D&>,tuple<T,placeholders::detail::ph<1>,B,D> > bind(R (C::*pFunction)(A,B,const D&),T value,placeholders::detail::ph<1> first,B second,D third) {
     typedef tuple<T,placeholders::detail::ph<1>,B,D> Arguments;
     return detail::bound_func<R,detail::mem_fn_3<R,C,A,B,const D&>,Arguments>(detail::mem_fn_3<R,C,A,B,const D&>(pFunction),Arguments(value,first,second,third));
 }
