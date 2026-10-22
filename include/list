@@ -328,14 +328,17 @@ public:
     void splice(iterator position, list& rOther) { base::splice_all(position, rOther); }
 
     template <class InputIterator> void insert(iterator position, InputIterator first, InputIterator last) {
-        iterator pos(position);
-        list temp(first, last);
-        splice(pos, temp);
+        insert_dispatch(position, first, last, Metrowerks::int2type<0>());
     }
 
     using base::erase;
 
 private:
+    template <class InputIterator> void insert_dispatch(iterator position, InputIterator first, InputIterator last, Metrowerks::int2type<0>) {
+        iterator pos(position);
+        __list_imp<T, Allocator> temp(first, last, this->alloc());
+        splice(pos, temp);
+    }
     template <typename U, typename V>
     friend void __assign_range(list<U, V>& rList, typename list<U, V>::const_iterator first,
                                typename list<U, V>::const_iterator mid, typename list<U, V>::const_iterator last);
