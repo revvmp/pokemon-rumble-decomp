@@ -51,6 +51,7 @@ public:
 
     bool IsValid() const { return !mPending && mData != nullptr; }
     u32 GetSize() const { return mSize; }
+    long GetError() const { return mError; }
     void* GetData() const { return mData; }
     const std::string& GetPath() const { return mPath; }
     bool IsLoaded() const { return !mPending && mData != nullptr; }

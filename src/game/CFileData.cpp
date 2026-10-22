@@ -211,7 +211,7 @@ inline bool CFileData::CWorker::WaitUntilLoaded(CFileData* pFile) {
     }
 
     if (!pFile->IsLoaded()) {
-        sConfig.mErrorHandler(pFile->GetDrive(), pFile->mPath.c_str(), pFile->mError, pFile->mFlags);
+        sConfig.mErrorHandler(pFile->GetDrive(), pFile->mPath.c_str(), pFile->GetError(), pFile->mFlags);
         return false;
     }
     return true;
