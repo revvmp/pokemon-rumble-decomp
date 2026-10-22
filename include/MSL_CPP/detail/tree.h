@@ -504,6 +504,8 @@ public:
         }
     }
 
+    tree_node_base* find_leaf(const value_type& rKey, node*& rpPred, bool& rLeft, bool& rLeftmost);
+    template <typename Key> tree_node_base* find_leaf(const Key& rKey, node*& rpPred, bool& rLeft, bool& rLeftmost);
     pair<iterator, bool> insert_one(const value_type& rValue);
     template <typename Key> pair<iterator, bool> insert_key(const Key& rKey) {
         node* pPred;
@@ -577,8 +579,6 @@ public:
 
     template <typename Key> value_type& find_or_insert(const Key& rKey);
 
-    tree_node_base* find_leaf(const value_type& rKey, node*& rpPred, bool& rLeft, bool& rLeftmost);
-    template <typename Key> tree_node_base* find_leaf(const Key& rKey, node*& rpPred, bool& rLeft, bool& rLeftmost);
     node* insert_node_at(tree_node_base* pParent, bool left, bool leftmost, const value_type& rValue);
 
     void destroy(node* pNode);

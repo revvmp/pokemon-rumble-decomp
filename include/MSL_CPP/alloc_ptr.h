@@ -3,6 +3,7 @@
 
 #include <MSL_CPP/compressed_pair.h>
 #include <stddef.h>
+#include <revolution/types.h>
 
 namespace Metrowerks {
 template <typename T, T Value> struct number {
