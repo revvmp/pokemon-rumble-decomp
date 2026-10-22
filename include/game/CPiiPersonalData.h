@@ -31,9 +31,9 @@ public:
 
     const PiiSpeciesData* GetSpeciesData() const { return mSpeciesData; }
     const s64& GetCreationTime() const { return mCreationTime; }
+    f32 GetHPRatio() const;
     int GetHP() const { return mHP; }
     void SetHP(int hp);
-    f32 GetHPRatio() const;
     void FillUpHP();
     void ResetDamage();
     void ResetHeal();

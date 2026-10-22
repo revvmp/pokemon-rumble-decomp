@@ -6,9 +6,10 @@
 class CUIPlayerID : public BUILayout {
 public:
     CUIPlayerID();
-    void Update();
+    virtual ~CUIPlayerID();
     void SetDisplayMode(int mode) { mDisplayMode = mode; }
-    void Setup(int player, int flag, const char* const* pArchives, const char* pLayoutName, const std::tr1::shared_ptr<CLayout::FontMap>& rFonts, bool background);
+    void Setup(int player, int mode, const char* const* pArchives, const char* pLayoutName, const std::tr1::shared_ptr<CLayout::FontMap>& rFonts, bool background);
+    void Update();
 
 private:
     int mDisplayMode;
