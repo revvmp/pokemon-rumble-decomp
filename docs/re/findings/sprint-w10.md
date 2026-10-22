@@ -1,6 +1,6 @@
 # Sprint w10: BWorld and CEffect
 
-BWorld rose from 183 to 187 of 196 functions in this shift's first pass and to 188 after LoadLightScene; CEffect from 55 to 56 of 58. Neither unit can flip yet (BWorld's `find_leaf` order is parked; CEffect still has `InitializeEffect` and `AllocEffectGroupID`).
+BWorld rose from 183 to 188 of 196 functions; CEffect from 55 to 56 of 58. Neither unit can flip yet (BWorld's `find_leaf` order is parked; CEffect still has `InitializeEffect` and `AllocEffectGroupID`).
 
 ## Fixes
 
@@ -24,7 +24,8 @@ BWorld rose from 183 to 187 of 196 functions in this shift's first pass and to 1
 ## Open
 
 - BWorld `FindObjectsInSector`/`FindObjectsInRing`: radius in f1 instead of f0 (`f32 radius = pObj->GetSize().z`). Computing `innerRadius - radius` before the first test fixes the colouring but schedules the subtraction early. Ring's `distSq` also ranks below the two radius parameters (target f31 above them).
-- BWorld `AddObject`, `RemoveObject`: `pEntries` ranks below `this`/`obj` (AddObject); first computed neighbour takes r5 (RemoveObject). Inline helpers for linking did not move them.
+- BWorld `AddObject`, `RemoveObject`: `pEntries` ranks below `this`/`obj` (AddObject); the first computed neighbour takes r5 (RemoveObject), whichever is declared first. Inline `InsertEntry`/`LinkEntry`/`UnlinkEntry` members and `begin()`-based forms did not move them.
+- BWorld `FindObjectsInRing`: an inline `IsOutsideRing` test materializes the bool (94.7%).
 - BWorld `Calc`/`CalcMtx` skip mask (`li r0,0; ori r30,r0,2`): a sandbox (`GetSkipStates` with `|=`, `+=`, `^=`, ternaries, bit structs, reference helpers, narrower types) never reproduced the rematerialized zero; `+=` folds to `li 2`.
 - BWorld `vector<ObjEntry>(n)`: an inline `init(n)` level fixes the 16-byte slots but reverses the byte flags (t1 open case, header-wide).
 - BWorld `DrawShadow`: `mr r5, r25` is scheduled before `addi r3` in the `clearColor` calls only.
