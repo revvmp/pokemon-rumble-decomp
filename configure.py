@@ -622,6 +622,7 @@ config.libs = [
             Object(Matching, "RVL_SDK/fa/puh_msc_cmd.c"),
             Object(Matching, "RVL_SDK/fa/sdi_api.c"),
             Object(Matching, "RVL_SDK/fa/puh_ker_mem.c"),
+            Object(Matching, "RVL_SDK/fa/puh_ker.c"),
         ],
     ),
     library(
