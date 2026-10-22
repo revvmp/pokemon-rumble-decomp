@@ -50,12 +50,16 @@ int LayoutMotion(NPpu::CEngine* pEngine, int mode) {
     return 0;
 }
 
+static inline std::tr1::shared_ptr<FileList> LoadArchive(void** ppEntry, const char* pPath, bool background) {
+    return LoadFileList(ppEntry, pPath, 0, background, nullptr);
+}
+
 int NewLayout(NPpu::CEngine* pEngine) {
     const char* pLayoutName = PopString(pEngine);
     const char* pArchive = PopString(pEngine);
     std::tr1::shared_ptr<CLayout> owner(new CLayout);
     void* pEntry;
-    std::tr1::shared_ptr<FileList> files = LoadFileList(&pEntry, pArchive, 0, false, nullptr);
+    std::tr1::shared_ptr<FileList> files = LoadArchive(&pEntry, pArchive, false);
     owner->Load(static_cast<const char* const*>(pEntry), pLayoutName, GetDefaultFontMap(), false);
     pEngine->PushInt(GetCurrentGameMap()->GetLayoutManager()->Add(owner));
     return 0;
