@@ -82,6 +82,23 @@ inline void advance(InputIterator& i, typename iterator_traits<InputIterator>::d
     __advance(i, n, typename iterator_traits<InputIterator>::iterator_category());
 }
 
+template <class Iterator> class reverse_iterator {
+public:
+    typedef typename iterator_traits<Iterator>::value_type value_type;
+    typedef typename iterator_traits<Iterator>::reference reference;
+    typedef typename iterator_traits<Iterator>::pointer pointer;
+    reverse_iterator() {}
+    reverse_iterator(const reverse_iterator& rOther) : current_(rOther.current_) {}
+    explicit reverse_iterator(Iterator iterator) : current_(iterator) {}
+    Iterator base() const { return current_; }
+    reference operator*() const { Iterator iterator = current_; return *--iterator; }
+    pointer operator->() const { return &operator*(); }
+    reverse_iterator& operator++() { --current_; return *this; }
+    friend bool operator!=(reverse_iterator left, reverse_iterator right) { return left.current_ != right.current_; }
+private:
+    Iterator current_;
+};
+
 }
 
 #endif
