@@ -121,9 +121,10 @@ public:
     virtual void Render();
 virtual void Present() {
     Graphics::DisplayFrameBuffer();
-    typedef std::reverse_iterator<std::list<CallbackEntry>::iterator> Iterator;
-    for (Iterator it(sWork->mCallbacks.end()); it != Iterator(sWork->mCallbacks.begin()); ++it) {
-        if ((it->mFlags & 1) != 0) it->mCallback();
+    for (std::list<CallbackEntry>::iterator it = sWork->mCallbacks.end(); it != sWork->mCallbacks.begin(); --it) {
+        std::list<CallbackEntry>::const_iterator current = it;
+        --current;
+        if (((*current).mFlags & 1) != 0) (*current).mCallback();
     }
 }
 private:
