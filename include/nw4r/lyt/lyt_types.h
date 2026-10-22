@@ -6,7 +6,26 @@
 namespace nw4r {
 namespace lyt {
 
+enum HorizontalPosition {
+    HORIZONTALPOSITION_LEFT,
+    HORIZONTALPOSITION_CENTER,
+    HORIZONTALPOSITION_RIGHT,
+    HORIZONTALPOSITION_MAX
+};
+enum VerticalPosition {
+    VERTICALPOSITION_TOP,
+    VERTICALPOSITION_CENTER,
+    VERTICALPOSITION_BOTTOM,
+    VERTICALPOSITION_MAX
+};
+
 namespace detail {
+inline u8 GetHorizontalPosition(u8 packed) {
+    return packed % HORIZONTALPOSITION_MAX;
+}
+inline u8 GetVerticalPosition(u8 packed) {
+    return packed / HORIZONTALPOSITION_MAX;
+}
 template <typename T> inline const T* ConvertOffsToPtr(const void* pBase, unsigned int offset) {
     return reinterpret_cast<const T*>(reinterpret_cast<u32>(pBase) + offset);
 }

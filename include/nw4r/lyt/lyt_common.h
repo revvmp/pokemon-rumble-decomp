@@ -36,18 +36,6 @@ enum TevColor {
     TEVCOLOR_MAX
 };
 
-enum HorizontalPosition {
-    HORIZONTALPOSITION_LEFT,
-    HORIZONTALPOSITION_CENTER,
-    HORIZONTALPOSITION_RIGHT,
-    HORIZONTALPOSITION_MAX
-};
-enum VerticalPosition {
-    VERTICALPOSITION_TOP,
-    VERTICALPOSITION_CENTER,
-    VERTICALPOSITION_BOTTOM,
-    VERTICALPOSITION_MAX
-};
 
 namespace detail {
 
@@ -66,12 +54,6 @@ inline void SetVtxColorElement(ut::Color* pColors, u32 idx, u8 value) {
     reinterpret_cast<u8*>(&pColors[idx / 4])[idx % 4] = value;
 }
 
-inline u8 GetHorizontalPosition(u8 packed) {
-    return packed % HORIZONTALPOSITION_MAX;
-}
-inline u8 GetVerticalPosition(u8 packed) {
-    return packed / HORIZONTALPOSITION_MAX;
-}
 
 inline void SetHorizontalPosition(u8* pPacked, u8 value) {
     *pPacked = GetVerticalPosition(*pPacked) * HORIZONTALPOSITION_MAX + value;
