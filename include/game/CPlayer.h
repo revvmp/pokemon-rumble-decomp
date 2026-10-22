@@ -32,6 +32,7 @@ public:
     std::tr1::shared_ptr<CPiiPersonalData> GetPersonalData() const;
     std::tr1::shared_ptr<CPiiPersonalData> GetPendingPersonalData() const;
     int GetPlayerNo() const { return mPlayerNo; }
+    CPiiBox& GetPiiBox() { return mState.mPiiBox; }
     void SetPii(CPlayerPii* pPii);
     CPlayerPii* GetPii();
     IController* GetController() { return mController; }

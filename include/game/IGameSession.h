@@ -12,6 +12,7 @@ struct MapDesc;
 struct StageDesc;
 struct PiiPropData;
 class CBattleRoyalBox;
+class IController;
 class IDisconMsg;
 class CPiiBox;
 class CPiiCollectionBox;
@@ -58,8 +59,8 @@ public:
     virtual int GetMapChangeType() = 0;
     virtual void SetFade(int type, int frames) = 0;
     virtual int GetFadeFrames() = 0;
-    virtual bool RequestMapChange(MapIndex map, int type, int frames) = 0;
-    virtual bool RequestSceneChange(int type, int frames) = 0;
+    virtual void RequestMapChange(MapIndex map, int type, int frames) = 0;
+    virtual void RequestSceneChange(int type, int frames) = 0;
     virtual void StartMapTransitionOut() = 0;
     virtual void StartMapTransitionIn() = 0;
     virtual void UpdateMapTransition() = 0;

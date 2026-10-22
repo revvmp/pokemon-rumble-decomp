@@ -8,9 +8,16 @@
 #include <game/CPlayer.h>
 #include <game/CRemoteMemory.h>
 #include <game/CStatistic.h>
+#include <game/CControllerComposition.h>
 #include <game/ControllerTable.h>
+#include <game/IController.h>
+#include <game/IDisconMsg.h>
+#include <game/IGameStage.h>
+#include <game/ISaveManager.h>
 #include <game/MapIndex.h>
 #include <game/Pad.h>
+#include <game/RenderPrimitive.h>
+#include <game/MathUtil.h>
 #include <game/PiiPropData.h>
 #include <game/SaveData.h>
 #include <game/StageDesc.h>
@@ -18,11 +25,11 @@
 #include <game/WazaDescData.h>
 #include <memory>
 #include <nw4r/ut/ut_Color.h>
+#include <nw4r/g3d/g3d_state.h>
 #include <revolution/os.h>
+#include <set>
 #include <string>
 #include <vector>
-
-class CMapTransition;
 
 namespace NPpu {
 class CEnvironment;
@@ -90,8 +97,8 @@ public:
     virtual int GetMapChangeType();
     virtual void SetFade(int type, int frames);
     virtual int GetFadeFrames();
-    virtual bool RequestMapChange(MapIndex map, int type, int frames);
-    virtual bool RequestSceneChange(int type, int frames);
+    virtual void RequestMapChange(MapIndex map, int type, int frames);
+    virtual void RequestSceneChange(int type, int frames);
     virtual void StartMapTransitionOut();
     virtual void StartMapTransitionIn();
     virtual void UpdateMapTransition();
@@ -101,6 +108,7 @@ public:
     virtual void UnanalyzedSlot42();
 
     void ClearInstance();
+    void UpdateFade();
     void InitStageDescs();
     void LoadFromSlot();
     void GetSnapshot(SessionSnapshot* pSnapshot);
@@ -129,7 +137,7 @@ private:
     nw4r::ut::Color mFadeColor;
     nw4r::ut::Color mFadeTargetColor;
     int mFadeFrames;
-    std::tr1::shared_ptr<CMapTransition> mMapTransition;
+    std::tr1::shared_ptr<ISaveManager> mSaveManager;
     IDisconMsg* mpDisconMsg;
 };
 
@@ -344,6 +352,212 @@ void CGameSession::LoadFromSlot() {
     }
     SetGCRumbleEnabled(GetOption() == 0);
 }
+bool CGameSession::CanAddPPDToPlayerPiiBox(int player, const std::tr1::shared_ptr<CPiiPersonalData>& rPPD) {
+    if (rPPD->IsFainted()) {
+        return false;
+    }
+    for (int i = 0; i < 4; i++) {
+        CPlayer* pPlayer = GetPlayer(i);
+        if (pPlayer->IsJoined()) {
+            bool held = pPlayer->GetPersonalData() == rPPD;
+            if (held) {
+                return false;
+            }
+            held = i != player && pPlayer->GetPendingPersonalData() == rPPD;
+            if (held) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+bool CGameSession::IsReplacePiiAvailable(int player, const std::tr1::shared_ptr<CPiiPersonalData>& rPPD) {
+    CPlayer* pPlayer = GetPlayer(player);
+    if (!pPlayer->IsJoined()) {
+        return false;
+    }
+    std::list<std::tr1::shared_ptr<CPiiPersonalData> >& rList = pPlayer->GetPiiBox().GetPersonalDataList();
+    for (std::list<std::tr1::shared_ptr<CPiiPersonalData> >::iterator it = rList.begin(); it != rList.end(); ++it) {
+        if (CanAddPPDToPlayerPiiBox(player, std::tr1::shared_ptr<CPiiPersonalData>(*it))) {
+            return true;
+        }
+    }
+    IController* pController = pPlayer->GetController();
+    if (pController && pController->IsConnected()) {
+        CRemoteMemory* pRemoteMemory = mRemoteMemories[pController->GetChannel()].get();
+        if (pRemoteMemory->HasFlag(0x1A)) {
+            std::list<std::tr1::shared_ptr<CPiiPersonalData> >& rRemoteList = pRemoteMemory->GetPiiBox()->GetPersonalDataList();
+            for (std::list<std::tr1::shared_ptr<CPiiPersonalData> >::iterator it = rRemoteList.begin(); it != rRemoteList.end(); ++it) {
+                if (CanAddPPDToPlayerPiiBox(player, std::tr1::shared_ptr<CPiiPersonalData>(*it))) {
+                    return true;
+                }
+            }
+        }
+    }
+    std::list<std::tr1::shared_ptr<CPiiPersonalData> >& rTeamList = mTeamPiiBox->GetPersonalDataList();
+    for (std::list<std::tr1::shared_ptr<CPiiPersonalData> >::iterator it = rTeamList.begin(); it != rTeamList.end(); ++it) {
+        if (CanAddPPDToPlayerPiiBox(player, std::tr1::shared_ptr<CPiiPersonalData>(*it))) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void CGameSession::UpdateFade() {
+    if (mFadeFrames <= 0) {
+        return;
+    }
+    mFadeFrames--;
+    if (mFadeFrames == 0) {
+        mFadeColor = mFadeTargetColor;
+        return;
+    }
+    f32 ratio = 1.0f / (mFadeFrames + 1);
+    f32 r = mFadeColor.r + ratio * (mFadeTargetColor.r - mFadeColor.r);
+    f32 g = mFadeColor.g + ratio * (mFadeTargetColor.g - mFadeColor.g);
+    f32 b = mFadeColor.b + ratio * (mFadeTargetColor.b - mFadeColor.b);
+    f32 a = mFadeColor.a + ratio * (mFadeTargetColor.a - mFadeColor.a);
+    mFadeColor.r = Clamp(r, 0.0f, 255.0f);
+    mFadeColor.g = Clamp(g, 0.0f, 255.0f);
+    mFadeColor.b = Clamp(b, 0.0f, 255.0f);
+    mFadeColor.a = Clamp(a, 0.0f, 255.0f);
+    if (mFadeColor.ToU32() == mFadeTargetColor.ToU32()) {
+        mFadeFrames = 0;
+    }
+}
+
+void CGameSession::RequestMapChange(MapIndex map, int type, int frames) {
+    MapIndex index = map;
+    index.mMap = 1;
+    mPendingMap = index;
+    mMapChangeType = type;
+    if (mGameStage) {
+        mGameStage->RequestState(frames);
+    }
+    mMapChangeMode = 0;
+}
+
+void CGameSession::RequestSceneChange(int type, int frames) {
+    mMapChangeType = type;
+    if (mGameStage) {
+        mGameStage->RequestState(frames);
+    }
+    mMapChangeMode = 1;
+}
+
+void CGameSession::CalcMtx() {
+    if (mGameStage) {
+        mGameStage->CalcMtx();
+    }
+}
+
+void CGameSession::CalcView() {
+    if (mGameStage) {
+        mGameStage->CalcView();
+    }
+}
+
+void CGameSession::Draw() {
+    if (mFadeColor.a < 255 && mGameStage) {
+        mGameStage->Draw();
+    }
+    if (mFadeColor.a != 0) {
+        const GXRenderModeObj* pRenderMode = nw4r::g3d::G3DState::GetRenderModeObj();
+        SetupOverlayRendering();
+        SetupScreenProjection();
+        DrawScreenQuad(0.0f, 0.0f, pRenderMode->fbWidth, pRenderMode->efbHeight, 1.0f, mFadeColor);
+    }
+}
+
+void CGameSession::StartMapTransitionOut() {
+    if (!mSaveManager) {
+        mSaveManager = ISaveManager::Create();
+    }
+    SaveToSlot();
+    mSaveManager->RequestSave();
+}
+
+void CGameSession::StartMapTransitionIn() {
+    if (!mSaveManager) {
+        mSaveManager = ISaveManager::Create();
+    }
+    SaveToSlot();
+    mSaveManager->RequestSaveWithoutBackup();
+}
+
+void CGameSession::UpdateMapTransition() {
+    mSaveManager->RequestSaveCommitOnly();
+}
+
+bool CGameSession::IsMapChangeFinished() {
+    if (!mSaveManager) {
+        return true;
+    }
+    return mSaveManager->IsIdle();
+}
+
+int CGameSession::GetMapChangeType() {
+    return mMapChangeType;
+}
+
+IDisconMsg* CGameSession::GetDisconMsg() {
+    return mpDisconMsg;
+}
+
+bool CGameSession::IsControllerAssigned(const IController* pController) {
+    for (int i = 0; i < 4; i++) {
+        if (mPlayers[i]->GetController() == pController) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void CGameSession::Calc() {
+    for (int i = 0; i < 4; i++) {
+        mPlayers[i]->Calc();
+    }
+    if (mGameStage) {
+        mGameStage->Calc();
+    }
+    UpdateFade();
+    std::set<IController*> controllers;
+    for (int i = 0; i < 4; i++) {
+        CPlayer* pPlayer = mPlayers[i].get();
+        if (pPlayer->IsJoined() && pPlayer->GetController()) {
+            controllers.insert(pPlayer->GetController());
+        }
+    }
+    std::vector<IController*> controllerList;
+    for (std::set<IController*>::iterator it = controllers.begin(); it != controllers.end(); ++it) {
+        controllerList.push_back(*it);
+    }
+    GetControllerTable()->SetControllers(controllerList);
+}
+
+void CGameSession::SetFade(int type, int frames) {
+    mFadeFrames = frames < 0 ? 15 : frames;
+    if (type == 1) {
+        mFadeTargetColor = nw4r::ut::Color(0x000000FF);
+    } else if (type == 2) {
+        mFadeTargetColor = nw4r::ut::Color(0xFFFFFFFF);
+    } else {
+        mFadeTargetColor = nw4r::ut::Color(0x00000000);
+    }
+    if (mFadeFrames == 0) {
+        mFadeColor = mFadeTargetColor;
+    } else if (mFadeColor.a == 0) {
+        mFadeColor.r = mFadeTargetColor.r;
+        mFadeColor.g = mFadeTargetColor.g;
+        mFadeColor.b = mFadeTargetColor.b;
+    }
+}
+
+int CGameSession::GetFadeFrames() {
+    return mFadeFrames;
+}
+
 #pragma force_active reset
 
 }

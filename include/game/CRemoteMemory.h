@@ -9,6 +9,7 @@ public:
     ~CRemoteMemory();
     bool HasFlag(const u32& flag) const { return (mFlags & flag) != 0; }
     bool IsBusy() const { return HasFlag(1); }
+    CPiiBox* GetPiiBox();
     void WaitUntilIdle(bool waitForWrite);
     void Update();
     bool ConsumeFatalError() {
