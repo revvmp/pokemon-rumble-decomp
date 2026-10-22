@@ -346,7 +346,7 @@ int MakeMapID(NPpu::CEngine* pEngine) {
     index.mArea = area;
     index.mStage = stage;
     index.mMap = map;
-    pEngine->PushInt(index.mValue);
+    pEngine->PushInt(*reinterpret_cast<int*>(&index));
     return 0;
 }
 
@@ -1280,7 +1280,7 @@ int GetWazaUsedCount(NPpu::CEngine* pEngine) {
 int MapStatus_allFlags(NPpu::CEngine* pEngine) {
     int flags = pEngine->PopInt();
     MapIndex index;
-    index.mValue = pEngine->PopInt();
+    *reinterpret_cast<int*>(&index) = pEngine->PopInt();
     pEngine->PushInt(GetSaveData(-1)->mData.mMapRecords[index.mMode][index.mArea][index.mStage][index.mMap].IsFlagSet(flags));
     return 0;
 }
@@ -1288,7 +1288,7 @@ int MapStatus_allFlags(NPpu::CEngine* pEngine) {
 int MapStatus_setFlags(NPpu::CEngine* pEngine) {
     int flags = pEngine->PopInt();
     MapIndex index;
-    index.mValue = pEngine->PopInt();
+    *reinterpret_cast<int*>(&index) = pEngine->PopInt();
     GetSaveData(-1)->mData.mMapRecords[index.mMode][index.mArea][index.mStage][index.mMap].SetFlags(flags);
     pEngine->PushNull();
     return 0;
@@ -1296,14 +1296,14 @@ int MapStatus_setFlags(NPpu::CEngine* pEngine) {
 
 int GetMapIndexSize(NPpu::CEngine* pEngine) {
     MapIndex index;
-    index.mValue = pEngine->PopInt();
+    *reinterpret_cast<int*>(&index) = pEngine->PopInt();
     pEngine->PushInt(IGameSession::GetInstance()->GetStageDesc(index)->mMapDescs.size());
     return 0;
 }
 
 int IsStageCleared(NPpu::CEngine* pEngine) {
     MapIndex index;
-    index.mValue = pEngine->PopInt();
+    *reinterpret_cast<int*>(&index) = pEngine->PopInt();
     index.mMap = IGameSession::GetInstance()->GetStageDesc(index)->mMapDescs.size() - 1;
     pEngine->PushInt(GetSaveData(-1)->mData.mMapRecords[index.mMode][index.mArea][index.mStage][index.mMap].IsFlagSet(2));
     return 0;
@@ -1365,7 +1365,7 @@ int IsBattleRoyalFirstHalf(NPpu::CEngine* pEngine) {
 
 int GetStageClearedNum(NPpu::CEngine* pEngine) {
     MapIndex index;
-    index.mValue = pEngine->PopInt();
+    *reinterpret_cast<int*>(&index) = pEngine->PopInt();
     int map = IGameSession::GetInstance()->GetStageDesc(index)->mMapDescs.size() - 1;
     int count = GetSaveData(-1)->mData.mMapRecords[index.mMode][index.mArea][index.mStage][map].GetClearCount();
     pEngine->PushInt(std::min(std::max(count, 0), 999));
@@ -1374,7 +1374,7 @@ int GetStageClearedNum(NPpu::CEngine* pEngine) {
 
 int IncMapClearedNum(NPpu::CEngine* pEngine) {
     MapIndex index;
-    index.mValue = pEngine->PopInt();
+    *reinterpret_cast<int*>(&index) = pEngine->PopInt();
     GetSaveData(-1)->mData.mMapRecords[index.mMode][index.mArea][index.mStage][index.mMap].IncrementClearCount();
     pEngine->PushNull();
     return 0;
@@ -1442,7 +1442,7 @@ int SetLife(NPpu::CEngine* pEngine) {
 
 int ChangeMap(NPpu::CEngine* pEngine) {
     MapIndex index;
-    index.mValue = pEngine->PopInt();
+    *reinterpret_cast<int*>(&index) = pEngine->PopInt();
     GetGameStage()->ChangeMap(index);
     pEngine->PushNull();
     return 0;
@@ -1515,7 +1515,7 @@ int SetTicket(NPpu::CEngine* pEngine) {
 
 int BeginStage(NPpu::CEngine* pEngine) {
     MapIndex index;
-    index.mValue = pEngine->PopInt();
+    *reinterpret_cast<int*>(&index) = pEngine->PopInt();
     IGameSession::GetInstance()->RequestMapChange(index, 0, 0);
     pEngine->PushNull();
     return 0;
@@ -1525,7 +1525,7 @@ int EndStage(NPpu::CEngine* pEngine) {
     int frames = pEngine->PopInt();
     int type = pEngine->PopInt();
     MapIndex index;
-    index.mValue = pEngine->PopInt();
+    *reinterpret_cast<int*>(&index) = pEngine->PopInt();
     IGameSession::GetInstance()->RequestMapChange(index, type, frames);
     pEngine->PushNull();
     return 0;
