@@ -1642,23 +1642,23 @@ int CheckRemoteMemoryErrors() {
 }
 
 int CheckPadErrors(int mask) {
-    int channel;
-    for (channel = 0; channel < 4; channel++) {
+    int result = mask;
+    for (int channel = 0; channel < 4; channel++) {
         unsigned int device;
         switch (GetWiiPadDevice(channel, &device)) {
         case -1:
-            mask &= ~(1 << channel);
+            result &= ~(1 << channel);
             break;
         case 0:
             if (device == 0 || device == 2) {
-                mask &= ~(1 << channel);
+                result &= ~(1 << channel);
             } else {
-                mask |= 1 << channel;
+                result |= 1 << channel;
             }
             break;
         }
     }
-    return mask;
+    return result;
 }
 
 void CDlgPiiSelector::SetInputLocked(bool locked) {

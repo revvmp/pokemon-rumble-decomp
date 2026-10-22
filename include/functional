@@ -116,7 +116,7 @@ template<class R,class C,class A,class T> detail::bound_func<R,detail::mem_fn_1<
 }
 template<class R,class C,class A,class T> detail::bound_func<R,detail::mem_fn_1<R,C,A>,tuple<T,placeholders::detail::ph<1> > > bind(R (C::*pFunction)(A),T value,placeholders::detail::ph<1> placeholder) {
     typedef tuple<T,placeholders::detail::ph<1> > Arguments;
-    return detail::bound_func<R,detail::mem_fn_1<R,C,A>,Arguments>(detail::mem_fn_1<R,C,A>(pFunction),Arguments(value,placeholder));
+    return detail::bound_func<R,detail::mem_fn_1<R,C,A>,Arguments>(mem_fn(pFunction),Arguments(value,placeholder));
 }
 template<class R,class C,class A,class B,class T> detail::bound_func<R,detail::mem_fn_2<R,C,A,B>,tuple<T,placeholders::detail::ph<1>,placeholders::detail::ph<2> > > bind(R (C::*pFunction)(A,B),T value,placeholders::detail::ph<1> first,placeholders::detail::ph<2> second) {
     typedef tuple<T,placeholders::detail::ph<1>,placeholders::detail::ph<2> > Arguments;
