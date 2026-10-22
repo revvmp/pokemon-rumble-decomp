@@ -333,6 +333,7 @@ config.libs = [
             Object(Matching, "game/Font.cpp"),
             Object(NonMatching, "game/ScriptWorld.cpp"),
             Object(NonMatching, "game/SaveData.cpp"),
+            Object(NonMatching, "game/PhotoSave.cpp"),
             Object(NonMatching, "game/NPpuVM.cpp"),
             Object(NonMatching, "game/NPpuLibrary.cpp"),
             Object(Matching, "game/GameLoop.cpp"),

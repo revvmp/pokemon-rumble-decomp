@@ -601,6 +601,15 @@ game/ControllerTable.cpp:
 	.bss        start:0x803E8D28 end:0x803E90C8
 	.sdata      start:0x804B77D8 end:0x804B77D9
 
+game/PhotoSave.cpp:
+	extab       start:0x80033D8C end:0x80034D94
+	extabindex  start:0x8004FD94 end:0x8004FDC4
+	.text       start:0x8016CB20 end:0x8016FC08
+	.rodata     start:0x8035DF48 end:0x8035DF88
+	.data       start:0x803B7D90 end:0x803B8298
+	.sdata      start:0x804B7B10 end:0x804B7B40
+	.sbss       start:0x804B90D8 end:0x804B90E0
+
 ControllerTableAlignmentPadding:
 	.sdata      start:0x804B77D9 end:0x804B77E0 align:1
 
