@@ -657,7 +657,7 @@ inline f32 CLayout::GetLayoutAlpha() {
 
 void CLayout::CalculateAttachedMtx() {
     mAttach->mpParent->CalculateMtx(false);
-    nw4r::lyt::Pane* pAttachPane = mAttach->mpPane;
+    const nw4r::lyt::Pane* pAttachPane = mAttach->mpPane;
     nw4r::lyt::Pane* pRoot = mLayout->GetRootPane();
     if (!pAttachPane->IsVisible()) {
         pRoot->SetVisible(false);
