@@ -1455,6 +1455,14 @@ game/sound.cpp:
 	.sbss       start:0x804B91E0 end:0x804B91F8
 	.sdata2     start:0x804BA588 end:0x804BA5A0
 
+game/BSoundSource.cpp:
+	extab       start:0x800432A4 end:0x80043418
+	extabindex  start:0x800520E0 end:0x8005214C
+	.text       start:0x801E8740 end:0x801E8DD0
+	.data       start:0x803C2CC0 end:0x803C2D98
+	.sdata      start:0x804B8618 end:0x804B8628
+	.sdata2     start:0x804BA5A0 end:0x804BA5A8
+
 MSL_C/printf.c:
 	extab       start:0x80043418 end:0x80043478
 	extabindex  start:0x8005214C end:0x800521DC

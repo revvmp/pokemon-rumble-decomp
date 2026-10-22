@@ -3,7 +3,7 @@
 
 #include <memory>
 #include <nw4r/math/math_types.h>
-#include <nw4r/snd/snd_SoundActor.h>
+#include <nw4r/snd/snd_Sound3DActor.h>
 #include <nw4r/snd/snd_SoundHandle.h>
 
 class BSoundSource {
@@ -15,9 +15,12 @@ public:
     void SetPitch(f32 pitch);
     f32 GetPitch() const;
 
+private:
+    void PrepareActor();
+
 protected:
     nw4r::snd::SoundHandle mHandle;
-    std::tr1::shared_ptr<nw4r::snd::SoundActor> mActor;
+    std::tr1::shared_ptr<nw4r::snd::Sound3DActor> mActor;
     nw4r::math::VEC3 mSourcePosition;
 
 public:

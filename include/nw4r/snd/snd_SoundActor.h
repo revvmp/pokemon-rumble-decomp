@@ -61,6 +61,12 @@ public:
     void SetVolume(f32 volume) {
         mActorParam.volume = volume;
     }
+    f32 GetPitch() const {
+        return mActorParam.pitch;
+    }
+    void SetPitch(f32 pitch) {
+        mActorParam.pitch = pitch;
+    }
 
 private:
     SoundArchivePlayer& mSoundArchivePlayer;
