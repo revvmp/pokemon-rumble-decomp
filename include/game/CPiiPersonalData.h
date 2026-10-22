@@ -33,7 +33,7 @@ public:
 
     const PiiSpeciesData* GetSpeciesData() const { return mSpeciesData; }
     const s64& GetCreationTime() const { return mCreationTime; }
-    f32 GetHPRatio() const;
+    f32 GetHPRatio();
     int GetHP() const { return mHP; }
     void SetHP(int hp);
     void FillUpHP();
@@ -44,7 +44,7 @@ public:
     void SetSelling(bool selling);
     void SetCreationTime(const s64& rTime);
     void RerollRandomSeed();
-    void Export(SD_PiiPersonalData::Data& rData) const;
+    void Export(SD_PiiPersonalData::Data& rData);
     static std::tr1::shared_ptr<CPiiPersonalData> Import(u32 id, const SD_PiiPersonalData::Data& rData);
     void ExecuteInitScript(int mode, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnv);
     bool IsFainted() const { return mHP <= 0; }

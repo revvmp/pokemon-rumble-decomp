@@ -84,7 +84,7 @@ void CPiiPersonalData::SetHP(int hp) {
     mHP = std::max(0, std::min(hp, mMaxHP));
 }
 
-f32 CPiiPersonalData::GetHPRatio() const {
+f32 CPiiPersonalData::GetHPRatio() {
     if (mHP == mMaxHP)
         return 1.0f;
     if (mHP == 0)
@@ -194,7 +194,7 @@ void CPiiPersonalData::SetPrice(int value) {
     mPrice = value;
 }
 
-void CPiiPersonalData::Export(SD_PiiPersonalData::Data& rData) const {
+void CPiiPersonalData::Export(SD_PiiPersonalData::Data& rData) {
     rData.mSpecies = mSpeciesData->GetSpecies();
     rData.mForm = mSpeciesData->GetFormNumber();
     rData.mSex = mSex;
