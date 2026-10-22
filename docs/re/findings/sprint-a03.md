@@ -48,3 +48,30 @@ Issues 61-65 (`game/CDividedGround.cpp`) and 113-114 (`game/CEffect.cpp`).
 | CFileData | `CWorker::CWorker` | 99.8 | Target stores `BThread::mpHead` before the vtable; making `mpHead` non-volatile regresses eight functions. |
 | CLayout | `Attach`, `AttachLayout`, `DetachAttachedLayouts` | 99.2-99.3 | The target `set<T*>` insert and copy paths have two more empty-tag slots and one more iterator copy than the hand-written pointer specialisation in `include/set`. |
 | CLayout | `GetPaneAlpha` | 98.2 | Inlined recursive copies carry an extra `b`; early-return shapes compile larger (0-87%). |
+
+## Final tail wave (CLayout, CFileData)
+
+Gained: CLayout `Draw` and `GetPaneAlpha`; CFileData `DefaultFileErrorHandler`, `copy`, `construct_at_front`, `construct_at_end(n)` and `resize`. Also improved: map_base `erase` 91.6 to 96.7%, CLayout `FindAnimation` 93.2 to 98.1%, `__ct__7CLayout` 95.5 to 96.9%, and `CalculateAttachedMtx` 93.6 to 94.9%. CGameResult and CUIMenu each gained one function from the shared `map` changes. Both units stay `NonMatching`.
+
+### Traps
+
+- **Slot order can need an inline helper, not a change to declaration order.** In CLayout `Draw`, the 16-byte locals (`rect`, viewport, scissor) were in reverse order, while the 64-byte `Mtx44` and `MTX34` temporaries were already right. Moving the three small objects into an inline helper (`SetupScreen(Mtx44 projection)`) reversed only those three. The projection matrix stays in the caller.
+- **A zero-initialised struct followed by member reassignment.** The target stores four integer zeros into the viewport, reloads `x` and `y` as floats, then stores all four members as floats. This source reproduces it: `Viewport viewport = {0, 0, 0, 0}; viewport.SetSize(w, h)`, where `SetSize` calls `Set(x, y, w, h)`. Convert `w` and `h` into locals first. Otherwise the right-to-left argument order converts the height first.
+- **An extra `b` after a then-block in recursive inlines.** `GetPaneAlpha` needs `if (paneAlpha != 255) { return ...; } return alpha;` with the pane alpha held in a `u8` local. Without the local, the early-return form changes the recursive inline depth and the function scores 0%.
+- **Debug strings can end in a newline.** The CFileData `OSPanic` messages end in a newline escape (`fatal error: NAND_08` followed by `\n`). A missing newline shifts the later strings in the pool by 4 bytes and moves every `addi rX, base, off` that loads them.
+- **`std::swap` of a `compressed_pair` spills a temporary.** `map_compact_tree::swap` now calls the member `swap` on each of its three compressed pairs. `comp_` is built from the anchor alone, with no `Compare()` temporary. This fixed the split-buffer helpers for vector of map, and `copy`, without changing any Matching unit.
+- **Copy through the derived tree.** `map_compact_red_black_tree` owns the copy constructor: it default-constructs its base and then calls `this->copy(rOther)`, as `red_black_tree` does. The target keeps `this` in a saved register for the base-destructor cleanup.
+- **`erase_next` increments a temporary.** `front() = (++iterator(position)).node_;` gives the target's register use. With a named copy, the optimiser stores the leftmost result directly instead.
+
+### Open, with what was tried
+
+| Unit | Function | % | Cause and attempts |
+| --- | --- | --- | --- |
+| CFileData | `__as__` for vector of map, plus the missing `copy_range<map*>` and `construct_at_end<map*>` | 99.8 | For this vector only, the target `operator=` passes `T*` iterators, and `copy_range<T*>` loops with `<` one inline level down. Two changes together matched CFileData: passing `data_` (selected on `__vec_trivial_copy`) and adding a `U*` overload to a helper. They broke CDlgPiiSelector, whose `copy_range<list iterator>` gains an inline level, as well as SaveData and CUIMenu. Reverted. |
+| CFileData, CLayout | `map::insert` (CFileData), `FindAnimation` | 99.9, 98.1 | The `left` and `leftmost` slots are swapped. An `insert_one` forwarder in `map_compact_tree_adapter` fixes the slot order in both, but changes BWorld `RemoveOldestEffect` (`map<u32, CEffect*>`). The extra level seems to apply only when the key or the value is not POD. Reverted, because the net gain was zero. |
+| CFileData | `OpenFileStream` | 97.4 | When `AcquireCNTHandle` returns null, the target destroys the handle on a separate path: `bne` branches to the body and the null case falls through to the destructor. Not reproduced. |
+| CFileData | `UpdateResourceFiles` | 99.9 | The `RemoveExpiredFiles` iterator is in r26 in the target and r28 in ours. Declaration order, assignment after declaration and a `for` loop do not fix it. |
+| CLayout | `StopMotion`, `ReplaceMotions`, `FindPaneMP`, `AdvancePaneMotions`, `Attach*`, `DetachAttachedLayouts` | 91-99.3 | In the inlined `UpdateAttachedLayouts` and map `find`, the target keeps every iterator copy and the pane key in memory. The standalone `UpdateAttachedLayouts` matches. A user copy constructor on `set<T*>::iterator` and named locals in `set<T*>::begin()` and `end()` change nothing. |
+| CLayout | `CalculateAttachedMtx` | 94.9 | The target does not fold `root == root` from the inlined `GetLayoutAlpha`, and it reloads the attach pane's visibility. Ours keeps both in registers. |
+| CLayout | `MakeArchiveList(const char* const*)`, `CInitializeException` (array overload) | 94.4, 98.1 | The target loads `*pArchives` after the list is initialised. Pointer, index and `while` loop forms do not move the load. |
+| CLayout | `__ct__7CLayout` | 96.9 | `GetDefaultPixelScale()` creates one extra 8-byte `VEC2` temporary. Returning the static directly fixes the slot, but then the copy uses integer loads. |
