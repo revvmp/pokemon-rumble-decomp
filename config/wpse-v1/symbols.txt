@@ -11370,7 +11370,7 @@ __ct__Q43std3tr16detail300bound_func<v,Q43std3tr16detail61mem_fn_0<v,Q229@unname
 __ct__Q43std3tr16detail344function_imp<PFv_v,Q43std3tr16detail300bound_func<v,Q43std3tr16detail61mem_fn_0<v,Q229@unnamed@CDlgPiiSelector_cpp@14CDataPerPlayer>,Q33std3tr1192tuple<PQ229@unnamed@CDlgPiiSelector_cpp@14CDataPerPlayer,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat>>,0,0>FQ43std3tr16detail300bound_func<v,Q43std3tr16detail61mem_fn_0<v,Q229@unnamed@CDlgPiiSelector_cpp@14CDataPerPlayer>,Q33std3tr1192tuple<PQ229@unnamed@CDlgPiiSelector_cpp@14CDataPerPlayer,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat>> = .text:0x8009D160; // type:function size:0x54
 __ct__Q43std3tr16detail20function_base<PFv_v>Fv = .text:0x8009D1C0; // type:function size:0x10
 use_count__Q33std3tr122shared_ptr<9BWorldObj>CFv = .text:0x8009D1D0; // type:function size:0x18
-fn_8009D1F0 = .text:0x8009D1F0; // type:function size:0x24
+swap__Q33std3tr122shared_ptr<9BWorldObj>FRQ33std3tr122shared_ptr<9BWorldObj> = .text:0x8009D1F0; // type:function size:0x24
 enable_from_this<9BWorldObj,5CItem>__Q33std3tr118shared_ptr<5CItem>FPCQ33std3tr135enable_shared_from_this<9BWorldObj>P5CItem_v = .text:0x8009D220; // type:function size:0x58
 __ct<5CItem>__Q33std3tr120weak_ptr<9BWorldObj>FP5CItemPQ43std3tr16detail25shared_ptr_deleter_common_Pv = .text:0x8009D280; // type:function size:0x3C
 swap__Q33std3tr120weak_ptr<9BWorldObj>FRQ33std3tr120weak_ptr<9BWorldObj> = .text:0x8009D2C0; // type:function size:0x24
@@ -11560,7 +11560,7 @@ fn_8009FC20 = .text:0x8009FC20; // type:function size:0x58
 allocate__Q23std116__vec_deleter<Q33std3tr128shared_ptr<14CUIPiiListItem>,RQ23std51allocator<Q33std3tr128shared_ptr<14CUIPiiListItem>>>FUlQ210Metrowerks11int2type<0> = .text:0x8009FC80; // type:function size:0x68
 max_size__Q23std116__vec_deleter<Q33std3tr128shared_ptr<14CUIPiiListItem>,RQ23std51allocator<Q33std3tr128shared_ptr<14CUIPiiListItem>>>CFv = .text:0x8009FCF0; // type:function size:0x24
 alloc__Q23std116__vec_deleter<Q33std3tr128shared_ptr<14CUIPiiListItem>,RQ23std51allocator<Q33std3tr128shared_ptr<14CUIPiiListItem>>>CFv = .text:0x8009FD20; // type:function size:0x8
-fn_8009FD30 = .text:0x8009FD30; // type:function size:0x8
+second__Q310Metrowerks6detail88CompressedPairStorage<Ul,RQ23std51allocator<Q33std3tr128shared_ptr<14CUIPiiListItem>>,0>CFv = .text:0x8009FD30; // type:function size:0x8
 __ct__8CDropPiiFQ33std3tr130shared_ptr<16CPiiPersonalData>Ul = .text:0x8009FD40; // type:function size:0xA8
 __dt__8CDropPiiFv = .text:0x8009FDF0; // type:function size:0x58
 Initialize__8CDropPiiFb = .text:0x8009FE50; // type:function size:0x2EC
