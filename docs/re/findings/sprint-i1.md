@@ -80,3 +80,7 @@ Still open: `BModelObj::CalcSize` (91%): the target multiplies `volume * scale` 
 
 - **Swapping clone names can break the DOL.** `permute_names.py` on CDlgPiiSelector raised objdiff matches but the build checksum failed: other Matching units link to those weak names. Run a full build before committing clone renames in shared template code.
 - **Unreferenced inline destructors are not a blocker.** `~tree` and `~red_black_tree` of a `set` member are emitted unreferenced in our objects (every set, even a local one) but absent in the target; the linker strips them, so they appear as "only in source" without affecting the DOL.
+
+### Vector range copies use memmove
+
+Target vector copy paths for POD elements (PiiPropData constructor, Reset, `SpeciesMoves::operator=`, CDlgCollectionItem constructor) call `memmove` with the size recomputed from the range, while `reserve` keeps `memcpy`. Changing the const-range POD `construct_at_end` in `include/vector` raised `SpeciesMoves::operator=` to 97.9% and the CDlgCollectionItem constructor to 94.7%; full build and verification passed. Remaining differences in these functions are register numbering.
