@@ -8,6 +8,8 @@
 
 namespace std {
 
+template <typename Key, typename T, typename Compare, typename Allocator> class map;
+
 namespace detail {
 
 template <typename T> struct map_pointer_key { enum { value = false }; };
