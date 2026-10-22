@@ -28,11 +28,9 @@ namespace detail {
 SeqSound::SeqSound(SoundInstanceManager<SeqSound> *manager, int priority,
                    int ambientPriority) :
     BasicSound(priority, ambientPriority),
-    mTempSpecialHandle(nullptr),
+    mTempSpecialHandle((mLoadingFlag = false, mPreparedFlag = false, static_cast<SeqSoundHandle*>(nullptr))),
     mManager(manager),
     mStartOffset(0),
-    mLoadingFlag(false),
-    mPreparedFlag(false),
     mFileStream(nullptr) {}
 
 void SeqSound::InitParam()
