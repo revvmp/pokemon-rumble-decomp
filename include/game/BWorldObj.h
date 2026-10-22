@@ -20,7 +20,10 @@ class BWorldObj : public ICalc, public std::tr1::enable_shared_from_this<BWorldO
 public:
 
     enum StateFlag {
-        STATE_VISIBLE = 1 << 0
+        STATE_VISIBLE = 1 << 0,
+        STATE_PAUSE_FOR_UI = 1 << 1,
+        STATE_HITSTOP = 1 << 2,
+        STATE_IGNORE_ENTER_EVENT = 1 << 3
     };
 
     enum TypeFlag {
@@ -57,6 +60,14 @@ public:
 
     u32 GetStateFlags(u32 mask) const { return mState & mask; }
     bool IsVisible() const { return GetStateFlags(STATE_VISIBLE); }
+    bool HasStateFlag(u32 mask) const { return (mState & mask) != 0; }
+    void SetStateFlag(u32 mask, bool enable);
+    void EnablePauseForUI(bool enable) { SetStateFlag(STATE_PAUSE_FOR_UI, enable); }
+    bool IsPauseForUIEnabled() const { return HasStateFlag(STATE_PAUSE_FOR_UI); }
+    void EnableHitstop(bool enable) { SetStateFlag(STATE_HITSTOP, enable); }
+    bool IsHitstopEnabled() const { return HasStateFlag(STATE_HITSTOP); }
+    void SetIgnoreEnterEvent(bool ignore) { SetStateFlag(STATE_IGNORE_ENTER_EVENT, ignore); }
+    bool IsIgnoreEnterEvent() const { return HasStateFlag(STATE_IGNORE_ENTER_EVENT); }
     BWorld* GetWorld() const { return mWorld; }
     bool IsInWorld() const { return mWorld != nullptr; }
     u32 GetId() const { return mId; }

@@ -173,3 +173,153 @@ int method_mergeFindObjInArcZX(NPpu::CEngine* pEngine) {
 int method_countObjInArcZX(NPpu::CEngine* pEngine) {
     return CountArc(pEngine, PushObjectCount, PushZeroCount);
 }
+
+int method_getGenerator(NPpu::CEngine* pEngine) {
+    BWorldObj* pObject = static_cast<CPpuEngine*>(pEngine)->PopWorldObj();
+    if (pObject != nullptr) {
+        BWorldObj* pGenerator = pObject->GetParent();
+        if (pGenerator != nullptr) {
+            pEngine->PushInt(pGenerator->GetId());
+            return 0;
+        }
+    }
+    pEngine->PushInt(0);
+    return 0;
+}
+
+int method_setGenerator(NPpu::CEngine* pEngine) {
+    BWorldObj* pGenerator = static_cast<CPpuEngine*>(pEngine)->PopWorldObj();
+    BWorldObj* pObject = static_cast<CPpuEngine*>(pEngine)->PopWorldObj();
+    if (pObject != nullptr) {
+        if (pGenerator != nullptr) {
+            pObject->SetParent(pGenerator->shared_from_this());
+        } else {
+            pObject->SetParent(std::tr1::shared_ptr<BWorldObj>(0));
+        }
+    }
+    pEngine->PushNull();
+    return 0;
+}
+
+int method_getRegister(NPpu::CEngine* pEngine) {
+    u32 index = pEngine->PopInt();
+    BWorldObj* pObject = static_cast<CPpuEngine*>(pEngine)->PopWorldObj();
+    if (pObject != nullptr) {
+        pEngine->Push(pObject->GetRegister(index));
+    } else {
+        pEngine->PushInt(0);
+    }
+    return 0;
+}
+
+int method_setRegister(NPpu::CEngine* pEngine) {
+    NPpu::Slice value;
+    pEngine->Pop(value);
+    u32 index = pEngine->PopInt();
+    BWorldObj* pObject = static_cast<CPpuEngine*>(pEngine)->PopWorldObj();
+    if (pObject != nullptr) {
+        pObject->SetRegister(index, value);
+    }
+    pEngine->PushNull();
+    return 0;
+}
+
+int GetNewObjRegister(NPpu::CEngine* pBaseEngine) {
+    CPpuEngine* pEngine = static_cast<CPpuEngine*>(pBaseEngine);
+    u32 index = pEngine->PopInt();
+    pEngine->Push(pEngine->GetRegister()->GetValue(index));
+    return 0;
+}
+
+int SetNewObjRegister(NPpu::CEngine* pBaseEngine) {
+    CPpuEngine* pEngine = static_cast<CPpuEngine*>(pBaseEngine);
+    NPpu::Slice value;
+    pEngine->Pop(value);
+    u32 index = pEngine->PopInt();
+    pEngine->GetRegister()->Set(index, value);
+    pEngine->PushNull();
+    return 0;
+}
+
+int method_isShown(NPpu::CEngine* pEngine) {
+    bool shown = false;
+    BWorldObj* pObject = static_cast<CPpuEngine*>(pEngine)->PopWorldObj();
+    if (pObject != nullptr) {
+        shown = pObject->IsVisible();
+    }
+    pEngine->PushInt(shown);
+    return 0;
+}
+
+int method_showInMiniMap(NPpu::CEngine* pEngine) {
+    int show = pEngine->PopInt();
+    BWorldObj* pObject = static_cast<CPpuEngine*>(pEngine)->PopWorldObj();
+    if (pObject != nullptr) {
+        pObject->SetEffectEnable(show != 0);
+    }
+    pEngine->PushNull();
+    return 0;
+}
+
+int method_enablePauseForUI(NPpu::CEngine* pEngine) {
+    bool enable = pEngine->PopInt() != 0;
+    BWorldObj* pObject = static_cast<CPpuEngine*>(pEngine)->PopWorldObj();
+    if (pObject != nullptr) {
+        pObject->EnablePauseForUI(enable);
+    }
+    pEngine->PushNull();
+    return 0;
+}
+
+int method_isPauseForUIEnabled(NPpu::CEngine* pEngine) {
+    BWorldObj* pObject = static_cast<CPpuEngine*>(pEngine)->PopWorldObj();
+    pEngine->PushInt(pObject != nullptr ? pObject->IsPauseForUIEnabled() : true);
+    pEngine->PushNull();
+    return 0;
+}
+
+int method_enableHitstop(NPpu::CEngine* pEngine) {
+    bool enable = pEngine->PopInt() != 0;
+    BWorldObj* pObject = static_cast<CPpuEngine*>(pEngine)->PopWorldObj();
+    if (pObject != nullptr) {
+        pObject->EnableHitstop(enable);
+    }
+    pEngine->PushNull();
+    return 0;
+}
+
+int method_isHitstopEnabled(NPpu::CEngine* pEngine) {
+    BWorldObj* pObject = static_cast<CPpuEngine*>(pEngine)->PopWorldObj();
+    pEngine->PushInt(pObject != nullptr ? pObject->IsHitstopEnabled() : true);
+    pEngine->PushNull();
+    return 0;
+}
+
+int method_setIgnoreEnterEvent(NPpu::CEngine* pEngine) {
+    bool ignore = pEngine->PopInt() != 0;
+    BWorldObj* pObject = static_cast<CPpuEngine*>(pEngine)->PopWorldObj();
+    if (pObject != nullptr) {
+        pObject->SetIgnoreEnterEvent(ignore);
+    }
+    pEngine->PushNull();
+    return 0;
+}
+
+int method_isIgnoreEnterEvent(NPpu::CEngine* pEngine) {
+    BWorldObj* pObject = static_cast<CPpuEngine*>(pEngine)->PopWorldObj();
+    pEngine->PushInt(pObject != nullptr ? pObject->IsIgnoreEnterEvent() : true);
+    pEngine->PushNull();
+    return 0;
+}
+
+int CountObj(NPpu::CEngine* pEngine) {
+    u32 type = pEngine->PopInt();
+    pEngine->PushInt(static_cast<CPpuEngine*>(pEngine)->GetWorld()->CountObjects(type));
+    return 0;
+}
+
+int GetCIStr(NPpu::CEngine* pEngine) {
+    pEngine->Drop(1);
+    pEngine->PushNull();
+    return 0;
+}
