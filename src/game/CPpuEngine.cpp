@@ -315,6 +315,10 @@ bool CPpuEngine::HasCallback(int messageID) const {
 
 namespace {
 
+struct HandlerList : public std::vector<int> {
+    HandlerList(std::list<int>::iterator first, std::list<int>::iterator last) : std::vector<int>(first, last) {}
+};
+
 inline bool CallHandler(CPpuEngine& rEngine, int functionID, const CPpuEngine::Message& rMessage) {
     NPpu::CValue args[3];
     args[0].SetInt(rMessage.mSender);
@@ -344,7 +348,7 @@ int CPpuEngine::SendMessage(const Message& rMessage) {
             }
         }
     } else {
-        std::vector<int> functions(rCallbacks.begin(), rCallbacks.end());
+        HandlerList functions(rCallbacks.begin(), rCallbacks.end());
         for (std::vector<int>::iterator fn = functions.begin(); fn != functions.end(); ++fn) {
             if (CallHandler(*this, *fn, rMessage)) {
                 break;
