@@ -337,6 +337,8 @@ int GetCurrentMID(NPpu::CEngine* pEngine) {
     return 0;
 }
 
+#pragma push
+#pragma opt_dead_assignments off
 int MakeMapID(NPpu::CEngine* pEngine) {
     u8 map = pEngine->PopInt();
     int stage = pEngine->PopInt();
@@ -350,6 +352,7 @@ int MakeMapID(NPpu::CEngine* pEngine) {
     pEngine->PushInt(*reinterpret_cast<int*>(&index));
     return 0;
 }
+#pragma pop
 
 int GetMapIndex(NPpu::CEngine* pEngine) {
     int value = pEngine->PopInt();
@@ -1401,6 +1404,8 @@ int GetStageClearedNum(NPpu::CEngine* pEngine) {
     return 0;
 }
 
+#pragma push
+#pragma opt_common_subs off
 int IncMapClearedNum(NPpu::CEngine* pEngine) {
     MapIndex index;
     *reinterpret_cast<int*>(&index) = pEngine->PopInt();
@@ -1408,6 +1413,7 @@ int IncMapClearedNum(NPpu::CEngine* pEngine) {
     pEngine->PushNull();
     return 0;
 }
+#pragma pop
 
 int DEBUG_GetDropRareFlag(NPpu::CEngine* pEngine) {
     pEngine->PushInt(0);

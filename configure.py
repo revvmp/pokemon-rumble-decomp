@@ -325,7 +325,7 @@ config.libs = [
             Object(Matching, "game/CWarpZone.cpp"),
             Object(Matching, "game/CWaza.cpp"),
             Object(Matching, "game/CWorldObjStatDisplay.cpp"),
-            Object(NonMatching, "game/ScriptGame.cpp"),
+            Object(Matching, "game/ScriptGame.cpp"),
             Object(Matching, "game/ScriptItem.cpp"),
             Object(Matching, "game/ScriptMessages.cpp"),
             Object(Matching, "game/ScriptLayout.cpp", extra_cflags=["-dialect c99"]),
