@@ -176,7 +176,7 @@ public:
             char name[] = "I3_0_CURSOR";
             name[1] = '0' + count;
             name[3] = '0' + i;
-            mLayout.SetPaneVisible(name, mCursor == i);
+            mLayout.SetPaneVisible(name, i == mCursor);
             mLayout.CreateMotion("loop", mLayout.FindPane(name), 0.0f, 1.0f);
         }
     }
