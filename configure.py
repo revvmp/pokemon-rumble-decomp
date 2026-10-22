@@ -234,6 +234,8 @@ config.libs = [
             Object(Matching, "game/CControllerGCPad.cpp"),
             Object(Matching, "game/CControllerNunchaku.cpp"),
             Object(Matching, "game/CControllerWiiRemote.cpp"),
+            Object(NonMatching, "game/CBattleRoyalBox.cpp"),
+            Object(NonMatching, "game/CBattleRoyalDisplay.cpp"),
             Object(Matching, "game/CBossPii.cpp"),
             Object(Matching, "game/CColorBtnTagProc.cpp"),
             Object(NonMatching, "game/CColorConst.cpp"),
