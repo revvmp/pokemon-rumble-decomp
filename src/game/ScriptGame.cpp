@@ -1284,7 +1284,13 @@ int MapStatus_allFlags(NPpu::CEngine* pEngine) {
     int flags = pEngine->PopInt();
     MapIndex index;
     *reinterpret_cast<int*>(&index) = pEngine->PopInt();
-    pEngine->PushInt(GetSaveData(-1)->mData.mMapRecords[index.mMode][index.mArea][index.mStage][index.mMap].IsFlagSet(flags));
+    int stage;
+    int area;
+    int mode;
+    mode = index.mMode;
+    area = index.mArea;
+    stage = index.mStage;
+    pEngine->PushInt(GetSaveData(-1)->mData.mMapRecords[mode][area][stage][index.mMap].IsFlagSet(flags));
     return 0;
 }
 
@@ -1292,7 +1298,13 @@ int MapStatus_setFlags(NPpu::CEngine* pEngine) {
     int flags = pEngine->PopInt();
     MapIndex index;
     *reinterpret_cast<int*>(&index) = pEngine->PopInt();
-    GetSaveData(-1)->mData.mMapRecords[index.mMode][index.mArea][index.mStage][index.mMap].SetFlags(flags);
+    int stage;
+    int area;
+    int mode;
+    mode = index.mMode;
+    area = index.mArea;
+    stage = index.mStage;
+    GetSaveData(-1)->mData.mMapRecords[mode][area][stage][index.mMap].SetFlags(flags);
     pEngine->PushNull();
     return 0;
 }
@@ -1308,7 +1320,13 @@ int IsStageCleared(NPpu::CEngine* pEngine) {
     MapIndex index;
     *reinterpret_cast<int*>(&index) = pEngine->PopInt();
     index.mMap = IGameSession::GetInstance()->GetStageDesc(index)->mMapDescs.size() - 1;
-    pEngine->PushInt(GetSaveData(-1)->mData.mMapRecords[index.mMode][index.mArea][index.mStage][index.mMap].IsFlagSet(2));
+    int stage;
+    int area;
+    int mode;
+    mode = index.mMode;
+    area = index.mArea;
+    stage = index.mStage;
+    pEngine->PushInt(GetSaveData(-1)->mData.mMapRecords[mode][area][stage][index.mMap].IsFlagSet(2));
     return 0;
 }
 
@@ -1371,7 +1389,9 @@ int GetStageClearedNum(NPpu::CEngine* pEngine) {
     *reinterpret_cast<int*>(&index) = pEngine->PopInt();
     int map = IGameSession::GetInstance()->GetStageDesc(index)->mMapDescs.size() - 1;
     int count = GetSaveData(-1)->mData.mMapRecords[index.mMode][index.mArea][index.mStage][map].GetClearCount();
-    pEngine->PushInt(std::min(std::max(count, 0), 999));
+    int low = 0;
+    int high = 999;
+    pEngine->PushInt(std::min(std::max(count, low), high));
     return 0;
 }
 
