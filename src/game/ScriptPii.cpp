@@ -9,6 +9,8 @@
 #include <game/CDropPii.h>
 #include <game/BWorld.h>
 
+int GetMaxBP();
+
 #pragma dont_inline on
 
 int NewPlayerPii(NPpu::CEngine* pBase) {
@@ -199,5 +201,29 @@ int GetPlayerIndex(NPpu::CEngine* pBase) {
         if (pPii) index = pPii->GetPlayer()->GetPlayerNo();
     }
     pEngine->PushInt(index);
+    return 0;
+}
+
+int IsNewMonsno(NPpu::CEngine* pEngine) {
+    u16 species = pEngine->PopInt();
+    pEngine->PushInt(IGameSession::GetInstance()->GetCollectionType(species) != 3);
+    return 0;
+}
+
+int GetMaxBP(NPpu::CEngine* pEngine) {
+    pEngine->PushInt(GetMaxBP());
+    return 0;
+}
+
+int method_getDesignPiiFlyHeight(NPpu::CEngine* pBase) {
+    CPpuEngine* pEngine = static_cast<CPpuEngine*>(pBase);
+    std::tr1::shared_ptr<CPiiPersonalData> data = pEngine->PopPersonalData();
+    f32 height = 0.0f;
+    if (data) {
+        if (data->GetSpeciesData()->IsFlying()) {
+            height = 0.3f;
+        }
+    }
+    pEngine->PushFloat(height);
     return 0;
 }
