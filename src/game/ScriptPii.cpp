@@ -254,9 +254,11 @@ static int SearchByGroupNo(NPpu::CEngine* pBase, FoundFunc pFound, NoneFunc pNon
         std::vector<BWorldObj*> objects = pEngine->GetWorld()->GetObjects(0x100);
         std::list<BWorldObj*> found;
         int groupNo = pPii->GetPersonalData()->GetGroupNo();
-        for (std::vector<BWorldObj*>::iterator it = objects.begin(); it != objects.end(); ++it) {
-            if (DynamicCast<CPii>(*it)->GetPersonalData()->GetGroupNo() == groupNo) {
-                found.push_back(*it);
+        if (groupNo != 0) {
+            for (std::vector<BWorldObj*>::iterator it = objects.begin(); it != objects.end(); ++it) {
+                if (DynamicCast<CPii>(*it)->GetPersonalData()->GetGroupNo() == groupNo) {
+                    found.push_back(*it);
+                }
             }
         }
         return pFound(pEngine, pSlices, capacity, found);
@@ -265,29 +267,31 @@ static int SearchByGroupNo(NPpu::CEngine* pBase, FoundFunc pFound, NoneFunc pNon
 }
 
 int FindEnemyByGroupNo(NPpu::CEngine* pBase) {
-    int groupNo = pBase->PopInt();
+    CPpuEngine* pEngine = static_cast<CPpuEngine*>(pBase);
+    int groupNo = pEngine->PopInt();
     int capacity = 0;
-    NPpu::Slice* pSlices = pBase->PopArray(&capacity);
-    std::vector<BWorldObj*> objects = static_cast<CPpuEngine*>(pBase)->GetWorld()->GetObjects(0x100);
+    NPpu::Slice* pSlices = pEngine->PopArray(&capacity);
+    std::vector<BWorldObj*> objects = pEngine->GetWorld()->GetObjects(0x100);
     std::list<BWorldObj*> found;
     for (std::vector<BWorldObj*>::iterator it = objects.begin(); it != objects.end(); ++it) {
         if (DynamicCast<CPii>(*it)->GetPersonalData()->GetGroupNo() == groupNo) {
             found.push_back(*it);
         }
     }
-    return PushObjectIds(pBase, pSlices, capacity, found);
+    return PushObjectIds(pEngine, pSlices, capacity, found);
 }
 
 int CountEnemyByGroupNo(NPpu::CEngine* pBase) {
-    int groupNo = pBase->PopInt();
-    std::vector<BWorldObj*> objects = static_cast<CPpuEngine*>(pBase)->GetWorld()->GetObjects(0x100);
+    CPpuEngine* pEngine = static_cast<CPpuEngine*>(pBase);
+    int groupNo = pEngine->PopInt();
+    std::vector<BWorldObj*> objects = pEngine->GetWorld()->GetObjects(0x100);
     int count = 0;
     for (std::vector<BWorldObj*>::iterator it = objects.begin(); it != objects.end(); ++it) {
         if (DynamicCast<CPii>(*it)->GetPersonalData()->GetGroupNo() == groupNo) {
             count++;
         }
     }
-    pBase->PushInt(count);
+    pEngine->PushInt(count);
     return 0;
 }
 
