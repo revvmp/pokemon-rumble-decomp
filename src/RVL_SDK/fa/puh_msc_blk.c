@@ -189,11 +189,11 @@ s32 uhf_msc_blk_pwrite(PDM_DISK* p_disk, const u8* p_buf, u32 block, u32 count, 
     u8 sense[3] = {0, 0, 0};
     UHFMscBlkUnit* p_unit;
     BOOL direct;
-    u8* p_transfer;
-    u16 num_block;
-    u32 bytes_per_sector;
-    u32 max_block;
     s32 result;
+    u32 bytes_per_sector;
+    u8* p_transfer;
+    u32 max_block;
+    u16 num_block;
 
     *p_success = 0;
     if (p_disk == NULL || p_buf == NULL) {
