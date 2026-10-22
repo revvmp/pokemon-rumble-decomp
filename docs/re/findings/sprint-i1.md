@@ -38,7 +38,28 @@ The `IGameResult::Create` case shows the counter-intuitive direction: the body h
 - `CDlgPiiListImpl::Run`: the target inlines the `bind(&OnSortChanged, this, _1)` call that ours prunes, and its first inlined `ShowMessage` in `CheckRemoteMemory` has one more `YieldFiber` call.
 - `IGameResult::Create`: the inlined `G3dObj::DynamicCast<ScnMdl>` branch layout.
 
+## F-i1-4: second shift, applying the rule
+
+A scan of `report.json` plus objdiff call lists (functions below 100% whose `bl` targets differ between target and source, ranked by size times gap) found more real code gaps than inliner cases. Results:
+
+| Function | Before | After | Cause and fix |
+| --- | --- | --- | --- |
+| `pair<const string, shared_ptr<T>>` tree `destroy` (main, CPpuEnv), `__ct<map>` in main, `GetFontMap` (errmsg) | 0 to 85% | 100% | Pruned levels keep only children of about 14 flattened statements or fewer. The target calls `allocator::destroy` for this pair in pruned levels, ours kept it inline: our `~basic_string` was two statements short. Freeing through `long_data()` and `long_cap()` fixes all four with no regressions. |
+| POD `vector::push_back` (CPauseMenu `UIMenuItem`, PiiPropData `short`, CDlgCollection `unsigned short`) and `CPpuEngine::LoadPlacement` | 65 to 81% | 94 to 99% | Not inlining: `push_back_pod` took its capacity from the boolean `grow_by(1)`, so the reallocation constant-folded to `new(0)`. It now uses `recommend(size + 1 - cap)`. |
+| `CFileData` `UpdateResourceFiles` | 83% | 99.9% | Missing code: an idle worker (`mCount` and `mYieldDepth` zero) is released and expired cache entries are purged by an inline shared with `ShutdownResourceFiles`. |
+| `CModel::TPartialAnm<0>::Update` | 79% | 96% | Missing code: a finished non-main animation pops its motion and resets its animation object. |
+| `CModel::Load` | 90% | 97% | Missing `LoadBounds(&mBounds, GetResFile().GetResMdl(0))`. |
+| `CDlgPiiListImpl::Run` | 94.7% | 94.9% | The end motion and type switch follow the input loop, which `case 1` leaves with `return`, matching the target block order. |
+
+### Measured gaps that are still open
+
+- `main`: the target calls `ResourceFileConfig::SetErrorHandler`, ours auto-inlines it. Adding statements to its body shows the target body costs about 10 to 15 statements more than ours; `mErrorHandler = rHandler`, an unrolled `swap`, and moving the definition change nothing. The extra cost is probably in the original `function<R(A,B,C,D)>` copy, swap or destructor.
+- `SaveData` (a16): `append<SlotData>` in the target is a rule-3 poison (it calls even `cap()`), because `construct_at_end` and `append_realloc` stay expensive. They stay expensive because the `SlotData` copy level overflows in the target, which turns `SlotData::Data`'s implicit copy and the seven vector copy constructors into calls. Ours is just under the budget there: adding about five statements to the `__vec_constructor` copy constructor (in an `if` that never runs) makes the copy level overflow and reproduces the target calls. Dead locals or extra accessor layers in the copy constructor do not count. The real missing cost is still unidentified.
+- `CDlgPiiListImpl::Run`: the target keeps `bind(&OnSortChanged, this, _1)` inline in the pruned `RunList` level, so the original `bind` flattens to 14 statements or fewer. Ours is just over the limit. Building `mem_fn_1` directly instead of through `mem_fn` does not change it.
+
 ## Traps
 
+- **Library helpers can be a few statements off the original.** When a pruned level keeps a helper inline that the target calls (or the reverse), test the threshold by adding a never-taken `if (global == 12345) { ... }` with N statements to the helper and rebuilding the whole project. A dead local or `x = x` is folded away before costing; the `if` is not. If the improvements fall only on one container or value type, the gap is in that type's helpers, as with `~basic_string` here. Then find a form with the same code and more statements, such as calling accessors instead of reaching fields directly, and confirm with a full report diff that nothing regresses.
+- **Check for constant folding before blaming the inliner.** A reallocation path with `new(0)` and a missing throw meant the source computed its capacity from a `bool`.
 - **Deleting a statement can change inlining everywhere in a function.** Under `-ipa file` the function being compiled is all-or-nothing against a per-function budget of flattened inline code (F-i1-1). Do not chase single refusals from `warn_notinlined`; find the level structure instead (F-i1-2).
 - **Pruned callees look like non-inline functions.** A helper the target calls out of line may still be an inline function that a nested over-budget level pruned. Check whether the same helper is inlined elsewhere in the same target function before declaring it non-inline.
