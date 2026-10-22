@@ -72,9 +72,9 @@ inline void NotifyAndBlankScreen(int ignoreBit) {
     std::tr1::shared_ptr<CallbackList> callbacks = sCallbacks;
     sCallbacks.reset();
     for (CallbackList::iterator it = callbacks->end(); it != callbacks->begin(); --it) {
-        CallbackList::iterator current = it;
+        CallbackList::const_iterator current = it;
         --current;
-        current->Call(ignoreBit);
+        (*current).Call(ignoreBit);
     }
     VISetBlack(TRUE);
     VIFlush();
