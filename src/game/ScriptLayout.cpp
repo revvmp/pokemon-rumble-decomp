@@ -34,14 +34,14 @@ int LayoutMotion(NPpu::CEngine* pEngine, int mode) {
     }
     const char* pMotionName = PopString(pEngine);
     int id = pEngine->PopInt();
-    std::tr1::shared_ptr<ICalcDraw> owner = GetCurrentGameMap()->GetLayoutManager()->Get(id);
+    std::tr1::shared_ptr<CLayout> owner = GetCurrentGameMap()->GetLayoutManager()->Get(id);
     if (owner) {
         nw4r::lyt::Pane* pPane = nullptr;
-        if (pPaneName) pPane = static_cast<CLayout*>(owner.get())->FindPane(pPaneName);
+        if (pPaneName) pPane = owner->FindPane(pPaneName);
         switch (mode) {
-        case 0: static_cast<CLayout*>(owner.get())->CreateMotion(pMotionName, pPane, start, rate); break;
-        case 1: static_cast<CLayout*>(owner.get())->QueueMotion(pMotionName, pPane, start, rate); break;
-        case 2: static_cast<CLayout*>(owner.get())->AppendMotion(pMotionName, pPane, start, rate); break;
+        case 0: owner->CreateMotion(pMotionName, pPane, start, rate); break;
+        case 1: owner->QueueMotion(pMotionName, pPane, start, rate); break;
+        case 2: owner->AppendMotion(pMotionName, pPane, start, rate); break;
         }
         pEngine->PushInt(1);
     } else {
@@ -53,10 +53,10 @@ int LayoutMotion(NPpu::CEngine* pEngine, int mode) {
 int NewLayout(NPpu::CEngine* pEngine) {
     const char* pLayoutName = PopString(pEngine);
     const char* pArchive = PopString(pEngine);
-    std::tr1::shared_ptr<ICalcDraw> owner(new CLayout);
+    std::tr1::shared_ptr<CLayout> owner(new CLayout);
     void* pEntry;
     std::tr1::shared_ptr<FileList> files = LoadFileList(&pEntry, pArchive, 0, false, nullptr);
-    static_cast<CLayout*>(owner.get())->Load(static_cast<const char* const*>(pEntry), pLayoutName, GetDefaultFontMap(), false);
+    owner->Load(static_cast<const char* const*>(pEntry), pLayoutName, GetDefaultFontMap(), false);
     pEngine->PushInt(GetCurrentGameMap()->GetLayoutManager()->Add(owner));
     return 0;
 }
@@ -76,7 +76,7 @@ int method_layoutSetString(NPpu::CEngine* pEngine) {
     pEngine->Pop(text);
     const char* pName = PopString(pEngine);
     int id = pEngine->PopInt();
-    std::tr1::shared_ptr<ICalcDraw> owner = GetCurrentGameMap()->GetLayoutManager()->Get(id);
+    std::tr1::shared_ptr<CLayout> owner = GetCurrentGameMap()->GetLayoutManager()->Get(id);
     if (owner) {
         if (text.IsString()) {
             const char* pText = pEngine->ToString(text);
@@ -85,9 +85,9 @@ int method_layoutSetString(NPpu::CEngine* pEngine) {
             wchar_t* pBuffer = static_cast<wchar_t*>(__alloca((size + 1) * sizeof(wchar_t)));
             pBuffer[size] = L'\0';
             ENCConvertStringSjisToUnicode(reinterpret_cast<u16*>(pBuffer), &size, reinterpret_cast<const u8*>(pText), nullptr);
-            CColorBtnTagProc::Attach(static_cast<CLayout*>(owner.get())->SetText(pName, pBuffer));
+            CColorBtnTagProc::Attach(owner->SetText(pName, pBuffer));
         } else {
-            CColorBtnTagProc::Attach(static_cast<CLayout*>(owner.get())->SetText(pName, text.IsWString() ? pEngine->ToWString(text) : L""));
+            CColorBtnTagProc::Attach(owner->SetText(pName, text.IsWString() ? pEngine->ToWString(text) : L""));
         }
         pEngine->PushInt(1);
     } else {
@@ -100,8 +100,8 @@ int method_layoutSetVisible(NPpu::CEngine* pEngine) {
     bool visible = pEngine->PopInt() != 0;
     const char* pName = PopString(pEngine);
     int id = pEngine->PopInt();
-    std::tr1::shared_ptr<ICalcDraw> owner = GetCurrentGameMap()->GetLayoutManager()->Get(id);
-    if (owner) static_cast<CLayout*>(owner.get())->SetPaneVisible(pName, visible);
+    std::tr1::shared_ptr<CLayout> owner = GetCurrentGameMap()->GetLayoutManager()->Get(id);
+    if (owner) owner->SetPaneVisible(pName, visible);
     pEngine->PushNull();
     return 0;
 }
@@ -109,8 +109,8 @@ int method_layoutSetVisible(NPpu::CEngine* pEngine) {
 int method_layoutGetLength(NPpu::CEngine* pEngine) {
     const char* pName = PopString(pEngine);
     int id = pEngine->PopInt();
-    std::tr1::shared_ptr<ICalcDraw> owner = GetCurrentGameMap()->GetLayoutManager()->Get(id);
-    pEngine->PushInt(owner ? static_cast<CLayout*>(owner.get())->GetMotionLength(pName) : 0);
+    std::tr1::shared_ptr<CLayout> owner = GetCurrentGameMap()->GetLayoutManager()->Get(id);
+    pEngine->PushInt(owner ? owner->GetMotionLength(pName) : 0);
     return 0;
 }
 

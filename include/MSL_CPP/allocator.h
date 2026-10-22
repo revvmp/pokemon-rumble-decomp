@@ -5,6 +5,7 @@
 #include <new>
 #include <limits>
 #include <stddef.h>
+#include <revolution/types.h>
 
 namespace std {
 template <class T> class allocator {

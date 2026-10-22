@@ -5,23 +5,23 @@ std::tr1::shared_ptr<ILayoutManager> ILayoutManager::Create() {
 }
 
 void CLayoutManager::Draw() {
-    const std::map<int, std::tr1::shared_ptr<ICalcDraw> >::iterator end = mLayouts.end();
-    std::map<int, std::tr1::shared_ptr<ICalcDraw> >::iterator it = mLayouts.begin();
+    const std::map<int, std::tr1::shared_ptr<CLayout> >::iterator end = mLayouts.end();
+    std::map<int, std::tr1::shared_ptr<CLayout> >::iterator it = mLayouts.begin();
     for (; it != end; ++it) {
         it->second->Draw();
     }
 }
 
 void CLayoutManager::Calc() {
-    const std::map<int, std::tr1::shared_ptr<ICalcDraw> >::iterator end = mLayouts.end();
-    std::map<int, std::tr1::shared_ptr<ICalcDraw> >::iterator it = mLayouts.begin();
+    const std::map<int, std::tr1::shared_ptr<CLayout> >::iterator end = mLayouts.end();
+    std::map<int, std::tr1::shared_ptr<CLayout> >::iterator it = mLayouts.begin();
     for (; it != end; ++it) {
         it->second->Calc();
     }
 }
 
 bool CLayoutManager::Remove(int id) {
-    std::map<int, std::tr1::shared_ptr<ICalcDraw> >::iterator it = mLayouts.find(id);
+    std::map<int, std::tr1::shared_ptr<CLayout> >::iterator it = mLayouts.find(id);
     if (it != mLayouts.end()) {
         mLayouts.erase(it);
         return true;
@@ -29,15 +29,15 @@ bool CLayoutManager::Remove(int id) {
     return false;
 }
 
-std::tr1::shared_ptr<ICalcDraw> CLayoutManager::Get(int id) {
-    std::map<int, std::tr1::shared_ptr<ICalcDraw> >::iterator it = mLayouts.find(id);
+std::tr1::shared_ptr<CLayout> CLayoutManager::Get(int id) {
+    std::map<int, std::tr1::shared_ptr<CLayout> >::iterator it = mLayouts.find(id);
     if (it != mLayouts.end()) {
         return it->second;
     }
-    return std::tr1::shared_ptr<ICalcDraw>();
+    return std::tr1::shared_ptr<CLayout>();
 }
 
-int CLayoutManager::Add(const std::tr1::shared_ptr<ICalcDraw>& rLayout) {
+int CLayoutManager::Add(const std::tr1::shared_ptr<CLayout>& rLayout) {
     mLayouts[mNextID] = rLayout;
     return mNextID++;
 }

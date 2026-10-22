@@ -2,6 +2,7 @@
 #define GAME_DETAIL_CLAYOUTMANAGER_H
 
 #include <game/ILayoutManager.h>
+#include <game/CLayout.h>
 #include <map>
 #include <memory>
 
@@ -10,12 +11,12 @@ public:
     CLayoutManager() : mNextID(1) {}
     virtual void Calc();
     virtual void Draw();
-    virtual int Add(const std::tr1::shared_ptr<ICalcDraw>& rLayout);
-    virtual std::tr1::shared_ptr<ICalcDraw> Get(int id);
+    virtual int Add(const std::tr1::shared_ptr<CLayout>& rLayout);
+    virtual std::tr1::shared_ptr<CLayout> Get(int id);
     virtual bool Remove(int id);
 
 private:
-    std::map<int, std::tr1::shared_ptr<ICalcDraw> > mLayouts;
+    std::map<int, std::tr1::shared_ptr<CLayout> > mLayouts;
     int mNextID;
 };
 

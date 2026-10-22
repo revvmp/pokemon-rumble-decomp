@@ -279,7 +279,7 @@ config.libs = [
             Object(NonMatching, "game/CHPBar.cpp"),
             Object(Matching, "game/CIconCollection.cpp"),
             Object(Matching, "game/CItem.cpp"),
-            Object(NonMatching, "game/CLayoutManager.cpp"),
+            Object(Matching, "game/CLayoutManager.cpp"),
             Object(NonMatching, "game/CMiniMap.cpp"),
             Object(Matching, "game/CMiniMapMarker.cpp"),
             Object(NonMatching, "game/CGameResult.cpp"),
