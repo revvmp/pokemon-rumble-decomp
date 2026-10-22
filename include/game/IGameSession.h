@@ -53,7 +53,7 @@ public:
     virtual COyaInfo* GetOyaInfo() = 0;
     virtual std::tr1::shared_ptr<NPpu::CEnvironment> GetEnvironment() = 0;
     virtual int GetPPDColorIndex(int player, std::tr1::shared_ptr<CPiiPersonalData> pii) = 0;
-    virtual bool CanGetPPDColorIndex(int player, std::tr1::shared_ptr<CPiiPersonalData> pii) = 0;
+    virtual bool CanAddPPDToPlayerPiiBox(int player, const std::tr1::shared_ptr<CPiiPersonalData>& rPPD) = 0;
     virtual bool IsReplacePiiAvailable(int player) = 0;
     virtual f32 GetPlayTimeSeconds() = 0;
     virtual int GetMapChangeType() = 0;
