@@ -28,7 +28,6 @@ enum {
 
 const f32 sizeScales[5] = {1.0f, 1.0f, 0.9f, 0.85f, 0.85f};
 }
-
 void SetSceneObjectEnabled(nw4r::g3d::ScnObj* pScnObj, bool enable);
 
 static std::tr1::shared_ptr<CFileData> LoadFileForMotion(const char* pPath, u32 flags)
@@ -60,57 +59,6 @@ bool CPii::LoadScript(const char* pName, int mode, const std::tr1::shared_ptr<NP
 {
     mPpuEngine.reset(new CPpuEngine);
     return mPpuEngine->Load(this, pName, mode, rEnvironment);
-}
-
-void CPii::SetPosition(const nw4r::math::VEC3& rPosition)
-{
-    BModelObj::SetPosition(rPosition);
-    mPiiFlags |= 1;
-}
-
-void CPii::SetTransform(const nw4r::math::VEC3& rPosition, const nw4r::math::VEC3& rVelocity)
-{
-    BModelObj::SetTransform(rPosition, rVelocity);
-    mPiiFlags |= 1;
-}
-
-void CPii::SetBaseMtx(const nw4r::math::MTX34& rMtx)
-{
-    BModelObj::SetBaseMtx(rMtx);
-    mPiiFlags |= 1;
-}
-
-const char* CPii::GetShadowName() const
-{
-    return nullptr;
-}
-
-bool CPii::IsVisible() const
-{
-    return BWorldObj::IsVisible();
-}
-
-void CPii::SetHPBar(std::tr1::shared_ptr<CHPBar> hpBar)
-{
-    mHPBar = hpBar;
-    AddDrawLayer(mHPBar);
-}
-
-void CPii::SetMiniMapMarker(std::tr1::shared_ptr<CMiniMapMarker> marker)
-{
-    mMiniMapMarker = marker;
-    SetEffectEnable(true);
-}
-
-void CPii::UpdateShadowMtx()
-{
-    if ((mPiiFlags & 1) && mShadowModel.IsLoaded() && GetModel()) {
-        mPiiFlags &= ~1;
-        nw4r::math::MTX34 mtx(1.0f, 0.0f, 0.0f, mPosition.x,
-                              0.0f, 1.0f, 0.0f, 0.01f,
-                              0.0f, 0.0f, 1.0f, mPosition.z);
-        mShadowModel.GetModel()->SetMtx(nw4r::g3d::ScnObj::MTX_LOCAL, mtx);
-    }
 }
 
 void CPii::LoadModel(bool background)
@@ -290,6 +238,57 @@ void CPii::ApplyTextureVariant(ScnMdlSimpleData& rData, const char* pSuffix)
             }
         }
     }
+}
+
+const char* CPii::GetShadowName() const
+{
+    return nullptr;
+}
+
+bool CPii::IsVisible() const
+{
+    return BWorldObj::IsVisible();
+}
+
+void CPii::SetPosition(const nw4r::math::VEC3& rPosition)
+{
+    BModelObj::SetPosition(rPosition);
+    mPiiFlags |= 1;
+}
+
+void CPii::SetTransform(const nw4r::math::VEC3& rPosition, const nw4r::math::VEC3& rVelocity)
+{
+    BModelObj::SetTransform(rPosition, rVelocity);
+    mPiiFlags |= 1;
+}
+
+void CPii::SetBaseMtx(const nw4r::math::MTX34& rMtx)
+{
+    BModelObj::SetBaseMtx(rMtx);
+    mPiiFlags |= 1;
+}
+
+void CPii::UpdateShadowMtx()
+{
+    if ((mPiiFlags & 1) && mShadowModel.IsLoaded() && GetModel()) {
+        mPiiFlags &= ~1;
+        nw4r::math::MTX34 mtx(1.0f, 0.0f, 0.0f, mPosition.x,
+                              0.0f, 1.0f, 0.0f, 0.01f,
+                              0.0f, 0.0f, 1.0f, mPosition.z);
+        mShadowModel.GetModel()->SetMtx(nw4r::g3d::ScnObj::MTX_LOCAL, mtx);
+    }
+}
+
+void CPii::SetHPBar(std::tr1::shared_ptr<CHPBar> hpBar)
+{
+    mHPBar = hpBar;
+    AddDrawLayer(mHPBar);
+}
+
+void CPii::SetMiniMapMarker(std::tr1::shared_ptr<CMiniMapMarker> marker)
+{
+    mMiniMapMarker = marker;
+    SetEffectEnable(true);
 }
 
 bool CPii::SetTextureAnimation(const char* pName)
@@ -718,3 +717,4 @@ void CPiiBox::ApplyEnvironment(bool enable, const std::tr1::shared_ptr<NPpu::CEn
         (*it)->ExecuteInitScript(enable, rEnvironment);
     }
 }
+
