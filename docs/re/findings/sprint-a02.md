@@ -1,17 +1,11 @@
-# Sprint a02 findings
-
-## BWorldCamera, CBattleRoyalBox, CBattleRoyalDisplay
-
-- BWorldCamera.cpp is reconstructed and Matching. Two header facts made it link: `basic_string::~basic_string` is defined out of class, and `do_replace` computes the inserted length with `distance(first, last)`.
-- CBattleRoyalBox.cpp and CBattleRoyalDisplay.cpp are new splits (`0x8006A550` to `0x8006B464`, `0x8006B470` to `0x8006BEE0`) with reconstructed sources, NonMatching.
-- CBattleRoyalBox::ExportBattleRoyalData differs only in vector push_back and reserve trait selection for `SD_BattleRoyalData::Data`.
+# Sprint a02: CLayout, CPauseMenu, ef_animcurve
 
 ## Traps
 
-- **`BWorldObj` virtual setters are header inlines.** `SetVisible`, `SetRotation`, `SetScale`, `SetPosition` and `GetDrawLayers` are emitted as weak functions in the first unit whose vtable needs them (BWorldCamera.cpp, BWorldLightSet.cpp). Defining them out of line in a .cpp shifts the whole DOL.
-- **A zero in `.sdata` is a pooled literal, not a variable.** `lbl_804B5BD0` and `gEmptyText` in the display unit are string-pool entries; zero-initialised globals always land in `.sbss`. Mixed-mode linking of a Matching unit that owns such a pool fails with undefined `gEmptyText` from original objects.
-- **Const vector iterators are class types in the original.** `CBattleRoyalBox::CBattleRoyalBox(const std::vector<Data>&)` keeps its iterators in memory, matching only when iterating through a non-const `std::vector<Data>::iterator`.
-
-- **An in-class `basic_string` destructor is emitted early.** CodeWarrior emits an in-class inline destructor of a member immediately after any function containing `new T`. The original emits it at the end of the unit, so the destructor is defined out of class (`include/string`). This moved the weak-function order of BWorldCamera, CBattleRoyalDisplay (wstring) and CColorConst into line.
-- **Unnamed original RTTI blocks weak deduplication.** `lbl_804B5AA8` and `lbl_804B5AB0` were the `std::length_error` and `std::logic_error` RTTI objects; without those weak names a source object's own copies were kept, growing `.sdata` by 8 and `.data` by 32 bytes.
-- **String literals are pooled at parse time, deleter RTTI at code generation.** In CColorConst the original has the `shared_ptr_deleter` RTTI before the `"_c"` literal while the compiled object has it after, and CBattleRoyalDisplay and CDisconMsg show the same class of `.sdata`/`.data` order difference. The only remaining DOL mismatch of CColorConst is this 8-byte swap (all 17 functions match). Moving the literal into an inline helper changes the generated code, `-inline deferred`, `-ipa function` and `-ipa off` do not help.
+- **Imported names for one-off RTTI and iterator helpers can be swapped or wrong.** CLayout `get_deleter` for `shared_ptr_deleter<PaneMP>` and `<CMotionProgram>` scored 99.74% only because the two `__RTTI__default_delete` symbols at `0x804B8400` and `0x804B8408` carried each other's names. The list-of-`CFileData` iterator helpers at `0x801CE7D0` were named `generic_iterator<0>` although the target loop uses `const_iterator` (the unit scored 99.88% with `const_iterator` source and 95% with `iterator` source). When only the `bl` operand names differ, rename the symbol by address instead of changing the source.
+- **Unnamed `fn_`/`dtor_` template helpers can be identified from vtable and extab references.** In `game/CLayout.s` the `.4byte fn_...` slots inside `__vt__...shared_ptr_deleter<X,...>` identify the deleter destructors, and the `Dtor:` actions in an extab comment identify member destructors. This named seven placeholders that `name_callees.py` did not propose.
+- **A conditional offset reads differently from an added bool.** `GetMessageText(0x60081 + IsHubMap(), ...)` emitted a bare `cntlzw` result; `IsHubMap() ? 0x60082 : 0x60081` reproduced the `neg/or/srwi` normalisation of the target and moved CPauseMenu `Run` from 98.2% to 99.9%. `stage == 7 ? 0x60088 : 0x60087` improved `LeaveStage` the same way.
+- **A shared message formatter differs from a temporary one.** `(basic_formatter(pFormat) % a % b).str()` in CPauseMenu compiled 99.68%; the named-local form in `include/game/MessageFormat.h` with `NIntl/basic_formatter.h` (not `game/NIntl.h`) reaches 99.92% with only data labels left.
+- **Hoisting a float computation changes the callee-saved float count.** `TakeScreenshot` needed `maxAspect = maxWidth / maxHeight` directly after `maxHeight` to reproduce the sixth saved float register (`f26`); the shared-pointer test `work.get() == nullptr` on a temporary-initialised pointer added another 2%.
+- **A temporary `Rect` argument stops calling its destructor once it is a named local.** `mDrawInfo.SetViewRect(mLayout->GetLayoutRect())` in CLayout `LoadLayout` called `__dt__Rect`; binding the result to a named `Rect` first removed the call (96.3% to 97.9%).
+- **Scratch edits to CRLF sources.** Repository sources use CRLF; a Python edit that reads with universal newlines and compares multi-line strings silently fails to match unless the file is normalised first and written back with `\r\n`.

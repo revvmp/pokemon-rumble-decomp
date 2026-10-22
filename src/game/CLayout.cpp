@@ -258,7 +258,8 @@ int CLayout::LoadLayout(const char* pLayoutName, const std::tr1::shared_ptr<Font
     if (!mLayout->Build(pResource, &mAccessor)) {
         return 3;
     }
-    mDrawInfo.SetViewRect(mLayout->GetLayoutRect());
+    nw4r::ut::Rect layoutRect = mLayout->GetLayoutRect();
+    mDrawInfo.SetViewRect(layoutRect);
     if (rFonts) {
         std::vector<std::tr1::shared_ptr<nw4r::lyt::FontRefLink> >::iterator it = fontLinks.end();
         while (it != fontLinks.begin()) {
