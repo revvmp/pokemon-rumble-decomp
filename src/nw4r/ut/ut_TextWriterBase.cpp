@@ -507,6 +507,7 @@ f32 TextWriterBase<T>::PrintToDisplayListImpl(const T *str, int len, bool m) {
 
     bool useLimit = mWidthLimit < NW4R_MATH_FLT_MAX;
 
+    f32 textWidth;
     f32 orgCursorX = cursorX;
     f32 orgCursorY = cursorY;
 
@@ -518,7 +519,7 @@ f32 TextWriterBase<T>::PrintToDisplayListImpl(const T *str, int len, bool m) {
     const T *prevStream = str;
     const T *prevNewline = str;
 
-    f32 textWidth = AdjustCursor(&cursorX, &cursorY, str, len);
+    textWidth = AdjustCursor(&cursorX, &cursorY, str, len);
 
     cursorXAdj = orgCursorX - GetCursorX();
     cursorYAdj = orgCursorY - GetCursorY();

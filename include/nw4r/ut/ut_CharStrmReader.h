@@ -13,7 +13,7 @@ public:
     explicit CharStrmReader(ReadFunc pFunc)
         : mCharStrm(NULL), mReadFunc(pFunc) {}
 
-    ~CharStrmReader() {}
+    ~CharStrmReader() { return; }
 
     u16 ReadNextCharUTF8();
     u16 ReadNextCharUTF16();

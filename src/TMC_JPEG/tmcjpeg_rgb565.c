@@ -31,7 +31,7 @@ s32 TMCJPEGSetupRGB565(TMCJPEGState* state, TMCJPEGEncoder* enc)
     }
 
     enc->alignedWidth = (enc->width / 4 + (enc->width % 4 != 0)) * 4;
-    enc->alignedHeight = (enc->height / 4 + (enc->height % 4 != 0)) * 4;
+    enc->alignedHeight = ((enc->height % 4 != 0) + enc->height / 4) * 4;
     return 0;
 }
 
