@@ -340,9 +340,7 @@ void CPauseMenu::LeaveStage() {
     if (!IsHubMap()) {
         mDialog = IDlgMsgWin::Create(false, true);
         int stage = GetCurrentGameMap()->GetMapDesc().mIndex.mStage;
-        int messageID = 0x60087;
-        messageID += stage == 7;
-        const wchar_t* pMessage = GetMessageText(messageID, gEmptyText);
+        const wchar_t* pMessage = GetMessageText(stage == 7 ? 0x60088 : 0x60087, gEmptyText);
         IDlgMsgWin* pDialog = mDialog.get();
         if (!pDialog->AskYesNo(pMessage)) {
             pDialog = mDialog.get();
