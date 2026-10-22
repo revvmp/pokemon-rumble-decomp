@@ -215,7 +215,7 @@ int IgnoreTimeConsumption(NPpu::CEngine* pEngine) {
     return 0;
 }
 
-void SetupScriptWaza(CWaza* pWaza, int id, const std::tr1::shared_ptr<BWorldObj>& rParent);
+void SetupScriptWaza(CWaza* pWaza, int id, std::tr1::shared_ptr<BWorldObj> parent);
 
 int NewWaza(NPpu::CEngine* pBaseEngine) {
     CPpuEngine* pEngine = static_cast<CPpuEngine*>(pBaseEngine);
@@ -235,6 +235,10 @@ int NewWaza(NPpu::CEngine* pBaseEngine) {
         pEngine->PushNull();
     }
     return 0;
+}
+
+void SetupScriptWaza(CWaza* pWaza, int id, std::tr1::shared_ptr<BWorldObj> parent) {
+    pWaza->Setup(id, parent);
 }
 
 int method_CWaza_getWazaID(NPpu::CEngine* pBaseEngine) {

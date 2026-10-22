@@ -74,7 +74,7 @@ bool CWaza::GetAttachmentPosition(nw4r::math::VEC3& rPosition) {
     return true;
 }
 
-void CWaza::Setup(int id, std::tr1::shared_ptr<BWorldObj> parent) {
+void CWaza::Setup(int id, std::tr1::shared_ptr<BWorldObj> parent, u32 flags) {
     mWazaID = id;
     SetParent(parent);
     if (parent) {
