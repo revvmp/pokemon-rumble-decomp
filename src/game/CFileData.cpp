@@ -1,3 +1,5 @@
+#define MSL_VECTOR_OUTLINE_ASSIGN
+
 #include <game/CFileData.h>
 
 #include <game/CFiber.h>
@@ -666,8 +668,10 @@ std::tr1::shared_ptr<FileList> LoadFiles(const FileLoadParam* pFiles, unsigned i
     return loaded;
 }
 
+void DefaultFileErrorHandler(CPath::Drive drive, const char* pPath, long error, unsigned long flags);
+
 ResourceFileConfig::ResourceFileConfig() :
-    mErrorHandler(HandleFileError), mReadPriority(20), mDecodePriority(22), mStackSize(0x4000), mUseDriveWorker(true) {}
+    mErrorHandler(DefaultFileErrorHandler), mReadPriority(20), mDecodePriority(22), mStackSize(0x4000), mUseDriveWorker(true) {}
 
 void InitializeResourceFiles(const ResourceFileConfig& rConfig) {
     sConfig = rConfig;
@@ -692,7 +696,7 @@ void ShutdownResourceFiles() {
     }
 }
 
-void HandleFileError(CPath::Drive drive, const char* pPath, long error, unsigned long flags) {
+void DefaultFileErrorHandler(CPath::Drive drive, const char* pPath, long error, unsigned long flags) {
     if ((flags & CFileData::FLAG_ALLOW_OUT_OF_MEMORY) && error == CFileData::ERROR_OUT_OF_MEMORY) {
         return;
     }

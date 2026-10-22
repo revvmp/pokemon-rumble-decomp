@@ -9,6 +9,12 @@
 #include <stdexcept>
 #include <string.h>
 
+#ifdef MSL_VECTOR_OUTLINE_ASSIGN
+#define MSL_VECTOR_OUTLINE __attribute__((noinline))
+#else
+#define MSL_VECTOR_OUTLINE
+#endif
+
 namespace std {
 
 template <bool> struct __vector_common {
@@ -119,7 +125,7 @@ protected:
         }
     }
 public:
-    __attribute__((noinline)) void erase_at_end(size_type n) { erase_tail(n, pod_type()); }
+    MSL_VECTOR_OUTLINE void erase_at_end(size_type n) { erase_tail(n, pod_type()); }
 protected:
     void erase_tail(size_type n, Metrowerks::int2type<false>);
     void erase_tail(size_type n, Metrowerks::int2type<true>) { size_ -= n; }
@@ -189,7 +195,7 @@ public:
         }
     }
 
-    template <typename Iterator> __attribute__((noinline)) void construct_at_end(Iterator first, Iterator last) {
+    template <typename Iterator> MSL_VECTOR_OUTLINE void construct_at_end(Iterator first, Iterator last) {
         construct_at_end(first, last, pod_type());
     }
     template <typename Iterator> void construct_at_end(Iterator first, Iterator last, Metrowerks::int2type<false>) {
@@ -294,7 +300,11 @@ public:
 
     __vec_constructor& operator=(const __vec_constructor& x) {
         if (this != &x) {
+#ifdef MSL_VECTOR_OUTLINE_ASSIGN
+            assign_range(x.data_, x.data_ + x.size_, std::forward_iterator_tag());
+#else
             assign(x.begin(), x.end(), pod_type());
+#endif
         }
         return *this;
     }
@@ -478,7 +488,7 @@ protected:
         return false;
     }
     bool can_append(size_type n) { size_type capacity; return grow_by(n, capacity, pod_type()); }
-    __attribute__((noinline)) bool grow_by(size_type n, size_type& rCapacity) { return grow_by(n, rCapacity, pod_type()); }
+    MSL_VECTOR_OUTLINE bool grow_by(size_type n, size_type& rCapacity) { return grow_by(n, rCapacity, pod_type()); }
     bool grow_by(size_type n, size_type& rCapacity, pod_type) {
         rCapacity = recommend(n);
         return false;
@@ -513,7 +523,7 @@ protected:
         }
     }
 
-    __attribute__((noinline)) void assign_reallocate(size_type n, size_type capacity) {
+    MSL_VECTOR_OUTLINE void assign_reallocate(size_type n, size_type capacity) {
         base::clear();
         if (this->data_) {
             this->alloc().deallocate(this->data_, this->cap());
@@ -547,7 +557,7 @@ protected:
         }
     }
 
-    template <typename Iterator> __attribute__((noinline)) void construct_at_end(Iterator first, Iterator last) {
+    template <typename Iterator> MSL_VECTOR_OUTLINE void construct_at_end(Iterator first, Iterator last) {
         construct_at_end(first, last, pod_type());
     }
     template <typename Iterator> void construct_at_end(Iterator first, Iterator last, Metrowerks::int2type<false>) {
@@ -559,7 +569,7 @@ protected:
         }
     }
 
-    template <typename Iterator> __attribute__((noinline)) static T* copy_range(Iterator first, Iterator last, T* result) {
+    template <typename Iterator> MSL_VECTOR_OUTLINE static T* copy_range(Iterator first, Iterator last, T* result) {
         for (; first != last; ++first, ++result) {
             *result = *first;
         }
@@ -786,13 +796,6 @@ public:
     vector(const vector& x) : base(x) {}
     template <typename Iterator> vector(Iterator first, Iterator last) : base(first, last) {}
     ~vector() {}
-
-    vector& operator=(const vector& x) {
-        if (this != &x) {
-            base::assign_dispatch(x.data_, x.data_ + x.size_, Metrowerks::int2type<0>());
-        }
-        return *this;
-    }
 
     void resize(size_type n) { base::resize(n); }
 
