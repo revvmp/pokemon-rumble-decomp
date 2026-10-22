@@ -81,7 +81,6 @@ public:
     bool IsSizeMode() const { return HasFlag(FLAG_SIZE_MODE) != 0; }
     nw4r::math::VEC3 CalcSize(int mode) const;
     const nw4r::math::AABB& GetBounds() const { return mBounds; }
-    int GetOutlineType() const { return mOutlineType; }
 
 private:
     static bool IsOutlineModel(const std::tr1::shared_ptr<CModel>& rModel);
