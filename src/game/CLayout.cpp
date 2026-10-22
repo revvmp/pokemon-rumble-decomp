@@ -190,6 +190,14 @@ int CLayout::LoadArchive(const char* pArchive, const char* pLayoutName, const st
     return LoadLayout(pLayoutName, rFonts);
 }
 
+int CLayout::LoadFromMemory(void* pArchive, const char* pLayoutName, const std::tr1::shared_ptr<FontMap>& rFonts) throw() {
+    std::tr1::shared_ptr<nw4r::lyt::ArcResourceLink> link(new nw4r::lyt::ArcResourceLink);
+    link->Set(pArchive, "");
+    mArchives.push_back(link);
+    mAccessor.Attach(link.get());
+    return LoadLayout(pLayoutName, rFonts);
+}
+
 #pragma dont_inline on
 int CLayout::LoadArchives(const char* const* pArchives, const char* pLayoutName, const std::tr1::shared_ptr<FontMap>& rFonts, bool background) {
     std::list<std::tr1::shared_ptr<CFileData> > files;

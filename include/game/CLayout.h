@@ -144,6 +144,7 @@ public:
 private:
     int LoadArchive(const char* pArchive, const char* pLayoutName, const std::tr1::shared_ptr<FontMap>& rFonts, bool background);
     int LoadArchives(const char* const* pArchives, const char* pLayoutName, const std::tr1::shared_ptr<FontMap>& rFonts, bool background);
+    int LoadFromMemory(void* pArchive, const char* pLayoutName, const std::tr1::shared_ptr<FontMap>& rFonts) throw();
     int LoadLayout(const char* pLayoutName, const std::tr1::shared_ptr<FontMap>& rFonts) throw();
     void SetFlags(u32 flags) { mFlags |= flags; }
     bool HasFlags(u32 flags) const { return (mFlags & flags) != 0; }
