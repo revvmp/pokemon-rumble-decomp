@@ -75,3 +75,40 @@ Gained: CLayout `Draw` and `GetPaneAlpha`; CFileData `DefaultFileErrorHandler`, 
 | CLayout | `CalculateAttachedMtx` | 94.9 | The target does not fold `root == root` from the inlined `GetLayoutAlpha`, and it reloads the attach pane's visibility. Ours keeps both in registers. |
 | CLayout | `MakeArchiveList(const char* const*)`, `CInitializeException` (array overload) | 94.4, 98.1 | The target loads `*pArchives` after the list is initialised. Pointer, index and `while` loop forms do not move the load. |
 | CLayout | `__ct__7CLayout` | 96.9 | `GetDefaultPixelScale()` creates one extra 8-byte `VEC2` temporary. Returning the static directly fixes the slot, but then the copy uses integer loads. |
+
+## Final tail wave (a03, fresh eyes)
+
+CDlgInfo gained `~nw4r::ut::Rect` and the global `~vector<shared_ptr<CLayout>>` copy (70 to 72 of 75). `CDlgInfoItemLine::Update` rose from 98.84% to 99.88%.
+
+### Fixes
+
+- **An empty destructor is emitted for a destroyed temporary, not for a named local.** `GetTextWidth` returns `ceil(pText->GetTextDrawRect().GetWidth())`. The temporary `Rect` makes CodeWarrior emit the weak `~Rect` after `Update`, as in the target, although no code calls it. A named `Rect rect = ...` local is elided. No `{ return; }` body or header change is needed, so CTutorialMsg, CLayout and ut_TextWriterBase are untouched.
+- **The duplicate `~vector<shared_ptr<CLayout>>` belongs to CDlgInfo.** CUIList's extab points at the CDlgInfo copy (`0x80080370`), so that copy is the linked global. The CUIList copy (`0x801DC380`) is the unreferenced duplicate and is now the `scope:local` one in `symbols.txt`. CUIList loses one paired function in objdiff (30 of 31), because its source emits the global name. Only a file-local copy could give CUIList its own one.
+- **`Update` registers.** The line index is declared before `count` and reused for the trailing `SetPaneRectangle` loop. `totalWidth` is computed before `columns[0] = mRectangles[0]`. The half width is `-totalWidth / 2.0f`.
+
+### SaveData `SlotData` chain, measured
+
+The target's whole call structure can be reproduced, but only with a change to the shared `<vector>` that breaks CStatistic. The results:
+
+- **Three changes together give the target sizes.** With all three, `DeserializeVector<SlotData>` is 608 bytes, `append` 164, `append_realloc` 2832, `can_append` 268, `cap` 8 and `construct_at_end` 1004. All of these equal the target:
+  1. `SlotData::Data` with scalar members: `mFlags` as four `s8`, `mLastArea` as two `s8`, and the union replaced by `u32, u32, u16, u8, u8, u32, u16, s8, s8`. The target's `Data` copy (`fn_8016B130`) copies exactly these widths.
+  2. About six dummy statements in the `__vec_constructor` copy constructor. These stand in for a real, still unknown cost in the `SlotData` copy level.
+  3. `erase_at_end` dispatching on `has_trivial_dtor` instead of `pod_type`.
+- **Item 3 is the only one that touches other units, and it breaks the DOL.** It makes the `SD_*` vector destructors cheap enough for `append_realloc`, compiled standalone, to stay under budget. The target inlines everything there: 56 calls. Ours, without item 3, calls 16 helpers. But CStatistic `Set` (`vector<SD_StatisticValue::Data>`) then stops being a rule-3 poison, and the target's out-of-line `erase_tail<int2type<0>>` copies for the five `SD_*` types disappear. Dispatching in `clear()` instead, or giving it a forwarding layer, regresses about 40 units. The cost of the vector destructor path is load-bearing project-wide.
+- **The target's `Data` copy is serialised.** It loads and stores one member at a time in `r0` and has no stack frame. Ours loads every trailing member first, uses r23 to r31 and needs `_savegpr`. `#pragma scheduling off` does not change this. Nested member structs are the untested hypothesis.
+- **Tools.** Explicitly instantiating `__vec_deleter<SlotData>::append_realloc(unsigned long)` at the end of `SaveData.cpp` shows whether a helper is poisoned when compiled standalone. Remove the instantiation afterwards.
+
+### Unsolved
+
+| Unit | Function | % | Cause and attempts |
+| --- | --- | --- | --- |
+| CDlgInfo | `Update` | 99.88 | `hasText` is r24 and `hasColumns` r29 in the target; ours are swapped. Tried: declaration order, if/else, ternary, nested `if`, a late declaration of `hasText`, and calling `HasText()` twice (75%). |
+| CDlgInfo | `do_replace<wchar_t>` | 97.4 | The target recomputes `last - first` for the `memmove` after `wmemcpy`; ours CSEs it with `distance`, which needs one more saved register. Tried: `static_cast` on either side, and `distance()` in the `memmove`. |
+| CDlgInfo | `CDlgInfoItem` ctor | 99.0 | `Page` copy: the slots of the frame tags and saved registers. |
+| CDlgCollection | `CDlgCollectionItem` ctor | 94.7 | The target keeps `first`, `last` and the byte difference in registers and recomputes the `memmove` size. Tried: `n * sizeof(T)`, `memmove` first, `size_t` and `size_type` casts, `begin()`/`end()`, `distance`, and an explicit copy constructor on the `unsigned short` specialisation. |
+| ScriptWorldObj | `IsKindOf<CPii>` (local copy), `tree_begin_holder<less<int>>` | missing, 8.3 | The target has a file-local `IsKindOf` reached through `DynamicCast` and a global one for the direct `method_is*` calls. ScriptPii uses only `DynamicCast`, and its copies are all local. A user `less() {}` turns empty-class copies into byte copies (COyaInfo 26 to 21). |
+| SaveData | 13 functions | | See above. |
+
+### Traps
+
+- **An experiment helper that runs `git checkout` on a header also reverts your earlier uncommitted edits to it.** Re-apply them and check `git diff --stat` before trusting a full-build comparison.
