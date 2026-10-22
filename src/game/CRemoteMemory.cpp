@@ -402,15 +402,15 @@ void CRemoteMemory::FinishRead(int channel, long result) {
 }
 
 void CRemoteMemory::PrepareWrite(int mode) {
+    int nextBlock = 0;
     mWriteMode = mode;
     mFlags = (mFlags | FLAG_BUSY) & ~FLAG_NO_CONTROLLER;
     const int channel = mChannel;
     mValidationRetries = 0;
     mTransferRetries = 0;
-    int nextBlock = 0;
-    if (mActiveBlock != 3) {
-        nextBlock = mActiveBlock + 1;
-        nextBlock &= 1;
+    const u8 activeBlock = mActiveBlock;
+    if (activeBlock != 3) {
+        nextBlock = (activeBlock + 1) & 1;
     }
     if (mWriteMode != 2) {
         u8 generation = sStoredData[channel][(nextBlock - 1) & 1].mGeneration;
@@ -425,7 +425,8 @@ void CRemoteMemory::PrepareWrite(int mode) {
         std::list<std::tr1::shared_ptr<CPiiPersonalData> >::iterator it = mPersonalData.begin();
         for (int i = 0; i < 12; ++i) {
             SD_PiiPersonalData::Data& rData = pBlock->mPii[i];
-            if (it != mPersonalData.end()) {
+            const bool hasData = it != mPersonalData.end();
+            if (hasData) {
                 (*it)->Export(rData);
                 ++it;
             } else {

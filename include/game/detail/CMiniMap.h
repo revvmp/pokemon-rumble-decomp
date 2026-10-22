@@ -19,7 +19,7 @@ public:
     virtual void Show();
     virtual void Hide();
 
-    bool Initialize(MapDesc* pMapDesc, BWorld* pWorld, f32 height, bool background);
+    void Initialize(MapDesc* pMapDesc, BWorld* pWorld, f32 height, bool background);
 
 private:
     CDisplayPhaseCtrl mDisplay;

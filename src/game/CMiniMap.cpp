@@ -5,6 +5,13 @@
 #include <game/detail/CMiniMap.h>
 
 #include <game/BWorldCamera.h>
+#include <game/Font.h>
+#include <game/LayoutResources.h>
+#include <game/MapDesc.h>
+#include <game/StageID.h>
+#include <game/StringFormat.h>
+#include <nw4r/lyt/lyt_texMap.h>
+#include <string>
 #include <game/CMiniMapMarker.h>
 #include <game/Graphics.h>
 #include <revolution/gx/GXTexture.h>
@@ -24,6 +31,48 @@ bool CompareMiniMapMarkers(const CMiniMapMarker* pLeft, const CMiniMapMarker* pR
     return pLeft < pRight;
 }
 
+}
+
+inline void CMiniMap::Initialize(MapDesc* pMapDesc, BWorld* pWorld, f32 height, bool background) {
+    std::tr1::shared_ptr<CLayout::FontMap> fonts = GetDefaultFontMap();
+    mMapLayout.Load(gSharedLayoutArchives, "minimap_map", fonts, background);
+    mDisplayLayout.Load(gSharedLayoutArchives, "minimap", fonts, background);
+    {
+        int stageNo = pMapDesc->mParams.GetValue(0).ToInt();
+        std::string world = gStageWorlds[pMapDesc->mIndex.mStage].mName;
+        std::string rank = gStageRanks[pMapDesc->mIndex.mArea].mName;
+        std::string number = FormatString("%02d", stageNo);
+        std::string archive = "5:/stage/" + world + "/" + number + ".arc";
+        std::tr1::shared_ptr<CFileData> file = LoadResourceFile((archive + "/minimap_" + rank + number + ".tpl").c_str(), 0, background);
+        if (!(file && file->IsLoaded())) {
+            file = LoadFile((archive + "/minimap_" + number + ".tpl").c_str(), 0, background);
+        }
+        mMapFile = file;
+    }
+
+    nw4r::lyt::TexMap captureMap;
+    nw4r::ut::Rect rect = mMapLayout.GetLayout()->GetLayoutRect();
+    u16 width = rect.right - rect.left;
+    u16 mapHeight = rect.top - rect.bottom;
+    mCapture.Create(width, mapHeight, GX_TF_RGB5A3, GX_CLAMP, GX_LINEAR);
+    captureMap.SetImage(mCapture.GetBuffer());
+    captureMap.SetSize(width, mapHeight);
+    captureMap.SetTexelFormat(mCapture.GetFormat());
+    mMapSize.x = width / 10.0f;
+    mMapSize.y = mapHeight / 10.0f;
+    mDisplayLayout.FindPane("map")->GetMaterial()->GetTexMapAry()[0] = captureMap;
+
+    nw4r::lyt::TexMap fileMap;
+    fileMap.Set(static_cast<TPLPalette*>(mMapFile->GetData()), 0);
+    mMapLayout.FindPane("map")->GetMaterial()->GetTexMapAry()[0] = fileMap;
+    mWorld = pWorld->shared_from_this();
+    mHeight = height;
+}
+
+std::tr1::shared_ptr<IMiniMap> IMiniMap::Create(MapDesc* pMapDesc, BWorld* pWorld, f32 height, bool background) {
+    std::tr1::shared_ptr<CMiniMap> pMiniMap(new CMiniMap);
+    pMiniMap->Initialize(pMapDesc, pWorld, height, background);
+    return pMiniMap;
 }
 
 CMiniMap::~CMiniMap() {}
