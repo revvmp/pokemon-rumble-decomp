@@ -1,4 +1,5 @@
 #include <game/IDlgCollection.h>
+#include <game/MathUtil.h>
 
 #include <algorithm>
 #include <game/CFiber.h>
@@ -30,7 +31,9 @@
 
 namespace {
 
-const u16 sSecretSpecies = 0x97;
+enum { SECRET_SPECIES = 0x97 };
+
+u16 sSecretSpecies = SECRET_SPECIES;
 
 class CDlgCollectionItemModel {
 public:
@@ -106,27 +109,24 @@ private:
     std::vector<u16> mSpecies;
 };
 
-class CSpeciesIdSet {
-public:
-    CSpeciesIdSet() {
-            int level = std::min(std::max(0, static_cast<int>(GetSaveData(-1)->mData.mFlags[1])), 2);
-            if (level >= 0) {
-                for (u16 id = 1; id <= 0x96; id++) {
-                    mIds.insert(id);
-                }
-            }
-            if (level >= 1) {
-                for (u16 id = 0x183; id <= 0x1ec; id++) {
-                    mIds.insert(id);
-                }
-            }
-            if (IGameSession::GetInstance()->GetPiiCollectionBox()->GetCollectionType(sSecretSpecies) == 3) {
-                mIds.insert(sSecretSpecies);
-            }
+inline std::set<u16> GetCollectableSpecies() {
+    std::set<u16> ids;
+    int level = Clamp<int>(GetSaveData(-1)->mData.mFlags[1], 0, 2);
+    if (level >= 0) {
+        for (u16 id = 1; id <= 0x96; id++) {
+            ids.insert(id);
+        }
     }
-
-    std::set<u16> mIds;
-};
+    if (level >= 1) {
+        for (u16 id = 0x183; id <= 0x1ec; id++) {
+            ids.insert(id);
+        }
+    }
+    if (IGameSession::GetInstance()->GetPiiCollectionBox()->GetCollectionType(SECRET_SPECIES) == 3) {
+        ids.insert(sSecretSpecies);
+    }
+    return ids;
+}
 
 class CDlgCollectionImpl {
 public:
@@ -149,16 +149,16 @@ public:
         mUIManager->SetFocusedUI(mList.get());
         int collected = 0;
         CPiiCollectionBox* pBox = IGameSession::GetInstance()->GetPiiCollectionBox();
-        CSpeciesIdSet species;
-        int total = species.mIds.size();
+        std::set<u16> species = GetCollectableSpecies();
+        int total = species.size();
         unsigned perRow = mItemModel->mModels.size();
-        while (!species.mIds.empty()) {
+        while (!species.empty()) {
             std::vector<u16> row;
-            while (row.size() < perRow && !species.mIds.empty()) {
-                std::set<u16>::iterator it = species.mIds.begin();
+            while (row.size() < perRow && !species.empty()) {
+                std::set<u16>::iterator it = species.begin();
                 u16 id = *it;
                 row.push_back(id);
-                species.mIds.erase(it);
+                species.erase(it);
                 int type = pBox->GetCollectionType(id);
                 if (type != 2 && type == 3) {
                     collected++;
