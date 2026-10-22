@@ -67,3 +67,13 @@ Petari had version-specific symbol information; WiiWare titles typically ship wi
 4. **Assert and debug strings.** `__FILE__` paths and assertion messages name source files and help place translation-unit boundaries.
 5. **Common BSS inflation and alignment padding.** Padding between functions and the inflation bug expose translation-unit boundaries.
 6. **Related titles.** Other builds of the same engine or developer, if any are found with symbols, can transfer names. None is known; do not assume one exists.
+
+## Other MSL C++ and compiler sources consulted
+
+Read on 2026-10-22 for template emission order; nothing was copied into the repository. See [sprint e3](findings/sprint-e3.md).
+
+| Source | License | Finding |
+| --- | --- | --- |
+| [KooShnoo/pokemon-rumble](https://github.com/KooShnoo/pokemon-rumble) `libs/PowerPC_EABI_Support/MSL/MSL_C++` | No SPDX license; its LICENSE file names mixed origins and ogws MIT for `libs/` | 2006 MSL `tree` (`__tree_deleter`, member-template `find_leaf`), no `deque`, stub `vector`. Does not match the game's `tree_imp` or deque classes. |
+| [yannicksuter/smstrikers-decomp](https://github.com/yannicksuter/smstrikers-decomp) `include/PowerPC_EABI_Support/MSL_C++/MSL_Common/msl_tree.h` | Custom rights notice | Reduced `__tree` with member-template `find_leaf`. Not applicable. |
+| [doldecomp/mweppc](https://github.com/doldecomp/mweppc) | CC0-1.0 | Decompiled GameCube 2.x `mwcceppc` front end. Its template list, nested-class and instantiation-pass code explain the walk rules; its code-generation order does not apply to Wii/1.1 with `-ipa file`. |
