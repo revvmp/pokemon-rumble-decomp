@@ -41,3 +41,32 @@ Flipped `CTextWorldObjStat` and `CPiiInfoWorldObjStat` to Matching. Both clip at
 | CNoticeDisplay | three `Init` | 99.6-99.9 | `.data` order: the original emits the `CNoticeDisplay` deleter vtable before the function literals |
 | PiiPropData | constructor, `Reset`, `sort<short>`, `SpeciesMoves::operator=` | 95-99.6 | vector tag slots, one register rotation, one extra tag |
 | resetmgr | `Update`, `RegisterResetCallback` | 99.38, 96.15 | Iterator register order |
+
+## Tail wave 2 (agent a15)
+
+Flipped `CMultiRanking` and `CHPBar` to Matching. Matched `CUIList::OnInput`; `CGameEnding::Calc` rose from 99.29% to 99.75%.
+
+### Traps
+
+- **A missing exception-table action means the callee was visible and could not throw.** `IMultiRanking::Create` had 8 extra extab bytes: our build gave call sites of `CPlayer::GetPersonalData` a cleanup action that the original omits. A `throw()` declaration changes nothing. Defining the getters inline in `CPlayer.h` removes the actions even where the call stays out of line, because the compiler sees the body under `-ipa file`. This also fixed the `CHPBar::Update` flag register (r4, because the flag is no longer live across the call) and one `CGameSession` function. Commit a560a5ebd reached the same conclusion in parallel. The weak getter copies in `CDlgPiiList` now score 57% because their loads are scheduled; the earlier `#pragma scheduling off` cannot apply to a header inline.
+- **Weak `@STRING@` literals give the definition order of inline functions.** The two `"begin"` literals of `CMultiRanking::RunAction` sit after the `Init` strings in `.sdata`, in reverse creation order. A literal in a non-inline function becomes a local `@NNNN` placed early in `.sdata`, so both calls had to be in inline helpers defined before `Init`. Rename the target labels to the compiled `@STRING@Helper__...` names.
+- **Inline helpers fix register and stack-slot parity together.** `RunAction` matched only after its skip loop, ranking motion, player model motion and layout motion each became small inline members. The temporaries of the assignment from `Play` must sit at an even inline depth (`PlayModelMotion` inside `StartPlayerMotion`). `CGameEnding::Calc` needed its scroll block in an inline `ScrollStaffRoll` to reverse its tag slots.
+- **When every function matches but the DOL does not, check the function order.** `CHPBar` had all 18 functions at 100% and failed verification until its definitions followed the original order: `Initialize`, `Update`, `SetEnabled`, `CalcView`, `IsVisible`, `Draw`, `SetAnimationState`, `GetType`.
+- **Stale `@NNNN` names hide matching literal pools.** The GameUtil `.sdata2` labels named the pool of an earlier compile. Rename them by address to the current object's order.
+
+### Unsolved
+
+| Unit | Function | % | Cause and attempts |
+| --- | --- | --- | --- |
+| CGameEnding | `Calc` | 99.75 | The node register of the two inline `list::erase` calls is r26, but r25 in the original. Tried `pop_front`, iterator locals, range erase, and moving the erase out of the helper |
+| CUIList | `vector<shared_ptr<CLayout>>::~vector` | 95.92 | Ours keeps two dead `beq` from the inlined base destructors; the original copy (EH-only, emitted late) does not. The unit's function order also differs from the original (`Load` before `GetLayoutCount`, `OnInput` before `Calc`) |
+| CBattleRoyalBox | `GetData` | 89.33 | The original computes `&mData[mode][area]` twice in different association orders; every indexing form tried fails |
+| GameUtil | `InitBgmFxPresets` | 92.23 | The original hoists four more float literals into f0 to f5. Tried `static` helpers and other parameter orders and types |
+| CMoneyLifeDisplay | `Create` | 99.30 | The `*pMapDesc` load sits before the vtable store. A by-value `MapIndex` constructor argument reproduces it but adds a stack copy |
+| Message | `InitMsgResList` | 99.99 | `vector(n)` tag slots. Tried wrapper-based, explicit-tag and reordered-tag variants of `__vec_constructor(size_type)` |
+| CDividedGround | `LoadAttr` | 99.27 | The first `file->IsValid()` reloads the pointer for `mPending`. Tried `!file || !IsValid`, `get()`, `!= nullptr`, a bool local and direct initialisation |
+| CDlgMsgWin | `shared_ptr_deleter<char, default_delete<char[]>>` constructor | 62.96 | Scheduling of the empty deleter copy; a user-declared `default_delete<T[]>` constructor makes it worse |
+| BUI | `OnInput` | 91.70 | Ours strength-reduces the neighbour address. Tried `for` scope, pointer arithmetic and operand order |
+| CUIMenu | `OnInput` | 98.62 | Extra `b` after each `return` in a scope that holds a `shared_ptr`. An inline `SelectIfSelectable` helper dropped the function to 93% |
+| CEffect | `InitializeEffect` | 99.62 | Pool count and pointer registers. Tried declaration order, removing the count local, and a member template `AllocArray` |
+| CPiiPersonalData | `Import` | 97.08 | Store order of `mRandomSeed` and `mCreationTime` |
