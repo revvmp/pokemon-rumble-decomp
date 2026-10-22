@@ -44,16 +44,14 @@ struct UIMenuParam {
     const char* mpLayoutName;
 };
 
-class CUICallbackLists {
+class MenuCallback {
 public:
     BUI::CCallbackListOwner mSelectionCallbacks;
-
-private:
     BUI::CCallbackListOwner mAcceptCallbacks;
     BUI::CCallbackListOwner mScrollCallbacks;
 };
 
-class CUIMenuCallbacks : public CUICallbackLists {
+class CUIMenuCallbacks : public MenuCallback {
 public:
     explicit CUIMenuCallbacks(int param);
 

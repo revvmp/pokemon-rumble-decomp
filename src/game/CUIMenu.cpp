@@ -1,5 +1,7 @@
 #include <game/CUIMenuItem.h>
 #include <game/CUIMenu.h>
+#include <game/CUIManager.h>
+#include <game/CFiber.h>
 #include <nw4r/lyt/lyt_textbox.h>
 #include <game/StringFormat.h>
 #include <algorithm>
@@ -196,4 +198,106 @@ void CUIMenu::OnInput(const IUIInput* pInput) {
         }
     }
     CUIList::OnInput(pInput);
+}
+
+namespace {
+
+void NotifyCallbacks(const BUI::CCallbackListOwner& rOwner, BUI* const& rSender) {
+    if (rOwner.get()) {
+        for (BUI::CallbackList::iterator i = rOwner.get()->begin(); i != rOwner.get()->end(); ++i) (**i)(rSender);
+    }
+}
+
+void OnMenuAccept(BUI* pSender, bool* pAccepted, const MenuCallback* pCallbacks) {
+    *pAccepted = true;
+    if (pCallbacks) NotifyCallbacks(pCallbacks->mAcceptCallbacks, pSender);
+}
+
+void OnMenuSelection(BUI* pSender, const MenuCallback* pCallbacks) {
+    if (pCallbacks) NotifyCallbacks(pCallbacks->mSelectionCallbacks, pSender);
+}
+
+std::tr1::shared_ptr<IUIListItem> RunMenuList(const wchar_t* pTitle, std::vector<std::tr1::shared_ptr<IUIListItem> >& rItems, int columns, int rows, int defaultIndex, const MenuCallback* pCallbacks, IUIInput* pInput, std::tr1::shared_ptr<CUIManager> manager, const char* const* pArchives, const char* pLayoutName, const std::tr1::shared_ptr<CLayout::FontMap>& rFonts, int background) {
+    std::tr1::shared_ptr<BUILayout> pRoot(new BUILayout());
+    pRoot->Load(pArchives, (std::string(pLayoutName) + "_root").c_str(), rFonts, background);
+    std::tr1::shared_ptr<CUIMenu> pMenu(new CUIMenu());
+    pMenu->Load(columns, rows, pArchives, pLayoutName, rFonts, background);
+    manager->AddChild(pRoot);
+    pRoot->AttachChild("MENU", pMenu);
+    bool accepted = false;
+    pMenu->GetAcceptCallbacks().Add(std::tr1::bind(OnMenuAccept, std::tr1::placeholders::_1, &accepted, pCallbacks));
+    pMenu->GetSelectionCallbacks().Add(std::tr1::bind(OnMenuSelection, std::tr1::placeholders::_1, pCallbacks));
+    pMenu->GetItems() = rItems;
+    pMenu->SetTitle(pTitle);
+    if (defaultIndex >= 0) {
+        int index = 0;
+        for (std::vector<std::tr1::shared_ptr<IUIListItem> >::iterator i = rItems.begin(); i != rItems.end(); ++i) {
+            std::tr1::shared_ptr<CUIMenuItem> pItem = std::tr1::dynamic_pointer_cast<CUIMenuItem>(*i);
+            if (pItem && defaultIndex == pItem->GetKind()) {
+                if (pItem->IsSelectable()) pMenu->SetSelectedIndex(index);
+                else defaultIndex = -1;
+                break;
+            }
+            ++index;
+        }
+    }
+    if (defaultIndex < 0) {
+        int index = 0;
+        for (std::vector<std::tr1::shared_ptr<IUIListItem> >::iterator i = rItems.begin(); i != rItems.end(); ++i) {
+            if (*i && (*i)->IsSelectable()) {
+                pMenu->SetSelectedIndex(index);
+                break;
+            }
+            ++index;
+        }
+    }
+    pMenu->UpdateSelection();
+    BUI* pPreviousFocus = manager->GetFocusedUI();
+    manager->SetFocusedUI(pMenu.get());
+    pRoot->GetLayout()->CreateMotion("begin")->Wait();
+    std::tr1::shared_ptr<IUIListItem> result;
+    if (pInput && pInput->IsConnected()) {
+        for (;;) {
+            if (pInput->GetTrig() & 0x10) {
+                if (pCallbacks) {
+                    BUI* pSender = pMenu.get();
+                    NotifyCallbacks(pCallbacks->mScrollCallbacks, pSender);
+                }
+                break;
+            }
+            manager->DispatchFocusedInput(pInput);
+            if (accepted) {
+                pMenu->GetSelectedLayout()->CreateMotion("selected", "HOVER", 0.0f, 1.0f)->Wait();
+                result = pMenu->GetSelectedItem();
+                break;
+            }
+            YieldFiber();
+        }
+    }
+    pRoot->GetLayout()->CreateMotion("end")->Wait();
+    manager->RemoveChild(pRoot);
+    manager->SetFocusedUI(pPreviousFocus);
+    return result;
+}
+
+}
+
+int RunUIMenu(const UIMenuParam& rParam, CUIMenuCallbacks& rCallbacks, IUIInput* pInput, std::tr1::shared_ptr<CUIManager> manager, std::tr1::shared_ptr<CLayout::FontMap> fonts, bool background) {
+    std::tr1::shared_ptr<CLayout> pMeasure(new CLayout());
+    pMeasure->Load(rParam.mpArchives, (std::string(rParam.mpLayoutName) + "_item").c_str(), fonts);
+    NErrMsg::PaneRectangle titleBounds = NErrMsg::GetPaneRectangle(pMeasure->FindPane("TITLE_SIZE"));
+    NErrMsg::PaneRectangle itemBounds = NErrMsg::GetPaneRectangle(pMeasure->FindPane("SIZE"));
+    float padding = itemBounds.GetWidth() - titleBounds.GetWidth();
+    std::vector<std::tr1::shared_ptr<IUIListItem> > items;
+    items.reserve(rParam.mItemCount);
+    for (unsigned long i = 0; i < rParam.mItemCount; ++i) {
+        const UIMenuItem& rItem = rParam.mpItems[i];
+        float width = padding + pMeasure->SetText("TITLE", rItem.mText)->GetTextDrawRect().GetWidth();
+        std::tr1::shared_ptr<CUIMenuItem> pItem(new CUIMenuItem(std::wstring(rItem.mText), rItem.mKind, width));
+        items.push_back(pItem);
+    }
+    std::tr1::shared_ptr<IUIListItem> selected = RunMenuList(rParam.mTitle, items, rParam.mColumnCount, rParam.mRowCount, rParam.mDefaultIndex, &rCallbacks, pInput, manager, rParam.mpArchives, rParam.mpLayoutName, fonts, background);
+    std::tr1::shared_ptr<CUIMenuItem> pSelected = std::tr1::dynamic_pointer_cast<CUIMenuItem>(selected);
+    if (!pSelected) return -1;
+    return pSelected->GetKind();
 }

@@ -22,7 +22,8 @@ public:
     void SetSelectedIndex(int index);
     int GetSelectedIndex();
     std::tr1::shared_ptr<IUIListItem> GetSelectedItem();
-    std::tr1::shared_ptr<IUIListItem> GetItem(int index) { return mItems[index]; }
+    std::tr1::shared_ptr<IUIListItem> GetItem(int index) { return GetItem(static_cast<unsigned long>(index)); }
+    std::tr1::shared_ptr<IUIListItem> GetItem(unsigned long index) { return index < mItems.size() ? mItems[index] : std::tr1::shared_ptr<IUIListItem>(); }
     std::vector<std::tr1::shared_ptr<IUIListItem> >& GetItems() { return mItems; }
     CLayout* GetSelectedLayout();
     void SetScrollRange(unsigned long begin,unsigned long end);

@@ -101,6 +101,31 @@ private:
     Arguments mArguments;
 };
 
+template<class R,class F,class D> class bound_func<R,F,tuple<placeholders::detail::ph<1>,D> > {
+public:
+    typedef tuple<placeholders::detail::ph<1>,D> Arguments;
+    bound_func(const F& rFunction,const Arguments& rArguments) : mFunction(rFunction),mArguments(rArguments) {}
+    template<class A> R operator()(A& argument) const {
+        tuple<A&> arguments(argument);
+        return mFunction(resolve_bound_argument(placeholders::detail::ph<1>(),arguments),const_cast<Arguments&>(mArguments).second());
+    }
+private:
+    F mFunction;
+    Arguments mArguments;
+};
+template<class R,class F,class B,class D> class bound_func<R,F,tuple<placeholders::detail::ph<1>,B,D> > {
+public:
+    typedef tuple<placeholders::detail::ph<1>,B,D> Arguments;
+    bound_func(const F& rFunction,const Arguments& rArguments) : mFunction(rFunction),mArguments(rArguments) {}
+    template<class A> R operator()(A& argument) const {
+        tuple<A&> arguments(argument);
+        Arguments& rArguments = const_cast<Arguments&>(mArguments);
+        return mFunction(resolve_bound_argument(placeholders::detail::ph<1>(),arguments),rArguments.second(),rArguments.third());
+    }
+private:
+    F mFunction;
+    Arguments mArguments;
+};
 template<class R,class C,class A,class B,class D> class mem_fn_3 {
 public:
     typedef R (C::*Function)(A,B,D);
@@ -172,6 +197,14 @@ template<class R,class C,class A,class B,class D,class T> detail::bound_func<R,d
 template<class R,class C,class A,class D,class T> detail::bound_func<R,detail::mem_fn_2<R,C,A,const D&>,tuple<T,placeholders::detail::ph<1>,D> > bind(R (C::*pFunction)(A,const D&),T value,placeholders::detail::ph<1> first,D second) {
     typedef tuple<T,placeholders::detail::ph<1>,D> Arguments;
     return detail::bound_func<R,detail::mem_fn_2<R,C,A,const D&>,Arguments>(detail::mem_fn_2<R,C,A,const D&>(pFunction),Arguments(value,first,second));
+}
+template<class R,class A,class D> detail::bound_func<R,R (*)(A,D),tuple<placeholders::detail::ph<1>,D> > bind(R (*pFunction)(A,D),placeholders::detail::ph<1> first,D second) {
+    typedef tuple<placeholders::detail::ph<1>,D> Arguments;
+    return detail::bound_func<R,R (*)(A,D),Arguments>(pFunction,Arguments(first,second));
+}
+template<class R,class A,class B,class D> detail::bound_func<R,R (*)(A,B,D),tuple<placeholders::detail::ph<1>,B,D> > bind(R (*pFunction)(A,B,D),placeholders::detail::ph<1> first,B second,D third) {
+    typedef tuple<placeholders::detail::ph<1>,B,D> Arguments;
+    return detail::bound_func<R,R (*)(A,B,D),Arguments>(pFunction,Arguments(first,second,third));
 }
 namespace detail {
 

@@ -8,7 +8,7 @@
 #include <memory>
 
 class CUIManager;
-class CUICallbackLists;
+class MenuCallback;
 
 class BUI : public ICalcDraw, public std::tr1::enable_shared_from_this<BUI> {
 public:
@@ -58,7 +58,7 @@ public:
     };
 
 private:
-    friend class CUICallbackLists;
+    friend class MenuCallback;
     friend class CUIManager;
     friend class BUILayout;
 
