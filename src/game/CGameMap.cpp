@@ -162,9 +162,9 @@ void CGameMap::LoadStageResources()
     if (pDesc->mIndex.mMode == 2) {
         rank = "EX";
     }
-    lights[0].assign("light" + rank + number);
-    lights[1].assign("light" + rank);
-    lights[2].assign("light" + number);
+    lights[0] = "light" + rank + number;
+    lights[1] = "light" + rank;
+    lights[2] = "light" + number;
     const std::tr1::shared_ptr<CFileData>& stage = LoadFile(("5:/stage/" + world + "/" + number + ".arc/stage.brres").c_str(), 0, true);
     std::tr1::shared_ptr<CFileData> common;
     std::tr1::shared_ptr<CFileData> file = stage;
@@ -172,7 +172,8 @@ void CGameMap::LoadStageResources()
         if (file && file->IsLoaded()) {
             for (int j = 0; j < 3; j++) {
                 if (lights[j].size() != 0) {
-                    nw4r::g3d::ResAnmScn scene = nw4r::g3d::ResFile(file->GetData()).GetResAnmScn(lights[j].c_str());
+                    nw4r::g3d::ResFile resFile(file->GetData());
+                    nw4r::g3d::ResAnmScn scene = resFile.GetResAnmScn(lights[j].c_str());
                     if (scene.IsValid()) {
                         mWorld->LoadLightScene(file->GetPath().c_str(), lights[j].c_str(), true);
                         mWorld->GetShadowCamera()->SelectLight();
