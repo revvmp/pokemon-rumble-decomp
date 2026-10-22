@@ -42,27 +42,23 @@ bool CModel::BPartialAnm::CreateAnimObj(nw4r::g3d::ResMdl mdl) {
         mAnimObj.reset();
         return false;
     }
-    CMotionProgram* pMotion = mMotions.front().get();
+    std::tr1::shared_ptr<CMotionProgram>& rMotion = mMotions.front();
     bool needsObject = false;
     if (!mAnimObj) {
         needsObject = true;
-    } else if (pMotion->mResource.ptr() != mAnimObj->GetResAnm().ptr()) {
+    } else if (rMotion->mResource.ptr() != mAnimObj->GetResAnm().ptr()) {
         needsObject = true;
     }
-    if (needsObject && (pMotion->mFlags & CMotionProgram::FLAG_BIND_FAILED)) {
+    if (needsObject && (rMotion->mFlags & CMotionProgram::FLAG_BIND_FAILED)) {
         return false;
     }
     if (!needsObject) {
         return false;
     }
-    mAnimObj.reset(nw4r::g3d::AnmObjChrRes::Construct(GetDefaultAllocator(), nullptr, pMotion->mResource, mdl, false), DestroyG3dObj);
-    mAnimObj->SetFrame(pMotion->GetCurrentFrame());
-    if (!mAnimObj->Bind(mdl)) {
-        pMotion->mFlags |= CMotionProgram::FLAG_BIND_FAILED;
-    } else {
-        pMotion->mFlags &= ~CMotionProgram::FLAG_BIND_FAILED;
-    }
-    if (pMotion->mFlags & CMotionProgram::FLAG_BIND_FAILED) {
+    mAnimObj.reset(nw4r::g3d::AnmObjChrRes::Construct(GetDefaultAllocator(), nullptr, rMotion->mResource, mdl, false), DestroyG3dObj);
+    mAnimObj->SetFrame(rMotion->GetCurrentFrame());
+    rMotion->SetBindFailed(!mAnimObj->Bind(mdl));
+    if (rMotion->mFlags & CMotionProgram::FLAG_BIND_FAILED) {
         mAnimObj.reset();
         return false;
     }
@@ -671,7 +667,7 @@ template <bool Main> bool CModel::TPartialAnm<Main>::SetMotion(CModel* pModel, c
 }
 
 template <bool Main> bool CModel::TPartialAnm<Main>::QueueMotion(CModel* pModel, const std::tr1::shared_ptr<CMotionProgram>& rMotion) {
-    if (IsIdle()) {
+    if (IsReplaceable()) {
         return SetMotion(pModel, rMotion);
     }
     if (mMotions.size() >= 2) {
@@ -689,7 +685,7 @@ template <bool Main> bool CModel::TPartialAnm<Main>::QueueMotion(CModel* pModel,
 }
 
 template <bool Main> bool CModel::TPartialAnm<Main>::AppendMotion(CModel* pModel, const std::tr1::shared_ptr<CMotionProgram>& rMotion) {
-    if (IsIdle()) {
+    if (IsReplaceable()) {
         return SetMotion(pModel, rMotion);
     }
     mMotions.push_back(rMotion);
@@ -697,44 +693,46 @@ template <bool Main> bool CModel::TPartialAnm<Main>::AppendMotion(CModel* pModel
 }
 
 template <bool Main> bool CModel::TPartialAnm<Main>::Update(CModel* pModel, f32 step) {
-    if (IsIdle()) {
+    if (IsReplaceable()) {
         mFrame += step;
         return true;
     }
     bool advanced = false;
     for (;;) {
-        CMotionProgram* pMotion = mMotions.front().get();
-        if (pMotion->mFlags & CMotionProgram::FLAG_PAUSED) {
+        std::tr1::shared_ptr<CMotionProgram>& rMotion = mMotions.front();
+        if (rMotion->mFlags & CMotionProgram::FLAG_PAUSED) {
             return true;
         }
-        f32 frame = mFrame + step * pMotion->mRate;
-        f32 length = static_cast<f32>(pMotion->mLength);
+        f32 length = static_cast<f32>(rMotion->mLength);
+        f32 frame = mFrame + step * rMotion->mRate;
         mFrame = frame;
         if (frame < length) {
             return !advanced;
         }
         mFrame = frame - length;
         if (mMotions.size() >= 2) {
-            step = mFrame / pMotion->mRate;
-            pMotion->SetPlaybackState(CMotionProgram::FLAG_STOPPED);
+            step = mFrame / rMotion->mRate;
+            rMotion->SetPlaybackState(CMotionProgram::FLAG_STOPPED);
             mMotions.pop_front();
-            mFrame = std::max(0.0f, mMotions.front()->mStartFrame);
+            mFrame = mMotions.front()->mStartFrame < 0.0f ? 0.0f : mMotions.front()->mStartFrame;
             mAnimObj.reset();
             advanced = true;
             mMotions.front().get()->SetPlaybackState(CMotionProgram::FLAG_PLAYING);
             if (pModel->mMotionCallback) {
                 pModel->mMotionCallback(pModel, mMotions.front());
             }
-        } else if (pMotion->mResource.GetAnmPolicy() == nw4r::g3d::ANM_POLICY_LOOP) {
+        } else if (rMotion->mResource.GetAnmPolicy() == nw4r::g3d::ANM_POLICY_LOOP) {
             step = 0.0f;
-            pMotion->SetPlaybackState(CMotionProgram::FLAG_LOOPED);
-            pMotion->mFlags += 0x10000;
+            rMotion->SetPlaybackState(CMotionProgram::FLAG_LOOPED);
+            rMotion->mFlags += 0x10000;
         } else {
-            if (pMotion->mRate != 0.0f) {
-                mFrame = mFrame / pMotion->mRate;
+            if (rMotion->mRate != 0.0f) {
+                mFrame = mFrame / rMotion->mRate;
             }
-            pMotion->SetPlaybackState(CMotionProgram::FLAG_FINISHED);
+            rMotion->SetPlaybackState(CMotionProgram::FLAG_FINISHED);
             return true;
         }
     }
 }
+
+template <bool Main> CModel::TPartialAnm<Main>::~TPartialAnm() {}

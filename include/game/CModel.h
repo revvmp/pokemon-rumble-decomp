@@ -72,6 +72,13 @@ public:
         bool IsPausing() const { return (mFlags & FLAG_PAUSED) != 0; }
         const void* GetUserData() const { return mpUserData; }
         void SetUserData(const void* pUserData) { mpUserData = pUserData; }
+        void SetBindFailed(bool failed) {
+            if (failed) {
+                mFlags |= FLAG_BIND_FAILED;
+            } else {
+                mFlags &= ~FLAG_BIND_FAILED;
+            }
+        }
         void SetLoopTextureAnimation(bool loop) {
             if (loop) {
                 mFlags |= FLAG_LOOP_TEXTURE_ANIMATION;
@@ -124,6 +131,7 @@ public:
         virtual bool QueueMotion(CModel* pModel, const std::tr1::shared_ptr<CMotionProgram>& rMotion);
         virtual bool AppendMotion(CModel* pModel, const std::tr1::shared_ptr<CMotionProgram>& rMotion);
         bool Update(CModel* pModel, f32 step);
+        bool IsReplaceable() { return Main ? IsIdle() : mMotions.size() == 0; }
     };
     class PartialAnmManager {
     public:
@@ -197,8 +205,13 @@ public:
     bool mAimTargetPending;
     nw4r::math::AABB mBounds;
     virtual void ExecCallback_CALC_WORLD(nw4r::g3d::ScnObj::Timing timing, nw4r::g3d::ScnObj* pObject, u32 param, void* pInfo);
+    virtual void ExecCallback_CALC_MAT(nw4r::g3d::ScnObj::Timing timing, nw4r::g3d::ScnObj* pObject, u32 param, void* pInfo) {}
     virtual void ExecCallback_CALC_VIEW(nw4r::g3d::ScnObj::Timing timing, nw4r::g3d::ScnObj* pObject, u32 param, void* pInfo);
+    virtual void ExecCallback_DRAW_OPA(nw4r::g3d::ScnObj::Timing timing, nw4r::g3d::ScnObj* pObject, u32 param, void* pInfo) {}
+    virtual void ExecCallback_DRAW_XLU(nw4r::g3d::ScnObj::Timing timing, nw4r::g3d::ScnObj* pObject, u32 param, void* pInfo) {}
     virtual void ExecCallbackA(nw4r::g3d::ChrAnmResult* pResult, nw4r::g3d::ResMdl mdl, nw4r::g3d::FuncObjCalcWorld* pFuncObj);
+    virtual void ExecCallbackB(nw4r::g3d::WorldMtxManip* pManip, nw4r::g3d::ResMdl mdl, nw4r::g3d::FuncObjCalcWorld* pFuncObj) {}
+    virtual void ExecCallbackC(nw4r::math::MTX34* pMtxArray, nw4r::g3d::ResMdl mdl, nw4r::g3d::FuncObjCalcWorld* pFuncObj) {}
 
 };
 
