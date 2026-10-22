@@ -863,9 +863,9 @@ void CEffect::CalcMtx() {
     if (std::tr1::shared_ptr<BWorldObj> pFollow = Lock(mFollow)) {
         BModelObj* pModelObj = DynamicCast<BModelObj>(pFollow.get());
         if (pModelObj != nullptr && pModelObj->GetModel()) {
-            u32 nodeID = 0xFFFFFFFF;
             nw4r::g3d::ScnMdlSimple* pScnMdl =
                 static_cast<nw4r::g3d::ScnMdlSimple*>(pModelObj->GetModel()->GetScnObj());
+            u32 nodeID = 0xFFFFFFFF;
             if (mParam.mInfo->mNodeName != nullptr) {
                 nw4r::g3d::ResNode node = pScnMdl->GetResMdl().GetResNode(mParam.mInfo->mNodeName);
                 if (node.IsValid()) {
