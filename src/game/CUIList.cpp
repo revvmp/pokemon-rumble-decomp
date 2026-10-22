@@ -44,10 +44,9 @@ void CUIList::Load(const char* const* pArchives, const char* pName, const std::t
         return;
     }
     {
-        mLayouts.swap(layouts);
+        layouts.swap(mLayouts);
         mScrollRangeEnd = mLayouts.size();
         GetFocusCallbacks().Add(std::tr1::bind(&CUIList::OnFocus,this,std::tr1::placeholders::_1));
-        Calc();
         UpdateSelection();
     }
 }
