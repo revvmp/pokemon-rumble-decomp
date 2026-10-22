@@ -346,52 +346,6 @@ inline void CDlgPiiListImpl::AppendItems(const std::list<std::tr1::shared_ptr<CP
     }
 }
 
-inline void CDlgPiiListImpl::Setup(bool background) {
-    std::tr1::shared_ptr<CLayout::FontMap> fonts = GetDefaultFontMap();
-    const char* const* pArchives = gSharedLayoutArchives;
-    mRootLayout->Load(pArchives, "dlgpiilist_root", fonts, background);
-    mPiiSpec->Load(pArchives, "piispec2", fonts, background);
-    mPiiList->Load(pArchives, "dlgpiilist_list", fonts, background);
-    mPlayerID->Setup(mPlayer, 0, pArchives, "playerid", fonts, background);
-    mHelpLayout->Load(pArchives, "dlgpiilist_help", fonts, background);
-    mTitleLayout->Load(pArchives, "dlgpiilist_title", fonts, background);
-    mRemoteMemoryLayout->Load(pArchives, "remote_memory", fonts, background);
-    mRemoteMemoryLayout->GetLayout()->CreateMotion("init");
-    mSavingLayout->Load(pArchives, "saving", fonts, background);
-    mUIManager->AddChild(mRootLayout);
-    mRootLayout->AttachChild("PIISPEC", mPiiSpec);
-    mRootLayout->AttachChild("LIST", mPiiList);
-    mRootLayout->AttachChild("PLAYERID", mPlayerID);
-    mRootLayout->AttachChild("HELP", mHelpLayout);
-    mRootLayout->AttachChild("TITLE", mTitleLayout);
-    mRootLayout->AddChild(mRemoteMemoryLayout);
-    mRootLayout->AddChild(mSavingLayout);
-    mPiiList->SetScrollRange(2, mPiiList->GetLayoutCount() - 2);
-    mPiiList->GetSelectionCallbacks().Add(std::tr1::bind(&CDlgPiiListImpl::OnSelectionChanged, this, std::tr1::placeholders::_1));
-    mPiiList->GetAcceptCallbacks().Add(std::tr1::bind(&CDlgPiiListImpl::OnAccept, this, std::tr1::placeholders::_1));
-    mPiiList->SetScrollMode(1);
-    mPiiList->SetSelectionInputEnabled(true);
-    mPiiList->SetActivateOnHold(true);
-    mPlayerID->Update();
-    switch (mType) {
-    case 1:
-        mTitleLayout->GetLayout()->SetText("TITLE", GetMessageString(0x6008D, nullptr));
-        CColorBtnTagProc::Attach(mHelpLayout->GetLayout()->SetText(
-            "HELP", (GetButtonMessage(mPlayer, 8, 0x600A4) + GetButtonMessage(mPlayer, 0x20, 0x600A1) +
-                     GetButtonMessage(mPlayer, 0x10, 0x6009F) + GetButtonMessage(mPlayer, 0x100, 0x600A6) +
-                     GetButtonMessage(mPlayer, 0x800, 0x600A5)).c_str()));
-        break;
-    case 2:
-        mTitleLayout->GetLayout()->SetText("TITLE", GetMessageString(0x6008E, nullptr));
-        CColorBtnTagProc::Attach(mHelpLayout->GetLayout()->SetText(
-            "HELP", (GetButtonMessage(mPlayer, 8, 0x600A4) + GetButtonMessage(mPlayer, 0x20, 0x600A3) +
-                     GetButtonMessage(mPlayer, 0x10, 0x6009F) + GetButtonMessage(mPlayer, 0x100, 0x600A6) +
-                     GetButtonMessage(mPlayer, 0x800, 0x600A5)).c_str()));
-        break;
-    }
-    mUIManager->SetFocusedUI(mPiiList.get());
-}
-
 inline void CDlgPiiListImpl::OnSelectionChanged(BUI* pUI) {
     if (!mFlag400) {
         mFlag400 = true;
@@ -710,6 +664,52 @@ finished:
     Finish();
 }
 
+
+inline void CDlgPiiListImpl::Setup(bool background) {
+    std::tr1::shared_ptr<CLayout::FontMap> fonts = GetDefaultFontMap();
+    const char* const* pArchives = gSharedLayoutArchives;
+    mRootLayout->Load(pArchives, "dlgpiilist_root", fonts, background);
+    mPiiSpec->Load(pArchives, "piispec2", fonts, background);
+    mPiiList->Load(pArchives, "dlgpiilist_list", fonts, background);
+    mPlayerID->Setup(mPlayer, 0, pArchives, "playerid", fonts, background);
+    mHelpLayout->Load(pArchives, "dlgpiilist_help", fonts, background);
+    mTitleLayout->Load(pArchives, "dlgpiilist_title", fonts, background);
+    mRemoteMemoryLayout->Load(pArchives, "remote_memory", fonts, background);
+    mRemoteMemoryLayout->GetLayout()->CreateMotion("init");
+    mSavingLayout->Load(pArchives, "saving", fonts, background);
+    mUIManager->AddChild(mRootLayout);
+    mRootLayout->AttachChild("PIISPEC", mPiiSpec);
+    mRootLayout->AttachChild("LIST", mPiiList);
+    mRootLayout->AttachChild("PLAYERID", mPlayerID);
+    mRootLayout->AttachChild("HELP", mHelpLayout);
+    mRootLayout->AttachChild("TITLE", mTitleLayout);
+    mRootLayout->AddChild(mRemoteMemoryLayout);
+    mRootLayout->AddChild(mSavingLayout);
+    mPiiList->SetScrollRange(2, mPiiList->GetLayoutCount() - 2);
+    mPiiList->GetSelectionCallbacks().Add(std::tr1::bind(&CDlgPiiListImpl::OnSelectionChanged, this, std::tr1::placeholders::_1));
+    mPiiList->GetAcceptCallbacks().Add(std::tr1::bind(&CDlgPiiListImpl::OnAccept, this, std::tr1::placeholders::_1));
+    mPiiList->SetScrollMode(1);
+    mPiiList->SetSelectionInputEnabled(true);
+    mPiiList->SetActivateOnHold(true);
+    mPlayerID->Update();
+    switch (mType) {
+    case 1:
+        mTitleLayout->GetLayout()->SetText("TITLE", GetMessageString(0x6008D, nullptr));
+        CColorBtnTagProc::Attach(mHelpLayout->GetLayout()->SetText(
+            "HELP", (GetButtonMessage(mPlayer, 8, 0x600A4) + GetButtonMessage(mPlayer, 0x20, 0x600A1) +
+                     GetButtonMessage(mPlayer, 0x10, 0x6009F) + GetButtonMessage(mPlayer, 0x100, 0x600A6) +
+                     GetButtonMessage(mPlayer, 0x800, 0x600A5)).c_str()));
+        break;
+    case 2:
+        mTitleLayout->GetLayout()->SetText("TITLE", GetMessageString(0x6008E, nullptr));
+        CColorBtnTagProc::Attach(mHelpLayout->GetLayout()->SetText(
+            "HELP", (GetButtonMessage(mPlayer, 8, 0x600A4) + GetButtonMessage(mPlayer, 0x20, 0x600A3) +
+                     GetButtonMessage(mPlayer, 0x10, 0x6009F) + GetButtonMessage(mPlayer, 0x100, 0x600A6) +
+                     GetButtonMessage(mPlayer, 0x800, 0x600A5)).c_str()));
+        break;
+    }
+    mUIManager->SetFocusedUI(mPiiList.get());
+}
 
 inline void CDlgPiiListImpl::RunSell() {
     PiiList sellList;
