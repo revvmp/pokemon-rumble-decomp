@@ -35,6 +35,8 @@ public:
     const s64& GetCreationTime() const { return mCreationTime; }
     f32 GetHPRatio();
     int GetHP() const { return mHP; }
+    int GetDamageTotal() const { return mDamageTotal; }
+    int GetHealTotal() const { return mHealTotal; }
     void SetHP(int hp);
     void FillUpHP();
     void ResetDamage();

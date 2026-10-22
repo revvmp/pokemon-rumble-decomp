@@ -23,8 +23,25 @@ public:
     virtual int GetType() const;
 
     void Initialize(int playerNo, CPiiPersonalData* pPersonalData, bool background);
+    void SetEnabled(bool enabled);
 
 private:
+    enum Flag {
+        FLAG_POSITION_VALID = 1 << 0,
+        FLAG_CALCULATED = 1 << 1,
+        FLAG_VISIBLE = 1 << 2,
+        FLAG_DISABLED = 1 << 3,
+        FLAG_PLAYER_DOWN = 1 << 4,
+        FLAG_BOSS_HIDDEN = 1 << 5,
+        FLAG_ON_SCREEN = 1 << 6,
+        FLAG_UPDATED = 1 << 7,
+        FLAG_VIEW_STARTED = 1 << 8
+    };
+
+    enum AnimationState { ANIMATION_IDLE, ANIMATION_GAUGE_LOOP, ANIMATION_PLAYER_OUT, ANIMATION_PLAYER_LOOP };
+
+    void SetAnimationState(int state);
+
     u32 mFlags;
     u32 mType;
     Kind mKind;
