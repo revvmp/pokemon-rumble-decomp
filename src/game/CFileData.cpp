@@ -2,18 +2,39 @@
 
 #include <game/CFiber.h>
 #include <game/CFileDataWorker.h>
+#include <game/FileList.h>
 #include <game/Memory.h>
 #include <game/ResourceFileConfig.h>
 #include <nw4r/g3d/res/g3d_resfile.h>
+#include <nw4r/ut/ut_CntFileStream.h>
+#include <nw4r/ut/ut_NandFileStream.h>
 #include <revolution/arc.h>
-#include <revolution/cx/CXUncompression.h>
+#include <revolution/cx.h>
 #include <revolution/os/OSCache.h>
+#include <revolution/os/OSError.h>
+#include <string.h>
 
-static ResourceFileConfig sConfig;
+struct FileLoadParam {
+    const char* mpPath;
+    u32 mFlags;
+};
+
+std::tr1::shared_ptr<FileList> LoadFiles(const FileLoadParam* pFiles, unsigned int count, bool background);
+
+static std::map<std::string, std::tr1::weak_ptr<CFileData> > sFileCache;
 
 static std::tr1::shared_ptr<CFileData::CWorker> sWorker;
 
+static ResourceFileConfig sConfig;
+
 CFileData::CFileData() : mFlags(0), mSize(0), mData(nullptr), mPending(false), mError(0) {}
+
+inline CFileData::~CFileData() {
+    if ((mFlags & FLAG_KIND_MASK) == FLAG_KIND_RESOURCE_READY) {
+        nw4r::g3d::ResFile resFile(mData);
+        resFile.Terminate();
+    }
+}
 
 inline void CFileData::CWorker::CFinishedQueue::WaitForReadyJob() {
     for (;;) {
@@ -243,7 +264,7 @@ bool CFileData::OpenArchiveEntry() {
     return true;
 }
 
-static bool WaitFileData(CFileData* pFile, bool background) {
+bool WaitFileData(CFileData* pFile, bool background) {
     if (!background) {
         return CFileData::WaitUntilLoaded(pFile);
     }
@@ -274,3 +295,543 @@ void CFileData::SetDrive(CPath::Drive drive) {
     mFlags = (mFlags & ~FLAG_DRIVE_MASK) | (drive & FLAG_DRIVE_MASK);
 }
 
+
+inline u32 AlignUp(u32 value, u32 alignment) {
+    u32 mask = ~(alignment - 1);
+    return (alignment + value - 1) & mask;
+}
+
+inline void* AllocateStagingBuffer(u32 size, int alignment, u32 flags) {
+    if (alignment < 4) {
+        alignment = 4;
+    }
+    if (flags & CFileData::FLAG_TOP_DOWN) {
+        alignment = -alignment;
+    }
+    int staging = -alignment;
+    void* pMemory;
+    if ((flags & CFileData::FLAG_PLACEMENT_MASK) == CFileData::FLAG_PLACEMENT_PREFER_MEM2) {
+        pMemory = GameMemory::TryAllocateMEM2(size, staging);
+        if (pMemory == nullptr) {
+            pMemory = GameMemory::TryAllocateMEM1(size, staging);
+        }
+    } else {
+        pMemory = GameMemory::TryAllocateMEM1(size, staging);
+        if (pMemory == nullptr) {
+            pMemory = GameMemory::TryAllocateMEM2(size, staging);
+        }
+    }
+    return pMemory;
+}
+
+inline std::tr1::shared_ptr<nw4r::ut::CNTHandleWithMutex> AcquireCNTHandle(int device, long& rError, CFileData::CWorker::CNTHandleTable& rTable) {
+    if (rTable.size() <= static_cast<unsigned long>(device)) {
+        rTable.resize(device + 1);
+    }
+    CFileData::CWorker::CNTHandleMap& rMap = rTable[device];
+    std::tr1::shared_ptr<nw4r::ut::CNTHandleWithMutex> handle;
+    CFileData::CWorker::CNTHandleMap::iterator it = rMap.begin();
+    while (it != rMap.end()) {
+        std::tr1::shared_ptr<nw4r::ut::CNTHandleWithMutex> locked = it->second.lock();
+        if (locked) {
+            if (!handle && locked.get()->TryLock()) {
+                handle = locked;
+            }
+            ++it;
+        } else {
+            CFileData::CWorker::CNTHandleMap::iterator expired = it;
+            rMap.erase(expired);
+            it = expired;
+        }
+    }
+    if (handle) {
+        return handle;
+    }
+
+    handle.reset(new nw4r::ut::CNTHandleWithMutex);
+    rError = handle.get()->Init(device, GetDefaultAllocator());
+    if (rError != 0) {
+        return 0;
+    }
+    rMap.insert(CFileData::CWorker::CNTHandleMap::value_type(handle.operator->(), std::tr1::weak_ptr<nw4r::ut::CNTHandleWithMutex>(handle)));
+    handle.get()->Lock();
+    return handle;
+}
+
+inline std::tr1::shared_ptr<nw4r::ut::FileStream> OpenFileStream(const CPath& rPath, u32 flags, long& rError, bool quietNotFound,
+                                                                 CFileData::CWorker::CNTHandleTable& rTable,
+                                                                 std::tr1::shared_ptr<nw4r::ut::CNTHandleWithMutex>& rHandle) {
+    int device = rPath.GetDevice();
+    if (device == CPath::DEVICE_DVD) {
+        OSPanic("CFileData.cpp", 1170, "NANDAPP");
+    } else if (device == CPath::DEVICE_NAND) {
+        std::tr1::shared_ptr<nw4r::ut::NandFileStream> stream(new nw4r::ut::NandFileStream);
+        bool opened = false;
+        if (rPath.GetComponents().front().size() <= 12) {
+            std::string fullPath = rPath.ToString(false);
+            if (stream.get()->Open(fullPath.c_str(), 1)) {
+                opened = true;
+            }
+        }
+        if (opened) {
+            return stream;
+        }
+        rError = CFileData::ERROR_NOT_FOUND;
+    } else if (device >= 2 && device < 512) {
+        std::tr1::shared_ptr<nw4r::ut::CNTHandleWithMutex> handle = AcquireCNTHandle(device, rError, rTable);
+        if (handle) {
+            std::tr1::shared_ptr<nw4r::ut::CntFileStream> stream(new nw4r::ut::CntFileStream);
+            bool opened = stream.get()->Open(handle.get(), rPath.ToString(false).c_str());
+            OSUnlockMutex(&handle.get()->mMutex);
+            if (opened) {
+                rHandle = handle;
+                return stream;
+            }
+            rError = CFileData::ERROR_NOT_FOUND;
+        }
+    } else if ((device >= 512 && device < 538) || device == 539) {
+        rError = CFileData::ERROR_NOT_FOUND;
+    }
+
+    if (!quietNotFound || rError != CFileData::ERROR_NOT_FOUND) {
+        sConfig.mErrorHandler(static_cast<CPath::Drive>(rPath.GetDevice()), rPath.ToString(false).c_str(), rError, flags);
+    }
+    return std::tr1::shared_ptr<nw4r::ut::FileStream>();
+}
+
+inline CFileData::CWorker::BThread::BThread(CWorker* pWorker, int priority) : mpHead(nullptr), mpWorker(pWorker), mStopping(false) {
+    OSInitMutex(&mMutex);
+    OSInitCond(&mCond);
+    void* pStack = GameMemory::Allocate(sConfig.mStackSize, -32);
+    mStack.reset(static_cast<u8*>(pStack), GameMemory::Free);
+    OSCreateThread(&mThread, Entry, this, mStack.get() + sConfig.mStackSize, sConfig.mStackSize, priority, 0);
+    OSResumeThread(&mThread);
+}
+
+inline void CFileData::CWorker::BThread::Stop() {
+    OSLockMutex(&mMutex);
+    while (mpHead) {
+        CJob* pJob = mpHead;
+        mpHead = pJob->mpNext;
+        pJob->mpNext = nullptr;
+        pJob->mState = CJob::STATE_FINISHED;
+        mpWorker->PushFinished(pJob);
+    }
+    OSUnlockMutex(&mMutex);
+    if (!mStopping) {
+        OSLockMutex(&mMutex);
+        mStopping = true;
+        OSSignalCond(&mCond);
+        OSUnlockMutex(&mMutex);
+        OSJoinThread(&mThread, nullptr);
+    }
+}
+
+CFileData::CWorker::BThread::~BThread() {
+    Stop();
+}
+
+void* CFileData::CWorker::BThread::Entry(void* pThread) {
+    static_cast<BThread*>(pThread)->Run();
+}
+
+inline CFileData::CWorker::CWorker() : mLoaderThread(this, sConfig.mReadPriority), mDecodeThread(this, sConfig.mDecodePriority) {
+    OSInitMutex(&mFinished.mMutex);
+    OSInitCond(&mFinished.mCond);
+}
+
+inline CFileData::CWorker::~CWorker() {
+    mLoaderThread.Stop();
+    mDecodeThread.Stop();
+    while (mFinished.mpHead) {
+        CJob* pJob = mFinished.mpHead;
+        mFinished.mpHead = pJob->mpNext;
+        if (pJob->mFile) {
+            pJob->mFile->mBuffer.reset();
+            pJob->mFile->mData = nullptr;
+            pJob->mFile->mError = ERROR_SHUTDOWN;
+        }
+        delete pJob;
+        --mFinished.mCount;
+    }
+}
+
+void CFileData::CWorker::PushFinished(CJob* pJob) {
+    OSLockMutex(&mFinished.mMutex);
+    if (mFinished.mpHead) {
+        CJob* pTail = mFinished.mpHead;
+        while (pTail->mpNext) {
+            pTail = pTail->mpNext;
+        }
+        pTail->mpNext = pJob;
+    } else {
+        mFinished.mpHead = pJob;
+    }
+    OSSignalCond(&mFinished.mCond);
+    OSUnlockMutex(&mFinished.mMutex);
+}
+
+std::tr1::shared_ptr<CFileData> OpenFileData(const char* pPath, u32 flags) {
+    CPath path;
+    path.Set(pPath);
+    long error;
+    return OpenFileData(path, flags, error);
+}
+
+inline std::tr1::shared_ptr<CFileData> FindLoadedFile(const CPath& rPath) {
+    std::map<std::string, std::tr1::weak_ptr<CFileData> >::iterator found = sFileCache.find(rPath.ToString());
+    if (found != sFileCache.end() && !found->second.expired()) {
+        std::tr1::shared_ptr<CFileData> locked = found->second.lock();
+        return locked;
+    }
+    return std::tr1::shared_ptr<CFileData>();
+}
+
+std::tr1::shared_ptr<CFileData> OpenFileData(const CPath& rPath, u32 flags, long& rError) {
+    {
+        std::tr1::shared_ptr<CFileData> cached = FindLoadedFile(rPath);
+        if (cached) {
+            rError = 0;
+            return cached;
+        }
+    }
+
+    std::tr1::shared_ptr<CFileData> archive;
+    if (rPath.GetComponents().size() >= 2) {
+        CPath archivePath(rPath);
+        {
+            std::list<std::string> components(archivePath.GetComponents());
+            components.pop_back();
+            while (components.size() != 0) {
+                const std::string& rName = components.back();
+                if (rName.size() > 4 && strcmp(rName.c_str() + rName.size() - 4, ".arc") == 0) {
+                    break;
+                }
+                components.pop_back();
+            }
+            archivePath.SetComponents(components);
+        }
+        if (archivePath.GetComponents().size() != 0) {
+            archive = OpenFileData(archivePath, flags, rError);
+            if (!archive) {
+                sConfig.mErrorHandler(static_cast<CPath::Drive>(rPath.GetDevice()), rPath.ToString(false).c_str(), rError, flags);
+                return std::tr1::shared_ptr<CFileData>();
+            }
+
+            std::tr1::shared_ptr<CFileData> file(new CFileData);
+            u32 kind = CFileData::FLAG_KIND_RESOURCE;
+            if (flags & CFileData::FLAG_RAW) {
+                kind = 0;
+            }
+            file->mFlags = flags | kind;
+            file->SetDrive(static_cast<CPath::Drive>(rPath.GetDevice()));
+            file->mPath = rPath.ToString();
+            file->mSize = 0;
+            file->mData = nullptr;
+            file->mArchive = archive;
+            if (archive->IsLoaded()) {
+                if (!file.get()->OpenArchiveEntry()) {
+                    rError = CFileData::ERROR_ARCHIVE_OPEN;
+                    sConfig.mErrorHandler(static_cast<CPath::Drive>(rPath.GetDevice()), rPath.ToString(false).c_str(), rError, flags);
+                    return std::tr1::shared_ptr<CFileData>();
+                }
+                sFileCache[rPath.ToString()] = file;
+                rError = 0;
+                return file;
+            }
+
+            CFileData::CWorker::CJob* pJob = new CFileData::CWorker::CJob;
+            pJob->mpNext = nullptr;
+            pJob->mFile = file;
+            pJob->mFile->mPending = true;
+            pJob->mState = CFileData::CWorker::CJob::STATE_WAIT_ARCHIVE;
+            sFileCache[rPath.ToString()] = file;
+            if (!sWorker) {
+                sWorker.reset(new CFileData::CWorker);
+            }
+            ++sWorker.get()->mFinished.mCount;
+            sWorker.get()->PushFinished(pJob);
+            rError = 0;
+            return file;
+        }
+    }
+
+    std::tr1::shared_ptr<nw4r::ut::CNTHandleWithMutex> handle;
+    std::tr1::shared_ptr<nw4r::ut::FileStream> stream;
+    CFileData::CWorker::CNTHandleTable handleTable;
+    if (sWorker) {
+        handleTable = sWorker.get()->mHandleTable;
+    }
+
+    bool compressed = true;
+    int state = CFileData::CWorker::CJob::STATE_READ_RAW;
+    if (!stream) {
+        state = CFileData::CWorker::CJob::STATE_READ_COMPRESSED;
+        CPath compressedPath(rPath);
+        {
+            std::list<std::string> components(compressedPath.GetComponents());
+            components.back() += ".cx";
+            compressedPath.SetComponents(components);
+        }
+        stream = OpenFileStream(compressedPath, flags, rError, true, handleTable, handle);
+    }
+    if (!stream) {
+        state = CFileData::CWorker::CJob::STATE_READ_RAW;
+        stream = OpenFileStream(rPath, flags, rError, false, handleTable, handle);
+        compressed = false;
+    }
+    if (!stream) {
+        return std::tr1::shared_ptr<CFileData>();
+    }
+
+    std::tr1::shared_ptr<CFileData> file(new CFileData);
+    u32 kind = CFileData::FLAG_KIND_RESOURCE;
+    if (flags & CFileData::FLAG_RAW) {
+        kind = 0;
+    }
+    file->mFlags = flags | kind;
+    file->SetDrive(static_cast<CPath::Drive>(rPath.GetDevice()));
+    file->mPath = rPath.ToString();
+    file->mSize = stream.get()->GetSize();
+    file->mData = nullptr;
+    u32 alignedSize = AlignUp(file->mSize, stream.get()->GetSizeAlign());
+    if (!compressed) {
+        file->mBuffer.reset(static_cast<char*>(CFileData::AllocateByPlacement(alignedSize, std::max<int>(stream.get()->GetBufferAlign(), 32), flags)), GameMemory::Free);
+        if (!file->mBuffer) {
+            rError = CFileData::ERROR_OUT_OF_MEMORY;
+            sConfig.mErrorHandler(static_cast<CPath::Drive>(rPath.GetDevice()), rPath.ToString(false).c_str(), rError, flags);
+            return std::tr1::shared_ptr<CFileData>();
+        }
+    }
+
+    CFileData::CWorker::CJob* pJob = new CFileData::CWorker::CJob;
+    pJob->mpNext = nullptr;
+    pJob->mFile = file;
+    pJob->mFile->mPending = true;
+    pJob->mHandle = handle;
+    pJob->mStream = stream;
+    pJob->mState = state;
+    if (compressed) {
+        pJob->mBuffer.reset(static_cast<char*>(AllocateStagingBuffer(alignedSize + stream.get()->GetSizeAlign(), stream.get()->GetBufferAlign(), flags)), GameMemory::Free);
+        if (!pJob->mBuffer) {
+            delete pJob;
+            rError = CFileData::ERROR_OUT_OF_MEMORY;
+            sConfig.mErrorHandler(static_cast<CPath::Drive>(rPath.GetDevice()), rPath.ToString(false).c_str(), rError, flags);
+            return std::tr1::shared_ptr<CFileData>();
+        }
+        file->mBuffer.reset();
+    }
+
+    sFileCache[rPath.ToString()] = file;
+    if (!sWorker) {
+        sWorker.reset(new CFileData::CWorker);
+    }
+    sWorker.get()->mHandleTable = handleTable;
+    ++sWorker.get()->mFinished.mCount;
+    sWorker.get()->mLoaderThread.Push(pJob);
+    rError = 0;
+    return file;
+}
+
+std::tr1::shared_ptr<CFileData> CreateFileData(const char* pPath, u32 flags, bool background) {
+    std::tr1::shared_ptr<CFileData> file = OpenFileData(pPath, flags);
+    if (file) {
+        if (!WaitFileData(file.get(), background)) {
+            file.reset();
+        }
+    }
+    return file;
+}
+
+std::tr1::shared_ptr<FileList> LoadFiles(const FileLoadParam* pFiles, unsigned int count, bool background) {
+    std::list<std::tr1::shared_ptr<CFileData> > opened;
+    while (count != 0 && pFiles->mpPath != nullptr) {
+        std::tr1::shared_ptr<CFileData> file = OpenFileData(pFiles->mpPath, pFiles->mFlags);
+        if (file) {
+            opened.push_back(file);
+        }
+        --count;
+        ++pFiles;
+    }
+
+    std::tr1::shared_ptr<FileList> loaded(new LoadedFileData);
+    for (std::list<std::tr1::shared_ptr<CFileData> >::iterator it = opened.begin(); it != opened.end(); ++it) {
+        if (WaitFileData(it->get(), background)) {
+            loaded->push_back(*it);
+        }
+    }
+    if (loaded->size() == 0) {
+        return std::tr1::shared_ptr<FileList>();
+    }
+    return loaded;
+}
+
+ResourceFileConfig::ResourceFileConfig() :
+    mErrorHandler(HandleFileError), mReadPriority(20), mDecodePriority(22), mStackSize(0x4000), mUseDriveWorker(true) {}
+
+void InitializeResourceFiles(const ResourceFileConfig& rConfig) {
+    sConfig = rConfig;
+}
+
+void UpdateResourceFiles() {
+    if (sWorker) {
+        sWorker.get()->ProcessFinishedJobs();
+    }
+}
+
+void ShutdownResourceFiles() {
+    sWorker.reset();
+    std::map<std::string, std::tr1::weak_ptr<CFileData> >::iterator it = sFileCache.begin();
+    while (it != sFileCache.end()) {
+        std::map<std::string, std::tr1::weak_ptr<CFileData> >::iterator next = it;
+        ++next;
+        if (it->second.expired()) {
+            sFileCache.erase(it);
+        }
+        it = next;
+    }
+}
+
+void HandleFileError(CPath::Drive drive, const char* pPath, long error, unsigned long flags) {
+    if ((flags & CFileData::FLAG_ALLOW_OUT_OF_MEMORY) && error == CFileData::ERROR_OUT_OF_MEMORY) {
+        return;
+    }
+    if (drive >= 2 && drive < 512) {
+        if (error == -5013 || error == -5012) {
+            OSPanic("CFileData.cpp", 1588, "fatal error: WARE_99(if shared) or WARE_01_01(not shared)");
+        } else if (error == -5011) {
+            OSPanic("CFileData.cpp", 1593, "fatal error: NAND_08");
+        }
+        if (!(flags & CFileData::FLAG_OPTIONAL)) {
+            OSPanic("CFileData.cpp", 1597, "fatal error: WARE_99(if shared) or WARE_01_01(not shared)");
+        }
+    } else if (drive >= 512 && drive <= 537) {
+        if (!(flags & CFileData::FLAG_OPTIONAL)) {
+            OSPanic("CFileData.cpp", 1606, "fatal error");
+        }
+    } else if (drive == CPath::DEVICE_NAND) {
+        if (error == -3 || error == -2) {
+            OSPanic("CFileData.cpp", 1573, "fatal error: NAND_11");
+        } else if (error == -4) {
+            OSPanic("CFileData.cpp", 1563, "fatal error: NAND_08");
+        } else if (error == -9) {
+            OSPanic("CFileData.cpp", 1566, "fatal error: NAND_05");
+        } else if (error == -11) {
+            OSPanic("CFileData.cpp", 1569, "fatal error: NAND_06");
+        } else if (error == -64) {
+            OSPanic("CFileData.cpp", 1576, "fatal error: NAND_98");
+        }
+        if (!(flags & CFileData::FLAG_OPTIONAL)) {
+            OSPanic("CFileData.cpp", 1580, "fatal error: WARE_01_01");
+        }
+    } else if (drive == CPath::DEVICE_UNC) {
+        if (!(flags & CFileData::FLAG_OPTIONAL)) {
+            OSPanic("CFileData.cpp", 1606, "fatal error");
+        }
+    }
+}
+
+void CFileData::CWorker::DecodeThread::Run() {
+    CJob* pJob;
+    do {
+        pJob = nullptr;
+        OSLockMutex(&mMutex);
+        while (mpHead == nullptr && !mStopping) {
+            OSWaitCond(&mCond, &mMutex);
+        }
+        if (!mStopping) {
+            pJob = mpHead;
+            mpHead = pJob->mpNext;
+            pJob->mpNext = nullptr;
+        }
+        OSUnlockMutex(&mMutex);
+        if (pJob == nullptr) {
+            break;
+        }
+        if (pJob->mState == CJob::STATE_QUEUED) {
+            u8* pSource = reinterpret_cast<u8*>(pJob->mBuffer.get());
+            u32 sourceSize = pJob->mReadSize;
+            u8* pDestination = reinterpret_cast<u8*>(pJob->mFile->mBuffer.get());
+            int result = -1;
+            switch (*pSource & 0xF0) {
+            case 0x30:
+                result = CXSecureUncompressRL(pSource, sourceSize, pDestination);
+                break;
+            case 0x10:
+                result = CXSecureUncompressLZ(pSource, sourceSize, pDestination);
+                break;
+            case 0x20:
+                result = CXSecureUncompressHuffman(pSource, sourceSize, pDestination);
+                break;
+            case 0x40:
+                memset(mWorkArea, 0, sizeof(mWorkArea));
+                result = CXSecureUncompressLH(pSource, sourceSize, pDestination, mWorkArea);
+                break;
+            case 0x50:
+                memset(mWorkArea, 0, sizeof(mWorkArea));
+                result = CXSecureUncompressLRC(pSource, sourceSize, pDestination, mWorkArea);
+                break;
+            case 0x80:
+                result = CXSecureUnfilterDiff(pSource, sourceSize, pDestination);
+                break;
+            }
+            if (result == 0) {
+                pJob->mState = CJob::STATE_PUBLISH_BUFFER;
+            } else {
+                pJob->mState = CJob::STATE_FINISHED;
+                pJob->mFile->mError = ERROR_DECOMPRESS;
+            }
+            mpWorker->PushFinished(pJob);
+        } else {
+            pJob->mState = CJob::STATE_FINISHED;
+            pJob->mFile->mError = ERROR_BAD_DECODE_JOB;
+            mpWorker->PushFinished(pJob);
+        }
+    } while (pJob != nullptr);
+}
+
+void CFileData::CWorker::LoaderThread::Run() {
+    CJob* pJob;
+    do {
+        pJob = nullptr;
+        OSLockMutex(&mMutex);
+        while (mpHead == nullptr && !mStopping) {
+            OSWaitCond(&mCond, &mMutex);
+        }
+        if (!mStopping) {
+            pJob = mpHead;
+            mpHead = pJob->mpNext;
+            pJob->mpNext = nullptr;
+        }
+        OSUnlockMutex(&mMutex);
+        if (pJob == nullptr) {
+            break;
+        }
+        if (pJob->mState <= CJob::STATE_READ_COMPRESSED + 1) {
+            u32 alignment = pJob->mStream->GetSizeAlign();
+            s32 size = pJob->mStream->Read(pJob->mBuffer.get(), AlignUp(pJob->mFile->mSize, alignment));
+            if (size > 0) {
+                pJob->mState += 6;
+                pJob->mReadSize = size;
+            } else {
+                pJob->mState = CJob::STATE_FINISHED;
+                pJob->mFile->mError = size;
+            }
+            mpWorker->PushFinished(pJob);
+        } else if (pJob->mState == CJob::STATE_READ_RAW) {
+            u32 alignment = pJob->mStream->GetSizeAlign();
+            s32 size = pJob->mStream->Read(pJob->mFile->mBuffer.get(), AlignUp(pJob->mFile->mSize, alignment));
+            if (size > 0 || (pJob->mFile->mFlags & CFileData::FLAG_ALLOW_EMPTY)) {
+                pJob->mState = CJob::STATE_PUBLISH_BUFFER;
+            } else {
+                pJob->mState = CJob::STATE_FINISHED;
+                pJob->mFile->mError = size;
+            }
+            mpWorker->PushFinished(pJob);
+        } else {
+            pJob->mState = CJob::STATE_FINISHED;
+            pJob->mFile->mError = ERROR_BAD_JOB;
+            mpWorker->PushFinished(pJob);
+        }
+    } while (pJob != nullptr);
+}

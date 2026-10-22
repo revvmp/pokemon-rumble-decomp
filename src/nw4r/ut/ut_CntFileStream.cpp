@@ -13,8 +13,10 @@ CNTHandleWithMutex::~CNTHandleWithMutex() {
     }
 }
 
-void CNTHandleWithMutex::Init(int contentNum, MEMAllocator* pAllocator) {
-    mInitialized = CNTInitHandle(contentNum, &mHandle, pAllocator) == CNT_RESULT_OK;
+s32 CNTHandleWithMutex::Init(int contentNum, MEMAllocator* pAllocator) {
+    s32 result = CNTInitHandle(contentNum, &mHandle, pAllocator);
+    mInitialized = result == CNT_RESULT_OK;
+    return result;
 }
 
 CntFileStream::CntFileStream()

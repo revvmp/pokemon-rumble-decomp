@@ -20,10 +20,12 @@ public:
     CPath(int device, const std::list<std::string>& rComponents);
     ~CPath();
     std::string ToString(bool includeDevice) const;
+    std::string ToString() const { return ToString(true); }
     std::string GetDeviceName() const;
     void Set(const char* pPath);
     void Parse(const char* pPath);
     const std::list<std::string>& GetComponents() const { return mComponents; }
+    void SetComponents(const std::list<std::string>& rComponents) { mComponents = rComponents; }
     const char* ParseDevice(const char* pPath);
     int GetDevice() const { return mDevice; }
 

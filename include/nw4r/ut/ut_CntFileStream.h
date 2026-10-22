@@ -25,7 +25,9 @@ public:
 
     CNTHandleWithMutex();
     ~CNTHandleWithMutex();
-    void Init(int contentNum, MEMAllocator* pAllocator);
+    s32 Init(int contentNum, MEMAllocator* pAllocator);
+    bool TryLock() { return OSTryLockMutex(&mMutex); }
+    void Lock() { OSLockMutex(&mMutex); }
 
     bool mInitialized;
     OSMutex mMutex;

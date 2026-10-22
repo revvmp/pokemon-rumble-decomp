@@ -125,6 +125,19 @@ public:
         ::operator delete(pNode);
         --sz();
     }
+    iterator erase_next(iterator position) {
+        tree_node_base* pNode = position.node_;
+        if (pNode == front()) {
+            iterator next(pNode);
+            ++next;
+            front() = next.node_;
+        }
+        tree_node_base* pNext = __red_black_tree<tree_node_base*>::balance_erase(pNode, root());
+        alloc_.first().destroy(&static_cast<node*>(pNode)->value_);
+        ::operator delete(pNode);
+        --sz();
+        return iterator(pNext);
+    }
     template <typename Key> iterator lower_bound_key(const Key& key) {
         tree_node_base* pBest = end_node();
         tree_node_base* pNode = root();
@@ -309,6 +322,7 @@ public:
         iterator() {}
         iterator(const iterator& rOther) : mIterator(rOther.mIterator) {}
         iterator(const typename tree_type::iterator& rIterator) : mIterator(rIterator) {}
+        operator typename tree_type::iterator() const { return mIterator; }
         value_type* operator->() const { return mIterator.operator->(); }
         value_type& operator*() const { return *mIterator; }
         iterator& operator++() {
@@ -333,12 +347,14 @@ public:
         return tree_.insert_one(rValue);
     }
     native_iterator find(const key_type& rKey) { return tree_.find(rKey); }
-    void erase(native_iterator position) { tree_.erase(position); }
+    native_iterator erase(native_iterator position) { return erase_impl(position, Metrowerks::int2type<map_iterator_transform<Key, T, Compare>::value>()); }
     native_iterator find(const key_type& rKey) const { return const_cast<map_base*>(this)->find(rKey); }
     native_iterator end() const { return const_cast<map_base*>(this)->end(); }
     mapped_type& operator[](const key_type& rKey) { return tree_.find_or_insert(rKey).second; }
 
 private:
+    native_iterator erase_impl(native_iterator position, Metrowerks::int2type<1>) { return iterator(tree_.erase_next(position)); }
+    native_iterator erase_impl(native_iterator position, Metrowerks::int2type<0>) { return tree_.erase(position); }
     tree_type tree_;
 };
 

@@ -22,12 +22,12 @@ public:
             STATE_FINISHED = 10
         };
 
-        CJob();
+        CJob() {}
         ~CJob() {}
 
         int mState;
-        std::tr1::shared_ptr<nw4r::ut::FileStream> mStream;
         std::tr1::shared_ptr<nw4r::ut::CNTHandleWithMutex> mHandle;
+        std::tr1::shared_ptr<nw4r::ut::FileStream> mStream;
         std::tr1::shared_ptr<char> mBuffer;
         u32 mReadSize;
         CJob* mpNext;
@@ -80,11 +80,17 @@ public:
         CJob* volatile mpHead;
         int mYieldDepth;
         int mCount;
+
+        CFinishedQueue() : mpHead(nullptr), mYieldDepth(0), mCount(0) {}
     };
+
+    typedef std::map<nw4r::ut::CNTHandleWithMutex*, std::tr1::weak_ptr<nw4r::ut::CNTHandleWithMutex> > CNTHandleMap;
+    typedef std::vector<CNTHandleMap> CNTHandleTable;
 
     CWorker();
     ~CWorker();
 
+    void PushFinished(CJob* pJob);
     bool WaitInFiber(CFileData* pFile);
     void ProcessFinishedJobs();
     void DiscardJob(CJob* pJob);
@@ -92,6 +98,7 @@ public:
     LoaderThread mLoaderThread;
     DecodeThread mDecodeThread;
     CFinishedQueue mFinished;
+    CNTHandleTable mHandleTable;
 };
 
 #endif

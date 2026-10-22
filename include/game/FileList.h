@@ -7,6 +7,8 @@
 
 typedef std::list<std::tr1::shared_ptr<CFileData> > FileList;
 
+class LoadedFileData : public FileList {};
+
 std::tr1::shared_ptr<FileList> LoadFileList(void** ppEntry, const char* pPath, u32 flags, bool background,
                                             const char* pRegion);
 inline std::tr1::shared_ptr<FileList> LoadResourceFileList(void** ppEntry, const char* pPath, u32 flags,

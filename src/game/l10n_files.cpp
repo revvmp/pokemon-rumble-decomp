@@ -7,8 +7,6 @@
 #include <set>
 #include <string.h>
 
-class LoadedFileData : public FileList {};
-
 struct FileLoadParam {
     const char* mpPath;
     u32 mFlags;

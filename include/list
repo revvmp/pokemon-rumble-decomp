@@ -365,6 +365,7 @@ public:
     size_type size() const { return this->size_ref(); }
     bool empty() const { return this->size_.second() == 0; }
     T& front() { return *begin(); }
+    const T& front() const { return *begin(); }
     using base::push_back;
     void clear() { base::clear(); }
 
