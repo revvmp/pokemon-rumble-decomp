@@ -488,29 +488,29 @@ bool CPii::IsPlayingMotion(int id)
     return false;
 }
 
-void CPii::ClearFollowTarget()
+void CPii::FaceHeadForward()
 {
     mFollowTarget.reset();
     GetModel()->DisableAimLimit();
 }
 
-void CPii::LookAt(const nw4r::math::VEC3& rTarget)
+void CPii::FaceHeadToward(const nw4r::math::VEC3& rTarget)
 {
     mFollowTarget.reset();
     GetModel()->SetAimTarget(rTarget, false);
 }
 
-void CPii::SetFollowTarget(BWorldObj* pTarget)
+void CPii::FaceHeadToward(BWorldObj* pTarget)
 {
     if (pTarget) {
         mFollowTarget = pTarget->shared_from_this();
         mFollowNode = -1;
     } else {
-        ClearFollowTarget();
+        FaceHeadForward();
     }
 }
 
-void CPii::SetFollowTarget(BModelObj* pTarget, const char* pNodeName)
+void CPii::FaceHeadToward(BModelObj* pTarget, const char* pNodeName)
 {
     if (pTarget) {
         mFollowTarget = pTarget->shared_from_this();
@@ -525,7 +525,7 @@ void CPii::SetFollowTarget(BModelObj* pTarget, const char* pNodeName)
             }
         }
     } else {
-        ClearFollowTarget();
+        FaceHeadForward();
     }
 }
 

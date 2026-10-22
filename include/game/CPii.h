@@ -83,10 +83,6 @@ public:
     std::tr1::shared_ptr<CModel::CMotionProgram> QueueMotionForDuration(int index, f32 frame, f32 duration);
     std::tr1::shared_ptr<CModel::CMotionProgram> AppendMotionForDuration(int index, f32 frame, f32 duration);
     bool IsPlayingMotion(int id);
-    void ClearFollowTarget();
-    void LookAt(const nw4r::math::VEC3& rTarget);
-    void SetFollowTarget(BWorldObj* pTarget);
-    void SetFollowTarget(BModelObj* pTarget, const char* pNodeName);
     int GetMotionLengthByIndex(int index);
 
 private:
