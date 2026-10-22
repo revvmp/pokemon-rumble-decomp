@@ -83,6 +83,7 @@ public:
     bool LoadAnm(const char* pPath, bool background);
 
 private:
+    bool LoadAnm(const std::tr1::shared_ptr<CFileData>& rFile);
     void UpdateFrame(f32 step);
     MotionPtr CreateMotion(MotionPtr& rMotion, f32 frame, f32 rate);
     MotionPtr CreateMotion(const char* pName, f32 frame, f32 rate);
