@@ -178,6 +178,9 @@ void CRemoteMemory::WaitUntilIdle(bool) {
 #pragma opt_strength_reduction off
 #pragma opt_scalarize off
 #pragma opt_lifetimes off
+#pragma opt_rebuildconditionals off
+#pragma opt_treetransformation off
+#pragma opt_generateconditionalassignments off
 CPiiBox* CRemoteMemory::GetPiiBox() {
     if (!IsGameFlagSet(3)) {
         return &sEmptyBox;
@@ -295,7 +298,15 @@ inline void CRemoteMemory::WriteBlock(int channel) {
 }
 
 #pragma push
+#pragma opt_dead_assignments off
 #pragma opt_propagation off
+#pragma opt_common_subs off
+#pragma opt_strength_reduction off
+#pragma opt_scalarize off
+#pragma opt_lifetimes off
+#pragma opt_rebuildconditionals off
+#pragma opt_treetransformation off
+#pragma opt_generateconditionalassignments off
 void* CRemoteMemory::ThreadMain(void*) {
     OSMessage message;
     for (;;) {
@@ -357,13 +368,21 @@ void* CRemoteMemory::ThreadMain(void*) {
 #pragma pop
 
 #pragma push
+#pragma opt_dead_assignments off
 #pragma opt_propagation off
+#pragma opt_common_subs off
+#pragma opt_strength_reduction off
+#pragma opt_scalarize off
+#pragma opt_lifetimes off
+#pragma opt_rebuildconditionals off
+#pragma opt_treetransformation off
+#pragma opt_generateconditionalassignments off
 void CRemoteMemory::BeginRead(int channel) {
     CRemoteMemory* pRemote = sRemoteMemories[channel];
     switch (WPADReadGameData(channel, sReadData[channel], sizeof(sReadData[channel]), 0, OnRead)) {
     case -2:
     case 0:
-        return;
+        break;
     case -5: {
         pRemote->SetState(FLAG_DISCONNECTED | FLAG_FOREIGN_DATA);
         const BOOL enabled = OSDisableInterrupts();
@@ -394,8 +413,15 @@ void CRemoteMemory::BeginRead(int channel) {
 #pragma pop
 
 #pragma push
+#pragma opt_dead_assignments off
 #pragma opt_propagation off
 #pragma opt_common_subs off
+#pragma opt_strength_reduction off
+#pragma opt_scalarize off
+#pragma opt_lifetimes off
+#pragma opt_rebuildconditionals off
+#pragma opt_treetransformation off
+#pragma opt_generateconditionalassignments off
 void CRemoteMemory::FinishRead(int channel, long result) {
     CRemoteMemory* pRemote = sRemoteMemories[channel];
     switch (result) {
@@ -451,11 +477,14 @@ void CRemoteMemory::FinishRead(int channel, long result) {
 #pragma pop
 
 #pragma push
+#pragma opt_dead_assignments off
+#pragma opt_propagation off
+#pragma opt_common_subs off
+#pragma opt_strength_reduction off
+#pragma opt_scalarize off
+#pragma opt_lifetimes off
 #pragma opt_rebuildconditionals off
 #pragma opt_treetransformation off
-#pragma opt_strength_reduction off
-#pragma opt_dead_assignments off
-#pragma opt_common_subs off
 #pragma opt_generateconditionalassignments off
 void CRemoteMemory::PrepareWrite(int mode) {
     int nextBlock;
@@ -508,8 +537,15 @@ void CRemoteMemory::PrepareWrite(int mode) {
 #pragma pop
 
 #pragma push
-#pragma opt_common_subs off
+#pragma opt_dead_assignments off
 #pragma opt_propagation off
+#pragma opt_common_subs off
+#pragma opt_strength_reduction off
+#pragma opt_scalarize off
+#pragma opt_lifetimes off
+#pragma opt_rebuildconditionals off
+#pragma opt_treetransformation off
+#pragma opt_generateconditionalassignments off
 void CRemoteMemory::FinishWrite(int channel, long result) {
     CRemoteMemory* pRemote = sRemoteMemories[channel];
     bool complete = false;
