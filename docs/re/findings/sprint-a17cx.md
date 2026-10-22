@@ -240,3 +240,46 @@ python tools/verify/verify.py verify --manifest config/targets/wpse-v1.json --re
 Result: **PASS main.dol; PASS: 1 declared artifact**. This verifies the normal fallback build; neither script unit was promoted or linked from the changed source.
 
 Regenerated `build/wpse-v1/report.json` with the emitted `objdiff-cli report generate -o build/wpse-v1/report.json` command (exit 0). It reported exception-table decoding warnings for method_layoutSetString and NPpu::ToUnicode. Final count remains 13,009. `git diff --check` passed. Shared-header contents were restored exactly, and their timestamps were reset to their last Git modification time to avoid rebuilding unchanged dependencies after temporary experiments. No scratch source files were created.
+
+
+## 2026-10-22: single-function game-unit follow-up
+
+Work stayed in the current rumble-a17 checkout. No Git-writing commands, assembly, target-manifest changes, code comments, or repository scratch files were used. Only MapPiiTable.cpp, configure.py, and this appended record are retained. The broader requested sweep is incomplete: only MapPiiTable gained a perfect function and was promoted.
+
+### Retained result
+
+MapPiiTable::Clear now scores 100%, and the unit is 29/29. A file-local inline SwapValues forwarding function calls vector::swap, while Clear retains ownership of the local empty vector and its original destruction point. The additional inline level exchanges the capacity and size temporaries from r5/r7 to the target's r7/r5. Data remains r6. The final helper uses an anonymous namespace and reference parameters rLeft/rRight. No shared header change is needed.
+
+This extends the unsuccessful swap-operation permutations in sprint-r1: changing the caller's inline depth works without altering vector's storage implementation. One and three forwarding levels matched; two retained the original mismatch. The retained implementation uses one level. Reversing the swap receiver remains worse. Moving the empty vector into the helper changes destruction timing and fails badly; that is not an equivalent source model here.
+
+### Baseline and validation
+
+The starting report was stale (13,292 perfect functions). Ran python configure.py and attempted .venv/Scripts/ninja. Ninja and sjiswrap stalled without compiler progress. Rebuilt all 869 configured source compile commands directly, bypassing sjiswrap; non-ASCII source was temporarily converted from UTF-8 to CP932 and restored byte-for-byte in finally blocks. All 869 compiled successfully. Regenerated report.json over 1,388 units to establish the actual unchanged-source baseline: 13,303 perfect functions. In particular, CUIMenu already contains the earlier goto and integer-argument fixes; its fresh OnInput score is 99.89% and RunMenuList is already 100%.
+
+After the retained edit, MapPiiTable was compiled using its configured Wii/1.1 command. Changed its configure.py entry to Matching, deleted build/wpse-v1/main.dol, and linked the generated input list with the configured linker. Converted the new ELF with dtk elf2dol. Link and conversion exited 0; frozen-manifest verification passed. Repeated after the final helper namespace/parameter-name cleanup. The final ordinary Ninja attempt again stalled and its own process tree was stopped; no successful Ninja exit is claimed. Direct configured compilation, link, and conversion succeeded.
+
+Final verification command:
+
+`python tools/verify/verify.py verify --manifest config/targets/wpse-v1.json --reference-dir orig/wpse-v1 --build-dir build/wpse-v1`
+
+Result: PASS main.dol; PASS: 1 declared artifact. SHA-256: ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da.
+
+The final regenerated report has 13,304 perfect functions, up from the fresh 13,303 baseline. Comparing exact unit/function-name sets finds no lost perfect functions and exactly one gain: Clear__11MapPiiTableFv. Existing exception-decoding warnings for ToUnicode and method_layoutSetString remain. git diff --check passes. Changes are uncommitted.
+
+### Rejected probes and remaining work
+
+All probes below were restored, including their source objects. These supplement, rather than supersede, the prior notes in sprint-a15, sprint-a12, sprint-ida, sprint-r1, sprint-s1, sprint-cx, and sprint-w8cx.
+
+- CGameEnding: one to three inline wrappers around the two list erases leave Calc at 99.75%. Separating declarations from assignments for the line/title iterators and loop index, in all seven nonempty combinations, does not fix the node register; moving title alone worsens it.
+- CPiiPersonalData: caching the creation timestamp before various final field assignments and storing the random seed before the cached time does not match. Unsigned 64-bit composition, addition instead of OR, reversed OR operands, and multiplication by 2^32, with both timestamp/seed store orders, do not beat the original 97.08%.
+- CBattleRoyalBox: named shared-pointer return locals, copy initialization, and an explicit copy-constructor return all give 85%; default construction followed by assignment is substantially worse. Keep the existing reference-local form at 89.33%.
+- BModelObj: computing all four absolute extrema before the max comparisons, across all 24 declaration orders, regresses CalcSize to roughly 87.6%. None is retained.
+- CEffect: a CreatePool member template containing both array allocation and pool construction does not solve InitializeEffect. Value and reference count parameters, and every nonempty proper subset of the four pool replacements with an int-reference parameter, remain below the original 99.62%.
+- CUIList: moving the class destructor after Load, before Calc, or to the end does not remove the two dead branches from vector<shared_ptr<CLayout>> destruction (95.92%).
+- Message: one and three outer inline allocation wrappers change tag slots and registers, worsening InitMsgResList to 99.72%; two levels retain the original swapped tags at 99.99%.
+- CPlayerPii: pointer, const-reference, and pointer-reference helpers around the name table do not inline under the unit's current pragma state. A local dont_inline reset/on bracket did not change that result. These probes do not solve the scheduling problem and are not retained.
+- CMiniMap: naming the camera-line subtraction temporary leaves CalcView unchanged at 93.75%; separate scalar subtraction from the object-position copy regresses it to 92.65%, with or without the named camera delta.
+- CMoneyLifeDisplay: removing const from the constructor's MapDesc pointer, alone or together with the mode helper's pointer, leaves Create at 99.63%.
+- GameUtil: expanding any combination of the reverb, delay, and chorus initialization helper bodies directly at their call sites leaves InitBgmFxPresets at 92.23%.
+
+CDividedGround, CDlgMsgWin, CTitleSession, PhotoSave, BUI, CUIMenu, and errmsg were inspected against their current instruction differences and prior failed attempts; no new correction was established. Their previously documented load scheduling, empty-deleter copy scheduling, data ordering, exception-frame layout, induction-variable, saved-register, and prologue scheduling blockers remain. No other requested unit is promoted or claimed complete.

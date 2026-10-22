@@ -4,9 +4,17 @@ MapPiiTable::MapPiiTable() : mRowCount(0), mColumnCount(0) {}
 
 MapPiiTable::~MapPiiTable() {}
 
+namespace {
+
+inline void SwapValues(std::vector<NPpu::CValue>& rLeft, std::vector<NPpu::CValue>& rRight) {
+    rLeft.swap(rRight);
+}
+
+}
+
 void MapPiiTable::Clear() {
     std::vector<NPpu::CValue> values;
-    mValues.swap(values);
+    SwapValues(mValues, values);
     std::set<std::string> strings;
     mStrings.swap(strings);
     std::set<std::wstring> wstrings;

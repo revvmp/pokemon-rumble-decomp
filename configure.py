@@ -303,7 +303,7 @@ config.libs = [
             Object(Matching, "game/CPlayer.cpp"),
             Object(NonMatching, "game/CPlayerPii.cpp"),
             Object(NonMatching, "game/CShadowCamera.cpp"),
-            Object(NonMatching, "game/MapPiiTable.cpp"),
+            Object(Matching, "game/MapPiiTable.cpp"),
             Object(NonMatching, "game/CRemoteMemory.cpp"),
             Object(Matching, "game/CSaveManager.cpp"),
             Object(Matching, "game/CPpuRegister.cpp"),
