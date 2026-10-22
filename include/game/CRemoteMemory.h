@@ -44,7 +44,7 @@ public:
     bool ConsumeFatalError() {
         u32 flags = mFlags;
         mFlags = flags & ~0x80;
-        return (flags & 0x80) != 0;
+        return (flags >> 7) & 1;
     }
     friend void InitializeCalculationWorker();
     friend void ShutdownCalculationWorker();
