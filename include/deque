@@ -14,6 +14,8 @@ inline void __throw_deque_length_error(const char* pMessage) {
     throw length_error(pMessage);
 }
 
+template <typename T, typename Allocator> class __cdeque_pointer_iterator;
+
 template <bool> struct __cdeque_common {
     static void throw_length_error();
 };
@@ -558,6 +560,36 @@ void __cdeque_buf<T, Allocator>::insert(const iterator& rPos, ForwardIterator& r
     }
 }
 
+template <typename T, typename Allocator> class __cdeque_pointer_iterator : public __cdeque_buf<void*, allocator<void*> >::iterator {
+    typedef typename __cdeque_buf<void*, allocator<void*> >::iterator base_iterator;
+    typedef __cdeque_pointer_iterator iterator;
+
+public:
+    typedef int difference_type;
+    typedef T* value_type;
+    typedef T** pointer;
+    typedef T*& reference;
+    typedef random_access_iterator_tag iterator_category;
+
+    __cdeque_pointer_iterator(const base_iterator& rBase) : base_iterator(rBase) {}
+    base_iterator base() const { return *this; }
+    T*& operator*() { return reinterpret_cast<T*&>(base_iterator::operator*()); }
+    iterator& operator++() {
+        base_iterator::operator++();
+        return *this;
+    }
+    iterator& operator+=(int n) {
+        base_iterator::operator+=(n);
+        return *this;
+    }
+    iterator& operator-=(int n) { return *this += -n; }
+    iterator operator+(int n) const { return iterator(*this) += n; }
+    iterator operator-(int n) const { return iterator(*this) -= n; }
+    long operator-(const iterator& rOther) const { return base_iterator::operator-(rOther); }
+    bool operator==(const iterator& rOther) const { return base_iterator::operator==(rOther); }
+    friend bool operator!=(const iterator& rLeft, const iterator& rRight) { return rLeft.base_iterator::operator!=(rRight); }
+};
+
 template <typename T, typename Allocator> class __cdeque_pointer : public __cdeque_imp<void*, allocator<void*> > {
     typedef __cdeque_buf<void*, allocator<void*> > base;
     typedef typename base::iterator base_iterator;
@@ -566,32 +598,7 @@ public:
     __cdeque_pointer() {}
     explicit __cdeque_pointer(const Allocator& rAlloc) : __cdeque_imp<void*, allocator<void*> >(allocator<void*>(rAlloc)) {}
 
-    class iterator : public base_iterator {
-    public:
-        typedef int difference_type;
-        typedef T* value_type;
-        typedef T** pointer;
-        typedef T*& reference;
-        typedef random_access_iterator_tag iterator_category;
-
-        iterator(const base_iterator& rBase) : base_iterator(rBase) {}
-        base_iterator base() const { return *this; }
-        T*& operator*() { return reinterpret_cast<T*&>(base_iterator::operator*()); }
-        iterator& operator++() {
-            base_iterator::operator++();
-            return *this;
-        }
-        iterator& operator+=(int n) {
-            base_iterator::operator+=(n);
-            return *this;
-        }
-        iterator& operator-=(int n) { return *this += -n; }
-        iterator operator+(int n) const { return iterator(*this) += n; }
-        iterator operator-(int n) const { return iterator(*this) -= n; }
-        long operator-(const iterator& rOther) const { return base_iterator::operator-(rOther); }
-        bool operator==(const iterator& rOther) const { return base_iterator::operator==(rOther); }
-        bool operator!=(const iterator& rOther) const { return base_iterator::operator!=(rOther); }
-    };
+    typedef __cdeque_pointer_iterator<T, Allocator> iterator;
 
     class void_iterator {
     public:
@@ -637,15 +644,15 @@ public:
     T*& back() { return reinterpret_cast<T*&>(base::back()); }
     void push_back(T* const& rPtr) { base::push_back(reinterpret_cast<void* const&>(rPtr)); }
     void swap(__cdeque_pointer& rOther) { base::swap(rOther); }
-    void insert(const iterator& rPos, iterator first, iterator last, int) {
-        insert(rPos, first, last, typename iterator_traits<iterator>::iterator_category());
-    }
-    void insert(const iterator& rPos, iterator first, iterator last, bidirectional_iterator_tag) {
-        insert(rPos, first, last, Metrowerks::int2type<0>(), Metrowerks::int2type<0>());
-    }
-    void insert(const iterator& rPos, iterator first, iterator last, Metrowerks::int2type<0>, Metrowerks::int2type<0>) {
+    template <typename InputIterator> void insert(const iterator& rPos, InputIterator first, InputIterator last, Metrowerks::int2type<0>, Metrowerks::int2type<0>) {
         base::insert(rPos.base(), void_iterator(first), void_iterator(last),
                      typename iterator_traits<void_iterator>::iterator_category());
+    }
+    template <typename InputIterator> void insert(const iterator& rPos, InputIterator first, InputIterator last, bidirectional_iterator_tag) {
+        insert(rPos, first, last, Metrowerks::int2type<0>(), Metrowerks::int2type<0>());
+    }
+    template <typename InputIterator> void insert(const iterator& rPos, InputIterator first, InputIterator last, int) {
+        insert(rPos, first, last, typename iterator_traits<InputIterator>::iterator_category());
     }
 };
 
@@ -692,6 +699,22 @@ template <typename T, typename Allocator> void __cdeque<T*, Allocator>::swap(__c
     base::swap(rOther);
 }
 
+template <typename T, typename Allocator> class __deque_iterator {
+    typedef typename __cdeque<T*, typename Allocator::template rebind<T*>::other>::iterator block_iterator;
+
+public:
+    __deque_iterator(const block_iterator& rBlock, T* pCur) : block_(rBlock), cur_(pCur) {}
+    T& operator*();
+
+private:
+    block_iterator block_;
+    T* cur_;
+};
+
+template <typename T, typename Allocator> T& __deque_iterator<T, Allocator>::operator*() {
+    return *cur_;
+}
+
 template <typename T, typename Allocator> class __deque_imp {
 public:
     typedef unsigned long size_type;
@@ -701,29 +724,14 @@ public:
 
     enum { block_size = 1024 / sizeof(T) };
 
-    class iterator {
-    public:
-        iterator(const typename buf_type::iterator& rBlock, T* pCur) : block_(rBlock), cur_(pCur) {}
-        T& operator*();
-
-    private:
-        typename buf_type::iterator block_;
-        T* cur_;
-    };
+    typedef __deque_iterator<T, Allocator> iterator;
 
     size_type size() const { return size_; }
     bool empty() const { return size_ == 0; }
     buf_type& buf() { return buf_.first(); }
     const buf_type& buf() const { return buf_.first(); }
     iterator end() { return at(size_); }
-    iterator at(size_type pos) {
-        buf_type* pBuf;
-        size_type i = pos + start_;
-        pBuf = &buf();
-        typename buf_type::iterator block = pBuf->begin() + i / block_size;
-        T* pBlock = pBuf->empty() ? 0 : *block;
-        return iterator(block, pBlock + i % block_size);
-    }
+    iterator at(size_type pos);
     size_type front_capacity() const { return start_; }
     size_type capacity() const { return buf().empty() ? 0 : (buf().size() - 1) * block_size; }
     size_type max_size() const {
@@ -763,8 +771,13 @@ public:
     Metrowerks::compressed_pair<buf_type, Allocator> buf_;
 };
 
-template <typename T, typename Allocator> T& __deque_imp<T, Allocator>::iterator::operator*() {
-    return *cur_;
+template <typename T, typename Allocator> typename __deque_imp<T, Allocator>::iterator __deque_imp<T, Allocator>::at(size_type pos) {
+    buf_type* pBuf;
+    size_type i = pos + start_;
+    pBuf = &buf();
+    typename buf_type::iterator block = pBuf->begin() + i / block_size;
+    T* pBlock = pBuf->empty() ? 0 : *block;
+    return iterator(block, pBlock + i % block_size);
 }
 
 template <typename T, typename Allocator> __deque_imp<T, Allocator>::~__deque_imp() {
@@ -881,15 +894,7 @@ public:
 
     enum { block_size = 1024 / sizeof(T) };
 
-    class iterator {
-    public:
-        iterator(const typename buf_type::iterator& rBlock, T* pCur) : block_(rBlock), cur_(pCur) {}
-        T& operator*() { return *cur_; }
-
-    private:
-        typename buf_type::iterator block_;
-        T* cur_;
-    };
+    typedef __deque_iterator<T, Allocator> iterator;
 
     __deque_ops() : start_(0), size_(0), buf_() {}
     explicit __deque_ops(const Allocator& rAlloc) : start_(0), size_(0), buf_(buf_type(typename Allocator::template rebind<T*>::other(rAlloc)), rAlloc) {}

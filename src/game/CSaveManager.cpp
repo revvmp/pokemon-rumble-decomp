@@ -1,7 +1,7 @@
 #include <game/ISaveManager.h>
 
-#include <game/CControllerComposition.h>
 #include <game/CFiber.h>
+#include <game/CControllerComposition.h>
 #include <game/CLayout.h>
 #include <game/CScopedActivity.h>
 #include <game/ControllerTable.h>

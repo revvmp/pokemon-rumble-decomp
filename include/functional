@@ -17,6 +17,7 @@ public:
 };
 
 namespace detail {
+template <typename Signature, typename F, bool IsMemberPointer, bool IsReferenceWrapper> class function_imp;
 template<class R, class C> class mem_fn_0 {
 public:
     typedef R (C::*Function)();
@@ -221,8 +222,6 @@ public:
     virtual function_base* clone(void* pBuffer) const = 0;
     virtual R operator()() = 0;
 };
-
-template <typename Signature, typename F, bool IsMemberPointer, bool IsReferenceWrapper> class function_imp;
 
 template <typename R, typename F> class function_imp<R (*)(), F, false, false> : public function_base<R (*)()> {
     typedef function_base<R (*)()> base;
