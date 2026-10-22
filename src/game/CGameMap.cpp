@@ -1,8 +1,9 @@
+#include <memory>
+#include <string>
 #include <game/CDividedGround.h>
 #include <game/CItem.h>
 #include <game/CPii.h>
 #include <game/CFileData.h>
-#include <game/CEnemyInfo.h>
 #include <game/IGameMap.h>
 #include <game/IGameStage.h>
 
@@ -19,10 +20,13 @@
 #include <game/IDlgPiiList.h>
 #include <game/IDlgPiiSelector.h>
 #include <game/IEnemyInfo.h>
+#include <game/CEnemyInfo.h>
 #include <game/IGameSession.h>
 #include <game/ILayoutManager.h>
 #include <game/IMiniMap.h>
 #include <game/IMoneyLifeDisplay.h>
+#include <game/CMsgBalloon.h>
+#include <game/CNoticeDisplay.h>
 #include <game/INumericInput.h>
 #include <game/IPauseMenu.h>
 #include <game/IPostEffect.h>
@@ -34,36 +38,17 @@
 #include <game/StageID.h>
 #include <game/StringFormat.h>
 #include <nw4r/g3d/res/g3d_resfile.h>
-#include <string>
-#include <game/CNoticeDisplay.h>
-#include <game/CMsgBalloon.h>
 #include <algorithm>
-#include <memory>
 #include <vector>
 
 namespace {
 
 enum { TYPE_HIDDEN_MODEL_OBJ = 1 << 16 };
 
-int GetStageNumber(MapDesc* pDesc)
-{
-    MapIndex index = pDesc->mIndex;
-    MapDesc* pTarget = pDesc;
-    MapIndex target;
-    if (index.mMode == 2 && index.mStage == 7) {
-        index.mMode = !IsBattleRoyalFirstPart(index);
-        index.mArea = GetSaveData(-1)->mData.mStatus[19];
-        index.mMap = (index.mMap - 1) % 2 + 1;
-        target = index;
-        pTarget = IGameSession::GetInstance()->GetMapDesc(target);
-    }
-    return pTarget->mParams.GetValue(0).ToInt();
-}
-
 class CGameMap : public IGameMap {
 public:
     explicit CGameMap(const Param& rParam);
-    inline virtual ~CGameMap();
+    virtual ~CGameMap();
     void Initialize();
     void Finalize() {}
     void LoadStageResources();
@@ -151,124 +136,15 @@ private:
     std::tr1::shared_ptr<INumericInput> mNumericInput;
 };
 
-void CGameMap::LoadStageResources()
-{
-    MapDesc* pDesc = mParam.mMapDesc;
-    int stageNo = pDesc->mParams.GetValue(0).ToInt();
-    std::string world = gStageWorlds[pDesc->mIndex.mStage].mName;
-    std::string rank = gStageRanks[pDesc->mIndex.mArea].mName;
-    std::string number = FormatString("%02d", stageNo);
-    std::string lights[3];
-    if (pDesc->mIndex.mMode == 2) {
-        rank = "EX";
-    }
-    lights[0] = "light" + rank + number;
-    lights[1] = "light" + rank;
-    lights[2] = "light" + number;
-    const std::tr1::shared_ptr<CFileData>& stage = LoadFile(("5:/stage/" + world + "/" + number + ".arc/stage.brres").c_str(), 0, true);
-    std::tr1::shared_ptr<CFileData> common;
-    std::tr1::shared_ptr<CFileData> file = stage;
-    for (int i = 0; i < 2; i++) {
-        if (file && file->IsLoaded()) {
-            for (int j = 0; j < 3; j++) {
-                if (lights[j].size() != 0) {
-                    nw4r::g3d::ResFile resFile(file->GetData());
-                    nw4r::g3d::ResAnmScn scene = resFile.GetResAnmScn(lights[j].c_str());
-                    if (scene.IsValid()) {
-                        mWorld->LoadLightScene(file->GetPath().c_str(), lights[j].c_str(), true);
-                        mWorld->GetShadowCamera()->SelectLight();
-                        return;
-                    }
-                }
-            }
-        }
-        common = LoadResourceFile(("5:/stage/" + world + "/common.arc/stage.brres").c_str(), 0, true);
-        file = common;
-    }
-    mWorld->GetShadowCamera()->SelectLight();
-}
-
-void CGameMap::Initialize()
-{
-    if (GetSaveData(-1)) {
-        MapIndex index = mParam.mMapDesc->mIndex;
-        int area = index.mArea;
-        GetSaveData(-1)->mData.mFlags[2] = area;
-        int mode = index.mMode;
-        GetSaveData(-1)->mData.mFlags[3] = mode;
-        switch (mode) {
-        case 0:
-            GetSaveData(-1)->mData.mLastArea[0] = area;
-            break;
-        case 1:
-            GetSaveData(-1)->mData.mLastArea[1] = area;
-            break;
-        }
-    }
-    BWorld::Desc worldDesc;
-    worldDesc.SetDrawType(1);
-    worldDesc.SetObjectCapacity(1024);
-    worldDesc.SetOutlineCapacity(worldDesc.GetObjectCapacity());
-    worldDesc.SetModelCapacity(worldDesc.GetObjectCapacity() + 128);
-    worldDesc.SetScnObjCapacity(worldDesc.GetOutlineCapacity() + worldDesc.GetModelCapacity() + 512);
-    worldDesc.SetEffectCapacity(worldDesc.GetObjectCapacity());
-    worldDesc.SetCaptureEnable(true);
-    worldDesc.SetSoundListenerEnable(true);
-    mWorld.reset(new BWorld(worldDesc));
-    std::tr1::shared_ptr<CShadowCamera> shadowCamera;
-    shadowCamera.reset(new CShadowCamera(4));
-    shadowCamera->Setup(512, 512, 1, false);
-    mWorld->AddCamera(shadowCamera, 1);
-    for (int i = 0; i < 4; i++) {
-        IGameSession::GetInstance()->GetPlayer(i)->EndHoldCollection();
-    }
-    LoadStageResources();
-    mPostEffect = IPostEffect::Create(true, true);
-    mMiniMap = IMiniMap::Create(mParam.mMapDesc, mWorld.get(), 1.0f, true);
-    mEnemyInfo = CEnemyInfo::Create(true);
-    mDlgMsgWin = IDlgMsgWin::Create(true, true);
-    mMoneyLifeDisplay = IMoneyLifeDisplay::Create(mParam.mMapDesc, true);
-    mMsgBalloon = IMsgBalloon::Create(true);
-    mBattleRoyalDisplay = IBattleRoyalDisplay::Create(true);
-    mComboDisplay = CreateComboDisplay(true);
-    mNoticeDisplay = CreateNoticeDisplay(1);
-    mLayoutManager = ILayoutManager::Create();
-    mWorldObjStatDisplay = IWorldObjStatDisplay::Create(mWorld.get());
-    mTutorialMsg = ITutorialMsg::Create(true);
-    mNumericInput = INumericInput::Create(true);
-    mPauseMenu = IPauseMenu::Create(mParam.mMapDesc, false, 1);
-    if (mParam.mMapDesc->mIndex.mStage == 0) {
-        mDlgPiiList = IDlgPiiList::Create(true);
-        mDlgCollection = IDlgCollection::Create(true);
-        mDlgInfo = IDlgInfo::Create(true);
-    }
-    mDlgPiiSelector = IDlgPiiSelector::Create(true);
-    std::tr1::shared_ptr<CDividedGround> ground(new CDividedGround(0x8000));
-    ground->Load(&reinterpret_cast<const StageID&>(mParam.mMapDesc->mIndex), GetStageNumber(mParam.mMapDesc), true);
-    mWorld->AddGround(ground);
-}
-
 CGameMap::CGameMap(const Param& rParam)
     : mParam(rParam), mPausing(true), mTimerFrame(0), mTimerStep(0),
       mHitstopFrames(0), mModelObjsHidden(false)
 {
 }
 
-inline CGameMap::~CGameMap()
+CGameMap::~CGameMap()
 {
     Finalize();
-}
-
-bool CGameMap::IsPausing()
-{
-    if (IsStage7EvenMap(GetMapDesc().mIndex)) {
-        for (int i = 0; i < 4; i++) {
-            if (mDlgPiiSelector->IsShown(i)) {
-                return true;
-            }
-        }
-    }
-    return mPausing;
 }
 
 void CGameMap::Calc()
@@ -321,6 +197,18 @@ void CGameMap::Calc()
     mTutorialMsg->Calc();
     mDlgPiiSelector->Calc();
     mNumericInput->Calc();
+}
+
+bool CGameMap::IsPausing()
+{
+    if (IsStage7EvenMap(GetMapDesc().mIndex)) {
+        for (int i = 0; i < 4; i++) {
+            if (mDlgPiiSelector->IsShown(i)) {
+                return true;
+            }
+        }
+    }
+    return mPausing;
 }
 
 void CGameMap::CalcMtx()
@@ -411,6 +299,118 @@ void CGameMap::Draw()
     mTutorialMsg->Draw();
     mDlgPiiSelector->Draw();
     mNumericInput->Draw();
+}
+
+int GetStageNumber(MapDesc* pDesc)
+{
+    MapIndex index = pDesc->mIndex;
+    MapDesc* pTarget = pDesc;
+    MapIndex target;
+    if (index.mMode == 2 && index.mStage == 7) {
+        index.mMode = !IsBattleRoyalFirstPart(index);
+        index.mArea = GetSaveData(-1)->mData.mStatus[19];
+        index.mMap = (index.mMap - 1) % 2 + 1;
+        target = index;
+        pTarget = IGameSession::GetInstance()->GetMapDesc(target);
+    }
+    return pTarget->mParams.GetValue(0).ToInt();
+}
+
+void CGameMap::Initialize()
+{
+    if (GetSaveData(-1)) {
+        MapIndex index = mParam.mMapDesc->mIndex;
+        int area = index.mArea;
+        GetSaveData(-1)->mData.mFlags[2] = area;
+        int mode = index.mMode;
+        GetSaveData(-1)->mData.mFlags[3] = mode;
+        switch (mode) {
+        case 0:
+            GetSaveData(-1)->mData.mLastArea[0] = area;
+            break;
+        case 1:
+            GetSaveData(-1)->mData.mLastArea[1] = area;
+            break;
+        }
+    }
+    BWorld::Desc worldDesc;
+    worldDesc.SetDrawType(1);
+    worldDesc.SetObjectCapacity(1024);
+    worldDesc.SetOutlineCapacity(worldDesc.GetObjectCapacity());
+    worldDesc.SetModelCapacity(worldDesc.GetObjectCapacity() + 128);
+    worldDesc.SetScnObjCapacity(worldDesc.GetOutlineCapacity() + worldDesc.GetModelCapacity() + 512);
+    worldDesc.SetEffectCapacity(worldDesc.GetObjectCapacity());
+    worldDesc.SetCaptureEnable(true);
+    worldDesc.SetSoundListenerEnable(true);
+    mWorld.reset(new BWorld(worldDesc));
+    std::tr1::shared_ptr<CShadowCamera> shadowCamera;
+    shadowCamera.reset(new CShadowCamera(4));
+    shadowCamera->Setup(512, 512, 1, false);
+    mWorld->AddCamera(shadowCamera, 1);
+    for (int i = 0; i < 4; i++) {
+        IGameSession::GetInstance()->GetPlayer(i)->EndHoldCollection();
+    }
+    LoadStageResources();
+    mPostEffect = IPostEffect::Create(true, true);
+    mMiniMap = IMiniMap::Create(mParam.mMapDesc, mWorld.get(), 0.0f, true);
+    mEnemyInfo = CEnemyInfo::Create(true);
+    mDlgMsgWin = IDlgMsgWin::Create(true, true);
+    mMoneyLifeDisplay = IMoneyLifeDisplay::Create(mParam.mMapDesc, true);
+    mMsgBalloon = IMsgBalloon::Create(true);
+    mBattleRoyalDisplay = IBattleRoyalDisplay::Create(true);
+    mComboDisplay = CreateComboDisplay(true);
+    mNoticeDisplay = CreateNoticeDisplay(1);
+    mLayoutManager = ILayoutManager::Create();
+    mWorldObjStatDisplay = IWorldObjStatDisplay::Create(mWorld.get());
+    mTutorialMsg = ITutorialMsg::Create(true);
+    mNumericInput = INumericInput::Create(true);
+    mPauseMenu = IPauseMenu::Create(mParam.mMapDesc, false, 1);
+    if (mParam.mMapDesc->mIndex.mStage == 0) {
+        mDlgPiiList = IDlgPiiList::Create(true);
+        mDlgCollection = IDlgCollection::Create(true);
+        mDlgInfo = IDlgInfo::Create(true);
+    }
+    mDlgPiiSelector = IDlgPiiSelector::Create(true);
+    std::tr1::shared_ptr<CDividedGround> ground(new CDividedGround(0x8000));
+    ground->Load(&reinterpret_cast<const StageID&>(mParam.mMapDesc->mIndex), GetStageNumber(mParam.mMapDesc), true);
+    mWorld->AddGround(ground);
+}
+
+void CGameMap::LoadStageResources()
+{
+    MapDesc* pDesc = mParam.mMapDesc;
+    int stageNo = pDesc->mParams.GetValue(0).ToInt();
+    std::string world = gStageWorlds[pDesc->mIndex.mStage].mName;
+    std::string rank = gStageRanks[pDesc->mIndex.mArea].mName;
+    std::string number = FormatString("%02d", stageNo);
+    std::string lights[3];
+    if (pDesc->mIndex.mMode == 2) {
+        rank = "EX";
+    }
+    lights[0] = "light_" + rank + number;
+    lights[1] = "light_" + rank;
+    lights[2] = "light_" + number;
+    const std::tr1::shared_ptr<CFileData>& stage = LoadFile(("5:/stage/" + world + "/" + number + ".arc/stage.brres").c_str(), 0, true);
+    std::tr1::shared_ptr<CFileData> common;
+    std::tr1::shared_ptr<CFileData> file = stage;
+    for (int i = 0; i < 2; i++) {
+        if (file && file->IsLoaded()) {
+            for (int j = 0; j < 3; j++) {
+                if (lights[j].size() != 0) {
+                    nw4r::g3d::ResFile resFile(file->GetData());
+                    nw4r::g3d::ResAnmScn scene = resFile.GetResAnmScn(lights[j].c_str());
+                    if (scene.IsValid()) {
+                        mWorld->LoadLightScene(file->GetPath().c_str(), lights[j].c_str(), true);
+                        mWorld->GetShadowCamera()->SelectLight();
+                        return;
+                    }
+                }
+            }
+        }
+        common = LoadResourceFile(("5:/stage/" + world + "/common.arc/stage.brres").c_str(), 0, true);
+        file = common;
+    }
+    mWorld->GetShadowCamera()->SelectLight();
 }
 
 void CGameMap::RunAction()

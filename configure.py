@@ -271,7 +271,7 @@ config.libs = [
             Object(Matching, "game/CEnemyPii.cpp"),
             Object(Matching, "game/CFacility.cpp"),
             Object(NonMatching, "game/CGameEnding.cpp"),
-            Object(NonMatching, "game/CGameMap.cpp"),
+            Object(Matching, "game/CGameMap.cpp"),
             Object(NonMatching, "game/CGameSession.cpp"),
             Object(Matching, "game/CGameStage.cpp"),
             Object(Matching, "game/CGloballyReusableTexBuf.cpp"),

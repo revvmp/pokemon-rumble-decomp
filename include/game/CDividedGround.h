@@ -33,6 +33,7 @@ public:
     enum { BSP_COUNT = 2 };
 
     explicit CDividedGround(u32 type);
+    static std::tr1::shared_ptr<CDividedGround> Create(u32 type);
     virtual ~CDividedGround();
 
     virtual void Calc();

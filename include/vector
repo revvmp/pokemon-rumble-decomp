@@ -733,6 +733,7 @@ class __vec_constructor<unsigned short, Allocator, true>
 public:
     __vec_constructor() {}
     explicit __vec_constructor(typename base::size_type n) : base(n) {}
+    void push_back(const unsigned short& x) { base::push_back(x); }
 };
 
 template <typename Allocator>
@@ -1003,7 +1004,12 @@ public:
     void pop_back() { base::pop_back(); }
 };
 
-template <typename Allocator> class __vec_integer : public __vec_constructor<unsigned long, Allocator, true> {};
+template <typename Allocator> class __vec_integer : public __vec_constructor<void*, allocator<void*>, true> {
+    typedef __vec_constructor<void*, allocator<void*>, true> base;
+
+public:
+    void push_back(void* const& x) { base::push_back(x); }
+};
 
 template <typename Allocator> class vector<unsigned long, Allocator> : private __vec_integer<Allocator> {
     typedef __vec_integer<Allocator> base;
@@ -1017,15 +1023,15 @@ public:
     vector() {}
     ~vector() {}
 
-    iterator begin() { return this->data_; }
-    const_iterator begin() const { return this->data_; }
-    iterator end() { return this->data_ + this->size_; }
-    const_iterator end() const { return this->data_ + this->size_; }
+    iterator begin() { return reinterpret_cast<unsigned long*>(this->data_); }
+    const_iterator begin() const { return reinterpret_cast<unsigned long*>(this->data_); }
+    iterator end() { return reinterpret_cast<unsigned long*>(this->data_) + this->size_; }
+    const_iterator end() const { return reinterpret_cast<unsigned long*>(this->data_) + this->size_; }
     size_type size() const { return this->size_; }
     bool empty() const { return this->size_ == 0; }
-    void push_back(const unsigned long& x) { base::push_back(x); }
+    void push_back(const unsigned long& x) { base::push_back(reinterpret_cast<void*>(x)); }
     void clear() { base::clear(); }
-    unsigned long& operator[](size_type i) { return this->data_[i]; }
+    unsigned long& operator[](size_type i) { return reinterpret_cast<unsigned long*>(this->data_)[i]; }
 };
 
 }
