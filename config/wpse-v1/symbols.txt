@@ -11243,7 +11243,7 @@ __opMQ43std3tr137shared_ptr<Q26CModel14CMotionProgram>9bool_typei__Q33std3tr137s
 __rf__Q33std3tr137shared_ptr<Q26CModel14CMotionProgram>CFv = .text:0x800990E0; // type:function size:0x8
 FinishAccept__Q229@unnamed@CDlgPiiSelector_cpp@14CDataPerPlayerFv = .text:0x800990F0; // type:function size:0x118
 RemovePreviewPii__Q229@unnamed@CDlgPiiSelector_cpp@14CDataPerPlayerFv = .text:0x80099210; // type:function size:0xA0
-GetWorld__9BWorldObjCFv = .text:0x800992B0; // type:function size:0x8
+GetWorld__9BWorldObjCFv = .text:0x800992B0; // type:function size:0x8 scope:local
 RemoveBall__Q229@unnamed@CDlgPiiSelector_cpp@14CDataPerPlayerFv = .text:0x800992C0; // type:function size:0xA0
 RemoveChangeCircle__Q229@unnamed@CDlgPiiSelector_cpp@14CDataPerPlayerFv = .text:0x80099360; // type:function size:0xA0
 CanSwap__Q229@unnamed@CDlgPiiSelector_cpp@14CDataPerPlayerFv = .text:0x80099400; // type:function size:0x4B0
@@ -14634,7 +14634,7 @@ ProjectToHeight__FRCQ34nw4r4math5MTX34RCQ34nw4r4math4VEC3f = .text:0x80133F00; /
 method_camAdjustPos__FPQ24NPpu7CEngine = .text:0x80134000; // type:function size:0x148
 Init__15CCameraAdjusterFP12BWorldCameraUlff = .text:0x80134150; // type:function size:0x1BC
 GetGround__6BWorldFv = .text:0x80134310; // type:function size:0x50
-GetWorld__9BWorldObjCFv = .text:0x80134360; // type:function size:0x8 scope:local
+GetWorld__9BWorldObjCFv = .text:0x80134360; // type:function size:0x8
 Adjust__15CCameraAdjusterFv = .text:0x80134370; // type:function size:0x394
 __ct__Q23std54vector<P10CPlayerPii,Q23std24allocator<P10CPlayerPii>>Fv = .text:0x80134710; // type:function size:0x30
 __ct__Q23std60__vec_pointer<10CPlayerPii,Q23std24allocator<P10CPlayerPii>>Fv = .text:0x80134740; // type:function size:0x30
