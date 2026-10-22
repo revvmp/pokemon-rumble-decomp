@@ -399,11 +399,14 @@ inline std::tr1::shared_ptr<nw4r::ut::FileStream> OpenFileStream(const CPath& rP
     return std::tr1::shared_ptr<nw4r::ut::FileStream>();
 }
 
+static inline u8* AllocateThreadStack(u32 size) throw() {
+    return static_cast<u8*>(GameMemory::Allocate(size, -32));
+}
+
 inline CFileData::CWorker::BThread::BThread(CWorker* pWorker, int priority) : mpHead(nullptr), mpWorker(pWorker), mStopping(false) {
     OSInitMutex(&mMutex);
     OSInitCond(&mCond);
-    void* pStack = GameMemory::Allocate(sConfig.mStackSize, -32);
-    mStack.reset(static_cast<u8*>(pStack), GameMemory::Free);
+    mStack.reset(AllocateThreadStack(sConfig.mStackSize), GameMemory::Free);
     OSCreateThread(&mThread, Entry, this, mStack.get() + sConfig.mStackSize, sConfig.mStackSize, priority, 0);
     OSResumeThread(&mThread);
 }
@@ -636,7 +639,8 @@ std::tr1::shared_ptr<CFileData> OpenFileData(const CPath& rPath, u32 flags, long
 std::tr1::shared_ptr<CFileData> CreateFileData(const char* pPath, u32 flags, bool background) {
     std::tr1::shared_ptr<CFileData> file = OpenFileData(pPath, flags);
     if (file) {
-        if (!WaitFileData(file.get(), background)) {
+        WaitFileData(file.get(), background);
+        if (!file->IsLoaded()) {
             file.reset();
         }
     }
