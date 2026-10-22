@@ -7,6 +7,7 @@
 #include <nw4r/g3d/res/g3d_resanmscn.h>
 #include <memory>
 #include <nw4r/g3d/g3d_camera.h>
+#include <nw4r/g3d/res/g3d_resanmcamera.h>
 
 class CFileData;
 
@@ -14,6 +15,20 @@ class BWorldCamera : public BWorldObj {
 public:
     class CMotionProgram {
     public:
+        enum Flag {
+            FLAG_CREATED = 1 << 0,
+            FLAG_QUEUED = 1 << 1,
+            FLAG_PLAYING = 1 << 2,
+            FLAG_LOOPED = 1 << 3,
+            FLAG_STOPPED = 1 << 5,
+            FLAG_PAUSED = 1 << 6,
+            FLAG_IGNORE_AIM = 1 << 7,
+            FLAG_STATE_MASK = 0x3E,
+            LOOP_COUNT_INCREMENT = 1 << 16
+        };
+
+        void SetState(u32 state) { mFlags = (mFlags & ~FLAG_STATE_MASK) | state; }
+
         u32 GetId() const { return mId; }
         int GetLength() const { return mLength; }
         u32 GetLoopCount() const { return mFlags >> 16; }
@@ -50,11 +65,18 @@ public:
         int mLength;
     };
     typedef std::tr1::shared_ptr<CMotionProgram> MotionPtr;
-    MotionPtr Play(const char* pName, f32 start, f32 rate);
-    MotionPtr Request(const char* pName, f32 start, f32 rate);
-    MotionPtr RequestNext(const char* pName, f32 start, f32 rate);
+    typedef std::list<MotionPtr> MotionList;
+    MotionPtr Play(MotionPtr& rMotion);
+    MotionPtr Play(const char* pName, f32 frame, f32 rate);
+    MotionPtr Request(MotionPtr& rMotion);
+    MotionPtr Request(const char* pName, f32 frame, f32 rate);
+    MotionPtr RequestNext(MotionPtr& rMotion);
+    MotionPtr RequestNext(const char* pName, f32 frame, f32 rate);
     MotionPtr FindMotion(u32 id);
     MotionPtr GetCurrentMotion();
+    void UpdateFrame(f32 step);
+    MotionPtr CreateMotion(MotionPtr& rMotion, f32 frame, f32 rate);
+    MotionPtr CreateMotion(const char* pName, f32 frame, f32 rate);
 
     enum { TYPE = TYPE_CAMERA };
 
@@ -78,10 +100,13 @@ public:
     void SetIndex(int index) { mIndex = index; }
 
 private:
+    bool Load(const std::tr1::shared_ptr<CFileData>& rFile);
+    void ApplyFrame();
+
     int mIndex;
     u32 mNextMotionID;
     std::tr1::shared_ptr<CFileData> mAnmFile;
-    std::list<std::tr1::shared_ptr<CMotionProgram> > mMotionPrograms;
+    MotionList mMotionPrograms;
     f32 mMotionFrame;
 };
 

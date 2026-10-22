@@ -255,7 +255,3 @@ void BWorldLightSet::ApplyFrame(MotionPtr& rMotion) {
 void BWorldLightSet::OnEnterWorld() {}
 
 void BWorldLightSet::OnLeaveWorld() {}
-
-void BWorldObj::SetPosition(const nw4r::math::VEC3& rPosition) {
-    mPosition = rPosition;
-}

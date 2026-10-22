@@ -35,12 +35,18 @@ public:
 
     virtual void Calc() {}
     virtual void CalcMtx() {}
-    virtual void SetPosition(const nw4r::math::VEC3& rPosition);
-    virtual void SetScale(const nw4r::math::VEC3& rScale);
-    virtual void SetRotation(f32 rotation);
+    virtual void SetPosition(const nw4r::math::VEC3& rPosition) { mPosition = rPosition; }
+    virtual void SetScale(const nw4r::math::VEC3& rScale) { mScale = rScale; }
+    virtual void SetRotation(f32 rotation) { mRotation = rotation; }
     virtual nw4r::math::VEC3 GetSize() { return nw4r::math::VEC3(0.0f, 0.0f, 0.0f); }
     virtual nw4r::math::VEC3 GetPosition() { return mPosition; }
-    virtual void SetVisible(bool visible);
+    virtual void SetVisible(bool visible) {
+        if (visible) {
+            mState |= STATE_VISIBLE;
+        } else {
+            mState &= ~STATE_VISIBLE;
+        }
+    }
     virtual CPpuEngine* GetPpuEngine() const { return nullptr; }
     virtual CMiniMapMarker* GetEffect() const { return nullptr; }
     virtual void SetEffectEnable(bool enable) {}
