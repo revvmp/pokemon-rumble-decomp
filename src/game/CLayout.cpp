@@ -696,8 +696,9 @@ f32 CLayout::GetPaneAlpha(nw4r::lyt::Pane* pPane) {
             return 0.0f;
         }
         f32 alpha = GetPaneAlpha(pPane->GetParent());
-        if (pPane->GetAlpha() != 255) {
-            alpha = (1.0f / 255.0f) * (alpha * pPane->GetAlpha());
+        u8 paneAlpha = pPane->GetAlpha();
+        if (paneAlpha != 255) {
+            return (1.0f / 255.0f) * (alpha * paneAlpha);
         }
         return alpha;
     }
