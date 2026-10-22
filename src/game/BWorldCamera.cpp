@@ -309,7 +309,7 @@ void BWorldCamera::Calc() {
 
 void BWorldCamera::OnEnterWorld() {}
 
-void BWorldCamera::OnLeaveWorld() {}
+void BWorldCamera::OnLeaveWorld(BWorld* pWorld) {}
 
 void BWorldCamera::UpdateIndex(int prevIndex) {
     if (mIndex < 0) {
