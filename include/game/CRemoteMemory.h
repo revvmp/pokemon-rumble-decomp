@@ -27,7 +27,10 @@ public:
 
     CRemoteMemory(int channel, COyaInfo* pOyaInfo);
     ~CRemoteMemory();
-    bool HasFlag(volatile u32 flag) const { return (mFlags & flag) != 0; }
+    bool HasFlag(volatile u32 flag) const {
+        const volatile u32& rFlags = mFlags;
+        return (rFlags & flag) != 0;
+    }
     bool HasPiiBox() const { return (mFlags & 0x1A) != 0; }
     bool IsBusy() const { return HasFlag(FLAG_BUSY); }
     CPiiBox* GetPiiBox();
@@ -36,7 +39,7 @@ public:
     void QueueAdd(const std::tr1::shared_ptr<CPiiPersonalData>& rPPD);
     void QueueRemove(const std::tr1::shared_ptr<CPiiPersonalData>& rPPD);
     void PrepareWrite(int mode);
-    bool IsAborted() const { return (mFlags >> 9) & 1; }
+    bool IsAborted() const { return (mFlags & FLAG_STATE_CHANGED) != 0; }
     bool HasFailed() const { return (mFlags & 0x180) != 0; }
     bool IsRecoveryPending() const { return (mFlags & 0x20) != 0; }
     bool IsStorageLocked() const { return (mFlags & 0x400) != 0; }
@@ -58,7 +61,7 @@ private:
     static void FinishWrite(int channel, long result);
     void SetState(Flag state);
 
-    volatile u32 mFlags;
+    u32 mFlags;
     COyaInfo* mpOyaInfo;
     int mChannel;
     std::list<std::tr1::shared_ptr<CPiiPersonalData> > mPersonalData;
