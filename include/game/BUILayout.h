@@ -12,8 +12,12 @@ public:
     virtual void Draw();
     virtual void Load(const char* pArchive, const char* pLayoutName, const std::tr1::shared_ptr<CLayout::FontMap>& rFonts, bool background);
     virtual void Load(const char* const* pArchives, const char* pLayoutName, const std::tr1::shared_ptr<CLayout::FontMap>& rFonts, bool background);
-    virtual void Load(const char* pArchive, const char* pLayoutName, const std::tr1::shared_ptr<CLayout::FontMap>& rFonts);
-    virtual void Load(const char* const* pArchives, const char* pLayoutName, const std::tr1::shared_ptr<CLayout::FontMap>& rFonts);
+    virtual void Load(const char* pArchive, const char* pLayoutName, const std::tr1::shared_ptr<CLayout::FontMap>& rFonts) {
+        Load(pArchive, pLayoutName, rFonts, false);
+    }
+    virtual void Load(const char* const* pArchives, const char* pLayoutName, const std::tr1::shared_ptr<CLayout::FontMap>& rFonts) {
+        Load(pArchives, pLayoutName, rFonts, false);
+    }
 
     CLayout* GetLayout() { return &mLayout; }
     bool AttachChild(const char* pPaneName, std::tr1::shared_ptr<BUILayout> child);

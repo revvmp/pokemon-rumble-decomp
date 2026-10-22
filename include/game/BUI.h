@@ -29,11 +29,15 @@ public:
 
     bool AddChild(const Child& rChild);
     bool IsFocused();
+    BUI* NavigateTo(int direction);
+    BUI* FindFocusableFrom(int direction);
     bool RemoveChild(const Child& rChild);
     void SetVisible(bool visible);
 
 private:
     friend class CUICallbackLists;
+    friend class CUIManager;
+    friend class BUILayout;
 
     class CCallbackListOwner {
     public:

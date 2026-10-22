@@ -16,6 +16,8 @@ public:
 
     void SetFocusedUI(BUI* pUI);
     void DispatchFocusedInput(const IUIInput* pInput);
+    BUI* GetFocusedUI();
+    void ValidateFocusedUI();
 
 private:
     std::tr1::weak_ptr<BUI> mFocusedUI;

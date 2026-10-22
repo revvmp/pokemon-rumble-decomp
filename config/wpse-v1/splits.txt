@@ -505,6 +505,32 @@ game/ControllerTable.cpp:
 	.bss        start:0x803E8D28 end:0x803E90C8
 	.sdata      start:0x804B77D8 end:0x804B77D9
 
+game/BUI.cpp:
+	extab       start:0x8003BEE8 end:0x8003C2F0
+	extabindex  start:0x80051258 end:0x80051318
+	.text       start:0x801C8700 end:0x801C9680
+	.data       start:0x803C0210 end:0x803C02B0
+
+game/CUIManager.cpp:
+	extab       start:0x8003C2F0 end:0x8003C630
+	extabindex  start:0x80051318 end:0x8005136C
+	.text       start:0x801C9680 end:0x801C9EE0
+	.data       start:0x803C02B0 end:0x803C0338
+	.sdata      start:0x804B8320 end:0x804B8328
+
+game/BUILayout.cpp:
+	extab       start:0x8003C630 end:0x8003C6B0
+	extabindex  start:0x8005136C end:0x800513A8
+	.text       start:0x801C9EE0 end:0x801CA130
+	.data       start:0x803C0338 end:0x803C0378
+
+game/CArchiveFontWithBuf.cpp:
+	extab       start:0x8003C6B0 end:0x8003C80C
+	extabindex  start:0x800513A8 end:0x800513CC
+	.text       start:0x801CA130 end:0x801CA444
+	.data       start:0x803C0378 end:0x803C0480
+	.sdata      start:0x804B8328 end:0x804B8340
+
 ControllerTableAlignmentPadding:
 	.sdata      start:0x804B77D9 end:0x804B77E0 align:1
 
