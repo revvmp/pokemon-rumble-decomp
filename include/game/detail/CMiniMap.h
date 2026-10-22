@@ -5,7 +5,7 @@
 #include <game/CDisplayPhaseCtrl.h>
 #include <game/CFileData.h>
 #include <game/CLayout.h>
-#include <game/CaptureTexture.h>
+#include <game/COffScreenTexture.h>
 #include <game/IMiniMap.h>
 #include <memory>
 
@@ -26,7 +26,7 @@ private:
     std::tr1::shared_ptr<CFileData> mMapFile;
     CLayout mMapLayout;
     nw4r::math::VEC2 mMapSize;
-    CaptureTexture mCapture;
+    COffScreenTexture mCapture;
     CLayout mDisplayLayout;
     std::tr1::weak_ptr<BWorld> mWorld;
     f32 mHeight;

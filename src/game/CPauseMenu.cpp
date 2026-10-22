@@ -7,7 +7,7 @@
 #include <game/CLayout.h>
 #include <game/CUIManager.h>
 #include <game/CUIMenu.h>
-#include <game/CaptureTexture.h>
+#include <game/COffScreenTexture.h>
 #include <game/ControllerTable.h>
 #include <game/IBattleRoyalDisplay.h>
 #include <game/IController.h>
@@ -287,7 +287,7 @@ private:
     bool mIsOpen;
     CFiber mFiber;
     std::tr1::shared_ptr<IDlgMsgWin> mDialog;
-    CaptureTexture mCapture;
+    COffScreenTexture mCapture;
     bool mScreenshotBusy;
     bool mCaptureRequested;
     bool mHideBackground;
@@ -427,7 +427,7 @@ inline void CPauseMenu::CaptureScreenshot() {
     mCopyrightLayout.Render(nw4r::math::VEC2(width, height));
     GXDrawDone();
 
-    CaptureTexture shot;
+    COffScreenTexture shot;
     shot.Init(mCapture.GetBufferOwner(), mCapture.GetBufferSize(), width, height, mCapture.GetFormat(), GX_CLAMP, GX_LINEAR);
     shot.CopyFromEFB(true);
 

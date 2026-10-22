@@ -2,7 +2,7 @@
 #define GAME_BWORLD_H
 
 #include <game/BWorldObj.h>
-#include <game/CaptureTexture.h>
+#include <game/COffScreenTexture.h>
 #include <game/CEffect.h>
 #include <game/ICalcDraw.h>
 #include <list>
@@ -117,13 +117,13 @@ public:
         u32 mPauseGroupID;
         std::vector<std::tr1::shared_ptr<CEffect> > mEffects;
         bool mCaptureEnable;
-        CaptureTexture mCaptureTexture;
+        COffScreenTexture mCaptureTexture;
         TextureState mTextureState;
         u32 mCaptureGroupID;
     };
 
     struct OutlineData {
-        CaptureTexture mTexture;
+        COffScreenTexture mTexture;
         int mWidth;
         u8 mAlpha;
         nw4r::ut::Color mColor __attribute__((aligned(4)));

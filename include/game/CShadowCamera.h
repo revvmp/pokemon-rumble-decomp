@@ -2,7 +2,7 @@
 #define GAME_CSHADOWCAMERA_H
 
 #include <game/BWorldCamera.h>
-#include <game/CaptureTexture.h>
+#include <game/COffScreenTexture.h>
 #include <memory>
 
 class CModel;
@@ -21,7 +21,7 @@ public:
     void SetupShadowModel(std::tr1::shared_ptr<CModel> model);
 
     int GetTextureLevels() const { return mTextureLevels; }
-    CaptureTexture& GetTexture(int index) { return mTextures[index]; }
+    COffScreenTexture& GetTexture(int index) { return mTextures[index]; }
     bool IsTextureAlpha() const { return mUseTextureAlpha; }
     u8 GetAlpha() const { return mAlpha; }
 
@@ -29,7 +29,7 @@ private:
     bool CalcLightProjection();
 
     int mTextureLevels;
-    CaptureTexture mTextures[3];
+    COffScreenTexture mTextures[3];
     bool mUseTextureAlpha;
     u8 mAlpha;
     bool mAutoSelectLight;

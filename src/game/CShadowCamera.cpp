@@ -203,7 +203,7 @@ bool CShadowCamera::CalcLightProjection() {
 }
 
 static void SetupShadowMaterial(nw4r::g3d::ResMat mat, nw4r::g3d::ScnMdl::CopiedMatAccess& rAccess,
-                                const CaptureTexture& rTexture, GXColor color, int cameraIndex, bool useTextureAlpha) {
+                                const COffScreenTexture& rTexture, GXColor color, int cameraIndex, bool useTextureAlpha) {
     u8 addedStages = useTextureAlpha ? 2 : 1;
 
     nw4r::g3d::ResGenMode genMode = rAccess.GetResGenMode(false);

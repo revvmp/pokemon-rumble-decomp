@@ -14,7 +14,7 @@
 #include <game/CRemoteMemory.h>
 #include <game/CUIManager.h>
 #include <game/CUIPiiSpec.h>
-#include <game/CaptureTexture.h>
+#include <game/COffScreenTexture.h>
 #include <game/Font.h>
 #include <game/IGameResult.h>
 #include <game/IGameSession.h>
@@ -240,7 +240,7 @@ private:
     std::vector<ResultPii> mEntries;
     int mSelected;
     int mStrongestBP;
-    CaptureTexture mCapture;
+    COffScreenTexture mCapture;
 };
 
 inline CGameResult::~CGameResult()

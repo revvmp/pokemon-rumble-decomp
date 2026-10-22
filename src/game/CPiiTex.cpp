@@ -10,17 +10,6 @@
 #include <revolution/gx/GXGeometry.h>
 #include <revolution/gx/GXTexture.h>
 
-CPiiTex::CPiiTex(u16 width, u16 height) {
-    InitTexture(width, height);
-}
-
-CPiiTex::CPiiTex(std::tr1::shared_ptr<CPiiPersonalData> personalData, u16 width, u16 height) {
-    InitTexture(width, height);
-    AddPii(personalData);
-}
-
-CPiiTex::~CPiiTex() {}
-
 void CPiiTex::InitTexture(u16 width, u16 height) {
     mTexture.reset(new COffScreenTexture);
     mTexture->Create(width, height, GX_TF_RGB5A3, GX_CLAMP, GX_LINEAR);
@@ -34,6 +23,17 @@ void CPiiTex::InitTexture(u16 width, u16 height) {
     mWorld->AddCamera(camera);
     mWorld->SetCurrentCamera(camera);
 }
+
+CPiiTex::CPiiTex(u16 width, u16 height) {
+    InitTexture(width, height);
+}
+
+CPiiTex::CPiiTex(std::tr1::shared_ptr<CPiiPersonalData> personalData, u16 width, u16 height) {
+    InitTexture(width, height);
+    AddPii(personalData);
+}
+
+CPiiTex::~CPiiTex() {}
 
 int CPiiTex::AddPii(std::tr1::shared_ptr<CPiiPersonalData> personalData) {
     std::tr1::shared_ptr<CPii> pii(new CPii(personalData, 0x40));
@@ -52,6 +52,35 @@ void CPiiTex::SetPiiVisible(u32 index, bool visible) {
         mPiis[index]->SetVisible(visible);
         UpdateCamera();
     }
+}
+
+nw4r::lyt::TexMap CPiiTex::GetTexMap() const {
+    nw4r::lyt::TexMap texMap;
+    texMap.SetImage(mTexture->GetBuffer());
+    texMap.SetSize(mTexture->GetWidth(), mTexture->GetHeight());
+    texMap.SetTexelFormat(mTexture->GetFormat());
+    return texMap;
+}
+
+void CPiiTex::Calc() {
+    mWorld->Calc();
+}
+
+void CPiiTex::CalcMtx() {
+    mWorld->CalcMtx();
+}
+
+void CPiiTex::CalcView() {
+    mWorld->CalcView();
+    GXInvalidateVtxCache();
+    GXInvalidateTexAll();
+    Graphics::ResetState();
+    Graphics::SetPixelFormat(GX_PF_RGB8_Z24, GX_ZC_LINEAR);
+    mWorld->Draw();
+    GXSetZMode(GX_TRUE, GX_LEQUAL, GX_TRUE);
+    GXSetColorUpdate(GX_TRUE);
+    GXSetAlphaUpdate(GX_TRUE);
+    mTexture->CopyFromEFB(true);
 }
 
 void CPiiTex::UpdateCamera() {
@@ -90,33 +119,4 @@ void CPiiTex::UpdateCamera() {
     posture.cameraTarget = nw4r::math::VEC3(0.0f, position.y, 0.0f);
     posture.cameraTwist = 0.0f;
     camera.SetPosture(posture);
-}
-
-nw4r::lyt::TexMap CPiiTex::GetTexMap() const {
-    nw4r::lyt::TexMap texMap;
-    texMap.SetImage(mTexture->GetBuffer());
-    texMap.SetSize(mTexture->GetWidth(), mTexture->GetHeight());
-    texMap.SetTexelFormat(mTexture->GetFormat());
-    return texMap;
-}
-
-void CPiiTex::Calc() {
-    mWorld->Calc();
-}
-
-void CPiiTex::CalcMtx() {
-    mWorld->CalcMtx();
-}
-
-void CPiiTex::CalcView() {
-    mWorld->CalcView();
-    GXInvalidateVtxCache();
-    GXInvalidateTexAll();
-    Graphics::ResetState();
-    Graphics::SetPixelFormat(GX_PF_RGB8_Z24, GX_ZC_LINEAR);
-    mWorld->Draw();
-    GXSetZMode(GX_TRUE, GX_LEQUAL, GX_TRUE);
-    GXSetColorUpdate(GX_TRUE);
-    GXSetAlphaUpdate(GX_TRUE);
-    mTexture->CopyFromEFB(true);
 }

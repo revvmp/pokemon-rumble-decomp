@@ -218,7 +218,7 @@ config.libs = [
         [
             Object(Matching, "game/BController.cpp"),
             Object(NonMatching, "game/CModel.cpp"),
-            Object(Matching, "game/CaptureTexture.cpp"),
+            Object(Matching, "game/COffScreenTexture.cpp"),
             Object(Matching, "game/ModelAim.cpp"),
             Object(Matching, "game/RenderPrimitive.cpp"),
             Object(Matching, "game/AnmObjChrGroup.cpp"),
@@ -299,7 +299,7 @@ config.libs = [
             Object(Matching, "game/CPiiCollectionBox.cpp"),
             Object(Matching, "game/CPiiInfoWorldObjStat.cpp"),
             Object(NonMatching, "game/PiiPropData.cpp"),
-            Object(NonMatching, "game/CPiiTex.cpp"),
+            Object(Matching, "game/CPiiTex.cpp"),
             Object(Matching, "game/CPlayer.cpp"),
             Object(NonMatching, "game/CPlayerPii.cpp"),
             Object(NonMatching, "game/CShadowCamera.cpp"),

@@ -5,7 +5,7 @@
 #include <vector>
 #include <revolution/types.h>
 #include <nw4r/lyt/lyt_texMap.h>
-#include <game/CaptureTexture.h>
+#include <game/COffScreenTexture.h>
 #include <game/CPii.h>
 class CPii;
 class CPiiPersonalData;
@@ -17,10 +17,6 @@ struct PiiTexCameraParams {
 };
 
 extern const PiiTexCameraParams gPiiTexCameraParams[];
-
-class COffScreenTexture : public CaptureTexture {
-public:
-};
 
 class CPiiTex {
 public:

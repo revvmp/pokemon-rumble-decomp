@@ -1,4 +1,4 @@
-#include <game/CaptureTexture.h>
+#include <game/COffScreenTexture.h>
 #include <game/Memory.h>
 
 #include <nw4r/g3d/g3d_state.h>
@@ -35,18 +35,18 @@ inline u32 GetTexelBlockWidth(GXTexFmt format) {
 
 }
 
-CaptureTexture::CaptureTexture() : mBuffer(), mBufferSize(0) {}
+COffScreenTexture::COffScreenTexture() : mBuffer(), mBufferSize(0) {}
 
-CaptureTexture::~CaptureTexture() {}
+COffScreenTexture::~COffScreenTexture() {}
 
-void CaptureTexture::Create(u16 width, u16 height, GXTexFmt format, GXTexWrapMode wrap, GXTexFilter filter) {
+void COffScreenTexture::Create(u16 width, u16 height, GXTexFmt format, GXTexWrapMode wrap, GXTexFilter filter) {
     u32 size = GXGetTexBufferSize(width, height, format, GX_FALSE, 0);
     std::tr1::shared_ptr<u8> buffer(static_cast<u8*>(GameMemory::Allocate(size)), GameMemory::Free);
     DCFlushRange(buffer.get(), size);
     Init(buffer, size, width, height, format, wrap, filter);
 }
 
-void CaptureTexture::Init(std::tr1::shared_ptr<u8> buffer, u32 bufferSize, u16 width, u16 height, GXTexFmt format,
+void COffScreenTexture::Init(std::tr1::shared_ptr<u8> buffer, u32 bufferSize, u16 width, u16 height, GXTexFmt format,
                           GXTexWrapMode wrap, GXTexFilter filter) {
     mBuffer = buffer;
     mBufferSize = bufferSize;
@@ -54,7 +54,7 @@ void CaptureTexture::Init(std::tr1::shared_ptr<u8> buffer, u32 bufferSize, u16 w
     GXInitTexObjLOD(&mTexObj, filter, filter, 0.0f, 0.0f, 0.0f, GX_FALSE, GX_FALSE, GX_ANISO_1);
 }
 
-void CaptureTexture::CopyFromEFB(bool clear) {
+void COffScreenTexture::CopyFromEFB(bool clear) {
     GXTexFmt format = GXGetTexObjFmt(&mTexObj);
     const GXRenderModeObj* pMode = nw4r::g3d::G3DState::GetRenderModeObj();
     GXSetCopyFilter(pMode->aa, pMode->sample_pattern, GX_FALSE, pMode->vfilter);
@@ -68,7 +68,7 @@ void CaptureTexture::CopyFromEFB(bool clear) {
     GXSetCopyFilter(pMode->aa, pMode->sample_pattern, GX_TRUE, pMode->vfilter);
 }
 
-void CaptureTexture::CopyFromEFB(GXTexFmt format, bool clear) {
+void COffScreenTexture::CopyFromEFB(GXTexFmt format, bool clear) {
     const GXRenderModeObj* pMode = nw4r::g3d::G3DState::GetRenderModeObj();
     GXSetCopyFilter(pMode->aa, pMode->sample_pattern, GX_FALSE, pMode->vfilter);
     u16 width = GXGetTexObjWidth(&mTexObj);

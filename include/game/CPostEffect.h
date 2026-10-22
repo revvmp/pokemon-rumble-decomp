@@ -1,7 +1,7 @@
 #ifndef GAME_CPOSTEFFECT_H
 #define GAME_CPOSTEFFECT_H
 
-#include <game/CaptureTexture.h>
+#include <game/COffScreenTexture.h>
 #include <game/IPostEffect.h>
 #include <list>
 #include <memory>
@@ -42,7 +42,7 @@ private:
     int mFlag;
     std::list<std::tr1::shared_ptr<CModel> > mModels;
     std::tr1::shared_ptr<nw4r::g3d::ScnRoot> mScnRoot;
-    CaptureTexture mTexture;
+    COffScreenTexture mTexture;
 };
 
 extern const CPostEffect::EffectInfo gPostEffectInfos[8];

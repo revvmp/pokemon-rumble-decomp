@@ -1,14 +1,14 @@
-#ifndef GAME_CAPTURETEXTURE_H
-#define GAME_CAPTURETEXTURE_H
+#ifndef GAME_COFFSCREENTEXTURE_H
+#define GAME_COFFSCREENTEXTURE_H
 
 #include <memory>
 #include <revolution/gx.h>
 #include <revolution/gx/GXGet.h>
 
-class CaptureTexture {
+class COffScreenTexture {
 public:
-    CaptureTexture();
-    ~CaptureTexture();
+    COffScreenTexture();
+    ~COffScreenTexture();
 
     void Create(u16 width, u16 height, GXTexFmt format, GXTexWrapMode wrap, GXTexFilter filter);
     void Init(std::tr1::shared_ptr<u8> buffer, u32 bufferSize, u16 width, u16 height, GXTexFmt format,

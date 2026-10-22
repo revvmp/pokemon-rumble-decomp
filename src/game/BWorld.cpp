@@ -1392,7 +1392,7 @@ bool BWorld::DrawShadow(GXColor clearColor, GXPixelFmt pixelFormat) {
         mScnRoot->ForceDrawMode(false, nw4r::g3d::RESMDL_DRAWMODE_DEFAULT);
     }
 
-    CaptureTexture& rFirstTexture = pShadowCamera->GetTexture(0);
+    COffScreenTexture& rFirstTexture = pShadowCamera->GetTexture(0);
     DrawFrame(rFirstTexture.GetWidth(), rFirstTexture.GetHeight());
 
     const GXRenderModeObj* pRenderMode = nw4r::g3d::G3DState::GetRenderModeObj();
@@ -1408,7 +1408,7 @@ bool BWorld::DrawShadow(GXColor clearColor, GXPixelFmt pixelFormat) {
     GXInvalidateTexAll();
 
     for (int i = 1; i < levels; i++) {
-        CaptureTexture& rTexture = pShadowCamera->GetTexture(i);
+        COffScreenTexture& rTexture = pShadowCamera->GetTexture(i);
         u16 width = rTexture.GetWidth();
         u16 height = rTexture.GetHeight();
         DrawTexture(width, height, &pShadowCamera->GetTexture(i - 1).GetTexObj());
