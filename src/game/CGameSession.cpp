@@ -578,17 +578,18 @@ void CGameSession::SetMoney(int money) {
 }
 
 void CGameSession::AddMoney(int money) {
+    int limit = std::numeric_limits<int>::max();
     int current = mMoney;
     int total;
     if (money > 0) {
         total = current + money;
         if (current >= total) {
-            total = std::numeric_limits<int>::max();
+            total = limit;
         }
     } else if (money < 0) {
         total = current + money;
         if (current > total) {
-            total = std::min(total, std::numeric_limits<int>::max());
+            total = std::max(current + money, limit);
         } else {
             total = 9999999;
         }
