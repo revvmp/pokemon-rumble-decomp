@@ -210,13 +210,12 @@ bool CFileData::WaitUntilLoaded(CFileData* pFile) {
             pWorker->ProcessFinishedJobs();
         }
 
-        if (pFile->IsLoaded()) {
-            return true;
+        if (!pFile->IsLoaded()) {
+            sConfig.mErrorHandler(static_cast<CPath::Drive>(pFile->mFlags & FLAG_DRIVE_MASK), pFile->mPath.c_str(),
+                                  pFile->mError, pFile->mFlags);
+            return false;
         }
-
-        sConfig.mErrorHandler(static_cast<CPath::Drive>(pFile->mFlags & FLAG_DRIVE_MASK), pFile->mPath.c_str(),
-                              pFile->mError, pFile->mFlags);
-        return false;
+        return true;
     }
     return pFile->IsLoaded();
 }
@@ -283,13 +282,12 @@ bool CFileData::CWorker::WaitInFiber(CFileData* pFile) {
         --mFinished.mYieldDepth;
     }
 
-    if (pFile->IsLoaded()) {
-        return true;
+    if (!pFile->IsLoaded()) {
+        sConfig.mErrorHandler(static_cast<CPath::Drive>(pFile->mFlags & FLAG_DRIVE_MASK), pFile->mPath.c_str(),
+                              pFile->mError, pFile->mFlags);
+        return false;
     }
-
-    sConfig.mErrorHandler(static_cast<CPath::Drive>(pFile->mFlags & FLAG_DRIVE_MASK), pFile->mPath.c_str(),
-                          pFile->mError, pFile->mFlags);
-    return false;
+    return true;
 }
 
 void CFileData::SetDrive(CPath::Drive drive) {
