@@ -103,12 +103,12 @@ void BModelObj::SetModelScaleDirect(const nw4r::math::VEC3& rScale) {
     mModelScale = rScale;
     if (mModelScale.x != 1.0f || mModelScale.y != 1.0f || mModelScale.z != 1.0f) {
         if (mModel->mRootScale) {
-            mModel->mRootScale->SetScale(mModelScale);
+            mModel->mRootScale->SetRootScale(mModelScale);
             return;
         }
 
         rootScale.reset(nw4r::g3d::AnmObjChrRootScale::Construct(GetDefaultAllocator(), nullptr, static_cast<nw4r::g3d::ScnMdlSimple*>(mModel->GetScnObj())->GetResMdl()), DestroyG3dObj);
-        rootScale->SetScale(mModelScale);
+        rootScale->SetRootScale(mModelScale);
     }
 
     mModel->SetRootScale(rootScale);

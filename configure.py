@@ -217,6 +217,10 @@ config.libs = [
         "game",
         [
             Object(Matching, "game/BController.cpp"),
+            Object(NonMatching, "game/RenderPrimitive.cpp"),
+            Object(Matching, "game/AnmObjChrGroup.cpp"),
+            Object(Matching, "game/AnmObjChrOverride.cpp"),
+            Object(Matching, "game/AnmObjChrRootScale.cpp"),
             Object(Matching, "game/VideoTiming.cpp"),
             Object(Matching, "game/FaAsync.cpp"),
             Object(Matching, "game/NandAsync.cpp"),
