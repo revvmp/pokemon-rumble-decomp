@@ -85,6 +85,13 @@ In practice, if the target emits an item right after group G, then either the it
 - **COyaInfo is `Matching`** (commit `16f89b7dd`). `COyaInfo.h` includes `<map>` before `<vector>`, so the tree template is older than the split buffer. The walk then reaches `tree_imp::copy` after `construct_at_front`.
 - The game sweep's misplaced total fell by about 700. Every function that scored 100% still does, and `verify` passes.
 
+- **CDlgPiiList `.data`** (commit `a5359bce2`). Each `shared_ptr_deleter` vtable is emitted when its class is instantiated, from the `shared_ptr(Y*)` member-template entry of `shared_ptr<T>`. The entries follow the order in which each `shared_ptr<T>` was completed, newest first, and `.data` lists the vtables in reverse of that instantiation order. The changes:
+  - `~CCallbackListOwner` moves out of `BUI.h` into the new `BUICallbackList.h`, which `BUI.cpp`, `CUIList.cpp` and `CUIMenu.h` include. Its in-class body had completed `shared_ptr<function<void(BUI*)>>` as soon as `BUI.h` was read.
+  - `Add` is defined after `Setup`.
+  - The unit includes `CPii.h`, which completes `shared_ptr<CPpuEngine>` early.
+  - One swap remains: `shared_ptr<CUIManager>` must be completed before the `mItems` vector. A probe global proves this, but no header in our tree completes it naturally.
+  - The two misplaced `.text` functions are unchanged. The target emits the `const_iterator` `*` and `++` before `const_iterator(iterator)` and `begin` in OnAccept's inlined count loop. Writing the loop as a separate init before a `for`, or as a `do`/`while`, does not change this.
+
 ## Remaining
 
 - **BWorld:** the target emits the non-template `map_compact_tree::find_leaf(const value_type&)` in the last walk, among the oldest class groups. It calls `insert_node_at` from the same inlined `insert_one`, but `insert_node_at` is emitted early. The unit also has eight functions below 100%.
