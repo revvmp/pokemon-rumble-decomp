@@ -304,6 +304,17 @@ game/CGloballyReusableTexBuf.cpp:
 	.sbss       start:0x804B9008 end:0x804B9010
 	.sdata2     start:0x804B9F00 end:0x804B9F08
 
+game/CHPBar.cpp:
+	extab       start:0x8001BFC0 end:0x8001C7B0
+	extabindex  start:0x80048930 end:0x800489D8
+	.text       start:0x800BE9E0 end:0x800C0490
+	.ctors      start:0x803529D4 end:0x803529D8
+	.data       start:0x803A4440 end:0x803A45D0
+	.bss        start:0x803E6610 end:0x803E6620
+	.sdata      start:0x804B6960 end:0x804B6A10
+	.sbss       start:0x804B9010 end:0x804B9018
+	.sdata2     start:0x804B9F08 end:0x804B9F30
+
 game/CIconCollection.cpp:
 	extab       start:0x8001C7B0 end:0x8001C908
 	extabindex  start:0x800489D8 end:0x80048A5C
@@ -314,6 +325,29 @@ game/CIconCollection.cpp:
 	.sdata      start:0x804B6A10 end:0x804B6A30
 	.sbss       start:0x804B9018 end:0x804B9020
 	.sdata2     start:0x804B9F30 end:0x804B9F38
+
+game/CItem.cpp:
+	extab       start:0x8001C908 end:0x8001CA94
+	extabindex  start:0x80048A5C end:0x80048AA4
+	.text       start:0x800C0C60 end:0x800C1218
+	.rodata     start:0x80352BA8 end:0x80352BC0
+	.data       start:0x803A4938 end:0x803A49C8
+	.sdata      start:0x804B6A30 end:0x804B6A48
+
+game/CLayoutManager.cpp:
+	extab       start:0x8001CA94 end:0x8001CEF8
+	extabindex  start:0x80048AA4 end:0x80048B40
+	.text       start:0x800C1220 end:0x800C2678
+	.data       start:0x803A49C8 end:0x803A4B48
+	.sdata      start:0x804B6A48 end:0x804B6A68
+
+game/CMiniMap.cpp:
+	extab       start:0x8001CEF8 end:0x8001D4A8
+	extabindex  start:0x80048B40 end:0x80048C00
+	.text       start:0x800C2680 end:0x800C4810
+	.data       start:0x803A4B48 end:0x803A4D00
+	.sdata      start:0x804B6A68 end:0x804B6AB8
+	.sdata2     start:0x804B9F38 end:0x804B9F60
 
 game/CMiniMapMarker.cpp:
 	extab       start:0x8001D4A8 end:0x8001D4F0
