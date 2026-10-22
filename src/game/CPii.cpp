@@ -80,7 +80,7 @@ void CPii::LoadModel(bool background)
     const char* fileNames[4] = {nullptr, "5:/pii_1-151_387-492.arc/anim.brres",
                                 "5:/pii_1-151_387-492.arc/textures_1-151_387-492.brres", nullptr};
     fileNames[0] = modelPath.c_str();
-    CModel::LoadParams params = {fileNames, false, 0x284 | ((rareColor || plateForm) ? 3 : 0), 2, nullptr};
+    CModel::LoadParams params = {fileNames, false, false, 0x284 | ((rareColor || plateForm) ? 3 : 0), 2, nullptr};
     if (!model->Load(params, background)) {
         TerminateFiber(1);
         return;

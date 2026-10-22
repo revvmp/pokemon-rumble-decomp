@@ -87,7 +87,7 @@ bool CDividedGround::Load(const StageID* pStageID, int stageNo, bool background)
 
 found:
 
-    CModel::LoadParams params = {nullptr, false, 0xD15, 1, nullptr};
+    CModel::LoadParams params = {nullptr, false, false, 0xD15, 1, nullptr};
     params.mpFileNames = &mFileNames[0];
     params.mpModelName = modelName.c_str();
     if (!model->Load(params, background)) {
@@ -274,7 +274,7 @@ found:
         snprintf(name, sizeof(name), "rep_%s", layer->first.c_str());
 
         std::tr1::shared_ptr<CModel> model(new CModel);
-        CModel::LoadParams params = {nullptr, false, 0, 1, nullptr};
+        CModel::LoadParams params = {nullptr, false, false, 0, 1, nullptr};
         params.mpFileNames = &mFileNames[0];
         params.mpModelName = name;
         if (!model->Load(params, background)) {
@@ -299,7 +299,7 @@ found:
             if (resFile.GetResAnmShp(name).IsValid()) {
                 params.mOptions |= 0x7000;
             }
-            params.mFlag = true;
+            params.mSimple = true;
         }
 
         std::list<nw4r::math::MTX34>& rMatrices = layer->second;
@@ -323,7 +323,7 @@ found:
                 instance->GetScnObj()->SetMtx(nw4r::g3d::ScnObj::MTX_LOCAL, *matrix);
             }
         } else {
-            CModel::LoadParams simple = {nullptr, true, 0, 1, nullptr};
+            CModel::LoadParams simple = {nullptr, true, false, 0, 1, nullptr};
             simple.mpFileNames = &mFileNames[0];
             simple.mpModelName = name;
             std::list<nw4r::math::MTX34>::iterator matrix = rMatrices.begin();

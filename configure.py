@@ -260,6 +260,7 @@ config.libs = [
             Object(Matching, "game/QuarterTurn.cpp"),
             Object(Matching, "game/RenderUtilities.cpp"),
             Object(Matching, "game/Graphics.cpp"),
+            Object(NonMatching, "game/ScnMdlSimpleData.cpp"),
             Object(NonMatching, "game/BUI.cpp"),
             Object(NonMatching, "game/CUIManager.cpp"),
             Object(Matching, "game/BUILayout.cpp"),

@@ -673,6 +673,14 @@ game/ControllerTable.cpp:
 	.bss        start:0x803E8D28 end:0x803E90C8
 	.sdata      start:0x804B77D8 end:0x804B77D9
 
+game/ScnMdlSimpleData.cpp:
+	extab       start:0x8003BC70 end:0x8003BEE8
+	extabindex  start:0x800511B0 end:0x80051258
+	.text       start:0x801C7540 end:0x801C8700
+	.rodata     start:0x80367020 end:0x80367038
+	.data       start:0x803C00D8 end:0x803C0210
+	.sdata      start:0x804B8308 end:0x804B8320
+
 ControllerTableAlignmentPadding:
 	.sdata      start:0x804B77D9 end:0x804B77E0 align:1
 

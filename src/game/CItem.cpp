@@ -23,7 +23,7 @@ void CItem::LoadModel(const char* pName, bool background) {
     path.replace(path.size(), 0, pName);
     void* pEntry;
     std::tr1::shared_ptr<FileList> files = LoadFileList(&pEntry, path.c_str(), 0, background, nullptr);
-    CModel::LoadParams params = {static_cast<const char**>(pEntry), false, 128, 2, nullptr};
+    CModel::LoadParams params = {static_cast<const char**>(pEntry), false, false, 128, 2, nullptr};
     if (!model->Load(params, background)) {
         TerminateFiber(1);
         return;

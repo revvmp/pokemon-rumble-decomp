@@ -84,7 +84,7 @@ void CPostEffect::Show(int effect) {
     std::string path = "5:/post_effect.arc/";
     path.append(rInfo.mModelName);
     const char* files[2] = {path.c_str(), nullptr};
-    CModel::LoadParams params = {files, false, 1, 1, nullptr};
+    CModel::LoadParams params = {files, false, false, 1, 1, nullptr};
     if (!model->Load(params, false)) {
         return;
     }

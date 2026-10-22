@@ -84,7 +84,7 @@ inline bool CMultiRanking::Init(bool background) {
         std::tr1::shared_ptr<CModel> model(new CModel);
         std::string path = FormatString("5:/event/ranking.arc/%s.brres", sModelNames[i]);
         const char* pFiles[2] = {path.c_str(), nullptr};
-        CModel::LoadParams params = {pFiles, false, 0, 0, nullptr};
+        CModel::LoadParams params = {pFiles, false, false, 0, 0, nullptr};
         if (model->Load(params, background)) {
             std::tr1::shared_ptr<BModelObj> object(new BModelObj(32));
             object->ChangeModel(model, 1);

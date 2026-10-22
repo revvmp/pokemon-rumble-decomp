@@ -357,7 +357,7 @@ void CSimpleGround::LoadModel(const char* pName, bool background) {
     void* pEntry;
     std::tr1::shared_ptr<FileList> fileList = LoadFileList(&pEntry, pName, 0, background, nullptr);
 
-    CModel::LoadParams params = {nullptr, false, 0xD15, 1, nullptr};
+    CModel::LoadParams params = {nullptr, false, false, 0xD15, 1, nullptr};
     params.mpFileNames = static_cast<const char**>(pEntry);
     if (!model->Load(params, background)) {
         TerminateFiber(1);

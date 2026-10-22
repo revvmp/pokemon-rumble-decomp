@@ -141,7 +141,8 @@ public:
 
     struct LoadParams {
         const char** mpFileNames;
-        bool mFlag;
+        bool mSimple;
+        bool mExplicitOptions;
         u32 mOptions;
         int mMode;
         const char* mpModelName;
@@ -215,7 +216,7 @@ public:
 
 };
 
-bool LoadScnMdlSimpleData(ScnMdlSimpleData* pData, const CModel::LoadParams& rParams, int mode, bool background);
+bool LoadScnMdlSimpleData(ScnMdlSimpleData* pData, const CModel::LoadParams& rParams, u32* pOutOptions, bool background);
 void NotifyMotionCallback(const std::tr1::shared_ptr<CModel::CMotionProgram>& rMotion, bool notify, CModel* pModel);
 
 #endif

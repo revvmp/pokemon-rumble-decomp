@@ -179,7 +179,7 @@ public:
     std::string path("5:/event/result.arc/result2.brres");
     const char* fileNames[2] = {nullptr, nullptr};
     fileNames[0] = path.c_str();
-    CModel::LoadParams params = {fileNames, false, 1, 0, nullptr};
+    CModel::LoadParams params = {fileNames, false, false, 1, 0, nullptr};
     if (pModel->Load(params, background)) {
         nw4r::g3d::ScnMdl* pScnMdl = nw4r::g3d::G3dObj::DynamicCast<nw4r::g3d::ScnMdl>(pModel->GetScnObj());
         SetMaterialTexture(pScnMdl, "TUBE", "ref_dummy", mCapture.GetTexObj());
@@ -195,7 +195,7 @@ public:
     std::string path("5:/event/result.arc/result.brres");
     const char* fileNames[2] = {nullptr, nullptr};
     fileNames[0] = path.c_str();
-    CModel::LoadParams params = {fileNames, false, 0, 0, nullptr};
+    CModel::LoadParams params = {fileNames, false, false, 0, 0, nullptr};
     if (pModel->Load(params, background)) {
         std::tr1::shared_ptr<BModelObj> pObj(new BModelObj(0x20));
         pObj->ChangeModel(pModel, 1);
