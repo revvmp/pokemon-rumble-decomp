@@ -211,7 +211,7 @@ bool CFileData::WaitUntilLoaded(CFileData* pFile) {
         }
 
         if (!pFile->IsLoaded()) {
-            sConfig.mErrorHandler(static_cast<CPath::Drive>(pFile->mFlags & FLAG_DRIVE_MASK), pFile->mPath.c_str(),
+            sConfig.mErrorHandler(pFile->GetDrive(), pFile->mPath.c_str(),
                                   pFile->mError, pFile->mFlags);
             return false;
         }
@@ -283,7 +283,7 @@ bool CFileData::CWorker::WaitInFiber(CFileData* pFile) {
     }
 
     if (!pFile->IsLoaded()) {
-        sConfig.mErrorHandler(static_cast<CPath::Drive>(pFile->mFlags & FLAG_DRIVE_MASK), pFile->mPath.c_str(),
+        sConfig.mErrorHandler(pFile->GetDrive(), pFile->mPath.c_str(),
                               pFile->mError, pFile->mFlags);
         return false;
     }

@@ -56,6 +56,7 @@ public:
     bool IsLoaded() const { return !mPending && mData != nullptr; }
 
     void SetDrive(CPath::Drive drive);
+    CPath::Drive GetDrive() const { return static_cast<CPath::Drive>(mFlags & FLAG_DRIVE_MASK); }
     bool OpenArchiveEntry();
 
     static bool WaitUntilLoaded(CFileData* pFile);
