@@ -48,7 +48,7 @@ public:
                             maxIndex = index;
                         }
                         if (index >= 1 && index <= mArgs.size()) {
-                            mResult.append(mArgs[index - 1]);
+                            mResult += mArgs[index - 1];
                         } else {
                             throw TooFewArgsException();
                         }
@@ -56,7 +56,7 @@ public:
                     }
                 } else {
                     CharT ch = c;
-                    mResult.append(&ch, &ch + 1);
+                    mResult += ch;
                 }
             }
             mFormatted = true;

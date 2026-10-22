@@ -64,10 +64,13 @@ int ScriptBinding_SetInitialDebugLevel(CEngine* pEngine) {
 std::wstring Format(CEngine* pEngine, int argCount, const wchar_t* pFormat) {
     wchar_t format[1024];
     wchar_t buffer[1024];
-    wchar_t* pIn = format;
     int arg = 1 - argCount;
     wchar_t* pOut = buffer;
     wchar_t* pLimit = buffer + 1024;
+    wchar_t* pSpec;
+    int size;
+    wchar_t* pIn = format;
+    wchar_t type;
     wcsncpy(format, pFormat, 1024);
     format[1023] = L'\0';
 
@@ -77,10 +80,9 @@ std::wstring Format(CEngine* pEngine, int argCount, const wchar_t* pFormat) {
             continue;
         }
 
-        wchar_t* pSpec = pIn;
+        pSpec = pIn;
         wchar_t* pEnd = pIn + 1;
-        int size = 0;
-        wchar_t type;
+        size = 0;
         for (;;) {
             type = *pEnd;
             if (type == L'\0') {
@@ -161,10 +163,11 @@ end:
 std::string Format(CEngine* pEngine, int argCount, const char* pFormat) {
     char format[1024];
     char buffer[1024];
-    char* pIn = format;
+    char type;
     int arg = 1 - argCount;
     char* pOut = buffer;
     char* pLimit = buffer + 1024;
+    char* pIn = format;
     strncpy(format, pFormat, 1024);
     format[1023] = '\0';
 
@@ -177,7 +180,6 @@ std::string Format(CEngine* pEngine, int argCount, const char* pFormat) {
         char* pSpec = pIn;
         char* pEnd = pIn + 1;
         int size = 0;
-        char type;
         for (;;) {
             type = *pEnd;
             if (type == '\0') {

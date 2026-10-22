@@ -64,9 +64,7 @@ void WaitMotionStart(std::tr1::shared_ptr<CLayout::CMotionProgram> pMotion) {
     WaitMotion(pMotion, false);
 }
 
-const char* gAreaPaneNames[9] = {
-    "AREA_nw", "AREA_n", "AREA_ne", "AREA_w", "AREA_c", "AREA_e", "AREA_sw", "AREA_s", "AREA_se",
-};
+extern const char* gAreaPaneNames[9];
 
 namespace {
 
@@ -596,13 +594,14 @@ inline bool CYouWin::StartNotice() {
     mWinnerLayout.SetText("NEWRECORD", GetMessageString(0x600E5, nullptr));
 
     const MapDesc& rDesc = GetCurrentGameMap()->GetMapDesc();
+    bool eligible;
     int mode = rDesc.mIndex.mMode;
     int area = rDesc.mIndex.mArea;
     if (mode == 2) {
         area = static_cast<s8>(GetSaveData(-1)->mData.mStatus[19]);
     }
     bool newRecord = false;
-    bool eligible = true;
+    eligible = true;
     if (mode == 2) {
         MapIndex index = rDesc.mIndex;
         if (IsBattleRoyalFirstPart(index)) {
@@ -706,3 +705,7 @@ void CYouWin::Run() {
 }
 
 }
+
+const char* gAreaPaneNames[9] = {
+    "AREA_nw", "AREA_n", "AREA_ne", "AREA_w", "AREA_c", "AREA_e", "AREA_sw", "AREA_s", "AREA_se",
+};

@@ -351,7 +351,7 @@ config.libs = [
             Object(NonMatching, "game/SaveData.cpp"),
             Object(NonMatching, "game/PhotoSave.cpp"),
             Object(NonMatching, "game/NPpuVM.cpp"),
-            Object(NonMatching, "game/NPpuLibrary.cpp"),
+            Object(Matching, "game/NPpuLibrary.cpp"),
             Object(Matching, "game/GameLoop.cpp"),
             Object(Matching, "game/Random.cpp"),
             Object(Matching, "game/CFiber.cpp"),

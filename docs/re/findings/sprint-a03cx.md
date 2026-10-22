@@ -98,3 +98,48 @@ Normal Ninja execution, including the build step inside unitdiff, stalled before
 Ran dtk dol split and python configure.py successfully after symbol changes. Generated the link response file from the actual build.ninja link inputs, deleted build/wpse-v1/main.dol, ran the configured Wii/1.1 linker and dtk elf2dol, and checked each exit status before verification. Both exited zero. objdiff-cli report generation exited zero and covered 1,475 units. This is a completed build through the generated compile/link pipeline, not a successful Ninja invocation; Ninja's stored dependency timestamps may still require a rebuild on the next normal run.
 
 Final function inspection used `python tools/re/unitdiff.py game/ScriptLayout --no-build --function NewLayout__FPQ24NPpu7CEngine` against the freshly compiled object, plus whole-unit inspection. Final acceptance used `python tools/verify/verify.py verify --manifest config/targets/wpse-v1.json --reference-dir orig/wpse-v1 --build-dir build/wpse-v1`, which reported PASS. No unrelated unit was promoted. GameResult and CNoticeDisplay remain NonMatching; their other mismatches are outside this correction.
+
+
+## 2026-10-22: follow-up layout callers and Format register allocation
+
+### Retained changes and verification
+
+Worked only in the current checkout, without commits or repository scratch files. Notes are confined to this file. Frozen targets and originals were not edited. Initial git status was clean. Initial report had 13,047 functions with fuzzy_match_percent == 100; final regenerated report has 13,050, a gain of three. The final linker and elf2dol both exited zero after deleting build/wpse-v1/main.dol. The requested frozen-manifest verification passed: 4,094,880 bytes, SHA-256 ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da.
+
+- NPpuLibrary: both Format overloads now compare at 100% with unitdiff. The wide overload declares pSpec, size and type in the outer parsing scope, with pIn after pSpec and size. The narrow overload moves type to the outer scope and declares pIn after arg, pOut and pLimit. These declaration/scope changes reproduce register allocation and scheduling without changing parsing behavior. All 27 report functions are perfect. configure.py now marks game/NPpuLibrary.cpp Matching; its full-link promotion passed exact verification.
+- NIntl.h: str() uses mResult += mArgs[index - 1] and mResult += ch. The additional existing string operator forwarding layer produces the target iterator-tag temporary order. FormatAreaName is now report-100%; CYouWin::Init loses its extra stack-frame space and most register differences. Only CNoticeDisplay includes this header, confirmed with rg and the Ninja dependency database; no other source unit needs this header rebuilt.
+- CNoticeDisplay: declare gAreaPaneNames before use and define it at the end of the translation unit. This prevents its accesses from being folded into the unit's pooled-data base and reproduces the separate lis/addi address setup in CSimpleText::Init. Declare eligible before mode while keeping its initialization at the original logical point; this reproduces CYouWin's mode/area/newRecord/eligible register assignment. The unit remains NonMatching, at 99/102 report-perfect functions.
+
+Final report detail:
+
+| Unit/function | Result |
+| --- | --- |
+| NPpuLibrary | 27/27 perfect; Matching; full DOL PASS |
+| CNoticeDisplay | 99/102 perfect; NonMatching |
+| CSimpleText::Init | 99.98441% |
+| CFight::Init | 99.97561% |
+| CYouWin::Init | 99.973305% |
+| CDlgMsgWin | 217/218 perfect; NonMatching |
+| shared_ptr_deleter<char, default_delete<char[]> > constructor | 62.962963%; scheduling differs |
+| CTutorialMsg | 114/114 report-perfect; promotion rejected by exact verification |
+| CMoneyLifeDisplay | 12/13 perfect; Create remains 99.2953% |
+
+### Pause-menu callers
+
+rg identifies CGameEnding, CGameResult and CMultiRanking as the requested three true/true-equivalent callers; CMultiRanking already spells its final argument as 1. CGameMap is a fourth caller using false/1. The previous correction is already present: IPauseMenu::Create(const MapDesc*, bool hideBackground, int background). The loading flag is int; there is no new evidence to widen hideBackground. Freshly compiled reports retain IGameEnding::Create and IMultiRanking::Create at 100%; IGameResult::Create is 99.083015% with the equal-constant setup corrected and other differences remaining. No additional interface or caller edit was needed.
+
+### Unfinished work and rejected experiments
+
+CTutorialMsg was actually promoted, configured, linked after removing main.dol, and run through the requested verifier. It failed at DOL offset 0x3A8F3: both artifacts are 4,094,880 bytes, with 6,559 differing bytes. The promotion was reverted. Its matched functions still have deferred emission-order differences: reallocate/erase_tail swap at rows 53/54, followed by move_construct_to_end versus append_realloc and later vector/allocator groups. String/data ordering also remains unresolved. Report-100% is insufficient to promote this unit.
+
+CDlgMsgWin's remaining deleter constructor has the same instructions but different scheduling around the vtable store, the deleter byte copy and compressed_pair constructor arguments. Explicitly copying D in the member initializer, explicitly initializing the base, and defining the constructor outside its template class (with and without inline) did not change its 62.962963% result. All shared-pointer header experiments were reverted.
+
+CMoneyLifeDisplay: passing MapIndex by value loads the descriptor before the vtable store but adds stack copies and changes frame size; passing a const MapIndex reference leaves the late load. Passing the computed display mode moves the entire mode calculation before the vtable store, which also differs. Computing the mode in the constructor body moves it past other member initialization. None is retained. The original pointer-taking constructor remains unchanged.
+
+CNoticeDisplay still needs data/weak-function ordering. Direct diffs for FormatAreaName, CSimpleText::Init and CFight::Init now show relocation differences; the tiny non-perfect report scores on the latter two remain. CYouWin::Init additionally uses lbz r0 / extsb r25,r0 where the target uses lbz r25 / extsb r25,r25. Making area s8 adds an unwanted sign extension at GetData; splitting the unsigned load and cast changes allocation; inline signed-area accessors do not improve the retained result. Chaining the two FormatAreaName format-spec expressions regresses it. These experiments were reverted. The earlier claim that declaration permutations do not help CYouWin is conditional on the old formatter expansion: after the += correction, moving eligible's declaration fixes most of its register allocation.
+
+### Commands and build limitation
+
+Function inspection used python tools/re/unitdiff.py <unit> --function <mangled-name>, with --no-build when inspecting an object just compiled by its generated command. Freshly compiled all five requested units and the three pause-menu caller units. Ninja again stalled when asked to rebuild a changed object; that attempt was interrupted. Read-only ninja -t commands and -t deps worked. Used the exact generated sjiswrap/compiler commands directly, with checked return codes, and generated the link response file from build.ninja's actual link inputs. Then ran the configured linker and dtk elf2dol sequentially. This is successful compilation/linking through the generated build pipeline, not a successful normal Ninja invocation. No compiler options were changed.
+
+Final acceptance command: python tools/verify/verify.py verify --manifest config/targets/wpse-v1.json --reference-dir orig/wpse-v1 --build-dir build/wpse-v1. Final report command: tools/local/objdiff-cli.exe report generate -o build/wpse-v1/report.json. Existing exception-action-30 warnings remain. Only NPpuLibrary was newly enabled as Matching; the other requested units are explicitly unfinished.
