@@ -14,7 +14,6 @@ namespace {
 class CBattleRoyalDisplay : public IBattleRoyalDisplay {
 public:
     CBattleRoyalDisplay() : mTimePhase(nullptr), mEnemyPhase(nullptr), mEnemyCount(0), mFinished(false) {}
-    virtual ~CBattleRoyalDisplay() {}
     virtual void Calc();
     virtual void Draw();
     virtual void Show();
