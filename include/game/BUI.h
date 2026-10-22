@@ -1,11 +1,11 @@
 #ifndef GAME_BUI_H
 #define GAME_BUI_H
 
-#include <game/ICalcDraw.h>
-#include <game/IUIInput.h>
 #include <functional>
 #include <list>
 #include <memory>
+#include <game/ICalcDraw.h>
+#include <game/IUIInput.h>
 
 class CUIManager;
 class MenuCallback;
