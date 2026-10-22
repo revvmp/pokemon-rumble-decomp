@@ -67,7 +67,7 @@ public:
         d[1] = charT();
     }
     basic_string(const charT* s);
-    basic_string(const_iterator first, const_iterator last);
+    basic_string(const_iterator first, const_iterator last, const Allocator* pAllocator = 0);
     basic_string(const basic_string& str);
     basic_string(const basic_string& str, size_type pos, size_type n, const allocator_type& a);
     basic_string substr(size_type pos = 0, size_type n = npos) const;
@@ -273,7 +273,7 @@ basic_string<charT, traits, Allocator>& basic_string<charT, traits, Allocator>::
 }
 
 template <class charT, class traits, class Allocator>
-inline basic_string<charT, traits, Allocator>::basic_string(const_iterator first, const_iterator last) {
+inline basic_string<charT, traits, Allocator>::basic_string(const_iterator first, const_iterator last, const Allocator* pAllocator) {
     init(first, last, random_access_iterator_tag());
 }
 
@@ -546,7 +546,7 @@ int basic_string<charT, traits, Allocator>::compare(size_type pos1, size_type n1
 }
 
 template <class charT, class traits, class Allocator>
-basic_string<charT, traits, Allocator>& basic_string<charT, traits, Allocator>::assign(const basic_string& str) {
+basic_string<charT, traits, Allocator>& basic_string<charT, traits, Allocator>::operator=(const basic_string& str) {
     bool lhsLong = is_long();
     if (!lhsLong) {
         if (str.is_long()) { goto doLong; }
@@ -558,7 +558,7 @@ doLong:
 }
 
 template <class charT, class traits, class Allocator>
-basic_string<charT, traits, Allocator>& basic_string<charT, traits, Allocator>::operator=(const basic_string& str) {
+basic_string<charT, traits, Allocator>& basic_string<charT, traits, Allocator>::assign(const basic_string& str) {
     const_pointer p;
     size_type size;
     bool lhsLong = is_long();

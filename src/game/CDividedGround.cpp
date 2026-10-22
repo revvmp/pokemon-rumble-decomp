@@ -40,20 +40,20 @@ bool CDividedGround::LoadPkc(int mode, const std::tr1::shared_ptr<NPpu::CEnviron
 
     int stageNo = mStageNo;
     std::string name;
-    name.assign(FormatString("%s%s_%s%02d.pkc", pPrefix, gStageWorlds[mStageID->mWorld].mName,
-                             gStageRanks[mStageID->mRank].mName, stageNo));
+    name = FormatString("%s%s_%s%02d.pkc", pPrefix, gStageWorlds[mStageID->mWorld].mName,
+                        gStageRanks[mStageID->mRank].mName, stageNo);
     std::tr1::shared_ptr<CFileData> file = CPpuEngine::LoadScriptFile(name.c_str(), mode);
     if (file) {
         return mPpuEngine->Load(this, name.c_str(), mode, rEnv);
     }
 
-    name.assign(FormatString("%s%s.pkc", pPrefix, gStageWorlds[mStageID->mWorld].mName));
+    name = FormatString("%s%s.pkc", pPrefix, gStageWorlds[mStageID->mWorld].mName);
     file = CPpuEngine::LoadScriptFile(name.c_str(), mode);
     if (file) {
         return mPpuEngine->Load(this, name.c_str(), mode, rEnv);
     }
 
-    name.assign(FormatString("%s%s_%02d.pkc", pPrefix, gStageWorlds[mStageID->mWorld].mName, stageNo));
+    name = FormatString("%s%s_%02d.pkc", pPrefix, gStageWorlds[mStageID->mWorld].mName, stageNo);
     return mPpuEngine->Load(this, name.c_str(), mode, rEnv);
 }
 
@@ -83,7 +83,7 @@ bool CDividedGround::Load(const StageID* pStageID, int stageNo, bool background)
             goto found;
         }
     }
-    modelName.assign("ground_" + number);
+    modelName = "ground_" + number;
 
 found:
 
@@ -174,7 +174,7 @@ bool CDividedGround::LoadAttr(const StageID* pStageID, int stageNo, const char* 
         std::tr1::shared_ptr<CFileData> file =
             LoadResourceFile((archivePath + "/" + name + ".bsp").c_str(), 0, background);
         if (!(file && file->IsValid())) {
-            name.assign(prefix + number);
+            name = prefix + number;
             file = LoadResourceFile((archivePath + "/" + name + ".bsp").c_str(), 0, background);
             if (!(file && file->IsValid())) {
                 if (i == 0) {
@@ -228,9 +228,9 @@ void CDividedGround::BuildScene(const StageID* pStageID, int stageNo, bool backg
     std::map<std::string, std::list<nw4r::math::MTX34> > layers;
     std::string animName;
     if (pStageID->mKind == 2) {
-        animName = FormatString("rep_EX%02d", stageNo);
+        animName.assign(FormatString("rep_EX%02d", stageNo));
     } else {
-        animName = FormatString("rep_%s%02d", gStageRanks[pStageID->mRank].mName, stageNo);
+        animName.assign(FormatString("rep_%s%02d", gStageRanks[pStageID->mRank].mName, stageNo));
     }
 
     nw4r::g3d::ResAnmChr anm(nullptr);
