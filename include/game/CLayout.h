@@ -106,7 +106,6 @@ public:
         Load(pArchives, pLayoutName, rFonts, false);
     }
     nw4r::lyt::Pane* FindPane(const char* pName);
-    bool AttachLayout(const char* pPaneName, CLayout* pLayout);
     void CalculateMtx(bool recursive);
     bool AttachLayout(const char* pPaneName, CLayout* pChild);
     bool Attach(nw4r::lyt::Pane* pPane, CLayout* pChild);

@@ -57,7 +57,6 @@ public:
     CCallbackListOwner& GetSelectionCallbacks() { return mSelectionCallbacks; }
     CCallbackListOwner& GetAcceptCallbacks() { return mAcceptCallbacks; }
     CCallbackListOwner& GetScrollCallbacks() { return mScrollCallbacks; }
-    std::vector<std::tr1::shared_ptr<IUIListItem> >& GetItems() { return mItems; }
 };
 
 
