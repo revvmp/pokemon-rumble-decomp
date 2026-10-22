@@ -35,3 +35,29 @@
 | CLayout | MakeArchiveList, Draw | 94.4, 93.9 | First loop test scheduled before the list stores; frame slot order of rect, viewport and scissor |
 | CFileData | copy_range, construct_at_end, construct_at_front, erase | 91-99 | Header-level vector and tree helpers; see the operator= trap |
 | NPpuVM | ~CEngine, Load, BitwiseOp, CompareOp, CollectGarbage | 85-98 | Register assignment around inlined `set::erase` and `CValue` type tests |
+
+## Final tail wave: CPiiListFilterSort, CGameSession, CRemoteMemory
+
+Matched: CGameSession `GetEnvironment` (PiiPropData reads its species table through a `const_cast` instead of a `mutable` member) and `RunStage` (player state save and restore loops are inline helpers). Improved: CGameSession `Calc` 93.26 to 99.96, `AddMoney` 96.86 to 99.02; CRemoteMemory `ThreadMain` 75.58 to 78.97, `BeginRead` 85.66 to 87.98; CPiiListFilterSort `Sort` now calls `vector::swap`.
+
+### Traps
+
+- **A `mutable` member anywhere in a contained class breaks other units.** Making `PiiPropData::mSpecies` mutable (for a const lookup) silently undid the CGameSession `GetEnvironment` match from the earlier trap. Use a `const_cast` at the single const access instead.
+- **Two loops in one function swap counter and pointer registers until one is an inline helper.** CGameSession `RunStage` matched only with both player loops moved into inline member functions; declaration, loop form and shared-counter variants did not move the registers.
+- **Iterators kept in stack slots point to a two-word converting iterator.** In `vector<T*>::assign` from a `set<T*>` the target copies 8-byte iterator objects whose second word is never written. An `__implicit_convert_iterator` with a second pointer-sized member, counted with one by-value level (`__distance` through a `const&` helper) and copied by a by-value `copy_assign`, reproduces it. A `bool` second member copies by bytes instead.
+- **A switch node that has the same target as `default` survives only with a separately written body.** In CRemoteMemory `ThreadMain`, `case -1:` with its own copy of the default body keeps the `-1` compare; `case -1: default:` drops it.
+
+### Unsolved
+
+| Unit | Function | % | Cause |
+| --- | --- | --- | --- |
+| CGameSession | Calc | 99.96 | The two converted iterators are stored in the opposite order; nesting the body in a helper fixes the order but flips every other slot |
+| CGameSession | AddMoney | 99.02 | `current` takes r5 instead of r3; inline helper and declaration variants are worse |
+| CGameSession | CanAddPPDToPlayerPiiBox | 99.01 | The temporary-constructed flag of the `&&` comparison is kept in a non-volatile register |
+| CGameSession | GetSnapshot | 88.24 | 64-bit play-time sum register pairs and store order; ten local and helper forms tried |
+| CGameSession | vector and SessionSnapshot destructors | 96.8, 97.7 | Extra null-check level for two element types (see the earlier trap) |
+| CPiiListFilterSort | CompareBPAscending, CompareBPDescending, CompareSpeciesName, CompareSpeciesOrder | 96.3-99.6 | The item pointers take r5/r3 instead of r3/r4; pointer, reference, helper and `||` forms tried |
+| CPiiListFilterSort | Sort | 96.16 | `mSortType` is loaded after the iterator addresses instead of right after `begin()` |
+| CPiiListFilterSort | ShowTypeFilterMenu, ShowPrefixFilterMenu | 96.6, 98.8 | Frame 0x10 smaller and a shift operand swap |
+| CRemoteMemory | ThreadMain | 78.97 | The target builds binary trees for three-range switches where ours compares linearly; the retry user data is computed before `OSCancelAlarm` in the target and after it in ours, which keeps `channel` in a saved register |
+| CRemoteMemory | SetState callers (BeginRead and others) | 56-88 | the constant ORs on 0x42a and 0x200 stay unfolded in the target; locals, inline operators and out-of-line definitions all fold |
