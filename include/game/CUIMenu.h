@@ -43,10 +43,13 @@ struct UIMenuParam {
 };
 
 class CUICallbackLists {
+public:
+    BUI::CCallbackListOwner& GetSelectionCallbacks() { return mSelectionCallbacks; }
+
 private:
-    BUI::CCallbackListOwner mFocusCallbacks;
-    BUI::CCallbackListOwner mVisibilityCallbacks;
-    BUI::CCallbackListOwner mEventCallbacks;
+    BUI::CCallbackListOwner mSelectionCallbacks;
+    BUI::CCallbackListOwner mAcceptCallbacks;
+    BUI::CCallbackListOwner mScrollCallbacks;
 };
 
 class CUIMenuCallbacks : public CUICallbackLists {

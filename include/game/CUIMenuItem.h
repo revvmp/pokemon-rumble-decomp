@@ -11,6 +11,7 @@ public:
     virtual bool IsSelectable() const;
     virtual void Update(CUIList* pList, CLayout* pLayout);
     float GetWidth() const { return mWidth; }
+    int GetKind() const { return mKind; }
 
 private:
     float mWidth;

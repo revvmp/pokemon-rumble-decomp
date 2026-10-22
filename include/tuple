@@ -42,6 +42,18 @@ private:
     T1 mSecond;
     T2 mThird;
 };
+template<class T0, class T1, class T2, class T3> class tuple<T0,T1,T2,T3,nat,nat,nat,nat,nat,nat> {
+public:
+    tuple(const T0& rFirst,const T1& rSecond,const T2& rThird,const T3& rFourth) : mFirst(rFirst),mSecond(rSecond),mThird(rThird),mFourth(rFourth) {}
+    T0& first() { return mFirst; }
+    T2& third() { return mThird; }
+    T3& fourth() { return mFourth; }
+private:
+    T0 mFirst;
+    T1 mSecond;
+    T2 mThird;
+    T3 mFourth;
+};
 namespace detail {
 template<> struct tuple_get<0> {
     template<class T0,class T1> static T0& get_two(tuple<T0,T1>& rTuple) { return rTuple.mFirst; }

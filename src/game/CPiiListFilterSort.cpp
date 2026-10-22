@@ -6,6 +6,7 @@
 #include <game/CPlayer.h>
 #include <game/COyaInfo.h>
 #include <game/CUIMenu.h>
+#include <game/CUIMenuItem.h>
 #include <game/IGameMap.h>
 #include <game/IPauseMenu.h>
 #include <game/LayoutResources.h>
@@ -405,6 +406,108 @@ bool CPiiListFilterSort::ShowFilterMenu(std::tr1::shared_ptr<CUIManager> pManage
             return false;
         }
         YieldFiber();
+    }
+}
+
+#pragma dont_inline reset
+
+static inline bool HasItemWithSpeciesType(PiiItemVector& rItems, int kind) {
+    u32 mask = 1 << kind;
+    for (PiiItemVector::iterator it = rItems.begin(); it != rItems.end(); ++it) {
+        if (mask & (*it)->GetSpeciesTypeMask()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+static inline bool HasItemWithMoveType(PiiItemVector& rItems, int kind) {
+    u32 mask = 1 << kind;
+    for (PiiItemVector::iterator it = rItems.begin(); it != rItems.end(); ++it) {
+        if (mask & (*it)->GetMoveTypeMask()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool CPiiListFilterSort::ShowTypeFilterMenu(bool bySpecies, std::tr1::shared_ptr<CUIManager> pManager, int player, PiiItemVector& rItems,
+                                            const std::tr1::function<void(const CPiiListFilterSort*)>& onChanged) {
+    UIMenuItem items[17] = {{nullptr, 0},  {nullptr, 1},  {nullptr, 2},  {nullptr, 3},  {nullptr, 4},  {nullptr, 5},
+                            {nullptr, 6},  {nullptr, 7},  {nullptr, 8},  {nullptr, 10}, {nullptr, 11}, {nullptr, 12},
+                            {nullptr, 13}, {nullptr, 14}, {nullptr, 15}, {nullptr, 16}, {nullptr, 17}};
+    items[0].mText = GetMessageText(0x40000, gEmptyText);
+    items[1].mText = GetMessageText(0x40001, gEmptyText);
+    items[2].mText = GetMessageText(0x40002, gEmptyText);
+    items[3].mText = GetMessageText(0x40003, gEmptyText);
+    items[4].mText = GetMessageText(0x40004, gEmptyText);
+    items[5].mText = GetMessageText(0x40005, gEmptyText);
+    items[6].mText = GetMessageText(0x40006, gEmptyText);
+    items[7].mText = GetMessageText(0x40007, gEmptyText);
+    items[8].mText = GetMessageText(0x40008, gEmptyText);
+    items[9].mText = GetMessageText(0x4000A, gEmptyText);
+    items[10].mText = GetMessageText(0x4000B, gEmptyText);
+    items[11].mText = GetMessageText(0x4000C, gEmptyText);
+    items[12].mText = GetMessageText(0x4000D, gEmptyText);
+    items[13].mText = GetMessageText(0x4000E, gEmptyText);
+    items[14].mText = GetMessageText(0x4000F, gEmptyText);
+    items[15].mText = GetMessageText(0x40010, gEmptyText);
+    items[16].mText = GetMessageText(0x40011, gEmptyText);
+    if (bySpecies) {
+        for (int i = 0; i < 17; ++i) {
+            if (!HasItemWithSpeciesType(rItems, items[i].mKind)) {
+                items[i].mKind = -1;
+            }
+        }
+    } else {
+        for (int i = 0; i < 17; ++i) {
+            if (!HasItemWithMoveType(rItems, items[i].mKind)) {
+                items[i].mKind = -1;
+            }
+        }
+    }
+    UIMenuParam param = {nullptr, nullptr, 17, 1, 17, 0, nullptr, "menu"};
+    param.mTitle = GetMessageText(bySpecies ? 0x600B1 : 0x600B2, gEmptyText);
+    param.mpItems = items;
+    bool filterActive = mFilterType == FILTER_SPECIES_TYPE || mFilterType == FILTER_MOVE_TYPE;
+    param.mDefaultIndex = filterActive ? mTypeIndex : -1;
+    param.mpArchives = gSharedLayoutArchives;
+    CUIMenuCallbacks callbacks(0);
+    if (onChanged) {
+        callbacks.GetSelectionCallbacks().Add(
+            std::tr1::bind(&CPiiListFilterSort::PreviewTypeFilter, this, std::tr1::placeholders::_1, int(bySpecies ? FILTER_SPECIES_TYPE : FILTER_MOVE_TYPE), onChanged));
+    }
+    IController* pInput = IGameSession::GetInstance()->GetPlayer(player)->GetController();
+    u32 choice = RunUIMenu(param, callbacks, pInput, pManager, GetDefaultFontMap(), true);
+    if (choice <= 8 || (choice >= 10 && choice <= 17)) {
+        mFilterType = bySpecies ? FILTER_SPECIES_TYPE : FILTER_MOVE_TYPE;
+        mTypeIndex = choice;
+        if (onChanged) {
+            onChanged(this);
+        }
+        return true;
+    }
+    return false;
+}
+
+void CPiiListFilterSort::PreviewTypeFilter(BUI* pBui, int filterType, const std::tr1::function<void(const CPiiListFilterSort*)>& onChanged) {
+    CUIMenu* pList = dynamic_cast<CUIMenu*>(pBui);
+    if (pList) {
+        std::tr1::shared_ptr<IUIListItem> pItem = pList->GetSelectedItem();
+        if (pItem) {
+            std::tr1::shared_ptr<CUIMenuItem> pMenuItem = std::tr1::dynamic_pointer_cast<CUIMenuItem>(pItem);
+            if (pMenuItem) {
+                int savedFilterType = mFilterType;
+                int savedTypeIndex = mTypeIndex;
+                mFilterType = filterType;
+                mTypeIndex = pMenuItem->GetKind();
+                if (onChanged) {
+                    onChanged(this);
+                }
+                mFilterType = savedFilterType;
+                mTypeIndex = savedTypeIndex;
+            }
+        }
     }
 }
 
