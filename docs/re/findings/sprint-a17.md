@@ -30,3 +30,27 @@
 - `if (n != 0)` around the non-POD `construct_at_end(n)` loop breaks other units' DOL hash and lowers Create; the guard lives somewhere else (CPiiCollectionBox::Create stays 98.16%).
 - CStatistic::Get/Add: for ids -97..-1 the target branches to the `return 0` that ends the negative-id chain, not to the function's final `return 0`; none of the nested/early-return respellings tried reproduces it. GetCounterStopValue recomputes the map header address after `find` instead of reusing a cached end iterator; `iterator`, ternary and early-return spellings all stay at 79.64%.
 - name_callees.py renames outside the unit break the DOL when applied blindly; restricting the applied symbols.txt changes to the unit's address range kept verify green.
+
+## Tail wave (CDlgPiiSelector, CModel)
+
+CDlgPiiSelector 623 to 636 of 645 functions at 100%; CDlgCollection gained one through the shared `function_base` rename. CModel stays at 151 of 158.
+
+### Traps
+
+- **Identical `vector<shared_ptr<T>>` clones were named for the wrong element type.** In CDlgPiiSelector the deleter clones at 0x8009AD40 to 0x8009AE10, 0x8009B180, 0x8009C310 and 0x8009E020 carried `CUIPiiListItem` names but every caller is a `CPiiPersonalData` vector (one is also called from CPlayer). Name such clones from their callers' types; renaming by address kept the DOL verified. The three `compressed_pair<char*, default_delete<char[]>>` names at 0x8009DF50 to 0x8009DFE0 are the `CUIPiiListItem` allocator pair constructors; the 11% "CompressedPairStorage" function was a misname, not a `default_delete` copy constructor.
+- **A `const` pointer array leaves `.data`.** `const char* const kMotionPaneNames[]` went to `.rodata`; the target keeps it in `.data`, so it is `const char* kMotionPaneNames[]`.
+- **Switching on a member after saving it allocates differently.** `int previous = mErrorState; switch (previous)` gives the target registers; `switch (mErrorState)` swaps two non-volatile registers.
+- **String pool order follows source order, not instruction order.** CreateBall's model name precedes the three motion names in the target pool, so `pModelName` is assigned first in each case.
+
+### Still open
+
+| Unit | Function | Match | Cause |
+| --- | --- | --- | --- |
+| CDlgPiiSelector | Setup, CreateBall | 99.4, 99.8 | `.data` pool offsets: the target emits functions (and their strings, vtables, RTTI) in inline-member order (ShowMultiPlayerEntrance, CDataPerPlayer ctor, Setup, ...); our out-of-line definitions start with Setup. Needs the CDlgPiiList-style all-inline restructure. Setup also has one 8-byte frame object fewer at the low end. |
+| CDlgPiiSelector | CalcPreviewPositions | 99.61 | x/y loads take f0/f1 instead of f1/f0. A `VEC2` copy of the position reproduces the registers but calls the out-of-line copy constructor under `dont_inline`. |
+| CDlgPiiSelector | vector `insert`/`assign` from list const_iterator | 80.6, 99.8 | Target creates the by-value tag copy before the tag and keeps its address in r31. |
+| CDlgPiiSelector | SetStateFlag/AddStateFlag/RemoveStateFlag, `min<int>` local, `number<1>::operator unsigned long` | missing | Emitted by the target without a call site in the unit; ScriptWorldObj branches to this SetStateFlag copy. |
+| CModel | TPartialAnm<1> QueueMotion/AppendMotion/Update | 99.4-99.6 | The `||` and `&&` value temps of `IsIdle` take r7/r6 instead of r6/r7. Tried: const, separate `IsFinished`, if-return, ternary, negated `IsBusy`, static list-reference helper, expression written in place, `empty()`. None moves them. |
+| CModel | Update<0>, Update<1> | 99.6-99.8 | The first `pop_front` node takes r30 (sharing `advanced`) instead of r27; moving `advanced = true`, `erase(begin())` and hoisting the front pointer did not change it. |
+| CModel | Load, ~CModel | 99.8, 99.9 | Inlined `ScnMdlSimpleData::Reset`: wrapping the vector swap in a one-level inline helper fixes the register swap (99.99%), but the `reset()` and element-release `__unexpected` frame slots stay reversed (0x90/0xA8). |
+| CModel | AddResourceFile | 97.0 | `std::find` keeps `first` in memory; the MSL `for (; first != last; ++first) if (*first == value) break;` form fixes the loop shape but not the spill. |
