@@ -25,3 +25,18 @@ What remains, for whoever picks this up:
 - The by-value-`Compare` instantiation swaps the hoisted 0x66666667 division constant (r31 in the target) with `first` (r30).
 - PiiPropData `sort<vector<short>, less<short>&>` (96.33%) has a separate non-volatile ordering problem.
 - Making the generic `vector<T>::iterator::operator==` by-value regressed about 30 matched functions (`__ne__` helpers, BWorld, SaveData), so it stays a `const&` member. Only the pointer specialisation's `operator==` takes copies.
+
+## Sandbox method
+
+- `scratchpad/r1/sb.sh file [compiler] [flags]` compiles with the game unit flags and disassembles with `powerpc-eabi-objdump -d -r`. `ub.py <unit source> <file> <function> [old new]` reads the unit's exact `mw_version` and `cflags` from `build.ninja`, which covers SDK and MSL units. A real unit copied into the scratch directory, with `-i src/game` and a scratch include directory placed in front, compiles in about one second. That is far faster than `unitdiff` for header experiments such as `include/algorithm`.
+- To measure a header change across the project, run `ninja` and diff `build/wpse-v1/report.json` per function against a saved copy. One generic `vector::iterator::operator==` change looked harmless in its target unit but lowered 30 functions elsewhere.
+
+## Open cases (tried, not solved)
+
+- **CodeWarrior's constant-copy peephole.** CMultiRanking and CGameEnding `IPauseMenu::Create(p, true, true)`, and CNoticeDisplay: see [F-161](161-cnoticedisplay-second-block.md). No source form for two equal constants defeats it.
+- **pf_file `PFFILE_GetSFD`.** The target puts the dead `clrlwi.` result in r5 and the reused `stat` in r0. Every operand order, `!`/`== 0` form and named local gives the reverse. The same file has dead record-form results in r8 and r29 at block heads, so this is probably a block-ordering effect, not an expression one.
+- **MapPiiTable `Clear`** (vector swap temporaries r5, r6, r7 in reverse) does not respond to any permutation of `std::swap`/`Metrowerks::swap` in `swap_storage` or to the depth of the capacity swap.
+- **ScriptCameraMotion string pops.** The `lwzux` appears only when `&value` (the `ToString` argument) is materialised after the stack load. Here it is hoisted to the top, which takes r4 and splits the base and element-address registers. Changing `Pop`'s body, a `PopRef` returning a reference, and `pEngine->PopString()` did not move it.
+- **CDlgCollection `CalcView`/`CalcMtx`/`Draw`.** The target has the loop index in r31 and `pImpl` in r28. Moving the loop into an inline `CDlgCollectionItemModel` member gets `pImpl` right (99.24%) but swaps the index with the helper's `this`. Dropping the `pImpl`/`rModels` locals makes CodeWarrior reload through `mImpl` (88%).
+- **CTextWorldObjStat `CalcView`.** The target colours `position.x` (f3) above the -1.0f constant (f2). Writing the bounds test as `position.x > -1.0f` creates `x` first but puts it in f4.
+- **CEffect `AllocEffectGroupID`.** The target stores a `false` bool to the lowest frame slot (an expression temporary bound to `const bool&`) and never reloads it. `vector<bool>(n, const bool& = false)` and `= value_type()` load the constant from `.sdata` instead (79%).
