@@ -106,7 +106,7 @@ public:
             for (int i = 0; i < 3; ++i) {
                 CLayout* pLayout = mLifeLayouts[i]->GetLayout();
                 const char* pMotion = i < mShownLife ? "normal" : "end";
-                f32 frame = pLayout->GetMotionLength(pMotion);
+                u32 frame = pLayout->GetMotionLength(pMotion);
                 pLayout->CreateMotion(pMotion, spDefaultMotionPane, frame, 1.0f);
                 pLayout->StopMotion();
             }
