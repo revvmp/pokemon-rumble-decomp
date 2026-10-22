@@ -17,13 +17,20 @@ Compiler behaviour of CodeWarrior Wii/1.1 (`-O4,p -inline auto -ipa file -str re
 
 ## Register allocation and scheduling
 
+The allocator and scheduler are recovered in [sprint-ra](findings/sprint-ra.md). `tools/re/ra_trace.py` prints a function's colouring order, and `tools/re/regscan.py` separates register-only near-misses from source differences.
+
+- **Colouring order is descending virtual-register number**, except that nodes with degree of K or more (29 GPRs, 28 with a frame pointer, 32 FPRs) are coloured before all others. Each node takes the lowest free register (r0, r3 ... r12), else the lowest open non-volatile, else opens the next from r31 down. [sprint-ra](findings/sprint-ra.md#select)
+- **Numbering:** parameters in order, then named locals in reverse declaration order, then `@` inline and compiler variables in reverse creation order, then expression temporaries in generation order, then registers created by the machine-code optimiser. So named locals get r31, r30 ... in declaration order, above the parameters; inline results and temporaries rank above named locals; among temporaries the latest is coloured first. [sprint-ra](findings/sprint-ra.md#virtual-register-numbering) rules 1 to 3
+- **To colour a value after a named local, make it a named local declared later.** Use compound assignment to keep a result in that local's node (`outer *= outer`). [sprint-ra](findings/sprint-ra.md#rules) rule 4
+- **Named variables coalesce only with physical registers**; temporaries and `@` variables merge into the lowest number of a copy chain. sprint-ra rule 7.
+- **Mask register numbers before chasing a swap.** A parameter one interference short of K moves from the top to the bottom of the non-volatile registers; in homebutton the cause was an unrelated source difference. sprint-ra rules 5, 6.
+- **Scheduling ties keep generation order.** The priority is deadline, then uncovered successors, then height, then (before allocation only) opcode rank. Register arguments are generated left to right. sprint-ra rule 9.
 - One definition reaching every use keeps one register; full reassignment starts a new live range. [sprint-r1](findings/sprint-r1.md#rules) rules 1, 6
-- Volatile registers are handed out top down in virtual-register creation order; non-volatile in declaration order; an inline return value is its own variable. Rules 4, 5, 8, 13.
 - `x + c` and `x += c` differ in operand order; the last operand of an `||` early return changes branch shape. Rules 2, 3.
 - A negated inline `bool` across two levels materialises the compare. Rule 9.
 - Iterator subtraction needs `long operator-(iterator rhs) const` loading `mPointer` into a named local. [sprint-r1](findings/sprint-r1.md#follow-up-iterator-subtraction-fixes-the-sort-comparison-2026-10-22), [sprint-cx](findings/sprint-cx.md)
 - Mixing the engine parameter and its `CPpuEngine*` cast moves a string pop's frame address; `#pragma scheduling off` reproduces the target in a sandbox. [sprint-p1](findings/sprint-p1.md#rules)
-- Open cases (tried, not solved): [sprint-r1](findings/sprint-r1.md#open-cases-tried-not-solved).
+- Open cases (tried, not solved): [sprint-r1](findings/sprint-r1.md#open-cases-tried-not-solved), [sprint-ra](findings/sprint-ra.md#diagnosed-not-fixed).
 
 ## Loads and constants
 
