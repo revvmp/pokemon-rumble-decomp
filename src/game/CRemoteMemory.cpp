@@ -283,11 +283,12 @@ void* CRemoteMemory::ThreadMain(void*) {
     for (;;) {
         OSReceiveMessage(&sMessageQueue, &message, OS_MESSAGE_BLOCK);
         const u32 command = reinterpret_cast<u32>(message);
+        const u32 type = command >> 16;
         const int channel = static_cast<u16>(command);
-        switch (command >> 16) {
+        switch (type) {
         case 0: {
-            CRemoteMemory* pRemote = sRemoteMemories[channel];
             const long result = sConnectionResults[channel];
+            CRemoteMemory* pRemote = sRemoteMemories[channel];
             if (result != 0 && result == -1) {
                 pRemote->mFlags |= FLAG_CONNECTION_CHANGED;
             }
