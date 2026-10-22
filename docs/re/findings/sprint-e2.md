@@ -15,6 +15,10 @@ With `-ipa file` the whole file is parsed first, then code is generated in this 
    4. **Implicit stage.** Implicit destructors (`~CTutorialMsg`, `~shared_ptr_deleter<T>`, `~CPauseMenu`) are generated here, after the first round's drain. A sandbox class with an implicit virtual destructor lands between round 1 and round 2.
 4. **Requests from template instantiation chains wait one round.** A destructor that is only referenced from an exception table (a local `__vec_split_buffer` in an inlined reallocation) is generated in round 1 if the inline body that holds the local is reached directly from a strong function, but in round 2 if it is reached through an out-of-class template member (`push_back_realloc`). The target puts every such `~__vec_split_buffer` right after the implicit stage (CPauseMenu, CDlgCollection, CGameSession), so in the original these locals sit behind an out-of-class template member.
 
+5. **Class specializations are ordered by creation, and creation happens at parse.** The walk visits specializations newest first, where "newest" is the moment the class specialization was first needed complete while parsing. An inline body in a header (in class or out of class makes no difference) creates every specialization it uses where the header is included. In CDlgPiiList the target walks `function_imp` for the `RunList` sort callback before the `Setup` BUI callbacks; that needs `function<void(BUI*)>` to be created after `RunList`'s bind, which happens only when no header body uses `function<void(BUI*)>` and `Setup` is defined after `RunList`.
+6. **Implicit members are generated at the implicit stage, declared ones with their class.** Declaring `bad_weak_ptr() throw() {}` moves its constructor (and vtable) into the class walk as in CDlgMsgWin and CDlgCollection.
+7. **Pending function templates inherit their class specialization's place.** A member template such as `function<void(A)>::function<F>` is instantiated in the walk of its class specialization (newest first), not in source order: moving the call site of a bind does not reorder it, while moving where the class specialization is created does.
+
 The walk and the drain explain the "chains" in the target (`max_size`, `alloc() const`, `second() const`, `allocator::max_size`) as depth-first drain items, and the "interleaving" of `__vec_deleter` and `__vec_constructor` members as one walk group.
 
 ## Consequences for the vector header
@@ -25,9 +29,27 @@ The walk and the drain explain the "chains" in the target (`max_size`, `alloc() 
 ## Landed
 
 - `vector::push_back` always calls the base `push_back`; the in-class `push_back_pod` copy is gone. With it the POD reallocation reached the split buffer directly from the strong caller, so `~__vec_split_buffer<UIMenuItem>` was generated in round 1. Through the base path it waits for round 2 as in the target: CPauseMenu's `.text` order is now exact, and `push_back<UIMenuItem>` (94% to 100%) and one PiiPropData function reached 100% (13,064 to 13,066, no losses, DOL verifies). CPauseMenu still has code differences in `Run` (one stack offset), `LeaveStage` and `TakeScreenshot` (register choice).
+- `__vec_deleter` owns the growth algorithms (`reallocate`, `recommend`, `append`, `append_realloc`, `push_back_realloc`, `can_append`, `grow_by`, `back`, `clear_moved`, `construct_at_end(n)`), with `cap`/`alloc`/`max_size` declared before the destructor and `can_append` before `grow_by`; about 90 `symbols.txt` names moved from `__vec_constructor` to `__vec_deleter` (and `__vec_split_buffer::allocate(n, cap)` to `__vec_deleter<T, A&>`). Constraint: `append_realloc` must be declared before `append`, or CPiiCollectionBox's `~__vec_split_buffer<Entry>` moves to round 1.
+- `<algorithm>` forward-declares `swap` before `max` and `move`, so the move group is walked first (rule 4a).
+- `<string>` declares the `operator+=` overloads before `append(const charT*)`; `tree_imp::root()` is declared just before `~tree_imp`.
+- CTutorialMsg is `Matching` (all functions 100%, DOL verifies).
+- `bad_weak_ptr` declares its constructor (rule 6).
+- `BUI::CCallbackListOwner::Add` is only declared in `BUI.h` and defined inline in `CDlgCollection.cpp`, the one unit whose target holds its code (right after `PlayScrollSound` in the depth-first order). Other units call it out of line, as their targets do. With `Setup` after `RunList`, CDlgPiiList's `function_imp` walk and implicit-stage order match (12 to 4 misplaced), and CDlgInfo, CUIMenu and main also improve.
+
+## Open
+
+- CDlgPiiList: the six `const_iterator`/`begin`/`end` functions that `RunRemoteTransfer` calls out of line are requested first by `OnAccept` through the inlined `Count*` loops. The target requests `*it` and `++it` before the `begin()` conversion; ours requests init, body, increment, condition. Moving the `Count*` definitions after `OnAccept` changes nothing.
+- CMsgBalloon: `pointer_plus_bit` operator order, the allocator drain block, `alloc_ptr::allocator`, and the final-round `__vec_deleter<shared_ptr<BUILayout>, A&>` before `<shared_ptr<CPiiTex>, A&>`: ours instantiates `push_back_realloc<shared_ptr<BUILayout>>` at parse from `IMsgBalloon::Create`, creating its split buffer before the `CPiiTex` one.
+- CSaveManager: deque groups (`deque_imp::iterator::operator*`, `__cdeque`, `__cdeque_pointer` and its iterator) and `insert` overloads one round late (likely member templates), and the vector group walked between deque and `function_imp`.
 
 ## Method
 
 - Order of a unit: `python scratchpad/e1/var.py game/<Unit> --obj build/wpse-v1/src/game/<Unit>.o .text` (or without `--obj` to compile; sources that need Shift-JIS must use the ninja object).
 - Stage boundaries in a sandbox: add a class template whose out-of-class member is requested from a strong function (round 1 marker) and which requests an earlier-declared member (round 2 marker), and make the members recursive so they are not inlined.
 - Instantiation point: `typedef typename T::probe_x probe;` in the body; the message names the point of instantiation and the chain of templates being instantiated.
+
+## Traps
+
+- **A probe that changes nothing can still be the right lead.** Moving `Add` out of class inside `BUI.h` left every order unchanged, because any header body creates the specialization at the include; only removing the body from the header moved the `function_imp` group.
+- **Several of these sources are CRLF after checkout.** Python edits that read with `newline=''` miss multi-line anchors; read normally and write with `newline='
+'`.
