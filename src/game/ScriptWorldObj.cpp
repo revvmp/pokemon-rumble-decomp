@@ -534,7 +534,7 @@ int method_findMostVitalPiiInCircleZX(NPpu::CEngine* pEngine) {
             if (pPii == nullptr) {
                 continue;
             }
-            if (pPii->GetPersonalData()->GetHP() == 0) {
+            if (pPii->GetPersonalData()->GetHP() <= 0) {
                 continue;
             }
             if (pMostVital == nullptr ||
@@ -559,7 +559,7 @@ int method_findMostVitalPiiInArcZX(NPpu::CEngine* pEngine) {
     int type = pEngine->PopInt();
     BWorldObj* pObject = static_cast<CPpuEngine*>(pEngine)->PopWorldObj();
     if (pObject != nullptr) {
-        f32 halfWidth = 0.5f * width;
+        f32 halfWidth = width / 2.0f;
         f32 startAngle = direction - halfWidth;
         f32 endAngle = direction + halfWidth;
         std::list<BWorldObj*> candidates = static_cast<CPpuEngine*>(pEngine)->GetWorld()->FindObjectsInSector(
@@ -573,7 +573,7 @@ int method_findMostVitalPiiInArcZX(NPpu::CEngine* pEngine) {
             if (pPii == nullptr) {
                 continue;
             }
-            if (pPii->GetPersonalData()->GetHP() == 0) {
+            if (pPii->GetPersonalData()->GetHP() <= 0) {
                 continue;
             }
             if (pMostVital == nullptr ||
@@ -783,7 +783,7 @@ template <int Mode> static int SearchArc(NPpu::CEngine* pEngine, FoundFunc pFoun
     BWorldObj* pObject = static_cast<CPpuEngine*>(pEngine)->PopWorldObj();
     if (pObject != nullptr) {
         f32 rotation = pObject->GetRotation();
-        f32 halfWidth = width * 0.5f;
+        f32 halfWidth = width / 2.0f;
         f32 start = rotation - halfWidth;
         f32 end = rotation + halfWidth;
         std::list<BWorldObj*> objects = static_cast<CPpuEngine*>(pEngine)->GetWorld()->FindObjectsInSector(type, pObject->GetPositionRef(), innerRadius, outerRadius, start, end);
@@ -800,7 +800,7 @@ static int CountArc(NPpu::CEngine* pEngine, FoundFunc pFound, NoneFunc pNone) {
     BWorldObj* pObject = static_cast<CPpuEngine*>(pEngine)->PopWorldObj();
     if (pObject != nullptr) {
         f32 rotation = pObject->GetRotation();
-        f32 halfWidth = width * 0.5f;
+        f32 halfWidth = width / 2.0f;
         f32 start = rotation - halfWidth;
         f32 end = rotation + halfWidth;
         std::list<BWorldObj*> objects = static_cast<CPpuEngine*>(pEngine)->GetWorld()->FindObjectsInSector(type, pObject->GetPositionRef(), innerRadius, outerRadius, start, end);
