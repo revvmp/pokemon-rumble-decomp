@@ -1,5 +1,22 @@
+#include <algorithm>
 #include <game/BModelObj.h>
+#include <game/CFiber.h>
+#include <game/CMultiRanking.h>
+#include <game/CPiiPersonalData.h>
+#include <game/CPlayer.h>
+#include <game/Font.h>
+#include <game/IController.h>
+#include <game/IGameSession.h>
+#include <game/LayoutResources.h>
+#include <game/MapDesc.h>
+#include <game/Message.h>
+#include <game/MessageFormat.h>
+#include <game/SaveData.h>
+#include <game/Sound.h>
+#include <game/StringFormat.h>
 #include <nw4r/g3d/g3d_scnmdlsmpl.h>
+
+void ChangeBGM(unsigned long id);
 
 nw4r::math::VEC3 GetNodePosition(std::tr1::shared_ptr<BModelObj> pObj, const char* pName) {
     if (pObj && pObj->GetModel()) {
@@ -15,10 +32,6 @@ nw4r::math::VEC3 GetNodePosition(std::tr1::shared_ptr<BModelObj> pObj, const cha
     return nw4r::math::VEC3(0.0f, 0.0f, 0.0f);
 }
 
-#include <game/CMultiRanking.h>
-#include <game/IGameSession.h>
-#include <game/Sound.h>
-
 inline CMultiRanking::CMultiRanking(const MapDesc* pDesc)
     : mpMapDesc(pDesc), mUI(new CUIManager), mRootLayout(new BUILayout),
       mRankingLayout(new BUILayout), mMaximumScore(0), mPlayerCount(0),
@@ -32,153 +45,10 @@ inline CMultiRanking::CMultiRanking(const MapDesc* pDesc)
     }
 }
 
-
 namespace {
-const char* const sModelNames[5] = {"ranking_p1", "ranking_p2", "ranking_p3", "ranking_p4", "ranking_back"};
-const char* const sRootNames[4] = {"ROOT_p1", "ROOT_p2", "ROOT_p3", "ROOT_p4"};
+const char* sModelNames[5] = {"ranking_p1", "ranking_p2", "ranking_p3", "ranking_p4", "ranking_back"};
+const char* sRootNames[4] = {"ROOT_p1", "ROOT_p2", "ROOT_p3", "ROOT_p4"};
 }
-
-nw4r::math::VEC3 GetNodePosition(std::tr1::shared_ptr<BModelObj> pObj, const char* pName);
-
-void CMultiRanking::Draw() {
-    if (mActive) {
-        mWorld->Draw();
-        mUI->Draw();
-    }
-}
-
-void CMultiRanking::CalcView() {
-    if (mActive) {
-        mWorld->CalcView();
-        mUI->CalcView();
-        mPauseMenu->CalcView();
-    }
-}
-
-void CMultiRanking::CalcMtx() {
-    if (mActive) {
-        mWorld->CalcMtx();
-        for (int i = 0; i < 4; ++i) {
-            if (mPiis[i])
-                mPiis[i]->SetPosition(GetNodePosition(mModels[i], sRootNames[i]) + mOffsets[i]);
-        }
-        mUI->CalcMtx();
-        mPauseMenu->CalcMtx();
-    }
-}
-
-
-void CMultiRanking::Calc() {
-    if (mActive) {
-        mWorld->Calc();
-        mFlashFrame = (mFlashFrame + 1) % 90;
-        for (int i = 0; i < 4; ++i) {
-            if (mPlayerIDs[i]) {
-                if (!mIDVisible[i]) {
-                    if (mFlashFrame == 0) {
-                        mPlayerIDs[i]->SetDisplayMode(0);
-                        mPlayerIDs[i]->Update();
-                    } else if (mFlashFrame == 45) {
-                        mPlayerIDs[i]->SetDisplayMode(2);
-                        mPlayerIDs[i]->Update();
-                    }
-                }
-                if (mMotions[i] && !mMotionFinished[i]) {
-                    if (!(mMotions[i]->IsPlaying())) {
-                        mMotionFinished[i] = true;
-                    } else if (!mMotions[i]->IsPausing()) {
-                        if (mMaximumScore * mMotions[i]->GetCurrentFrame() >= mScores[i] * mMotions[i]->GetLength()) {
-                            mMotions[i]->Pause();
-                            mMotionFinished[i] = true;
-                        }
-                    }
-                    if (mMotionFinished[i]) {
-                        if (++mFinishedMotionCount == mMotionCount)
-                            StopSound(&mSound, nullptr, 0.0f);
-                    }
-                }
-            }
-        }
-        mUI->Calc();
-    }
-}
-
-#include <game/CFiber.h>
-#include <game/CPlayer.h>
-#include <game/IController.h>
-#include <game/MapDesc.h>
-
-void ChangeBGM(unsigned long id);
-
-void CMultiRanking::RunAction() {
-    if (!mActive) {
-        YieldFiberStarted();
-        return;
-    }
-    IGameSession::GetInstance()->SetFade(0, -1);
-    YieldFiberStarted();
-    if (mpMapDesc->mIndex.mStage != 7 || mReturnFromGame)
-        ChangeBGM(626);
-    while (IGameSession::GetInstance()->GetFadeFrames() > 0)
-        YieldFiber();
-    mRankingLayout->GetLayout()->CreateMotion("begin");
-    for (int i = 0; i < 4; ++i) {
-        if (mPlayerIDs[i] && mScores[i] > 0) {
-            mMotions[i] = mModels[i]->Play(sModelNames[i], 0.0f, 1.0f);
-            ++mMotionCount;
-        } else {
-            mMotionFinished[i] = true;
-        }
-        if (mPlayerLayouts[i])
-            mPlayerLayouts[i]->GetLayout()->CreateMotion("begin");
-    }
-    if (mMaximumScore > 0)
-        PlaySound(818, &mSound, nullptr);
-    YieldFiber();
-    int readyCount = 0;
-    bool allReady = false;
-    while (!allReady) {
-        for (int i = 0; i < 4; ++i) {
-            if (mPlayerIDs[i]) {
-                CPlayer* pPlayer = IGameSession::GetInstance()->GetPlayer(i);
-                if (pPlayer->mState.mJoined) {
-                    IController* pController = pPlayer->mController;
-                    if (pController && pController->IsConnected() && (pController->GetTrig() & 0x30)) {
-                        if (mFinishedMotionCount != mMotionCount) {
-                            for (int j = 0; j < 4; ++j) {
-                                if (mMotions[j] && !mMotionFinished[j])
-                                    mModels[j]->Play(sModelNames[j], float(mScores[j]) * float(mMotions[j]->GetLength()) / float(mMaximumScore), 0.0f);
-                            }
-                        } else {
-                            if (!mIDVisible[i]) {
-                                PlaySound(8);
-                                mPlayerIDs[i]->SetDisplayMode(0);
-                                mPlayerIDs[i]->Update();
-                                mIDVisible[i] = true;
-                                if (++readyCount == mPlayerCount)
-                                    allReady = true;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        YieldFiber();
-    }
-    IGameSession::GetInstance()->SetFade(1, -1);
-    while (IGameSession::GetInstance()->GetFadeFrames() > 0)
-        YieldFiber();
-}
-
-
-#include <game/Font.h>
-#include <game/LayoutResources.h>
-#include <game/Message.h>
-#include <game/MessageFormat.h>
-#include <game/SaveData.h>
-#include <game/StringFormat.h>
-#include <game/CPiiPersonalData.h>
-#include <algorithm>
 
 inline bool CMultiRanking::Init(bool background) {
     if (!IsGameFlagSet(2))
@@ -276,4 +146,126 @@ std::tr1::shared_ptr<IMultiRanking> IMultiRanking::Create(const MapDesc* pDesc, 
     if (ranking->Init(background))
         return ranking;
     return std::tr1::shared_ptr<IMultiRanking>();
+}
+
+void CMultiRanking::RunAction() {
+    if (!mActive) {
+        YieldFiberStarted();
+        return;
+    }
+    IGameSession::GetInstance()->SetFade(0, -1);
+    YieldFiberStarted();
+    if (mpMapDesc->mIndex.mStage != 7 || mReturnFromGame)
+        ChangeBGM(626);
+    while (IGameSession::GetInstance()->GetFadeFrames() > 0)
+        YieldFiber();
+    mRankingLayout->GetLayout()->CreateMotion("begin");
+    for (int i = 0; i < 4; ++i) {
+        if (mPlayerIDs[i] && mScores[i] > 0) {
+            mMotions[i] = mModels[i]->Play(sModelNames[i], 0.0f, 1.0f);
+            ++mMotionCount;
+        } else {
+            mMotionFinished[i] = true;
+        }
+        if (mPlayerLayouts[i])
+            mPlayerLayouts[i]->GetLayout()->CreateMotion("begin");
+    }
+    if (mMaximumScore > 0)
+        PlaySound(818, &mSound, nullptr);
+    YieldFiber();
+    int readyCount = 0;
+    bool allReady = false;
+    while (!allReady) {
+        for (int i = 0; i < 4; ++i) {
+            if (mPlayerIDs[i]) {
+                CPlayer* pPlayer = IGameSession::GetInstance()->GetPlayer(i);
+                if (pPlayer->mState.mJoined) {
+                    IController* pController = pPlayer->mController;
+                    if (pController && pController->IsConnected() && (pController->GetTrig() & 0x30)) {
+                        if (mFinishedMotionCount != mMotionCount) {
+                            for (int j = 0; j < 4; ++j) {
+                                if (mMotions[j] && !mMotionFinished[j])
+                                    mModels[j]->Play(sModelNames[j], float(mScores[j]) * float(mMotions[j]->GetLength()) / float(mMaximumScore), 0.0f);
+                            }
+                        } else {
+                            if (!mIDVisible[i]) {
+                                PlaySound(8);
+                                mPlayerIDs[i]->SetDisplayMode(0);
+                                mPlayerIDs[i]->Update();
+                                mIDVisible[i] = true;
+                                if (++readyCount == mPlayerCount)
+                                    allReady = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        YieldFiber();
+    }
+    IGameSession::GetInstance()->SetFade(1, -1);
+    while (IGameSession::GetInstance()->GetFadeFrames() > 0)
+        YieldFiber();
+}
+
+void CMultiRanking::Draw() {
+    if (mActive) {
+        mWorld->Draw();
+        mUI->Draw();
+    }
+}
+
+void CMultiRanking::CalcView() {
+    if (mActive) {
+        mWorld->CalcView();
+        mUI->CalcView();
+        mPauseMenu->CalcView();
+    }
+}
+
+void CMultiRanking::CalcMtx() {
+    if (mActive) {
+        mWorld->CalcMtx();
+        for (int i = 0; i < 4; ++i) {
+            if (mPiis[i])
+                mPiis[i]->SetPosition(GetNodePosition(mModels[i], sRootNames[i]) + mOffsets[i]);
+        }
+        mUI->CalcMtx();
+        mPauseMenu->CalcMtx();
+    }
+}
+
+void CMultiRanking::Calc() {
+    if (mActive) {
+        mWorld->Calc();
+        mFlashFrame = (mFlashFrame + 1) % 90;
+        for (int i = 0; i < 4; ++i) {
+            if (mPlayerIDs[i]) {
+                if (!mIDVisible[i]) {
+                    if (mFlashFrame == 0) {
+                        mPlayerIDs[i]->SetDisplayMode(0);
+                        mPlayerIDs[i]->Update();
+                    } else if (mFlashFrame == 45) {
+                        mPlayerIDs[i]->SetDisplayMode(2);
+                        mPlayerIDs[i]->Update();
+                    }
+                }
+                if (mMotions[i] && !mMotionFinished[i]) {
+                    if (!(mMotions[i]->IsPlaying())) {
+                        mMotionFinished[i] = true;
+                    } else if (!mMotions[i]->IsPausing()) {
+                        if (mMaximumScore * mMotions[i]->GetCurrentFrame() >= mScores[i] * mMotions[i]->GetLength()) {
+                            mMotions[i]->Pause();
+                            mMotionFinished[i] = true;
+                        }
+                    }
+                    if (mMotionFinished[i]) {
+                        if (++mFinishedMotionCount == mMotionCount)
+                            StopSound(&mSound, nullptr, 0.0f);
+                    }
+                }
+            }
+        }
+        mUI->Calc();
+    }
 }

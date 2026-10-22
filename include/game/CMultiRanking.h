@@ -16,14 +16,13 @@ class CMultiRanking : public IMultiRanking {
     friend class IMultiRanking;
 public:
     explicit CMultiRanking(const MapDesc* pDesc);
-    virtual ~CMultiRanking() {}
     virtual void Calc();
     virtual void CalcMtx();
     virtual void CalcView();
     virtual void Draw();
     virtual void RunAction();
-    virtual const MapDesc& GetMapDesc() const { return *mpMapDesc; }
     virtual BWorld* GetWorld() const { return mWorld.get(); }
+    virtual const MapDesc& GetMapDesc() const { return *mpMapDesc; }
     virtual IPauseMenu* GetPauseMenu() { return mPauseMenu.get(); }
     bool Init(bool background);
 
