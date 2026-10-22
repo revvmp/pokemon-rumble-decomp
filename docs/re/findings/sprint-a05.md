@@ -150,3 +150,28 @@ Gained: CFileData `map<CNTHandleWithMutex*, weak_ptr>::insert` (100%), `OpenFile
 | CFileData | `map_base::erase` | 96.7 | The target copies the node into `r3` before the `front()` compare. Seven placements of the iterator copy and increment were tried. |
 | CFileData | `reset<CWorker>` | 99.4 | The inlined `PushFinished` in `BThread::Stop` keeps a dead volatile reload of `mpHead`; ours drops it. A `for` tail walk does not change it. |
 | CFileData | `UpdateResourceFiles` | 99.9 | Swapping `it` and `end` moves both registers by one; a third variable from the inlined job processing holds `r28`. |
+
+## Optimizer-pass pragmas (a05, final tail)
+
+ef_drawfreestrategy and ef_drawdirectionalstrategy are Matching. CRemoteMemory: FinishWrite 51.05 to 98.19%, FinishRead 63.44 to 96.65%, PrepareWrite 82.24 to 99.47%, ThreadMain 81.74 to 98.62%; it stays `NonMatching` (GetPiiBox 85.80%, BeginRead 95.82%, extab).
+
+### Traps
+
+- **Single `opt_*` pass pragmas reproduce "partly unoptimized" functions; search them greedily per function.** Wrap one function in `#pragma push`, several `#pragma opt_<pass> off` lines and `#pragma pop`. The ef `Draw` and `DrawDirectional` need `opt_optimizecontrolflow`, `opt_rebuildconditionals`, `opt_generateconditionalassignments`, `opt_common_subs` and `opt_propagation` off (DrawDirectional also `opt_dead_assignments`); each one is required. `optimization_level 1` to `3`, `global_optimizer off`, `optimize_for_size` and the GameCube and other Wii compilers are worse. The inline helpers that are also emitted out of line (`CalcRotate`, `CalcLocalTransform`) must stay outside the region. A scratch greedy search (add the pass that raises the function's score most, repeat until nothing helps) found CRemoteMemory PrepareWrite's set (`rebuildconditionals`, `treetransformation`, `strength_reduction`, `dead_assignments`, `common_subs`, `generateconditionalassignments`) in about 15 minutes. The pass names come from the compiler binary (every `opt_[a-z_]+` string).
+- **Branches in place of `neg`/`or`/`srwi` or `li; beq; li` mean `opt_rebuildconditionals` and `opt_generateconditionalassignments` are off.** With both off, `if (n > 0) x = 1; else x = 0;` compiles to the target's branchy if/else; with them on, every spelling becomes branchless.
+- **A switch tree pivot that is not the middle case means a case label with no body of its own.** CodeWarrior pivots on the middle of the sorted case values. `case AXIS_MAX: default:` (DrawFree `CalcRotate`), `case 3: default:` and `case 1: default:` (DrawDirectional), `case -4: default:` (FinishWrite) and `case -6: case -5: default:` (CRemoteMemory `ReadBack`) give the target's pivots and range compares.
+- **With `opt_propagation off`, a reference parameter keeps inline arguments evaluated at the call.** `ScheduleRetry(OSAlarm* const&, const OSMessage&, const u32&)` keeps the message and delay live across `OSCancelAlarm` as in the target (FinishRead, ThreadMain). FinishWrite needed the three values as explicit locals, declared delay, message, alarm.
+- **An argument expression passed to an auto-inlined function is substituted at each use.** `FindValidBlock(sReadData[channel])` recomputed the block address after each call; passing a caller local (`RemoteDataBlock* pBlocks = sReadData[channel]`) keeps it in a register (FinishRead +3%).
+- **objdiff 100% with a DOL mismatch can be function order.** ef_drawdirectionalstrategy's `InitGraphics` precedes `GetCalcAheadFunc` in the target; source order decides it.
+- **Not applicable:** ParticleManager `Calc` and every ef_animcurve function use linear compare chains and the normal optimizer; their gaps are register allocation. `opt_optimizecontrolflow off` raises Calc's fuzzy score (96.3%) only by turning the seven-case chain into a jump table, which the target does not have.
+
+### Open
+
+| Unit | Function | % | Cause |
+| --- | --- | --- | --- |
+| CRemoteMemory | BeginRead, FinishRead | 95.82, 96.65 | Composite `SetState` arguments: the target loads `0x200` and ORs `0x408`, ours folds `0x608`. `Flag(...)`, C casts and `u16`/`int`/`long`/`u32` parameters were tried. |
+| CRemoteMemory | FinishWrite | 98.19 | The ScheduleRetry alarm pointer gets `r30` against the target's `r31`; memcpy operand registers (two pointer locals give 98.46). |
+| CRemoteMemory | PrepareWrite | 99.47 | `(nextBlock - 1) & 1` and the stored-data base swap `r0`/`r4`; locals and index spellings were tried. |
+| CRemoteMemory | ThreadMain | 98.62 | ReadBack argument registers (`r8`/`r6` against `r6`/`r0`); an offset local and `sizeof` spellings were tried. |
+| ef_particlemanager | Calc | 94.20 | Register and stack-slot allocation; swapping the NoTrans matrix blocks fixes the slot order only with controlflow off. |
+| ef_animcurve | seven functions | 93 to 99.7 | Register allocation; no optimizer pass helps. |
