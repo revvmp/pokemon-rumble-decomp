@@ -64,7 +64,9 @@ void WaitMotionStart(std::tr1::shared_ptr<CLayout::CMotionProgram> pMotion) {
     WaitMotion(pMotion, false);
 }
 
-extern const char* gAreaPaneNames[9];
+const char* gAreaPaneNames[9] = {
+    "AREA_nw", "AREA_n", "AREA_ne", "AREA_w", "AREA_c", "AREA_e", "AREA_sw", "AREA_s", "AREA_se",
+};
 
 namespace {
 
@@ -81,6 +83,39 @@ public:
 protected:
     CLayout mLayout;
     CFiber mFiber;
+};
+
+class CLose : public BNoticeDisplayImpl {
+public:
+    CLose(int type);
+    virtual ~CLose() {}
+    virtual int GetNoticeType() const { return mType; }
+    virtual void Close() { mState = 1; }
+
+    bool Init();
+
+private:
+    bool StartNotice();
+    void Run();
+
+    int mState;
+    int mType;
+};
+
+class CFight : public BNoticeDisplayImpl {
+public:
+    CFight(int type);
+    virtual ~CFight() {}
+    virtual int GetNoticeType() const { return mType; }
+    virtual void Close() {}
+
+    bool Init();
+
+private:
+    bool StartNotice();
+    void Run();
+
+    int mType;
 };
 
 class BOther : public BNoticeDisplayImpl {
@@ -150,39 +185,6 @@ private:
     f32 mWinnerParam;
     CLayout mWinnerLayout;
     CLayout mResultLayout;
-};
-
-class CFight : public BNoticeDisplayImpl {
-public:
-    CFight(int type);
-    virtual ~CFight() {}
-    virtual int GetNoticeType() const { return mType; }
-    virtual void Close() {}
-
-    bool Init();
-
-private:
-    bool StartNotice();
-    void Run();
-
-    int mType;
-};
-
-class CLose : public BNoticeDisplayImpl {
-public:
-    CLose(int type);
-    virtual ~CLose() {}
-    virtual int GetNoticeType() const { return mType; }
-    virtual void Close() { mState = 1; }
-
-    bool Init();
-
-private:
-    bool StartNotice();
-    void Run();
-
-    int mState;
-    int mType;
 };
 
 class CNoticeDisplay : public INoticeDisplay {
@@ -705,7 +707,3 @@ void CYouWin::Run() {
 }
 
 }
-
-const char* gAreaPaneNames[9] = {
-    "AREA_nw", "AREA_n", "AREA_ne", "AREA_w", "AREA_c", "AREA_e", "AREA_sw", "AREA_s", "AREA_se",
-};

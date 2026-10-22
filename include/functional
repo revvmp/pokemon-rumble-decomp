@@ -151,7 +151,8 @@ public:
     template<class A> R operator()(A& argument) const {
         tuple<A&> arguments(argument);
         Arguments& rArguments = const_cast<Arguments&>(mArguments);
-        return mFunction(rArguments.first(),resolve_bound_argument(placeholders::detail::ph<1>(),arguments),rArguments.third(),rArguments.fourth());
+        T object = rArguments.first();
+        return mFunction(object,resolve_bound_argument(placeholders::detail::ph<1>(),arguments),rArguments.third(),rArguments.fourth());
     }
 private:
     F mFunction;
