@@ -508,10 +508,22 @@ public:
     using base::back;
     using base::insert;
 
-    void pop_front() { base::pop_front(); }
-    void push_back(T* const& rPtr) { base::push_back(rPtr); }
-    void swap(__cdeque& rOther) { base::swap(rOther); }
+    void push_back(T* const& rPtr);
+    void pop_front();
+    void swap(__cdeque& rOther);
 };
+
+template <typename T, typename Allocator> void __cdeque<T*, Allocator>::push_back(T* const& rPtr) {
+    base::push_back(rPtr);
+}
+
+template <typename T, typename Allocator> void __cdeque<T*, Allocator>::pop_front() {
+    base::pop_front();
+}
+
+template <typename T, typename Allocator> void __cdeque<T*, Allocator>::swap(__cdeque& rOther) {
+    base::swap(rOther);
+}
 
 template <typename T, typename Allocator> class __deque_imp {
 public:
@@ -525,7 +537,7 @@ public:
     class iterator {
     public:
         iterator(const typename buf_type::iterator& rBlock, T* pCur) : block_(rBlock), cur_(pCur) {}
-        T& operator*() { return *cur_; }
+        T& operator*();
 
     private:
         typename buf_type::iterator block_;
@@ -583,6 +595,10 @@ public:
     size_type size_;
     Metrowerks::compressed_pair<buf_type, Allocator> buf_;
 };
+
+template <typename T, typename Allocator> T& __deque_imp<T, Allocator>::iterator::operator*() {
+    return *cur_;
+}
 
 template <typename T, typename Allocator> __deque_imp<T, Allocator>::~__deque_imp() {
     destroy_all();
