@@ -592,7 +592,7 @@ void CDlgPiiListImpl::RunRemoteTransfer() {
     NResetMgr::CDisable resetDisable;
     CDisableHBM homeButtonDisable;
     bool changed = false;
-    for (PiiItemVector::iterator it = mItems.begin(); it != mItems.end(); ++it) {
+    for (PiiItemVector::const_iterator it = mItems.begin(); it != mItems.end(); ++it) {
         if ((*it)->IsRemoteMarked() != (*it)->GetPPD()->IsInWiiRemote()) {
             changed = true;
             break;

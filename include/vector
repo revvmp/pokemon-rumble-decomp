@@ -563,7 +563,6 @@ class vector : private __vec_constructor<T, Allocator, Metrowerks::is_POD<T>::va
 
 public:
     typedef T value_type;
-    typedef const T* const_iterator;
 
     class iterator {
     public:
@@ -587,6 +586,27 @@ public:
 
     private:
         T* mPointer;
+    };
+
+    class const_iterator {
+    public:
+        const_iterator() {}
+        const_iterator(const iterator& rOther, int = 0) : mPointer(rOther.base()) {}
+        const_iterator(const T* const& rPointer) : mPointer(rPointer) {}
+        const T& operator*() const { return *mPointer; }
+        const T* operator->() const { return mPointer; }
+        const_iterator& operator++() {
+            ++mPointer;
+            return *this;
+        }
+        bool operator==(const const_iterator& rOther) const { return base() == rOther.base(); }
+        bool operator!=(const const_iterator& rOther) const { return base() != rOther.base(); }
+        bool operator!=(const iterator& rOther) const { return base() != rOther.base(); }
+
+        const T* base() const { return mPointer; }
+
+    private:
+        const T* mPointer;
     };
 
     typedef typename base::size_type size_type;
@@ -618,9 +638,9 @@ public:
     }
 
     iterator begin() { return make_iterator(base::begin()); }
-    const_iterator begin() const { return reinterpret_cast<const T*>(this->data_); }
+    const_iterator begin() const { return const_iterator(reinterpret_cast<const T*>(this->data_)); }
     iterator end() { return make_iterator(base::end()); }
-    const_iterator end() const { return reinterpret_cast<const T*>(this->data_ + this->size_); }
+    const_iterator end() const { return const_iterator(reinterpret_cast<const T*>(this->data_ + this->size_)); }
     size_type size() const { return this->size_; }
     bool empty() const { return this->size_ == 0; }
     void push_back(const T& x) {
