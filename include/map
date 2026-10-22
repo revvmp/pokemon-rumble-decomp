@@ -68,9 +68,6 @@ public:
     typedef typename Allocator::template rebind<node>::other node_allocator;
 
     map_compact_tree() : alloc_(Allocator(), size_type(0)), comp_(reinterpret_cast<tree_node_base*>(&node_alloc_.second())) {}
-    map_compact_tree(const map_compact_tree& rOther) : alloc_(Allocator(), size_type(0)), comp_(reinterpret_cast<tree_node_base*>(&node_alloc_.second())) {
-        copy(rOther);
-    }
     ~map_compact_tree() {
         if (root() != nullptr) {
             destroy(static_cast<node*>(root()));
@@ -359,7 +356,11 @@ tree_node_base* map_compact_tree<T, Compare, Allocator>::find_leaf(const value_t
     return pLeaf;
 }
 
-template <typename T, typename Compare, typename Allocator> class map_compact_red_black_tree : public map_compact_tree<T, Compare, Allocator> {};
+template <typename T, typename Compare, typename Allocator> class map_compact_red_black_tree : public map_compact_tree<T, Compare, Allocator> {
+public:
+    map_compact_red_black_tree() {}
+    map_compact_red_black_tree(const map_compact_red_black_tree& rOther) { this->copy(rOther); }
+};
 template <typename T, typename Compare, typename Allocator> class map_compact_tree_adapter : public map_compact_red_black_tree<T, Compare, Allocator> {
 public:
     template <typename Key> T& find_or_insert(const Key& key) { return map_compact_red_black_tree<T, Compare, Allocator>::find_or_insert(key); }
