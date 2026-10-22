@@ -56,8 +56,12 @@ Every object that needs memory (an address-taken local, a class temporary, a by-
 - **CLayout constructor.** `mPixelScale = GetDefaultPixelScale()` gets an extra return object in our build (a `VEC2(x, y)` built at the bottom of the frame and copied), while the target builds the value straight into the assignment temporary with float loads and stores. `return static_cast<const VEC2&>(sDefaultPixelScale)` fixes the slots but copies with integer loads; adding NW4R's `VEC2(const _VEC2&)` brings back the extra object.
 - **CDlgPiiSelector `vector::assign<list::const_iterator>`.** The target has the tag copy above the tag with no zero store. A named tag one inline level down would do it, but every such helper drags `assign_dispatch` into the inline budget and nothing is inlined.
 
+- **CNoticeDisplay `FormatAreaName`.** Two tag pairs inside the inlined `basic_formatter` appends are reversed. `operator+=(const basic_string&)` must stay `append(str)` (CMsgBalloon has the out-of-line `__apl__` calling `append`), and `operator=(const charT*)` must stay `assign(s)` (CDlgMsgWin has both out of line), so the difference is in how the formatter is used, not in `<string>`.
+- **Missing exception-specification frames.** PhotoSave `SaveScreenshotToRemoteMemory` and CPauseMenu `TakeScreenshot` have one more `__unexpected` handler in the target than in ours: an extra `shared_ptr` temporary is destroyed there. That is a source difference, not a slot order.
+
 ## Traps
 
 - **unitdiff's left column is the target.** It is easy to read the direction backwards; the left column carries the original `lbl_` names.
 - **Not every `r31` offset is a frame slot.** In functions without `mr r31, r1`, `r31` is often the base of the string pool, so `addi rX, r31, N` differences are string layout (e1), not frame order. `scratchpad/t1/cls.py` only counts `r31` as the frame when the function sets it from `r1`.
+- **Out-of-line library copies pin the header.** Before moving a level in `<string>` or `<vector>`, check whether the target has the wrapper out of line (`__as__`, `__apl__`, `assign`, `append`). Those copies show which function calls which, and a header change that inlines them away drops whole functions from the build (the link then fails).
 - **A slot swap is not cosmetic.** One swapped pair makes a function non-matching, and the same header form is shared by many units. Measure a library-header change with the full 100%-function count, not only the unit at hand.
