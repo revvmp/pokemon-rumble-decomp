@@ -1,3 +1,6 @@
+#include <game/IDlg.h>
+#include <memory>
+#include <string>
 #include <game/IDlgPiiList.h>
 
 #include <game/ButtonMessage.h>
