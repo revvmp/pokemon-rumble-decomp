@@ -14,6 +14,7 @@ public:
     void Show();
     void Hide();
     bool IsVisible() const;
+    bool IsActive() const { return mPhase != PHASE_HIDDEN; }
     virtual void Calc();
 
 private:
