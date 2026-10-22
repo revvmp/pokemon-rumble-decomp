@@ -45,10 +45,7 @@ int CStatistic::Get(int id) {
 
 int CStatistic::GetCounterStopValue(int id) const {
     std::map<int, int>::iterator it = mCounterStops.find(id);
-    if (it != mCounterStops.end()) {
-        return it->second;
-    }
-    return INT_MAX;
+    return it != mCounterStops.end() ? it->second : INT_MAX;
 }
 
 bool CStatistic::IsWazaUsed(int waza) {
@@ -133,6 +130,29 @@ void CStatistic::SetWazaUsed(int waza, bool used) {
             mWazaBits[word].mValue = mValues[word].mValue & ~mask;
         }
     }
+}
+
+void CStatistic::SaveSnapshot() {
+    mSystemSnapshot = mSystemValues;
+    mSnapshot = mValues;
+    mWazaSnapshot = mWazaBits;
+    mCounterSnapshot[0] = GetSaveData(-1)->mData.mCounters[0];
+    mCounterSnapshot[1] = GetSaveData(-1)->mData.mCounters[1];
+}
+
+void CStatistic::RestoreSnapshot() {
+    mSystemValues = mSystemSnapshot;
+    mValues = mSnapshot;
+    mWazaBits = mWazaSnapshot;
+    GetSaveData(-1)->mData.mCounters[0] = mCounterSnapshot[0];
+    GetSaveData(-1)->mData.mCounters[1] = mCounterSnapshot[1];
+}
+
+void CStatistic::ExportStatisticValues(std::vector<SD_StatisticValue::Data>& rOut1, std::vector<SD_StatisticValue::Data>& rOut2,
+                                       std::vector<SD_StatisticValue::Data>& rOut3) {
+    rOut1 = mSystemValues;
+    rOut2 = mValues;
+    rOut3 = mWazaBits;
 }
 
 std::tr1::shared_ptr<CStatistic> CStatistic::Create(const std::vector<SD_StatisticValue::Data>& rData1, const std::vector<SD_StatisticValue::Data>& rData2,

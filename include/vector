@@ -589,6 +589,13 @@ protected:
         return result;
     }
 
+    static T* copy_range(const T* first, const T* last, T* result) {
+        for (; first < last; ++first, ++result) {
+            *result = *first;
+        }
+        return result;
+    }
+
     size_type move_range(size_type elemsAfter, size_type n, T* pEnd) { return move_range(elemsAfter, n, pEnd, pod_type()); }
     size_type move_range(size_type elemsAfter, size_type n, T* pEnd, Metrowerks::int2type<false>) {
         size_type count = std::min(elemsAfter, n);
