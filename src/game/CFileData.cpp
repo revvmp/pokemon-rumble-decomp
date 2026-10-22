@@ -412,7 +412,7 @@ inline void CFileData::CWorker::BThread::Stop() {
     OSLockMutex(&mMutex);
     while (mpHead) {
         CJob* pJob = mpHead;
-        mpHead = pJob->mpNext;
+        mpHead = mpHead->mpNext;
         pJob->mpNext = nullptr;
         pJob->mState = CJob::STATE_FINISHED;
         mpWorker->PushFinished(pJob);
@@ -445,7 +445,7 @@ inline CFileData::CWorker::~CWorker() {
     mDecodeThread.Stop();
     while (mFinished.mpHead) {
         CJob* pJob = mFinished.mpHead;
-        mFinished.mpHead = pJob->mpNext;
+        mFinished.mpHead = mFinished.mpHead->mpNext;
         if (pJob->mFile) {
             pJob->mFile->mBuffer.reset();
             pJob->mFile->mData = nullptr;
@@ -763,7 +763,7 @@ void CFileData::CWorker::DecodeThread::Run() {
         }
         if (!mStopping) {
             pJob = mpHead;
-            mpHead = pJob->mpNext;
+            mpHead = mpHead->mpNext;
             pJob->mpNext = nullptr;
         }
         OSUnlockMutex(&mMutex);
