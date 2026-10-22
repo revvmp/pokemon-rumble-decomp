@@ -373,9 +373,8 @@ bool CPauseMenu::TakeScreenshot() {
     }
     mScreenshotBusy = true;
 
-    void* pWork = GameMemory::Allocate(0x1c00, 32);
-    std::tr1::shared_ptr<u8> work(static_cast<u8*>(pWork), GameMemory::Free);
-    if (pWork == nullptr) {
+    std::tr1::shared_ptr<u8> work(static_cast<u8*>(GameMemory::Allocate(0x1c00, 32)), GameMemory::Free);
+    if (work.get() == nullptr) {
         OSReport("%s(%d): not enough memory\n", "CPauseMenu.cpp", 439);
         mScreenshotBusy = false;
         return true;
@@ -393,10 +392,10 @@ bool CPauseMenu::TakeScreenshot() {
                       (static_cast<f32>(pMode->viHeight) / static_cast<f32>(efbHeight));
     f32 maxWidth = static_cast<f32>(efbWidth);
     f32 maxHeight = static_cast<f32>(efbHeight);
+    f32 maxAspect = maxWidth / maxHeight;
     f32 shotWidth = pixelAspect * static_cast<f32>(mCapture.GetWidth());
     f32 shotHeight = static_cast<f32>(mCapture.GetHeight());
     f32 shotAspect = shotWidth / shotHeight;
-    f32 maxAspect = maxWidth / maxHeight;
     u16 width;
     u16 height;
     if (shotWidth <= maxWidth && shotHeight <= maxHeight) {
@@ -462,14 +461,13 @@ bool CPauseMenu::TakeScreenshot() {
 
     u32 jpegSize;
     TMCJPEGEncode(work.get(), shot.GetBufferOwner().get(), shot.GetWidth(), shot.GetHeight(), shot.GetFormat(), &jpegSize, 400);
-    void* pJpeg = GameMemory::AllocateMEM2(jpegSize, 32);
-    std::tr1::shared_ptr<u8> jpeg(static_cast<u8*>(pJpeg), GameMemory::Free);
-    if (pJpeg == nullptr) {
+    std::tr1::shared_ptr<u8> jpeg(static_cast<u8*>(GameMemory::AllocateMEM2(jpegSize, 32)), GameMemory::Free);
+    if (jpeg.get() == nullptr) {
         OSReport("%s(%d): not enough memory\n", "CPauseMenu.cpp", 556);
         mScreenshotBusy = false;
         return true;
     }
-    TMCJPEGEncodeToBuffer(work.get(), shot.GetBufferOwner().get(), shot.GetWidth(), shot.GetHeight(), shot.GetFormat(), 400, pJpeg, jpegSize, &jpegSize);
+    TMCJPEGEncodeToBuffer(work.get(), shot.GetBufferOwner().get(), shot.GetWidth(), shot.GetHeight(), shot.GetFormat(), 400, jpeg.get(), jpegSize, &jpegSize);
 
     while (!(GetControllerTable()->GetTrig() & 0x20)) {
         YieldFiber();
@@ -478,7 +476,7 @@ bool CPauseMenu::TakeScreenshot() {
     mScreenshotLayout.CreateMotion("prompt_end", "PROMPT", 0.0f, 1.0f)->Wait();
 
     mDialog = IDlgMsgWin::Create(false, true);
-    SaveScreenshotToRemoteMemory(mDialog.get(), mRemoteMemoryLayout.get(), pJpeg, jpegSize);
+    SaveScreenshotToRemoteMemory(mDialog.get(), mRemoteMemoryLayout.get(), jpeg.get(), jpegSize);
     mDialog->WaitUntilClosed();
     mDialog.reset();
 
