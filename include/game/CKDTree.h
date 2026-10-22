@@ -24,6 +24,8 @@ template <> struct KDTreeBitLength<1> {
 template <typename T> class CKDTree {
 public:
     enum { DEPTH = 9, CELLS = 1 << DEPTH };
+    typedef KDTreeZXNode<0, DEPTH> ZNode;
+    typedef KDTreeZXNode<2, DEPTH> XNode;
 
     CKDTree() {}
     ~CKDTree() {}
@@ -44,7 +46,7 @@ public:
         int zLevel = DEPTH - zBits;
         int xLevel = DEPTH - xBits;
 
-        KDTreeZXNode<2, DEPTH>* pNode = mRoot.mNode.get();
+        XNode* pNode = mRoot.mNode.get();
         int mask = CELLS;
         for (int level = 0;; level++) {
             mask >>= 1;
@@ -52,18 +54,18 @@ public:
                 static_cast<BKDTreeLink*>(pObj)->LinkTo(&pNode->mLinks, pNode);
                 return;
             }
-            std::tr1::shared_ptr<KDTreeZXNode<0, DEPTH> >& rZChild = pNode->mChildren[(zMin & mask) != 0];
+            std::tr1::shared_ptr<ZNode>& rZChild = pNode->mChildren[(zMin & mask) != 0];
             if (rZChild.get() == nullptr) {
-                rZChild.reset(new KDTreeZXNode<0, DEPTH>(pNode));
+                rZChild.reset(new ZNode(pNode));
             }
-            KDTreeZXNode<0, DEPTH>* pZNode = rZChild.get();
+            ZNode* pZNode = rZChild.get();
             if (xLevel == level) {
                 static_cast<BKDTreeLink*>(pObj)->LinkTo(&pZNode->mLinks, pZNode);
                 return;
             }
-            std::tr1::shared_ptr<KDTreeZXNode<2, DEPTH> >& rXChild = pZNode->mChildren[(xMin & mask) != 0];
+            std::tr1::shared_ptr<XNode>& rXChild = pZNode->mChildren[(xMin & mask) != 0];
             if (rXChild.get() == nullptr) {
-                rXChild.reset(new KDTreeZXNode<2, DEPTH>(pZNode));
+                rXChild.reset(new XNode(pZNode));
             }
             pNode = rXChild.get();
         }
@@ -89,7 +91,7 @@ private:
     }
 
     struct Root {
-        std::tr1::shared_ptr<KDTreeZXNode<2, DEPTH> > mNode;
+        std::tr1::shared_ptr<XNode> mNode;
     };
     Root mRoot;
     nw4r::math::AABB mBounds;
