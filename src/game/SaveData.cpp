@@ -493,15 +493,15 @@ int GetCurrentSlot() {
     return sSaveData->mData.mCurrentSlot;
 }
 
-void SetCurrentSlot(u8 slot) {
+void SetCurrentSlot(int slot) {
     sSaveData->mData.mCurrentSlot = slot;
 }
 
-u8 GetOption() {
+int GetOption() {
     return sSaveData->mData.mOption;
 }
 
-void SetOption(u8 option) {
+void SetOption(int option) {
     sSaveData->mData.mOption = option;
 }
 

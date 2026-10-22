@@ -464,8 +464,8 @@ bool CTitleSession::RefreshSlots() {
     mFirstEmptySlot = -1;
     mFirstUsedSlot = -1;
 
-    s64 latest = 0;
     std::wstring* pSlotText = mSlotTexts;
+    s64 latest = 0;
     for (int i = 0; i < SLOT_COUNT; ++i, ++pSlotText) {
         bool used = GetSaveData(i)->mData.mTime > 0;
         std::wstring text(GetMessageText(0x600D2, gEmptyText));

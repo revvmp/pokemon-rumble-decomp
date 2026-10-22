@@ -228,8 +228,8 @@ void DeleteSaveFiles();
 void SetFlag(int flag, int value);
 void ResetSlot(int slot);
 int GetCurrentSlot();
-void SetCurrentSlot(u8 slot);
-u8 GetOption();
-void SetOption(u8 option);
+void SetCurrentSlot(int slot);
+int GetOption();
+void SetOption(int option);
 
 #endif

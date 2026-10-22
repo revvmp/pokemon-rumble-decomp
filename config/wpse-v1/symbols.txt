@@ -15737,9 +15737,9 @@ __as__Q23std66vector<17SD_StatisticValue,Q23std30allocator<17SD_StatisticValue>>
 __as__Q23std56vector<12UsedPassword,Q23std25allocator<12UsedPassword>>FRCQ23std56vector<12UsedPassword,Q23std25allocator<12UsedPassword>> = .text:0x80167940; // type:function size:0x4CC
 GetSaveData__Fi = .text:0x80167E10; // type:function size:0x34
 GetCurrentSlot__Fv = .text:0x80167E50; // type:function size:0xC
-SetCurrentSlot__FUc = .text:0x80167E60; // type:function size:0xC
+SetCurrentSlot__Fi = .text:0x80167E60; // type:function size:0xC
 GetOption__Fv = .text:0x80167E70; // type:function size:0xC
-SetOption__FUc = .text:0x80167E80; // type:function size:0xC
+SetOption__Fi = .text:0x80167E80; // type:function size:0xC
 CheckNandSpace__Fv = .text:0x80167E90; // type:function size:0x278
 FormatWide<Ul>__FPCwRCUl_Q23std59basic_string<w,Q23std14char_traits<w>,Q23std12allocator<w>> = .text:0x80168110; // type:function size:0x4B0
 append__Q23std81__vec_constructor<18SD_PiiPersonalData,Q23std31allocator<18SD_PiiPersonalData>,0>FUlQ210Metrowerks11int2type<0> = .text:0x801685C0; // type:function size:0x684
