@@ -89,6 +89,7 @@ public:
 
         const_iterator() {}
         const_iterator(const iterator& rOther) : node_(rOther.node_) {}
+        explicit const_iterator(const node* pNode) : node_(pNode) {}
         explicit const_iterator(const node_base* pNode) : node_(static_cast<const node*>(pNode)) {}
 
         const T& operator*() const { return node_->data_; }
@@ -251,6 +252,78 @@ private:
 template <typename T, typename Allocator> void __list_imp<T, Allocator>::push_back(const T& x) {
     this->insert(this->end(), x);
 }
+
+template <typename T, typename Allocator> class __list_imp<T*, Allocator> : public __list_deleter<T*, Allocator> {
+    typedef __list_deleter<T*, Allocator> deleter;
+
+public:
+    class iterator : public deleter::iterator {
+    public:
+        typedef typename deleter::iterator base_iterator;
+
+        iterator() {}
+        iterator(const base_iterator& rOther) : base_iterator(rOther) {}
+
+        T*& operator*() const { return base_iterator::operator*(); }
+        iterator& operator++() {
+            base_iterator::operator++();
+            return *this;
+        }
+        iterator& operator--() {
+            base_iterator::operator--();
+            return *this;
+        }
+        bool operator!=(const iterator& rOther) const { return base_iterator::operator!=(rOther); }
+        bool operator==(const iterator& rOther) const { return base_iterator::operator==(rOther); }
+    };
+
+    __list_imp() {}
+    __list_imp(const __list_imp& rOther) : deleter(rOther.alloc()) { insert_range(rOther.begin(), rOther.end()); }
+    template <typename InputIterator> __list_imp(InputIterator first, InputIterator last, const Allocator& rAllocator) :
+        deleter(rAllocator) {
+        insert_dispatch(first, last, Metrowerks::int2type<0>());
+    }
+
+    class const_iterator : public deleter::const_iterator {
+    public:
+        typedef typename deleter::const_iterator base_iterator;
+
+        const_iterator() {}
+        const_iterator(const base_iterator& rOther) : base_iterator(rOther) {}
+        const_iterator(const iterator& rOther) : base_iterator(rOther) {}
+
+        T* const& operator*() const { return base_iterator::operator*(); }
+        const_iterator& operator++() {
+            base_iterator::operator++();
+            return *this;
+        }
+        const_iterator& operator--() {
+            base_iterator::operator--();
+            return *this;
+        }
+        bool operator!=(const const_iterator& rOther) const { return base_iterator::operator!=(rOther); }
+        bool operator==(const const_iterator& rOther) const { return base_iterator::operator==(rOther); }
+    };
+
+    iterator begin() { return deleter::begin(); }
+    iterator end() { return deleter::end(); }
+    const_iterator begin() const { return deleter::begin(); }
+    const_iterator end() const { return deleter::end(); }
+
+    void push_front(T* const& x) { this->insert(deleter::begin(), x); }
+    void push_back(T* const& x) { this->insert(deleter::end(), x); }
+
+private:
+    template <typename InputIterator> void insert_dispatch(InputIterator first, InputIterator last, Metrowerks::int2type<0>) {
+        insert_range(first, last);
+    }
+
+    template <typename InputIterator> void insert_range(InputIterator first, InputIterator last) {
+        for (; first != last; ++first) {
+            push_back(*first);
+        }
+    }
+};
 
 template <typename T, typename Allocator = allocator<T> > class list;
 

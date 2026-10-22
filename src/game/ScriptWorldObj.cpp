@@ -700,9 +700,11 @@ int method_isCEnemyPii(NPpu::CEngine* pEngine) {
 }
 
 static int PushObjectIds(NPpu::CEngine* pEngine, NPpu::Slice* pSlices, int capacity, std::list<BWorldObj*>& rObjects) {
-    int count = std::min(static_cast<int>(rObjects.size()), capacity - 1);
-    std::list<BWorldObj*>::iterator it = rObjects.begin();
-    for (int i = 0; i < count; ++i, ++it) {
+    int i = 0;
+    int count = std::min(capacity - 1, static_cast<int>(rObjects.size()));
+    const std::list<BWorldObj*>& rList = rObjects;
+    std::list<BWorldObj*>::const_iterator it = rList.begin();
+    for (; i < count; ++it, ++i) {
         pSlices[i].SetInt((*it)->GetId());
     }
     if (count >= 0) {
@@ -721,12 +723,14 @@ static int MergeObjectIds(NPpu::CEngine* pEngine, NPpu::Slice* pSlices, int capa
         }
         ids.insert(id);
     }
-    for (std::list<BWorldObj*>::iterator it = rObjects.begin(); it != rObjects.end(); ++it) {
+    const std::list<BWorldObj*>& rList = rObjects;
+    for (std::list<BWorldObj*>::const_iterator it = rList.begin(); it != rList.end(); ++it) {
         ids.insert((*it)->GetId());
     }
-    int count = std::min(static_cast<int>(ids.size()), capacity - 1);
+    int i = 0;
+    int count = std::min(capacity - 1, static_cast<int>(ids.size()));
     std::set<int>::iterator it = ids.begin();
-    for (int i = 0; i < count; ++i, ++it) {
+    for (; i < count; ++it, ++i) {
         pSlices[i].SetInt(*it);
     }
     if (count >= 0) {
