@@ -469,64 +469,70 @@ void CRemoteMemory::PrepareWrite(int mode) {
     WriteBlock(channel);
 }
 
+#pragma push
+#pragma opt_common_subs off
+#pragma opt_propagation off
 void CRemoteMemory::FinishWrite(int channel, long result) {
     CRemoteMemory* pRemote = sRemoteMemories[channel];
     bool complete = false;
     switch (result) {
     case 0: {
-        const u16 size = pRemote->mTransferSize;
         const u16 offset = pRemote->mTransferOffset;
-        u8* pData = reinterpret_cast<u8*>(sReadData[channel]);
-        if (memcmp(pData + offset, pData + offset + sizeof(RemoteDataBlock), size) != 0) {
-            if (++pRemote->mValidationRetries >= 3) {
-                pRemote->mFlags = (pRemote->mFlags & ~FLAG_BUSY) | FLAG_TRANSFER_ERROR;
-            } else {
+        const u16 size = pRemote->mTransferSize;
+        u8* pWritten = reinterpret_cast<u8*>(sReadData[channel]) + offset;
+        bool mismatch = memcmp(pWritten, pWritten + sizeof(RemoteDataBlock), size) != 0;
+        if (mismatch) {
+            if (++pRemote->mValidationRetries < 3) {
                 pRemote->mTransferRetries = 0;
                 WriteBlock(channel);
+            } else {
+                pRemote->mFlags = (pRemote->mFlags & ~FLAG_BUSY) | FLAG_TRANSFER_ERROR;
             }
         } else if (pRemote->mWriteMode == 1) {
             pRemote->mFlags &= ~FLAG_BUSY;
-        } else if (offset != 0) {
-            complete = true;
-        } else {
+        } else if (offset == 0) {
             pRemote->mTransferOffset = size;
             pRemote->mTransferSize = 4;
             pRemote->mValidationRetries = 0;
             pRemote->mTransferRetries = 0;
             WriteBlock(channel);
+        } else {
+            complete = true;
         }
         break;
     }
-    case -1:
-        if (pRemote->mTransferOffset != 0) {
-            complete = true;
-        } else {
-            pRemote->mFlags = (pRemote->mFlags & ~FLAG_BUSY) | FLAG_NO_CONTROLLER;
-        }
-        break;
     case -2:
     case -3:
-        if (++pRemote->mTransferRetries >= 3) {
-            if (pRemote->mTransferOffset != 0) {
-                complete = true;
-            } else {
-                pRemote->mFlags = (pRemote->mFlags & ~FLAG_BUSY) | FLAG_TRANSFER_ERROR;
-            }
+        if (++pRemote->mTransferRetries < 3) {
+            OSTime delay = OS_MSEC_TO_TICKS(1000);
+            OSMessage message = reinterpret_cast<OSMessage>(static_cast<u16>(channel) | 0x60000);
+            OSAlarm* pAlarm = &sAlarms[channel + 1];
+            OSCancelAlarm(pAlarm);
+            OSSetAlarmUserData(pAlarm, message);
+            OSSetAlarm(pAlarm, delay, OnRetryAlarm);
+        } else if (pRemote->mTransferOffset == 0) {
+            pRemote->mFlags = (pRemote->mFlags & ~FLAG_BUSY) | FLAG_TRANSFER_ERROR;
         } else {
-            ScheduleRetry(&sAlarms[channel + 1], reinterpret_cast<OSMessage>(static_cast<u16>(channel) | 0x60000), OS_MSEC_TO_TICKS(1000));
+            complete = true;
         }
         break;
+    case -4:
     default:
         pRemote->mFlags = (pRemote->mFlags & ~FLAG_BUSY) | FLAG_TRANSFER_ERROR;
+        break;
+    case -1:
+        if (pRemote->mTransferOffset == 0) {
+            pRemote->mFlags = (pRemote->mFlags & ~FLAG_BUSY) | FLAG_NO_CONTROLLER;
+        } else {
+            complete = true;
+        }
         break;
     }
     if (complete) {
         memcpy(reinterpret_cast<u8*>(sStoredData[channel]) + pRemote->mBlockOffset, sReadData[channel], 540);
-        if (pRemote->mActiveBlock == 3) {
-            pRemote->mActiveBlock = 0;
-        } else {
-            pRemote->mActiveBlock = (pRemote->mActiveBlock + 1) & 1;
-        }
-        pRemote->mFlags = (pRemote->mFlags & ~0xc3f) | 0x16;
+        pRemote->mActiveBlock = pRemote->mActiveBlock == 3 ? 0 : (pRemote->mActiveBlock + 1) & 1;
+        pRemote->mFlags = (pRemote->mFlags & ~(FLAG_BUSY | FLAG_DISCONNECTED | FLAG_FOREIGN_DATA | FLAG_INVALID_DATA | FLAG_RETRY_PENDING)) |
+                          FLAG_HAS_DATA | FLAG_DATA_CHANGED | FLAG_WRITE_COMPLETE;
     }
 }
+#pragma pop
