@@ -93,6 +93,7 @@ bool CModel::Load(const LoadParams& rParams, bool background) {
     mModelData.GetModel()->EnableScnObjCallbackTiming(nw4r::g3d::ScnObj::CALLBACK_TIMING_A);
     mModelData.GetModel()->EnableScnObjCallbackExecOp(nw4r::g3d::ScnObj::EXECOP_CALC_WORLD);
     mMainAnimation.mFrame = 0.0f;
+    LoadBounds(&mBounds, GetResFile().GetResMdl(0));
     return true;
 }
 
