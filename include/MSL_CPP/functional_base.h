@@ -7,6 +7,10 @@ template <class First, class Second, class Result> struct binary_function {
     typedef Second second_argument_type;
     typedef Result result_type;
 };
+
+template <typename T> struct less : binary_function<T, T, bool> {
+    bool operator()(const T& a, const T& b) const { return a < b; }
+};
 }
 
 #endif

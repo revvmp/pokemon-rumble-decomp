@@ -18,10 +18,6 @@ template <typename T, typename F> struct select<false, T, F> { typedef F type; }
 
 namespace std {
 
-template <typename T> struct less : binary_function<T, T, bool> {
-    bool operator()(const T& a, const T& b) const { return a < b; }
-};
-
 template <class Pointer> class __pointer_plus_bit {
 public:
     __pointer_plus_bit(Pointer p = nullptr);

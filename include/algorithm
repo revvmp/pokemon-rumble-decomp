@@ -2,6 +2,7 @@
 #define _ALGORITHM
 
 #include <iterator>
+#include <MSL_CPP/functional_base.h>
 
 namespace std {
 
@@ -237,6 +238,12 @@ void sort(TIt first, TIt last, TCompare compare) {
             last = m;
         }
     }
+}
+
+template <typename TIt>
+inline void sort(TIt first, TIt last) {
+    less<typename TIt::value_type> compare;
+    sort<TIt, less<typename TIt::value_type>&>(first, last, compare);
 }
 
 }

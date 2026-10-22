@@ -695,6 +695,7 @@ public:
 
     class iterator {
     public:
+        typedef T value_type;
         iterator() {}
         iterator(T* const& rPointer) : mPointer(rPointer) {}
         iterator& operator=(const iterator& rOther) {
