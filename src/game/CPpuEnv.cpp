@@ -692,7 +692,7 @@ struct ScopedFlag {
 };
 }
 
-std::tr1::shared_ptr<NPpu::CCode> LoadScriptCode(NPpu::CEnvironment* pBaseEnv, const char* pName, bool wait) {
+std::tr1::shared_ptr<NPpu::CCode> LoadScriptCode(NPpu::CEnvironment* pBaseEnv, const char* pName, int wait) {
     CPpuEnv* pEnv = static_cast<CPpuEnv*>(pBaseEnv);
     if (wait) {
         while (pEnv->mLoading) {

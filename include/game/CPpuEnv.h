@@ -19,7 +19,7 @@ template <typename T> struct SelfReference {
 class CPpuCode;
 
 class CPpuEnv : public NPpu::CEnvironment, public std::tr1::enable_shared_from_this<CPpuEnv> {
-    friend std::tr1::shared_ptr<NPpu::CCode> LoadScriptCode(NPpu::CEnvironment* pBaseEnv, const char* pName, bool wait);
+    friend std::tr1::shared_ptr<NPpu::CCode> LoadScriptCode(NPpu::CEnvironment* pBaseEnv, const char* pName, int wait);
 
 public:
     typedef std::tr1::shared_ptr<CPpuEnv> SelfPtr;
@@ -70,7 +70,7 @@ public:
         }
     }
 
-    bool Load(const char* pName, bool wait) {
+    bool Load(const char* pName, int wait) {
         std::tr1::shared_ptr<CFileData> file = LoadLocalizedFile((std::string("script.arc/") + pName).c_str(), 0, wait, CPpuEngine::GetScriptRoot());
         if (!file || !file->IsLoaded()) {
             return false;
