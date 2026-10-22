@@ -610,11 +610,6 @@ game/ControllerTable.cpp:
 	.bss        start:0x803E8D28 end:0x803E90C8
 	.sdata      start:0x804B77D8 end:0x804B77D9
 
-game/ScriptPiiManagement.cpp:
-	extab       start:0x80031C68 end:0x80031E68
-	extabindex  start:0x8004F578 end:0x8004F620
-	.text       start:0x80159770 end:0x8015A0D4
-
 ControllerTableAlignmentPadding:
 	.sdata      start:0x804B77D9 end:0x804B77E0 align:1
 
@@ -764,6 +759,11 @@ game/ScriptPiiPropData.cpp:
 	.rodata     start:0x8035BC88 end:0x8035DF48
 	.data       start:0x803B72F8 end:0x803B7344
 	.sdata2     start:0x804BA2E0 end:0x804BA2E4
+
+game/ScriptPiiManagement.cpp:
+	extab       start:0x80031C68 end:0x80031E68
+	extabindex  start:0x8004F578 end:0x8004F620
+	.text       start:0x80159770 end:0x8015A0D4
 
 game/ScriptPiiStats.cpp:
 	extab       start:0x80031E68 end:0x80032320
