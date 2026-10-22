@@ -96,6 +96,10 @@ public:
     u8 GetBasePositionV() const { return mBasePosition / 3; }
     const math::VEC2& GetScale() const { return mScale; }
     const math::MTX34& GetGlobalMtx() const { return mGlbMtx; }
+    void SetGlobalMtx(const math::MTX34& rGlbMtx) { mGlbMtx = rGlbMtx; }
+    void SetAlpha(u8 alpha) { mAlpha = alpha; }
+    u8 GetGlbAlpha() const { return mGlbAlpha; }
+    void SetGlbAlpha(u8 alpha) { mGlbAlpha = alpha; }
     const Size& GetSize() const { return mSize; }
     void SetSize(const Size& rSize) { mSize = rSize; }
     void SetScale(const math::VEC2& rScale) { mScale = rScale; }

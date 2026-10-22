@@ -14,6 +14,9 @@
 #include <game/RenderMode.h>
 #include <functional>
 #include <nw4r/g3d/g3d_state.h>
+#include <revolution/gx.h>
+#include <revolution/gx/GXTransform.h>
+#include <revolution/mtx.h>
 #include <revolution/os.h>
 #include <revolution/sc.h>
 
@@ -148,7 +151,7 @@ CLayout::~CLayout() {
         }
     }
     DetachAttachedLayouts();
-    DetachChildren();
+    Detach();
 }
 #pragma dont_inline reset
 
@@ -459,6 +462,23 @@ void CLayout::SetVisible(nw4r::lyt::Pane* pPane, bool visible) {
     }
 }
 
+#pragma auto_inline off
+void CLayout::ApplyMotionFrames() {
+    PaneProgramMap::iterator it;
+    if (HasFlags(FLAG_LOADED | FLAG_ANIMATED) && !mPanePrograms.empty()) {
+        for (it = mPanePrograms.begin(); it != mPanePrograms.end(); ++it) {
+            if ((*it).second->mRunning && !(*it).second->mMotions.empty()) {
+                (*(*it).second->mMotions.begin())->mpAnimTransform->SetFrame((*it).second->mFrame);
+                (*it).second->mpPane->Animate(0);
+                (*it).second->mRunning = false;
+            }
+        }
+        mFlags &= ~FLAG_ANIMATED;
+        UpdateAttachedLayouts();
+    }
+}
+#pragma auto_inline reset
+
 nw4r::lyt::Pane* CLayout::FindPane(const char* pName) {
     return mLayout->GetRootPane()->FindPaneByName(pName, true);
 }
@@ -470,6 +490,131 @@ void CLayout::UpdateAttachedLayouts() {
             for (std::set<CLayout*>::iterator it = mAttach->mChildren.begin(); it != mAttach->mChildren.end(); ++it) {
                 (*it)->UpdateAttachedLayouts();
             }
+        }
+    }
+}
+
+void CLayout::CalculateMtx(bool recursive) {
+    if (HasFlags(FLAG_LOADED)) {
+        ApplyMotionFrames();
+        if (recursive) {
+            UpdateAttachedLayouts();
+        }
+        if (HasFlags(FLAG_DIRTY)) {
+            if (mAttach && mAttach->mpParent != nullptr) {
+                CalculateAttachedMtx();
+            } else {
+                mLayout->CalculateMtx(mDrawInfo);
+            }
+            mFlags &= ~FLAG_DIRTY;
+        }
+    }
+}
+
+inline f32 CLayout::GetLayoutAlpha() {
+    return GetPaneAlpha(mLayout->GetRootPane());
+}
+
+void CLayout::CalculateAttachedMtx() {
+    mAttach->mpParent->CalculateMtx(false);
+    nw4r::lyt::Pane* pAttachPane = mAttach->mpPane;
+    nw4r::lyt::Pane* pRoot = mLayout->GetRootPane();
+    if (!pAttachPane->IsVisible()) {
+        pRoot->SetVisible(false);
+        return;
+    }
+    f32 alpha = GetLayoutAlpha();
+    if (alpha == 0.0f) {
+        pRoot->SetVisible(false);
+        return;
+    }
+    pRoot->SetVisible(true);
+    pRoot->SetGlobalMtx(mAttach->mpPane->GetGlobalMtx());
+    pRoot->SetAlpha(mAttach->mpPane->GetAlpha());
+    pRoot->SetGlbAlpha(mAttach->mpPane->GetGlbAlpha());
+    f32 savedAlpha = mDrawInfo.GetGlobalAlpha();
+    bool savedInfluenced = mDrawInfo.IsInfluencedAlpha();
+    if (alpha < 1.0f) {
+        mDrawInfo.SetGlobalAlpha(alpha);
+        mDrawInfo.SetInfluencedAlpha(true);
+    }
+    for (nw4r::lyt::Pane::PaneList::Iterator it = pRoot->GetChildList()->GetBeginIter(); it != pRoot->GetChildList()->GetEndIter(); ++it) {
+        it->CalculateMtx(mDrawInfo);
+    }
+    mDrawInfo.SetInfluencedAlpha(savedInfluenced);
+    mDrawInfo.SetGlobalAlpha(savedAlpha);
+}
+
+f32 CLayout::GetPaneAlpha(nw4r::lyt::Pane* pPane) {
+    if (pPane == mLayout->GetRootPane()) {
+        nw4r::lyt::Pane* pAttachPane = mAttach->mpPane;
+        if (pAttachPane != nullptr) {
+            return mAttach->mpParent->GetPaneAlpha(pAttachPane);
+        }
+    }
+    if (pPane != nullptr) {
+        if (!pPane->IsVisible()) {
+            return 0.0f;
+        }
+        f32 alpha = GetPaneAlpha(pPane->GetParent());
+        if (pPane->GetAlpha() != 255) {
+            alpha = (1.0f / 255.0f) * (alpha * pPane->GetAlpha());
+        }
+        return alpha;
+    }
+    return 1.0f;
+}
+
+bool CLayout::Attach(nw4r::lyt::Pane* pPane, CLayout* pChild) {
+    if (pChild->mAttach) {
+        if (pChild->mAttach->mpParent != nullptr) {
+            return false;
+        }
+    } else {
+        pChild->mAttach.reset(new CAttach);
+    }
+    pChild->mAttach->mpParent = this;
+    pChild->mAttach->mpPane = pPane;
+    if (!mAttach) {
+        mAttach.reset(new CAttach);
+    }
+    std::set<CLayout*>::iterator it = mAttach->mChildren.insert(pChild).first;
+    return true;
+}
+
+bool CLayout::AttachLayout(const char* pPaneName, CLayout* pChild) {
+    nw4r::lyt::Pane* pPane = FindPane(pPaneName);
+    if (pPane != nullptr) {
+        return Attach(pPane, pChild);
+    }
+    return false;
+}
+
+bool CLayout::Detach() {
+    if (mAttach) {
+        CLayout* pParent = mAttach->mpParent;
+        if (pParent == nullptr) {
+            return false;
+        }
+        mAttach->mpParent = nullptr;
+        mAttach->mpPane = nullptr;
+        if (mAttach->mChildren.empty()) {
+            mAttach.reset();
+        }
+        pParent->mAttach->mChildren.erase(this);
+        if (pParent->mAttach->mChildren.empty() && pParent->mAttach->mpParent == nullptr) {
+            pParent->mAttach.reset();
+        }
+        return true;
+    }
+    return false;
+}
+
+void CLayout::DetachAttachedLayouts() {
+    if (mAttach) {
+        std::set<CLayout*> children(mAttach->mChildren);
+        for (std::set<CLayout*>::iterator it = children.begin(); it != children.end(); ++it) {
+            (*it)->Detach();
         }
     }
 }
@@ -539,9 +684,54 @@ nw4r::math::_VEC2 CLayout::NormalizeViewPosition(const nw4r::math::VEC2& rPositi
 }
 
 void CLayout::Calc() {
+    PaneProgramMap::iterator it;
     if (!mPanePrograms.empty()) {
-        for (PaneProgramMap::iterator it = mPanePrograms.begin(); it != mPanePrograms.end(); ++it) {
+        for (it = mPanePrograms.begin(); it != mPanePrograms.end(); ++it) {
             AdvancePaneMotions((*it).second.get(), 1.0f);
         }
+    }
+}
+
+void CLayout::Draw() {
+    if (HasFlags(FLAG_LOADED)) {
+        CalculateMtx(false);
+        if (IsVisible()) {
+            const GXRenderModeObj* pRenderMode = nw4r::g3d::G3DState::GetRenderModeObj();
+            Mtx44 projection;
+            nw4r::ut::Rect rect = mViewRect;
+            C_MTXOrtho(projection, rect.top, rect.bottom, rect.left, rect.right, 0.0f, 500.0f);
+            GXSetProjection(projection, GX_ORTHOGRAPHIC);
+            struct {
+                f32 x, y, width, height;
+            } viewport = {0.0f, 0.0f, pRenderMode->fbWidth, pRenderMode->efbHeight};
+            struct {
+                u32 x, y, width, height;
+            } scissor = {0, 0, pRenderMode->fbWidth, pRenderMode->efbHeight};
+            GXSetViewport(viewport.x, viewport.y, viewport.width, viewport.height, 0.0f, 1.0f);
+            GXSetScissor(scissor.x, scissor.y, scissor.width, scissor.height);
+            mDrawInfo.SetViewMtx(nw4r::math::MTX34(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, -250.0f));
+            GXSetZMode(mDepthCompare != GX_NEVER, mDepthCompare, mDepthCompare != GX_NEVER);
+            GXSetCullMode(GX_CULL_NONE);
+            mLayout->Draw(mDrawInfo);
+            nw4r::g3d::G3DState::Invalidate(0x7FF);
+        }
+    }
+}
+
+void CLayout::Render(const nw4r::math::VEC2& rSize) {
+    if (HasFlags(FLAG_LOADED)) {
+        CalculateMtx(false);
+        Mtx44 projection;
+        C_MTXOrtho(projection, 0.5f * rSize.y, 0.5f * -rSize.y, 0.5f * -rSize.x, 0.5f * rSize.x, 0.0f, 500.0f);
+        GXSetProjection(projection, GX_ORTHOGRAPHIC);
+        GXSetViewport(0.0f, 0.0f, rSize.x, rSize.y, 0.0f, 1.0f);
+        GXSetScissor(0, 0, static_cast<u32>(rSize.x), static_cast<u32>(rSize.y));
+        nw4r::math::MTX34 viewMtx;
+        nw4r::math::MTX34Identity(&viewMtx);
+        mDrawInfo.SetViewMtx(viewMtx);
+        GXSetZMode(mDepthCompare != GX_NEVER, mDepthCompare, mDepthCompare != GX_NEVER);
+        GXSetCullMode(GX_CULL_NONE);
+        mLayout->Draw(mDrawInfo);
+        nw4r::g3d::G3DState::Invalidate(0x7FF);
     }
 }

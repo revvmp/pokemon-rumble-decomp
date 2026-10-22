@@ -301,9 +301,9 @@ inline void CMsgBalloon::Calc() {
             mLayout->GetLayout()->SetPaneVisible("above", behind);
             mLayout->GetLayout()->SetPaneVisible("below", !behind);
             mLayout->RemoveChild(mMsgLayout);
-            mMsgLayout->GetLayout()->DetachChildren();
+            mMsgLayout->GetLayout()->Detach();
             mLayout->RemoveChild(mWarpLayout);
-            mWarpLayout->GetLayout()->DetachChildren();
+            mWarpLayout->GetLayout()->Detach();
             if (pBest->mStageValue != 0xFFFFFFFF) {
                 if (pBest->mStageID.mWorld == 7) {
                     SetupBattleWarp(pBest->mStageID);

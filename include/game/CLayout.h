@@ -38,11 +38,13 @@ public:
     enum Flags {
         FLAG_VISIBLE = 1,
         FLAG_LOADED = 2,
+        FLAG_ANIMATED = 4,
         FLAG_DIRTY = 8
     };
 
     class CAttach {
     public:
+        CAttach() : mpParent(nullptr), mpPane(nullptr) {}
         CLayout* mpParent;
         nw4r::lyt::Pane* mpPane;
         std::set<CLayout*> mChildren;
@@ -119,7 +121,7 @@ public:
     void SetPaneVisible(const char* pName, bool visible);
     void SetVisible(bool visible);
     void UpdateAttachedLayouts();
-    void DetachChildren();
+    bool Detach();
     void DetachAttachedLayouts();
     const nw4r::ut::Rect& GetViewRect() const { return mViewRect; }
     std::tr1::shared_ptr<CMotionProgram> CreateMotion(const char* pName) { return CreateMotion(pName, spDefaultMotionPane, 0.0f, 1.0f); }
@@ -151,6 +153,10 @@ private:
     void SetFlags(u32 flags) { mFlags |= flags; }
     bool HasFlags(u32 flags) const { return (mFlags & flags) != 0; }
     void UpdateViewRect();
+    void ApplyMotionFrames();
+    void CalculateAttachedMtx();
+    f32 GetPaneAlpha(nw4r::lyt::Pane* pPane);
+    f32 GetLayoutAlpha();
     void AdvancePaneMotions(PaneMP* pPaneMP, f32 frames);
     std::tr1::shared_ptr<CMotionProgram> BuildMotion(const char* pName, nw4r::lyt::Pane* pPane, f32 startFrame, f32 rate);
     std::tr1::shared_ptr<CMotionProgram> ReplaceMotions(const std::tr1::shared_ptr<CMotionProgram>& rProgram);
