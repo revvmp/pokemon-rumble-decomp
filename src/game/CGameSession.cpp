@@ -97,8 +97,8 @@ public:
     virtual CRemoteMemory* GetRemoteMemory(int player);
     virtual COyaInfo* GetOyaInfo();
     virtual std::tr1::shared_ptr<NPpu::CEnvironment> GetEnvironment();
-    virtual int AddPPDToPlayerPiiBox(int player, const std::tr1::shared_ptr<CPiiPersonalData>& rPPD);
-    virtual bool CanAddPPDToPlayerPiiBox(int player, const std::tr1::shared_ptr<CPiiPersonalData>& rPPD);
+    virtual int AddPPDToPlayerPiiBox(int player, std::tr1::shared_ptr<CPiiPersonalData> ppd);
+    virtual bool CanAddPPDToPlayerPiiBox(int player, std::tr1::shared_ptr<CPiiPersonalData> ppd);
     virtual bool IsReplacePiiAvailable(int player);
     virtual f32 GetPlayTimeSeconds();
     virtual int GetMapChangeType();
@@ -637,39 +637,29 @@ std::tr1::shared_ptr<NPpu::CEnvironment> CGameSession::GetEnvironment() {
     return mEnvironment;
 }
 
-int CGameSession::AddPPDToPlayerPiiBox(int player, const std::tr1::shared_ptr<CPiiPersonalData>& rPPD) {
-    int result = rPPD->GetDisplayKind();
-    if (rPPD->GetHP() > 0 && 0 <= player && player < 4) {
-        {
-            {
-                bool isCurrent = rPPD == GetPlayer(player)->GetPersonalData();
-                if (isCurrent) {
-                    result = 4;
-                } else {
-                    bool canAdd = CanAddPPDToPlayerPiiBox(player, std::tr1::shared_ptr<CPiiPersonalData>(rPPD));
-                    if (!canAdd) {
-                        result = 5;
-                    }
-                }
-            }
+int CGameSession::AddPPDToPlayerPiiBox(int player, std::tr1::shared_ptr<CPiiPersonalData> ppd) {
+    int result = ppd->GetDisplayKind();
+    if (ppd->GetHP() > 0 && 0 <= player && player < 4) {
+        if (ppd == GetPlayer(player)->GetPersonalData()) {
+            result = 4;
+        } else if (!CanAddPPDToPlayerPiiBox(player, ppd)) {
+            result = 5;
         }
     }
     return result;
 }
 
-bool CGameSession::CanAddPPDToPlayerPiiBox(int player, const std::tr1::shared_ptr<CPiiPersonalData>& rPPD) {
-    if (rPPD->IsFainted()) {
+bool CGameSession::CanAddPPDToPlayerPiiBox(int player, std::tr1::shared_ptr<CPiiPersonalData> ppd) {
+    if (ppd->IsFainted()) {
         return false;
     }
     for (int i = 0; i < 4; i++) {
         CPlayer* pPlayer = GetPlayer(i);
         if (pPlayer->IsJoined()) {
-            bool held = pPlayer->GetPersonalData() == rPPD;
-            if (held) {
+            if (pPlayer->GetPersonalData() == ppd) {
                 return false;
             }
-            held = i != player && pPlayer->GetPendingPersonalData() == rPPD;
-            if (held) {
+            if (i != player && pPlayer->GetPendingPersonalData() == ppd) {
                 return false;
             }
         }

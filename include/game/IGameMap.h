@@ -63,7 +63,7 @@ public:
     virtual INumericInput* GetNumericInput() { return nullptr; }
     virtual IPostEffect* GetPostEffect() { return nullptr; }
     virtual IDlg* GetCurrentDialog() { return nullptr; }
-    virtual bool RegisterDialog(const std::tr1::shared_ptr<IDlg>& rDialog) { return false; }
+    virtual bool RegisterDialog(std::tr1::shared_ptr<IDlg> dialog) { return false; }
     virtual void UnregisterDialog(const std::tr1::shared_ptr<IDlg>& rDialog) {}
     virtual void SetPausing(bool pausing) {}
     virtual bool IsPausing() { return false; }

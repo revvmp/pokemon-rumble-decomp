@@ -94,7 +94,7 @@ public:
     virtual INumericInput* GetNumericInput() { return mNumericInput.get(); }
     virtual IPostEffect* GetPostEffect() { return mPostEffect.get(); }
     virtual IDlg* GetCurrentDialog() { return mCurrentDialog.lock().get(); }
-    virtual bool RegisterDialog(const std::tr1::shared_ptr<IDlg>& rDialog);
+    virtual bool RegisterDialog(std::tr1::shared_ptr<IDlg> dialog);
     virtual void UnregisterDialog(const std::tr1::shared_ptr<IDlg>& rDialog);
     virtual void SetPausing(bool pausing) { mPausing = pausing; }
     virtual bool IsPausing();
@@ -421,20 +421,20 @@ void CGameMap::RunAction()
     pGround->LoadPkc(1, std::tr1::shared_ptr<NPpu::CEnvironment>(), nullptr);
 }
 
-bool CGameMap::RegisterDialog(const std::tr1::shared_ptr<IDlg>& rDialog)
+bool CGameMap::RegisterDialog(std::tr1::shared_ptr<IDlg> dialog)
 {
-    if (!rDialog) {
+    if (!dialog) {
         return false;
     }
     std::tr1::shared_ptr<IDlg> pCurrent = mCurrentDialog.lock();
-    if (pCurrent.get() == rDialog.get()) {
+    if (pCurrent.get() == dialog.get()) {
         return true;
     }
     if (pCurrent && !pCurrent->Close()) {
         return false;
     }
     pCurrent.reset();
-    mCurrentDialog = rDialog;
+    mCurrentDialog = dialog;
     return true;
 }
 
