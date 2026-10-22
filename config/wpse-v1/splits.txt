@@ -601,6 +601,12 @@ game/ControllerTable.cpp:
 	.bss        start:0x803E8D28 end:0x803E90C8
 	.sdata      start:0x804B77D8 end:0x804B77D9
 
+game/CaptureTexture.cpp:
+	extab       start:0x8003BA3C end:0x8003BB24
+	extabindex  start:0x80050FA0 end:0x80050FDC
+	.text       start:0x801C4910 end:0x801C4EB4
+	.sdata2     start:0x804BA420 end:0x804BA424
+
 ControllerTableAlignmentPadding:
 	.sdata      start:0x804B77D9 end:0x804B77E0 align:1
 

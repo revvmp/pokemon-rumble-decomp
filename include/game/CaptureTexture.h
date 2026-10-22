@@ -11,7 +11,7 @@ public:
     ~CaptureTexture();
 
     void Create(u16 width, u16 height, GXTexFmt format, GXTexWrapMode wrap, GXTexFilter filter);
-    void Init(const std::tr1::shared_ptr<u8>& rBuffer, u32 bufferSize, u16 width, u16 height, GXTexFmt format,
+    void Init(std::tr1::shared_ptr<u8> buffer, u32 bufferSize, u16 width, u16 height, GXTexFmt format,
               GXTexWrapMode wrap, GXTexFilter filter);
     void CopyFromEFB(bool clear);
     void CopyFromEFB(GXTexFmt format, bool clear);
