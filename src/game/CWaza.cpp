@@ -97,7 +97,7 @@ void CWaza::Calc() {
     BSoundSource::SetPosition(mPosition);
 }
 
-void CWaza::OnLeaveWorld() {
+void CWaza::OnLeaveWorld(BWorld* pWorld) {
     if (mPpuEngine) {
         mPpuEngine->Reset();
     }

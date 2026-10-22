@@ -52,7 +52,7 @@ public:
     virtual void SetEffectEnable(bool enable) {}
     virtual DrawLayerSet* GetDrawLayers() { return nullptr; }
     virtual void OnEnterWorld() {}
-    virtual void OnLeaveWorld() {}
+    virtual void OnLeaveWorld(BWorld* pWorld) {}
     virtual void UpdateVisible() {}
 
     u32 GetStateFlags(u32 mask) const { return mState & mask; }

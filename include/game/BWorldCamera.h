@@ -86,7 +86,7 @@ public:
     virtual void Calc();
     virtual void SetPosition(const nw4r::math::VEC3& rPosition);
     virtual void OnEnterWorld();
-    virtual void OnLeaveWorld();
+    virtual void OnLeaveWorld(BWorld* pWorld);
     virtual void UpdateIndex(int prevIndex);
 
     nw4r::g3d::Camera GetG3dCamera();

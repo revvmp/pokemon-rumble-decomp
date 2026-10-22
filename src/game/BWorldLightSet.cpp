@@ -254,4 +254,4 @@ void BWorldLightSet::ApplyFrame(MotionPtr& rMotion) {
 
 void BWorldLightSet::OnEnterWorld() {}
 
-void BWorldLightSet::OnLeaveWorld() {}
+void BWorldLightSet::OnLeaveWorld(BWorld* pWorld) {}

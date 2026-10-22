@@ -177,7 +177,7 @@ DrawLayerSet* BModelObj::GetDrawLayers() {
     return &mDrawLayers;
 }
 
-void BModelObj::OnLeaveWorld() {
+void BModelObj::OnLeaveWorld(BWorld* pWorld) {
     Unlink();
     if (mModel) {
         mModel->GetScnObj()->DetachFromParent();

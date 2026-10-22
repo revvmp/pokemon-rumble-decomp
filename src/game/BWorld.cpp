@@ -555,7 +555,7 @@ void BWorld::RemoveObject(std::tr1::shared_ptr<BWorldObj> obj) {
     }
 
     obj->mWorld = nullptr;
-    obj->OnLeaveWorld();
+    obj->OnLeaveWorld(this);
 
     if (mFlags & FLAG_IN_CALC) {
         mRemovedObjs.insert(obj);

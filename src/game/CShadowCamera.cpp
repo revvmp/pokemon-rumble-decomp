@@ -376,8 +376,8 @@ void CSimpleGround::Calc() {
     }
 }
 
-void CSimpleGround::OnLeaveWorld() {
-    BModelObj::OnLeaveWorld();
+void CSimpleGround::OnLeaveWorld(BWorld* pWorld) {
+    BModelObj::OnLeaveWorld(pWorld);
     if (mPpuEngine) {
         mPpuEngine->Reset();
     }

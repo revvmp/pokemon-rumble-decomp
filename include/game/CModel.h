@@ -115,6 +115,8 @@ public:
 
     const nw4r::math::AABB& GetBounds() const { return mBounds; }
     nw4r::g3d::ScnObj* GetScnObj() const { return mModelData.GetModel(); }
+    nw4r::g3d::ResMdl GetResMdl() const { return mModelData.GetModel()->GetResMdl(); }
+    nw4r::g3d::ResFile GetResFile() const;
 
     ScnMdlSimpleData mModelData;
     std::tr1::shared_ptr<nw4r::g3d::AnmObjChrRootScale> mRootScale;
@@ -141,5 +143,7 @@ private:
     virtual void ExecCallbackC(nw4r::math::MTX34* pMtxArray, nw4r::g3d::ResMdl mdl, nw4r::g3d::FuncObjCalcWorld* pFuncObj);
 
 };
+
+bool LoadScnMdlSimpleData(ScnMdlSimpleData* pData, const CModel::LoadParams& rParams, int mode, bool background);
 
 #endif

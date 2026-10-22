@@ -45,7 +45,7 @@ public:
         return nullptr;
     }
     virtual void OnEnterWorld();
-    virtual void OnLeaveWorld();
+    virtual void OnLeaveWorld(BWorld* pWorld);
     virtual void UpdateVisible();
 
     virtual void SetTransform(const nw4r::math::VEC3& rPosition,

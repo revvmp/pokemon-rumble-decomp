@@ -16,7 +16,7 @@ public:
 
     virtual void Calc();
     virtual CPpuEngine* GetPpuEngine() const { return mEngine.get(); }
-    virtual void OnLeaveWorld();
+    virtual void OnLeaveWorld(BWorld* pWorld);
     virtual void UpdateIndex(int prevIndex);
 
     void LoadScript(int mode, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnv);

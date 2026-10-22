@@ -34,10 +34,10 @@ public:
     virtual ~CDividedGround();
 
     virtual void Calc();
-    virtual CPpuEngine* GetPpuEngine() const;
+    virtual CPpuEngine* GetPpuEngine() const { return mPpuEngine.get(); }
     virtual void OnEnterWorld();
-    virtual void OnLeaveWorld();
-    virtual void UpdateVisible();
+    virtual void OnLeaveWorld(BWorld* pWorld);
+    virtual void UpdateVisible() {}
 
     bool Load(const StageID* pStageID, int stageNo, bool background);
     bool LoadPkc(int mode, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnv, const char* pPrefix);

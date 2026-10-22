@@ -44,7 +44,7 @@ public:
     virtual void SetVisible(bool visible);
     virtual DrawLayerSet* GetDrawLayers();
     virtual void OnEnterWorld();
-    virtual void OnLeaveWorld();
+    virtual void OnLeaveWorld(BWorld* pWorld);
 
     virtual void SetModel(const std::tr1::shared_ptr<CModel>& rModel, u32 flags);
     virtual void SetTransform(const nw4r::math::VEC3& rPosition, const nw4r::math::VEC3& rVelocity);

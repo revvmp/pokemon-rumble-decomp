@@ -89,8 +89,8 @@ void CStageCamera::UpdateIndex(int prevIndex) {
     camera.SetPerspective(20.2561665f, GetDisplayAspectRatio(), 0.01f, 1000.0f);
 }
 
-void CStageCamera::OnLeaveWorld() {
-    BWorldCamera::OnLeaveWorld();
+void CStageCamera::OnLeaveWorld(BWorld* pWorld) {
+    BWorldCamera::OnLeaveWorld(pWorld);
 
     if (mEngine) {
         mEngine->Reset();

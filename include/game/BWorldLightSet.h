@@ -67,7 +67,7 @@ public:
     virtual ~BWorldLightSet();
     virtual void Calc();
     virtual void OnEnterWorld();
-    virtual void OnLeaveWorld();
+    virtual void OnLeaveWorld(BWorld* pWorld);
 
     bool Load(const char* pPath, bool background);
     MotionPtr GetCurrentMotion();

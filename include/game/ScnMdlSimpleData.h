@@ -8,6 +8,7 @@ class ScnMdlSimpleData {
 public:
     ScnMdlSimpleData() {}
     ~ScnMdlSimpleData() {}
+    nw4r::g3d::ScnMdlSimple* GetModel() { return mModel.get(); }
     nw4r::g3d::ScnMdlSimple* GetModel() const { return mModel.get(); }
 private:
     std::tr1::shared_ptr<nw4r::g3d::ScnMdlSimple> mModel;

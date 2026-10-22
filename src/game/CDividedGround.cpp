@@ -3,13 +3,31 @@
 #include <game/CBSPTree.h>
 #include <game/CFiber.h>
 #include <game/CFileData.h>
+#include <game/AnmObjChrRootScale.h>
 #include <game/CModel.h>
 #include <game/CPpuEngine.h>
 #include <game/FileList.h>
+#include <game/Memory.h>
+#include <game/Random.h>
 #include <game/StringFormat.h>
 #include <game/VideoTiming.h>
+#include <map>
+#include <nw4r/g3d/g3d_scngroupex.h>
 #include <nw4r/g3d/res/g3d_resfile.h>
+#include <stdio.h>
 #include <string.h>
+
+namespace {
+
+inline const void* OffsetToPtr(const void* pBase, s32 offset) {
+    return offset + static_cast<const char*>(pBase);
+}
+
+inline u32 GetNodeCount(nw4r::g3d::ResAnmChr& rAnm) {
+    return rAnm.ofs_to_obj<nw4r::g3d::ResDic>(rAnm.ref().toChrDataDic).GetNumData();
+}
+
+}
 
 CDividedGround::CDividedGround(u32 type) : BModelObj(type | TYPE) {}
 
@@ -204,4 +222,165 @@ bool IsLayerFogName(const std::string& rName) {
         return false;
     }
     return true;
+}
+
+void CDividedGround::BuildScene(const StageID* pStageID, int stageNo, bool background) {
+    std::map<std::string, std::list<nw4r::math::MTX34> > layers;
+    std::string animName;
+    if (pStageID->mKind == 2) {
+        animName.assign(FormatString("rep_EX%02d", stageNo));
+    } else {
+        animName.assign(FormatString("rep_%s%02d", gStageRanks[pStageID->mRank].mName, stageNo));
+    }
+
+    nw4r::g3d::ResAnmChr anm(nullptr);
+    std::list<std::tr1::shared_ptr<CFileData> >::iterator it = mFiles.begin();
+    for (; it != mFiles.end(); ++it) {
+        nw4r::g3d::ResFile resFile((*it)->GetData());
+        anm = resFile.GetResAnmChr(animName.c_str());
+        if (anm.IsValid()) {
+            goto found;
+        }
+    }
+    return;
+
+found:
+
+    u32 nodeCount = GetNodeCount(anm);
+    for (u32 i = 0; i < nodeCount; ++i) {
+        const nw4r::g3d::ResAnmChrNodeData* pNode = anm.GetNodeAnm(i);
+        nw4r::g3d::ResName nodeName(OffsetToPtr(pNode, pNode->name - 4));
+        if (strncmp(nodeName.GetName(), "REP_", 4) == 0 || strncmp(nodeName.GetName(), "rep_", 4) == 0) {
+            const char* pBase = nodeName.GetName() + 4;
+            std::string key(pBase, FindIndexSuffix(pBase));
+            nw4r::g3d::ChrAnmResult result;
+            anm.GetAnmResult(&result, i, 0.0f);
+            nw4r::math::MTX34 mtx;
+            result.GetMtx(&mtx);
+            layers[key].push_back(mtx);
+        }
+    }
+
+    mScnGroup.reset(nw4r::g3d::ScnGroup::Construct(GetDefaultAllocator(), nullptr, layers.size() + 1), DestroyG3dObj);
+
+    std::map<std::string, std::list<nw4r::math::MTX34> >::iterator layer = layers.begin();
+    for (; layer != layers.end(); ++layer) {
+        bool fog = IsLayerFogName(layer->first);
+        int priority = 0x65;
+        if (fog) {
+            priority = 0x66;
+        }
+        char name[100];
+        snprintf(name, sizeof(name), "rep_%s", layer->first.c_str());
+
+        std::tr1::shared_ptr<CModel> model(new CModel);
+        CModel::LoadParams params = {nullptr, false, 0, 1, nullptr};
+        params.mpFileNames = &mFileNames[0];
+        params.mpModelName = name;
+        if (!model->Load(params, background)) {
+            continue;
+        }
+
+        int motionLength = model->GetMotionLength(name);
+        if (motionLength > 0) {
+            nw4r::g3d::ResFile resFile = model->GetResFile();
+            if (resFile.GetResAnmVis(name).IsValid()) {
+                params.mOptions |= 0x40;
+            }
+            if (resFile.GetResAnmClr(name).IsValid()) {
+                params.mOptions |= 0x108;
+            }
+            if (resFile.GetResAnmTexPat(name).IsValid()) {
+                params.mOptions |= 0x3;
+            }
+            if (resFile.GetResAnmTexSrt(name).IsValid()) {
+                params.mOptions |= 0x204;
+            }
+            if (resFile.GetResAnmShp(name).IsValid()) {
+                params.mOptions |= 0x7000;
+            }
+            params.mFlag = true;
+        }
+
+        std::list<nw4r::math::MTX34>& rMatrices = layer->second;
+        std::tr1::shared_ptr<nw4r::g3d::ScnGroupEx> group(
+            nw4r::g3d::ScnGroupEx::Construct(GetDefaultAllocator(), nullptr, rMatrices.size(), rMatrices.size(),
+                                             model->GetResMdl()),
+            DestroyG3dObj);
+        mScnGroups.push_back(group);
+        mScnGroup->PushBack(group.get());
+        group->SetPriorityDrawXlu(priority);
+
+        if (motionLength > 0) {
+            std::list<nw4r::math::MTX34>::iterator matrix = rMatrices.begin();
+            for (; matrix != rMatrices.end(); ++matrix) {
+                std::tr1::shared_ptr<CModel> instance(new CModel);
+                instance->Load(params, background);
+                instance->GetScnObj()->SetPriorityDrawXlu(priority);
+                instance->Play(name, static_cast<f32>(RandInt(0, motionLength)), 1.0f);
+                mModels.push_back(instance);
+                group->PushBack(instance->GetScnObj());
+                instance->GetScnObj()->SetMtx(nw4r::g3d::ScnObj::MTX_LOCAL, *matrix);
+            }
+        } else {
+            CModel::LoadParams simple = {nullptr, true, 0, 1, nullptr};
+            simple.mpFileNames = &mFileNames[0];
+            simple.mpModelName = name;
+            std::list<nw4r::math::MTX34>::iterator matrix = rMatrices.begin();
+            for (; matrix != rMatrices.end(); ++matrix) {
+                std::tr1::shared_ptr<ScnMdlSimpleData> data(new ScnMdlSimpleData);
+                LoadScnMdlSimpleData(data.get(), simple, 0, background);
+                data->GetModel()->SetPriorityDrawXlu(priority);
+                mSimpleModels.push_back(data);
+                group->PushBack(data->GetModel());
+                data->GetModel()->SetMtx(nw4r::g3d::ScnObj::MTX_LOCAL, *matrix);
+            }
+        }
+    }
+}
+
+bool CDividedGround::IsOutOfBounds(const nw4r::math::VEC3& rPos) {
+    if (!mBSPTrees[0]) {
+        return false;
+    }
+
+    CBSPTree::Trace trace;
+    trace.mStart.x = rPos.x;
+    trace.mStart.y = 1.0f;
+    trace.mStart.z = rPos.z;
+    trace.mDirection.x = 0.0f;
+    trace.mDirection.y = -1.0f;
+    trace.mDirection.z = 0.0f;
+    return !mBSPTrees[0]->TraceSegment(trace, 0.0f, 2.0f);
+}
+
+void CDividedGround::OnEnterWorld() {
+    BModelObj::OnEnterWorld();
+    BWorld* pWorld = GetWorld();
+    if (pWorld != nullptr && mScnGroup) {
+        GetModel()->GetScnObj()->DetachFromParent();
+        mScnGroup->PushBack(GetModel()->GetScnObj());
+        pWorld->GetModelGroup()->PushBack(mScnGroup.get());
+    }
+}
+
+void CDividedGround::OnLeaveWorld(BWorld* pWorld) {
+    if (mScnGroup) {
+        mScnGroup->DetachFromParent();
+    }
+    BModelObj::OnLeaveWorld(pWorld);
+    if (mPpuEngine) {
+        mPpuEngine->Reset();
+    }
+}
+
+void CDividedGround::Calc() {
+    BModelObj::Calc();
+    std::list<std::tr1::shared_ptr<CModel> >::iterator it = mModels.begin();
+    for (; it != mModels.end(); ++it) {
+        (*it)->UpdateFrame(1.0f);
+    }
+    if (mPpuEngine) {
+        mPpuEngine->Calc();
+    }
 }

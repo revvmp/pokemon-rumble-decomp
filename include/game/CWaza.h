@@ -23,7 +23,7 @@ public:
     u32 GetBlownEnemysCount(u32 id);
     void IncBlownEnemysCount(u32 id);
     virtual CPpuEngine* GetPpuEngine() const;
-    virtual void OnLeaveWorld();
+    virtual void OnLeaveWorld(BWorld* pWorld);
 
 private:
     int mWazaID;

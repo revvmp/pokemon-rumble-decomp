@@ -131,18 +131,37 @@ int sNumUsedEffectGroupID;
 namespace nw4r {
 namespace ef {
 
+inline void ReleaseFromParent(ParticleManager* pManager);
+inline void ReleaseFromParent(Emitter* pEmitter);
+inline void ReleaseFromParent(Effect* pEffect);
+
 template <typename T> class MemoryManagerTmp {
 public:
-    MemoryManagerTmp(T* pBuffer, u32 num) {
+    MemoryManagerTmp(int num, T* pBuffer) {
         ut::List_Init(&mFreeList, 0);
         ut::List_Init(&mActiveList, 0);
         mObjectSize = sizeof(T);
         mBuffer = pBuffer;
 
         for (u32 i = 0; i < num; i++) {
-            pBuffer->mObjectID = i;
-            ut::List_Append(&mFreeList, pBuffer);
-            pBuffer++;
+            pBuffer[i].mObjectID = i;
+            ut::List_Append(&mFreeList, &pBuffer[i]);
+        }
+    }
+
+    void GarbageCollection() {
+        T* pObject;
+        T* pNext;
+        pObject = static_cast<T*>(ut::List_GetFirst(&mActiveList));
+        if (pObject == nullptr) return;
+        pNext = static_cast<T*>(ut::List_GetNext(&mActiveList, pObject));
+        while (pObject != nullptr) {
+            if (pObject->GetLifeStatus() == ReferencedObject::NW4R_EF_LS_CLOSING && pObject->GetRefCount() == 0) {
+                ReleaseFromParent(pObject);
+                Free(pObject);
+            }
+            pObject = pNext;
+            pNext = static_cast<T*>(ut::List_GetNext(&mActiveList, pNext));
         }
     }
 
@@ -187,30 +206,6 @@ inline void ReleaseFromParent(Effect* pEffect) {
     pEffect->mManagerES->mActivityList[pEffect->mGroupID].ToFree(pEffect);
 }
 
-template <typename T> inline void CollectClosing(MemoryManagerTmp<T>* pPool) {
-    T* pObject;
-    T* pNext;
-
-    if (pPool == nullptr) {
-        return;
-    }
-
-    pObject = static_cast<T*>(ut::List_GetFirst(&pPool->mActiveList));
-    if (pObject == nullptr) {
-        return;
-    }
-
-    pNext = static_cast<T*>(ut::List_GetNext(&pPool->mActiveList, pObject));
-    while (pObject != nullptr) {
-        if (pObject->GetLifeStatus() == ReferencedObject::NW4R_EF_LS_CLOSING && pObject->GetRefCount() == 0) {
-            ReleaseFromParent(pObject);
-            pPool->Free(pObject);
-        }
-        pObject = pNext;
-        pNext = static_cast<T*>(ut::List_GetNext(&pPool->mActiveList, pNext));
-    }
-}
-
 class MemoryManager : public MemoryManagerBase {
 public:
     struct HeapBlock {
@@ -220,7 +215,7 @@ public:
         HeapBlock* mNextPhys;
         u32 mSize;
         bool mUsed;
-    } __attribute__((aligned(32)));
+    };
 
     MemoryManager(void* pBuffer, u32 size, u16 numEffect, u16 numEmitter, u16 numParticleManager, u16 numParticle) {
         mNumEffect = numEffect;
@@ -242,37 +237,41 @@ public:
         mFreeList->mPrevPhys = nullptr;
         mFreeList->mNextPhys = nullptr;
         mFreeList->mUsed = false;
-        mFreeList->mSize = mHeapEnd - mHeapStart - sizeof(HeapBlock);
+        mFreeList->mSize = mHeapEnd - mHeapStart - AlignHeap(sizeof(HeapBlock));
         mFirstBlock = mFreeList;
         mUsedList = nullptr;
 
+        int numEffects = mNumEffect;
         Effect* pEffects = nullptr;
-        if (mNumEffect > 0) {
-            pEffects = new (AllocHeap(sizeof(Effect) * mNumEffect + 0x20)) Effect[mNumEffect];
+        if (numEffects > 0) {
+            pEffects = new (AllocHeap(sizeof(Effect) * numEffects + 0x20)) Effect[numEffects];
         }
-        mEffectPool = new (AllocHeap(sizeof(MemoryManagerTmp<Effect>))) MemoryManagerTmp<Effect>(pEffects, mNumEffect);
+        mEffectPool = new (AllocHeap(sizeof(MemoryManagerTmp<Effect>))) MemoryManagerTmp<Effect>(mNumEffect, pEffects);
 
+        int numEmitters = mNumEmitter;
         EmitterWithParam* pEmitters = nullptr;
-        if (mNumEmitter > 0) {
-            pEmitters = new (AllocHeap(sizeof(EmitterWithParam) * mNumEmitter + 0x20)) EmitterWithParam[mNumEmitter];
+        if (numEmitters > 0) {
+            pEmitters = new (AllocHeap(sizeof(EmitterWithParam) * numEmitters + 0x20)) EmitterWithParam[numEmitters];
         }
         mEmitterPool = new (AllocHeap(sizeof(MemoryManagerTmp<EmitterWithParam>)))
-            MemoryManagerTmp<EmitterWithParam>(pEmitters, mNumEmitter);
+            MemoryManagerTmp<EmitterWithParam>(mNumEmitter, pEmitters);
 
+        int numParticleManagers = mNumParticleManager;
         ParticleManager* pParticleManagers = nullptr;
-        if (mNumParticleManager > 0) {
+        if (numParticleManagers > 0) {
             pParticleManagers =
-                new (AllocHeap(sizeof(ParticleManager) * mNumParticleManager + 0x20)) ParticleManager[mNumParticleManager];
+                new (AllocHeap(sizeof(ParticleManager) * numParticleManagers + 0x20)) ParticleManager[numParticleManagers];
         }
         mParticleManagerPool = new (AllocHeap(sizeof(MemoryManagerTmp<ParticleManager>)))
-            MemoryManagerTmp<ParticleManager>(pParticleManagers, mNumParticleManager);
+            MemoryManagerTmp<ParticleManager>(mNumParticleManager, pParticleManagers);
 
+        int numParticles = mNumParticle;
         Particle* pParticles = nullptr;
-        if (mNumParticle > 0) {
-            pParticles = new (AllocHeap(sizeof(Particle) * mNumParticle + 0x20)) Particle[mNumParticle];
+        if (numParticles > 0) {
+            pParticles = new (AllocHeap(sizeof(Particle) * numParticles + 0x20)) Particle[numParticles];
         }
         mParticlePool =
-            new (AllocHeap(sizeof(MemoryManagerTmp<Particle>))) MemoryManagerTmp<Particle>(pParticles, mNumParticle);
+            new (AllocHeap(sizeof(MemoryManagerTmp<Particle>))) MemoryManagerTmp<Particle>(mNumParticle, pParticles);
     }
 
     virtual ~MemoryManager() {}
@@ -291,9 +290,9 @@ public:
             }
         });
 
-        CollectClosing(mParticleManagerPool);
-        CollectClosing(mEmitterPool);
-        CollectClosing(mEffectPool);
+        if (mParticleManagerPool != nullptr) mParticleManagerPool->GarbageCollection();
+        if (mEmitterPool != nullptr) mEmitterPool->GarbageCollection();
+        if (mEffectPool != nullptr) mEffectPool->GarbageCollection();
     }
 
     virtual Effect* AllocEffect() {
@@ -418,77 +417,85 @@ public:
 
     virtual void* AllocHeap(u32 size);
     virtual void FreeHeap(void* pPtr) {
-        HeapBlock* pBlock = static_cast<HeapBlock*>(pPtr) - 1;
-        HeapBlock* pPrevFree;
-        HeapBlock* pNextFree;
+        u32 headerSize = AlignHeap(sizeof(HeapBlock));
+        HeapBlock* pInfo = reinterpret_cast<HeapBlock*>(static_cast<u8*>(pPtr) - headerSize);
 
-        if (pBlock->mPrev != nullptr) {
-            pBlock->mPrev->mNext = pBlock->mNext;
+        if (pInfo->mPrev != nullptr) {
+            pInfo->mPrev->mNext = pInfo->mNext;
         } else {
-            mUsedList = pBlock->mNext;
-        }
-        if (pBlock->mNext != nullptr) {
-            pBlock->mNext->mPrev = pBlock->mPrev;
+            mUsedList = pInfo->mNext;
         }
 
-        pPrevFree = nullptr;
-        if (pBlock->mPrevPhys != nullptr && !pBlock->mPrevPhys->mUsed) {
-            pPrevFree = pBlock->mPrevPhys;
-        }
-        pNextFree = nullptr;
-        if (pBlock->mNextPhys != nullptr && !pBlock->mNextPhys->mUsed) {
-            pNextFree = pBlock->mNextPhys;
+        if (pInfo->mNext != nullptr) {
+            pInfo->mNext->mPrev = pInfo->mPrev;
         }
 
-        if (pPrevFree != nullptr) {
-            if (pNextFree != nullptr) {
-                if (pNextFree->mPrev != nullptr) {
-                    pNextFree->mPrev->mNext = pNextFree->mNext;
+        HeapBlock* pPrev = nullptr;
+        if (pInfo->mPrevPhys != nullptr && !pInfo->mPrevPhys->mUsed) {
+            pPrev = pInfo->mPrevPhys;
+        }
+
+        HeapBlock* pNext = nullptr;
+        if (pInfo->mNextPhys != nullptr && !pInfo->mNextPhys->mUsed) {
+            pNext = pInfo->mNextPhys;
+        }
+
+        if (pPrev != nullptr) {
+            if (pNext != nullptr) {
+                if (pNext->mPrev != nullptr) {
+                    pNext->mPrev->mNext = pNext->mNext;
                 } else {
-                    mFreeList = pNextFree->mNext;
-                }
-                if (pNextFree->mNext != nullptr) {
-                    pNextFree->mNext->mPrev = pNextFree->mPrev;
+                    mFreeList = pNext->mNext;
                 }
 
-                pPrevFree->mSize += pBlock->mSize + pNextFree->mSize + sizeof(HeapBlock) * 2;
-                pPrevFree->mNextPhys = pNextFree->mNextPhys;
-                if (pNextFree->mNextPhys != nullptr) {
-                    pNextFree->mNextPhys->mPrevPhys = pPrevFree;
+                if (pNext->mNext != nullptr) {
+                    pNext->mNext->mPrev = pNext->mPrev;
+                }
+
+                pPrev->mSize += pNext->mSize + pInfo->mSize + headerSize + headerSize;
+
+                pPrev->mNextPhys = pNext->mNextPhys;
+
+                if (pNext->mNextPhys != nullptr) {
+                    pNext->mNextPhys->mPrevPhys = pPrev;
                 }
             } else {
-                pPrevFree->mSize += pBlock->mSize + sizeof(HeapBlock);
-                pPrevFree->mNextPhys = pBlock->mNextPhys;
-                if (pBlock->mNextPhys != nullptr) {
-                    pBlock->mNextPhys->mPrevPhys = pPrevFree;
+                pPrev->mSize += pInfo->mSize + headerSize;
+                pPrev->mNextPhys = pInfo->mNextPhys;
+
+                if (pInfo->mNextPhys != nullptr) {
+                    pInfo->mNextPhys->mPrevPhys = pPrev;
                 }
             }
-        } else if (pNextFree != nullptr) {
-            if (pNextFree->mPrev != nullptr) {
-                pNextFree->mPrev->mNext = pBlock;
+        } else if (pNext != nullptr) {
+            if (pNext->mPrev != nullptr) {
+                pNext->mPrev->mNext = pInfo;
             } else {
-                mFreeList = pBlock;
-            }
-            if (pNextFree->mNext != nullptr) {
-                pNextFree->mNext->mPrev = pBlock;
+                mFreeList = pInfo;
             }
 
-            pBlock->mPrev = pNextFree->mPrev;
-            pBlock->mNext = pNextFree->mNext;
-            pBlock->mUsed = false;
-            pBlock->mSize += pNextFree->mSize + sizeof(HeapBlock);
-            pBlock->mNextPhys = pNextFree->mNextPhys;
-            if (pNextFree->mNextPhys != nullptr) {
-                pNextFree->mNextPhys->mPrevPhys = pBlock;
+            if (pNext->mNext != nullptr) {
+                pNext->mNext->mPrev = pInfo;
+            }
+
+            pInfo->mPrev = pNext->mPrev;
+            pInfo->mNext = pNext->mNext;
+            pInfo->mSize += pNext->mSize + headerSize;
+            pInfo->mUsed = false;
+            pInfo->mNextPhys = pNext->mNextPhys;
+
+            if (pNext->mNextPhys != nullptr) {
+                pNext->mNextPhys->mPrevPhys = pPrev;
             }
         } else {
             if (mFreeList != nullptr) {
-                mFreeList->mPrev = pBlock;
+                mFreeList->mPrev = pInfo;
             }
-            pBlock->mNext = mFreeList;
-            pBlock->mPrev = nullptr;
-            pBlock->mUsed = false;
-            mFreeList = pBlock;
+
+            pInfo->mNext = mFreeList;
+            pInfo->mPrev = nullptr;
+            pInfo->mUsed = false;
+            mFreeList = pInfo;
         }
     }
 
@@ -549,10 +556,10 @@ void* nw4r::ef::MemoryManager::AllocHeap(u32 size) {
             pBlock->mUsed = true;
             mUsedList = pBlock;
         } else {
-            HeapBlock* pRest = reinterpret_cast<HeapBlock*>(reinterpret_cast<u8*>(pBlock + 1) + blockSize);
+            HeapBlock* pRest = reinterpret_cast<HeapBlock*>(reinterpret_cast<u8*>(pBlock) + AlignHeap(sizeof(HeapBlock)) + blockSize);
             pRest->mPrev = pBlock->mPrev;
             pRest->mNext = pBlock->mNext;
-            pRest->mSize = pBlock->mSize - blockSize - sizeof(HeapBlock);
+            pRest->mSize = pBlock->mSize - blockSize - AlignHeap(sizeof(HeapBlock));
             pRest->mUsed = false;
 
             pRest->mNextPhys = pBlock->mNextPhys;
@@ -581,7 +588,7 @@ void* nw4r::ef::MemoryManager::AllocHeap(u32 size) {
             mUsedList = pBlock;
         }
 
-        return pBlock + 1;
+        return reinterpret_cast<u8*>(pBlock) + AlignHeap(sizeof(HeapBlock));
     }
 
     return nullptr;
@@ -593,7 +600,7 @@ u32 AllocEffectGroupID() {
     nw4r::ef::EffectSystem* pSystem = nw4r::ef::EffectSystem::GetInstance();
 
     if (sNumUsedEffectGroupID == 0) {
-        sUsedEffectGroupID.reset(new std::vector<bool>(pSystem->mMaxGroupID));
+        sUsedEffectGroupID.reset(new std::vector<bool>(pSystem->mMaxGroupID, false));
         (*sUsedEffectGroupID)[0] = true;
         sNumUsedEffectGroupID++;
         return 0;
@@ -968,7 +975,7 @@ void CEffect::CalcMtx() {
             pEmitter->mParameter.mParams[0] = pEmitter->mParameter.mParams[4] = mParam.mFrames.mRadius;
         } else {
             pEmitter->mParameter.mParams[0] = pEmitter->mParameter.mParams[4] =
-                static_cast<f32>(tick) / mParam.mFrames.mLife * mParam.mFrames.mRadius;
+                mParam.mFrames.mRadius * (static_cast<f32>(tick) / mParam.mFrames.mLife);
         }
         break;
     }
@@ -979,8 +986,8 @@ void CEffect::CalcMtx() {
             break;
         }
 
-        u32 index = pEmitter->mTick % 10;
         f32 length = mParam.mFrames.mRadius * mParam.mFrames.mLife;
+        u32 index = pEmitter->mTick % 10;
         f32 sin;
         f32 cos;
         nw4r::math::SinCosRad(&sin, &cos, mParam.mFrames.mHeight * sExtendEmissionOffsets[index].x);

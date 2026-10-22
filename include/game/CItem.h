@@ -14,7 +14,7 @@ public:
     virtual ~CItem();
     virtual void Calc();
     virtual CPpuEngine* GetPpuEngine() const { return mPpuEngine.get(); }
-    virtual void OnLeaveWorld();
+    virtual void OnLeaveWorld(BWorld* pWorld);
     virtual void Initialize(bool background);
     bool LoadScript(const char* pName, int mode, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnvironment);
     void LoadModel(const char* pName, bool background);
