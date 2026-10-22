@@ -7,6 +7,7 @@
 
 class CPiiCollectionBox {
 public:
+    CPiiCollectionBox() { mEntries.resize(496); }
     static std::tr1::shared_ptr<CPiiCollectionBox> Create(const std::vector<SD_PiiCollectionData::Data>& rData);
     int GetCollectionType(u16 monsno);
     void SetCollectionBRR(u16 monsno, int type, int value);

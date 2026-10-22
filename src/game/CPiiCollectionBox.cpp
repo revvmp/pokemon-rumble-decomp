@@ -50,3 +50,24 @@ int CPiiCollectionBox::GetDefeatCount(u16 monsno, int difficulty) {
 int CPiiCollectionBox::GetDefeatCount(u16 monsno) {
     return mEntries[monsno].mDefeatedCount;
 }
+
+std::tr1::shared_ptr<CPiiCollectionBox> CPiiCollectionBox::Create(const std::vector<SD_PiiCollectionData::Data>& rData) {
+    std::tr1::shared_ptr<CPiiCollectionBox> box(new CPiiCollectionBox);
+    for (u16 monsno = 1; monsno < 496; monsno++) {
+        if (monsno < rData.size()) {
+            const SD_PiiCollectionData::Data& rSrc = rData[monsno];
+            Entry& rEntry = box->mEntries[monsno];
+            rEntry.mCollectionType = rSrc.mValues[0] >> 29;
+            rEntry.mBestBRR[0] = (rSrc.mValues[0] >> 26) & 7;
+            rEntry.mBestBRR[1] = (rSrc.mValues[0] >> 23) & 7;
+            rEntry.mBestBRR[2] = (rSrc.mValues[0] >> 20) & 7;
+            rEntry.mDefeatedCount = rSrc.mValues[1];
+            rEntry.mCollectedForms[0] = rSrc.mValues[2];
+            rEntry.mCollectedForms[1] = rSrc.mValues[3];
+            if ((rSrc.mValues[0] >> 19) & 1) {
+                rEntry.mCollectedForms[1] |= 1;
+            }
+        }
+    }
+    return box;
+}
