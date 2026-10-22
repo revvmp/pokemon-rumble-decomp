@@ -131,3 +131,23 @@ GetPiiBox 85.80% to 100% (CRemoteMemory 14 to 15 of 20). BeginRead 96.51% to 97.
 | CRemoteMemory | FinishRead | 97.46 | The same composite `SetState` form, plus register allocation. |
 | CRemoteMemory | ThreadMain | 98.62 | Inlined ReadBack holds `mTransferOffset` in `r8` in the target. An offset local (`u16`, `int`) and the operand order (98.67) were tried. |
 | CRemoteMemory | PrepareWrite, FinishWrite | 99.47, 98.19 | Register allocation only. A pointer local, unsigned and `u8` index casts were tried. Removing any pass from the set loses. |
+
+## Register-allocation wave (sprint-ra tools)
+
+No function reached 100% and no unit flipped. Each case was traced with `tools/re/ra_trace.py` and its colouring order compared with the target.
+
+| Unit | Function | % | Diagnosis and attempts |
+| --- | --- | --- | --- |
+| ScriptGame | `IncMapClearedNum` | 99.49 | The record address is a temporary (r65) and the loaded `mValue` is the IR CSE variable `@24684` (r33), so the address is coloured first and takes r4. The target colours the value first. A reference or pointer local is copy-propagated away. `IncrementClearCount` bodies with a value local, `GetClearCount() + 1`, swapped `|` operands, `<= 1023`, an `int` count, and a bitfield union (inserts into the value instead, 97.37) all lose. |
+| ScriptWorld | `SetStageDescTarget` | 99.71 | The pop results are temporaries r46 (world) and r53 (rank). `world` has degree 29 = K, but its two lower-numbered neighbours (`@9333`, `@9335`, pop slice addresses) are pushed earlier in the same scan, so it drops to 27 and is coloured after `rank`. Split declarations, `const` locals, a direct third pop, member-wise assignment and `MapIndex target = {0}` do not keep the named locals. Single `opt_*` pass pragmas do not help. |
+| CPiiListFilterSort | `ShowTypeFilterMenu` | 99.94 | As in sprint-ra. A named `kind` local in the caller loop is propagated away. |
+| CPiiListFilterSort | `Sort` | 96.16 | Scheduling only: the target loads `mSortType` and the comparator table address before storing the `begin()` result; ours generates the load after that store and depends on it. A `compare` local (74.2), explicit template arguments, an `int` cast and pointer indexing do not move it. |
+| CPiiListFilterSort | `sort<UIMenuItem>` | 99.37 | `first`, `last` and the 0x66666667 constant are all high-degree nodes; their order comes from the optimistic spill-cost pushes, not from numbering. |
+| CModel | `TPartialAnm<0/1>::Update` | 99.80, 99.63 | The `pop_front` node `@46386` (r50) is coloured before the callback argument `@46442` (r47) and, with `advanced` dead, reuses r30. The target colours the callback argument first (it conflicts with `advanced` and opens r27), then the node takes r27. `erase(begin())`, an `rNext` reference and moving `advanced = true` lose (97.9 to 98.8). The callback argument is the `function::operator()` parameter in the shared header. |
+| CModel | `QueueMotion<1>` | 99.41 | Besides the `IsIdle` swap, the target reloads `mMotions.size()` for the `>= 2` test; ours keeps the first load in r8. |
+| CGameSession | `GetSnapshot` | 88.24 | Scheduling: ours stores the count first. All local/direct combinations of play time, money and count, `CGameSession::GetMoney()`, and a `now` local were tried; the best is 88.38 (money local, count direct). |
+| CGameSession | `SessionSnapshot` dtor, `vector<SD_PiiPersonalData::Data>` dtor | 97.73, 96.77 | The target has one more inlined base destructor level (one more `beq`) for the `SD_PiiPersonalData::Data` and `SD_BattleRoyalData::Data` vectors only, while the `vector<SD_BattleRoyalData::Data>` dtor at `0x8006AE90` (CBattleRoyalBox) has the normal three. |
+| CDlgPiiSelector | `vector::assign`, `vector::insert` from list iterators | 99.82, 80.59 | The tag local and its by-value copy have swapped slots, and in `insert` the copy's address is computed before the iterator conversion call and kept in r31. An `int2type<0>()` temporary removes the local slot (78.0, 92.7). |
+| CDlgInfo | `CDlgInfoItemLine::Update` | 99.88 | `hasColumns` (named, degree 33) waits for a later pass and is coloured early; `hasText` folds into the `HasText` return variable and is coloured late. The target has the opposite. `hasColumns = !hasText && ...`, if/else, nested `if`, and writing `HasText` out inline lose. |
+| CDlgInfo | `do_replace<wchar_t>` | 97.47 | The `char` instance matches in BWorldCamera; only the `wchar_t` one CSEs the raw `last - first` byte difference across the reallocation. `distance()` (95.9), casts and operand order in the `memmove` size do not stop it. |
+| ScriptWorldObj | `tree_begin_holder<less<int>>` ctor | 8.33 | A user `binary_function() {}` does not emit the call and costs COyaInfo 6 functions and CMsgBalloon 3. |
