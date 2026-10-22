@@ -186,7 +186,7 @@ void CUIList::OnInput(const IUIInput* pInput) {
         }
     } else {
         int direction=4;
-        if (buttons&pButtons[0]) {
+        if (pButtons[0]&buttons) {
             direction=pDirections[0];
             GetSelectedIndex();
             if (!mItems.empty()) while (true) {
@@ -195,9 +195,10 @@ void CUIList::OnInput(const IUIInput* pInput) {
                     mSelectedIndex=mItems.size();
                 }
                 --mSelectedIndex;
-                if (mSelectedIndex==previousIndex || mItems[mSelectedIndex]->IsSelectable()) break;
+                if (mSelectedIndex==previousIndex) break;
+                if (mItems[mSelectedIndex]->IsSelectable()) break;
             }
-        } else if (buttons&pButtons[1]) {
+        } else if (pButtons[1]&buttons) {
             direction=pDirections[1];
             GetSelectedIndex();
             if (!mItems.empty()) while (true) {
@@ -206,7 +207,8 @@ void CUIList::OnInput(const IUIInput* pInput) {
                     mSelectedIndex=-1;
                 }
                 ++mSelectedIndex;
-                if (mSelectedIndex==previousIndex || mItems[mSelectedIndex]->IsSelectable()) break;
+                if (mSelectedIndex==previousIndex) break;
+                if (mItems[mSelectedIndex]->IsSelectable()) break;
             }
         }
         if (mSelectedIndex!=previousIndex && mScrollMode==1) {

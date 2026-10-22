@@ -376,25 +376,28 @@ void UpdateHomeButton() {
     if (!sInitialized)
         return;
     int errors[4];
-    for (int i = 0; i < 4; ++i) {
-        HBMKPadData& rCon = sController.wiiCon[i];
-        KPADStatus& rRead = sReadStatus[i];
-        KPADStatus& rFiltered = sFilteredStatus[i];
+    int* pError = errors;
+    HBMKPadData* pCon = sController.wiiCon;
+    KPADStatus* pRead = sReadStatus;
+    KPADStatus* pFiltered = sFilteredStatus;
+    for (int i = 0; i < 4; ++i, ++pError, ++pCon, ++pRead, ++pFiltered) {
+        HBMKPadData& rCon = *pCon;
+        KPADStatus& rRead = *pRead;
+        KPADStatus& rFiltered = *pFiltered;
         unsigned int deviceType;
-        errors[i] = GetWiiPadDevice(i, &deviceType);
+        *pError = GetWiiPadDevice(i, &deviceType);
         rCon.use_devtype = deviceType;
         rRead = *static_cast<KPADStatus*>(GetWiiPad(i));
         rFiltered = rRead;
         if (spParam->HasFlags(8) && rCon.use_devtype == WPAD_DEV_CLASSIC)
             rCon.use_devtype = 0;
-        if (errors[i] != 0 && errors[i] != -2 && errors[i] != -3 && errors[i] != -4 && errors[i] != -7) {
-            rCon.kpad = nullptr;
-            memset(&rFiltered, 0, sizeof(KPADStatus));
-        } else {
+        if (*pError == -2 || *pError == -3 || *pError == -4 || *pError == -7 || *pError == 0) {
             rCon.kpad = &rFiltered;
             bool padMoved = MoveClassicCursor(rFiltered.ex_status.cl.hold, &rCon.pos);
-            float dx = nw4r::ut::Clamp(rCon.kpad->ex_status.cl.lstick.x / (256.0f / 9.0f), -1.0f, 1.0f);
-            float dy = nw4r::ut::Clamp(rCon.kpad->ex_status.cl.lstick.y / (256.0f / 9.0f), -1.0f, 1.0f);
+            float dx = rCon.kpad->ex_status.cl.lstick.x / (256.0f / 9.0f);
+            float dy = rCon.kpad->ex_status.cl.lstick.y / (256.0f / 9.0f);
+            dx = nw4r::ut::Clamp(dx, -1.0f, 1.0f);
+            dy = nw4r::ut::Clamp(dy, -1.0f, 1.0f);
             bool stickMoved;
             if (dx == 0.0f && dy == 0.0f) {
                 stickMoved = false;
@@ -405,6 +408,9 @@ void UpdateHomeButton() {
             }
             if (!(padMoved | stickMoved) && rCon.kpad->dpd_valid_fg > 0)
                 rCon.pos = rCon.kpad->pos;
+        } else {
+            rCon.kpad = nullptr;
+            memset(&rFiltered, 0, sizeof(KPADStatus));
         }
     }
     if (!sActive && !sWaitingToOpen) {

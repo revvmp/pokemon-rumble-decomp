@@ -464,9 +464,9 @@ bool CTitleSession::RefreshSlots() {
     mFirstEmptySlot = -1;
     mFirstUsedSlot = -1;
 
-    std::wstring* pSlotText = mSlotTexts;
+
     s64 latest = 0;
-    for (int i = 0; i < SLOT_COUNT; ++i, ++pSlotText) {
+    for (int i = 0; i < SLOT_COUNT; ++i) {
         bool used = GetSaveData(i)->mData.mTime > 0;
         std::wstring text(GetMessageText(0x600D2, gEmptyText));
         if (used) {
@@ -506,7 +506,7 @@ bool CTitleSession::RefreshSlots() {
         mButtonEnabled[SCREEN_NEW_GAME][i] = !used;
         mButtonEnabled[SCREEN_CONTINUE][i] = used;
         mButtonEnabled[SCREEN_DELETE][i] = used;
-        pSlotText->assign(text);
+        mSlotTexts[i].assign(text);
     }
 
     bool hasSlots = true;
