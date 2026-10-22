@@ -92,3 +92,24 @@ All 139 functions are present. 136 score 100%, and the other three differ only i
   - These had no effect: moving AppendItems or the `Add` definition, and reordering the constructor's mem-initializers. Moving RunSell into the `dont_inline` region breaks code.
   - The order seems to follow when each `shared_ptr(Y*)` instance is generated, not the source position. This is unresolved.
 - **The 4 `.text` misplaced functions:** they are in OnAccept's inlined `CountRemoteUnmarked` loop. A `while` loop, a `continue` body and a ternary leave the order unchanged; the ternary also changes code. The target emits the iterator's `*` and `++` before `const_iterator(iterator)` and `begin`, as if something earlier had already instantiated `*` and `++`.
+
+## Register-allocation wave (single-function units and libraries)
+
+Fixed: ef_animcurve `AnimCurveExecuteBakedU8` and `AnimCurveExecuteBakedF32` (99.74% to 100%). The frame length must survive as a named variable so that it is coloured after `loop`, `span` and `infiniteLoop`. A `u16` local loaded from a `u16` field is deleted by the IR and kept in an expression temporary, which is coloured first and takes r4 instead of r8. `u32 count = pHeader->frameLength;` survives. `infiniteLoop` must be declared before `count`, so that `count` has the lower number and is coloured after it, and `life - 1` must stay an expression so that it takes r4 ahead of `count`.
+
+### Traps
+
+- **A named local survives only if its initialiser is not a plain copy.** `u16 x = u16 field` and `T x = inlineReturningT()` are deleted, and their value lives in an expression temporary or the inline's `@` return variable, both of which rank above all named locals. A widening conversion (`u32 x = u16 field`) keeps the variable. A widening conversion from an inline's `@` return variable does not: the `@` variable is copy-propagated into the uses and the named local is left dead (degree 0 in `ra_trace`). Check survival in the trace before reasoning about declaration order.
+- **`@` numbers are not the virtual-register order.** Wrapping `list::erase` in inline helpers gave its variables later `@` numbers but the same virtual registers. Read the `rNN` column of `ra_trace`, not the `@` names.
+
+### Diagnosed, not fixed
+
+- **ArchiveFontBase `ConstructOpAnalyzeGLGR`** (99.29%). Target colouring: `glyphsPerSheet` r31 and `sizeAdjustTable` r30 first (deleted locals), `pAdjustTable` r22 late (a surviving named local). `const u16 glyphsPerSheet`, `const u32 sizeAdjustTable` and `reinterpret_cast<u16*>(RoundDown(reinterpret_cast<u32>(pFileTop) + remain - sizeAdjustTable, 2))` reproduce all of that (99.25%). `numSheet` must then also survive as a named local so that it is coloured after `pFileTop`, but it stays in `GetNumSheet()`'s `@` variable with every type tried (`u16`, `int`, `u32`).
+- **TMCJPEG `TMCJPEGSetupRGB565`/`RGBA8`** (Wii/1.0). The target adds `height / 4 + predicate` with the predicate generated first. Every operand order, cast, ternary and `!!` form either keeps our operand order or moves the quotient earlier.
+- **CEffect `InitializeEffect`.** `size` (r23) and `pBuffer` (r24) are coloured after the inlined pool-count and pool-pointer `@` variables, so the counts open r24 instead of reusing r23. The target needs `size` and `pBuffer` coloured first, which only `@` or temporary values above the constructor's can achieve. An inline `CreateMemoryManager` helper holding them reorders the colours but adds an inline level that swaps the exception-frame slots (98.79%).
+- **CGameEnding `Calc`.** The erase node variables from `list::erase` are numbered above the `+=` size variables, so they open r26 instead of reusing r25. Inline wrappers (one or two levels), `pop_front` and an in-class `list::erase` definition do not move them below the size variables.
+- **CUIMenu `OnInput`.** The target's `selected % mRowCount` uses `selected`'s register; ours uses the copy-propagated call result r3. Writing `candidate % mRowCount` does not change it.
+- **CBattleRoyalBox `GetData`.** `return mData[mode][area];` produces exactly the target's instructions (85%) but generates the `px` address add before `this + mode*40`; the target generated the row base first.
+- **CPiiPersonalData `Import`.** `rData.mCreationTimeLow | (s64(high) << 32)` reproduces the target's load order (low first) but not its `or` operand order (target `zero | low`). Writing the high part first restores the operand order but loads high first.
+- **CDlgMsgWin `shared_ptr_deleter<char, default_delete<char[]>>` constructor.** Ours schedules the deleter copy `lbz` above the vtable store (no alias dependence); the target keeps it after, as if the load may alias `*this`.
+- **errmsg `GetPaneRectangle`.** The final scheduling pass lifts `lis`, `lbz` and `addi` above `stwu` because the `% 3` chain is at its deadline at cycle 0. The target's order is `lis`, `addi`, `lbz`; ours is `lis`, `lbz`, `addi`.
