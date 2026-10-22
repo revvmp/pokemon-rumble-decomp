@@ -240,7 +240,7 @@ void CPiiListFilterSort::Sort(PiiItemVector& rItems, int player) {
                 }
             }
             if (sorted.size() == rItems.size()) {
-                rItems = sorted;
+                rItems.swap(sorted);
             }
         }
     }
