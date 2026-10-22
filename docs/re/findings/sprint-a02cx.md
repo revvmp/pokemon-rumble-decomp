@@ -75,3 +75,34 @@ The unit remains NonMatching, with data and exception sections also unresolved. 
 - The UIMenuItem sorts and shared-pointer comparator-reference sort retain the register-allocation problems documented in sprint-r1 and sprint-cx. No shared algorithm/header change is retained or credited.
 
 Final recheck: after the second Ninja interruption, the generated total changed again. Repeating the controlled HEAD-source versus retained-source compilation and report comparison gives 13284 to 13285 perfect functions, with 0 perfect-function losses and only the same two CPiiListFilterSort score changes. Credit this work with one new perfect function. Changes to other pre-existing object artifacts between report generations are not credited; their cause was not established. Final git diff --check passes.
+
+
+## 2026-10-22: library straggler continuation
+
+No new function reached 100%. All source experiments were reverted byte-for-byte; no Matching classification, header, symbol, split, or target-manifest change is retained. Work stayed in the current directory, used no Git write commands and created no scratch files. This entry is the only retained repository edit. The requested library completion remains unfinished.
+
+### Rejected controls
+
+- TMCJPEGSetupRGB565: replacing height alignment with a named signed height quotient followed by compound addition of the remainder predicate changed register allocation and reduced 99.830505% to 89.41%. Reverted. No claim is made for the unchanged RGBA8 setup or converters.
+- ArchiveFontBase ConstructOpAnalyzeGLGR: deferring adjustment-table pointer construction until after the remaining-space rejection changed the block-end and sheet-count registers and reduced 99.291664% to 94.77%. Reverted.
+- TextWriterBase PrintToDisplayListImpl: moving the z-coordinate read after GetBaselinePos, with either declaration at that point or an earlier uninitialized declaration, changed the constant-register allocation and reduced the char/wchar scores to 97.57914%/97.6177%. Reverted both forms; restored scores are 98.48921%/98.513275%. This confirms the existing declaration-order limitation rather than solving it.
+- Both baked animation executors: lifting the fitted lifetime temporary declaration into the outer scope left 99.739334% unchanged. Hoisting its initialization as well reduced both to 96.72986%. Reverted. The eleven remaining register-operand differences are still present.
+- Read the prior flag sweeps, converter permutations, particle-manager frame issues and draw-strategy switch findings. No new source candidate was retained for the remaining requested routines.
+
+### Validation and tooling
+
+`python configure.py` succeeded. Normal Ninja and a verbose single-job retry stalled without output and were interrupted; neither is a passing build. Running its configured `dtk dol split` command directly succeeded. Individual ASCII source controls used generated compiler commands and live unitdiff, and the original sources were recompiled after restoration.
+
+The report initially on disk counted 13,291 perfect functions. Regenerating it after restoration and a fresh split counted 13,286 while every requested function retained its initial score and Git showed no source differences. These cached report totals are not a controlled source-change comparison. A full configured-source rebuild was started to resolve the stale-object discrepancy.
+
+### Final validation
+
+All 869 configured source compilation commands completed with zero failures when run with inherited output, retaining sjiswrap and the configured compiler flags. The earlier captured-output attempt stalled and was interrupted. This is an observed invocation difference, not a proven general cause of Ninja stalls.
+
+After deleting build/wpse-v1/main.dol, the generated linker command and elf2dol command both exited zero. The linker response file was generated from Ninja compdb's expanded link inputs in its normal configured build location. Frozen verification passed with:
+
+```text
+python tools/verify/verify.py verify --manifest config/targets/wpse-v1.json --reference-dir orig/wpse-v1 --build-dir build/wpse-v1
+```
+
+The final refreshed report counts **13,303** functions with fuzzy_match_percent equal to 100, compared with the initial cached 13,291. This increase is from rebuilding existing source artifacts and is not credited as reconstruction work. No requested function gained 100%, and no unit was promoted. Only this findings file is modified. The normal Ninja entry point remains unvalidated in this session; the successful validation used its generated compilation and link commands directly.
