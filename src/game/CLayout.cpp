@@ -214,7 +214,7 @@ int CLayout::LoadArchives(const char* const* pArchives, const char* pLayoutName,
     if (files.size() == 0) {
         return 2;
     }
-    mFiles = files;
+    mFiles.swap(files);
     mArchives.reserve(mFiles.size());
     for (std::list<std::tr1::shared_ptr<CFileData> >::iterator it = mFiles.begin(); it != mFiles.end(); ++it) {
         std::tr1::shared_ptr<nw4r::lyt::ArcResourceLink> link(new nw4r::lyt::ArcResourceLink);
