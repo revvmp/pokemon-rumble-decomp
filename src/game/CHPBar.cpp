@@ -25,7 +25,7 @@ const char* const sPlayerPaneNames[4] = {"P0_P", "P1_P", "P2_P", "P3_P"};
 
 class CHPBar::CDamage {
 public:
-    CDamage(Kind kind, int value) : mCount(1), mMotion() {
+    CDamage(u32 kind, int value) : mCount(1), mMotion() {
         const char* pName;
         if (value >= 0) {
             pName = "hp_heal";
@@ -275,15 +275,18 @@ void CHPBar::CalcView(const nw4r::math::MTX34& rView, const nw4r::math::MTX44& r
     PSMTXMultVec(rView, position, position);
     nw4r::math::VEC3TransformCoord(&position, &rProjection, &position);
     if (!(mFlags & FLAG_ON_SCREEN) && mKind <= KIND_ENEMY) {
-        if (-1.2f >= position.x || position.x >= 1.2f || -1.2f >= position.y || position.y >= 1.2f) {
+        if (-1.2f < position.x && position.x < 1.2f && -1.2f < position.y && position.y < 1.2f) {
+            mFlags |= FLAG_ON_SCREEN;
+        } else {
             mLayout.SetVisible(false);
             return;
         }
-        mFlags |= FLAG_ON_SCREEN;
     }
     const nw4r::ut::Rect& rRect = mLayout.GetViewRect();
-    position.x = position.x * (rRect.right - rRect.left) * 0.5f;
-    position.y = -position.y * (rRect.bottom - rRect.top) * 0.5f;
+    f32 width = rRect.right - rRect.left;
+    position.x = position.x * width * 0.5f;
+    f32 height = rRect.bottom - rRect.top;
+    position.y = -position.y * height * 0.5f;
     position.z = 0.0f;
     if (mKind <= KIND_ENEMY) {
         mLayout.GetLayout()->GetRootPane()->SetTranslate(position);
