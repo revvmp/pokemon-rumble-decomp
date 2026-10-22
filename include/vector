@@ -604,6 +604,7 @@ public:
         bool operator!=(const iterator& rOther) const { return base() != rOther.base(); }
 
         const T* base() const { return mPointer; }
+        operator const T*() const { return mPointer; }
 
     private:
         const T* mPointer;
