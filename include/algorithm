@@ -35,6 +35,21 @@ template <typename T> inline T& move(T& x) {
     return x;
 }
 
+template <typename InputIterator, typename OutputIterator>
+OutputIterator __move_backward(InputIterator first, InputIterator last, OutputIterator result) {
+    while (last > first) {
+        --result;
+        --last;
+        *result = move(*last);
+    }
+    return result;
+}
+
+template <typename InputIterator, typename OutputIterator>
+inline OutputIterator move_backward(InputIterator first, InputIterator last, OutputIterator result) {
+    return __move_backward(first, last, result);
+}
+
 template <typename T, typename Size, typename Value> inline void __fill_n(T* first, Size n, const Value& x) {
     for (; n > 0; --n, ++first) {
         *first = x;

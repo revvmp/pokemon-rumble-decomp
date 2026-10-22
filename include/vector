@@ -176,6 +176,18 @@ public:
         }
     }
 
+    template <typename Iterator> void construct_at_end(Iterator first, Iterator last) {
+        construct_at_end(first, last, pod_type());
+    }
+    template <typename Iterator> void construct_at_end(Iterator first, Iterator last, Metrowerks::int2type<false>) {
+        T* p = this->data_ + start_ + this->size_;
+        for (; first != last; ++p) {
+            this->alloc().construct(p, *first);
+            ++first;
+            ++this->size_;
+        }
+    }
+
     void construct_at_front(T* pFirst, T* pLast) {
         construct_at_front(pFirst, pLast, Metrowerks::int2type<__vec_bulk_move<T>::value>());
     }
@@ -451,12 +463,124 @@ protected:
         return false;
     }
     bool can_append(size_type n) { size_type capacity; return grow_by(n, capacity, pod_type()); }
+    bool grow_by(size_type n, size_type& rCapacity) { return grow_by(n, rCapacity, pod_type()); }
     bool grow_by(size_type n, size_type& rCapacity, pod_type) {
         rCapacity = recommend(n);
         return false;
     }
 
     void append_realloc(size_type n);
+
+public:
+    template <typename Iterator> void assign_dispatch(Iterator first, Iterator last, Metrowerks::int2type<0>) {
+        assign_range(first, last, std::forward_iterator_tag());
+    }
+    template <typename Iterator> void insert_dispatch(T* pos, Iterator first, Iterator last, Metrowerks::int2type<0>) {
+        insert_range(pos, first, last, std::forward_iterator_tag());
+    }
+
+protected:
+    template <typename Iterator> void assign_range(Iterator first, Iterator last, std::forward_iterator_tag) {
+        size_type capacity;
+        size_type n = std::distance(first, last);
+        if (n <= this->cap() || grow_by(n - this->cap(), capacity)) {
+            Iterator mid(first);
+            std::advance(mid, std::min(n, this->size_));
+            copy_range(first, mid, this->data_);
+            if (n < this->size_) {
+                this->erase_at_end(this->size_ - n);
+            } else if (this->size_ < n) {
+                construct_at_end(mid, last);
+            }
+        } else {
+            assign_reallocate(n, capacity);
+            construct_at_end(first, last);
+        }
+    }
+
+    void assign_reallocate(size_type n, size_type capacity) {
+        base::clear();
+        if (this->data_) {
+            this->alloc().deallocate(this->data_, this->cap());
+            this->data_ = nullptr;
+            this->cap() = 0;
+        }
+        base::allocate(capacity);
+    }
+
+    template <typename Iterator> void insert_range(T* pos, Iterator first, Iterator last, std::forward_iterator_tag) {
+        size_type n = std::distance(first, last);
+        if (n != 0) {
+            if ((n <= this->cap() && this->size_ <= this->cap() - n) || grow_by(this->size_ + n - this->cap())) {
+                size_type elemsAfter = end() - pos;
+                Iterator mid;
+                if (elemsAfter < n) {
+                    mid = first;
+                    std::advance(mid, elemsAfter);
+                    construct_at_end(mid, last);
+                } else {
+                    mid = last;
+                }
+                move_range(elemsAfter, n, end());
+                copy_range(first, mid, pos);
+            } else {
+                typename base::helper buffer(this->alloc());
+                insert_prepare(buffer, pos, n);
+                buffer.construct_at_end(first, last);
+                insert_finish(buffer, pos);
+            }
+        }
+    }
+
+    template <typename Iterator> void construct_at_end(Iterator first, Iterator last) {
+        construct_at_end(first, last, pod_type());
+    }
+    template <typename Iterator> void construct_at_end(Iterator first, Iterator last, Metrowerks::int2type<false>) {
+        T* p = this->data_ + this->size_;
+        for (; first != last; ++p) {
+            this->alloc().construct(p, *first);
+            ++first;
+            ++this->size_;
+        }
+    }
+
+    template <typename Iterator> static T* copy_range(Iterator first, Iterator last, T* result) {
+        for (; first != last; ++first, ++result) {
+            *result = *first;
+        }
+        return result;
+    }
+
+    size_type move_range(size_type elemsAfter, size_type n, T* pEnd) { return move_range(elemsAfter, n, pEnd, pod_type()); }
+    size_type move_range(size_type elemsAfter, size_type n, T* pEnd, Metrowerks::int2type<false>) {
+        size_type count = std::min(elemsAfter, n);
+        for (size_type i = 0; i < count; ++i, ++pEnd) {
+            this->alloc().construct(pEnd, std::move(*(pEnd - n)));
+            ++this->size_;
+        }
+        pEnd -= n;
+        if (elemsAfter > n) {
+            std::move_backward(pEnd - elemsAfter, pEnd - n, pEnd);
+        }
+        return count;
+    }
+
+    size_type insert_prepare(typename base::helper& buffer, T* pos, size_type n) {
+        buffer.allocate(this->size_ + n, grow_capacity(n));
+        buffer.start_ = pos - begin();
+        return buffer.start_;
+    }
+
+    T* insert_finish(typename base::helper& buffer, T* pos) {
+        size_type index = pos - begin();
+        buffer.move_construct_to_end(pos, end());
+        buffer.construct_at_front(begin(), pos);
+        clear_moved();
+        std::swap(this->cap(), buffer.cap());
+        std::swap(this->data_, buffer.data_);
+        std::swap(this->size_, buffer.size_);
+        return begin() + index;
+    }
 
     void append(size_type n) { append(n, pod_type()); }
 
@@ -609,6 +733,7 @@ public:
         bool operator<(const iterator& rOther) const { return mPointer < rOther.mPointer; }
 
         T* base() const { return mPointer; }
+        operator T*() const { return base(); }
 
     private:
         T* mPointer;
@@ -652,6 +777,14 @@ public:
     void clear() { base::clear(); }
 
     void reserve(size_type n) { base::reserve(n); }
+    template <typename Iterator> void assign(Iterator first, Iterator last, typename Metrowerks::restrict_to<true>::type* = nullptr) {
+        Metrowerks::int2type<0> tag;
+        base::assign_dispatch(first, last, tag);
+    }
+    template <typename Iterator> void insert(iterator pos, Iterator first, Iterator last, typename Metrowerks::restrict_to<true>::type* = nullptr) {
+        Metrowerks::int2type<0> tag;
+        base::insert_dispatch(pos, first, last, tag);
+    }
     void swap(vector& r) {
         size_type capacity = this->cap();
         this->cap() = r.cap();

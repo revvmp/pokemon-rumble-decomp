@@ -81,6 +81,12 @@ public:
 
     class const_iterator {
     public:
+        typedef int difference_type;
+        typedef T value_type;
+        typedef const T* pointer;
+        typedef const T& reference;
+        typedef bidirectional_iterator_tag iterator_category;
+
         const_iterator() {}
         const_iterator(const iterator& rOther) : node_(rOther.node_) {}
         explicit const_iterator(const node_base* pNode) : node_(static_cast<const node*>(pNode)) {}
@@ -88,6 +94,10 @@ public:
         const T& operator*() const { return node_->data_; }
         const_iterator& operator++() {
             node_ = node_->next_;
+            return *this;
+        }
+        const_iterator& operator--() {
+            node_ = node_->prev_;
             return *this;
         }
         bool operator==(const const_iterator& rOther) const { return node_ == rOther.node_; }

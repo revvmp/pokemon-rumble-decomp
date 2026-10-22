@@ -22,6 +22,10 @@
 #include <game/IGameSession.h>
 #include <game/LayoutResources.h>
 #include <game/MapDesc.h>
+#include <game/MapIndex.h>
+#include <game/CPiiBox.h>
+#include <game/CPiiCollectionBox.h>
+#include <list>
 #include <game/MathUtil.h>
 #include <game/Pad.h>
 #include <game/QuarterTurn.h>
@@ -1668,6 +1672,47 @@ void CDlgPiiSelector::SetInputLocked(bool locked) {
             }
         }
     }
+}
+
+
+typedef std::vector<std::tr1::shared_ptr<CPiiPersonalData> > PiiPersonalDataVector;
+
+bool BuildItems(PiiItemVector& rItems, int player, PiiPersonalDataVector& rPiis) {
+    const std::list<std::tr1::shared_ptr<CPiiPersonalData> >& rTeam = IGameSession::GetInstance()->GetTeamPiiBox()->GetPersonalDataList();
+    rPiis.insert(rPiis.end(), rTeam.begin(), rTeam.end());
+    IController* pController = IGameSession::GetInstance()->GetPlayer(player)->GetController();
+    if (pController->GetType() == IController::TYPE_WII_REMOTE || pController->GetType() == IController::TYPE_NUNCHAKU ||
+        pController->GetType() == IController::TYPE_CLASSIC) {
+        const std::list<std::tr1::shared_ptr<CPiiPersonalData> >& rRemote =
+            IGameSession::GetInstance()->GetRemoteMemory(pController->GetChannel())->GetPiiBox()->GetPersonalDataList();
+        rPiis.insert(rPiis.end(), rRemote.begin(), rRemote.end());
+    }
+    if (rPiis.size() == 0) {
+        return false;
+    }
+    PiiItemVector items;
+    items.reserve(rPiis.size());
+    for (PiiPersonalDataVector::iterator it = rPiis.begin(); it != rPiis.end(); ++it) {
+        std::tr1::shared_ptr<CUIPiiListItem> item(new CUIPiiListItem(std::tr1::shared_ptr<CPiiPersonalData>(*it), player));
+        items.push_back(item);
+    }
+    rItems.swap(items);
+    return true;
+}
+
+bool LoadItems(PiiItemVector& rItems, int player) {
+    CPlayer* pPlayer = IGameSession::GetInstance()->GetPlayer(player);
+    if (!pPlayer->IsJoined()) {
+        return false;
+    }
+    const std::list<std::tr1::shared_ptr<CPiiPersonalData> >& rOwn = pPlayer->GetPiiBox().GetPersonalDataList();
+    PiiPersonalDataVector piis;
+    piis.assign(rOwn.begin(), rOwn.end());
+    return BuildItems(rItems, player, piis);
+}
+
+bool IsCurrentMapStage7Even() {
+    return IsStage7EvenMap(GetCurrentGameMap()->GetMapDesc().mIndex);
 }
 
 }
