@@ -1144,7 +1144,7 @@ void CDataPerPlayer::PrepareSwap(SwapRequest& rRequest) {
                 joined++;
             }
         }
-        rRequest.mPosition.x += 0.7f * (0.5f * static_cast<f32>(-(joined - 1)) + static_cast<f32>(index));
+        rRequest.mPosition.x += 0.7f * (static_cast<f32>(-(joined - 1)) / 2.0f + static_cast<f32>(index));
     }
     for (int i = 0; i < frames; i++) {
         GetPlayerPiiTransform(&rRequest.mPosition, &rRequest.mRotation);
