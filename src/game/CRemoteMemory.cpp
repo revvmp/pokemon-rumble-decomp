@@ -276,6 +276,8 @@ inline void CRemoteMemory::WriteBlock(int channel) {
     }
 }
 
+#pragma push
+#pragma opt_propagation off
 void* CRemoteMemory::ThreadMain(void*) {
     OSMessage message;
     for (;;) {
@@ -310,8 +312,6 @@ void* CRemoteMemory::ThreadMain(void*) {
                 }
                 break;
             case -1:
-                pRemote->mFlags = (pRemote->mFlags & ~FLAG_BUSY) | FLAG_NO_CONTROLLER;
-                break;
             default:
                 pRemote->mFlags = (pRemote->mFlags & ~FLAG_BUSY) | FLAG_NO_CONTROLLER;
                 break;
@@ -335,6 +335,7 @@ void* CRemoteMemory::ThreadMain(void*) {
         }
     }
 }
+#pragma pop
 
 #pragma push
 #pragma opt_propagation off
