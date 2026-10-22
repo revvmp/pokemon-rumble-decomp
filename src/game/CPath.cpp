@@ -8,15 +8,10 @@
 
 namespace {
 
-bool IsMCS(int d) {
-    if (d < 512) return false;
-    if (d >= 538) return false;
-    return true;
-}
-
 std::string GetDeviceNameFor(int device) {
-    if (device >= CPath::DEVICE_MCS_BASE && device < CPath::DEVICE_MCS_BASE + 26) {
-        return std::string(std::single_char_init(), static_cast<char>(device - CPath::DEVICE_MCS_BASE + 'A'));
+    if (CPath::DEVICE_MCS_BASE <= device && device < CPath::DEVICE_MCS_BASE + 26) {
+        const char letter = static_cast<char>(device - CPath::DEVICE_MCS_BASE + 'A');
+        return std::string(&letter, &letter + 1);
     }
     if (device == CPath::DEVICE_UNC) {
         return std::string("\\");
@@ -27,7 +22,7 @@ std::string GetDeviceNameFor(int device) {
     if (device == CPath::DEVICE_NAND) {
         return std::string("nand");
     }
-    if (device >= 2 && device < CPath::DEVICE_MCS_BASE) {
+    if (2 <= device && device < CPath::DEVICE_MCS_BASE) {
         char buffer[5];
         snprintf(buffer, sizeof(buffer), "%d", device);
         return std::string(buffer);
@@ -46,9 +41,15 @@ CPath::~CPath() {}
 std::string CPath::ToString(bool includeDevice) const {
     std::string device;
     char separator[2];
-    separator[0] = IsMCS(mDevice) || mDevice == DEVICE_UNC ? '\\' : '/';
+    char separatorChar;
+    if ((DEVICE_MCS_BASE <= mDevice && mDevice < DEVICE_MCS_BASE + 26) || mDevice == DEVICE_UNC) {
+        separatorChar = '\\';
+    } else {
+        separatorChar = '/';
+    }
+    separator[0] = separatorChar;
     separator[1] = '\0';
-    if (separator[0] == '\\') {
+    if (separatorChar == '\\') {
         includeDevice = true;
     }
     if (includeDevice) {
@@ -85,17 +86,17 @@ const char* CPath::ParseDevice(const char* pPath) {
         mDevice = DEVICE_DVD;
         return pPath + 4;
     }
-    if ((int)pPath[0] >= '0' && (int)pPath[0] <= '9') {
+    if ('0' <= pPath[0] && pPath[0] <= '9') {
         if (pPath[1] == ':') {
             mDevice = atoi(pPath);
             return pPath + 2;
         }
-        if ((int)pPath[1] >= '0' && (int)pPath[1] <= '9') {
+        if ('0' <= pPath[1] && pPath[1] <= '9') {
             if (pPath[2] == ':') {
                 mDevice = atoi(pPath);
                 return pPath + 3;
             }
-            if ((int)pPath[2] >= '0' && (int)pPath[2] <= '9' && pPath[3] == ':') {
+            if ('0' <= pPath[2] && pPath[2] <= '9' && pPath[3] == ':') {
                 mDevice = atoi(pPath);
                 if (mDevice <= 511) {
                     return pPath + 4;
@@ -103,11 +104,11 @@ const char* CPath::ParseDevice(const char* pPath) {
             }
         }
     }
-    if ((int)pPath[0] >= 'A' && (int)pPath[0] <= 'Z' && pPath[1] == ':') {
+    if ('A' <= pPath[0] && pPath[0] <= 'Z' && pPath[1] == ':') {
         mDevice = DEVICE_MCS_BASE + pPath[0] - 'A';
         return pPath + 2;
     }
-    if ((int)pPath[0] >= 'a' && (int)pPath[0] <= 'z' && pPath[1] == ':') {
+    if ('a' <= pPath[0] && pPath[0] <= 'z' && pPath[1] == ':') {
         mDevice = DEVICE_MCS_BASE + pPath[0] - 'a';
         return pPath + 2;
     }
