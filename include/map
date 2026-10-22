@@ -203,9 +203,7 @@ public:
     iterator erase_next(iterator position) {
         tree_node_base* pNode = position.node_;
         if (pNode == front()) {
-            iterator next(pNode);
-            ++next;
-            front() = next.node_;
+            front() = (++iterator(position)).node_;
         }
         tree_node_base* pNext = __red_black_tree<tree_node_base*>::balance_erase(pNode, root());
         alloc_.first().destroy(&static_cast<node*>(pNode)->value_);
