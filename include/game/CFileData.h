@@ -83,10 +83,10 @@ std::tr1::shared_ptr<CFileData> CreateFileData(const char* pPath, u32 flags, boo
 std::tr1::shared_ptr<CFileData> LoadFile(const char* pPath, u32 flags, bool background);
 std::tr1::shared_ptr<CFileData> LoadResourceFile(const char* pPath, u32 flags, bool background);
 std::tr1::shared_ptr<CFileData> RequestFile(const char* pPath, u32 flags, bool background);
-std::tr1::shared_ptr<CFileData> LoadLocalizedFile(const char* pPath, u32 flags, u32 mode, const char* pRegion);
+std::tr1::shared_ptr<CFileData> LoadLocalizedFile(const char* pPath, u32 flags, bool background, const char* pRegion);
 
-inline std::tr1::shared_ptr<CFileData> LoadResourceFile(const char* pPath, u32 flags, u32 mode, const char* pRegion) {
-    return LoadLocalizedFile(pPath, flags | 0x2000, mode, pRegion);
+inline std::tr1::shared_ptr<CFileData> LoadResourceFile(const char* pPath, u32 flags, bool background, const char* pRegion) {
+    return LoadLocalizedFile(pPath, flags | 0x2000, background, pRegion);
 }
 
 #endif
