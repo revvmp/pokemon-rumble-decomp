@@ -28,6 +28,7 @@ public:
     void ApplyEnvironment(bool enable, const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnvironment);
     u32 GetCount() const { return mPersonalDataList.size(); }
     int GetCapacity() const { return mCapacity; }
+    const std::list<std::tr1::shared_ptr<CPiiPersonalData> >& GetPersonalDataList() const { return mPersonalDataList; }
     std::list<std::tr1::shared_ptr<CPiiPersonalData> >& GetPersonalDataList() { return mPersonalDataList; }
 
 private:

@@ -118,6 +118,7 @@ public:
     void UpdateFade();
     void InitStageDescs();
     void RunStage();
+    const CPiiBox* GetTeamPiiBoxView() const { return mTeamPiiBox.get(); }
     void LoadFromSlot();
     void GetSnapshot(SessionSnapshot* pSnapshot);
     void SaveToSlot();
@@ -415,7 +416,8 @@ void CGameSession::RunStage() {
 
 void CGameSession::Run() {
     mEnvironment.reset();
-    do {
+restart:
+    {
         mWazaDescData.Clear();
         mPiiPropData.Reset();
         InitStageDescs();
@@ -428,27 +430,36 @@ void CGameSession::Run() {
         RunScript("CStatistic.pkc", 1, mEnvironment);
         mTeamPiiBox->ApplyEnvironment(true, mEnvironment);
         mEnvironment->CollectGarbage();
-        s64 leadId = (static_cast<s64>(GetSaveData(-1)->mData.mLeadPiiIdHigh) << 32) | GetSaveData(-1)->mData.mLeadPiiIdLow;
-        std::tr1::shared_ptr<CPiiPersonalData> lead;
-        int bestBP = 0;
-        std::list<std::tr1::shared_ptr<CPiiPersonalData> >& rList = mTeamPiiBox->GetPersonalDataList();
-        for (std::list<std::tr1::shared_ptr<CPiiPersonalData> >::iterator it = rList.begin(); it != rList.end(); ++it) {
-            if ((*it)->GetCreationTime() == leadId) {
-                lead = *it;
-                break;
+        {
+            s64 leadId = (static_cast<s64>(GetSaveData(-1)->mData.mLeadPiiIdHigh) << 32) | GetSaveData(-1)->mData.mLeadPiiIdLow;
+            std::tr1::shared_ptr<CPiiPersonalData> lead;
+            int bestBP = 0;
+            for (std::list<std::tr1::shared_ptr<CPiiPersonalData> >::const_iterator it = GetTeamPiiBoxView()->GetPersonalDataList().begin();
+                 it != GetTeamPiiBoxView()->GetPersonalDataList().end(); ++it) {
+                if ((*it)->GetCreationTime() == leadId) {
+                    lead = *it;
+                    break;
+                }
+                if ((*it)->GetBP() > bestBP) {
+                    lead = *it;
+                    bestBP = (*it)->GetBP();
+                }
             }
-            if ((*it)->GetBP() > bestBP) {
-                lead = *it;
-                bestBP = (*it)->GetBP();
-            }
+            mPlayers[0]->SetPendingPersonalData(std::tr1::shared_ptr<CPiiPersonalData>(lead));
+            mPlayers[0]->Join();
         }
-        mPlayers[0]->SetPendingPersonalData(lead);
-        mPlayers[0]->Join();
-        do {
+        while (true) {
             RunStage();
             mEnvironment->CollectGarbage();
-        } while (mMapChangeMode != 1 && mMapChangeMode != 3);
-    } while (mMapChangeMode == 3);
+            switch (mMapChangeMode) {
+            case 1:
+                goto done;
+            case 3:
+                goto restart;
+            }
+        }
+    }
+done:
     mEnvironment.reset();
 }
 
@@ -624,6 +635,7 @@ COyaInfo* CGameSession::GetOyaInfo() {
 std::tr1::shared_ptr<NPpu::CEnvironment> CGameSession::GetEnvironment() {
     return mEnvironment;
 }
+
 int CGameSession::AddPPDToPlayerPiiBox(int player, const std::tr1::shared_ptr<CPiiPersonalData>& rPPD) {
     int result = rPPD->GetDisplayKind();
     if (rPPD->GetHP() > 0 && 0 <= player && player < 4) {
