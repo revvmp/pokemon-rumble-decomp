@@ -428,6 +428,8 @@ enum {
     BUTTON_FINISH = 0x10
 };
 
+const int sMaxScrollSteps = 30;
+
 #pragma dont_inline on
 inline void CGameResult::RunAction()
 {
@@ -442,24 +444,22 @@ inline void CGameResult::RunAction()
     pLayout->QueueMotion("title_loop", "TITLE", 0.0f, 1.0f);
     pLayout->CreateMotion("begin", "NEXT", 0.0f, 1.0f);
     pLayout->QueueMotion("loop", "NEXT", 0.0f, 1.0f);
-    bool strongestShown = false;
     bool newShown = false;
+    bool strongestShown = false;
     bool piiSpecShown = false;
     std::tr1::weak_ptr<CEffect> pCurrentEffect;
     std::tr1::weak_ptr<CEffect> pPreviousEffect;
     for (;;) {
         bool atEnd = mSelected == static_cast<int>(mEntries.size()) - 1;
         bool canRepeat = atEnd ? false : true;
-        IUIInput* pInput = GetUIInput();
         int action;
         for (;;) {
-            u32 repeat = !canRepeat ? 0 : pInput->GetRepeat();
-            if ((pInput->GetTrig() | repeat) & BUTTON_NEXT) {
+            IUIInput* pInput = GetUIInput();
+            if ((pInput->GetTrig() | (!canRepeat ? 0 : pInput->GetRepeat())) & BUTTON_NEXT) {
                 action = 0;
                 break;
             }
-            repeat = pInput->GetRepeat();
-            if ((pInput->GetTrig() | repeat) & BUTTON_PREVIOUS) {
+            if ((pInput->GetTrig() | pInput->GetRepeat()) & BUTTON_PREVIOUS) {
                 action = 1;
                 break;
             }
@@ -469,10 +469,10 @@ inline void CGameResult::RunAction()
             }
             YieldFiber();
         }
-        int previous = mSelected;
         int steps = 10;
+        int previous = mSelected;
         switch (action) {
-        case 0:
+        default:
             if (atEnd) {
                 goto finish;
             }
@@ -483,7 +483,7 @@ inline void CGameResult::RunAction()
                 goto finish;
             }
             mSelected = mEntries.size() - 1;
-            steps = std::min(30, (mSelected - previous) * 10);
+            steps = std::min(sMaxScrollSteps, (mSelected - previous) * 10);
             break;
         case 1:
             if (previous <= 0) {
