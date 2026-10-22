@@ -60,6 +60,7 @@ public:
 
     void ChangeModel(const std::tr1::shared_ptr<CModel>& rModel, u32 flags);
     int GetMotionLength(const char* pName);
+    f32 CalcPlayRate(const char* pName, f32 frame, f32 duration);
     std::tr1::shared_ptr<CModel::CMotionProgram> Play(const char* pName, f32 frame, f32 rate);
     std::tr1::shared_ptr<CModel::CMotionProgram> PlayLoop(const char* pName, f32 frame, f32 rate);
     std::tr1::shared_ptr<CModel::CMotionProgram> PlayOnce(const char* pName, f32 frame, f32 rate);

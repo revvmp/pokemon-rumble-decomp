@@ -21,6 +21,7 @@ public:
     ModelAim();
     ~ModelAim();
     void SetParameters(const Parameters& rParameters);
+    const Parameters& GetParameters() const { return *mpParameters; }
     static Parameters sDefaultParameters;
 private:
     nw4r::g3d::ScnMdlSimple* mpModel;

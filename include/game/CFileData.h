@@ -27,5 +27,6 @@ private:
 std::tr1::shared_ptr<CFileData> CreateFileData(const char* pPath, u32 flags, bool background);
 std::tr1::shared_ptr<CFileData> LoadFile(const char* pPath, u32 flags, bool background);
 std::tr1::shared_ptr<CFileData> LoadResourceFile(const char* pPath, u32 flags, bool background);
+std::tr1::shared_ptr<CFileData> RequestFile(const char* pPath, u32 flags, bool background);
 
 #endif

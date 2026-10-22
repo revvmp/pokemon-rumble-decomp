@@ -23,6 +23,10 @@ struct PiiSpeciesData {
     int GetWazaKouka(int type) const;
     int GetPrimaryType() const;
     int GetSecondaryType() const;
+    f32 GetModelScale() const;
+    f32 GetMotionRateScale() const;
+    const char* GetModelName(int sex) const;
+    bool ScalesAsBoss() const;
     const wchar_t* GetName() const;
 private:
     u32 mIdentityFlags;

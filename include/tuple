@@ -13,6 +13,7 @@ template<class T> struct tuple_argument<T&> { typedef T& type; };
 namespace placeholders {
 namespace detail { template<int Index> struct ph {}; }
 static detail::ph<1> _1;
+static detail::ph<2> _2;
 }
 template<class T0> class tuple<T0, nat, nat, nat, nat, nat, nat, nat, nat, nat> {
 public:
@@ -30,6 +31,15 @@ private:
     template<int Index, class U0, class U1> friend class detail::bound_element;
     T0 mFirst;
     T1 mSecond;
+};
+template<class T0, class T1, class T2> class tuple<T0,T1,T2,nat,nat,nat,nat,nat,nat,nat> {
+public:
+    tuple(const T0& rFirst,const T1& rSecond,const T2& rThird) : mFirst(rFirst),mSecond(rSecond),mThird(rThird) {}
+    T0& first() { return mFirst; }
+private:
+    T0 mFirst;
+    T1 mSecond;
+    T2 mThird;
 };
 namespace detail {
 template<> struct tuple_get<0> {

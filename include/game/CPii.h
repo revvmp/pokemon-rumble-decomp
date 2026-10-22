@@ -2,6 +2,9 @@
 #define GAME_CPII_H
 
 #include <game/BModelObj.h>
+#include <game/CModel.h>
+#include <game/PiiMotion.h>
+#include <game/ScnMdlSimpleData.h>
 #include <vector>
 
 namespace nw4r {
@@ -68,8 +71,20 @@ public:
     void SetMiniMapMarker(std::tr1::shared_ptr<CMiniMapMarker> marker);
     bool LoadScript(const char* pName, int mode,
                     const std::tr1::shared_ptr<NPpu::CEnvironment>& rEnvironment);
+    std::tr1::shared_ptr<CModel::CMotionProgram> PlayMotionForDuration(int index, f32 frame, f32 duration);
+    int GetMotionLengthByIndex(int index);
 
 private:
+    void LoadModel(bool background);
+    void ApplySpindaSpots(std::tr1::shared_ptr<CModel> model);
+    void ApplyTextureVariant(ScnMdlSimpleData& rData, const char* pSuffix);
+    bool SetTextureAnimation(const char* pName);
+    bool OnMotion(CModel* pModel, const std::tr1::shared_ptr<CModel::CMotionProgram>& rMotion);
+    const PiiMotionInfo& GetMotionInfo(int index);
+    void LoadMotionResource(const PiiMotionInfo& rInfo);
+    void BlendFromWalk(const PiiMotionInfo& rIntro);
+    std::tr1::shared_ptr<CModel::CMotionProgram> ApplyMotionInfo(
+        const std::tr1::shared_ptr<CModel::CMotionProgram>& rProgram, const PiiMotionInfo& rInfo);
     u32 mPiiFlags;
     std::tr1::shared_ptr<CPiiPersonalData> mPersonalData;
     std::tr1::shared_ptr<nw4r::g3d::AnmObjTexSrtRes> mTextureAnimation;
@@ -80,8 +95,7 @@ private:
     std::tr1::weak_ptr<BWorldObj> mFollowTarget;
     int mFollowNode;
     std::tr1::shared_ptr<CMiniMapMarker> mMiniMapMarker;
-    std::tr1::shared_ptr<nw4r::g3d::ScnObj> mShadow;
-    std::vector<std::tr1::shared_ptr<CFileData> > mShadowFiles;
+    ScnMdlSimpleData mShadowModel;
 };
 
 #endif

@@ -29,6 +29,8 @@ public:
     public:
         enum Flag {
             FLAG_CREATED = 1 << 0,
+            FLAG_LOOP_TEXTURE_ANIMATION = 1 << 2,
+            FLAG_NOTIFY_CALLBACK = 1 << 3,
             FLAG_PENDING = 1 << 4,
             FLAG_PLAYING = 1 << 5,
             FLAG_LOOPED = 1 << 6,
@@ -54,19 +56,29 @@ public:
         void Pause() { mFlags |= FLAG_PAUSED; }
         void Resume() { mFlags &= ~FLAG_PAUSED; }
         bool IsPausing() const { return (mFlags & FLAG_PAUSED) != 0; }
+        const void* GetUserData() const { return mpUserData; }
+        void SetUserData(const void* pUserData) { mpUserData = pUserData; }
+        void SetLoopTextureAnimation(bool loop) {
+            if (loop) {
+                mFlags |= FLAG_LOOP_TEXTURE_ANIMATION;
+            } else {
+                mFlags &= ~FLAG_LOOP_TEXTURE_ANIMATION;
+            }
+        }
 
     private:
         u32 mFlags;
         u32 mId;
         f32 mStartFrame;
         f32 mRate;
-        u32 mReservedState;
+        const void* mpUserData;
         std::string mName;
         u32 mReserved;
         f32* mpCurrentFrame;
         nw4r::g3d::ResAnmChr mResource;
         int mLength;
     };
+    typedef std::tr1::function<void(CModel*, const std::tr1::shared_ptr<CMotionProgram>&)> MotionCallback;
 
     class BPartialAnm {
     protected:
@@ -112,7 +124,12 @@ public:
     std::tr1::shared_ptr<CMotionProgram> FindMotion(u32 id);
     void UpdateFrame(f32 step);
     void SetRootScale(const std::tr1::shared_ptr<nw4r::g3d::AnmObjChrRootScale>& rRootScale);
+    void AddResourceFile(std::tr1::shared_ptr<CFileData> file);
+    bool SetAimNode(const char* pNodeName);
+    void DisableAimLimit();
+    void SetMotionCallback(const MotionCallback& rCallback);
 
+    ModelAim& GetAim() { return mAim; }
     const nw4r::math::AABB& GetBounds() const { return mBounds; }
     nw4r::g3d::ScnObj* GetScnObj() const { return mModelData.GetModel(); }
     nw4r::g3d::ResMdl GetResMdl() const { return mModelData.GetModel()->GetResMdl(); }
@@ -126,7 +143,7 @@ private:
     TPartialAnm<true> mMainAnimation;
     std::tr1::shared_ptr<PartialAnmManager> mPartialAnimations;
     bool mAnimationChanged;
-    std::tr1::function<void(CModel*, const std::tr1::shared_ptr<CMotionProgram>&)> mMotionCallback;
+    MotionCallback mMotionCallback;
     bool mAnimationControlsAim;
     bool mWorldAimTarget;
     ModelAim mAim;
@@ -145,5 +162,6 @@ private:
 };
 
 bool LoadScnMdlSimpleData(ScnMdlSimpleData* pData, const CModel::LoadParams& rParams, int mode, bool background);
+void NotifyMotionCallback(const std::tr1::shared_ptr<CModel::CMotionProgram>& rMotion, bool notify, CModel* pModel);
 
 #endif
