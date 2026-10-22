@@ -99,7 +99,14 @@ public:
     size_type size_;
     Metrowerks::compressed_pair<size_type, Allocator> capacity_;
 
+    void swap(__vec_deleter& r) { swap_storage(r); }
+
 protected:
+    void swap_storage(__vec_deleter& r) {
+        Metrowerks::swap(capacity_, r.capacity_);
+        std::swap(data_, r.data_);
+        std::swap(size_, r.size_);
+    }
     void erase_at_end(size_type n, Metrowerks::int2type<false>) {
         size_type count = n;
         T* p = data_ + size_;
@@ -231,6 +238,7 @@ public:
     typedef Metrowerks::int2type<__vec_trivial_copy<T>::value> copy_type;
 
     __vec_constructor() {}
+    void swap(__vec_constructor& r) { base::swap(r); }
     explicit __vec_constructor(size_type n) {
         if (n != 0) {
             allocate(n, pod_type());
@@ -791,17 +799,7 @@ public:
         Metrowerks::int2type<0> tag;
         base::insert_dispatch(pos, first, last, tag);
     }
-    void swap(vector& r) {
-        size_type capacity = this->cap();
-        this->cap() = r.cap();
-        r.cap() = capacity;
-        storage_type* data = this->data_;
-        this->data_ = r.data_;
-        r.data_ = data;
-        size_type size = this->size_;
-        this->size_ = r.size_;
-        r.size_ = size;
-    }
+    void swap(vector& r) { base::swap(r); }
 
     iterator begin() { return make_iterator(base::begin()); }
     const_iterator begin() const { return const_iterator(reinterpret_cast<const T*>(this->data_)); }
