@@ -23,7 +23,7 @@ public:
     virtual bool IsOptionsClosed() = 0;
     virtual int GetSelectedOption() = 0;
     virtual void OpenFootnote(const wchar_t* pText) = 0;
-    virtual void BeginClose() = 0;
+    virtual void OpenNotice(const wchar_t* pText) = 0;
     virtual bool IsClosed() = 0;
 
     bool AskYesNo(const wchar_t* pText) {

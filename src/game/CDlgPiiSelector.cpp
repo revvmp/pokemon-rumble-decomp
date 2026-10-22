@@ -23,6 +23,7 @@
 #include <game/LayoutResources.h>
 #include <game/MapDesc.h>
 #include <game/MathUtil.h>
+#include <game/Pad.h>
 #include <game/Message.h>
 #include <game/Sound.h>
 #include <game/CStatistic.h>
@@ -106,6 +107,8 @@ typedef std::vector<std::tr1::shared_ptr<CUIPiiListItem> > PiiItemVector;
 
 bool LoadItems(PiiItemVector& rItems, int player);
 bool IsCurrentMapStage7Even();
+int CheckPadErrors(int mask);
+int CheckRemoteMemoryErrors();
 
 struct SwapRequest {
     std::tr1::shared_ptr<CPiiPersonalData> mPii;
@@ -154,8 +157,11 @@ public:
     void Setup(bool background);
     void RequestClose() { mMode = 5; }
     bool IsDisconnected() { return mDisconnected; }
-    bool IsFinished();
-    bool IsShown();
+    bool IsFinished() { return mFiber.IsFinished(); }
+    bool IsShown() { return mOpen; }
+    bool IsEntranceReady() { return mEntranceResult == 1; }
+    void ConfirmEntrance() { mEntranceResult = 2; }
+    void SetInputDisabled(bool disabled) { mInputDisabled = disabled; }
     void OnSelectionChanged(BUI* pUI);
     void OnAccept(BUI* pUI) { mMode = 3; }
     void OnSortChanged(const CPiiListFilterSort* pFilterSort);
@@ -798,6 +804,8 @@ public:
     }
 
     void UpdateEntrance();
+    void UpdateErrors(int connected);
+    void SetInputLocked(bool locked);
     bool IsAnyShown();
 
     void AssignControllers() {
@@ -821,6 +829,233 @@ private:
     int mErrorState;
     int mError;
 };
+
+void CDlgPiiSelector::UpdateDlgOpenState() {
+    if (IsAnyShown()) {
+        GetCurrentGameMap()->RegisterDialog(shared_from_this());
+    } else {
+        GetCurrentGameMap()->UnregisterDialog(shared_from_this());
+    }
+}
+
+bool CDlgPiiSelector::IsAnyShown() {
+    if (IsMultiPlayerEntranceShown()) {
+        return true;
+    }
+    for (int player = 0; player < 4; player++) {
+        if (IsShown(player)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void CDlgPiiSelector::UpdateEntrance() {
+    int joined = 0;
+    int accepted = 0;
+    int nunchaku = 0;
+    int connected = 0;
+    for (int player = 0; player < mMultiPlayerData->mPlayerNum; player++) {
+        CPlayer* pPlayer = IGameSession::GetInstance()->GetPlayer(player);
+        IController* pController = pPlayer->GetController();
+        if (pController != nullptr && pController->IsConnected()) {
+            connected++;
+        }
+        if (pPlayer->IsJoined()) {
+            joined++;
+            if (pController != nullptr && pController->GetType() == IController::TYPE_NUNCHAKU) {
+                nunchaku++;
+            }
+            if (mDataPerPlayer[player] && mDataPerPlayer[player]->IsEntranceReady()) {
+                accepted++;
+            }
+        }
+    }
+    if (mErrorState != 0) {
+        UpdateErrors(connected);
+        return;
+    }
+    switch (mMultiPlayerData->mState) {
+    case 0:
+        if (joined > 0 && joined == accepted && nunchaku < accepted) {
+            mMultiPlayerData->mLayout.CreateMotion("begin");
+            mMultiPlayerData->mState = 1;
+        }
+        break;
+    case 1:
+        if (joined > 0 && joined == accepted) {
+            bool confirmed = false;
+            for (int player = 0; player < mMultiPlayerData->mPlayerNum; player++) {
+                CPlayer* pPlayer = IGameSession::GetInstance()->GetPlayer(player);
+                if (pPlayer->IsJoined()) {
+                    IController* pController = pPlayer->GetController();
+                    if (pController != nullptr && pController->IsConnected() && !mInputLocked &&
+                        (pController->GetTrig() & 0x100)) {
+                        confirmed = true;
+                        PlaySound(9);
+                        break;
+                    }
+                }
+            }
+            if (confirmed) {
+                mMultiPlayerData->mLayout.CreateMotion("end");
+                mMultiPlayerData->mState = 2;
+                for (int player = 0; player < 4; player++) {
+                    if (mDataPerPlayer[player]) {
+                        mDataPerPlayer[player]->ConfirmEntrance();
+                    }
+                }
+                mMultiPlayerData->mDisconMsgDisable.reset();
+            }
+        } else {
+            mMultiPlayerData->mLayout.CreateMotion("end");
+            mMultiPlayerData->mState = 0;
+        }
+        break;
+    case 2: {
+        int player;
+        for (player = 0; player < 4; player++) {
+            CPlayer* pPlayer = IGameSession::GetInstance()->GetPlayer(player);
+            if (!pPlayer->IsJoined()) {
+                pPlayer->SetController(nullptr);
+            }
+            if (mDataPerPlayer[player] && mDataPerPlayer[player]->IsShown()) {
+                break;
+            }
+        }
+        if (player == 4) {
+            mMultiPlayerData.reset();
+            GetCurrentGameMap()->SetPausing(false);
+            return;
+        }
+        break;
+    }
+    }
+    UpdateErrors(connected);
+}
+
+void CDlgPiiSelector::UpdateErrors(int connected) {
+    int previous;
+    for (;;) {
+        previous = mErrorState;
+        switch (mErrorState) {
+        case 0: {
+            int mask = CheckRemoteMemoryErrors();
+            if (mask != 0) {
+                mError = mask;
+                SetInputLocked(true);
+                mMultiPlayerData->mMsgWin->OpenNotice(GetMessageString(0x1000F, nullptr));
+                mErrorState = 1;
+            } else {
+                mask = CheckPadErrors(0);
+                if (!IsExtensionControllerEnabled() && mask != 0) {
+                    mError = mask;
+                    SetInputLocked(true);
+                    mMultiPlayerData->mMsgWin->OpenFootnote(GetMessageString(0x600E8, nullptr));
+                    mErrorState = 2;
+                } else if (mMultiPlayerData->mState == 0 && connected == 0) {
+                    mMultiPlayerData->mMsgWin->OpenFootnote(GetMessageString(0x6008C, nullptr));
+                    mErrorState = 3;
+                }
+            }
+            break;
+        }
+        case 3:
+            if (connected > 0) {
+                mMultiPlayerData->mMsgWin->Close();
+                mErrorState = 4;
+            }
+            break;
+        case 2:
+            mError = CheckPadErrors(mError);
+            if (mError == 0) {
+                mMultiPlayerData->mMsgWin->Close();
+                mErrorState = 4;
+                continue;
+            }
+            break;
+        case 1: {
+            bool finished = connected == 0;
+            for (int channel = 0; channel < 4; channel++) {
+                IController* pRemote = GetController(IController::TYPE_WII_REMOTE, channel);
+                int bit = 1 << channel;
+                if (mError & bit) {
+                    bool extensionPressed = false;
+                    if (!IGameSession::GetInstance()->IsControllerAssigned(pRemote) && IsExtensionControllerEnabled()) {
+                        IController* pExtension = GetController(IController::TYPE_NUNCHAKU, channel);
+                        if (!pExtension->IsConnected()) {
+                            pExtension = GetController(IController::TYPE_CLASSIC, channel);
+                        }
+                        if (pExtension->IsConnected() && (pExtension->GetTrig() & 0x20)) {
+                            extensionPressed = true;
+                        }
+                    }
+                    if ((pRemote->GetTrig() & 0x20) || !pRemote->IsConnected() || extensionPressed) {
+                        mError &= ~bit;
+                        finished = true;
+                    }
+                    break;
+                }
+            }
+            if (finished) {
+                mMultiPlayerData->mMsgWin->Close();
+                mErrorState = 4;
+            }
+            break;
+        }
+        case 4:
+            if (mMultiPlayerData->mMsgWin->IsAnimationDone()) {
+                SetInputLocked(false);
+                mErrorState = 0;
+            }
+            break;
+        }
+        if (mErrorState == previous) {
+            break;
+        }
+    }
+}
+
+int CheckRemoteMemoryErrors() {
+    for (int player = 0; player < 4; player++) {
+        CRemoteMemory* pRemoteMemory = IGameSession::GetInstance()->GetRemoteMemory(player);
+        if (pRemoteMemory != nullptr && pRemoteMemory->ConsumeFatalError()) {
+            return 1 << player;
+        }
+    }
+    return 0;
+}
+
+int CheckPadErrors(int mask) {
+    int channel;
+    for (channel = 0; channel < 4; channel++) {
+        unsigned int device;
+        switch (GetWiiPadDevice(channel, &device)) {
+        case -1:
+            mask &= ~(1 << channel);
+            break;
+        case 0:
+            if (device == 0 || device == 2) {
+                mask &= ~(1 << channel);
+            } else {
+                mask |= 1 << channel;
+            }
+            break;
+        }
+    }
+    return mask;
+}
+
+void CDlgPiiSelector::SetInputLocked(bool locked) {
+    if (locked != mInputLocked) {
+        mInputLocked = locked;
+        for (int player = 0; player < mMultiPlayerData->mPlayerNum; player++) {
+            if (mDataPerPlayer[player]) {
+                mDataPerPlayer[player]->SetInputDisabled(locked);
+            }
+        }
+    }
+}
 
 }
 
