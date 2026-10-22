@@ -58,3 +58,40 @@
 - **CodeWarrior did not inline any function with a by-value class parameter that has a destructor** (Wii/1.1, `-ipa file`, even a two-line body). If the target looks like a by-value parameter destroyed on each return path, try a local inside the inline function.
 - **Splitting the result of an inline accessor.** `CodeMap& Codes()`, `end_node()` and similar accessors return a value that CodeWarrior keeps in a register and reuses across the function. If the target recomputes `this+N` late, read the member directly or use an accessor whose expression differs.
 - Shared scratch files: `order.py`, `sec.py` and `rep.py` in the session scratchpad were overwritten by this session. Keep helpers in a per-agent subdirectory (`scratchpad/w2o/`).
+
+## Session 5: script binding near-misses
+
+- **ScriptGame, 165/167 functions at 100%:**
+  - **`AddMessageBalloon`:** the pops and the `Add` call move into a static inline helper. The extra inline level reverses the three `CValue` slots, as the t1 slot model predicts.
+  - **`ShowDlgPiiList`:** pops the dialog type into an `s32`, not an `int`. The `long`-to-`int` conversion at the `Show` call swaps the two callee-saved registers. The same change had no effect on `SetStageDescTarget`, `MakeMapID` or the `OpenScriptChoices` locals.
+  - **`MapStatus_allFlags` and `MapStatus_setFlags`:** go through `GetSavedMapRecord(const MapIndex&)`. That inline copies mode, area and stage into locals and indexes the map through the reference.
+  - **`GetStageClearedNum`:** uses `Clamp(count, 0, 999)` from `MathUtil.h`.
+  - **`OpenScriptChoices`, 97.86% to 99.10%:**
+    - The options are set through the inline `SetScriptOption`, which fixes every frame slot.
+    - The label index is written `-1 - (i * 2 - itemArgs)`, the same form as the `SetStageDescParams` loops.
+    - Only register numbering remains.
+- **ScriptWorldObj:**
+  - **`findMostVitalPiiInCircleZX` and `findMostVitalPiiInArcZX` are now 100%.** The HP test is `GetHP() <= 0`. CodeWarrior computes that as `rlwnm rD, rOne, cntlzw(hp), 31, 31` with the constant 1 hoisted out of the loop. The `== 0` form gives `srwi` instead.
+  - **The arc half width is `width / 2.0f`.** `0.5f * width` and `width * 0.5f` both put the constant first in `fmuls`. The division puts the variable first. This also raised `SearchArc` and `CountArc`.
+- **ScriptWorld `NewWaza`:** naming the vtable at `0x803B7348` (`shared_ptr_deleter<CWaza>`) and its RTTI at `0x804B7AB8` closes the last relocation.
+
+### Traps
+
+- **`CPpuEngine::Load` cannot reach 100% without breaking matched callers.** The target passes the wait flag through `LoadScript`, `Load`, `LoadScriptCode` and `LoadLocalizedFile` with no conversion, so the whole chain is `bool`.
+  - Changing every signature to `bool` makes `Load`, `Execute`, `RunScript` and all `LoadScript` functions 100% or close.
+  - The same change breaks the Matching `ScriptItem` `AddItem`, `ScriptGame` `NewSimpleGround` and `ScriptWorld` `NewWaza`. With a `bool` parameter, the literal `false` shares one zero register with the `shared_ptr<CPpuEnv>()` temporary. With an `int` parameter it gets its own `li r5, 0`, as in the target.
+  - None of these fixed the callers: `false`, `0`, `bool()`, `(bool)0`, `0 != 0`, default arguments, or an inline one-argument overload.
+  - Making only the three caller-side `LoadScript` functions take `int` adds a conversion inside them instead.
+  - The `bool` patch is not landed.
+- **Unsolved register permutations:**
+  - **`MakeMapID`:**
+    - Tried every `int`/`s32`/`u8` combination.
+    - Tried an inline pack helper, with the pops as locals and as arguments.
+  - **`SetStageDescTarget`:**
+    - Tried 125 type combinations.
+    - Tried field assignment.
+    - Tried an inline pack helper.
+  - **`SetMapDescEnemyRow`:** tried five index forms and a `columns` local.
+  - **`IncMapClearedNum`:**
+    - Tried six `IncrementClearCount` bodies.
+    - Tried a reference local and a pointer local.
