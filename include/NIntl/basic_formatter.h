@@ -62,11 +62,7 @@ private:
                     i += 2;
                 }
             } else {
-<<<<<<< HEAD
                 mResult += static_cast<charT>(c);
-=======
-                mResult += c;
->>>>>>> 18bf8c6d6 (Split CDlgMsgWin and ButtonMessage units; reconstruct CDlgMsgWin and ButtonMessage sources; name unit symbols)
             }
         }
         mParsed = true;
