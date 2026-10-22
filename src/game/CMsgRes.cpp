@@ -155,6 +155,7 @@ void CMsgRes::ConvertEscape() {
 
     char* pSrc = reinterpret_cast<char*>(mpData->mData);
     char* pDst = pSrc;
+    int digit;
     char* pEnd = reinterpret_cast<char*>(mpData) + mpData->mHeader.mSize;
     bool isTrailByte = false;
     bool isSjis = mpHeader->mEncoding == ENCODING_SJIS;
@@ -179,9 +180,8 @@ void CMsgRes::ConvertEscape() {
                 break;
             case 'x': {
                 int value = 0;
-                int c;
-                for (int i = 0; i < 2 && IsHexDigit(c = *pSrc); pSrc++, i++) {
-                    value = (value << 4) | (IsDigit(c) ? c - '0' : ToLower(c) - 'a' + 10);
+                for (int i = 0; i < 2 && IsHexDigit(digit = *pSrc); pSrc++, i++) {
+                    value = (value << 4) | (IsDigit(digit) ? digit - '0' : ToLower(digit) - 'a' + 10);
                 }
                 *pDst++ = value;
                 break;
