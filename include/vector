@@ -568,8 +568,6 @@ public:
     void clear() { base::clear(); }
 
     void reserve(size_type n) { base::reserve(n); }
-    void clear() { base::clear(); }
-
     void swap(vector& r) {
         size_type capacity = this->cap();
         this->cap() = r.cap();
