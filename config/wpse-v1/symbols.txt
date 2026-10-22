@@ -11029,7 +11029,7 @@ __ct__Q310Metrowerks6detail89CompressedPairStorage<Ul,Q23std53allocator<Q33std3t
 __ct__Q23std53allocator<Q33std3tr130shared_ptr<16CPiiPersonalData>>Fv = .text:0x80092D40; // type:function size:0x4
 __dt__Q23std125__vec_constructor<Q33std3tr130shared_ptr<16CPiiPersonalData>,Q23std53allocator<Q33std3tr130shared_ptr<16CPiiPersonalData>>,0>Fv = .text:0x80092D50; // type:function size:0x58
 __dt__Q23std112vector<Q33std3tr130shared_ptr<16CPiiPersonalData>,Q23std53allocator<Q33std3tr130shared_ptr<16CPiiPersonalData>>>Fv = .text:0x80092DB0; // type:function size:0x58
-fn_80092E10 = .text:0x80092E10; // type:function size:0x60
+LoadEntranceItems__29@unnamed@CDlgPiiSelector_cpp@FRQ23std108vector<Q33std3tr128shared_ptr<14CUIPiiListItem>,Q23std51allocator<Q33std3tr128shared_ptr<14CUIPiiListItem>>>i = .text:0x80092E10; // type:function size:0x60
 IsCurrentMapStage7Even__29@unnamed@CDlgPiiSelector_cpp@Fv = .text:0x80092E70; // type:function size:0x40
 Create__15IDlgPiiSelectorFb = .text:0x80092EB0; // type:function size:0xBC
 __ct__Q229@unnamed@CDlgPiiSelector_cpp@15CDlgPiiSelectorFv = .text:0x80092F70; // type:function size:0x80
@@ -11365,7 +11365,7 @@ move<PQ33std3tr130shared_ptr<16CPiiPersonalData>>__3stdFRPQ33std3tr130shared_ptr
 __ct__Q33std3tr124shared_ptr<10CPlayerPii>FP10CPlayerPiiPQ43std3tr16detail25shared_ptr_deleter_common = .text:0x8009D000; // type:function size:0x3C
 __ct__Q33std3tr124shared_ptr<10CPlayerPii>Fv = .text:0x8009D040; // type:function size:0x10
 __ct__Q33std3tr124shared_ptr<10CPlayerPii>FRCQ33std3tr124shared_ptr<10CPlayerPii> = .text:0x8009D050; // type:function size:0x4C
-fn_8009D0A0 = .text:0x8009D0A0; // type:function size:0x64
+__move_backward<PQ33std3tr130shared_ptr<16CPiiPersonalData>,PQ33std3tr130shared_ptr<16CPiiPersonalData>>__3stdFPQ33std3tr130shared_ptr<16CPiiPersonalData>PQ33std3tr130shared_ptr<16CPiiPersonalData>PQ33std3tr130shared_ptr<16CPiiPersonalData>_PQ33std3tr130shared_ptr<16CPiiPersonalData> = .text:0x8009D0A0; // type:function size:0x64
 __ct__Q43std3tr16detail300bound_func<v,Q43std3tr16detail61mem_fn_0<v,Q229@unnamed@CDlgPiiSelector_cpp@14CDataPerPlayer>,Q33std3tr1192tuple<PQ229@unnamed@CDlgPiiSelector_cpp@14CDataPerPlayer,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat>>FRCQ43std3tr16detail300bound_func<v,Q43std3tr16detail61mem_fn_0<v,Q229@unnamed@CDlgPiiSelector_cpp@14CDataPerPlayer>,Q33std3tr1192tuple<PQ229@unnamed@CDlgPiiSelector_cpp@14CDataPerPlayer,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat>> = .text:0x8009D110; // type:function size:0x48
 __ct__Q43std3tr16detail344function_imp<PFv_v,Q43std3tr16detail300bound_func<v,Q43std3tr16detail61mem_fn_0<v,Q229@unnamed@CDlgPiiSelector_cpp@14CDataPerPlayer>,Q33std3tr1192tuple<PQ229@unnamed@CDlgPiiSelector_cpp@14CDataPerPlayer,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat>>,0,0>FQ43std3tr16detail300bound_func<v,Q43std3tr16detail61mem_fn_0<v,Q229@unnamed@CDlgPiiSelector_cpp@14CDataPerPlayer>,Q33std3tr1192tuple<PQ229@unnamed@CDlgPiiSelector_cpp@14CDataPerPlayer,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat,Q33std3tr13nat>> = .text:0x8009D160; // type:function size:0x54
 __ct__Q43std3tr16detail20function_base<PFv_v>Fv = .text:0x8009D1C0; // type:function size:0x10
@@ -11430,7 +11430,7 @@ alloc__Q23std119__vec_deleter<Q33std3tr130shared_ptr<16CPiiPersonalData>,Q23std5
 second__Q310Metrowerks6detail89CompressedPairStorage<Ul,Q23std53allocator<Q33std3tr130shared_ptr<16CPiiPersonalData>>,2>CFv = .text:0x8009DDF0; // type:function size:0x4
 max_size__Q23std53allocator<Q33std3tr130shared_ptr<16CPiiPersonalData>>CFv = .text:0x8009DE00; // type:function size:0x24
 allocate__Q23std119__vec_deleter<Q33std3tr130shared_ptr<16CPiiPersonalData>,Q23std53allocator<Q33std3tr130shared_ptr<16CPiiPersonalData>>>FUl = .text:0x8009DE30; // type:function size:0x2C
-fn_8009DE60 = .text:0x8009DE60; // type:function size:0x30
+allocate__Q23std119__vec_deleter<Q33std3tr130shared_ptr<16CPiiPersonalData>,Q23std53allocator<Q33std3tr130shared_ptr<16CPiiPersonalData>>>FUlQ210Metrowerks11int2type<0> = .text:0x8009DE60; // type:function size:0x30
 grow_by__Q23std121__vec_constructor<Q33std3tr128shared_ptr<14CUIPiiListItem>,Q23std51allocator<Q33std3tr128shared_ptr<14CUIPiiListItem>>,0>FUl = .text:0x8009DE90; // type:function size:0x30
 grow_by__Q23std121__vec_constructor<Q33std3tr128shared_ptr<14CUIPiiListItem>,Q23std51allocator<Q33std3tr128shared_ptr<14CUIPiiListItem>>,0>FUlRUlQ210Metrowerks11int2type<0> = .text:0x8009DEC0; // type:function size:0x34
 __ct__Q23std115__vec_deleter<Q33std3tr128shared_ptr<14CUIPiiListItem>,Q23std51allocator<Q33std3tr128shared_ptr<14CUIPiiListItem>>>FQ23std51allocator<Q33std3tr128shared_ptr<14CUIPiiListItem>> = .text:0x8009DF00; // type:function size:0x50

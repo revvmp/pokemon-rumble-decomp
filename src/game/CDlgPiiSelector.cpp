@@ -117,6 +117,7 @@ class IDlgPiiSelectorInternal;
 typedef std::vector<std::tr1::shared_ptr<CUIPiiListItem> > PiiItemVector;
 
 bool LoadItems(PiiItemVector& rItems, int player);
+bool LoadEntranceItems(PiiItemVector& rItems, int player);
 bool IsCurrentMapStage7Even();
 int CheckPadErrors(int mask);
 int CheckRemoteMemoryErrors();
@@ -626,7 +627,7 @@ void CDataPerPlayer::RunEntranceController() {
     }
     FlushRemoteMemory();
     if (!IsDisconnected()) {
-        mItems.resize(mPlayer);
+        LoadEntranceItems(mItems, mPlayer);
         for (;;) {
             pController = pPlayer->GetController();
             if (mEntranceResult == 2) {
@@ -1708,6 +1709,11 @@ bool LoadItems(PiiItemVector& rItems, int player) {
     const std::list<std::tr1::shared_ptr<CPiiPersonalData> >& rOwn = pPlayer->GetPiiBox().GetPersonalDataList();
     PiiPersonalDataVector piis;
     piis.assign(rOwn.begin(), rOwn.end());
+    return BuildItems(rItems, player, piis);
+}
+
+bool LoadEntranceItems(PiiItemVector& rItems, int player) {
+    PiiPersonalDataVector piis;
     return BuildItems(rItems, player, piis);
 }
 
