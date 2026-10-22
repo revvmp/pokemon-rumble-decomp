@@ -2,6 +2,7 @@
 #define GAME_CTUTORIALMSG_H
 
 #include <game/ICalcDraw.h>
+#include <game/ITutorialMsg.h>
 #include <game/LayoutResources.h>
 #include <nw4r/lyt/lyt_pane.h>
 #include <game/CLayout.h>
@@ -12,15 +13,6 @@
 #include <nw4r/lyt/lyt_textBox.h>
 
 extern const char* spMessagePaneNames[2];
-
-class ITutorialMsg : public ICalcDraw {
-public:
-    ITutorialMsg() {}
-    virtual ~ITutorialMsg() {}
-    virtual void Clear() = 0;
-    virtual void Add(const wchar_t* pText) = 0;
-    virtual void Hide() = 0;
-};
 
 class CTutorialMsg : public ITutorialMsg {
 public:
@@ -68,7 +60,7 @@ void Load(bool background) {
     
     
 
-virtual void Add(const wchar_t* pText) {
+virtual void Show(const wchar_t* pText) {
     if (!mVisible) {
         mLayout.CreateMotion("begin");
         mVisible = true;
@@ -116,7 +108,7 @@ virtual void Clear() {
     mMessages.clear();
     mMessageIndex = 0xFFFF;
 }
-virtual void Hide() {
+virtual void Close() {
     if (mVisible) {
         mLayout.CreateMotion("end");
         mVisible = false;
@@ -173,6 +165,5 @@ private:
     f32 mScrollRate;
 };
 
-std::tr1::shared_ptr<ITutorialMsg> CreateTutorialMsg(bool background);
 
 #endif

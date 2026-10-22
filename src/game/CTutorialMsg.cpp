@@ -5,7 +5,7 @@ const char* spMessagePaneNames[2] = {"text0", "text1"};
 #include <game/CTutorialMsg.h>
 
 
-std::tr1::shared_ptr<ITutorialMsg> CreateTutorialMsg(bool background) {
+std::tr1::shared_ptr<ITutorialMsg> ITutorialMsg::Create(bool background) {
     std::tr1::shared_ptr<CTutorialMsg> message(new CTutorialMsg);
     message->Load(background);
     return message;
