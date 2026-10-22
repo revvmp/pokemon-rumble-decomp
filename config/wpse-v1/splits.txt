@@ -462,6 +462,14 @@ game/CPiiPersonalData.cpp:
 	.sdata      start:0x804B70D0 end:0x804B70E8
 	.sdata2     start:0x804BA070 end:0x804BA080
 
+game/CPiiTex.cpp:
+	extab       start:0x80025BAC end:0x800261C0
+	extabindex  start:0x8004A7CC end:0x8004A88C
+	.text       start:0x800F60C0 end:0x800F77D4
+	.data       start:0x803A9218 end:0x803A931B
+	.sdata      start:0x804B70F8 end:0x804B7108
+	.sdata2     start:0x804BA080 end:0x804BA0B0
+
 game/CPlayer.cpp:
 	extab       start:0x800261C0 end:0x80026418
 	extabindex  start:0x8004A88C end:0x8004AA84

@@ -294,6 +294,7 @@ config.libs = [
             Object(NonMatching, "game/CPii.cpp"),
             Object(NonMatching, "game/CPiiListFilterSort.cpp"),
             Object(NonMatching, "game/CPiiPersonalData.cpp"),
+            Object(NonMatching, "game/CPiiTex.cpp"),
             Object(Matching, "game/CPlayer.cpp"),
             Object(NonMatching, "game/CPlayerPii.cpp"),
             Object(NonMatching, "game/CShadowCamera.cpp"),
