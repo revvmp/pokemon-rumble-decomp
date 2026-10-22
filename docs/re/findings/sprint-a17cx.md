@@ -283,3 +283,44 @@ All probes below were restored, including their source objects. These supplement
 - GameUtil: expanding any combination of the reverb, delay, and chorus initialization helper bodies directly at their call sites leaves InitBgmFxPresets at 92.23%.
 
 CDividedGround, CDlgMsgWin, CTitleSession, PhotoSave, BUI, CUIMenu, and errmsg were inspected against their current instruction differences and prior failed attempts; no new correction was established. Their previously documented load scheduling, empty-deleter copy scheduling, data ordering, exception-frame layout, induction-variable, saved-register, and prologue scheduling blockers remain. No other requested unit is promoted or claimed complete.
+
+
+## 2026-10-22 SaveData and CFileData follow-up
+
+Work stayed in the current checkout; no git write commands were run. Changes remain uncommitted. Notes were appended only here. No repository scratch files, code comments, assembly, optimizer pragmas, target-hash changes, or type-specific vector exceptions were added. Retained implementation changes are four lines in `include/vector` and two symbol-name corrections in `config/wpse-v1/symbols.txt`.
+
+### Retained result
+
+CFileData now has **142/148** report functions at 100%, up from **140/148**. Two previously missing functions are reconstructed and paired at 100% in both live unitdiff and report.json:
+
+- The 188-byte `__vec_constructor::construct_at_end<const map*>(first, last)` at **0x801A4F60**.
+- The 1,220-byte const-pointer `__vec_constructor::copy_range` at **0x801A5020**.
+
+The vector-of-map assignment also scores 100% in live unitdiff (previously 99.80%); it was already fuzzy-100% in report.json, so it is not counted as a third gain.
+
+Keep `operator=` passing `x.begin(), x.end()` as const pointers. The missing construction helper already existed in source with the const-pointer template signature. The target name had been synthesized as a mutable-pointer instantiation. Correcting that name pairs its exact instructions. For `copy_range`, retain the existing const-pointer overload and forward to `copy_contiguous`, which contains its unchanged `<` loop. This one extra inline level reproduces the standalone map-copy register allocation without changing the five inlined SaveData assignments. Correct the target's synthesized template name to this non-template const-pointer overload. The successful link verifies references after both renames; symbol addresses and sizes are unchanged.
+
+This supersedes the earlier assumption in sprint-a03 that CFileData must use mutable `T*` ranges. The machine code does not establish pointer constness by itself, and the previously assigned names were not original-source evidence. Const ranges reproduce the target and preserve the rest of the project.
+
+### Regression and link validation
+
+The initial on-disk report counted **13,311** perfect functions. Rebuilding all **160 configured game source units** from unchanged source produced a controlled baseline of **13,319**. Rebuilding all 160 with the retained header produced **13,321**, with exactly the two CFileData gains and **zero losses by function identity**.
+
+Ran `python configure.py` successfully and attempted `.venv/Scripts/ninja`; Ninja stalled without output and was interrupted. Used the compiler commands obtained from `ninja -t commands all_source`, invoking the configured compiler directly. For sources containing non-ASCII bytes, converted UTF-8 to CP932 only during compilation and restored original bytes in a `finally` block. Every game compilation exited 0. Regenerated target objects with the configured `dtk dol split` command after symbol edits.
+
+The first fresh link exposed stale non-game objects: it exited 0, but the DOL was 64 bytes short and verification failed at header offset **0x1F**. ELF symbol-address comparison located the first real shifts in `ef_drawdirectionalstrategy` (-48 bytes), then `ef_drawfreestrategy` (cumulative -64). Recompiled these two already-Matching units from their unchanged source with their configured commands. Deleted `build/wpse-v1/main.dol`, regenerated the normal linker response file from all **1,388 ordered link inputs**, and ran the configured linker and elf2dol commands; both exited 0.
+
+`python tools/verify/verify.py verify --manifest config/targets/wpse-v1.json --reference-dir orig/wpse-v1 --build-dir build/wpse-v1` then returned **PASS main.dol; PASS: 1 declared artifact(s)**. This verifies the existing source/fallback selection; CFileData and SaveData remain NonMatching. No configure.py flip was warranted.
+
+The final regenerated report has **13,323** perfect functions: two gains from this change and two recovered by refreshing the stale NW4R objects. There are no losses against the 13,319 controlled game-rebuild baseline. Against a baseline with those same two NW4R objects refreshed, the session's source change is **13,321 to 13,323**, net **+2**. `git diff --check` passes.
+
+### Reverted investigations and remaining work
+
+- Mutable-pointer vector assignment plus pointer overloads reproduced both CFileData helpers but regressed all five SaveData assignments, giving 13,316 rather than 13,319. The SaveData differences included an r7/r9 swap in the compiler-generated loop setup. Direct pointer loops, named source/destination pointers, const helper parameters, reference parameters, and increment-order variants did not resolve the conflict. All these forms were removed; the retained const-range forwarding solution avoids it.
+- A local error value in CFileData WaitUntilLoaded raises live unitdiff to 99.98203%, but reverses the flags/error load order. Explicit flags locals, const/reference variants, and argument-order variants of an inline reporting helper did not reach 100%. The original call is retained. Local error values in OpenFileStream instead lower its score to 99.30887%; reverted.
+- Moving BThread member initialization into the constructor body lowers CWorker construction to roughly 97.5%; reverted. Iterator-range and cache-reference helpers for RemoveExpiredFiles lower UpdateResourceFiles to 99.896255% and regress ShutdownResourceFiles; reverted.
+- Explicit SlotData copy constructors with member initializers, with a copied VectorStructs base, or with a default-initialized base all fail to reproduce the required inline structure. They give DeserializeVector 7.625% and a 684-byte append rather than the target's 164 bytes. All were reverted. No dummy statements, artificial inline-budget padding, or forced noinline functions were retained.
+
+Final SaveData remains **87/100**, unchanged: Load 70.68926%, DeserializeVector<SlotData> 8.118421%, append and ten named-placeholder helpers missing from the pairing. Its sort helpers already scored 100% on entry. The requested full SaveData reconstruction is unfinished.
+
+CFileData's six remaining report misses are WaitUntilLoaded 99.9476%, CWorker constructor 99.79775%, OpenFileStream 99.89297%, map erase 96.666664%, reset<CWorker> 99.36793%, and UpdateResourceFiles 99.91354%. Both units remain NonMatching.

@@ -588,6 +588,10 @@ protected:
     }
 
     static T* copy_range(const T* first, const T* last, T* result) {
+        return copy_contiguous(first, last, result);
+    }
+
+    static T* copy_contiguous(const T* first, const T* last, T* result) {
         for (; first < last; ++first, ++result) {
             *result = *first;
         }
