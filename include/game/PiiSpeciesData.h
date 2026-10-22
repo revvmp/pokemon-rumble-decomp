@@ -10,6 +10,7 @@ bool IsValidPiiForm(u16 species, int form);
 
 struct PiiSpeciesData {
     int GetSpecies() const;
+    u32 GetDefaultSex() const;
     int GetFormNumber() const;
     int GetBoneType() const;
     int GetFlyHeight() const;

@@ -6,6 +6,7 @@
 #include <revolution/types.h>
 #include <nw4r/lyt/lyt_texMap.h>
 #include <game/CaptureTexture.h>
+#include <game/CPii.h>
 class CPii;
 class CPiiPersonalData;
 class BWorld;
@@ -31,12 +32,14 @@ public:
     void Calc();
     void CalcMtx();
     void CalcView();
+    unsigned InitPiis(std::tr1::shared_ptr<CPiiPersonalData> personalData);
+    void SetPiiVisible(u32 index, bool visible);
+    unsigned GetPiiCount() const { return mPiis.size(); }
+    bool IsPiiVisible(unsigned index) const { return static_cast<BWorldObj*>(mPiis[index].get())->IsVisible(); }
     nw4r::lyt::TexMap GetTexMap() const;
 private:
     void InitTexture(u16 width, u16 height);
-    void InitPiis(std::tr1::shared_ptr<CPiiPersonalData> personalData);
     void UpdateCamera();
-    void SetPiiVisible(u32 index, bool visible);
 
     std::vector<std::tr1::shared_ptr<CPii> > mPiis;
     std::tr1::shared_ptr<COffScreenTexture> mTexture;

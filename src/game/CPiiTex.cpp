@@ -35,7 +35,9 @@ void CPiiTex::InitTexture(u16 width, u16 height) {
     mWorld->SetCurrentCamera(camera);
 }
 
-void CPiiTex::InitPiis(std::tr1::shared_ptr<CPiiPersonalData> personalData) {}
+unsigned CPiiTex::InitPiis(std::tr1::shared_ptr<CPiiPersonalData> personalData) {
+    return 0;
+}
 
 void CPiiTex::SetPiiVisible(u32 index, bool visible) {
     if (index < mPiis.size()) {

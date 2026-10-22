@@ -15,6 +15,9 @@ public:
     void SaveSnapshot();
     void RestoreSnapshot();
     void RecordCollection(u16 monsno, u8 form, int type, bool rare);
+    int GetDefeatCount(u16 monsno, int difficulty);
+    u32 GetNormalColorMask(u16 monsno);
+    u32 GetRareColorMask(u16 monsno);
     void ExportCollectionData(std::vector<SD_PiiCollectionData::Data>& rOut);
 
 private:
