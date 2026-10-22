@@ -47,6 +47,11 @@ Every object that needs memory (an address-taken local, a class temporary, a by-
 | CUIManager `SetFocusedUI` calls an inline `NotifyFocusChanged(pUI, pPrevious)` for the old and new UI (rule 8: the inline's parameters rank above the caller's locals); `GetFocusedUI` and the four forwarding `Calc`/`Draw` overrides follow the target text order; the CUIManager `.data` split starts at its own `bad_function_call` string (0x803C0280, not BUI's). CUIManager is Matching | 1 and a unit flip |
 | CUIPiiSpec `SetPii` reads the player through a named `CPlayer*` local (the inline `GetController` result otherwise takes r27) and tests `GetCappedLevel() < GetLevel()` for `CAP` | 1 |
 | CPostEffect: the implicit destructor replaces the user-declared one, and `Draw`, `Calc`, `Hide`, `Show` and `BindCaptureTexture` are `inline` vtable-only overrides (declared `Show, Hide, Calc, Draw`; `BindCaptureTexture` defined before `Show`). This gives the target `.text` order (e1 rules 6 and 7) and the `@STRING@` literals that the target re-addresses with `lis` and two `addi`. CPostEffect is Matching | 2 and a unit flip |
+| `BUI.h` includes `<functional>`, `<list>` and `<memory>` before `ICalcDraw.h`, so `ICalcDraw` is created after `shared_ptr_deleter_common` and its type_info is emitted first (e1 rule 2). CUIPiiSpec is Matching; no function changed elsewhere | unit flip |
+| `Pane::GetBasePositionH/V` go through `detail::GetHorizontalPosition`/`GetVerticalPosition` (moved with the position enums to `lyt_types.h`); the extra `u8` inline level adds the target's second `clrlwi` | 1: CUIMenu `UpdateSelection` |
+| CUIList: `allVisible = mItems.size() <= mLayouts.size()` (unsigned, and the panes mean "everything fits"); the page wrap is `mSelectedIndex %= pageSize` | 1 and part of `OnInput` |
+| CDlgMsgWin `OpenOptions` compares `i == mCursor` | 1 |
+| CHPBar: an inline `CDamage::Move()` puts the `FormatString` temporary below the `shared_ptr` temporaries; the player animation block sits outside `if (personalData)` | `Update` down to one register |
 
 ## Open cases
 
@@ -69,6 +74,10 @@ Every object that needs memory (an address-taken local, a class temporary, a by-
 - **resetmgr `Update`.** In `NotifyAndBlankScreen` the target keeps the loop iterator in r30 and the decremented copy in r29; ours swaps them. A `while` loop, `(--current)->Call`, a temporary copy, a nested inline helper and `std::reverse_iterator` did not reproduce it.
 - **CUIMenu `OnInput`.** The target computes `mCursorRow = selected % mRowCount` from the saved register (r25) and loads `mRowCount` into r3; ours reuses the call result in r3. Using `candidate` instead and an inline `SelectIfSelectable` helper did not help (the helper drops to 93%).
 - **CPiiPersonalData `Import`.** The target loads the low creation-time word first and stores `mRandomSeed` between the flags and the two time halves. Reordering the assignments and writing the time expression inline or with swapped operands did not reproduce the registers.
+
+- **CHPBar `Update`.** The constructed flag of the `IsJoined() && GetPendingPersonalData()` temporary is in r4 in the target and in r24 here (both sites). `.get() != nullptr`, `!= nullptr`, `!!` and an inline `CPlayer::HasPendingPersonalData` did not help (the helper also moves slots).
+- **CUIList `OnInput`.** `mSelectedIndex = -1` in the wrap-around is `li r3, 0; subi r0, r3, 1` in the target: a zero kept in a register, as in the BWorld skip mask.
+- **errmsg `Present`.** The target ranks the hoisted `bad_function_call` constants above the reverse iterator; a plain `--it` loop is worse.
 
 ## Traps
 
