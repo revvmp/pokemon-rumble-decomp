@@ -49,44 +49,9 @@ int sMaxRemoteMarkedCount = 12;
 
 class CDlgPiiListImpl {
 public:
-    CDlgPiiListImpl(int player, int type)
-        : mPlayer(player), mType(type), mResult(0), mHolding(false), mFavoriteMode(false), mUIManager(new CUIManager),
-          mRootLayout(new BUILayout), mPiiSpec(new CUIPiiSpec), mPiiList(new CUIPiiList), mPlayerID(new CUIPlayerID),
-          mHelpLayout(new BUILayout), mTitleLayout(new BUILayout), mRemoteMemoryLayout(new BUILayout),
-          mSavingLayout(new BUILayout), mFlag400(false) {}
+    CDlgPiiListImpl(int player, int type);
 
-    int GetType() const { return mType; }
-    void RequestClose() { mResult = 1; }
-    bool IsFinished() const { return mFiber.IsFinished(); }
-    void Draw() {
-        mUIManager->Draw();
-        if (mMsgWin) {
-            mMsgWin->Draw();
-        }
-    }
-    void CalcView() {
-        mUIManager->CalcView();
-        if (mMsgWin) {
-            mMsgWin->CalcView();
-        }
-    }
-    void CalcMtx() {
-        mUIManager->CalcMtx();
-        if (mMsgWin) {
-            mMsgWin->CalcMtx();
-        }
-    }
-    void Calc() {
-        mPiiList->UpdateSelection();
-        mUIManager->Calc();
-        if (mMsgWin) {
-            mMsgWin->Calc();
-        }
-        mFiber.Resume();
-    }
-    void ClearItems() { mItems.clear(); }
     void AppendItems(const std::list<std::tr1::shared_ptr<CPiiPersonalData> >& rList);
-    void StartFiber() { mFiber.Start(std::tr1::bind(&CDlgPiiListImpl::Run, this), 0x8000); }
     void Setup(bool background);
     void OnSelectionChanged(BUI* pUI);
     void OnAccept(BUI* pUI);
@@ -98,7 +63,6 @@ public:
     bool AskYesNo(const wchar_t* pText);
     bool CheckRemoteMemory();
 
-private:
     int mPlayer;
     int mType;
     int mResult;
@@ -126,8 +90,14 @@ public:
     virtual ~CDlgPiiList() {}
     virtual void Calc() {
         if (mImpl) {
-            mImpl->Calc();
-            if (mImpl->IsFinished()) {
+            CDlgPiiListImpl* pImpl = mImpl.get();
+            pImpl->mPiiList->UpdateSelection();
+            pImpl->mUIManager->Calc();
+            if (pImpl->mMsgWin) {
+                pImpl->mMsgWin->Calc();
+            }
+            pImpl->mFiber.Resume();
+            if (mImpl->mFiber.IsFinished()) {
                 mImpl.reset();
                 GetCurrentGameMap()->UnregisterDialog(shared_from_this());
             }
@@ -135,30 +105,42 @@ public:
     }
     virtual void CalcMtx() {
         if (mImpl) {
-            mImpl->CalcMtx();
+            CDlgPiiListImpl* pImpl = mImpl.get();
+            pImpl->mUIManager->CalcMtx();
+            if (pImpl->mMsgWin) {
+                pImpl->mMsgWin->CalcMtx();
+            }
         }
     }
     virtual void CalcView() {
         if (mImpl) {
-            mImpl->CalcView();
+            CDlgPiiListImpl* pImpl = mImpl.get();
+            pImpl->mUIManager->CalcView();
+            if (pImpl->mMsgWin) {
+                pImpl->mMsgWin->CalcView();
+            }
         }
     }
     virtual void Draw() {
         if (mImpl) {
-            mImpl->Draw();
+            CDlgPiiListImpl* pImpl = mImpl.get();
+            pImpl->mUIManager->Draw();
+            if (pImpl->mMsgWin) {
+                pImpl->mMsgWin->Draw();
+            }
         }
     }
     virtual bool IsClosable() { return false; }
     virtual bool Close() {
         if (mImpl) {
-            mImpl->RequestClose();
+            mImpl->mResult = 1;
         }
         GetCurrentGameMap()->UnregisterDialog(shared_from_this());
         return true;
     }
     virtual int GetType() {
         if (mImpl) {
-            return mImpl->GetType();
+            return mImpl->mType;
         }
         return 0;
     }
@@ -178,7 +160,7 @@ namespace {
 
 bool CDlgPiiList::Show(int player, int type) {
     if (mImpl) {
-        if (mImpl->GetType() == type) {
+        if (mImpl->mType == type) {
             return true;
         }
         Close();
@@ -189,7 +171,7 @@ bool CDlgPiiList::Show(int player, int type) {
     }
     GetCurrentGameMap()->SetPausing(true);
     CDlgPiiListImpl* pImpl = new CDlgPiiListImpl(player, type);
-    pImpl->ClearItems();
+    pImpl->mItems.clear();
     pImpl->AppendItems(IGameSession::GetInstance()->GetTeamPiiBox()->GetPersonalDataList());
     if (type == 1) {
         CPlayer* pPlayer = IGameSession::GetInstance()->GetPlayer(player);
@@ -201,10 +183,16 @@ bool CDlgPiiList::Show(int player, int type) {
         }
     }
     pImpl->Setup(false);
-    pImpl->StartFiber();
+    pImpl->mFiber.Start(std::tr1::bind(&CDlgPiiListImpl::Run, pImpl), 0x8000);
     mImpl.reset(pImpl);
     return true;
 }
+
+CDlgPiiListImpl::CDlgPiiListImpl(int player, int type)
+    : mPlayer(player), mType(type), mResult(0), mHolding(false), mFavoriteMode(false), mUIManager(new CUIManager),
+      mRootLayout(new BUILayout), mPiiSpec(new CUIPiiSpec), mPiiList(new CUIPiiList), mPlayerID(new CUIPlayerID),
+      mHelpLayout(new BUILayout), mTitleLayout(new BUILayout), mRemoteMemoryLayout(new BUILayout),
+      mSavingLayout(new BUILayout), mFlag400(false) {}
 
 void CDlgPiiListImpl::ShowMessage(const wchar_t* pText) {
     if (!mMsgWin) {
