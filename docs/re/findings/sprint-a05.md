@@ -34,3 +34,12 @@
 - **Two temporaries of the same type swap slots between sites.** `GXColor` in `DrawHomeButtonNotice` and the `random_access_iterator_tag` in the first `CUIList::Load` string constructor keep the wrong order after every declaration reordering tried.
 - **Hoisting a base-position `switch` helps stack layout.** Writing `pTitle->GetBasePositionH()` and `GetBasePositionV()` as `switch` statements moved `CUIMenu::UpdateSelection` from 96% to 99.4%.
 - **Several `PaneRectangle` helper variants stay at 88.7%.** Reordering `position`, `size` and the base-position reads in `GetPaneRectangle` changes only instruction scheduling; none reached the target prologue order.
+
+## Long-tail shift (tB)
+
+## Traps
+
+- **A user copy constructor on `default_delete<T[]>` regresses dozens of units.** It fixed one CDlgPiiSelector helper but changed about 40 other units and broke the link; keep the implicit one and leave that helper unmatched.
+- **Moving a file-scope string table before its first use changes its addressing.** Defining `gAreaPaneNames` above the CNoticeDisplay classes made CodeWarrior address it from the pool base; keep it at the end of the file.
+- **Inline flag setters split into add and remove helpers.** `CPiiPersonalData::SetFlag` and `BWorldObj::SetStateFlag` call separate 16-byte `AddFlag`/`RemoveFlag` helpers in the target; the split in `symbols.txt` must match before callers reach 100%.
+- **Placeholder deleter and destructor clones are best named from vtable slots.** Comparing original and rebuilt vtable relocations gives the permutation of `get_deleter`, `dispose` and destructor clones directly.
