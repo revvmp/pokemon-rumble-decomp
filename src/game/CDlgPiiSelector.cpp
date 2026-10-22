@@ -814,9 +814,9 @@ void CDataPerPlayer::CalcPreviewPositions(nw4r::math::VEC3* pInside, nw4r::math:
     nw4r::math::VEC3 position;
     f32 x = mInsidePosition.x;
     f32 y = mInsidePosition.y;
-    position.z = -5.0f;
     position.x = rData.projAspect * (x * scale);
     position.y = -y * scale;
+    position.z = -5.0f;
     position = Transform(inverseMtx, position);
     if (pInside != nullptr) {
         *pInside = position;
@@ -825,9 +825,9 @@ void CDataPerPlayer::CalcPreviewPositions(nw4r::math::VEC3* pInside, nw4r::math:
         nw4r::math::VEC3 outside;
         f32 x = mOutsidePosition.x;
         f32 y = mOutsidePosition.y;
-        outside.z = -5.0f;
         outside.x = rData.projAspect * (x * scale);
         outside.y = -y * scale;
+        outside.z = -5.0f;
         outside = Transform(inverseMtx, outside);
         outside.x = position.x;
         *pOutside = outside;
@@ -837,64 +837,64 @@ void CDataPerPlayer::CalcPreviewPositions(nw4r::math::VEC3* pInside, nw4r::math:
 void CDataPerPlayer::CreateBall() {
     BWorld* pWorld = GetCurrentGameMap()->GetWorld();
     int rank = Clamp<int>(GetSaveData(-1)->mData.mFlags[0], 1, 4);
+    const char* pModelName = "neji_EX.brres";
     mEnterMotion = "neji_EX__in";
     mSpinMotion = "neji_EX__screw";
     mExitMotion = "neji_EX__out";
-    const char* pModelName = "neji_EX.brres";
     switch (GetSaveData(-1)->mData.mFlags[1]) {
     case 0:
         switch (rank) {
         case 1:
+            pModelName = "neji_C.brres";
             mEnterMotion = "neji_C__in";
             mSpinMotion = "neji_C__screw";
             mExitMotion = "neji_C__out";
-            pModelName = "neji_C.brres";
             break;
         case 2:
+            pModelName = "neji_B.brres";
             mEnterMotion = "neji_B__in";
             mSpinMotion = "neji_B__screw";
             mExitMotion = "neji_B__out";
-            pModelName = "neji_B.brres";
             break;
         case 3:
+            pModelName = "neji_A.brres";
             mEnterMotion = "neji_A__in";
             mSpinMotion = "neji_A__screw";
             mExitMotion = "neji_A__out";
-            pModelName = "neji_A.brres";
             break;
         case 4:
+            pModelName = "neji_S.brres";
             mEnterMotion = "neji_S__in";
             mSpinMotion = "neji_S__screw";
             mExitMotion = "neji_S__out";
-            pModelName = "neji_S.brres";
             break;
         }
         break;
     case 1:
         switch (rank) {
         case 1:
+            pModelName = "neji_another_C.brres";
             mEnterMotion = "neji_another_C__in";
             mSpinMotion = "neji_another_C__screw";
             mExitMotion = "neji_another_C__out";
-            pModelName = "neji_another_C.brres";
             break;
         case 2:
+            pModelName = "neji_another_B.brres";
             mEnterMotion = "neji_another_B__in";
             mSpinMotion = "neji_another_B__screw";
             mExitMotion = "neji_another_B__out";
-            pModelName = "neji_another_B.brres";
             break;
         case 3:
+            pModelName = "neji_another_A.brres";
             mEnterMotion = "neji_another_A__in";
             mSpinMotion = "neji_another_A__screw";
             mExitMotion = "neji_another_A__out";
-            pModelName = "neji_another_A.brres";
             break;
         case 4:
+            pModelName = "neji_another_S.brres";
             mEnterMotion = "neji_another_S__in";
             mSpinMotion = "neji_another_S__screw";
             mExitMotion = "neji_another_S__out";
-            pModelName = "neji_another_S.brres";
             break;
         }
         break;
