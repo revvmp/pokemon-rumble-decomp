@@ -97,3 +97,29 @@ Matched `CUIMenu` `RunMenuList`, and `CPauseMenu` `Create`, `Run` and both `Form
 | main | `HandleFileError` | 96.61 | The target shares one `return false` block between `drive < 2` and `drive >= 512`; combined, nested, goto and result-variable forms tried |
 | BUI | `OnInput` | 91.70 | `mNeighbors[i & 3]` shows the target's unreduced address (98.44%), so the induction must be blocked some other way |
 | homebutton | `InitializeHomeButtonInfo` | 98.57 | Moving the body into an inline helper makes the helper level prune and inlines the small callees the target calls |
+
+## Tail wave 4 (agent a15)
+
+Matched `CMsgRes` `MakeCollationKeys` (81.85% to 100%) and `CDlgPiiSelector` `CDataPerPlayer::Setup` (99.43%) and `CalcPreviewPositions` (99.61%). CDlgPiiSelector is at 641 of 645.
+
+### Traps
+
+- **A binary search over character ranges uses the signedness of the variable the inline parameter is bound to.** CodeWarrior substitutes an inline parameter with the caller's variable when no conversion is needed, so `SetCharacterKey(CollationKey&, u32 c)` called with a `wchar_t` still compared signed. An if-chain of `lo <= c && c < hi` ranges with early returns in an inline helper taking `wchar_t` produced the target's `cmplwi` tree; a `case lo ... hi` switch gave signed compares for every type tried, and a top-level if-chain merged with the outer `switch` into one tree. The range bodies follow source order (ASCII, Latin-1, hiragana, katakana, Greek, private use, full width).
+- **Symbol keys put the high byte in the primary weight.** `rlwimi r3, c, 13, 3, 10` is `Set(category, c >> 8, c)`, not `Set(category, c, c)`.
+- **Inline helpers move register order without code changes.** The prolonged-sound-mark case of `MakeCollationKeys` moved into `SetProlongedSoundKey(CollationKey&, wchar_t)` fixed the category and secondary registers; local declaration permutations then fixed `c` and `isSecondHalf`.
+- **Two float loads in swapped registers: declare the locals in reverse before loading them.** `CalcPreviewPositions` matched with `f32 y; f32 x; x = ...; y = ...;` for both positions.
+- **A named `_VEC2` result adds a frame slot.** `Setup` matched once each `NormalizeViewPosition` result was assigned through `static_cast<const VEC2&>(...)` of the returned temporary instead of a named `_VEC2` local.
+
+### Unsolved
+
+| Unit | Function | % | Attempts |
+| --- | --- | --- | --- |
+| CMsgRes | `ConvertEscape` | 94.66 | The target keeps `isSjis` in r0 for the whole function, which frees r11 for the hex digit. `isTrailByte = false; *pDst = isTrailByte;` in the NUL case reproduces the target's `li r31, 0; stb r31` and the frame size, but moves `isTrailByte` to r12; declaration permutations (60), `int`, `BOOL` and `const` flags, an encoding local, testing the header in the loop, and moving the loop into an inline helper with an `isSjis` parameter do not reach r0 |
+| CNoticeDisplay | three `Init` | 99.6-99.9 | Defining `gAreaPaneNames` before the classes puts it at the target `.data` offset 0xA8, but the target then emits the `shared_ptr_deleter<CNoticeDisplay>` vtable and name before every function string, and the class vtables before the template vtables; ours creates both at the end. Left unchanged |
+| main | `main` | 88.83 | `#pragma auto_inline off` around `SetErrorHandler` gives the call but also stops the deferred `function<void()>` constructor instance from inlining (78.55%) |
+| CPauseMenu | `TakeScreenshot` | 99.83 | The work pointer, `efbWidth` and `efbHeight` rotate registers; removing the inline level, pre-declaring or reordering the two dimensions, and a named allocation pointer do not help |
+| CPauseMenu | `LeaveStage` | 98.73 | Locals for area and mode in either order, a by-value parameter, and a copy-then-clear form leave the extraction order unchanged |
+| CShadowCamera | `SetupShadowModel` | 95.20 | The target loads the index and alpha after the texture address; without the `index` local or with a direct call in the loop they still load first |
+| CShadowCamera | `SetupShadowMaterial` | 99.88 | Reordering `second`, `postMtx` and `map`, and naming the texture object pointer, leave the two argument address orders unchanged |
+| CDlgPiiSelector | vector `insert`/`assign` from list const_iterator | 80.6, 99.8 | An unnamed `int2type<0>()` value-initialises the tag; a user-declared `int2type` constructor is called out of line under the unit's `#pragma dont_inline on` |
+| homebutton | `UpdateHomeButton` | 99.65 | Float register of the stick divisor constant; pre-declared, compound, reordered and reference forms tried |
