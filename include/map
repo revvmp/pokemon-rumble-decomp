@@ -415,6 +415,7 @@ public:
     native_iterator end() { return tree_.end(); }
     size_type size() const { return tree_.size(); }
     bool empty() const { return tree_.size() == 0; }
+    void clear() { tree_.clear(); }
 
     pair<native_iterator, bool> insert(const value_type& rValue) {
         return tree_.insert_one(rValue);
