@@ -449,10 +449,11 @@ void CGameResult::RunAction()
     std::tr1::weak_ptr<CEffect> pPreviousEffect;
     for (;;) {
         bool atEnd = mSelected == static_cast<int>(mEntries.size()) - 1;
+        bool canRepeat = atEnd == false;
         IUIInput* pInput = GetUIInput();
         int action;
         for (;;) {
-            u32 repeat = !atEnd ? pInput->GetRepeat() : 0;
+            u32 repeat = canRepeat ? pInput->GetRepeat() : 0;
             if ((pInput->GetTrig() | repeat) & BUTTON_NEXT) {
                 action = 0;
                 break;
@@ -470,24 +471,27 @@ void CGameResult::RunAction()
         }
         int previous = mSelected;
         int steps = 10;
-        if (action == 2) {
+        switch (action) {
+        case 0:
             if (atEnd) {
-                break;
+                goto finish;
+            }
+            mSelected = previous + 1;
+            break;
+        case 2:
+            if (atEnd) {
+                goto finish;
             }
             mSelected = mEntries.size() - 1;
-            int distance = (mSelected - previous) * 10;
-            steps = std::min(30, distance);
-        } else if (action == 1) {
+            steps = std::min(30, (mSelected - previous) * 10);
+            break;
+        case 1:
             if (previous <= 0) {
                 YieldFiber();
                 continue;
             }
             mSelected = previous - 1;
-        } else {
-            if (atEnd) {
-                break;
-            }
-            mSelected = previous + 1;
+            break;
         }
         ResultPii& rEntry = mEntries[mSelected];
         std::tr1::shared_ptr<CPiiPersonalData> pPii = rEntry.mPersonalData;
@@ -556,6 +560,7 @@ void CGameResult::RunAction()
             pFinished->Finalize(0);
         }
     }
+finish:
     if (piiSpecShown) {
         pLayout->CreateMotion("end", "PIISPEC", 0.0f, 1.0f);
     }
