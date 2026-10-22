@@ -15,6 +15,8 @@
 class CUIManager;
 
 struct UIMenuItem {
+    operator const wchar_t* const&() const { return mText; }
+
     const wchar_t* mText;
     int mKind;
 };
@@ -44,10 +46,9 @@ struct UIMenuParam {
 
 class CUICallbackLists {
 public:
-    BUI::CCallbackListOwner& GetSelectionCallbacks() { return mSelectionCallbacks; }
+    BUI::CCallbackListOwner mSelectionCallbacks;
 
 private:
-    BUI::CCallbackListOwner mSelectionCallbacks;
     BUI::CCallbackListOwner mAcceptCallbacks;
     BUI::CCallbackListOwner mScrollCallbacks;
 };

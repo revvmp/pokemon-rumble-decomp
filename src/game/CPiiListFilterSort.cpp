@@ -474,7 +474,7 @@ bool CPiiListFilterSort::ShowTypeFilterMenu(bool bySpecies, std::tr1::shared_ptr
     param.mpArchives = gSharedLayoutArchives;
     CUIMenuCallbacks callbacks(0);
     if (onChanged) {
-        callbacks.GetSelectionCallbacks().Add(
+        callbacks.mSelectionCallbacks.Add(
             std::tr1::bind(&CPiiListFilterSort::PreviewTypeFilter, this, std::tr1::placeholders::_1, int(bySpecies ? FILTER_SPECIES_TYPE : FILTER_MOVE_TYPE), onChanged));
     }
     IController* pInput = IGameSession::GetInstance()->GetPlayer(player)->GetController();
@@ -506,6 +506,183 @@ void CPiiListFilterSort::PreviewTypeFilter(BUI* pBui, int filterType, const std:
                 }
                 mFilterType = savedFilterType;
                 mTypeIndex = savedTypeIndex;
+            }
+        }
+    }
+}
+
+#pragma dont_inline on
+
+bool CPiiListFilterSort::ShowPrefixFilterMenu(std::tr1::shared_ptr<CUIManager> pManager, int player, PiiItemVector& rItems,
+                                              const std::tr1::function<void(const CPiiListFilterSort*)>& onChanged) {
+    std::vector<UIMenuItem> items;
+    for (int prefix = 0; prefix < 44; ++prefix) {
+        if (HasItemWithPrefix(rItems, prefix)) {
+            UIMenuItem item;
+            item.mText = GetMessageString(0x6001D + prefix, nullptr);
+            item.mKind = prefix;
+            if (prefix == 0) {
+                item.mText = GetMessageString(0x600B4, nullptr);
+            }
+            items.push_back(item);
+        }
+    }
+    std::sort(items.begin(), items.end(), IsNameBefore);
+    int itemCount = items.size();
+    int rowCount = (itemCount + 10) / 11;
+    int columnCount = itemCount < 11 ? itemCount : 11;
+    UIMenuParam param = {nullptr, nullptr, 0, 0, 0, 0, nullptr, "menu"};
+    param.mTitle = GetMessageString(0x600B3, nullptr);
+    param.mpItems = &items[0];
+    param.mItemCount = items.size();
+    param.mColumnCount = rowCount;
+    param.mRowCount = columnCount;
+    param.mDefaultIndex = mFilterType == FILTER_PREFIX ? mPrefix : -1;
+    param.mpArchives = gSharedLayoutArchives;
+    CUIMenuCallbacks callbacks(0);
+    if (onChanged) {
+        callbacks.mSelectionCallbacks.Add(std::tr1::bind(&CPiiListFilterSort::PreviewPrefixFilter, this, std::tr1::placeholders::_1, onChanged));
+    }
+    IController* pInput = IGameSession::GetInstance()->GetPlayer(player)->GetController();
+    int choice = RunUIMenu(param, callbacks, pInput, pManager, GetDefaultFontMap(), true);
+    if (choice >= 0) {
+        if (choice < 44) {
+            mFilterType = FILTER_PREFIX;
+            mPrefix = choice;
+            if (onChanged) {
+                onChanged(this);
+            }
+            return true;
+        }
+    }
+    if (onChanged) {
+        onChanged(this);
+    }
+    return false;
+}
+
+#pragma dont_inline reset
+
+void CPiiListFilterSort::PreviewPrefixFilter(BUI* pBui, const std::tr1::function<void(const CPiiListFilterSort*)>& onChanged) {
+    CUIMenu* pMenu = dynamic_cast<CUIMenu*>(pBui);
+    if (pMenu) {
+        std::tr1::shared_ptr<IUIListItem> pItem = pMenu->GetSelectedItem();
+        if (pItem) {
+            std::tr1::shared_ptr<CUIMenuItem> pMenuItem = std::tr1::dynamic_pointer_cast<CUIMenuItem>(pItem);
+            if (pMenuItem) {
+                int savedFilterType = mFilterType;
+                int savedPrefix = mPrefix;
+                mFilterType = FILTER_PREFIX;
+                mPrefix = pMenuItem->GetKind();
+                if (onChanged) {
+                    onChanged(this);
+                }
+                mFilterType = savedFilterType;
+                mPrefix = savedPrefix;
+            }
+        }
+    }
+}
+
+bool CPiiListFilterSort::ShowOriginalTrainerFilterMenu(std::tr1::shared_ptr<CUIManager> pManager, int player,
+                                                       const std::tr1::function<void(const CPiiListFilterSort*)>& onChanged) {
+    UIMenuItem items[2] = {{nullptr, 0}, {nullptr, 1}};
+    items[0].mText = GetMessageText(0x600B6, gEmptyText);
+    items[1].mText = GetMessageText(0x600B7, gEmptyText);
+    UIMenuParam param = {nullptr, nullptr, 2, 1, 2, 0, nullptr, "menu"};
+    param.mTitle = GetMessageText(0x600B5, gEmptyText);
+    param.mpItems = items;
+    param.mDefaultIndex = mFilterType == FILTER_ORIGINAL_TRAINER ? mInvertOriginalTrainer : -1;
+    param.mpArchives = gSharedLayoutArchives;
+    CUIMenuCallbacks callbacks(0);
+    if (onChanged) {
+        callbacks.mSelectionCallbacks.Add(
+            std::tr1::bind(&CPiiListFilterSort::PreviewOriginalTrainerFilter, this, std::tr1::placeholders::_1, onChanged));
+    }
+    IController* pInput = IGameSession::GetInstance()->GetPlayer(player)->GetController();
+    u32 choice = RunUIMenu(param, callbacks, pInput, pManager, GetDefaultFontMap(), true);
+    if (choice <= 1) {
+        mFilterType = FILTER_ORIGINAL_TRAINER;
+        mInvertOriginalTrainer = choice;
+        if (onChanged) {
+            onChanged(this);
+        }
+        return true;
+    }
+    if (onChanged) {
+        onChanged(this);
+    }
+    return false;
+}
+
+void CPiiListFilterSort::PreviewOriginalTrainerFilter(BUI* pBui, const std::tr1::function<void(const CPiiListFilterSort*)>& onChanged) {
+    CUIMenu* pMenu = dynamic_cast<CUIMenu*>(pBui);
+    if (pMenu) {
+        std::tr1::shared_ptr<IUIListItem> pItem = pMenu->GetSelectedItem();
+        if (pItem) {
+            std::tr1::shared_ptr<CUIMenuItem> pMenuItem = std::tr1::dynamic_pointer_cast<CUIMenuItem>(pItem);
+            if (pMenuItem) {
+                int savedFilterType = mFilterType;
+                int savedInvert = mInvertOriginalTrainer;
+                mFilterType = FILTER_ORIGINAL_TRAINER;
+                mInvertOriginalTrainer = pMenuItem->GetKind();
+                if (onChanged) {
+                    onChanged(this);
+                }
+                mFilterType = savedFilterType;
+                mInvertOriginalTrainer = savedInvert;
+            }
+        }
+    }
+}
+
+bool CPiiListFilterSort::ShowSortTypeMenu(std::tr1::shared_ptr<CUIManager> pManager, int player,
+                                          const std::tr1::function<void(const CPiiListFilterSort*)>& onChanged) {
+    UIMenuItem items[7] = {{nullptr, 1}, {nullptr, 2}, {nullptr, 3}, {nullptr, 4}, {nullptr, 5}, {nullptr, 6}, {nullptr, 0}};
+    items[0].mText = GetMessageText(0x600BA, gEmptyText);
+    items[1].mText = GetMessageText(0x600BB, gEmptyText);
+    items[2].mText = GetMessageText(0x600BC, gEmptyText);
+    items[3].mText = GetMessageText(0x600BD, gEmptyText);
+    items[4].mText = GetMessageText(0x600BE, gEmptyText);
+    items[5].mText = GetMessageText(0x600BF, gEmptyText);
+    items[6].mText = GetMessageText(0x600B9, gEmptyText);
+    UIMenuParam param = {nullptr, nullptr, 7, 1, 7, 0, nullptr, "menu"};
+    param.mTitle = GetMessageText(0x600B8, gEmptyText);
+    param.mpItems = items;
+    param.mDefaultIndex = mSortType;
+    param.mpArchives = gSharedLayoutArchives;
+    CUIMenuCallbacks callbacks(0);
+    if (onChanged) {
+        callbacks.mSelectionCallbacks.Add(std::tr1::bind(&CPiiListFilterSort::PreviewSortType, this, std::tr1::placeholders::_1, onChanged));
+    }
+    IController* pInput = IGameSession::GetInstance()->GetPlayer(player)->GetController();
+    u32 choice = RunUIMenu(param, callbacks, pInput, pManager, GetDefaultFontMap(), true);
+    if (choice <= 6) {
+        mSortType = choice;
+        if (onChanged) {
+            onChanged(this);
+        }
+        return true;
+    }
+    if (onChanged) {
+        onChanged(this);
+    }
+    return false;
+}
+
+void CPiiListFilterSort::PreviewSortType(BUI* pBui, const std::tr1::function<void(const CPiiListFilterSort*)>& onChanged) {
+    CUIMenu* pMenu = dynamic_cast<CUIMenu*>(pBui);
+    if (pMenu) {
+        std::tr1::shared_ptr<IUIListItem> pItem = pMenu->GetSelectedItem();
+        if (pItem) {
+            std::tr1::shared_ptr<CUIMenuItem> pMenuItem = std::tr1::dynamic_pointer_cast<CUIMenuItem>(pItem);
+            if (pMenuItem) {
+                int savedSortType = mSortType;
+                mSortType = pMenuItem->GetKind();
+                if (onChanged) {
+                    onChanged(this);
+                }
+                mSortType = savedSortType;
             }
         }
     }

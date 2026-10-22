@@ -37,6 +37,7 @@ template<class T0, class T1, class T2> class tuple<T0,T1,T2,nat,nat,nat,nat,nat,
 public:
     tuple(const T0& rFirst,const T1& rSecond,const T2& rThird) : mFirst(rFirst),mSecond(rSecond),mThird(rThird) {}
     T0& first() { return mFirst; }
+    T2& third() { return mThird; }
 private:
     T0 mFirst;
     T1 mSecond;

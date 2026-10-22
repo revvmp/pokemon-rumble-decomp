@@ -41,6 +41,9 @@ private:
     bool ShowSortTypeMenu(std::tr1::shared_ptr<CUIManager> pManager, int player,
                           const std::tr1::function<void(const CPiiListFilterSort*)>& onChanged);
     void PreviewTypeFilter(BUI* pBui, int filterType, const std::tr1::function<void(const CPiiListFilterSort*)>& onChanged);
+    void PreviewPrefixFilter(BUI* pBui, const std::tr1::function<void(const CPiiListFilterSort*)>& onChanged);
+    void PreviewOriginalTrainerFilter(BUI* pBui, const std::tr1::function<void(const CPiiListFilterSort*)>& onChanged);
+    void PreviewSortType(BUI* pBui, const std::tr1::function<void(const CPiiListFilterSort*)>& onChanged);
     void Sort(std::vector<std::tr1::shared_ptr<CUIPiiListItem> >& rItems, int player);
 
     int mFilterType;
