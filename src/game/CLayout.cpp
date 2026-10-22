@@ -814,7 +814,7 @@ bool CLayout::SetImage(const char* pPaneName, const char* pImageName, int index)
     return false;
 }
 
-nw4r::math::_VEC2 CLayout::NormalizeViewPosition(const nw4r::math::VEC2& rPosition) const {
+nw4r::math::_VEC2 CLayout::NormalizeViewPosition(const nw4r::math::VEC2& rPosition) {
     nw4r::math::_VEC2 result;
     result.y = -2.0f * ((rPosition.y - mViewRect.bottom) / (mViewRect.top - mViewRect.bottom) - 0.5f);
     result.x = 2.0f * ((rPosition.x - mViewRect.left) / (mViewRect.right - mViewRect.left) - 0.5f);

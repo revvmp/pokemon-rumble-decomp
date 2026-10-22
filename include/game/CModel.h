@@ -64,6 +64,11 @@ public:
             if (mFlags & (FLAG_PLAYING | FLAG_LOOPED)) { return *mpCurrentFrame; }
             return mLength;
         }
+        f32 GetPlaybackFrame() {
+            if (mFlags & FLAG_PENDING) { return 0.0f; }
+            if (mFlags & (FLAG_PLAYING | FLAG_LOOPED)) { return *mpCurrentFrame; }
+            return mLength;
+        }
         int GetLength() const { return mLength; }
         u32 GetLoopCount() const { return mFlags >> 16; }
         f32 GetSpeed() const { return mRate; }

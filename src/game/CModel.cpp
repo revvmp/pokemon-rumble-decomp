@@ -538,7 +538,7 @@ void CModel::UpdateAnimations() {
         }
         if (!created) {
             f32 frame = pMainObj->GetFrame();
-            nw4r::g3d::FrameCtrl::SetBaseUpdateRate(rMain.mMotions.front()->GetCurrentFrame() - frame);
+            nw4r::g3d::FrameCtrl::SetBaseUpdateRate(rMain.mMotions.front()->GetPlaybackFrame() - frame);
             pMainObj->UpdateFrame();
             for (std::vector<std::tr1::shared_ptr<nw4r::g3d::AnmObj> >::iterator it = mAnimations.begin(); it != mAnimations.end(); ++it) {
                 (*it)->UpdateFrame();

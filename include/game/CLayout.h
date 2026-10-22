@@ -116,7 +116,7 @@ public:
     bool Attach(nw4r::lyt::Pane* pPane, CLayout* pChild);
     static void HandleInitializeError(const CInitializeException& rError);
     void SetViewScale(const nw4r::math::VEC2& rScale);
-    nw4r::math::_VEC2 NormalizeViewPosition(const nw4r::math::VEC2& rPosition) const;
+    nw4r::math::_VEC2 NormalizeViewPosition(const nw4r::math::VEC2& rPosition);
     nw4r::math::_VEC2 GetViewScale() const;
     void Render(const nw4r::math::VEC2& rSize);
     void SetPaneVisible(const char* pName, bool visible);

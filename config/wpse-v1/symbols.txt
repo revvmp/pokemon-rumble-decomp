@@ -16782,7 +16782,7 @@ __dt__Q23std124list<Q33std3tr137shared_ptr<Q26CModel14CMotionProgram>,Q23std60al
 __dt__Q26CModel11BPartialAnmFv = .text:0x801B7590; // type:function size:0x1EC
 front__Q23std124list<Q33std3tr137shared_ptr<Q26CModel14CMotionProgram>,Q23std60allocator<Q33std3tr137shared_ptr<Q26CModel14CMotionProgram>>>Fv = .text:0x801B7780; // type:function size:0xC
 CreateAnimObj__Q26CModel11BPartialAnmFQ34nw4r3g3d6ResMdl = .text:0x801B7790; // type:function size:0x2A4
-GetCurrentFrame__Q26CModel14CMotionProgramCFv = .text:0x801B7A40; // type:function size:0x54
+GetPlaybackFrame__Q26CModel14CMotionProgramFv = .text:0x801B7A40; // type:function size:0x54
 __ct__6CModelFv = .text:0x801B7AA0; // type:function size:0xC4
 __dt__Q34nw4r3g3d15IScnObjCallbackFv = .text:0x801B7B70; // type:function size:0x40
 __dt__Q34nw4r3g3d18ICalcWorldCallbackFv = .text:0x801B7BB0; // type:function size:0x40
@@ -17178,7 +17178,7 @@ Detach__7CLayoutFv = .text:0x801D57E0; // type:function size:0x1F4
 DetachAttachedLayouts__7CLayoutFv = .text:0x801D59E0; // type:function size:0x508
 GetPaneAlpha__7CLayoutFPQ34nw4r3lyt4Pane = .text:0x801D5EF0; // type:function size:0x1C0
 SetText__7CLayoutFPCcPCw = .text:0x801D60B0; // type:function size:0x1CC
-NormalizeViewPosition__7CLayoutCFRCQ34nw4r4math4VEC2 = .text:0x801D6280; // type:function size:0x68
+NormalizeViewPosition__7CLayoutFRCQ34nw4r4math4VEC2 = .text:0x801D6280; // type:function size:0x68
 Calc__7CLayoutFv = .text:0x801D62F0; // type:function size:0xB8
 Draw__7CLayoutFv = .text:0x801D63B0; // type:function size:0x274
 Render__7CLayoutFRCQ34nw4r4math4VEC2 = .text:0x801D6630; // type:function size:0x1CC
