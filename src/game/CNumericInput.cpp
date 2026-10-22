@@ -32,13 +32,12 @@ static const char* sKeyPaneNames[] = {
 class CNumericInput : public INumericInput {
 public:
     CNumericInput() : mManager(new CUIManager), mBackground(new BUILayout), mKeyboard(new BUILayout), mTextBox(new BUILayout), mConfirmed(false), mStarted(false), mPlayer(-1) {}
-    virtual ~CNumericInput() {}
     virtual void Calc() { mFiber.Resume(); mManager->Calc(); }
     virtual void Draw() { if (mStarted) mManager->Draw(); }
     virtual void Start(int player) { mPlayer = player; mStarted = true; }
     virtual bool IsFinished() const { return !mStarted; }
-    virtual std::wstring GetText() const { return mText; }
     virtual bool IsConfirmed() const { return mConfirmed; }
+    virtual std::wstring GetText() const { return mText; }
     virtual void Run();
 
     void Initialize(bool background) {
