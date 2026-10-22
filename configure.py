@@ -322,7 +322,7 @@ config.libs = [
             Object(NonMatching, "game/CWorldObjStatDisplay.cpp"),
             Object(NonMatching, "game/ScriptGame.cpp"),
             Object(Matching, "game/ScriptItem.cpp"),
-            Object(NonMatching, "game/ScriptMessages.cpp"),
+            Object(Matching, "game/ScriptMessages.cpp"),
             Object(NonMatching, "game/ScriptLayout.cpp"),
             Object(NonMatching, "game/ScriptLightMotion.cpp"),
             Object(Matching, "game/ScriptUtilities.cpp"),
