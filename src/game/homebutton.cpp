@@ -11,6 +11,7 @@
 #include <game/HomeButton.h>
 #include <game/RenderPrimitive.h>
 #include <game/CScopedActivity.h>
+#include <game/NResetMgr.h>
 #include <game/CFileData.h>
 #include <game/Memory.h>
 #include <memory>
@@ -30,15 +31,6 @@ void WaitFileData(CFileData* pFile, int allowYield);
 std::tr1::shared_ptr<unsigned char> DecompressLZ(const void* pData);
 std::tr1::shared_ptr<unsigned char> DecompressHuffman(const void* pData);
 
-namespace NResetMgr {
-bool IsEnabled();
-bool RequestMenu();
-bool RequestReset(int mode);
-bool RequestLaunch(const char* pName);
-bool IsResetRequested();
-bool IsPowerOffRequested();
-bool ConsumeResetRequest();
-}
 
 namespace {
 
@@ -388,7 +380,7 @@ void UpdateHomeButton() {
     HBMKPadData* pCon = sController.wiiCon;
     KPADStatus* pRead = sReadStatus;
     KPADStatus* pFiltered = sFilteredStatus;
-    for (int i = 0; i < 4; ++i, ++pError, ++pCon, ++pRead, ++pFiltered) {
+    for (int i = 0; i < 4; ++pError, ++pCon, ++pRead, ++pFiltered, ++i) {
         HBMKPadData& rCon = *pCon;
         KPADStatus& rRead = *pRead;
         KPADStatus& rFiltered = *pFiltered;
@@ -421,14 +413,16 @@ void UpdateHomeButton() {
             memset(&rFiltered, 0, sizeof(KPADStatus));
         }
     }
-    if (!sActive && !sWaitingToOpen) {
+    if (!sActive) {
+    const int waiting = sWaitingToOpen;
+    if (!waiting) {
         bool opened = false;
         for (int i = 0; i < 4; ++i) {
             if (errors[i] == 0 && (sFilteredStatus[i].trig == WPAD_BUTTON_HOME ||
                 (!spParam->HasFlags(8) && sFilteredStatus[i].ex_status.cl.trig == WPAD_CL_BUTTON_HOME))) {
                 bool canOpen = false;
-                if (!sDisableCount)
-                    canOpen = NResetMgr::IsEnabled();
+                if (!sDisableCount && NResetMgr::IsEnabled())
+                    canOpen = true;
                 if (canOpen) {
                     opened = true;
                     sActive = 1;
@@ -441,7 +435,7 @@ void UpdateHomeButton() {
                 break;
             }
         }
-        if (sWaitingToOpen) {
+        if (!waiting && sWaitingToOpen) {
             sOpenFadePhase = 0;
             sWaitingToOpen = 1;
             sOpenStartTick = OSGetTick();
@@ -454,8 +448,14 @@ void UpdateHomeButton() {
                 sController.wiiCon[i].use_devtype = 0;
             }
             InitializeHomeButtonInfo(&sInfo, &sInfoEx, false);
-            sInfo.adjust.x = SCGetAspectRatio() == SC_ASPECT_RATIO_16x9 ? 832.0f / 608.0f : 1.0f;
-            sInfo.adjust.y = 1.0f;
+            bool wide = SCGetAspectRatio() == SC_ASPECT_RATIO_16x9;
+            if (!wide) {
+                sInfo.adjust.x = 1.0f;
+                sInfo.adjust.y = 1.0f;
+            } else {
+                sInfo.adjust.x = 832.0f / 608.0f;
+                sInfo.adjust.y = 1.0f;
+            }
             HBMCreate(&sInfo);
             HBMCreateInfoEx(&sInfoEx);
             HBMInit();
@@ -466,6 +466,7 @@ void UpdateHomeButton() {
             for (int i = 0; i < 4; ++i)
                 WPADControlSpeaker(i, WPAD_SPEAKER_ON, nullptr);
         }
+    }
     }
     if (sActive) {
         HBMUpdateSound();
@@ -494,15 +495,15 @@ void UpdateHomeButton() {
                 switch (selected) {
                 case 1:
                     OSReport("Return to WiiMenu.\n");
-                    NResetMgr::RequestMenu();
+                    NResetMgr::RequestReturnToMenu();
                     break;
                 case 2:
                     OSReport("Reset.\n");
-                    NResetMgr::RequestReset(0);
+                    NResetMgr::RequestRestart(0);
                     break;
                 case 4:
                     OSReport("Jump to NetworkManual.\n");
-                    NResetMgr::RequestLaunch("lmv");
+                    NResetMgr::RequestLaunchManualViewer(reinterpret_cast<u32>("lmv"));
                     break;
                 }
             }
@@ -521,11 +522,11 @@ void UpdateHomeButton() {
             sPointer[i].y *= sInfo.adjust.y;
         }
     }
-    if (IsHomeButtonActive() && NResetMgr::IsResetRequested()) {
-        NResetMgr::ConsumeResetRequest();
+    if (IsHomeButtonActive() && NResetMgr::IsRestartRequested()) {
+        NResetMgr::CancelRestart();
         HBMStartBlackOut();
     }
-    if (IsHomeButtonActive() && NResetMgr::IsPowerOffRequested())
+    if (IsHomeButtonActive() && NResetMgr::IsShutdownRequested())
         HBMStartBlackOut();
 }
 
