@@ -610,13 +610,6 @@ game/ControllerTable.cpp:
 	.bss        start:0x803E8D28 end:0x803E90C8
 	.sdata      start:0x804B77D8 end:0x804B77D9
 
-nw4r/snd/snd_StrmPlayer.cpp:
-	.text       start:0x80289F90 end:0x8028CA98
-	.data       start:0x803C67D0 end:0x803C6848
-	.bss        start:0x8044E420 end:0x80452438
-	.sbss       start:0x804B9390 end:0x804B9398
-	.sdata2     start:0x804BAFF0 end:0x804BB018
-
 ControllerTableAlignmentPadding:
 	.sdata      start:0x804B77D9 end:0x804B77E0 align:1
 
@@ -2549,6 +2542,13 @@ nw4r/snd/snd_StrmChannel.cpp:
 
 nw4r/snd/snd_StrmFile.cpp:
 	.text       start:0x80289600 end:0x80289F84
+
+nw4r/snd/snd_StrmPlayer.cpp:
+	.text       start:0x80289F90 end:0x8028CA98
+	.data       start:0x803C67D0 end:0x803C6848
+	.bss        start:0x8044E420 end:0x80452438
+	.sbss       start:0x804B9390 end:0x804B9398
+	.sdata2     start:0x804BAFF0 end:0x804BB018
 
 nw4r/snd/snd_StrmSound.cpp:
 	.text       start:0x8028CAA0 end:0x8028D14C
