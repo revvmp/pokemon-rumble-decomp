@@ -347,7 +347,7 @@ namespace detail {
 
 struct tree_node_base {
     unsigned color() const { return parent_.bit(); }
-    void set_color(__tree_color c) { parent_.bit(bool(c)); }
+    void set_color(unsigned c) { parent_.bit(bool(c)); }
     tree_node_base* parent() const { return parent_; }
     void set_parent(tree_node_base* p) { parent_ = p; }
     bool is_red() const { return parent_.bit(); }
