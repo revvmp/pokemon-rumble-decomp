@@ -304,24 +304,25 @@ void CLayout::SetVisible(bool visible) {
 }
 
 nw4r::lyt::AnimTransform* CLayout::FindAnimation(const char* pName) {
-    std::map<std::string, nw4r::lyt::AnimTransform*>::iterator it = mAnimations.find(std::string(pName));
+    typedef std::map<std::string, nw4r::lyt::AnimTransform*> AnimationMap;
+    AnimationMap::iterator it = mAnimations.find(std::string(pName));
     if (it == mAnimations.end()) {
         void* pResource = mAccessor.GetResource('anim', pName, nullptr);
         if (pResource != nullptr) {
             std::string animName(pName);
             nw4r::lyt::AnimTransform* pAnim = mLayout->CreateAnimTransform(pResource, &mAccessor);
-            std::pair<std::map<std::string, nw4r::lyt::AnimTransform*>::iterator, bool> inserted = mAnimations.insert(std::pair<const std::string, nw4r::lyt::AnimTransform*>(animName, pAnim));
-            return pAnim;
+            it = mAnimations.insert(AnimationMap::value_type(animName, pAnim)).first;
+        } else {
+            std::string path = mName + pName + ".brlan";
+            pResource = mAccessor.GetResource('anim', path.c_str(), nullptr);
+            if (pResource != nullptr) {
+                std::string animName(pName);
+                nw4r::lyt::AnimTransform* pAnim = mLayout->CreateAnimTransform(pResource, &mAccessor);
+                it = mAnimations.insert(AnimationMap::value_type(animName, pAnim)).first;
+            } else {
+                return nullptr;
+            }
         }
-        std::string path = mName + pName + ".brlan";
-        pResource = mAccessor.GetResource('anim', path.c_str(), nullptr);
-        if (pResource != nullptr) {
-            std::string animName(pName);
-            nw4r::lyt::AnimTransform* pAnim = mLayout->CreateAnimTransform(pResource, &mAccessor);
-            std::pair<std::map<std::string, nw4r::lyt::AnimTransform*>::iterator, bool> inserted = mAnimations.insert(std::pair<const std::string, nw4r::lyt::AnimTransform*>(animName, pAnim));
-            return pAnim;
-        }
-        return nullptr;
     }
     return (*it).second;
 }
