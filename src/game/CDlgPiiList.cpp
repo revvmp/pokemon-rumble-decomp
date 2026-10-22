@@ -647,12 +647,12 @@ inline void CDlgPiiListImpl::RunList() {
             ShowMessage(GetMessageString(0x60097, nullptr));
             break;
         case 1:
-            YieldFiber();
             goto finished;
         }
         YieldFiber();
     }
 finished:
+    YieldFiber();
     mRootLayout->GetLayout()->CreateMotion("end")->Wait();
     Finish();
 }
