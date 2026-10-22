@@ -711,6 +711,7 @@ game/main.cpp:
 	extab       start:0x8002CBC8 end:0x8002DE28
 	extabindex  start:0x8004CB18 end:0x8004D07C
 	.text       start:0x8012B5F0 end:0x80131780
+	.rodata     start:0x8035BBA0 end:0x8035BC88
 	.data       start:0x803B4F80 end:0x803B65A0
 	.sdata      start:0x804B78A0 end:0x804B79A8
 	.sdata2     start:0x804BA1B0 end:0x804BA1B8
@@ -810,7 +811,6 @@ game/ScriptInput.cpp:
 	extab       start:0x80030DE8 end:0x80030E60
 	extabindex  start:0x8004ED20 end:0x8004EDD4
 	.text       start:0x80151230 end:0x801527B4
-	.rodata     start:0x803550B8 end:0x803550DC
 	.sdata      start:0x804B7A60 end:0x804B7A68
 	.sdata2     start:0x804BA2A8 end:0x804BA2B0
 

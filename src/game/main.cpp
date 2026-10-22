@@ -290,18 +290,6 @@ const MainMessageFile gMainMessageFiles[9] = {
     {"wazadesc.bmg", false}
 };
 
-extern const DateMessageIDs gMainDateMessageIDs;
-const DateMessageIDs gMainDateMessageIDs = {
-    131084, 131072, 131124, 131125, 131122, 131123,
-    131128, 131103, 131110, 131096, 131126
-};
-
-extern const TimeMessageIDs gMainTimeMessageIDs;
-const TimeMessageIDs gMainTimeMessageIDs = {
-    131137, 131138, 131130, 131131,
-    131134, 131132, 131133, 131136
-};
-
 #include <game/FileList.h>
 
 struct FileLoadParam {
@@ -356,6 +344,35 @@ void InitializeMainMessages() {
     std::tr1::shared_ptr<CMsgRes> messages(new CMsgRes(pResource, true));
     SetMsgRes(messages->GetGroupID(), messages);
 }
+
+extern unsigned char gJapaneseSystemMessages[];
+extern unsigned char gEnglishSystemMessages[];
+extern unsigned char gGermanSystemMessages[];
+extern unsigned char gFrenchSystemMessages[];
+extern unsigned char gSpanishSystemMessages[];
+extern unsigned char gItalianSystemMessages[];
+
+extern void* const gSystemMessageResources[6];
+void* const gSystemMessageResources[6] = {
+    gJapaneseSystemMessages,
+    gEnglishSystemMessages,
+    gGermanSystemMessages,
+    gFrenchSystemMessages,
+    gSpanishSystemMessages,
+    gItalianSystemMessages
+};
+
+extern const DateMessageIDs gMainDateMessageIDs;
+const DateMessageIDs gMainDateMessageIDs = {
+    131084, 131072, 131124, 131125, 131122, 131123,
+    131128, 131103, 131110, 131096, 131126
+};
+
+extern const TimeMessageIDs gMainTimeMessageIDs;
+const TimeMessageIDs gMainTimeMessageIDs = {
+    131137, 131138, 131130, 131131,
+    131134, 131132, 131133, 131136
+};
 
 #include <game/Memory.h>
 #include <game/Random.h>
@@ -426,7 +443,7 @@ void main() {
         CPath path;
         path.ParseDevice(CPpuEngine::GetScriptRoot());
         config.SetErrorHandler(HandleFileError);
-        config.mUseDriveWorker = (path.GetDevice() >= CPath::DEVICE_MCS_BASE && path.GetDevice() <= CPath::DEVICE_MCS_LAST) || path.GetDevice() == CPath::DEVICE_UNC;
+        config.mUseDriveWorker = (CPath::DEVICE_MCS_BASE <= path.GetDevice() && path.GetDevice() < CPath::DEVICE_MCS_LAST + 1) || path.GetDevice() == CPath::DEVICE_UNC;
         InitializeResourceFiles(config);
     }
     FAInit(0x20000L);

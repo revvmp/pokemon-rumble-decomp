@@ -20,11 +20,7 @@ extern const RumbleStep gMotorPatternLongGC[];
 extern const RumbleStep gMotorPatternPulseWii[];
 extern const RumbleStep gMotorPatternPulseGC[];
 
-extern const MotorPattern gMotorPatterns[] = {
-    {0, gMotorPatternShortWii, gMotorPatternShortGC},
-    {1, gMotorPatternLongWii, gMotorPatternLongGC},
-    {2, gMotorPatternPulseWii, gMotorPatternPulseGC},
-};
+extern const MotorPattern gMotorPatterns[];
 
 namespace {
 
