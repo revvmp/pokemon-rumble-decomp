@@ -20,7 +20,7 @@ bool CItem::LoadScript(const char* pName, int mode, const std::tr1::shared_ptr<N
 void CItem::LoadModel(const char* pName, bool background) {
     std::tr1::shared_ptr<CModel> model(new CModel);
     std::string path("item.arc/");
-    path += pName;
+    path.replace(path.size(), 0, pName);
     void* pEntry;
     std::tr1::shared_ptr<FileList> files = LoadFileList(&pEntry, path.c_str(), 0, background, nullptr);
     CModel::LoadParams params = {static_cast<const char**>(pEntry), false, 128, 2, nullptr};
