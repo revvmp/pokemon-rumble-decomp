@@ -133,3 +133,12 @@ void CStatistic::SetWazaUsed(int waza, bool used) {
         }
     }
 }
+
+std::tr1::shared_ptr<CStatistic> CStatistic::Create(const std::vector<SD_StatisticValue::Data>& rData1, const std::vector<SD_StatisticValue::Data>& rData2,
+                                                    const std::vector<SD_StatisticValue::Data>& rData3) {
+    std::tr1::shared_ptr<CStatistic> statistic(new CStatistic);
+    statistic->mSystemValues = rData1;
+    statistic->mValues = rData2;
+    statistic->mWazaBits = rData3;
+    return statistic;
+}
