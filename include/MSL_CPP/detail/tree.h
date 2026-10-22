@@ -803,7 +803,8 @@ void tree_imp<T, Compare, Allocator>::swap(tree_imp& rOther) {
     }
     Metrowerks::swap(size_, rOther.size_);
     Metrowerks::swap(root_, rOther.root_);
-    std::swap(begin_, rOther.begin_);
+    std::swap(comp(), rOther.comp());
+    std::swap(begin_node(), rOther.begin_node());
     if (root() != nullptr) {
         root()->set_parent(end_node());
     } else {
@@ -824,7 +825,7 @@ public:
     typedef typename base::iterator iterator;
     typedef typename base::const_iterator const_iterator;
     red_black_tree() {}
-    red_black_tree(const red_black_tree& rOther) : tree_imp<T, Compare, Allocator>() { this->copy(rOther); }
+    red_black_tree(const red_black_tree& rOther) : tree_imp<T, Compare, Allocator>(rOther.comp(), rOther.alloc()) { this->copy(rOther); }
     iterator begin() { return base::begin(); }
     iterator end() { return base::end(); }
     const_iterator begin() const { return base::begin(); }

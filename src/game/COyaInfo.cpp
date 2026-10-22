@@ -34,7 +34,7 @@ std::tr1::shared_ptr<CPiiPersonalData> COyaInfo::FindPersonalData(u32 key) const
     if (id < 1) {
         return std::tr1::shared_ptr<CPiiPersonalData>();
     }
-    const PersonalDataMap& rBucket = mPersonalData[key % mPersonalData.size()];
+    PersonalDataMap& rBucket = const_cast<PersonalDataMap&>(mPersonalData[key % mPersonalData.size()]);
     if (rBucket.empty()) {
         return std::tr1::shared_ptr<CPiiPersonalData>();
     }
@@ -60,17 +60,15 @@ std::tr1::shared_ptr<CPiiPersonalData> COyaInfo::RegisterPersonalData(std::tr1::
     if (!pData) {
         return std::tr1::shared_ptr<CPiiPersonalData>();
     }
-    PersonalDataMap entries;
     PersonalDataMap& rBucket = mPersonalData[pData->GetId() % mPersonalData.size()];
+    PersonalDataMap entries;
     for (PersonalDataMap::iterator it = rBucket.begin(); it != rBucket.end(); ++it) {
         std::tr1::shared_ptr<CPiiPersonalData> personalData = it->second.lock();
         if (personalData) {
-            std::tr1::weak_ptr<CPiiPersonalData> entry(personalData);
-            entries.insert(PersonalDataMap::value_type(personalData->GetId(), entry));
+            entries.insert(PersonalDataMap::value_type(personalData->GetId(), std::tr1::weak_ptr<CPiiPersonalData>(personalData)));
         }
     }
-    std::tr1::weak_ptr<CPiiPersonalData> entry(pData);
-    entries.insert(PersonalDataMap::value_type(pData->GetId(), entry));
+    entries.insert(PersonalDataMap::value_type(pData->GetId(), std::tr1::weak_ptr<CPiiPersonalData>(pData)));
     rBucket.swap(entries);
     ++mNextId;
     return pData;

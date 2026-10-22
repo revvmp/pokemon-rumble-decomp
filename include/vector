@@ -27,6 +27,16 @@ template <class CharT, class Traits, class Allocator> struct __vec_bulk_move<bas
     enum { value = (__builtin_trivial_members(Allocator) & 4) != 0 && Metrowerks::has_trivial_dtor<Allocator>::value };
 };
 
+template <class Key, class T, class Compare, class Allocator> class map;
+
+template <typename T> struct __vec_swap_move {
+    enum { value = false };
+};
+
+template <class Key, class T, class Compare, class Allocator> struct __vec_swap_move<map<Key, T, Compare, Allocator> > {
+    enum { value = true };
+};
+
 template <typename T> struct __vec_trivial_copy {
     enum { value = Metrowerks::is_POD<T>::value || (__builtin_trivial_members(T) & 7) == 7 };
 };
@@ -216,7 +226,7 @@ public:
     }
 
     void construct_at_front(T* pFirst, T* pLast) {
-        construct_at_front(pFirst, pLast, Metrowerks::int2type<__vec_bulk_move<T>::value>());
+        construct_at_front(pFirst, pLast, Metrowerks::int2type<__vec_bulk_move<T>::value ? 1 : __vec_swap_move<T>::value ? 2 : 0>());
     }
     void construct_at_front(T* pFirst, T* pLast, Metrowerks::int2type<true>) {
         ptrdiff_t n = pLast - pFirst;
@@ -228,6 +238,12 @@ public:
     void construct_at_front(T* pFirst, T* pLast, Metrowerks::int2type<false>) {
         for (T* p = this->data_ + start_; pFirst < pLast; --start_, ++this->size_) {
             this->alloc().construct(--p, std::move(*--pLast));
+        }
+    }
+    void construct_at_front(T* pFirst, T* pLast, Metrowerks::int2type<2>) {
+        for (T* p = this->data_ + start_; pFirst < pLast; --start_, ++this->size_) {
+            ::new (--p) T;
+            p->swap(*--pLast);
         }
     }
 
