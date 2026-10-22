@@ -473,8 +473,9 @@ void basic_string<charT, traits, Allocator>::reserve(size_type newCapacity) {
             nowLong = true;
             pOld = wasLong ? long_data() : short_data();
         }
-        memmove(pNew, pOld, length * sizeof(charT));
-        pNew[length] = charT();
+        size_type count = pOld + length - pOld;
+        memmove(pNew, pOld, count * sizeof(charT));
+        pNew[count] = charT();
         if (wasLong) alloc().deallocate(pOld, oldCapacity);
         is_long(nowLong);
         if (!nowLong) short_size(length);
