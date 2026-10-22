@@ -80,7 +80,7 @@ public:
     basic_string& operator=(const charT* s) { return assign(s); }
     basic_string& assign(const charT* s);
 
-    basic_string& operator=(const basic_string& str) { return assign(str); }
+    basic_string& operator=(const basic_string& str);
 
     basic_string& assign(const basic_string& str);
 
@@ -135,7 +135,8 @@ public:
     basic_string& replace(size_type pos, size_type n1, size_type n2, value_type c);
 
     basic_string& insert(size_type pos, const charT* first, const charT* last) {
-        return replace(pos, 0, first, last, forward_iterator_tag());
+        forward_iterator_tag tag;
+        return replace(pos, 0, first, last, tag);
     }
 
     void get_buffer(const_pointer& rData, size_type& rSize) const {
@@ -338,12 +339,14 @@ basic_string<charT, traits, Allocator>& basic_string<charT, traits, Allocator>::
 
 template <class charT, class traits, class Allocator>
 basic_string<charT, traits, Allocator>& basic_string<charT, traits, Allocator>::replace(size_type pos, size_type count, const charT* s, size_type length) {
-    return do_replace(pos, count, s, s + length, random_access_iterator_tag());
+    random_access_iterator_tag tag;
+    return do_replace(pos, count, s, s + length, tag);
 }
 
 template <class charT, class traits, class Allocator>
 basic_string<charT, traits, Allocator>& basic_string<charT, traits, Allocator>::replace(size_type pos, size_type count, const charT* s) {
-    return do_replace(pos, count, s, s + traits::length(s), random_access_iterator_tag());
+    random_access_iterator_tag tag;
+    return do_replace(pos, count, s, s + traits::length(s), tag);
 }
 
 template <class charT, class traits, class Allocator>
@@ -360,7 +363,8 @@ basic_string<charT, traits, Allocator>& basic_string<charT, traits, Allocator>::
 template <class charT, class traits, class Allocator>
 template <class ForwardIterator>
 basic_string<charT, traits, Allocator>& basic_string<charT, traits, Allocator>::replace(size_type pos, size_type n1, ForwardIterator first, ForwardIterator last, forward_iterator_tag) {
-    return do_replace(pos, n1, first, last, typename iterator_traits<ForwardIterator>::iterator_category());
+    typename iterator_traits<ForwardIterator>::iterator_category tag;
+    return do_replace(pos, n1, first, last, tag);
 }
 
 template <class charT, class traits, class Allocator>
@@ -552,6 +556,22 @@ doLong:
 }
 
 template <class charT, class traits, class Allocator>
+basic_string<charT, traits, Allocator>& basic_string<charT, traits, Allocator>::operator=(const basic_string& str) {
+    const_pointer p;
+    size_type size;
+    bool lhsLong = is_long();
+    if (!lhsLong) {
+        if (str.is_long()) { goto doLong; }
+        r_.first().r.raw = str.r_.first().r.raw;
+        return *this;
+    }
+doLong:
+    size_type count = lhsLong ? long_size() : short_size();
+    str.get_buffer(p, size);
+    return replace(0, count, p, p + size, forward_iterator_tag());
+}
+
+template <class charT, class traits, class Allocator>
 basic_string<charT, traits, Allocator>& basic_string<charT, traits, Allocator>::operator+=(charT c) { return do_replace(size(), 0, &c, &c + 1, random_access_iterator_tag()); }
 
 template <class charT, class traits, class Allocator>
@@ -559,10 +579,11 @@ basic_string<charT, traits, Allocator>& basic_string<charT, traits, Allocator>::
 
 template <class charT, class traits, class Allocator>
 basic_string<charT, traits, Allocator>& basic_string<charT, traits, Allocator>::replace(size_type pos, size_type count, const basic_string& str) {
+    random_access_iterator_tag tag;
     const_pointer p;
     size_type size;
     str.get_buffer(p, size);
-    return do_replace(pos, count, p, p + size, random_access_iterator_tag());
+    return do_replace(pos, count, p, p + size, tag);
 }
 
 typedef basic_string<char> string;

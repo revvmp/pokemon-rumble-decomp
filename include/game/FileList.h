@@ -9,7 +9,9 @@ typedef std::list<std::tr1::shared_ptr<CFileData> > FileList;
 
 std::tr1::shared_ptr<FileList> LoadFileList(void** ppEntry, const char* pPath, u32 flags, bool background,
                                             const char* pRegion);
-std::tr1::shared_ptr<FileList> LoadResourceFileList(void** ppEntry, const char* pPath, u32 flags, bool background,
-                                                    const char* pRegion);
+inline std::tr1::shared_ptr<FileList> LoadResourceFileList(void** ppEntry, const char* pPath, u32 flags,
+                                                           bool background, const char* pRegion) {
+    return LoadFileList(ppEntry, pPath, flags | 0x2000, background, pRegion);
+}
 
 #endif

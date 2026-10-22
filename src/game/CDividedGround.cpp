@@ -20,7 +20,7 @@
 namespace {
 
 inline const void* OffsetToPtr(const void* pBase, s32 offset) {
-    return offset + static_cast<const char*>(pBase);
+    return reinterpret_cast<const void*>(offset + reinterpret_cast<s32>(pBase));
 }
 
 inline u32 GetNodeCount(nw4r::g3d::ResAnmChr& rAnm) {
@@ -80,12 +80,12 @@ bool CDividedGround::Load(const StageID* pStageID, int stageNo, bool background)
         nw4r::g3d::ResFile resFile((*it)->GetData());
         nw4r::g3d::ResMdl resMdl = resFile.GetResMdl(modelName.c_str());
         if (resMdl.IsValid()) {
-            break;
+            goto found;
         }
     }
-    if (it == mFiles.end()) {
-        modelName.assign("ground_" + number);
-    }
+    modelName.assign("ground_" + number);
+
+found:
 
     CModel::LoadParams params = {nullptr, false, 0xD15, 1, nullptr};
     params.mpFileNames = &mFileNames[0];
@@ -173,10 +173,10 @@ bool CDividedGround::LoadAttr(const StageID* pStageID, int stageNo, const char* 
         std::string name = prefix + rankName + number;
         std::tr1::shared_ptr<CFileData> file =
             LoadResourceFile((archivePath + "/" + name + ".bsp").c_str(), 0, background);
-        if (!file || !file->IsValid()) {
+        if (!(file && file->IsValid())) {
             name.assign(prefix + number);
             file = LoadResourceFile((archivePath + "/" + name + ".bsp").c_str(), 0, background);
-            if (!file || !file->IsValid()) {
+            if (!(file && file->IsValid())) {
                 if (i != 0) {
                     continue;
                 }
@@ -228,9 +228,9 @@ void CDividedGround::BuildScene(const StageID* pStageID, int stageNo, bool backg
     std::map<std::string, std::list<nw4r::math::MTX34> > layers;
     std::string animName;
     if (pStageID->mKind == 2) {
-        animName.assign(FormatString("rep_EX%02d", stageNo));
+        animName = FormatString("rep_EX%02d", stageNo);
     } else {
-        animName.assign(FormatString("rep_%s%02d", gStageRanks[pStageID->mRank].mName, stageNo));
+        animName = FormatString("rep_%s%02d", gStageRanks[pStageID->mRank].mName, stageNo);
     }
 
     nw4r::g3d::ResAnmChr anm(nullptr);
@@ -332,7 +332,7 @@ found:
                 LoadScnMdlSimpleData(data.get(), simple, 0, background);
                 data->GetModel()->SetPriorityDrawXlu(priority);
                 mSimpleModels.push_back(data);
-                group->PushBack(data->GetModel());
+                group->PushBack(static_cast<const ScnMdlSimpleData&>(*data).GetModel());
                 data->GetModel()->SetMtx(nw4r::g3d::ScnObj::MTX_LOCAL, *matrix);
             }
         }
