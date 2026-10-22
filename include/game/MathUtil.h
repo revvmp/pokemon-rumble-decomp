@@ -58,7 +58,7 @@ template <typename T> inline T Min(T a, T b) {
     return (b < a) ? b : a;
 }
 
-template <typename T> inline T Clamp(T value, T low, T high) {
+template <typename T> T Clamp(T value, T low, T high) {
     return std::min(std::max(low, value), high);
 }
 
