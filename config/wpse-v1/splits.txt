@@ -547,6 +547,11 @@ game/ControllerTable.cpp:
 	.bss        start:0x803E8D28 end:0x803E90C8
 	.sdata      start:0x804B77D8 end:0x804B77D9
 
+game/ScriptWorldObjQuery.cpp:
+	extab       start:0x800309A0 end:0x80030C80
+	extabindex  start:0x8004E7EC end:0x8004EB1C
+	.text       start:0x8014D760 end:0x8014FB10
+
 ControllerTableAlignmentPadding:
 	.sdata      start:0x804B77D9 end:0x804B77E0 align:1
 

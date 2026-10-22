@@ -76,6 +76,7 @@ public:
 
     const std::tr1::shared_ptr<CModel>& GetModel() const { return mModel; }
     const nw4r::math::VEC3& GetModelScale() const { return mModelScale; }
+    int GetOutlineType() const { return mOutlineType; }
     bool HasFlag(u32 flag) const { return (mFlags & flag) != 0; }
     bool IsSizeMode() const { return HasFlag(FLAG_SIZE_MODE) != 0; }
     nw4r::math::VEC3 CalcSize(int mode) const;
