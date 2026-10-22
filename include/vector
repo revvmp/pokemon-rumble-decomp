@@ -66,8 +66,9 @@ public:
         size_ += n;
     }
     void move_construct_to_end(T* pFirst, T* pLast, Metrowerks::int2type<false>) {
-        for (T* p = data_ + size_; pFirst < pLast; ++pFirst, ++p, ++size_) {
-            alloc().construct(p, *pFirst);
+        for (T* p = data_ + size_; pFirst < pLast; ++pFirst, ++p) {
+            alloc().construct(p, std::move(*pFirst));
+            ++size_;
         }
     }
 
@@ -251,7 +252,7 @@ public:
 
     void push_back(const T& x) { push_back(x, pod_type()); }
     void pop_back() { pop_back(pod_type()); }
-    void clear() { clear(pod_type()); }
+    using base::clear;
 
     __vec_constructor& operator=(const __vec_constructor& x) {
         if (this != &x) {
@@ -565,6 +566,7 @@ public:
     void resize(size_type n) { base::resize(n); }
 
     void reserve(size_type n) { base::reserve(n); }
+    void clear() { base::clear(); }
 
     void swap(vector& r) {
         size_type capacity = this->cap();

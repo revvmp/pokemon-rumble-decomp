@@ -14113,10 +14113,10 @@ end__Q23std85__vec_deleter<Q212CTutorialMsg8CMessage,Q23std36allocator<Q212CTuto
 push_back_realloc__Q23std91__vec_constructor<Q212CTutorialMsg8CMessage,Q23std36allocator<Q212CTutorialMsg8CMessage>,0>FRCQ212CTutorialMsg8CMessage = .text:0x8011BED0; // type:function size:0x2C
 __dt__Q23std85__vec_deleter<Q212CTutorialMsg8CMessage,Q23std36allocator<Q212CTutorialMsg8CMessage>>Fv = .text:0x8011BF00; // type:function size:0x88
 reallocate__Q23std91__vec_constructor<Q212CTutorialMsg8CMessage,Q23std36allocator<Q212CTutorialMsg8CMessage>,0>FUl = .text:0x8011BF90; // type:function size:0xC4
-erase_at_end__Q23std85__vec_deleter<Q212CTutorialMsg8CMessage,Q23std36allocator<Q212CTutorialMsg8CMessage>>FUlQ210Metrowerks11int2type<0> = .text:0x8011C060; // type:function size:0x74
+erase_tail__Q23std85__vec_deleter<Q212CTutorialMsg8CMessage,Q23std36allocator<Q212CTutorialMsg8CMessage>>FUlQ210Metrowerks11int2type<0> = .text:0x8011C060; // type:function size:0x74
 push_back_realloc__Q23std91__vec_constructor<Q212CTutorialMsg8CMessage,Q23std36allocator<Q212CTutorialMsg8CMessage>,0>FRCQ212CTutorialMsg8CMessageQ210Metrowerks11int2type<0> = .text:0x8011C0E0; // type:function size:0x8C
-construct_at_end__Q23std85__vec_deleter<Q212CTutorialMsg8CMessage,Q23std36allocator<Q212CTutorialMsg8CMessage>>FPQ212CTutorialMsg8CMessagePQ212CTutorialMsg8CMessage = .text:0x8011C170; // type:function size:0x2C
-construct_at_end__Q23std85__vec_deleter<Q212CTutorialMsg8CMessage,Q23std36allocator<Q212CTutorialMsg8CMessage>>FPQ212CTutorialMsg8CMessagePQ212CTutorialMsg8CMessageQ210Metrowerks11int2type<0> = .text:0x8011C1A0; // type:function size:0x88
+move_construct_to_end__Q23std85__vec_deleter<Q212CTutorialMsg8CMessage,Q23std36allocator<Q212CTutorialMsg8CMessage>>FPQ212CTutorialMsg8CMessagePQ212CTutorialMsg8CMessage = .text:0x8011C170; // type:function size:0x2C
+move_construct_to_end__Q23std85__vec_deleter<Q212CTutorialMsg8CMessage,Q23std36allocator<Q212CTutorialMsg8CMessage>>FPQ212CTutorialMsg8CMessagePQ212CTutorialMsg8CMessageQ210Metrowerks11int2type<0> = .text:0x8011C1A0; // type:function size:0x88
 clear_moved__Q23std91__vec_constructor<Q212CTutorialMsg8CMessage,Q23std36allocator<Q212CTutorialMsg8CMessage>,0>Fv = .text:0x8011C230; // type:function size:0x2C
 clear_moved__Q23std91__vec_constructor<Q212CTutorialMsg8CMessage,Q23std36allocator<Q212CTutorialMsg8CMessage>,0>FQ210Metrowerks11int2type<0> = .text:0x8011C260; // type:function size:0x4
 get_deleter__Q43std3tr16detail80shared_ptr_deleter<12CTutorialMsg,Q33std6detail30default_delete<12CTutorialMsg>>CFRCQ23std9type_info = .text:0x8011C270; // type:function size:0x4C
@@ -14168,7 +14168,7 @@ __dt__Q23std86__vec_deleter<Q212CTutorialMsg8CMessage,RQ23std36allocator<Q212CTu
 clear__Q23std86__vec_deleter<Q212CTutorialMsg8CMessage,RQ23std36allocator<Q212CTutorialMsg8CMessage>>Fv = .text:0x8011CEF0; // type:function size:0x8
 allocate__Q23std86__vec_deleter<Q212CTutorialMsg8CMessage,RQ23std36allocator<Q212CTutorialMsg8CMessage>>FUlQ210Metrowerks11int2type<0> = .text:0x8011CF00; // type:function size:0x68
 erase_at_end__Q23std86__vec_deleter<Q212CTutorialMsg8CMessage,RQ23std36allocator<Q212CTutorialMsg8CMessage>>FUl = .text:0x8011CF70; // type:function size:0x2C
-erase_at_end__Q23std86__vec_deleter<Q212CTutorialMsg8CMessage,RQ23std36allocator<Q212CTutorialMsg8CMessage>>FUlQ210Metrowerks11int2type<0> = .text:0x8011CFA0; // type:function size:0x74
+erase_tail__Q23std86__vec_deleter<Q212CTutorialMsg8CMessage,RQ23std36allocator<Q212CTutorialMsg8CMessage>>FUlQ210Metrowerks11int2type<0> = .text:0x8011CFA0; // type:function size:0x74
 end__Q23std86__vec_deleter<Q212CTutorialMsg8CMessage,RQ23std36allocator<Q212CTutorialMsg8CMessage>>Fv = .text:0x8011D020; // type:function size:0x14
 max_size__Q23std86__vec_deleter<Q212CTutorialMsg8CMessage,RQ23std36allocator<Q212CTutorialMsg8CMessage>>CFv = .text:0x8011D040; // type:function size:0x24
 alloc__Q23std86__vec_deleter<Q212CTutorialMsg8CMessage,RQ23std36allocator<Q212CTutorialMsg8CMessage>>CFv = .text:0x8011D070; // type:function size:0x8
