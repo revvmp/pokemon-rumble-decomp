@@ -37,6 +37,7 @@ public:
 
     public:
         iterator(const iterator& rOther) : cur_(rOther.cur_), first_(rOther.first_), begin_(rOther.begin_), last_(rOther.last_) {}
+        iterator(const __cdeque_buf& rBuf, T* pCur) : cur_(pCur), first_(rBuf.data_), begin_(first_ + rBuf.start_), last_(first_ + rBuf.cap()) {}
         iterator(__cdeque_buf& rBuf, T* pCur) : cur_(pCur), first_(rBuf.data_), begin_(first_ + rBuf.start_), last_(first_ + rBuf.cap()) {}
         T& operator*() { return *cur_; }
         iterator& operator++() {
@@ -129,6 +130,15 @@ public:
     void pop_back(size_type n, Metrowerks::int2type<true>) { size_ -= n; }
     iterator begin() { return iterator(*this, data_ + start_); }
     iterator end() { return iterator(*this, data_ + (cap() ? (start_ + size_) % cap() : 0)); }
+    iterator begin() const { return iterator(*this, data_ + start_); }
+    iterator end() const { return iterator(*this, data_ + (cap() ? (start_ + size_) % cap() : 0)); }
+    template <typename Iterator> void copy_construct(Iterator first, const Iterator& rLast, Allocator) {
+        size_type n = rLast - first;
+        if (n != 0) {
+            allocate(n);
+            construct_at_end(first, rLast);
+        }
+    }
     T& front() { return data_[start_]; }
     T& back() { return data_[(start_ + size_ - 1) % cap()]; }
     void pop_front() { pop_front(pod_type()); }
@@ -287,6 +297,10 @@ template <typename T, typename Allocator> class __cdeque_imp : public __cdeque_b
 public:
     __cdeque_imp() {}
     explicit __cdeque_imp(const Allocator& rAlloc) : base(rAlloc) {}
+    __cdeque_imp(const __cdeque_imp& rOther) : base(rOther.alloc()) {
+        Allocator alloc;
+        this->copy_construct(rOther.begin(), rOther.end(), alloc);
+    }
 };
 
 template <typename T, typename Allocator>
