@@ -899,6 +899,8 @@ public:
     typedef T* pointer;
     typedef T& reference;
     typedef typename iterator_traits<Iterator>::iterator_category iterator_category;
+    __implicit_convert_iterator() {}
+    __implicit_convert_iterator& operator=(const Iterator& rIterator) { mIterator = rIterator; return *this; }
     explicit __implicit_convert_iterator(const Iterator& rIterator) : mIterator(rIterator) {}
     value_type operator*() const { return *mIterator; }
     __implicit_convert_iterator& operator++() {
@@ -1011,8 +1013,9 @@ public:
         return std::__distance(first, last, std::input_iterator_tag());
     }
     template <typename Iterator> void assign(Iterator firstIt, Iterator lastIt) {
-        __implicit_convert_iterator<void*, Iterator> first(firstIt);
+        __implicit_convert_iterator<void*, Iterator> first;
         __implicit_convert_iterator<void*, Iterator> last(lastIt);
+        first = firstIt;
         size_type n = count(first, last);
         if (n > this->cap()) {
             size_type capacity = this->recommend(n - this->cap());

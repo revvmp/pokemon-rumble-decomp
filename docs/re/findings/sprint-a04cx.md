@@ -77,3 +77,34 @@ After rebuilding every source object, regenerated `build/wpse-v1/report.json` wi
 | SaveData, unitdiff 100% function bytes | 13,124 | 15,744 |
 
 Only SaveData's per-unit count changed. No unit lost fuzzy-100% functions. `git diff --check` passed. The final uncommitted changes are `src/game/SaveData.cpp`, `config/wpse-v1/symbols.txt`, and this notes file. `configure.py`, shared headers, protected living documents, and `config/targets` are unchanged.
+
+## 2026-10-22: CGameSession and CRemoteMemory follow-up
+
+Worked only in the current checkout and left changes uncommitted. This follow-up completes two functions, not either whole unit. CRemoteMemory source is unchanged; both units remain NonMatching. No target hashes or configuration were changed.
+
+### Retained fixes and reusable lessons
+
+- `CGameSession::AddMoney`: use the existing qualified `CGameSession::GetMoney()` accessor for `current`. Its inlined return gets r3, whereas reading `mMoney` directly gets r5 and changes the negative-sum register allocation. The qualified call suppresses virtual dispatch. The 204-byte function now scores 100% in both live unitdiff and the report.
+- `CGameSession::Calc`: the converted range iterators already occupied the correct slots, but their stores occurred in the wrong order. Default-construct `first`, construct `last`, then assign `firstIt` to `first`. Added the ordinary default constructor and underlying-iterator assignment overload to `__implicit_convert_iterator`. This preserves the frame slots while reversing just those two stores. Swapping the two declarations instead also swaps their slots and is wrong. Calc now scores 100% in the report; live unitdiff retains only two existing static-label naming differences, with no instruction differences.
+
+### Reverted experiments
+
+- Unsigned 64-bit arithmetic and reversing the outer addition operands in GetSnapshot left it at 88.2381%. Qualified money and OyaInfo getters, individually and together, also left it unchanged. A snapshot header setter taking the three values by value worsened it to 66.11905%.
+- Explicit separate ReadBack error cases for -4 and -3 did not reproduce the target switch tree. A retry-message encoder helper improved ThreadMain's live score but did not finish it or the other callers; it was removed. No additional volatile variables, assembly, optimizer pragmas, or artificial branches were retained.
+- The two destructor differences remain unresolved: the personal-data vector needs one additional null-check level, and SessionSnapshot needs it for both personal and battle-royal vectors. No speculative type-specific destructor hierarchy was added.
+
+### Controlled validation
+
+The starting on-disk report counted 13,284 perfect functions but was stale relative to the checked-in source. All 869 configured compiler commands were run successfully, including their sjiswrap and extab post-processing. The refreshed report counted 13,294. To isolate this session's contribution, temporarily restored the original two edited files in memory-backed comparisons, recompiled all 115 objects whose freshly generated dependency files include `include/vector`, and generated a baseline report. Restored the retained source and recompiled affected objects before generating the final report.
+
+| Measure | Fresh original source | Retained changes |
+| --- | ---: | ---: |
+| Project report functions at 100% | 13,292 | 13,294 |
+| CGameSession report functions at 100% | 214/219 | 216/219 |
+| CRemoteMemory report functions at 100% | 14/20 | 14/20 |
+
+The exact function-set comparison has only AddMoney and Calc as gains and no losses. CanAddPPDToPlayerPiiBox was already 100% before these edits. Remaining CGameSession scores are GetSnapshot 88.2381%, the personal-data vector destructor 96.77419%, and SessionSnapshot destructor 97.72727%. All six requested CRemoteMemory functions remain below 100%.
+
+`python configure.py` exited 0. Native ninja again stalled before launching the split command, including with `-j 2` and terminal output; interrupted/timed-out invocations are not successful builds. Used its exact generated commands directly instead. Generated the normal linker response file from the 1,388 ordered link inputs, deleted `build/wpse-v1/main.dol`, and ran the configured linker and elf2dol; both exited 0. The linker retained existing FORCEACTIVE warnings. The frozen-manifest verification command documented above returned **PASS main.dol**, exit 0. This validates the existing source/fallback selection, not source linkage of these two NonMatching units. `git diff --check` passed.
+
+Final changes for this follow-up are only `include/vector`, `src/game/CGameSession.cpp`, and this appended note. No scratch files were created in the repository; the response file, objects, dependency files, and report are normal build outputs.
