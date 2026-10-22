@@ -2,6 +2,7 @@
 #define GAME_CPPUENV_H
 
 #include <game/CFileData.h>
+#include <game/CPpuEngine.h>
 #include <game/NPpuVM.h>
 #include <map>
 #include <memory>
@@ -35,8 +36,15 @@ public:
         }
     }
 
-    void SetFile(const std::tr1::shared_ptr<CFileData>& rFile) { mFile = rFile; }
-    bool Load(const std::tr1::shared_ptr<CFileData>& rFile, const char* pName);
+    bool Load(const char* pName, bool wait) {
+        std::tr1::shared_ptr<CFileData> file = LoadLocalizedFile((std::string("script.arc/") + pName).c_str(), 0, wait, CPpuEngine::GetScriptRoot());
+        if (!file || !file->IsLoaded()) {
+            return false;
+        }
+        mFile = file;
+        mName = pName;
+        return NPpu::CCode::Load(mName.c_str(), mFile->GetData(), mFile->GetSize(), 0, 0);
+    }
 
 private:
     SelfReference<CPpuCode> mRef;
@@ -44,9 +52,11 @@ private:
     std::string mName;
 };
 
-class CPpuEnv : public NPpu::CEnvironment, public std::tr1::enable_shared_from_this<NPpu::CEnvironment> {
+class CPpuEnv : public NPpu::CEnvironment, public std::tr1::enable_shared_from_this<CPpuEnv> {
+    friend std::tr1::shared_ptr<NPpu::CCode> LoadScriptCode(NPpu::CEnvironment* pBaseEnv, const char* pName, bool wait);
+
 public:
-    typedef std::tr1::shared_ptr<NPpu::CEnvironment> SelfPtr;
+    typedef std::tr1::shared_ptr<CPpuEnv> SelfPtr;
     typedef std::map<std::string, std::tr1::shared_ptr<NPpu::CCode> > CodeMap;
 
     CPpuEnv(int globalCount, const NPpu::SNativeFunction* pNatives, u32 nativeCount)
@@ -67,12 +77,10 @@ public:
         }
     }
 
-    bool& Loading() { return mLoading; }
-    CodeMap& Codes() { return mCodes; }
     void ClearCodes() { mCodes.clear(); }
 
 private:
-    SelfReference<NPpu::CEnvironment> mRef;
+    SelfReference<CPpuEnv> mRef;
     bool mLoading;
     CodeMap mCodes;
 };

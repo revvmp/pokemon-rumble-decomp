@@ -691,42 +691,27 @@ std::tr1::shared_ptr<NPpu::CEnvironment> CreateScriptEnvironment() {
     return std::tr1::shared_ptr<NPpu::CEnvironment>(new CPpuEnv(0x400, gScriptNativeBindings, gScriptNativeBindingCount));
 }
 
-bool CPpuCode::Load(const std::tr1::shared_ptr<CFileData>& rFile, const char* pName) {
-    if (!rFile || !rFile->IsLoaded()) {
-        return false;
-    }
-    mFile = rFile;
-    mName = pName;
-    return NPpu::CCode::Load(mName.c_str(), rFile->GetData(), rFile->GetSize(), 0, 0);
-}
-
-std::tr1::shared_ptr<NPpu::CCode> LoadScriptCode(NPpu::CEnvironment* pBaseEnv, const char* pName, int wait) {
+std::tr1::shared_ptr<NPpu::CCode> LoadScriptCode(NPpu::CEnvironment* pBaseEnv, const char* pName, bool wait) {
     CPpuEnv* pEnv = static_cast<CPpuEnv*>(pBaseEnv);
     if (wait) {
-        while (pEnv->Loading()) {
+        while (pEnv->mLoading) {
             YieldFiber();
         }
     }
-    ScopedFlag guard(&pEnv->Loading());
+    ScopedFlag guard(&pEnv->mLoading);
     std::string key(pName);
-    CPpuEnv::CodeMap::iterator it = pEnv->Codes().find(key);
-    if (it != pEnv->Codes().end()) {
-        std::tr1::shared_ptr<NPpu::CCode> cached(it->second);
-        if (cached) {
+    CPpuEnv::CodeMap::iterator it = pEnv->mCodes.find(key);
+    if (it != pEnv->mCodes.end()) {
+        if (std::tr1::shared_ptr<NPpu::CCode> cached = it->second) {
             return cached;
         }
-        pEnv->Codes().erase(it);
+        pEnv->mCodes.erase(it);
     }
     std::tr1::shared_ptr<CPpuCode> code(new CPpuCode);
-    bool loaded;
-    {
-        std::tr1::shared_ptr<CFileData> file = LoadLocalizedFile((std::string("script.arc/") + pName).c_str(), 0, wait, CPpuEngine::GetScriptRoot());
-        loaded = code->Load(file, pName);
-    }
-    if (!loaded) {
+    if (!code->Load(pName, wait)) {
         return std::tr1::shared_ptr<NPpu::CCode>();
     }
-    pEnv->Codes()[key] = code;
+    pEnv->mCodes[key] = code;
     return code;
 }
 

@@ -14,7 +14,7 @@
 #include <string.h>
 
 void YieldFiber();
-std::tr1::shared_ptr<NPpu::CCode> LoadScriptCode(NPpu::CEnvironment* pEnv, const char* pName, int mode);
+std::tr1::shared_ptr<NPpu::CCode> LoadScriptCode(NPpu::CEnvironment* pEnv, const char* pName, bool wait);
 
 std::tr1::weak_ptr<NPpu::CEnvironment> CPpuEngine::sDefaultEnv;
 MapIndex CPpuEngine::sDefaultStageDescTarget;

@@ -500,7 +500,7 @@ public:
             destroy(static_cast<node*>(root()));
             size_.first() = 0;
             root() = nullptr;
-            begin_node() = end_node();
+            begin_node() = static_cast<const tree_imp*>(this)->end_node();
         }
     }
 
