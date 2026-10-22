@@ -590,10 +590,12 @@ std::vector<BWorldObj*> BWorld::GetObjects(u32 type) {
 
 int BWorld::CountObjects(u32 type) {
     int count = 0;
-    u32 entryType;
-    u32 stopTypes = GetStopTypes(type);
+    u32 stopTypes = 0xFFFFFFFF;
+    if ((type & ~ENTRY_HEAD_TYPES) == 0) {
+        stopTypes = ENTRY_HEAD_TYPES;
+    }
     for (ObjEntry* pEntry = mObjHead; pEntry != nullptr; pEntry = GetNextEntry(pEntry)) {
-        entryType = pEntry->GetType();
+        u32 entryType = pEntry->GetType();
         if (!(entryType & type)) {
             if (entryType & stopTypes) {
                 continue;
