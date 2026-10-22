@@ -11,6 +11,11 @@ public:
 
     bool IsFlagSet(u32 flags) const { return (mValue & flags) == flags; }
     int GetClearCount() const { return mValue >> 22; }
+    void SetFlags(u32 flags) { mValue |= flags; }
+    void IncrementClearCount() {
+        u32 count = (mValue >> 22) + 1;
+        if (count < 1024) { mValue = (mValue & 0x3FFFFF) | (count << 22); }
+    }
 
 private:
     u32 mValue;

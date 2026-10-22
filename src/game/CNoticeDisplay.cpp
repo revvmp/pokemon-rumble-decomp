@@ -160,7 +160,7 @@ public:
     virtual bool IsShown() const;
     virtual void Show(int type);
     virtual void Close();
-    virtual void Clear() {}
+    virtual void AddEnemy(const PiiSpeciesData*, int) {}
     virtual void SetWinner(int winner) { mWinner = winner; }
     virtual void SetWinnerParam(f32 param) { mWinnerParam = param; }
     virtual int GetType() const;

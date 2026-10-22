@@ -11,6 +11,8 @@ class BWorld;
 class IMiniMap : public ICalcDraw {
 public:
     virtual ~IMiniMap() {}
+    virtual void Show() = 0;
+    virtual void Hide() = 0;
 
     static std::tr1::shared_ptr<IMiniMap> Create(MapDesc* pMapDesc, BWorld* pWorld, f32 scale, bool flag);
 };

@@ -68,6 +68,7 @@ public:
     virtual void UpdateIndex(int prevIndex);
 
     nw4r::g3d::Camera GetG3dCamera();
+    bool Load(const char* pPath, bool background);
 
     void Pause(bool pause);
     void Stop();

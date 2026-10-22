@@ -48,7 +48,7 @@ public:
 
     BWorld* GetWorld() const;
     NPpu::CEnvironment* GetEnv() const;
-    std::tr1::shared_ptr<CFileData> LoadFile(const char* pName);
+    std::tr1::shared_ptr<CFileData> LoadFile(const char* pName, u32 flags = 0);
     bool LoadPlacement(const char* pFileName, const char* pAnmName, const char* pNodePrefix, u32 flags);
     void SetStageDescTarget(const MapIndex& rTarget);
     MapIndex GetStageDescTarget() const { return mStageDescTarget; }
@@ -67,6 +67,9 @@ public:
     u32 PeekWorldObjType(int argIndex);
     bool HasCallback(int messageID) const;
     int SendMessage(const Message& rMessage);
+
+    u32 GetPlacementCount() const { return mPlacements.size(); }
+    const nw4r::math::MTX34& GetPlacement(u32 index) const { return mPlacements[index]; }
 
     CPpuRegister* GetRegister() { return &mRegister; }
 

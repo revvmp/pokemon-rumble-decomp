@@ -290,6 +290,7 @@ config.libs = [
             Object(Matching, "game/CUIType.cpp"),
             Object(Matching, "game/CWarpZone.cpp"),
             Object(Matching, "game/CWaza.cpp"),
+            Object(NonMatching, "game/ScriptGame.cpp"),
             Object(Matching, "game/ScriptItem.cpp"),
             Object(Matching, "game/ScriptUtilities.cpp"),
             Object(NonMatching, "game/ScriptPiiPropData.cpp"),

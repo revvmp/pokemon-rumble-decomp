@@ -10,7 +10,7 @@ public:
     virtual ~IDlgMsgWin() {}
     virtual void SetControllerSlot(int slot) = 0;
     virtual void OpenMessage(const wchar_t* pText) = 0;
-    virtual void OpenImageMessage(const wchar_t* pText, int image) = 0;
+    virtual void OpenImageMessage(const wchar_t* pText, const char* pImageName) = 0;
     virtual bool IsMessageClosed() = 0;
     virtual bool IsAnimationDone() = 0;
     virtual void SetDefaultYes(bool yes) = 0;
@@ -19,7 +19,7 @@ public:
     virtual bool IsYesSelected() = 0;
     virtual void SetOption(int index, const wchar_t* pLabel, const wchar_t* pText) = 0;
     virtual void SetDefaultOption(int index) = 0;
-    virtual void OpenOptions(int index) = 0;
+    virtual void OpenOptions(const wchar_t* pText) = 0;
     virtual bool IsOptionsClosed() = 0;
     virtual int GetSelectedOption() = 0;
     virtual void OpenFootnote(const wchar_t* pText) = 0;

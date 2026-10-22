@@ -323,7 +323,7 @@ void CPauseMenu::Run() {
         bool simplified = mHideBackground;
         if (IsStage7EvenMap(GetCurrentGameMap()->GetMapDesc().mIndex)) {
             if (GetCurrentGameMap()->GetBattleRoyalDisplay() != nullptr) {
-                simplified = GetCurrentGameMap()->GetBattleRoyalDisplay()->GetRound() == 0;
+                simplified = GetCurrentGameMap()->GetBattleRoyalDisplay()->GetEnemyCount() == 0;
             }
         }
         if (GetCurrentGameMap()->IsPausing()) {

@@ -10,9 +10,9 @@ public:
     virtual void Show() = 0;
     virtual void Hide() = 0;
     virtual void Finish() = 0;
-    virtual void SetRound(int round) = 0;
-    virtual int GetRoundIndex() = 0;
-    virtual int GetRound() = 0;
+    virtual void SetEnemyCount(int count) = 0;
+    virtual void DecEnemyCount() = 0;
+    virtual int GetEnemyCount() = 0;
 
     static std::tr1::shared_ptr<IBattleRoyalDisplay> Create(bool flag);
 };
