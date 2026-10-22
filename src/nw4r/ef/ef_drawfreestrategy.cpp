@@ -63,15 +63,23 @@ void DrawQuad(const math::MTX34& rMtx, const math::_VEC3* pPosArray,
     GXEnd();
 }
 
+#pragma push
+#pragma opt_optimizecontrolflow off
+#pragma opt_rebuildconditionals off
+#pragma opt_generateconditionalassignments off
+#pragma opt_common_subs off
+#pragma opt_propagation off
 void DrawFreeStrategy::Draw(const DrawInfo& rInfo, ParticleManager* pManager) {
     InitGraphics(rInfo, pManager);
 
     const EmitterDrawSetting& rSetting =
         *pManager->mResource->GetEmitterDrawSetting();
 
-    int texCoord = 0;
+    int texCoord;
     if (mNumTexmap > 0) {
         texCoord = 1;
+    } else {
+        texCoord = 0;
     }
 
     math::MTX34 glbMtx;
@@ -136,6 +144,7 @@ void DrawFreeStrategy::Draw(const DrawInfo& rInfo, ParticleManager* pManager) {
         }
     }
 }
+#pragma pop
 
 void DrawFreeStrategy::InitGraphics(const DrawInfo& rInfo,
                                     ParticleManager* pManager) {
@@ -208,6 +217,7 @@ static inline math::MTX34 CalcRotate(Particle* pParticle, u8 axis) {
             0.0f, 0.0f, 1.0f, 0.0f);
     }
 
+    case AXIS_MAX:
     default: {
         PSSinCosRad(&sx, &cx, rot.x);
         PSSinCosRad(&sy, &cy, rot.y);

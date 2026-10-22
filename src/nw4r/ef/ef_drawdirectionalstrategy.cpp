@@ -138,6 +138,7 @@ static inline math::MTX34 CalcRotate(Particle* pParticle, u8 axis) {
                            0.0f, 0.0f, 1.0f, 0.0f);
     }
 
+    case 3:
     default: {
         if (rot.x != 0.0f) {
             PSSinCosRad(&sinX, &cosX, -rot.x);
@@ -181,6 +182,7 @@ static inline math::MTX34 CalcLocalTransform(u8 option, f32 px, f32 py,
             -rRot._20 * sx_px - rRot._21 * sy_py);
     }
 
+    case 1:
     default: {
         f32 sx_px = sx * px;
         f32 sy_py = sy * py;
@@ -195,6 +197,13 @@ static inline math::MTX34 CalcLocalTransform(u8 option, f32 px, f32 py,
     }
 }
 
+#pragma push
+#pragma opt_optimizecontrolflow off
+#pragma opt_rebuildconditionals off
+#pragma opt_generateconditionalassignments off
+#pragma opt_common_subs off
+#pragma opt_propagation off
+#pragma opt_dead_assignments off
 void DrawDirectionalStrategy::DrawDirectional(const DrawInfo& rInfo,
                                               ParticleManager* pManager) {
     InitGraphics(rInfo, pManager);
@@ -208,9 +217,11 @@ void DrawDirectionalStrategy::DrawDirectional(const DrawInfo& rInfo,
     AheadContext context(viewMtx, pManager);
     CalcAheadFunc pCalcAheadFunc = GetCalcAheadFunc(pManager);
 
-    int texCoord = 0;
+    int texCoord;
     if (mNumTexmap > 0) {
         texCoord = 1;
+    } else {
+        texCoord = 0;
     }
 
     math::VEC3 emAxisY;
@@ -218,8 +229,8 @@ void DrawDirectionalStrategy::DrawDirectional(const DrawInfo& rInfo,
 
     if (rSetting.typeDir == EmitterDrawSetting::DIR_7) {
         math::MTX34 posMtx;
-        math::MTX34Mult(&posMtx, &viewMtx,
-                        &context.mCommon.mParticleManagerMtx);
+        const math::MTX34& rManagerMtx = context.mCommon.mParticleManagerMtx;
+        math::MTX34Mult(&posMtx, &viewMtx, &rManagerMtx);
         GXLoadPosMtxImm(posMtx, GX_PNMTX0);
 
         const math::MTX34& rInvMtx = context.mCommon.mParticleManagerMtxInv;
@@ -228,8 +239,8 @@ void DrawDirectionalStrategy::DrawDirectional(const DrawInfo& rInfo,
         Normalize(&emAxisZ);
     } else {
         math::MTX34 posMtx;
-        math::MTX34Mult(&posMtx, &viewMtx,
-                        &context.mCommon.mParticleManagerMtx);
+        const math::MTX34& rManagerMtx = context.mCommon.mParticleManagerMtx;
+        math::MTX34Mult(&posMtx, &viewMtx, &rManagerMtx);
         GXLoadPosMtxImm(posMtx, GX_PNMTX0);
 
         math::MTX34 emMtx;
@@ -286,9 +297,9 @@ void DrawDirectionalStrategy::DrawDirectional(const DrawInfo& rInfo,
         math::MTX34 locMtx = CalcLocalTransform(rSetting.typeOption1, px, py,
                                                 sx, sy, stretch, rotMtx);
 
-        math::VEC3 axisX;
-        math::VEC3 axisY;
         math::VEC3 axisZ;
+        math::VEC3 axisY;
+        math::VEC3 axisX;
 
         pCalcAheadFunc(&axisY, &context, pParticle);
         math::VEC3Cross(&axisX, &pParticle->mPrevAxis, &axisY);
@@ -330,6 +341,8 @@ void DrawDirectionalStrategy::DrawDirectional(const DrawInfo& rInfo,
         }
     }
 }
+
+#pragma pop
 
 void DrawDirectionalStrategy::DrawDirectionalBillboard(
     const DrawInfo& rInfo, ParticleManager* pManager) {
