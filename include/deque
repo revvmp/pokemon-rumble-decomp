@@ -536,7 +536,6 @@ public:
     bool empty() const { return size_ == 0; }
     buf_type& buf() { return buf_.first(); }
     const buf_type& buf() const { return buf_.first(); }
-    Allocator& alloc() { return buf_.second(); }
     iterator end() { return at(size_); }
     iterator at(size_type pos) {
         buf_type* pBuf;
@@ -547,7 +546,6 @@ public:
         return iterator(block, pBlock + i % block_size);
     }
     size_type front_capacity() const { return start_; }
-    size_type back_capacity() { return capacity() - (start_ + size_); }
     size_type capacity() const { return buf().empty() ? 0 : (buf().size() - 1) * block_size; }
     size_type max_size() const {
         static size_type n = (numeric_limits<size_type>::max() / block_size - 1) * block_size;
@@ -560,10 +558,12 @@ public:
     __deque_imp() : start_(0), size_(0) {}
     explicit __deque_imp(const Allocator& rAlloc) : start_(0), size_(0), buf_(buf_type(typename Allocator::template rebind<T*>::other(rAlloc)), rAlloc) {}
     ~__deque_imp();
+    Allocator& alloc();
 
     void push_back(const T& x) { append(x); }
     void append(const T& x) { push_back(x, pod_type()); }
     void push_back(const T& x, Metrowerks::int2type<false>);
+    size_type back_capacity();
 
     void allocate_back(size_type n);
 
@@ -599,12 +599,20 @@ template <typename T, typename Allocator> __deque_imp<T, Allocator>::~__deque_im
     }
 }
 
+template <typename T, typename Allocator> Allocator& __deque_imp<T, Allocator>::alloc() {
+    return buf_.second();
+}
+
 template <typename T, typename Allocator> void __deque_imp<T, Allocator>::push_back(const T& x, Metrowerks::int2type<false>) {
     if (back_capacity() == 0) {
         allocate_back(1);
     }
     alloc().construct(&*end(), x);
     ++size_;
+}
+
+template <typename T, typename Allocator> typename __deque_imp<T, Allocator>::size_type __deque_imp<T, Allocator>::back_capacity() {
+    return capacity() - (start_ + size_);
 }
 
 template <typename T, typename Allocator> void __deque_imp<T, Allocator>::pop_front(size_type n, Metrowerks::int2type<false>) {
