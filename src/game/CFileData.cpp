@@ -341,9 +341,7 @@ inline std::tr1::shared_ptr<nw4r::ut::CNTHandleWithMutex> AcquireCNTHandle(int d
             }
             ++it;
         } else {
-            CFileData::CWorker::CNTHandleMap::iterator expired = it;
-            rMap.erase(expired);
-            it = expired;
+            it = rMap.erase(it);
         }
     }
     if (handle) {
