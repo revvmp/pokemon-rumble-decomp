@@ -140,7 +140,8 @@ private:
 }
 
 std::tr1::shared_ptr<ITitleSession> ITitleSession::Create() {
-    return std::tr1::shared_ptr<ITitleSession>(new CTitleSession);
+    std::tr1::shared_ptr<ITitleSession> session(new CTitleSession);
+    return session;
 }
 
 namespace {
