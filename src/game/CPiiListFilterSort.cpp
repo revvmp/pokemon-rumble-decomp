@@ -3,6 +3,7 @@
 #include <game/CUIPiiListItem.h>
 #include <game/CUIList.h>
 #include <game/IGameSession.h>
+#include <game/CPlayer.h>
 #include <game/COyaInfo.h>
 #include <algorithm>
 #include <vector>
@@ -228,11 +229,31 @@ void CPiiListFilterSort::Filter(std::tr1::shared_ptr<CUIList> pList, PiiItemVect
     }
 }
 
-#pragma dont_inline reset
-
 void CPiiListFilterSort::Sort(PiiItemVector& rItems, int player) {
     typedef bool (*Comparator)(const PiiItemPtr&, const PiiItemPtr&);
     Comparator comparators[7] = {CompareFavoriteFirst, CompareBPDescending, CompareBPAscending, CompareNewest, CompareOldest,
                                  CompareSpeciesName, CompareSpeciesOrder};
     std::sort(rItems.begin(), rItems.end(), comparators[mSortType]);
+    if (mSortType == 0 && player >= 0 && rItems.size() != 0) {
+        CPlayer* pPlayer = IGameSession::GetInstance()->GetPlayer(player);
+        bool hasPersonalData = pPlayer->IsJoined() && pPlayer->GetPersonalData();
+        if (hasPersonalData) {
+            typedef PiiItemVector::iterator Iterator;
+            PiiItemVector sorted;
+            sorted.reserve(rItems.size());
+            sorted.push_back(PiiItemPtr(0));
+            for (Iterator it = rItems.begin(); it != rItems.end(); ++it) {
+                if ((*it)->GetPPD() == pPlayer->GetPersonalData()) {
+                    sorted[0] = *it;
+                } else {
+                    sorted.push_back(*it);
+                }
+            }
+            if (sorted.size() == rItems.size()) {
+                rItems = sorted;
+            }
+        }
+    }
 }
+
+#pragma dont_inline reset
