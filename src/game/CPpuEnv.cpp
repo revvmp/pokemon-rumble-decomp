@@ -703,7 +703,7 @@ std::tr1::shared_ptr<NPpu::CCode> LoadScriptCode(NPpu::CEnvironment* pBaseEnv, c
     std::string key(pName);
     CPpuEnv::CodeMap::iterator it = pEnv->mCodes.find(key);
     if (it != pEnv->mCodes.end()) {
-        if (std::tr1::shared_ptr<NPpu::CCode> cached = it->second) {
+        if (std::tr1::shared_ptr<CPpuCode> cached = it->second) {
             return cached;
         }
         pEnv->mCodes.erase(it);

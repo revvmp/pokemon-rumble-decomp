@@ -16,12 +16,14 @@ template <typename T> struct SelfReference {
     std::tr1::shared_ptr<T> mSelf;
 };
 
+class CPpuCode;
+
 class CPpuEnv : public NPpu::CEnvironment, public std::tr1::enable_shared_from_this<CPpuEnv> {
     friend std::tr1::shared_ptr<NPpu::CCode> LoadScriptCode(NPpu::CEnvironment* pBaseEnv, const char* pName, bool wait);
 
 public:
     typedef std::tr1::shared_ptr<CPpuEnv> SelfPtr;
-    typedef std::map<std::string, std::tr1::shared_ptr<NPpu::CCode> > CodeMap;
+    typedef std::map<std::string, std::tr1::shared_ptr<CPpuCode> > CodeMap;
 
     CPpuEnv(int globalCount, const NPpu::SNativeFunction* pNatives, u32 nativeCount);
     virtual ~CPpuEnv();
