@@ -488,7 +488,7 @@ public:
     typedef __generic_iterator<true> const_iterator;
 
     tree_imp() : size_(0) { begin_node() = end_node(); }
-    tree_imp(const Compare& rCompare, const Allocator& rAllocator) : size_(size_type(0), rAllocator), root_(NodeAllocator(rAllocator)), begin_(rCompare) { begin_node() = end_node(); }
+    tree_imp(const Compare& rCompare, const Allocator& rAllocator) : size_(size_type(0), rAllocator), root_(NodeAllocator(rAllocator)), begin_(Compare(rCompare)) { begin_node() = end_node(); }
     ~tree_imp();
 
     size_type size() const { return sz(); }
