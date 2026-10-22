@@ -98,8 +98,8 @@ public:
 
 class CDlgCollectionItem : public IUIListItem {
 public:
-    CDlgCollectionItem(const std::tr1::shared_ptr<CDlgCollectionItemModel>& rModel, const std::vector<u16>& rSpecies)
-        : mModel(rModel), mSpecies(rSpecies) {}
+    CDlgCollectionItem(std::tr1::shared_ptr<CDlgCollectionItemModel> model, const std::vector<u16>& rSpecies)
+        : mModel(model), mSpecies(rSpecies) {}
     virtual ~CDlgCollectionItem() {}
     virtual bool IsSelectable() const { return true; }
     virtual void Update(CUIList* pList, CLayout* pLayout) { mModel->Update(pLayout, mSpecies); }
@@ -164,8 +164,8 @@ public:
                     collected++;
                 }
             }
-            mList->GetItems().push_back(
-                std::tr1::shared_ptr<CDlgCollectionItem>(new CDlgCollectionItem(mItemModel, row)));
+            std::tr1::shared_ptr<CDlgCollectionItem> item(new CDlgCollectionItem(mItemModel, row));
+            mList->GetItems().push_back(item);
         }
         mList->UpdateSelection();
         mRootLayout->SetText("COMP_NUM_GOT", FormatString(L"%d", collected).c_str());
@@ -230,10 +230,7 @@ public:
     }
     virtual bool IsShown() { return mImpl; }
     virtual bool Show(int player) {
-            if (mImpl) {
-                return true;
-            }
-            {
+            if (!mImpl) {
                 if (!GetCurrentGameMap()->RegisterDialog(shared_from_this())) {
                     return false;
                 }
