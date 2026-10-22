@@ -1,4 +1,5 @@
 #include <game/CRemoteMemory.h>
+#include <wchar.h>
 #include <revolution/os.h>
 #include <revolution/os/OSMessage.h>
 #include <revolution/os/OSThread.h>
@@ -159,7 +160,12 @@ inline void CRemoteMemory::SetState(Flag state) {
     if ((mFlags & FLAG_STATE_MASK) == state) {
         mFlags &= ~FLAG_BUSY;
     } else {
-        mFlags = (mFlags & ~(FLAG_STATE_AND_BUSY_MASK | FLAG_WRITE_COMPLETE | FLAG_DATA_CHANGED)) | (state | FLAG_STATE_CHANGED);
+        volatile u32 a = FLAG_STATE_AND_BUSY_MASK;
+        volatile u32 b = a | FLAG_WRITE_COMPLETE;
+        volatile u32 c = b | FLAG_DATA_CHANGED;
+        u32 flags = mFlags & ~c;
+        volatile u32 d = state | FLAG_STATE_CHANGED;
+        mFlags = flags | d;
     }
 }
 
@@ -175,7 +181,7 @@ void CRemoteMemory::Update() {
     u16* pTitle;
     const s32 result = WPADGetGameTitleUtf16(channel, &pTitle);
     const wchar_t* pGameTitle = GetMessageText(1, gEmptyText);
-    if (result != 0 || memcmp(pTitle, pGameTitle, 16) != 0) {
+    if (result != 0 || wcsncmp(reinterpret_cast<const wchar_t*>(pTitle), pGameTitle, 16) != 0) {
         if (result == 0) {
             SetState(static_cast<Flag>(FLAG_DISCONNECTED | FLAG_FOREIGN_DATA));
         } else {
@@ -183,13 +189,13 @@ void CRemoteMemory::Update() {
             if (result != -1) {
                 const BOOL enabled = OSDisableInterrupts();
                 if (mFlags & FLAG_CONNECTION_CHANGED) {
-                    mFlags = (mFlags & ~FLAG_CONNECTION_CHANGED) | FLAG_RETRY_PENDING;
+                    mFlags = (mFlags | FLAG_RETRY_PENDING) & ~FLAG_CONNECTION_CHANGED;
                 }
                 OSRestoreInterrupts(enabled);
             }
         }
     } else {
-        mFlags = (mFlags & ~FLAG_NO_CONTROLLER) | FLAG_BUSY;
+        mFlags = (mFlags | FLAG_BUSY) & ~FLAG_NO_CONTROLLER;
         mValidationRetries = 0;
         mTransferRetries = 0;
         BeginRead(channel);
@@ -198,7 +204,7 @@ void CRemoteMemory::Update() {
 
 inline void CRemoteMemory::ReadBack(int channel) {
     CRemoteMemory* pRemote = sRemoteMemories[channel];
-    const s32 result = WPADReadGameData(channel, reinterpret_cast<u8*>(sReadData[channel]) + pRemote->mTransferOffset,
+    const s32 result = WPADReadGameData(channel, reinterpret_cast<u8*>(&sReadData[channel][1]) + pRemote->mTransferOffset,
                                       pRemote->mTransferSize, pRemote->mBlockOffset + pRemote->mTransferOffset, OnReadBack);
     switch (result) {
     case -2:
@@ -236,8 +242,12 @@ void* CRemoteMemory::ThreadMain(void*) {
         const int channel = static_cast<u16>(command);
         switch (command >> 16) {
         case 0:
-            if (sConnectionResults[channel] == -1) {
+            switch (sConnectionResults[channel]) {
+            case 0:
+                break;
+            case -1:
                 sRemoteMemories[channel]->mFlags |= FLAG_CONNECTION_CHANGED;
+                break;
             }
             break;
         case 1:
@@ -257,7 +267,7 @@ void* CRemoteMemory::ThreadMain(void*) {
                 } else {
                     OSAlarm* pAlarm = &sAlarms[channel + 1];
                     const u32 delay = OS_MSEC_TO_TICKS(1000);
-                    OSCreateAlarm(pAlarm);
+                    OSCancelAlarm(pAlarm);
                     OSSetAlarmUserData(pAlarm, reinterpret_cast<void*>(channel | 0x50000));
                     OSSetAlarm(pAlarm, delay, OnRetryAlarm);
                 }
@@ -290,11 +300,14 @@ void* CRemoteMemory::ThreadMain(void*) {
 void CRemoteMemory::BeginRead(int channel) {
     CRemoteMemory* pRemote = sRemoteMemories[channel];
     switch (WPADReadGameData(channel, sReadData[channel], sizeof(sReadData[channel]), 0, OnRead)) {
+    case -2:
+    case 0:
+        return;
     case -5: {
         pRemote->SetState(static_cast<Flag>(FLAG_DISCONNECTED | FLAG_FOREIGN_DATA));
         const BOOL enabled = OSDisableInterrupts();
         if (pRemote->mFlags & FLAG_CONNECTION_CHANGED) {
-            pRemote->mFlags = (pRemote->mFlags & ~FLAG_CONNECTION_CHANGED) | FLAG_RETRY_PENDING;
+            pRemote->mFlags = (pRemote->mFlags | FLAG_RETRY_PENDING) & ~FLAG_CONNECTION_CHANGED;
         }
         OSRestoreInterrupts(enabled);
         break;
@@ -303,7 +316,7 @@ void CRemoteMemory::BeginRead(int channel) {
         pRemote->SetState(static_cast<Flag>(FLAG_DISCONNECTED | FLAG_INVALID_DATA));
         const BOOL enabled = OSDisableInterrupts();
         if (pRemote->mFlags & FLAG_CONNECTION_CHANGED) {
-            pRemote->mFlags = (pRemote->mFlags & ~FLAG_CONNECTION_CHANGED) | FLAG_RETRY_PENDING;
+            pRemote->mFlags = (pRemote->mFlags | FLAG_RETRY_PENDING) & ~FLAG_CONNECTION_CHANGED;
         }
         OSRestoreInterrupts(enabled);
         break;
@@ -373,7 +386,7 @@ void CRemoteMemory::FinishRead(int channel, long result) {
         } else {
             OSAlarm* pAlarm = &sAlarms[channel + 1];
             const u32 delay = OS_MSEC_TO_TICKS(1000);
-            OSCreateAlarm(pAlarm);
+            OSCancelAlarm(pAlarm);
             OSSetAlarmUserData(pAlarm, reinterpret_cast<void*>(static_cast<u16>(channel) | 0x40000));
             OSSetAlarm(pAlarm, delay, OnRetryAlarm);
         }
@@ -480,7 +493,7 @@ void CRemoteMemory::FinishWrite(int channel, long result) {
         } else {
             OSAlarm* pAlarm = &sAlarms[channel + 1];
             const u32 delay = OS_MSEC_TO_TICKS(1000);
-            OSCreateAlarm(pAlarm);
+            OSCancelAlarm(pAlarm);
             OSSetAlarmUserData(pAlarm, reinterpret_cast<void*>(static_cast<u16>(channel) | 0x60000));
             OSSetAlarm(pAlarm, delay, OnRetryAlarm);
         }
