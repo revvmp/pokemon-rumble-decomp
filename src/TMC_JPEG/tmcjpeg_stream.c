@@ -11,13 +11,10 @@ static void PutBitsFast(TMCJPEGStream* stream, u32 bits, s32 count);
 
 static inline void CheckOverflow(TMCJPEGStream* stream)
 {
-    u8* start = stream->start;
-    u32 used = stream->current - start;
-
-    if (used >= stream->size) {
+    if (stream->current - stream->start >= stream->size) {
         stream->overflow = TRUE;
-        stream->flushed += used;
-        stream->current = start;
+        stream->flushed += stream->current - stream->start;
+        stream->current = stream->start;
     }
 }
 
