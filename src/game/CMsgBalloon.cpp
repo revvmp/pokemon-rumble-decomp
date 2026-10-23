@@ -6,6 +6,9 @@
 #include <map>
 #include <vector>
 #include <list>
+class BWorldObj;
+typedef char WorldObjectRefStorage[sizeof(std::tr1::weak_ptr<BWorldObj>)];
+#include <game/MessageFormat.h>
 #include <game/MapDesc.h>
 #include <game/CMsgBalloon.h>
 
@@ -28,7 +31,6 @@
 #include <game/IGameMap.h>
 #include <game/LayoutResources.h>
 #include <game/Message.h>
-#include <game/MessageFormat.h>
 #include <game/StringFormat.h>
 #include <game/IGameSession.h>
 #include <game/MapIndex.h>
@@ -40,6 +42,11 @@
 #include <nw4r/math/math_triangular.h>
 
 #pragma dont_inline on
+
+template <>
+inline bool& std::detail::map_base<int, bool, std::less<int>, std::allocator<std::pair<const int, bool> > >::operator[](const int& rKey) {
+    return tree_.find_or_insert(rKey).second;
+}
 
 static const StageID sInvalidStageID = {-1, -1, -1, -1};
 

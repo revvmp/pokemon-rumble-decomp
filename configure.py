@@ -283,7 +283,7 @@ config.libs = [
             Object(Matching, "game/CMiniMapMarker.cpp"),
             Object(NonMatching, "game/CGameResult.cpp"),
             Object(NonMatching, "game/CMoneyLifeDisplay.cpp"),
-            Object(NonMatching, "game/CMsgBalloon.cpp"),
+            Object(Matching, "game/CMsgBalloon.cpp"),
             Object(Matching, "game/CMultiRanking.cpp"),
             Object(Matching, "game/CPostEffect.cpp"),
             Object(NonMatching, "game/CPpuEngine.cpp"),

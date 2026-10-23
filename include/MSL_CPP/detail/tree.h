@@ -102,6 +102,9 @@ __red_black_tree<Pointer>::increment(pointer& x)
 		x = leftmost(x->right_);
 	else
 	{
+		bool probe = false;
+		if (probe)
+			(void)x->parent_.operator->();
 		while (x != x->parent_->left_)
 			x = x->parent_;
 		x = x->parent_;
