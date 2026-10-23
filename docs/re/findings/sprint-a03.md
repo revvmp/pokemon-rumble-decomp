@@ -151,3 +151,20 @@ No function reached 100% and no unit flipped. Each case was traced with `tools/r
 | CDlgInfo | `CDlgInfoItemLine::Update` | 99.88 | `hasColumns` (named, degree 33) waits for a later pass and is coloured early; `hasText` folds into the `HasText` return variable and is coloured late. The target has the opposite. `hasColumns = !hasText && ...`, if/else, nested `if`, and writing `HasText` out inline lose. |
 | CDlgInfo | `do_replace<wchar_t>` | 97.47 | The `char` instance matches in BWorldCamera; only the `wchar_t` one CSEs the raw `last - first` byte difference across the reallocation. `distance()` (95.9), casts and operand order in the `memmove` size do not stop it. |
 | ScriptWorldObj | `tree_begin_holder<less<int>>` ctor | 8.33 | A user `binary_function() {}` does not emit the call and costs COyaInfo 6 functions and CMsgBalloon 3. |
+
+## Fake-match wave (D-0016)
+
+Matched with per-function pragmas (ledger rows in [FAKEMATCHES](../FAKEMATCHES.md)): ScriptGame `MakeMapID` (`opt_dead_assignments off`) and `IncMapClearedNum` (`opt_common_subs off`). ScriptGame is now Matching.
+
+Scanned without success, one pragma at a time around the function (propagation, lifetimes, dead assignments, common subexpressions, scheduling, optimization levels 1 and 2, strength reduction, peephole, loop invariants, dead code, scalarize, tree transformation, rebuild conditionals, conditional assignments, unrolling): CGameSession `GetSnapshot` and `Calc`, PiiPropData constructor and `Reset`, CGameResult `Calc`, CPiiListFilterSort `Sort` and the four `Show*Menu` functions, ScriptWorld `SetStageDescTarget` (also all pairs).
+
+- **ScriptWorld `SetStageDescTarget`.** `opt_dead_assignments off` or `opt_propagation off` keeps `world` and `rank` as named locals and fixes every pop register, but the zero pushed by `PushNull` then stays in an `@` variable (coloured r7) instead of a temporary in r0, so the push uses `stwx` plus `add` instead of `stwux` (97.10). `PushInt(0)`, pushing a local `CValue` with `mType` and `mInt` set directly, an aggregate or value-initialised `CValue`, and the `CPpuEngine` cast do not change it. Pragma state is read at the end of the function, so a `#pragma pop` inside the body has no effect.
+- **CModel `TPartialAnm<1>` `IsIdle` swap.** A nested inline for the `&&` part (trivial, double negation, ternary, `const bool&` parameter) and a caller-owned `bool&` out parameter all fold back to the same IR; an `if`-assigned result variable changes the code to `cntlzw`.
+- **CGameSession `GetSnapshot`.** Fifteen expression forms and statement orders for the play time, money and registry count reach at most 89.31 (a `money` local, the count read at its store).
+- **CDlgPiiSelector `vector::insert<list::const_iterator>`.** Passing the tag through an inline helper (by value, by reference, copied, or an `int2type<0>()` temporary) never keeps the tag-copy address in r31 (72 to 80.6).
+- **CGameResult `sort<..., Compare&>`.** An explicit specialization with the library body, declared before use and defined at the end of the file, compiles to the same 97.78 and moves its `shuffle` static after a map object in `.sdata`.
+
+### Traps
+
+- **Function-scope pragmas do not reach templates or in-class members.** A `#pragma push`/`pop` around a member template definition, or inside a class around an in-class member, leaves the function unchanged. Out-of-line templates (CModel `TPartialAnm`) take the pragma state at the end of the file, which also changes every other deferred function; in-class members in CDlgCollection and CDlgInfo were unaffected even by an end-of-file pragma.
+- **A 100% unit can still fail the DOL on function order.** ScriptGame scored 170/170 but failed the link check because eleven functions had been appended at the end of the file. Compare the object's `nm -n` order of `T` symbols with `symbols.txt` before flipping a unit.
