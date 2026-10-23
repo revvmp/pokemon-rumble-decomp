@@ -16,3 +16,5 @@ Functions matched with source that is probably not the original, under [D-0016](
 | CFileData | `shared_ptr<CWorker>::reset<CWorker>` (inlined `PushFinished`) | `pHead = static_cast<CJob*>(mFinished.mpHead)` copied into `pTail` | [sprint-a02](findings/sprint-a02.md#fake-match-wave-d-0016) |
 | `TMC_JPEG/tmcjpeg_rgb565` | `ConvertRGB565MCU420` | `(u64)` cast on the second texel load of each pixel pair | [764-tmc-jpeg-converters](findings/764-tmc-jpeg-converters.md), [sprint-perm](findings/sprint-perm.md) |
 | `TMC_JPEG/tmcjpeg_rgba8` | `ConvertRGBA8MCU422` | second pixel luma written out instead of `RGBA8_LUMA`, with a `(u32)` cast on the AR row term | [764-tmc-jpeg-converters](findings/764-tmc-jpeg-converters.md), [sprint-perm](findings/sprint-perm.md) |
+| `TMC_JPEG/tmcjpeg_rgba8` | `ConvertRGBA8MCU422` | redundant `(u32)` cast on the row offset of the second pixel's AR texel (from decomp-permuter) | [F-764-1](findings/764-tmc-jpeg-converters.md) |
+| `TMC_JPEG/tmcjpeg_rgb565` | `ConvertRGB565MCU420` | `(u64)` cast on the second texel load (from decomp-permuter) | [F-764-1](findings/764-tmc-jpeg-converters.md) |
