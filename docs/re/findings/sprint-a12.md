@@ -144,3 +144,45 @@ Diagnoses use `tools/re/ra_trace.py` and the rules in [sprint-ra](sprint-ra.md).
 - CPiiListFilterSort `Sort`: the pre-allocation order is the store of the `begin()` result, the iterator addresses, then the `mSortType` load. The target hoists the load above the store, so in the target the two accesses do not alias.
 - homebutton `UpdateHomeButton`: the `false` argument of `InitializeHomeButtonInfo` is merged with the `use_devtype = 0` constant before scheduling; the target keeps two `li`. `WPAD_DEV_CORE` changes nothing.
 - BWorld `Calc` and `CalcMtx`, CPlayerPii `GetShadowName`, CPauseMenu `LeaveStage`, main `HandleFileError`, NPpuVM `CCode::Load`, and the CNoticeDisplay and homebutton `.data` layouts are unchanged; see the earlier tables.
+
+## Fake-match wave (a12)
+
+### Fixes
+
+- main `HandleFileError`: the inlined `UsesAlternateErrorMessage` needs `drive < 2 || number >= 512` with `int number = drive;`. With the same variable on both sides, the two compares fold into one unsigned range compare. Separate `if`s lay out two `li 0` blocks. A different variable keeps two signed compares that share the target's single false block (fake, see [the ledger](../FAKEMATCHES.md)).
+- main `main`, 88.83% to 99.85%: the original calls `ResourceFileConfig::SetErrorHandler` out of line.
+  - `__declspec(noinline)` on its definition does that without touching other inlining.
+  - `#pragma auto_inline off` and `dont_inline` around the definition also stop `main` from inlining the `function` constructors (78.55%).
+  - The remaining difference is `li r4,1000 ... mr r5,r4` for `InitializeEffect(500, 1000, 1000, ...)`: the target merges an equal `u32` constant. Locals, `register`, `u16` and `s16` casts, inline wrappers, pointers and `opt_propagation off` did not reproduce it.
+- CMsgRes `ConvertEscape`, 96.40% to 96.58%: the escape byte is `signed char`, because the target stores the sign-extended register. The rest is the preheader schedule: the target places `srwi` and the locale `addi` before `mr r4`. The following did not fix it: all 360 orders of the leading declarations, the `scheduling` models, and the opt pragmas listed below.
+- homebutton `.data` now matches the original byte for byte: `#include <memory>` must come first, which creates `shared_ptr_deleter_common` before `bad_function_call`.
+- homebutton `.sdata2` now matches too:
+  - The wide-mode width scale is `0.9558499f` (0x3F74B294); the old literal rounded to 0x3F74B2A4.
+  - `MoveClassicCursor` must use literal steps, because `const float` locals are also emitted as `@LOCAL@` constants.
+- CPauseMenu `.data` now matches the original except for trailing padding:
+  - `#include <stdexcept>` first gives the exception and interface RTTI order.
+  - A `sizeof` probe of `shared_ptr_deleter<u8, void (*)(void*) throw()>` placed right before `IPauseMenu::Create` puts that deleter vtable after `function_base`.
+  - The probe's type must be deduced from `GameMemory::Free`, because that is the only way to get the exception specification. A probe that spells out `void (*)(void*)` creates a different class.
+
+### Tools and traps
+
+- **Compile scratch copies outside `build/`.**
+  - Run the unit's `mwcceppc` command on a copy that keeps the original file name, because the anonymous namespace is mangled from it.
+  - Compare sections with `objcopy -O binary -j .data`.
+  - No ninja run is needed, so this works while another build is running. It also shows section order, which objdiff's fuzzy `.data` percentage hides.
+- **`mwcceppc` accepts many undocumented `#pragma opt_*` switches.** A string scan of the executable lists `opt_defineargorder`, `opt_repositioncode`, `opt_rotateloops`, `opt_rebuildconditionals`, `c99_alias_by_type` and others.
+  - Applied around single functions, none of them fixed a function in this wave, and most changed nothing.
+  - `opt_prelinearize off` crashes the compiler, and `opt_pointer_analysis on` fails with error 10184.
+- **A stopped background task leaves its child processes running.** Stopping a bash task left `python` sweep processes that kept rewriting sources. Find them with `Get-CimInstance Win32_Process` and stop them before landing.
+- **`sed -i` converts CRLF sources to LF** in Git Bash; restore CRLF before committing.
+
+### Unsolved (diagnosed this wave)
+
+| Unit | Function or section | % | Cause |
+| --- | --- | --- | --- |
+| CPlayerPii | `GetShadowName` | 88.86 | Scheduling only. `#pragma scheduling 604` or `7450` fixes the body (90.48%) but moves the `lr` save one slot later, and non-const names hoist the load above the prologue. The unit also has 63 misplaced weak deque functions. |
+| CPauseMenu | `.rodata` | - | The original emits `ShowMenu`'s `UIMenuParam` (`@9061`) after `RunRemoteMemoryMenu`'s two tables. Moving `ShowMenu` out of the class, after `RunRemoteMemoryMenu`, fixes `.rodata` but moves the `vector length error` strings in `.data`. |
+| CNoticeDisplay | `.data` | - | Defining `gAreaPaneNames` where the `extern` declaration is moves the first difference from 0xAC to 0xD0. The `shared_ptr_deleter<CNoticeDisplay>` vtable must come before the strings of `LoadLayouts`, and the `function_imp` and deleter vtables must come after the exception RTTI. `sizeof` probes, unused inline constructions and non-`inline` `StartNotice` definitions did not move them. |
+| homebutton | `UpdateHomeButton` | 99.65 | The stick divisor and `dy` get f1/f4 instead of f0/f1. The `waiting` register and the merged zero also differ. Six spellings of `dy` and `dx` were tried. |
+| BWorld | `Calc`, `CalcMtx` | 99.70, 99.37 | The target's first `states \|= 2` is `li r0,0; ori r30,r0,2`. `states = states \| 2`, `+=`, `^=`, a ternary and a zero local do not produce it. |
+| NPpuVM | `CCode::Load` | 88.05 (90.71 with header locals) | The target hoists every `pHeader` load above the stores to `this`, as if they cannot alias. `__restrict`, `c99_alias_by_type` and the pointer-analysis pragmas did not reproduce this. |

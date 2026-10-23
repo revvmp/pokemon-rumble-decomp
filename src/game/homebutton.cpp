@@ -120,7 +120,7 @@ void SetHomeButtonProjection() {
         pHomeButtonMode = &sWideModes[pal];
         height = 456.0f;
         width = 832.0f;
-        widthScale = 0.95585084f;
+        widthScale = 0.9558499f;
     }
     width = widthScale * (width * pCurrentMode->viWidth / pHomeButtonMode->viWidth);
     height = heightScale * (height * pCurrentMode->viHeight / pHomeButtonMode->viHeight);
@@ -292,36 +292,34 @@ void InitializeSoundData(bool allowYield) {
 
 namespace {
 bool MoveClassicCursor(unsigned long buttons, Vec2* pPosition) {
-    const float step = 9.0f / 256.0f;
-    const float diagonalStep = step * 0.7071f;
     switch (buttons & (WPAD_CL_BUTTON_UP | WPAD_CL_BUTTON_LEFT | WPAD_CL_BUTTON_DOWN | WPAD_CL_BUTTON_RIGHT)) {
     case WPAD_CL_BUTTON_UP:
-        pPosition->y -= step;
+        pPosition->y -= 9.0f / 256.0f;
         break;
     case WPAD_CL_BUTTON_LEFT:
-        pPosition->x -= step;
+        pPosition->x -= 9.0f / 256.0f;
         break;
     case WPAD_CL_BUTTON_DOWN:
-        pPosition->y += step;
+        pPosition->y += 9.0f / 256.0f;
         break;
     case WPAD_CL_BUTTON_RIGHT:
-        pPosition->x += step;
+        pPosition->x += 9.0f / 256.0f;
         break;
     case WPAD_CL_BUTTON_UP | WPAD_CL_BUTTON_LEFT:
-        pPosition->y -= diagonalStep;
-        pPosition->x -= diagonalStep;
+        pPosition->y -= 9.0f / 256.0f * 0.7071f;
+        pPosition->x -= 9.0f / 256.0f * 0.7071f;
         break;
     case WPAD_CL_BUTTON_UP | WPAD_CL_BUTTON_RIGHT:
-        pPosition->y -= diagonalStep;
-        pPosition->x += diagonalStep;
+        pPosition->y -= 9.0f / 256.0f * 0.7071f;
+        pPosition->x += 9.0f / 256.0f * 0.7071f;
         break;
     case WPAD_CL_BUTTON_DOWN | WPAD_CL_BUTTON_LEFT:
-        pPosition->y += diagonalStep;
-        pPosition->x -= diagonalStep;
+        pPosition->y += 9.0f / 256.0f * 0.7071f;
+        pPosition->x -= 9.0f / 256.0f * 0.7071f;
         break;
     case WPAD_CL_BUTTON_DOWN | WPAD_CL_BUTTON_RIGHT:
-        pPosition->y += diagonalStep;
-        pPosition->x += diagonalStep;
+        pPosition->y += 9.0f / 256.0f * 0.7071f;
+        pPosition->x += 9.0f / 256.0f * 0.7071f;
         break;
     default:
         return false;
