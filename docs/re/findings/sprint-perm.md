@@ -2,7 +2,7 @@
 
 ## Harness
 
-decomp-permuter parses C with pycparser, so it only handles the C units (TMC JPEG, FA `pdm_mbr`). Every other remaining function is C++, which got a separate text-level permuter that reuses decomp-permuter's scorer. Both live outside the repository, in the agent scratchpad directory `perm/`:
+decomp-permuter parses C with pycparser, so it only handles the C units (TMC JPEG, FA `pdm_mbr`). Every other remaining function is C++, which got a separate text-level permuter that reuses decomp-permuter's scorer. The scripts are kept outside version control in `tools/local/perm/` (`cxxperm.py`, `cxxmut.py`, `cxxlex.py`, `cxxexpr.py`, `minimize.py`, `dp_run.py`, `dpsetup.py`); the scratchpad copy was deleted once mid-sprint, so do not rely on it. To rebuild a working directory, copy the scripts into an empty directory, clone `github.com/simonlindholm/decomp-permuter` there as `dp/`, create `venv/` with `Levenshtein`, `toml` and `pycparser`, set `PERM_WT` to your worktree, then run `venv/Scripts/python cxxperm.py setup` after a full build. The pieces:
 
 - `dp/` is an unmodified decomp-permuter clone. `dp_run.py` starts it with two runtime patches. `preprocess` returns the input unchanged, because there is no `cpp` on Windows; `dpsetup.py` writes `base.c` with `mwcceppc -EP` from the unit's own flags (only for units without `#pragma`, which `-EP` drops). The objdump step disassembles one symbol (`--disassemble=<name>`) from the split target object, rewrites branch targets relative to the function start, and maps `@123` labels to one name, so relocation-only differences score zero. This made `target.o` assembly unnecessary.
 - `cxxperm.py setup` reads `report.json`, skips `pad_` entries and functions at 0% (not emitted), finds each function body in its source file by demangled name, and records the unit's exact compile command from `build.ninja` (compiler version, cflags, `sjiswrap` when the rule needs it). It compiles a copy of the whole source file (same basename, so `@unnamed@<file>_cpp@` names stay), against a frozen copy of `include/` and `src/`, with `-i <source dir>` for quoted includes. Work directories need short paths: mwcc rejects file names near `MAX_PATH`.
@@ -16,6 +16,7 @@ Scores come from decomp-permuter's scorer, not objdiff: an improvement must be r
 - Wave 1: 102 functions (all non-100% functions whose definition is in the unit's own source file), 20 minutes each, 16 in parallel. 86 ran to time, 5 exhausted their mutation space, 6 had no mutable statements (bodies that are a single call into another file), and 18 were templates defined in headers and were skipped.
 - Wave 2: 18 functions rerun on updated source, 25 minutes each.
 - decomp-permuter on `pdm_mbr_check_master_boot_record` and the seven TMC JPEG converters, 40 minutes each with `-j 2`.
+- Wave 3, the 51 C++ functions at 97% or more with `PERM_FAKE=1` temporaries, was cut short when the scratchpad was deleted; its only result in the first 25 minutes was BWorld `RemoveObject` (score 60 to 50), not yet reviewed.
 
 ## Landed
 
