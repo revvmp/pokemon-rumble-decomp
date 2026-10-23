@@ -47,7 +47,11 @@ The ledger is kept per area in [ledger](ledger/README.md). It has one linked uni
 
 ## Latest session
 
-Exposed the existing `take-issue` Claude skill to Codex through a repository-local `.agents/skills/take-issue/SKILL.md` entry point that loads the shared procedure. Updated agent navigation and handoff usage. See [validation](VALIDATION.md#codex-skill-port-validation) for checks and limits. No new reverse engineering findings or observed tooling traps emerged; measured progress is unchanged.
+2026-10-22 single-PC sprint, ended at checkpoint `7a7d20cea`: 95.15% of code matched (13,342 of 13,930 entries), 68.66% linked from 819 Matching units, `main.dol` verified. Units brought to Matching include CSaveManager, COyaInfo, l10n_files, CMsgBalloon, CDlgPiiList, MapPiiTable, ScriptPii, ScriptGame, ScriptCamera, CUIPiiListItem, CUIMenuSoundCallback, CPiiTex, resetmgr, CHPBar, CMultiRanking, two ef draw strategies, snd_SeqSound and puh_msc_blk. The compiler's emission order and register allocator were recovered from `mwcceppc.exe` ([sprint-ida](re/findings/sprint-ida.md), [sprint-ra](re/findings/sprint-ra.md)), and fake matches were allowed by D-0016. 120 real functions remain; see [handoff](HANDOFF.md#next-actions). New traps are promoted to `AGENTS.md`.
+
+## Earlier session: take-issue skill for Codex
+
+Exposed the existing `take-issue` Claude skill to Codex through a repository-local `.agents/skills/take-issue/SKILL.md` entry point that loads the shared procedure. See [validation](VALIDATION.md#codex-skill-port-validation).
 
 ## 2026-10-22: codegen rules promoted
 

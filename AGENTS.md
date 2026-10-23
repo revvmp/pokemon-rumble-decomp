@@ -103,6 +103,9 @@ Keep entries concise and actionable. Distinguish confirmed findings from hypothe
 - **Template emission is newest first, and header inline bodies create instances at include time.** A weak-function or vtable order flip is fixed by include order and first-declaration position, not by moving definitions. See [CODEGEN_RULES](docs/re/CODEGEN_RULES.md#emission-order-of-weak-functions-and-data).
 - **`const&` parameters cache loads across stores.** A target that reloads after each store means a non-const reference or by-value parameter, and the mangled name changes with it. See [CODEGEN_RULES](docs/re/CODEGEN_RULES.md#loads-and-constants).
 - **`name_callees.py` and `permute_names.py` renames outside your unit can break the DOL.** Apply only `symbols.txt` changes inside the unit's address range and confirm `ninja` exits 0. See [CODEGEN_RULES](docs/re/CODEGEN_RULES.md#tooling-traps).
+- **Scratch folders are not safe storage.** During the sprint an unidentified cleanup deleted the shared scratchpad's root files and several agents' subfolders, including the landing script and the C++ permuter. Keep reusable scripts in ignored `tools/local/` and back up shared helpers outside any scratch directory; see [handoff](docs/HANDOFF.md#next-actions).
+- **objdiff and order sweeps can hide link-breaking stubs.** CMsgBalloon scored 100% with every function in place, yet `.text` was 0x20 too large from two 4-byte out-of-line `b` stubs under `#pragma dont_inline on`. Only the link shows them; flip and link before trusting a unit. See [sprint-ida](docs/re/findings/sprint-ida.md).
+- **decomp-permuter parses only C.** C++ units need the text-level `cxxperm.py` in `tools/local/perm/`; see [sprint-perm](docs/re/findings/sprint-perm.md).
 - **Codex cannot commit from a linked worktree.** Its sandbox write root is the worktree, but the worktree's index lives under the main checkout's `.git/worktrees/`, so `git commit` fails on `index.lock`. Launch Codex from the worktree directory, have it leave changes uncommitted, and commit and land them yourself; see [collaboration](docs/COLLABORATION.md).
 
 ## Current project state
@@ -116,4 +119,4 @@ Keep entries concise and actionable. Distinguish confirmed findings from hypothe
 | Verification entry point | `python tools/verify/verify.py --help` |
 | Progress images | `python tools/progress/progress.py render --phases config/progress.json --output-dir docs/images` |
 | Extraction entry point | `python tools/reference/extract_reference.py`; see `docs/re/EXTRACTION.md` |
-| Next action | Remaining work is long-tail near-misses and emission-order flips; see `docs/re/CODEGEN_RULES.md` and `docs/HANDOFF.md` |
+| Next action | 120 long-tail functions; fake matches allowed (D-0016); see `docs/HANDOFF.md#next-actions` |

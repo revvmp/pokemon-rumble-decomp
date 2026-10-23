@@ -2,20 +2,32 @@
 
 ## Current position
 
-Target `wpse-v1` (WPSE, USA, TMD title version 1). Roadmap Phases 1 to 3 are complete; Phase 4 is active. Frozen manifests: package `config/targets/wpse-v1-package.json` and executable `config/targets/wpse-v1.json` (`main.dol`). Do not fingerprint either again.
+Target `wpse-v1` (WPSE, USA, TMD title version 1). Roadmap Phase 4 is active. Frozen manifests: package `config/targets/wpse-v1-package.json` and executable `config/targets/wpse-v1.json` (`main.dol`). Do not fingerprint either again.
 
-The dtk-template build in `configure.py` and `tools/build/` reproduces `main.dol` exactly from two clean builds. One unit, `Runtime/__init_cpp_exceptions.cpp`, is reconstructed and linked; everything else is original split objects. Per-library compilers are identified in [F-0007](re/FINDINGS.md#f-0007-per-library-compiler-identification). Code progress is 112 of 3,098,940 bytes; see [counting method](MATCHING.md#counting-method).
+State at checkpoint `7a7d20cea` (2026-10-22, end of the single-PC sprint; `main.dol` verified byte-identical):
+
+| Measure | Value |
+| --- | --- |
+| Code matched (functions at 100%) | 95.15%, 13,342 of 13,930 entries (467 are `pad_03_*` alignment entries, not code) |
+| Code linked from source (Matching units) | 68.66%, 819 of 1,387 units |
+| Real functions below 100% | 120, in about 50 units |
+| Units with every function at 100% but not linked | CBattleRoyalDisplay (FormatString emission slot), CEffect (extra `__bitvec_base` destructor from the `vector<bool>` header) |
+| Open GitHub issues | 64; each still lists its functions and links prior findings |
+| Fake matches (D-0016) | 22 rows in [the ledger](re/FAKEMATCHES.md) |
+
+The sprint committed from one PC straight to `main` without pull requests while the rest of the team paused. Resume the normal issue workflow in [collaboration](COLLABORATION.md) unless the owner says otherwise.
 
 ## Next actions
 
-Work is now parallel: contributors claim GitHub issues listed in [workstreams](WORKSTREAMS.md) and follow [collaboration](COLLABORATION.md). There are 507 per-block decomp issues, each listing the functions it owns. Together they cover every function except the matched `__init_cpp_exceptions` unit; regions are from the executable survey in [F-0012](re/FINDINGS.md#f-0012-full-executable-layout-survey). Contributors merge their own pull requests once the CI check passes. Maintainers then update the status table, this handoff, phase state, and progress images.
+1. Read [codegen rules](re/CODEGEN_RULES.md) first. It now includes the compiler's recovered emission-order model (from `mwcceppc.exe` in IDA; [sprint-ida](re/findings/sprint-ida.md)) and its register allocator and scheduler ([sprint-ra](re/findings/sprint-ra.md)). Diagnose with `tools/re/regscan.py` and `tools/re/ra_trace.py` before editing.
+2. Fake matches are allowed after a documented honest attempt ([D-0016](DECISIONS.md#d-0016-documented-fake-matches-for-the-remaining-long-tail)); every remaining function has one in `re/findings/sprint-*.md`. Add a ledger row for each fake.
+3. Closest flips, one function or one ordering problem each: CFileData (`UpdateResourceFiles` 99.91%), CDividedGround (`LoadAttr` 99.27% plus six placements; [sprint-ida](re/findings/sprint-ida.md)), CEffect ([sprint-a17](re/findings/sprint-a17.md)), CBattleRoyalDisplay, CPlayerPii (`GetShadowName` 88.86%), CPpuEngine, `main` (99.85%), homebutton, CMsgRes, CTitleSession, CUIList and the other single-function units.
+4. Largest remaining clusters: SaveData 13 (`SlotData` inline budget; [sprint-a03](re/findings/sprint-a03.md)), CLayout 10 (iterator copies kept in memory; [sprint-a02](re/findings/sprint-a02.md)), NPpuVM 7, ef_animcurve 5, CPiiListFilterSort 5, CRemoteMemory 5 (partly optimizer-off; [sprint-a05](re/findings/sprint-a05.md)), BWorld 5.
+5. decomp-permuter only parses C. The C++ text-level permuter (`cxxperm.py`, `minimize.py`) and the patched C harness are in ignored `tools/local/perm/`; setup is in [sprint-perm](re/findings/sprint-perm.md). Its third wave (fakes allowed, 51 functions at 97% or more) never completed.
+6. The ef draw strategies and CRemoteMemory match with per-function optimizer pragmas; the original was probably built with different file-level settings. Revisit when evidence appears. Ledger entries are candidates for honest rewrites.
+7. After the long tail, the owner wants a native Windows and WebAssembly port (a GX graphics layer such as Aurora, audio, input, file I/O, endianness). Not started.
 
-
-1. Finish Phase 4: categorize units as libraries are split so per-category progress becomes meaningful, and reconstruct further units. Prefer libraries with matching reference source: RVL_SDK with Wii/1.0 at default alignment; MSL and Runtime with Wii/1.1 plus `-func_align 4`. Reuse requires license review and provenance in the ledger.
-2. Replace dtk's per-function auto splits with real translation-unit boundaries in `config/wpse-v1/splits.txt`, starting with the library address regions in F-0007 and F-0012. Then enable the treemap with `--treemap` and add it to the README.
-3. For game code, follow the source fidelity standard in root `AGENTS.md`: C++ classes with evidenced names from RTTI and strings such as `CPauseMenu.cpp`. Script-bound functions take their original names from the binding table at 0x80352EC4–0x80354E14 (#29). Record names and layouts in `re/SYMBOLS.md`.
-4. After each change, run the build, run verification, regenerate the progress images, and update the ledger.
-5. Still open: acquisition provenance of the WAD, the boot loader's exact content-loading path, and whether the original linker was Wii/1.1. Native asset formats remain unconverted.
+Sprint helper scripts are kept in ignored `tools/local/session/`: local landing with rebase, build and verify; checkpoint push with image refresh; issue closing by address range; and an IDA JSON-RPC client. Their paths point at this PC's worktrees.
 
 ## Available commands
 
