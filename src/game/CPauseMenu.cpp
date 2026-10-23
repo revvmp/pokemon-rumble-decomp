@@ -1,3 +1,4 @@
+#include <stdexcept>
 #include <game/IPauseMenu.h>
 
 #include <nw4r/lyt/lyt_texMap.h>
@@ -298,6 +299,12 @@ private:
 };
 
 }
+
+template <typename D> struct ScreenshotDeleter {
+    char mStorage[sizeof(std::tr1::detail::shared_ptr_deleter<u8, D>)];
+};
+template <typename D> ScreenshotDeleter<D> MakeScreenshotDeleter(D);
+typedef char ScreenshotDeleterStorage[sizeof(MakeScreenshotDeleter(GameMemory::Free))];
 
 std::tr1::shared_ptr<IPauseMenu> IPauseMenu::Create(const MapDesc* pDesc, bool hideBackground, int background) {
     std::tr1::shared_ptr<CPauseMenu> menu(new CPauseMenu);

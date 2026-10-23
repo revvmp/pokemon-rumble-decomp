@@ -1,3 +1,4 @@
+#include <memory>
 #include <revolution/gx.h>
 #include <revolution/gx/GXTransform.h>
 #include <revolution/sc.h>
@@ -14,7 +15,6 @@
 #include <game/NResetMgr.h>
 #include <game/CFileData.h>
 #include <game/Memory.h>
-#include <memory>
 #include <algorithm>
 #include <revolution/tpl.h>
 #include <game/Pad.h>
