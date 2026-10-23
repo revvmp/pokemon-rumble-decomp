@@ -143,6 +143,14 @@ int sNumUsedEffectGroupID;
 
 }
 
+inline u32 GetEffectHeapSize(u32 numEffect, u32 numEmitter, u32 numParticleManager, u32 numParticle, u32 maxGroupID) {
+    return 0x220 + AlignHeap(sizeof(nw4r::ef::Effect) * numEffect + 0x20) +
+           AlignHeap(sizeof(EmitterWithParam) * numEmitter + 0x20) +
+           AlignHeap(sizeof(nw4r::ef::ParticleManager) * numParticleManager + 0x20) +
+           AlignHeap(sizeof(nw4r::ef::Particle) * numParticle + 0x20) +
+           AlignHeap(sizeof(nw4r::ef::ActivityList) * maxGroupID + 0x20);
+}
+
 namespace nw4r {
 namespace ef {
 
@@ -256,38 +264,11 @@ public:
         mFirstBlock = mFreeList;
         mUsedList = nullptr;
 
-        int numEffects = mNumEffect;
-        Effect* pEffects = nullptr;
-        if (numEffects > 0) {
-            pEffects = new (AllocHeap(sizeof(Effect) * numEffects + 0x20)) Effect[numEffects];
-        }
-        mEffectPool = new (AllocHeap(sizeof(MemoryManagerTmp<Effect>))) MemoryManagerTmp<Effect>(mNumEffect, pEffects);
-
-        int numEmitters = mNumEmitter;
-        EmitterWithParam* pEmitters = nullptr;
-        if (numEmitters > 0) {
-            pEmitters = new (AllocHeap(sizeof(EmitterWithParam) * numEmitters + 0x20)) EmitterWithParam[numEmitters];
-        }
-        mEmitterPool = new (AllocHeap(sizeof(MemoryManagerTmp<EmitterWithParam>)))
-            MemoryManagerTmp<EmitterWithParam>(mNumEmitter, pEmitters);
-
-        int numParticleManagers = mNumParticleManager;
-        ParticleManager* pParticleManagers = nullptr;
-        if (numParticleManagers > 0) {
-            pParticleManagers =
-                new (AllocHeap(sizeof(ParticleManager) * numParticleManagers + 0x20)) ParticleManager[numParticleManagers];
-        }
-        mParticleManagerPool = new (AllocHeap(sizeof(MemoryManagerTmp<ParticleManager>)))
-            MemoryManagerTmp<ParticleManager>(mNumParticleManager, pParticleManagers);
-
-        int numParticles = mNumParticle;
-        Particle* pParticles = nullptr;
-        if (numParticles > 0) {
-            pParticles = new (AllocHeap(sizeof(Particle) * numParticles + 0x20)) Particle[numParticles];
-        }
-        mParticlePool =
-            new (AllocHeap(sizeof(MemoryManagerTmp<Particle>))) MemoryManagerTmp<Particle>(mNumParticle, pParticles);
+        CreatePools();
     }
+
+    void CreatePools() { CreatePoolsImpl(); }
+    inline void CreatePoolsImpl();
 
     virtual ~MemoryManager() {}
 
@@ -534,11 +515,7 @@ public:
 }
 
 void InitializeEffect(u32 numEffect, u32 numEmitter, u32 numParticleManager, u32 numParticle, u32 maxGroupID) {
-    u32 size = 0x220 + AlignHeap(sizeof(nw4r::ef::Effect) * numEffect + 0x20) +
-               AlignHeap(sizeof(EmitterWithParam) * numEmitter + 0x20) +
-               AlignHeap(sizeof(nw4r::ef::ParticleManager) * numParticleManager + 0x20) +
-               AlignHeap(sizeof(nw4r::ef::Particle) * numParticle + 0x20) +
-               AlignHeap(sizeof(nw4r::ef::ActivityList) * maxGroupID + 0x20);
+    u32 size = GetEffectHeapSize(numEffect, numEmitter, numParticleManager, numParticle, maxGroupID);
     void* pBuffer = GameMemory::Allocate(size);
 
     nw4r::ef::EffectSystem::GetInstance()->SetMemoryManager(
@@ -607,6 +584,39 @@ void* nw4r::ef::MemoryManager::AllocHeap(u32 size) {
     }
 
     return nullptr;
+}
+
+inline void nw4r::ef::MemoryManager::CreatePoolsImpl() {
+    Effect* pEffects = nullptr;
+    if (mNumEffect > 0) {
+        pEffects = new (AllocHeap(sizeof(nw4r::ef::Effect) * mNumEffect + 0x20)) Effect[mNumEffect];
+    }
+    mEffectPool = new (AllocHeap(sizeof(MemoryManagerTmp<Effect>))) MemoryManagerTmp<Effect>(mNumEffect, pEffects);
+
+    int numEmitters = mNumEmitter;
+    EmitterWithParam* pEmitters = nullptr;
+    if (numEmitters > 0) {
+        pEmitters = new (AllocHeap(sizeof(EmitterWithParam) * numEmitters + 0x20)) EmitterWithParam[numEmitters];
+    }
+    mEmitterPool = new (AllocHeap(sizeof(MemoryManagerTmp<EmitterWithParam>)))
+        MemoryManagerTmp<EmitterWithParam>(mNumEmitter, pEmitters);
+
+    int numParticleManagers = mNumParticleManager;
+    ParticleManager* pParticleManagers = nullptr;
+    if (numParticleManagers > 0) {
+        pParticleManagers =
+            new (AllocHeap(sizeof(ParticleManager) * numParticleManagers + 0x20)) ParticleManager[numParticleManagers];
+    }
+    mParticleManagerPool = new (AllocHeap(sizeof(MemoryManagerTmp<ParticleManager>)))
+        MemoryManagerTmp<ParticleManager>(mNumParticleManager, pParticleManagers);
+
+    int numParticles = mNumParticle;
+    Particle* pParticles = nullptr;
+    if (numParticles > 0) {
+        pParticles = new (AllocHeap(sizeof(Particle) * numParticles + 0x20)) Particle[numParticles];
+    }
+    mParticlePool =
+        new (AllocHeap(sizeof(MemoryManagerTmp<Particle>))) MemoryManagerTmp<Particle>(mNumParticle, pParticles);
 }
 
 void FinalizeEffect() {}
