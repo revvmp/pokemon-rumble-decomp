@@ -399,7 +399,7 @@ static inline u8* AllocateThreadStack(u32 size) throw() {
     return static_cast<u8*>(GameMemory::Allocate(size, -32));
 }
 
-inline CFileData::CWorker::BThread::BThread(CWorker* pWorker, int priority) : mpHead(nullptr), mpWorker(pWorker), mStopping(false) {
+inline CFileData::CWorker::BThread::BThread(CWorker* pWorker, int priority) : BThreadHead(mpHead), mpWorker(pWorker), mStopping(false) {
     OSInitMutex(&mMutex);
     OSInitCond(&mCond);
     mStack.reset(AllocateThreadStack(sConfig.mStackSize), GameMemory::Free);

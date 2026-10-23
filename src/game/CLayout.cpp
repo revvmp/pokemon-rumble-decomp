@@ -94,7 +94,7 @@ std::string get_what(int error, const char* pArchive, const char* pLayoutName, c
     return what;
 }
 
-std::string get_what() {
+std::string get_what(int error, const char* const* pArchives, const char* pLayoutName, const std::tr1::shared_ptr<CLayout::FontMap>& rFonts) {
     std::string what;
     what += "CLayout.cpp: in ";
     what += __FUNCTION__;
@@ -125,7 +125,7 @@ CLayout::CInitializeException::CInitializeException(int error, const char* pArch
     mFonts(rFonts) {}
 
 CLayout::CInitializeException::CInitializeException(int error, const char* const* pArchives, const char* pLayoutName, const std::tr1::shared_ptr<FontMap>& rFonts) :
-    std::runtime_error(get_what().c_str()),
+    std::runtime_error(get_what(error, pArchives, pLayoutName, rFonts).c_str()),
     mError(error),
     mArchives(MakeArchiveList(pArchives)),
     mLayoutName(pLayoutName),

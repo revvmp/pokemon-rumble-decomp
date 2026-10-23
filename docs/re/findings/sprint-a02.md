@@ -84,3 +84,8 @@ Fixed:
 | CLayout | CalculateAttachedMtx | 94.94 | The target neither folds `root == root` nor reuses the visibility load across the inlined `GetPaneAlpha`. `#pragma opt_common_subs off` around the function gives 97.73% (not kept). Moving `GetLayoutAlpha` after `GetPaneAlpha` does nothing. |
 | CLayout | Load(const char* const*) | 98.50 | The target keeps four dead moves of the arguments into r4 to r7 before the inlined exception constructor. A temporary exception object instead of a named one does not change it. |
 | SaveData | Load, DeserializeVector<SlotData>, append<SlotData> | 70, 7.6, 0 | Unchanged; see the sprint-a03 SlotData chain notes. |
+
+## Fake-match wave (D-0016)
+
+- **`get_what()` was the array overload of `get_what`.** The target `Load(const char* const*)` moves its four arguments into r4 to r7 before calling the function at `0x801CA960`, and the out-of-line array `CInitializeException` constructor already has them there. The function is `get_what(int, const char* const*, const char*, const shared_ptr<FontMap>&)`, with unused parameters, not `get_what()`. With the real signature both `Load(const char* const*)` and the array constructor match; passing `rFonts` to the call also stops the `shared_ptr` copy loads being hoisted above the member stores. Not a fake.
+- **CWorker constructor (fake).** The target stores `BThread::mpHead` before the vtable pointer, which only a base-class constructor can do. An empty private base `BThreadHead` that clears the member reproduces it; the class has no RTTI record, so the extra base changes no data. Listed in [the ledger](../FAKEMATCHES.md).

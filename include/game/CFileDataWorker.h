@@ -35,7 +35,12 @@ public:
         std::tr1::shared_ptr<CFileData> mFile;
     };
 
-    class BThread {
+    class BThreadHead {
+    public:
+        BThreadHead(CJob* volatile& rHead) { rHead = nullptr; }
+    };
+
+    class BThread : private BThreadHead {
     public:
         BThread(CWorker* pWorker, int priority);
         void Push(CJob* pJob);
