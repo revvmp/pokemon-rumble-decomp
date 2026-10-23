@@ -41,7 +41,7 @@ template std::tr1::shared_ptr<CPiiPersonalData>::shared_ptr(const std::tr1::shar
 #include <nw4r/lyt/lyt_pane.h>
 #include <nw4r/lyt/lyt_textBox.h>
 #include <vector>
-#include <game/HomeButton.h>
+#include <game/DisableHBM.h>
 #include <revolution/os/OSTime.h>
 
 namespace std {
@@ -62,6 +62,9 @@ basic_string<charT, traits, Allocator> operator+(const basic_string<charT, trait
 }
 
 std::wstring GetButtonMessage(int player, u32 button, int messageId) {
+    if (false) {
+        typeid(std::tr1::detail::shared_ptr_deleter_common);
+    }
     IController* pController = IGameSession::GetInstance()->GetPlayer(player)->GetController();
     if (pController == nullptr) {
         return L"";
@@ -89,6 +92,7 @@ CPlayer* FindPlayerHoldingPii(std::tr1::shared_ptr<CPiiPersonalData> pii, int ex
 
 namespace {
 
+typedef char UIManagerPtrStorage[sizeof(std::tr1::shared_ptr<CUIManager>)];
 typedef std::vector<std::tr1::shared_ptr<CUIPiiListItem> > PiiItemVector;
 
 int sMinUnmarkedCount = 1;
@@ -381,6 +385,11 @@ inline int CDlgPiiListImpl::CountRemoteMarked() {
 
 inline int CDlgPiiListImpl::CountRemoteUnmarked() {
     int count = 0;
+    if (false) {
+        PiiItemVector::const_iterator* pProbe = nullptr;
+        **pProbe;
+        ++*pProbe;
+    }
     for (PiiItemVector::const_iterator it = mItems.begin(); it != mItems.end(); ++it) {
         if (!(*it)->IsRemoteMarked()) {
             count++;

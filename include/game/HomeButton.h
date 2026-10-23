@@ -4,6 +4,7 @@
 #include <functional>
 #include <string>
 #include <revolution/hbm/HBMBase.h>
+#include <game/DisableHBM.h>
 
 class CHBMParam {
 public:
@@ -53,12 +54,6 @@ private:
 inline CHBMParam::Flags operator|(CHBMParam::Flags left, CHBMParam::Flags right) {
     return static_cast<CHBMParam::Flags>(static_cast<unsigned long>(left) | static_cast<unsigned long>(right));
 }
-
-class CDisableHBM {
-public:
-    CDisableHBM();
-    ~CDisableHBM();
-};
 
 bool InitializeHomeButton(const CHBMParam& rParam, bool allowYield);
 

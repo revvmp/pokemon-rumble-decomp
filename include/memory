@@ -5,6 +5,16 @@
 #include <MSL_CPP/compressed_pair.h>
 #include <MSL_CPP/alloc_ptr.h>
 #include <MSL_CPP/allocator.h>
+namespace std {
+namespace tr1 {
+class bad_weak_ptr : public exception {
+public:
+    bad_weak_ptr() throw() {}
+    virtual const char* what() const throw() { return "bad_weak_ptr"; }
+};
+}
+}
+
 #include <MSL_CPP/detail/shared_ptr.h>
 #include <revolution/types.h>
 
@@ -89,12 +99,6 @@ struct unused_argument;
 template <typename T> class shared_ptr;
 template <typename T> class weak_ptr;
 template <typename T> class enable_shared_from_this;
-
-class bad_weak_ptr : public exception {
-public:
-    bad_weak_ptr() throw() {}
-    virtual const char* what() const throw() { return "bad_weak_ptr"; }
-};
 
 template <typename T> class shared_ptr {
     struct bool_type {

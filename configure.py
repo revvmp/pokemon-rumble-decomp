@@ -250,7 +250,7 @@ config.libs = [
             Object(NonMatching, "game/CDlgCollection.cpp"),
             Object(NonMatching, "game/CDlgInfo.cpp"),
             Object(NonMatching, "game/CDlgMsgWin.cpp"),
-            Object(NonMatching, "game/CDlgPiiList.cpp"),
+            Object(Matching, "game/CDlgPiiList.cpp"),
             Object(Matching, "game/EncodingConverter.cpp"),
             Object(Matching, "game/memory.cpp"),
             Object(Matching, "game/pad.cpp"),
