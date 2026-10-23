@@ -168,3 +168,9 @@ Scanned without success, one pragma at a time around the function (propagation, 
 
 - **Function-scope pragmas do not reach templates or in-class members.** A `#pragma push`/`pop` around a member template definition, or inside a class around an in-class member, leaves the function unchanged. Out-of-line templates (CModel `TPartialAnm`) take the pragma state at the end of the file, which also changes every other deferred function; in-class members in CDlgCollection and CDlgInfo were unaffected even by an end-of-file pragma.
 - **A 100% unit can still fail the DOL on function order.** ScriptGame scored 170/170 but failed the link check because eleven functions had been appended at the end of the file. Compare the object's `nm -n` order of `T` symbols with `symbols.txt` before flipping a unit.
+
+### Retry with out-of-class definitions (coordinator suggestion)
+
+- Moving an in-class member out of the class as an `inline` definition keeps its emission position and makes a surrounding pragma take effect. Scanned that way with 12 pragmas, none matched: CDlgCollection `CDlgCollection::Calc` (best 99.67, unchanged), `CDlgCollectionItem` constructor (`opt_common_subs off` 97.16 from 94.68, but the target CSEs the vector byte length across the copy, ours does not), CDlgInfo `CDlgInfoItem` constructor (99.01 unchanged) and `CDlgInfoItemLine::Update` (99.88 unchanged).
+- CGameResult `sort<..., Compare&>` as a non-inline explicit specialization under each pragma: best 97.78 (unchanged). As an `inline` specialization it is inlined into the by-value sort and both instances fall to 0-1%.
+- ScriptWorldObj `IsKindOf<CPii, BWorldObj>`: a second, non-static definition of the same template in the source is rejected as a redefinition (error 10333); a non-static redeclaration (plain, `extern` or `inline`) still emits only the local copy. A one-parameter `IsKindOf<T>(const BWorldObj*)` overload is ambiguous with the header template.
