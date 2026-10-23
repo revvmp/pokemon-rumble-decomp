@@ -15,6 +15,12 @@
 #include <revolution/os/OSError.h>
 #include <string.h>
 
+typedef std::detail::map_base<nw4r::ut::CNTHandleWithMutex*, std::tr1::weak_ptr<nw4r::ut::CNTHandleWithMutex>, std::less<nw4r::ut::CNTHandleWithMutex*>, std::allocator<std::pair<nw4r::ut::CNTHandleWithMutex* const, std::tr1::weak_ptr<nw4r::ut::CNTHandleWithMutex> > > > CNTHandleMapBase;
+
+#pragma opt_dead_assignments off
+template CNTHandleMapBase::native_iterator CNTHandleMapBase::erase(CNTHandleMapBase::native_iterator);
+#pragma opt_dead_assignments reset
+
 struct FileLoadParam {
     const char* mpPath;
     u32 mFlags;
@@ -458,7 +464,8 @@ inline CFileData::CWorker::~CWorker() {
 void CFileData::CWorker::PushFinished(CJob* pJob) {
     OSLockMutex(&mFinished.mMutex);
     if (mFinished.mpHead) {
-        CJob* pTail = mFinished.mpHead;
+        CJob* pHead = static_cast<CJob*>(mFinished.mpHead);
+        CJob* pTail = pHead;
         while (pTail->mpNext) {
             pTail = pTail->mpNext;
         }
