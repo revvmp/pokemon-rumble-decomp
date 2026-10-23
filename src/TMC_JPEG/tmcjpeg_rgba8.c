@@ -116,7 +116,7 @@ static s32 ConvertRGBA8MCU422(TMCJPEGMCUBuffer* buffer, TMCJPEGEncoder* enc, s32
             *dstCb++ = ((b - dstY[0]) * 144 + 128) >> 8;
             *dstCr++ = ((r - dstY[0]) * 183 + 128) >> 8;
 
-            dstY[1] = RGBA8_LUMA(image, px + 1, y, tileStride);
+            dstY[1] = ((image[(y & 3) * 4 + ((u32)((y >> 2) * tileStride) + ((px + 1) >> 2) * 2) * 16 + ((px + 1) & 3)] & 0xFF) * 77 + (RGBA8_GB(image, px + 1, y, tileStride) >> 8) * 150 + (RGBA8_GB(image, px + 1, y, tileStride) & 0xFF) * 29 + 128) >> 8;
 
             dstY += 2;
         }

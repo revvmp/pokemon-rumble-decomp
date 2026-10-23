@@ -173,7 +173,7 @@ static s32 ConvertRGB565MCU420(TMCJPEGMCUBuffer* buffer, TMCJPEGEncoder* enc, s3
                 *dstCr++ = ((r - dstY[0]) * 183 + 128) >> 8;
             }
 
-            texel = RGB565_TEXEL(image, px + 1, y, tileStride);
+            texel = (u64)RGB565_TEXEL(image, px + 1, y, tileStride);
             r = (u8)(texel >> 8) & 0xF8;
             g = (u8)(texel >> 3) & 0xFC;
             b = (u8)(texel << 3);
