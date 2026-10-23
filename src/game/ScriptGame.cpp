@@ -331,6 +331,25 @@ int IsEpilogueNextShown(NPpu::CEngine* pEngine) {
     return 0;
 }
 
+int GetLuckyNumber(NPpu::CEngine* pEngine) {
+    NPpu::CValue* pValues = pEngine->PopReference();
+    u64 number = 0;
+    for (int i = 0; i < 6; ++i) {
+        number = (number << 8) | GetSaveData(-1)->mData.mWirelessMacAddress[i];
+    }
+    number = number * 3 + GetCurrentSlot();
+    u16 digits[5] = {};
+    digits[0] = (number / 10000 / 10000 / 10000) % 10000;
+    digits[1] = (number / 10000 / 10000) % 10000;
+    digits[2] = (number / 10000) % 10000;
+    digits[3] = number % 10000;
+    ScrambleLuckyNumber(digits);
+    digits[4] = CalcLuckyNumberCheck(digits, gLuckyNumberTable);
+    for (int i = 0; i < 5; ++i) { pValues[i].SetInt(digits[i]); }
+    pEngine->PushNull();
+    return 0;
+}
+
 int GetCurrentMID(NPpu::CEngine* pEngine) {
     const MapIndex& rIndex = GetCurrentGameMap()->GetMapDesc().mIndex;
     pEngine->PushInt(*reinterpret_cast<const u32*>(&rIndex));
@@ -401,6 +420,14 @@ int IsNoticeDisplayShown(NPpu::CEngine* pEngine) {
 
 int GetCurrentNoticeDisplayType(NPpu::CEngine* pEngine) {
     pEngine->PushInt(GetCurrentGameMap()->GetNoticeDisplay()->GetType());
+    return 0;
+}
+
+int AddEnemyToNoticeDisplay(NPpu::CEngine* pEngine) {
+    int value = pEngine->PopInt();
+    const PiiSpeciesData* pSpecies = static_cast<CPpuEngine*>(pEngine)->PopSpeciesData();
+    GetCurrentGameMap()->GetNoticeDisplay()->AddEnemy(pSpecies, value);
+    pEngine->PushNull();
     return 0;
 }
 
@@ -1198,6 +1225,43 @@ int AddMoney(NPpu::CEngine* pEngine) {
     return 0;
 }
 
+int GetTicketMonsno(NPpu::CEngine* pEngine) {
+    pEngine->PushInt(GetSaveData(-1)->mData.mTicketMonsno);
+    return 0;
+}
+
+int GetTicketFormno(NPpu::CEngine* pEngine) {
+    pEngine->PushInt(GetSaveData(-1)->mData.mTicketFormno);
+    return 0;
+}
+
+int SetTicket(NPpu::CEngine* pEngine) {
+    u8 formno = pEngine->PopInt();
+    u16 monsno = pEngine->PopInt();
+    GetSaveData(-1)->mData.mTicketMonsno = monsno;
+    GetSaveData(-1)->mData.mTicketFormno = formno;
+    pEngine->PushNull();
+    return 0;
+}
+
+int BeginStage(NPpu::CEngine* pEngine) {
+    MapIndex index;
+    *reinterpret_cast<int*>(&index) = pEngine->PopInt();
+    IGameSession::GetInstance()->RequestMapChange(index, 0, 0);
+    pEngine->PushNull();
+    return 0;
+}
+
+int EndStage(NPpu::CEngine* pEngine) {
+    int frames = pEngine->PopInt();
+    int type = pEngine->PopInt();
+    MapIndex index;
+    *reinterpret_cast<int*>(&index) = pEngine->PopInt();
+    IGameSession::GetInstance()->RequestMapChange(index, type, frames);
+    pEngine->PushNull();
+    return 0;
+}
+
 int SetFlag(NPpu::CEngine* pEngine) {
     SetFlag(pEngine->PopInt(), 1);
     pEngine->PushNull();
@@ -1220,6 +1284,17 @@ int ModifyFlag(NPpu::CEngine* pEngine) {
 
 int CheckFlag(NPpu::CEngine* pEngine) {
     pEngine->PushInt(IsGameFlagSet(pEngine->PopInt()));
+    return 0;
+}
+
+int NANDSaveTestAsync(NPpu::CEngine* pEngine) {
+    IGameSession::GetInstance()->StartMapTransitionOut();
+    pEngine->PushNull();
+    return 0;
+}
+
+int NANDisTaskCompleted(NPpu::CEngine* pEngine) {
+    pEngine->PushInt(IGameSession::GetInstance()->IsMapChangeFinished());
     return 0;
 }
 
@@ -1341,6 +1416,14 @@ int IsStageCleared(NPpu::CEngine* pEngine) {
     return 0;
 }
 
+int GetBattleRoyalClearSec(NPpu::CEngine* pEngine) {
+    int area = pEngine->PopInt();
+    int mode = pEngine->PopInt();
+    std::tr1::shared_ptr<CBattleRoyalData> data = IGameSession::GetInstance()->GetBattleRoyalBox()->GetData(mode, area);
+    pEngine->PushFloat(data->GetBestTime());
+    return 0;
+}
+
 int GetTotalPlaySec(NPpu::CEngine* pEngine) {
     pEngine->PushFloat(IGameSession::GetInstance()->GetPlayTimeSeconds());
     return 0;
@@ -1427,6 +1510,14 @@ int DEBUG_GetFixedPopPokemonMonsno(NPpu::CEngine* pEngine) {
 
 int DEBUG_GetFixedPopPokemonParaSex(NPpu::CEngine* pEngine) {
     pEngine->PushInt(2);
+    return 0;
+}
+
+int DEBUG_NotifyExtraSelectedStage(NPpu::CEngine* pEngine) {
+    pEngine->PopInt();
+    pEngine->PopInt();
+    pEngine->PopInt();
+    pEngine->PushNull();
     return 0;
 }
 
@@ -1525,97 +1616,6 @@ int method_CSimpleGround_loadModel(NPpu::CEngine* pEngine) {
     const char* pName = PopString(pEngine);
     CSimpleGround* pGround = DynamicCast<CSimpleGround>(static_cast<CPpuEngine*>(pEngine)->PopWorldObj());
     if (pGround) { pGround->LoadModel(pName, false); }
-    pEngine->PushNull();
-    return 0;
-}
-
-int GetTicketMonsno(NPpu::CEngine* pEngine) {
-    pEngine->PushInt(GetSaveData(-1)->mData.mTicketMonsno);
-    return 0;
-}
-
-int GetTicketFormno(NPpu::CEngine* pEngine) {
-    pEngine->PushInt(GetSaveData(-1)->mData.mTicketFormno);
-    return 0;
-}
-
-int SetTicket(NPpu::CEngine* pEngine) {
-    u8 formno = pEngine->PopInt();
-    u16 monsno = pEngine->PopInt();
-    GetSaveData(-1)->mData.mTicketMonsno = monsno;
-    GetSaveData(-1)->mData.mTicketFormno = formno;
-    pEngine->PushNull();
-    return 0;
-}
-
-int BeginStage(NPpu::CEngine* pEngine) {
-    MapIndex index;
-    *reinterpret_cast<int*>(&index) = pEngine->PopInt();
-    IGameSession::GetInstance()->RequestMapChange(index, 0, 0);
-    pEngine->PushNull();
-    return 0;
-}
-
-int EndStage(NPpu::CEngine* pEngine) {
-    int frames = pEngine->PopInt();
-    int type = pEngine->PopInt();
-    MapIndex index;
-    *reinterpret_cast<int*>(&index) = pEngine->PopInt();
-    IGameSession::GetInstance()->RequestMapChange(index, type, frames);
-    pEngine->PushNull();
-    return 0;
-}
-
-int DEBUG_NotifyExtraSelectedStage(NPpu::CEngine* pEngine) {
-    pEngine->PopInt();
-    pEngine->PopInt();
-    pEngine->PopInt();
-    pEngine->PushNull();
-    return 0;
-}
-
-int NANDSaveTestAsync(NPpu::CEngine* pEngine) {
-    IGameSession::GetInstance()->StartMapTransitionOut();
-    pEngine->PushNull();
-    return 0;
-}
-
-int NANDisTaskCompleted(NPpu::CEngine* pEngine) {
-    pEngine->PushInt(IGameSession::GetInstance()->IsMapChangeFinished());
-    return 0;
-}
-
-int GetBattleRoyalClearSec(NPpu::CEngine* pEngine) {
-    int area = pEngine->PopInt();
-    int mode = pEngine->PopInt();
-    std::tr1::shared_ptr<CBattleRoyalData> data = IGameSession::GetInstance()->GetBattleRoyalBox()->GetData(mode, area);
-    pEngine->PushFloat(data->GetBestTime());
-    return 0;
-}
-
-int GetLuckyNumber(NPpu::CEngine* pEngine) {
-    NPpu::CValue* pValues = pEngine->PopReference();
-    u64 number = 0;
-    for (int i = 0; i < 6; ++i) {
-        number = (number << 8) | GetSaveData(-1)->mData.mWirelessMacAddress[i];
-    }
-    number = number * 3 + GetCurrentSlot();
-    u16 digits[5] = {};
-    digits[0] = (number / 10000 / 10000 / 10000) % 10000;
-    digits[1] = (number / 10000 / 10000) % 10000;
-    digits[2] = (number / 10000) % 10000;
-    digits[3] = number % 10000;
-    ScrambleLuckyNumber(digits);
-    digits[4] = CalcLuckyNumberCheck(digits, gLuckyNumberTable);
-    for (int i = 0; i < 5; ++i) { pValues[i].SetInt(digits[i]); }
-    pEngine->PushNull();
-    return 0;
-}
-
-int AddEnemyToNoticeDisplay(NPpu::CEngine* pEngine) {
-    int value = pEngine->PopInt();
-    const PiiSpeciesData* pSpecies = static_cast<CPpuEngine*>(pEngine)->PopSpeciesData();
-    GetCurrentGameMap()->GetNoticeDisplay()->AddEnemy(pSpecies, value);
     pEngine->PushNull();
     return 0;
 }
