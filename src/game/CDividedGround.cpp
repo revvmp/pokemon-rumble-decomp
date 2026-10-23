@@ -34,12 +34,24 @@ CDividedGround::CDividedGround(u32 type) : BModelObj(type | TYPE) {}
 
 CDividedGround::~CDividedGround() {}
 
+inline std::string FormatString(const char* pFormat, ...) {
+    std::string result;
+    va_list args;
+    va_start(args, pFormat);
+    VFormatString(result, pFormat, args);
+    va_end(args);
+    return result;
+}
+
 bool CDividedGround::LoadPkc(int mode, const std::tr1::shared_ptr<CPpuEnv>& rEnv, const char* pPrefix) {
     mPpuEngine.reset(new CPpuEngine);
 
     pPrefix = pPrefix ? pPrefix : "";
 
     int stageNo = mStageNo;
+    bool probe = false;
+    if (probe)
+        FormatString("");
     std::string name;
     name = FormatString("%s%s_%s%02d.pkc", pPrefix, gStageWorlds[mStageID->mWorld].mName,
                         gStageRanks[mStageID->mRank].mName, stageNo);
@@ -56,15 +68,6 @@ bool CDividedGround::LoadPkc(int mode, const std::tr1::shared_ptr<CPpuEnv>& rEnv
 
     name = FormatString("%s%s_%02d.pkc", pPrefix, gStageWorlds[mStageID->mWorld].mName, stageNo);
     return mPpuEngine->Load(this, name.c_str(), mode, rEnv);
-}
-
-std::string FormatString(const char* pFormat, ...) {
-    std::string result;
-    va_list args;
-    va_start(args, pFormat);
-    VFormatString(result, pFormat, args);
-    va_end(args);
-    return result;
 }
 
 bool CDividedGround::Load(const StageID* pStageID, int stageNo, bool background) {
@@ -103,12 +106,7 @@ found:
     mStageNo = stageNo;
     GetModel()->Play(0, 0.0f, 1.0f);
 
-    BWorld* pWorld = GetWorld();
-    if (pWorld != nullptr && mScnGroup) {
-        GetModel()->GetScnObj()->DetachFromParent();
-        mScnGroup->PushBack(GetModel()->GetScnObj());
-        pWorld->GetModelGroup()->PushBack(mScnGroup.get());
-    }
+    AttachToWorld();
 
     gFrameTimingReset = true;
     return true;
@@ -358,12 +356,7 @@ bool CDividedGround::IsOutOfBounds(const nw4r::math::VEC3& rPos) {
 
 void CDividedGround::OnEnterWorld() {
     BModelObj::OnEnterWorld();
-    BWorld* pWorld = GetWorld();
-    if (pWorld != nullptr && mScnGroup) {
-        GetModel()->GetScnObj()->DetachFromParent();
-        mScnGroup->PushBack(GetModel()->GetScnObj());
-        pWorld->GetModelGroup()->PushBack(mScnGroup.get());
-    }
+    AttachToWorld();
 }
 
 void CDividedGround::OnLeaveWorld(BWorld* pWorld) {
@@ -384,5 +377,14 @@ void CDividedGround::Calc() {
     }
     if (mPpuEngine) {
         mPpuEngine->Calc();
+    }
+}
+
+inline void CDividedGround::AttachToWorld() {
+    BWorld* pWorld = GetWorld();
+    if (pWorld != nullptr && mScnGroup) {
+        GetModel()->GetScnObj()->DetachFromParent();
+        mScnGroup->PushBack(GetModel()->GetScnObj());
+        pWorld->GetModelGroup()->PushBack(mScnGroup.get());
     }
 }

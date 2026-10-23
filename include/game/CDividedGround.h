@@ -50,6 +50,7 @@ public:
 
 private:
     void BuildScene(const StageID* pStageID, int stageNo, bool background);
+    void AttachToWorld();
     void LoadFileLists(const StageID* pStageID, int stageNo, bool background);
     bool LoadAttr(const StageID* pStageID, int stageNo, const char* pName, bool background);
 

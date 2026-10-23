@@ -23,3 +23,6 @@ Functions matched with source that is probably not the original, under [D-0016](
 | CMsgBalloon | `MessageFormat.h` inline instances | `MessageFormat.h` included before `MapDesc.h` instead of with the other game headers | [sprint-ida](findings/sprint-ida.md#remaining) |
 | CMsgBalloon | `__red_black_tree::increment` (`__rf` before `operator Pointer`) | `bool probe = false; if (probe) (void)x->parent_.operator->();` before the parent loop in `tree.h` | [sprint-ida](findings/sprint-ida.md#remaining) |
 | CMsgBalloon | `map_base<int, bool>::operator[]` | inline explicit specialization in `CMsgBalloon.cpp` that calls `tree_.find_or_insert` directly, so `find_or_insert` and `find_or_insert_impl` are not emitted under `dont_inline` | [sprint-ida](findings/sprint-ida.md#remaining) |
+| CDividedGround | `FormatString(const char*, ...)` | defined `inline` before `LoadPkc` so it is noded at its first use | [sprint-ida](findings/sprint-ida.md#remaining) |
+| CDividedGround | `LoadPkc` | `bool probe = false; if (probe) FormatString("");` before `std::string name;` | [sprint-ida](findings/sprint-ida.md#remaining) |
+| CDividedGround | `Load`, `OnEnterWorld` | shared world-attach block moved into an inline `AttachToWorld` defined at the end of the file | [sprint-ida](findings/sprint-ida.md#remaining) |
