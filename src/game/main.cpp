@@ -260,10 +260,8 @@ void HandleFileError(CPath::Drive drive, const char* pPath, long error, unsigned
     }
 }
 inline bool UsesAlternateErrorMessage(CPath::Drive drive) {
-    if (drive < 2) {
-        return false;
-    }
-    if (drive >= 512) {
+    int number = drive;
+    if (drive < 2 || number >= 512) {
         return false;
     }
     switch (drive) {
@@ -469,7 +467,7 @@ void main() {
     ShutdownRandom();
 }
 
-void ResourceFileConfig::SetErrorHandler(const FileErrorHandler& rHandler) {
+__declspec(noinline) void ResourceFileConfig::SetErrorHandler(const FileErrorHandler& rHandler) {
     FileErrorHandler handler(rHandler);
     mErrorHandler.swap(handler);
 }

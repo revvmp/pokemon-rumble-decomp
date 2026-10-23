@@ -169,7 +169,7 @@ void CMsgRes::ConvertEscape() {
 
         char c = *pSrc;
         if (c == '\\') {
-            char escape = pSrc[1];
+            signed char escape = pSrc[1];
             pSrc += 2;
             switch (escape) {
             case 'r':
@@ -179,8 +179,9 @@ void CMsgRes::ConvertEscape() {
                 *pDst++ = '\f';
                 break;
             case 'x': {
-                int value = 0;
-                for (int i = 0; i < 2 && IsHexDigit(digit = *pSrc); pSrc++, i++) {
+                int value;
+                int i = 0;
+                for (value = 0; i < 2 && IsHexDigit(digit = *pSrc); pSrc++, i++) {
                     value = (value << 4) | (IsDigit(digit) ? digit - '0' : ToLower(digit) - 'a' + 10);
                 }
                 *pDst++ = value;
