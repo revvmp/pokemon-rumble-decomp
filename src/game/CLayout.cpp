@@ -680,8 +680,8 @@ void CLayout::CalculateAttachedMtx() {
     for (nw4r::lyt::Pane::PaneList::Iterator it = pRoot->GetChildList()->GetBeginIter(); it != pRoot->GetChildList()->GetEndIter(); ++it) {
         it->CalculateMtx(mDrawInfo);
     }
-    mDrawInfo.SetInfluencedAlpha(savedInfluenced);
     mDrawInfo.SetGlobalAlpha(savedAlpha);
+    mDrawInfo.SetInfluencedAlpha(savedInfluenced);
 }
 
 f32 CLayout::GetPaneAlpha(nw4r::lyt::Pane* pPane) {
