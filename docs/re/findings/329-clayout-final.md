@@ -91,3 +91,30 @@ Moving the whole loop into a small inline helper is a new useful diagnostic: sel
 All 120 orders of the five pointer/flag parameters give the same result. Reference/value combinations, moving digit/counter/accumulator outside the helper, boolean and integer parameter types, and helper initialization of selected preheader locals were also tested without a 100% result. Some initialization-only probes used a destination before its delayed source initialization; those were diagnostic scratch failures and must not be retained. None of these experiments changed tracked source or shared headers.
 
 The whole-loop diagnostic and score reports are in ignored tools/local/session/329-msg, especially extended12.cpp and extended12.json. The original baseline remains the main source.
+
+
+## Main emission-order follow-up
+
+The root agent supplied tools/local/session/main-order-next/1.cpp, with all 145 target functions exact and a SequenceMatcher common-order score of 104. All following work remained scratch-only: main.cpp, shared headers, symbols, and build configuration were not modified.
+
+The best source-only candidate is tools/local/session/329-main/deferweakfont.cpp. It preserves all 145 exact function comparisons and has a true longest common subsequence of 124/145 target functions. The initial candidate's true LCS is 105; SequenceMatcher is a heuristic and undercounted this case. The direct runner329-main.py now computes the dynamic-programming LCS. All experiments use the original split object, exact game compiler flags, and the scratch filename main.cpp to preserve anonymous-namespace mangling.
+
+Retained in the scratch candidate, in order of construction:
+
+- Declare the explicit shared_ptr<CMsgRes> raw-pointer constructor specialization before the includes and define it after InitializeMainMessages. Its generic body is unchanged. This puts the copy constructor and arrow operator ahead of it, exactly matching the first eleven target functions.
+- Supply source-local full function_base specializations for the file-error, layout-failure, and HBM-close signatures. They retain identical virtual declarations and empty destructor bodies, but defer the destructor definitions to the required region. Member-only destructor specializations with separate declarations and later definitions fail as redefinitions in this compiler.
+- Expand ResourceFileConfig's existing header into the candidate, add an explicit destructor declaration, and define its unchanged generated behavior later. Its function remains exact.
+- Defer the CDisableHBM and CDisablePadRumble shared-pointer raw-pointer constructors and the void()/HBM-close function wrapper constructor specializations. Bodies are copied from the generic implementation. The late definitions are interleaved with the HBM-close base destructor.
+- Defer the four font shared-pointer constructors (PairFont, CResFont, CArchiveFontWithBuf, FontMap) and the three converting Font assignments. Arrange their unchanged definitions in the target wave.
+- Move RunSession's source definition before CMain's destructor. This is a real one-function LCS improvement that the earlier SequenceMatcher score hid.
+- Insert a named-false map operator[] probe immediately before the first dereference of the shared FontMap. This requests the map accessor before the shared-pointer dereference without emitting instructions. All target functions remain exact.
+- CResFont's constructor and destructor match both code and desired emission timing when they are compiler-generated. The candidate expands its header locally and removes both explicit declarations and both empty source definitions. This is a plausible-source correction: explicit empty bodies reproduce instructions but request the functions too early.
+- Defer the FontMap weak-pointer converting constructor specialization until after LoadFonts. Its unchanged generic body moves to the correct wave.
+
+A separate scratch include/string override marks the generic basic_string::rfind definition inline. It moves rfind into the immediate helper wave and adds one correctly ordered function without any code regressions. The root agent requested keeping this scratch-only until a complete candidate exists; a macro-scoped main-only header switch is acceptable for a future validation. The override is under329-main/include/string and is not enabled by the normal runner.
+
+Rejected attempts include all 24 nonvirtual CMain declaration orders, inline markers on its methods, moving whole bodies into the class, sizeof shared-pointer probes, early named-false destructor probes, separate ordinary template-member specialization declarations/definitions, and forced-inline pointer helpers. Moving the LoadFonts body into the class worsens ordering. A full local shared_ptr<Font> class specialization preserves all 145 function bodies but changes destructor timing and is not retained. Late ordinary StrapReminder/SaveManager pointer helpers can occupy the desired places, but replace known library symbol identities; they are not retained. Explicit instantiations and extern-template combinations do not solve the remaining accessor waves.
+
+### Emission-measurement trap
+
+SequenceMatcher matching blocks are not a longest common subsequence. In this main.cpp investigation it reported the same104 score before and after correcting RunSession/destructor order, while dynamic programming proved105 versus106. Use a real LCS for progress comparisons and still require complete ordered equality and a frozen-SHA build before claiming a source-unit link match.

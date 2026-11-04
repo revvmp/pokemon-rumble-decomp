@@ -251,9 +251,9 @@ std::tr1::shared_ptr<CPiiPersonalData> CPiiPersonalData::Import(u32 id, const SD
     data->mBonusSPD = (u32(rData.mBonusHigh[3]) << 16) | rData.mBonusLow[3];
     data->mPrefix = rData.mPrefix;
     data->mFlags = rData.mFlagsLow | (data->mFlags & 0xFFFF0000);
-    data->mCreationTime = rData.GetCreationTime();
     data->mRandomSeed = rData.mRandomSeed;
-    data->mOriginalTrainerId = rData.mOriginalTrainerId;
+    data->mCreationTime = (static_cast<s64>(rData.mCreationTimeHigh) << 32) | reinterpret_cast<const volatile SD_PiiPersonalData::Data&>(rData).mCreationTimeLow;
+    data->mOriginalTrainerId = reinterpret_cast<const volatile SD_PiiPersonalData::Data&>(rData).mOriginalTrainerId;
     return data;
 }
 

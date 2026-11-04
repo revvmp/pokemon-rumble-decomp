@@ -60,3 +60,13 @@ metadata, or matching status. The remaining cause is unresolved.
 - The fresh full DOL passes while Window is still an original fallback.
   Its exact function sizes and 20 matching bodies cannot justify marking
   the complete unit Matching or closing either issue.
+
+## 2026-11-04 isolated first-quadrant controls
+
+This continuation leaves canonical source and headers unchanged. Direct compiles use the existing Wii/1.0a HBM flags and a private cloned LT-coordinate helper so the other exact callers remain isolated.
+
+Explicit white-color array initialization and assignment controls do not improve 92.541336%. Selective volatile loads from the flip table reach 97.554665%, but introduce additional scheduling differences; those artificial partial forms are discarded. Caching the four used table bytes in ordinary u8 locals, in order origin-Y, origin-X, opposite-X, opposite-Y, while preserving the original ix-then-iy declarations, reaches 99.76%. Its complete native extent remains 1500 bytes, and every instruction is in target order. Sixteen register-operand differences remain: two temporary allocation swaps. This is not exact acceptance and is not retained in production.
+
+Additional controls on the cached form include 256 mixed scalar-type combinations, all 24 coordinate declaration permutations with index orders and uniform types, 48 pointer/reference/read-helper variants, 24 helper argument orders, eight individual optimization-pass controls, explicit byte-offset addressing, equivalent table-address spellings, and selective volatile masks. None closes the remaining swaps. Failed probes that declared an offset after its first use are excluded from binary conclusions.
+
+The closest complete candidate and objdiff are preserved in ignored `tools/local/session/window-61-compile/perm-win.cpp` and `perm-win.json`; the reusable drivers are prefixed `window-61`. No split, compiler configuration or Matching status is changed.

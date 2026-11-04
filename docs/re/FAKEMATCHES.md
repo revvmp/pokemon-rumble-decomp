@@ -60,3 +60,11 @@ Functions matched with source that is probably not the original, under [D-0016](
 
 | CTitleSession | Run and helper emission | inline qualifiers defer Run, RefreshSlots, WaitForMacAddress, SaveAndWait and IsFinished; string include first restores RTTI order | [full acceptance](findings/212-ctitlesession.md#f-212-5-complete-source-link-tail) |
 | CFileData | function emission | scoped CFILEDATA_EMISSION_LAYOUT header declarations and deferred definitions; local specializations, type probes, table-assignment helpers and deferred map_leaf_search preserve all function bytes/order | [candidate and partial link evidence](findings/310-final-cfiledata.md#function-order-candidate) |
+
+| CDlgMsgWin | char-array deleter constructor | local specialization takes mutable deleter reference, restoring the load schedule after the vtable store | [function evidence](findings/73-cdlgmsgwin-tail.md) |
+| CDlgPiiSelector | number conversion and duplicate minimum | unused external GetSelectorAllocationCount requests conversion emission; force-active SelectorMinimum preserves the second identical local body | [function evidence](findings/91-selector-tail.md) |
+| CPii | bad_function_call what/destructor | unused ordinary exception factory requests the two genuine virtual bodies; factory intended to dead-strip | [emission evidence](findings/cpii-tail-emission.md) |
+| CGameSession and CPii | personal-data vector cleanup | targeted __vec_constructor specialization adds one empty destructor level without altering storage | [consumer evidence](findings/cpii-tail-emission.md) |
+| CGameSession | SessionSnapshot destructor | local empty derived battle-data vector preserves the extra cleanup branch without changing other units | [consumer evidence](findings/cpii-tail-emission.md) |
+| CPiiPersonalData | Import | selective volatile source reads of creationTimeLow and originalTrainerId constrain scheduling, with explicit time composition and seed-before-time assignment | [source-link acceptance](findings/cpiipersonaldata-import-tail.md) |
+| CFileData | file-error callback invocation | scoped functional declaration and source-local ABI dispatch view defer base RTTI emission; compiled invocation is unchanged | [data-order evidence](findings/310-final-cfiledata.md) |

@@ -723,3 +723,7 @@ void CPiiBox::ApplyEnvironment(bool enable, const std::tr1::shared_ptr<CPpuEnv>&
     }
 }
 
+
+std::tr1::bad_function_call* CreateMissingMotionCallbackError() {
+    return new std::tr1::bad_function_call;
+}

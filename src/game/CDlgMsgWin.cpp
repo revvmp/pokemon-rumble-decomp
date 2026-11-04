@@ -1,3 +1,25 @@
+#include <memory>
+
+namespace std {
+namespace tr1 {
+namespace detail {
+template <> class shared_ptr_deleter<char, std::detail::default_delete<char[]> > : public shared_ptr_deleter_common {
+public:
+    typedef std::detail::default_delete<char[]> Deleter;
+    explicit shared_ptr_deleter(char* pObject) : mStorage(pObject) {}
+    shared_ptr_deleter(char* pObject, Deleter& rDeleter);
+    virtual const void* get_deleter(const type_info& rType) const {
+        return rType == typeid(Deleter) ? &mStorage.second() : nullptr;
+    }
+    virtual void dispose() { mStorage.second()(mStorage.first()); }
+
+private:
+    Metrowerks::compressed_pair<char*, Deleter> mStorage;
+};
+}
+}
+}
+
 #include <game/IDlgMsgWin.h>
 
 #include <game/CColorBtnTagProc.h>
@@ -334,4 +356,14 @@ std::tr1::shared_ptr<IDlgMsgWin> IDlgMsgWin::Create(bool registerForUpdates, boo
     std::tr1::shared_ptr<CDlgMsgWin> pDialog(new CDlgMsgWin(registerForUpdates));
     pDialog->Initialize(background);
     return pDialog;
+}
+
+#pragma dont_inline on
+namespace std {
+namespace tr1 {
+namespace detail {
+shared_ptr_deleter<char, std::detail::default_delete<char[]> >::shared_ptr_deleter(char* pObject, Deleter& rDeleter)
+    : mStorage(pObject, rDeleter) {}
+}
+}
 }

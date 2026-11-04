@@ -31,9 +31,8 @@ bool CBattleRoyalData::UpdateBestTime(f32 time) {
     return false;
 }
 
-std::tr1::shared_ptr<CBattleRoyalData> CBattleRoyalBox::GetData(int mode, int area) {
-    std::tr1::shared_ptr<CBattleRoyalData>& rData = mData[mode][area];
-    return rData;
+std::tr1::shared_ptr<CBattleRoyalData> CBattleRoyalBox::GetData(int mode, int area) const {
+    return mData[mode][area];
 }
 
 void CBattleRoyalBox::ExportBattleRoyalData(std::vector<SD_BattleRoyalData::Data>& rOut) {

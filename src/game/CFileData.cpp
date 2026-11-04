@@ -62,6 +62,19 @@ template <typename Tree, typename Compare> tree_node_base* map_leaf_search<Tree,
     return pLeaf;
 }
 } }
+namespace {
+class FileErrorCallbackDispatch {
+public:
+    virtual ~FileErrorCallbackDispatch();
+    virtual FileErrorCallbackDispatch* Clone() const = 0;
+    virtual FileErrorCallbackDispatch* Clone(void* pBuffer) const = 0;
+    virtual void Invoke(CPath::Drive drive, const char* pPath, long error, unsigned long flags) = 0;
+};
+}
+template <> inline void std::tr1::function<void(CPath::Drive, const char*, long, unsigned long)>::operator()(CPath::Drive first, const char* second, long third, unsigned long fourth) const {
+    if (f_ == nullptr) throw std::tr1::bad_function_call();
+    reinterpret_cast<FileErrorCallbackDispatch*>(f_)->Invoke(first, second, third, fourth);
+}
 struct FileLoadParam {
     const char* mpPath;
     u32 mFlags;

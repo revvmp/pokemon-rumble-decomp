@@ -162,7 +162,7 @@ void sort(TIt first, TIt last, TCompare compare) {
         m = first;
         i1 = j;
         while (compare(*m, *j)) {
-            m++;
+            ++m;
         }
 
         do {

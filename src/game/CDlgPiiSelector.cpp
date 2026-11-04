@@ -1727,3 +1727,13 @@ std::tr1::shared_ptr<IDlgPiiSelector> IDlgPiiSelector::Create(bool flag) {
     dlg->Init(flag);
     return dlg;
 }
+
+unsigned long GetSelectorAllocationCount(const Metrowerks::number<unsigned long, 1>& rCount) {
+    return rCount;
+}
+
+#pragma force_active on
+static const int& SelectorMinimum(const int& a, const int& b) {
+    return b < a ? b : a;
+}
+#pragma force_active reset

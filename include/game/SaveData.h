@@ -239,4 +239,16 @@ void SetCurrentSlot(int slot);
 int GetOption();
 void SetOption(int option);
 
+
+namespace std {
+template <typename Allocator>
+class __vec_constructor<SD_PiiPersonalData::Data, Allocator, false> : public __vec_constructor<SD_PiiPersonalData::Data, Allocator, true> {
+    typedef __vec_constructor<SD_PiiPersonalData::Data, Allocator, true> base;
+public:
+    __vec_constructor() {}
+    explicit __vec_constructor(typename base::size_type n) : base(n) {}
+    __vec_constructor(const __vec_constructor& rOther) : base(rOther) {}
+    template <typename Iterator> __vec_constructor(Iterator first, Iterator last) : base(first, last) {}
+};
+}
 #endif

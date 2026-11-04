@@ -534,12 +534,17 @@ public:
 
     operator int bool_type::*() const { return f_ != nullptr ? &bool_type::dummy_ : nullptr; }
 
+
+#if defined(CFILEDATA_EMISSION_LAYOUT)
+    R operator()(A first, B second, C third, D fourth) const;
+#else
     R operator()(A first, B second, C third, D fourth) const {
         if (f_ == nullptr) {
             throw bad_function_call();
         }
         return (*f_)(first,second,third,fourth);
     }
+#endif
 
 private:
     base* local() const { return reinterpret_cast<base*>(const_cast<char*>(buf_)); }

@@ -142,3 +142,7 @@ Reproducible outside artifacts are retained under `C:/MassStorage/GitHub/141-ref
 - **A unit can sit between a deleter destructor and the next survey class.** `0x800C4810`–`0x800C495C` follow `CMiniMap`'s deleter destructor but are neither `CMiniMap` nor `CMoneyLifeDisplay` code. Check callers and `.sdata` alignment before attaching such functions to either neighbour.
 - **A word load with byte extraction means bitfields, not bytes.** A struct of `s8` fields compiles to byte loads; this index is read as one word and written with `rlwimi`, which only bitfields produce.
 - **A copied argument before a virtual call means a by-value parameter.** The callee looks the same for `T` and `const T&`; only the caller's stack copy distinguishes them.
+
+## 2026-11-04 scalar snapshot controls
+
+A private scalar packed-index constructor can load the map descriptor before the vptr store, but does not close Create. Reinterpreting the scalar as MapIndex or using a union introduces a stack copy and enlarges the frame; explicit sign-extraction arithmetic avoids that copy but changes extract/vptr scheduling and register choice. Rotation-and-mask extraction reproduces the bitfield instruction selection but does not restore the scheduling. Scalar/reference and 64-bit coercion variants were discarded. Main source and its private header remain unchanged.

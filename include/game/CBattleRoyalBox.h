@@ -23,7 +23,7 @@ public:
     static std::tr1::shared_ptr<CBattleRoyalBox> Create(const std::vector<SD_BattleRoyalData::Data>& rData);
 
     explicit CBattleRoyalBox(const std::vector<SD_BattleRoyalData::Data>& rData);
-    std::tr1::shared_ptr<CBattleRoyalData> GetData(int mode, int area);
+    std::tr1::shared_ptr<CBattleRoyalData> GetData(int mode, int area) const;
     void ExportBattleRoyalData(std::vector<SD_BattleRoyalData::Data>& rOut);
 
 private:

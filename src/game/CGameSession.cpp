@@ -43,7 +43,6 @@ namespace NPpu {
 class CEnvironment;
 }
 
-#pragma force_active on
 inline MapIndex MakeMapIndex(int mode, int area, int stage, int map) {
     MapIndex index = {};
     index.mMode = mode;
@@ -52,9 +51,10 @@ inline MapIndex MakeMapIndex(int mode, int area, int stage, int map) {
     index.mMap = map;
     return index;
 }
-#pragma force_active reset
 
 namespace {
+
+class BattleRoyalSnapshotData : public std::vector<SD_BattleRoyalData::Data> {};
 
 struct SessionSnapshot {
     s64 mPlayTime;
@@ -62,7 +62,7 @@ struct SessionSnapshot {
     u32 mRegistryCount;
     std::vector<SD_PiiPersonalData::Data> mPiiPersonalData;
     std::vector<SD_PiiCollectionData::Data> mPiiCollectionData;
-    std::vector<SD_BattleRoyalData::Data> mBattleRoyalData;
+    BattleRoyalSnapshotData mBattleRoyalData;
     std::vector<SD_StatisticValue::Data> mStatisticValue1;
     std::vector<SD_StatisticValue::Data> mStatisticValue2;
     std::vector<SD_StatisticValue::Data> mStatisticValue3;
@@ -132,7 +132,7 @@ public:
             mPlayers[i]->GetPiiBox().RestoreAll();
         }
     }
-    void GetSnapshot(SessionSnapshot* pSnapshot);
+    void GetSnapshot(SessionSnapshot* pSnapshot) const;
     void SaveToSlot();
 
 private:
@@ -162,7 +162,6 @@ private:
     IDisconMsg* mpDisconMsg;
 };
 
-#pragma force_active on
 
 CGameSession* sGameSession;
 
@@ -211,13 +210,10 @@ f32 CGameSession::GetPlayTimeSeconds() {
     return OSTicksToMicroseconds(total) / 1000000.0;
 }
 
-void CGameSession::GetSnapshot(SessionSnapshot* pSnapshot) {
-    OSTime playTime = mPlayTime + (OSGetTime() - mStartTime);
-    int money = mMoney;
-    u32 registryCount = mOyaInfo.GetCount();
-    pSnapshot->mPlayTime = playTime;
-    pSnapshot->mMoney = money;
-    pSnapshot->mRegistryCount = registryCount;
+void CGameSession::GetSnapshot(SessionSnapshot* pSnapshot) const {
+    pSnapshot->mPlayTime = mPlayTime + (OSGetTime() - mStartTime);
+    pSnapshot->mMoney = mMoney;
+    pSnapshot->mRegistryCount = mOyaInfo.GetCount();
     mTeamPiiBox->ExportPersonalData(pSnapshot->mPiiPersonalData);
     mPiiCollectionBox->ExportCollectionData(pSnapshot->mPiiCollectionData);
     mBattleRoyalBox->ExportBattleRoyalData(pSnapshot->mBattleRoyalData);
@@ -872,7 +868,6 @@ int CGameSession::GetFadeFrames() {
     return mFadeFrames;
 }
 
-#pragma force_active reset
 
 }
 
