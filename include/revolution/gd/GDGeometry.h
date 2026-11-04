@@ -157,10 +157,16 @@ extern "C" {
 #define XF_NUMTEX_SHIFT 0
 #define XF_NUMTEX(numtex) ((((unsigned long)(numtex)) << XF_NUMTEX_SHIFT))
 
+#if defined(NW4R_TEXT_WRITER_EMISSION_LAYOUT)
+inline
+#endif
 static void GDBegin(GXPrimitive type, GXVtxFmt vtxfmt, u16 nverts) {
     GDWrite_u8(vtxfmt | type);
     GDWrite_u16(nverts);
 }
+#if defined(NW4R_TEXT_WRITER_EMISSION_LAYOUT)
+inline
+#endif
 static void GDEnd(void) {
 }
 

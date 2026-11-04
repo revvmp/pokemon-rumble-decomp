@@ -7,7 +7,11 @@
 
 namespace Metrowerks {
 template <typename T, T Value> struct number {
+#if defined(GAME_DLGPIISELECTOR_EMISSION_LAYOUT)
+    operator T() const;
+#else
     operator T() const { return Value; }
+#endif
 };
 
 template <typename T, typename Allocator, typename Size = number<size_t, 1> > class alloc_ptr {
@@ -57,5 +61,11 @@ template <typename T, typename Allocator, typename Size>
     }
 #endif
 }
+
+#if defined(GAME_DLGPIISELECTOR_EMISSION_LAYOUT)
+namespace Metrowerks {
+template <typename T, T Value> number<T, Value>::operator T() const { return Value; }
+}
+#endif
 
 #endif

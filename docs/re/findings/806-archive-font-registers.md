@@ -40,3 +40,5 @@ The next bounded scratch wave keeps main source and headers unchanged. Both the 
 - Tiny identity helpers under individual propagation, dead-assignment, common-subexpression, lifetime, scalarization and tree-transformation pragmas: 24 candidates, no improvement.
 
 These controls do not overcome the accessor constructor's cached load being represented as an inline temporary. The proposed wrappers are not recovered source and are not suitable to retain for partial fuzzy-score gains. Drivers and diagnostic objects use ignored `tools/local/session/archive-61-*`; only this findings record is changed.
+
+A further36 scoped enum range/assignment controls for the sheet-count local did not improve99.291664%. Both the existing source and prior glyph-count/table-size type candidate were tested. No implementation change was retained; ignored driver archive-enum.py records these controls.

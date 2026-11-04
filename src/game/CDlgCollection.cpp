@@ -24,6 +24,42 @@
 #include <set>
 #include <vector>
 
+namespace std {
+
+template <>
+inline void __vec_deleter<unsigned short, allocator<unsigned short> >::construct_at_end(
+    const unsigned short* pFirst, const unsigned short* pLast, Metrowerks::int2type<true>) {
+    ptrdiff_t n = pLast - pFirst;
+    memmove(data_ + size_, pFirst, (static_cast<const unsigned short*>(pLast) - pFirst) * sizeof(unsigned short));
+    size_ += n;
+}
+
+}
+
+template <typename T>
+inline void AllocateCollectionVector(std::__vec_deleter<T, std::allocator<T> >& rVector, unsigned long count) {
+    rVector.allocate(count, typename std::__vec_deleter<T, std::allocator<T> >::pod_type());
+}
+
+template <typename T>
+inline void CopyCollectionVector(std::__vec_deleter<T, std::allocator<T> >& rVector, const T* first, const T* last) {
+    unsigned long count = last - first;
+    if (count != 0) {
+        AllocateCollectionVector(rVector, count);
+        rVector.construct_at_end(first, last, typename std::__vec_deleter<T, std::allocator<T> >::pod_type());
+    }
+}
+
+namespace std {
+
+template <>
+inline __vec_constructor<unsigned short, allocator<unsigned short>, false>::__vec_constructor(
+    const __vec_constructor& other) : base() {
+    CopyCollectionVector(*this, other.data_, other.data_ + other.size_);
+}
+
+}
+
 inline BUI::Callback BUI::CCallbackListOwner::Add(const std::tr1::function<void(BUI*)>& rCallback) {
     if (rCallback) {
         Callback callback(new std::tr1::function<void(BUI*)>(rCallback));

@@ -1,3 +1,4 @@
+#define GAME_DLGPIISELECTOR_EMISSION_LAYOUT
 #define GAME_DLGPIISELECTOR_RANGE_TAG_REFERENCE
 #include <game/ICalcDraw.h>
 #include <memory>
@@ -1335,9 +1336,8 @@ public:
     };
 
     CDlgPiiSelector() : mIsPausing(false), mInputLocked(false), mErrorState(0), mError(0) {}
-    virtual ~CDlgPiiSelector() {}
-    virtual bool Close() { return false; }
     virtual bool IsClosable() { return false; }
+    virtual bool Close() { return false; }
     virtual bool IsShown(int player) {
         if (mIsPausing) {
             return true;

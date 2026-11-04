@@ -616,23 +616,18 @@ inline void CGameResult::CalcMtx()
     mPauseMenu->CalcMtx();
 }
 
-inline nw4r::math::VEC3 GetCameraUp(nw4r::math::MTX34& rInvCameraMtx)
+inline const nw4r::math::VEC3& TransformCameraInto(nw4r::math::MTX34& rMatrix,
+                                                 const nw4r::math::VEC3& rInput,
+                                                 nw4r::math::VEC3& rOutput)
 {
-    nw4r::math::VEC3 origin(0.0f, 0.0f, 0.0f);
-    nw4r::math::VEC3 eye;
-    PSMTXMultVec(rInvCameraMtx, reinterpret_cast<Vec*>(&origin), reinterpret_cast<Vec*>(&eye));
-    nw4r::math::VEC3 down(0.0f, -1.0f, 0.0f);
-    nw4r::math::VEC3 downWorld;
-    PSMTXMultVec(rInvCameraMtx, reinterpret_cast<Vec*>(&down), reinterpret_cast<Vec*>(&downWorld));
-    return downWorld - eye;
+    PSMTXMultVec(rMatrix, reinterpret_cast<const Vec*>(&rInput), reinterpret_cast<Vec*>(&rOutput));
+    return rOutput;
 }
 
-inline nw4r::math::VEC3 GetCameraTarget(nw4r::math::MTX34& rInvCameraMtx)
+inline void SubtractCameraVectors(nw4r::math::VEC3& rOut, const nw4r::math::VEC3& rDown,
+                                 const nw4r::math::VEC3& rEye)
 {
-    nw4r::math::VEC3 forward(0.0f, 0.0f, -1.0f);
-    nw4r::math::VEC3 target;
-    PSMTXMultVec(rInvCameraMtx, reinterpret_cast<Vec*>(&forward), reinterpret_cast<Vec*>(&target));
-    return target;
+    nw4r::math::VEC3Sub(&rOut, &rDown, &rEye);
 }
 
 inline void CGameResult::UpdateMirrorCamera()
@@ -648,14 +643,31 @@ inline void CGameResult::UpdateMirrorCamera()
     if (PSMTXInverse(cameraMtx, invCameraMtx)) {
         nw4r::g3d::Camera::PostureInfo info;
         info.tp = nw4r::g3d::Camera::POSTURE_LOOKAT;
-        nw4r::math::VEC3 up = GetCameraUp(invCameraMtx);
+        nw4r::math::VEC3 up;
+        nw4r::math::VEC3 downWorld;
+        nw4r::math::VEC3 down;
+        nw4r::math::VEC3 eye;
+        nw4r::math::VEC3 origin;
+        nw4r::math::VEC3 target;
+        nw4r::math::VEC3 forward;
+        origin.x = 0.0f;
+        origin.y = 0.0f;
+        origin.z = 0.0f;
+        TransformCameraInto(invCameraMtx, origin, eye);
+        down.x = 0.0f;
+        down.y = -1.0f;
+        down.z = 0.0f;
+        SubtractCameraVectors(up, TransformCameraInto(invCameraMtx, down, downWorld), eye);
         info.cameraUp.x = up.x;
-        info.cameraUp.y = -up.y;
         info.cameraUp.z = up.z;
-        nw4r::math::VEC3 target = GetCameraTarget(invCameraMtx);
+        info.cameraUp.y = -up.y;
+        forward.x = 0.0f;
+        forward.y = 0.0f;
+        forward.z = -1.0f;
+        TransformCameraInto(invCameraMtx, forward, target);
         info.cameraTarget.x = target.x;
-        info.cameraTarget.y = -target.y;
         info.cameraTarget.z = target.z;
+        info.cameraTarget.y = -target.y;
         mirrorCamera.SetPosture(info);
         const nw4r::g3d::CameraData& rData = camera.ref();
         if (rData.flags & nw4r::g3d::CameraData::FLAG_PROJ_ORTHO) {

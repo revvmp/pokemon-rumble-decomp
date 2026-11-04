@@ -1,3 +1,31 @@
+#define BWORLD_EMISSION_LAYOUT
+namespace std { namespace detail { template <typename Tree, typename Compare> struct map_leaf_search; } }
+class CEffect;
+class WorldEffectOwner;
+#include <exception>
+#include <MSL_CPP/compressed_pair.h>
+#include <MSL_CPP/alloc_ptr.h>
+#include <MSL_CPP/allocator.h>
+#include <MSL_CPP/detail/shared_ptr.h>
+#include <game/WorldOwnerGuard.h>
+namespace std { template <typename Allocator> struct world_vector_pointer { typedef void* type; }; }
+#include <memory>
+namespace std { template<typename T, typename Allocator> class __vec_deleter; }
+#include <game/BWorldObj.h>
+class BWorldCamera; class CShadowCamera; class BModelObj; template<typename T> class CKDTree; namespace nw4r { namespace g3d { class ScnRoot; class ScnGroup; } }
+typedef char WorldByteOwnerStorage[sizeof(std::tr1::shared_ptr<u8>)];
+typedef char WorldRootOwnerStorage[sizeof(std::tr1::shared_ptr<nw4r::g3d::ScnRoot>)];
+typedef char WorldGroupOwnerStorage[sizeof(std::tr1::shared_ptr<nw4r::g3d::ScnGroup>)];
+typedef char WorldCameraOwnerStorage[sizeof(std::tr1::shared_ptr<BWorldCamera>)];
+typedef char WorldShadowOwnerStorage[sizeof(std::tr1::shared_ptr<CShadowCamera>)];
+typedef char WorldModelTreeOwnerStorage[sizeof(std::tr1::shared_ptr<CKDTree<BModelObj> >)];
+#include <game/BWorldObj.h>
+class BWorld;
+typedef char WorldWeakOwnerStorage[sizeof(std::tr1::weak_ptr<BWorld>)];
+class BWorldCamera;
+typedef char WorldCameraWeakStorage[sizeof(std::tr1::weak_ptr<BWorldCamera>)];
+class CShadowCamera;
+typedef char WorldShadowWeakStorage[sizeof(std::tr1::weak_ptr<CShadowCamera>)];
 #include <game/BWorld.h>
 
 #include <game/AnmObjChrRootScale.h>
@@ -49,6 +77,68 @@ template <> inline __vec_constructor<BWorld::ObjEntry, allocator<BWorld::ObjEntr
 }
 }
 
+template <> CEffect* BWorld::AddEffect<CEffect>(std::tr1::shared_ptr<CEffect> effect);
+
+namespace std { namespace tr1 { namespace detail { template <typename T, typename D> struct world_owner_type { typedef world_owner_guard<T,D&> type; }; template <> struct world_owner_type<char,std::detail::default_delete<char[]> > { typedef shared_ptr_holder<char,std::detail::default_delete<char[]> > type; }; } } }
+namespace std { namespace tr1 {
+template <typename T>
+template <typename Y>
+shared_ptr<T>::shared_ptr(Y* p) : ptr_(p) {
+    detail::world_owner_guard<Y, std::detail::default_delete<Y> > hold(p);
+    s_ = new detail::shared_ptr_deleter<Y, std::detail::default_delete<Y> >(p);
+    hold.release();
+    enable_from_this(p, p);
+}
+
+template <typename T>
+template <typename Y, typename D>
+shared_ptr<T>::shared_ptr(Y* p, D d) : ptr_(p) {
+    typename detail::world_owner_type<Y, D>::type holder(p, d);
+    s_ = new detail::shared_ptr_deleter<Y, D>(p, d);
+    holder.release();
+    enable_from_this(p, p);
+}
+
+} }
+class WorldEffectOwner : public std::tr1::shared_ptr<CEffect> { public: WorldEffectOwner(const std::tr1::shared_ptr<CEffect>& rOwner) : std::tr1::shared_ptr<CEffect>(rOwner) {} };
+
+namespace std { namespace detail {
+template <typename Tree, typename Compare> struct map_leaf_search {
+    static tree_node_base* find(Tree* pTree, const typename Tree::value_type& rValue, typename Tree::node*& rpPred, bool& rLeft, bool& rLeftmost);
+};
+
+template <typename Tree, typename Compare> tree_node_base* map_leaf_search<Tree, Compare>::find(Tree* pTree, const typename Tree::value_type& rValue, typename Tree::node*& rpPred, bool& rLeft, bool& rLeftmost) {
+    typedef typename Tree::node node;
+    rpPred = nullptr;
+    node* pLeaf = static_cast<node*>(pTree->end_node());
+    node* pNode = static_cast<node*>(pTree->root());
+    rLeft = true;
+    rLeftmost = true;
+    while (pNode != nullptr) {
+        pLeaf = pNode;
+        if (Compare()(rValue, pNode->value_)) {
+            pNode = static_cast<node*>(pNode->left_);
+            rLeft = true;
+        } else {
+            rpPred = pLeaf;
+            pNode = static_cast<node*>(pNode->right_);
+            rLeft = false;
+            rLeftmost = false;
+        }
+    }
+    return pLeaf;
+}
+} }
+template <typename T, typename Compare, typename Allocator> std::pair<typename std::detail::map_compact_tree<T, Compare, Allocator>::iterator, bool> std::detail::map_compact_tree<T, Compare, Allocator>::insert_one(const T& rValue) {
+    node* pPred;
+    bool left;
+    bool leftmost;
+    std::detail::tree_node_base* pParent = std::detail::map_leaf_search<map_compact_tree, Compare>::find(this, rValue, pPred, left, leftmost);
+    if (pPred == nullptr || Compare()(pPred->value_, rValue)) {
+        return std::pair<iterator, bool>(iterator(insert_node_at(pParent, left, leftmost, rValue)), true);
+    }
+    return std::pair<iterator, bool>(iterator(pPred), false);
+}
 BWorld::Desc::Desc() :
     mDrawType(0),
     mObjectCapacity(0),
@@ -451,6 +541,10 @@ inline bool ApplyLightScene(const std::tr1::shared_ptr<nw4r::g3d::ScnRoot>& rScn
 
 }
 
+inline std::tr1::shared_ptr<CFileData> LoadFile(const char* pPath, u32 flags, int background) {
+    return CreateFileData(pPath, flags, background);
+}
+
 bool BWorld::LoadLightScene(const char* pPath, const char* pName, bool background) {
     std::tr1::shared_ptr<CFileData> file = LoadFile(pPath, 0, background);
     if (!file) {
@@ -461,9 +555,7 @@ bool BWorld::LoadLightScene(const char* pPath, const char* pName, bool backgroun
     return ApplyLightScene(mScnRoot, scene);
 }
 
-std::tr1::shared_ptr<CFileData> LoadFile(const char* pPath, u32 flags, int background) {
-    return CreateFileData(pPath, flags, background);
-}
+
 
 bool BWorld::AddGround(std::tr1::shared_ptr<BWorldObj> obj) {
     if (!AddObject(obj)) {
@@ -984,7 +1076,7 @@ bool BWorld::RemoveOldestEffect(bool retire) {
     return true;
 }
 
-CEffect* BWorld::AddEffect(std::tr1::shared_ptr<CEffect> effect) {
+template <> CEffect* BWorld::AddEffect<CEffect>(std::tr1::shared_ptr<CEffect> effect) {
     if (effect && !effect->IsFinished()) {
         u32 capacity = mEffectData->mEffects.size();
         for (u32 i = 1; i <= capacity; i++) {
@@ -1395,7 +1487,7 @@ void DrawTexture(int width, int height, const GXTexObj* pTexObj) {
 
 }
 
-bool BWorld::DrawShadow(GXColor clearColor, GXPixelFmt pixelFormat) {
+bool BWorld::DrawShadow(nw4r::ut::Color clearColor, GXPixelFmt pixelFormat) {
     CShadowCamera* pShadowCamera = mShadowCamera.lock().get();
     if (pShadowCamera == nullptr || !pShadowCamera->IsVisible()) {
         return false;

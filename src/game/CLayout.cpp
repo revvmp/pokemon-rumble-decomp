@@ -544,7 +544,7 @@ void CLayout::StopMotion(nw4r::lyt::Pane* pPane) {
     if (pPane == nullptr) {
         pPane = mLayout->GetRootPane();
     }
-    PaneProgramMap::iterator it = mPanePrograms.find(pPane);
+    PaneProgramMap::iterator it = static_cast<PaneProgramMap::iterator>(mPanePrograms.find(pPane));
     if (it != mPanePrograms.end()) {
         if (!(*it).second->mMotions.empty()) {
             MotionList::iterator front = (*it).second->mMotions.begin();
@@ -600,11 +600,11 @@ void CLayout::SetVisible(nw4r::lyt::Pane* pPane, bool visible) {
 }
 
 void CLayout::AdvancePaneMotions(PaneMP* pPaneMP, f32 frames) {
+    if (pPaneMP->mMotions.empty()) {
+        pPaneMP->mFrame += frames;
+        return;
+    }
     for (;;) {
-        if (pPaneMP->mMotions.empty()) {
-            pPaneMP->mFrame += frames;
-            return;
-        }
         MotionList::iterator front = pPaneMP->mMotions.begin();
         f32 lastFrame = (*front)->mLastFrame;
         pPaneMP->mFrame += frames * (*front)->mRate;
@@ -619,7 +619,8 @@ void CLayout::AdvancePaneMotions(PaneMP* pPaneMP, f32 frames) {
             pPaneMP->mpPane->UnbindAnimation((*front)->mpAnimTransform, true);
             (*front)->Finish();
             pPaneMP->mMotions.pop_front();
-            pPaneMP->mFrame = std::max((*pPaneMP->mMotions.begin())->mFrame, 0.0f);
+            f32 startFrame = (*pPaneMP->mMotions.begin())->mFrame;
+            pPaneMP->mFrame = startFrame < 0.0f ? 0.0f : startFrame;
             (*pPaneMP->mMotions.begin())->mState = 1;
             RebindAnimations();
         } else if ((*front)->mpAnimTransform->IsLoopData()) {
@@ -660,12 +661,34 @@ nw4r::lyt::Pane* CLayout::FindPane(const char* pName) {
     return mLayout->GetRootPane()->FindPaneByName(pName, true);
 }
 
-void CLayout::UpdateAttachedLayouts() {
+inline std::set<CLayout*>::const_iterator BuildAttachedEndIterator(std::set<CLayout*>& rChildren) {
+    LayoutPaneTree& rTree = reinterpret_cast<LayoutPaneTree&>(rChildren);
+    LayoutPaneTree::iterator sourceIterator = rTree.end();
+    std::set<CLayout*>::iterator resultIterator(sourceIterator);
+    return std::set<CLayout*>::const_iterator(resultIterator);
+}
+
+inline std::set<CLayout*>::const_iterator EndAttachedLayouts(std::set<CLayout*>& rChildren) {
+    return BuildAttachedEndIterator(rChildren);
+}
+
+inline std::set<CLayout*>::iterator BuildAttachedBeginIterator(std::set<CLayout*>& rChildren) {
+    LayoutPaneTree& rTree = reinterpret_cast<LayoutPaneTree&>(rChildren);
+    LayoutPaneTree::iterator sourceIterator = rTree.begin();
+    const std::set<CLayout*>::iterator& rResult = static_cast<std::set<CLayout*>::iterator>(reinterpret_cast<std::set<CLayout*>::iterator&>(sourceIterator));
+    return rResult;
+}
+
+inline std::set<CLayout*>::iterator BeginAttachedLayouts(std::set<CLayout*>& rChildren) {
+    return BuildAttachedBeginIterator(rChildren);
+}
+
+inline void CLayout::UpdateAttachedLayouts() {
     if (!(mFlags & FLAG_DIRTY)) {
         mFlags |= FLAG_DIRTY;
         if (mAttach && !mAttach->mChildren.empty()) {
-            for (std::set<CLayout*>::const_iterator it = mAttach->mChildren.begin(); it != mAttach->mChildren.end(); ++it) {
-                (*it)->UpdateAttachedLayouts();
+            for (std::set<CLayout*>::const_iterator it = BeginAttachedLayouts(mAttach->mChildren); it != EndAttachedLayouts(mAttach->mChildren); ++it) {
+                static_cast<CLayout*>(*it)->UpdateAttachedLayouts();
             }
         }
     }

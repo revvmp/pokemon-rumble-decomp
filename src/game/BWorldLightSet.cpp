@@ -7,6 +7,16 @@
 #include <game/Memory.h>
 #include <nw4r/g3d/res/g3d_resfile.h>
 
+#include <game/WorldOwnerGuard.h>
+namespace std { namespace tr1 {
+template <> template <> inline shared_ptr<nw4r::g3d::AnmScnRes>::shared_ptr(nw4r::g3d::AnmScnRes* p, void (*d)(nw4r::g3d::G3dObj*)) : ptr_(p) {
+ detail::world_owner_guard<nw4r::g3d::AnmScnRes, void (*&)(nw4r::g3d::G3dObj*)> holder(p,d);
+ s_ = new detail::shared_ptr_deleter<nw4r::g3d::AnmScnRes, void (*)(nw4r::g3d::G3dObj*)>(p,d);
+ holder.release();
+ enable_from_this(p,p);
+}
+} }
+
 BWorldLightSet::BWorldLightSet(u32 type) : BWorldObj(type | TYPE), mNextMotionID(1) {}
 
 BWorldLightSet::~BWorldLightSet() {}

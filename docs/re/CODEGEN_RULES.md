@@ -53,3 +53,7 @@ The allocator and scheduler are recovered in [sprint-ra](findings/sprint-ra.md).
 ## Tooling traps
 
 - `name_callees.py` renames applied outside the unit being worked can break the link and the DOL; restrict applied `symbols.txt` changes to the unit's range. `permute_names.py` repairs permuted identical-clone names. [sprint-a13](findings/sprint-a13.md), [sprint-a17](findings/sprint-a17.md), [sprint-a14](findings/sprint-a14.md)
+
+## Same-type floating-point reassignment
+
+A redundant assignment such as posZ = static_cast<f32>(posZ) can prevent a coalescing transformation that an equivalent initializer cast does not affect. This reproduced BModelObj inline float copies and both TextWriterBase display-list functions. Once instruction structure matches, trace surviving named locals: TextWriterBase required moving posLeft before posZ in declaration order to swap their final register priority. These are measured local D-0016 controls, not a general guarantee. See [TextWriterBase](findings/textwriter-final-tail.md) and [BModelObj](findings/329-bmodel-final.md).

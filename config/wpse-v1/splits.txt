@@ -4120,6 +4120,9 @@ MSL_C/rand.c:
 	.text       start:0x80345B08 end:0x80345B30
 	.sdata      start:0x804B8FA8 end:0x804B8FB0
 
+MSL_C/floating_constants.c:
+	.sdata      start:0x804B8FB0 end:0x804B8FC0
+
 MSL_C/scanf.c:
 	.text       start:0x80345B30 end:0x80345BB8
 

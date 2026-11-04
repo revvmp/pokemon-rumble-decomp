@@ -257,7 +257,7 @@ public:
         }
     }
     tree_node_base* end_node() { return reinterpret_cast<tree_node_base*>(&node_alloc_.second()); }
-#if defined(CFILEDATA_EMISSION_LAYOUT)
+#if defined(CFILEDATA_EMISSION_LAYOUT) || defined(BWORLD_EMISSION_LAYOUT)
     pair<iterator, bool> insert_one(const value_type& rValue);
 #else
     pair<iterator, bool> insert_one(const value_type& rValue) {
@@ -278,7 +278,7 @@ public:
     void destroy(node* pNode);
 
 private:
-#if defined(CFILEDATA_EMISSION_LAYOUT)
+#if defined(CFILEDATA_EMISSION_LAYOUT) || defined(BWORLD_EMISSION_LAYOUT)
     template <typename, typename> friend struct map_leaf_search;
 #endif
     struct anchor { anchor() : left_(nullptr) {} tree_node_base* left_; };

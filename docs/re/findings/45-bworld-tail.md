@@ -27,3 +27,31 @@ The CPauseMenu enum-local result closes both remaining BWorld functions. Inside 
 Calc also uses the previously diagnosed fresh iterator declaration in the inner for loop, instead of reassigning the earlier loop's iterator. Isolated stateexisting0 compilation measures all 196 functions at 100%, with no previous exact function lost. The narrow shared-header edit was coordinated and approved by the parent agent, then applied with the source iterator edit. This redundant assignment/typed-zero construct is a D-0016 fake; it is included in the same ledger scope as the existing BWorld allocation/order adaptations.
 
 Whole-unit native linking is not yet accepted. The current source still has weak-function emission-order differences and 208 non-relocation .data bytes that need ordering work. Individual 196/196 function coverage does not close that link requirement.
+
+## 2026-11-04 source emission reconstruction
+
+The next isolated candidate has all 196 target functions exact, in complete target order, after ten evidence-backed symbol mappings. Every exception-table record and cleanup relocation also matches after these mappings. This is object evidence only; native source-link acceptance is still pending. Scratch evidence is `tools/local/session/world-tail/finalcandidate.o`, `finalcandidate-target.o`, and `finalcandidate-renames.json`; the target copy was renamed only for diagnostic objdiff comparison and is not a build input.
+
+The DrawShadow signature was incorrect. Draw's original exception table protects a temporary `nw4r::ut::Color`, whereas the reconstructed GXColor-by-value declaration generated no cleanup. Changing the private parameter to Color restores both exact code and the missing exception record. Simply changing the local black variable, or passing an explicit Color temporary to the old GXColor signature, changes stack allocation and does not match.
+
+The retained emission adaptations are restricted by BWORLD_EMISSION_LAYOUT:
+
+- Move the inline LoadFile definition before its LoadLightScene caller. Moving only its first declaration or adding inline at its old definition did not restore the weak-function pair.
+- Explicit sizeof owner/weak-owner type views establish the instance order without emitting runtime data or instructions.
+- Delay EffectData's full nested definition until after BWorld's declaration. Other translation units retain the original header view.
+- Make the pointer/integer vector storage base dependent through a trait whose result remains void*. The original nondependent void* base eagerly instantiated cleanup helpers while reading vector; this was why moving GetObjects and adding in-class sizeof triggers had no effect. The dependent base restores both the plain vec_deleter pair and the final split-buffer groups without changing their layout or instructions.
+- Use the existing CFileData map_leaf_search pattern to delay the compact map's leaf-search body. Its original algorithm is retained, with a scoped inferred-symbol rename.
+- Use one world_owner_guard template for the seven owned default/custom cleanup helpers. Value/default deleters and reference/custom deleters retain their original compressed-pair layouts. The default constructor must keep its templated pointer parameter and unused nat argument: dropping those changed eight callers' stack allocation. The char-array custom deleter retains shared_ptr_holder through a type trait, since its cleanup is owned by another unit.
+- Delay creation of shared_ptr<CEffect> through a source-local WorldEffectOwner result view for unused CEffect weak_ptr::lock/shared_from_this APIs. The view derives from shared_ptr<CEffect> and preserves shared ownership through its conversion constructor; no such API is called or emitted in BWorld. AddEffect is a source-local member-template specialization so its declaration also does not create that owner instance early. Both changes are necessary: removing either early type-use preserves the wrong owner cleanup order. A function-template lock alternative moved lock bodies into the middle of strong code and was rejected.
+
+These emission views, explicit instantiation triggers, unified cleanup guard, dependent vector base, and delayed owner-result view are documented D-0016 fakes. They preserve executed behavior and compile real C++ bodies; no original bytes or assembly are substituted. DrawShadow's Color parameter is a type correction supported by exception metadata rather than a fake.
+
+### Cross-unit cleanup identity
+
+The first native trial exposed two external owners of BWorld's inferred cleanup names. Renaming the AnmScnRes and ScnRoot holder destructors caused BWorldLightSet and CPostEffect to retain fresh 108-byte weak copies under the old names, adding 0xE0 aligned text bytes. Returning BWorld to fallback did not remove them, because the symbol-name changes still changed global weak resolution.
+
+WorldOwnerGuard.h now shares the identical cleanup implementation. BWorldLightSet and CPostEffect use source-local constructor specializations only for AnmScnRes and ScnRoot with their G3dObj deleter. Isolated comparison confirms their existing instructions, owned function order, and exception records remain unchanged; only those cleanup relocations select the renamed guard. All other ownership, including char-array cleanup, retains its existing helper. Native acceptance remains pending this correction.
+
+## Accepted native source link
+
+After the two external ownership specializations, the parent ran the real shared build with BWorld marked Matching. Ninja exited 0 and the frozen-manifest verifier passed against the newly linked DOL. BWorld's 196/196 source bodies, exact emission order, original exception metadata, and linked data are accepted. The original hashes were not changed. Parent broad comparison checks shared-header regressions separately.

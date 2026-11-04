@@ -74,16 +74,25 @@ static inline void GDWrite_f32(f32 data) {
     GDWrite_u32(value.u);
 }
 
+#if defined(NW4R_TEXT_WRITER_EMISSION_LAYOUT)
+inline
+#endif
 static void GDPosition3f32(f32 x, f32 y, f32 z) {
     GDWrite_f32(x);
     GDWrite_f32(y);
     GDWrite_f32(z);
 }
 
+#if defined(NW4R_TEXT_WRITER_EMISSION_LAYOUT)
+inline
+#endif
 static void GDColor1u32(u32 color) {
     GDWrite_u32(color);
 }
 
+#if defined(NW4R_TEXT_WRITER_EMISSION_LAYOUT)
+inline
+#endif
 static void GDTexCoord2u16(u16 s, u16 t) {
     GDWrite_u16(s);
     GDWrite_u16(t);

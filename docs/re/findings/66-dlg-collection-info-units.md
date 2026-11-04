@@ -58,3 +58,15 @@ The weak `weak_ptr` destructor at `0x8007DAD0` that BUI's constructor reuses (F-
 
 - **An issue table can include the next file's first function.** #72 lists `0x80084D40`, but that function constructs `CDlgMsgWin` and begins `CDlgMsgWin.cpp`. Check what each boundary function constructs before ending a split at the issue's last address.
 - **Shared weak functions sit in the first unit that emits them.** `0x80077860` (an `IDlg` inline virtual) and the `bad_weak_ptr` vtable are referenced by later dialog units but live in `CDlgCollection.cpp`. Do not assign them to the unit that references them most.
+
+## CDlgCollectionItem constructor exact copy lifetime
+
+The item constructor at 0x8007A5C0 (432 bytes) now compares at 100%, raising CDlgCollection to 112/113 exact functions. The baseline vector copy reused its allocation count for memmove size, while the target keeps the original byte difference live and recomputes the memmove range. A same-type pointer cast in only the memmove subtraction prevents that common-subexpression merge. The original uncast difference remains available for the post-copy size update.
+
+A local unsigned-short vec_deleter construct_at_end specialization plus a local copy-constructor specialization and one allocation forwarding level reproduce the target count/error-path register allocation and exception temporaries. The helpers retain the same allocation, length check, memmove and size increment; no shared header changes are needed. This is an intentional D-0016 fake source shape rather than an assertion that the original source used these helper names or specializations.
+
+The formatted tracked source was directly compiled with the CDlgCollection command from build.ninja and checked against the original split. Evidence: tools/local/session/collection-ppu/ctor-accepted.cpp and ctor-accepted.json. All previous 111 exact functions remain exact; function-order LCS improves from 99 to 100. The remaining Calc register swap and source-link data/order are unfinished. Coordinating maintainer full-build validation is pending.
+
+### Traps from this pass
+
+Placing the identity cast in the allocation-count subtraction instead shifts which byte difference survives memmove and remains inexact (98.45%). The cast belongs only in memmove's size expression. A single allocation forwarding level fixes the error-path register allocation; two levels revert that gain. Fresh Model pointer identities, const vector accessors, explicit offset counters and predeclared model pointers have not solved Calc's index/model register swap and are scratch-only.

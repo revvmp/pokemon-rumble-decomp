@@ -2,7 +2,7 @@
 
 ## Current status
 
-Roadmap Phases 1 to 3 are complete and Phase 4 is active. The latest verified build matches the frozen main.dol exactly. It links 2,552,708 of 3,082,232 code bytes (82.820114%) from 857 Matching units; 49 real functions remain below 100%. Original split fallbacks still supply the remaining code and data. See the latest session below and [matching requirements](MATCHING.md).
+Roadmap Phases 1 to 3 are complete and Phase 4 is active. The latest verified build matches the frozen main.dol exactly. It links 2,642,816 of 3,082,232 code bytes (85.743576%) from 861 Matching units; 41 real functions remain below 100%. Original split fallbacks still supply the remaining code and data. See the latest session below and [matching requirements](MATCHING.md).
 
 | Milestone | State | Evidence or prerequisite |
 | --- | --- | --- |
@@ -14,7 +14,7 @@ Roadmap Phases 1 to 3 are complete and Phase 4 is active. The latest verified bu
 | Toolchain identification | Identified per library | RVL_SDK Wii/1.0; MSL and Runtime Wii/1.1 or 1.3 with `-func_align 4`; NW4R Wii/1.0 or 1.1; F-0007 |
 | Reproducible game build | Achieved | Two clean builds byte-identical; F-0010 |
 | Exact executable match | Achieved for `main.dol` | Verified; remaining original split fallbacks are tracked separately |
-| Source reconstruction | Started | 857 Matching units of 1,388 current units; see ledger |
+| Source reconstruction | Started | 861 Matching units of 1,388 current units; see ledger |
 | Full release match | Pending | Boot loader, data contents, and WAD packaging outside current scope |
 
 ## Current continuation: source-link acceptance
@@ -25,7 +25,7 @@ Main and CBattleRoyalBox subsequently passed full source-link verification, addi
 
 ## Latest function gains
 
-The real unmatched tail is now 49, down 71 from its initial 120. Matched code is 3,006,040/3,082,232 bytes (97.52802%). Recent exact functions include PiiPropData assignment, both selector tag dispatch callers, CRemoteMemory ThreadMain, InitMsgResList, GetPaneRectangle, PhotoSave and CGameEnding. Verified source-link coverage remains distinct from function matching.
+The real unmatched tail is now 41, down 79 from its initial 120. Matched code is 3,017,048/3,082,232 bytes (97.88517%). Recent exact functions include PiiPropData assignment, both selector tag dispatch callers, CRemoteMemory ThreadMain, InitMsgResList, GetPaneRectangle, PhotoSave and CGameEnding. Verified source-link coverage remains distinct from function matching.
 
 Several link failures were incorrect inferred identities: original vtable relocations prove swapped destructor names in CGameSession, errmsg and CNoticeDisplay. Correcting them removed unnecessary source-fragment experiments. Errmsg also required recovering its NErrMsg namespace from embedded type names, preserving two separately compiled float pools, and the evidenced16-byte start alignment of the following homebutton function. Frozen hashes remain unchanged.
 
@@ -59,7 +59,7 @@ The ledger is kept per area in [ledger](ledger/README.md). It records source own
 
 ## Latest session
 
-2026-11-04 data continuation: BModelObj, CMiniMap and CPauseMenu now pass full source-link verification. Camera, species/model names, motor patterns, post-effect, stage, motion and effect tables are ordinary typed C++ definitions with compiler relocations. MSL character maps and the AX compressor table are typed C arrays. The C locale pointer graph and seven typed BMG language resources also pass full source linkage. Thirteen new data units remove 82,944 bytes of fallback data. The report records 1,621,285 linked data bytes (90.63398%); data denominators can change when explicit splits separate alignment padding. New function gains are CMiniMap CalcView, both RGB565 MCU converters and both remaining Pause functions. BWorld Calc/CalcMtx and CLayout ReplaceMotions/DetachAttachedLayouts subsequently became exact; BWorld still needs source-link ordering acceptance. Fresh ninja and frozen main.dol verification pass, with no formerly exact real function regressing against the prior clean build. No new project-wide trap was established; local emission and field-type evidence is retained in the linked findings.
+2026-11-04 data continuation: BModelObj, CMiniMap and CPauseMenu now pass full source-link verification. Camera, species/model names, motor patterns, post-effect, stage, motion and effect tables are ordinary typed C++ definitions with compiler relocations. MSL character maps and the AX compressor table are typed C arrays. The C locale pointer graph and seven typed BMG language resources also pass full source linkage. Fourteen new data units remove 82,960 bytes of fallback data. The report records 1,643,397 linked data bytes (91.870094%); data denominators can change when explicit splits separate alignment padding. New function gains are CMiniMap CalcView, both RGB565 MCU converters and both remaining Pause functions. BWorld Calc/CalcMtx and CLayout ReplaceMotions/DetachAttachedLayouts subsequently became exact; BWorld, homebutton and TextWriterBase subsequently passed full source-link acceptance. NPpuVM destructor, CGameResult Calc, the collection-item constructor and two more CLayout methods are exact. Fresh ninja and frozen main.dol verification pass, with no formerly exact real function regressing against the prior clean build. No new project-wide trap was established; local emission and field-type evidence is retained in the linked findings.
 
 2026-11-04 verified continuation: 49 additional real functions match, leaving 71 of the original 120-function tail. CPiiPersonalData now links from source with all 44 functions exact. Further gains include CDlgMsgWin, CBattleRoyalBox, three CGameSession functions, two CPii helpers, two CDlgPiiSelector helpers and PiiPropData sort. Fresh ninja and frozen main.dol verification pass. Matched code is 2,973,680/3,082,232 bytes (96.478134%); linked code is 2,205,924 bytes (71.569046%), across 828 Matching units. The shared sort prefix-increment correction introduced no regression in any previously exact function. Function-perfect units awaiting source-link acceptance now include CFileData, SaveData, main, ScriptWorldObj, CDlgMsgWin, CGameSession and CBattleRoyalBox.
 

@@ -101,21 +101,19 @@ public:
     f32 CalcFormatStringHeight(const T* str, ...) const;
     void CalcFormatStringRect(Rect* rect, const T* str, ...) const;
     void CalcVStringRect(Rect* rect, const T* str, va_list args) const;
-    f32 CalcStringHeight(const T* str, int len) const;
-    f32 Printf(const T* str, ...);
-    f32 PrintfMutable(const T* str, ...);
-    f32 VPrintfMutable(const T* str, va_list args);
-
-    f32 CalcLineWidth(const T* pStr, int len);
     f32 CalcStringWidth(const T* pStr, int len) const;
+    f32 CalcStringHeight(const T* str, int len) const;
     void CalcStringRect(Rect* pRect, const T* pStr, int len) const;
-
-    static int VSNPrintf(char* buffer, u32 count, const char* str, va_list args) { return vsnprintf(buffer, count, str, args); }
-    static int VSNPrintf(wchar_t* buffer, u32 count, const wchar_t* str, va_list args) { return vswprintf(buffer, count, str, args); }
+    f32 Printf(const T* str, ...);
     f32 VPrintf(const T* pStr, va_list args);
     f32 Print(const T* pStr, int len);
+    f32 PrintfMutable(const T* str, ...);
+    f32 VPrintfMutable(const T* str, va_list args);
     f32 PrintMutable(const T* pStr, int len);
     f32 PrintMutableToDisplayList(const T* pStr, int len);
+    static int VSNPrintf(char* buffer, u32 count, const char* str, va_list args) { return vsnprintf(buffer, count, str, args); }
+    static int VSNPrintf(wchar_t* buffer, u32 count, const wchar_t* str, va_list args) { return vswprintf(buffer, count, str, args); }
+    f32 CalcLineWidth(const T* pStr, int len);
 
     static T* GetBuffer() {
         return mFormatBuffer;
@@ -139,9 +137,6 @@ private:
                                          DRAWFLAG_MASK_ALIGN_V;
 
 private:
-    bool IsDrawFlagSet(u32 mask, u32 flag) const {
-        return (mDrawFlag & mask) == flag;
-    }
 
     bool CalcLineRectImpl(Rect* pRect, const T** ppStr, int len);
     void CalcStringRectImpl(Rect* pRect, const T* pStr, int len);
@@ -149,6 +144,7 @@ private:
     f32 PrintImpl(const T* pStr, int len, bool mutableCursor);
     f32 PrintToDisplayListImpl(const T* pStr, int len, bool mutableCursor);
     f32 AdjustCursor(f32* pX, f32* pY, const T* pStr, int len);
+    bool IsDrawFlagSet(u32 mask, u32 flag) const;
 
 private:
     f32 mWidthLimit;
@@ -163,6 +159,10 @@ private:
     static TagProcessorBase<T> mDefaultTagProcessor;
 };
 
+
+template <typename T> bool TextWriterBase<T>::IsDrawFlagSet(u32 mask, u32 flag) const {
+    return (mDrawFlag & mask) == flag;
+}
 
 }
 }

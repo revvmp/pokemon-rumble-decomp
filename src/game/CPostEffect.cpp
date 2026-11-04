@@ -13,6 +13,16 @@
 #include <nw4r/g3d/g3d_state.h>
 #include <string.h>
 
+#include <game/WorldOwnerGuard.h>
+namespace std { namespace tr1 {
+template <> template <> inline shared_ptr<nw4r::g3d::ScnRoot>::shared_ptr(nw4r::g3d::ScnRoot* p, void (*d)(nw4r::g3d::G3dObj*)) : ptr_(p) {
+ detail::world_owner_guard<nw4r::g3d::ScnRoot, void (*&)(nw4r::g3d::G3dObj*)> holder(p,d);
+ s_ = new detail::shared_ptr_deleter<nw4r::g3d::ScnRoot, void (*)(nw4r::g3d::G3dObj*)>(p,d);
+ holder.release();
+ enable_from_this(p,p);
+}
+} }
+
 std::tr1::shared_ptr<IPostEffect> IPostEffect::Create(bool flag, bool background) {
     std::tr1::shared_ptr<CFileData> file = LoadFile("5:/post_effect.arc", 0, background);
     std::tr1::shared_ptr<CPostEffect> effect(new CPostEffect(flag, file));

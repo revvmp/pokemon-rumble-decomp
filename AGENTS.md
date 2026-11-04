@@ -125,6 +125,10 @@ Keep entries concise and actionable. Distinguish confirmed findings from hypothe
 
 - **An enum view can preserve a value that integer temporaries coalesce.** CPauseMenu hub packing and BWorld skip-state construction became exact with a typed enum local after integer forms failed. This is a local CodeWarrior control, not a universal rule; see [codegen evidence](docs/re/CODEGEN_RULES.md) and [BWorld](docs/re/findings/45-bworld-tail.md).
 
+- **A same-type float reassignment can affect coalescing when an initializer cast does not.** BModelObj and TextWriterBase required this local control; afterward, trace surviving named locals before permuting declarations. See [evidence](docs/re/findings/textwriter-final-tail.md).
+
+- **Renaming a shared cleanup helper can emit a second old-name copy elsewhere.** BWorld guard renames caused two other Matching owners to re-emit108-byte helpers and shifted the executable. Their constructor specializations must use the same verified guard identity; see [the full-link evidence](docs/re/findings/45-bworld-tail.md).
+
 ## Current project state
 
 | Current state | Value |

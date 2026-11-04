@@ -116,3 +116,17 @@ A stand-in test of `SetPiiPositions` as an out-of-line member measured the same 
 ## Method
 
 Disassembly with `powerpc-eabi-objdump -d` over the linked `build/wpse-v1/main.elf` (`--start-address`/`--stop-address`), `extabindex` entries parsed from `objdump -s -j extabindex`, a script that follows `lis`/`addi` pairs and `r13`/`r2` offsets to the data addresses each function reads, and a script that interprets the compare tree of the species switch for every value. `python configure.py`, `ninja` and `tools/verify/verify.py` exit 0 with the split.
+
+## Exact Calc camera lifetime reconstruction
+
+Calc at 0x800B0D00, size 0x278, now compares at 100%, raising CGameResult to 74/75 exact functions. The prior camera helpers reproduced the operations but lost the eye-vector address across the second PSMTXMultVec call. A transform helper returning its output by const reference, used as the left input to a subtraction helper with eye as the right input, retains the target address in r31. Both helpers inline completely.
+
+Seven named vectors declared in the order up, downWorld, down, eye, origin, target and forward reproduce the exact stack slots. Initializing the input components separately avoids extra temporary vectors. Storing the mirrored posture components in x/z/y order reproduces both FPR allocation and store scheduling while preserving the same mirrored position, up vector and target. These explicit lifetimes and stores are an intentional D-0016 source-shaping fake, not a claim to original helper names or structure. The matrix operations and floating-point subtraction remain unchanged.
+
+Direct compilation using the CGameResult build.ninja command and comparison against the original split gives 74/75 exact functions with the previous 73 preserved. Function-order LCS remains 58/75. Evidence is tools/local/session/gameresult-ppu/calc-accepted.cpp and calc-accepted.json. The unit stays NonMatching while the comparator-reference sort and source-link ordering/data remain unfinished. Full-build validation is delegated to the coordinating maintainer.
+
+### Traps
+
+Value-returning transform expressions alone fix the missing saved register but allocate their result temporaries in the wrong stack order. Flat named storage with a transform returning a reference separates storage order from expression evaluation. Extra helper depth alone did not solve both requirements.
+
+The remaining comparator-reference sort still scores 97.781815%. Fresh iterator pointer-identity forms, selection-range locals, explicit iterator copy construction, by-value iterator assignment and constructor parameters, and named left/right pointer variants in iterator subtraction did not improve it. Explicit copy construction regressed several functions; the other unsuccessful variants are scratch-only. The target and current sort differ in saved-register coloring/coalescing rather than operations: the division constant and first iterator swap r31/r30, followed by m/j/i1 lifetime differences. No shared algorithm/vector edits are retained.

@@ -6,6 +6,35 @@
 #include <string.h>
 #include <wchar.h>
 
+namespace std {
+
+template <> inline set<NPpu::CEngine*>::iterator set<NPpu::CEngine*>::find(NPpu::CEngine* const& rValue) {
+    const void* pValue = rValue;
+    return iterator(mTree.find(pValue));
+}
+
+namespace detail {
+
+template <>
+inline tree_imp<const void*, less<const void*>, allocator<const void*> >::iterator
+tree_imp<const void*, less<const void*>, allocator<const void*> >::erase(iterator position) {
+    tree_node_base* pNext;
+    node* pNode = position.node_;
+    if (pNode == begin_node()) {
+        ++position;
+        begin_node() = position.node_;
+    }
+    pNext = algorithm_base::balance_erase(pNode, root());
+    alloc().destroy(&static_cast<node*>(pNode)->value_);
+    ::operator delete(pNode);
+    --size_.first();
+    return iterator(static_cast<node*>(pNext));
+}
+
+}
+
+}
+
 namespace NPpu {
 
 CCode::CCode() : mCode(nullptr), mStrings(nullptr), mWStrings(nullptr) {}

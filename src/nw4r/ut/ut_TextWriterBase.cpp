@@ -1,3 +1,4 @@
+#define NW4R_TEXT_WRITER_EMISSION_LAYOUT
 #include <nw4r/ut/ut_TextWriterBase.h>
 #include <nw4r/ut/ut_Font.h>
 #include <nw4r/ut/ut_Rect.h>
@@ -618,11 +619,13 @@ f32 TextWriterBase<T>::PrintToDisplayListImpl(const T *str, int len, bool m) {
                 left = glyph.widths.left * mScale.x;
             }
 
-            f32 posZ = mCursorPos.z;
             f32 posX = mCursorPos.x + left;
             f32 posY = mCursorPos.y - mFont->GetBaselinePos(ch) * mScale.y;
+            f32 posLeft;
+            f32 posZ = mCursorPos.z;
+            posZ = static_cast<f32>(posZ);
 
-            f32 posLeft = posX;
+            posLeft = posX;
             f32 posTop = posY;
             f32 posRight = posLeft + glyph.widths.glyphWidth * mScale.x;
             f32 posBottom = posTop + glyph.height * mScale.y;

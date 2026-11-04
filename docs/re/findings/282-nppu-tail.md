@@ -57,3 +57,11 @@ The target uses a separate next iterator while sweeping. A next-iterator assignm
 All new candidates remain scratch-only: tools/local/session/nppu-ppu/markround.cpp/.json and nextcondition2.cpp/.json, with the required const-end additions in nppu-ppu/include/map. No shared header changes are accepted from this pass. The header snapshot map-before-copy.h preserves the useful const-end variant; its added postfix increment probe is not required by the best candidate.
 
 Fresh destructor pointer aliases and erase forwarding probes reproduced the earlier 98.04124% partial result but did not improve it. Header field/cache enum and const variants in Load reached only 94.290596%; volatile member stores did not fix its scheduling. These partial experiments are not retained source gains.
+
+## F-282-10: Exact engine destructor through concrete node lifetime
+
+The engine destructor at 0x80170510 (388 bytes) now compares at 100%, raising NPpuVM to 61/63 exact functions. A named const void pointer inside the pointer-set find specialization preserves the target this register and all volatile find-loop registers, reaching 99.53608%. The remaining tree/node saved-register swap disappears when erase keeps its removed node as the concrete node pointer rather than the base-node pointer. Neither change alone resolves the function.
+
+Both operations are local inline explicit specializations in NPpuVM.cpp. No shared headers change. Find uses the same pointer comparison, and erase retains the same increment, balancing, destruction, deallocation and size update. This is documented D-0016 source shaping: the local specialization structure is intentional and does not claim original template-source recovery. The broader allocator and explicit-delete-cast probes were unnecessary and are not retained.
+
+The exact direct compiler command and objdiff comparison are preserved in tools/local/session/nppu-ppu/dtaccepted.cpp and dtaccepted.json. All previous 60 exact functions remain exact; function-order LCS remains 59/63. The unit remains NonMatching with Load and CollectGarbage unfinished. Coordinating maintainer validation of the integrated full build is pending.

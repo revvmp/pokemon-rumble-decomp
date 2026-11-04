@@ -79,6 +79,10 @@ struct unused_argument;
 
 template <typename T> class shared_ptr;
 template <typename T> class weak_ptr;
+#if defined(BWORLD_EMISSION_LAYOUT)
+namespace detail { template <typename T> struct world_shared_result { typedef shared_ptr<T> type; }; template <> struct world_shared_result<CEffect> { typedef WorldEffectOwner type; }; }
+#endif
+
 template <typename T> class enable_shared_from_this;
 
 template <typename T> class shared_ptr {
@@ -154,6 +158,7 @@ private:
     detail::shared_ptr_deleter_common* s_;
 };
 
+#if !defined(BWORLD_EMISSION_LAYOUT)
 template <typename T>
 template <typename Y>
 shared_ptr<T>::shared_ptr(Y* p) : ptr_(p) {
@@ -171,6 +176,8 @@ shared_ptr<T>::shared_ptr(Y* p, D d) : ptr_(p) {
     holder.release();
     enable_from_this(p, p);
 }
+
+#endif
 
 template <typename T> class weak_ptr {
 public:
@@ -197,11 +204,19 @@ public:
         s_ = r.s_;
         r.s_ = s;
     }
+#if defined(GAME_DLGPIISELECTOR_EMISSION_LAYOUT)
+    void reset();
+#else
     void reset() { weak_ptr().swap(*this); }
+#endif
 
     long use_count() const { return s_ ? s_->use_count() : 0; }
     bool expired() const { return !s_ || s_->use_count() == 0; }
+#if defined(BWORLD_EMISSION_LAYOUT)
+    typename detail::world_shared_result<T>::type lock() const;
+#else
     shared_ptr<T> lock() const;
+#endif
 
 private:
     template <typename Y> friend class shared_ptr;
@@ -215,7 +230,11 @@ private:
 
 template <typename T> class enable_shared_from_this {
 public:
+#if defined(BWORLD_EMISSION_LAYOUT)
+    typename detail::world_shared_result<T>::type shared_from_this() { return shared_ptr<T>(weak_this_, nullptr); }
+#else
     shared_ptr<T> shared_from_this() { return shared_ptr<T>(weak_this_, nullptr); }
+#endif
 
 protected:
     enable_shared_from_this() {}
@@ -311,7 +330,11 @@ weak_ptr<T>& weak_ptr<T>::operator=(const shared_ptr<Y>& r) {
     return *this;
 }
 
+#if defined(BWORLD_EMISSION_LAYOUT)
+template <typename T> typename detail::world_shared_result<T>::type weak_ptr<T>::lock() const {
+#else
 template <typename T> shared_ptr<T> weak_ptr<T>::lock() const {
+#endif
     if (expired()) {
         return shared_ptr<T>();
     }
@@ -357,6 +380,12 @@ void shared_ptr<T>::enable_from_this(const enable_shared_from_this<Y>* pBase, U*
 #ifdef CBATTLEROYALBOX_EMISSION_LAYOUT
 namespace std { namespace tr1 {
 template<typename T> shared_ptr<T>::shared_ptr() : ptr_(nullptr), s_(nullptr) {}
+} }
+#endif
+
+#if defined(GAME_DLGPIISELECTOR_EMISSION_LAYOUT)
+namespace std { namespace tr1 {
+template <typename T> void weak_ptr<T>::reset() { weak_ptr().swap(*this); }
 } }
 #endif
 

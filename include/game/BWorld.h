@@ -111,6 +111,9 @@ public:
         std::tr1::shared_ptr<BWorldObj> mObj;
     };
 
+#if defined(BWORLD_EMISSION_LAYOUT)
+    struct EffectData;
+#else
     struct EffectData {
         u32 mLastHandle;
         u32 mGroupID;
@@ -121,6 +124,8 @@ public:
         TextureState mTextureState;
         u32 mCaptureGroupID;
     };
+
+#endif
 
     struct OutlineData {
         COffScreenTexture mTexture;
@@ -193,7 +198,11 @@ public:
     CEffect* CreateEffect(const CEffect::Param& rParam, BWorldObj* pFollow, BWorldObj* pTarget);
     void RemoveAllEffects(BOOL retire);
     bool RemoveOldestEffect(bool retire);
+#if defined(BWORLD_EMISSION_LAYOUT)
+    template <typename Effect> CEffect* AddEffect(std::tr1::shared_ptr<Effect> effect);
+#else
     CEffect* AddEffect(std::tr1::shared_ptr<CEffect> effect);
+#endif
 
 private:
     ObjEntry* GetNextEntry(const ObjEntry* pEntry) { return pEntry->GetNext(&mObjEntries[0]); }
@@ -216,7 +225,7 @@ private:
 
     bool HasEffectData() const { return mEffectData; }
 
-    bool DrawShadow(GXColor clearColor, GXPixelFmt pixelFormat);
+    bool DrawShadow(nw4r::ut::Color clearColor, GXPixelFmt pixelFormat);
     void DrawOutline();
 
     static u32 GetStopTypes(u32 type) { return (type & ~ENTRY_HEAD_TYPES) == 0 ? ENTRY_HEAD_TYPES : 0xFFFFFFFF; }
@@ -240,5 +249,18 @@ private:
     std::tr1::shared_ptr<EffectData> mEffectData;
     std::tr1::shared_ptr<OutlineData> mOutlineData;
 };
+
+#if defined(BWORLD_EMISSION_LAYOUT)
+struct BWorld::EffectData {
+        u32 mLastHandle;
+        u32 mGroupID;
+        u32 mPauseGroupID;
+        std::vector<std::tr1::shared_ptr<CEffect> > mEffects;
+        bool mCaptureEnable;
+        COffScreenTexture mCaptureTexture;
+        TextureState mTextureState;
+        u32 mCaptureGroupID;
+    };
+#endif
 
 #endif

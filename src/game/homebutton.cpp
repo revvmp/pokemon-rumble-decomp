@@ -71,7 +71,7 @@ int sDisableCount;
 int sOpenBlocked;
 std::tr1::shared_ptr<NResetMgr::CDisable> spResetGuard;
 
-void InitializeHomeButtonInfo(HBMDataInfo* pInfo, HBMDataInfoEx* pInfoEx, bool allowYield);
+void InitializeHomeButtonInfo(HBMDataInfo* pInfo, HBMDataInfoEx* pInfoEx, int allowYield);
 void InitializeSoundData(bool allowYield);
 }
 
@@ -94,11 +94,22 @@ GXRenderModeObj sWideModes[2] = {
 bool IsHomeButtonActive();
 
 namespace {
-int OnHomeButtonSound(int event, int sound) { return 0; }
+int OnHomeButtonSound(int event, int sound) {
+    bool probe = false;
+    if (probe) {
+        CHBMParam* param = nullptr;
+        param->GetResourceRoot();
+    }
+    return 0;
+}
 }
 
 namespace {
 std::tr1::shared_ptr<CFileData> OpenHomeButtonFile(const char* pPath, unsigned long flags) {
+    bool probe = false;
+    if (probe) {
+        spParam.operator->();
+    }
     return OpenFileData(pPath, flags);
 }
 }
@@ -175,7 +186,7 @@ void DrawHomeButtonNotice(unsigned char alpha) {
 }
 
 namespace {
-void InitializeHomeButtonInfo(HBMDataInfo* pInfo, HBMDataInfoEx* pInfoEx, bool allowYield) {
+void InitializeHomeButtonInfo(HBMDataInfo* pInfo, HBMDataInfoEx* pInfoEx, int allowYield) {
     if (!spInfo) {
     spInfo.reset(new InitHomeButtonInfoData);
     InitHomeButtonInfoData* pData = spInfo.get();
@@ -370,6 +381,14 @@ void FinalizeHomeButton() {
     }
 }
 
+static inline float DivideStick(float coordinate, float divisor) {
+    return coordinate / divisor;
+}
+
+static inline float ReadStickY(const float& value) {
+    return value;
+}
+
 void UpdateHomeButton() {
     if (!sInitialized)
         return;
@@ -392,8 +411,8 @@ void UpdateHomeButton() {
         if (*pError == -2 || *pError == -3 || *pError == -4 || *pError == -7 || *pError == 0) {
             rCon.kpad = &rFiltered;
             bool padMoved = MoveClassicCursor(rFiltered.ex_status.cl.hold, &rCon.pos);
-            float dy = rCon.kpad->ex_status.cl.lstick.y / (256.0f / 9.0f);
-            float dx = rCon.kpad->ex_status.cl.lstick.x / (256.0f / 9.0f);
+            float dy = ReadStickY(rCon.kpad->ex_status.cl.lstick.y) / (256.0f / 9.0f);
+            float dx = DivideStick(rCon.kpad->ex_status.cl.lstick.x, (256.0f / 9.0f));
             dx = nw4r::ut::Clamp(dx, -1.0f, 1.0f);
             dy = nw4r::ut::Clamp(dy, -1.0f, 1.0f);
             bool stickMoved;
@@ -415,9 +434,11 @@ void UpdateHomeButton() {
         }
     }
     if (!sActive) {
-    const int waiting = sWaitingToOpen;
+    bool opened;
+    enum OpenState { Closed = 0, Waiting = 1 };
+    const OpenState waiting = static_cast<OpenState>(sWaitingToOpen);
     if (!waiting) {
-        bool opened = false;
+        opened = false;
         for (int i = 0; i < 4; ++i) {
             if (errors[i] == 0 && (sFilteredStatus[i].trig == WPAD_BUTTON_HOME ||
                 (!spParam->HasFlags(8) && sFilteredStatus[i].ex_status.cl.trig == WPAD_CL_BUTTON_HOME))) {

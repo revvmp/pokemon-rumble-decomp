@@ -959,8 +959,16 @@ private:
     T mValue;
 };
 
+#if defined(BWORLD_EMISSION_LAYOUT)
+template <typename T, typename Allocator> class __vec_pointer : public __vec_constructor<typename world_vector_pointer<Allocator>::type, allocator<typename world_vector_pointer<Allocator>::type>, true> {
+#else
 template <typename T, typename Allocator> class __vec_pointer : public __vec_constructor<void*, allocator<void*>, true> {
+#endif
+#if defined(BWORLD_EMISSION_LAYOUT)
+    typedef __vec_constructor<typename world_vector_pointer<Allocator>::type, allocator<typename world_vector_pointer<Allocator>::type>, true> base;
+#else
     typedef __vec_constructor<void*, allocator<void*>, true> base;
+#endif
 
 public:
     void push_back(T* const& x) { base::push_back((void* const&)x); }
@@ -1074,8 +1082,16 @@ public:
     void pop_back() { base::pop_back(); }
 };
 
+#if defined(BWORLD_EMISSION_LAYOUT)
+template <typename Allocator> class __vec_integer : public __vec_constructor<typename world_vector_pointer<Allocator>::type, allocator<typename world_vector_pointer<Allocator>::type>, true> {
+#else
 template <typename Allocator> class __vec_integer : public __vec_constructor<void*, allocator<void*>, true> {
+#endif
+#if defined(BWORLD_EMISSION_LAYOUT)
+    typedef __vec_constructor<typename world_vector_pointer<Allocator>::type, allocator<typename world_vector_pointer<Allocator>::type>, true> base;
+#else
     typedef __vec_constructor<void*, allocator<void*>, true> base;
+#endif
 
 public:
     void push_back(void* const& x) { base::push_back(x); }

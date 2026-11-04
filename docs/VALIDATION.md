@@ -192,3 +192,7 @@ Both new empty roots, tools/local/session/clean-data-20261104 and clean-data-rep
 SHA-256 values: main.dol ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da; main.elf34b42203123c50a06d32e96df6d66df728ba26dae590e5b5c84244a911199c3e; report.json180438e5901fb0da94eca6a5022af2571c6eacb59ec22a0065b65b6b2656bcde.
 
 This includes the new source data tables, native source-fragment paths, BWorld shared-header adaptation and CLayout exact-function gain. Comparing real functions by original virtual address with the prior clean-repeat report finds no formerly exact function regression. Fifty real functions and source/data fallback dependencies remain; this evidence establishes reproducibility of the checkpoint, not complete decompilation.
+
+## 41-function continuation
+
+The current native build exits0 and the frozen main.dol verifier passes after BWorld, homebutton and TextWriterBase source linkage, the MSL floating constants and additional exact collection, layout, result and engine functions. Source-linked code is2,642,816/3,082,232bytes (85.743576%), and linked data is1,643,397bytes (91.870094%). The41-function tail and original-data/code fallbacks remain explicit. This is incremental acceptance; the latest repeated clean evidence is the50-function checkpoint above.
