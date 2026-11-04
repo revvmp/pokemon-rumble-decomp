@@ -4,7 +4,7 @@ class CResFont;
 class CArchiveFontWithBuf;
 class CDisableHBM;
 class CDisablePadRumble;
-class IGameSession;
+class ISession;
 class IDisconMsg;
 class CMsgRes;
 class IStrapReminder;
@@ -18,7 +18,7 @@ class PairFont;
 #include <memory>
 enum { MainPointerFirst0 = sizeof(std::tr1::shared_ptr<CMsgRes>) };
 enum { MainPointerFirst1 = sizeof(std::tr1::shared_ptr<IDisconMsg>) };
-enum { MainPointerFirst2 = sizeof(std::tr1::shared_ptr<IGameSession>) };
+enum { MainPointerFirst2 = sizeof(std::tr1::shared_ptr<ISession>) };
 namespace std {
 namespace tr1 {
 template <> CMsgRes *shared_ptr<CMsgRes>::operator->() const;
@@ -46,6 +46,7 @@ template <> template <> shared_ptr<CMsgRes>::shared_ptr(CMsgRes *p);
 
 #include <game/CFileData.h>
 #include <nw4r/ut/ut_ResFont.h>
+#include <game/GameLoop.h>
 
 class CResFont : public nw4r::ut::ResFont {
 public:
@@ -69,7 +70,118 @@ enum { MainLayoutHandlerSize = sizeof(std::tr1::function<void(const CLayout::CIn
 #include <game/IColorConst.h>
 #include <game/CIconCollection.h>
 #include <game/CStrapReminder.h>
-#include <game/HomeButton.h>
+namespace std {
+namespace tr1 {
+namespace detail {
+template <> class function_base<void (*)()>;
+}
+}
+}
+#ifndef GAME_HOME_BUTTON_H
+#define GAME_HOME_BUTTON_H
+
+#include <functional>
+#include <string>
+#include <revolution/hbm/HBMBase.h>
+#include <game/DisableHBM.h>
+
+class CHBMParam {
+public:
+    enum Flags { NoSaveWiiMenu = 1, NoSaveReset = 2, NoSaveAll = 4, PreloadResources = 16 };
+
+    CHBMParam();
+    ~CHBMParam();
+    void SetResourceRoot(const char *pPath) {
+        mResourceRoot = pPath;
+    }
+    void SetSoundRoot(const char *pPath) {
+        mSoundRoot = pPath;
+    }
+    void SetExtensionRoot(const char *pPath) {
+        mExtensionRoot = pPath;
+    }
+    void SetNoSaveMessagePath(const char *pPath) {
+        mNoSaveMessagePath = pPath;
+    }
+    void SetMessagePath(const char *pPath) {
+        mMessagePath = pPath;
+    }
+    void SetNetworkMessagePath(const char *pPath) {
+        mNetworkMessagePath = pPath;
+    }
+    void SetModelPath(const char *pPath) {
+        mModelPath = pPath;
+    }
+    void SetTextureName(const char *pName) {
+        mTextureName = pName;
+    }
+    void SetFlags(unsigned long flags) {
+        mFlags |= flags;
+    }
+    void SetOpenCallback(const std::tr1::function<void()> &rCallback);
+    void SetCloseCallback(const std::tr1::function<bool(HBMSelectBtnNum)> &rCallback) {
+        mCloseCallback = rCallback;
+    }
+    const std::string &GetResourceRoot() const {
+        return mResourceRoot;
+    }
+    const std::string &GetSoundRoot() const {
+        return mSoundRoot;
+    }
+    const std::string &GetExtensionRoot() const {
+        return mExtensionRoot;
+    }
+    const char *GetNoSaveMessagePath() const {
+        return mNoSaveMessagePath.c_str();
+    }
+    const char *GetMessagePath() const {
+        return mMessagePath.c_str();
+    }
+    const char *GetNetworkMessagePath() const {
+        return mNetworkMessagePath.c_str();
+    }
+    const char *GetModelPath() const {
+        return mModelPath.c_str();
+    }
+    const char *GetTextureName() const {
+        return mTextureName.c_str();
+    }
+    bool HasFlags(unsigned long flags) const {
+        return (mFlags & flags) != 0;
+    }
+    const std::tr1::function<void()> &GetOpenCallback() const {
+        return mOpenCallback;
+    }
+    const std::tr1::function<bool(HBMSelectBtnNum)> &GetCloseCallback() const {
+        return mCloseCallback;
+    }
+    float GetFrameRate() const {
+        return mFrameRate;
+    }
+
+private:
+    unsigned long mFlags;
+    float mFrameRate;
+    std::string mResourceRoot;
+    std::string mSoundRoot;
+    std::string mExtensionRoot;
+    std::string mNoSaveMessagePath;
+    std::string mMessagePath;
+    std::string mNetworkMessagePath;
+    std::string mModelPath;
+    std::string mTextureName;
+    std::tr1::function<void()> mOpenCallback;
+    std::tr1::function<bool(HBMSelectBtnNum)> mCloseCallback;
+};
+
+inline CHBMParam::Flags operator|(CHBMParam::Flags left, CHBMParam::Flags right) {
+    return static_cast<CHBMParam::Flags>(static_cast<unsigned long>(left) | static_cast<unsigned long>(right));
+}
+
+bool InitializeHomeButton(const CHBMParam &rParam, bool allowYield);
+
+#endif
+
 #include <stdio.h>
 void FinalizeHomeButton();
 
@@ -95,8 +207,6 @@ void UpdateHomeButton();
 
 #ifndef GAME_CMAIN_H
 #define GAME_CMAIN_H
-
-#include <game/GameLoop.h>
 
 class CFiber;
 class ISession;
@@ -217,12 +327,9 @@ private:
 #include <revolution/wpad.h>
 #include <nw4r/snd/snd_SoundSystem.h>
 #include <game/Message.h>
-#include <revolution/hbm/HBMBase.h>
 
 #ifndef GAME_RESOURCEFILECONFIG_H
 #define GAME_RESOURCEFILECONFIG_H
-
-#include <functional>
 
 typedef std::tr1::function<void(CPath::Drive, const char *, long, unsigned long)> FileErrorHandler;
 
@@ -247,35 +354,12 @@ void ShutdownResourceFiles();
 #include <nw4r/ut/ut_PairFont.h>
 namespace std {
 namespace tr1 {
-namespace detail {
-template <> class function_base<void (*)(CPath::Drive, const char *, long, unsigned long)> {
-public:
-    virtual ~function_base();
-    virtual function_base *clone() const = 0;
-    virtual function_base *clone(void *pBuffer) const = 0;
-    virtual void operator()(CPath::Drive first, const char *second, long third, unsigned long fourth) = 0;
-};
-template <> class function_base<bool (*)(HBMSelectBtnNum)> {
-public:
-    virtual ~function_base();
-    virtual function_base *clone() const = 0;
-    virtual function_base *clone(void *pBuffer) const = 0;
-    virtual bool operator()(HBMSelectBtnNum argument) = 0;
-};
-}
+namespace detail {}
 }
 }
 namespace std {
 namespace tr1 {
-namespace detail {
-template <> class function_base<void (*)(const CLayout::CInitializeException &)> {
-public:
-    virtual ~function_base();
-    virtual function_base *clone() const = 0;
-    virtual function_base *clone(void *pBuffer) const = 0;
-    virtual void operator()(const CLayout::CInitializeException &argument) = 0;
-};
-}
+namespace detail {}
 }
 }
 namespace std {
@@ -331,6 +415,8 @@ tree_node_base *MainFontTree::find_leaf(const string &rKey, node *&rpPred, bool 
 }
 }
 enum { MainTypeSize0 = sizeof(std::tr1::detail::shared_ptr_deleter<CMsgRes, std::detail::default_delete<CMsgRes> >) };
+enum { MainFiberType = sizeof(std::tr1::detail::shared_ptr_deleter<CFiber, std::detail::default_delete<CFiber> >) };
+
 enum {
     MainTypeSize1 = sizeof(
         std::tr1::detail::shared_ptr_deleter<nw4r::ut::PairFont, std::detail::default_delete<nw4r::ut::PairFont> >)
@@ -347,10 +433,36 @@ enum {
 enum {
     MainTypeSize5 = sizeof(std::tr1::detail::shared_ptr_deleter<CDisableHBM, std::detail::default_delete<CDisableHBM> >)
 };
+namespace std {
+namespace tr1 {
+namespace detail {
+template <> class function_base<bool (*)(HBMSelectBtnNum)> {
+public:
+    virtual ~function_base();
+    virtual function_base *clone() const = 0;
+    virtual function_base *clone(void *pBuffer) const = 0;
+    virtual bool operator()(HBMSelectBtnNum argument) = 0;
+};
+}
+}
+}
 enum {
     MainTypeSize6 =
         sizeof(std::tr1::detail::function_imp<bool (*)(HBMSelectBtnNum), bool (*)(HBMSelectBtnNum), false, false>)
 };
+namespace std {
+namespace tr1 {
+namespace detail {
+template <> class function_base<void (*)()> {
+public:
+    virtual ~function_base() {}
+    virtual function_base *clone() const = 0;
+    virtual function_base *clone(void *pBuffer) const = 0;
+    virtual void operator()() = 0;
+};
+}
+}
+}
 enum { MainTypeSize7 = sizeof(std::tr1::detail::function_imp<void (*)(), void (*)(), false, false>) };
 enum {
     MainTypeSize8 =
@@ -363,17 +475,46 @@ enum {
                std::tr1::detail::bound_func<void, std::tr1::detail::mem_fn_0<void, CMain>, std::tr1::tuple<CMain *> >,
                false, false>)
 };
+namespace std {
+namespace tr1 {
+namespace detail {
+template <> class function_base<void (*)(CPath::Drive, const char *, long, unsigned long)> {
+public:
+    virtual ~function_base();
+    virtual function_base *clone() const = 0;
+    virtual function_base *clone(void *pBuffer) const = 0;
+    virtual void operator()(CPath::Drive first, const char *second, long third, unsigned long fourth) = 0;
+};
+}
+}
+}
 enum {
     MainTypeSize10 =
         sizeof(std::tr1::detail::function_imp<void (*)(CPath::Drive, const char *, long, unsigned long),
                                               void (*)(CPath::Drive, const char *, long, unsigned long), false, false>)
 };
+namespace std {
+namespace tr1 {
+namespace detail {
+template <> class function_base<void (*)(const CLayout::CInitializeException &)> {
+public:
+    virtual ~function_base();
+    virtual function_base *clone() const = 0;
+    virtual function_base *clone(void *pBuffer) const = 0;
+    virtual void operator()(const CLayout::CInitializeException &argument) = 0;
+};
+}
+}
+}
 enum {
     MainTypeSize11 =
         sizeof(std::tr1::detail::function_imp<void (*)(const CLayout::CInitializeException &),
                                               void (*)(const CLayout::CInitializeException &), false, false>)
 };
 
+inline void CHBMParam::SetOpenCallback(const std::tr1::function<void()> &rCallback) {
+    mOpenCallback = rCallback;
+}
 void PauseGameAudio();
 void ResumeGameAudio();
 void ClearGameAudioEffects();

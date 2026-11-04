@@ -89,7 +89,11 @@ template <typename T> class shared_ptr {
 public:
     typedef T element_type;
 
+#ifdef CBATTLEROYALBOX_EMISSION_LAYOUT
+    shared_ptr();
+#else
     shared_ptr() : ptr_(nullptr), s_(nullptr) {}
+#endif
     shared_ptr(detail::unused_argument*) : ptr_(nullptr), s_(nullptr) {}
     template <typename Y> explicit shared_ptr(Y* p);
     template <typename Y, typename D> shared_ptr(Y* p, D d);
@@ -341,5 +345,11 @@ void shared_ptr<T>::enable_from_this(const enable_shared_from_this<Y>* pBase, U*
 }
 
 #include <MSL_CPP/detail/shared_ptr_deleter.h>
+
+#ifdef CBATTLEROYALBOX_EMISSION_LAYOUT
+namespace std { namespace tr1 {
+template<typename T> shared_ptr<T>::shared_ptr() : ptr_(nullptr), s_(nullptr) {}
+} }
+#endif
 
 #endif

@@ -20,7 +20,11 @@ namespace std {
 
 template <class Pointer> class __pointer_plus_bit {
 public:
+#if defined(GAME_SCRIPTWORLDOBJ_SEPARATE_TEMPLATES)
+    __pointer_plus_bit(void* p = nullptr);
+#else
     __pointer_plus_bit(Pointer p = nullptr);
+#endif
     __pointer_plus_bit& operator=(Pointer p);
     __pointer_plus_bit& operator=(const __pointer_plus_bit& r);
     operator Pointer() const;
@@ -31,7 +35,11 @@ private:
     Pointer ptr_;
 };
 
+#if defined(GAME_SCRIPTWORLDOBJ_SEPARATE_TEMPLATES)
+template <class Pointer> inline __pointer_plus_bit<Pointer>::__pointer_plus_bit(void* p) : ptr_(static_cast<Pointer>(p)) {}
+#else
 template <class Pointer> inline __pointer_plus_bit<Pointer>::__pointer_plus_bit(Pointer p) : ptr_(p) {}
+#endif
 template <class Pointer> inline __pointer_plus_bit<Pointer>& __pointer_plus_bit<Pointer>::operator=(Pointer p) {
     ptr_ = reinterpret_cast<Pointer>(reinterpret_cast<unsigned long>(p) | (reinterpret_cast<unsigned long>(ptr_) & 1));
     return *this;
@@ -437,7 +445,11 @@ inline void tree_increment(tree_node_base*& pNode) {
 }
 
 struct tree_root_ptr {
+#if defined(GAME_SCRIPTWORLDOBJ_SEPARATE_TEMPLATES)
+    tree_root_ptr(void* pNode = nullptr) : node_(static_cast<tree_node_base*>(pNode)) {}
+#else
     tree_root_ptr(tree_node_base* pNode = nullptr) : node_(pNode) {}
+#endif
     tree_node_base* node_;
 };
 

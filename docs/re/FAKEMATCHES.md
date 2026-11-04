@@ -71,5 +71,7 @@ Functions matched with source that is probably not the original, under [D-0016](
 
 | CDlgMsgWin | helper emission | scoped string/vector declaration order and cached allocator reference control emission; complete source-link SHA accepted | [acceptance](findings/73-cdlgmsgwin-tail.md) |
 | ScriptWorldObj | source-fragment emission | scoped template declarations, typed copy specializations and five ordinary source compilations combined with native linker -r; all functions/order exact, full data link pending | [evidence](findings/251-script-worldobj-tail.md) |
-| main | template and RTTI emission | deferred specializations, equivalent local class declarations, sizeof probes and MAIN_EMISSION_LAYOUT gates; all functions/order exact, full data link pending | [evidence](findings/329-clayout-final.md) |
+| main | template and RTTI emission | deferred specializations, equivalent local class declarations, sizeof probes and MAIN_EMISSION_LAYOUT gates; all functions/order exact, full SHA accepted | [evidence](findings/329-clayout-final.md) |
 | SaveData | helper emission | scoped method declarations, vector erase definition and early shared-pointer-holder definition; all functions/order exact, full data link pending | [evidence](findings/278-save-data-tail.md) |
+
+| CBattleRoyalBox | constructor and float emission | scoped shared_ptr default constructor declaration, local specialization and dead-stripped GetUnsetBattleRoyalTime request restore exact function/constant order; full SHA accepted | [acceptance](findings/battleroyalbox-getter-tail.md) |
