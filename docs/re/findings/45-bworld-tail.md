@@ -12,7 +12,7 @@ The AddObject/RemoveObject conversion shapes are allocation fakes; no original s
 
 ## Remaining Calc and CalcMtx
 
-Both inline GetSkipStates with one missing redundant zero load: target initializes a temporary with zero inside the first flag branch, then ORs bit 2 into the output. A redundant `states = 0` in that branch restores the instruction count but uses the output register for both instructions (CalcMtx 99.94%). Scalar casts, integer widths, helper wrappers, local state structs, full-width bitfields, repeated conditions, and caller optimization pragmas have not closed this. Calc additionally differs in one later loop iterator register. No incomplete probes were retained.
+Both inline GetSkipStates with one missing redundant zero load: target initializes a temporary with zero inside the first flag branch, then ORs bit 2 into the output. A redundant `states = 0` in that branch restores the instruction count but uses the output register for both instructions (CalcMtx 99.94%). Scalar casts, integer widths, helper wrappers, local state structs, full-width bitfields, repeated conditions, and caller optimization pragmas have not closed this. Calc additionally differs in one later loop iterator register; declaring a fresh iterator in the inner while-loop for initializer fixes that difference (combined with redundant zero assignment, Calc reaches 99.979%, leaving only the same two zero/OR register operands as CalcMtx). No incomplete probes were retained.
 
 ## Traps
 

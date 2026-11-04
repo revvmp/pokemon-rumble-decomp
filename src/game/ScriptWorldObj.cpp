@@ -1,3 +1,15 @@
+#include <MSL_CPP/functional_base.h>
+
+#pragma push
+#pragma dont_inline on
+namespace std {
+template <> struct less<int> : binary_function<int, int, bool> {
+    less() {}
+    bool operator()(const int& a, const int& b) const { return a < b; }
+};
+}
+#pragma pop
+
 #include <game/BModelObj.h>
 #include <game/BWorld.h>
 #include <game/CDividedGround.h>
@@ -18,6 +30,15 @@
 #include <set>
 
 #pragma dont_inline on
+
+static inline bool IsPiiForDynamicCast(const BWorldObj* pObject) {
+    return pObject != nullptr && (pObject->GetType() & CPii::TYPE);
+}
+
+template <> inline CPii* DynamicCast<CPii, BWorldObj>(BWorldObj* pObject) {
+    return IsPiiForDynamicCast(pObject) ? static_cast<CPii*>(pObject) : nullptr;
+}
+
 
 static inline nw4r::math::VEC3& Scale(nw4r::math::VEC3& rVector, f32 scale) {
     nw4r::math::VEC3Scale(&rVector, &rVector, scale);

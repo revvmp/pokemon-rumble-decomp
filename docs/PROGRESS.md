@@ -2,7 +2,7 @@
 
 ## Current status
 
-Roadmap Phases 1 to 3 are complete and Phase 4 is active. The latest verified build matches the frozen main.dol exactly. It links 2,192,572 of 3,082,232 code bytes (71.13586%) from 824 Matching units; 87 real functions remain below 100%. Original split fallbacks still supply the remaining code and data. See the latest session below and [matching requirements](MATCHING.md).
+Roadmap Phases 1 to 3 are complete and Phase 4 is active. The latest verified build matches the frozen main.dol exactly. It links 2,195,700 of 3,082,232 code bytes (71.237335%) from 826 Matching units; 83 real functions remain below 100%. Original split fallbacks still supply the remaining code and data. See the latest session below and [matching requirements](MATCHING.md).
 
 | Milestone | State | Evidence or prerequisite |
 | --- | --- | --- |
@@ -14,7 +14,7 @@ Roadmap Phases 1 to 3 are complete and Phase 4 is active. The latest verified bu
 | Toolchain identification | Identified per library | RVL_SDK Wii/1.0; MSL and Runtime Wii/1.1 or 1.3 with `-func_align 4`; NW4R Wii/1.0 or 1.1; F-0007 |
 | Reproducible game build | Achieved | Two clean builds byte-identical; F-0010 |
 | Exact executable match | Achieved for `main.dol` | Verified; remaining original split fallbacks are tracked separately |
-| Source reconstruction | Started | 824 Matching units of 1,387 current units; see ledger |
+| Source reconstruction | Started | 826 Matching units of 1,387 current units; see ledger |
 | Full release match | Pending | Boot loader, data contents, and WAD packaging outside current scope |
 
 ## Progress images
@@ -46,6 +46,8 @@ Images use a single blue sequential ramp with separate light and dark steps sele
 The ledger is kept per area in [ledger](ledger/README.md). It records source ownership and evidence per unit. Current measured linked coverage is reported above; original split dependencies still count as fallback.
 
 ## Latest session
+
+2026-11-04 verified continuation: 37 additional real functions now match, leaving 83 of the original 120-function tail. CBattleRoyalDisplay and FA pdm_mbr now link from source with a fresh full frozen-SHA PASS. ScriptWorldObj now matches 240/240 functions but its source link still needs emission-order work. Current code: 2,968,528/3,082,232 matched bytes (96.31098%), 2,195,700 linked bytes (71.237335%), and 826 Matching units. Original inputs and expected hashes remain unchanged.
 
 2026-11-04 verified continuation: 33 additional real functions match versus the 120-function starting tail, leaving 87. CEffect (58/58), ScriptWorld (37/37), and the IOStream getter in MemorySoundArchive (21/21) now link from source. Ninja exits 0 and frozen-manifest main.dol verification passes. Matched code is 2,968,072/3,082,232 bytes (96.29619%); linked code is 2,192,572 bytes (71.13586%), across 824 Matching units. New function gains include BWorld three, CModel one, CRemoteMemory one, ScriptWorld one, and IOStream one. CFileData, SaveData, main, and CBattleRoyalDisplay remain function-perfect but await source-link acceptance. Original inputs and expected hashes are unchanged.
 

@@ -53,3 +53,7 @@ Functions matched with source that is probably not the original, under [D-0016](
 | CRemoteMemory | PrepareWrite | explicit previous-block local and inlined channel lookup control register allocation | [tail evidence](findings/cremotememory-tail.md) |
 | ScriptWorld | SetStageDescTarget | scoped opt_dead_assignments off and direct PushZeroInt helper avoid named-zero inline temporary | [acceptance](findings/274-script-world-tail.md) |
 | MemorySoundArchive | IOStream GetOffsetAlign | dead-stripped early qualified getter caller with dont_inline forces original weak-function emission position | [acceptance](findings/424-snd-instancepool-lfo.md#d-0016-early-getter-emission-2026-11-04) |
+
+| CBattleRoyalDisplay | FormatString emission | delayed class-template friend definition and discarded function-pointer request control generation pass; helper has no runtime instructions | [link acceptance](findings/53-cbattleroyaldisplay-link-tail.md) |
+| FA pdm_mbr | master-boot-record validator | selective volatile casts constrain six existing byte reads without adding loads | [acceptance](findings/766-fa-mbr.md#f-766-4-d-0016-selective-volatile-byte-reads) |
+| ScriptWorldObj | comparator and type-predicate helpers | local less<int> specialization with dont_inline restores empty constructor; local duplicate predicate and DynamicCast specialization preserve two original bodies | [function evidence](findings/251-script-worldobj-tail.md#f-251-2-comparator-construction-and-duplicate-type-predicate) |

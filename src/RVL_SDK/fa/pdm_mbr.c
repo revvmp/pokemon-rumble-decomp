@@ -13,8 +13,8 @@ s32 pdm_mbr_check_master_boot_record(u8* buf, u32 total_sectors, u32* is_master_
 
     for (i = 0; i < 4; i++, buf += 0x10) {
         start_sector[i] = 0;
-        start_sector[i] = buf[0x1C6] + (buf[0x1C7] << 8) + (buf[0x1C8] << 16) + (buf[0x1C9] << 24);
-        num_sectors[i] = buf[0x1CA] + (buf[0x1CB] << 8) + (buf[0x1CC] << 16) + (buf[0x1CD] << 24);
+        start_sector[i] = ((volatile u8*)buf)[0x1C6] + (((volatile u8*)buf)[0x1C7] << 8) + (buf[0x1C8] << 16) + (buf[0x1C9] << 24);
+        num_sectors[i] = ((volatile u8*)buf)[0x1CA] + (((volatile u8*)buf)[0x1CB] << 8) + (((volatile u8*)buf)[0x1CC] << 16) + (((volatile u8*)buf)[0x1CD] << 24);
         if (start_sector[i] != 0 && num_sectors[i] != 0) {
             if (i == 0) {
                 *is_master_boot = TRUE;

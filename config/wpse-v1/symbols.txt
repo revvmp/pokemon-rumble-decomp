@@ -15110,7 +15110,7 @@ DynamicCast<5CItem,9BWorldObj>__FP9BWorldObj_P5CItem = .text:0x8014CC90; // type
 IsKindOf<5CItem,9BWorldObj>__FPC9BWorldObj_b = .text:0x8014CCD0; // type:function size:0x44
 method_findMostVitalPiiInCircleZX__FPQ24NPpu7CEngine = .text:0x8014CD20; // type:function size:0x214
 DynamicCast<4CPii,9BWorldObj>__FP9BWorldObj_P4CPii = .text:0x8014CF40; // type:function size:0x40
-IsKindOf<4CPii,9BWorldObj>__FPC9BWorldObj_b = .text:0x8014CF80; // type:function size:0x44 scope:local
+IsPiiForDynamicCast__FPC9BWorldObj = .text:0x8014CF80; // type:function size:0x44 scope:local
 begin__Q23std58__list_deleter<P9BWorldObj,Q23std22allocator<P9BWorldObj>>Fv = .text:0x8014CFD0; // type:function size:0x40
 tail__Q23std58__list_deleter<P9BWorldObj,Q23std22allocator<P9BWorldObj>>Fv = .text:0x8014D010; // type:function size:0x8
 second__Q310Metrowerks6detail192CompressedPairStorage<Q23std82allocator<Q33std58__list_deleter<P9BWorldObj,Q23std22allocator<P9BWorldObj>>4node>,Q33std58__list_deleter<P9BWorldObj,Q23std22allocator<P9BWorldObj>>9node_base,1>Fv = .text:0x8014D020; // type:function size:0x4
@@ -15172,7 +15172,7 @@ __ct__Q310Metrowerks6detail140CompressedPairStorage<Q23std78allocator<Q43std6det
 __ct__Q23std78allocator<Q43std6detail47tree_imp<i,Q23std7less<i>,Q23std12allocator<i>>4node>Fv = .text:0x8014E0E0; // type:function size:0x4
 __ct__Q33std6detail13tree_root_ptrFPQ33std6detail14tree_node_base = .text:0x8014E0F0; // type:function size:0x8 scope:local
 __ct__Q33std6detail33tree_begin_holder<Q23std7less<i>>Fv = .text:0x8014E100; // type:function size:0x30
-fn_8014E130 = .text:0x8014E130; // type:function size:0x4
+__ct__Q23std7less<i>Fv = .text:0x8014E130; // type:function size:0x4
 begin_node__Q33std6detail47tree_imp<i,Q23std7less<i>,Q23std12allocator<i>>Fv = .text:0x8014E140; // type:function size:0x8
 second__Q33std6detail33tree_begin_holder<Q23std7less<i>>Fv = .text:0x8014E150; // type:function size:0x4
 end_node__Q33std6detail47tree_imp<i,Q23std7less<i>,Q23std12allocator<i>>Fv = .text:0x8014E160; // type:function size:0x8

@@ -113,6 +113,8 @@ Keep entries concise and actionable. Distinguish confirmed findings from hypothe
 - **decomp-permuter parses only C.** C++ units need the text-level `cxxperm.py` in `tools/local/perm/`; see [sprint-perm](docs/re/findings/sprint-perm.md).
 - **Codex cannot commit from a linked worktree.** Its sandbox write root is the worktree, but the worktree's index lives under the main checkout's `.git/worktrees/`, so `git commit` fails on `index.lock`. Launch Codex from the worktree directory, have it leave changes uncommitted, and commit and land them yourself; see [collaboration](docs/COLLABORATION.md).
 
+- **A delayed friend needs a generation request.** Completing a template containing a friend did not emit FormatString at the target position; a discarded function-pointer return requested it in the following generation pass without runtime code. This D-0016 construct allowed a verified source link; see [CBattleRoyalDisplay](docs/re/findings/53-cbattleroyaldisplay-link-tail.md).
+
 ## Current project state
 
 | Current state | Value |

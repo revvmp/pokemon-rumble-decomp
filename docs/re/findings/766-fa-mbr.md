@@ -64,3 +64,17 @@ The public VF bodies already surveyed in F-766-1 still have another interface. T
 
 - **Aligned diff rows and native instruction-word differences are different metrics.** The current baseline has 21 aligned objdiff rows but 20 unequal native words, confined to offsets `0x4C` through `0x9C`. Compare exact extents and raw words before claiming improvement; preserve the separately exact boot-sector checker as well.
 - **Compilation failure is not a negative binary result.** A volatile-parameter diagnostic conflicts with the existing public prototype and fails compilation. Its 24 attempted expression orders are excluded from the successful candidate counts above and establish no code-generation result. No volatile qualifier is added to production source.
+
+# F-766-4: D-0016 selective volatile byte reads
+
+2026-11-04: a direct probe using the unchanged configured Wii/1.0 flags reaches exact instructions for both functions. The master-boot validator remains 336 bytes and the boot-sector checker remains 276 bytes.
+
+The retained D-0016 construct casts the buffer to `volatile u8*` only for the loads at `0x1C6`, `0x1C7`, `0x1CA`, `0x1CB`, `0x1CC`, and `0x1CD`. Loads at `0x1C8` and `0x1C9` stay ordinary. No load is added or removed, and all arithmetic, stores and control flow remain the same. This is a scheduling fake, not evidence that the original FAT input had volatile semantics.
+
+A sweep of the 256 possible volatile subsets of the eight existing byte reads stopped at mask `0xF3`, which matches all instructions. Mask `0x03` reached 96.04762%, `0x33` reached 96.07143%, and `0x73` reached 99.5%; only the final exact candidate was retained. Earlier ordinary expression and compiler-context probes remain useful negative evidence, but they did not include this selective source-cast schedule constraint. Scratch source and complete objdiff output are in ignored `tools/local/session/mbr-compile/volatile-win.c` and `volatile-win.json`.
+
+The maintainer marked the unit Matching, rebuilt successfully with Ninja, and verified the full DOL against its frozen SHA: PASS. Both functions are now source-linked and exact.
+
+## Traps
+
+- **Selective volatile reads can constrain scheduling without adding instructions.** The first-loop discrepancy was not solved by ordinary expression-tree permutations. Under D-0016, volatile qualification on six of the eight existing byte reads produces the exact schedule and register choices. This is a narrowly verified fake and must not be generalized to ordinary memory declarations.

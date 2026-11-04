@@ -22,4 +22,6 @@ Recover the source expression or lifetime structure that yields the native regis
 
 ## Traps
 
+2026-11-04 follow-up: 240 isolated declaration and identity-expression probes did not improve the current 99.291664% function. The matrix tested scalar types, reference-bound temporaries, identity bitwise/arithmetic operations, post-initialization assignments, and register storage hints for the sheet-count local. Both the current body and the prior glyph-count/adjustment-pointer type variant were tested. No source or flags were retained. Scratch driver: `tools/local/session/archive-font.py`.
+
 Changing the accessor's scalar return type or using member-initializer syntax did not repair this candidate's register assignment. Preserve the existing canonical declarations unless independent evidence supports a change. The prior declaration-order and loop probes recorded in F-449-2 remain relevant; repeating them without a new structural hypothesis is unlikely to resolve the remaining allocation.

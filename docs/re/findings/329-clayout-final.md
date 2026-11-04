@@ -67,3 +67,14 @@ A separate unretained QueueMotion experiment replaces its second size() expressi
 ### Additional trap
 
 A named pointer may still coalesce with an inline iterator result and then reuse an unrelated variable's dead register. In this specific Update function, a pointer-to-integer identity reassignment in the direct caller prevents that coalescing; applying the same identity operation inside a free inline helper does not. This is a verified local workaround, not a general allocator rule.
+
+
+## CPlayerPii follow-up
+
+The next coordinated source ownership was CPlayerPii.cpp, whose current direct baseline is 253/254 functions exact. GetShadowName is 88.85714%. The precise target schedule is LR store, first name-table load, mpPlayer load, then the other three table loads. The source schedules the first name-table load before the LR store and mpPlayer after all four table loads.
+
+No CPlayerPii source change was retained. Same-type, const-removing, integer-identity, and volatile pointer casts of the player access do not change the schedule. Named player locals before or after the array also do not help, including the pointer-to-integer identity technique that fixed CModel. Mutable arrays remain worse at 79.85714%; explicit individual element copies from a static table are 67.14286%, regardless of the source position of the player load. Inline aggregate helper experiments add a call under dont_inline, while removing that pragma also inlines GetPlayerNo and changes the intended function structure.
+
+Scheduler experiments confirmed the prior result: 604 and 7450 reach 90.47619% but retain the incorrect LR-store position; 603, 601, and disabled scheduling are worse. These were scratch-only probes, not retained compiler settings. A scheduling model remains selected after a plain `scheduling on`, so isolated experiments must restore the actual model (750 here), rather than treating `on` as a model reset. This observation explains unrelated template score changes in the first scratch sweep; no tracked file was changed.
+
+Scratch direct-compile JSON and candidates are in ignored tools/local/session/329-player. The existing deque emission-order blocker is unchanged. No new matching or link claim is made for this unit.

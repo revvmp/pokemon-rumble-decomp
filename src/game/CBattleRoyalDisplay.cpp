@@ -1,6 +1,7 @@
 #include <game/detail/CBattleRoyalDisplay.h>
 
-
+typedef std::wstring (*BattleFormatFunction)(const wchar_t*, ...);
+template <typename T> inline BattleFormatFunction PrepareBattleNumberFormat();
 namespace {
 
 void CBattleRoyalDisplay::Load(const std::tr1::shared_ptr<CLayout::FontMap>& rFonts, bool background) {
@@ -43,6 +44,7 @@ inline void CBattleRoyalDisplay::Draw() {
 }
 
 inline void CBattleRoyalDisplay::Calc() {
+    PrepareBattleNumberFormat<int>();
     mTimePhase.Calc();
     mEnemyPhase.Calc();
 
@@ -78,11 +80,18 @@ std::tr1::shared_ptr<IBattleRoyalDisplay> IBattleRoyalDisplay::Create(bool backg
     return pDisplay;
 }
 
-std::wstring FormatString(const wchar_t* pFormat, ...) {
-    std::wstring result;
-    va_list args;
-    va_start(args, pFormat);
-    VFormatString(result, pFormat, args);
-    va_end(args);
-    return result;
+template <typename T> struct BattleNumberFormatDefinition {
+    friend std::wstring FormatString(const wchar_t* pFormat, ...) {
+        std::wstring result;
+        va_list args;
+        va_start(args, pFormat);
+        VFormatString(result, pFormat, args);
+        va_end(args);
+        return result;
+    }
+};
+
+template <typename T> inline BattleFormatFunction PrepareBattleNumberFormat() {
+    BattleNumberFormatDefinition<T> definition;
+    return FormatString;
 }
