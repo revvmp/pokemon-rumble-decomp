@@ -58,7 +58,7 @@ public:
     Second& second();
     const Second& second() const;
     void swap(CompressedPairStorage& rOther);
-#elif defined(GAME_SCRIPTWORLDOBJ_SEPARATE_TEMPLATES)
+#elif defined(GAME_SCRIPTWORLDOBJ_SEPARATE_TEMPLATES) && !defined(GAME_SCRIPTWORLDOBJ_MAIN)
     CompressedPairStorage() : mFirst(), mSecond() {}
     CompressedPairStorage(typename call_traits<First>::param_type rFirst, typename call_traits<Second>::param_type rSecond) : mFirst(rFirst), mSecond(rSecond) {}
     First& first();
@@ -100,7 +100,7 @@ public:
     Second& second();
     const Second& second() const;
     void swap(CompressedPairStorage& rOther);
-#elif defined(GAME_SCRIPTWORLDOBJ_SEPARATE_TEMPLATES)
+#elif defined(GAME_SCRIPTWORLDOBJ_SEPARATE_TEMPLATES) && !defined(GAME_SCRIPTWORLDOBJ_MAIN)
     CompressedPairStorage() : mSecond() {}
     explicit CompressedPairStorage(typename call_traits<First>::param_type rFirst) : First(rFirst), mSecond() {}
     explicit CompressedPairStorage(typename call_traits<Second>::param_type rSecond) : mSecond(rSecond) {}
@@ -135,7 +135,7 @@ public:
     Second& second();
     const Second& second() const;
     void swap(CompressedPairStorage& rOther);
-#elif defined(GAME_SCRIPTWORLDOBJ_SEPARATE_TEMPLATES)
+#elif defined(GAME_SCRIPTWORLDOBJ_SEPARATE_TEMPLATES) && !defined(GAME_SCRIPTWORLDOBJ_MAIN)
     CompressedPairStorage() {}
     explicit CompressedPairStorage(typename call_traits<First>::param_type rFirst) : mFirst(rFirst) {}
     explicit CompressedPairStorage(typename call_traits<Second>::param_type rSecond) : Second(rSecond) {}

@@ -119,6 +119,8 @@ Keep entries concise and actionable. Distinguish confirmed findings from hypothe
 
 - **Function scoring can accept the wrong literal.** CDlgMsgWin scored 218/218 with `off` where the target Dismiss routine references `end`. Compare relocation-backed literal content and order before accepting; full SHA rejected the candidate and passed after correction. See [CDlgMsgWin acceptance](docs/re/findings/73-cdlgmsgwin-tail.md).
 
+- **Identical instructions can have different exception ranges.** ScriptWorldObj's declaration-only helper view kept every function exact but changed two exception-table bytes. Retaining original inline bodies for the main compiler's exception analysis, with strong typed source-fragment definitions controlling emission, restored the full SHA. See [acceptance](docs/re/findings/251-script-worldobj-tail.md).
+
 ## Current project state
 
 | Current state | Value |

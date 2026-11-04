@@ -169,3 +169,10 @@ Validated `tools/collab/land.py` on 2026-10-17 in a scratch worktree `..\rumble-
 The REST pull request lookup by branch was checked read-only against an open pull request: `find_pr` returned #953 with `draft` true for its branch. The merge call itself, `gh pr ready`, and the image push were not exercised, because no throwaway pull request was available; they use the same REST merge request (`sha` pinned to the verified commit) as the manual fallback in the `take-issue` skill. `refresh_images.py --min-interval` was checked with `--dry-run`: with the last image commit 15 minutes old it printed that it was skipping and exited 0; with `--min-interval 0` and `--min-interval 10` it rendered and reported the images current.
 
 Before these changes, the skill told agents to delete `build/` whenever a config file merged during a rebase; with 93 of 143 recent `main` commits touching one, most rounds were cold builds of 2 to 9 minutes. Each round now costs an incremental build of about 40 to 60 s, dominated by the link, and a new worktree's first build drops from a cold build to the changes since the newest seed (3 s when only headers and docs changed).
+## Native source-fragment build validation, 2026-11-04
+
+The ScriptWorldObj partial_sources pipeline was validated with two empty output roots, tools/local/session/clean-20261104 and tools/local/session/clean-repeat-20261104. Each used python configure.py --build-dir followed by the normal ninja entry point. Both ninja runs exited zero; the frozen wpse-v1 verifier passed independently for each. Their main.dol, main.elf and report.json are byte-identical to each other and to the incremental build.
+
+DOL SHA-256: ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da. ELF SHA-256: 8153135205631f75639734ccb02e4f0df68e09afe9e4a762397df0868b7909bd. Report SHA-256: def1b9e61fbd575f489eb7e374cd06e30c878bb63437e8ebf87d5ecf5ecd019d.
+
+The normal default build configuration was restored afterward. This verifies the build mechanism and accepted source-link units;71 unmatched real functions and remaining fallback units still block complete source reconstruction. Original manifests were unchanged.

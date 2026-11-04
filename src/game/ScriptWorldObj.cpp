@@ -1,4 +1,5 @@
 #define GAME_SCRIPTWORLDOBJ_SEPARATE_TEMPLATES
+#define GAME_SCRIPTWORLDOBJ_MAIN
 #include <MSL_CPP/functional_base.h>
 
 #pragma push

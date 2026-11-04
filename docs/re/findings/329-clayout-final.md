@@ -140,3 +140,11 @@ The initial CFiber probe regression was measured against the wrong IGameSession 
 ### Main full-link acceptance
 
 Root enabled main.cpp as Matching and ran the actual shared build after datareview was applied. Ninja exited 0 and the frozen-manifest verifier returned PASS. All 145 functions, their identities/order, linked metadata, exception tables, and executable layout are therefore accepted together. The root retained the Matching selector. This supersedes the pending-link qualifications above for the applied candidate; scratch alternatives remain unaccepted.
+
+### CModel renewed allocator probes
+
+After main.cpp's accepted source link, another focused CModel pass tested output-reference and output-pointer inline helpers, two-field local aggregate state, dependent initialization of the two boolean states, and all six orders of helper parameters carrying the list and initial true/false values. None improved the remaining shared inner/outer boolean register swap. Aggregate bool/int/unsigned fields reduce to the same code; unsigned-char fields add normalization. Passing the initial inner false value from the caller changes its scheduling; restoring conditional initialization reproduces the original mismatch. No CModel source or header change is retained. Evidence is in ignored 329-model/renew*, agg*, out*, and params* reports.
+
+### CLayout renewed stack-layout probes
+
+A source-local explicit set<CLayout*>::begin specialization reproduces the earlier closest StopMotion result (99.907486%) without changing shared headers. Along with the map-find result cast, all remaining mismatches are stack offsets. Moving the child-loop condition into one or two reference-taking inline helpers changes those offsets slightly; the best reaches99.911896%, still without a match. Passing the iterator by value adds copies, and naming or caching the end iterator changes control flow and regresses many already exact inline callers. No CLayout edit is retained from this pass. Scratch evidence is in 329-experiments/renewlayoutspec, layoutcond*, and layoutend*.

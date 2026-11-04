@@ -457,7 +457,7 @@ template <typename Compare> class tree_begin_holder : private Compare {
 public:
     tree_begin_holder() {}
     tree_begin_holder(const Compare& rCompare) : Compare(rCompare) {}
-#if defined(GAME_SCRIPTWORLDOBJ_SEPARATE_TEMPLATES)
+#if defined(GAME_SCRIPTWORLDOBJ_SEPARATE_TEMPLATES) && !defined(GAME_SCRIPTWORLDOBJ_MAIN)
     Compare& first();
 #else
     Compare& first() { return *this; }
@@ -508,14 +508,14 @@ public:
 
     tree_imp() : size_(0) { begin_node() = end_node(); }
     tree_imp(const Compare& rCompare, const Allocator& rAllocator) : size_(size_type(0), rAllocator), root_(NodeAllocator(rAllocator)), begin_(Compare(rCompare)) { begin_node() = end_node(); }
-#if defined(GAME_SCRIPTWORLDOBJ_SEPARATE_TEMPLATES)
+#if defined(GAME_SCRIPTWORLDOBJ_SEPARATE_TEMPLATES) && !defined(GAME_SCRIPTWORLDOBJ_MAIN)
     tree_node_base*& root();
 #else
     tree_node_base*& root() { return *reinterpret_cast<tree_node_base**>(end_node()); }
 #endif
     ~tree_imp();
 
-#if defined(GAME_SCRIPTWORLDOBJ_SEPARATE_TEMPLATES)
+#if defined(GAME_SCRIPTWORLDOBJ_SEPARATE_TEMPLATES) && !defined(GAME_SCRIPTWORLDOBJ_MAIN)
     size_type size() const;
     size_type max_size() const;
 #else
@@ -569,7 +569,7 @@ public:
 
     template <typename Key> tree_node_base* find_leaf(const Key& rKey, node*& rpPred, bool& rLeft, bool& rLeftmost);
 
-#if defined(GAME_SCRIPTWORLDOBJ_SEPARATE_TEMPLATES)
+#if defined(GAME_SCRIPTWORLDOBJ_SEPARATE_TEMPLATES) && !defined(GAME_SCRIPTWORLDOBJ_MAIN)
     Compare& comp();
 #else
     Compare& comp() { return begin_.first(); }
@@ -607,19 +607,19 @@ public:
     tree_node_base* end_node() const { return reinterpret_cast<tree_node_base*>(const_cast<tree_root_ptr*>(&root_.second())); }
     tree_node_base* end_node() { return reinterpret_cast<tree_node_base*>(&root_.second()); }
     tree_node_base*& begin_node() { return begin_.second(); }
-#if defined(GAME_SCRIPTWORLDOBJ_SEPARATE_TEMPLATES)
+#if defined(GAME_SCRIPTWORLDOBJ_SEPARATE_TEMPLATES) && !defined(GAME_SCRIPTWORLDOBJ_MAIN)
     Allocator& alloc();
 #else
     Allocator& alloc() { return size_.second(); }
 #endif
     const Allocator& alloc() const { return size_.second(); }
-#if defined(GAME_SCRIPTWORLDOBJ_SEPARATE_TEMPLATES)
+#if defined(GAME_SCRIPTWORLDOBJ_SEPARATE_TEMPLATES) && !defined(GAME_SCRIPTWORLDOBJ_MAIN)
     NodeAllocator& node_alloc();
 #else
     NodeAllocator& node_alloc() { return root_.first(); }
 #endif
     tree_node_base* root() const { return *reinterpret_cast<tree_node_base**>(end_node()); }
-#if defined(GAME_SCRIPTWORLDOBJ_SEPARATE_TEMPLATES)
+#if defined(GAME_SCRIPTWORLDOBJ_SEPARATE_TEMPLATES) && !defined(GAME_SCRIPTWORLDOBJ_MAIN)
     size_type& sz();
 #else
     size_type& sz() { return size_.first(); }
@@ -653,7 +653,7 @@ tree_imp<T, Compare, Allocator>::~tree_imp() {
 }
 
 
-#if !defined(GAME_SCRIPTWORLDOBJ_SEPARATE_TEMPLATES)
+#if !defined(GAME_SCRIPTWORLDOBJ_SEPARATE_TEMPLATES) || defined(GAME_SCRIPTWORLDOBJ_MAIN)
 template <typename T, typename Compare, typename Allocator>
 template <typename Key>
 tree_node_base* tree_imp<T, Compare, Allocator>::find_leaf(const Key& rKey, node*& rpPred, bool& rLeft, bool& rLeftmost) {

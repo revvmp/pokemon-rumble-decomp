@@ -70,7 +70,7 @@ Functions matched with source that is probably not the original, under [D-0016](
 | CFileData | file-error callback invocation | scoped functional declaration and source-local ABI dispatch view defer base RTTI emission; compiled invocation is unchanged | [data-order evidence](findings/310-final-cfiledata.md) |
 
 | CDlgMsgWin | helper emission | scoped string/vector declaration order and cached allocator reference control emission; complete source-link SHA accepted | [acceptance](findings/73-cdlgmsgwin-tail.md) |
-| ScriptWorldObj | source-fragment emission | scoped template declarations, typed copy specializations and five ordinary source compilations combined with native linker -r; all functions/order exact, full data link pending | [evidence](findings/251-script-worldobj-tail.md) |
+| ScriptWorldObj | source-fragment emission | scoped template views, strong typed specializations, two void-pointer constructor signatures with typed casts and five ordinary source compilations combined with native linker -r; original main bodies preserve exception analysis; full SHA and two clean builds accepted | [evidence](findings/251-script-worldobj-tail.md) |
 | main | template and RTTI emission | deferred specializations, equivalent local class declarations, sizeof probes and MAIN_EMISSION_LAYOUT gates; all functions/order exact, full SHA accepted | [evidence](findings/329-clayout-final.md) |
 | SaveData | helper emission | scoped method declarations, vector erase definition and early shared-pointer-holder definition; all functions/order exact, full data link pending | [evidence](findings/278-save-data-tail.md) |
 

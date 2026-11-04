@@ -44,6 +44,10 @@ Directories for future source and build stages need not exist until their first 
 
 Manifest fingerprinting, artifact acceptance, progress rendering, reference extraction, and the dtk-template build ([D-0007](DECISIONS.md#d-0007-evaluate-the-dtk-template-ecosystem)) exist. `python configure.py` and `ninja` compile, split, link, and report; `tools/verify/verify.py` accepts the result. Packaging commands remain unimplemented.
 
+## Source fragments in one logical unit
+
+An object may declare `partial_sources` in configure.py. The build compiles its primary source and each listed fragment with the same unit flags into separate dependency-tracked objects, then uses that compiler version's native linker with `-nodefaults -fp hardware -r` to produce the normal logical source object. Objdiff and the final executable link consume that object. This currently supports ScriptWorldObj's documented emission scaffold. The source path list determines input order; no original object, prebuilt scratch object, or instruction-rewriting step participates in the source object.
+
 ## Source and interface design
 
 Use confirmed module boundaries first, then subdivide into subsystems when call graphs and data ownership support them. Record the original compilation-unit and link order separately from the logical organization. Do not reorganize matching code casually if ordering changes output bytes.

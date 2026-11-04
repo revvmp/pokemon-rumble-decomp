@@ -12,7 +12,7 @@ template <typename T, T Value> struct number {
 
 template <typename T, typename Allocator, typename Size = number<size_t, 1> > class alloc_ptr {
 public:
-#if defined(GAME_SCRIPTWORLDOBJ_SEPARATE_TEMPLATES)
+#if defined(GAME_SCRIPTWORLDOBJ_SEPARATE_TEMPLATES) && !defined(GAME_SCRIPTWORLDOBJ_MAIN)
     alloc_ptr(T* p, Allocator a, Size size = Size());
     ~alloc_ptr();
     T* operator->() const;

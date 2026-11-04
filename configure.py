@@ -339,7 +339,7 @@ config.libs = [
             Object(Matching, "game/ScriptAudio.cpp"),
             Object(Matching, "game/ScriptModel.cpp"),
             Object(Matching, "game/ScriptNullObj.cpp"),
-            Object(NonMatching, "game/ScriptWorldObj.cpp", partial_sources=[
+            Object(Matching, "game/ScriptWorldObj.cpp", partial_sources=[
                 "game/ScriptWorldObjContainer.cpp",
                 "game/ScriptWorldObjContainerCopy.cpp",
                 "game/ScriptWorldObjTree.cpp",
