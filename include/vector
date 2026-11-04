@@ -893,12 +893,28 @@ public:
 
     void reserve(size_type n) { base::reserve(n); }
     template <typename Iterator> void assign(Iterator first, Iterator last, typename Metrowerks::restrict_to<true>::type* = nullptr) {
+#if defined(GAME_DLGPIISELECTOR_RANGE_TAG_REFERENCE)
+        Metrowerks::int2type<0> copyTag;
+        Metrowerks::int2type<0> sourceTag;
+        *reinterpret_cast<volatile unsigned char*>(&copyTag) = *reinterpret_cast<volatile unsigned char*>(&sourceTag);
+        base::assign_dispatch(first, last, copyTag);
+#else
         Metrowerks::int2type<0> tag;
         base::assign_dispatch(first, last, tag);
+#endif
     }
     template <typename Iterator> void insert(iterator pos, Iterator first, Iterator last, typename Metrowerks::restrict_to<true>::type* = nullptr) {
+#if defined(GAME_DLGPIISELECTOR_RANGE_TAG_REFERENCE)
+        Metrowerks::int2type<0> copyTag;
+        Metrowerks::int2type<0> sourceTag;
+        base::insert_dispatch(pos, first, last,
+            *reinterpret_cast<Metrowerks::int2type<0>*>(const_cast<unsigned char*>(
+                &(*reinterpret_cast<volatile unsigned char*>(&copyTag) =
+                    *reinterpret_cast<volatile unsigned char*>(&sourceTag)))));
+#else
         Metrowerks::int2type<0> tag;
         base::insert_dispatch(pos, first, last, tag);
+#endif
     }
     void swap(vector& r) { base::swap(r); }
 

@@ -1,4 +1,25 @@
+#define BMODELOBJ_EMISSION_LAYOUT
+
+#include <revolution/types.h>
+#include <MSL_CPP/alloc_ptr.h>
+#include <MSL_CPP/allocator.h>
+#include <MSL_CPP/detail/shared_ptr_holder.h>
+class CModel;
+namespace nw4r {
+namespace g3d {
+class AnmObjChrRootScale;
+class G3dObj;
+}
+}
+#include <memory>
+enum { BModelCharPointer = sizeof(std::tr1::shared_ptr<char>) };
+enum { BModelScalePointer = sizeof(std::tr1::shared_ptr<nw4r::g3d::AnmObjChrRootScale>) };
+enum { BModelModelPointer = sizeof(std::tr1::shared_ptr<CModel>) };
+#include <stdexcept>
+#include <game/BWorldObj.h>
 #include <game/BModelObj.h>
+enum { BModelScaleDeleter = sizeof(std::tr1::detail::shared_ptr_deleter<nw4r::g3d::AnmObjChrRootScale, void (*)(nw4r::g3d::G3dObj*)>) };
+#include <game/CKDTree.h>
 
 #include <game/AnmObjChrRootScale.h>
 #include <game/CFileData.h>
@@ -10,6 +31,33 @@
 #include <nw4r/g3d/res/g3d_resfile.h>
 #include <nw4r/g3d/g3d_scnmdlsmpl.h>
 #include <nw4r/math/math_triangular.h>
+
+template <> inline void KDTreeZXNode<2, 9>::RemoveChild(Other* pChild) {
+    if (pChild == mChildren[0].get()) {
+        if (IsEmpty() && !mChildren[1] && mParent != nullptr) {
+            mParent->RemoveChild(this);
+        } else {
+            mChildren[0].reset();
+        }
+    } else {
+        if (IsEmpty() && !mChildren[0] && mParent != nullptr) {
+            mParent->RemoveChild(this);
+        } else {
+            mChildren[1].reset();
+        }
+    }
+}
+inline void BModelObj::SetRotation(f32 rotation) {
+    bool probe = false;
+    if (probe) {
+        std::__error_string* message = nullptr;
+        message->~__error_string();
+        std::exception* error = nullptr;
+        error->std::exception::~exception();
+    }
+    mRotation = rotation;
+    mFlags |= FLAG_DIRTY_MTX;
+}
 
 void SetSceneObjectEnabled(nw4r::g3d::ScnObj* pScnObj, bool enable);
 
@@ -181,6 +229,10 @@ void BModelObj::ClearBaseMtx() {
 
 int BModelObj::GetMotionLength(const char* pName) {
     return mModel->GetMotionLength(pName);
+}
+
+f32 BModelDegreesToIndex() {
+    return 256.0f / 360.0f;
 }
 
 f32 BModelObj::CalcPlayRate(const char* pName, f32 frame, f32 duration) {

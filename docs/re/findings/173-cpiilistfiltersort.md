@@ -79,3 +79,11 @@ The constructor stores in the order `mFilterType`, `mSortType`, the `shared_ptr`
 - **One file mixes inlining modes.** The filter and sort call two-instruction accessors out of line (`dont_inline`), while the comparators, `sort` and the menu routine inline `shared_ptr` and list code. Do not apply one pragma to the whole file.
 - **CodeWarrior returns one-word classes in `r3`.** A `begin()` returning a one-pointer iterator class compiles to `lwz r3, 0(r3); blr`, so a returned value in `r3` does not prove a raw-pointer iterator.
 - **A file can end at a constructor.** `0x800EC3D0` sits between survey blocks #175 and #176 but is the first function of the `CPiiPersonalData` file; its data begins at `CPiiPersonalData_init.pkc`.
+
+## 2026-11-04 final-tail compiler controls
+
+Fresh direct compiler probes leave the five remaining functions unresolved. ShowTypeFilterMenu has the same six operand differences documented in sprint-ra: the constant one and loaded kind exchange r3/r4 at its two mask shifts. Eighteen scoped identity/dead-assignment forms, nine volatile/reference/restrict parameter variants, and twelve scalar wrapper constructor/destructor/conversion combinations did not improve the baseline 99.93343% strict comparison. Applying dead-assignment suppression to the whole caller causes extensive extra operations and is rejected.
+
+Sort's remaining differences are concentrated in argument-setup scheduling before its sort call. Explicit index locals, volatile index reads, cached iterators, and comparator references/pointers all regress; six inline helper parameter-order variants also regress. The two menu sort instances and the shared-pointer sort retain the known constant/pointer register allocation differences. Twelve explicit signed multiply-high remainder rewrites with a named divisor multiplier produce substantially worse code (roughly 87–89%) and are rejected.
+
+No tracked source or shared-header change resulted. Ignored reproducers and result JSON are under `tools/local/session/filter-61-*`; the temporary algorithm overlay is removed after its sweep. All original behavior and previously exact functions remain unchanged in main.

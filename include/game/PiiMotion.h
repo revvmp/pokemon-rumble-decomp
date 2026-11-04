@@ -7,7 +7,7 @@ struct PiiMotionInfo {
     int mId;
     const char* mName;
     f32 mSpeed;
-    int mReserved0C;
+    const char* mRootMotionName;
     const char* mResourceName;
     bool mLoopsTextureAnimation;
     bool mHasTextureAnimation;

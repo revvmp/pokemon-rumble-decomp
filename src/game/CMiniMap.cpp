@@ -33,6 +33,55 @@ bool CompareMiniMapMarkers(const CMiniMapMarker* pLeft, const CMiniMapMarker* pR
 
 }
 
+inline void CMiniMap::CalcMarkers(BWorldCamera* pCamera, std::vector<BWorldObj*>& objects, std::vector<CMiniMapMarker*>& markers) {
+    nw4r::g3d::Camera camera = pCamera->GetG3dCamera();
+    nw4r::math::MTX34 view;
+    nw4r::math::MTX34 inverse;
+    camera.GetCameraMtx(&view);
+    if (PSMTXInverse(view, inverse)) {
+        nw4r::math::VEC3 direction(0.0f, 0.0f, -1.0f);
+        nw4r::math::VEC3 position;
+        nw4r::math::PLANE plane;
+        nw4r::math::VEC3 intersection;
+        PSMTXMultVec(inverse, direction, direction);
+        camera.GetPosition(&position);
+        nw4r::math::LINE3 line(position, direction - position);
+        nw4r::math::VEC3Normalize(&line.d, &line.d);
+        plane.n = nw4r::math::VEC3(0.0f, 1.0f, 0.0f);
+        plane.d = -mHeight;
+        if (nw4r::math::IntersectionLine3Plane(&line, &plane, nullptr, &intersection) == nw4r::math::INTERSECTION_1) {
+            u16 width = mCapture.GetWidth();
+            u16 height = mCapture.GetHeight();
+            nw4r::lyt::Pane* pMap = mMapLayout.FindPane("map");
+            f32 mapWidth = width * (mMapSize.x / 15.0f);
+            f32 mapHeight = height * (mMapSize.y / 15.0f);
+            nw4r::lyt::Size mapSize;
+            mapSize.width = mapWidth;
+            mapSize.height = mapHeight;
+            pMap->SetSize(mapSize);
+            nw4r::math::VEC3 translate;
+            translate.x = (width / 2) * (-intersection.x / 15.0f);
+            translate.y = (height / 2) * (intersection.z / 15.0f);
+            translate.z = 0.0f;
+            pMap->SetTranslate(translate);
+            for (std::vector<BWorldObj*>::iterator it = objects.begin(); it != objects.end(); ++it) {
+                BWorldObj* pObject = *it;
+                if (pObject->IsVisible()) {
+                    CMiniMapMarker* pMarker = pObject->GetEffect();
+                    if (pMarker) {
+                        nw4r::math::VEC3 position = pObject->GetPositionRef();
+                        translate.x = (width / 2) * ((position.x - intersection.x) / 15.0f);
+                        translate.y = (height / 2) * (-(position.z - intersection.z) / 15.0f);
+                        translate.z = 0.0f;
+                        pMarker->GetPane()->SetTranslate(translate);
+                        markers.push_back(pMarker);
+                    }
+                }
+            }
+        }
+    }
+}
+
 inline void CMiniMap::Initialize(MapDesc* pMapDesc, BWorld* pWorld, f32 height, bool background) {
     std::tr1::shared_ptr<CLayout::FontMap> fonts = GetDefaultFontMap();
     mMapLayout.Load(gSharedLayoutArchives, "minimap_map", fonts, background);
@@ -75,29 +124,29 @@ std::tr1::shared_ptr<IMiniMap> IMiniMap::Create(MapDesc* pMapDesc, BWorld* pWorl
     return pMiniMap;
 }
 
-CMiniMap::~CMiniMap() {}
 
-void CMiniMap::Show() {
+inline void CMiniMap::Show() {
     mDisplay.Show();
 }
 
-void CMiniMap::Hide() {
+inline void CMiniMap::Hide() {
     mDisplay.Hide();
 }
 
-void CMiniMap::Calc() {
+inline void CMiniMap::Calc() {
     mDisplay.Calc();
     mDisplayLayout.Calc();
     mMapLayout.Calc();
 }
 
-void CMiniMap::Draw() {
+inline void CMiniMap::Draw() {
     if (mDisplay.IsVisible()) {
         mDisplayLayout.Draw();
     }
 }
 
-void CMiniMap::CalcView() {
+
+inline void CMiniMap::CalcView() {
     std::vector<CMiniMapMarker*> markers;
     {
         std::tr1::shared_ptr<BWorld> world = mWorld.lock();
@@ -106,43 +155,7 @@ void CMiniMap::CalcView() {
             if (pCamera) {
                 {
                     std::vector<BWorldObj*> objects = world->GetObjects(BWorldObj::TYPE_WORLD_OBJ);
-                    nw4r::g3d::Camera camera = pCamera->GetG3dCamera();
-                    nw4r::math::MTX34 inverse;
-                    nw4r::math::MTX34 view;
-                    camera.GetCameraMtx(&view);
-                    if (PSMTXInverse(view, inverse)) {
-                        nw4r::math::VEC3 intersection;
-                        nw4r::math::PLANE plane;
-                        nw4r::math::VEC3 position;
-                        nw4r::math::VEC3 direction(0.0f, 0.0f, -1.0f);
-                        PSMTXMultVec(inverse, direction, direction);
-                        camera.GetPosition(&position);
-                        nw4r::math::LINE3 line(position, direction - position);
-                        nw4r::math::VEC3Normalize(&line.d, &line.d);
-                        plane.n = nw4r::math::VEC3(0.0f, 1.0f, 0.0f);
-                        plane.d = -mHeight;
-                        if (nw4r::math::IntersectionLine3Plane(&line, &plane, nullptr, &intersection) == nw4r::math::INTERSECTION_1) {
-                            u16 width = mCapture.GetWidth();
-                            u16 height = mCapture.GetHeight();
-                            nw4r::lyt::Pane* pMap = mMapLayout.FindPane("map");
-                            nw4r::lyt::Size mapSize;
-                            mapSize.width = width * (mMapSize.x / 15.0f);
-                            mapSize.height = height * (mMapSize.y / 15.0f);
-                            pMap->SetSize(mapSize);
-                            pMap->SetTranslate(nw4r::math::VEC3((width / 2) * (-intersection.x / 15.0f), (height / 2) * (intersection.z / 15.0f), 0.0f));
-                            for (std::vector<BWorldObj*>::iterator it = objects.begin(); it != objects.end(); ++it) {
-                                BWorldObj* pObject = *it;
-                                if (pObject->IsVisible()) {
-                                    CMiniMapMarker* pMarker = pObject->GetEffect();
-                                    if (pMarker) {
-                                        nw4r::math::VEC3 position = pObject->GetPositionRef();
-                                        pMarker->GetPane()->SetTranslate(nw4r::math::VEC3((width / 2) * ((position.x - intersection.x) / 15.0f), (height / 2) * (-(position.z - intersection.z) / 15.0f), 0.0f));
-                                        markers.push_back(pMarker);
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    CalcMarkers(pCamera, objects, markers);
                 }
                 std::sort(markers.begin(), markers.end(), CompareMiniMapMarkers);
             }
@@ -154,7 +167,7 @@ void CMiniMap::CalcView() {
     GXInvalidateVtxCache();
     GXInvalidateTexAll();
     Graphics::ResetState();
-    Graphics::SetPixelFormat(GX_PF_RGB8_Z24, GX_ZC_LINEAR);
+    Graphics::SetPixelFormat(GX_PF_RGBA6_Z24, GX_ZC_LINEAR);
     mMapLayout.CalculateMtx(true);
     mMapLayout.Render(size);
     for (std::vector<CMiniMapMarker*>::iterator it = markers.begin(); it != markers.end(); ++it) {

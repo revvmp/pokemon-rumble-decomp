@@ -7,7 +7,9 @@
 #include <nw4r/math/math_geometry.h>
 
 #include <game/BWorld.h>
+#if !defined(BMODELOBJ_EMISSION_LAYOUT)
 #include <game/CKDTree.h>
+#endif
 #include <game/CModel.h>
 
 class BModelObj : public BWorldObj, public BSoundSource, public BKDTreeLink {
@@ -41,10 +43,14 @@ public:
     virtual void CalcMtx();
     virtual void SetPosition(const nw4r::math::VEC3& rPosition);
     virtual void SetScale(const nw4r::math::VEC3& rScale);
+#if defined(BMODELOBJ_EMISSION_LAYOUT)
+    virtual void SetRotation(f32 rotation);
+#else
     virtual void SetRotation(f32 rotation) {
         mRotation = rotation;
         mFlags |= FLAG_DIRTY_MTX;
     }
+#endif
     virtual nw4r::math::VEC3 GetSize();
     virtual void SetVisible(bool visible) {
         SetStateFlag(STATE_VISIBLE, visible);

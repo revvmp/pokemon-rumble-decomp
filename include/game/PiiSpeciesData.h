@@ -30,7 +30,7 @@ struct PiiSpeciesData {
     const char* GetModelName(int sex) const;
     int ScalesAsBoss() const;
     const wchar_t* GetName() const;
-private:
+public:
     u16 mSpecies : 9;
     u8 mForm : 5;
     u8 : 2;

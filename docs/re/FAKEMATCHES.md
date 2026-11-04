@@ -88,4 +88,13 @@ Functions matched with source that is probably not the original, under [D-0016](
 | PiiPropData | SpeciesMoves assignment | local storage-vector specializations, named maximum temporaries and nested clear/allocation/throw helpers control frame and register allocation; function exact, constructor/reset remain partial | [evidence](findings/piipropdata-tail.md) |
 | CDlgPiiSelector | assign and insert | scoped const-reference empty-tag dispatch, explicit volatile byte copy and assignment-lvalue address preserve stack slots and tag lifetime; all645 functions exact, source link pending | [evidence](findings/91-selector-tail.md) |
 
-| BModelObj | CalcSize / CalcExtent | redundant same-type extentX reassignment prevents FPR coalescing in two inline copies; all88 functions exact, source link pending | [evidence](findings/329-bmodel-final.md) |
+| BModelObj | CalcSize / CalcExtent | redundant same-type extentX reassignment prevents FPR coalescing in two inline copies; all88 functions exact, full source-link SHA accepted | [evidence](findings/329-bmodel-final.md) |
+
+| BModelObj | helper and literal emission | scoped method deferral, sizeof and named-false probes, identical RemoveChild specialization and dead-stripped BModelDegreesToIndex helper reproduce original metadata/constants; full SHA accepted | [evidence](findings/329-bmodel-final.md) |
+| CMiniMap | CalcView and emission | inline CalcMarkers helper and named geometry locals preserve frame/allocation; inline virtual definitions and implicit destructor reproduce order; full SHA accepted | [evidence](findings/cminimap-tail.md) |
+| CPauseMenu | TakeScreenshot | const dimensions and two inline encoder helpers with distinct typed output-buffer views control allocation; full source-link SHA accepted | [evidence](findings/167-cpausemenu-tail.md) |
+| TMC JPEG RGB565 | ConvertRGB565MCU422 | redundant blue-byte mask and separate signed second-texel local control registers; function exact, unit remains partial | [evidence](findings/764-tmc-jpeg-converters.md) |
+| CDlgPiiSelector | metadata emission | compile-time sizeof shared-pointer and callback probes reproduce original metadata order; source-link acceptance pending | [evidence](findings/91-selector-tail.md) |
+
+| CPauseMenu | LeaveStage and data order | scoped signed enum preserves bitfield extraction identity; late named base-menu record and shared menu-name array preserve original constant order; full SHA accepted | [evidence](findings/167-cpausemenu-tail.md) |
+| TMC JPEG RGB565 | ConvertRGB565MCU411 | separate signed texels, redundant first two blue masks and first-blue reuse of the second texel local control coalescing; function exact, setup still partial | [evidence](findings/764-tmc-jpeg-converters.md) |

@@ -1,9 +1,30 @@
 #define GAME_DLGPIISELECTOR_RANGE_TAG_REFERENCE
+#include <game/ICalcDraw.h>
+#include <memory>
+#include <stdexcept>
 #include <game/IDlgPiiSelector.h>
 
 #include <game/ButtonMessage.h>
 #include <game/CColorBtnTagProc.h>
 #include <game/CFiber.h>
+class CItem;
+enum { kSelectorCItemSize = sizeof(std::tr1::shared_ptr<CItem>) };
+class CUIManager;
+enum { kSelectorCUIManagerSize = sizeof(std::tr1::shared_ptr<CUIManager>) };
+class CPii;
+enum { kSelectorCPiiSize = sizeof(std::tr1::shared_ptr<CPii>) };
+class BUILayout;
+enum { kSelectorBUILayoutSize = sizeof(std::tr1::shared_ptr<BUILayout>) };
+class CUIPiiSpec;
+enum { kSelectorCUIPiiSpecSize = sizeof(std::tr1::shared_ptr<CUIPiiSpec>) };
+class CUIPiiList;
+enum { kSelectorCUIPiiListSize = sizeof(std::tr1::shared_ptr<CUIPiiList>) };
+class CUIPlayerID;
+enum { kSelectorCUIPlayerIDSize = sizeof(std::tr1::shared_ptr<CUIPlayerID>) };
+
+#include <functional>
+class CPiiListFilterSort;
+enum { kSelectorSortCallbackSize = sizeof(std::tr1::function<void(const CPiiListFilterSort*)>) };
 #include <game/CLayout.h>
 #include <game/CNoticeDisplay.h>
 #include <game/ControllerTable.h>
@@ -47,29 +68,6 @@
 u32 GetPokemonVoiceId(u16 species, u16 form);
 
 #pragma dont_inline on
-typedef std::tr1::shared_ptr<CPiiPersonalData> SelectorPersonalPtr;
-typedef std::list<SelectorPersonalPtr>::const_iterator SelectorPersonalIterator;
-
-namespace std {
-template <> template <>
-void vector<SelectorPersonalPtr>::assign<SelectorPersonalIterator>(SelectorPersonalIterator first, SelectorPersonalIterator last, void*) {
-    Metrowerks::int2type<0> copyTag;
-    Metrowerks::int2type<0> sourceTag;
-    *reinterpret_cast<volatile unsigned char*>(&copyTag) = *reinterpret_cast<volatile unsigned char*>(&sourceTag);
-    base::assign_dispatch(first, last, copyTag);
-}
-
-template <> template <>
-void vector<SelectorPersonalPtr>::insert<SelectorPersonalIterator>(iterator pos, SelectorPersonalIterator first, SelectorPersonalIterator last, void*) {
-    Metrowerks::int2type<0> copyTag;
-    Metrowerks::int2type<0> sourceTag;
-    base::insert_dispatch(pos, first, last,
-        *reinterpret_cast<Metrowerks::int2type<0>*>(const_cast<unsigned char*>(
-            &(*reinterpret_cast<volatile unsigned char*>(&copyTag) =
-                *reinterpret_cast<volatile unsigned char*>(&sourceTag)))));
-}
-}
-
 static const int& SelectorMinimum(const int& a, const int& b);
 
 template <>
@@ -204,6 +202,12 @@ struct SwapRequest {
 
 const char* kMotionPaneNames[] = {"PIISPEC_ANM", "LIST_ANM", "PLAYERID_ANM", "HELP_ANM"};
 
+class IDlgPiiSelectorInternal : public IDlgPiiSelector {
+public:
+    virtual ~IDlgPiiSelectorInternal() {}
+    virtual std::tr1::shared_ptr<CPiiPersonalData> GetEntrancePPD(IController* pController) = 0;
+    virtual void UpdateDlgOpenState() = 0;
+};
 class CDataPerPlayer {
 public:
     enum Part {
@@ -425,12 +429,7 @@ inline void CDataPerPlayer::Setup(bool background) {
     mFiber.Start(std::tr1::bind(&CDataPerPlayer::Run, this), 0x8000);
 }
 
-class IDlgPiiSelectorInternal : public IDlgPiiSelector {
-public:
-    virtual ~IDlgPiiSelectorInternal() {}
-    virtual std::tr1::shared_ptr<CPiiPersonalData> GetEntrancePPD(IController* pController) = 0;
-    virtual void UpdateDlgOpenState() = 0;
-};
+
 
 inline void CDataPerPlayer::OnSelectionChanged(BUI* pUI) {
     if (!mSilent) {
@@ -1768,3 +1767,13 @@ static const int& SelectorMinimum(const int& a, const int& b) {
     return b < a ? b : a;
 }
 #pragma force_active reset
+
+inline BUI::Callback BUI::CCallbackListOwner::Add(const std::tr1::function<void(BUI*)>& rCallback) {
+    if (rCallback) {
+        Callback callback(new std::tr1::function<void(BUI*)>(rCallback));
+        if (mpList == nullptr) mpList = new CallbackList();
+        mpList->push_back(callback);
+        return callback;
+    }
+    return Callback();
+}

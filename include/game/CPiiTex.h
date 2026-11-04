@@ -1,6 +1,7 @@
 #ifndef GAME_CPIITEX_H
 #define GAME_CPIITEX_H
 
+#include <game/PiiTexCameraParams.h>
 #include <memory>
 #include <vector>
 #include <revolution/types.h>
@@ -10,14 +11,6 @@
 class CPii;
 class CPiiPersonalData;
 class BWorld;
-struct PiiTexCameraParams {
-    int mDistance;
-    int mHeight;
-    int mAngle;
-};
-
-extern const PiiTexCameraParams gPiiTexCameraParams[];
-
 class CPiiTex {
 public:
     CPiiTex(u16 width, u16 height);

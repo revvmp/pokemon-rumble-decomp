@@ -31,10 +31,28 @@ The two vector range-dispatch templates now take their unused int2type tag by co
 
 The assign specialization declares its copy tag before the source tag and explicitly copies one object-representation byte through volatile unsigned-character lvalues. This reproduces the target's stack +8 to +12 copy. The insert specialization uses the address of that assignment expression as the dispatch argument, converts it back to the original tag pointer, and dereferences it. The address remains the address of the same tag object; there is no hard-coded frame address or instruction stream. Retaining the assignment lvalue forces the compiler to preserve the tag pointer in r31 across iterator conversion, exactly as the target does. Computing the byte copy and pointer separately rematerializes the pointer too late and loses one saved register.
 
-Direct compilation of the retained source and normal headers matches all 645 real functions after the two diagnostic signature renames. Scratch evidence is tools/local/session/282-selector/tracked-final-diff.json. This records function acceptance evidence only; the coordinator's full source-link trial is pending.
+Direct compilation of the retained source and normal headers matches all 645 real functions after the two diagnostic signature renames. Scratch evidence is tools/local/session/282-selector/tracked-final-diff.json. The coordinator completed a source-link trial successfully, but its frozen checksum failed. The unit remains NonMatching; 645/645 is function acceptance only. Failed linked artifacts are preserved in tools/local/session/282-selector/linked.elf and linked.dol.
 
 Negative controls included four one-byte struct/union tag types, explicit copy constructors, reference forwarding helpers, pointer/integer casts, named temporaries, placement new, and reference-bound temporary tags. A reference-bound temporary restored the required r31 lifetime but reversed the two tag slots. Placement new emitted an unwanted call. The successful assignment-lvalue expression avoids both problems. The volatile byte copies and unusual argument expression are D-0016 fakes after the documented natural-source attempts; no original bytes or assembly enter the source pipeline.
 
 ### Additional trap
 
 An expression that yields the same pointer can have a different register lifetime: a named tag address was rematerialized after a call, while the lvalue result of its byte assignment survived across that call. Compare the entire unit and the link, rather than assuming equivalent C++ expressions share allocation behavior.
+
+## Source-link audit
+
+The first full source-link attempt retains all 645 target function bodies, but their order differs. The global text start shifts by 16 bytes from an exception-table size change, while the selector function extent itself retains its size. The linked data section is smaller.
+
+The vtable audit identified swapped inferred names for the two identical eight-byte CDlgPiiSelector methods: 0x8009AC10 is Close, and 0x8009AC20 is IsClosable. The inherited IDlg slot ordering establishes this assignment; changing IDlg would be wrong. The coordinator applied only those two local symbol corrections. All twelve target vtable relocation tables otherwise agree with the source.
+
+The source .data string inventory has 113 entries versus 115 in the target. The only missing strings are the default_delete and shared_ptr_deleter RTTI names for std::tr1::function<void(BUI*)>. Adding the ordinary inline BUI::CCallbackListOwner::Add body, already reconstructed in CDlgCollection and CDlgPiiList, restores both strings and retains all 645 exact functions. This remains a scratch candidate pending integration with emission-order changes.
+
+Moving the explicit assign/insert bodies into the existing unit-scoped generic vector wrappers also retains all 645 exact functions and avoids early strong definitions. A scoped generic Clamp call to SelectorMinimum avoids its early strong specialization. Neither alone solves the remaining weak-function order. Typed unused member-function pointer probes add data and disturb Setup/CreateBall relocations; sizeof probes avoid that data but did not recover the desired swap/iterator ordering. Do not retain the address-taken-data probes.
+
+## Retained data-order baseline
+
+The next retained source baseline still compares 645/645 against the regenerated real target. It includes the callback body described above, compile-time sizeof instantiation requests for shared_ptr<CItem>, shared_ptr<CUIManager>, shared_ptr<CPii>, shared_ptr<BUILayout>, shared_ptr<CUIPiiSpec>, shared_ptr<CUIPiiList>, shared_ptr<CUIPlayerID>, and function<void(const CPiiListFilterSort*)>. Their declaration order and position after CFiber and before CLayout reproduce the original template data order. The requests generate no runtime code or data; they are explicit D-0016 emission scaffolding, not recovered original source.
+
+ICalcDraw, memory, and stdexcept are included before IDlgPiiSelector, and the local IDlgPiiSelectorInternal definition is placed immediately before CDataPerPlayer. Together these changes reproduce all 115 target .data strings in order and the offsets of every common named vtable/RTTI symbol. The source .data ends fourteen bytes before the split's padded extent; final-link boundary treatment still requires validation. The target-function order common subsequence improves from 514 with the initial strong specializations to 596 of 645. The unit remains NonMatching until all ordering and exception data have passed the frozen SHA build.
+
+The native compiler accepts descriptive custom code sections. A toy partial-link experiment found that plain mwldeppc -r ignores LCF section ordering and merging, preserving its input sections even with deliberately invalid selector syntax. This cannot replace the existing C++ source-fragment pipeline. No custom-section changes were retained.

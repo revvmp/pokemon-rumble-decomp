@@ -58,8 +58,15 @@ inline bool IsHubMap() {
     return GetCurrentGameMap()->GetMapDesc().mIndex.mStage == 0;
 }
 
+enum HubArea {
+    HUB_AREA_MIN = -128,
+    HUB_AREA_MAX = 127
+};
+
 inline MapIndex GetHubIndex(const MapIndex& index) {
-    MapIndex hub = {index.mMode, index.mArea, 0, 0};
+    const HubArea area = static_cast<HubArea>(index.mArea);
+    const int mode = index.mMode;
+    MapIndex hub = {mode, area, 0, 0};
     return hub;
 }
 
@@ -70,6 +77,9 @@ enum MenuKind {
     MENU_REMOTE_MEMORY = 3,
     MENU_RESUME = 0x20000000
 };
+
+char sMenuMotionName[] = "menu";
+extern const UIMenuParam sBaseMenuParam;
 
 class CPauseMenuInput : public IUIInput {
 public:
@@ -245,7 +255,7 @@ private:
             items.push_back(item);
         }
 
-        UIMenuParam baseParam = {nullptr, nullptr, 0, 1, 0, -1, nullptr, "menu"};
+        UIMenuParam baseParam = sBaseMenuParam;
         UIMenuParam param = baseParam;
         param.mTitle = GetMessageString(0x6007E, nullptr);
         param.mpItems = &items[0];
@@ -378,6 +388,19 @@ void CPauseMenu::LeaveStage() {
     }
 }
 
+inline void EncodeCapture(const std::tr1::shared_ptr<u8>& rWork, const std::tr1::shared_ptr<u8>& rBuffer,
+                          const COffScreenTexture& rShot, u32& rJpegSize) {
+    const GXTexFmt format = rShot.GetFormat();
+    TMCJPEGEncode(rWork.get(), rBuffer.get(), rShot.GetWidth(), rShot.GetHeight(), format, &rJpegSize, 400);
+}
+
+inline void EncodeCaptureToBuffer(const std::tr1::shared_ptr<u8>& rWork, const std::tr1::shared_ptr<u8>& rBuffer,
+                                  const COffScreenTexture& rShot, const std::tr1::shared_ptr<u8>& rJpeg, u32& rJpegSize) {
+    void* const pJpeg = rJpeg.get();
+    TMCJPEGEncodeToBuffer(rWork.get(), rBuffer.get(), rShot.GetWidth(), rShot.GetHeight(), rShot.GetFormat(),
+                         400, pJpeg, rJpegSize, &rJpegSize);
+}
+
 inline void CPauseMenu::CaptureScreenshot() {
     std::tr1::shared_ptr<u8> work(static_cast<u8*>(GameMemory::Allocate(0x1c00, 32)), GameMemory::Free);
     if (work.get() == nullptr) {
@@ -391,8 +414,8 @@ inline void CPauseMenu::CaptureScreenshot() {
         YieldFiber();
     }
 
-    u16 efbWidth = pMode->fbWidth;
-    u16 efbHeight = pMode->efbHeight;
+    const u16 efbWidth = pMode->fbWidth;
+    const u16 efbHeight = pMode->efbHeight;
     f32 pixelAspect = (static_cast<f32>(pMode->viWidth) / static_cast<f32>(efbWidth)) * GetPixelAspectRatio() /
                       (static_cast<f32>(pMode->viHeight) / static_cast<f32>(efbHeight));
     f32 maxWidth = static_cast<f32>(efbWidth);
@@ -465,13 +488,13 @@ inline void CPauseMenu::CaptureScreenshot() {
     mScreenshotLayout.CreateMotion("begin", "SS_ROOT", 0.0f, 1.0f)->Wait();
 
     u32 jpegSize;
-    TMCJPEGEncode(work.get(), shot.GetBufferOwner().get(), shot.GetWidth(), shot.GetHeight(), shot.GetFormat(), &jpegSize, 400);
+    EncodeCapture(work, shot.GetBufferOwner(), shot, jpegSize);
     std::tr1::shared_ptr<u8> jpeg(static_cast<u8*>(GameMemory::AllocateMEM2(jpegSize, 32)), GameMemory::Free);
     if (jpeg.get() == nullptr) {
         OSReport("%s(%d): not enough memory\n", "CPauseMenu.cpp", 556);
         return;
     }
-    TMCJPEGEncodeToBuffer(work.get(), shot.GetBufferOwner().get(), shot.GetWidth(), shot.GetHeight(), shot.GetFormat(), 400, jpeg.get(), jpegSize, &jpegSize);
+    EncodeCaptureToBuffer(work, shot.GetBufferOwner(), shot, jpeg, jpegSize);
 
     while (true) {
         if (GetControllerTable()->GetTrig() & 0x20) {
@@ -505,7 +528,7 @@ bool CPauseMenu::RunRemoteMemoryMenu() {
     UIMenuItem items[2] = {{nullptr, 0}, {nullptr, MENU_RESUME}};
     items[0].mText = GetMessageString(0x60085, nullptr);
     items[1].mText = GetMessageString(0x60089, nullptr);
-    UIMenuParam param = {nullptr, nullptr, 2, 1, 2, -1, nullptr, "menu"};
+    UIMenuParam param = {nullptr, nullptr, 2, 1, 2, -1, nullptr, sMenuMotionName};
     param.mTitle = GetMessageString(0x6007F, nullptr);
     param.mpItems = items;
     param.mpArchives = gSharedLayoutArchives;
@@ -538,3 +561,7 @@ template <typename A, typename B> std::wstring FormatMessage(const wchar_t* pFor
 
 template std::wstring FormatMessage(const wchar_t*, const wchar_t* const&, const wchar_t* const&);
 template std::wstring FormatMessage(const wchar_t*, const wchar_t* const&, const wchar_t* const&, const wchar_t* const&);
+
+namespace {
+const UIMenuParam sBaseMenuParam = {nullptr, nullptr, 0, 1, 0, -1, nullptr, sMenuMotionName};
+}

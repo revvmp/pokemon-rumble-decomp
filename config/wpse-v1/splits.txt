@@ -678,6 +678,15 @@ game/CWorldObjStatDisplay.cpp:
 	.data       start:0x803AFAA0 end:0x803AFC38
 	.sdata      start:0x804B76F8 end:0x804B7728
 
+game/MotorPatternData.cpp:
+	.rodata     start:0x803550B8 end:0x803550DC
+	.sdata      start:0x804B7728 end:0x804B7740
+
+game/EffectInfos.cpp:
+	.rodata     start:0x803550E0 end:0x80359220
+	.data       start:0x803AFC38 end:0x803B302D
+	.sdata      start:0x804B7740 end:0x804B77D8
+
 game/ControllerTable.cpp:
 	extab       start:0x8002C200 end:0x8002C230
 	extabindex  start:0x8004C818 end:0x8004C860
@@ -696,6 +705,22 @@ game/PiiSpeciesData.cpp:
 	.text       start:0x80124C80 end:0x80125180
 	.data       start:0x803B3070 end:0x803B3090
 	.sdata2     start:0x804BA148 end:0x804BA158
+
+game/PiiMotionData.cpp:
+	.rodata     start:0x80359220 end:0x8035A1A0
+	.data       start:0x803B3090 end:0x803B4058
+
+game/PiiTexCameraParams.cpp:
+	.rodata     start:0x8035A1A0 end:0x8035B8E0
+
+game/PostEffectData.cpp:
+	.rodata     start:0x8035B8E0 end:0x8035B9C0
+	.data       start:0x803B4058 end:0x803B4108
+
+game/StageInfo.cpp:
+	.rodata     start:0x8035B9C0 end:0x8035BA58
+	.data       start:0x803B4108 end:0x803B411E
+	.sdata      start:0x804B77E0 end:0x804B7827
 
 game/GameUtil.cpp:
 	extab       start:0x8002C248 end:0x8002C2A8
@@ -923,6 +948,11 @@ game/NPpuLibrary.cpp:
 	.text       start:0x80174D70 end:0x801768D4
 	.data       start:0x803B8440 end:0x803B8730
 	.sdata      start:0x804B7B68 end:0x804B7B78
+
+game/PiiSpeciesTables.cpp:
+	.rodata     start:0x8035DF88 end:0x803620C0
+	.data       start:0x803B8730 end:0x803B9D82
+	.sdata      start:0x804B7B78 end:0x804B80DF
 
 game/luckyhelper.cpp:
 	extab       start:0x8003500C end:0x8003501C
@@ -3391,6 +3421,9 @@ RVL_SDK/ax/AXVPB.c:
 	.sbss       start:0x804B9950 end:0x804B996C
 	.sdata2     start:0x804BB3F8 end:0x804BB418
 
+RVL_SDK/ax/AXCompressorTable.c:
+	.data       start:0x803D8620 end:0x803D95E0
+
 RVL_SDK/ax/AXProf.c:
 	.text       start:0x802DD7A0 end:0x802DD7E0
 	.sbss       start:0x804B9970 end:0x804B9980
@@ -4036,6 +4069,9 @@ MSL_C/ansi_fp.c:
 	.data       start:0x803E5F10 end:0x803E6078
 	.sdata2     start:0x804BB648 end:0x804BB680
 
+MSL_C/ctype_data.c:
+	.rodata     start:0x80398488 end:0x80398888
+
 MSL_C/arith.c:
 	.text       start:0x80344A70 end:0x80344ACC
 
@@ -4095,6 +4131,9 @@ MSL_C/wstrtold.c:
 	.text       start:0x80347904 end:0x80348C64
 	.rodata     start:0x803989A0 end:0x803989B0
 	.sdata2     start:0x804BB6B8 end:0x804BB6D8
+
+MSL_C/wide_ctype_data.c:
+	.rodata     start:0x803989B0 end:0x80398FB0
 
 MSL_C/wcstoul.c:
 	.text       start:0x80348C64 end:0x8034916C

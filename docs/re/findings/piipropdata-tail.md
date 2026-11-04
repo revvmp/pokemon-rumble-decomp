@@ -38,3 +38,11 @@ Ignored evidence is `tools/local/session/prop-61-compile/retained-assign.cpp` an
 
 - Prefix versus postfix increment of a class iterator can change loop rotation even when the discarded postfix result should be trivial. Verify the exact native branch path and full function; replacing a while loop with do-while is not equivalent.
 - Signed-short vectors in this reconstruction use unsigned-short storage. Probe the actual instantiated storage backend when a specialization appears to have no effect.
+
+## Constructor and Reset stack reconstruction
+
+The source-local unsigned-short byte-span correction combines with an outer `vector<SpeciesMoves>` size-constructor specialization to restore the native tag order. Allocating in the outer constructor and wrapping only element construction moves the allocation tag to stack offset 0x08 and the construction tag to 0x30. Explicit LevelMove and unsigned-short backend copy constructors declare the construction tag before the allocation tag and initialize each through a volatile byte store immediately before its call. The resulting scratch `copyboth3.cpp` reproduces both native sizes and all instruction opcodes and stack offsets. Only register operands remain different (98.60687% constructor, 98.74603% Reset); it is not retained.
+
+The register-only state resists 36 copy-local declaration permutations, 25 copy-helper boundary combinations, ten outer-loop declaration/form controls, 42 scoped identity and dead-assignment controls, and 36 copy-helper parameter-order combinations. A named outer remaining-count local changes the allocation order, reaching 98.87405% in the constructor, but does not finish either function. Odd helper depths generally disturb the tag slots again. No scratch constructor/reset change has been applied to main.
+
+`ctor-ra.txt` records compiler coloring for the all-opcodes/all-slots candidate. Its outer loop count takes r24 and zero takes r25; native uses r23 and r24, with the LevelMove first pointer taking native r25 instead of rebuilt r18. The live-value priority still differs despite identical machine operations. Reproducers and candidates are retained under ignored `tools/local/session/prop-61-*`.

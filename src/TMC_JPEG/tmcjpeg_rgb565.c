@@ -37,6 +37,9 @@ s32 TMCJPEGSetupRGB565(TMCJPEGState* state, TMCJPEGEncoder* enc)
 
 static s32 ConvertRGB565MCU411(TMCJPEGMCUBuffer* buffer, TMCJPEGEncoder* enc, s32 x, s32 y)
 {
+    s32 secondTexel;
+    s32 thirdTexel;
+    s32 fourthTexel;
     const u16* image = (const u16*)enc->source;
     u8* dstY = buffer->pixels;
     u8 r, g, b;
@@ -60,27 +63,28 @@ static s32 ConvertRGB565MCU411(TMCJPEGMCUBuffer* buffer, TMCJPEGEncoder* enc, s3
             texel = RGB565_TEXEL(image, px, y, tileStride);
             r = (u8)(texel >> 8) & 0xF8;
             g = (u8)(texel >> 3) & 0xFC;
-            b = (u8)(texel << 3);
+            secondTexel = texel;
+            b = ((u8)(secondTexel << 3)) & 0xFF;
             dstY[0] = (r * 77 + g * 150 + b * 29 + 128) >> 8;
             *dstCb++ = ((b - dstY[0]) * 144 + 128) >> 8;
             *dstCr++ = ((r - dstY[0]) * 183 + 128) >> 8;
 
-            texel = RGB565_TEXEL(image, px + 1, y, tileStride);
-            r = (u8)(texel >> 8) & 0xF8;
-            g = (u8)(texel >> 3) & 0xFC;
-            b = (u8)(texel << 3);
+            secondTexel = RGB565_TEXEL(image, px + 1, y, tileStride);
+            r = (u8)(secondTexel >> 8) & 0xF8;
+            g = (u8)(secondTexel >> 3) & 0xFC;
+            b = ((u8)(secondTexel << 3)) & 0xFF;
             dstY[1] = (r * 77 + g * 150 + b * 29 + 128) >> 8;
 
-            texel = RGB565_TEXEL(image, px + 2, y, tileStride);
-            r = (u8)(texel >> 8) & 0xF8;
-            g = (u8)(texel >> 3) & 0xFC;
-            b = (u8)(texel << 3);
+            thirdTexel = RGB565_TEXEL(image, px + 2, y, tileStride);
+            r = (u8)(thirdTexel >> 8) & 0xF8;
+            g = (u8)(thirdTexel >> 3) & 0xFC;
+            b = (u8)(thirdTexel << 3);
             dstY[2] = (r * 77 + g * 150 + b * 29 + 128) >> 8;
 
-            texel = RGB565_TEXEL(image, px + 3, y, tileStride);
-            r = (u8)(texel >> 8) & 0xF8;
-            g = (u8)(texel >> 3) & 0xFC;
-            b = (u8)(texel << 3);
+            fourthTexel = RGB565_TEXEL(image, px + 3, y, tileStride);
+            r = (u8)(fourthTexel >> 8) & 0xF8;
+            g = (u8)(fourthTexel >> 3) & 0xFC;
+            b = (u8)(fourthTexel << 3);
             dstY[3] = (r * 77 + g * 150 + b * 29 + 128) >> 8;
 
             dstY += 4;
@@ -95,7 +99,8 @@ static s32 ConvertRGB565MCU411(TMCJPEGMCUBuffer* buffer, TMCJPEGEncoder* enc, s3
 }
 
 static s32 ConvertRGB565MCU422(TMCJPEGMCUBuffer* buffer, TMCJPEGEncoder* enc, s32 x, s32 y)
-{
+{    s32 nextTexel;
+
     const u16* image = (const u16*)enc->source;
     u8* dstY = buffer->pixels;
     u8 r, g, b;
@@ -119,15 +124,15 @@ static s32 ConvertRGB565MCU422(TMCJPEGMCUBuffer* buffer, TMCJPEGEncoder* enc, s3
             texel = RGB565_TEXEL(image, px, y, tileStride);
             r = (u8)(texel >> 8) & 0xF8;
             g = (u8)(texel >> 3) & 0xFC;
-            b = (u8)(texel << 3);
+            b = ((u8)(texel << 3)) & 0xFF;
             dstY[0] = (r * 77 + g * 150 + b * 29 + 128) >> 8;
             *dstCb++ = ((b - dstY[0]) * 144 + 128) >> 8;
             *dstCr++ = ((r - dstY[0]) * 183 + 128) >> 8;
 
-            texel = RGB565_TEXEL(image, px + 1, y, tileStride);
-            r = (u8)(texel >> 8) & 0xF8;
-            g = (u8)(texel >> 3) & 0xFC;
-            b = (u8)(texel << 3);
+            nextTexel = RGB565_TEXEL(image, px + 1, y, tileStride);
+            r = (u8)(nextTexel >> 8) & 0xF8;
+            g = (u8)(nextTexel >> 3) & 0xFC;
+            b = (u8)(nextTexel << 3);
             dstY[1] = (r * 77 + g * 150 + b * 29 + 128) >> 8;
 
             dstY += 2;

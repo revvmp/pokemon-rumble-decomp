@@ -12,7 +12,6 @@
 class CMiniMap : public IMiniMap {
 public:
     CMiniMap() : mDisplay(&mDisplayLayout) {}
-    virtual ~CMiniMap();
     virtual void Calc();
     virtual void CalcView();
     virtual void Draw();
@@ -22,6 +21,8 @@ public:
     void Initialize(MapDesc* pMapDesc, BWorld* pWorld, f32 height, bool background);
 
 private:
+    void CalcMarkers(BWorldCamera* pCamera, std::vector<BWorldObj*>& objects, std::vector<CMiniMapMarker*>& markers);
+
     CDisplayPhaseCtrl mDisplay;
     std::tr1::shared_ptr<CFileData> mMapFile;
     CLayout mMapLayout;

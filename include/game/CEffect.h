@@ -1,6 +1,7 @@
 #ifndef GAME_CEFFECT_H
 #define GAME_CEFFECT_H
 
+#include <game/EffectInfo.h>
 #include <game/ICalc.h>
 #include <memory>
 #include <nw4r/ef/ef_handle.h>
@@ -15,15 +16,6 @@ namespace ef {
 class Effect;
 }
 }
-
-struct EffectInfo {
-    int mId;
-    const char* mName;
-    const char* mNodeName;
-    const char* mTargetNodeName;
-    int mType;
-    bool mUseCaptureGroup;
-};
 
 class CEffect : public ICalc, public std::tr1::enable_shared_from_this<CEffect> {
 public:

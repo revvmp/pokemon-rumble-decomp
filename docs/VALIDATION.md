@@ -180,3 +180,7 @@ The normal default build configuration was restored afterward. This verifies the
 ## Broad-header regression check, 58-function checkpoint
 
 Compared the latest real ninja report with the prior clean-repeat report by original virtual function address, excluding gap and padding names. Both contain13,448 address-bearing real function rows. No previously100% function regressed. The latest fresh build and frozen verifier pass; the remaining real tail is58. This check covers the scoped header changes, signature corrections and added source emission controls retained in this checkpoint.
+
+## Typed data and 53-function checkpoint
+
+The ordinary build links BModelObj, CMiniMap, CPauseMenu and ten additional typed data units. Ninja exits0 and frozen verification passes. The report records3,001,272 matched code bytes,2,552,708 linked code bytes and1,613,548 linked data bytes. The53-function tail and explicit original fallbacks remain blockers to complete source reconstruction. No original hash changed.
