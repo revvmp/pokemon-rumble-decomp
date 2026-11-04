@@ -6,7 +6,6 @@
 class CFileData;
 class ScnMdlSimpleData {
 public:
-    ScnMdlSimpleData();
     ~ScnMdlSimpleData();
     nw4r::g3d::ScnMdlSimple* GetModel() { return mModel.get(); }
     nw4r::g3d::ScnMdlSimple* GetModel() const { return mModel.get(); }

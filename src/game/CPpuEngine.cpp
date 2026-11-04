@@ -1,3 +1,8 @@
+#include <MSL_CPP/alloc_ptr.h>
+#include <vector>
+namespace NPpu { class CCode; }
+typedef char ScriptCodeReferenceStorage[sizeof(std::tr1::shared_ptr<NPpu::CCode>)];
+
 #include <nw4r/ut/ut_algorithm.h>
 #include <game/CPpuEngine.h>
 #include <nw4r/g3d/res/g3d_resanmchr.h>
@@ -109,6 +114,8 @@ void CPpuEngine::LeaveInitPart() {
 }
 
 const char* CPpuEngine::GetScriptRoot() {
+    bool probe = false;
+    if (probe) sScriptRoot.~shared_ptr();
     if (sScriptRoot) {
         return sScriptRoot->c_str();
     }
@@ -260,6 +267,11 @@ u32 CPpuEngine::PeekWorldObjType(int argIndex) {
     return 0;
 }
 
+template <>
+inline std::list<int>& std::detail::map_base<int, std::list<int>, std::less<int>, std::allocator<std::pair<const int, std::list<int> > > >::operator[](const int& rKey) {
+    return tree_.find_or_insert(rKey).second;
+}
+
 int CPpuEngine::InsertCallback(int messageID, int functionID, int position) {
     if (messageID < 0) {
         return 0;
@@ -315,8 +327,72 @@ bool CPpuEngine::HasCallback(int messageID) const {
 
 namespace {
 
+class HandlerIterator {
+public:
+    typedef int difference_type;
+    typedef int value_type;
+    typedef int* pointer;
+    typedef int& reference;
+    typedef std::bidirectional_iterator_tag iterator_category;
+
+    struct Identity {
+        int operator()(int value) const { return value; }
+    };
+    explicit HandlerIterator(std::list<int>::iterator it, Identity policy = Identity()) : mIterator(it) {}
+    int operator*() const { return mPolicy(*mIterator); }
+    HandlerIterator& operator++() {
+        typedef std::__list_deleter<int, std::allocator<int> >::node* NodePointer;
+        NodePointer volatile& rNode = *reinterpret_cast<NodePointer volatile*>(&mIterator);
+        rNode = rNode->next_;
+        return *this;
+    }
+    bool operator!=(const HandlerIterator& rOther) const { return mIterator != rOther.mIterator; }
+
+private:
+    std::list<int>::iterator mIterator;
+    Identity mPolicy;
+};
+
+inline void AllocateHandlers(std::__vec_deleter<int, std::allocator<int> >& rStorage, unsigned long count) {
+    rStorage.allocate(count, std::__vec_deleter<int, std::allocator<int> >::pod_type());
+}
+}
+
+namespace std {
+
+template <> template <>
+void __vec_constructor<int, allocator<int>, true>::construct_at_end(HandlerIterator first, HandlerIterator last, Metrowerks::int2type<false>) {
+    int* p = this->data_ + this->size_;
+    for (; first != last; ++p) {
+        volatile char constructionTag = 0;
+        const int& value = *first;
+        this->alloc().construct(p, value);
+        ++first;
+        ++this->size_;
+    }
+}
+template <> template <>
+void __vec_constructor<int, allocator<int>, true>::construct_at_end(HandlerIterator first, HandlerIterator last) {
+    construct_at_end(first, last, Metrowerks::int2type<false>());
+}
+template <> template <>
+void vector<int>::assign(HandlerIterator first, HandlerIterator last, Metrowerks::restrict_to<true>::type*) {
+    size_type n = std::distance(first, last);
+    if (n != 0) {
+        AllocateHandlers(*this, n);
+        base::construct_at_end(first, last);
+    }
+}
+}
+
+namespace {
+
 struct HandlerList : public std::vector<int> {
-    HandlerList(std::list<int>::iterator first, std::list<int>::iterator last) : std::vector<int>(first, last) {}
+    HandlerList(std::list<int>::iterator first, std::list<int>::iterator last, HandlerIterator::Identity& firstPolicy, HandlerIterator::Identity& lastPolicy) : std::vector<int>() {
+        *reinterpret_cast<char*>(&lastPolicy) = 0;
+        *reinterpret_cast<char*>(&firstPolicy) = 0;
+        assign(HandlerIterator(first, firstPolicy), HandlerIterator(last, lastPolicy));
+    }
 };
 
 inline bool CallHandler(CPpuEngine& rEngine, int functionID, const CPpuEngine::Message& rMessage) {
@@ -331,6 +407,8 @@ inline bool CallHandler(CPpuEngine& rEngine, int functionID, const CPpuEngine::M
 
 }
 
+#pragma push
+#pragma opt_loop_invariants off
 int CPpuEngine::SendMessage(const Message& rMessage) {
     std::map<int, std::list<int> >::iterator it = mCallbacks.find(rMessage.mMessageID);
     if (it == mCallbacks.end()) {
@@ -348,7 +426,9 @@ int CPpuEngine::SendMessage(const Message& rMessage) {
             }
         }
     } else {
-        HandlerList functions(rCallbacks.begin(), rCallbacks.end());
+        HandlerIterator::Identity firstPolicy;
+        HandlerIterator::Identity lastPolicy;
+        HandlerList functions(rCallbacks.begin(), rCallbacks.end(), firstPolicy, lastPolicy);
         for (std::vector<int>::iterator fn = functions.begin(); fn != functions.end(); ++fn) {
             if (CallHandler(*this, *fn, rMessage)) {
                 break;
@@ -357,7 +437,7 @@ int CPpuEngine::SendMessage(const Message& rMessage) {
     }
     return 1;
 }
-
+#pragma pop
 
 bool RunScript(const char* pName, int mode, const std::tr1::shared_ptr<CPpuEnv>& rEnvironment) {
     std::tr1::shared_ptr<CPpuEngine> engine(new CPpuEngine);

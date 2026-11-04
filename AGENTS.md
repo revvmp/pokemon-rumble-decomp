@@ -12,7 +12,9 @@ Keep this file and the linked living documents current as required by the projec
 
 Codex discovers the repository skill at [`.agents/skills/take-issue/SKILL.md`](.agents/skills/take-issue/SKILL.md), which loads the shared Claude procedure below. Maintain the workflow in one place; see [skill setup](docs/HANDOFF.md#repository-skills).
 
-If you were given a GitHub issue, or asked to pick one up, follow the `take-issue` procedure in `.claude/skills/take-issue/SKILL.md`; it applies to every agent, not only Claude. It claims through `tools/collab/claim_issue.py`, which never takes an assigned issue. Then read [collaboration](docs/COLLABORATION.md) and the issue before anything else. Work in your own worktree and branch, edit only the files that guide allows for your claim, and report through the pull request. [Workstreams](docs/WORKSTREAMS.md) lists all issues.
+By the owner's instruction on 2026-11-04, work on `main` by default; do not create separate branches or worktrees unless explicitly requested. Parallel agents own separate files and compile experiments into separate scratch outputs. One coordinator runs `configure.py`, ninja, full verification, shared configuration edits, and checkpoints. See [the current workflow](docs/HANDOFF.md#main-branch-workflow).
+
+For issue work, retain the claim exclusions and evidence requirements of `.claude/skills/take-issue/SKILL.md` and [collaboration](docs/COLLABORATION.md). The main-branch instruction supersedes their branch, worktree, pull-request, and merge-loop steps. Claim through `tools/collab/claim_issue.py`, which never takes an assigned issue. [Workstreams](docs/WORKSTREAMS.md) lists all issues.
 
 ## Source fidelity standard
 
@@ -27,6 +29,9 @@ Aim for the readability of the Super Mario Galaxy decompilation (Petari): source
 - Exception: after a documented honest attempt fails, a fake match is allowed under [D-0016](docs/DECISIONS.md#d-0016-documented-fake-matches-for-the-remaining-long-tail). List every one in [the fake-match ledger](docs/re/FAKEMATCHES.md).
 
 ## Session memory: traps and findings
+
+- **A register near-match can hide different control flow.** CDividedGround `LoadAttr` scored 99.27%, but its first success skipped a second validity check that the target executes. Compare branch destination offsets before treating remaining operand changes as register allocation; see [F-61-2](docs/re/findings/61-cdividedground-second-block.md#loadattr-the-branch-destination-was-the-source-error).
+- **Packed data can resemble an exception-table pointer.** The species/form/bone-size word at `0x8035FE60` was classified as `@etb_8000BF90 + 0x90`, leaving a false link dependency when CDividedGround moved to source. Verify the record layout and original word before blocking a relocation; see [the CDividedGround evidence](docs/re/findings/61-cdividedground-second-block.md).
 
 Read this section before starting work. Before ending every meaningful session, update it with newly discovered traps, failed approaches worth avoiding, and findings that change how future work should proceed. Do not leave reusable knowledge only in chat or a handoff. Each entry must state the trigger or symptom, the verified lesson or workaround, and a link to detailed evidence in `docs/` or `docs/re/` as appropriate.
 
@@ -119,4 +124,4 @@ Keep entries concise and actionable. Distinguish confirmed findings from hypothe
 | Verification entry point | `python tools/verify/verify.py --help` |
 | Progress images | `python tools/progress/progress.py render --phases config/progress.json --output-dir docs/images` |
 | Extraction entry point | `python tools/reference/extract_reference.py`; see `docs/re/EXTRACTION.md` |
-| Next action | 120 long-tail functions; fake matches allowed (D-0016); see `docs/HANDOFF.md#next-actions` |
+| Next action | Remaining long-tail functions and source/data linkage on main; fake matches allowed (D-0016); see `docs/HANDOFF.md#next-actions` |

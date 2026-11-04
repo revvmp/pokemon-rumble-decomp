@@ -1,3 +1,5 @@
+#include <memory>
+#include <stdexcept>
 #include <game/CUIList.h>
 #include <game/BUICallbackList.h>
 #include <game/StringFormat.h>
@@ -6,21 +8,13 @@
 #include <nw4r/lyt/lyt_pane.h>
 #include <algorithm>
 
+#include <game/CUIListLayoutStorage.h>
+
 IUIListItem::~IUIListItem() {}
 bool IUIListItem::IsSelectable() const { return true; }
 void IUIListItem::Update(CUIList*, CLayout*) {}
 CUIList::CUIList() : mInputDirection(0), mScrollMode(0), mSelectedIndex(0), mFirstVisibleIndex(0), mScrollRangeBegin(0), mScrollRangeEnd(0), mSelectionInputEnabled(false), mRequireFocusForHighlight(false), mActivateOnHold(false), mWrapSelection(true), mpLastSelection(nullptr) {}
 CUIList::~CUIList() {}
-unsigned long CUIList::GetLayoutCount() const { return mLayouts.size(); }
-void CUIList::SetSelectedIndex(int index) { mSelectedIndex = index; UpdateSelection(); }
-int CUIList::GetSelectedIndex() {
-    if (mItems.size() <= mSelectedIndex) {
-        if (mItems.empty()) mSelectedIndex = 0;
-        else mSelectedIndex = mItems.size() - 1;
-    }
-    return mSelectedIndex;
-}
-
 void CUIList::Load(const char* pArchive, const char* pName, const std::tr1::shared_ptr<CLayout::FontMap>& rFonts, int background) {
     const char* archives[] = {pArchive, nullptr};
     Load(archives, pName, rFonts, background);
@@ -50,6 +44,16 @@ void CUIList::Load(const char* const* pArchives, const char* pName, const std::t
         GetFocusCallbacks().Add(std::tr1::bind(&CUIList::OnFocus,this,std::tr1::placeholders::_1));
         UpdateSelection();
     }
+}
+
+unsigned long CUIList::GetLayoutCount() const { return mLayouts.size(); }
+void CUIList::SetSelectedIndex(int index) { mSelectedIndex = index; UpdateSelection(); }
+int CUIList::GetSelectedIndex() {
+    if (mItems.size() <= mSelectedIndex) {
+        if (mItems.empty()) mSelectedIndex = 0;
+        else mSelectedIndex = mItems.size() - 1;
+    }
+    return mSelectedIndex;
 }
 
 std::tr1::shared_ptr<IUIListItem> CUIList::GetSelectedItem() {
@@ -139,15 +143,6 @@ void CUIList::UpdateSelection() {
     if (changed && mSelectionCallbacks.get()) {
         for (CallbackList::iterator i=mSelectionCallbacks.get()->begin();i!=mSelectionCallbacks.get()->end();++i) (**i)(this);
     }
-}
-
-void CUIList::Calc() {
-    BUILayout::Calc();
-    for (std::vector<std::tr1::shared_ptr<CLayout> >::iterator i=mLayouts.begin();i!=mLayouts.end();++i) (*i)->Calc();
-}
-void CUIList::Draw() {
-    BUILayout::Draw();
-    for (std::vector<std::tr1::shared_ptr<CLayout> >::iterator i=mLayouts.begin();i!=mLayouts.end();++i) (*i)->Draw();
 }
 
 namespace {
@@ -244,6 +239,15 @@ void CUIList::OnInput(const IUIInput* pInput) {
     } else BUI::OnInput(pInput);
 }
 
+void CUIList::Calc() {
+    BUILayout::Calc();
+    for (std::vector<std::tr1::shared_ptr<CLayout> >::iterator i=mLayouts.begin();i!=mLayouts.end();++i) (*i)->Calc();
+}
+void CUIList::Draw() {
+    BUILayout::Draw();
+    for (std::vector<std::tr1::shared_ptr<CLayout> >::iterator i=mLayouts.begin();i!=mLayouts.end();++i) (*i)->Draw();
+}
+
 void CUIList::OnFocus(BUI*) {
     if (IsFocused()) {
         GetLayout()->CreateMotion("normal_hover");
@@ -255,3 +259,21 @@ void CUIList::OnFocus(BUI*) {
     UpdateSelection();
 }
 
+#pragma force_active on
+CLayoutVectorStorage::~CLayoutVectorStorage() {
+    if (mpData) {
+        Clear();
+        GetAllocator().deallocate(mpData, Capacity());
+    }
+}
+#pragma force_active reset
+
+inline BUI::Callback BUI::CCallbackListOwner::Add(const std::tr1::function<void(BUI*)>& rCallback) {
+    if (rCallback) {
+        Callback callback(new std::tr1::function<void(BUI*)>(rCallback));
+        if (mpList == nullptr) mpList = new CallbackList();
+        mpList->push_back(callback);
+        return callback;
+    }
+    return Callback();
+}

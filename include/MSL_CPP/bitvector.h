@@ -116,12 +116,7 @@ private:
     __bitvec_deleter& operator=(const __bitvec_deleter&);
 };
 
-template <typename Allocator> class __bitvec_base : protected __bitvec_deleter<Allocator> {
-public:
-    ~__bitvec_base() {}
-};
-
-template <typename Allocator> class vector<bool, Allocator> : private __bitvec_base<Allocator> {
+template <typename Allocator> class vector<bool, Allocator> : private __bitvec_deleter<Allocator> {
     typedef __bitvec_deleter<Allocator> base;
 
 public:

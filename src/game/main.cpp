@@ -389,7 +389,7 @@ const TimeMessageIDs gMainTimeMessageIDs = {
 
 
 void SetTextLocale(int locale);
-void InitializeEffect(unsigned long count, unsigned long emitters, unsigned long groups, unsigned long particles, unsigned long flags);
+void InitializeEffect(unsigned long count, unsigned short emitters, unsigned short groups, unsigned long particles, unsigned long flags);
 void FinalizeEffect();
 
 inline CMain::CMain() {

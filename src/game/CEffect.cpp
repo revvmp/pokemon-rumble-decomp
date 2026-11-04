@@ -21,6 +21,13 @@
 #include <string.h>
 #include <vector>
 
+template <> inline void std::detail::default_delete<std::vector<bool> >::operator()(std::vector<bool>* pObject) const {
+    if (pObject) {
+        pObject->~vector();
+        ::operator delete(pObject);
+    }
+}
+
 namespace {
 
 inline bool IsEqual(const char* pName, const char* pPrefix, size_t length) {
@@ -514,7 +521,7 @@ public:
 }
 }
 
-void InitializeEffect(u32 numEffect, u32 numEmitter, u32 numParticleManager, u32 numParticle, u32 maxGroupID) {
+void InitializeEffect(u32 numEffect, u16 numEmitter, u16 numParticleManager, u32 numParticle, u32 maxGroupID) {
     u32 size = GetEffectHeapSize(numEffect, numEmitter, numParticleManager, numParticle, maxGroupID);
     void* pBuffer = GameMemory::Allocate(size);
 

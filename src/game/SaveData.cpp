@@ -13,6 +13,108 @@
 #include <stddef.h>
 #include <string.h>
 
+namespace std {
+template <> inline void __vec_deleter<SD_PiiPersonalData, allocator<SD_PiiPersonalData> >::erase_at_end(size_type n) {
+    erase_tail(n, Metrowerks::int2type<true>());
+}
+template <> inline void __vec_deleter<SD_PiiCollectionData, allocator<SD_PiiCollectionData> >::erase_at_end(size_type n) {
+    erase_tail(n, Metrowerks::int2type<true>());
+}
+template <> inline void __vec_deleter<SD_BattleRoyalData, allocator<SD_BattleRoyalData> >::erase_at_end(size_type n) {
+    erase_tail(n, Metrowerks::int2type<true>());
+}
+template <> inline void __vec_deleter<SD_StatisticValue, allocator<SD_StatisticValue> >::erase_at_end(size_type n) {
+    erase_tail(n, Metrowerks::int2type<true>());
+}
+template <> inline void __vec_deleter<UsedPassword, allocator<UsedPassword> >::erase_at_end(size_type n) {
+    erase_tail(n, Metrowerks::int2type<true>());
+}
+}
+
+template <typename T> inline void AllocateSaveVector(std::__vec_deleter<T, std::allocator<T> >& rVector, unsigned long count) {
+    rVector.allocate(count, typename std::__vec_deleter<T, std::allocator<T> >::pod_type());
+}
+
+template <typename T> inline void ConstructSaveVector(std::__vec_deleter<T, std::allocator<T> >& rVector, const T* first, const T* last) {
+    rVector.construct_at_end(first, last, typename std::__vec_deleter<T, std::allocator<T> >::pod_type());
+}
+
+template <typename T> inline void CopySaveVector(std::__vec_deleter<T, std::allocator<T> >& rVector, const T* first, const T* last) {
+    unsigned long count = last - first;
+    if (count != 0) {
+        AllocateSaveVector(rVector, count);
+        ConstructSaveVector(rVector, first, last);
+    }
+}
+namespace std {
+template <> inline __vec_constructor<SD_PiiPersonalData, allocator<SD_PiiPersonalData>, false>::__vec_constructor(const __vec_constructor& other) : base() {
+    size_type ignored0 = other.size_;
+    ignored0 += 1;
+    size_type ignored1 = other.size_;
+    ignored1 += 1;
+    size_type ignored2 = other.size_;
+    ignored2 += 1;
+    size_type ignored3 = other.size_;
+    ignored3 += 1;
+    CopySaveVector(*this, other.data_, other.data_ + other.size_);
+}
+template <> inline __vec_constructor<SD_PiiCollectionData, allocator<SD_PiiCollectionData>, false>::__vec_constructor(const __vec_constructor& other) : base() {
+    size_type ignored0 = other.size_;
+    ignored0 += 1;
+    size_type ignored1 = other.size_;
+    ignored1 += 1;
+    size_type ignored2 = other.size_;
+    ignored2 += 1;
+    size_type ignored3 = other.size_;
+    ignored3 += 1;
+    CopySaveVector(*this, other.data_, other.data_ + other.size_);
+}
+template <> inline __vec_constructor<SD_BattleRoyalData, allocator<SD_BattleRoyalData>, false>::__vec_constructor(const __vec_constructor& other) : base() {
+    size_type ignored0 = other.size_;
+    ignored0 += 1;
+    size_type ignored1 = other.size_;
+    ignored1 += 1;
+    size_type ignored2 = other.size_;
+    ignored2 += 1;
+    size_type ignored3 = other.size_;
+    ignored3 += 1;
+    CopySaveVector(*this, other.data_, other.data_ + other.size_);
+}
+template <> inline __vec_constructor<SD_StatisticValue, allocator<SD_StatisticValue>, false>::__vec_constructor(const __vec_constructor& other) : base() {
+    size_type ignored0 = other.size_;
+    ignored0 += 1;
+    size_type ignored1 = other.size_;
+    ignored1 += 1;
+    size_type ignored2 = other.size_;
+    ignored2 += 1;
+    size_type ignored3 = other.size_;
+    ignored3 += 1;
+    CopySaveVector(*this, other.data_, other.data_ + other.size_);
+}
+template <> inline __vec_constructor<UsedPassword, allocator<UsedPassword>, false>::__vec_constructor(const __vec_constructor& other) : base() {
+    size_type ignored0 = other.size_;
+    ignored0 += 1;
+    size_type ignored1 = other.size_;
+    ignored1 += 1;
+    size_type ignored2 = other.size_;
+    ignored2 += 1;
+    size_type ignored3 = other.size_;
+    ignored3 += 1;
+    CopySaveVector(*this, other.data_, other.data_ + other.size_);
+}
+}
+
+inline SlotData::SlotData(const SlotData& other) :
+    VectorStructs(other),
+    mData(const_cast<Data&>(other.mData)),
+    mPiiPersonalData(other.mPiiPersonalData),
+    mPiiCollectionData(other.mPiiCollectionData),
+    mBattleRoyalData(other.mBattleRoyalData),
+    mStatisticValue1(other.mStatisticValue1),
+    mStatisticValue2(other.mStatisticValue2),
+    mStatisticValue3(other.mStatisticValue3),
+    mUsedPassword(other.mUsedPassword) {}
+
 enum SaveMode {
     SAVE_MODE_NORMAL,
     SAVE_MODE_REWRITE,
@@ -409,29 +511,38 @@ template <typename T> const u8* DeserializeStruct(T& rStruct, u16 size, const u8
     }
 }
 
-static inline void Unscramble(u8* pData, int size) {
-    int blockOffset = (size - 1) / 0x10 * 0x10;
-    int shift = blockOffset / 0x10;
+static inline void Unscramble(int size, u8* pData) {
+    int i;
+    int blockOffset;
+    u8* pBlock;
+    u8* pDst;
+    int shift;
+    blockOffset = (size - 1) / 0x10 * 0x10;
+    shift = blockOffset / 0x10;
     for (; blockOffset > 0; shift--, blockOffset -= 0x10) {
-        u8* pBlock = pData + blockOffset;
-        u8* pDst = pBlock;
-        for (int i = 0; i < 0x10 && blockOffset + i < size; i++) {
+        pBlock = pData + blockOffset;
+        pDst = pBlock;
+        for (i = 0; i < 0x10 && blockOffset + i < size; i++) {
             *pDst++ -= pBlock[(shift + i) % 0x10 - 0x10];
         }
     }
+}
+
+static inline int GetSaveSize(const std::tr1::shared_ptr<CFileData>& file) {
+    return file->GetSize();
 }
 
 int Load(bool backup) {
     sSaveData.reset(new SaveData);
     sSaveData->mSlotData.resize(SLOT_COUNT);
 
-    std::string path = std::string("nand:") + (backup ? "backup/savedata.bin" : "savedata.bin");
+    std::string path = std::string("nand:") + (!backup ? "savedata.bin" : "backup/savedata.bin");
     std::tr1::shared_ptr<CFileData> file = LoadResourceFile(path.c_str(), 0x10000, true);
     if (!file || !file->IsLoaded()) {
         return LOAD_RESULT_NO_FILE;
     }
 
-    int size = file->GetSize();
+    int size = GetSaveSize(file);
     if (size == 0) {
         return LOAD_RESULT_EMPTY;
     }
@@ -440,7 +551,7 @@ int Load(bool backup) {
     }
 
     u8* pData = static_cast<u8*>(file->GetData());
-    Unscramble(pData, size);
+    Unscramble(size, pData);
 
     SaveFileHeader* pHeader = reinterpret_cast<SaveFileHeader*>(pData);
     NETSHA1Context context;

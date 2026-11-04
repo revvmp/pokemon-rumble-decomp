@@ -875,12 +875,12 @@ inline void CDataPerPlayer::CalcPreviewPositions(nw4r::math::VEC3* pInside, nw4r
 
 inline void CDataPerPlayer::CreateBall() {
     BWorld* pWorld = GetCurrentGameMap()->GetWorld();
-    int rank = Clamp<int>(GetSaveData(-1)->mData.mFlags[0], 1, 4);
+    int rank = Clamp<int>(GetSaveData(-1)->mData.mRank, 1, 4);
     const char* pModelName = "neji_EX.brres";
     mEnterMotion = "neji_EX__in";
     mSpinMotion = "neji_EX__screw";
     mExitMotion = "neji_EX__out";
-    switch (GetSaveData(-1)->mData.mFlags[1]) {
+    switch (GetSaveData(-1)->mData.mCollectionLevel) {
     case 0:
         switch (rank) {
         case 1:

@@ -308,7 +308,7 @@ int GetStageNumber(MapDesc* pDesc)
     MapIndex target;
     if (index.mMode == 2 && index.mStage == 7) {
         index.mMode = !IsBattleRoyalFirstPart(index);
-        index.mArea = GetSaveData(-1)->mData.mStatus[19];
+        index.mArea = static_cast<u8>(GetSaveData(-1)->mData.mExtraBRCurrentRound);
         index.mMap = (index.mMap - 1) % 2 + 1;
         target = index;
         pTarget = IGameSession::GetInstance()->GetMapDesc(target);
@@ -321,15 +321,15 @@ void CGameMap::Initialize()
     if (GetSaveData(-1)) {
         MapIndex index = mParam.mMapDesc->mIndex;
         int area = index.mArea;
-        GetSaveData(-1)->mData.mFlags[2] = area;
+        GetSaveData(-1)->mData.mArea = area;
         int mode = index.mMode;
-        GetSaveData(-1)->mData.mFlags[3] = mode;
+        GetSaveData(-1)->mData.mMode = mode;
         switch (mode) {
         case 0:
-            GetSaveData(-1)->mData.mLastArea[0] = area;
+            GetSaveData(-1)->mData.mNormalArea = area;
             break;
         case 1:
-            GetSaveData(-1)->mData.mLastArea[1] = area;
+            GetSaveData(-1)->mData.mExtraArea = area;
             break;
         }
     }

@@ -32,7 +32,7 @@ public:
     int GetFirstVisibleIndex();
     void SetScrollMode(int mode);
     void UpdateScrollRange();
-    inline void OnFocus(BUI* pUI);
+    void OnFocus(BUI* pUI);
 private:
     typedef BUI::CCallbackListOwner CCallbackListOwner;
 protected:

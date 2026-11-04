@@ -15,7 +15,17 @@ State at checkpoint `7a7d20cea` (2026-10-22, end of the single-PC sprint; `main.
 | Open GitHub issues | 64; each still lists its functions and links prior findings |
 | Fake matches (D-0016) | 22 rows in [the ledger](re/FAKEMATCHES.md) |
 
-The sprint committed from one PC straight to `main` without pull requests while the rest of the team paused. Resume the normal issue workflow in [collaboration](COLLABORATION.md) unless the owner says otherwise.
+The sprint committed from one PC straight to `main`. The owner explicitly requested main-branch work again on 2026-11-04; follow the workflow below.
+
+## Main-branch workflow
+
+Use `main` by default. Do not split work into branches or worktrees unless the owner explicitly requests that. Parallel agents own distinct source files and use direct compiler commands with separate scratch inputs and outputs under ignored `tools/local/session/`. One coordinator owns the shared build, configuration updates, full verification, and checkpoints. Issue claim exclusions still apply; branch/PR/merge-loop instructions are superseded for this workflow.
+
+The initial 2026-11-04 worktrees were preserved when this instruction arrived. Their reviewed gains were transferred to main, and further experiments run from main snapshots. Do not blindly copy their files back over newer main changes.
+
+2026-11-04 latest verified checkpoint: 26 additional functions match, leaving 94 real functions below 100%. CUIList (31 functions), CPpuEngine (55), and CDividedGround (136) now link from source and the full DOL passes frozen SHA and direct byte verification. Matched code is 2,964,684/3,082,232 bytes (96.18627%); linked code is 2,170,864 bytes (70.43156%), across 822 Matching units. CFileData (148/148), SaveData (100/100), and main (145/145) have complete function matches but remain NonMatching pending emission/data work. CLayout gained four functions, NPpuVM four. Subsequent active-agent edits require a new build report.
+
+Current parallel ownership: CFileData ordering, CEffect then CBattleRoyalDisplay ordering, main ordering, BWorld remaining functions, CModel remaining functions, and CRemoteMemory remaining functions. The coordinator owns shared configuration, full builds, acceptance, and checkpoints. Scratch inputs/scripts under `tools/local/session/` are ignored and must not replace newer main files wholesale.
 
 ## Next actions
 

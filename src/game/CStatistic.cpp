@@ -28,10 +28,10 @@ int CStatistic::Get(int id) {
             return 0;
         }
         if (id == -200) {
-            return GetSaveData(-1)->mData.mCounters[0];
+            return GetSaveData(-1)->mData.mCounterFirst;
         }
         if (id == -199) {
-            return GetSaveData(-1)->mData.mCounters[1];
+            return GetSaveData(-1)->mData.mCounterSecond;
         }
         return 0;
     }
@@ -52,9 +52,9 @@ void CStatistic::Set(int id, int value) {
             ExpandTo(mSystemValues, index);
             mSystemValues[index].mValue = limited;
         } else if (id == -200) {
-            GetSaveData(-1)->mData.mCounters[0] = limited;
+            GetSaveData(-1)->mData.mCounterFirst = limited;
         } else if (id == -199) {
-            GetSaveData(-1)->mData.mCounters[1] = limited;
+            GetSaveData(-1)->mData.mCounterSecond = limited;
         } else {
             return;
         }
@@ -138,16 +138,16 @@ void CStatistic::SaveSnapshot() {
     mSystemSnapshot = mSystemValues;
     mSnapshot = mValues;
     mWazaSnapshot = mWazaBits;
-    mCounterSnapshot[0] = GetSaveData(-1)->mData.mCounters[0];
-    mCounterSnapshot[1] = GetSaveData(-1)->mData.mCounters[1];
+    mCounterSnapshot[0] = GetSaveData(-1)->mData.mCounterFirst;
+    mCounterSnapshot[1] = GetSaveData(-1)->mData.mCounterSecond;
 }
 
 void CStatistic::RestoreSnapshot() {
     mSystemValues = mSystemSnapshot;
     mValues = mSnapshot;
     mWazaBits = mWazaSnapshot;
-    GetSaveData(-1)->mData.mCounters[0] = mCounterSnapshot[0];
-    GetSaveData(-1)->mData.mCounters[1] = mCounterSnapshot[1];
+    GetSaveData(-1)->mData.mCounterFirst = mCounterSnapshot[0];
+    GetSaveData(-1)->mData.mCounterSecond = mCounterSnapshot[1];
 }
 
 void CStatistic::ExportStatisticValues(std::vector<SD_StatisticValue::Data>& rOut1, std::vector<SD_StatisticValue::Data>& rOut2,

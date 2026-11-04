@@ -586,18 +586,73 @@ void CEngine::UnaryOp(int op) {
     }
 }
 
+inline int ReadType(CValue& rValue, const CValue& rStable, int& cached) {
+    int checked = rValue.mType;
+    cached = rStable.mType;
+    return checked;
+}
+
+inline int ReadIntegerValue(const CValue& rValue) {
+    bool isInt = false;
+    if (rValue.mType == CValue::TYPE_INT || rValue.mType == CValue::TYPE_FUNCTION) {
+        isInt = true;
+    }
+    if (isInt) {
+        return rValue.mInt;
+    }
+    if (rValue.mType == CValue::TYPE_FLOAT) {
+        return rValue.GetFloat();
+    }
+    return 0;
+}
+
+inline int ReadCachedInt(const CValue& rValue, int type) {
+    bool isInt = type == CValue::TYPE_INT || type == CValue::TYPE_FUNCTION;
+    if (isInt) {
+        return rValue.mInt;
+    }
+    if (type == CValue::TYPE_FLOAT) {
+        return rValue.GetFloat();
+    }
+    return 0;
+}
+
+inline float ReadCachedFloat(const CValue& rValue, int type) {
+    if (type == CValue::TYPE_FLOAT) {
+        return rValue.GetFloat();
+    }
+    bool isInt = type == CValue::TYPE_INT || type == CValue::TYPE_FUNCTION;
+    if (isInt) {
+        return rValue.mInt;
+    }
+    return 0.0f;
+}
+
+inline bool IsCachedNull(const CValue& rValue, int type) {
+    return type == CValue::TYPE_REFERENCE && rValue.GetPointer() == nullptr;
+}
+
+inline bool IsCachedInt(int type) {
+    return type == CValue::TYPE_INT || type == CValue::TYPE_FUNCTION;
+}
+
 void CEngine::BinaryOp(int op) {
-    CValue operands[2];
-    Pop(operands[1]);
-    ConvertToNumber(operands[1]);
-    Pop(operands[0]);
-    ConvertToNumber(operands[0]);
-    const CValue& right = operands[1];
-    const CValue& left = operands[0];
+    CValue firstOperand;
+    CValue secondOperand;
+    Pop(firstOperand);
+    ConvertToNumber(firstOperand);
+    Pop(secondOperand);
+    ConvertToNumber(secondOperand);
+    const CValue& right = firstOperand;
+    const CValue& left = secondOperand;
 
     CValue result;
-    bool rightIsReference = right.mType == CValue::TYPE_REFERENCE;
-    bool leftIsReference = left.mType == CValue::TYPE_REFERENCE;
+    bool rightIsReference;
+    bool leftIsReference;
+    int rightType;
+    int leftType;
+    rightIsReference = ReadType(firstOperand, right, rightType) == CValue::TYPE_REFERENCE;
+    leftIsReference = ReadType(secondOperand, left, leftType) == CValue::TYPE_REFERENCE;
     if (rightIsReference || leftIsReference) {
         result.SetReference(nullptr);
         switch (op) {
@@ -606,21 +661,32 @@ void CEngine::BinaryOp(int op) {
                 break;
             }
             if (rightIsReference) {
-                if (!right.IsNull()) {
-                    result.SetReference(right.GetPointer() + left.ToInt());
+                if (!IsCachedNull(right, rightType)) {
+                    CValue* pValue = right.GetPointer();
+                    pValue += ReadCachedInt(left, leftType);
+                    result.SetReference(pValue);
+                    break;
                 }
-            } else if (leftIsReference) {
-                if (!left.IsNull()) {
-                    result.SetReference(left.GetPointer() + right.ToInt());
+            }
+            if (leftIsReference) {
+                if (!IsCachedNull(left, leftType)) {
+                    CValue* pValue = left.GetPointer();
+                    pValue += ReadCachedInt(right, rightType);
+                    result.SetReference(pValue);
                 }
             }
             break;
         case OP_SUB:
-            if (leftIsReference && !left.IsNull() && !right.IsNull()) {
+            if (leftIsReference && !IsCachedNull(left, leftType) && !IsCachedNull(right, rightType)) {
                 if (rightIsReference) {
-                    result.SetInt(left.GetPointer() - right.GetPointer());
-                } else if (right.IsInt()) {
-                    result.SetReference(left.GetPointer() - right.ToInt());
+                    result.mType = CValue::TYPE_INT;
+                    CValue* pRight = right.GetPointer();
+                    CValue* pLeft = left.GetPointer();
+                    result.mInt = pLeft - pRight;
+                } else if (IsCachedInt(rightType)) {
+                    CValue* pValue = left.GetPointer();
+                    pValue -= ReadCachedInt(right, rightType);
+                    result.SetReference(pValue);
                 }
             }
             break;
@@ -629,9 +695,9 @@ void CEngine::BinaryOp(int op) {
         return;
     }
 
-    if (right.mType == CValue::TYPE_FLOAT || left.mType == CValue::TYPE_FLOAT) {
-        f32 b = right.ToFloat();
-        f32 a = left.ToFloat();
+    if (rightType == CValue::TYPE_FLOAT || leftType == CValue::TYPE_FLOAT) {
+        f32 b = ReadCachedFloat(right, rightType);
+        f32 a = ReadCachedFloat(left, leftType);
         f32 value;
         switch (op) {
         case OP_ADD:
@@ -676,8 +742,8 @@ void CEngine::BinaryOp(int op) {
         }
         result.SetFloat(value);
     } else {
-        int b = right.ToInt();
-        int a = left.ToInt();
+        int b = ReadCachedInt(right, rightType);
+        int a = ReadCachedInt(left, leftType);
         int value;
         switch (op) {
         case OP_ADD:
@@ -702,25 +768,28 @@ void CEngine::BinaryOp(int op) {
 }
 
 void CEngine::BitwiseOp(int op) {
-    CValue operands[2];
-    Pop(operands[1]);
-    ConvertToNumber(operands[1]);
-    Pop(operands[0]);
-    ConvertToNumber(operands[0]);
-    const CValue& right = operands[1];
-    const CValue& left = operands[0];
+    CValue firstOperand;
+    CValue secondOperand;
+    Pop(firstOperand);
+    ConvertToNumber(firstOperand);
+    Pop(secondOperand);
+    ConvertToNumber(secondOperand);
+    const CValue& right = firstOperand;
+    const CValue& left = secondOperand;
 
-    if (right.mType == CValue::TYPE_REFERENCE || left.mType == CValue::TYPE_REFERENCE) {
+    int rightType;
+    int leftType;
+    if (ReadType(firstOperand, right, rightType) == CValue::TYPE_REFERENCE || ReadType(secondOperand, left, leftType) == CValue::TYPE_REFERENCE) {
         mStack[mSP++].SetReference(nullptr);
         return;
     }
 
     CValue result;
-    if (right.mType == CValue::TYPE_FLOAT || left.mType == CValue::TYPE_FLOAT) {
+    if (rightType == CValue::TYPE_FLOAT || leftType == CValue::TYPE_FLOAT) {
         result.SetInt(0);
     } else {
         int value;
-        int b = right.ToInt();
+        int b = ReadIntegerValue(right);
         int a = left.ToInt();
         switch (op) {
         case OP_AND:
@@ -745,17 +814,20 @@ void CEngine::BitwiseOp(int op) {
 }
 
 void CEngine::CompareOp(int op) {
-    CValue operands[2];
-    Pop(operands[1]);
-    ConvertToNumber(operands[1]);
-    Pop(operands[0]);
-    ConvertToNumber(operands[0]);
-    const CValue& right = operands[1];
-    const CValue& left = operands[0];
+    CValue firstOperand;
+    CValue secondOperand;
+    Pop(firstOperand);
+    ConvertToNumber(firstOperand);
+    Pop(secondOperand);
+    ConvertToNumber(secondOperand);
+    const CValue& right = firstOperand;
+    const CValue& left = secondOperand;
 
     int value = 0;
-    bool rightIsReference = right.mType == CValue::TYPE_REFERENCE;
-    bool leftIsReference = left.mType == CValue::TYPE_REFERENCE;
+    int rightType;
+    bool rightIsReference = ReadType(firstOperand, right, rightType) == CValue::TYPE_REFERENCE;
+    int leftType;
+    bool leftIsReference = ReadType(secondOperand, left, leftType) == CValue::TYPE_REFERENCE;
     if (rightIsReference && leftIsReference) {
         bool rightIsNull = right.GetPointer() == nullptr;
         bool leftIsNull = left.GetPointer() == nullptr;
@@ -800,9 +872,9 @@ void CEngine::CompareOp(int op) {
         return;
     }
 
-    if (right.mType == CValue::TYPE_FLOAT || left.mType == CValue::TYPE_FLOAT) {
-        f32 b = right.ToFloat();
-        f32 a = left.ToFloat();
+    if (rightType == CValue::TYPE_FLOAT || leftType == CValue::TYPE_FLOAT) {
+        f32 b = ReadCachedFloat(right, rightType);
+        f32 a = ReadCachedFloat(left, leftType);
         switch (op) {
         case OP_EQ:
             value = b == a;
@@ -830,8 +902,8 @@ void CEngine::CompareOp(int op) {
             break;
         }
     } else {
-        int b = right.ToInt();
-        int a = left.ToInt();
+        int b = ReadCachedInt(right, rightType);
+        int a = ReadCachedInt(left, leftType);
         switch (op) {
         case OP_EQ:
             value = a == b;
@@ -862,6 +934,8 @@ void CEngine::CompareOp(int op) {
     PushInt(value);
 }
 
+#pragma push
+#pragma opt_dead_assignments off
 int CEngine::Execute(int isCall) {
     u32 code;
     int op;
@@ -1269,7 +1343,8 @@ int CEngine::Execute(int isCall) {
             }
             break;
         case OP_CHECK_ARG:
-            if (GetArgInt(0) < 0) {
+            if (GetArgInt(0) >= 0) {
+                code = 0;
                 break;
             }
             break;
@@ -1388,6 +1463,8 @@ int CEngine::Execute(int isCall) {
     }
 }
 
+
+#pragma pop
 bool CEngine::Unwind() {
     while (mHandlerCount > 0) {
         SHandler& rHandler = mHandlers[mHandlerCount - 1];

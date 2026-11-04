@@ -23,6 +23,17 @@
 
 namespace {
 
+struct IteratorConstructionState {};
+
+inline void FinishIteratorConstructionBase() {
+    IteratorConstructionState();
+    IteratorConstructionState();
+}
+
+inline void FinishIteratorConstruction() {
+    FinishIteratorConstructionBase();
+}
+
 struct Viewport {
     void Set(f32 left, f32 top, f32 w, f32 h) {
         x = left;
@@ -107,10 +118,10 @@ std::list<std::string> MakeArchiveList(const char* pArchive) {
     return archives;
 }
 
-std::list<std::string> MakeArchiveList(const char* const* pArchives) {
+std::list<std::string> MakeArchiveList(const char** pArchives) {
     std::list<std::string> archives;
-    for (const char* const* pName = pArchives; *pName != nullptr; ++pName) {
-        archives.push_back(std::string(*pName));
+    for (; *pArchives != nullptr; ++pArchives) {
+        archives.push_back(std::string(*pArchives));
     }
     return archives;
 }
@@ -127,7 +138,7 @@ CLayout::CInitializeException::CInitializeException(int error, const char* pArch
 CLayout::CInitializeException::CInitializeException(int error, const char* const* pArchives, const char* pLayoutName, const std::tr1::shared_ptr<FontMap>& rFonts) :
     std::runtime_error(get_what(error, pArchives, pLayoutName, rFonts).c_str()),
     mError(error),
-    mArchives(MakeArchiveList(pArchives)),
+    mArchives(MakeArchiveList(const_cast<const char**>(pArchives))),
     mLayoutName(pLayoutName),
     mFonts(rFonts) {}
 
@@ -651,7 +662,7 @@ void CLayout::CalculateMtx(bool recursive) {
 }
 
 inline f32 CLayout::GetLayoutAlpha() {
-    return GetPaneAlpha(mLayout->GetRootPane());
+    return GetPaneAlpha(static_cast<nw4r::lyt::Pane*>(mLayout->GetRootPane()));
 }
 
 void CLayout::CalculateAttachedMtx() {
@@ -686,9 +697,9 @@ void CLayout::CalculateAttachedMtx() {
 
 f32 CLayout::GetPaneAlpha(nw4r::lyt::Pane* pPane) {
     if (pPane == mLayout->GetRootPane()) {
-        nw4r::lyt::Pane* pAttachPane = mAttach->mpPane;
+        nw4r::lyt::Pane* pAttachPane = static_cast<CAttach*>(static_cast<CLayout*>(this)->mAttach.get())->mpPane;
         if (pAttachPane != nullptr) {
-            return mAttach->mpParent->GetPaneAlpha(pAttachPane);
+            return static_cast<CAttach*>(static_cast<CLayout*>(this)->mAttach.get())->mpParent->GetPaneAlpha(pAttachPane);
         }
     }
     if (pPane != nullptr) {
@@ -719,6 +730,7 @@ bool CLayout::Attach(nw4r::lyt::Pane* pPane, CLayout* pChild) {
         mAttach.reset(new CAttach);
     }
     std::set<CLayout*>::iterator it = mAttach->mChildren.insert(pChild).first;
+    FinishIteratorConstruction();
     return true;
 }
 

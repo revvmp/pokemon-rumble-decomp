@@ -127,3 +127,55 @@ Eleven helpers are called in this unit only from #62's `0x80074100`, so the comm
 - **`-maxerrors 1` hides follow-on errors.** Fix one compile error at a time; a template instantiation error appears only after the earlier ones are gone.
 - **Two functions can share one mangled name.** Renaming `0x801B9530` to `Play(const char*, f32, f32)` made the link fail with a multiply-defined symbol; it reads `GetResAnmChr(int)`, so it is the `int` overload.
 - **A shared header change can break a `Matching` unit.** Folding the `list` node insert into the base class changed `BWorldLightSet` stack layout (three functions at 99.8%); `verify.py` caught it at DOL offset `0x18F05`.
+
+## F-61-2: Long-tail emission order
+
+2026-11-04 follow-up to [sprint-ida](sprint-ida.md#remaining). `LoadAttr` now matches 100%, and all 136 real functions have exact instructions and emission order in a direct compile. Full source-link acceptance passed after the data fixes below.
+
+### LoadAttr: the branch destination was the source error
+
+The first validity check's successful `bne` at function offset `0x46C` targets object address `0x2A54`, or function offset `0x614`: the start of the **second validity check**, not the final `SetData` block at offset `0x784`. The reconstructed source had incorrectly nested the second check inside the fallback block. Moving it after the fallback block reproduces the complete 2,308-byte function, including the pointer reload, bool-result registers and branch destination. This is an honest control-flow correction; no fake construct is involved.
+
+The register-allocation trace helped expose why the misleading near-match existed. Our compiler hoisted a file pointer for the later `SetData` into both branches, while the target's first check always flowed through the second check. Pointer/reference helper layers, separately accessed pending/data fields, explicit branch forms, dead probes, and one/two-pragma combinations did not solve the real error and were discarded. A volatile-pointer experiment reached 99.73137% but was also discarded. Earlier sprint descriptions of a purely register-allocation mismatch are superseded.
+
+Four of the six outstanding function placements are corrected:
+
+- `ScnMdlSimpleData` now has an implicit default constructor. Removing its empty user declaration and out-of-class definition delays its node, and the vector destructor it references, to their target positions. An in-class empty user constructor did not do this. Direct before/after compiles of the two other construction sites, `CModel::mModelData` and `CPii::mShadowModel`, changed no function instructions and did not lower their target order score. Their unresolved destructor placements did move. The shared headers passed the maintainer's full build and frozen-manifest verification before the source-local changes below.
+- A false `modelProbe` before the first `PushBack` references `ScnMdlSimpleData::GetModel`, which must be emitted before `PushBack`. This is a D-0016 fake match, not evidence of an original probe.
+- Making the anonymous `OffsetToPtr` a pointee-type function template defers its eight-byte body until immediately before the map constructor. The symbol at `0x80074CE0` is renamed to the emitted specialization. The template nature is unproven and recorded as a D-0016 fake match. Moving a non-template definition later only moved it past the entire `BuildScene` helper group and did not solve the placement.
+
+The range `std::string` constructor was modelled as a non-template pointer overload. Making it a generic `InputIterator` constructor moves it exactly before `OffsetToPtr`. The only out-of-line instance is at `0x80074C60`, whose symbol now carries `<PCc>`. Direct before/after compiles of `CPath` and `CDividedGround` changed no function instructions after diagnostic-only name canonicalization. This is a plausible generic-range API correction. Finally, including `<memory>` then `<string>` before the game header puts the remaining `basic_string(const char*)` constructor after the tree helpers, completing the target order.
+
+The unit is now `Matching` after the maintainer verified its full source link. All 136 real functions score 100% with exact relative order in the direct compile; padding entries are excluded.
+
+Diagnostics use pinned Wii/1.1 and `sjiswrap` with the exact game compile flags, source copies and separate objects under ignored `tools/local/session/61-compile`. A source-object before/after comparison found no changed function instructions for the retained local edits after canonicalizing the template helper name in a diagnostic-only copy with `objcopy --redefine-sym`. Neither executable bytes nor acceptance references were patched. Main source and symbol changes still require the maintainer's subsequent full link and verification.
+
+### Traps
+
+- **A near-perfect register mismatch can hide a wrong branch destination.** `LoadAttr` stayed at 99.27% across multiple sweeps because reviewers focused on swapped registers. Convert absolute branch destinations to offsets from each function's own start before comparing them. Here `bne` reached the second validity check in the target but final `SetData` in the source. Correcting the control flow fixed the registers too.
+
+### Source-link blocker: packed species data mistaken for an exception pointer
+
+The first source-link trial failed because fallback object `auto_06_8035DF88_rodata.o` referenced `@etb_8000BF90+0x90` from `gPiiSpeciesData`. This is an inferred relocation in a scalar field, not a genuine pointer to the removed fallback exception table.
+
+`gPiiSpeciesData` begins at `0x8035DF88` and spans `0x3D40` bytes: 560 records of `0x1C` bytes. The relocation at object offset `0x1ED8` is the first word of record 282, at `0x8035FE60`. `PiiSpeciesData.h` identifies this word as packed species, form, bone, fly-height and size fields; the actual model pointers occur at record offsets `0x0C` and `0x10`.
+
+Reading the immutable original DOL through its section table gives these consecutive record headers:
+
+| Record | Address | First word | Species |
+| --- | --- | --- | --- |
+| 281 | `0x8035FE44` | `0x7F80C000` | 255 |
+| 282 | `0x8035FE60` | `0x8000C020` | 256 |
+| 283 | `0x8035FE7C` | `0x8080C040` | 257 |
+
+Record 282's full original bytes are `80 00 c0 20 19 00 c8 50 08 1f 00 00 80 3b 91 80 80 3b 91 8c 3f a0 00 00 42 c8 00 00`. The first word happens to equal `@etb_8000BF90+0x90`; its decoded fields are species 256, form 0, bone 12 and size 1. Suppressing relocation inference at source `.rodata:0x8035FE60` preserves that numeric word without inventing an exception-table alias. The maintainer owns the configuration change and subsequent link validation.
+
+- **An undefined exception-table symbol can originate in packed scalar data.** Inspect the original bytes and record offset before renaming an exception symbol or adding an alias. A species header crossing `0x80000000` looked like a valid executable pointer and generated this false relocation.
+
+### RTTI data order
+
+After blocking the false scalar relocation, the full link succeeded with identical DOL length and only 101 differing bytes. The first difference was file offset `0x397D65`, virtual address `0x8039BC65`, in RTTI data. Original order was `BSoundSource`, `BKDTreeLink`, then `BWorldObj` and its base table and `enable_shared_from_this` name; source emitted the `BWorldObj` group first. Including `BWorldObj.h` after `<memory>` and `<string>`, before `CDividedGround.h`, puts those records in target order while preserving all 136 exact functions and their order. Moving it before the standard-library headers also fixed this RTTI group but broke one weak-function placement and string-literal ordering, so that alternative was discarded.
+
+### Acceptance
+
+The maintainer rebuilt the sole CDividedGround source-link trial, checked successful `ninja` completion, and verified the reconstructed DOL against the immutable target manifest: full SHA and verification PASS. All 136 real functions remain exact, with exact relative emission order. The retained relocation block and include ordering fix also preserve all linked data bytes. The build reports 822 linked units and 70.43% source linkage at this checkpoint; this is not a claim of complete project reconstruction.

@@ -197,12 +197,12 @@ public:
             if (stage == 7) {
                 int count;
                 int part = IsBattleRoyalFirstPart(pDesc->mIndex) ? 1 : 2;
-                count = static_cast<s8>(GetSaveData(-1)->mData.mStatus[0x13]);
+                count = static_cast<s8>(static_cast<u8>(GetSaveData(-1)->mData.mExtraBRCurrentRound));
                 title = FormatMessage(GetMessageString(0x6007D, nullptr), count, part);
             } else {
                 title = FormatMessage(GetMessageString(0x6007C, nullptr), pStageText);
             }
-        } else if (static_cast<s8>(GetSaveData(-1)->mData.mFlags[1]) >= 1) {
+        } else if (static_cast<s8>(GetSaveData(-1)->mData.mCollectionLevel) >= 1) {
             title = FormatMessage(GetMessageString(0x6007B, nullptr), pModeText, pAreaText, pStageText);
         } else {
             title = FormatMessage(GetMessageString(0x6007A, nullptr), pAreaText, pStageText);

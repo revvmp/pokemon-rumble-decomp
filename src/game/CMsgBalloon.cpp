@@ -321,7 +321,7 @@ inline void CMsgBalloon::SetupBattleWarp(StageID stageID) {
         if (clearCount > 1) {
             progress = 9;
         } else {
-            progress = (s8)GetSaveData(-1)->mData.mStatus[18] * 2 + IsGameFlagSet(30) - 1;
+            progress = (s8)static_cast<u8>(GetSaveData(-1)->mData.mExtraBRMaxRound) * 2 + IsGameFlagSet(30) - 1;
         }
         if (progress > 1) {
             pLayout->SetText("UNKNOWN", FormatMessage(GetMessageString(0x600CC, L"さいこうきろく {1}-{2}"), progress / 2, progress % 2 + 1).c_str());

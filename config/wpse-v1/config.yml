@@ -7,3 +7,4 @@ mw_comment_version: 15
 block_relocations:
 - source: .text:0x802B25D8
 - source: .text:0x802B264C
+- source: .rodata:0x8035FE60

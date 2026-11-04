@@ -694,13 +694,30 @@ inline void RemoveExpiredFiles() {
     }
 }
 
+inline void RemoveExpiredFiles(std::map<std::string, std::tr1::weak_ptr<CFileData> >::iterator& rCurrent) {
+    std::map<std::string, std::tr1::weak_ptr<CFileData> >::iterator end = sFileCache.end();
+    rCurrent = sFileCache.begin();
+    while (rCurrent != end) {
+        std::map<std::string, std::tr1::weak_ptr<CFileData> >::iterator next = rCurrent;
+        ++next;
+        if (rCurrent->second.expired()) {
+            sFileCache.erase(rCurrent);
+        }
+        rCurrent = next;
+    }
+}
+
 void UpdateResourceFiles() {
+    typedef std::map<std::string, std::tr1::weak_ptr<CFileData> > FileCache;
+    typedef std::detail::tree_imp<FileCache::value_type, FileCache::value_compare, FileCache::allocator_type>::node CacheNode;
+    FileCache::iterator current;
+    current.node_ = reinterpret_cast<CacheNode*>(sWorker.get());
     if (sWorker) {
-        sWorker.get()->ProcessFinishedJobs();
+        reinterpret_cast<CFileData::CWorker*>(current.node_)->ProcessFinishedJobs();
         if (sWorker.get()->IsIdle()) {
             sWorker.reset();
         }
-        RemoveExpiredFiles();
+        RemoveExpiredFiles(current);
     }
 }
 

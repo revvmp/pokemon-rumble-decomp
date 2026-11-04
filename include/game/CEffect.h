@@ -101,7 +101,7 @@ private:
     std::tr1::weak_ptr<BWorldObj> mTarget;
 };
 
-void InitializeEffect(u32 numEffect, u32 numEmitter, u32 numParticleManager, u32 numParticle, u32 maxGroupID);
+void InitializeEffect(u32 numEffect, u16 numEmitter, u16 numParticleManager, u32 numParticle, u32 maxGroupID);
 void FinalizeEffect();
 
 #endif

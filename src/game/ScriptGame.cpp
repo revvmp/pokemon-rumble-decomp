@@ -335,7 +335,7 @@ int GetLuckyNumber(NPpu::CEngine* pEngine) {
     NPpu::CValue* pValues = pEngine->PopReference();
     u64 number = 0;
     for (int i = 0; i < 6; ++i) {
-        number = (number << 8) | GetSaveData(-1)->mData.mWirelessMacAddress[i];
+        number = (number << 8) | reinterpret_cast<u8*>(&GetSaveData(-1)->mData.mWirelessMacHigh)[i];
     }
     number = number * 3 + GetCurrentSlot();
     u16 digits[5] = {};
@@ -1299,25 +1299,25 @@ int NANDisTaskCompleted(NPpu::CEngine* pEngine) {
 }
 
 int GetMaxGrade(NPpu::CEngine* pEngine) {
-    pEngine->PushInt(GetSaveData(-1)->mData.mFlags[0]);
+    pEngine->PushInt(GetSaveData(-1)->mData.mRank);
     return 0;
 }
 
 int GetMaxDifficulty(NPpu::CEngine* pEngine) {
-    pEngine->PushInt(GetSaveData(-1)->mData.mFlags[1]);
+    pEngine->PushInt(GetSaveData(-1)->mData.mCollectionLevel);
     return 0;
 }
 
 int SetMaxGrade(NPpu::CEngine* pEngine) {
     s8 value = pEngine->PopInt();
-    GetSaveData(-1)->mData.mFlags[0] = value;
+    GetSaveData(-1)->mData.mRank = value;
     pEngine->PushNull();
     return 0;
 }
 
 int SetMaxDifficulty(NPpu::CEngine* pEngine) {
     s8 value = pEngine->PopInt();
-    GetSaveData(-1)->mData.mFlags[1] = value;
+    GetSaveData(-1)->mData.mCollectionLevel = value;
     pEngine->PushNull();
     return 0;
 }

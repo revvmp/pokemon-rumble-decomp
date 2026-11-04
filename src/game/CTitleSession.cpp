@@ -346,10 +346,10 @@ void CTitleSession::Run() {
             case SCREEN_CONTINUE:
                 if (shownSelection < SLOT_COUNT) {
                     mLastPlayedSlot = shownSelection;
-                    int unlocked = GetSaveData(shownSelection)->mData.mFlags[1];
+                    int unlocked = GetSaveData(shownSelection)->mData.mCollectionLevel;
                     if (unlocked > 0) {
                         screen = SCREEN_DIFFICULTY;
-                        selection = GetSaveData(shownSelection)->mData.mFlags[3];
+                        selection = GetSaveData(shownSelection)->mData.mMode;
                         for (int i = 0; i < SLOT_COUNT; ++i) {
                             mButtonEnabled[SCREEN_DIFFICULTY][i] = i <= unlocked;
                             mLayouts[SCREEN_DIFFICULTY]->GetLayout()->SetPaneVisible(sButtonPanes[i], mButtonEnabled[SCREEN_DIFFICULTY][i]);
@@ -371,21 +371,21 @@ void CTitleSession::Run() {
                 }
             startGame:
                 SetCurrentSlot(mLastPlayedSlot);
-                if (shownSelection != GetSaveData(-1)->mData.mFlags[3]) {
+                if (shownSelection != GetSaveData(-1)->mData.mMode) {
                     s8 level = 1;
                     switch (shownSelection) {
                     case 0:
-                        level = GetSaveData(-1)->mData.mLastArea[0];
+                        level = GetSaveData(-1)->mData.mNormalArea;
                         break;
                     case 1:
-                        level = GetSaveData(-1)->mData.mLastArea[1];
+                        level = GetSaveData(-1)->mData.mExtraArea;
                         break;
                     }
                     if (level == 0) {
                         level = 1;
                     }
-                    GetSaveData(-1)->mData.mFlags[2] = level;
-                    GetSaveData(-1)->mData.mFlags[3] = shownSelection;
+                    GetSaveData(-1)->mData.mArea = level;
+                    GetSaveData(-1)->mData.mMode = shownSelection;
                 }
                 return;
             case SCREEN_OPTIONS:
@@ -486,9 +486,9 @@ bool CTitleSession::RefreshSlots() {
             std::wstring time;
             FormatTime(time, calendar.hour, calendar.min, calendar.sec, 8);
             text = date + L" " + time;
-            int level = GetSaveData(i)->mData.mFlags[3];
-            int mode = GetSaveData(i)->mData.mFlags[2];
-            if (GetSaveData(i)->mData.mFlags[1] > 0) {
+            int level = GetSaveData(i)->mData.mMode;
+            int mode = GetSaveData(i)->mData.mArea;
+            if (GetSaveData(i)->mData.mCollectionLevel > 0) {
                 text = text + L" " + GetMessageString(sLevelMessageIds[level][mode], nullptr);
             } else {
                 text = text + L" " + GetMessageString(sModeMessageIds[mode], nullptr);
@@ -527,7 +527,7 @@ bool CTitleSession::RefreshSlots() {
 
 void CTitleSession::WaitForMacAddress() {
     while (true) {
-        s32 result = NETGetWirelessMacAddress(GetSaveData(-1)->mData.mWirelessMacAddress);
+        s32 result = NETGetWirelessMacAddress(reinterpret_cast<u8*>(&GetSaveData(-1)->mData.mWirelessMacHigh));
         if (result == 0) {
             return;
         }

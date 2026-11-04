@@ -1,3 +1,6 @@
+#include <memory>
+#include <string>
+#include <game/BWorldObj.h>
 #include <game/CDividedGround.h>
 #include <game/ScnMdlSimpleDataInline.h>
 #include <game/BWorld.h>
@@ -20,7 +23,7 @@
 
 namespace {
 
-inline const void* OffsetToPtr(const void* pBase, s32 offset) {
+template <typename T> inline const void* OffsetToPtr(const T* pBase, s32 offset) {
     return reinterpret_cast<const void*>(offset + reinterpret_cast<s32>(pBase));
 }
 
@@ -175,12 +178,12 @@ bool CDividedGround::LoadAttr(const StageID* pStageID, int stageNo, const char* 
         if (!(file && file->IsValid())) {
             name = prefix + number;
             file = LoadResourceFile((archivePath + "/" + name + ".bsp").c_str(), 0, background);
-            if (!(file && file->IsValid())) {
-                if (i == 0) {
-                    return false;
-                }
-                continue;
+        }
+        if (!(file && file->IsValid())) {
+            if (i == 0) {
+                return false;
             }
+            continue;
         }
 
         tree->SetData(file->GetData());
@@ -307,6 +310,8 @@ found:
                                              model->GetResMdl()),
             DestroyG3dObj);
         mScnGroups.push_back(group);
+        bool modelProbe = false;
+        if (modelProbe) static_cast<ScnMdlSimpleData*>(nullptr)->GetModel();
         mScnGroup->PushBack(group.get());
         group->SetPriorityDrawXlu(priority);
 

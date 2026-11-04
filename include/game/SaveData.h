@@ -146,34 +146,41 @@ public:
     static VectorStructType sVectorTypes[1];
 };
 
+struct SlotDataCopyTag {
+    SlotDataCopyTag() {}
+    SlotDataCopyTag(SlotDataCopyTag&) {}
+};
+
 class SlotData : public VectorStructs {
 public:
-    struct Data {
+    struct Data : SlotDataCopyTag {
         u32 mHeader[3];
-        s8 mFlags[4];
+        s8 mRank;
+        s8 mCollectionLevel;
+        s8 mArea;
+        s8 mMode;
         CMapRecord mMapRecords[3][5][8][10];
-        u32 mCounters[2];
+        u32 mCounterFirst;
+        u32 mCounterSecond;
         s64 mTime;
-        union {
-            struct {
-                u32 mRegistryCount;
-                u32 mElapsedSeconds;
-                u16 mTicketMonsno;
-                u8 mTicketFormno;
-                u8 mReserved[1];
-                u8 mWirelessMacAddress[6];
-                s8 mExtraBRMaxRound;
-                s8 mExtraBRCurrentRound;
-            };
-            u8 mStatus[0x14];
-        };
+        u32 mRegistryCount;
+        u32 mElapsedSeconds;
+        u16 mTicketMonsno;
+        u8 mTicketFormno;
+        u8 mReserved;
+        u32 mWirelessMacHigh;
+        u16 mWirelessMacLow;
+        s8 mExtraBRMaxRound;
+        s8 mExtraBRCurrentRound;
         u32 mLeadPiiIdHigh;
         u16 mLeadPiiMonsno;
-        s8 mLastArea[2];
+        s8 mNormalArea;
+        s8 mExtraArea;
         u32 mLeadPiiIdLow;
     };
 
     SlotData() { ClearData(); }
+    SlotData(const SlotData& other);
 
     static u16 GetDataSize() { return sizeof(Data); }
     void ClearData() { memset(&mData, 0, sizeof(mData)); }

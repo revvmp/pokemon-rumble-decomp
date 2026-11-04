@@ -362,14 +362,14 @@ void CGameSession::LoadFromSlot() {
     mBattleRoyalBox = CBattleRoyalBox::Create(snapshot.mBattleRoyalData);
     mStatistic = CStatistic::Create(snapshot.mStatisticValue1, snapshot.mStatisticValue2, snapshot.mStatisticValue3);
     RegisterTeamPiiCollection();
-    if (GetSaveData(-1)->mData.mFlags[0] == 0) {
-        GetSaveData(-1)->mData.mFlags[0] = 1;
+    if (GetSaveData(-1)->mData.mRank == 0) {
+        GetSaveData(-1)->mData.mRank = 1;
     }
     if (IsGameFlagSet(3)) {
-        if (GetSaveData(-1)->mData.mFlags[2] == 0) {
-            GetSaveData(-1)->mData.mFlags[2] = 1;
+        if (GetSaveData(-1)->mData.mArea == 0) {
+            GetSaveData(-1)->mData.mArea = 1;
         }
-        reinterpret_cast<StageID&>(mPendingMap) = reinterpret_cast<const StageID&>(MakeMapIndex(GetSaveData(-1)->mData.mFlags[3], GetSaveData(-1)->mData.mFlags[2], 0, 1));
+        reinterpret_cast<StageID&>(mPendingMap) = reinterpret_cast<const StageID&>(MakeMapIndex(GetSaveData(-1)->mData.mMode, GetSaveData(-1)->mData.mArea, 0, 1));
     }
     SetGCRumbleEnabled(GetOption() == 0);
 }

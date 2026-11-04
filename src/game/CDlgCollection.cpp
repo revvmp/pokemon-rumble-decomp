@@ -253,7 +253,7 @@ private:
 
 inline std::set<u16> GetCollectableSpecies() {
     std::set<u16> ids;
-    int level = Clamp<int>(GetSaveData(-1)->mData.mFlags[1], 0, 2);
+    int level = Clamp<int>(GetSaveData(-1)->mData.mCollectionLevel, 0, 2);
     if (level >= 0) {
         for (u16 id = 1; id <= 0x96; id++) {
             ids.insert(id);
@@ -311,7 +311,7 @@ public:
         mList->UpdateSelection();
         mList->GetLayout()->SetText("COMP_NUM_GOT", FormatString(L"%d", collected).c_str());
         mList->GetLayout()->SetText("COMP_NUM_MAX", FormatString(L"%d", total).c_str());
-        mComplete = GetSaveData(-1)->mData.mFlags[1] >= 1 && collected == total;
+        mComplete = GetSaveData(-1)->mData.mCollectionLevel >= 1 && collected == total;
         mFiber.Start(std::tr1::bind(&CDlgCollectionImpl::Run, this), 0x8000);
     }
     void PlayScrollSound(BUI* pUI) { PlaySound(0x16); }
