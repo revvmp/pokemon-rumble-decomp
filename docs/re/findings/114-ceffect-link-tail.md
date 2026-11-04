@@ -26,6 +26,16 @@ Before the independent initializer-signature correction, the isolated candidate 
 
 Complete source-link verification is performed by the integrating agent. An object match alone is not full acceptance.
 
+## Function and data emission order
+
+The first complete source-link trial retained exact overall section extents but failed the frozen hash. Its bit-vector destructor appeared directly after `AllocEffectGroupID`, and all four `MemoryManagerTmp::UpdateObjectID` methods appeared together before `MemoryManager::FreeHeap`. The original places the destructor after `EmitterWithParam::Initialize` and each object-ID update immediately after its corresponding allocator.
+
+Moving the unchanged `MemoryManager` virtual bodies out of class and defining explicit `UpdateObjectID` specializations between the corresponding allocator bodies reproduces the original function order. The specialization declarations must precede `MemoryManager`: removing them preserves function matches but reverses the required vtable grouping. With the declarations, the data order is `MemoryManager`, then the Particle, ParticleManager, Emitter, and Effect pool vtables. The bit-vector destructor is declared in the shared header and defined as an inline template at the end of its sole consuming unit.
+
+The two `Create` overload definitions also needed swapping: the position/rotation overload precedes the follow-object overload. That exposes a separate constant-pool order dependency. Extracting the existing random-rotation expression into `GetEffectRandomRotation`, then calling it from the original follow-object path, keeps the generated caller identical and emits the `0.0f` and `360.0f` constants before the rotation conversion constants. The helper's standalone body is discarded by the linker, as confirmed by complete byte-identical reconstruction. This is documented source shaping under D-0016, not evidence for an original helper or explicit template specializations.
+
+The retained scratch candidate `tools/local/session/114-order/11.cpp` and its header score **58/58 functions at 100%**, with all target functions in the original order. The raw `.sdata2` contents also agree, apart from final linker alignment padding. The final data-order correction includes NW4R headers before game headers, with `ut_algorithm.h` first to avoid the existing `RoundUp` macro collision. This places the CEffect RTTI/vtable before the MemoryManagerBase and Emitter RTTI chains. The integrating agent then ran the complete build successfully (`ninja` exit 0) and the frozen verifier passed against `config/targets/wpse-v1.json`. The resulting `main.dol` has SHA-256 `ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da`. `game/CEffect.cpp` is retained as `Matching`; all 58 functions and its linked data now come from source.
+
 ## Traps
 
 An extra destructor level can hide an incorrect exception-cleanup target. Here a direct delete expression and a null-checked explicit destructor plus deallocation are semantically equivalent but produce different redundant branch counts. Match both the normal path and the exception-table destructor reference before accepting an inheritance model.

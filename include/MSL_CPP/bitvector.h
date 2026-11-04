@@ -101,11 +101,7 @@ public:
     typedef typename Allocator::template rebind<__storage_type>::other storage_allocator;
 
     __bitvec_deleter() : data_(nullptr), size_(0), capacity_(0) {}
-    ~__bitvec_deleter() {
-        if (data_) {
-            capacity_.second().deallocate(data_, capacity_.first());
-        }
-    }
+    ~__bitvec_deleter();
 
     __storage_type* data_;
     size_type size_;

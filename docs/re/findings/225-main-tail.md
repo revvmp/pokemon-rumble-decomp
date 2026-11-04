@@ -13,3 +13,15 @@ Validation used direct Wii/1.1 compilation with the flags generated for these tw
 ## Traps
 
 Anonymous-namespace symbols include the source basename. A scratch file for this unit must still be named `main.cpp`; naming it `282-main.cpp` changes the `CMain` mangling and introduces unrelated relocation differences. Use an isolated scratch directory with the original basename.
+
+## F-225-2: source-link ordering remains open
+
+After the signature correction, the normal coordinated build verified the full DOL SHA at main checkpoint `8cd9a16a`. This validates the function gain with the unit still NonMatching, not a complete source-linked main unit.
+
+A direct emission-order investigation found that all 145 functions match individually, but only 86 form the same ordered subsequence in the compiled object and target. The first raw `.data` difference is at offset `0x370`: source starts font-map deleter RTTI, while the target starts layout-error callback RTTI. The target callback/deleter sequence is layout failure, file error, bound CMain callback, rumble guard, void callback, Home Menu callback, Home Menu guard, font map, archive font, resource font, pair font, and message resource.
+
+Twelve reverse-order `sizeof` probes for those callback/deleter classes preserve 145/145 individual matches and improve the common function subsequence to 103/145. They are diagnostic only and were not retained in source: 42 function movements, other class-data ordering and a full source-link verification remain. Target vtable sizes may include padding, so compare the next symbol boundary rather than assuming an extra virtual slot.
+
+An attempted local explicit specialization of the message-resource shared-pointer copy constructor before its first visible function use failed: a declaration without a parameter name gave an undefined `r` error in the generic template body, while naming it and defining the specialization after the use produced redefinition. A header hook before template instantiation would be needed for this approach. No shared header was changed.
+
+The reusable scratch diagnostics are `tools/local/session/282-main/order.py`, `emission.py` and `lcs.py`. Scratch is not acceptance evidence; the ordering and required next steps are recorded here for the queued source-link work.

@@ -28,6 +28,27 @@
 #include <revolution/gx/GXVert.h>
 #include <revolution/mtx.h>
 
+template <typename T> inline void AllocateWorldEntries(std::__vec_deleter<T, std::allocator<T> >& rVector, unsigned long count) {
+    rVector.allocate(count, typename std::__vec_deleter<T, std::allocator<T> >::pod_type());
+}
+
+template <typename T> inline void ConstructWorldEntries(std::__vec_deleter<T, std::allocator<T> >& rVector, unsigned long count) {
+    rVector.construct_at_end(count, typename std::__vec_deleter<T, std::allocator<T> >::pod_type());
+}
+
+template <typename T> inline void InitializeWorldEntries(std::__vec_deleter<T, std::allocator<T> >& rVector, unsigned long count) {
+    if (count != 0) {
+        AllocateWorldEntries(rVector, count);
+        ConstructWorldEntries(rVector, count);
+    }
+}
+
+namespace std {
+template <> inline __vec_constructor<BWorld::ObjEntry, allocator<BWorld::ObjEntry>, false>::__vec_constructor(size_type n) {
+    InitializeWorldEntries(*this, n);
+}
+}
+
 BWorld::Desc::Desc() :
     mDrawType(0),
     mObjectCapacity(0),
@@ -485,8 +506,9 @@ bool BWorld::AddObject(std::tr1::shared_ptr<BWorldObj> obj) {
                 obj->mWorld = this;
                 obj->mId = mLastObjHandle;
 
-                ObjEntry* pEntries = &mObjEntries[0];
-                ObjEntry* pEntry = pEntries + slot;
+                ObjEntry* pEntry;
+                ObjEntry* pEntries = reinterpret_cast<ObjEntry*>(reinterpret_cast<u32>(&mObjEntries[0]));
+                pEntry = pEntries + slot;
                 pEntry->mObj = obj;
                 u32 type = obj->mType;
                 pEntry->mFlags = type | ENTRY_NEW;
@@ -530,8 +552,8 @@ void BWorld::RemoveObject(std::tr1::shared_ptr<BWorldObj> obj) {
     pEntry->mObj.reset();
     pEntry->mFlags = 0;
 
+    ObjEntry* pNext = reinterpret_cast<ObjEntry*>(reinterpret_cast<u32>(pEntry->GetNext(pEntries)));
     ObjEntry* pPrev = pEntry->GetPrev(pEntries);
-    ObjEntry* pNext = pEntry->GetNext(pEntries);
     if (pEntry->mPrev == 0) {
         if (pEntry->mNext == 0) {
             mObjTail = nullptr;
@@ -552,7 +574,8 @@ void BWorld::RemoveObject(std::tr1::shared_ptr<BWorldObj> obj) {
         RemoveCamera(camera);
     }
 
-    if (obj.get() == mGround.lock().get()) {
+    bool isGround = obj.get() == mGround.lock().get();
+    if (isGround) {
         mGround.reset();
     }
 

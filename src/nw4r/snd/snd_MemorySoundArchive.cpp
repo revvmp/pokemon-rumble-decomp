@@ -11,6 +11,13 @@ inline void* operator new(size_t, void* p) {
 namespace nw4r {
 namespace snd {
 
+#pragma push
+#pragma dont_inline on
+u32 GetMemoryStreamOffsetAlignment(const ut::IOStream* pStream) {
+    return pStream->ut::IOStream::GetOffsetAlign();
+}
+#pragma pop
+
 MemorySoundArchive::MemorySoundArchive() : mData(nullptr) {}
 
 MemorySoundArchive::~MemorySoundArchive() {}

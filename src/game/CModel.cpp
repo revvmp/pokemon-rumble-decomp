@@ -757,7 +757,14 @@ template <bool Main> bool CModel::TPartialAnm<Main>::Update(CModel* pModel, f32 
         if (mMotions.size() >= 2) {
             step = mFrame / rMotion->mRate;
             rMotion->SetPlaybackState(CMotionProgram::FLAG_STOPPED);
-            mMotions.pop_front();
+            typedef std::tr1::shared_ptr<CMotionProgram> MotionPointer;
+            typedef std::__list_deleter<MotionPointer, std::allocator<MotionPointer> > MotionListBase;
+            MotionListBase::node_base* pNode = mMotions.begin().base();
+            pNode = reinterpret_cast<MotionListBase::node_base*>(reinterpret_cast<unsigned long>(pNode) | 0);
+            MotionListBase::unlink_nodes(pNode, pNode);
+            static_cast<MotionListBase::node*>(pNode)->data_.~MotionPointer();
+            reinterpret_cast<MotionListBase&>(mMotions).node_alloc().deallocate(static_cast<MotionListBase::node*>(pNode), 1);
+            --reinterpret_cast<MotionListBase&>(mMotions).size_ref();
             f32 start = mMotions.front()->mStartFrame;
             mFrame = start < 0.0f ? 0.0f : start;
             mAnimObj.reset();

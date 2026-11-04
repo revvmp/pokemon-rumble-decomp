@@ -282,8 +282,10 @@ inline void CRemoteMemory::ReadBack(int channel) {
     }
 }
 
+inline CRemoteMemory* GetRemoteMemory(int channel) { return sRemoteMemories[channel]; }
+
 inline void CRemoteMemory::WriteBlock(int channel) {
-    CRemoteMemory* pRemote = sRemoteMemories[channel];
+    CRemoteMemory* pRemote = GetRemoteMemory(channel);
     const s32 result = WPADWriteGameData(channel, reinterpret_cast<u8*>(sReadData[channel]) + pRemote->mTransferOffset,
                                        pRemote->mTransferSize, pRemote->mBlockOffset + pRemote->mTransferOffset, OnWrite);
     switch (result) {
@@ -500,7 +502,8 @@ void CRemoteMemory::PrepareWrite(int mode) {
         nextBlock = (activeBlock + 1) & 1;
     }
     if (mWriteMode != 2) {
-        u8 generation = sStoredData[channel][(nextBlock - 1) & 1].mGeneration;
+        int previous = (nextBlock - 1) & 1;
+        u8 generation = sStoredData[channel][previous].mGeneration;
         if (nextBlock == 0) {
             generation += 1;
             generation &= 1;

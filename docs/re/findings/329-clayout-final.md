@@ -48,3 +48,22 @@ The scratch compiler harness and results are in ignored `tools/local/session/329
 ## Traps
 
 - A redundant cast can change common-subexpression treatment across recursive inline levels without changing the standalone function. Apply casts consistently to related field accesses: the pane-only cast reproduced the reload but left the parent access cached and changed register allocation. The complete pair is required for this unit; this is not a general compiler rule.
+
+
+## CModel follow-up
+
+After the four CLayout gains, the coordinated main-branch task moved to CModel. The direct compiler baseline had four unmatched functions: QueueMotion<true> 99.40945%, AppendMotion<true> 99.63415%, Update<true> 99.62567%, and Update<false> 99.80488%.
+
+Expanding the first Update pop_front call into the same list implementation operations and reassigning its node through an identity unsigned-long OR forces the named node to retain a distinct allocator value. This moves the node from r30 to the target r27 without changing instructions. Update<false> becomes 100%; Update<true> becomes 99.83957%, with only the shared IsIdle boolean-register swap remaining. The expansion unlinks the node, destroys the shared pointer, deallocates the node with the same node allocator, and decrements the same count. The uintptr-like cast is a deliberate D-0016 fake, relying on this target's 32-bit pointer and unsigned-long representation.
+
+The retained source uses a named node local in the branch. A plain pointer local, erase(begin()), an iterator local, a free inline removal helper, and a pointer-to-integer cast inside that helper all retained the incorrect coalescing with the `advanced` variable. The direct source expansion with pointer-to-integer identity reassignment is necessary in the tested compiler. Declaring the node before or after `advanced`, inside the loop, or directly in the branch yields the same exact result once the reassignment is present. No shared headers changed.
+
+The direct compile used the main build's Wii/1.1 flags and objdiff against the original split. After applying the source, Update<false> is 100%, Update<true> is 99.83957%, and all other function scores are unchanged. Central full-build verification remains the root agent's responsibility. Scratch evidence is under ignored tools/local/session/329-model, especially node2.json, clean3.json, and the applied baseline.json.
+
+Further rejected experiments: bool/int wrapper constructors and inline return helpers produce identical code; compound boolean assignments worsen the conditional shape; named nested bool/int locals are folded to the original register swap; unsigned-char locals add normalization. Identity multiplication adds a multiply; identity bitwise operations are removed. Pointer-shaped boolean results and scalar identity casts also fold back to the original code. An explicit IsReplaceable<true> specialization successfully isolates these experiments within CModel.cpp but does not itself alter code. Explicit Update specializations likewise do not alter allocation.
+
+A separate unretained QueueMotion experiment replaces its second size() expression with `static_cast<TPartialAnm*>(this)->mMotions.size()`. It restores the target reload and improves 99.40945% to 99.88189%; the shared boolean-register swap remains. Retain that cast only if the remaining swap is solved.
+
+### Additional trap
+
+A named pointer may still coalesce with an inline iterator result and then reuse an unrelated variable's dead register. In this specific Update function, a pointer-to-integer identity reassignment in the direct caller prevents that coalescing; applying the same identity operation inside a free inline helper does not. This is a verified local workaround, not a general allocator rule.

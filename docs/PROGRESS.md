@@ -2,7 +2,7 @@
 
 ## Current status
 
-Roadmap Phases 1 to 3 are complete and Phase 4 is active. `python configure.py` and `ninja` rebuild `main.dol` byte for byte from dtk split objects plus one reconstructed source unit, and `tools/verify/verify.py` accepts it against the frozen manifest `config/targets/wpse-v1.json`. Code progress is measured against the objdiff denominator documented in [matching](MATCHING.md#counting-method): 112 of 3,098,940 code bytes and 2 of 13,465 functions are linked from source, excluding alignment padding entries (F-0011).
+Roadmap Phases 1 to 3 are complete and Phase 4 is active. The latest verified build matches the frozen main.dol exactly. It links 2,192,572 of 3,082,232 code bytes (71.13586%) from 824 Matching units; 87 real functions remain below 100%. Original split fallbacks still supply the remaining code and data. See the latest session below and [matching requirements](MATCHING.md).
 
 | Milestone | State | Evidence or prerequisite |
 | --- | --- | --- |
@@ -13,8 +13,8 @@ Roadmap Phases 1 to 3 are complete and Phase 4 is active. `python configure.py` 
 | Artifact and section inventory | Complete for current scope | F-0005 extraction; both executables' sections in `re/INVENTORY.md`; boot loader role F-0009 |
 | Toolchain identification | Identified per library | RVL_SDK Wii/1.0; MSL and Runtime Wii/1.1 or 1.3 with `-func_align 4`; NW4R Wii/1.0 or 1.1; F-0007 |
 | Reproducible game build | Achieved | Two clean builds byte-identical; F-0010 |
-| Exact executable match | Achieved for `main.dol` | Verified; nearly all code still comes from original split objects |
-| Source reconstruction | Started | 1 of 8,782 units; see ledger |
+| Exact executable match | Achieved for `main.dol` | Verified; remaining original split fallbacks are tracked separately |
+| Source reconstruction | Started | 824 Matching units of 1,387 current units; see ledger |
 | Full release match | Pending | Boot loader, data contents, and WAD packaging outside current scope |
 
 ## Progress images
@@ -43,9 +43,11 @@ Images use a single blue sequential ramp with separate light and dark steps sele
 
 ## Reconstruction ledger
 
-The ledger is kept per area in [ledger](ledger/README.md). It has one linked unit: `Runtime/__init_cpp_exceptions.cpp` in [msl-runtime](ledger/msl-runtime.md). All other code comes from original split objects and counts as fallback.
+The ledger is kept per area in [ledger](ledger/README.md). It records source ownership and evidence per unit. Current measured linked coverage is reported above; original split dependencies still count as fallback.
 
 ## Latest session
+
+2026-11-04 verified continuation: 33 additional real functions match versus the 120-function starting tail, leaving 87. CEffect (58/58), ScriptWorld (37/37), and the IOStream getter in MemorySoundArchive (21/21) now link from source. Ninja exits 0 and frozen-manifest main.dol verification passes. Matched code is 2,968,072/3,082,232 bytes (96.29619%); linked code is 2,192,572 bytes (71.13586%), across 824 Matching units. New function gains include BWorld three, CModel one, CRemoteMemory one, ScriptWorld one, and IOStream one. CFileData, SaveData, main, and CBattleRoyalDisplay remain function-perfect but await source-link acceptance. Original inputs and expected hashes are unchanged.
 
 2026-11-04 verified completion checkpoint: 26 new matching functions; 94 real functions remain below 100%. CUIList, CPpuEngine, and CDividedGround are now linked from source. Full ninja and frozen-manifest verification pass. Matched code: 2,964,684/3,082,232 bytes (96.18627%); linked code: 2,170,864 bytes (70.43156%), 822 Matching units. CFileData 148/148, SaveData 100/100, and main 145/145 match per function but still need source-link ordering/data work. The original binaries and expected hashes are unchanged. New reusable lessons: branch destinations can expose source errors hidden by high fuzzy scores, and packed species data can be misclassified as an EH pointer; both are promoted to AGENTS.md with [F-61-2](re/findings/61-cdividedground-second-block.md#f-61-2-long-tail-emission-order) evidence.
 

@@ -17,15 +17,18 @@ int SetStageDescTargetAsCurrent(NPpu::CEngine* pEngine) {
     return 0;
 }
 
+#pragma push
+#pragma opt_dead_assignments off
 int SetStageDescTarget(NPpu::CEngine* pEngine) {
     int world = pEngine->PopInt();
     int rank = pEngine->PopInt();
     int kind = pEngine->PopInt();
     MapIndex target = {kind, rank, world, 0};
     static_cast<CPpuEngine*>(pEngine)->SetStageDescTarget(target);
-    pEngine->PushNull();
+    pEngine->PushZeroInt();
     return 0;
 }
+#pragma pop
 
 int SetStageDescParams(NPpu::CEngine* pEngine) {
     int count = pEngine->FetchArgCount();

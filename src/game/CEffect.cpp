@@ -1,11 +1,4 @@
-#include <game/CEffect.h>
-#include <game/BModelObj.h>
-#include <game/BWorld.h>
-#include <game/BWorldObj.h>
-#include <game/EffectGroupID.h>
-#include <game/MathUtil.h>
-#include <game/Memory.h>
-#include <game/Random.h>
+#include <nw4r/ut/ut_algorithm.h>
 #include <nw4r/ef/ef_effect.h>
 #include <nw4r/ef/ef_effectsystem.h>
 #include <nw4r/ef/ef_emitter.h>
@@ -17,6 +10,14 @@
 #include <nw4r/math/math_arithmetic.h>
 #include <nw4r/math/math_triangular.h>
 #include <nw4r/ut/ut_list.h>
+#include <game/CEffect.h>
+#include <game/BModelObj.h>
+#include <game/BWorld.h>
+#include <game/BWorldObj.h>
+#include <game/EffectGroupID.h>
+#include <game/MathUtil.h>
+#include <game/Memory.h>
+#include <game/Random.h>
 #include <new>
 #include <string.h>
 #include <vector>
@@ -221,7 +222,7 @@ public:
     ut::List mActiveList;
     u32 mObjectSize;
 
-    virtual void UpdateObjectID(T* pObject) { pObject->mObjectID += 0x10000; }
+    virtual void UpdateObjectID(T* pObject);
 };
 
 inline void ReleaseFromParent(ParticleManager* pManager) {
@@ -235,6 +236,11 @@ inline void ReleaseFromParent(Emitter* pEmitter) {
 inline void ReleaseFromParent(Effect* pEffect) {
     pEffect->mManagerES->mActivityList[pEffect->mGroupID].ToFree(pEffect);
 }
+
+template <> void MemoryManagerTmp<Effect>::UpdateObjectID(Effect* pObject);
+template <> void MemoryManagerTmp<EmitterWithParam>::UpdateObjectID(EmitterWithParam* pObject);
+template <> void MemoryManagerTmp<ParticleManager>::UpdateObjectID(ParticleManager* pObject);
+template <> void MemoryManagerTmp<Particle>::UpdateObjectID(Particle* pObject);
 
 class MemoryManager : public MemoryManagerBase {
 public:
@@ -277,230 +283,36 @@ public:
     void CreatePools() { CreatePoolsImpl(); }
     inline void CreatePoolsImpl();
 
-    virtual ~MemoryManager() {}
+    virtual ~MemoryManager();
 
-    virtual void GarbageCollection() {
-        NW4R_UT_LIST_FOREACH_SAFE(ParticleManager, pManager, mParticleManagerPool->mActiveList, {
-            Particle* pParticle;
-            Particle* pNext;
-            for (pParticle = static_cast<Particle*>(pManager->mActivityList.mClosingList.headObject);
-                 pParticle != nullptr; pParticle = pNext) {
-                pNext = static_cast<Particle*>(
-                    NW4R_UT_LIST_GET_LINK(pManager->mActivityList.mClosingList, pParticle)->nextObject);
-                pParticle->mParticleManager->mActivityList.ToFree(pParticle);
-                ut::List_Remove(&mParticlePool->mActiveList, pParticle);
-                ut::List_Append(&mParticlePool->mFreeList, pParticle);
-            }
-        });
+    virtual void GarbageCollection();
 
-        if (mParticleManagerPool != nullptr) mParticleManagerPool->GarbageCollection();
-        if (mEmitterPool != nullptr) mEmitterPool->GarbageCollection();
-        if (mEffectPool != nullptr) mEffectPool->GarbageCollection();
-    }
+    virtual Effect* AllocEffect();
+    virtual void FreeEffect(void* pObject);
+    virtual u32 GetNumAllocEffect() const;
+    virtual u32 GetNumActiveEffect() const;
+    virtual u32 GetNumFreeEffect() const;
 
-    virtual Effect* AllocEffect() {
-        if (mEffectPool == nullptr) {
-            return nullptr;
-        }
-        return mEffectPool->Alloc();
-    }
-    virtual void FreeEffect(void* pObject) {
-        if (mEffectPool != nullptr) {
-            mEffectPool->Free(pObject);
-        }
-    }
-    virtual u32 GetNumAllocEffect() const {
-        if (mEffectPool == nullptr) {
-            return 0;
-        }
-        return mEffectPool->GetNumAlloc();
-    }
-    virtual u32 GetNumActiveEffect() const {
-        if (mEffectPool == nullptr) {
-            return 0;
-        }
-        return mEffectPool->GetNumActive();
-    }
-    virtual u32 GetNumFreeEffect() const {
-        if (mEffectPool == nullptr) {
-            return 0;
-        }
-        return mEffectPool->GetNumFree();
-    }
+    virtual Emitter* AllocEmitter();
+    virtual void FreeEmitter(void* pObject);
+    virtual u32 GetNumAllocEmitter() const;
+    virtual u32 GetNumActiveEmitter() const;
+    virtual u32 GetNumFreeEmitter() const;
 
-    virtual Emitter* AllocEmitter() {
-        if (mEmitterPool == nullptr) {
-            return nullptr;
-        }
-        return mEmitterPool->Alloc();
-    }
-    virtual void FreeEmitter(void* pObject) {
-        if (mEmitterPool != nullptr) {
-            mEmitterPool->Free(pObject);
-        }
-    }
-    virtual u32 GetNumAllocEmitter() const {
-        if (mEmitterPool == nullptr) {
-            return 0;
-        }
-        return mEmitterPool->GetNumAlloc();
-    }
-    virtual u32 GetNumActiveEmitter() const {
-        if (mEmitterPool == nullptr) {
-            return 0;
-        }
-        return mEmitterPool->GetNumActive();
-    }
-    virtual u32 GetNumFreeEmitter() const {
-        if (mEmitterPool == nullptr) {
-            return 0;
-        }
-        return mEmitterPool->GetNumFree();
-    }
+    virtual ParticleManager* AllocParticleManager();
+    virtual void FreeParticleManager(void* pObject);
+    virtual u32 GetNumAllocParticleManager() const;
+    virtual u32 GetNumActiveParticleManager() const;
+    virtual u32 GetNumFreeParticleManager() const;
 
-    virtual ParticleManager* AllocParticleManager() {
-        if (mParticleManagerPool == nullptr) {
-            return nullptr;
-        }
-        return mParticleManagerPool->Alloc();
-    }
-    virtual void FreeParticleManager(void* pObject) {
-        if (mParticleManagerPool != nullptr) {
-            mParticleManagerPool->Free(pObject);
-        }
-    }
-    virtual u32 GetNumAllocParticleManager() const {
-        if (mParticleManagerPool == nullptr) {
-            return 0;
-        }
-        return mParticleManagerPool->GetNumAlloc();
-    }
-    virtual u32 GetNumActiveParticleManager() const {
-        if (mParticleManagerPool == nullptr) {
-            return 0;
-        }
-        return mParticleManagerPool->GetNumActive();
-    }
-    virtual u32 GetNumFreeParticleManager() const {
-        if (mParticleManagerPool == nullptr) {
-            return 0;
-        }
-        return mParticleManagerPool->GetNumFree();
-    }
-
-    virtual Particle* AllocParticle() {
-        if (mParticlePool == nullptr) {
-            return nullptr;
-        }
-        return mParticlePool->Alloc();
-    }
-    virtual void FreeParticle(void* pObject) {
-        if (mParticlePool != nullptr) {
-            mParticlePool->Free(pObject);
-        }
-    }
-    virtual u32 GetNumAllocParticle() const {
-        if (mParticlePool == nullptr) {
-            return 0;
-        }
-        return mParticlePool->GetNumAlloc();
-    }
-    virtual u32 GetNumActiveParticle() const {
-        if (mParticlePool == nullptr) {
-            return 0;
-        }
-        return mParticlePool->GetNumActive();
-    }
-    virtual u32 GetNumFreeParticle() const {
-        if (mParticlePool == nullptr) {
-            return 0;
-        }
-        return mParticlePool->GetNumFree();
-    }
+    virtual Particle* AllocParticle();
+    virtual void FreeParticle(void* pObject);
+    virtual u32 GetNumAllocParticle() const;
+    virtual u32 GetNumActiveParticle() const;
+    virtual u32 GetNumFreeParticle() const;
 
     virtual void* AllocHeap(u32 size);
-    virtual void FreeHeap(void* pPtr) {
-        u32 headerSize = AlignHeap(sizeof(HeapBlock));
-        HeapBlock* pInfo = reinterpret_cast<HeapBlock*>(static_cast<u8*>(pPtr) - headerSize);
-
-        if (pInfo->mPrev != nullptr) {
-            pInfo->mPrev->mNext = pInfo->mNext;
-        } else {
-            mUsedList = pInfo->mNext;
-        }
-
-        if (pInfo->mNext != nullptr) {
-            pInfo->mNext->mPrev = pInfo->mPrev;
-        }
-
-        HeapBlock* pPrev = nullptr;
-        if (pInfo->mPrevPhys != nullptr && !pInfo->mPrevPhys->mUsed) {
-            pPrev = pInfo->mPrevPhys;
-        }
-
-        HeapBlock* pNext = nullptr;
-        if (pInfo->mNextPhys != nullptr && !pInfo->mNextPhys->mUsed) {
-            pNext = pInfo->mNextPhys;
-        }
-
-        if (pPrev != nullptr) {
-            if (pNext != nullptr) {
-                if (pNext->mPrev != nullptr) {
-                    pNext->mPrev->mNext = pNext->mNext;
-                } else {
-                    mFreeList = pNext->mNext;
-                }
-
-                if (pNext->mNext != nullptr) {
-                    pNext->mNext->mPrev = pNext->mPrev;
-                }
-
-                pPrev->mSize += pNext->mSize + pInfo->mSize + headerSize + headerSize;
-
-                pPrev->mNextPhys = pNext->mNextPhys;
-
-                if (pNext->mNextPhys != nullptr) {
-                    pNext->mNextPhys->mPrevPhys = pPrev;
-                }
-            } else {
-                pPrev->mSize += pInfo->mSize + headerSize;
-                pPrev->mNextPhys = pInfo->mNextPhys;
-
-                if (pInfo->mNextPhys != nullptr) {
-                    pInfo->mNextPhys->mPrevPhys = pPrev;
-                }
-            }
-        } else if (pNext != nullptr) {
-            if (pNext->mPrev != nullptr) {
-                pNext->mPrev->mNext = pInfo;
-            } else {
-                mFreeList = pInfo;
-            }
-
-            if (pNext->mNext != nullptr) {
-                pNext->mNext->mPrev = pInfo;
-            }
-
-            pInfo->mPrev = pNext->mPrev;
-            pInfo->mNext = pNext->mNext;
-            pInfo->mSize += pNext->mSize + headerSize;
-            pInfo->mUsed = false;
-            pInfo->mNextPhys = pNext->mNextPhys;
-
-            if (pNext->mNextPhys != nullptr) {
-                pNext->mNextPhys->mPrevPhys = pPrev;
-            }
-        } else {
-            if (mFreeList != nullptr) {
-                mFreeList->mPrev = pInfo;
-            }
-
-            pInfo->mNext = mFreeList;
-            pInfo->mPrev = nullptr;
-            pInfo->mUsed = false;
-            mFreeList = pInfo;
-        }
-    }
+    virtual void FreeHeap(void* pPtr);
 
     int mNumEffect;
     MemoryManagerTmp<Effect>* mEffectPool;
@@ -813,19 +625,21 @@ inline nw4r::math::MTX34 Mult(const nw4r::math::MTX34& rA, const nw4r::math::MTX
 
 }
 
-bool CEffect::Create(BWorld* pWorld, const Param& rParam, BWorldObj* pFollow) {
-    if (pFollow != nullptr) {
-        mFollow = pFollow->shared_from_this();
-    }
-    mFlags |= FLAG_LOCAL_MTX;
-    SetRotation(RandReal(0.0f, 360.0f));
-    return Create(pWorld, rParam);
-}
+f32 GetEffectRandomRotation() { return RandReal(0.0f, 360.0f); }
 
 bool CEffect::Create(BWorld* pWorld, const Param& rParam, const nw4r::math::VEC3& rPosition, f32 rotation) {
     mPosition = rPosition;
     mFlags |= FLAG_LOCAL_MTX;
     SetRotation(rotation);
+    return Create(pWorld, rParam);
+}
+
+bool CEffect::Create(BWorld* pWorld, const Param& rParam, BWorldObj* pFollow) {
+    if (pFollow != nullptr) {
+        mFollow = pFollow->shared_from_this();
+    }
+    mFlags |= FLAG_LOCAL_MTX;
+    SetRotation(GetEffectRandomRotation());
     return Create(pWorld, rParam);
 }
 
@@ -1028,5 +842,263 @@ void CEffect::CalcMtx() {
         pEmitter->SetMtxDirty();
         break;
     }
+    }
+}
+
+void nw4r::ef::MemoryManager::FreeHeap(void* pPtr) {
+    u32 headerSize = AlignHeap(sizeof(HeapBlock));
+    HeapBlock* pInfo = reinterpret_cast<HeapBlock*>(static_cast<u8*>(pPtr) - headerSize);
+
+    if (pInfo->mPrev != nullptr) {
+        pInfo->mPrev->mNext = pInfo->mNext;
+    } else {
+        mUsedList = pInfo->mNext;
+    }
+
+    if (pInfo->mNext != nullptr) {
+        pInfo->mNext->mPrev = pInfo->mPrev;
+    }
+
+    HeapBlock* pPrev = nullptr;
+    if (pInfo->mPrevPhys != nullptr && !pInfo->mPrevPhys->mUsed) {
+        pPrev = pInfo->mPrevPhys;
+    }
+
+    HeapBlock* pNext = nullptr;
+    if (pInfo->mNextPhys != nullptr && !pInfo->mNextPhys->mUsed) {
+        pNext = pInfo->mNextPhys;
+    }
+
+    if (pPrev != nullptr) {
+        if (pNext != nullptr) {
+            if (pNext->mPrev != nullptr) {
+                pNext->mPrev->mNext = pNext->mNext;
+            } else {
+                mFreeList = pNext->mNext;
+            }
+
+            if (pNext->mNext != nullptr) {
+                pNext->mNext->mPrev = pNext->mPrev;
+            }
+
+            pPrev->mSize += pNext->mSize + pInfo->mSize + headerSize + headerSize;
+
+            pPrev->mNextPhys = pNext->mNextPhys;
+
+            if (pNext->mNextPhys != nullptr) {
+                pNext->mNextPhys->mPrevPhys = pPrev;
+            }
+        } else {
+            pPrev->mSize += pInfo->mSize + headerSize;
+            pPrev->mNextPhys = pInfo->mNextPhys;
+
+            if (pInfo->mNextPhys != nullptr) {
+                pInfo->mNextPhys->mPrevPhys = pPrev;
+            }
+        }
+    } else if (pNext != nullptr) {
+        if (pNext->mPrev != nullptr) {
+            pNext->mPrev->mNext = pInfo;
+        } else {
+            mFreeList = pInfo;
+        }
+
+        if (pNext->mNext != nullptr) {
+            pNext->mNext->mPrev = pInfo;
+        }
+
+        pInfo->mPrev = pNext->mPrev;
+        pInfo->mNext = pNext->mNext;
+        pInfo->mSize += pNext->mSize + headerSize;
+        pInfo->mUsed = false;
+        pInfo->mNextPhys = pNext->mNextPhys;
+
+        if (pNext->mNextPhys != nullptr) {
+            pNext->mNextPhys->mPrevPhys = pPrev;
+        }
+    } else {
+        if (mFreeList != nullptr) {
+            mFreeList->mPrev = pInfo;
+        }
+
+        pInfo->mNext = mFreeList;
+        pInfo->mPrev = nullptr;
+        pInfo->mUsed = false;
+        mFreeList = pInfo;
+    }
+}
+
+u32 nw4r::ef::MemoryManager::GetNumFreeParticle() const{
+    if (mParticlePool == nullptr) {
+        return 0;
+    }
+    return mParticlePool->GetNumFree();
+}
+
+u32 nw4r::ef::MemoryManager::GetNumActiveParticle() const{
+    if (mParticlePool == nullptr) {
+        return 0;
+    }
+    return mParticlePool->GetNumActive();
+}
+
+u32 nw4r::ef::MemoryManager::GetNumAllocParticle() const{
+    if (mParticlePool == nullptr) {
+        return 0;
+    }
+    return mParticlePool->GetNumAlloc();
+}
+
+void nw4r::ef::MemoryManager::FreeParticle(void* pObject) {
+    if (mParticlePool != nullptr) {
+        mParticlePool->Free(pObject);
+    }
+}
+
+nw4r::ef::Particle* nw4r::ef::MemoryManager::AllocParticle() {
+    if (mParticlePool == nullptr) {
+        return nullptr;
+    }
+    return mParticlePool->Alloc();
+}
+template <> void nw4r::ef::MemoryManagerTmp<nw4r::ef::Particle>::UpdateObjectID(nw4r::ef::Particle* pObject) {
+    pObject->mObjectID += 0x10000;
+}
+
+u32 nw4r::ef::MemoryManager::GetNumFreeParticleManager() const{
+    if (mParticleManagerPool == nullptr) {
+        return 0;
+    }
+    return mParticleManagerPool->GetNumFree();
+}
+
+u32 nw4r::ef::MemoryManager::GetNumActiveParticleManager() const{
+    if (mParticleManagerPool == nullptr) {
+        return 0;
+    }
+    return mParticleManagerPool->GetNumActive();
+}
+
+u32 nw4r::ef::MemoryManager::GetNumAllocParticleManager() const{
+    if (mParticleManagerPool == nullptr) {
+        return 0;
+    }
+    return mParticleManagerPool->GetNumAlloc();
+}
+
+void nw4r::ef::MemoryManager::FreeParticleManager(void* pObject) {
+    if (mParticleManagerPool != nullptr) {
+        mParticleManagerPool->Free(pObject);
+    }
+}
+
+nw4r::ef::ParticleManager* nw4r::ef::MemoryManager::AllocParticleManager() {
+    if (mParticleManagerPool == nullptr) {
+        return nullptr;
+    }
+    return mParticleManagerPool->Alloc();
+}
+template <> void nw4r::ef::MemoryManagerTmp<nw4r::ef::ParticleManager>::UpdateObjectID(nw4r::ef::ParticleManager* pObject) {
+    pObject->mObjectID += 0x10000;
+}
+
+u32 nw4r::ef::MemoryManager::GetNumFreeEmitter() const{
+    if (mEmitterPool == nullptr) {
+        return 0;
+    }
+    return mEmitterPool->GetNumFree();
+}
+
+u32 nw4r::ef::MemoryManager::GetNumActiveEmitter() const{
+    if (mEmitterPool == nullptr) {
+        return 0;
+    }
+    return mEmitterPool->GetNumActive();
+}
+
+u32 nw4r::ef::MemoryManager::GetNumAllocEmitter() const{
+    if (mEmitterPool == nullptr) {
+        return 0;
+    }
+    return mEmitterPool->GetNumAlloc();
+}
+
+void nw4r::ef::MemoryManager::FreeEmitter(void* pObject) {
+    if (mEmitterPool != nullptr) {
+        mEmitterPool->Free(pObject);
+    }
+}
+
+nw4r::ef::Emitter* nw4r::ef::MemoryManager::AllocEmitter() {
+    if (mEmitterPool == nullptr) {
+        return nullptr;
+    }
+    return mEmitterPool->Alloc();
+}
+template <> void nw4r::ef::MemoryManagerTmp<EmitterWithParam>::UpdateObjectID(EmitterWithParam* pObject) {
+    pObject->mObjectID += 0x10000;
+}
+
+u32 nw4r::ef::MemoryManager::GetNumFreeEffect() const{
+    if (mEffectPool == nullptr) {
+        return 0;
+    }
+    return mEffectPool->GetNumFree();
+}
+
+u32 nw4r::ef::MemoryManager::GetNumActiveEffect() const{
+    if (mEffectPool == nullptr) {
+        return 0;
+    }
+    return mEffectPool->GetNumActive();
+}
+
+u32 nw4r::ef::MemoryManager::GetNumAllocEffect() const{
+    if (mEffectPool == nullptr) {
+        return 0;
+    }
+    return mEffectPool->GetNumAlloc();
+}
+
+void nw4r::ef::MemoryManager::FreeEffect(void* pObject) {
+    if (mEffectPool != nullptr) {
+        mEffectPool->Free(pObject);
+    }
+}
+
+nw4r::ef::Effect* nw4r::ef::MemoryManager::AllocEffect() {
+    if (mEffectPool == nullptr) {
+        return nullptr;
+    }
+    return mEffectPool->Alloc();
+}
+template <> void nw4r::ef::MemoryManagerTmp<nw4r::ef::Effect>::UpdateObjectID(nw4r::ef::Effect* pObject) {
+    pObject->mObjectID += 0x10000;
+}
+
+void nw4r::ef::MemoryManager::GarbageCollection() {
+    NW4R_UT_LIST_FOREACH_SAFE(ParticleManager, pManager, mParticleManagerPool->mActiveList, {
+        Particle* pParticle;
+        Particle* pNext;
+        for (pParticle = static_cast<Particle*>(pManager->mActivityList.mClosingList.headObject);
+             pParticle != nullptr; pParticle = pNext) {
+            pNext = static_cast<Particle*>(
+                NW4R_UT_LIST_GET_LINK(pManager->mActivityList.mClosingList, pParticle)->nextObject);
+            pParticle->mParticleManager->mActivityList.ToFree(pParticle);
+            ut::List_Remove(&mParticlePool->mActiveList, pParticle);
+            ut::List_Append(&mParticlePool->mFreeList, pParticle);
+        }
+    });
+
+    if (mParticleManagerPool != nullptr) mParticleManagerPool->GarbageCollection();
+    if (mEmitterPool != nullptr) mEmitterPool->GarbageCollection();
+    if (mEffectPool != nullptr) mEffectPool->GarbageCollection();
+}
+
+nw4r::ef::MemoryManager::~MemoryManager() {}
+
+template <typename Allocator> inline std::__bitvec_deleter<Allocator>::~__bitvec_deleter() {
+    if (data_) {
+        capacity_.second().deallocate(data_, capacity_.first());
     }
 }
