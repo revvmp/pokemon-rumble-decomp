@@ -48,3 +48,33 @@ Outside receipts are `280-reference/primary-wstring/{compile.json,whole-code-pro
 
 - An early typed formatter producer can expose the existing string lifetime/code-generation blocker before reconstructing two large filesystem routines. Preserve the positive callbacks and exact native retained-address site; do not repeat the prior allocator and constructor sweeps without new primary evidence.
 - Exact function instructions can coexist with incorrect exception ranges when a reconstructed C declaration omits an original nothrow attribute. Check the primary declaration before changing game object lifetimes; the photo-dialog copy/length range demonstrates this distinction.
+
+## F-280-5: Final screenshot function instructions
+
+The current source reproduces all six target functions, including all 5,064 bytes of SaveScreenshotToRemoteMemory. Direct compilation and objdiff results are saved under ignored tools/local/session/280-ppu/cardflag2.json. Full source-link acceptance remains pending.
+
+The missing exception-specification handler is immediately after the 4,096-byte stack allocation. An inline AllocatePhotoStack(size, alignment) throw() forwarder around GameMemory::Allocate reproduces the handler and the missing 24-byte frame record. This is an intentional D-0016 source-shaping helper, not proof of an original helper name. It supersedes the earlier hypothesis in sprint-t1 that an additional shared_ptr temporary must be responsible. Default construction plus reset and explicit copy-initialization probes did not reproduce the target.
+
+The three free-space message blocks belong directly in the screenshot function. Expanding the prior GetPhotoSpaceMessage helper restores the order of all four-byte block-count locals and the three string temporaries relative to the final success-message string. It also removes twelve extra move-instruction bytes. Grouping bps*spc before multiplying the required clusters reproduces the target arithmetic instruction order.
+
+Two prior source behaviors were incorrect: write-protection query failure and a protected card must proceed through the unmount/reset cleanup, rather than jump directly to detach; and the cleanup calls FAUnmount(drive, 0), not the undeclared-in-target FASync. The target call is the existing FAUnmount symbol at 0x8021DF40 with the public two-argument signature. Setting sCardPresent before clearing sCardChanged reproduces the final four register choices without a register shim.
+
+## Additional traps
+
+- A missing unexpected handler should be located relative to its protected call before adding an object lifetime. Here the target handler belongs immediately after allocation, and a throw() forwarding function reproduces it without an extra shared_ptr.
+- Extracting repeated message blocks into an inline helper changes caller stack-object allocation order and can introduce pointer-result moves. Exact direct caller blocks were necessary for this function.
+
+## F-280-6: Last source-link exception differences
+
+The first complete native PhotoSave trial linked successfully and differed from the frozen executable in only four bytes. All instructions, function addresses, data, small data and section sizes were exact. The differing words were two screenshot exception-range descriptors: source ranges began at offsets 0xB88 and 0xD6C with length 14 instructions, while the target begins at 0xB90 and 0xD74 with length 12. The ranges end at identical locations.
+
+The runtime searches these ranges using return addresses, not call addresses. The differing starts therefore identify the preceding snprintf calls, not the subsequent WaitFaMkdir and FAChdir calls. An initial investigation misread that boundary; its ineffective FA redeclarations were removed. A source-local first declaration of snprintf with __attribute__((nothrow)) changes exactly those four descriptor bytes, preserving all six function instructions. The declaration stays local until broader evidence supports changing the shared stdio interface. The direct comparison is tools/local/session/280-ppu/snprintfnothrow.json; final native verification is still required.
+
+
+The first declaration matters to this compiler: adding a nothrow attribute after an existing declaration did not update the call contract. Also, exception ranges must be read using the return-PC lookup in Runtime/Gecko_ExceptionPPC.cpp; mapping a range start directly to a call instruction misidentifies its preceding protected call.
+
+## Final acceptance
+
+The coordinator retained PhotoSave as Matching after a fresh native ninja build exited 0 and frozen main.dol verification passed. All six original functions, exception records and owned data now link from C++ into the byte-identical executable. The local snprintf contract is the accepted exception fix; the rejected FA redeclarations are absent. Original hashes are unchanged.
+
+The AllocatePhotoStack throw() forwarder remains an intentional D-0016 source-shaping helper. The direct caller message blocks, corrected unmount call and cleanup paths are supported by the target instructions.

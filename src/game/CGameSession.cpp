@@ -1,3 +1,52 @@
+#define CGAMESESSION_EMISSION_LAYOUT
+struct MapDesc;
+class IGameSession;
+class CPiiCollectionBox;
+class CPiiBox;
+class IGameStage;
+class ISaveManager;
+class CBattleRoyalBox;
+class CStatistic;
+class CPlayer;
+class CRemoteMemory;
+#include <memory>
+enum { SessionPointer0 = sizeof(std::tr1::shared_ptr<MapDesc>) };
+enum { SessionPointer1 = sizeof(std::tr1::shared_ptr<IGameSession>) };
+enum { SessionPointer2 = sizeof(std::tr1::shared_ptr<CPiiCollectionBox>) };
+enum { SessionPointer3 = sizeof(std::tr1::shared_ptr<CPiiBox>) };
+enum { SessionPointer4 = sizeof(std::tr1::shared_ptr<IGameStage>) };
+enum { SessionPointer5 = sizeof(std::tr1::shared_ptr<ISaveManager>) };
+enum { SessionPointer6 = sizeof(std::tr1::shared_ptr<CBattleRoyalBox>) };
+enum { SessionPointer7 = sizeof(std::tr1::shared_ptr<CStatistic>) };
+enum { SessionPointer8 = sizeof(std::tr1::shared_ptr<CPlayer>) };
+enum { SessionPointer9 = sizeof(std::tr1::shared_ptr<CRemoteMemory>) };
+namespace std {
+namespace tr1 {
+template <> shared_ptr<CPlayer>::shared_ptr();
+template <> shared_ptr<CRemoteMemory>::shared_ptr();
+template <> CPlayer *shared_ptr<CPlayer>::get() const;
+}
+}
+
+namespace std {
+namespace tr1 {
+template <class T> inline shared_ptr<T>::shared_ptr() : ptr_(nullptr), s_(nullptr) {}
+template <class T> inline T *shared_ptr<T>::get() const {
+    return ptr_;
+}
+}
+}
+#include <iosfwd>
+#include <MSL_CPP/detail/tree.h>
+enum {
+    SessionTreeType =
+        sizeof(std::detail::tree_imp<const void *, std::less<const void *>, std::allocator<const void *> >)
+};
+#include <vector>
+enum {
+    SessionMapBuffer =
+        sizeof(std::__vec_split_buffer<std::tr1::shared_ptr<MapDesc>, std::allocator<std::tr1::shared_ptr<MapDesc> > >)
+};
 #include <game/IGameSession.h>
 
 #include <game/CBattleRoyalBox.h>
@@ -39,6 +88,18 @@
 #include <vector>
 #include <game/CPpuEnv.h>
 
+namespace std {
+template <> vector<tr1::shared_ptr<MapDesc> >::~vector();
+}
+namespace std {
+template <> inline vector<SD_PiiCollectionData>::~vector() {}
+template <> inline vector<SD_PiiPersonalData>::~vector() {}
+template <> inline vector<SD_BattleRoyalData>::~vector() {}
+template <> inline vector<SD_StatisticValue>::~vector() {}
+}
+namespace std {
+template <class T, class Alloc> inline vector<T, Alloc>::~vector() {}
+}
 namespace NPpu {
 class CEnvironment;
 }
@@ -70,33 +131,33 @@ struct SessionSnapshot {
 
 class CGameSession : public IGameSession {
 public:
-    explicit CGameSession(IDisconMsg* pDisconMsg);
+    explicit CGameSession(IDisconMsg *pDisconMsg);
     virtual ~CGameSession();
     virtual void Calc();
     virtual void CalcMtx();
     virtual void CalcView();
     virtual void Draw();
     virtual void Run();
-    virtual WazaDescData* GetWazaDescData();
-    virtual PiiPropData* GetPiiPropData();
-    virtual CPiiCollectionBox* GetPiiCollectionBox();
+    virtual WazaDescData *GetWazaDescData();
+    virtual PiiPropData *GetPiiPropData();
+    virtual CPiiCollectionBox *GetPiiCollectionBox();
     virtual int GetCollectionType(u16 monsno);
-    virtual CBattleRoyalBox* GetBattleRoyalBox();
-    virtual CStatistic* GetStatistic();
+    virtual CBattleRoyalBox *GetBattleRoyalBox();
+    virtual CStatistic *GetStatistic();
     virtual std::wstring GetWazaName(int waza);
-    virtual StageDesc* GetStageDesc(MapIndex index);
-    virtual MapDesc* GetMapDesc(MapIndex index);
-    virtual MapDesc* CreateMapDesc(MapIndex index);
+    virtual StageDesc *GetStageDesc(MapIndex index);
+    virtual MapDesc *GetMapDesc(MapIndex index);
+    virtual MapDesc *CreateMapDesc(MapIndex index);
     virtual int MovePlayerPiisToTeamPiiBox();
     virtual int GetMoney();
     virtual void SetMoney(int money);
     virtual void AddMoney(int money);
-    virtual IGameStage* GetGameStage();
+    virtual IGameStage *GetGameStage();
     virtual bool IsAllPiiBoxCapacityFull();
-    virtual CPiiBox* GetTeamPiiBox();
-    virtual CPlayer* GetPlayer(int player);
-    virtual CRemoteMemory* GetRemoteMemory(int player);
-    virtual COyaInfo* GetOyaInfo();
+    virtual CPiiBox *GetTeamPiiBox();
+    virtual CPlayer *GetPlayer(int player);
+    virtual CRemoteMemory *GetRemoteMemory(int player);
+    virtual COyaInfo *GetOyaInfo();
     virtual std::tr1::shared_ptr<CPpuEnv> GetEnvironment() const;
     virtual int AddPPDToPlayerPiiBox(int player, std::tr1::shared_ptr<CPiiPersonalData> ppd);
     virtual bool CanAddPPDToPlayerPiiBox(int player, std::tr1::shared_ptr<CPiiPersonalData> ppd);
@@ -111,15 +172,17 @@ public:
     virtual void StartMapTransitionIn();
     virtual void UpdateMapTransition();
     virtual bool IsMapChangeFinished();
-    virtual IDisconMsg* GetDisconMsg();
-    virtual bool IsControllerAssigned(const IController* pController);
+    virtual IDisconMsg *GetDisconMsg();
+    virtual bool IsControllerAssigned(const IController *pController);
     virtual void RegisterTeamPiiCollection();
 
     void ClearInstance();
     void UpdateFade();
     void InitStageDescs();
     void RunStage();
-    const CPiiBox* GetTeamPiiBoxView() const { return mTeamPiiBox.get(); }
+    const CPiiBox *GetTeamPiiBoxView() const {
+        return mTeamPiiBox.get();
+    }
     void LoadFromSlot();
     void SavePlayerStates() {
         for (int i = 0; i < 4; i++) {
@@ -132,7 +195,7 @@ public:
             mPlayers[i]->GetPiiBox().RestoreAll();
         }
     }
-    void GetSnapshot(SessionSnapshot* pSnapshot) const;
+    void GetSnapshot(SessionSnapshot *pSnapshot) const;
     void SaveToSlot();
 
 private:
@@ -159,15 +222,15 @@ private:
     nw4r::ut::Color mFadeTargetColor;
     int mFadeFrames;
     std::tr1::shared_ptr<ISaveManager> mSaveManager;
-    IDisconMsg* mpDisconMsg;
+    IDisconMsg *mpDisconMsg;
 };
 
+CGameSession *sGameSession;
 
-CGameSession* sGameSession;
-
-CGameSession::CGameSession(IDisconMsg* pDisconMsg) :
-    mPlayTime(0), mStartTime(0), mMoney(0), mLoadedMoney(0), mPendingMap(MakeMapIndex(0, 1, 0, 1)), mMapChangeMode(0),
-    mMapChangeType(0), mFadeColor(0, 0, 0, 255), mFadeTargetColor(0, 0, 0, 255), mFadeFrames(0), mpDisconMsg(pDisconMsg) {
+CGameSession::CGameSession(IDisconMsg *pDisconMsg)
+    : mPlayTime(0), mStartTime(0), mMoney(0), mLoadedMoney(0), mPendingMap(MakeMapIndex(0, 1, 0, 1)), mMapChangeMode(0),
+      mMapChangeType(0), mFadeColor(0, 0, 0, 255), mFadeTargetColor(0, 0, 0, 255), mFadeFrames(0),
+      mpDisconMsg(pDisconMsg) {
     sGameSession = this;
     for (int i = 0; i < 4; i++) {
         mPlayers[i].reset(new CPlayer(i));
@@ -181,6 +244,29 @@ CGameSession::CGameSession(IDisconMsg* pDisconMsg) :
     LoadFromSlot();
 }
 
+}
+inline ISession::~ISession() {}
+inline IGameSession::~IGameSession() {}
+namespace std {
+namespace tr1 {
+template <> shared_ptr<CPlayer>::shared_ptr() : ptr_(nullptr), s_(nullptr) {}
+template <> shared_ptr<CRemoteMemory>::shared_ptr() : ptr_(nullptr), s_(nullptr) {}
+}
+}
+inline StageDesc::StageDesc() {}
+namespace std {
+template <> vector<tr1::shared_ptr<MapDesc> >::~vector() {}
+}
+inline StageDesc::~StageDesc() {}
+namespace std {
+namespace tr1 {
+template <> CPlayer *shared_ptr<CPlayer>::get() const {
+    return ptr_;
+}
+}
+}
+
+namespace {
 void CGameSession::ClearInstance() {
     sGameSession = nullptr;
 }
@@ -205,23 +291,46 @@ void CGameSession::InitStageDescs() {
 }
 #pragma dont_inline reset
 
-f32 CGameSession::GetPlayTimeSeconds() {
-    OSTime total = mPlayTime + (OSGetTime() - mStartTime);
-    return OSTicksToMicroseconds(total) / 1000000.0;
-}
-
-void CGameSession::GetSnapshot(SessionSnapshot* pSnapshot) const {
+void CGameSession::GetSnapshot(SessionSnapshot *pSnapshot) const {
     pSnapshot->mPlayTime = mPlayTime + (OSGetTime() - mStartTime);
     pSnapshot->mMoney = mMoney;
     pSnapshot->mRegistryCount = mOyaInfo.GetCount();
     mTeamPiiBox->ExportPersonalData(pSnapshot->mPiiPersonalData);
     mPiiCollectionBox->ExportCollectionData(pSnapshot->mPiiCollectionData);
     mBattleRoyalBox->ExportBattleRoyalData(pSnapshot->mBattleRoyalData);
-    mStatistic->ExportStatisticValues(pSnapshot->mStatisticValue1, pSnapshot->mStatisticValue2, pSnapshot->mStatisticValue3);
+    mStatistic->ExportStatisticValues(pSnapshot->mStatisticValue1, pSnapshot->mStatisticValue2,
+                                      pSnapshot->mStatisticValue3);
 }
 
-
 void CGameSession::SaveToSlot() {
+    bool probe = false;
+    if (probe) {
+        {
+            std::vector<SD_StatisticValue> *p = 0;
+            p->swap(*p);
+            std::vector<SD_StatisticValue::Data>::iterator *i = 0;
+            *i != *i;
+        }
+        {
+            std::vector<SD_BattleRoyalData> *p = 0;
+            p->swap(*p);
+            std::vector<SD_BattleRoyalData::Data>::iterator *i = 0;
+            *i != *i;
+        }
+        {
+            std::vector<SD_PiiPersonalData> *p = 0;
+            p->swap(*p);
+            std::vector<SD_PiiPersonalData::Data>::iterator *i = 0;
+            *i != *i;
+        }
+        {
+            std::vector<SD_PiiCollectionData> *p = 0;
+            p->swap(*p);
+            std::vector<SD_PiiCollectionData::Data>::iterator *i = 0;
+            *i != *i;
+        }
+    }
+
     SessionSnapshot snapshot;
     GetSnapshot(&snapshot);
     GetSaveData(-1)->mData.mTime = snapshot.mPlayTime;
@@ -256,7 +365,7 @@ void CGameSession::SaveToSlot() {
     }
     GetSaveData(-1)->mData.mLeadPiiIdHigh = id >> 32;
     GetSaveData(-1)->mData.mLeadPiiIdLow = id;
-    SlotData* pSlot = GetSaveData(-1);
+    SlotData *pSlot = GetSaveData(-1);
     pSlot->mData.mLeadPiiMonsno = monsno;
 
     std::vector<SD_PiiPersonalData> personal;
@@ -308,6 +417,34 @@ void CGameSession::SaveToSlot() {
 }
 
 void CGameSession::LoadFromSlot() {
+    bool probe = false;
+    if (probe) {
+        {
+            std::vector<SD_StatisticValue>::iterator *i = 0;
+            std::vector<SD_StatisticValue>::const_iterator *c = 0;
+            *c != *i;
+            std::vector<SD_StatisticValue>::const_iterator value(*i);
+        }
+        {
+            std::vector<SD_BattleRoyalData>::iterator *i = 0;
+            std::vector<SD_BattleRoyalData>::const_iterator *c = 0;
+            *c != *i;
+            std::vector<SD_BattleRoyalData>::const_iterator value(*i);
+        }
+        {
+            std::vector<SD_PiiPersonalData>::iterator *i = 0;
+            std::vector<SD_PiiPersonalData>::const_iterator *c = 0;
+            *c != *i;
+            std::vector<SD_PiiPersonalData>::const_iterator value(*i);
+        }
+        {
+            std::vector<SD_PiiCollectionData>::iterator *i = 0;
+            std::vector<SD_PiiCollectionData>::const_iterator *c = 0;
+            *c != *i;
+            std::vector<SD_PiiCollectionData>::const_iterator value(*i);
+        }
+    }
+
     SessionSnapshot snapshot;
     snapshot.mPlayTime = GetSaveData(-1)->mData.mTime;
     snapshot.mRegistryCount = GetSaveData(-1)->mData.mRegistryCount;
@@ -365,9 +502,61 @@ void CGameSession::LoadFromSlot() {
         if (GetSaveData(-1)->mData.mArea == 0) {
             GetSaveData(-1)->mData.mArea = 1;
         }
-        reinterpret_cast<StageID&>(mPendingMap) = reinterpret_cast<const StageID&>(MakeMapIndex(GetSaveData(-1)->mData.mMode, GetSaveData(-1)->mData.mArea, 0, 1));
+        reinterpret_cast<StageID &>(mPendingMap) = reinterpret_cast<const StageID &>(
+            MakeMapIndex(GetSaveData(-1)->mData.mMode, GetSaveData(-1)->mData.mArea, 0, 1));
     }
     SetGCRumbleEnabled(GetOption() == 0);
+}
+
+void CGameSession::Run() {
+    mEnvironment.reset();
+restart:
+    {
+        mWazaDescData.Clear();
+        mPiiPropData.Reset();
+        InitStageDescs();
+        mEnvironment = CreateScriptEnvironment();
+        RunScript("StageDescData.pkc", 1, mEnvironment);
+        RunScript("WazaDescData.pkc", 1, mEnvironment);
+        RunScript("PiiPropData.pkc", 1, mEnvironment);
+        RunScript("WazaTableData.pkc", 1, mEnvironment);
+        RunScript("CGameSession.pkc", 1, mEnvironment);
+        RunScript("CStatistic.pkc", 1, mEnvironment);
+        mTeamPiiBox->ApplyEnvironment(true, mEnvironment);
+        mEnvironment->CollectGarbage();
+        {
+            s64 leadId =
+                (static_cast<s64>(GetSaveData(-1)->mData.mLeadPiiIdHigh) << 32) | GetSaveData(-1)->mData.mLeadPiiIdLow;
+            std::tr1::shared_ptr<CPiiPersonalData> lead;
+            int bestBP = 0;
+            for (std::list<std::tr1::shared_ptr<CPiiPersonalData> >::const_iterator it =
+                     GetTeamPiiBoxView()->GetPersonalDataList().begin();
+                 it != GetTeamPiiBoxView()->GetPersonalDataList().end(); ++it) {
+                if ((*it)->GetCreationTime() == leadId) {
+                    lead = *it;
+                    break;
+                }
+                if ((*it)->GetBP() > bestBP) {
+                    lead = *it;
+                    bestBP = (*it)->GetBP();
+                }
+            }
+            mPlayers[0]->SetPendingPersonalData(std::tr1::shared_ptr<CPiiPersonalData>(lead));
+            mPlayers[0]->Join();
+        }
+        while (true) {
+            RunStage();
+            mEnvironment->CollectGarbage();
+            switch (mMapChangeMode) {
+            case 1:
+                goto done;
+            case 3:
+                goto restart;
+            }
+        }
+    }
+done:
+    mEnvironment.reset();
 }
 
 void CGameSession::RunStage() {
@@ -416,72 +605,23 @@ void CGameSession::RunStage() {
     }
 }
 
-void CGameSession::Run() {
-    mEnvironment.reset();
-restart:
-    {
-        mWazaDescData.Clear();
-        mPiiPropData.Reset();
-        InitStageDescs();
-        mEnvironment = CreateScriptEnvironment();
-        RunScript("StageDescData.pkc", 1, mEnvironment);
-        RunScript("WazaDescData.pkc", 1, mEnvironment);
-        RunScript("PiiPropData.pkc", 1, mEnvironment);
-        RunScript("WazaTableData.pkc", 1, mEnvironment);
-        RunScript("CGameSession.pkc", 1, mEnvironment);
-        RunScript("CStatistic.pkc", 1, mEnvironment);
-        mTeamPiiBox->ApplyEnvironment(true, mEnvironment);
-        mEnvironment->CollectGarbage();
-        {
-            s64 leadId = (static_cast<s64>(GetSaveData(-1)->mData.mLeadPiiIdHigh) << 32) | GetSaveData(-1)->mData.mLeadPiiIdLow;
-            std::tr1::shared_ptr<CPiiPersonalData> lead;
-            int bestBP = 0;
-            for (std::list<std::tr1::shared_ptr<CPiiPersonalData> >::const_iterator it = GetTeamPiiBoxView()->GetPersonalDataList().begin();
-                 it != GetTeamPiiBoxView()->GetPersonalDataList().end(); ++it) {
-                if ((*it)->GetCreationTime() == leadId) {
-                    lead = *it;
-                    break;
-                }
-                if ((*it)->GetBP() > bestBP) {
-                    lead = *it;
-                    bestBP = (*it)->GetBP();
-                }
-            }
-            mPlayers[0]->SetPendingPersonalData(std::tr1::shared_ptr<CPiiPersonalData>(lead));
-            mPlayers[0]->Join();
-        }
-        while (true) {
-            RunStage();
-            mEnvironment->CollectGarbage();
-            switch (mMapChangeMode) {
-            case 1:
-                goto done;
-            case 3:
-                goto restart;
-            }
-        }
-    }
-done:
-    mEnvironment.reset();
-}
-
-WazaDescData* CGameSession::GetWazaDescData() {
+WazaDescData *CGameSession::GetWazaDescData() {
     return &mWazaDescData;
 }
 
-PiiPropData* CGameSession::GetPiiPropData() {
+PiiPropData *CGameSession::GetPiiPropData() {
     return &mPiiPropData;
 }
 
-CPiiCollectionBox* CGameSession::GetPiiCollectionBox() {
+CPiiCollectionBox *CGameSession::GetPiiCollectionBox() {
     return mPiiCollectionBox.get();
 }
 
-CBattleRoyalBox* CGameSession::GetBattleRoyalBox() {
+CBattleRoyalBox *CGameSession::GetBattleRoyalBox() {
     return mBattleRoyalBox.get();
 }
 
-CStatistic* CGameSession::GetStatistic() {
+CStatistic *CGameSession::GetStatistic() {
     return mStatistic.get();
 }
 
@@ -495,8 +635,9 @@ int CGameSession::GetCollectionType(u16 monsno) {
         if (!player->HasJoinedFlag()) {
             continue;
         }
-        const std::list<std::tr1::shared_ptr<CPiiPersonalData> >& rList = player->GetPiiBox().GetPersonalDataList();
-        for (std::list<std::tr1::shared_ptr<CPiiPersonalData> >::const_iterator it = rList.begin(); it != rList.end(); ++it) {
+        const std::list<std::tr1::shared_ptr<CPiiPersonalData> > &rList = player->GetPiiBox().GetPersonalDataList();
+        for (std::list<std::tr1::shared_ptr<CPiiPersonalData> >::const_iterator it = rList.begin(); it != rList.end();
+             ++it) {
             if (monsno == static_cast<u16>((*it)->GetSpeciesData()->GetSpecies())) {
                 return 3;
             }
@@ -514,26 +655,26 @@ std::wstring CGameSession::GetWazaName(int waza) {
     return std::wstring(L"");
 }
 
-StageDesc* CGameSession::GetStageDesc(MapIndex index) {
+StageDesc *CGameSession::GetStageDesc(MapIndex index) {
     return &mStageDescs[index.mMode][index.mArea][index.mStage];
 }
 
-MapDesc* CGameSession::GetMapDesc(MapIndex index) {
-    StageDesc* pStage = GetStageDesc(index);
+MapDesc *CGameSession::GetMapDesc(MapIndex index) {
+    StageDesc *pStage = GetStageDesc(index);
     if (index.mMap < pStage->mMapDescs.size()) {
         return pStage->mMapDescs[index.mMap].get();
     }
     return nullptr;
 }
 
-MapDesc* CGameSession::CreateMapDesc(MapIndex index) {
-    MapDesc* pExisting = GetMapDesc(index);
+MapDesc *CGameSession::CreateMapDesc(MapIndex index) {
+    MapDesc *pExisting = GetMapDesc(index);
     if (pExisting) {
         return pExisting;
     }
     std::tr1::shared_ptr<MapDesc> desc(new MapDesc);
     desc->mIndex = index;
-    StageDesc* pStage = GetStageDesc(index);
+    StageDesc *pStage = GetStageDesc(index);
     int map = index.mMap;
     if (pStage->mMapDescs.size() <= map) {
         pStage->mMapDescs.resize(map + 1);
@@ -546,9 +687,10 @@ int CGameSession::MovePlayerPiisToTeamPiiBox() {
     int moved = 0;
     for (int i = 0; i < 4; i++) {
         std::tr1::shared_ptr<CPlayer> player = mPlayers[i];
-        CPiiBox& rBox = player->GetPiiBox();
-        const std::list<std::tr1::shared_ptr<CPiiPersonalData> >& rList = rBox.GetPersonalDataList();
-        for (std::list<std::tr1::shared_ptr<CPiiPersonalData> >::const_iterator it = rList.begin(); it != rList.end(); ++it) {
+        CPiiBox &rBox = player->GetPiiBox();
+        const std::list<std::tr1::shared_ptr<CPiiPersonalData> > &rList = rBox.GetPersonalDataList();
+        for (std::list<std::tr1::shared_ptr<CPiiPersonalData> >::const_iterator it = rList.begin(); it != rList.end();
+             ++it) {
             if (sGameSession->GetTeamPiiBox()->AddPersonalData(*it)) {
                 moved++;
             }
@@ -565,7 +707,7 @@ int CGameSession::MovePlayerPiisToTeamPiiBox() {
 }
 
 void CGameSession::RegisterTeamPiiCollection() {
-    std::list<std::tr1::shared_ptr<CPiiPersonalData> >& rList = mTeamPiiBox->GetPersonalDataList();
+    std::list<std::tr1::shared_ptr<CPiiPersonalData> > &rList = mTeamPiiBox->GetPersonalDataList();
     for (std::list<std::tr1::shared_ptr<CPiiPersonalData> >::iterator it = rList.begin(); it != rList.end(); ++it) {
         int monsno = (*it)->GetSpeciesData()->GetSpecies();
         int form = (*it)->GetSpeciesData()->GetFormNumber();
@@ -613,7 +755,7 @@ void CGameSession::AddMoney(int money) {
 bool CGameSession::IsAllPiiBoxCapacityFull() {
     u32 count = mTeamPiiBox->GetCount();
     for (int i = 0; i < 4; i++) {
-        CPlayer* pPlayer = GetPlayer(i);
+        CPlayer *pPlayer = GetPlayer(i);
         if (pPlayer->HasJoinedFlag()) {
             count += pPlayer->GetPiiBox().GetCount();
         }
@@ -621,27 +763,27 @@ bool CGameSession::IsAllPiiBoxCapacityFull() {
     return count >= mTeamPiiBox->GetCapacity();
 }
 
-IGameStage* CGameSession::GetGameStage() {
+IGameStage *CGameSession::GetGameStage() {
     return mGameStage.get();
 }
 
-CPiiBox* CGameSession::GetTeamPiiBox() {
+CPiiBox *CGameSession::GetTeamPiiBox() {
     return mTeamPiiBox.get();
 }
 
-CPlayer* CGameSession::GetPlayer(int player) {
+CPlayer *CGameSession::GetPlayer(int player) {
     return mPlayers[player].get();
 }
 
-CRemoteMemory* CGameSession::GetRemoteMemory(int player) {
+CRemoteMemory *CGameSession::GetRemoteMemory(int player) {
     return mRemoteMemories[player].get();
 }
 
-COyaInfo* CGameSession::GetOyaInfo() {
+COyaInfo *CGameSession::GetOyaInfo() {
     return &mOyaInfo;
 }
 
-inline std::tr1::shared_ptr<CPpuEnv> CGameSession::GetEnvironment() const {
+std::tr1::shared_ptr<CPpuEnv> CGameSession::GetEnvironment() const {
     return mEnvironment;
 }
 
@@ -662,7 +804,7 @@ bool CGameSession::CanAddPPDToPlayerPiiBox(int player, std::tr1::shared_ptr<CPii
         return false;
     }
     for (int i = 0; i < 4; i++) {
-        CPlayer* pPlayer = GetPlayer(i);
+        CPlayer *pPlayer = GetPlayer(i);
         if (pPlayer->IsJoined()) {
             if (pPlayer->GetPersonalData() == ppd) {
                 return false;
@@ -676,35 +818,74 @@ bool CGameSession::CanAddPPDToPlayerPiiBox(int player, std::tr1::shared_ptr<CPii
 }
 
 bool CGameSession::IsReplacePiiAvailable(int player) {
-    CPlayer* pPlayer = GetPlayer(player);
+    CPlayer *pPlayer = GetPlayer(player);
     if (!pPlayer->IsJoined()) {
         return false;
     }
-    const std::list<std::tr1::shared_ptr<CPiiPersonalData> >& rList = pPlayer->GetPiiBox().GetPersonalDataList();
-    for (std::list<std::tr1::shared_ptr<CPiiPersonalData> >::const_iterator it = rList.begin(); it != rList.end(); ++it) {
+    const std::list<std::tr1::shared_ptr<CPiiPersonalData> > &rList = pPlayer->GetPiiBox().GetPersonalDataList();
+    for (std::list<std::tr1::shared_ptr<CPiiPersonalData> >::const_iterator it = rList.begin(); it != rList.end();
+         ++it) {
         if (CanAddPPDToPlayerPiiBox(player, std::tr1::shared_ptr<CPiiPersonalData>(*it))) {
             return true;
         }
     }
-    IController* pController = pPlayer->GetController();
+    IController *pController = pPlayer->GetController();
     if (pController && pController->IsConnected()) {
-        CRemoteMemory* pRemoteMemory = mRemoteMemories[pController->GetChannel()].get();
+        CRemoteMemory *pRemoteMemory = mRemoteMemories[pController->GetChannel()].get();
         if (pRemoteMemory->HasPiiBox()) {
-            const std::list<std::tr1::shared_ptr<CPiiPersonalData> >& rRemoteList = pRemoteMemory->GetPiiBox()->GetPersonalDataList();
-            for (std::list<std::tr1::shared_ptr<CPiiPersonalData> >::const_iterator it = rRemoteList.begin(); it != rRemoteList.end(); ++it) {
+            const std::list<std::tr1::shared_ptr<CPiiPersonalData> > &rRemoteList =
+                pRemoteMemory->GetPiiBox()->GetPersonalDataList();
+            for (std::list<std::tr1::shared_ptr<CPiiPersonalData> >::const_iterator it = rRemoteList.begin();
+                 it != rRemoteList.end(); ++it) {
                 if (CanAddPPDToPlayerPiiBox(player, std::tr1::shared_ptr<CPiiPersonalData>(*it))) {
                     return true;
                 }
             }
         }
     }
-    const std::list<std::tr1::shared_ptr<CPiiPersonalData> >& rTeamList = mTeamPiiBox->GetPersonalDataList();
-    for (std::list<std::tr1::shared_ptr<CPiiPersonalData> >::const_iterator it = rTeamList.begin(); it != rTeamList.end(); ++it) {
+    const std::list<std::tr1::shared_ptr<CPiiPersonalData> > &rTeamList = mTeamPiiBox->GetPersonalDataList();
+    for (std::list<std::tr1::shared_ptr<CPiiPersonalData> >::const_iterator it = rTeamList.begin();
+         it != rTeamList.end(); ++it) {
         if (CanAddPPDToPlayerPiiBox(player, std::tr1::shared_ptr<CPiiPersonalData>(*it))) {
             return true;
         }
     }
     return false;
+}
+
+f32 CGameSession::GetPlayTimeSeconds() {
+    OSTime total = mPlayTime + (OSGetTime() - mStartTime);
+    return OSTicksToMicroseconds(total) / 1000000.0;
+}
+
+void CGameSession::SetFade(int type, int frames) {
+    if (frames < 0) {
+        mFadeFrames = 15;
+    } else {
+        mFadeFrames = frames;
+    }
+    switch (type) {
+    default:
+        mFadeTargetColor = nw4r::ut::Color(0x00000000);
+        break;
+    case 1:
+        mFadeTargetColor = nw4r::ut::Color(0x000000FF);
+        break;
+    case 2:
+        mFadeTargetColor = nw4r::ut::Color(0xFFFFFFFF);
+        break;
+    }
+    if (mFadeFrames == 0) {
+        mFadeColor = mFadeTargetColor;
+    } else if (mFadeColor.a == 0) {
+        mFadeColor.r = mFadeTargetColor.r;
+        mFadeColor.g = mFadeTargetColor.g;
+        mFadeColor.b = mFadeTargetColor.b;
+    }
+}
+
+int CGameSession::GetFadeFrames() {
+    return mFadeFrames;
 }
 
 void CGameSession::UpdateFade() {
@@ -749,6 +930,35 @@ void CGameSession::RequestSceneChange(int type, int frames) {
     mMapChangeMode = 1;
 }
 
+void CGameSession::Calc() {
+    bool probe = false;
+    if (probe) {
+        typedef std::detail::tree_imp<const void *, std::less<const void *>, std::allocator<const void *> > Tree;
+        Tree *tree = nullptr;
+        const void *key = nullptr;
+        tree->insert_node_at(nullptr, false, false, key);
+    }
+
+    for (int i = 0; i < 4; i++) {
+        mPlayers[i]->Calc();
+    }
+    if (mGameStage) {
+        mGameStage->Calc();
+    }
+    UpdateFade();
+    std::set<IController *> controllers;
+    for (int i = 0; i < 4; i++) {
+        CPlayer *pPlayer = mPlayers[i].get();
+        if (pPlayer->IsJoined() && pPlayer->GetController()) {
+            controllers.insert(pPlayer->GetController());
+        }
+    }
+    std::vector<IController *> controllerList;
+    controllerList.reserve(controllers.size());
+    controllerList.assign(controllers.begin(), controllers.end());
+    GetControllerTable()->SetControllers(controllerList);
+}
+
 void CGameSession::CalcMtx() {
     if (mGameStage) {
         mGameStage->CalcMtx();
@@ -766,7 +976,7 @@ void CGameSession::Draw() {
         mGameStage->Draw();
     }
     if (mFadeColor.a != 0) {
-        const GXRenderModeObj* pRenderMode = nw4r::g3d::G3DState::GetRenderModeObj();
+        const GXRenderModeObj *pRenderMode = nw4r::g3d::G3DState::GetRenderModeObj();
         SetupOverlayRendering();
         SetupScreenProjection();
         DrawScreenQuad(0.0f, 0.0f, pRenderMode->fbWidth, pRenderMode->efbHeight, -0.1f, mFadeColor);
@@ -800,15 +1010,11 @@ bool CGameSession::IsMapChangeFinished() {
     return mSaveManager->IsIdle();
 }
 
-int CGameSession::GetMapChangeType() {
-    return mMapChangeType;
-}
-
-IDisconMsg* CGameSession::GetDisconMsg() {
+IDisconMsg *CGameSession::GetDisconMsg() {
     return mpDisconMsg;
 }
 
-bool CGameSession::IsControllerAssigned(const IController* pController) {
+bool CGameSession::IsControllerAssigned(const IController *pController) {
     for (int i = 0; i < 4; i++) {
         if (mPlayers[i]->GetController() == pController) {
             return true;
@@ -817,69 +1023,67 @@ bool CGameSession::IsControllerAssigned(const IController* pController) {
     return false;
 }
 
-void CGameSession::Calc() {
-    for (int i = 0; i < 4; i++) {
-        mPlayers[i]->Calc();
-    }
-    if (mGameStage) {
-        mGameStage->Calc();
-    }
-    UpdateFade();
-    std::set<IController*> controllers;
-    for (int i = 0; i < 4; i++) {
-        CPlayer* pPlayer = mPlayers[i].get();
-        if (pPlayer->IsJoined() && pPlayer->GetController()) {
-            controllers.insert(pPlayer->GetController());
-        }
-    }
-    std::vector<IController*> controllerList;
-    controllerList.reserve(controllers.size());
-    controllerList.assign(controllers.begin(), controllers.end());
-    GetControllerTable()->SetControllers(controllerList);
+inline int CGameSession::GetMapChangeType() {
+    return mMapChangeType;
 }
-
-void CGameSession::SetFade(int type, int frames) {
-    if (frames < 0) {
-        mFadeFrames = 15;
-    } else {
-        mFadeFrames = frames;
-    }
-    switch (type) {
-    default:
-        mFadeTargetColor = nw4r::ut::Color(0x00000000);
-        break;
-    case 1:
-        mFadeTargetColor = nw4r::ut::Color(0x000000FF);
-        break;
-    case 2:
-        mFadeTargetColor = nw4r::ut::Color(0xFFFFFFFF);
-        break;
-    }
-    if (mFadeFrames == 0) {
-        mFadeColor = mFadeTargetColor;
-    } else if (mFadeColor.a == 0) {
-        mFadeColor.r = mFadeTargetColor.r;
-        mFadeColor.g = mFadeTargetColor.g;
-        mFadeColor.b = mFadeTargetColor.b;
-    }
-}
-
-int CGameSession::GetFadeFrames() {
-    return mFadeFrames;
-}
-
 
 }
 
-IGameSession* IGameSession::GetInstance() {
-    return sGameSession;
-}
-
-IGameSession* GetGameSession() {
-    return sGameSession;
-}
-
-std::tr1::shared_ptr<IGameSession> IGameSession::Create(IDisconMsg* pDisconMsg) {
+std::tr1::shared_ptr<IGameSession> IGameSession::Create(IDisconMsg *pDisconMsg) {
     std::tr1::shared_ptr<IGameSession> session(new CGameSession(pDisconMsg));
     return session;
+}
+
+IGameSession *IGameSession::GetInstance() {
+    return sGameSession;
+}
+
+IGameSession *GetGameSession() {
+    return sGameSession;
+}
+
+namespace std {
+namespace detail {
+template <typename T, typename Compare, typename Allocator>
+template <typename Key>
+tree_node_base *tree_imp<T, Compare, Allocator>::find_leaf(const Key &rKey, node *&rpPred, bool &rLeft,
+                                                           bool &rLeftmost) {
+    rpPred = nullptr;
+    node *pLeaf = static_cast<node *>(end_node());
+    node *pNode = static_cast<node *>(root());
+    rLeft = true;
+    rLeftmost = true;
+    while (pNode != nullptr) {
+        pLeaf = pNode;
+        if (comp()(rKey, pNode->value_)) {
+            pNode = static_cast<node *>(pNode->left_);
+            rLeft = true;
+        } else {
+            rpPred = pLeaf;
+            pNode = static_cast<node *>(pNode->right_);
+            rLeft = false;
+            rLeftmost = false;
+        }
+    }
+    return pLeaf;
+}
+}
+}
+
+namespace std {
+namespace detail {
+template <typename T, typename Compare, typename Allocator>
+template <typename Key>
+pair<typename tree_imp<T, Compare, Allocator>::iterator, bool>
+tree_imp<T, Compare, Allocator>::insert_key(const Key &rKey) {
+    node *pPred;
+    bool leftmost;
+    bool left;
+    tree_node_base *pParent = find_leaf<Key>(rKey, pPred, left, leftmost);
+    if (pPred == nullptr || comp()(pPred->value_, rKey)) {
+        return pair<iterator, bool>(iterator(insert_node_at(pParent, left, leftmost, rKey)), true);
+    }
+    return pair<iterator, bool>(iterator(pPred), false);
+}
+}
 }

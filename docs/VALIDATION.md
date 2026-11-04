@@ -176,3 +176,7 @@ The ScriptWorldObj partial_sources pipeline was validated with two empty output 
 DOL SHA-256: ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da. ELF SHA-256: 8153135205631f75639734ccb02e4f0df68e09afe9e4a762397df0868b7909bd. Report SHA-256: def1b9e61fbd575f489eb7e374cd06e30c878bb63437e8ebf87d5ecf5ecd019d.
 
 The normal default build configuration was restored afterward. This verifies the build mechanism and accepted source-link units;71 unmatched real functions and remaining fallback units still block complete source reconstruction. Original manifests were unchanged.
+
+## Broad-header regression check, 58-function checkpoint
+
+Compared the latest real ninja report with the prior clean-repeat report by original virtual function address, excluding gap and padding names. Both contain13,448 address-bearing real function rows. No previously100% function regressed. The latest fresh build and frozen verifier pass; the remaining real tail is58. This check covers the scoped header changes, signature corrections and added source emission controls retained in this checkpoint.

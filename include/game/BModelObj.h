@@ -90,7 +90,7 @@ public:
     int GetOutlineType() const { return mOutlineType; }
     bool HasFlag(u32 flag) const { return (mFlags & flag) != 0; }
     bool IsSizeMode() const { return HasFlag(FLAG_SIZE_MODE) != 0; }
-    nw4r::math::VEC3 CalcSize(int mode) const;
+    nw4r::math::VEC3 CalcSize(int mode);
     const nw4r::math::AABB& GetBounds() const { return mBounds; }
 
 private:

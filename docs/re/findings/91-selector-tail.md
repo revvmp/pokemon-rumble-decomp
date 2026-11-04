@@ -22,3 +22,19 @@ Selective inline helpers, explicit dispatch specializations, dispatch definition
 
 - A missing conversion operator can require a live external emission request even when explicit template instantiation is present. An address-taken data object can change unrelated data references; compare all functions, not only the missing helper.
 - A local duplicate template body requires explicit representation and a scoped symbol identity. Keep the existing global body and document the clone; function comparison alone does not prove the unit links at the original positions.
+
+## Explicit tag references, 2026-11-04
+
+A fresh comparison found a third residual in Clamp: it still referenced the global integer minimum after the duplicate local body had been named SelectorMinimum. An explicit Clamp<int> specialization now binds the call to the retained local clone.
+
+The two vector range-dispatch templates now take their unused int2type tag by const reference only under GAME_DLGPIISELECTOR_RANGE_TAG_REFERENCE. Their generated 68-byte bodies remain identical. The ABI already passed the empty by-value tag indirectly, so the changed source signature preserves its physical argument register. The scoped target names at 0x800929F0 and 0x80091A40 must use the const-reference mangling. This is a documented D-0016 interface reconstruction, not evidence of original source spelling.
+
+The assign specialization declares its copy tag before the source tag and explicitly copies one object-representation byte through volatile unsigned-character lvalues. This reproduces the target's stack +8 to +12 copy. The insert specialization uses the address of that assignment expression as the dispatch argument, converts it back to the original tag pointer, and dereferences it. The address remains the address of the same tag object; there is no hard-coded frame address or instruction stream. Retaining the assignment lvalue forces the compiler to preserve the tag pointer in r31 across iterator conversion, exactly as the target does. Computing the byte copy and pointer separately rematerializes the pointer too late and loses one saved register.
+
+Direct compilation of the retained source and normal headers matches all 645 real functions after the two diagnostic signature renames. Scratch evidence is tools/local/session/282-selector/tracked-final-diff.json. This records function acceptance evidence only; the coordinator's full source-link trial is pending.
+
+Negative controls included four one-byte struct/union tag types, explicit copy constructors, reference forwarding helpers, pointer/integer casts, named temporaries, placement new, and reference-bound temporary tags. A reference-bound temporary restored the required r31 lifetime but reversed the two tag slots. Placement new emitted an unwanted call. The successful assignment-lvalue expression avoids both problems. The volatile byte copies and unusual argument expression are D-0016 fakes after the documented natural-source attempts; no original bytes or assembly enter the source pipeline.
+
+### Additional trap
+
+An expression that yields the same pointer can have a different register lifetime: a named tag address was rematerialized after a call, while the lvalue result of its byte assignment survived across that call. Compare the entire unit and the link, rather than assuming equivalent C++ expressions share allocation behavior.

@@ -89,7 +89,7 @@ template <typename T> class shared_ptr {
 public:
     typedef T element_type;
 
-#ifdef CBATTLEROYALBOX_EMISSION_LAYOUT
+#if defined(CBATTLEROYALBOX_EMISSION_LAYOUT) || defined(CGAMESESSION_EMISSION_LAYOUT)
     shared_ptr();
 #else
     shared_ptr() : ptr_(nullptr), s_(nullptr) {}
@@ -111,19 +111,27 @@ public:
     ~shared_ptr() throw();
 
     shared_ptr& operator=(const shared_ptr& r);
+#if defined(CNOTICE_EMISSION_LAYOUT)
+    template <typename Y> shared_ptr& operator=(const shared_ptr<Y>& r);
+#else
     template <typename Y> shared_ptr& operator=(const shared_ptr<Y>& r) {
         shared_ptr(r).swap(*this);
         return *this;
     }
+#endif
 
     void swap(shared_ptr& r);
     void reset();
     template <typename Y> void reset(Y* p);
     template <typename Y, typename D> void reset(Y* p, D d) { shared_ptr(p, d).swap(*this); }
 
+#if defined(CGAMESESSION_EMISSION_LAYOUT)
+    T* get() const;
+#else
     T* get() const { return ptr_; }
+#endif
     typename detail::shared_ptr_reference<T>::type operator*() const { return *ptr_; }
-#if defined(MAIN_EMISSION_LAYOUT)
+#if defined(MAIN_EMISSION_LAYOUT) || defined(CNOTICE_EMISSION_LAYOUT)
     T* operator->() const;
 #else
     T* operator->() const { return ptr_; }

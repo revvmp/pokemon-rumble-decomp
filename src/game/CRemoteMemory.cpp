@@ -263,10 +263,11 @@ void CRemoteMemory::Update() {
     }
 }
 
+inline s32 ReadRemoteBlock(int channel, u8* base, u16 size, u16 block, const u32& offset) { return WPADReadGameData(channel, base + offset, size, block + offset, OnReadBack); }
+
 inline void CRemoteMemory::ReadBack(int channel) {
     CRemoteMemory* pRemote = sRemoteMemories[channel];
-    const s32 result = WPADReadGameData(channel, reinterpret_cast<u8*>(&sReadData[channel][1]) + pRemote->mTransferOffset,
-                                      pRemote->mTransferSize, pRemote->mBlockOffset + pRemote->mTransferOffset, OnReadBack);
+    const s32 result = ReadRemoteBlock(channel, reinterpret_cast<u8*>(&sReadData[channel][1]), pRemote->mTransferSize, pRemote->mBlockOffset, pRemote->mTransferOffset);
     switch (result) {
     case -2:
     case 0:

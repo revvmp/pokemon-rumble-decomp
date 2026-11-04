@@ -32,7 +32,11 @@ class CEnvironment;
 
 class IGameSession : public ISession {
 public:
+#if defined(CGAMESESSION_EMISSION_LAYOUT)
+    virtual ~IGameSession();
+#else
     virtual ~IGameSession() {}
+#endif
     virtual WazaDescData* GetWazaDescData() = 0;
     virtual PiiPropData* GetPiiPropData() = 0;
     virtual CPiiCollectionBox* GetPiiCollectionBox() = 0;
@@ -69,7 +73,6 @@ public:
     virtual bool IsMapChangeFinished() = 0;
     virtual IDisconMsg* GetDisconMsg() = 0;
     virtual bool IsControllerAssigned(const IController* pController) = 0;
-    virtual void RegisterTeamPiiCollection() = 0;
 
     static IGameSession* GetInstance();
     static std::tr1::shared_ptr<IGameSession> Create(IDisconMsg* pDisconMsg);

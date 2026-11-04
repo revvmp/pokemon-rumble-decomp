@@ -1,3 +1,6 @@
+#include <stddef.h>
+extern "C" int snprintf(char* pBuffer, size_t size, const char* pFormat, ...) __attribute__((nothrow));
+
 #include <game/BUILayout.h>
 #include <game/CScopedActivity.h>
 #include <game/DCIM.h>
@@ -22,7 +25,6 @@ extern "C" s32 FARegistCB(u8 device, void (*pInserted)(s8), void (*pRemoved)(s8)
 extern "C" s32 FADetach(s8 drive);
 extern "C" s32 FAIsWriteProtected(s8 drive);
 extern "C" s32 FABuffering(s8 drive, s32 mode);
-extern "C" s32 FASync(s8 drive, s32 mode);
 extern "C" s32 FAFclose(FAFile* pFile);
 extern "C" s32 FARemove(const char* pPath);
 extern "C" const char* OSGetAppGamename();
@@ -65,15 +67,7 @@ inline size_t CopyPhotoText(wchar_t* pDestination, const wchar_t* pSource, size_
     return wcslen(pSource);
 }
 
-inline const wchar_t* GetPhotoSpaceMessage(u32 clusters, const PF_DEV_INF& rInfo, wchar_t* pBuffer) {
-    int blocks = (clusters * rInfo.bps * rInfo.spc + 0x1ffff) >> 17;
-    if (blocks == 1) {
-        return GetMessageString(393481, nullptr);
-    }
-    std::wstring message = FormatMessage(GetMessageString(393482, nullptr), blocks);
-    CopyPhotoText(pBuffer, message.c_str(), 256);
-    return pBuffer;
-}
+inline void* AllocatePhotoStack(u32 size, int alignment) throw() { return GameMemory::Allocate(size, alignment); }
 
 void SaveScreenshotToRemoteMemory(IDlgMsgWin* pDialog, BUILayout* pLayout, const void* pJpeg, u32 size) {
     std::tr1::shared_ptr<IDisconMsg::CDisable> discon;
@@ -87,8 +81,8 @@ void SaveScreenshotToRemoteMemory(IDlgMsgWin* pDialog, BUILayout* pLayout, const
     if (pDialog->AskYesNo(GetMessageString(393462, nullptr))) {
         pMessage = GetMessageString(393483, nullptr);
         if (!FARegistCB(0, OnPhotoCardInserted, OnPhotoCardRemoved) && !WaitFaAttach(0, nullptr, 0, &drive) && (drive.stat & 1) && isupper(drive.drive)) {
-            sCardChanged = false;
             sCardPresent = (drive.stat & 0x10) != 0;
+            sCardChanged = false;
             do {
                 while (!sCardPresent) {
                     pDialog->ShowMessage(GetMessageString(393477, nullptr));
@@ -108,11 +102,11 @@ void SaveScreenshotToRemoteMemory(IDlgMsgWin* pDialog, BUILayout* pLayout, const
                 }
                 s32 protection = FAIsWriteProtected(drive.drive);
                 if (protection == -1) {
-                    break;
+                    goto finishPhotoWrite;
                 }
                 if (protection == 1) {
                     pMessage = GetMessageString(393478, nullptr);
-                    break;
+                    goto finishPhotoWrite;
                 }
                 pLayout->GetLayout()->CreateMotion("begin");
                 pLayout->GetLayout()->AppendMotion("loop");
@@ -124,7 +118,7 @@ void SaveScreenshotToRemoteMemory(IDlgMsgWin* pDialog, BUILayout* pLayout, const
                     CPhotoDeviceQuery query;
                     query.mDrive = drive.drive;
                     {
-                        u8* pStack = static_cast<u8*>(GameMemory::Allocate(4096, 32));
+                        u8* pStack = static_cast<u8*>(AllocatePhotoStack(4096, 32));
                         std::tr1::shared_ptr<u8> stack(pStack, GameMemory::Free);
                         OSThread thread;
                         if (!OSCreateThread(&thread, QueryPhotoDevice, &query, stack.get() + 4096, 4096, 24, 1)) {
@@ -185,7 +179,16 @@ void SaveScreenshotToRemoteMemory(IDlgMsgWin* pDialog, BUILayout* pLayout, const
                         break;
                         case DcfRootMissing:
                         if (query.mInfo.ecl < clusters + 2) {
-                            pMessage = GetPhotoSpaceMessage(clusters + 2, query.mInfo, messageBuffer);
+                            {
+                                int blocks = ((clusters + 2) * (query.mInfo.bps * query.mInfo.spc) + 0x1ffff) >> 17;
+                                if (blocks == 1) {
+                                    pMessage = GetMessageString(393481, nullptr);
+                                } else {
+                                    std::wstring message = FormatMessage(GetMessageString(393482, nullptr), blocks);
+                                    CopyPhotoText(messageBuffer, message.c_str(), 256);
+                                    pMessage = messageBuffer;
+                                }
+                            }
                             {
                                 for (int frame = 60; frame > 0; --frame) {
                                     YieldFiber();
@@ -205,7 +208,16 @@ void SaveScreenshotToRemoteMemory(IDlgMsgWin* pDialog, BUILayout* pLayout, const
                         }
                         case DcfCreateDirectory:
                         if (query.mInfo.ecl < clusters + 1) {
-                            pMessage = GetPhotoSpaceMessage(clusters + 1, query.mInfo, messageBuffer);
+                            {
+                                int blocks = ((clusters + 1) * (query.mInfo.bps * query.mInfo.spc) + 0x1ffff) >> 17;
+                                if (blocks == 1) {
+                                    pMessage = GetMessageString(393481, nullptr);
+                                } else {
+                                    std::wstring message = FormatMessage(GetMessageString(393482, nullptr), blocks);
+                                    CopyPhotoText(messageBuffer, message.c_str(), 256);
+                                    pMessage = messageBuffer;
+                                }
+                            }
                             {
                                 for (int frame = 60; frame > 0; --frame) {
                                     YieldFiber();
@@ -235,7 +247,16 @@ void SaveScreenshotToRemoteMemory(IDlgMsgWin* pDialog, BUILayout* pLayout, const
                         }
                         case DcfUseDirectory:
                         if (query.mInfo.ecl < clusters) {
-                            pMessage = GetPhotoSpaceMessage(clusters, query.mInfo, messageBuffer);
+                            {
+                                int blocks = ((clusters) * (query.mInfo.bps * query.mInfo.spc) + 0x1ffff) >> 17;
+                                if (blocks == 1) {
+                                    pMessage = GetMessageString(393481, nullptr);
+                                } else {
+                                    std::wstring message = FormatMessage(GetMessageString(393482, nullptr), blocks);
+                                    CopyPhotoText(messageBuffer, message.c_str(), 256);
+                                    pMessage = messageBuffer;
+                                }
+                            }
                             {
                                 for (int frame = 60; frame > 0; --frame) {
                                     YieldFiber();
@@ -351,7 +372,7 @@ void SaveScreenshotToRemoteMemory(IDlgMsgWin* pDialog, BUILayout* pLayout, const
                     }
                 } while (false);
                 finishPhotoWrite:
-                FASync(drive.drive, 0);
+                FAUnmount(drive.drive, 0);
                 discon.reset();
                 YieldFiber();
             } while (false);

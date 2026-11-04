@@ -12,7 +12,12 @@ struct DescParams;
 typedef CPpuRegister DescParamTable;
 
 struct StageDesc {
+#if defined(CGAMESESSION_EMISSION_LAYOUT)
+    StageDesc();
+    ~StageDesc();
+#else
     StageDesc() {}
+#endif
     void Init(MapIndex index);
 
     MapIndex mIndex;

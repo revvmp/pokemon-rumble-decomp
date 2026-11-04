@@ -11,7 +11,7 @@ struct PaneRectangle {
     f32 GetWidth() const { return right - left; }
     f32 GetHeight() const { return top - bottom; }
 };
-PaneRectangle GetPaneRectangle(const nw4r::lyt::Pane* pPane);
+PaneRectangle GetPaneRectangle(nw4r::lyt::Pane* pPane);
 void SetPaneRectangle(nw4r::lyt::Pane* pPane, const PaneRectangle& rRectangle);
 PaneRectangle UnionRectangles(const PaneRectangle& rLeft, const PaneRectangle& rRight);
 }

@@ -976,10 +976,10 @@ def generate_build_ninja(
             compile_sources = [src_path]
             compile_sources.extend(Path(obj.options["src_dir"]) / name for name in partial_sources)
             compile_outputs = []
-            for compile_source in compile_sources:
+            for source_index, compile_source in enumerate(compile_sources):
                 compile_output = obj.src_obj_path
                 if partial_sources:
-                    compile_output = obj.src_obj_path.with_suffix("") / compile_source.with_suffix(".o").name
+                    compile_output = obj.src_obj_path.with_suffix("") / str(source_index) / compile_source.with_suffix(".o").name
                 compile_variables = dict(variables)
                 compile_variables["basedir"] = os.path.dirname(compile_output)
                 compile_variables["basefile"] = compile_output.with_suffix("")

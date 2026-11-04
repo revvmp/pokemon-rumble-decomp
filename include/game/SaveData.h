@@ -140,6 +140,24 @@ public:
     static VectorStructType sVectorTypes[1];
 };
 
+#if defined(CGAMESESSION_EMISSION_LAYOUT)
+typedef std::__vec_deleter<SD_PiiPersonalData::Data, std::allocator<SD_PiiPersonalData::Data> > SnapshotCleanup0;
+typedef std::__vec_deleter<SD_StatisticValue::Data, std::allocator<SD_StatisticValue::Data> > SnapshotCleanup1;
+typedef std::__vec_deleter<SD_StatisticValue, std::allocator<SD_StatisticValue> > SnapshotCleanup2;
+typedef std::__vec_deleter<SD_BattleRoyalData, std::allocator<SD_BattleRoyalData> > SnapshotCleanup3;
+typedef std::__vec_deleter<SD_PiiCollectionData, std::allocator<SD_PiiCollectionData> > SnapshotCleanup4;
+typedef std::__vec_deleter<SD_PiiPersonalData, std::allocator<SD_PiiPersonalData> > SnapshotCleanup5;
+typedef std::__vec_deleter<SD_PiiCollectionData::Data, std::allocator<SD_PiiCollectionData::Data> > SnapshotCleanup6;
+
+typedef std::__vec_split_buffer<SD_PiiPersonalData::Data, std::allocator<SD_PiiPersonalData::Data> > SnapshotSplit0;
+typedef std::__vec_split_buffer<SD_StatisticValue::Data, std::allocator<SD_StatisticValue::Data> > SnapshotSplit1;
+typedef std::__vec_split_buffer<SD_StatisticValue, std::allocator<SD_StatisticValue> > SnapshotSplit2;
+typedef std::__vec_split_buffer<SD_BattleRoyalData, std::allocator<SD_BattleRoyalData> > SnapshotSplit3;
+typedef std::__vec_split_buffer<SD_PiiCollectionData, std::allocator<SD_PiiCollectionData> > SnapshotSplit4;
+typedef std::__vec_split_buffer<SD_PiiPersonalData, std::allocator<SD_PiiPersonalData> > SnapshotSplit5;
+typedef std::__vec_split_buffer<SD_PiiCollectionData::Data, std::allocator<SD_PiiCollectionData::Data> > SnapshotSplit6;
+#endif
+
 class UsedPassword : public VectorStructs {
 public:
     struct Data {

@@ -146,3 +146,11 @@ Reproducible outside artifacts are retained under `C:/MassStorage/GitHub/141-ref
 ## 2026-11-04 scalar snapshot controls
 
 A private scalar packed-index constructor can load the map descriptor before the vptr store, but does not close Create. Reinterpreting the scalar as MapIndex or using a union introduces a stack copy and enlarges the frame; explicit sign-extraction arithmetic avoids that copy but changes extract/vptr scheduling and register choice. Rotation-and-mask extraction reproduces the bitfield instruction selection but does not restore the scheduling. Scalar/reference and 64-bit coercion variants were discarded. Main source and its private header remain unchanged.
+
+## 2026-11-04 restrict and include-order closure
+
+The remaining Create instruction mismatch is solved with `MapDesc* __restrict pMapDesc` on the factory definition. Isolated controls prove the qualifier on the constructor or GetMoneyLifeDisplayMode helper alone has no effect; the factory's pointer alias contract permits the map-index load before the newly allocated object's vptr store. The constructor, helper, public header, and all algorithmic code remain unchanged. The factory neither writes through pMapDesc nor creates an alias to it through the newly allocated display, so the qualifier expresses the observed disjointness. This is recorded as a D-0016 source aliasing adaptation because original qualifier spelling is not established.
+
+Adding `<memory>` as the first include fixes the remaining 85 data bytes: ICalcDraw RTTI and the common shared-owner control block now appear in the original order. Scratch `tools/local/session/money-tail/includememory.o` has all 13 functions at 100%, exact original function order, and every non-relocation .data byte exact. This supersedes the negative constructor/scalar controls above; those controls did not give the factory pointer a restrict qualifier. Full Matching link and frozen verification are pending.
+
+The parent agent's fresh full ninja build with CMoneyLifeDisplay configured Matching exited 0, and the frozen full-DOL verifier passed. This accepts all 13 functions and the complete source-linked data/exception layout. No expected hashes were modified.

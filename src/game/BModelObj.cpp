@@ -301,6 +301,7 @@ inline void BModelObj::CalcExtent(const nw4r::math::AABB& box, int mode, nw4r::m
     f32 minX = fabs(box.min.x);
     maxX = (minX < maxX) ? maxX : minX;
     f32 extentX = mScale.x * maxX;
+    extentX = static_cast<f32>(extentX);
     f32 maxZ = fabs(box.max.z);
     f32 minZ = fabs(box.min.z);
     maxZ = (minZ < maxZ) ? maxZ : minZ;
@@ -312,7 +313,7 @@ inline void BModelObj::CalcExtent(const nw4r::math::AABB& box, int mode, nw4r::m
     }
 }
 
-nw4r::math::VEC3 BModelObj::CalcSize(int mode) const {
+nw4r::math::VEC3 BModelObj::CalcSize(int mode) {
     if (!mModel) {
         return nw4r::math::VEC3(0.0f, 0.0f, 0.0f);
     }
@@ -350,7 +351,7 @@ nw4r::math::VEC3 BModelObj::CalcSize(int mode) const {
         }
         CalcExtent(bounds, mode, size);
         if (0.0f < bounds.max.y) {
-            size.y = bounds.max.y * mScale.y * 0.5f;
+            size.y = (bounds.max.y * mScale.y) / 2.0f;
         } else {
             size.y = 0.0f;
         }

@@ -15,7 +15,11 @@ public:
     explicit shared_ptr_deleter(T* pObject) : mStorage(pObject) {}
     shared_ptr_deleter(T* pObject, const D& rDeleter) : mStorage(pObject, rDeleter) {}
     virtual const void* get_deleter(const type_info& rType) const {
+#if defined(SAVEDATA_EMISSION_LAYOUT)
+        return rType == SaveDataEmission::DeleterTypeInfo<D>::Get() ? &mStorage.second() : nullptr;
+#else
         return rType == typeid(D) ? &mStorage.second() : nullptr;
+#endif
     }
     virtual void dispose() { mStorage.second()(mStorage.first()); }
 

@@ -1,4 +1,16 @@
 #define SAVEDATA_EMISSION_LAYOUT
+#include <typeinfo>
+namespace SaveDataEmission {
+extern "C" const std::type_info __RTTI__PFPv_v;
+template <typename T> struct FreeDeleterType { static void Free(void*) throw(); };
+template <typename T> const std::type_info& EmitFreeDeleterTypeInfo() { return typeid(&FreeDeleterType<T>::Free); }
+template <typename D> struct DeleterTypeInfo {
+    static const std::type_info& Get() { return typeid(D); }
+};
+template <> struct DeleterTypeInfo<void (*)(void*) throw()> {
+    static const std::type_info& Get() { return __RTTI__PFPv_v; }
+};
+}
 class SD_PiiPersonalData;
 class SD_PiiCollectionData;
 class SD_BattleRoyalData;
@@ -61,6 +73,7 @@ template <typename T> inline void ConstructSaveVector(std::__vec_deleter<T, std:
 }
 
 template <typename T> inline void CopySaveVector(std::__vec_deleter<T, std::allocator<T> >& rVector, const T* first, const T* last) {
+    const std::type_info& (*unusedTypeInfoEmitter)() = &SaveDataEmission::EmitFreeDeleterTypeInfo<T>;
     unsigned long count = last - first;
     if (count != 0) {
         AllocateSaveVector(rVector, count);

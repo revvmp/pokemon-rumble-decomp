@@ -1,3 +1,4 @@
+#define GAME_DLGPIISELECTOR_RANGE_TAG_REFERENCE
 #include <game/IDlgPiiSelector.h>
 
 #include <game/ButtonMessage.h>
@@ -46,6 +47,36 @@
 u32 GetPokemonVoiceId(u16 species, u16 form);
 
 #pragma dont_inline on
+typedef std::tr1::shared_ptr<CPiiPersonalData> SelectorPersonalPtr;
+typedef std::list<SelectorPersonalPtr>::const_iterator SelectorPersonalIterator;
+
+namespace std {
+template <> template <>
+void vector<SelectorPersonalPtr>::assign<SelectorPersonalIterator>(SelectorPersonalIterator first, SelectorPersonalIterator last, void*) {
+    Metrowerks::int2type<0> copyTag;
+    Metrowerks::int2type<0> sourceTag;
+    *reinterpret_cast<volatile unsigned char*>(&copyTag) = *reinterpret_cast<volatile unsigned char*>(&sourceTag);
+    base::assign_dispatch(first, last, copyTag);
+}
+
+template <> template <>
+void vector<SelectorPersonalPtr>::insert<SelectorPersonalIterator>(iterator pos, SelectorPersonalIterator first, SelectorPersonalIterator last, void*) {
+    Metrowerks::int2type<0> copyTag;
+    Metrowerks::int2type<0> sourceTag;
+    base::insert_dispatch(pos, first, last,
+        *reinterpret_cast<Metrowerks::int2type<0>*>(const_cast<unsigned char*>(
+            &(*reinterpret_cast<volatile unsigned char*>(&copyTag) =
+                *reinterpret_cast<volatile unsigned char*>(&sourceTag)))));
+}
+}
+
+static const int& SelectorMinimum(const int& a, const int& b);
+
+template <>
+int Clamp<int>(int value, int low, int high) {
+    return SelectorMinimum(std::max(low, value), high);
+}
+
 
 namespace {
 

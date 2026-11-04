@@ -22,7 +22,17 @@ The stack corrections require grouping clear/deallocate/allocate in one inline h
 
 The register trace for the all-slots-correct variant (`ra.txt`) assigns the capacity result virtual r65, degree 37, after the first throw locals; it takes r25. The correct-register variant (`ra-rightregs.txt`) creates it as virtual r74, degree 37, before those locals, and it takes r26. This is creation-order interference, not a remaining instruction mismatch. A pointer-to-member initializer can force implicit assignment generation under a scoped optimization pragma; `opt_dead_assignments off` then takes effect but lowers comparison to 84.2818% through extra instructions. A pragma merely around the struct declaration had no effect.
 
-These source-local unsigned-short specializations also disturb previously exact short-vector helpers. Even an exact assignment would need those consumers restored or a narrower instantiation scope before adoption. Main retains only the accepted prefix-increment change; no copy/assignment fake is accepted.
+These source-local unsigned-short specializations also disturb previously exact short-vector helpers. Even an exact assignment would need those consumers restored or a narrower instantiation scope before adoption. At this diagnostic checkpoint main retained only the accepted prefix-increment change. The subsequent completed assignment correction is recorded below.
+
+## Completed assignment correction
+
+The final source-local variant reproduces all 2,044 bytes of the implicit SpeciesMoves assignment. The key remaining stack fix is to replace both max-expression temporaries with three separate named locals declared in this order: first growth amount, second growth amount, requested count. Declaring count first had placed its four-byte slot below the expression slots; moving it last restores the exact offsets without adding the extra inline level that changed the capacity result's virtual-register priority.
+
+The retained PiiPropData.cpp specializations copy the existing unsigned-short storage recommendation and pointer-range assignment algorithms. An explicit initialized empty tag accounts for the missing native byte store; grouping clear/deallocation/allocation and the allocation error throw preserves the observed inline-depth slot order. A separate helper used only by the specialized assignment keeps the generic allocator unchanged. This last isolation restores the previously exact short-vector reserve function, which a global allocator specialization had moved to 99.681816%.
+
+After formatting and removing an unnecessary max helper, `retained-assign.json` reports the assignment at 100%, with zero losses to every previously exact function. Only the pre-existing constructor (95.778625%) and Reset (96.36191%) remain nonmatching. This is D-0016 source-match progress; the unit remains NonMatching and has not been accepted as source-linked. No shared header, symbol, or build-selector edit is part of this correction. The specialization retains the original algorithms and allocation/error behavior; the extra empty tag, local ordering and helper grouping are documented compiler-shaping fakes.
+
+Ignored evidence is `tools/local/session/prop-61-compile/retained-assign.cpp` and `retained-assign.json`. The discriminating sweep is `prop-61-namedtemps.py`; source-local isolation is `prop-61-isolatealloc.py`.
 
 ## Traps
 

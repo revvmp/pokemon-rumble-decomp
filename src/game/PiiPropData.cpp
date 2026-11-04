@@ -2,6 +2,76 @@
 #include <algorithm>
 #include <functional>
 
+namespace std {
+
+inline void ThrowShortVectorLengthError() {
+    __vector_common<true>::throw_length_error();
+}
+
+inline void InitializeShortVectorTag(Metrowerks::int2type<1>) {}
+
+template <> inline __vec_deleter<u16, allocator<u16> >::size_type
+__vec_deleter<u16, allocator<u16> >::recommend(size_type n) {
+    InitializeShortVectorTag(pod_type());
+    size_type firstGrowth;
+    size_type secondGrowth;
+    size_type requestedGrowth = n;
+    size_type maxSize = this->max_size();
+    size_type capacity = this->cap();
+    if (n > maxSize - capacity) {
+        this->throw_length_error();
+    }
+    size_type third = maxSize / 3;
+    if (capacity < third) {
+        firstGrowth = (capacity + 1) * 3 / 5;
+        return capacity + max(firstGrowth, requestedGrowth);
+    }
+    if (capacity < third * 2) {
+        secondGrowth = (capacity + 1) / 2;
+        return capacity + max(secondGrowth, requestedGrowth);
+    }
+    return maxSize;
+}
+
+inline void AllocateShortVectorStorage(__vec_deleter<u16, allocator<u16> >* pStorage,
+                                      unsigned long n, Metrowerks::int2type<true>) {
+    if (n > pStorage->max_size()) {
+        ThrowShortVectorLengthError();
+    }
+    pStorage->data_ = pStorage->alloc().allocate(n, 0);
+    pStorage->cap() = n;
+}
+
+inline void AllocateShortVectorStorage(__vec_deleter<u16, allocator<u16> >* pStorage,
+                                      unsigned long n) {
+    AllocateShortVectorStorage(pStorage, n, Metrowerks::int2type<true>());
+}
+
+inline void PrepareShortVectorStorage(__vec_deleter<u16, allocator<u16> >* pStorage,
+                                     unsigned long capacity) {
+    pStorage->clear();
+    if (pStorage->data_) {
+        pStorage->alloc().deallocate(pStorage->data_, pStorage->cap());
+        pStorage->data_ = nullptr;
+        pStorage->cap() = 0;
+    }
+    AllocateShortVectorStorage(pStorage, capacity);
+}
+
+template <> template <> inline void
+__vec_constructor<u16, allocator<u16>, false>::assign<const u16*>(
+    const u16* first, const u16* last, Metrowerks::int2type<true>) {
+    size_type n = std::distance(first, last);
+    if (n > this->cap()) {
+        size_type capacity = recommend(n - this->cap());
+        PrepareShortVectorStorage(this, capacity);
+    }
+    copy_assign(first, last, this->data_);
+    this->size_ = n;
+}
+
+}
+
 static int GetPropertyRow(int monsno, int form) {
     switch (monsno) {
     case 386:

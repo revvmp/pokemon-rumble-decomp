@@ -60,3 +60,7 @@ Setup's two-argument inline sum helpers, across scalar widths, argument order, a
 ## Traps
 
 - **A scheduling fake that fixes one byte-reading loop need not help another.** Selective volatile qualification solved the FA validator but leaves these TMC loops unchanged or worse. Keep the search bounded and retain no merely higher fuzzy score when the source construct is artificial.
+
+## F-764-7: additional setup-only controls
+
+The setup functions remain unchanged. The RGBA8 setup's one swapped `add` source pair at offset `0xD0` survives 467 additional source controls: 112 pointer/output-parameter/struct sum helpers, 120 unused-argument identity helpers, 64 intermediate destination stores and typed locals, 75 dependent neutral or conditional expressions, and 96 compiler rotate/mask forms. None exceeds the existing 99.830505% match. Candidate functions compile through the unchanged Wii/1.0 command, and actual object comparisons exclude failed compilations. The RGB565 setup has the same source alignment expressions and same remaining instruction discrepancy; no gain is claimed for either unit. Scratch evidence is under `tools/local/session/764-setup-vm`, with its `764-setup-*` driver scripts. No tracked source, header, flag, symbol, or selector change is retained.

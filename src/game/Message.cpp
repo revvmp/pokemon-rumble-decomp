@@ -4,6 +4,20 @@
 #include <wchar.h>
 #include <MSL_C/locale.h>
 
+namespace std {
+template <> inline
+__vec_constructor<tr1::shared_ptr<CMsgRes>, allocator<tr1::shared_ptr<CMsgRes> >, false>::__vec_constructor(size_type n) {
+    if (n != 0) {
+        pod_type constructTag;
+        pod_type allocateTag;
+        *reinterpret_cast<volatile unsigned char*>(&allocateTag) = 0;
+        allocate(n, allocateTag);
+        *reinterpret_cast<volatile unsigned char*>(&constructTag) = 0;
+        base::construct_at_end(n, constructTag);
+    }
+}
+}
+
 static std::tr1::shared_ptr<std::vector<std::tr1::shared_ptr<CMsgRes> > > sMsgResList;
 
 void InitMsgResList(u32 num) {

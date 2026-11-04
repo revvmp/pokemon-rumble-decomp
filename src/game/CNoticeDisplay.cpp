@@ -1,3 +1,6 @@
+#define CNOTICE_EMISSION_LAYOUT 1
+
+#include <string>
 #include <game/CNoticeDisplay.h>
 
 #include <functional>
@@ -21,7 +24,22 @@
 #include <math.h>
 #include <nw4r/lyt/lyt_material.h>
 #include <nw4r/lyt/lyt_textBox.h>
-#include <string>
+
+namespace {
+class BNoticeDisplayImpl;
+}
+namespace std { namespace tr1 {
+template<> BNoticeDisplayImpl* shared_ptr<BNoticeDisplayImpl>::operator->() const;
+}}
+
+namespace std { namespace tr1 {
+template<typename T> inline T* shared_ptr<T>::operator->() const {
+    return ptr_;
+}
+}}
+namespace NoticeMath {
+extern "C" __attribute__((nothrow)) double ceil(double);
+}
 
 IUIInput* GetUIInput();
 bool IsStage7EvenMap(MapIndex index);
@@ -64,8 +82,11 @@ void WaitMotionStart(std::tr1::shared_ptr<CLayout::CMotionProgram> pMotion) {
     WaitMotion(pMotion, false);
 }
 
-extern const char* gAreaPaneNames[9];
+extern "C" const char* gAreaPaneNames[9] = {
+    "AREA_nw", "AREA_n", "AREA_ne", "AREA_w", "AREA_c", "AREA_e", "AREA_sw", "AREA_s", "AREA_se",
+};
 
+namespace AreaPaneSymbols { extern "C" const char* gAreaPaneNames[]; }
 namespace {
 
 class BNoticeDisplayImpl : public ICalcDraw {
@@ -85,16 +106,15 @@ protected:
 
 class CLose : public BNoticeDisplayImpl {
 public:
-    CLose(int type);
-    virtual ~CLose() {}
+    inline CLose(int type);
     virtual int GetNoticeType() const { return mType; }
     virtual void Close() { mState = 1; }
 
-    bool Init();
+    inline bool Init();
 
 private:
-    bool StartNotice();
-    void Run();
+    inline bool StartNotice();
+    inline void Run();
 
     int mState;
     int mType;
@@ -102,16 +122,15 @@ private:
 
 class CFight : public BNoticeDisplayImpl {
 public:
-    CFight(int type);
-    virtual ~CFight() {}
+    inline CFight(int type);
     virtual int GetNoticeType() const { return mType; }
     virtual void Close() {}
 
-    bool Init();
+    inline bool Init();
 
 private:
-    bool StartNotice();
-    void Run();
+    inline bool StartNotice();
+    inline void Run();
 
     int mType;
 };
@@ -123,7 +142,7 @@ public:
     virtual int GetNoticeType() const { return mType; }
 
 protected:
-    bool LoadLayouts();
+    inline bool LoadLayouts();
 
     int mType;
     CLayout mSubLayout;
@@ -132,8 +151,8 @@ protected:
 
 class CSimpleText : public BOther {
 public:
-    CSimpleText(int type);
-    virtual ~CSimpleText() {}
+    inline CSimpleText(int type);
+    virtual void Close() { mCloseRequested = 1; }
     virtual void Calc() {
         BNoticeDisplayImpl::Calc();
         mFrameCount++;
@@ -142,14 +161,14 @@ public:
             mPauseReleased = true;
         }
     }
-    virtual void Close() { mCloseRequested = 1; }
 
-    bool Init();
+
+    inline bool Init();
 
 private:
     bool SetupLayouts();
-    bool StartNotice();
-    void Run();
+    inline bool StartNotice();
+    inline void Run();
 
     int mCloseRequested;
     int mAutoCloseFrames;
@@ -159,25 +178,26 @@ private:
 
 class CYouWin : public BOther {
 public:
-    CYouWin(int type, int winner, f32 winnerParam);
-    virtual ~CYouWin() {}
-    virtual void Draw() {
-        BNoticeDisplayImpl::Draw();
-        mResultLayout.Draw();
-        mWinnerLayout.Draw();
-    }
+    inline CYouWin(int type, int winner, f32 winnerParam);
+    virtual void Close() {}
     virtual void Calc() {
         BNoticeDisplayImpl::Calc();
         mResultLayout.Calc();
         mWinnerLayout.Calc();
     }
-    virtual void Close() {}
+    virtual void Draw() {
+        BNoticeDisplayImpl::Draw();
+        mResultLayout.Draw();
+        mWinnerLayout.Draw();
+    }
 
-    bool Init();
+
+
+    inline bool Init();
 
 private:
-    bool StartNotice();
-    void Run();
+    inline bool StartNotice();
+    inline void Run();
 
     int mWinner;
     f32 mWinnerParam;
@@ -188,13 +208,12 @@ private:
 class CNoticeDisplay : public INoticeDisplay {
 public:
     CNoticeDisplay() : mWinner(0), mWinnerParam(0.0f) {}
-    virtual ~CNoticeDisplay() {}
     virtual void Calc();
     virtual void CalcMtx();
     virtual void CalcView();
     virtual void Draw();
     virtual bool IsShown() const { return mpImpl.get() != nullptr; }
-    virtual void Show(int type);
+    virtual inline void Show(int type);
     virtual void Close();
     virtual void AddEnemy(const PiiSpeciesData*, int);
     virtual void SetWinner(int winner);
@@ -208,6 +227,7 @@ private:
 };
 
 }
+
 
 std::tr1::shared_ptr<INoticeDisplay> CreateNoticeDisplay(int) {
     std::tr1::shared_ptr<CNoticeDisplay> pDisplay(new CNoticeDisplay);
@@ -225,6 +245,14 @@ void CNoticeDisplay::Draw() {
 void BNoticeDisplayImpl::Draw() {
     mLayout.Draw();
 }
+}
+namespace std { namespace tr1 {
+template<> BNoticeDisplayImpl* shared_ptr<BNoticeDisplayImpl>::operator->() const {
+    return ptr_;
+}
+}}
+namespace {
+
 
 
 void CNoticeDisplay::CalcView() {
@@ -282,7 +310,7 @@ void CNoticeDisplay::Close() {
 
 
 #pragma dont_inline on
-void CNoticeDisplay::Show(int type) {
+inline void CNoticeDisplay::Show(int type) {
     const MapDesc& rDesc = GetCurrentGameMap()->GetMapDesc();
     if (type == 0) {
         MapIndex index = rDesc.mIndex;
@@ -364,7 +392,7 @@ void CNoticeDisplay::Show(int type) {
 
 #pragma dont_inline reset
 
-CSimpleText::CSimpleText(int type)
+inline CSimpleText::CSimpleText(int type)
     : BOther(type), mCloseRequested(0), mAutoCloseFrames(-1), mFrameCount(0), mPauseReleased(false) {}
 
 inline bool BOther::LoadLayouts() {
@@ -393,8 +421,8 @@ inline bool BOther::LoadLayouts() {
     *pDstMap = *pSrcMap;
 
     for (int i = 0; i < 9; i++) {
-        nw4r::lyt::Pane* pSrcPane = mSubLayout.FindPane(gAreaPaneNames[i]);
-        nw4r::lyt::Pane* pDstPane = mLayout.FindPane(gAreaPaneNames[i]);
+        nw4r::lyt::Pane* pSrcPane = mSubLayout.FindPane(AreaPaneSymbols::gAreaPaneNames[i]);
+        nw4r::lyt::Pane* pDstPane = mLayout.FindPane(AreaPaneSymbols::gAreaPaneNames[i]);
         if (pSrcPane != nullptr && pDstPane != nullptr) {
             nw4r::lyt::TextBox* pSrcText = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(pSrcPane);
             nw4r::lyt::TextBox* pDstText = nw4r::ut::DynamicCast<nw4r::lyt::TextBox*>(pDstPane);
@@ -439,20 +467,13 @@ inline bool CSimpleText::SetupLayouts() {
     return true;
 }
 
-inline bool CSimpleText::StartNotice() {
-    if (!SetupLayouts()) {
-        return false;
-    }
 
-    mFiber.Start(std::tr1::bind(&CSimpleText::Run, this), 0x8000);
-    return true;
-}
 
-bool CSimpleText::Init() {
+inline bool CSimpleText::Init() {
     return StartNotice();
 }
 
-void CSimpleText::Run() {
+inline void CSimpleText::Run() {
     mLayout.CreateMotion("begin");
     mLayout.QueueMotion("normal");
     std::tr1::shared_ptr<CLayout::CMotionProgram> pMotion = mLayout.AppendMotion("end");
@@ -484,25 +505,15 @@ void CSimpleText::Run() {
     }
 }
 
-CFight::CFight(int type) : mType(type) {}
+inline CFight::CFight(int type) : mType(type) {}
 
-bool CFight::Init() {
+inline bool CFight::Init() {
     return StartNotice();
 }
 
-inline bool CFight::StartNotice() {
-    void* pEntry;
-    std::tr1::shared_ptr<FileList> pFiles = LoadFileList(&pEntry, "event/br_count.arc/event2d.arc", 0, false, nullptr);
-    const MapDesc& rDesc = GetCurrentGameMap()->GetMapDesc();
-    std::tr1::shared_ptr<CLayout::FontMap> pFonts = GetDefaultFontMap();
-    mLayout.Load(static_cast<const char* const*>(pEntry), "beginning_count", pFonts, false);
-    mLayout.SetText("AREA", GetMessageString(gStageWorlds[rDesc.mIndex.mStage].mMessageID, nullptr));
-    mLayout.SetText("GRADE", FormatAreaName(rDesc.mIndex).c_str());
-    mFiber.Start(std::tr1::bind(&CFight::Run, this), 0x8000);
-    return true;
-}
 
-void CFight::Run() {
+
+inline void CFight::Run() {
     std::tr1::shared_ptr<CLayout::CMotionProgram> pBegin = mLayout.CreateMotion("begin");
     std::tr1::shared_ptr<CLayout::CMotionProgram> pThree = mLayout.AppendMotion("3");
     std::tr1::shared_ptr<CLayout::CMotionProgram> pTwo = mLayout.AppendMotion("2");
@@ -521,20 +532,15 @@ void CFight::Run() {
     pEnd->Wait();
 }
 
-CLose::CLose(int type) : mState(0), mType(type) {}
+inline CLose::CLose(int type) : mState(0), mType(type) {}
 
-bool CLose::Init() {
+inline bool CLose::Init() {
     return StartNotice();
 }
 
-inline bool CLose::StartNotice() {
-    std::tr1::shared_ptr<CLayout::FontMap> pFonts = GetDefaultFontMap();
-    mLayout.Load(gSharedLayoutArchives, mType == 9 ? "timeup" : "lose", pFonts, false);
-    mFiber.Start(std::tr1::bind(&CLose::Run, this), 0x8000);
-    return true;
-}
 
-void CLose::Run() {
+
+inline void CLose::Run() {
     mLayout.CreateMotion("begin");
     mLayout.QueueMotion("normal");
     std::tr1::shared_ptr<CLayout::CMotionProgram> pMotion = mLayout.AppendMotion("end");
@@ -555,80 +561,15 @@ void CLose::Run() {
     IGameSession::GetInstance()->SetFade(1, 0);
 }
 
-CYouWin::CYouWin(int type, int winner, f32 winnerParam) : BOther(type), mWinner(winner), mWinnerParam(winnerParam) {}
+inline CYouWin::CYouWin(int type, int winner, f32 winnerParam) : BOther(type), mWinner(winner), mWinnerParam(winnerParam) {}
 
-bool CYouWin::Init() {
+inline bool CYouWin::Init() {
     return StartNotice();
 }
 
-inline bool CYouWin::StartNotice() {
-    void* pEntry;
-    int minutes;
-    int seconds;
-    int hundredths;
-    if (!LoadLayouts()) {
-        return false;
-    }
 
-    std::tr1::shared_ptr<CLayout::FontMap> pFonts = GetDefaultFontMap();
-    std::tr1::shared_ptr<FileList> pFiles = LoadFileList(&pEntry, "event/br_end.arc/event2d.arc", 0, false, nullptr);
-    mWinnerLayout.Load(static_cast<const char* const*>(pEntry), "clear_time", pFonts, false);
 
-    std::wstring clearTime;
-    int total = static_cast<int>(ceilf(mWinnerParam * 100.0f));
-    minutes = total / 100 / 60;
-    seconds = total / 100 % 60;
-    hundredths = total % 100;
-    {
-        typedef NIntl::basic_formatter<wchar_t> Formatter;
-        Formatter formatter(GetMessageString(0x600E4, nullptr));
-        formatter % Formatter::format_spec(L"%d") % minutes;
-        formatter % Formatter::format_spec(L"%02d") % seconds;
-        formatter % Formatter::format_spec(L"%02d") % hundredths;
-        clearTime = formatter.str().c_str();
-    }
-
-    mWinnerLayout.SetText("CLEARTIME", GetMessageString(0x600E3, nullptr));
-    mWinnerLayout.SetText("TIME", clearTime.c_str());
-    mWinnerLayout.SetText("TIME_SHADOW", clearTime.c_str());
-    mWinnerLayout.SetText("NEWRECORD", GetMessageString(0x600E5, nullptr));
-
-    const MapDesc& rDesc = GetCurrentGameMap()->GetMapDesc();
-    bool eligible;
-    int mode = rDesc.mIndex.mMode;
-    int area = rDesc.mIndex.mArea;
-    if (mode == 2) {
-        area = GetSaveData(-1)->mData.mExtraBRCurrentRound;
-    }
-    bool newRecord = false;
-    eligible = true;
-    if (mode == 2) {
-        MapIndex index = rDesc.mIndex;
-        if (IsBattleRoyalFirstPart(index)) {
-            eligible = false;
-        }
-    }
-    if (eligible) {
-        std::tr1::shared_ptr<CBattleRoyalData> pData = IGameSession::GetInstance()->GetBattleRoyalBox()->GetData(mode, area);
-        newRecord = pData->UpdateBestTime(mWinnerParam);
-    }
-    mWinnerLayout.SetPaneVisible("NEWRECORD", newRecord);
-
-    mResultLayout.Load(static_cast<const char* const*>(pEntry), "prize", pFonts, false);
-    mResultLayout.SetText("PRIZE", GetMessageString(0x600E6, nullptr));
-    mResultLayout.SetText("MONEY", L"");
-    mResultLayout.SetText("MONEY_SHADOW", L"");
-
-    mLayout.SetPaneVisible("AREA", true);
-    mLayout.SetPaneVisible("STAGE", true);
-    mLayout.SetPaneVisible("YOUWIN", true);
-    mWinnerLayout.SetVisible(false);
-    mResultLayout.SetVisible(false);
-    mFiber.Start(std::tr1::bind(&CYouWin::Run, this), 0x8000);
-    return true;
-}
-
-void CYouWin::Run() {
+inline void CYouWin::Run() {
     mLayout.CreateMotion("begin", "MISC", 0.0f, 1.0f);
     mLayout.CreateMotion("begin", "TEXT", 0.0f, 1.0f);
     mLayout.QueueMotion("normal", "MISC", 0.0f, 1.0f);
@@ -698,7 +639,7 @@ void CYouWin::Run() {
     }
 
     IGameSession::GetInstance()->SetFade(1, -1);
-    mLayout.CreateMotion("end", "TEXT", 0.0f, 1.0f)->Wait();
+    mLayout.CreateMotion("end", "MISC", 0.0f, 1.0f)->Wait();
     while (IGameSession::GetInstance()->GetFadeFrames()) {
         YieldFiber();
     }
@@ -706,6 +647,105 @@ void CYouWin::Run() {
 
 }
 
-const char* gAreaPaneNames[9] = {
-    "AREA_nw", "AREA_n", "AREA_ne", "AREA_w", "AREA_c", "AREA_e", "AREA_sw", "AREA_s", "AREA_se",
-};
+
+namespace std { namespace tr1 {
+template<typename T> template<typename Y>
+shared_ptr<T>& shared_ptr<T>::operator=(const shared_ptr<Y>& r) {
+    shared_ptr(r).swap(*this);
+    return *this;
+}
+}}
+
+namespace {
+inline bool CLose::StartNotice() {
+    std::tr1::shared_ptr<CLayout::FontMap> pFonts = GetDefaultFontMap();
+    mLayout.Load(gSharedLayoutArchives, mType == 9 ? "timeup" : "lose", pFonts, false);
+    mFiber.Start(std::tr1::bind(&CLose::Run, this), 0x8000);
+    return true;
+}
+inline bool CFight::StartNotice() {
+    void* pEntry;
+    std::tr1::shared_ptr<FileList> pFiles = LoadFileList(&pEntry, "event/br_count.arc/event2d.arc", 0, false, nullptr);
+    const MapDesc& rDesc = GetCurrentGameMap()->GetMapDesc();
+    std::tr1::shared_ptr<CLayout::FontMap> pFonts = GetDefaultFontMap();
+    mLayout.Load(static_cast<const char* const*>(pEntry), "beginning_count", pFonts, false);
+    mLayout.SetText("AREA", GetMessageString(gStageWorlds[rDesc.mIndex.mStage].mMessageID, nullptr));
+    mLayout.SetText("GRADE", FormatAreaName(rDesc.mIndex).c_str());
+    mFiber.Start(std::tr1::bind(&CFight::Run, this), 0x8000);
+    return true;
+}
+inline bool CSimpleText::StartNotice() {
+    if (!SetupLayouts()) {
+        return false;
+    }
+
+    mFiber.Start(std::tr1::bind(&CSimpleText::Run, this), 0x8000);
+    return true;
+}
+inline bool CYouWin::StartNotice() {
+    void* pEntry;
+    int minutes;
+    int seconds;
+    int hundredths;
+    if (!LoadLayouts()) {
+        return false;
+    }
+
+    std::tr1::shared_ptr<CLayout::FontMap> pFonts = GetDefaultFontMap();
+    std::tr1::shared_ptr<FileList> pFiles = LoadFileList(&pEntry, "event/br_end.arc/event2d.arc", 0, false, nullptr);
+    mWinnerLayout.Load(static_cast<const char* const*>(pEntry), "clear_time", pFonts, false);
+
+    std::wstring clearTime;
+    int total = static_cast<int>(static_cast<float>(NoticeMath::ceil(mWinnerParam * 100.0f)));
+    minutes = total / 100 / 60;
+    seconds = total / 100 % 60;
+    hundredths = total % 100;
+    {
+        typedef NIntl::basic_formatter<wchar_t> Formatter;
+        Formatter formatter(GetMessageString(0x600E4, nullptr));
+        formatter % Formatter::format_spec(L"%d") % minutes;
+        formatter % Formatter::format_spec(L"%02d") % seconds;
+        formatter % Formatter::format_spec(L"%02d") % hundredths;
+        clearTime = formatter.str().c_str();
+    }
+
+    mWinnerLayout.SetText("CLEARTIME", GetMessageString(0x600E3, nullptr));
+    mWinnerLayout.SetText("TIME", clearTime.c_str());
+    mWinnerLayout.SetText("TIME_SHADOW", clearTime.c_str());
+    mWinnerLayout.SetText("NEWRECORD", GetMessageString(0x600E5, nullptr));
+
+    const MapDesc& rDesc = GetCurrentGameMap()->GetMapDesc();
+    bool eligible;
+    int mode = rDesc.mIndex.mMode;
+    int area = rDesc.mIndex.mArea;
+    if (mode == 2) {
+        area = GetSaveData(-1)->mData.mExtraBRCurrentRound;
+    }
+    bool newRecord = false;
+    eligible = true;
+    if (mode == 2) {
+        MapIndex index = rDesc.mIndex;
+        if (IsBattleRoyalFirstPart(index)) {
+            eligible = false;
+        }
+    }
+    if (eligible) {
+        std::tr1::shared_ptr<CBattleRoyalData> pData = IGameSession::GetInstance()->GetBattleRoyalBox()->GetData(mode, area);
+        newRecord = pData->UpdateBestTime(mWinnerParam);
+    }
+    mWinnerLayout.SetPaneVisible("NEWRECORD", newRecord);
+
+    mResultLayout.Load(static_cast<const char* const*>(pEntry), "prize", pFonts, false);
+    mResultLayout.SetText("PRIZE", GetMessageString(0x600E6, nullptr));
+    mResultLayout.SetText("MONEY", L"");
+    mResultLayout.SetText("MONEY_SHADOW", L"");
+
+    mLayout.SetPaneVisible("AREA", true);
+    mLayout.SetPaneVisible("STAGE", true);
+    mLayout.SetPaneVisible("YOUWIN", true);
+    mWinnerLayout.SetVisible(false);
+    mResultLayout.SetVisible(false);
+    mFiber.Start(std::tr1::bind(&CYouWin::Run, this), 0x8000);
+    return true;
+}
+}

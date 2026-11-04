@@ -121,6 +121,8 @@ Keep entries concise and actionable. Distinguish confirmed findings from hypothe
 
 - **Identical instructions can have different exception ranges.** ScriptWorldObj's declaration-only helper view kept every function exact but changed two exception-table bytes. Retaining original inline bodies for the main compiler's exception analysis, with strong typed source-fragment definitions controlling emission, restored the full SHA. See [acceptance](docs/re/findings/251-script-worldobj-tail.md).
 
+- **Identical destructor bodies can have swapped inferred names.** CGameSession, errmsg and CNoticeDisplay appeared to emit destructors in the wrong order. Original vtable relocations proved the names were assigned to the wrong addresses; fixing identities preserved natural source order and removed unnecessary fragment workarounds. Audit vtables before forcing destructor emission. See [CGameSession evidence](docs/re/findings/329-cgamesession-emission.md).
+
 ## Current project state
 
 | Current state | Value |

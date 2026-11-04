@@ -57,3 +57,17 @@ These source timing controls are intentional D-0016 reconstruction shims. They n
 The complete native source-link trial succeeds and differs from the frozen executable in only 166 data bytes. All function addresses, executable instructions, exception sections, section sizes and small-data bytes are exact. The remaining difference is a 28-byte retained function-pointer type-name string at 0x803B7C10; the target places it at 0x803B7CA4, after four basic_string diagnostic/exception strings. These strings are not live instruction-reference differences in the final image.
 
 Moving FormatWide's definition, deferring the generic get_deleter body, changing equivalent typeid operands, probing string methods from dead code, and method declaration pragmas did not change this data order. Explicit reserve instantiation moved its string before class RTTI instead and regressed three functions. These experiments are unretained; source-link acceptance remains open.
+
+## F-278-5: Scoped RTTI emission shim
+
+The final 166-byte discrepancy has a D-0016 source-only candidate. SaveDataEmission declares the existing C ABI object __RTTI__PFPv_v in its own namespace and uses that same metadata object for function-pointer deleter comparisons. Other deleter types retain normal typeid(D) behavior. This is a deliberate ABI reference, not a recovered original source declaration.
+
+CopySaveVector takes unused addresses of small template emitter functions. Each emitter returns the normal compiler-generated typeid of a throw() function pointer. Their deferred instantiation places the compiler's retained type-name string after the basic_string diagnostic block, at the required data offset 0x8C4. All 100 target functions and their complete order remain exact. The unreferenced eight-byte emitter functions must be dead-stripped from the final executable; they are not original game functions and are not counted as reconstruction gains.
+
+This shim is scoped by SAVEDATA_EMISSION_LAYOUT in shared_ptr_deleter.h. It does not construct RTTI bytes manually, substitute executable bytes, alter hashes, or change runtime comparison semantics. Direct compilation is recorded in ignored tools/local/session/278-ppu/rttiready.json; full native-link acceptance and helper removal remain mandatory.
+
+## Final acceptance
+
+The coordinator retained SaveData as Matching after a fresh native ninja build exited 0 and frozen main.dol verification passed. All 100 original functions now link from C++ together with their exact exception metadata, data and executable layout. Inspection of the accepted build/wpse-v1/main.elf with powerpc-eabi-nm found no EmitFreeDeleterTypeInfo or FreeDeleterType helper symbols: the emission probes are fully dead-stripped. Original hashes are unchanged.
+
+The scoped declaration-order controls and RTTI emission shim remain intentional D-0016 fake matches. Their acceptance proves byte-identical reconstruction; it does not establish that the original developers used these helper declarations or emission probes.

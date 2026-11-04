@@ -517,10 +517,18 @@ protected:
 
 
 public:
+#if defined(GAME_DLGPIISELECTOR_RANGE_TAG_REFERENCE)
+    template <typename Iterator> void assign_dispatch(Iterator first, Iterator last, const Metrowerks::int2type<0>&) {
+#else
     template <typename Iterator> void assign_dispatch(Iterator first, Iterator last, Metrowerks::int2type<0>) {
+#endif
         assign_range(first, last, std::forward_iterator_tag());
     }
+#if defined(GAME_DLGPIISELECTOR_RANGE_TAG_REFERENCE)
+    template <typename Iterator> void insert_dispatch(T* pos, Iterator first, Iterator last, const Metrowerks::int2type<0>&) {
+#else
     template <typename Iterator> void insert_dispatch(T* pos, Iterator first, Iterator last, Metrowerks::int2type<0>) {
+#endif
         insert_range(pos, first, last, std::forward_iterator_tag());
     }
 
@@ -873,7 +881,11 @@ public:
     vector& operator=(const vector& x) { base::operator=(x); return *this; }
 #endif
     template <typename Iterator> vector(Iterator first, Iterator last) : base(first, last) {}
+#if defined(CGAMESESSION_EMISSION_LAYOUT)
+    ~vector();
+#else
     ~vector() {}
+#endif
 
     void resize(size_type n) { base::resize(n); }
 

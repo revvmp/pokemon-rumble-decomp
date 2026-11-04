@@ -1,3 +1,5 @@
+#include <string>
+#include <game/ICalcDraw.h>
 #include <nw4r/lyt/lyt_textBox.h>
 #include <nw4r/ut/ut_RuntimeTypeInfo.h>
 
@@ -17,7 +19,6 @@
 
 #include <list>
 #include <memory>
-#include <string>
 
 namespace {
 
@@ -25,25 +26,24 @@ class CGameEnding : public IGameEnding {
 public:
     explicit CGameEnding(const MapDesc* pMapDesc) : mpMapDesc(pMapDesc), mState(STATE_IDLE), mLineCount(0) {}
     inline void Init(bool background);
-    inline virtual ~CGameEnding();
-    inline virtual void Calc();
-    inline void ScrollStaffRoll();
-    inline virtual void CalcMtx();
-    inline virtual void CalcView();
-    inline virtual void Draw();
-    inline virtual void RunAction();
-    virtual const MapDesc& GetMapDesc() const { return *mpMapDesc; }
-    virtual BWorld* GetWorld() const { return mpWorld.get(); }
-    virtual IPauseMenu* GetPauseMenu() { return mpPauseMenu.get(); }
     inline virtual void ShowCongratulations();
     inline virtual void StopCongratulations();
     inline virtual void ParseStaffRollText(const wchar_t* pText);
     inline virtual void StartStaffRoll();
-    inline virtual void HideStaffRoll();
     inline virtual bool IsStaffRollFinished();
+    inline virtual void HideStaffRoll();
     inline virtual void ShowNext();
     inline virtual void StopNext();
     inline virtual bool IsNextVisible();
+    virtual BWorld* GetWorld() const { return mpWorld.get(); }
+    virtual const MapDesc& GetMapDesc() const { return *mpMapDesc; }
+    virtual IPauseMenu* GetPauseMenu() { return mpPauseMenu.get(); }
+    inline virtual void Calc();
+    inline virtual void CalcMtx();
+    inline virtual void CalcView();
+    inline virtual void Draw();
+    inline virtual void RunAction();
+    inline void ScrollStaffRoll();
 
 private:
     enum {
@@ -67,7 +67,6 @@ private:
     std::tr1::shared_ptr<CLayout::CMotionProgram> mpNextMotion;
 };
 
-inline CGameEnding::~CGameEnding() {}
 
 inline void CGameEnding::ShowCongratulations() {
     mpCongratulationsMotion = mCongratulations.CreateMotion("normal");
@@ -212,8 +211,21 @@ inline void CGameEnding::CalcMtx() {
 
 inline void CGameEnding::ScrollStaffRoll() {
     if (!mLineTexts.empty()) {
-        mLineTexts.erase(mLineTexts.begin());
-        mTitleTexts.erase(mTitleTexts.begin());
+        typedef std::wstring StaffText;
+        typedef std::__list_deleter<StaffText, std::allocator<StaffText> > TextListBase;
+        TextListBase::node* pNode;
+        pNode = static_cast<TextListBase::node*>(mLineTexts.begin().base());
+        pNode = reinterpret_cast<TextListBase::node*>(reinterpret_cast<unsigned long>(pNode) | 0);
+        TextListBase::unlink_nodes(pNode, pNode);
+        pNode->data_.~StaffText();
+        reinterpret_cast<TextListBase&>(mLineTexts).node_alloc().deallocate(pNode, 1);
+        --reinterpret_cast<TextListBase&>(mLineTexts).size_ref();
+        pNode = static_cast<TextListBase::node*>(mTitleTexts.begin().base());
+        pNode = reinterpret_cast<TextListBase::node*>(reinterpret_cast<unsigned long>(pNode) | 0);
+        TextListBase::unlink_nodes(pNode, pNode);
+        pNode->data_.~StaffText();
+        reinterpret_cast<TextListBase&>(mTitleTexts).node_alloc().deallocate(pNode, 1);
+        --reinterpret_cast<TextListBase&>(mTitleTexts).size_ref();
     }
     mStaffRoll.SetPaneVisible("SCROLL", true);
     mpScrollMotion = mStaffRoll.CreateMotion("scroll", "SCROLL", 0.0f, 1.0f);

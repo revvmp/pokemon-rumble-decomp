@@ -2,7 +2,7 @@
 
 ## Current status
 
-Roadmap Phases 1 to 3 are complete and Phase 4 is active. The latest verified build matches the frozen main.dol exactly. It links 2,331,688 of 3,082,232 code bytes (75.64933%) from 833 Matching units; 71 real functions remain below 100%. Original split fallbacks still supply the remaining code and data. See the latest session below and [matching requirements](MATCHING.md).
+Roadmap Phases 1 to 3 are complete and Phase 4 is active. The latest verified build matches the frozen main.dol exactly. It links 2,493,764 of 3,082,232 code bytes (80.90773%) from 841 Matching units; 58 real functions remain below 100%. Original split fallbacks still supply the remaining code and data. See the latest session below and [matching requirements](MATCHING.md).
 
 | Milestone | State | Evidence or prerequisite |
 | --- | --- | --- |
@@ -14,14 +14,20 @@ Roadmap Phases 1 to 3 are complete and Phase 4 is active. The latest verified bu
 | Toolchain identification | Identified per library | RVL_SDK Wii/1.0; MSL and Runtime Wii/1.1 or 1.3 with `-func_align 4`; NW4R Wii/1.0 or 1.1; F-0007 |
 | Reproducible game build | Achieved | Two clean builds byte-identical; F-0010 |
 | Exact executable match | Achieved for `main.dol` | Verified; remaining original split fallbacks are tracked separately |
-| Source reconstruction | Started | 833 Matching units of 1,386 current units; see ledger |
+| Source reconstruction | Started | 841 Matching units of 1,386 current units; see ledger |
 | Full release match | Pending | Boot loader, data contents, and WAD packaging outside current scope |
 
 ## Current continuation: source-link acceptance
 
 CFileData and CDlgMsgWin now pass fresh ninja and frozen main.dol verification from source. This adds 77,940 linked code bytes without changing the 71-function tail. CDlgMsgWin required correcting its Dismiss literal from `off` to the evidenced `end`, which function scoring alone did not reject. The whole executable verifier caught the difference.
 
-Main and CBattleRoyalBox subsequently passed full source-link verification, adding another 27,872 linked code bytes. ScriptWorldObj then passed full source-link verification after preserving its two local duplicate constructors and original exception-analysis visibility. Two clean builds reproduced main.dol, main.elf and report.json exactly. SaveData and CGameSession remain function-perfect but NonMatching pending data/order acceptance. ScriptWorldObj uses five tracked C++ source fragments compiled through the normal build and combined by the original linker with plain `-r`; no original object bytes feed that source output. CGameSession cleanup identities were corrected from exception-table consumers, including the separate ISession and IGameSession destructors.
+Main and CBattleRoyalBox subsequently passed full source-link verification, adding another 27,872 linked code bytes. ScriptWorldObj then passed full source-link verification after preserving its two local duplicate constructors and original exception-analysis visibility. Two clean builds reproduced main.dol, main.elf and report.json exactly. SaveData, CGameSession, CGameEnding, Message, PhotoSave, errmsg, CNoticeDisplay and CMoneyLifeDisplay subsequently passed full source-link verification. CDlgPiiSelector has all 645 functions exact but still needs source-link ordering/data acceptance. ScriptWorldObj uses five tracked C++ source fragments compiled through the normal build and combined by the original linker with plain `-r`; no original object bytes feed that source output. CGameSession cleanup identities were corrected from exception-table consumers, including the separate ISession and IGameSession destructors.
+
+## Latest function gains
+
+The real unmatched tail is now 58, down 62 from its initial 120. Matched code is 2,994,192/3,082,232 bytes (97.14362%). Recent exact functions include PiiPropData assignment, both selector tag dispatch callers, CRemoteMemory ThreadMain, InitMsgResList, GetPaneRectangle, PhotoSave and CGameEnding. Verified source-link coverage remains distinct from function matching.
+
+Several link failures were incorrect inferred identities: original vtable relocations prove swapped destructor names in CGameSession, errmsg and CNoticeDisplay. Correcting them removed unnecessary source-fragment experiments. Errmsg also required recovering its NErrMsg namespace from embedded type names, preserving two separately compiled float pools, and the evidenced16-byte start alignment of the following homebutton function. Frozen hashes remain unchanged.
 
 ## Progress images
 
@@ -55,7 +61,7 @@ The ledger is kept per area in [ledger](ledger/README.md). It records source own
 
 2026-11-04 verified continuation: 49 additional real functions match, leaving 71 of the original 120-function tail. CPiiPersonalData now links from source with all 44 functions exact. Further gains include CDlgMsgWin, CBattleRoyalBox, three CGameSession functions, two CPii helpers, two CDlgPiiSelector helpers and PiiPropData sort. Fresh ninja and frozen main.dol verification pass. Matched code is 2,973,680/3,082,232 bytes (96.478134%); linked code is 2,205,924 bytes (71.569046%), across 828 Matching units. The shared sort prefix-increment correction introduced no regression in any previously exact function. Function-perfect units awaiting source-link acceptance now include CFileData, SaveData, main, ScriptWorldObj, CDlgMsgWin, CGameSession and CBattleRoyalBox.
 
-2026-11-04 verified continuation: CTitleSession now matches all 17 functions and links from source. This brings the session to 38 additional real matches, leaving 82 from the initial 120-function tail. Fresh ninja and the frozen main.dol verifier pass. Matched code is 2,971,244/3,082,232 bytes (96.3991%); linked code is 2,202,640 bytes (71.4625%), across 833 Matching units of 1,386 total units. CFileData now has exact function addresses and exception tables in its source-link trial, but data order remains unresolved and its selector remains NonMatching. Its scoped header changes pass the broad fallback build.
+2026-11-04 verified continuation: CTitleSession now matches all 17 functions and links from source. This brings the session to 38 additional real matches, leaving 82 from the initial 120-function tail. Fresh ninja and the frozen main.dol verifier pass. Matched code is 2,971,244/3,082,232 bytes (96.3991%); linked code is 2,202,640 bytes (71.4625%), across 841 Matching units of 1,386 total units. CFileData now has exact function addresses and exception tables in its source-link trial, but data order remains unresolved and its selector remains NonMatching. Its scoped header changes pass the broad fallback build.
 
 2026-11-04 verified continuation: 37 additional real functions now match, leaving 83 of the original 120-function tail. CBattleRoyalDisplay and FA pdm_mbr now link from source with a fresh full frozen-SHA PASS. ScriptWorldObj now matches 240/240 functions but its source link still needs emission-order work. Current code: 2,968,528/3,082,232 matched bytes (96.31098%), 2,195,700 linked bytes (71.237335%), and 826 Matching units. Original inputs and expected hashes remain unchanged.
 
