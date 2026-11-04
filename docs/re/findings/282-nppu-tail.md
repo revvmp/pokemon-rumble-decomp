@@ -65,3 +65,37 @@ The engine destructor at 0x80170510 (388 bytes) now compares at 100%, raising NP
 Both operations are local inline explicit specializations in NPpuVM.cpp. No shared headers change. Find uses the same pointer comparison, and erase retains the same increment, balancing, destruction, deallocation and size update. This is documented D-0016 source shaping: the local specialization structure is intentional and does not claim original template-source recovery. The broader allocator and explicit-delete-cast probes were unnecessary and are not retained.
 
 The exact direct compiler command and objdiff comparison are preserved in tools/local/session/nppu-ppu/dtaccepted.cpp and dtaccepted.json. All previous 60 exact functions remain exact; function-order LCS remains 59/63. The unit remains NonMatching with Load and CollectGarbage unfinished. Coordinating maintainer validation of the integrated full build is pending.
+
+
+## F-282-11: Collector sweep copy lifetime narrowed to one register swap
+
+A fresh isolated pass preserves the accepted destructor prefix and merges only the prior nextcondition2 collector tail into the current source. Its map overlay starts from the current shared header, retaining BWorld layout guards, and adds only the three const-end accessors needed by F-282-9.
+
+Advancing erase's existing position iterator instead of constructing a separate next iterator removes the unwanted current-node coalescing and reaches 98.814285%. Taking that inner erase iterator by mutable reference additionally restores every volatile register, reaching 99.87143% over the native 1,400 bytes. The outer pointer-map erase still takes its iterator by value, so advancing its inner iterator does not alter the caller's current iterator. All instructions now align. Only nine operands in the character-string erase interchange r29 and r30; the wide-string sweep and entire marking phase are exact.
+
+This is an unfinished scratch lead, not an accepted shared-header or source change. Reproduction uses tools/local/session/nppu-61-probe.py with nppu-61-compile/base.cpp and map-ref.h copied to its include/map overlay; erref2.json records the comparison. Its RA trace ra.txt shows the character tree temporary r43 (degree 24) assigned r29 and removed-node temporary r62 (degree 22) assigned r30; the target wants the opposite. The analogous wide temporaries already match.
+
+No further improvement came from concrete/const/void/integer node views, outer mutable-reference erase, named map/iterator declarations at five scopes, explicit iterator copy/assignment bodies, helper argument permutations and inline depths, splitting erase finalization into a helper, const/restrict string-pointer locals, whole-sweep forwarding, or local optimizer toggles. Passing the node explicitly from a named caller local reintroduced loop-wide coalescing. A named tree pointer inside the outer erase caches the map across the loop and loses required reloads; a volatile view of the global restores those reloads but returns to the same nine-operand swap. Identity rotate intrinsics did not finish the register allocation. No partial candidate was installed in main.
+
+
+A subsequent fresh Load pass also remained at 94.290596%. Restricting the data/header/this pointers, volatile header reads combined with volatile pointer-member stores, pointer-typed views of the data-size words, integer/pointer storage views, Boolean condition materialization and pointer-add operand/type changes did not improve the prior cached-header candidate. All remain private probes under nppu-61-compile; no Load change was installed.
+
+## F-282-12: Independent collector register-identity pass
+
+The F-282-11 candidate was reproduced in a separate direct-compiler lane, tools/local/session/nppu-fresh, at 99.87143%. Its only nine differing operands still interchange the character-map receiver and removed node between r29 and r30. The accepted main destructor was not edited.
+
+No exact gain resulted from full-range signed/unsigned enum node views, const/volatile pointee views, register storage spelling, node-reference helper parameters, out-of-class erase definitions, a named aggregate erase context, pointer/integer unions, 64-bit pointer-identity conversions, conditional pointer assignments, or explicit receiver/removed-node caller locals. Named caller locals again cause loop-wide node coalescing. Replacing only the character-map erase with a specialization permits isolated receiver experiments, but receiver enum/address views cache the map across the loop; a volatile global-pointer load restores the required reload and returns to the same nine-operand residual. None of these source/header candidates is retained.
+
+The runner nppu-fresh.py starts from nppu-61-compile/base.cpp and map-ref.h, directs both source and object output to its own directory, and saves each source/header/objdiff result. It performs no shared configure or ninja work. The best candidate remains F-282-11 unchanged.
+
+## F-282-13: Load reduced to three scheduling swaps
+
+A fresh private pass reaches 94.871796% for CCode::Load (468 bytes). This score is dominated by instruction-order penalties: every operation, branch, register operand, frame offset, and loop-alignment nop is present. Only three adjacent instruction pairs differ: SUBIS versus the reset store at offsets 0x58/0x5C, and CMPWI versus the newly allocated pointer stores at 0xF0/0xF4 and 0x158/0x15C.
+
+The count block now matches exactly. Separate declarations from initialization: declare wideCount, stringCount, codeSize, then stackSize; initialize wideCount, stackSize, codeSize, then stringCount. The stack value retains the existing HeaderCount enum conversion. Four volatile member lvalue stores preserve the target stack/code/string/wide write order. Merely permuting declarations together with their initializers did not solve the register priority. Aggregate and constructor-mediated count copies, by-value count helpers, and type changes also failed.
+
+Both string-address computations now match. Form the byte offset as a named u32, then assign `address = static_cast<u32>(address + reinterpret_cast<u32>(pData))` before adding sizeof(SHeader) and converting to the string pointer. The explicit same-type cast on the addition is material: a plain compound addition or an identity cast after the completed addition does not reproduce the temporary register identity. The character offset is mCodeSize + pHeader->mWStringDataSize; the wide offset is mCodeSize.
+
+The best source and comparison are tools/local/session/nppu-fresh/loadcompound8.cpp and loadcompound8.json. This is a diagnostic whole-file snapshot derived from an older Load candidate: transfer only CCode::Load, never the entire file, because its collector differs from the current best collector. No main source or header change is retained from this pass.
+
+Further private tests did not resolve the three scheduling pairs: volatile pointer stores; signed/unsigned/enum/const scalar identities; conditional, switch, comma and inline store-helper forms; whole-load inline wrappers; formal restricted pointers; empty inline and empty-destructor boundaries; malloc/free exception attributes; and zero-length memory calls. Lvalue-assignment address identities add arithmetic instructions and are rejected. Disabling scheduling or peephole optimization, or enabling aggressive load/store scheduling, changes many otherwise correct instructions and is rejected. The best candidate uses the existing compiler flags without these pragma experiments.

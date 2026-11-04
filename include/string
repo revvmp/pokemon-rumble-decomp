@@ -444,7 +444,11 @@ basic_string<charT, traits, Allocator>& basic_string<charT, traits, Allocator>::
         pointer pNew = alloc().allocate(newCapacity);
 #endif
         if (pos > 0) traits::copy(pNew, p, pos);
+#if defined(CDLGINFO_EMISSION_LAYOUT)
+        memmove(pNew + pos, first, (const_cast<pointer>(last) - const_cast<pointer>(first)) * sizeof(charT));
+#else
         memmove(pNew + pos, first, (last - first) * sizeof(charT));
+#endif
         if (suffix > 0) traits::copy(pNew + pos + inserted, p + pos + erased, suffix);
         traits::assign(pNew[newSize], charT());
 #if defined(CDLGMSGWIN_EMISSION_LAYOUT)

@@ -114,6 +114,8 @@ BUI* BUI::FindFocusableFrom(int direction) {
     return pResult;
 }
 
+#pragma opt_strength_reduction off
+
 void BUI::OnInput(const IUIInput* pInput) {
     int i = 0;
     for (; i < 4; i++) {
@@ -121,13 +123,7 @@ void BUI::OnInput(const IUIInput* pInput) {
             std::tr1::weak_ptr<BUI>& rNeighbor = mNeighbors[i];
             BUI* pFirst = rNeighbor.lock().get();
             if (pFirst != nullptr) {
-                mFlags |= 8;
-                BUI* pTarget = nullptr;
-                BUI* pNeighbor = rNeighbor.lock().get();
-                if (pNeighbor != nullptr) {
-                    pTarget = pNeighbor->FindFocusableFrom(i);
-                }
-                mFlags &= ~8;
+                BUI* pTarget = NavigateTo(i);
                 if (pTarget != nullptr) {
                     GetManager()->SetFocusedUI(pTarget);
                 }
@@ -139,6 +135,8 @@ void BUI::OnInput(const IUIInput* pInput) {
         mpParent->OnInput(pInput);
     }
 }
+
+#pragma opt_strength_reduction reset
 
 void BUI::Calc() {
     for (std::list<Child>::iterator it = mChildren.begin(); it != mChildren.end(); ++it) {

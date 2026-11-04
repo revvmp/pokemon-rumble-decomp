@@ -129,6 +129,10 @@ Keep entries concise and actionable. Distinguish confirmed findings from hypothe
 
 - **Renaming a shared cleanup helper can emit a second old-name copy elsewhere.** BWorld guard renames caused two other Matching owners to re-emit108-byte helpers and shifted the executable. Their constructor specializations must use the same verified guard identity; see [the full-link evidence](docs/re/findings/45-bworld-tail.md).
 
+- **Function scoring can miss the value of a float literal.** CDlgInfo compared all75 functions exactly while its final DOL differed at a constant: the original bound extension was1024.0f, not1.0f. Compare retained data and frozen artifacts before accepting a source unit; see [CDlgInfo final tail](docs/re/findings/cdlginfo-tail.md).
+
+- **Native linker file selectors use basenames.** An explicit full-path .text selector pulled both game and MetroTRK main.o into the first position. Byte-identical input copies with unique basenames restore the frozen full SHA; use this when experimenting with native final-link section order. See [native section linking](docs/re/findings/native-section-link.md).
+
 ## Current project state
 
 | Current state | Value |

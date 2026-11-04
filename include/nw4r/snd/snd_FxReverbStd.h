@@ -13,6 +13,7 @@ namespace snd {
 namespace detail {
 
 struct FxReverbStdParam {
+#if !defined(GAMEUTIL_STATIC_FX_PRESETS)
     FxReverbStdParam()
         : preDelayTime(0.02f),
           fusedTime(3.0f),
@@ -24,6 +25,7 @@ struct FxReverbStdParam {
           fusedMode(0),
           earlyGain(0.0f),
           fusedGain(1.0f) {}
+#endif
 
     f32 preDelayTime;
     f32 fusedTime;

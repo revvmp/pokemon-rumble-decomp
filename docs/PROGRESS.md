@@ -2,7 +2,7 @@
 
 ## Current status
 
-Roadmap Phases 1 to 3 are complete and Phase 4 is active. The latest verified build matches the frozen main.dol exactly. It links 2,642,816 of 3,082,232 code bytes (85.743576%) from 861 Matching units; 41 real functions remain below 100%. Original split fallbacks still supply the remaining code and data. See the latest session below and [matching requirements](MATCHING.md).
+Roadmap Phases 1 to 3 are complete and Phase 4 is active. The latest verified build matches the frozen main.dol exactly. It links 2,684,408 of 3,082,232 code bytes (87.09299%) from 873 Matching units; 30 real functions remain below 100%. Original split fallbacks still supply the remaining code and data. See the latest session below and [matching requirements](MATCHING.md).
 
 | Milestone | State | Evidence or prerequisite |
 | --- | --- | --- |
@@ -14,7 +14,7 @@ Roadmap Phases 1 to 3 are complete and Phase 4 is active. The latest verified bu
 | Toolchain identification | Identified per library | RVL_SDK Wii/1.0; MSL and Runtime Wii/1.1 or 1.3 with `-func_align 4`; NW4R Wii/1.0 or 1.1; F-0007 |
 | Reproducible game build | Achieved | Two clean builds byte-identical; F-0010 |
 | Exact executable match | Achieved for `main.dol` | Verified; remaining original split fallbacks are tracked separately |
-| Source reconstruction | Started | 861 Matching units of 1,388 current units; see ledger |
+| Source reconstruction | Started | 873 Matching units of 1,385 current units; see ledger |
 | Full release match | Pending | Boot loader, data contents, and WAD packaging outside current scope |
 
 ## Current continuation: source-link acceptance
@@ -25,7 +25,7 @@ Main and CBattleRoyalBox subsequently passed full source-link verification, addi
 
 ## Latest function gains
 
-The real unmatched tail is now 41, down 79 from its initial 120. Matched code is 3,017,048/3,082,232 bytes (97.88517%). Recent exact functions include PiiPropData assignment, both selector tag dispatch callers, CRemoteMemory ThreadMain, InitMsgResList, GetPaneRectangle, PhotoSave and CGameEnding. Verified source-link coverage remains distinct from function matching.
+The real unmatched tail is now 30, down 90 from its initial 120. Matched code is 3,029,036/3,082,232 bytes (98.27411%). Recent exact functions include PiiPropData assignment, both selector tag dispatch callers, CRemoteMemory ThreadMain, InitMsgResList, GetPaneRectangle, PhotoSave and CGameEnding. Verified source-link coverage remains distinct from function matching.
 
 Several link failures were incorrect inferred identities: original vtable relocations prove swapped destructor names in CGameSession, errmsg and CNoticeDisplay. Correcting them removed unnecessary source-fragment experiments. Errmsg also required recovering its NErrMsg namespace from embedded type names, preserving two separately compiled float pools, and the evidenced16-byte start alignment of the following homebutton function. Frozen hashes remain unchanged.
 
@@ -148,3 +148,15 @@ Updated `AGENTS.md` to require persistent traps and findings with evidence links
 Added project architecture, living documentation, reverse engineering records, and exact artifact verification. No new reverse engineering findings were produced. No game match was attempted because the original and reconstructed artifacts are unavailable. See `HANDOFF.md` for the next action.
 
 CLI integration checks passed for matching samples and rejection of mismatches, missing output, changed references, overlapping roots, and repeat fingerprinting. Syntax, configuration, documentation links, original ignore preservation, and comment-free Python were checked. See [validation](VALIDATION.md) for evidence and limits. No unit tests were added.
+
+## 2026-11-04: BUI, CDlgInfo and GameUtil acceptance
+
+The native build exits0 and exact frozen main.dol verification passes with873 Matching units. The32-function tail includes a new exact CUIMenu OnInput; CUIMenu remains NonMatching pending emission order. CDlgInfo now links all75 functions after correcting five inferred shared-pointer destructor identities from exception cleanup consumers, reproducing metadata order and replacing an incorrect1.0f bound extension with the original1024.0f constant. GameUtil links all13 functions after keeping its static effect presets as constructor-free aggregates; normal constructor-bearing parameter types had emitted an unsupported0x308 startup initializer. Linked data is1,655,985/1,788,827 bytes (92.57379%). The baseline address comparison found no previously exact function regressions. Forcing a rebuild of the stale CModel source object validated its three additional exact functions; all158 are exact, with source-link ordering pending.
+
+## 2026-11-04: Window and recovered data checkpoint
+
+ShowTypeFilterMenu now compares exactly through two scoped enum shift values. NW4HBM Window DrawFrame is also exact and the whole Window unit passes source-link verification. The accepted build has30 real unmatched functions, 3,029,036 matched code bytes (98.27411%), and2,684,408 source-linked code bytes (87.09299%). Native ninja exited0 and frozen main.dol verification passed; no previously exact function regressed against the clean baseline by address.
+
+Three typed BTE configuration units, five small global-data units, bd_addr_null and ScriptWorld's already generated CWaza metadata now link from source. Data linkage is1,656,651/1,788,773 bytes (92.61382%), with873 Matching units among1,385. Data denominators changed as inferred object sizes and padding boundaries were refined; original hashes and artifacts remain unchanged. The [data findings](re/findings/small-global-data.md) record the boundaries and the [BTE record](re/findings/bta-configuration-data.md) records the typed tables.
+
+A separate baseline experiment proves native final-link section ordering while preserving the frozen SHA. It is still an experimental integration method; no additional function-perfect unit is accepted from it yet. See [native section linking](re/findings/native-section-link.md).

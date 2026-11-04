@@ -70,3 +70,11 @@ The formatted tracked source was directly compiled with the CDlgCollection comma
 ### Traps from this pass
 
 Placing the identity cast in the allocation-count subtraction instead shifts which byte difference survives memmove and remains inexact (98.45%). The cast belongs only in memmove's size expression. A single allocation forwarding level fixes the error-path register allocation; two levels revert that gain. Fresh Model pointer identities, const vector accessors, explicit offset counters and predeclared model pointers have not solved Calc's index/model register swap and are scratch-only.
+
+Maintainer acceptance for the constructor gain: broad native ninja exited 0 and frozen SHA verification passed with the updated source. CDlgCollection remains NonMatching for its last Calc tail and pending source-link work.
+
+## Collection Calc follow-up after the Window gain
+
+The dedicated enum and same-type assignment mechanisms that solved type-menu masks and Window coordinate lifetimes do not resolve Collection Calc. Fresh probes used typed Model pointer reassignments, separate CLayout pointer/reference views, signed-range enum loop indices, distinct enum state locals, byte/scalar reassignments, explicit byte-offset reassignments, delayed pointer identities, and split declaration/assignment forms. None exceeds the retained 99.66725% result, and the exact constructor and other 111 functions remain unchanged.
+
+A casted pointer reassignment directly after the initial load changes register coloring broadly (99.45709%), whereas the same reassignment after the pointer has been used folds away and leaves the original two-register swap. Explicit offset identities also fold away. The private scripts collection-calcreassign.py, collection-calclayout.py, collection-calclifetime.py and collection-calclateidentity.py preserve the new experiments under tools/local/session. No Collection source or shared-header changes were retained.

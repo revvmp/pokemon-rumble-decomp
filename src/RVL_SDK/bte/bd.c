@@ -1,5 +1,7 @@
 #include <revolution/bte/bd.h>
 
+const BD_ADDR bd_addr_null = {0};
+
 void bdcpy(BD_ADDR a, BD_ADDR const b)
 {
 	int i;

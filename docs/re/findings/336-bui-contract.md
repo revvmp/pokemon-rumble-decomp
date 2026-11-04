@@ -52,3 +52,19 @@ Four eight-byte null-initialized owners are not necessarily shared callback owne
 Direct-delete ownership does not recover a standard-library wrapper identity. The current Metrowerks move_ptr, including an independently proposed pointer-cache variation, makes BUI cleanup twelve bytes too large. A reference auto_ptr declaration has a destructor throw specification that adds 48 bytes and exception handlers. Neither is published as BUI's recovered owner type. The descriptive private owner preserves the observed operations without inventing a library revision or transfer semantics.
 
 An eight-byte method at the end of a virtual table may be a tail-forwarder. Decode its branch destination before assigning it a getter name or changing an existing nonvirtual interface.
+
+## Exact OnInput reconstruction
+
+OnInput at 0x801C92A0, size 0x168, now compares at 100%, completing all 20 functions with 20/20 function order in the direct comparison. The baseline transformed the neighbor address into a pointer induction variable advanced on every loop iteration. The target instead scales the integer direction only when its button is pressed. Disabling opt_strength_reduction only around OnInput restores that structure, improving 91.7% to 99.05556%.
+
+Replacing the duplicated navigation body with the existing NavigateTo(i) member reproduces the remaining direction, neighbor and result register lifetimes. NavigateTo already implements the same cycle guard, weak-neighbor lookup, recursive focus search and guard reset. It inlines into OnInput and its existing standalone function remains exact. The scalar direction is unchanged and retains the four-direction loop.
+
+The scoped optimizer pragma is an intentional D-0016 fake match. The helper call is a plausible reuse of an existing interface, but the combined source shape is retained for proven native identity rather than claimed original-source recovery. No shared headers change.
+
+Direct evidence uses the canonical BUI build.ninja compiler command against the original split; tools/local/session/bui-ppu/accepted.cpp and accepted.json record 20/20 exact functions and order. Full source-link and frozen SHA verification are delegated to the coordinating maintainer and remain pending at this point.
+
+### Trap from this pass
+
+Changing only optimizer strength reduction leaves a saved-register cycle. Reusing NavigateTo without the scoped pragma still allows pointer induction and does not match. The two changes must be evaluated together; narrow source/API changes and optimizer settings are not independent in this function.
+
+Maintainer acceptance: BUI was selected Matching; fresh ninja exited 0 and the frozen-manifest verifier passed. All 20 functions and linked data are accepted from source. No padding change was required: the original inferred 48-byte BUI vtable extent includes alignment beyond the native 44-byte vtable, and normal linking preserved the target boundary.

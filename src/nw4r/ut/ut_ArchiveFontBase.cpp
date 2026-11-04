@@ -15,7 +15,7 @@ inline bool IsBitOn(const u32* pBits, u32 index) {
 
 }
 
-const char ArchiveFontBase::LOAD_GLYPH_ALL[1] = "";
+
 
 ArchiveFontBase::ArchiveFontBase() : mGlyphIndexAdjustArray(nullptr) {}
 

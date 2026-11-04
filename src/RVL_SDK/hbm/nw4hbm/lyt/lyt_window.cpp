@@ -54,6 +54,26 @@ void GetLTTexCoord(math::VEC2* pTexCoords, const Size& rPolSize, const Size& rTe
         rPolSize.height / (texSize[iy] * (rFlipInfo.coords[2][iy] - rFlipInfo.coords[0][iy]));
 }
 
+void GetLTSingleTexCoord(math::VEC2* pTexCoords, const Size& rPolSize, const Size& rTexSize, u8 textureFlip) {
+    TextureFlipInfo& rFlipInfo = GetTexutreFlipInfo(textureFlip);
+    int ix = rFlipInfo.idx[0];
+    int iy = rFlipInfo.idx[1];
+    const math::VEC2 texSize(rTexSize.width, rTexSize.height);
+
+    u8 originY = rFlipInfo.coords[0][iy];
+    originY = static_cast<u8>(originY);
+    u8 originX = rFlipInfo.coords[0][ix];
+
+    pTexCoords[0][ix] = pTexCoords[2][ix] = originX;
+    pTexCoords[0][iy] = pTexCoords[1][iy] = originY;
+
+    pTexCoords[3][ix] = pTexCoords[1][ix] =
+        originX + rPolSize.width / (texSize[ix] * (rFlipInfo.coords[1][ix] - originX));
+
+    pTexCoords[3][iy] = pTexCoords[2][iy] =
+        originY + rPolSize.height / (texSize[iy] * (rFlipInfo.coords[2][iy] - originY));
+}
+
 void GetRTFrameSize(math::VEC2* pPt, Size* pSize, const math::VEC2& rBase, const Size& rWinSize,
                     const WindowFrameSize& rFrameSize) {
     *pPt = math::VEC2(rBase.x + rWinSize.width - rFrameSize.r, rBase.y);
@@ -336,7 +356,7 @@ void Window::DrawFrame(const math::VEC2& rBase, const Frame& rFrame, const Windo
     Size polSize;
 
     GetLTFrameSize(&polPt, &polSize, rBase, mSize, rFrameSize);
-    GetLTTexCoord(*texCoords, polSize, texSize, 0);
+    GetLTSingleTexCoord(*texCoords, polSize, texSize, 0);
     detail::DrawQuad(polPt, polSize, 1, texCoords, useVtxColor ? vtxColors : nullptr, alpha);
 
     GetRTFrameSize(&polPt, &polSize, rBase, mSize, rFrameSize);

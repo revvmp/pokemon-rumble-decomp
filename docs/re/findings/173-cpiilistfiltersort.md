@@ -87,3 +87,17 @@ Fresh direct compiler probes leave the five remaining functions unresolved. Show
 Sort's remaining differences are concentrated in argument-setup scheduling before its sort call. Explicit index locals, volatile index reads, cached iterators, and comparator references/pointers all regress; six inline helper parameter-order variants also regress. The two menu sort instances and the shared-pointer sort retain the known constant/pointer register allocation differences. Twelve explicit signed multiply-high remainder rewrites with a named divisor multiplier produce substantially worse code (roughly 87–89%) and are rejected.
 
 No tracked source or shared-header change resulted. Ignored reproducers and result JSON are under `tools/local/session/filter-61-*`; the temporary algorithm overlay is removed after its sweep. All original behavior and previously exact functions remain unchanged in main.
+
+## Exact type-menu mask register allocation
+
+A distinct local TypeMaskBit enum between the integer kind and its shift fixes both mask calculations in ShowTypeFilterMenu. The target keeps the constant one in r3 and the loaded bit index/result in r4; an int temporary instead coalesces the constant with the result and exchanges r3/r4. Casting to the existing FilterType enum did not help, while the dedicated local enum reproduces every instruction operand. This is intentional D-0016 source shaping, not evidence of an original enum name. The integer value and shift operation remain unchanged for all menu kinds. No shared header is modified.
+
+Fresh direct compilation preserves every other function comparison. menu-accepted.cpp/json under tools/local/session/filter-ppu records only one remaining objdiff discrepancy in the menu: the target inferred name lbl_804B9028 versus the source std::tr1::placeholders::_1 relocation. The coordinating maintainer owns the alias audit and full native validation. Scratch enum, integer-identity and helper-parameter-order experiments are in filter-ppu-mask.py.
+
+### Follow-up sort probes
+
+The remaining Sort argument block differs only in scheduling: target loads mSortType immediately after begin returns, before storing the returned iterator, whereas current source stores the iterator and forms all argument addresses before loading mSortType. Fresh enum-index locals and casted member views, restrict-qualified local pointers, comparator-table const/volatile qualifiers, and iterator temporary constructors/reference casts did not match. Scheduling off regresses broadly. A dedicated enum in the generic sort distance/remainder expressions also leaves all sort-instance comparisons unchanged. All these variants remain scratch-only under tools/local/session/filter-ppu.
+
+The previous inline-helper argument-order probes were misleading: Sort is compiled under dont_inline on, and even explicitly inline helper functions become real calls there. Disassembly confirms this for GetComparator and SortItems. Their changed comparison percentages therefore do not establish a useful inline lifetime change. No sort or shared-header edit is retained.
+
+The coordinating maintainer subsequently rebuilt the native report successfully: ShowTypeFilterMenu compares at 100% with the configured symbol mapping. The raw objdiff placeholder-name discrepancy does not require a symbol edit. The complete unit remains NonMatching because its four other tails are unresolved.

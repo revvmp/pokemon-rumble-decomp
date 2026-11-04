@@ -1,3 +1,5 @@
+#define GAMEUTIL_STATIC_FX_PRESETS
+
 #include <game/GameUtil.h>
 
 #include <nw4r/snd/snd_SoundArchivePlayer.h>
@@ -95,7 +97,9 @@ int GetTypeEfficacy(int attackType, int defendType) {
 }
 
 inline void SetReverbParam(nw4r::snd::detail::FxReverbStdParam& rParam, f32 fusedTime, f32 damping, u32 fusedMode) {
-    rParam.preDelayTime = 0.02f;
+    f32 preDelayTime = 0.02f;
+    preDelayTime = static_cast<f32>(preDelayTime);
+    rParam.preDelayTime = preDelayTime;
     rParam.fusedTime = fusedTime;
     rParam.coloration = 0.6f;
     rParam.damping = damping;
@@ -108,6 +112,7 @@ inline void SetReverbParam(nw4r::snd::detail::FxReverbStdParam& rParam, f32 fuse
 }
 
 inline void SetDelayParam(nw4r::snd::detail::FxDelayParam& rParam, f32 delay, f32 feedback) {
+    feedback = static_cast<f32>(feedback);
     rParam.delay = delay;
     rParam.feedback = feedback;
     rParam.outGain = 1.0f;

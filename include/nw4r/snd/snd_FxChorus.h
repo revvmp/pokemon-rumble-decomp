@@ -13,12 +13,14 @@ namespace snd {
 namespace detail {
 
 struct FxChorusParam {
+#if !defined(GAMEUTIL_STATIC_FX_PRESETS)
     FxChorusParam()
         : delayTime(10.0f),
           depth(0.5f),
           rate(1.0f),
           feedback(0.0f),
           outGain(1.0f) {}
+#endif
 
     f32 delayTime;
     f32 depth;

@@ -35,3 +35,14 @@ Fully flattening the address expression allows the compiler to move the constant
 These outcomes are specific to this address chain and do not invalidate the same-type identity technique elsewhere. No tracked implementation changes or shared builds were performed for this investigation.
 
 The actual register-allocation trace is saved in the same scratch directory as trace.txt. The early saved cursor is anonymous compiler temporary @4821 (virtual r49, degree 35), not a surviving named source local. Replacing the last cursor assignment with a return expression avoids early saved-register coalescing but yields eight volatile-register differences. Named offset identities can score 99.96559 while changing addition grouping and load order; this is not a better structural candidate. The retained 99.963394 package remains preferred.
+
+
+## Later 99.96706 candidate and fresh register investigation
+
+The coordinating maintainer's later FinishPostFieldNames helper reaches 99.96706%, still with seven register operands remaining and no instruction differences. It is preserved at tools/local/session/particle-final/best2.h with the same indexorder2.cpp and indexidentity0.h inputs. The final addition returns randomSize plus the integer cursor value, avoiding the earlier saved-register cursor coalescing. The unresolved allocation instead shares the key-sum and cursor in r7, places random size in r4 and name size in r0; the target uses key-sum/name size in r4, cursor in r0 and random size in r7.
+
+A fresh isolated pass under particle-61-compile and particle-61-manual reproduces this candidate. Forty-eight helper-argument order/reference combinations, twenty-five offset-parameter type pairs, register/restrict qualifier masks, cursor algebraic identities and rotate intrinsics, integer/void/const-pointer return types, named caller cursors, cached name offsets, header const/reference views, mutable-reference cursor-advance helpers and local optimizer controls do not improve it. Returning a numeric cursor or expanding named cursor stages into Calc changes broader register allocation and falls to approximately 99.12%. The existing source and shared headers remain unchanged.
+
+Disabling opt_prelinearize in this isolated Calc probe produces a CodeWarrior internal compiler error in IroLinearForm.c:1996. This is diagnostic only; no flag change is retained. The private C++ text search runner particle-61-perm.py mutates only the Finish helper body and preserves any candidate separately; a fuzzy score or a permuter result still requires direct comparison of all unit functions and a fresh full source-link verification.
+
+The ten-minute helper-body text search completed 2,653 distinct attempted candidates without improving 99.96706%. Its outputs are private; no implementation change was retained.

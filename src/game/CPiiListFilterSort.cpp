@@ -417,7 +417,9 @@ bool CPiiListFilterSort::ShowFilterMenu(std::tr1::shared_ptr<CUIManager> pManage
 #pragma dont_inline reset
 
 static inline bool HasItemWithSpeciesType(PiiItemVector& rItems, int kind) {
-    u32 mask = 1 << kind;
+    enum TypeMaskBit { TYPE_MASK_BIT_FIRST = 0, TYPE_MASK_BIT_LAST = 31 };
+    TypeMaskBit bit = static_cast<TypeMaskBit>(kind);
+    u32 mask = 1 << bit;
     for (PiiItemVector::iterator it = rItems.begin(); it != rItems.end(); ++it) {
         if (mask & (*it)->GetSpeciesTypeMask()) {
             return true;
@@ -427,7 +429,9 @@ static inline bool HasItemWithSpeciesType(PiiItemVector& rItems, int kind) {
 }
 
 static inline bool HasItemWithMoveType(PiiItemVector& rItems, int kind) {
-    u32 mask = 1 << kind;
+    enum TypeMaskBit { TYPE_MASK_BIT_FIRST = 0, TYPE_MASK_BIT_LAST = 31 };
+    TypeMaskBit bit = static_cast<TypeMaskBit>(kind);
+    u32 mask = 1 << bit;
     for (PiiItemVector::iterator it = rItems.begin(); it != rItems.end(); ++it) {
         if (mask & (*it)->GetMoveTypeMask()) {
             return true;

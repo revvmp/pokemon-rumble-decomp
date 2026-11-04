@@ -1,3 +1,4 @@
+#define CDLGINFO_EMISSION_LAYOUT
 #include <game/IDlgInfo.h>
 
 #include <algorithm>
@@ -21,6 +22,8 @@
 #include <string>
 #include <vector>
 
+namespace InfoMath { extern "C" __attribute__((nothrow)) double ceil(double); }
+
 #pragma pool_data off
 
 namespace {
@@ -37,13 +40,50 @@ struct Line {
     bool HasColumns() const { return mFirst.size() != 0 && mSecond.size() != 0; }
 };
 
+}
+typedef std::__vec_deleter<Line, std::allocator<Line> > InfoLineStorage;
+
+inline void AllocateInfoLines(InfoLineStorage& rLines, unsigned long count) {
+    rLines.allocate(count, Metrowerks::int2type<false>());
+}
+
+inline void ConstructInfoLines(InfoLineStorage& rLines, const Line* first, const Line* last) {
+    rLines.construct_at_end(first, last, Metrowerks::int2type<false>());
+}
+
+inline void CopyInfoLines(InfoLineStorage& rLines, const InfoLineStorage& rOther) {
+    struct Range {
+        const Line* first;
+        const Line* last;
+    };
+    Range range;
+    range.first = rOther.data_;
+    range.last = rOther.data_ + rOther.size_;
+    unsigned long count = range.last - range.first;
+    if (count != 0) {
+        AllocateInfoLines(rLines, count);
+        ConstructInfoLines(rLines, range.first, range.last);
+    }
+}
+
+namespace std {
+template <> inline __vec_constructor<Line, allocator<Line>, false>::__vec_constructor(const __vec_constructor& rOther) {
+    CopyInfoLines(*this, rOther);
+}
+}
+
+namespace {
+inline void GetInfoTextFlag(const Line& rLine, bool& rFlag) {
+    rFlag = rLine.mText.size() != 0;
+}
+
 struct Page {
     std::wstring mTitle;
     std::vector<Line> mLines;
 };
 
 inline f32 GetTextWidth(nw4r::lyt::TextBox* pText) {
-    return ceil(pText->GetTextDrawRect().GetWidth());
+    return InfoMath::ceil(pText->GetTextDrawRect().GetWidth());
 }
 
 class CDlgInfoItemLine {
@@ -101,11 +141,9 @@ public:
             for (; i < count; i++) {
                 std::tr1::shared_ptr<CLayout> line = mLayouts[i];
                 const Line& rLine = rPage.mLines[i];
-                bool hasText = rLine.HasText();
-                bool hasColumns = false;
-                if (!hasText && rLine.HasColumns()) {
-                    hasColumns = true;
-                }
+                bool hasText;
+                GetInfoTextFlag(rLine, hasText);
+                bool hasColumns = !hasText && rLine.HasColumns();
                 line->SetPaneVisible("CAPTION", hasColumns);
                 line->SetPaneVisible("COLON", hasColumns);
                 line->SetPaneVisible("VALUE", hasColumns);
@@ -119,7 +157,7 @@ public:
                         if (j != 1) {
                             nw4r::lyt::TextBox* pText = line->SetText(sColumnPaneNames[j], texts[j]);
                             NErrMsg::PaneRectangle bounds = NErrMsg::GetPaneRectangle(pText);
-                            bounds.right = bounds.left + 1.0f;
+                            bounds.right = bounds.left + 1024.0f;
                             NErrMsg::SetPaneRectangle(pText, bounds);
                             f32 width = GetTextWidth(pText);
                             widths[j] = std::max(width, widths[j]);
@@ -155,11 +193,13 @@ public:
     }
 };
 
+class CDlgInfoImpl;
+typedef char InfoPageOwnerStorage[sizeof(std::tr1::shared_ptr<Page>)];
+
 class CDlgInfoItem : public IUIListItem {
 public:
     CDlgInfoItem(std::tr1::shared_ptr<CDlgInfoItemLine> model, const Page& rPage)
         : mModel(model), mPage(rPage) {}
-    virtual ~CDlgInfoItem() {}
     virtual bool IsSelectable() const { return true; }
     virtual void Update(CUIList* pList, CLayout* pLayout) { mModel->Update(pLayout, mPage); }
 
@@ -167,6 +207,17 @@ private:
     std::tr1::shared_ptr<CDlgInfoItemLine> mModel;
     Page mPage;
 };
+
+class CDlgInfo;
+typedef char InfoDefaultStorage[sizeof(std::detail::default_delete<CDlgInfo>)];
+typedef char InfoImplDeleterStorage[sizeof(std::tr1::detail::shared_ptr_deleter<CDlgInfoImpl, std::detail::default_delete<CDlgInfoImpl> >)];
+typedef char InfoImplMoveStorage[sizeof(Metrowerks::move_ptr<CDlgInfoImpl>)];
+
+typedef char InfoItemDeleterStorage[sizeof(std::tr1::detail::shared_ptr_deleter<CDlgInfoItem, std::detail::default_delete<CDlgInfoItem> >)];
+typedef char InfoPageDeleterStorage[sizeof(std::tr1::detail::shared_ptr_deleter<Page, std::detail::default_delete<Page> >)];
+
+typedef char InfoItemMoveStorage[sizeof(Metrowerks::move_ptr<CDlgInfoItem>)];
+typedef char InfoPageMoveStorage[sizeof(Metrowerks::move_ptr<Page>)];
 
 class CDlgInfoImpl {
 public:
@@ -232,26 +283,6 @@ public:
 class CDlgInfo : public IDlgInfo, public std::tr1::enable_shared_from_this<CDlgInfo> {
 public:
     CDlgInfo() {}
-    virtual ~CDlgInfo() {}
-    virtual void Calc() {
-            CDlgInfoImpl* pImpl = mImpl.get();
-            if (mImpl) {
-                pImpl->mUIManager->Calc();
-                pImpl->CalcLines();
-                pImpl->mFiber.Resume();
-                if (mImpl->mFiber.IsFinished()) {
-                    mImpl.reset();
-                    GetCurrentGameMap()->UnregisterDialog(shared_from_this());
-                }
-            }
-    }
-    virtual void Draw() {
-            CDlgInfoImpl* pImpl = mImpl.get();
-            if (mImpl) {
-                pImpl->mUIManager->Draw();
-                pImpl->DrawLines();
-            }
-    }
     virtual bool Close() {
             if (mImpl) {
                 mImpl->mState = 1;
@@ -270,6 +301,25 @@ public:
                 Initialize();
             }
             return true;
+    }
+    virtual void Calc() {
+            CDlgInfoImpl* pImpl = mImpl.get();
+            if (mImpl) {
+                pImpl->mUIManager->Calc();
+                pImpl->CalcLines();
+                pImpl->mFiber.Resume();
+                if (mImpl->mFiber.IsFinished()) {
+                    mImpl.reset();
+                    GetCurrentGameMap()->UnregisterDialog(shared_from_this());
+                }
+            }
+    }
+    virtual void Draw() {
+            CDlgInfoImpl* pImpl = mImpl.get();
+            if (mImpl) {
+                pImpl->mUIManager->Draw();
+                pImpl->DrawLines();
+            }
     }
     virtual void Clear() {
             std::vector<std::tr1::shared_ptr<Page> >().swap(mPages);

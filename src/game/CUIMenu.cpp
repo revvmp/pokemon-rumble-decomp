@@ -152,6 +152,7 @@ void CUIMenu::UpdateSelection() {
     }
 }
 
+#pragma opt_propagation off
 void CUIMenu::OnInput(const IUIInput* pInput) {
     if (mColumnCount >= 1) {
         int direction = 0;
@@ -165,7 +166,7 @@ void CUIMenu::OnInput(const IUIInput* pInput) {
             int paddedCount = ((mRowCount + itemCount - 1) / mRowCount) * mRowCount;
             int selected = GetSelectedIndex();
             int candidate = selected;
-            if (mCursorRow < 0) mCursorRow = selected % mRowCount;
+            if (mCursorRow < 0) mCursorRow = candidate % mRowCount;
             else if (mCursorRow < mRowCount) candidate = mCursorRow + (selected / mRowCount) * mRowCount;
             while (true) {
                 candidate += mRowCount * direction;
@@ -206,6 +207,8 @@ void CUIMenu::OnInput(const IUIInput* pInput) {
 done:
     return;
 }
+
+#pragma opt_propagation reset
 
 namespace {
 

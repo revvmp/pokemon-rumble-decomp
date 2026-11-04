@@ -689,6 +689,23 @@ bool CModel::LoadBounds(nw4r::math::AABB* pBounds, const nw4r::g3d::ResMdl& rMdl
     return loaded;
 }
 
+template <> inline bool CModel::TPartialAnm<true>::IsReplaceable() {
+    bool finished;
+    bool replaceable = true;
+    if (mMotions.size() != 0) {
+        finished = false;
+        if (mMotions.size() == 1) {
+            if (mMotions.front()->mFlags & CMotionProgram::FLAG_FINISHED) {
+                finished = true;
+            }
+        }
+        if (!finished) {
+            replaceable = false;
+        }
+    }
+    return replaceable;
+}
+
 template <bool Main> bool CModel::TPartialAnm<Main>::SetMotion(CModel* pModel, const std::tr1::shared_ptr<CMotionProgram>& rMotion) {
     for (std::list<std::tr1::shared_ptr<CMotionProgram> >::iterator it = mMotions.begin(); it != mMotions.end(); ++it) {
         it->get()->SetPlaybackState(CMotionProgram::FLAG_STOPPED);
@@ -715,7 +732,7 @@ template <bool Main> bool CModel::TPartialAnm<Main>::QueueMotion(CModel* pModel,
     if (IsReplaceable()) {
         return SetMotion(pModel, rMotion);
     }
-    if (mMotions.size() >= 2) {
+    if (static_cast<TPartialAnm*>(this)->mMotions.size() >= 2) {
         std::list<std::tr1::shared_ptr<CMotionProgram> > current;
         current.push_back(mMotions.front());
         mMotions.pop_front();
@@ -793,3 +810,5 @@ template <bool Main> bool CModel::TPartialAnm<Main>::Update(CModel* pModel, f32 
 }
 
 template <bool Main> CModel::TPartialAnm<Main>::~TPartialAnm() {}
+
+#pragma opt_optimizecontrolflow off

@@ -746,6 +746,9 @@ game/Font.cpp:
 	.bss        start:0x803E90C8 end:0x803E90D4
 	.sbss       start:0x804B9090 end:0x804B9098
 
+game/LayoutResources.cpp:
+	.sbss       start:0x804B9098 end:0x804B909C
+
 game/l10n_files.cpp:
 	extab       start:0x8002C2F0 end:0x8002CBC8
 	extabindex  start:0x8004C920 end:0x8004CB18
@@ -884,7 +887,7 @@ game/ScriptPiiPropData.cpp:
 	extabindex  start:0x8004F41C end:0x8004F578
 	.text       start:0x80157DE0 end:0x80159770
 	.rodata     start:0x8035BC88 end:0x8035DF48
-	.data       start:0x803B72F8 end:0x803B7344
+	.data       start:0x803B72F8 end:0x803B7348
 	.sdata2     start:0x804BA2E0 end:0x804BA2E4
 
 game/ScriptPiiManagement.cpp:
@@ -912,6 +915,8 @@ game/ScriptWorld.cpp:
 	extab       start:0x800327D8 end:0x80032AA8
 	extabindex  start:0x8004F8D8 end:0x8004FA7C
 	.text       start:0x8015D150 end:0x8015EEB0
+	.data       start:0x803B7348 end:0x803B73E0
+	.sdata      start:0x804B7AB8 end:0x804B7AC8
 
 game/SaveData.cpp:
 	extab       start:0x80032AA8 end:0x80033D8C
@@ -975,6 +980,9 @@ RevoEX/net/sha1.c:
 	.text       start:0x80177100 end:0x801776CC
 	.sdata2     start:0x804BA320 end:0x804BA328
 	.sbss2      start:0x804BBC00 end:0x804BBC08
+
+nw4r/ut/ut_ArchiveFontData.cpp:
+	.sbss2      start:0x804BBC08 end:0x804BBC0C
 
 RVL_SDK/ncd/ncdsystem.c:
 	.text       start:0x801776CC end:0x801778E4
@@ -3186,6 +3194,9 @@ RVL_SDK/os/OSPlayTime.c:
 	.sbss       start:0x804B9570 end:0x804B9588
 	.sdata2     start:0x804BB278 end:0x804BB288
 
+RVL_SDK/exi/EXIConfig.c:
+	.sdata2     start:0x804BB288 end:0x804BB28C
+
 RVL_SDK/os/OSCrc.c:
 	.text       start:0x802BF9A0 end:0x802BFAD4
 	.rodata     start:0x80371630 end:0x80371670
@@ -3394,6 +3405,9 @@ RVL_SDK/ax/AX.c:
 	.data       start:0x803D8530 end:0x803D8578
 	.sdata      start:0x804B8BD0 end:0x804B8BD4
 	.sbss       start:0x804B9840 end:0x804B9844
+
+RVL_SDK/ax/AXDSPConfig.c:
+	.sdata      start:0x804B8BD8 end:0x804B8BE0
 
 RVL_SDK/ax/AXAlloc.c:
 	.text       start:0x802DA500 end:0x802DA9EC
@@ -3725,6 +3739,19 @@ RVL_SDK/bte/uusb_ppc.c:
 	.sdata      start:0x804B8EA0 end:0x804B8EB0
 	.sbss       start:0x804B9B60 end:0x804B9B78
 
+RVL_SDK/bte/bta_dm_cfg.c:
+	.rodata     start:0x80397E48 end:0x80397ED4
+	.sdata      start:0x804B8EB0 end:0x804B8EC4
+	.sbss2      start:0x804BBC18 end:0x804BBC1C
+
+RVL_SDK/bte/bta_hh_cfg.c:
+	.rodata     start:0x80397ED8 end:0x80397EE4
+	.sdata      start:0x804B8EC8 end:0x804B8ED4
+
+RVL_SDK/bte/bta_sys_cfg.c:
+	.sdata      start:0x804B8ED8 end:0x804B8EDC
+	.sdata2     start:0x804BB5F0 end:0x804BB5F6
+
 RVL_SDK/bte/bte_hcisu.c:
 	.text       start:0x80313A60 end:0x80313B30
 	.sbss       start:0x804B9B78 end:0x804B9B80
@@ -3751,6 +3778,7 @@ RVL_SDK/bte/btu_task1.c:
 
 RVL_SDK/bte/bd.c:
 	.text       start:0x803142B4 end:0x80314388
+	.sbss2      start:0x804BBC20 end:0x804BBC28
 
 RVL_SDK/bte/bta_sys_conn.c:
 	.text       start:0x80314388 end:0x803145DC
@@ -4020,6 +4048,9 @@ Runtime/global_destructor_chain.c:
 	.text       start:0x8033FA58 end:0x8033FAB8
 	.sbss       start:0x804B9BB8 end:0x804B9BBC
 
+Runtime/new_handler.cpp:
+	.sbss       start:0x804B9BC0 end:0x804B9BC4
+
 Runtime/NMWException.cpp:
 	extab       start:0x80044150 end:0x80044190
 	extabindex  start:0x80052434 end:0x80052464
@@ -4063,6 +4094,9 @@ MSL_C/alloc.c:
 	.rodata     start:0x80398390 end:0x803983A8
 	.bss        start:0x804B31F8 end:0x804B3230
 	.sbss       start:0x804B9BC8 end:0x804B9BD0
+
+MSL_C/errno.c:
+	.sbss       start:0x804B9BD0 end:0x804B9BD4
 
 MSL_C/ansi_files.c:
 	.text       start:0x803430E0 end:0x803431F0

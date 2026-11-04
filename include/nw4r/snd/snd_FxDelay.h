@@ -13,12 +13,14 @@ namespace snd {
 namespace detail {
 
 struct FxDelayParam {
+#if !defined(GAMEUTIL_STATIC_FX_PRESETS)
     FxDelayParam()
         : delay(160.0f),
           feedback(0.4f),
           outGain(1.0f),
           maxDelay(160.0f),
           lpf(1.0f) {}
+#endif
 
     f32 delay;
     f32 feedback;
