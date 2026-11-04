@@ -1,5 +1,14 @@
+#define CFILEDATA_EMISSION_LAYOUT
+namespace std { namespace detail { template <typename Tree, typename Compare> struct map_leaf_search; } }
+#include <MSL_CPP/allocator.h>
+#include <MSL_CPP/alloc_ptr.h>
+namespace std { namespace tr1 { namespace detail { template <typename T, typename D> class shared_ptr_holder; } } }
 
 #include <game/CFileData.h>
+#include <utility>
+typedef char FileCacheAllocatorStorage[sizeof(std::allocator<std::pair<const std::string, std::tr1::weak_ptr<CFileData> > >)];
+typedef char FileWeakStorage[sizeof(std::tr1::weak_ptr<CFileData>)];
+typedef char WorkerPtrStorage[sizeof(std::tr1::shared_ptr<CFileData::CWorker>)];
 
 #include <game/CFiber.h>
 #include <game/CFileDataWorker.h>
@@ -17,10 +26,42 @@
 
 typedef std::detail::map_base<nw4r::ut::CNTHandleWithMutex*, std::tr1::weak_ptr<nw4r::ut::CNTHandleWithMutex>, std::less<nw4r::ut::CNTHandleWithMutex*>, std::allocator<std::pair<nw4r::ut::CNTHandleWithMutex* const, std::tr1::weak_ptr<nw4r::ut::CNTHandleWithMutex> > > > CNTHandleMapBase;
 
-#pragma opt_dead_assignments off
-template CNTHandleMapBase::native_iterator CNTHandleMapBase::erase(CNTHandleMapBase::native_iterator);
-#pragma opt_dead_assignments reset
 
+template <> template <> inline void std::tr1::shared_ptr<char>::reset<char, void (*)(void*) throw()>(char* p, void (*d)(void*) throw());
+template <> inline std::tr1::shared_ptr<nw4r::ut::FileStream>::operator int bool_type::*() const { return ptr_ ? &bool_type::dummy_ : nullptr; }
+template <> inline nw4r::ut::FileStream* std::tr1::shared_ptr<nw4r::ut::FileStream>::get() const { return ptr_; }
+template <> inline std::string& std::string::operator+=(const char* s) { return replace_tagged(size(), 0, s); }
+typedef std::__vec_constructor<CFileData::CWorker::CNTHandleMap, std::allocator<CFileData::CWorker::CNTHandleMap>, false> HandleTableStorage;
+struct HandleTableProbe : HandleTableStorage { using HandleTableStorage::construct_at_end; using HandleTableStorage::copy_range; using HandleTableStorage::grow_by; };
+inline void AssignHandleTable(HandleTableStorage& rTable, const HandleTableStorage& rOther);
+template <> inline CFileData::CWorker::CNTHandleTable& CFileData::CWorker::CNTHandleTable::operator=(const CFileData::CWorker::CNTHandleTable& x) { AssignHandleTable(*this, x); return *this; }
+namespace std { namespace detail {
+template <typename Tree, typename Compare> struct map_leaf_search {
+    static tree_node_base* find(Tree* pTree, const typename Tree::value_type& rValue, typename Tree::node*& rpPred, bool& rLeft, bool& rLeftmost);
+};
+
+template <typename Tree, typename Compare> tree_node_base* map_leaf_search<Tree, Compare>::find(Tree* pTree, const typename Tree::value_type& rValue, typename Tree::node*& rpPred, bool& rLeft, bool& rLeftmost) {
+    typedef typename Tree::node node;
+    rpPred = nullptr;
+    node* pLeaf = static_cast<node*>(pTree->end_node());
+    node* pNode = static_cast<node*>(pTree->root());
+    rLeft = true;
+    rLeftmost = true;
+    while (pNode != nullptr) {
+        pLeaf = pNode;
+        if (Compare()(rValue, pNode->value_)) {
+            pNode = static_cast<node*>(pNode->left_);
+            rLeft = true;
+        } else {
+            rpPred = pLeaf;
+            pNode = static_cast<node*>(pNode->right_);
+            rLeft = false;
+            rLeftmost = false;
+        }
+    }
+    return pLeaf;
+}
+} }
 struct FileLoadParam {
     const char* mpPath;
     u32 mFlags;
@@ -110,6 +151,10 @@ inline void CFileData::ValidateResource() {
         DCFlushRange(mData, mSize);
     }
 }
+
+
+
+
 
 inline void CFileData::CWorker::ProcessFinishedJobs() {
     CJob* pDeferred = nullptr;
@@ -209,22 +254,8 @@ inline void CFileData::CWorker::ProcessFinishedJobs() {
         --mFinished.mCount;
     }
 }
-
-inline bool CFileData::CWorker::WaitUntilLoaded(CFileData* pFile) {
-    while (pFile->mPending) {
-        mFinished.Wait();
-        ProcessFinishedJobs();
-    }
-
-    if (!pFile->IsLoaded()) {
-        sConfig.mErrorHandler(pFile->GetDrive(), pFile->mPath.c_str(), pFile->GetError(), pFile->mFlags);
-        return false;
-    }
-    return true;
-}
-
 bool CFileData::WaitUntilLoaded(CFileData* pFile) {
-    CWorker* pWorker = sWorker.get();
+    CWorker* pWorker = sWorker.operator->();
     if (sWorker) {
         return pWorker->WaitUntilLoaded(pFile);
     }
@@ -232,6 +263,7 @@ bool CFileData::WaitUntilLoaded(CFileData* pFile) {
 }
 
 void* CFileData::AllocateByPlacement(u32 size, int alignment, u32 flags) {
+    bool probe = false; if (probe) (void)static_cast<bool>(*static_cast<std::tr1::shared_ptr<char>*>(nullptr));
     if (alignment < 4) {
         alignment = 4;
     }
@@ -275,6 +307,21 @@ bool CFileData::OpenArchiveEntry() {
     return true;
 }
 
+inline bool CFileData::CWorker::WaitUntilLoaded(CFileData* pFile) {
+    while (pFile->mPending) {
+        mFinished.Wait();
+        ProcessFinishedJobs();
+    }
+
+    if (!pFile->IsLoaded()) {
+        sConfig.mErrorHandler(pFile->GetDrive(), pFile->mPath.c_str(), pFile->GetError(), pFile->mFlags);
+        return false;
+    }
+    bool probe = false;
+    if (probe) (void)sWorker.get();
+    return true;
+}
+template <> template <> inline void std::tr1::shared_ptr<char>::reset<char, void (*)(void*) throw()>(char* p, void (*d)(void*) throw()) { shared_ptr(p, d).swap(*this); }
 bool WaitFileData(CFileData* pFile, int background) {
     if (!background) {
         return CFileData::WaitUntilLoaded(pFile);
@@ -310,7 +357,29 @@ inline u32 AlignUp(u32 value, u32 alignment) {
     return (alignment + value - 1) & mask;
 }
 
+namespace nw4r { namespace ut { class CntFileStream; } }
+typedef char CntStreamDeleterStorage[sizeof(std::tr1::detail::shared_ptr_deleter<nw4r::ut::CntFileStream, std::detail::default_delete<nw4r::ut::CntFileStream> >)];
+typedef char CntStreamMoveStorage[sizeof(Metrowerks::move_ptr<nw4r::ut::CntFileStream, std::detail::default_delete<nw4r::ut::CntFileStream> >)];
+template <> template <> inline std::tr1::shared_ptr<nw4r::ut::CNTHandleWithMutex>::shared_ptr(nw4r::ut::CNTHandleWithMutex* p) : ptr_(p) {
+    Metrowerks::move_ptr<nw4r::ut::CNTHandleWithMutex> hold(p);
+    s_ = new std::tr1::detail::shared_ptr_deleter<nw4r::ut::CNTHandleWithMutex, std::detail::default_delete<nw4r::ut::CNTHandleWithMutex> >(p);
+    hold.release();
+    enable_from_this(p, p);
+    bool tableProbe = false;
+    if (tableProbe) {
+        static_cast<std::tr1::shared_ptr<nw4r::ut::CNTHandleWithMutex>*>(nullptr)->reset(static_cast<nw4r::ut::CNTHandleWithMutex*>(nullptr));
+        HandleTableProbe* pStorage = nullptr;
+        const CFileData::CWorker::CNTHandleMap* pRange = nullptr;
+        CFileData::CWorker::CNTHandleMap* pOutput = nullptr;
+        unsigned long capacity;
+        pStorage->construct_at_end(pRange, pRange);
+        pStorage->copy_range(pRange, pRange, pOutput);
+        pStorage->grow_by(0, capacity);
+    }
+
+}
 inline void* AllocateStagingBuffer(u32 size, int alignment, u32 flags) {
+    bool probe = false; if (probe) (void)static_cast<bool>(*static_cast<std::tr1::shared_ptr<char>*>(nullptr));
     if (alignment < 4) {
         alignment = 4;
     }
@@ -332,6 +401,33 @@ inline void* AllocateStagingBuffer(u32 size, int alignment, u32 flags) {
     return pMemory;
 }
 
+typedef std::detail::map_compact_tree<CNTHandleMapBase::value_type, std::detail::map_base_value_compare<nw4r::ut::CNTHandleWithMutex*, std::tr1::weak_ptr<nw4r::ut::CNTHandleWithMutex>, std::less<nw4r::ut::CNTHandleWithMutex*> >, std::allocator<CNTHandleMapBase::value_type> > CNTHandleTree;
+template <> inline std::pair<CNTHandleTree::iterator, bool> CNTHandleTree::insert_one(const CNTHandleMapBase::value_type& rValue) {
+    typedef std::detail::map_base_value_compare<nw4r::ut::CNTHandleWithMutex*, std::tr1::weak_ptr<nw4r::ut::CNTHandleWithMutex>, std::less<nw4r::ut::CNTHandleWithMutex*> > Compare;
+    node* pPred;
+    bool left;
+    bool leftmost;
+    std::detail::tree_node_base* pParent = std::detail::map_leaf_search<CNTHandleTree, Compare>::find(this, rValue, pPred, left, leftmost);
+    if (pPred == nullptr || Compare()(pPred->value_, rValue)) {
+        return std::pair<iterator, bool>(iterator(insert_node_at(pParent, left, leftmost, rValue)), true);
+    }
+    return std::pair<iterator, bool>(iterator(pPred), false);
+}
+template <> inline CNTHandleTree::iterator CNTHandleTree::erase_next(CNTHandleTree::iterator position) {
+    std::detail::tree_node_base* pNode = position.node_;
+    iterator next(position);
+    if (pNode == front()) front() = (++next).node_;
+    std::detail::tree_node_base* pNext = std::__red_black_tree<std::detail::tree_node_base*>::balance_erase(pNode, root());
+    typedef std::tr1::weak_ptr<nw4r::ut::CNTHandleWithMutex> HandleWeakPtr;
+    CNTHandleMapBase::value_type* pValue = &static_cast<node*>(pNode)->value_;
+    if (pValue != nullptr) pValue->second.~HandleWeakPtr();
+    ::operator delete(pNode);
+    --sz();
+    return iterator(pNext);
+}
+#pragma opt_dead_assignments off
+template <> inline CNTHandleMapBase::native_iterator CNTHandleMapBase::erase(CNTHandleMapBase::native_iterator position) { Metrowerks::int2type<1> tag; return erase_impl(position, tag); }
+#pragma opt_dead_assignments reset
 inline std::tr1::shared_ptr<nw4r::ut::CNTHandleWithMutex> AcquireCNTHandle(int device, long& rError, CFileData::CWorker::CNTHandleTable& rTable) {
     if (rTable.size() <= static_cast<unsigned long>(device)) {
         rTable.resize(device + 1);
@@ -432,11 +528,11 @@ inline void CFileData::CWorker::BThread::Stop() {
     }
 }
 
-CFileData::CWorker::BThread::~BThread() {
+inline CFileData::CWorker::BThread::~BThread() {
     Stop();
 }
 
-void* CFileData::CWorker::BThread::Entry(void* pThread) {
+inline void* CFileData::CWorker::BThread::Entry(void* pThread) {
     static_cast<BThread*>(pThread)->Run();
 }
 
@@ -461,7 +557,7 @@ inline CFileData::CWorker::~CWorker() {
     }
 }
 
-void CFileData::CWorker::PushFinished(CJob* pJob) {
+inline void CFileData::CWorker::PushFinished(CJob* pJob) {
     OSLockMutex(&mFinished.mMutex);
     if (mFinished.mpHead) {
         CJob* pHead = static_cast<CJob*>(mFinished.mpHead);
@@ -492,6 +588,14 @@ inline std::tr1::shared_ptr<CFileData> FindLoadedFile(const CPath& rPath) {
     }
     return std::tr1::shared_ptr<CFileData>();
 }
+
+namespace std {
+template <> inline void __list_deleter<string, allocator<string> >::pop_back() { erase(__pointer2iterator(tail().prev_)); }
+template <> inline string& __list_deleter<string, allocator<string> >::back() { return tail().prev_->data_; }
+}
+typedef std::detail::map_base<std::string, std::tr1::weak_ptr<CFileData>, std::less<std::string>, std::allocator<std::pair<const std::string, std::tr1::weak_ptr<CFileData> > > > FileCacheMapBase;
+template <> inline std::tr1::weak_ptr<CFileData>& FileCacheMapBase::operator[](const std::string& rKey) { return tree_.find_or_insert(rKey).second; }
+inline CPath::CPath(const CPath& rOther) : mDevice(rOther.mDevice), mComponents(*reinterpret_cast<const std::list<std::string>*>(reinterpret_cast<const char*>(&rOther)+sizeof(rOther.mDevice))) {}
 
 std::tr1::shared_ptr<CFileData> OpenFileData(const CPath& rPath, u32 flags, long& rError) {
     {
@@ -639,6 +743,8 @@ std::tr1::shared_ptr<CFileData> OpenFileData(const CPath& rPath, u32 flags, long
     return file;
 }
 
+inline void AssignHandleTableBase(HandleTableStorage& rTable, const HandleTableStorage& rOther) { rTable = rOther; }
+inline void AssignHandleTable(HandleTableStorage& rTable, const HandleTableStorage& rOther) { AssignHandleTableBase(rTable, rOther); }
 std::tr1::shared_ptr<CFileData> CreateFileData(const char* pPath, u32 flags, int background) {
     std::tr1::shared_ptr<CFileData> file = OpenFileData(pPath, flags);
     if (file) {
@@ -888,3 +994,8 @@ void CFileData::CWorker::LoaderThread::Run() {
         }
     } while (pJob != nullptr);
 }
+
+template void HandleTableStorage::assign_reallocate(unsigned long, unsigned long);
+template unsigned long std::__vec_deleter<CFileData::CWorker::CNTHandleMap, std::allocator<CFileData::CWorker::CNTHandleMap> >::recommend(unsigned long);
+template CNTHandleTree::~map_compact_tree();
+template void CNTHandleTree::copy(const CNTHandleTree&);

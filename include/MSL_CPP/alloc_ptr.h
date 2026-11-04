@@ -13,11 +13,15 @@ template <typename T, T Value> struct number {
 template <typename T, typename Allocator, typename Size = number<size_t, 1> > class alloc_ptr {
 public:
     alloc_ptr(T* p, Allocator a, Size size = Size()) : ptr_(a, compressed_pair<Size, T*>(size, p)) {}
+#if defined(CFILEDATA_EMISSION_LAYOUT)
+    ~alloc_ptr();
+#else
     ~alloc_ptr() {
         if (get() != nullptr) {
             allocator().deallocate(get(), capacity());
         }
     }
+#endif
     T* operator->() const { return get(); }
     T* get() const { return ptr_.second().second(); }
     T* release() {
@@ -33,6 +37,14 @@ private:
 
     compressed_pair<Allocator, compressed_pair<Size, T*> > ptr_;
 };
+#if defined(CFILEDATA_EMISSION_LAYOUT)
+template <typename T, typename Allocator, typename Size>
+    alloc_ptr<T, Allocator, Size>::~alloc_ptr() {
+        if (get() != nullptr) {
+            allocator().deallocate(get(), capacity());
+        }
+    }
+#endif
 }
 
 #endif

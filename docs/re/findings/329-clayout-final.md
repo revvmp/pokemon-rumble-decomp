@@ -78,3 +78,16 @@ No CPlayerPii source change was retained. Same-type, const-removing, integer-ide
 Scheduler experiments confirmed the prior result: 604 and 7450 reach 90.47619% but retain the incorrect LR-store position; 603, 601, and disabled scheduling are worse. These were scratch-only probes, not retained compiler settings. A scheduling model remains selected after a plain `scheduling on`, so isolated experiments must restore the actual model (750 here), rather than treating `on` as a model reset. This observation explains unrelated template score changes in the first scratch sweep; no tracked file was changed.
 
 Scratch direct-compile JSON and candidates are in ignored tools/local/session/329-player. The existing deque emission-order blocker is unchanged. No new matching or link claim is made for this unit.
+
+
+## CMsgRes follow-up
+
+CMsgRes.cpp was the next assigned source. The direct baseline has only ConvertEscape unmatched at 96.57971%; the constructor is exact. Its remaining differences are entirely in the preheader instruction schedule: the target shifts the SJIS comparison result and completes the locale address before copying pSrc to pDst. The loop body already matches.
+
+No source change is retained. Same-type and integer-identity pointer casts, source/destination reassignment, explicit scalar casts, and alternate boolean representations do not reach an exact match. Explicit locale locals with helper arguments change register allocation substantially. Supplying the locale expression directly to the same helper preserves the original result; adding a cast to that expression changes allocation but does not fix it.
+
+Moving the whole loop into a small inline helper is a new useful diagnostic: selected scalar/reference parameter forms reproduce the entire target instruction sequence, with only register operands differing. The best measured version reaches 98.115944%. This is not an accepted gain because it replaces the simpler source with many register differences. In this candidate, the caller retains its pointer/flag locals, passes pSrc by reference, passes the remaining four by value, and passes digit and the loop counter by reference. The inline helper still uses the existing byte conversion operations. The resulting register mapping differs across destination, SJIS flag, end pointer, trail flag, digit, counter, accumulator, and locale component.
+
+All 120 orders of the five pointer/flag parameters give the same result. Reference/value combinations, moving digit/counter/accumulator outside the helper, boolean and integer parameter types, and helper initialization of selected preheader locals were also tested without a 100% result. Some initialization-only probes used a destination before its delayed source initialization; those were diagnostic scratch failures and must not be retained. None of these experiments changed tracked source or shared headers.
+
+The whole-loop diagnostic and score reports are in ignored tools/local/session/329-msg, especially extended12.cpp and extended12.json. The original baseline remains the main source.

@@ -115,6 +115,8 @@ Keep entries concise and actionable. Distinguish confirmed findings from hypothe
 
 - **A delayed friend needs a generation request.** Completing a template containing a friend did not emit FormatString at the target position; a discarded function-pointer return requested it in the following generation pass without runtime code. This D-0016 construct allowed a verified source link; see [CBattleRoyalDisplay](docs/re/findings/53-cbattleroyaldisplay-link-tail.md).
 
+- **A zeroed duplicate vtable can hide an unnamed earlier definition.** CTitleSession differed by four pointers in an otherwise zeroed ISession table. Naming the verified earlier vtable and RTTI let the linker discard the duplicate and reproduced every byte. Check earlier ownership before adding padding or suppressing a class vtable; see [CTitleSession acceptance](docs/re/findings/212-ctitlesession.md#f-212-5-complete-source-link-tail).
+
 ## Current project state
 
 | Current state | Value |

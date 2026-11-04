@@ -37,3 +37,13 @@ Expanding `CCode::Clear` inside `Load`, explicitly caching header fields before 
 ## Traps
 
 No new project-wide trap. Separate operand locals and const aliases must be tested together: the former fixes the first conversion while the latter preserves later type caching. Per-function results do not establish a whole-unit link match.
+
+## F-282-8: Further destructor, load and collection probes
+
+The integrated baseline is now 60/63 real functions exact. The remaining three were investigated in isolated direct compiles under `tools/local/session/282-vm2`; none of the following experiments was retained.
+
+The engine destructor differs only in register allocation and the resulting save schedule. The target keeps the deletion flag in r31, this in r30, the instance tree in r29 and the removed node in r28. The source uses r31/r29/r28/r30. A member inline cleanup wrapper puts this in r30 and improves 95.1031% to 98.0412%, but changes the find loop's volatile registers and still swaps tree/node. Separate iterators, pointer round trips, explicit tree erasure, helper arguments, moving the generic erase definition out of class, and local optimizer pragmas do not close it.
+
+For CCode::Load, expanding Clear and caching the magic before its final pointer stores, caching all four header counters before member stores, and constructing the wide-string pointer through integer arithmetic raises 88.0513% to 94.1197%. Permuting the four cache initializers reaches 94.2137%. Header-reference helpers, restricted pointers, header-value argument helpers, and optimizer switches do not reproduce the remaining load/store scheduling, register assignment and add operand order. This confirms the earlier cache experiment without resolving it.
+
+For CollectGarbage, a pointer-to-u32-to-pointer conversion on the engine yielded by the set iterator reproduces the beginning of the mark loop and raises 89.3% to 90.0429%. Disabling opt_lifetimes together with that conversion reaches 91.1%. The map find expansion still caches its end-node pointer where the target recomputes it; register and scheduling differences continue through both mark paths and the sweep. Other local optimizer toggles regress the candidate.

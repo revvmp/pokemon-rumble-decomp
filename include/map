@@ -68,11 +68,15 @@ public:
     typedef typename Allocator::template rebind<node>::other node_allocator;
 
     map_compact_tree() : alloc_(Allocator(), size_type(0)), comp_(reinterpret_cast<tree_node_base*>(&node_alloc_.second())) {}
+#if defined(CFILEDATA_EMISSION_LAYOUT)
+    ~map_compact_tree();
+#else
     ~map_compact_tree() {
         if (root() != nullptr) {
             destroy(static_cast<node*>(root()));
         }
     }
+#endif
     map_compact_tree& operator=(const map_compact_tree& rOther) {
         if (this != &rOther) {
             clear();
@@ -118,6 +122,9 @@ public:
             copy_children(pDestination, pSource, true);
         }
     }
+#if defined(CFILEDATA_EMISSION_LAYOUT)
+    __attribute__((noinline)) void copy(const map_compact_tree& rOther);
+#else
     __attribute__((noinline)) void copy(const map_compact_tree& rOther) {
         if (rOther.root() != nullptr) {
             node_allocator& nodeAllocator = node_alloc_.first();
@@ -143,6 +150,7 @@ public:
             swap(temporary);
         }
     }
+#endif
 
     typedef T value_type;
     class iterator {
@@ -266,6 +274,9 @@ public:
     void destroy(node* pNode);
 
 private:
+#if defined(CFILEDATA_EMISSION_LAYOUT)
+    template <typename, typename> friend struct map_leaf_search;
+#endif
     struct anchor { anchor() : left_(nullptr) {} tree_node_base* left_; };
     Metrowerks::compressed_pair<Allocator, size_type> alloc_;
     Metrowerks::compressed_pair<node_allocator, anchor> node_alloc_;
@@ -289,6 +300,40 @@ void map_compact_tree<T, Compare, Allocator>::destroy(node* pNode) {
     alloc_.first().destroy(&pNode->value_);
     ::operator delete(pNode);
 }
+#if defined(CFILEDATA_EMISSION_LAYOUT)
+
+template <typename T, typename Compare, typename Allocator> void map_compact_tree<T, Compare, Allocator>::copy(const map_compact_tree& rOther) {
+        if (rOther.root() != nullptr) {
+            node_allocator& nodeAllocator = node_alloc_.first();
+            Metrowerks::alloc_ptr<node, node_allocator&> pNode(nodeAllocator.allocate(1), nodeAllocator);
+            alloc_.first().construct(&pNode.get()->value_, static_cast<node*>(rOther.root())->value_);
+            map_compact_tree temporary;
+            pNode.get()->left_ = pNode.get()->right_ = nullptr;
+            pNode.get()->set_parent(temporary.end_node());
+            if (rOther.root()->parent_.bit()) {
+                pNode.get()->set_red();
+            } else {
+                pNode.get()->set_black();
+            }
+            temporary.root() = pNode.release();
+            temporary.sz() = 1;
+            temporary.front() = temporary.root();
+            if (rOther.root()->right_ != nullptr) {
+                temporary.copy_children(static_cast<node*>(temporary.root()), static_cast<node*>(rOther.root()), false);
+            }
+            if (rOther.root()->left_ != nullptr) {
+                temporary.copy_children(static_cast<node*>(temporary.root()), static_cast<node*>(rOther.root()), true);
+            }
+            swap(temporary);
+        }
+    }
+
+template <typename T, typename Compare, typename Allocator> map_compact_tree<T, Compare, Allocator>::~map_compact_tree() {
+        if (root() != nullptr) {
+            destroy(static_cast<node*>(root()));
+        }
+    }
+#endif
 
 template <typename T, typename Compare, typename Allocator>
 template <typename Key> tree_node_base* map_compact_tree<T, Compare, Allocator>::find_leaf(const Key& key, node*& rpPred, bool& rLeft, bool& rLeftmost) {
@@ -463,7 +508,9 @@ public:
     typedef typename base::value_type value_type;
     pair<iterator, bool> insert(const value_type& rValue) { return base::insert(rValue); }
     map() {}
+#if !defined(CFILEDATA_EMISSION_LAYOUT)
     ~map() {}
+#endif
 };
 
 template <typename Key, typename T> class map<Key*, T*, less<Key*>, allocator<pair<Key* const, T*> > > {

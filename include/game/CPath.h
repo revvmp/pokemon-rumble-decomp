@@ -17,6 +17,9 @@ public:
     };
 
     CPath();
+#if defined(CFILEDATA_EMISSION_LAYOUT)
+    CPath(const CPath& rOther);
+#endif
     CPath(int device, const std::list<std::string>& rComponents);
     ~CPath();
     std::string ToString(bool includeDevice) const;

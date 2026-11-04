@@ -859,6 +859,9 @@ public:
     vector() {}
     explicit vector(size_type n) : base(n) {}
     vector(const vector& x) : base(x) {}
+#if defined(CFILEDATA_EMISSION_LAYOUT)
+    vector& operator=(const vector& x) { base::operator=(x); return *this; }
+#endif
     template <typename Iterator> vector(Iterator first, Iterator last) : base(first, last) {}
     ~vector() {}
 

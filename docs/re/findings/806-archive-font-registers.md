@@ -25,3 +25,18 @@ Recover the source expression or lifetime structure that yields the native regis
 2026-11-04 follow-up: 240 isolated declaration and identity-expression probes did not improve the current 99.291664% function. The matrix tested scalar types, reference-bound temporaries, identity bitwise/arithmetic operations, post-initialization assignments, and register storage hints for the sheet-count local. Both the current body and the prior glyph-count/adjustment-pointer type variant were tested. No source or flags were retained. Scratch driver: `tools/local/session/archive-font.py`.
 
 Changing the accessor's scalar return type or using member-initializer syntax did not repair this candidate's register assignment. Preserve the existing canonical declarations unless independent evidence supports a change. The prior declaration-order and loop probes recorded in F-449-2 remain relevant; repeating them without a new structural hypothesis is unlikely to resolve the remaining allocation.
+
+## Structural count-materialization probes, 2026-11-04
+
+The next bounded scratch wave keeps main source and headers unchanged. Both the current body and the earlier `u16 glyphsPerSheet`/`u32 sizeAdjustTable`/integer RoundDown candidate were tested. No exact candidate was found or retained.
+
+- Scalar wrappers with trivial/user copy constructors and empty destructors, using 16-bit, 32-bit and int storage: 24 candidates, unchanged best.
+- Inline reference and pointer output parameters, with argument order and direct/zero-then-add assignment variants: 48 candidates, no improvement.
+- Empty copy tags passed through an inline identity function: 36 candidates, no improvement.
+- A named count load before accessor construction, using the evidenced typed glyph-group record: 16 candidates, worse instruction scheduling.
+- memcpy/memmove scalar materialization from the field or an accessor-result local: eight candidates, worse.
+- Scratch-only constructor caching of the count: ten candidates, no improvement.
+- Scratch-only constructor output pointer: six candidates, one reached 99.395836% but introduced additional operand-order differences and did not recover the required count allocation. This partial artificial API change was discarded.
+- Tiny identity helpers under individual propagation, dead-assignment, common-subexpression, lifetime, scalarization and tree-transformation pragmas: 24 candidates, no improvement.
+
+These controls do not overcome the accessor constructor's cached load being represented as an inline temporary. The proposed wrappers are not recovered source and are not suitable to retain for partial fuzzy-score gains. Drivers and diagnostic objects use ignored `tools/local/session/archive-61-*`; only this findings record is changed.

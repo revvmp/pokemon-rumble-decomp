@@ -129,3 +129,13 @@ Four controls used the already pinned Forecast source to inspect remaining sourc
 The remaining texture differences in the complete diff include the saved particle/header/tick register assignment and the step helper's period/loop-count scratch registers. The baked pair shares the same frame-length and loop/period register permutation. Their unchanged instruction count does not excuse those differences. Future work should examine value lifetimes against the native functions rather than repeat these rejected scalar/helper substitutions.
 
 Outside-checkout reproducers are `377-texture-resource-probe.py`, `377-reference-step-types.py` and `377-reference-texture-scalars.py`; complete outputs and the pinned Forecast reading source are in `377-resource-probe/`. Each script restores the original file bytes after its object-only probe. No full link or original-issue completion is claimed by these controls.
+
+## 2026-11-04 Texture and Child scheduling controls
+
+No source change was retained in this bounded continuation. Direct scratch compiles use the configured Wii/1.1 NW4R flags. Texture remains 99.61126%; Child's retained baseline remains 96.30681%.
+
+Texture's differing instructions form a parameter-register cycle plus the two frame-period temporary allocations. Register tracing identifies the second period as anonymous node `@4192`, interference degree 29, colored first into r31. The input tick shares that register; the command pointer consequently takes r24 rather than target r31. Pointer re-expression/type-punning controls, 120 fully-inlined body-wrapper parameter permutations, 36 frame/period/count type combinations, 64 period initialization forms, 24 explicit loop-count caching forms, and selective volatile field-read controls did not improve the baseline. All changed helpers were private scratch clones, so no shared-header regressions were introduced.
+
+Child exposes two target process-flag reloads which the current inline body common-subexpression-eliminates. Qualifying only the processFlag read in a scratch CalcFrameStep clone as volatile restores both target loads and raises Child to 97.489044%. The algebraically equivalent unsigned return `(period * (rLoop + 1) - 1) - (tick - 1)` raises it to 97.731255%, bringing the second-call subtract sequence closer to target. These are artificial partial candidates and were not retained. Pointer-reference parameter variants do not recover an exact body. Remaining differences are predominantly register allocation and a scheduled halfword truncation.
+
+Scratch scripts and traces are in ignored `tools/local/session/animcurve-61-*`. Higher fuzzy scores here do not establish additional matching functions or source-link acceptance.

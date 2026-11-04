@@ -311,7 +311,7 @@ config.libs = [
             Object(Matching, "game/CStatistic.cpp"),
             Object(Matching, "game/CStrapReminder.cpp"),
             Object(Matching, "game/CTextWorldObjStat.cpp"),
-            Object(NonMatching, "game/CTitleSession.cpp"),
+            Object(Matching, "game/CTitleSession.cpp"),
             Object(Matching, "game/ScriptCamera.cpp"),
             Object(Matching, "game/CTutorialMsg.cpp", extra_cflags=["-inline off", "-str noreuse,nopool"]),
             Object(Matching, "game/CUIMenuSoundCallback.cpp"),

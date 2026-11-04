@@ -23,9 +23,9 @@ Use `main` by default. Do not split work into branches or worktrees unless the o
 
 The initial 2026-11-04 worktrees were preserved when this instruction arrived. Their reviewed gains were transferred to main, and further experiments run from main snapshots. Do not blindly copy their files back over newer main changes.
 
-2026-11-04 verified continuation: 37 additional real functions now match, leaving 83 of the original 120-function tail. CBattleRoyalDisplay and FA pdm_mbr now link from source with a fresh full frozen-SHA PASS. ScriptWorldObj now matches 240/240 functions but its source link still needs emission-order work. Current code: 2,968,528/3,082,232 matched bytes (96.31098%), 2,195,700 linked bytes (71.237335%), and 826 Matching units. Original inputs and expected hashes remain unchanged.
+2026-11-04 verified continuation: CTitleSession now matches all 17 functions and links from source. This brings the session to 38 additional real matches, leaving 82 from the initial 120-function tail. Fresh ninja and the frozen main.dol verifier pass. Matched code is 2,971,244/3,082,232 bytes (96.3991%); linked code is 2,202,640 bytes (71.4625%), across 827 Matching units of 1,386 total units. CFileData now has exact function addresses and exception tables in its source-link trial, but data order remains unresolved and its selector remains NonMatching. Its scoped header changes pass the broad fallback build.
 
-Current parallel ownership: CFileData ordering, GameUtil, ScriptWorldObj ordering, CTitleSession, CMsgRes, and TMC JPEG converters. The coordinator owns shared configuration, full builds, acceptance, and checkpoints. Scratch inputs/scripts under `tools/local/session/` are ignored and must not replace newer main files wholesale.
+Current parallel ownership: CFileData data order, CPii, ScriptWorldObj native source-link layout, CDlgPiiSelector, main ordering, and HBM DrawFrame. The coordinator owns shared configuration, full builds, acceptance, and checkpoints. Scratch inputs/scripts under `tools/local/session/` are ignored and must not replace newer main files wholesale.
 
 ## Next actions
 

@@ -46,3 +46,17 @@ A fresh native continuation retains both converter units unchanged. A private ty
 Making RGBA8 channel locals unsigned bytes, consistent with the neighboring RGB565 channel types and their proven 0–255 range, leaves the existing closest converter graph unchanged. It does not repair the three native register-word differences at offsets0x120/0x124/0x12C. Raw controls are `C:/MassStorage/GitHub/764-byte-channels`; the actual current entry-point comparison is `764-422-current.diff` in its parent directory.
 
 The predecessor's outside `764-reference` already contains texel-accessor functions, luma helpers, first-pixel ordering and channel-order controls beyond the eighteen controls summarized in draft PR1024. Inspect those artifacts before repeating these families. That draft remains separate and unchanged. No source, compiler, header, split, selector, or symbol changes are adopted, and no new source coverage or original-issue completion is claimed.
+
+# F-764-6: selective scheduling controls under D-0016
+
+2026-11-04: the selective volatile-byte method that completed FA's MBR validator does not transfer directly to these converters. Direct compiles use the unchanged Wii/1.0 TMC flags and private output objects. No TMC source change was retained.
+
+All sixteen RGB565 4:1:1 and four 4:2:2 texel-read volatile masks failed to improve their baseline. All 32 RGBA8 4:1:1 masks selecting the first AR/GB reads and the three later AR reads also failed to improve; duplicated GB reads inside the luma macro were deliberately not made volatile, because that would add observable accesses. Volatile aligned-width and aligned-height destinations in both setup functions leave the one swapped-add mismatch unchanged.
+
+Selective `(u64)` casts on existing RGB565 texel values improve 4:1:1 from 89.22143% to 91.307144% and 4:2:2 from 89.25773% to 89.824745%, but do not match. Permuting first-pixel RGBA8 AR/GB declaration and load order with signed/unsigned 64-bit casts does not improve its baseline. Expanding later red-channel index expressions and adding redundant casts to their row products reaches only 77.64331% from 77.57962%. These partial candidates remain scratch only.
+
+Setup's two-argument inline sum helpers, across scalar widths, argument order, addition order and scaling inside/outside the helper, do not fix the swapped add. An additional sweep disables each of the compiler's 82 discovered `opt_*` names individually around Setup. Three require numeric arguments and fail compilation; no successful candidate improves 99.830505%. Failed compilations are excluded from binary conclusions. Scratch scripts and objects are under ignored `tools/local/session/`, prefixed `rgb565`, `rgba8`, or `tmc-setup`.
+
+## Traps
+
+- **A scheduling fake that fixes one byte-reading loop need not help another.** Selective volatile qualification solved the FA validator but leaves these TMC loops unchanged or worse. Keep the search bounded and retain no merely higher fuzzy score when the source construct is artificial.

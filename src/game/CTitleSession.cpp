@@ -1,3 +1,4 @@
+#include <string>
 #include <game/ITitleSession.h>
 
 #include <game/BUILayout.h>
@@ -17,7 +18,6 @@
 #include <revolution/os.h>
 
 #include <memory>
-#include <string>
 #include <vector>
 
 void ChangeBGM(u32 id);
@@ -62,7 +62,7 @@ struct TitleText {
 
 const char* sButtonPanes[BUTTON_COUNT] = {"BUTTON_01", "BUTTON_02", "BUTTON_03", "BUTTON_BACK"};
 const char* sSlotTextPanes[SLOT_COUNT] = {"TEXT_1D", "TEXT_2D", "TEXT_3D"};
-const char* sScreenLayouts[SCREEN_COUNT] = {"title_main",   "title_tududki",    "title_tududki", "title_difficulty",
+const char* sScreenLayouts[SCREEN_COUNT] = {"title_main",   "title_tuduki",    "title_tuduki", "title_difficulty",
                                             "option_main", "option_vibration", "option_delete"};
 
 const int sModeMessageIds[5] = {0x60003, 0x60004, 0x60005, 0x60006, 0x60007};
@@ -167,7 +167,7 @@ void CTitleSession::Calc() {
 }
 
 #pragma dont_inline on
-void CTitleSession::Run() {
+inline void CTitleSession::Run() {
     const char** pArchives;
     std::tr1::shared_ptr<FileList> files = LoadFileList(reinterpret_cast<void**>(&pArchives), "title2d.arc", 0, true, nullptr);
     std::tr1::shared_ptr<CLayout::FontMap> fonts = GetDefaultFontMap();
@@ -449,7 +449,7 @@ void CTitleSession::Run() {
 }
 
 #pragma dont_inline reset
-bool CTitleSession::RefreshSlots() {
+inline bool CTitleSession::RefreshSlots() {
     mButtonEnabled[0][0] = true;
     mButtonEnabled[0][1] = true;
     mButtonEnabled[0][2] = true;
@@ -525,7 +525,7 @@ bool CTitleSession::RefreshSlots() {
     return hasSlots;
 }
 
-void CTitleSession::WaitForMacAddress() {
+inline void CTitleSession::WaitForMacAddress() {
     while (true) {
         s32 result = NETGetWirelessMacAddress(reinterpret_cast<u8*>(&GetSaveData(-1)->mData.mWirelessMacHigh));
         if (result == 0) {
@@ -538,7 +538,7 @@ void CTitleSession::WaitForMacAddress() {
     }
 }
 
-void CTitleSession::SaveAndWait() {
+inline void CTitleSession::SaveAndWait() {
     if (!mSaveManager) {
         mSaveManager = ISaveManager::Create();
     }
@@ -548,7 +548,7 @@ void CTitleSession::SaveAndWait() {
     }
 }
 
-bool CTitleSession::IsFinished() {
+inline bool CTitleSession::IsFinished() {
     return false;
 }
 
