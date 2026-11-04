@@ -184,3 +184,11 @@ Compared the latest real ninja report with the prior clean-repeat report by orig
 ## Typed data and 53-function checkpoint
 
 The ordinary build links BModelObj, CMiniMap, CPauseMenu and ten additional typed data units. Ninja exits0 and frozen verification passes. The report records3,001,272 matched code bytes,2,552,708 linked code bytes and1,613,548 linked data bytes. The53-function tail and explicit original fallbacks remain blockers to complete source reconstruction. No original hash changed.
+
+## Repeated clean build, 50-function checkpoint
+
+Both new empty roots, tools/local/session/clean-data-20261104 and clean-data-repeat-20261104, were configured and built through the normal entry points. Each ninja invocation exits0 and each frozen verifier passes. Their main.dol, main.elf and report.json are byte-identical to each other and to the current incremental outputs. Default configuration was restored afterward.
+
+SHA-256 values: main.dol ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da; main.elf34b42203123c50a06d32e96df6d66df728ba26dae590e5b5c84244a911199c3e; report.json180438e5901fb0da94eca6a5022af2571c6eacb59ec22a0065b65b6b2656bcde.
+
+This includes the new source data tables, native source-fragment paths, BWorld shared-header adaptation and CLayout exact-function gain. Comparing real functions by original virtual address with the prior clean-repeat report finds no formerly exact function regression. Fifty real functions and source/data fallback dependencies remain; this evidence establishes reproducibility of the checkpoint, not complete decompilation.

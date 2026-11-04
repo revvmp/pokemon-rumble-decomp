@@ -123,6 +123,8 @@ Keep entries concise and actionable. Distinguish confirmed findings from hypothe
 
 - **Identical destructor bodies can have swapped inferred names.** CGameSession, errmsg and CNoticeDisplay appeared to emit destructors in the wrong order. Original vtable relocations proved the names were assigned to the wrong addresses; fixing identities preserved natural source order and removed unnecessary fragment workarounds. Audit vtables before forcing destructor emission. See [CGameSession evidence](docs/re/findings/329-cgamesession-emission.md).
 
+- **An enum view can preserve a value that integer temporaries coalesce.** CPauseMenu hub packing and BWorld skip-state construction became exact with a typed enum local after integer forms failed. This is a local CodeWarrior control, not a universal rule; see [codegen evidence](docs/re/CODEGEN_RULES.md) and [BWorld](docs/re/findings/45-bworld-tail.md).
+
 ## Current project state
 
 | Current state | Value |

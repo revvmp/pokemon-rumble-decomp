@@ -98,3 +98,6 @@ Functions matched with source that is probably not the original, under [D-0016](
 
 | CPauseMenu | LeaveStage and data order | scoped signed enum preserves bitfield extraction identity; late named base-menu record and shared menu-name array preserve original constant order; full SHA accepted | [evidence](findings/167-cpausemenu-tail.md) |
 | TMC JPEG RGB565 | ConvertRGB565MCU411 | separate signed texels, redundant first two blue masks and first-blue reuse of the second texel local control coalescing; function exact, setup still partial | [evidence](findings/764-tmc-jpeg-converters.md) |
+
+| BWorld | Calc / CalcMtx | redundant zero assignment viewed through existing StateFlag enum preserves a distinct zero/OR value; fresh inner iterator scope fixes Calc allocation; all196 functions exact, source link pending | [evidence](findings/45-bworld-tail.md) |
+| CLayout | ReplaceMotions | local proven map storage view and begin/end helpers with separate iterator locals, volatile pointer assignment and result-first declaration order restore frame slots; exact function, unit remains partial | [evidence](findings/329-clayout-final.md) |

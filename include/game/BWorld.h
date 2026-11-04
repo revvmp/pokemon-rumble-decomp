@@ -201,7 +201,9 @@ private:
     u32 GetSkipStates() const {
         u32 states = 0;
         if (mFlags & FLAG_SKIP_STATE_2) {
-            states |= 2;
+            states = 0;
+            const BWorldObj::StateFlag zero = static_cast<BWorldObj::StateFlag>(states);
+            states = zero | BWorldObj::STATE_PAUSE_FOR_UI;
         }
         if (mFlags & FLAG_SKIP_STATE_4) {
             states |= 4;

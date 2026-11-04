@@ -19,3 +19,11 @@ Both inline GetSkipStates with one missing redundant zero load: target initializ
 - A pointer round trip can change which named local survives optimization despite producing no instructions. Once it survives, declaration order controls relative allocation; adding the cast alone swapped the wrong two AddObject registers.
 - Merely assigning a comparison to a named bool can move the result from an inline temporary to the target register. Widening the same result to int/u32 did not work in RemoveObject.
 - Stack parity fixes require examining every frame object, not just the empty tags: BWorld vector(size_type) needed an outer forwarding helper and separate inner allocation/construction helpers together.
+
+## 2026-11-04 enum zero-value identity
+
+The CPauseMenu enum-local result closes both remaining BWorld functions. Inside the first GetSkipStates branch, a redundant zero assignment followed by a const BWorldObj::StateFlag view of that zero preserves a distinct value for the target's zero-load/OR pair. The branch then combines that typed zero with the existing STATE_PAUSE_FOR_UI enumerator. The source enters this first branch with states already zero, so behavior is unchanged. Unlike a u32 temporary, the enum value does not coalesce into the result register. The existing public state enum avoids inventing another type.
+
+Calc also uses the previously diagnosed fresh iterator declaration in the inner for loop, instead of reassigning the earlier loop's iterator. Isolated stateexisting0 compilation measures all 196 functions at 100%, with no previous exact function lost. The narrow shared-header edit was coordinated and approved by the parent agent, then applied with the source iterator edit. This redundant assignment/typed-zero construct is a D-0016 fake; it is included in the same ledger scope as the existing BWorld allocation/order adaptations.
+
+Whole-unit native linking is not yet accepted. The current source still has weak-function emission-order differences and 208 non-relocation .data bytes that need ordering work. Individual 196/196 function coverage does not close that link requirement.

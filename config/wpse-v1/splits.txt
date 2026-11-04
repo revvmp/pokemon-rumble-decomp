@@ -3282,6 +3282,9 @@ RVL_SDK/gx/GXAttr.c:
 	.data       start:0x803D6110 end:0x803D6300
 	.sdata      start:0x804B8B28 end:0x804B8B34
 
+RVL_SDK/gx/GXRenderModeData.c:
+	.data       start:0x803D6300 end:0x803D6468
+
 RVL_SDK/gx/GXMisc.c:
 	.text       start:0x802CC630 end:0x802CCE30
 	.sbss       start:0x804B96E0 end:0x804B96F4

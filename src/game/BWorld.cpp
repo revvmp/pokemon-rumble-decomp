@@ -1037,7 +1037,7 @@ void BWorld::Calc() {
 
     while (lastHandle != mLastObjHandle) {
         lastHandle = mLastObjHandle;
-        for (it = mObjEntries.begin(); it != mObjEntries.end(); ++it) {
+        for (std::vector<ObjEntry>::iterator it = mObjEntries.begin(); it != mObjEntries.end(); ++it) {
             BWorldObj* pObj = it->mObj.get();
             if (pObj != nullptr && !(pObj->mState & skipStates) && (it->mFlags & ENTRY_NEW)) {
                 pObj->Calc();

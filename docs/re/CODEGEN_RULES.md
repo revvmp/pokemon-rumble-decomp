@@ -32,6 +32,8 @@ The allocator and scheduler are recovered in [sprint-ra](findings/sprint-ra.md).
 - Mixing the engine parameter and its `CPpuEngine*` cast moves a string pop's frame address; `#pragma scheduling off` reproduces the target in a sandbox. [sprint-p1](findings/sprint-p1.md#rules)
 - Open cases (tried, not solved): [sprint-r1](findings/sprint-r1.md#open-cases-tried-not-solved), [sprint-ra](findings/sprint-ra.md#diagnosed-not-fixed).
 
+- **An enum-typed local can preserve a distinct value when ordinary integer locals collapse during optimization.** CPauseMenu's const area enum restores area-first extraction with mode-first bitfield insertion; BWorld's const state enum preserves a separate zero-load operand before OR. Both fixes retain all native instructions; integer-local controls did not. Use the actual enum when available, or cover the complete input range in a documented local type. This is a tested source control, not a guarantee for every register mismatch. [CPauseMenu tail](findings/167-cpausemenu-tail.md#leavestage-solved), [BWorld tail](findings/45-bworld-tail.md#2026-11-04-enum-zero-value-identity).
+
 ## Loads and constants
 
 - **A `const T&` or const pointer lets loads be cached across stores.** Non-const references, pointers and by-value class parameters reload after each store. In const member functions, loads from `this` may hoist above the prologue. Fix by making the parameter non-const or by-value, and rename the mangled symbol. [sprint-w1o](findings/sprint-w1o.md#rule-a-const-reference-lets-codewarrior-cache-loads-across-stores)

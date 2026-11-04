@@ -402,15 +402,42 @@ std::tr1::shared_ptr<CLayout::CMotionProgram> CLayout::BuildMotion(const char* p
     return std::tr1::shared_ptr<CMotionProgram>();
 }
 
+typedef std::detail::tree<const void*, std::less<const void*>, std::allocator<const void*> > LayoutPaneTree;
+
+inline std::set<nw4r::lyt::Pane*>::const_iterator BeginLayoutDescendants(std::set<nw4r::lyt::Pane*>& rSet) {
+    LayoutPaneTree& rTree = reinterpret_cast<LayoutPaneTree&>(rSet);
+    LayoutPaneTree::iterator resultIterator;
+    LayoutPaneTree::iterator sourceIterator;
+    std::detail::tree_node_base* pNode = rTree.front();
+    static_cast<LayoutPaneTree::node* volatile&>(sourceIterator.node_) = static_cast<LayoutPaneTree::node*>(pNode);
+    resultIterator.node_ = static_cast<LayoutPaneTree::node*>(pNode);
+    return reinterpret_cast<std::set<nw4r::lyt::Pane*>::const_iterator&>(resultIterator);
+}
+
+inline std::set<nw4r::lyt::Pane*>::const_iterator EndLayoutDescendants(std::set<nw4r::lyt::Pane*>& rSet) {
+    LayoutPaneTree& rTree = reinterpret_cast<LayoutPaneTree&>(rSet);
+    LayoutPaneTree::iterator resultIterator;
+    LayoutPaneTree::iterator sourceIterator;
+    std::detail::tree_node_base* pNode = rTree.end_node();
+    static_cast<LayoutPaneTree::node* volatile&>(sourceIterator.node_) = static_cast<LayoutPaneTree::node*>(pNode);
+    resultIterator.node_ = static_cast<LayoutPaneTree::node*>(pNode);
+    return reinterpret_cast<std::set<nw4r::lyt::Pane*>::const_iterator&>(resultIterator);
+}
+
 inline void CLayout::RebindAnimations() {
+    struct LayoutMapStorage {
+        unsigned long mSize;
+        std::detail::tree_node_base* mpRoot;
+        std::detail::tree_node_base* mpFirst;
+    };
     PaneProgramMap::iterator it;
     std::set<nw4r::lyt::Pane*>::const_iterator child;
-    for (it = mPanePrograms.begin(); it != mPanePrograms.end(); ++it) {
+    for (it = reinterpret_cast<PaneProgramMap::iterator&>(reinterpret_cast<LayoutMapStorage&>(mPanePrograms).mpFirst); it != mPanePrograms.end(); ++it) {
         if (!(*it).second->mMotions.empty()) {
             MotionList::iterator front = (*it).second->mMotions.begin();
             (*it).second->mpPane->UnbindAnimation((*front)->mpAnimTransform, true);
             (*it).second->mpPane->BindAnimation((*front)->mpAnimTransform, true, false);
-            for (child = (*it).second->mDescendants.begin(); child != (*it).second->mDescendants.end(); ++child) {
+            for (child = BeginLayoutDescendants((*it).second->mDescendants); child != EndLayoutDescendants((*it).second->mDescendants); ++child) {
                 (*child)->UnbindAnimation((*front)->mpAnimTransform, true);
             }
         }
