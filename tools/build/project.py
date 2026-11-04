@@ -49,6 +49,7 @@ class Object:
             "extra_asflags": [],
             "extra_cflags": [],
             "extra_clang_flags": [],
+            "partial_sources": [],
             "lib": None,
             "mw_version": None,
             "progress_category": None,
@@ -971,14 +972,37 @@ def generate_build_ninja(
                     f"{i:02x}" for i in obj.options["extab_padding"]
                 )
             n.comment(f"{obj.name}: {lib_name} (linked {obj.completed})")
-            n.build(
-                outputs=obj.src_obj_path,
-                rule=build_rule,
-                inputs=src_path,
-                variables=variables,
-                implicit=build_implcit,
-                order_only="pre-compile",
-            )
+            partial_sources = obj.options["partial_sources"]
+            compile_sources = [src_path]
+            compile_sources.extend(Path(obj.options["src_dir"]) / name for name in partial_sources)
+            compile_outputs = []
+            for compile_source in compile_sources:
+                compile_output = obj.src_obj_path
+                if partial_sources:
+                    compile_output = obj.src_obj_path.with_suffix("") / compile_source.with_suffix(".o").name
+                compile_variables = dict(variables)
+                compile_variables["basedir"] = os.path.dirname(compile_output)
+                compile_variables["basefile"] = compile_output.with_suffix("")
+                n.build(
+                    outputs=compile_output,
+                    rule=build_rule,
+                    inputs=compile_source,
+                    variables=compile_variables,
+                    implicit=build_implcit,
+                    order_only="pre-compile",
+                )
+                compile_outputs.append(compile_output)
+            if partial_sources:
+                n.build(
+                    outputs=obj.src_obj_path,
+                    rule="link",
+                    inputs=compile_outputs,
+                    variables={
+                        "mw_version": Path(obj.options["mw_version"]),
+                        "ldflags": "-nodefaults -fp hardware -r",
+                    },
+                    implicit=mwld_implicit,
+                )
 
             if obj.ctx_path is not None:
                 include_dirs = []

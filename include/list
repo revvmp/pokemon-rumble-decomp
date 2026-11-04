@@ -66,7 +66,11 @@ public:
         }
         bool operator==(const generic_iterator& rOther) const { return node_ == rOther.node_; }
         bool operator!=(const generic_iterator& rOther) const { return node_ != rOther.node_; }
+#if defined(GAME_SCRIPTWORLDOBJ_SEPARATE_TEMPLATES)
+        node_base* base() const;
+#else
         node_base* base() const { return node_; }
+#endif
 
     private:
         node* node_;
@@ -134,9 +138,14 @@ public:
 
     void clear() { erase(this, begin(), end()); }
 
+#if defined(GAME_SCRIPTWORLDOBJ_SEPARATE_TEMPLATES)
+    Allocator& alloc() { return size_.first(); }
+#endif
     size_type& size_ref() { return size_.second(); }
     const size_type& size_ref() const { return size_.second(); }
+#if !defined(GAME_SCRIPTWORLDOBJ_SEPARATE_TEMPLATES)
     Allocator& alloc() { return size_.first(); }
+#endif
     const Allocator& alloc() const { return size_.first(); }
     node_allocator& node_alloc() { return tail_.first(); }
 

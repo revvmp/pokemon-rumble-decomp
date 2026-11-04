@@ -501,6 +501,9 @@ public:
             }
         }
     }
+#if defined(MAIN_EMISSION_LAYOUT)
+    ~function();
+#else
     ~function() {
         if (f_ == local()) {
             f_->~base();
@@ -508,6 +511,7 @@ public:
             delete f_;
         }
     }
+#endif
 
     function& operator=(const function& r) {
         function tmp(r);
@@ -552,6 +556,17 @@ private:
     base* f_;
     union { char buf_[8]; unsigned long words_[2]; };
 };
+#if defined(MAIN_EMISSION_LAYOUT)
+template <typename R, typename A, typename B, typename C, typename D>
+function<R(A,B,C,D)>::~function() {
+    if (f_ == local()) {
+        f_->~base();
+    } else if (f_ != nullptr) {
+        delete f_;
+    }
+}
+#endif
+
 
 namespace detail {
 template<class A,class B> class function_base<void (*)(A,B)> {

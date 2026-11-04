@@ -1,5 +1,7 @@
 #define CFILEDATA_EMISSION_LAYOUT
 namespace std { namespace detail { template <typename Tree, typename Compare> struct map_leaf_search; } }
+#include <exception>
+#include <MSL_CPP/detail/shared_ptr.h>
 #include <MSL_CPP/allocator.h>
 #include <MSL_CPP/alloc_ptr.h>
 namespace std { namespace tr1 { namespace detail { template <typename T, typename D> class shared_ptr_holder; } } }
@@ -415,12 +417,11 @@ inline void* AllocateStagingBuffer(u32 size, int alignment, u32 flags) {
 }
 
 typedef std::detail::map_compact_tree<CNTHandleMapBase::value_type, std::detail::map_base_value_compare<nw4r::ut::CNTHandleWithMutex*, std::tr1::weak_ptr<nw4r::ut::CNTHandleWithMutex>, std::less<nw4r::ut::CNTHandleWithMutex*> >, std::allocator<CNTHandleMapBase::value_type> > CNTHandleTree;
-template <> inline std::pair<CNTHandleTree::iterator, bool> CNTHandleTree::insert_one(const CNTHandleMapBase::value_type& rValue) {
-    typedef std::detail::map_base_value_compare<nw4r::ut::CNTHandleWithMutex*, std::tr1::weak_ptr<nw4r::ut::CNTHandleWithMutex>, std::less<nw4r::ut::CNTHandleWithMutex*> > Compare;
+template <typename T, typename Compare, typename Allocator> std::pair<typename std::detail::map_compact_tree<T, Compare, Allocator>::iterator, bool> std::detail::map_compact_tree<T, Compare, Allocator>::insert_one(const T& rValue) {
     node* pPred;
     bool left;
     bool leftmost;
-    std::detail::tree_node_base* pParent = std::detail::map_leaf_search<CNTHandleTree, Compare>::find(this, rValue, pPred, left, leftmost);
+    std::detail::tree_node_base* pParent = std::detail::map_leaf_search<map_compact_tree, Compare>::find(this, rValue, pPred, left, leftmost);
     if (pPred == nullptr || Compare()(pPred->value_, rValue)) {
         return std::pair<iterator, bool>(iterator(insert_node_at(pParent, left, leftmost, rValue)), true);
     }
@@ -610,7 +611,7 @@ typedef std::detail::map_base<std::string, std::tr1::weak_ptr<CFileData>, std::l
 template <> inline std::tr1::weak_ptr<CFileData>& FileCacheMapBase::operator[](const std::string& rKey) { return tree_.find_or_insert(rKey).second; }
 inline CPath::CPath(const CPath& rOther) : mDevice(rOther.mDevice), mComponents(*reinterpret_cast<const std::list<std::string>*>(reinterpret_cast<const char*>(&rOther)+sizeof(rOther.mDevice))) {}
 
-std::tr1::shared_ptr<CFileData> OpenFileData(const CPath& rPath, u32 flags, long& rError) {
+inline std::tr1::shared_ptr<CFileData> OpenFileData(const CPath& rPath, u32 flags, long& rError) {
     {
         std::tr1::shared_ptr<CFileData> cached = FindLoadedFile(rPath);
         if (cached) {

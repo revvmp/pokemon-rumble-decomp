@@ -31,6 +31,10 @@ template <typename T> struct default_delete<T[]> {
 }
 }
 
+#if defined(SAVEDATA_EMISSION_LAYOUT)
+#include <MSL_CPP/detail/shared_ptr_holder.h>
+#endif
+
 namespace Metrowerks {
 template <typename T, typename D = std::detail::default_delete<T> > class move_ptr {
     struct nat {
@@ -62,35 +66,12 @@ template <typename T, typename D> move_ptr<T, D>::~move_ptr() {
 }
 }
 
+#if !defined(SAVEDATA_EMISSION_LAYOUT)
+#include <MSL_CPP/detail/shared_ptr_holder.h>
+#endif
+
 namespace std {
 namespace tr1 {
-
-namespace detail {
-
-template <typename T> struct shared_ptr_reference { typedef T& type; };
-template <> struct shared_ptr_reference<void> { typedef void type; };
-
-template <typename T, typename D> class shared_ptr_holder {
-public:
-    shared_ptr_holder(T* pObject, D& rDeleter) : ptr_(pObject, rDeleter) {}
-    ~shared_ptr_holder();
-    T* release() {
-        T* p = ptr_.first();
-        ptr_.first() = nullptr;
-        return p;
-    }
-
-private:
-    Metrowerks::compressed_pair<T*, D&> ptr_;
-};
-
-template <typename T, typename D> shared_ptr_holder<T, D>::~shared_ptr_holder() {
-    if (ptr_.first()) {
-        ptr_.second()(ptr_.first());
-    }
-}
-
-}
 
 namespace detail {
 struct unused_argument;
@@ -138,7 +119,11 @@ public:
 
     T* get() const { return ptr_; }
     typename detail::shared_ptr_reference<T>::type operator*() const { return *ptr_; }
+#if defined(MAIN_EMISSION_LAYOUT)
+    T* operator->() const;
+#else
     T* operator->() const { return ptr_; }
+#endif
     long use_count() const { return s_ ? s_->use_count() : 0; }
     operator int bool_type::*() const { return ptr_ ? &bool_type::dummy_ : nullptr; }
     template <typename Y> bool operator<(const shared_ptr<Y>& r) const { return s_ < r.s_; }

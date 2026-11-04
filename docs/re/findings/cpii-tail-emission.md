@@ -31,3 +31,24 @@ The source and inferred symbol are corrected to `GetSnapshot__Q226@unnamed@CGame
 ## Traps
 
 An added destructor layer also changes constructor inlining depth when constructors forward through it. This can improve cleanup branches while moving tag slots or register allocation in generic copy/swap operations. Check the complete consumers, not only the destructor that motivated the change.
+
+## CGameSession source-link exception cleanup audit
+
+Removing the unit-wide `force_active` region leaves all 219 target functions emitted while reducing the failed source-link excess from approximately 51 KiB of code to 352 bytes in the complete DOL. Exact full-link acceptance remains pending.
+
+The remaining mismatch exposes incorrectly inferred template names that function-only scoring concealed. Matching original and generated exception-table records by their owning function proves these cleanup identities:
+
+| Target address | Proven cleanup type | Evidence owner |
+| --- | --- | --- |
+| `0x800BAE60` | value allocator deleter for `SD_PiiPersonalData` | corresponding vector reserve |
+| `0x800BAED0` | value allocator deleter for `SD_PiiCollectionData` | corresponding vector reserve |
+| `0x800BAF40` | value allocator deleter for `SD_BattleRoyalData` | corresponding vector reserve |
+| `0x800BAFB0` | value allocator deleter for `SD_StatisticValue` | SaveData vector copy constructor |
+| `0x800BB020` | value allocator deleter for `SD_StatisticValue::Data` | corresponding vector reserve |
+| `0x800BB090` | value allocator deleter for `SD_PiiPersonalData::Data` | corresponding vector reserve |
+| `0x800BC0E0` | `shared_ptr<MapDesc>` destructor | all nine CreateMapDesc cleanup entries |
+| `0x800BC9D0` | reference allocator deleter for `shared_ptr<MapDesc>` | CreateMapDesc and its vector split-buffer destructor |
+
+The six trivial deleters had been labeled as unrelated element types with reference allocators. Their identical instruction bodies hid the false naming. The local `shared_ptr<char>` name at `0x800BC0E0` was likewise false: its nine exception entries correspond exactly to generated `shared_ptr<MapDesc>` cleanups. The target reference allocator on MapDesc is real; the earlier inferred value-allocator name was wrong. Original data and instruction bytes are unchanged by correcting these identities. A full object relocation scan found the statistic-value deleter's sole non-index original reference in SaveData's vector copy constructor, corroborating the cross-unit identity.
+
+The first corrected link reduced the excess to a 160-byte deficit. A second audit resolves the apparent remaining duplicate: `0x800BBD80` is `shared_ptr<IGameStage>` (CGameSession constructor cleanup), while `0x800BC050` is `shared_ptr<IGameSession>` (main's RunSession cleanup). The two original RunSession entries at offsets `0x984` and `0x990` select this latter destructor. The split-buffer cleanup names at `0x800BC630` and `0x800BC830` are also transposed: their respective vector push_back owners establish outer collection data and inner personal data. These corrections require no source surrogate or fabricated storage. Remaining source function emission order is being repaired independently of instruction matching.

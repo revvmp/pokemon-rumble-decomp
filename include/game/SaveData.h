@@ -106,8 +106,13 @@ public:
 
     SD_StatisticValue() { ClearData(); }
 
+#if defined(SAVEDATA_EMISSION_LAYOUT)
+    static u16 GetDataSize();
+    void ClearData();
+#else
     static u16 GetDataSize() { return sizeof(Data); }
     void ClearData() { memset(&mData, 0, sizeof(mData)); }
+#endif
 
     Data mData;
 
@@ -122,8 +127,13 @@ public:
 
     SD_PiiCollectionData() { ClearData(); }
 
+#if defined(SAVEDATA_EMISSION_LAYOUT)
+    static u16 GetDataSize();
+    void ClearData();
+#else
     static u16 GetDataSize() { return sizeof(Data); }
     void ClearData() { memset(&mData, 0, sizeof(mData)); }
+#endif
 
     Data mData;
 
@@ -138,8 +148,13 @@ public:
 
     UsedPassword() { ClearData(); }
 
+#if defined(SAVEDATA_EMISSION_LAYOUT)
+    static u16 GetDataSize();
+    void ClearData();
+#else
     static u16 GetDataSize() { return sizeof(Data); }
     void ClearData() { memset(&mData, 0, sizeof(mData)); }
+#endif
 
     Data mData;
 
@@ -182,8 +197,13 @@ public:
     SlotData() { ClearData(); }
     SlotData(const SlotData& other);
 
+#if defined(SAVEDATA_EMISSION_LAYOUT)
+    static u16 GetDataSize();
+    void ClearData();
+#else
     static u16 GetDataSize() { return sizeof(Data); }
     void ClearData() { memset(&mData, 0, sizeof(mData)); }
+#endif
 
     virtual std::vector<SD_PiiPersonalData>* GetPiiPersonalData() { return &mPiiPersonalData; }
     virtual std::vector<SD_PiiCollectionData>* GetPiiCollectionData() { return &mPiiCollectionData; }
@@ -215,8 +235,13 @@ public:
 
     SaveData() { ClearData(); }
 
+#if defined(SAVEDATA_EMISSION_LAYOUT)
+    static u16 GetDataSize();
+    void ClearData();
+#else
     static u16 GetDataSize() { return sizeof(Data); }
     void ClearData() { memset(&mData, 0, sizeof(mData)); }
+#endif
 
     virtual std::vector<SlotData>* GetSlotData() { return &mSlotData; }
 

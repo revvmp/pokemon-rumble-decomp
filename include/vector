@@ -89,13 +89,19 @@ public:
     size_type recommend_extra(size_type n) { return recommend(n); }
     size_type recommend_append(size_type n) { return recommend_extra(n); }
 
+#if defined(CDLGMSGWIN_EMISSION_LAYOUT)
+    void reallocate(size_type n);
+#endif
+
     void append_realloc(size_type n);
     void append_realloc(size_type n, const T& x);
 
     void append(size_type n) { append(n, pod_type()); }
     void append(size_type n, pod_type);
 
+#if !defined(CDLGMSGWIN_EMISSION_LAYOUT)
     void reallocate(size_type n);
+#endif
 
     T* data_;
     size_type size_;
@@ -122,7 +128,11 @@ public:
     void erase_at_end(size_type n) { erase_tail(n, pod_type()); }
 protected:
     void erase_tail(size_type n, Metrowerks::int2type<false>);
+#if defined(SAVEDATA_EMISSION_LAYOUT)
+    void erase_tail(size_type n, Metrowerks::int2type<true>);
+#else
     void erase_tail(size_type n, Metrowerks::int2type<true>) { size_ -= n; }
+#endif
     void erase_at_end(size_type& n, Metrowerks::int2type<true>) { size_ -= n; }
 
 public:

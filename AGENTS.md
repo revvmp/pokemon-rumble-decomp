@@ -117,6 +117,8 @@ Keep entries concise and actionable. Distinguish confirmed findings from hypothe
 
 - **A zeroed duplicate vtable can hide an unnamed earlier definition.** CTitleSession differed by four pointers in an otherwise zeroed ISession table. Naming the verified earlier vtable and RTTI let the linker discard the duplicate and reproduced every byte. Check earlier ownership before adding padding or suppressing a class vtable; see [CTitleSession acceptance](docs/re/findings/212-ctitlesession.md#f-212-5-complete-source-link-tail).
 
+- **Function scoring can accept the wrong literal.** CDlgMsgWin scored 218/218 with `off` where the target Dismiss routine references `end`. Compare relocation-backed literal content and order before accepting; full SHA rejected the candidate and passed after correction. See [CDlgMsgWin acceptance](docs/re/findings/73-cdlgmsgwin-tail.md).
+
 ## Current project state
 
 | Current state | Value |

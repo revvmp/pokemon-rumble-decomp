@@ -50,6 +50,23 @@ template <class First, class Second> class CompressedPairStorage<First, Second, 
     First mFirst;
     Second mSecond;
 public:
+#if defined(GAME_SCRIPTWORLDOBJ_CONTAINER_TAIL)
+    CompressedPairStorage();
+    CompressedPairStorage(typename call_traits<First>::param_type rFirst, typename call_traits<Second>::param_type rSecond);
+    First& first();
+    const First& first() const;
+    Second& second();
+    const Second& second() const;
+    void swap(CompressedPairStorage& rOther);
+#elif defined(GAME_SCRIPTWORLDOBJ_SEPARATE_TEMPLATES)
+    CompressedPairStorage() : mFirst(), mSecond() {}
+    CompressedPairStorage(typename call_traits<First>::param_type rFirst, typename call_traits<Second>::param_type rSecond) : mFirst(rFirst), mSecond(rSecond) {}
+    First& first();
+    const First& first() const { return mFirst; }
+    Second& second();
+    const Second& second() const { return mSecond; }
+    void swap(CompressedPairStorage& rOther) { std::swap(mFirst, rOther.mFirst); std::swap(mSecond, rOther.mSecond); }
+#else
     CompressedPairStorage() : mFirst(), mSecond() {}
     CompressedPairStorage(typename call_traits<First>::param_type rFirst, typename call_traits<Second>::param_type rSecond) : mFirst(rFirst), mSecond(rSecond) {}
     First& first() { return mFirst; }
@@ -57,10 +74,43 @@ public:
     Second& second() { return mSecond; }
     const Second& second() const { return mSecond; }
     void swap(CompressedPairStorage& rOther) { std::swap(mFirst, rOther.mFirst); std::swap(mSecond, rOther.mSecond); }
+#endif
 };
 template <class First, class Second> class CompressedPairStorage<First, Second, 1> : private First {
     Second mSecond;
 public:
+#if defined(GAME_SCRIPTWORLDOBJ_COPY_CTORS)
+    CompressedPairStorage();
+    CompressedPairStorage(const CompressedPairStorage& rOther);
+    explicit CompressedPairStorage(typename call_traits<First>::param_type rFirst);
+    explicit CompressedPairStorage(typename call_traits<Second>::param_type rSecond);
+    CompressedPairStorage(typename call_traits<First>::param_type rFirst, typename call_traits<Second>::param_type rSecond);
+    First& first();
+    const First& first() const;
+    Second& second();
+    const Second& second() const;
+    void swap(CompressedPairStorage& rOther);
+#elif defined(GAME_SCRIPTWORLDOBJ_CONTAINER_TAIL)
+    CompressedPairStorage();
+    explicit CompressedPairStorage(typename call_traits<First>::param_type rFirst);
+    explicit CompressedPairStorage(typename call_traits<Second>::param_type rSecond);
+    CompressedPairStorage(typename call_traits<First>::param_type rFirst, typename call_traits<Second>::param_type rSecond);
+    First& first();
+    const First& first() const;
+    Second& second();
+    const Second& second() const;
+    void swap(CompressedPairStorage& rOther);
+#elif defined(GAME_SCRIPTWORLDOBJ_SEPARATE_TEMPLATES)
+    CompressedPairStorage() : mSecond() {}
+    explicit CompressedPairStorage(typename call_traits<First>::param_type rFirst) : First(rFirst), mSecond() {}
+    explicit CompressedPairStorage(typename call_traits<Second>::param_type rSecond) : mSecond(rSecond) {}
+    CompressedPairStorage(typename call_traits<First>::param_type rFirst, typename call_traits<Second>::param_type rSecond) : First(rFirst), mSecond(rSecond) {}
+    First& first();
+    const First& first() const { return *this; }
+    Second& second() { return mSecond; }
+    const Second& second() const { return mSecond; }
+    void swap(CompressedPairStorage& rOther) { std::swap(mSecond, rOther.mSecond); }
+#else
     CompressedPairStorage() : mSecond() {}
     explicit CompressedPairStorage(typename call_traits<First>::param_type rFirst) : First(rFirst), mSecond() {}
     explicit CompressedPairStorage(typename call_traits<Second>::param_type rSecond) : mSecond(rSecond) {}
@@ -70,10 +120,32 @@ public:
     Second& second() { return mSecond; }
     const Second& second() const { return mSecond; }
     void swap(CompressedPairStorage& rOther) { std::swap(mSecond, rOther.mSecond); }
+#endif
 };
 template <class First, class Second> class CompressedPairStorage<First, Second, 2> : private Second {
     First mFirst;
 public:
+#if defined(GAME_SCRIPTWORLDOBJ_CONTAINER_TAIL)
+    CompressedPairStorage();
+    explicit CompressedPairStorage(typename call_traits<First>::param_type rFirst);
+    explicit CompressedPairStorage(typename call_traits<Second>::param_type rSecond);
+    CompressedPairStorage(typename call_traits<First>::param_type rFirst, typename call_traits<Second>::param_type rSecond);
+    First& first();
+    const First& first() const;
+    Second& second();
+    const Second& second() const;
+    void swap(CompressedPairStorage& rOther);
+#elif defined(GAME_SCRIPTWORLDOBJ_SEPARATE_TEMPLATES)
+    CompressedPairStorage() {}
+    explicit CompressedPairStorage(typename call_traits<First>::param_type rFirst) : mFirst(rFirst) {}
+    explicit CompressedPairStorage(typename call_traits<Second>::param_type rSecond) : Second(rSecond) {}
+    CompressedPairStorage(typename call_traits<First>::param_type rFirst, typename call_traits<Second>::param_type rSecond) : Second(rSecond), mFirst(rFirst) {}
+    First& first();
+    const First& first() const { return mFirst; }
+    Second& second();
+    const Second& second() const { return *this; }
+    void swap(CompressedPairStorage& rOther) { std::swap(mFirst, rOther.mFirst); }
+#else
     CompressedPairStorage() {}
     explicit CompressedPairStorage(typename call_traits<First>::param_type rFirst) : mFirst(rFirst) {}
     explicit CompressedPairStorage(typename call_traits<Second>::param_type rSecond) : Second(rSecond) {}
@@ -83,9 +155,19 @@ public:
     Second& second() { return *this; }
     const Second& second() const { return *this; }
     void swap(CompressedPairStorage& rOther) { std::swap(mFirst, rOther.mFirst); }
+#endif
 };
 template <class First, class Second> class CompressedPairStorage<First, Second, 3> : private First, private Second {
 public:
+#if defined(GAME_SCRIPTWORLDOBJ_CONTAINER_TAIL)
+    CompressedPairStorage();
+    CompressedPairStorage(typename call_traits<First>::param_type rFirst, typename call_traits<Second>::param_type rSecond);
+    First& first();
+    const First& first() const;
+    Second& second();
+    const Second& second() const;
+    void swap(CompressedPairStorage& rOther);
+#else
     CompressedPairStorage() {}
     CompressedPairStorage(typename call_traits<First>::param_type rFirst, typename call_traits<Second>::param_type rSecond) : First(rFirst), Second(rSecond) {}
     First& first() { return *this; }
@@ -93,6 +175,7 @@ public:
     Second& second() { return *this; }
     const Second& second() const { return *this; }
     void swap(CompressedPairStorage& rOther) {  }
+#endif
 };
 template <class First, class Second> struct PairStorageKind {
     enum {
@@ -108,11 +191,26 @@ class compressed_pair : private detail::CompressedPairStorage<First, Second, det
 public:
     typedef typename call_traits<First>::param_type first_param;
     typedef typename call_traits<Second>::param_type second_param;
+#if defined(GAME_SCRIPTWORLDOBJ_COPY_CTORS)
+    compressed_pair();
+    compressed_pair(const compressed_pair& rOther);
+    explicit compressed_pair(first_param rFirst);
+    explicit compressed_pair(second_param rSecond);
+    compressed_pair(first_param rFirst, second_param rSecond);
+    void swap(compressed_pair& rOther);
+#elif defined(GAME_SCRIPTWORLDOBJ_CONTAINER_TAIL)
+    compressed_pair();
+    explicit compressed_pair(first_param rFirst);
+    explicit compressed_pair(second_param rSecond);
+    compressed_pair(first_param rFirst, second_param rSecond);
+    void swap(compressed_pair& rOther);
+#else
     compressed_pair() {}
     explicit compressed_pair(first_param rFirst) : Storage(rFirst) {}
     explicit compressed_pair(second_param rSecond) : Storage(rSecond) {}
     compressed_pair(first_param rFirst, second_param rSecond) : Storage(rFirst, rSecond) {}
     void swap(compressed_pair& rOther) { Storage::swap(rOther); }
+#endif
     using Storage::first;
     using Storage::second;
 };

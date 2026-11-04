@@ -1,11 +1,13 @@
+#define CDLGMSGWIN_EMISSION_LAYOUT 1
+
 #include <memory>
 
 namespace std {
 namespace tr1 {
 namespace detail {
-template <> class shared_ptr_deleter<char, std::detail::default_delete<char[]> > : public shared_ptr_deleter_common {
+template <typename D> class shared_ptr_deleter<char, D> : public shared_ptr_deleter_common {
 public:
-    typedef std::detail::default_delete<char[]> Deleter;
+    typedef D Deleter;
     explicit shared_ptr_deleter(char* pObject) : mStorage(pObject) {}
     shared_ptr_deleter(char* pObject, Deleter& rDeleter);
     virtual const void* get_deleter(const type_info& rType) const {
@@ -55,6 +57,16 @@ public:
         std::wstring mLabel;
         std::wstring mText;
     };
+
+    void Initialize(bool background) {
+        std::tr1::shared_ptr<CLayout::FontMap> fonts = GetDefaultFontMap();
+        mLayout.Load(gSharedLayoutArchives, "dlgmsgwin", fonts, background);
+        mOptions.reserve(4);
+        mDefaultOption = 0;
+        mOpen = false;
+        mLayout.CreateMotion("off");
+        mControllerSlot = -1;
+    }
 
     explicit CDlgMsgWin(bool registerForUpdates)
         : mRegisterForUpdates(registerForUpdates) {}
@@ -247,7 +259,7 @@ public:
         mOpen = false;
         mOptions.resize(0);
         mDefaultOption = 0;
-        mMotion = mLayout.CreateMotion("off");
+        mMotion = mLayout.CreateMotion("end");
         if (mRegisterForUpdates) {
             GetCurrentGameMap()->UnregisterDialog(shared_from_this());
         }
@@ -330,15 +342,7 @@ public:
         mLayout.Draw();
     }
 
-    void Initialize(bool background) {
-        std::tr1::shared_ptr<CLayout::FontMap> fonts = GetDefaultFontMap();
-        mLayout.Load(gSharedLayoutArchives, "dlgmsgwin", fonts, background);
-        mOptions.reserve(4);
-        mDefaultOption = 0;
-        mOpen = false;
-        mLayout.CreateMotion("off");
-        mControllerSlot = -1;
-    }
+
 
 private:
     bool mRegisterForUpdates;
@@ -362,7 +366,7 @@ std::tr1::shared_ptr<IDlgMsgWin> IDlgMsgWin::Create(bool registerForUpdates, boo
 namespace std {
 namespace tr1 {
 namespace detail {
-shared_ptr_deleter<char, std::detail::default_delete<char[]> >::shared_ptr_deleter(char* pObject, Deleter& rDeleter)
+template <typename D> inline shared_ptr_deleter<char, D>::shared_ptr_deleter(char* pObject, D& rDeleter)
     : mStorage(pObject, rDeleter) {}
 }
 }

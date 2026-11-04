@@ -1,3 +1,17 @@
+#define SAVEDATA_EMISSION_LAYOUT
+class SD_PiiPersonalData;
+class SD_PiiCollectionData;
+class SD_BattleRoyalData;
+class SlotData;
+class SD_StatisticValue;
+class UsedPassword;
+#include <vector>
+typedef char UsedPasswordVectorStorage[sizeof(std::__vec_deleter<UsedPassword, std::allocator<UsedPassword> >)];
+typedef char SD_StatisticValueVectorStorage[sizeof(std::__vec_deleter<SD_StatisticValue, std::allocator<SD_StatisticValue> >)];
+typedef char SlotDataVectorStorage[sizeof(std::__vec_deleter<SlotData, std::allocator<SlotData> >)];
+typedef char SD_BattleRoyalDataVectorStorage[sizeof(std::__vec_deleter<SD_BattleRoyalData, std::allocator<SD_BattleRoyalData> >)];
+typedef char SD_PiiCollectionDataVectorStorage[sizeof(std::__vec_deleter<SD_PiiCollectionData, std::allocator<SD_PiiCollectionData> >)];
+typedef char SD_PiiPersonalDataVectorStorage[sizeof(std::__vec_deleter<SD_PiiPersonalData, std::allocator<SD_PiiPersonalData> >)];
 #include <game/SaveData.h>
 
 #include <game/FileList.h>
@@ -12,6 +26,13 @@
 #include <revolution/tpl.h>
 #include <stddef.h>
 #include <string.h>
+
+template <> inline void std::__vec_deleter<SD_PiiCollectionData, std::allocator<SD_PiiCollectionData> >::erase_tail(size_type n, Metrowerks::int2type<true>);
+template <> inline void std::__vec_deleter<SD_StatisticValue, std::allocator<SD_StatisticValue> >::erase_tail(size_type n, Metrowerks::int2type<true>);
+template <> inline void std::__vec_deleter<UsedPassword, std::allocator<UsedPassword> >::erase_tail(size_type n, Metrowerks::int2type<true>);
+
+template <> inline void std::__vec_deleter<SD_BattleRoyalData, std::allocator<SD_BattleRoyalData> >::erase_tail(size_type n, Metrowerks::int2type<true>);
+template <> inline void std::__vec_deleter<SD_PiiPersonalData, std::allocator<SD_PiiPersonalData> >::erase_tail(size_type n, Metrowerks::int2type<true>);
 
 namespace std {
 template <> inline void __vec_deleter<SD_PiiPersonalData, allocator<SD_PiiPersonalData> >::erase_at_end(size_type n) {
@@ -532,6 +553,12 @@ static inline int GetSaveSize(const std::tr1::shared_ptr<CFileData>& file) {
     return file->GetSize();
 }
 
+u16 SD_PiiCollectionData::GetDataSize() { return sizeof(Data); }
+u16 SlotData::GetDataSize() { return sizeof(Data); }
+u16 SD_StatisticValue::GetDataSize() { return sizeof(Data); }
+u16 UsedPassword::GetDataSize() { return sizeof(Data); }
+u16 SaveData::GetDataSize() { return sizeof(Data); }
+
 int Load(bool backup) {
     sSaveData.reset(new SaveData);
     sSaveData->mSlotData.resize(SLOT_COUNT);
@@ -570,6 +597,18 @@ int Load(bool backup) {
     DeserializeStruct(*sSaveData, pHeader->mDataSize, reinterpret_cast<u8*>(pHeader + 1));
     return LOAD_RESULT_OK;
 }
+
+template <> inline void std::__vec_deleter<SD_BattleRoyalData, std::allocator<SD_BattleRoyalData> >::erase_tail(size_type n, Metrowerks::int2type<true>) { size_ -= n; }
+template <> inline void std::__vec_deleter<SD_PiiPersonalData, std::allocator<SD_PiiPersonalData> >::erase_tail(size_type n, Metrowerks::int2type<true>) { size_ -= n; }
+
+void SD_PiiCollectionData::ClearData() { memset(&mData, 0, sizeof(mData)); }
+template <> inline void std::__vec_deleter<SD_PiiCollectionData, std::allocator<SD_PiiCollectionData> >::erase_tail(size_type n, Metrowerks::int2type<true>) { size_ -= n; }
+void SlotData::ClearData() { memset(&mData, 0, sizeof(mData)); }
+void SD_StatisticValue::ClearData() { memset(&mData, 0, sizeof(mData)); }
+template <> inline void std::__vec_deleter<SD_StatisticValue, std::allocator<SD_StatisticValue> >::erase_tail(size_type n, Metrowerks::int2type<true>) { size_ -= n; }
+void UsedPassword::ClearData() { memset(&mData, 0, sizeof(mData)); }
+template <> inline void std::__vec_deleter<UsedPassword, std::allocator<UsedPassword> >::erase_tail(size_type n, Metrowerks::int2type<true>) { size_ -= n; }
+void SaveData::ClearData() { memset(&mData, 0, sizeof(mData)); }
 
 void DeleteSaveFiles() {
     WaitNandDelete("banner.bin");
@@ -655,3 +694,5 @@ bool CheckNandSpace() {
     }
     return true;
 }
+
+template <typename T, typename Allocator> void std::__vec_deleter<T, Allocator>::erase_tail(size_type n, Metrowerks::int2type<true>) { size_ -= n; }

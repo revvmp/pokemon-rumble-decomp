@@ -445,7 +445,11 @@ template <typename Compare> class tree_begin_holder : private Compare {
 public:
     tree_begin_holder() {}
     tree_begin_holder(const Compare& rCompare) : Compare(rCompare) {}
+#if defined(GAME_SCRIPTWORLDOBJ_SEPARATE_TEMPLATES)
+    Compare& first();
+#else
     Compare& first() { return *this; }
+#endif
     const Compare& first() const { return *this; }
     tree_node_base*& second() { return node_; }
 
@@ -471,7 +475,11 @@ public:
         typedef typename Metrowerks::select<IsConst, const T*, T*>::type pointer;
         typedef typename Metrowerks::select<IsConst, const T&, T&>::type reference;
         __generic_iterator() {}
+#if defined(GAME_SCRIPTWORLDOBJ_CONTAINER_TAIL)
+        __generic_iterator(const __generic_iterator<false>& rOther);
+#else
         __generic_iterator(const __generic_iterator<false>& rOther) : node_(rOther.node_) {}
+#endif
         reference operator*() const { return node_->value_; }
         pointer operator->() const { return &node_->value_; }
         __generic_iterator& operator++() { tree_imp::algorithm_base::increment(reinterpret_cast<tree_node_base*&>(node_)); return *this; }
@@ -488,11 +496,20 @@ public:
 
     tree_imp() : size_(0) { begin_node() = end_node(); }
     tree_imp(const Compare& rCompare, const Allocator& rAllocator) : size_(size_type(0), rAllocator), root_(NodeAllocator(rAllocator)), begin_(Compare(rCompare)) { begin_node() = end_node(); }
+#if defined(GAME_SCRIPTWORLDOBJ_SEPARATE_TEMPLATES)
+    tree_node_base*& root();
+#else
     tree_node_base*& root() { return *reinterpret_cast<tree_node_base**>(end_node()); }
+#endif
     ~tree_imp();
 
+#if defined(GAME_SCRIPTWORLDOBJ_SEPARATE_TEMPLATES)
+    size_type size() const;
+    size_type max_size() const;
+#else
     size_type size() const { return sz(); }
     size_type max_size() const { return numeric_limits<size_type>::max(); }
+#endif
 
     iterator begin() { return iterator(static_cast<node*>(begin_node())); }
     iterator end() { return iterator(static_cast<node*>(end_node())); }
@@ -540,7 +557,11 @@ public:
 
     template <typename Key> tree_node_base* find_leaf(const Key& rKey, node*& rpPred, bool& rLeft, bool& rLeftmost);
 
+#if defined(GAME_SCRIPTWORLDOBJ_SEPARATE_TEMPLATES)
+    Compare& comp();
+#else
     Compare& comp() { return begin_.first(); }
+#endif
     const Compare& comp() const { return begin_.first(); }
 
     iterator erase(iterator position) {
@@ -574,11 +595,23 @@ public:
     tree_node_base* end_node() const { return reinterpret_cast<tree_node_base*>(const_cast<tree_root_ptr*>(&root_.second())); }
     tree_node_base* end_node() { return reinterpret_cast<tree_node_base*>(&root_.second()); }
     tree_node_base*& begin_node() { return begin_.second(); }
+#if defined(GAME_SCRIPTWORLDOBJ_SEPARATE_TEMPLATES)
+    Allocator& alloc();
+#else
     Allocator& alloc() { return size_.second(); }
+#endif
     const Allocator& alloc() const { return size_.second(); }
+#if defined(GAME_SCRIPTWORLDOBJ_SEPARATE_TEMPLATES)
+    NodeAllocator& node_alloc();
+#else
     NodeAllocator& node_alloc() { return root_.first(); }
+#endif
     tree_node_base* root() const { return *reinterpret_cast<tree_node_base**>(end_node()); }
+#if defined(GAME_SCRIPTWORLDOBJ_SEPARATE_TEMPLATES)
+    size_type& sz();
+#else
     size_type& sz() { return size_.first(); }
+#endif
     tree_node_base*& front() { return begin_node(); }
     tree_node_base* front() const { return const_cast<tree_imp*>(this)->begin_node(); }
 
@@ -608,6 +641,7 @@ tree_imp<T, Compare, Allocator>::~tree_imp() {
 }
 
 
+#if !defined(GAME_SCRIPTWORLDOBJ_SEPARATE_TEMPLATES)
 template <typename T, typename Compare, typename Allocator>
 template <typename Key>
 tree_node_base* tree_imp<T, Compare, Allocator>::find_leaf(const Key& rKey, node*& rpPred, bool& rLeft, bool& rLeftmost) {
@@ -630,6 +664,7 @@ tree_node_base* tree_imp<T, Compare, Allocator>::find_leaf(const Key& rKey, node
     }
     return pLeaf;
 }
+#endif
 
 template <typename T, typename Compare, typename Allocator>
 typename tree_imp<T, Compare, Allocator>::node* tree_imp<T, Compare, Allocator>::insert_node_at(tree_node_base* pParent, bool left, bool leftmost, const value_type& rValue) {

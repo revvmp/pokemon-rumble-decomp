@@ -12,6 +12,16 @@ template <typename T, T Value> struct number {
 
 template <typename T, typename Allocator, typename Size = number<size_t, 1> > class alloc_ptr {
 public:
+#if defined(GAME_SCRIPTWORLDOBJ_SEPARATE_TEMPLATES)
+    alloc_ptr(T* p, Allocator a, Size size = Size());
+    ~alloc_ptr();
+    T* operator->() const;
+    T* get() const;
+    T* release();
+    typename call_traits<Allocator>::reference allocator();
+    size_t capacity() const;
+
+#else
     alloc_ptr(T* p, Allocator a, Size size = Size()) : ptr_(a, compressed_pair<Size, T*>(size, p)) {}
 #if defined(CFILEDATA_EMISSION_LAYOUT)
     ~alloc_ptr();
@@ -31,6 +41,7 @@ public:
     }
     typename call_traits<Allocator>::reference allocator() { return ptr_.first(); }
     size_t capacity() const { return ptr_.second().first(); }
+#endif
 private:
     alloc_ptr(const alloc_ptr&);
     alloc_ptr& operator=(const alloc_ptr&);

@@ -257,6 +257,9 @@ public:
         }
     }
     tree_node_base* end_node() { return reinterpret_cast<tree_node_base*>(&node_alloc_.second()); }
+#if defined(CFILEDATA_EMISSION_LAYOUT)
+    pair<iterator, bool> insert_one(const value_type& rValue);
+#else
     pair<iterator, bool> insert_one(const value_type& rValue) {
         node* pPred;
         bool left;
@@ -267,6 +270,7 @@ public:
         }
         return pair<iterator, bool>(iterator(pPred), false);
     }
+#endif
     tree_node_base* find_leaf(const value_type& rValue, node*& rpPred, bool& rLeft, bool& rLeftmost);
     node* insert_node_at(tree_node_base* pParent, bool left, bool leftmost, const value_type& rValue);
 
