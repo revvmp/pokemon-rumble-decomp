@@ -173,3 +173,15 @@ Private evidence is under tools/local/session/layout-fresh. raw2-0.json is the s
 
 
 A root follow-up tested30 enum/scalar destination-initialization combinations for CMsgRes ConvertEscape. None improved the96.57971 baseline; no source changes were retained. Unlike the verified Pause/BWorld sites, a typed enum view of the SJIS flag did not change the preheader scheduling. Evidence: ignored tools/local/session/msg-enum.py.
+
+### Clean acceptance and second CLayout gain
+
+The root coordinator subsequently validated the ReplaceMotions change with two clean builds. Both reproduced identical DOL, ELF, and report outputs, and frozen-manifest verification passed. No previously exact function regressed.
+
+The same const-iterator adapter mechanism also matches DetachAttachedLayouts. The private intermediate had exact instructions and registers but three remaining stack offsets: its begin adapter needed two separate local iterator slots rather than the original mutable-return temporary. Generalizing BeginLayoutDescendants and EndLayoutDescendants over the pointer element type and using them for the local children copy resolves all three offsets. This introduces no additional helper bodies, shared-header changes, or set specializations. The D-0016 disclosure above applies to this second caller too.
+
+After applying and freshly compiling the formatted main source, CLayout is 167/171 exact. ReplaceMotions and DetachAttachedLayouts are both 100%; the other scores are unchanged: StopMotion 98.11894%, FindAnimation 98.17969%, FindPaneMP 93.52651%, and AdvancePaneMotions 96.55291%. The second change still awaits central full-build validation. Private generic.json isolates DetachAttachedLayouts as its only score change; layout-fresh-generic.py and layout-fresh-apply-generic.py retain the diagnostic and narrow source transfer.
+
+The unretained StopMotion direction remains promising but incomplete. A source-local set<CLayout*>::begin specialization retaining an additional copy plus a map-find result cast reaches 99.907486%, with only 21 frame-slot offsets different. A matching end specialization changes DetachAttachedLayouts register allocation, but was unnecessary once the generic local adapters solved that function. Neither specialization nor the StopMotion cast is applied. Replacing recursive UpdateAttachedLayouts begin/end calls with the new adapters changes its inlining and regresses previously exact callers, so those calls deliberately retain their existing implementation.
+
+A further75 CMsgRes ConvertEscape pointer/enum address-identity combinations also failed to improve the96.57971 baseline. No source changes were retained. The whole-loop helper caller declaration-order sweep is separate, with diagnostic inputs under msg-helper-orders.

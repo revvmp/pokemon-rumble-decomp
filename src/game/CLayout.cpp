@@ -404,24 +404,24 @@ std::tr1::shared_ptr<CLayout::CMotionProgram> CLayout::BuildMotion(const char* p
 
 typedef std::detail::tree<const void*, std::less<const void*>, std::allocator<const void*> > LayoutPaneTree;
 
-inline std::set<nw4r::lyt::Pane*>::const_iterator BeginLayoutDescendants(std::set<nw4r::lyt::Pane*>& rSet) {
+template <typename T> inline typename std::set<T*>::const_iterator BeginLayoutDescendants(std::set<T*>& rSet) {
     LayoutPaneTree& rTree = reinterpret_cast<LayoutPaneTree&>(rSet);
     LayoutPaneTree::iterator resultIterator;
     LayoutPaneTree::iterator sourceIterator;
     std::detail::tree_node_base* pNode = rTree.front();
     static_cast<LayoutPaneTree::node* volatile&>(sourceIterator.node_) = static_cast<LayoutPaneTree::node*>(pNode);
     resultIterator.node_ = static_cast<LayoutPaneTree::node*>(pNode);
-    return reinterpret_cast<std::set<nw4r::lyt::Pane*>::const_iterator&>(resultIterator);
+    return reinterpret_cast<typename std::set<T*>::const_iterator&>(resultIterator);
 }
 
-inline std::set<nw4r::lyt::Pane*>::const_iterator EndLayoutDescendants(std::set<nw4r::lyt::Pane*>& rSet) {
+template <typename T> inline typename std::set<T*>::const_iterator EndLayoutDescendants(std::set<T*>& rSet) {
     LayoutPaneTree& rTree = reinterpret_cast<LayoutPaneTree&>(rSet);
     LayoutPaneTree::iterator resultIterator;
     LayoutPaneTree::iterator sourceIterator;
     std::detail::tree_node_base* pNode = rTree.end_node();
     static_cast<LayoutPaneTree::node* volatile&>(sourceIterator.node_) = static_cast<LayoutPaneTree::node*>(pNode);
     resultIterator.node_ = static_cast<LayoutPaneTree::node*>(pNode);
-    return reinterpret_cast<std::set<nw4r::lyt::Pane*>::const_iterator&>(resultIterator);
+    return reinterpret_cast<typename std::set<T*>::const_iterator&>(resultIterator);
 }
 
 inline void CLayout::RebindAnimations() {
@@ -790,7 +790,7 @@ void CLayout::DetachAttachedLayouts() {
     if (mAttach) {
         std::set<CLayout*> children(mAttach->mChildren);
         std::set<CLayout*>::const_iterator it;
-        for (it = children.begin(); it != children.end(); ++it) {
+        for (it = BeginLayoutDescendants(children); it != EndLayoutDescendants(children); ++it) {
             (*it)->Detach();
         }
     }

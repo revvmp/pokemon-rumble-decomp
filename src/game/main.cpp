@@ -1,3 +1,4 @@
+#include <game/SystemMessageData.h>
 #define MAIN_EMISSION_LAYOUT
 
 class CResFont;
@@ -674,7 +675,6 @@ const char *gMainFontPaths[6] = {"5:/font.arc/fot_extensions.brfnt",      "5:/fo
 #include <revolution/sc.h>
 extern const DateMessageIDs gMainDateMessageIDs;
 extern const TimeMessageIDs gMainTimeMessageIDs;
-extern unsigned char gEuropeanEnglishSystemMessages[];
 extern void *const gSystemMessageResources[6];
 void InitializeMainMessages() {
     InitMsgResList(32);
@@ -682,7 +682,7 @@ void InitializeMainMessages() {
     SetTimeMessageIDs(gMainTimeMessageIDs);
     void *pResource;
     if (GetGameRegion() == REGION_EUR && GetGameLang() == SC_LANG_ENGLISH) {
-        pResource = gEuropeanEnglishSystemMessages;
+        pResource = &gEuropeanEnglishSystemMessages;
     } else {
         pResource = gSystemMessageResources[GetGameLang()];
     }
@@ -707,16 +707,10 @@ template <> template <> shared_ptr<CMsgRes>::shared_ptr(CMsgRes *p) : ptr_(p) {
 }
 }
 }
-extern unsigned char gJapaneseSystemMessages[];
-extern unsigned char gEnglishSystemMessages[];
-extern unsigned char gGermanSystemMessages[];
-extern unsigned char gFrenchSystemMessages[];
-extern unsigned char gSpanishSystemMessages[];
-extern unsigned char gItalianSystemMessages[];
 
 extern void *const gSystemMessageResources[6];
-void *const gSystemMessageResources[6] = {gJapaneseSystemMessages, gEnglishSystemMessages, gGermanSystemMessages,
-                                          gFrenchSystemMessages,   gSpanishSystemMessages, gItalianSystemMessages};
+void *const gSystemMessageResources[6] = {&gJapaneseSystemMessages, &gEnglishSystemMessages, &gGermanSystemMessages,
+                                          &gFrenchSystemMessages,   &gSpanishSystemMessages, &gItalianSystemMessages};
 
 extern const DateMessageIDs gMainDateMessageIDs;
 const DateMessageIDs gMainDateMessageIDs = {131084, 131072, 131124, 131125, 131122, 131123,
