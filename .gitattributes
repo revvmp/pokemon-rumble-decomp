@@ -5,6 +5,3 @@ images/*.svg text eol=lf
 orig/wpse-v1/reconstructed/**/*.json text eol=lf
 orig/wpse-v1/reconstructed/**/*.png binary
 *.bat text eol=crlf
-config/**/symbols.txt merge=decomp-config
-config/**/splits.txt merge=decomp-config
-configure.py merge=decomp-config

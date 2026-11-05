@@ -1,0 +1,20 @@
+#ifndef GAME_IBATTLEROYALDISPLAY_H
+#define GAME_IBATTLEROYALDISPLAY_H
+
+#include <game/core/ICalcDraw.h>
+#include <memory>
+
+class IBattleRoyalDisplay : public ICalcDraw {
+public:
+    virtual ~IBattleRoyalDisplay() {}
+    virtual void Show() = 0;
+    virtual void Hide() = 0;
+    virtual void Finish() = 0;
+    virtual void SetEnemyCount(int count) = 0;
+    virtual void DecEnemyCount() = 0;
+    virtual int GetEnemyCount() = 0;
+
+    static std::tr1::shared_ptr<IBattleRoyalDisplay> Create(bool flag);
+};
+
+#endif

@@ -15,7 +15,7 @@ jobs:
     name: Build and verify main.dol
     runs-on: windows-latest
     permissions:
-      contents: write
+      contents: read
     timeout-minutes: 30
     defaults:
       run:
@@ -54,41 +54,6 @@ jobs:
             git diff --stat
           }
 
-      - name: Render progress images
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: |
-          python tools/progress/progress.py render --phases config/progress.json --report build/wpse-v1/report.json --output-dir build/progress-images
-          if ($LASTEXITCODE) { exit $LASTEXITCODE }
-
-      - name: Commit refreshed progress images
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        env:
-          BUILT_SHA: ${{ github.sha }}
-        run: |
-          git fetch --quiet origin main
-          if ($LASTEXITCODE) { exit $LASTEXITCODE }
-          $moved = git diff --name-only $env:BUILT_SHA origin/main | Where-Object { $_ -notlike 'images/*' }
-          if ($moved) {
-            Write-Output "main has newer code than this build; its own run refreshes the images."
-            exit 0
-          }
-          git checkout --quiet -B progress-images origin/main
-          if ($LASTEXITCODE) { exit $LASTEXITCODE }
-          Copy-Item build/progress-images/*.svg images/ -Force
-          git add images
-          git diff --cached --quiet
-          if ($LASTEXITCODE -eq 0) {
-            Write-Output "Progress images are already current."
-            exit 0
-          }
-          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit --quiet -m "DOCS: refresh progress images"
-          if ($LASTEXITCODE) { exit $LASTEXITCODE }
-          git push origin HEAD:main
-          if ($LASTEXITCODE) {
-            Write-Output "::warning::main moved during the image refresh; the next run on main refreshes the images."
-          }
-          exit 0
-
       - name: Upload reports
         if: always()
         uses: actions/upload-artifact@v4
@@ -98,10 +63,3 @@ jobs:
             build/wpse-v1/report.json
             build/wpse-v1/verification.json
           if-no-files-found: warn
-
-      - name: Upload progress images
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: actions/upload-artifact@v4
-        with:
-          name: progress-images
-          path: build/progress-images/*.svg

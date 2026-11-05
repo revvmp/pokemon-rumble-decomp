@@ -66,7 +66,6 @@ class Object:
         self.asm_path: Optional[Path] = None
         self.src_obj_path: Optional[Path] = None
         self.asm_obj_path: Optional[Path] = None
-        self.ctx_path: Optional[Path] = None
 
     def resolve(self, config: "ProjectConfig", lib: Library) -> "Object":
         obj = Object(self.completed, self.name, **lib)
@@ -109,7 +108,6 @@ class Object:
         base_name = Path(self.name).with_suffix("")
         obj.src_obj_path = build_dir / "src" / f"{base_name}.o"
         obj.asm_obj_path = build_dir / "mod" / f"{base_name}.o"
-        obj.ctx_path = build_dir / "src" / f"{base_name}.ctx"
         return obj
 
 
@@ -184,13 +182,6 @@ class ProjectConfig:
         self.link_order_callback: Optional[Callable[[int, List[str]], List[str]]] = (
             None
         )
-        self.context_exclude_globs: List[
-            str
-        ] = []
-        self.context_defines: List[
-            str
-        ] = []
-
         self.progress = True
         self.progress_modules: bool = True
         self.progress_each_module: bool = (
@@ -449,15 +440,6 @@ def generate_build_ninja(
         name="download_tool",
         command=f"$python {download_tool} $tool $out --tag $tag",
         description="TOOL $out",
-    )
-
-    decompctx = config.tools_dir / "decompctx.py"
-    n.rule(
-        name="decompctx",
-        command=f"$python {decompctx} $in -o $out -d $out.d $includes $excludes $defines",
-        description="CTX $in",
-        depfile="$out.d",
-        deps="gcc",
     )
 
     cargo_rule_written = False
@@ -1076,30 +1058,6 @@ def generate_build_ninja(
                     implicit=mwld_implicit,
                 )
 
-            if obj.ctx_path is not None:
-                include_dirs = []
-                for flag in all_cflags:
-                    if (
-                        flag.startswith("-i ")
-                        or flag.startswith("-I ")
-                        or flag.startswith("-I+")
-                    ):
-                        include_dirs.append(flag[3:])
-                includes = " ".join([f"-I {d}" for d in include_dirs])
-                excludes = " ".join([f"-x {d}" for d in config.context_exclude_globs])
-                defines = " ".join([f"-D {d}" for d in config.context_defines])
-
-                n.build(
-                    outputs=obj.ctx_path,
-                    rule="decompctx",
-                    inputs=src_path,
-                    implicit=decompctx,
-                    variables={
-                        "includes": includes,
-                        "excludes": excludes,
-                        "defines": defines,
-                    },
-                )
             n.newline()
 
             if obj.options["add_to_all"]:
@@ -1341,78 +1299,6 @@ def generate_build_ninja(
             implicit=[objdiff, "objdiff.json", "all_source"],
             order_only="post-build",
         )
-
-        n.comment("Phony edge that will always be considered dirty by ninja.")
-        n.comment(
-            "This can be used as an implicit to a target that should always be rerun, ignoring file modified times."
-        )
-        n.build(
-            outputs="always",
-            rule="phony",
-        )
-        n.newline()
-
-        report_baseline_path = build_path / "baseline.json"
-        report_changes_path = build_path / "report_changes.json"
-        changes_fmt = config.tools_dir / "changes_fmt.py"
-        regressions_md = build_path / "regressions.md"
-        n.comment(
-            "Create a baseline progress report for later match regression testing"
-        )
-        n.build(
-            outputs=report_baseline_path,
-            rule="report",
-            implicit=[objdiff, "all_source", "always"],
-            order_only="post-build",
-        )
-        n.build(
-            outputs="baseline",
-            rule="phony",
-            inputs=report_baseline_path,
-        )
-        n.comment("Check for any match regressions against the baseline")
-        n.comment("Will fail if no baseline has been created")
-        n.rule(
-            name="report_changes",
-            command=f"{objdiff} report changes --format json-pretty {report_baseline_path} $in -o $out",
-            description="CHANGES",
-        )
-        n.build(
-            outputs=report_changes_path,
-            rule="report_changes",
-            inputs=report_path,
-            implicit=[objdiff, "always"],
-        )
-        n.rule(
-            name="changes_fmt",
-            command=f"$python {changes_fmt} $args $in",
-            description="CHANGESFMT",
-        )
-        n.build(
-            outputs="changes",
-            rule="changes_fmt",
-            inputs=report_changes_path,
-            implicit=changes_fmt,
-        )
-        n.build(
-            outputs="changes_all",
-            rule="changes_fmt",
-            inputs=report_changes_path,
-            implicit=changes_fmt,
-            variables={"args": "--all"},
-        )
-        n.rule(
-            name="changes_md",
-            command=f"$python {changes_fmt} $in -o $out",
-            description="CHANGESFMT $out",
-        )
-        n.build(
-            outputs=regressions_md,
-            rule="changes_md",
-            inputs=report_changes_path,
-            implicit=changes_fmt,
-        )
-        n.newline()
 
         dol_link_step = link_steps[0]
         dol_elf_path = dol_link_step.partial_output()
@@ -1682,13 +1568,6 @@ def generate_objdiff_config(
                 "c_flags": cflags_str,
                 "preset_id": obj.options["scratch_preset_id"],
             }
-            if src_exists:
-                unit_config["scratch"].update(
-                    {
-                        "ctx_path": obj.ctx_path,
-                        "build_ctx": True,
-                    }
-                )
         category_opt: Union[List[str], str] = obj.options["progress_category"]
         if isinstance(category_opt, list):
             progress_categories.extend(category_opt)

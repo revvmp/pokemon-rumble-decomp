@@ -6,7 +6,7 @@
 #include <MSL_CPP/alloc_ptr.h>
 #include <MSL_CPP/allocator.h>
 #if defined(CMODEL_EMISSION_LAYOUT)
-#include <game/detail/CModelEmission.h>
+#include <game/graphics/detail/CModelEmission.h>
 #endif
 namespace std {
 namespace tr1 {
