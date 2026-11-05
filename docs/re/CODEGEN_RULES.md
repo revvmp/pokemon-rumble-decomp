@@ -19,6 +19,8 @@ Compiler behaviour of CodeWarrior Wii/1.1 (`-O4,p -inline auto -ipa file -str re
 
 ## Register allocation and scheduling
 
+- **Equivalent flattened library operations can lose allocation-relevant boundaries.** PiiPropData's original MSL deleter init and unsigned POD copy-helper boundaries together reproduce the count/exception-object register order; each alone regresses. All 48 bodies and 26 exception records become exact with ordinary throw expressions. Recover the library structure before introducing register controls. [Primary MSL evidence](findings/piipropdata-primary-msl-tail.md)
+
 The allocator and scheduler are recovered in [sprint-ra](findings/sprint-ra.md). `tools/re/ra_trace.py` prints a function's colouring order, and `tools/re/regscan.py` separates register-only near-misses from source differences.
 
 - **A copy eliminated before final scheduling can still determine a ready-list tie.** F32 has two equally eligible final instructions. Returning an unchanged values pointer while assigning its flag through a reference introduces a virtual copy that disappears but changes the pointer increment's surviving order. The final native instructions and relocations are exact; trace intermediate scheduling before adding runtime work to fix an adjacent swap. [Read-only scheduler evidence](findings/animcurve-f32-final-schedule.md)

@@ -2,9 +2,9 @@
 
 ## Scope and current evidence
 
-`AnimCurveExecuteRotate` at `0x8022B350` now reproduces all 4,312 original bytes. Its function SHA-256 is `e3368a5842392b0f088e120b069b51286614f6d7d48d958d7edf24149ca9f14a`. This is an exact-function result; the animation-curve unit still requires its remaining U8/F32 bodies and full source-link acceptance. The copied original unit has SHA-256 `214d84b4511c8f10d599c044bd912044f85afc5800d11630d30f2ce1c07e24d2`.
+`AnimCurveExecuteRotate` at `0x8022B350` now reproduces all 4,312 original bytes. Its function SHA-256 is `e3368a5842392b0f088e120b069b51286614f6d7d48d958d7edf24149ca9f14a`. The canonical owner integrated the reviewed fragment, and the coordinator's normal build and frozen `main.dol` verification passed. The later F32 acceptance preserved this exact result. The animation-curve unit remains `NonMatching` for U8 and still requires full source-link acceptance. The copied original unit has SHA-256 `214d84b4511c8f10d599c044bd912044f85afc5800d11630d30f2ce1c07e24d2`.
 
-The final reviewed fragment is `tools/local/tail-20261104/smallgame/AnimCurveRotate/rotate_accepted/rotate_section.cpp`. `rotate_accept.py` installs that fragment into a private copy of the current canonical source, compiles both control and candidate, and writes `acceptance.json` beside the fragment. The canonical owner received this narrow fragment for integration; the coordinator owns normal-build acceptance.
+The final reviewed fragment is `tools/local/tail-20261104/smallgame/AnimCurveRotate/rotate_accepted/rotate_section.cpp`. `rotate_accept.py` installed that fragment into a private copy of the then-current canonical source, compiled both control and candidate, and wrote `acceptance.json` beside the fragment. The coordinator's production acceptance is recorded in [the animation-curve continuation](animcurve-20261104-continuation.md).
 
 | Audit | Result |
 | --- | --- |

@@ -13198,7 +13198,7 @@ end__Q23std106vector<Q311PiiPropData12SpeciesMoves9LevelMove,Q23std50allocator<Q
 begin__Q23std30vector<s,Q23std12allocator<s>>Fv = .text:0x800F4FC0; // type:function size:0x8
 end__Q23std30vector<s,Q23std12allocator<s>>Fv = .text:0x800F4FD0; // type:function size:0x14
 __vc__Q23std86vector<Q211PiiPropData12SpeciesMoves,Q23std40allocator<Q211PiiPropData12SpeciesMoves>>FUl = .text:0x800F4FF0; // type:function size:0x10
-__as__Q211PiiPropData12SpeciesMovesFRCQ211PiiPropData12SpeciesMoves = .text:0x800F5000; // type:function size:0x7FC
+AssignPropertyMoves<Q211PiiPropData12SpeciesMoves>__FRQ211PiiPropData12SpeciesMovesRCQ211PiiPropData12SpeciesMoves_RQ211PiiPropData12SpeciesMoves = .text:0x800F5000; // type:function size:0x7FC
 __as__Q23std30vector<s,Q23std12allocator<s>>FRCQ23std30vector<s,Q23std12allocator<s>> = .text:0x800F5800; // type:function size:0x2F8
 GetWazaLevels__11PiiPropDataCFUsUci = .text:0x800F5B00; // type:function size:0x1A0
 __ne__Q33std106vector<Q311PiiPropData12SpeciesMoves9LevelMove,Q23std50allocator<Q311PiiPropData12SpeciesMoves9LevelMove>>14const_iteratorCFRCQ33std106vector<Q311PiiPropData12SpeciesMoves9LevelMove,Q23std50allocator<Q311PiiPropData12SpeciesMoves9LevelMove>>14const_iterator = .text:0x800F5CA0; // type:function size:0x1C

@@ -1,5 +1,9 @@
 # Findings
 
+## 2026-11-04 complete CPU reconstruction
+
+The final PiiPropData constructor and Reset are exact after restoring [primary MSL library boundaries](findings/piipropdata-primary-msl-tail.md). All 48 unit bodies and 26 exception records pass independent raw audits, and the ordinary source-selected build passes frozen main.dol verification. All 13,462 CPU functions and 3,078,460 CPU code bytes are matched and source-linked. The AX DSP source/build integration remains separate; the existing 128-byte OS DSP bootstrap is also recorded explicitly in the [remaining inventory](findings/remaining-data-inventory.md).
+
 ## 2026-11-04 native source-link continuation
 
 [The complete animation-curve unit](findings/animcurve-20261104-continuation.md) now passes native source linkage and frozen verification. All 194 NW4R units are source-selected; only PiiPropData constructor and Reset remain unfinished CPU functions. [DSP command/table identities](findings/ax-dsp-identities-20261104.md) clarify the separate 8,192-byte coprocessor-code dependency without claiming its reconstruction.

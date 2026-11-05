@@ -75,6 +75,9 @@ public:
 #if defined(CMODEL_EMISSION_LAYOUT)
     __declspec(section ".text.model_middle")
 #endif
+#if defined(GAME_PIIPROPDATA_EMISSION_LAYOUT)
+    __declspec(section ".text.piiprop_backends")
+#endif
     ~__vec_deleter();
 
     T* begin() { return this->data_; }
@@ -84,6 +87,13 @@ public:
     T& back() { return this->data_[this->size_ - 1]; }
 
     void clear() { erase_at_end(size_); }
+
+#if defined(GAME_PIIPROPDATA_COPY_LAYOUT)
+    template <class Iterator> void init(Iterator first, Iterator last, forward_iterator_tag);
+    template <class Iterator> void construct_at_end(Iterator first, Iterator last) {
+        construct_at_end(first, last, pod_type());
+    }
+#endif
 
     void allocate(size_type n) { allocate(n, pod_type()); }
     void allocate(size_type n, size_type capacity) { allocate(n, capacity, pod_type()); }
@@ -257,6 +267,9 @@ public:
 #if defined(CMODEL_EMISSION_LAYOUT)
     __declspec(section ".text.model_split")
 #endif
+#if defined(GAME_PIIPROPDATA_EMISSION_LAYOUT)
+    __declspec(section ".text.piiprop_backends")
+#endif
     ~__vec_split_buffer();
 
     T* begin() { return this->data_ + start_; }
@@ -361,6 +374,10 @@ public:
 
     __vec_constructor() {}
     void swap(__vec_constructor& r) { base::swap(r); }
+#if defined(GAME_PIIPROPDATA_COPY_LAYOUT)
+    template <typename AllocationTag>
+    __vec_constructor(size_type n, const AllocationTag& allocationTag);
+#endif
     explicit __vec_constructor(size_type n) {
         if (n != 0) {
             allocate(n, pod_type());
@@ -929,21 +946,40 @@ public:
         typedef const T& reference;
         typedef random_access_iterator_tag iterator_category;
 
+#if defined(GAME_PIIPROPDATA_ITERATOR_LAYOUT)
+        const_iterator(const const_iterator& rOther);
+#endif
         const_iterator() {}
         const_iterator(const iterator& rOther, int = 0) : mPointer(rOther.base()) {}
         const_iterator(const T* const& rPointer) : mPointer(rPointer) {}
+#if defined(GAME_PIIPROPDATA_ACCESSOR_LAYOUT)
+        const T& operator*() const;
+#else
         const T& operator*() const { return *mPointer; }
+#endif
+#if defined(GAME_PIIPROPDATA_ACCESSOR_LAYOUT)
+        const T* operator->() const;
+#else
         const T* operator->() const { return mPointer; }
+#endif
+#if defined(GAME_PIIPROPDATA_ACCESSOR_LAYOUT)
+        const_iterator& operator++();
+#else
         const_iterator& operator++() {
             ++mPointer;
             return *this;
         }
+#endif
         const_iterator& operator--() {
             --mPointer;
             return *this;
         }
         bool operator==(const const_iterator& rOther) const { return base() == rOther.base(); }
+#if defined(GAME_PIIPROPDATA_ACCESSOR_LAYOUT)
+        bool operator!=(const const_iterator& rOther) const;
+#else
         bool operator!=(const const_iterator& rOther) const { return base() != rOther.base(); }
+#endif
         bool operator!=(const iterator& rOther) const { return base() != rOther.base(); }
 
         const T* base() const { return mPointer; }
@@ -958,6 +994,12 @@ public:
     typedef typename base::storage_type storage_type;
     typedef typename base::storage_allocator storage_allocator;
 
+#if defined(GAME_PIIPROPDATA_EMISSION_LAYOUT)
+    __declspec(section ".text.piiprop_late") vector& operator=(const vector& rOther) {
+        base::operator=(rOther);
+        return *this;
+    }
+#endif
     vector() {}
     explicit vector(size_type n) : base(n) {}
     vector(const vector& x) : base(x) {}
@@ -965,7 +1007,7 @@ public:
     vector& operator=(const vector& x) { base::operator=(x); return *this; }
 #endif
     template <typename Iterator> vector(Iterator first, Iterator last) : base(first, last) {}
-#if defined(CGAMESESSION_EMISSION_LAYOUT) || defined(CMODEL_THUNK_EMISSION_LAYOUT)
+#if defined(CGAMESESSION_EMISSION_LAYOUT) || defined(CMODEL_THUNK_EMISSION_LAYOUT) || defined(GAME_PIIPROPDATA_EMISSION_LAYOUT)
     ~vector();
 #else
     ~vector() {}
@@ -975,6 +1017,9 @@ public:
 
     void clear() { base::clear(); }
 
+#if defined(GAME_PIIPROPDATA_EMISSION_LAYOUT)
+    __declspec(section ".text.piiprop_reserve")
+#endif
 #if defined(CMODEL_EMISSION_LAYOUT)
     void reserve(size_type n);
 #else
@@ -1006,22 +1051,46 @@ public:
     }
     void swap(vector& r) { base::swap(r); }
 
+#if defined(GAME_PIIPROPDATA_ACCESSOR_LAYOUT)
+    iterator begin();
+#else
     iterator begin() { return make_iterator(base::begin()); }
+#endif
+#if defined(GAME_PIIPROPDATA_ACCESSOR_LAYOUT)
+    const_iterator begin() const;
+#else
     const_iterator begin() const { return const_iterator(reinterpret_cast<const T*>(this->data_)); }
+#endif
+#if defined(GAME_PIIPROPDATA_ACCESSOR_LAYOUT)
+    iterator end();
+#else
     iterator end() { return make_iterator(base::end()); }
+#endif
+#if defined(GAME_PIIPROPDATA_ACCESSOR_LAYOUT)
+    const_iterator end() const;
+#else
     const_iterator end() const { return const_iterator(reinterpret_cast<const T*>(this->data_ + this->size_)); }
+#endif
     reverse_iterator<const_iterator> rbegin() const { return reverse_iterator<const_iterator>(end()); }
     reverse_iterator<const_iterator> rend() const { return reverse_iterator<const_iterator>(begin()); }
+#if defined(GAME_PIIPROPDATA_ACCESSOR_LAYOUT)
+    size_type size() const;
+#else
     size_type size() const { return this->size_; }
+#endif
     bool empty() const { return this->size_ == 0; }
-#if defined(CMODEL_EMISSION_LAYOUT)
+#if defined(CMODEL_EMISSION_LAYOUT) || defined(GAME_PIIPROPDATA_EMISSION_LAYOUT)
     void push_back(const T& x);
 #else
     void push_back(const T& x) {
         base::push_back(x);
     }
 #endif
+#if defined(GAME_PIIPROPDATA_ACCESSOR_LAYOUT)
+    T& operator[](size_type i);
+#else
     T& operator[](size_type i) { return base::operator[](i); }
+#endif
     const T& operator[](size_type i) const { return reinterpret_cast<const T&>(this->data_[i]); }
 
 private:

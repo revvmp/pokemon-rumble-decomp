@@ -65,7 +65,7 @@ Gate: at least one translation unit is source-built and linked, the full DOL sti
 
 ## Phase 5: Game code reconstruction
 
-Active. Two CPU functions remain unfinished; the ordinary source-selected build and reconstruction ledger record the accepted units. The DSP program remains an explicit separate dependency.
+Done for main.dol CPU code. All 13,462 functions and 3,078,460 CPU code bytes match and link from source, with frozen full-artifact verification passing. Coprocessor-program reconstruction and the remaining acceptance work are tracked in Phase 6.
 
 Goal: grow source coverage across game code.
 
@@ -78,6 +78,8 @@ Goal: grow source coverage across game code.
 Gate: per milestone, progress numbers, ledger, and verification reports agree.
 
 ## Phase 6: Full executable and package
+
+Active. CPU code is complete for main.dol. Finish DSP-source integration and repeated clean verification before a broader executable-source claim. Boot-loader and package reconstruction remain outside the current acceptance manifest.
 
 1. Eliminate all fallbacks in the claimed scope; list any that remain as blockers.
 2. Rebuild the loader content if it is in scope, then any compressed or archived payloads.

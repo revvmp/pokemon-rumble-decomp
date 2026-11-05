@@ -2,7 +2,7 @@
 
 ## Current position
 
-Target `wpse-v1` (WPSE, USA, TMD title version 1). Roadmap Phase 5 is active; Phase 4's denominator/source/build gates are satisfied. Frozen manifests: package `config/targets/wpse-v1-package.json` and executable `config/targets/wpse-v1.json` (`main.dol`). Do not fingerprint either again.
+Target `wpse-v1` (WPSE, USA, TMD title version 1). Roadmap Phase 6 is active; the main executable's CPU source reconstruction is complete. Frozen manifests: package `config/targets/wpse-v1-package.json` and executable `config/targets/wpse-v1.json` (`main.dol`). Do not fingerprint either again.
 
 State at checkpoint `7a7d20cea` (2026-10-22, end of the single-PC sprint; `main.dol` verified byte-identical):
 
@@ -28,6 +28,10 @@ The initial 2026-11-04 worktrees were preserved when this instruction arrived. T
 CDlgPiiSelector has all 645 functions exact and still needs ordering/data acceptance. BWorld, homebutton and TextWriterBase have since passed full source linkage. BUI, CDlgInfo and GameUtil now also pass full source linkage; CUIMenu has all61 functions exact with emission work pending. Current parallel ownership: selector source link, NPpuVM, CModel, CPii, sort templates and ParticleManager. The coordinator owns shared configuration, full builds, acceptance and checkpoints. Scratch inputs/scripts under tools/local/session are ignored; never overwrite newer main files wholesale.
 
 ## Next actions
+
+Latest accepted continuation: zero unfinished CPU functions. All 13,462 real functions and all 3,078,460 CPU code bytes match and link from source. PiiPropData passes the normal configure/ninja/frozen-verifier pipeline with three native compiler inputs, 48 exact bodies and 26 exact exception records. All 902 aliases are exact and no prior exact function is missing or regressed. Source-selected data is 1,780,168/1,788,360 bytes; only AX DSP remains a split fallback.
+
+Immediate work: install the independently exact 29-file symbolic AX DSP program with its pinned portable assembler and dependency-tracked generator, then run two complete clean builds. Also resolve the separately discovered 128-byte OSAudioSystem DSPInitCode provenance before claiming every embedded program reconstructed. See [primary MSL recovery](re/findings/piipropdata-primary-msl-tail.md), [DSP evidence](re/findings/ax-dsp-identities-20261104.md) and [remaining data](re/findings/remaining-data-inventory.md). The paragraphs below preserve earlier checkpoints; they are superseded by this zero-function state.
 
 Two complete clean builds of the preceding three-function checkpoint b37f0dbb reproduce main.dol, main.elf, report.json, the generated system-message archive and its generated C include exactly. The current U8/animation source-selection gain passes incremental ninja and frozen verification. See [reproducibility evidence](VALIDATION.md#three-function-checkpoint).
 

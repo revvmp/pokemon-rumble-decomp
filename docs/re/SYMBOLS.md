@@ -3589,3 +3589,7 @@ The [complete native source-link pass](findings/vm-properties-tail-20261104.md#c
 ## System-message archive source ownership, 2026-11-04
 
 The existing descriptive symbol gSystemMessageArchive at 0x80363A80 owns 11,488 const unsigned-char bytes through 0x80366760. SystemMessageArchive.h supplies its declaration; MainRuntime.h includes it. The compiler produces an eight-byte-aligned read-only array from the generated semantic-asset initializer, and the complete native link preserves its original address. Layout pane/material/font/texture references and animation targets are named in the recovered JSON; offsets and container records are calculated by the encoders. See [schema and source provenance](findings/system-message-archive-20261104.md). This supplies asset-data ownership, not a new class or game function.
+
+## PiiPropData accepted assignment identity
+
+At 0x800F5000, the 0x7FC-byte inferred SpeciesMoves assignment now uses the documented D-0016 emission name AssignPropertyMoves<PiiPropData::SpeciesMoves>. It retains destination/source references in r3/r4 and the destination reference in r3 on return. No primary reference established the previous mangled spelling. The two-level inline assignment wrapper preserves all bytes and all 152 exception-record bytes while postponing emission. Complete source linkage passes the frozen manifest; see [the identity and ABI evidence](findings/piipropdata-emission-tail.md#delayed-assignment-and-stack-slot-parity).

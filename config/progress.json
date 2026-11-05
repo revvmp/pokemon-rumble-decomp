@@ -1,12 +1,40 @@
 {
   "schema_version": 1,
   "phases": [
-    {"id": 0, "title": "Foundation", "state": "done"},
-    {"id": 1, "title": "Extract and identify", "state": "done"},
-    {"id": 2, "title": "Toolchain and library evidence", "state": "done"},
-    {"id": 3, "title": "Splittable build skeleton", "state": "done"},
-    {"id": 4, "title": "Denominator and first source", "state": "done"},
-    {"id": 5, "title": "Game code reconstruction", "state": "active"},
-    {"id": 6, "title": "Full executable and package", "state": "pending"}
+    {
+      "id": 0,
+      "title": "Foundation",
+      "state": "done"
+    },
+    {
+      "id": 1,
+      "title": "Extract and identify",
+      "state": "done"
+    },
+    {
+      "id": 2,
+      "title": "Toolchain and library evidence",
+      "state": "done"
+    },
+    {
+      "id": 3,
+      "title": "Splittable build skeleton",
+      "state": "done"
+    },
+    {
+      "id": 4,
+      "title": "Denominator and first source",
+      "state": "done"
+    },
+    {
+      "id": 5,
+      "title": "Game code reconstruction",
+      "state": "done"
+    },
+    {
+      "id": 6,
+      "title": "Full executable and package",
+      "state": "active"
+    }
   ]
 }

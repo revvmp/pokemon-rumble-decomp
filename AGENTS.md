@@ -156,15 +156,17 @@ Keep entries concise and actionable. Distinguish confirmed findings from hypothe
 
 - **An eliminated virtual copy can still affect final scheduling.** F32's last two instructions tied on scheduler priority. An unchanged pointer return paired with a flag output changes their intermediate order and compiles away, reproducing the target. Trace the pre-allocation copy and final ready list before changing arithmetic; see [F32 scheduling evidence](docs/re/findings/animcurve-f32-final-schedule.md).
 
+- **A register-only residual can come from flattened library boundaries.** PiiPropData kept the same opcodes but swapped its count and exception receiver until the original MSL `init` and POD `std::copy` boundaries were restored together. Each alone regressed. Consult verified library structure before forcing registers; see [the primary-source evidence](docs/re/findings/piipropdata-primary-msl-tail.md).
+
 ## Current project state
 
 | Current state | Value |
 | --- | --- |
-| Phase | Roadmap Phase 5: game code reconstruction |
+| Phase | Roadmap Phase 6: executable and package acceptance |
 | Active target | `wpse-v1` (USA, TMD title version 1) |
 | Original hashes | Package `config/targets/wpse-v1-package.json`; executable `config/targets/wpse-v1.json` |
 | Game build entry point | `python configure.py` then `.venv/Scripts/ninja`; see `docs/SETUP.md` |
 | Verification entry point | `python tools/verify/verify.py --help` |
 | Progress images | `python tools/progress/progress.py render --phases config/progress.json --output-dir docs/images` |
 | Extraction entry point | `python tools/reference/extract_reference.py`; see `docs/re/EXTRACTION.md` |
-| Next action | Remaining long-tail functions and source/data linkage on main; fake matches allowed (D-0016); see `docs/HANDOFF.md#next-actions` |
+| Next action | CPU code complete; finish DSP-source integration and repeated clean verification; see `docs/HANDOFF.md#next-actions` |

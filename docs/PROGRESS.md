@@ -2,7 +2,7 @@
 
 ## Current status
 
-Roadmap Phases 1 to 4 are complete and Phase 5 is active. The latest verified build matches the frozen main.dol exactly. It links 3,063,580 of 3,078,460 code bytes (99.51664%) from 895 Matching units; 2 real functions remain below 100%. PiiPropData is the only original CPU-code fallback. The DSP instruction image remains explicit, while the system-message archive builds from recovered editable assets. See the latest session below and [matching requirements](MATCHING.md).
+Roadmap Phases 1 to 5 are complete for the main executable; Phase 6 is active. All 13,462 CPU functions and all 3,078,460 CPU code bytes match and link from source. The normal build passes exact frozen main.dol verification, with 896 of 897 units source-selected. The separate AX DSP image remains the sole original split fallback. Embedded DSP source coverage and package scope are tracked separately; see the latest session and [matching requirements](MATCHING.md).
 
 | Milestone | State | Evidence or prerequisite |
 | --- | --- | --- |
@@ -14,7 +14,7 @@ Roadmap Phases 1 to 4 are complete and Phase 5 is active. The latest verified bu
 | Toolchain identification | Identified per library | RVL_SDK Wii/1.0; MSL and Runtime Wii/1.1 or 1.3 with `-func_align 4`; NW4R Wii/1.0 or 1.1; F-0007 |
 | Reproducible game build | Achieved | Two clean builds byte-identical; F-0010 |
 | Exact executable match | Achieved for `main.dol` | Verified; remaining original split fallbacks are tracked separately |
-| Source reconstruction | In progress | 895 Matching units of 897 current units; see ledger |
+| Source reconstruction | CPU code complete; DSP integration pending | 896 Matching units of 897 current units; see ledger |
 | Full release match | Pending | Boot loader, data contents, and WAD packaging outside current scope |
 
 ## Current continuation: source-link acceptance
@@ -25,7 +25,15 @@ Main and CBattleRoyalBox subsequently passed full source-link verification, addi
 
 ## Latest function gains
 
-The real unmatched tail is now 2, down from the initial 120. AnimCurveExecuteU8 is newly exact, and the complete animation-curve unit now links from source. All earlier exact functions are preserved. Matched code is 3,076,152/3,078,460 bytes (99.92503%). The previously removed 3,792 native alignment bytes do not add matched or linked instruction credit.
+The real unmatched tail is now zero, down from the initial 120. PiiPropData constructor and Reset complete the CPU reconstruction. Matched and source-linked code are both 3,078,460/3,078,460 bytes (100%). Every prior exact function is preserved. The previously removed 3,792 native alignment bytes do not add instruction credit.
+
+## 2026-11-04: Complete CPU source linkage
+
+PiiPropData now reproduces all 48 raw function bodies, all 504 normalized function relocations, and all 26 exception records with their cleanup relocations. Restoring the primary MSL deleter init and POD copy-helper boundaries together resolves the last count/exception-object register swaps. Its source-only allocation tag and native emission controls remain disclosed under D-0016. Three ordinary compiler inputs preserve the single literal pool and independently ordered text and exception records.
+
+Normal configure and ninja exit zero after deleting the old DOL; frozen main.dol verification passes. All 13,462 CPU functions are exact, all 3,078,460 CPU bytes link from source, all 902 native input aliases are byte-identical, and the original-address audit finds no regression or missing function. Data linkage is 1,780,168/1,788,360 bytes (99.54192%). This is an incremental acceptance; the preceding b37f0dbb checkpoint has the latest repeated clean-build evidence.
+
+The AX DSP program is independently reconstructed in private symbolic assembly and is awaiting pinned-tool and normal-build integration. A completeness audit also identifies the existing 128-byte DSPInitCode array in OSAudioSystem as executable coprocessor code, whose original-language provenance is being investigated separately. Neither is hidden behind the CPU percentage. No full release or package completion is claimed. See [Pii source recovery](re/findings/piipropdata-primary-msl-tail.md), [retained controls](re/findings/piipropdata-allocation-tag-tail.md) and [remaining inventory](re/findings/remaining-data-inventory.md).
 
 ## 2026-11-04: Two functions and complete NW4R source linkage
 

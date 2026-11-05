@@ -1,5 +1,11 @@
 # Remaining data inventory
 
+## Zero-function checkpoint
+
+The current normal build selects 896 of 897 units and all CPU code from source. Source-linked data is 1,780,168/1,788,360 bytes (99.54192%); the only split fallback is the 8,192-byte AX DSP program. PiiPropData's 1,723 associated data bytes now pass source-link acceptance. The independently readable AX program is exact privately but still awaits production integration.
+
+The source-completeness review separately identifies `DSPInitCode` in the already Matching OSAudioSystem unit as a 128-byte executable DSP bootstrap at 0x803C7770, SHA-256 `5b873ee91f33b0884574b814d7f46d81e283394de91b8b2ea9073ac218dee350`. Its existing byte initializer is not a DSP-source reconstruction. Original-language provenance is still under review. This is distinct from an original split fallback and does not change CPU code counts. The earlier two-function inventory below is historical.
+
 The accepted 2026-11-04 two-function checkpoint has 1,778,445 of 1,788,360 source-linked data bytes, or 99.44558 percent. Exactly two original fallback units remain in the normal final link: PiiPropData with its two unfinished CPU functions and associated data, and the DSP instruction image. There are no remaining standalone alignment objects or unexplained anonymous storage ranges.
 
 | Remaining category | Bytes | Meaning |
