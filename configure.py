@@ -83,6 +83,36 @@ config.reconfig_deps = []
 config.scratch_preset_id = None
 config.linker_version = "Wii/1.1"
 
+system_message_source = Path("orig") / config.version / "reconstructed" / "system_message"
+system_message_manifest = system_message_source / "manifest.json"
+system_message_archive = config.build_dir / config.version / "assets" / "system_message.arc"
+system_message_include = config.build_dir / config.version / "include" / "system_message.inc"
+config.reconfig_deps.append(system_message_manifest)
+config.custom_build_rules = [
+    {
+        "name": "system_message_assets",
+        "command": '$python tools/assets/build_system_message.py "$in" "$archive" --c-include "$include"',
+        "description": "ASSET system_message.arc",
+    },
+]
+config.custom_build_steps = {
+    "pre-compile": [
+        {
+            "rule": "system_message_assets",
+            "outputs": [system_message_archive, system_message_include],
+            "inputs": [system_message_manifest],
+            "implicit": [
+                *sorted(Path("tools/assets").glob("*.py")),
+                *sorted(path for path in system_message_source.rglob("*") if path.is_file() and path.name not in ("manifest.json", "provenance.json")),
+            ],
+            "variables": {
+                "archive": system_message_archive,
+                "include": system_message_include,
+            },
+        },
+    ],
+}
+
 cflags_base = [
     "-nodefaults",
     "-proc gekko",
@@ -339,6 +369,7 @@ config.libs = [
             Object(Matching, "game/CPiiTex.cpp"),
             Object(Matching, "game/PiiTexCameraParams.cpp"),
             Object(Matching, "game/SystemMessageData.cpp"),
+            Object(Matching, "game/SystemMessageArchive.cpp", extra_cflags=[f"-i {system_message_include.parent}"]),
             Object(Matching, "game/PiiMotionData.cpp"),
             Object(Matching, "game/EffectInfos.cpp"),
             Object(Matching, "game/PiiSpeciesTables.cpp"),

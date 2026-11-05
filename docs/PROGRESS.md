@@ -2,7 +2,7 @@
 
 ## Current status
 
-Roadmap Phases 1 to 3 are complete and Phase 4 is active. The latest verified build matches the frozen main.dol exactly. It links 3,043,388 of 3,078,460 code bytes (98.86073%) from 893 Matching units; 5 real functions remain below 100%. Only PiiPropData and ef_animcurve still supply original CPU-code fallbacks. The embedded system-message archive and DSP instruction image remain explicit data dependencies. See the latest session below and [matching requirements](MATCHING.md).
+Roadmap Phases 1 to 3 are complete and Phase 4 is active. The latest verified build matches the frozen main.dol exactly. It links 3,043,388 of 3,078,460 code bytes (98.86073%) from 894 Matching units; 4 real functions remain below 100%. PiiPropData and ef_animcurve remain original CPU-code fallbacks, and the DSP instruction image remains explicit. The system-message archive now builds from recovered editable assets. See the latest session below and [matching requirements](MATCHING.md).
 
 | Milestone | State | Evidence or prerequisite |
 | --- | --- | --- |
@@ -14,7 +14,7 @@ Roadmap Phases 1 to 3 are complete and Phase 4 is active. The latest verified bu
 | Toolchain identification | Identified per library | RVL_SDK Wii/1.0; MSL and Runtime Wii/1.1 or 1.3 with `-func_align 4`; NW4R Wii/1.0 or 1.1; F-0007 |
 | Reproducible game build | Achieved | Two clean builds byte-identical; F-0010 |
 | Exact executable match | Achieved for `main.dol` | Verified; remaining original split fallbacks are tracked separately |
-| Source reconstruction | In progress | 893 Matching units of 897 current units; see ledger |
+| Source reconstruction | In progress | 894 Matching units of 897 current units; see ledger |
 | Full release match | Pending | Boot loader, data contents, and WAD packaging outside current scope |
 
 ## Current continuation: source-link acceptance
@@ -25,7 +25,15 @@ Main and CBattleRoyalBox subsequently passed full source-link verification, addi
 
 ## Latest function gains
 
-The real unmatched tail is now 5, down from the initial 120. CCode::Load is newly exact, with all earlier exact functions preserved. Matched code is 3,062,964/3,078,460 bytes (99.49663%). Removing 3,792 independently proven native alignment bytes corrects the denominator without adding matched or linked instruction credit.
+The real unmatched tail is now 4, down from the initial 120. AnimCurveExecuteRotate is newly exact, with all earlier exact functions preserved. Matched code is 3,067,276/3,078,460 bytes (99.63670%). The previously removed 3,792 native alignment bytes do not add matched or linked instruction credit.
+
+## 2026-11-04: Four functions and editable archive reconstruction
+
+AnimCurveExecuteRotate reproduces all 4,312 bytes and 58 relocations; the normal compiler report retains all prior exact functions. Its source-only allocation controls are recorded in the fake-match ledger. The unit remains NonMatching while U8 and F32 are unfinished. PiiPropData constructor and Reset are the other two remaining CPU functions.
+
+The 11,488-byte system-message archive is now generated from nine JSON/PNG inputs through the ordinary build. Its layout, animation, image and container encoders do not read the original DOL or original member binaries. Source-selected ninja and frozen verification pass; all 900 input aliases remain byte-identical. Linked data is 1,777,877/1,788,360 bytes (99.41382%). This is asset reconstruction, with recovered-input provenance retained separately from game-code credit.
+
+New reusable evidence covers [register opening across branches](re/findings/animcurve-rotate-20261104.md), [the returned-class inline eligibility barrier](re/findings/20261104-piipropdata-receiver-tail.md#throw-lowering-and-the-return-factory-barrier), and [semantic archive validation](re/findings/system-message-archive-20261104.md). The remaining original-data dependencies total 10,483 bytes, including [the DSP instruction image](re/findings/ax-dsp-image-20261104.md). The current validation is incremental; the preceding five-function checkpoint has the latest repeated complete clean builds. Full source and package completion are not claimed.
 
 ## 2026-11-04: Five-function continuation
 

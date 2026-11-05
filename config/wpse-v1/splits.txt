@@ -1048,6 +1048,9 @@ game/PiiSpeciesTables.cpp:
 game/SystemMessageData.cpp:
 	.rodata     start:0x803620C0 end:0x80363A80
 
+game/SystemMessageArchive.cpp:
+	.rodata     start:0x80363A80 end:0x80366760
+
 game/luckyhelper.cpp:
 	extab       start:0x8003500C end:0x8003501C
 	extabindex  start:0x80050034 end:0x8005004C

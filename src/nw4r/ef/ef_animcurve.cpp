@@ -493,44 +493,217 @@ void AnimCurveExecuteF32(u8* pCmdList, f32* pTarget, u32 tick, u16 seed, u32 lif
     }
 }
 
-void AnimCurveExecuteRotate(u8* pCmdList, f32* pTarget, u32 tick, u16 seed, u32 life) {
+static inline u32 HashRotationCurveSeed(u16 particleSeed, u16 curveSeed, u16 randomIndex, u32 loop) {
+    detail::CurveRandomSeed h;
+    h.mWord = (u32)particleSeed * 0x3F81F635 + (u32)curveSeed * 0x30A74193 +
+              (u32)randomIndex * 0x371097E7 + (u32)loop * 0x7B929 + 0x4BF53;
+    h.mByte[2] ^= h.mByte[3];
+    h.mByte[1] ^= h.mByte[2];
+    h.mByte[0] ^= h.mByte[1];
+    return h.mWord;
+}
 
-    u8 mask = pCmdList[3];
-    const AnimCurveHeader* pHeader;
+static inline f32 CalcRotationFittingTime(const AnimCurveHeader* pHeader, u8 flag,
+                                      u32 tick, u32 life, u32& rLoop, u32& rPeriod,
+                                      u32& rLoopPeriod, u32& rFittingCount) {
+    rPeriod = pHeader->frameLength - 1;
+    rFittingCount = pHeader->loopCount;
+    rFittingCount = static_cast<u32>(rFittingCount);
+    f32 scale = rFittingCount *
+                (static_cast<f32>(static_cast<int>(rPeriod)) / (life - 1));
+
+    u32 loop = tick * scale / static_cast<int>(rPeriod);
+    rLoop = loop;
+
+    rLoopPeriod = loop;
+    rLoopPeriod *= rPeriod;
+    f32 time = tick * scale - rLoopPeriod;
+
+    if (!(flag & AnimCurveHeader::PROC_FLAG_TURN)) {
+        return time;
+    }
+
+    if (loop % 2 == 0) {
+        return time;
+    }
+
+    return static_cast<f32>(static_cast<int>(rPeriod)) - time;
+}
+
+static inline f32 CalcRotationCurveTime(const AnimCurveHeader* pHeader, u32 tick, u32 life,
+                                        u16& rFrame, u32& rLoop, u32& rFittingPeriod,
+                                        u32& rLoopPeriod, u32& rFittingCount) {
+    u16 frameLength = pHeader->frameLength;
+    rLoop = 0;
+    f32 time;
+
+    if (frameLength <= 1) {
+        time = 0.0f;
+        rLoop = tick;
+        rFrame = 0;
+    } else {
+        u8 timeFlag = pHeader->processFlag;
+
+        if (!(timeFlag & AnimCurveHeader::PROC_FLAG_INFLOOP) &&
+            pHeader->loopCount <= 1) {
+
+            if (!(timeFlag & AnimCurveHeader::PROC_FLAG_FITTING)) {
+                rFrame = tick;
+                if (tick >= frameLength - 1) {
+                    rFrame = frameLength - 1;
+                }
+                time = rFrame;
+            } else {
+                if (life == 1) {
+                    time = frameLength - 1;
+                } else {
+                    time = tick * (static_cast<f32>(frameLength - 1) / (life - 1));
+                    if (time > static_cast<f32>(frameLength - 1)) {
+                        time = static_cast<f32>(frameLength - 1);
+                    }
+                }
+
+                rFrame = time;
+            }
+        } else if (!(timeFlag & AnimCurveHeader::PROC_FLAG_FITTING)) {
+            u32 period = frameLength - 1;
+            rLoop = tick / period;
+
+            if (!(timeFlag & AnimCurveHeader::PROC_FLAG_TURN)) {
+                if (!(timeFlag & AnimCurveHeader::PROC_FLAG_INFLOOP) &&
+                    rLoop >= pHeader->loopCount) {
+                    rFrame = period;
+                    rLoop = static_cast<u8>(pHeader->loopCount - 1);
+                } else {
+                    rFrame = tick - rLoop * period;
+                }
+            } else {
+                if (!(timeFlag & AnimCurveHeader::PROC_FLAG_INFLOOP) &&
+                    rLoop >= pHeader->loopCount) {
+                    if (pHeader->loopCount % 2 == 0) {
+                        rFrame = 0;
+                    } else {
+                        rFrame = period;
+                    }
+                    rLoop = static_cast<u8>(pHeader->loopCount - 1);
+                } else if (rLoop % 2 == 0) {
+                    rFrame = tick - rLoop * period;
+                } else {
+                    rFrame = period * (rLoop + 1) - tick;
+                }
+            }
+
+            time = rFrame;
+        } else if (tick >= life - 1) {
+            if (!(timeFlag & AnimCurveHeader::PROC_FLAG_TURN) ||
+                pHeader->loopCount % 2 != 0) {
+                rFrame = static_cast<u16>(frameLength - 1);
+            } else {
+                rFrame = 0;
+            }
+
+            time = rFrame;
+            rLoop = static_cast<u8>(pHeader->loopCount - 1);
+        } else {
+            time = CalcRotationFittingTime(pHeader, timeFlag, tick, life, rLoop, rFittingPeriod, rLoopPeriod, rFittingCount);
+            rFrame = time;
+        }
+    }
+
+    return time;
+}
+
+struct RotationCurveValue {
+    f32 mValue;
+
+    RotationCurveValue(f32 value) : mValue(value) {}
+    RotationCurveValue(const RotationCurveValue& rOther) : mValue(rOther.mValue) {}
+
+    operator f32() const {
+        return mValue;
+    }
+};
+
+static inline RotationCurveValue CalcRotationBlendTime(f32 time, u16 left, u16 right) {
+    return RotationCurveValue((time - (f32)left) / (f32)(right - left));
+}
+
+static inline f32 InterpolateRotationCurve(f32 t, f32 a, f32 b, u8 type) {
+    if (a == b) {
+        return a;
+    }
+    switch (type & 3) {
+    case 0:
+        return a + t * (b - a);
+    case 1:
+        if (type == 1) {
+            RotationCurveValue w = 3.0f - 2.0f * t;
+            return a + t * (t * (w.mValue * (b - a)));
+        } else {
+            f32 c0 = ((type >> 3) & 1) == 0 ? 0.0f : 1.5f;
+            f32 c1 = ((type >> 2) & 1) == 0 ? 0.0f : 1.5f;
+            RotationCurveValue s = t * (b - a);
+            RotationCurveValue u = t * (t * (c0 + c1 - 2.0f));
+            RotationCurveValue v = t * (3.0f + (-2.0f * c0 - c1));
+            return a + s * (c0 + (u + v));
+        }
+    case 2:
+        return a;
+    default:
+        return 0.0f;
+    }
+}
+
+void AnimCurveExecuteRotate(u8* pCommandList, f32* pTarget, u32 inputTick, u16 seed, u32 life) {
+    u8* pCmdList = reinterpret_cast<u8*>(reinterpret_cast<u32>(pCommandList));
+
+    u32 loopPeriod;
+    u32 fittingCount;
+    u32 fittingPeriod;
+    u8 mask;
     const u8* pKeys;
     const u8* pRanges;
     const u8* pRandomTable;
-    const u8* pNameTable;
-    f32 frameF32;
+    u32 rstride;
+    u32 stride;
+    const u8* pKeyData;
     u32 divL;
     u32 divH;
+    u8 end;
+    u32 pairBytes;
     u32 idx;
-    u16 frame;
     u16 keyLo;
     u16 keyHi;
+    u32 tick = inputTick;
+
+    mask = pCmdList[3];
+    const AnimCurveHeader* pHeader;
+    const u8* pNameTable;
+    f32 frameF32;
+    u16 frame;
     BOOL exact;
 
     detail::SplitCurveResource(pCmdList, &pHeader, &pKeys, &pRanges, &pRandomTable, &pNameTable);
-    frameF32 = detail::CalcTime(pHeader, tick, life, frame, divL);
+    frameF32 = CalcRotationCurveTime(pHeader, tick, life, frame, divL, fittingPeriod, loopPeriod, fittingCount);
     divH = divL;
 
-    u8 end = sHighestChannel[mask];
+    end = sHighestChannel[mask];
     u32 count = sChannelCount[mask];
     if (count == 0) {
         return;
     }
 
-    u32 stride = count * 4 + 0xC;
-    u32 pairBytes = count * 8;
-    u32 rstride = pairBytes + 4;
-    const u8* pKeyData = pKeys + 4;
+    stride = count * 4 + 0xC;
+    pairBytes = count * 8;
+    rstride = pairBytes + 4;
+    pKeyData = pKeys + 4;
     detail::FindCurveKeys(&idx, &exact, &keyLo, &keyHi, frame, frameF32, (const u16*)pKeyData, stride, 0,
                 ((const AnimCurveKey*)pKeys)->count - 1);
 
     if (exact) {
         const detail::ValueCurveKey* pRecord = (const detail::ValueCurveKey*)(pKeyData + idx * stride);
         const f32* pValues = pRecord->mData.mValue;
-        if (pRecord->mFlags == 0) {
+        if (*(reinterpret_cast<const u8*>(pValues) - 10) == 0) {
             for (u16 bit = 1; bit <= end; bit = (u16)(bit << 1)) {
                 if ((mask & bit) != 0) {
                     *pTarget = *pValues++;
@@ -541,17 +714,21 @@ void AnimCurveExecuteRotate(u8* pCmdList, f32* pTarget, u32 tick, u16 seed, u32 
         }
 
         u16 r = *(const u16*)pValues;
-        u32 hash = detail::HashCurveSeed(seed, pHeader->randomSeed, r, divL);
+        u32 hash = HashRotationCurveSeed(seed, pHeader->randomSeed, r, divL);
         const detail::CurveRandomRange* pRange;
-        if ((pRecord->mFlags & 2) == 0) {
-            pRange = (const detail::CurveRandomRange*)(pRanges + r * rstride + 4);
+        if ((*(reinterpret_cast<const u8*>(pValues) - 10) & 2) == 0) {
+            const u8* pRangeData = pRanges + r * rstride;
+            pRangeData = static_cast<const u8*>(pRangeData);
+            pRange = reinterpret_cast<const detail::CurveRandomRange*>(pRangeData + 4);
         } else {
-            pRange = (const detail::CurveRandomRange*)(pRandomTable +
-                                               rstride * ((hash >> 16) % *(const u16*)pRandomTable) + 4);
+            const u8* pRangeData = pRandomTable +
+                                               rstride * ((hash >> 16) % *(const u16*)pRandomTable);
+                                               pRangeData = static_cast<const u8*>(pRangeData);
+            pRange = reinterpret_cast<const detail::CurveRandomRange*>(pRangeData + 4);
             hash = detail::NextCurveSeed(hash);
         }
         BOOL negate = FALSE;
-        if (*((const u8*)pRange + pairBytes) != 0) {
+        if (*reinterpret_cast<const u8*>(reinterpret_cast<u32>(pRange) + pairBytes) != 0) {
             if ((hash & 0x10000) == 0) {
                 negate = TRUE;
             }
@@ -559,8 +736,9 @@ void AnimCurveExecuteRotate(u8* pCmdList, f32* pTarget, u32 tick, u16 seed, u32 
         }
         for (u16 bit = 1; bit <= end; bit = (u16)(bit << 1)) {
             if ((mask & bit) != 0) {
+                f32 scale;
                 f32 base = pRange->mBase;
-                f32 scale = pRange->mRange;
+                scale = pRange->mRange;
                 pRange++;
                 f32 v = base + scale * (f32)(hash >> 16);
                 if (negate) {
@@ -577,19 +755,23 @@ void AnimCurveExecuteRotate(u8* pCmdList, f32* pTarget, u32 tick, u16 seed, u32 
     }
 
     detail::AdvanceCurveLoops(pHeader, (const AnimCurveKey*)pKeys, idx, &divL, &divH);
-    f32 t = (frameF32 - (f32)keyLo) / (f32)(keyHi - keyLo);
+    u8 flagsA;
+    u8 flagsB;
+    RotationCurveValue t = CalcRotationBlendTime(frameF32, keyLo, keyHi);
     const detail::ValueCurveKey* pRecordA = (const detail::ValueCurveKey*)(pKeyData + idx * stride);
     const f32* pValuesA = pRecordA->mData.mValue;
     const detail::ValueCurveKey* pRecordB = (const detail::ValueCurveKey*)(pKeyData + (idx + 1) * stride);
     const f32* pValuesB = pRecordB->mData.mValue;
     const u8* pInterpolation = pRecordA->mType;
-    BOOL randA = pRecordA->mFlags != 0;
-    BOOL randB = pRecordB->mFlags != 0;
+    flagsA = pRecordA->mFlags;
+    flagsB = *(reinterpret_cast<const u8*>(pValuesB) - 10);
+    bool randA = flagsA != 0;
+    BOOL randB = flagsB != 0;
 
     if (!randA && !randB) {
         for (u16 bit = 1; bit <= end; bit = (u16)(bit << 1)) {
             if ((mask & bit) != 0) {
-                *pTarget = detail::InterpolateCurveF32(t, *pValuesA, *pValuesB, *pInterpolation);
+                *pTarget = InterpolateRotationCurve(t.mValue, *pValuesA, *pValuesB, *pInterpolation);
                 pValuesA++;
                 pValuesB++;
             }
@@ -601,17 +783,21 @@ void AnimCurveExecuteRotate(u8* pCmdList, f32* pTarget, u32 tick, u16 seed, u32 
 
     if (randA && !randB) {
         u16 rA = *(const u16*)pValuesA;
-        u32 hashA = detail::HashCurveSeed(seed, pHeader->randomSeed, rA, divL);
+        u32 hashA = HashRotationCurveSeed(seed, pHeader->randomSeed, rA, divL);
         const detail::CurveRandomRange* pRangeA;
-        if ((pRecordA->mFlags & 2) == 0) {
-            pRangeA = (const detail::CurveRandomRange*)(pRanges + rA * rstride + 4);
+        if ((flagsA & 2) == 0) {
+            const u8* pRangeData = pRanges + rA * rstride;
+            pRangeData = static_cast<const u8*>(pRangeData);
+            pRangeA = reinterpret_cast<const detail::CurveRandomRange*>(pRangeData + 4);
         } else {
-            pRangeA = (const detail::CurveRandomRange*)(pRandomTable +
-                                               rstride * ((hashA >> 16) % *(const u16*)pRandomTable) + 4);
+            const u8* pRangeData = pRandomTable +
+                                               rstride * ((hashA >> 16) % *(const u16*)pRandomTable);
+                                               pRangeData = static_cast<const u8*>(pRangeData);
+            pRangeA = reinterpret_cast<const detail::CurveRandomRange*>(pRangeData + 4);
             hashA = detail::NextCurveSeed(hashA);
         }
         BOOL negateA = FALSE;
-        if (*((const u8*)pRangeA + pairBytes) != 0) {
+        if (*reinterpret_cast<const u8*>(reinterpret_cast<u32>(pRangeA) + pairBytes) != 0) {
             if ((hashA & 0x10000) == 0) {
                 negateA = TRUE;
             }
@@ -619,14 +805,15 @@ void AnimCurveExecuteRotate(u8* pCmdList, f32* pTarget, u32 tick, u16 seed, u32 
         }
         for (u16 bit = 1; bit <= end; bit = (u16)(bit << 1)) {
             if ((mask & bit) != 0) {
+                f32 scaleA;
                 f32 baseA = pRangeA->mBase;
-                f32 scaleA = pRangeA->mRange;
+                scaleA = pRangeA->mRange;
                 pRangeA++;
                 f32 vA = baseA + scaleA * (f32)(hashA >> 16);
                 if (negateA) {
                     vA = -vA;
                 }
-                *pTarget = detail::InterpolateCurveF32(t, vA, *pValuesB, *pInterpolation);
+                *pTarget = InterpolateRotationCurve(t.mValue, vA, *pValuesB, *pInterpolation);
                 pValuesB++;
             }
             pInterpolation++;
@@ -640,17 +827,21 @@ void AnimCurveExecuteRotate(u8* pCmdList, f32* pTarget, u32 tick, u16 seed, u32 
 
     if (!randA && randB) {
         u16 rB = *(const u16*)pValuesB;
-        u32 hashB = detail::HashCurveSeed(seed, pHeader->randomSeed, rB, divH);
+        u32 hashB = HashRotationCurveSeed(seed, pHeader->randomSeed, rB, divH);
         const detail::CurveRandomRange* pRangeB;
-        if ((pRecordB->mFlags & 2) == 0) {
-            pRangeB = (const detail::CurveRandomRange*)(pRanges + rB * rstride + 4);
+        if ((flagsB & 2) == 0) {
+            const u8* pRangeData = pRanges + rB * rstride;
+            pRangeData = static_cast<const u8*>(pRangeData);
+            pRangeB = reinterpret_cast<const detail::CurveRandomRange*>(pRangeData + 4);
         } else {
-            pRangeB = (const detail::CurveRandomRange*)(pRandomTable +
-                                               rstride * ((hashB >> 16) % *(const u16*)pRandomTable) + 4);
+            const u8* pRangeData = pRandomTable +
+                                               rstride * ((hashB >> 16) % *(const u16*)pRandomTable);
+                                               pRangeData = static_cast<const u8*>(pRangeData);
+            pRangeB = reinterpret_cast<const detail::CurveRandomRange*>(pRangeData + 4);
             hashB = detail::NextCurveSeed(hashB);
         }
         BOOL negateB = FALSE;
-        if (*((const u8*)pRangeB + pairBytes) != 0) {
+        if (*reinterpret_cast<const u8*>(reinterpret_cast<u32>(pRangeB) + pairBytes) != 0) {
             if ((hashB & 0x10000) == 0) {
                 negateB = TRUE;
             }
@@ -658,14 +849,15 @@ void AnimCurveExecuteRotate(u8* pCmdList, f32* pTarget, u32 tick, u16 seed, u32 
         }
         for (u16 bit = 1; bit <= end; bit = (u16)(bit << 1)) {
             if ((mask & bit) != 0) {
+                f32 scaleB;
                 f32 baseB = pRangeB->mBase;
-                f32 scaleB = pRangeB->mRange;
+                scaleB = pRangeB->mRange;
                 pRangeB++;
                 f32 vB = baseB + scaleB * (f32)(hashB >> 16);
                 if (negateB) {
                     vB = -vB;
                 }
-                *pTarget = detail::InterpolateCurveF32(t, *pValuesA, vB, *pInterpolation);
+                *pTarget = InterpolateRotationCurve(t.mValue, *pValuesA, vB, *pInterpolation);
                 pValuesA++;
             }
             pInterpolation++;
@@ -678,34 +870,42 @@ void AnimCurveExecuteRotate(u8* pCmdList, f32* pTarget, u32 tick, u16 seed, u32 
     }
 
     u16 rA = *(const u16*)pValuesA;
-    u32 hashA = detail::HashCurveSeed(seed, pHeader->randomSeed, rA, divL);
+    u32 hashA = HashRotationCurveSeed(seed, pHeader->randomSeed, rA, divL);
     const detail::CurveRandomRange* pRangeA;
-    if ((pRecordA->mFlags & 2) == 0) {
-        pRangeA = (const detail::CurveRandomRange*)(pRanges + rA * rstride + 4);
+    if ((flagsA & 2) == 0) {
+        const u8* pRangeData = pRanges + rA * rstride;
+        pRangeData = static_cast<const u8*>(pRangeData);
+        pRangeA = reinterpret_cast<const detail::CurveRandomRange*>(pRangeData + 4);
     } else {
-        pRangeA = (const detail::CurveRandomRange*)(pRandomTable +
-                                           rstride * ((hashA >> 16) % *(const u16*)pRandomTable) + 4);
+        const u8* pRangeData = pRandomTable +
+                                           rstride * ((hashA >> 16) % *(const u16*)pRandomTable);
+                                           pRangeData = static_cast<const u8*>(pRangeData);
+        pRangeA = reinterpret_cast<const detail::CurveRandomRange*>(pRangeData + 4);
         hashA = detail::NextCurveSeed(hashA);
     }
     u16 rB = *(const u16*)pValuesB;
-    u32 hashB = detail::HashCurveSeed(seed, pHeader->randomSeed, rB, divH);
+    u32 hashB = HashRotationCurveSeed(seed, pHeader->randomSeed, rB, divH);
     const detail::CurveRandomRange* pRangeB;
-    if ((pRecordB->mFlags & 2) == 0) {
-        pRangeB = (const detail::CurveRandomRange*)(pRanges + rB * rstride + 4);
+    if ((flagsB & 2) == 0) {
+        const u8* pRangeData = pRanges + rB * rstride;
+        pRangeData = static_cast<const u8*>(pRangeData);
+        pRangeB = reinterpret_cast<const detail::CurveRandomRange*>(pRangeData + 4);
     } else {
-        pRangeB = (const detail::CurveRandomRange*)(pRandomTable +
-                                           rstride * ((hashB >> 16) % *(const u16*)pRandomTable) + 4);
+        const u8* pRangeData = pRandomTable +
+                                           rstride * ((hashB >> 16) % *(const u16*)pRandomTable);
+                                           pRangeData = static_cast<const u8*>(pRangeData);
+        pRangeB = reinterpret_cast<const detail::CurveRandomRange*>(pRangeData + 4);
         hashB = detail::NextCurveSeed(hashB);
     }
     BOOL negateA = FALSE;
-    if (*((const u8*)pRangeA + pairBytes) != 0) {
+    if (*reinterpret_cast<const u8*>(reinterpret_cast<u32>(pRangeA) + pairBytes) != 0) {
         if ((hashA & 0x10000) == 0) {
             negateA = TRUE;
         }
         hashA = detail::NextCurveSeed(hashA);
     }
     BOOL negateB = FALSE;
-    if (*((const u8*)pRangeB + pairBytes) != 0) {
+    if (*reinterpret_cast<const u8*>(reinterpret_cast<u32>(pRangeB) + pairBytes) != 0) {
         if ((hashB & 0x10000) == 0) {
             negateB = TRUE;
         }
@@ -713,21 +913,27 @@ void AnimCurveExecuteRotate(u8* pCmdList, f32* pTarget, u32 tick, u16 seed, u32 
     }
     for (u16 bit = 1; bit <= end; bit = (u16)(bit << 1)) {
         if ((mask & bit) != 0) {
-            f32 baseA = pRangeA->mBase;
-            f32 scaleA = pRangeA->mRange;
+            f32 scaleA;
+            f32 baseA;
+            f32 scaleB;
+            f32 baseB;
+            f32 vB;
+            f32 vA;
+            baseA = pRangeA->mBase;
+            scaleA = pRangeA->mRange;
             pRangeA++;
-            f32 vA = baseA + scaleA * (f32)(hashA >> 16);
+            vA = baseA + scaleA * (f32)(hashA >> 16);
             if (negateA) {
                 vA = -vA;
             }
-            f32 baseB = pRangeB->mBase;
-            f32 scaleB = pRangeB->mRange;
+            baseB = pRangeB->mBase;
+            scaleB = pRangeB->mRange;
             pRangeB++;
-            f32 vB = baseB + scaleB * (f32)(hashB >> 16);
+            vB = baseB + scaleB * (f32)(hashB >> 16);
             if (negateB) {
                 vB = -vB;
             }
-            *pTarget = detail::InterpolateCurveF32(t, vA, vB, *pInterpolation);
+            *pTarget = InterpolateRotationCurve(t.mValue, vA, vB, *pInterpolation);
         }
         pInterpolation++;
         pTarget++;

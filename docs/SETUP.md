@@ -89,6 +89,14 @@ To merge an issue branch, run `python tools/collab/land.py --issue <n>` from its
 
 ### Verify
 
+The normal build regenerates the embedded system-message archive from the tracked editable JSON and PNG inputs under `orig/wpse-v1/reconstructed/system_message/`. It needs only Python's standard library. The archive and C initializer are generated under `build/wpse-v1/`; no original DOL bytes feed this asset rule. To inspect its standalone output and member hashes:
+
+```powershell
+python tools/assets/build_system_message.py orig/wpse-v1/reconstructed/system_message/manifest.json build/wpse-v1/assets/system_message.arc --members build/wpse-v1/assets/system_message
+```
+
+See [asset schema, provenance and validation](re/findings/system-message-archive-20261104.md). The normal `configure.py` and ninja commands remain the build entry point.
+
 Units with a `text_sections` option in `configure.py` use `tools/build/order_text_sections.py` automatically. It copies selected inputs without changing bytes into unique basenames and writes native final-link selectors under `build/<target>/main_link/`. This avoids the linker's basename collisions while preserving source/fallback ownership. The generated objdiff unit enables `combine_text_sections` for reporting. See [native section linking](re/findings/native-section-link.md); no extra manual build command is needed.
 
 An object with `partial_sources` can also specify `link_source_order`, naming every compiled source exactly once. Its native partial-link object remains the comparison input; the final executable consumes the individual compiler outputs in the declared order. The native section preparer groups their `.text` spans while retaining input order for exception records and data. CModel uses this to avoid the pinned final linker's failure on its partially linked custom-section object. The ordinary configure/ninja entry point handles both paths.

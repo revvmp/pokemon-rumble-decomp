@@ -1,6 +1,8 @@
 config/**/*.txt text eol=lf
 config/**/*.sha1 text eol=lf
 docs/images/*.svg text eol=lf
+orig/wpse-v1/reconstructed/**/*.json text eol=lf
+orig/wpse-v1/reconstructed/**/*.png binary
 *.bat text eol=crlf
 docs/ledger/*.md merge=decomp-config
 docs/ledger/README.md merge

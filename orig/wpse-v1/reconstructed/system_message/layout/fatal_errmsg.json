@@ -1,0 +1,4605 @@
+{
+  "version": 10,
+  "panes": [
+    {
+      "kind": "pane",
+      "name": "RootPane",
+      "user_data": "",
+      "visible": true,
+      "influenced_alpha": false,
+      "location_adjust": false,
+      "origin": {
+        "horizontal": "center",
+        "vertical": "center"
+      },
+      "alpha": 255,
+      "translate": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0
+      ],
+      "size": [
+        648.0,
+        480.0
+      ],
+      "children": [
+        {
+          "kind": "pane",
+          "name": "root",
+          "user_data": "",
+          "visible": true,
+          "influenced_alpha": true,
+          "location_adjust": false,
+          "origin": {
+            "horizontal": "center",
+            "vertical": "center"
+          },
+          "alpha": 0,
+          "translate": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotate": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "scale": [
+            1.0,
+            1.0
+          ],
+          "size": [
+            16.0,
+            16.0
+          ],
+          "children": [
+            {
+              "kind": "picture",
+              "name": "back",
+              "user_data": "",
+              "visible": true,
+              "influenced_alpha": false,
+              "location_adjust": false,
+              "origin": {
+                "horizontal": "center",
+                "vertical": "center"
+              },
+              "alpha": 255,
+              "translate": [
+                -0.0,
+                -0.0,
+                0.0
+              ],
+              "rotate": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.0,
+                1.0
+              ],
+              "size": [
+                648.0,
+                480.0
+              ],
+              "vertex_colors": [
+                [
+                  255,
+                  255,
+                  255,
+                  255
+                ],
+                [
+                  255,
+                  255,
+                  255,
+                  255
+                ],
+                [
+                  255,
+                  255,
+                  255,
+                  255
+                ],
+                [
+                  255,
+                  255,
+                  255,
+                  255
+                ]
+              ],
+              "material": "back",
+              "texture_coordinates": [
+                [
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0
+                ]
+              ]
+            },
+            {
+              "kind": "pane",
+              "name": "window",
+              "user_data": "",
+              "visible": true,
+              "influenced_alpha": true,
+              "location_adjust": true,
+              "origin": {
+                "horizontal": "center",
+                "vertical": "center"
+              },
+              "alpha": 255,
+              "translate": [
+                -0.0,
+                -0.0,
+                0.0
+              ],
+              "rotate": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                1.05,
+                1.05
+              ],
+              "size": [
+                16.0,
+                16.0
+              ],
+              "children": [
+                {
+                  "kind": "pane",
+                  "name": "shadow2",
+                  "user_data": "",
+                  "visible": true,
+                  "influenced_alpha": false,
+                  "location_adjust": false,
+                  "origin": {
+                    "horizontal": "center",
+                    "vertical": "center"
+                  },
+                  "alpha": 255,
+                  "translate": [
+                    -0.0,
+                    -0.0,
+                    0.0
+                  ],
+                  "rotate": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0
+                  ],
+                  "size": [
+                    16.0,
+                    16.0
+                  ],
+                  "children": [
+                    {
+                      "kind": "picture",
+                      "name": "shadow2_nw",
+                      "user_data": "",
+                      "visible": true,
+                      "influenced_alpha": false,
+                      "location_adjust": false,
+                      "origin": {
+                        "horizontal": "right",
+                        "vertical": "bottom"
+                      },
+                      "alpha": 255,
+                      "translate": [
+                        -256.0,
+                        178.0,
+                        0.0
+                      ],
+                      "rotate": [
+                        0.0,
+                        0.0,
+                        0.0
+                      ],
+                      "scale": [
+                        1.0,
+                        1.0
+                      ],
+                      "size": [
+                        20.0,
+                        20.0
+                      ],
+                      "vertex_colors": [
+                        [
+                          232,
+                          232,
+                          232,
+                          255
+                        ],
+                        [
+                          232,
+                          232,
+                          232,
+                          255
+                        ],
+                        [
+                          232,
+                          232,
+                          232,
+                          255
+                        ],
+                        [
+                          232,
+                          232,
+                          232,
+                          255
+                        ]
+                      ],
+                      "material": "shadow2_nw",
+                      "texture_coordinates": [
+                        [
+                          -1.0,
+                          -1.0,
+                          0.0,
+                          -1.0,
+                          -1.0,
+                          0.0,
+                          0.0,
+                          0.0
+                        ]
+                      ]
+                    },
+                    {
+                      "kind": "picture",
+                      "name": "shadow2_n",
+                      "user_data": "",
+                      "visible": true,
+                      "influenced_alpha": false,
+                      "location_adjust": false,
+                      "origin": {
+                        "horizontal": "center",
+                        "vertical": "bottom"
+                      },
+                      "alpha": 255,
+                      "translate": [
+                        -0.0,
+                        178.0,
+                        0.0
+                      ],
+                      "rotate": [
+                        0.0,
+                        0.0,
+                        0.0
+                      ],
+                      "scale": [
+                        1.0,
+                        1.0
+                      ],
+                      "size": [
+                        512.0,
+                        20.0
+                      ],
+                      "vertex_colors": [
+                        [
+                          232,
+                          232,
+                          232,
+                          255
+                        ],
+                        [
+                          232,
+                          232,
+                          232,
+                          255
+                        ],
+                        [
+                          232,
+                          232,
+                          232,
+                          255
+                        ],
+                        [
+                          232,
+                          232,
+                          232,
+                          255
+                        ]
+                      ],
+                      "material": "shadow2_n",
+                      "texture_coordinates": [
+                        [
+                          0.0,
+                          -1.0,
+                          0.0,
+                          -1.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0
+                        ]
+                      ]
+                    },
+                    {
+                      "kind": "picture",
+                      "name": "shadow2_ne",
+                      "user_data": "",
+                      "visible": true,
+                      "influenced_alpha": false,
+                      "location_adjust": false,
+                      "origin": {
+                        "horizontal": "left",
+                        "vertical": "bottom"
+                      },
+                      "alpha": 255,
+                      "translate": [
+                        256.0,
+                        178.0,
+                        0.0
+                      ],
+                      "rotate": [
+                        0.0,
+                        0.0,
+                        0.0
+                      ],
+                      "scale": [
+                        1.0,
+                        1.0
+                      ],
+                      "size": [
+                        20.0,
+                        20.0
+                      ],
+                      "vertex_colors": [
+                        [
+                          232,
+                          232,
+                          232,
+                          255
+                        ],
+                        [
+                          232,
+                          232,
+                          232,
+                          255
+                        ],
+                        [
+                          232,
+                          232,
+                          232,
+                          255
+                        ],
+                        [
+                          232,
+                          232,
+                          232,
+                          255
+                        ]
+                      ],
+                      "material": "shadow2_ne",
+                      "texture_coordinates": [
+                        [
+                          0.0,
+                          -1.0,
+                          1.0,
+                          -1.0,
+                          0.0,
+                          0.0,
+                          1.0,
+                          0.0
+                        ]
+                      ]
+                    },
+                    {
+                      "kind": "picture",
+                      "name": "shadow2_e",
+                      "user_data": "",
+                      "visible": true,
+                      "influenced_alpha": false,
+                      "location_adjust": false,
+                      "origin": {
+                        "horizontal": "left",
+                        "vertical": "center"
+                      },
+                      "alpha": 255,
+                      "translate": [
+                        256.0,
+                        -0.0,
+                        0.0
+                      ],
+                      "rotate": [
+                        0.0,
+                        0.0,
+                        0.0
+                      ],
+                      "scale": [
+                        1.0,
+                        1.0
+                      ],
+                      "size": [
+                        20.0,
+                        356.0
+                      ],
+                      "vertex_colors": [
+                        [
+                          232,
+                          232,
+                          232,
+                          255
+                        ],
+                        [
+                          232,
+                          232,
+                          232,
+                          255
+                        ],
+                        [
+                          232,
+                          232,
+                          232,
+                          255
+                        ],
+                        [
+                          232,
+                          232,
+                          232,
+                          255
+                        ]
+                      ],
+                      "material": "shadow2_e",
+                      "texture_coordinates": [
+                        [
+                          0.0,
+                          0.0,
+                          1.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          1.0,
+                          0.0
+                        ]
+                      ]
+                    },
+                    {
+                      "kind": "picture",
+                      "name": "shadow2_c",
+                      "user_data": "",
+                      "visible": true,
+                      "influenced_alpha": false,
+                      "location_adjust": false,
+                      "origin": {
+                        "horizontal": "center",
+                        "vertical": "center"
+                      },
+                      "alpha": 255,
+                      "translate": [
+                        -0.0,
+                        -0.0,
+                        0.0
+                      ],
+                      "rotate": [
+                        0.0,
+                        0.0,
+                        0.0
+                      ],
+                      "scale": [
+                        1.0,
+                        1.0
+                      ],
+                      "size": [
+                        512.0,
+                        356.0
+                      ],
+                      "vertex_colors": [
+                        [
+                          232,
+                          232,
+                          232,
+                          255
+                        ],
+                        [
+                          232,
+                          232,
+                          232,
+                          255
+                        ],
+                        [
+                          232,
+                          232,
+                          232,
+                          255
+                        ],
+                        [
+                          232,
+                          232,
+                          232,
+                          255
+                        ]
+                      ],
+                      "material": "shadow2_c",
+                      "texture_coordinates": [
+                        [
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0
+                        ]
+                      ]
+                    },
+                    {
+                      "kind": "picture",
+                      "name": "shadow2_w",
+                      "user_data": "",
+                      "visible": true,
+                      "influenced_alpha": false,
+                      "location_adjust": false,
+                      "origin": {
+                        "horizontal": "right",
+                        "vertical": "center"
+                      },
+                      "alpha": 255,
+                      "translate": [
+                        -256.0,
+                        -0.0,
+                        0.0
+                      ],
+                      "rotate": [
+                        0.0,
+                        0.0,
+                        0.0
+                      ],
+                      "scale": [
+                        1.0,
+                        1.0
+                      ],
+                      "size": [
+                        20.0,
+                        356.0
+                      ],
+                      "vertex_colors": [
+                        [
+                          232,
+                          232,
+                          232,
+                          255
+                        ],
+                        [
+                          232,
+                          232,
+                          232,
+                          255
+                        ],
+                        [
+                          232,
+                          232,
+                          232,
+                          255
+                        ],
+                        [
+                          232,
+                          232,
+                          232,
+                          255
+                        ]
+                      ],
+                      "material": "shadow2_w",
+                      "texture_coordinates": [
+                        [
+                          -1.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          -1.0,
+                          0.0,
+                          0.0,
+                          0.0
+                        ]
+                      ]
+                    },
+                    {
+                      "kind": "picture",
+                      "name": "shadow2_sw",
+                      "user_data": "",
+                      "visible": true,
+                      "influenced_alpha": false,
+                      "location_adjust": false,
+                      "origin": {
+                        "horizontal": "right",
+                        "vertical": "top"
+                      },
+                      "alpha": 255,
+                      "translate": [
+                        -256.0,
+                        -178.0,
+                        0.0
+                      ],
+                      "rotate": [
+                        0.0,
+                        0.0,
+                        0.0
+                      ],
+                      "scale": [
+                        1.0,
+                        1.0
+                      ],
+                      "size": [
+                        20.0,
+                        20.0
+                      ],
+                      "vertex_colors": [
+                        [
+                          232,
+                          232,
+                          232,
+                          255
+                        ],
+                        [
+                          232,
+                          232,
+                          232,
+                          255
+                        ],
+                        [
+                          232,
+                          232,
+                          232,
+                          255
+                        ],
+                        [
+                          232,
+                          232,
+                          232,
+                          255
+                        ]
+                      ],
+                      "material": "shadow2_sw",
+                      "texture_coordinates": [
+                        [
+                          -1.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          -1.0,
+                          1.0,
+                          0.0,
+                          1.0
+                        ]
+                      ]
+                    },
+                    {
+                      "kind": "picture",
+                      "name": "shadow2_s",
+                      "user_data": "",
+                      "visible": true,
+                      "influenced_alpha": false,
+                      "location_adjust": false,
+                      "origin": {
+                        "horizontal": "center",
+                        "vertical": "top"
+                      },
+                      "alpha": 255,
+                      "translate": [
+                        -0.0,
+                        -178.0,
+                        0.0
+                      ],
+                      "rotate": [
+                        0.0,
+                        0.0,
+                        0.0
+                      ],
+                      "scale": [
+                        1.0,
+                        1.0
+                      ],
+                      "size": [
+                        512.0,
+                        20.0
+                      ],
+                      "vertex_colors": [
+                        [
+                          232,
+                          232,
+                          232,
+                          255
+                        ],
+                        [
+                          232,
+                          232,
+                          232,
+                          255
+                        ],
+                        [
+                          232,
+                          232,
+                          232,
+                          255
+                        ],
+                        [
+                          232,
+                          232,
+                          232,
+                          255
+                        ]
+                      ],
+                      "material": "shadow2_s",
+                      "texture_coordinates": [
+                        [
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          1.0,
+                          0.0,
+                          1.0
+                        ]
+                      ]
+                    },
+                    {
+                      "kind": "picture",
+                      "name": "shadow2_se",
+                      "user_data": "",
+                      "visible": true,
+                      "influenced_alpha": false,
+                      "location_adjust": false,
+                      "origin": {
+                        "horizontal": "left",
+                        "vertical": "top"
+                      },
+                      "alpha": 255,
+                      "translate": [
+                        256.0,
+                        -178.0,
+                        0.0
+                      ],
+                      "rotate": [
+                        0.0,
+                        0.0,
+                        0.0
+                      ],
+                      "scale": [
+                        1.0,
+                        1.0
+                      ],
+                      "size": [
+                        20.0,
+                        20.0
+                      ],
+                      "vertex_colors": [
+                        [
+                          232,
+                          232,
+                          232,
+                          255
+                        ],
+                        [
+                          232,
+                          232,
+                          232,
+                          255
+                        ],
+                        [
+                          232,
+                          232,
+                          232,
+                          255
+                        ],
+                        [
+                          232,
+                          232,
+                          232,
+                          255
+                        ]
+                      ],
+                      "material": "shadow2_se",
+                      "texture_coordinates": [
+                        [
+                          0.0,
+                          0.0,
+                          1.0,
+                          0.0,
+                          0.0,
+                          1.0,
+                          1.0,
+                          1.0
+                        ]
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "pane",
+                  "name": "shadow",
+                  "user_data": "",
+                  "visible": true,
+                  "influenced_alpha": false,
+                  "location_adjust": false,
+                  "origin": {
+                    "horizontal": "center",
+                    "vertical": "center"
+                  },
+                  "alpha": 255,
+                  "translate": [
+                    -0.0,
+                    -0.0,
+                    0.0
+                  ],
+                  "rotate": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0
+                  ],
+                  "size": [
+                    16.0,
+                    16.0
+                  ],
+                  "children": [
+                    {
+                      "kind": "picture",
+                      "name": "shadow_nw",
+                      "user_data": "",
+                      "visible": true,
+                      "influenced_alpha": false,
+                      "location_adjust": false,
+                      "origin": {
+                        "horizontal": "right",
+                        "vertical": "bottom"
+                      },
+                      "alpha": 255,
+                      "translate": [
+                        -256.0,
+                        178.0,
+                        0.0
+                      ],
+                      "rotate": [
+                        0.0,
+                        0.0,
+                        0.0
+                      ],
+                      "scale": [
+                        1.0,
+                        1.0
+                      ],
+                      "size": [
+                        17.0,
+                        17.0
+                      ],
+                      "vertex_colors": [
+                        [
+                          200,
+                          200,
+                          200,
+                          255
+                        ],
+                        [
+                          200,
+                          200,
+                          200,
+                          255
+                        ],
+                        [
+                          200,
+                          200,
+                          200,
+                          255
+                        ],
+                        [
+                          200,
+                          200,
+                          200,
+                          255
+                        ]
+                      ],
+                      "material": "shadow_nw",
+                      "texture_coordinates": [
+                        [
+                          -1.0,
+                          -1.0,
+                          0.0,
+                          -1.0,
+                          -1.0,
+                          0.0,
+                          0.0,
+                          0.0
+                        ]
+                      ]
+                    },
+                    {
+                      "kind": "picture",
+                      "name": "shadow_n",
+                      "user_data": "",
+                      "visible": true,
+                      "influenced_alpha": false,
+                      "location_adjust": false,
+                      "origin": {
+                        "horizontal": "center",
+                        "vertical": "bottom"
+                      },
+                      "alpha": 255,
+                      "translate": [
+                        -0.0,
+                        178.0,
+                        0.0
+                      ],
+                      "rotate": [
+                        0.0,
+                        0.0,
+                        0.0
+                      ],
+                      "scale": [
+                        1.0,
+                        1.0
+                      ],
+                      "size": [
+                        512.0,
+                        17.0
+                      ],
+                      "vertex_colors": [
+                        [
+                          200,
+                          200,
+                          200,
+                          255
+                        ],
+                        [
+                          200,
+                          200,
+                          200,
+                          255
+                        ],
+                        [
+                          200,
+                          200,
+                          200,
+                          255
+                        ],
+                        [
+                          200,
+                          200,
+                          200,
+                          255
+                        ]
+                      ],
+                      "material": "shadow_n",
+                      "texture_coordinates": [
+                        [
+                          0.0,
+                          -1.0,
+                          0.0,
+                          -1.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0
+                        ]
+                      ]
+                    },
+                    {
+                      "kind": "picture",
+                      "name": "shadow_ne",
+                      "user_data": "",
+                      "visible": true,
+                      "influenced_alpha": false,
+                      "location_adjust": false,
+                      "origin": {
+                        "horizontal": "left",
+                        "vertical": "bottom"
+                      },
+                      "alpha": 255,
+                      "translate": [
+                        256.0,
+                        178.0,
+                        0.0
+                      ],
+                      "rotate": [
+                        0.0,
+                        0.0,
+                        0.0
+                      ],
+                      "scale": [
+                        1.0,
+                        1.0
+                      ],
+                      "size": [
+                        17.0,
+                        17.0
+                      ],
+                      "vertex_colors": [
+                        [
+                          200,
+                          200,
+                          200,
+                          255
+                        ],
+                        [
+                          200,
+                          200,
+                          200,
+                          255
+                        ],
+                        [
+                          200,
+                          200,
+                          200,
+                          255
+                        ],
+                        [
+                          200,
+                          200,
+                          200,
+                          255
+                        ]
+                      ],
+                      "material": "shadow_ne",
+                      "texture_coordinates": [
+                        [
+                          0.0,
+                          -1.0,
+                          1.0,
+                          -1.0,
+                          0.0,
+                          0.0,
+                          1.0,
+                          0.0
+                        ]
+                      ]
+                    },
+                    {
+                      "kind": "picture",
+                      "name": "shadow_e",
+                      "user_data": "",
+                      "visible": true,
+                      "influenced_alpha": false,
+                      "location_adjust": false,
+                      "origin": {
+                        "horizontal": "left",
+                        "vertical": "center"
+                      },
+                      "alpha": 255,
+                      "translate": [
+                        256.0,
+                        -0.0,
+                        0.0
+                      ],
+                      "rotate": [
+                        0.0,
+                        0.0,
+                        0.0
+                      ],
+                      "scale": [
+                        1.0,
+                        1.0
+                      ],
+                      "size": [
+                        17.0,
+                        356.0
+                      ],
+                      "vertex_colors": [
+                        [
+                          200,
+                          200,
+                          200,
+                          255
+                        ],
+                        [
+                          200,
+                          200,
+                          200,
+                          255
+                        ],
+                        [
+                          200,
+                          200,
+                          200,
+                          255
+                        ],
+                        [
+                          200,
+                          200,
+                          200,
+                          255
+                        ]
+                      ],
+                      "material": "shadow_e",
+                      "texture_coordinates": [
+                        [
+                          0.0,
+                          0.0,
+                          1.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          1.0,
+                          0.0
+                        ]
+                      ]
+                    },
+                    {
+                      "kind": "picture",
+                      "name": "shadow_c",
+                      "user_data": "",
+                      "visible": true,
+                      "influenced_alpha": false,
+                      "location_adjust": false,
+                      "origin": {
+                        "horizontal": "center",
+                        "vertical": "center"
+                      },
+                      "alpha": 255,
+                      "translate": [
+                        -0.0,
+                        -0.0,
+                        0.0
+                      ],
+                      "rotate": [
+                        0.0,
+                        0.0,
+                        0.0
+                      ],
+                      "scale": [
+                        1.0,
+                        1.0
+                      ],
+                      "size": [
+                        512.0,
+                        356.0
+                      ],
+                      "vertex_colors": [
+                        [
+                          200,
+                          200,
+                          200,
+                          255
+                        ],
+                        [
+                          200,
+                          200,
+                          200,
+                          255
+                        ],
+                        [
+                          200,
+                          200,
+                          200,
+                          255
+                        ],
+                        [
+                          200,
+                          200,
+                          200,
+                          255
+                        ]
+                      ],
+                      "material": "shadow_c",
+                      "texture_coordinates": [
+                        [
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0
+                        ]
+                      ]
+                    },
+                    {
+                      "kind": "picture",
+                      "name": "shadow_w",
+                      "user_data": "",
+                      "visible": true,
+                      "influenced_alpha": false,
+                      "location_adjust": false,
+                      "origin": {
+                        "horizontal": "right",
+                        "vertical": "center"
+                      },
+                      "alpha": 255,
+                      "translate": [
+                        -256.0,
+                        -0.0,
+                        0.0
+                      ],
+                      "rotate": [
+                        0.0,
+                        0.0,
+                        0.0
+                      ],
+                      "scale": [
+                        1.0,
+                        1.0
+                      ],
+                      "size": [
+                        17.0,
+                        356.0
+                      ],
+                      "vertex_colors": [
+                        [
+                          200,
+                          200,
+                          200,
+                          255
+                        ],
+                        [
+                          200,
+                          200,
+                          200,
+                          255
+                        ],
+                        [
+                          200,
+                          200,
+                          200,
+                          255
+                        ],
+                        [
+                          200,
+                          200,
+                          200,
+                          255
+                        ]
+                      ],
+                      "material": "shadow_w",
+                      "texture_coordinates": [
+                        [
+                          -1.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          -1.0,
+                          0.0,
+                          0.0,
+                          0.0
+                        ]
+                      ]
+                    },
+                    {
+                      "kind": "picture",
+                      "name": "shadow_sw",
+                      "user_data": "",
+                      "visible": true,
+                      "influenced_alpha": false,
+                      "location_adjust": false,
+                      "origin": {
+                        "horizontal": "right",
+                        "vertical": "top"
+                      },
+                      "alpha": 255,
+                      "translate": [
+                        -256.0,
+                        -178.0,
+                        0.0
+                      ],
+                      "rotate": [
+                        0.0,
+                        0.0,
+                        0.0
+                      ],
+                      "scale": [
+                        1.0,
+                        1.0
+                      ],
+                      "size": [
+                        17.0,
+                        17.0
+                      ],
+                      "vertex_colors": [
+                        [
+                          200,
+                          200,
+                          200,
+                          255
+                        ],
+                        [
+                          200,
+                          200,
+                          200,
+                          255
+                        ],
+                        [
+                          200,
+                          200,
+                          200,
+                          255
+                        ],
+                        [
+                          200,
+                          200,
+                          200,
+                          255
+                        ]
+                      ],
+                      "material": "shadow_sw",
+                      "texture_coordinates": [
+                        [
+                          -1.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          -1.0,
+                          1.0,
+                          0.0,
+                          1.0
+                        ]
+                      ]
+                    },
+                    {
+                      "kind": "picture",
+                      "name": "shadow_s",
+                      "user_data": "",
+                      "visible": true,
+                      "influenced_alpha": false,
+                      "location_adjust": false,
+                      "origin": {
+                        "horizontal": "center",
+                        "vertical": "top"
+                      },
+                      "alpha": 255,
+                      "translate": [
+                        -0.0,
+                        -178.0,
+                        0.0
+                      ],
+                      "rotate": [
+                        0.0,
+                        0.0,
+                        0.0
+                      ],
+                      "scale": [
+                        1.0,
+                        1.0
+                      ],
+                      "size": [
+                        512.0,
+                        17.0
+                      ],
+                      "vertex_colors": [
+                        [
+                          200,
+                          200,
+                          200,
+                          255
+                        ],
+                        [
+                          200,
+                          200,
+                          200,
+                          255
+                        ],
+                        [
+                          200,
+                          200,
+                          200,
+                          255
+                        ],
+                        [
+                          200,
+                          200,
+                          200,
+                          255
+                        ]
+                      ],
+                      "material": "shadow_s",
+                      "texture_coordinates": [
+                        [
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          0.0,
+                          1.0,
+                          0.0,
+                          1.0
+                        ]
+                      ]
+                    },
+                    {
+                      "kind": "picture",
+                      "name": "shadow_se",
+                      "user_data": "",
+                      "visible": true,
+                      "influenced_alpha": false,
+                      "location_adjust": false,
+                      "origin": {
+                        "horizontal": "left",
+                        "vertical": "top"
+                      },
+                      "alpha": 255,
+                      "translate": [
+                        256.0,
+                        -178.0,
+                        0.0
+                      ],
+                      "rotate": [
+                        0.0,
+                        0.0,
+                        0.0
+                      ],
+                      "scale": [
+                        1.0,
+                        1.0
+                      ],
+                      "size": [
+                        17.0,
+                        17.0
+                      ],
+                      "vertex_colors": [
+                        [
+                          200,
+                          200,
+                          200,
+                          255
+                        ],
+                        [
+                          200,
+                          200,
+                          200,
+                          255
+                        ],
+                        [
+                          200,
+                          200,
+                          200,
+                          255
+                        ],
+                        [
+                          200,
+                          200,
+                          200,
+                          255
+                        ]
+                      ],
+                      "material": "shadow_se",
+                      "texture_coordinates": [
+                        [
+                          0.0,
+                          0.0,
+                          1.0,
+                          0.0,
+                          0.0,
+                          1.0,
+                          1.0,
+                          1.0
+                        ]
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "picture",
+                  "name": "window_nw",
+                  "user_data": "",
+                  "visible": true,
+                  "influenced_alpha": false,
+                  "location_adjust": false,
+                  "origin": {
+                    "horizontal": "right",
+                    "vertical": "bottom"
+                  },
+                  "alpha": 255,
+                  "translate": [
+                    -256.0,
+                    178.0,
+                    0.0
+                  ],
+                  "rotate": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0
+                  ],
+                  "size": [
+                    16.0,
+                    16.0
+                  ],
+                  "vertex_colors": [
+                    [
+                      211,
+                      236,
+                      246,
+                      255
+                    ],
+                    [
+                      211,
+                      236,
+                      246,
+                      255
+                    ],
+                    [
+                      211,
+                      236,
+                      246,
+                      255
+                    ],
+                    [
+                      211,
+                      236,
+                      246,
+                      255
+                    ]
+                  ],
+                  "material": "window_nw",
+                  "texture_coordinates": [
+                    [
+                      -1.0,
+                      -1.0,
+                      0.0,
+                      -1.0,
+                      -1.0,
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  ]
+                },
+                {
+                  "kind": "picture",
+                  "name": "window_n",
+                  "user_data": "",
+                  "visible": true,
+                  "influenced_alpha": false,
+                  "location_adjust": false,
+                  "origin": {
+                    "horizontal": "center",
+                    "vertical": "bottom"
+                  },
+                  "alpha": 255,
+                  "translate": [
+                    0.0,
+                    178.0,
+                    0.0
+                  ],
+                  "rotate": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0
+                  ],
+                  "size": [
+                    512.0,
+                    16.0
+                  ],
+                  "vertex_colors": [
+                    [
+                      211,
+                      236,
+                      246,
+                      255
+                    ],
+                    [
+                      211,
+                      236,
+                      246,
+                      255
+                    ],
+                    [
+                      211,
+                      236,
+                      246,
+                      255
+                    ],
+                    [
+                      211,
+                      236,
+                      246,
+                      255
+                    ]
+                  ],
+                  "material": "window_n",
+                  "texture_coordinates": [
+                    [
+                      0.0,
+                      -1.0,
+                      0.0,
+                      -1.0,
+                      0.0,
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  ]
+                },
+                {
+                  "kind": "picture",
+                  "name": "window_ne",
+                  "user_data": "",
+                  "visible": true,
+                  "influenced_alpha": false,
+                  "location_adjust": false,
+                  "origin": {
+                    "horizontal": "left",
+                    "vertical": "bottom"
+                  },
+                  "alpha": 255,
+                  "translate": [
+                    256.0,
+                    178.0,
+                    0.0
+                  ],
+                  "rotate": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0
+                  ],
+                  "size": [
+                    16.0,
+                    16.0
+                  ],
+                  "vertex_colors": [
+                    [
+                      211,
+                      236,
+                      246,
+                      255
+                    ],
+                    [
+                      211,
+                      236,
+                      246,
+                      255
+                    ],
+                    [
+                      211,
+                      236,
+                      246,
+                      255
+                    ],
+                    [
+                      211,
+                      236,
+                      246,
+                      255
+                    ]
+                  ],
+                  "material": "window_ne",
+                  "texture_coordinates": [
+                    [
+                      0.0,
+                      -1.0,
+                      1.0,
+                      -1.0,
+                      0.0,
+                      0.0,
+                      1.0,
+                      0.0
+                    ]
+                  ]
+                },
+                {
+                  "kind": "picture",
+                  "name": "window_e",
+                  "user_data": "",
+                  "visible": true,
+                  "influenced_alpha": false,
+                  "location_adjust": false,
+                  "origin": {
+                    "horizontal": "left",
+                    "vertical": "center"
+                  },
+                  "alpha": 255,
+                  "translate": [
+                    256.0,
+                    0.0,
+                    0.0
+                  ],
+                  "rotate": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0
+                  ],
+                  "size": [
+                    16.0,
+                    356.0
+                  ],
+                  "vertex_colors": [
+                    [
+                      211,
+                      236,
+                      246,
+                      255
+                    ],
+                    [
+                      211,
+                      236,
+                      246,
+                      255
+                    ],
+                    [
+                      211,
+                      236,
+                      246,
+                      255
+                    ],
+                    [
+                      211,
+                      236,
+                      246,
+                      255
+                    ]
+                  ],
+                  "material": "window_e",
+                  "texture_coordinates": [
+                    [
+                      0.0,
+                      0.0,
+                      1.0,
+                      0.0,
+                      0.0,
+                      0.0,
+                      1.0,
+                      0.0
+                    ]
+                  ]
+                },
+                {
+                  "kind": "picture",
+                  "name": "window_c",
+                  "user_data": "",
+                  "visible": true,
+                  "influenced_alpha": false,
+                  "location_adjust": false,
+                  "origin": {
+                    "horizontal": "center",
+                    "vertical": "center"
+                  },
+                  "alpha": 255,
+                  "translate": [
+                    -0.0,
+                    -0.0,
+                    0.0
+                  ],
+                  "rotate": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0
+                  ],
+                  "size": [
+                    512.0,
+                    356.0
+                  ],
+                  "vertex_colors": [
+                    [
+                      211,
+                      236,
+                      246,
+                      255
+                    ],
+                    [
+                      211,
+                      236,
+                      246,
+                      255
+                    ],
+                    [
+                      211,
+                      236,
+                      246,
+                      255
+                    ],
+                    [
+                      211,
+                      236,
+                      246,
+                      255
+                    ]
+                  ],
+                  "material": "window_c",
+                  "texture_coordinates": [
+                    [
+                      0.0,
+                      0.0,
+                      0.0,
+                      0.0,
+                      0.0,
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  ]
+                },
+                {
+                  "kind": "picture",
+                  "name": "window_w",
+                  "user_data": "",
+                  "visible": true,
+                  "influenced_alpha": false,
+                  "location_adjust": false,
+                  "origin": {
+                    "horizontal": "right",
+                    "vertical": "center"
+                  },
+                  "alpha": 255,
+                  "translate": [
+                    -256.0,
+                    -0.0,
+                    0.0
+                  ],
+                  "rotate": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0
+                  ],
+                  "size": [
+                    16.0,
+                    356.0
+                  ],
+                  "vertex_colors": [
+                    [
+                      211,
+                      236,
+                      246,
+                      255
+                    ],
+                    [
+                      211,
+                      236,
+                      246,
+                      255
+                    ],
+                    [
+                      211,
+                      236,
+                      246,
+                      255
+                    ],
+                    [
+                      211,
+                      236,
+                      246,
+                      255
+                    ]
+                  ],
+                  "material": "window_w",
+                  "texture_coordinates": [
+                    [
+                      -1.0,
+                      0.0,
+                      0.0,
+                      0.0,
+                      -1.0,
+                      0.0,
+                      0.0,
+                      0.0
+                    ]
+                  ]
+                },
+                {
+                  "kind": "picture",
+                  "name": "window_sw",
+                  "user_data": "",
+                  "visible": true,
+                  "influenced_alpha": false,
+                  "location_adjust": false,
+                  "origin": {
+                    "horizontal": "right",
+                    "vertical": "top"
+                  },
+                  "alpha": 255,
+                  "translate": [
+                    -256.0,
+                    -178.0,
+                    0.0
+                  ],
+                  "rotate": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0
+                  ],
+                  "size": [
+                    16.0,
+                    16.0
+                  ],
+                  "vertex_colors": [
+                    [
+                      211,
+                      236,
+                      246,
+                      255
+                    ],
+                    [
+                      211,
+                      236,
+                      246,
+                      255
+                    ],
+                    [
+                      211,
+                      236,
+                      246,
+                      255
+                    ],
+                    [
+                      211,
+                      236,
+                      246,
+                      255
+                    ]
+                  ],
+                  "material": "window_sw",
+                  "texture_coordinates": [
+                    [
+                      -1.0,
+                      0.0,
+                      0.0,
+                      0.0,
+                      -1.0,
+                      1.0,
+                      0.0,
+                      1.0
+                    ]
+                  ]
+                },
+                {
+                  "kind": "picture",
+                  "name": "window_s",
+                  "user_data": "",
+                  "visible": true,
+                  "influenced_alpha": false,
+                  "location_adjust": false,
+                  "origin": {
+                    "horizontal": "center",
+                    "vertical": "top"
+                  },
+                  "alpha": 255,
+                  "translate": [
+                    -0.0,
+                    -178.0,
+                    0.0
+                  ],
+                  "rotate": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0
+                  ],
+                  "size": [
+                    512.0,
+                    16.0
+                  ],
+                  "vertex_colors": [
+                    [
+                      211,
+                      236,
+                      246,
+                      255
+                    ],
+                    [
+                      211,
+                      236,
+                      246,
+                      255
+                    ],
+                    [
+                      211,
+                      236,
+                      246,
+                      255
+                    ],
+                    [
+                      211,
+                      236,
+                      246,
+                      255
+                    ]
+                  ],
+                  "material": "window_s",
+                  "texture_coordinates": [
+                    [
+                      0.0,
+                      0.0,
+                      0.0,
+                      0.0,
+                      0.0,
+                      1.0,
+                      0.0,
+                      1.0
+                    ]
+                  ]
+                },
+                {
+                  "kind": "picture",
+                  "name": "window_se",
+                  "user_data": "",
+                  "visible": true,
+                  "influenced_alpha": false,
+                  "location_adjust": false,
+                  "origin": {
+                    "horizontal": "left",
+                    "vertical": "top"
+                  },
+                  "alpha": 255,
+                  "translate": [
+                    256.0,
+                    -178.0,
+                    0.0
+                  ],
+                  "rotate": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0
+                  ],
+                  "size": [
+                    16.0,
+                    16.0
+                  ],
+                  "vertex_colors": [
+                    [
+                      211,
+                      236,
+                      246,
+                      255
+                    ],
+                    [
+                      211,
+                      236,
+                      246,
+                      255
+                    ],
+                    [
+                      211,
+                      236,
+                      246,
+                      255
+                    ],
+                    [
+                      211,
+                      236,
+                      246,
+                      255
+                    ]
+                  ],
+                  "material": "window_se",
+                  "texture_coordinates": [
+                    [
+                      0.0,
+                      0.0,
+                      1.0,
+                      0.0,
+                      0.0,
+                      1.0,
+                      1.0,
+                      1.0
+                    ]
+                  ]
+                },
+                {
+                  "kind": "text",
+                  "name": "text_c",
+                  "user_data": "",
+                  "visible": true,
+                  "influenced_alpha": false,
+                  "location_adjust": false,
+                  "origin": {
+                    "horizontal": "center",
+                    "vertical": "center"
+                  },
+                  "alpha": 255,
+                  "translate": [
+                    -0.0,
+                    -1.818989e-12,
+                    0.0
+                  ],
+                  "rotate": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "scale": [
+                    1.0,
+                    1.0
+                  ],
+                  "size": [
+                    480.0,
+                    224.0
+                  ],
+                  "text_capacity": 190,
+                  "material": "text_c",
+                  "font": "fot_wanpaku_b.brfnt",
+                  "text_origin": {
+                    "horizontal": "center",
+                    "vertical": "center"
+                  },
+                  "text_alignment": "center",
+                  "text_colors": [
+                    [
+                      31,
+                      101,
+                      170,
+                      255
+                    ],
+                    [
+                      31,
+                      101,
+                      170,
+                      255
+                    ]
+                  ],
+                  "font_size": [
+                    22.4,
+                    26.6
+                  ],
+                  "character_spacing": 0.0,
+                  "line_spacing": 0.0,
+                  "text": "らんせん! ポケモンスクランブルの\nシステムファイルが こわれています。\n\nチャンネルかんりがめんで\nらんせん! ポケモンスクランブルを しょうきょしたあと、\nもういちど Wiiショッピングチャンネルから\nらんせん! ポケモンスクランブルを ダウンロードしてください。\n\nそれでも おなじ メッセージが\nでるようであれば、ニンテンドー\nサービスセンターに おといあわせください。"
+                }
+              ]
+            },
+            {
+              "kind": "picture",
+              "name": "button",
+              "user_data": "",
+              "visible": true,
+              "influenced_alpha": false,
+              "location_adjust": true,
+              "origin": {
+                "horizontal": "center",
+                "vertical": "center"
+              },
+              "alpha": 255,
+              "translate": [
+                248.0,
+                -172.0,
+                0.0
+              ],
+              "rotate": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "scale": [
+                0.7,
+                0.7
+              ],
+              "size": [
+                64.0,
+                64.0
+              ],
+              "vertex_colors": [
+                [
+                  229,
+                  0,
+                  18,
+                  255
+                ],
+                [
+                  229,
+                  0,
+                  18,
+                  255
+                ],
+                [
+                  229,
+                  0,
+                  18,
+                  255
+                ],
+                [
+                  229,
+                  0,
+                  18,
+                  255
+                ]
+              ],
+              "material": "button",
+              "texture_coordinates": [
+                [
+                  0.0,
+                  0.0,
+                  1.0,
+                  0.0,
+                  0.0,
+                  1.0,
+                  1.0,
+                  1.0
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "name": "RootGroup",
+      "panes": []
+    }
+  ],
+  "layout": {
+    "origin": 1,
+    "size": [
+      648.0,
+      480.0
+    ]
+  },
+  "textures": [
+    {
+      "name": "button_a.tpl",
+      "type": 0
+    },
+    {
+      "name": "window.tpl",
+      "type": 0
+    }
+  ],
+  "fonts": [
+    {
+      "name": "fot_wanpaku_b.brfnt",
+      "type": 0
+    }
+  ],
+  "materials": [
+    {
+      "name": "text_c",
+      "tev_colors": [
+        [
+          255,
+          255,
+          255,
+          0
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "constant_colors": [
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "texture_maps": [],
+      "texture_transforms": [],
+      "texture_coordinate_generators": []
+    },
+    {
+      "name": "window_nw",
+      "tev_colors": [
+        [
+          255,
+          255,
+          255,
+          0
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "constant_colors": [
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "texture_maps": [
+        {
+          "texture": "window.tpl",
+          "wrap_s": 2,
+          "wrap_t": 2,
+          "min_filter": 1,
+          "mag_filter": 1
+        }
+      ],
+      "texture_transforms": [
+        {
+          "translate": [
+            0.0,
+            0.0
+          ],
+          "rotate": 0.0,
+          "scale": [
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "texture_coordinate_generators": [
+        {
+          "type": 1,
+          "source": 4,
+          "matrix": 30
+        }
+      ]
+    },
+    {
+      "name": "window_n",
+      "tev_colors": [
+        [
+          255,
+          255,
+          255,
+          0
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "constant_colors": [
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "texture_maps": [
+        {
+          "texture": "window.tpl",
+          "wrap_s": 2,
+          "wrap_t": 2,
+          "min_filter": 1,
+          "mag_filter": 1
+        }
+      ],
+      "texture_transforms": [
+        {
+          "translate": [
+            0.0,
+            0.0
+          ],
+          "rotate": 0.0,
+          "scale": [
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "texture_coordinate_generators": [
+        {
+          "type": 1,
+          "source": 4,
+          "matrix": 30
+        }
+      ]
+    },
+    {
+      "name": "window_ne",
+      "tev_colors": [
+        [
+          255,
+          255,
+          255,
+          0
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "constant_colors": [
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "texture_maps": [
+        {
+          "texture": "window.tpl",
+          "wrap_s": 2,
+          "wrap_t": 2,
+          "min_filter": 1,
+          "mag_filter": 1
+        }
+      ],
+      "texture_transforms": [
+        {
+          "translate": [
+            0.0,
+            0.0
+          ],
+          "rotate": 0.0,
+          "scale": [
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "texture_coordinate_generators": [
+        {
+          "type": 1,
+          "source": 4,
+          "matrix": 30
+        }
+      ]
+    },
+    {
+      "name": "window_w",
+      "tev_colors": [
+        [
+          255,
+          255,
+          255,
+          0
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "constant_colors": [
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "texture_maps": [
+        {
+          "texture": "window.tpl",
+          "wrap_s": 2,
+          "wrap_t": 2,
+          "min_filter": 1,
+          "mag_filter": 1
+        }
+      ],
+      "texture_transforms": [
+        {
+          "translate": [
+            0.0,
+            0.0
+          ],
+          "rotate": 0.0,
+          "scale": [
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "texture_coordinate_generators": [
+        {
+          "type": 1,
+          "source": 4,
+          "matrix": 30
+        }
+      ]
+    },
+    {
+      "name": "window_c",
+      "tev_colors": [
+        [
+          255,
+          255,
+          255,
+          0
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "constant_colors": [
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "texture_maps": [
+        {
+          "texture": "window.tpl",
+          "wrap_s": 2,
+          "wrap_t": 2,
+          "min_filter": 1,
+          "mag_filter": 1
+        }
+      ],
+      "texture_transforms": [
+        {
+          "translate": [
+            0.0,
+            0.0
+          ],
+          "rotate": 0.0,
+          "scale": [
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "texture_coordinate_generators": [
+        {
+          "type": 1,
+          "source": 4,
+          "matrix": 30
+        }
+      ]
+    },
+    {
+      "name": "window_e",
+      "tev_colors": [
+        [
+          255,
+          255,
+          255,
+          0
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "constant_colors": [
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "texture_maps": [
+        {
+          "texture": "window.tpl",
+          "wrap_s": 2,
+          "wrap_t": 2,
+          "min_filter": 1,
+          "mag_filter": 1
+        }
+      ],
+      "texture_transforms": [
+        {
+          "translate": [
+            0.0,
+            0.0
+          ],
+          "rotate": 0.0,
+          "scale": [
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "texture_coordinate_generators": [
+        {
+          "type": 1,
+          "source": 4,
+          "matrix": 30
+        }
+      ]
+    },
+    {
+      "name": "window_sw",
+      "tev_colors": [
+        [
+          255,
+          255,
+          255,
+          0
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "constant_colors": [
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "texture_maps": [
+        {
+          "texture": "window.tpl",
+          "wrap_s": 2,
+          "wrap_t": 2,
+          "min_filter": 1,
+          "mag_filter": 1
+        }
+      ],
+      "texture_transforms": [
+        {
+          "translate": [
+            0.0,
+            0.0
+          ],
+          "rotate": 0.0,
+          "scale": [
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "texture_coordinate_generators": [
+        {
+          "type": 1,
+          "source": 4,
+          "matrix": 30
+        }
+      ]
+    },
+    {
+      "name": "window_s",
+      "tev_colors": [
+        [
+          255,
+          255,
+          255,
+          0
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "constant_colors": [
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "texture_maps": [
+        {
+          "texture": "window.tpl",
+          "wrap_s": 2,
+          "wrap_t": 2,
+          "min_filter": 1,
+          "mag_filter": 1
+        }
+      ],
+      "texture_transforms": [
+        {
+          "translate": [
+            0.0,
+            0.0
+          ],
+          "rotate": 0.0,
+          "scale": [
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "texture_coordinate_generators": [
+        {
+          "type": 1,
+          "source": 4,
+          "matrix": 30
+        }
+      ]
+    },
+    {
+      "name": "window_se",
+      "tev_colors": [
+        [
+          255,
+          255,
+          255,
+          0
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "constant_colors": [
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "texture_maps": [
+        {
+          "texture": "window.tpl",
+          "wrap_s": 2,
+          "wrap_t": 2,
+          "min_filter": 1,
+          "mag_filter": 1
+        }
+      ],
+      "texture_transforms": [
+        {
+          "translate": [
+            0.0,
+            0.0
+          ],
+          "rotate": 0.0,
+          "scale": [
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "texture_coordinate_generators": [
+        {
+          "type": 1,
+          "source": 4,
+          "matrix": 30
+        }
+      ]
+    },
+    {
+      "name": "back",
+      "tev_colors": [
+        [
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "constant_colors": [
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "texture_maps": [
+        {
+          "texture": "window.tpl",
+          "wrap_s": 2,
+          "wrap_t": 2,
+          "min_filter": 1,
+          "mag_filter": 1
+        }
+      ],
+      "texture_transforms": [
+        {
+          "translate": [
+            0.0,
+            0.0
+          ],
+          "rotate": 0.0,
+          "scale": [
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "texture_coordinate_generators": [
+        {
+          "type": 1,
+          "source": 4,
+          "matrix": 30
+        }
+      ]
+    },
+    {
+      "name": "shadow_nw",
+      "tev_colors": [
+        [
+          255,
+          255,
+          255,
+          0
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "constant_colors": [
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "texture_maps": [
+        {
+          "texture": "window.tpl",
+          "wrap_s": 2,
+          "wrap_t": 2,
+          "min_filter": 1,
+          "mag_filter": 1
+        }
+      ],
+      "texture_transforms": [
+        {
+          "translate": [
+            0.0,
+            0.0
+          ],
+          "rotate": 0.0,
+          "scale": [
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "texture_coordinate_generators": [
+        {
+          "type": 1,
+          "source": 4,
+          "matrix": 30
+        }
+      ]
+    },
+    {
+      "name": "shadow_n",
+      "tev_colors": [
+        [
+          255,
+          255,
+          255,
+          0
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "constant_colors": [
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "texture_maps": [
+        {
+          "texture": "window.tpl",
+          "wrap_s": 2,
+          "wrap_t": 2,
+          "min_filter": 1,
+          "mag_filter": 1
+        }
+      ],
+      "texture_transforms": [
+        {
+          "translate": [
+            0.0,
+            0.0
+          ],
+          "rotate": 0.0,
+          "scale": [
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "texture_coordinate_generators": [
+        {
+          "type": 1,
+          "source": 4,
+          "matrix": 30
+        }
+      ]
+    },
+    {
+      "name": "shadow_ne",
+      "tev_colors": [
+        [
+          255,
+          255,
+          255,
+          0
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "constant_colors": [
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "texture_maps": [
+        {
+          "texture": "window.tpl",
+          "wrap_s": 2,
+          "wrap_t": 2,
+          "min_filter": 1,
+          "mag_filter": 1
+        }
+      ],
+      "texture_transforms": [
+        {
+          "translate": [
+            0.0,
+            0.0
+          ],
+          "rotate": 0.0,
+          "scale": [
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "texture_coordinate_generators": [
+        {
+          "type": 1,
+          "source": 4,
+          "matrix": 30
+        }
+      ]
+    },
+    {
+      "name": "shadow_e",
+      "tev_colors": [
+        [
+          255,
+          255,
+          255,
+          0
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "constant_colors": [
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "texture_maps": [
+        {
+          "texture": "window.tpl",
+          "wrap_s": 2,
+          "wrap_t": 2,
+          "min_filter": 1,
+          "mag_filter": 1
+        }
+      ],
+      "texture_transforms": [
+        {
+          "translate": [
+            0.0,
+            0.0
+          ],
+          "rotate": 0.0,
+          "scale": [
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "texture_coordinate_generators": [
+        {
+          "type": 1,
+          "source": 4,
+          "matrix": 30
+        }
+      ]
+    },
+    {
+      "name": "shadow_c",
+      "tev_colors": [
+        [
+          255,
+          255,
+          255,
+          0
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "constant_colors": [
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "texture_maps": [
+        {
+          "texture": "window.tpl",
+          "wrap_s": 2,
+          "wrap_t": 2,
+          "min_filter": 1,
+          "mag_filter": 1
+        }
+      ],
+      "texture_transforms": [
+        {
+          "translate": [
+            0.0,
+            0.0
+          ],
+          "rotate": 0.0,
+          "scale": [
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "texture_coordinate_generators": [
+        {
+          "type": 1,
+          "source": 4,
+          "matrix": 30
+        }
+      ]
+    },
+    {
+      "name": "shadow_w",
+      "tev_colors": [
+        [
+          255,
+          255,
+          255,
+          0
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "constant_colors": [
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "texture_maps": [
+        {
+          "texture": "window.tpl",
+          "wrap_s": 2,
+          "wrap_t": 2,
+          "min_filter": 1,
+          "mag_filter": 1
+        }
+      ],
+      "texture_transforms": [
+        {
+          "translate": [
+            0.0,
+            0.0
+          ],
+          "rotate": 0.0,
+          "scale": [
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "texture_coordinate_generators": [
+        {
+          "type": 1,
+          "source": 4,
+          "matrix": 30
+        }
+      ]
+    },
+    {
+      "name": "shadow_sw",
+      "tev_colors": [
+        [
+          255,
+          255,
+          255,
+          0
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "constant_colors": [
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "texture_maps": [
+        {
+          "texture": "window.tpl",
+          "wrap_s": 2,
+          "wrap_t": 2,
+          "min_filter": 1,
+          "mag_filter": 1
+        }
+      ],
+      "texture_transforms": [
+        {
+          "translate": [
+            0.0,
+            0.0
+          ],
+          "rotate": 0.0,
+          "scale": [
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "texture_coordinate_generators": [
+        {
+          "type": 1,
+          "source": 4,
+          "matrix": 30
+        }
+      ]
+    },
+    {
+      "name": "shadow_s",
+      "tev_colors": [
+        [
+          255,
+          255,
+          255,
+          0
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "constant_colors": [
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "texture_maps": [
+        {
+          "texture": "window.tpl",
+          "wrap_s": 2,
+          "wrap_t": 2,
+          "min_filter": 1,
+          "mag_filter": 1
+        }
+      ],
+      "texture_transforms": [
+        {
+          "translate": [
+            0.0,
+            0.0
+          ],
+          "rotate": 0.0,
+          "scale": [
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "texture_coordinate_generators": [
+        {
+          "type": 1,
+          "source": 4,
+          "matrix": 30
+        }
+      ]
+    },
+    {
+      "name": "shadow_se",
+      "tev_colors": [
+        [
+          255,
+          255,
+          255,
+          0
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "constant_colors": [
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "texture_maps": [
+        {
+          "texture": "window.tpl",
+          "wrap_s": 2,
+          "wrap_t": 2,
+          "min_filter": 1,
+          "mag_filter": 1
+        }
+      ],
+      "texture_transforms": [
+        {
+          "translate": [
+            0.0,
+            0.0
+          ],
+          "rotate": 0.0,
+          "scale": [
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "texture_coordinate_generators": [
+        {
+          "type": 1,
+          "source": 4,
+          "matrix": 30
+        }
+      ]
+    },
+    {
+      "name": "shadow2_nw",
+      "tev_colors": [
+        [
+          255,
+          255,
+          255,
+          0
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "constant_colors": [
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "texture_maps": [
+        {
+          "texture": "window.tpl",
+          "wrap_s": 2,
+          "wrap_t": 2,
+          "min_filter": 1,
+          "mag_filter": 1
+        }
+      ],
+      "texture_transforms": [
+        {
+          "translate": [
+            0.0,
+            0.0
+          ],
+          "rotate": 0.0,
+          "scale": [
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "texture_coordinate_generators": [
+        {
+          "type": 1,
+          "source": 4,
+          "matrix": 30
+        }
+      ]
+    },
+    {
+      "name": "shadow2_n",
+      "tev_colors": [
+        [
+          255,
+          255,
+          255,
+          0
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "constant_colors": [
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "texture_maps": [
+        {
+          "texture": "window.tpl",
+          "wrap_s": 2,
+          "wrap_t": 2,
+          "min_filter": 1,
+          "mag_filter": 1
+        }
+      ],
+      "texture_transforms": [
+        {
+          "translate": [
+            0.0,
+            0.0
+          ],
+          "rotate": 0.0,
+          "scale": [
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "texture_coordinate_generators": [
+        {
+          "type": 1,
+          "source": 4,
+          "matrix": 30
+        }
+      ]
+    },
+    {
+      "name": "shadow2_ne",
+      "tev_colors": [
+        [
+          255,
+          255,
+          255,
+          0
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "constant_colors": [
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "texture_maps": [
+        {
+          "texture": "window.tpl",
+          "wrap_s": 2,
+          "wrap_t": 2,
+          "min_filter": 1,
+          "mag_filter": 1
+        }
+      ],
+      "texture_transforms": [
+        {
+          "translate": [
+            0.0,
+            0.0
+          ],
+          "rotate": 0.0,
+          "scale": [
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "texture_coordinate_generators": [
+        {
+          "type": 1,
+          "source": 4,
+          "matrix": 30
+        }
+      ]
+    },
+    {
+      "name": "shadow2_e",
+      "tev_colors": [
+        [
+          255,
+          255,
+          255,
+          0
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "constant_colors": [
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "texture_maps": [
+        {
+          "texture": "window.tpl",
+          "wrap_s": 2,
+          "wrap_t": 2,
+          "min_filter": 1,
+          "mag_filter": 1
+        }
+      ],
+      "texture_transforms": [
+        {
+          "translate": [
+            0.0,
+            0.0
+          ],
+          "rotate": 0.0,
+          "scale": [
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "texture_coordinate_generators": [
+        {
+          "type": 1,
+          "source": 4,
+          "matrix": 30
+        }
+      ]
+    },
+    {
+      "name": "shadow2_c",
+      "tev_colors": [
+        [
+          255,
+          255,
+          255,
+          0
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "constant_colors": [
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "texture_maps": [
+        {
+          "texture": "window.tpl",
+          "wrap_s": 2,
+          "wrap_t": 2,
+          "min_filter": 1,
+          "mag_filter": 1
+        }
+      ],
+      "texture_transforms": [
+        {
+          "translate": [
+            0.0,
+            0.0
+          ],
+          "rotate": 0.0,
+          "scale": [
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "texture_coordinate_generators": [
+        {
+          "type": 1,
+          "source": 4,
+          "matrix": 30
+        }
+      ]
+    },
+    {
+      "name": "shadow2_w",
+      "tev_colors": [
+        [
+          255,
+          255,
+          255,
+          0
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "constant_colors": [
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "texture_maps": [
+        {
+          "texture": "window.tpl",
+          "wrap_s": 2,
+          "wrap_t": 2,
+          "min_filter": 1,
+          "mag_filter": 1
+        }
+      ],
+      "texture_transforms": [
+        {
+          "translate": [
+            0.0,
+            0.0
+          ],
+          "rotate": 0.0,
+          "scale": [
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "texture_coordinate_generators": [
+        {
+          "type": 1,
+          "source": 4,
+          "matrix": 30
+        }
+      ]
+    },
+    {
+      "name": "shadow2_sw",
+      "tev_colors": [
+        [
+          255,
+          255,
+          255,
+          0
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "constant_colors": [
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "texture_maps": [
+        {
+          "texture": "window.tpl",
+          "wrap_s": 2,
+          "wrap_t": 2,
+          "min_filter": 1,
+          "mag_filter": 1
+        }
+      ],
+      "texture_transforms": [
+        {
+          "translate": [
+            0.0,
+            0.0
+          ],
+          "rotate": 0.0,
+          "scale": [
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "texture_coordinate_generators": [
+        {
+          "type": 1,
+          "source": 4,
+          "matrix": 30
+        }
+      ]
+    },
+    {
+      "name": "shadow2_s",
+      "tev_colors": [
+        [
+          255,
+          255,
+          255,
+          0
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "constant_colors": [
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "texture_maps": [
+        {
+          "texture": "window.tpl",
+          "wrap_s": 2,
+          "wrap_t": 2,
+          "min_filter": 1,
+          "mag_filter": 1
+        }
+      ],
+      "texture_transforms": [
+        {
+          "translate": [
+            0.0,
+            0.0
+          ],
+          "rotate": 0.0,
+          "scale": [
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "texture_coordinate_generators": [
+        {
+          "type": 1,
+          "source": 4,
+          "matrix": 30
+        }
+      ]
+    },
+    {
+      "name": "shadow2_se",
+      "tev_colors": [
+        [
+          255,
+          255,
+          255,
+          0
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "constant_colors": [
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "texture_maps": [
+        {
+          "texture": "window.tpl",
+          "wrap_s": 2,
+          "wrap_t": 2,
+          "min_filter": 1,
+          "mag_filter": 1
+        }
+      ],
+      "texture_transforms": [
+        {
+          "translate": [
+            0.0,
+            0.0
+          ],
+          "rotate": 0.0,
+          "scale": [
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "texture_coordinate_generators": [
+        {
+          "type": 1,
+          "source": 4,
+          "matrix": 30
+        }
+      ]
+    },
+    {
+      "name": "button",
+      "tev_colors": [
+        [
+          255,
+          255,
+          255,
+          0
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "constant_colors": [
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255,
+          255
+        ]
+      ],
+      "texture_maps": [
+        {
+          "texture": "button_a.tpl",
+          "wrap_s": 0,
+          "wrap_t": 0,
+          "min_filter": 1,
+          "mag_filter": 1
+        }
+      ],
+      "texture_transforms": [
+        {
+          "translate": [
+            0.0,
+            0.0
+          ],
+          "rotate": 0.0,
+          "scale": [
+            1.0,
+            1.0
+          ]
+        }
+      ],
+      "texture_coordinate_generators": [
+        {
+          "type": 1,
+          "source": 4,
+          "matrix": 30
+        }
+      ]
+    }
+  ]
+}

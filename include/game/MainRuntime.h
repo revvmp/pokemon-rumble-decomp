@@ -6,6 +6,7 @@
 #include <game/FileList.h>
 #include <functional>
 #include <game/ResourceFileConfig.h>
+#include <game/SystemMessageArchive.h>
 
 struct MainMessageFile {
     const char* mpPath;
@@ -13,7 +14,6 @@ struct MainMessageFile {
 };
 
 extern const MainMessageFile gMainMessageFiles[9];
-extern const unsigned char gSystemMessageArchive[];
 
 void InitializeMainMessages();
 std::tr1::shared_ptr<CLayout::FontMap> LoadMainFonts();

@@ -30,6 +30,9 @@ Aim for the readability of the Super Mario Galaxy decompilation (Petari): source
 
 ## Session memory: traps and findings
 
+- **A late register cycle can originate in another branch.** Rotate's timing flag opened r22 early and displaced 24 later hash operands. Trace the first opening of the discrepant register before changing already-correct arithmetic; see [the exact closure](docs/re/findings/animcurve-rotate-20261104.md#closing-the-integer-differences).
+- **Low inline cost does not override returned-object cleanup.** The compiler rejects length_error factories because their returned class has a destructor with side effects, even under always_inline at costs 4 and 120. Check eligibility before repeating budget experiments; see [the traced barrier](docs/re/findings/20261104-piipropdata-receiver-tail.md#throw-lowering-and-the-return-factory-barrier).
+
 - **A register near-match can hide different control flow.** CDividedGround `LoadAttr` scored 99.27%, but its first success skipped a second validity check that the target executes. Compare branch destination offsets before treating remaining operand changes as register allocation; see [F-61-2](docs/re/findings/61-cdividedground-second-block.md#loadattr-the-branch-destination-was-the-source-error).
 - **Packed data can resemble an exception-table pointer.** The species/form/bone-size word at `0x8035FE60` was classified as `@etb_8000BF90 + 0x90`, leaving a false link dependency when CDividedGround moved to source. Verify the record layout and original word before blocking a relocation; see [the CDividedGround evidence](docs/re/findings/61-cdividedground-second-block.md).
 

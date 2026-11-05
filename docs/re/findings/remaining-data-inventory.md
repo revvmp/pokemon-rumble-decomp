@@ -1,18 +1,17 @@
 # Remaining data inventory
 
-The accepted 2026-11-04 five-function checkpoint has 1,766,389 of 1,788,360 source-linked data bytes, or 98.77145 percent. Exactly four original fallback units remain in the normal final link. Two contain unfinished CPU functions and their associated data; two contain the explicit archive and DSP dependencies below. There are no remaining standalone alignment objects or unexplained anonymous storage ranges.
+The accepted 2026-11-04 four-function checkpoint has 1,777,877 of 1,788,360 source-linked data bytes, or 99.41382 percent. Exactly three original fallback units remain in the normal final link. Two contain unfinished CPU functions and their associated data; the third contains the DSP instruction image. There are no remaining standalone alignment objects or unexplained anonymous storage ranges.
 
 | Remaining category | Bytes | Meaning |
 | --- | ---: | --- |
 | PiiPropData data | 1723 | Metadata, literals and tables attached to the unit whose constructor and Reset remain unfinished |
-| ef_animcurve data | 568 | Exact retained tables and literals; unit remains a fallback until its three unfinished bodies are accepted |
-| Embedded system-message U8 archive | 11488 | gSystemMessageArchive, an asset-format dependency awaiting a reproducible reconstruction workflow |
+| ef_animcurve data | 568 | Exact retained tables and literals; unit remains a fallback until its two unfinished bodies are accepted |
 | DSP instruction image | 8192 | axDspSlave, executable DSP code; deliberately excluded from raw-byte source copying |
-| Total | 21971 | Explicit original-data dependencies |
+| Total | 10483 | Explicit original-data dependencies |
 
 CDlgPiiSelector, CPlayerPii and NPpuVM now link their complete data from source, following the earlier CLayout, CGameResult and CPiiListFilterSort acceptances. The private animation diagnostic reproduces every byte outside its three unfinished function bodies, including all 568 data bytes. This is a useful preflight and is not complete unit acceptance. See [the scoped diagnostic](animcurve-data-link-preflight.md).
 
-## Embedded system-message archive
+## Reconstructed system-message archive
 
 Read-only inspection identifies gSystemMessageArchive at .rodata:0x80363A80 as a U8 archive, with magic 55 AA 38 2D, root offset 32, header size 271 and payload offset 320. Its 11,488 bytes have SHA-256 e27d380bbad3aff2ef2d41cfdc5b77590390a68937fef6edc87502f2d1813161. The eleven nodes include six files:
 
@@ -25,7 +24,7 @@ Read-only inspection identifies gSystemMessageArchive at .rodata:0x80363A80 as a
 | timg/button_a.tpl | 0x23E0 | 2112 |
 | timg/window.tpl | 0x2C20 | 192 |
 
-The main initialization path passes this archive, fatal_errmsg and fot_wanpaku_b.brfnt to InitializeSystemMessages. This is asset-format evidence: no archive reconstruction is accepted. The separate 8,192-byte axDspSlave block is DSP executable code, not an image or layout asset, and cannot be reclassified as ordinary source data.
+The main initialization path passes this archive, fatal_errmsg and fot_wanpaku_b.brfnt to InitializeSystemMessages. The archive now rebuilds from nine semantic JSON/PNG inputs and links from the ordinary compiler output with frozen verification passing. The encoder reads no DOL or original member binary. See [asset recovery and acceptance](system-message-archive-20261104.md). The separate 8,192-byte axDspSlave block is DSP executable code, not an image or layout asset, and cannot be reclassified as ordinary source data. Its identity and diagnostic tooling are recorded in [DSP findings](ax-dsp-image-20261104.md).
 
 ## Resolved storage and alignment
 

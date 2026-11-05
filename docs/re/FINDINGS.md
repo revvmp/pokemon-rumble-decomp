@@ -2,6 +2,8 @@
 
 ## 2026-11-04 native source-link continuation
 
+[Rotate](findings/animcurve-rotate-20261104.md) now reproduces every instruction byte and all 58 relocations, leaving four unfinished CPU functions. [The system-message archive](findings/system-message-archive-20261104.md) now rebuilds from semantic JSON and PNG inputs, with ordinary source linkage and frozen main.dol verification passing. [The DSP image](findings/ax-dsp-image-20261104.md) remains an explicit coprocessor-code dependency; identifying its AXWii variant does not reconstruct it.
+
 [CDlgPiiSelector](findings/91-selector-tail.md), [CPlayerPii](findings/player-shadow-tail.md) and [NPpuVM](findings/vm-properties-tail-20261104.md) now pass normal complete source linkage. The loader is newly instruction-exact, leaving five real unfinished functions. [Native compiler alignment](findings/native-alignment-padding.md) replaces all standalone code-padding fallbacks without adding instruction credit. [SDK and data evidence](findings/anonymous-data-20261104.md) recovers the unused typed IdleThread and accounts for the remaining standalone data gaps. The frozen executable is unchanged.
 
 [CLayout](findings/20261104-layout-remote-tail.md#complete-source-link-acceptance), [CPiiListFilterSort](findings/cpiilistfiltersort-source-link.md) and [CGameResult](findings/123-cgameresult-unit.md#complete-source-link-acceptance) now pass the normal complete source link. Both remaining reference-comparator sorts are exact after a traced control-block-load lifetime correction. The filter's original RTTI proves its callback enum, and its parameter block proves a 3-by-6 menu grid; function scoring had hidden both errors. Six unfinished functions remain.

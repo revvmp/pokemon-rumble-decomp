@@ -1,0 +1,12 @@
+{
+  "format": "I4",
+  "wrap_s": "clamp",
+  "wrap_t": "clamp",
+  "min_filter": "linear",
+  "mag_filter": "linear",
+  "lod_bias": 0.0,
+  "edge_lod": false,
+  "min_lod": 0,
+  "max_lod": 0,
+  "image": "button_a.png"
+}

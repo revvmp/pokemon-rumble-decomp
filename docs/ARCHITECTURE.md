@@ -18,7 +18,7 @@ The project has five boundaries: immutable originals, investigation evidence, re
 | `config/<target>/` | Future section layouts, linker scripts, compilation-unit ordering, asset rules | Only evidence-backed build configuration |
 | `src/` | Reconstructed implementation grouped by confirmed module or subsystem | Source added as reconstruction begins |
 | `include/` | Shared types and interfaces with confirmed ABI | Headers added when established |
-| `tools/` | Tooling grouped by category: `build/` vendored dtk-template build system, `reference/` extraction, `verify/` acceptance, `progress/` images, `vendor/` vendoring stripper, `collab/` issue claims and worktrees | Original source plus comment-stripped CC0 vendored files ([D-0009](DECISIONS.md#d-0009-organize-tools-by-category)) |
+| `tools/` | Tooling grouped by category: `build/` vendored dtk-template build system, `assets/` semantic asset encoders, `reference/` extraction, `verify/` acceptance, `progress/` images, `vendor/` vendoring stripper, `collab/` issue claims and worktrees | Original source plus comment-stripped CC0 vendored files ([D-0009](DECISIONS.md#d-0009-organize-tools-by-category)) |
 | `configure.py` | Build entry point; writes `build.ninja` and `objdiff.json` | Original source |
 | `config/wpse-v1/` | dtk `config.yml`, `symbols.txt`, `splits.txt`, `build.sha1` | Build configuration |
 | `config/progress.json` | Roadmap phase states for progress images | Configuration |
@@ -55,6 +55,8 @@ Use confirmed module boundaries first, then subdivide into subsystems when call 
 Keep target-specific addresses, layout, and flags in target configuration. Shared headers express established ABI, type sizes, alignment, and declarations; uncertain interpretations stay in findings until validated. Isolate independently reconstructed runtime or library code from game-specific code once that distinction is proven. Do not assume a particular SDK or library version.
 
 Keep executable reconstruction separate from asset processing. Asset rules must document whether each output is generated from an editable representation or requires local original data. A byte-preserving data dependency is disclosed; an original executable dependency blocks a full source reconstruction claim.
+
+The embedded system-message archive is rebuilt from recovered JSON layout/animation records and PNG textures under `orig/wpse-v1/reconstructed/system_message/`. A dependency-tracked pre-compile rule runs `tools/assets/build_system_message.py`, producing an archive and generated initializer under the selected build directory. The ordinary Wii compiler builds `SystemMessageArchive.cpp` from that initializer. The encoder reads no original executable or split object. Its 11,488 bytes count as reconstructed asset data, not additional game instructions; [provenance and acceptance](re/findings/system-message-archive-20261104.md) distinguish recovered editable assets from original authoring files.
 
 ## Reproducibility contract
 
