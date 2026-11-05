@@ -293,43 +293,289 @@ void AnimCurveExecuteU8(u8* pCmdList, u8* pTarget, u32 tick, u16 seed, u32 life)
     }
 }
 
-void AnimCurveExecuteF32(u8* pCmdList, f32* pTarget, u32 tick, u16 seed, u32 life) {
+static inline f32 CalcFittingFloatTime(const AnimCurveHeader* pHeader, u8 flag,
+                                       u32 tick, u32 life, u32& rLoop, u32& periodProduct,
+                                       u32& fittedLoopCount, u32& fittingPeriod, u32 frameLength) {
+    fittingPeriod = frameLength - 1;
+    fittedLoopCount = pHeader->loopCount;
+    fittedLoopCount = static_cast<u32>(fittedLoopCount);
+    f32 scale = fittedLoopCount *
+                (static_cast<f32>(static_cast<int>(fittingPeriod)) / (life - 1));
+
+    u32 loop = tick * scale / static_cast<int>(fittingPeriod);
+    rLoop = loop;
+
+    periodProduct = loop;
+    periodProduct *= fittingPeriod;
+    f32 time = tick * scale - periodProduct;
+
+    if (!(flag & AnimCurveHeader::PROC_FLAG_TURN)) {
+        return time;
+    }
+
+    if (loop % 2 == 0) {
+        return time;
+    }
+
+    return static_cast<f32>(static_cast<int>(fittingPeriod)) - time;
+}
+
+static inline f32 CalcFloatCurveTime(const AnimCurveHeader* pHeader, u32 tick, u32 life,
+                                    u16& rFrame, u32& rLoop, u32& periodProduct,
+                                    u32& fittedLoopCount, u32& fittingPeriod, u32& frameLength) {
+    frameLength = pHeader->frameLength;
+    rLoop = 0;
+    f32 time;
+
+    if (frameLength <= 1) {
+        time = 0.0f;
+        rLoop = tick;
+        rFrame = 0;
+    } else {
+        u32 rFlag = pHeader->processFlag;
+
+        if (!(rFlag & AnimCurveHeader::PROC_FLAG_INFLOOP) &&
+            pHeader->loopCount <= 1) {
+
+            if (!(rFlag & AnimCurveHeader::PROC_FLAG_FITTING)) {
+                rFrame = tick;
+                if (tick >= frameLength - 1) {
+                    rFrame = frameLength - 1;
+                }
+                time = rFrame;
+            } else {
+                if (life == 1) {
+                    time = static_cast<s32>(frameLength - 1);
+                } else {
+                    time = tick * (static_cast<f32>(static_cast<s32>(frameLength - 1)) / (life - 1));
+                    if (time > static_cast<f32>(static_cast<s32>(frameLength - 1))) {
+                        time = static_cast<f32>(static_cast<s32>(frameLength - 1));
+                    }
+                }
+
+                rFrame = time;
+            }
+        } else if (!(rFlag & AnimCurveHeader::PROC_FLAG_FITTING)) {
+            u32 firstPeriod = frameLength - 1;
+            rLoop = tick / firstPeriod;
+
+            if (!(rFlag & AnimCurveHeader::PROC_FLAG_TURN)) {
+                if (!(rFlag & AnimCurveHeader::PROC_FLAG_INFLOOP) &&
+                    rLoop >= pHeader->loopCount) {
+                    rFrame = firstPeriod;
+                    rLoop = static_cast<u8>(pHeader->loopCount - 1);
+                } else {
+                    rFrame = tick - rLoop * firstPeriod;
+                }
+            } else {
+                if (!(rFlag & AnimCurveHeader::PROC_FLAG_INFLOOP) &&
+                    rLoop >= pHeader->loopCount) {
+                    if (pHeader->loopCount % 2 == 0) {
+                        rFrame = 0;
+                    } else {
+                        rFrame = firstPeriod;
+                    }
+                    rLoop = static_cast<u8>(pHeader->loopCount - 1);
+                } else if (rLoop % 2 == 0) {
+                    rFrame = tick - rLoop * firstPeriod;
+                } else {
+                    rFrame = firstPeriod * (rLoop + 1) - tick;
+                }
+            }
+
+            time = rFrame;
+        } else if (tick >= life - 1) {
+            if (!(rFlag & AnimCurveHeader::PROC_FLAG_TURN) ||
+                pHeader->loopCount % 2 != 0) {
+                rFrame = static_cast<u16>(frameLength - 1);
+            } else {
+                rFrame = 0;
+            }
+
+            time = rFrame;
+            rLoop = static_cast<u8>(pHeader->loopCount - 1);
+        } else {
+            time = CalcFittingFloatTime(pHeader, rFlag, tick, life, rLoop, periodProduct,
+                                        fittedLoopCount, fittingPeriod, frameLength);
+            rFrame = time;
+        }
+    }
+
+    return time;
+}
+
+struct FloatCurveKeyMatch {
+    BOOL mValue;
+
+    operator BOOL() const {
+        return mValue;
+    }
+};
+
+static inline u32 HashFloatComposite(u32 seedPart, u16 randomIndex, u32 loop) {
+    detail::CurveRandomSeed h;
+    h.mWord = (u32)loop * 0x7B929 + ((u32)randomIndex * 0x371097E7 + seedPart) + 0x4BF53;
+    h.mByte[2] ^= h.mByte[3];
+    h.mByte[1] ^= h.mByte[2];
+    h.mByte[0] ^= h.mByte[1];
+    return h.mWord;
+}
+
+static inline void FindFloatCurveKeys(u32* pIndex, FloatCurveKeyMatch* pExact,
+                                      u16* pLeftFrame, u16* pRightFrame, s32 frame,
+                                      f32 frameF32, const u16* pKeys, u32 stride,
+                                      s32& lo, s32 hi) {
+    lo = 0;
+    s32 mid = (lo + hi) / 2;
+    BOOL atTarget = nw4r::ef::FAbs((f32)frame - frameF32) < 1.1920929e-07f;
+
+    u16 keyLo = detail::ReadCurveKeyFrame(pKeys, stride, lo);
+    *pLeftFrame = keyLo;
+    if (frame < keyLo) {
+        *pIndex = lo;
+        pExact->mValue = 1;
+        return;
+    }
+    if (frame == keyLo) {
+        *pIndex = lo;
+        if (lo == hi) {
+            pExact->mValue = 1;
+            return;
+        }
+        pExact->mValue = atTarget;
+        if (atTarget == 0) {
+            *pRightFrame = detail::ReadCurveKeyFrame(pKeys, stride, lo + 1);
+        }
+        return;
+    }
+
+    u16 keyHi = detail::ReadCurveKeyFrame(pKeys, stride, hi);
+    *pRightFrame = keyHi;
+    if (keyHi <= frame) {
+        *pIndex = hi;
+        pExact->mValue = 1;
+        return;
+    }
+
+    s32 key = detail::ReadCurveKeyFrame(pKeys, stride, mid);
+    while (lo < mid) {
+        if (frame == key) {
+            *pIndex = mid;
+            pExact->mValue = atTarget;
+            if (atTarget != 0) {
+                return;
+            }
+            *pLeftFrame = key;
+            *pRightFrame = detail::ReadCurveKeyFrame(pKeys, stride, *pIndex + 1);
+            return;
+        } else if (key < frame) {
+            lo = mid;
+            *pLeftFrame = key;
+        } else {
+            hi = mid;
+            *pRightFrame = key;
+        }
+        mid = (lo + hi) / 2;
+        key = detail::ReadCurveKeyFrame(pKeys, stride, mid);
+    }
+    *pIndex = lo;
+    pExact->mValue = 0;
+}
+
+struct FloatCurveValue {
+    f32 mValue;
+
+    FloatCurveValue(f32 value) : mValue(value) {}
+
+    operator f32() const {
+        return mValue;
+    }
+};
+
+static inline f32 InterpolateFloatCurve(f32 t, f32 a, f32 b, u8 type) {
+    if (a == b) {
+        return a;
+    }
+    switch (type & 3) {
+    case 0:
+        return a + t * (b - a);
+    case 1:
+        if (type == 1) {
+            FloatCurveValue w = 3.0f - 2.0f * t;
+            return a + t * (t * (w.mValue * (b - a)));
+        } else {
+            f32 c0 = ((type >> 3) & 1) == 0 ? 0.0f : 1.5f;
+            f32 c1 = ((type >> 2) & 1) == 0 ? 0.0f : 1.5f;
+            FloatCurveValue s = t * (b - a);
+            FloatCurveValue u = t * (t * (c0 + c1 - 2.0f));
+            FloatCurveValue v = t * (3.0f + (-2.0f * c0 - c1));
+            return a + s * (c0 + (u + v));
+        }
+    case 2:
+        return a;
+    default:
+        return 0.0f;
+    }
+}
+
+static inline const f32* GetFloatCurveValues(const f32* pValues, u8 flags, BOOL& rRandom) {
+    rRandom = flags != 0;
+    return pValues;
+}
+
+void AnimCurveExecuteF32(u8* pCmdList, f32* pTarget, u32 inputTick, u16 seed, u32 life) {
+    u32 periodProduct;
+    u32 fittedLoopCount;
+    u32 fittingPeriod;
+    u32 frameLength;
+    u8 mask;
+    const AnimCurveHeader* pHeader;
+    const u8* pKeys;
+    const u8* pRanges;
+    const u8* pRandomTable;
+    u32 tick;
+    const u8* pNameTable;
+    f32 frameF32;
+
+    s32 searchLo;
+    u32 rstride;
+    u32 stride;
+    const u8* pKeyData;
+    u32 idx;
+    u32 divL;
+    u32 divH;
+    u8 end;
+    u32 count;
+    u16 keyLo;
+    u16 keyHi;
+    u16 frame;
+    FloatCurveKeyMatch exact;
+    tick = reinterpret_cast<u32>(reinterpret_cast<void*>(inputTick));
 
     if (pCmdList[0] == 0xAB) {
         AnimCurveExecuteBakedF32(pCmdList, pTarget, tick, life);
         return;
     }
 
-    u8 mask = pCmdList[3];
-    const AnimCurveHeader* pHeader;
-    const u8* pKeys;
-    const u8* pRanges;
-    const u8* pRandomTable;
-    const u8* pNameTable;
-    f32 frameF32;
-    u32 divL;
-    u32 divH;
-    u32 idx;
-    u16 frame;
-    u16 keyLo;
-    u16 keyHi;
-    BOOL exact;
+    mask = pCmdList[3];
 
     detail::SplitCurveResource(pCmdList, &pHeader, &pKeys, &pRanges, &pRandomTable, &pNameTable);
-    frameF32 = detail::CalcTime(pHeader, tick, life, frame, divL);
+    frameF32 = CalcFloatCurveTime(pHeader, tick, life, frame, divL, periodProduct,
+                                 fittedLoopCount, fittingPeriod, frameLength);
     divH = divL;
 
-    u8 end = sHighestChannel[mask];
-    u32 count = sChannelCount[mask];
+    end = sHighestChannel[mask];
+    count = sChannelCount[mask];
     if (count == 0) {
         return;
     }
 
-    u32 stride = count * 4 + 0xC;
-    u32 rstride = count * 8;
-    const u8* pKeyData = pKeys + 4;
-    detail::FindCurveKeys(&idx, &exact, &keyLo, &keyHi, frame, frameF32, (const u16*)pKeyData, stride, 0,
-                ((const AnimCurveKey*)pKeys)->count - 1);
+    stride = count * 4 + 0xC;
+    rstride = count * 8;
+    pKeyData = pKeys + 4;
+    FindFloatCurveKeys(&idx, &exact, &keyLo, &keyHi, frame, frameF32,
+                      (const u16*)pKeyData, stride, searchLo,
+                      ((const AnimCurveKey*)pKeys)->count - 1);
 
     if (exact) {
         const detail::ValueCurveKey* pRecord = (const detail::ValueCurveKey*)(pKeyData + idx * stride);
@@ -348,16 +594,25 @@ void AnimCurveExecuteF32(u8* pCmdList, f32* pTarget, u32 tick, u16 seed, u32 lif
         u32 hash = detail::HashCurveSeed(seed, pHeader->randomSeed, r, divL);
         const detail::CurveRandomRange* pRange;
         if ((pRecord->mFlags & 2) == 0) {
-            pRange = (const detail::CurveRandomRange*)(pRanges + r * rstride + 4);
+            const void* pRangeAddress;
+            pRangeAddress = pRanges + r * rstride;
+            pRangeAddress = static_cast<const void*>(pRangeAddress);
+            pRange = reinterpret_cast<const detail::CurveRandomRange*>(
+                static_cast<const u8*>(pRangeAddress) + 4);
         } else {
-            pRange = (const detail::CurveRandomRange*)(pRandomTable +
-                                               rstride * ((hash >> 16) % *(const u16*)pRandomTable) + 4);
+            const void* pRangeAddress;
+            pRangeAddress = pRandomTable +
+                            rstride * ((hash >> 16) % *(const u16*)pRandomTable);
+            pRangeAddress = static_cast<const void*>(pRangeAddress);
+            pRange = reinterpret_cast<const detail::CurveRandomRange*>(
+                static_cast<const u8*>(pRangeAddress) + 4);
             hash = detail::NextCurveSeed(hash);
         }
         for (u16 bit = 1; bit <= end; bit = (u16)(bit << 1)) {
             if ((mask & bit) != 0) {
+                f32 scale;
                 f32 base = pRange->mBase;
-                f32 scale = pRange->mRange;
+                scale = pRange->mRange;
                 pRange++;
                 *pTarget = base + scale * (f32)(hash >> 16);
                 if ((pHeader->processFlag & 4) == 0) {
@@ -370,19 +625,24 @@ void AnimCurveExecuteF32(u8* pCmdList, f32* pTarget, u32 tick, u16 seed, u32 lif
     }
 
     detail::AdvanceCurveLoops(pHeader, (const AnimCurveKey*)pKeys, idx, &divL, &divH);
-    f32 t = (frameF32 - (f32)keyLo) / (f32)(keyHi - keyLo);
+    u8 flagsA;
+    u8 flagsB;
+    FloatCurveValue t((frameF32 - (f32)keyLo) / (f32)(keyHi - keyLo));
     const detail::ValueCurveKey* pRecordA = (const detail::ValueCurveKey*)(pKeyData + idx * stride);
     const f32* pValuesA = pRecordA->mData.mValue;
     const detail::ValueCurveKey* pRecordB = (const detail::ValueCurveKey*)(pKeyData + (idx + 1) * stride);
     const f32* pValuesB = pRecordB->mData.mValue;
     const u8* pInterpolation = pRecordA->mType;
-    BOOL randA = pRecordA->mFlags != 0;
-    BOOL randB = pRecordB->mFlags != 0;
+    flagsA = pRecordA->mFlags;
+    flagsB = *(reinterpret_cast<const u8*>(pValuesB) - 10);
+    BOOL randA = flagsA != 0;
+    BOOL randB;
+    pValuesB = GetFloatCurveValues(pValuesB, flagsB, randB);
 
     if (!randA && !randB) {
         for (u16 bit = 1; bit <= end; bit = (u16)(bit << 1)) {
             if ((mask & bit) != 0) {
-                *pTarget = detail::InterpolateCurveF32(t, *pValuesA, *pValuesB, *pInterpolation);
+                *pTarget = InterpolateFloatCurve(t, *pValuesA, *pValuesB, *pInterpolation);
                 pValuesA++;
                 pValuesB++;
             }
@@ -395,24 +655,36 @@ void AnimCurveExecuteF32(u8* pCmdList, f32* pTarget, u32 tick, u16 seed, u32 lif
     if (randA && !randB) {
         u16 r = *(const u16*)pValuesA;
         u32 hash = detail::HashCurveSeed(seed, pHeader->randomSeed, r, divL);
+        u16 interpolationType;
         const detail::CurveRandomRange* pRange;
-        if ((pRecordA->mFlags & 2) == 0) {
-            pRange = (const detail::CurveRandomRange*)(pRanges + r * rstride + 4);
+        if ((flagsA & 2) == 0) {
+            const void* pRangeAddress;
+            pRangeAddress = pRanges + r * rstride;
+            pRangeAddress = static_cast<const void*>(pRangeAddress);
+            pRange = reinterpret_cast<const detail::CurveRandomRange*>(
+                static_cast<const u8*>(pRangeAddress) + 4);
         } else {
-            pRange = (const detail::CurveRandomRange*)(pRandomTable +
-                                               rstride * ((hash >> 16) % *(const u16*)pRandomTable) + 4);
+            const void* pRangeAddress;
+            pRangeAddress = pRandomTable +
+                            rstride * ((hash >> 16) % *(const u16*)pRandomTable);
+            pRangeAddress = static_cast<const void*>(pRangeAddress);
+            pRange = reinterpret_cast<const detail::CurveRandomRange*>(
+                static_cast<const u8*>(pRangeAddress) + 4);
             hash = detail::NextCurveSeed(hash);
         }
         for (u16 bit = 1; bit <= end; bit = (u16)(bit << 1)) {
             if ((mask & bit) != 0) {
+                f32 scale;
                 f32 base = pRange->mBase;
-                f32 scale = pRange->mRange;
+                scale = pRange->mRange;
                 pRange++;
                 f32 a = base + scale * (f32)(hash >> 16);
                 if ((pHeader->processFlag & 4) == 0) {
                     hash = detail::NextCurveSeed(hash);
                 }
-                *pTarget = detail::InterpolateCurveF32(t, a, *pValuesB, *pInterpolation);
+                interpolationType = *pInterpolation;
+                interpolationType = static_cast<u16>(interpolationType);
+                *pTarget = InterpolateFloatCurve(t, a, *pValuesB, interpolationType);
                 pValuesB++;
             }
             pInterpolation++;
@@ -425,23 +697,32 @@ void AnimCurveExecuteF32(u8* pCmdList, f32* pTarget, u32 tick, u16 seed, u32 lif
         u16 r = *(const u16*)pValuesB;
         u32 hash = detail::HashCurveSeed(seed, pHeader->randomSeed, r, divH);
         const detail::CurveRandomRange* pRange;
-        if ((pRecordB->mFlags & 2) == 0) {
-            pRange = (const detail::CurveRandomRange*)(pRanges + r * rstride + 4);
+        if ((flagsB & 2) == 0) {
+            const void* pRangeAddress;
+            pRangeAddress = pRanges + r * rstride;
+            pRangeAddress = static_cast<const void*>(pRangeAddress);
+            pRange = reinterpret_cast<const detail::CurveRandomRange*>(
+                static_cast<const u8*>(pRangeAddress) + 4);
         } else {
-            pRange = (const detail::CurveRandomRange*)(pRandomTable +
-                                               rstride * ((hash >> 16) % *(const u16*)pRandomTable) + 4);
+            const void* pRangeAddress;
+            pRangeAddress = pRandomTable +
+                            rstride * ((hash >> 16) % *(const u16*)pRandomTable);
+            pRangeAddress = static_cast<const void*>(pRangeAddress);
+            pRange = reinterpret_cast<const detail::CurveRandomRange*>(
+                static_cast<const u8*>(pRangeAddress) + 4);
             hash = detail::NextCurveSeed(hash);
         }
         for (u16 bit = 1; bit <= end; bit = (u16)(bit << 1)) {
             if ((mask & bit) != 0) {
+                f32 scale;
                 f32 base = pRange->mBase;
-                f32 scale = pRange->mRange;
+                scale = pRange->mRange;
                 pRange++;
                 f32 b = base + scale * (f32)(hash >> 16);
                 if ((pHeader->processFlag & 4) == 0) {
                     hash = detail::NextCurveSeed(hash);
                 }
-                *pTarget = detail::InterpolateCurveF32(t, *pValuesA, b, *pInterpolation);
+                *pTarget = InterpolateFloatCurve(t, *pValuesA, b, *pInterpolation);
                 pValuesA++;
             }
             pInterpolation++;
@@ -450,43 +731,69 @@ void AnimCurveExecuteF32(u8* pCmdList, f32* pTarget, u32 tick, u16 seed, u32 lif
         return;
     }
 
-    u16 rA = *(const u16*)pValuesA;
-    u32 hashA = detail::HashCurveSeed(seed, pHeader->randomSeed, rA, divL);
+    u32 seedPart;
+    u16 rA;
+    u32 hashA;
+    u32 rB;
+    u32 hashB;
+    const detail::CurveRandomRange* pRangeB;
     const detail::CurveRandomRange* pRangeA;
-    if ((pRecordA->mFlags & 2) == 0) {
-        pRangeA = (const detail::CurveRandomRange*)(pRanges + rA * rstride + 4);
+    seedPart = (u32)seed * 0x3F81F635 + (u32)pHeader->randomSeed * 0x30A74193;
+    rA = *(const u16*)pValuesA;
+    hashA = HashFloatComposite(seedPart, rA, divL);
+    if ((flagsA & 2) == 0) {
+        const void* pRangeAddress;
+        pRangeAddress = pRanges + rA * rstride;
+        pRangeAddress = static_cast<const void*>(pRangeAddress);
+        pRangeA = reinterpret_cast<const detail::CurveRandomRange*>(
+            static_cast<const u8*>(pRangeAddress) + 4);
     } else {
-        pRangeA = (const detail::CurveRandomRange*)(pRandomTable +
-                                            rstride * ((hashA >> 16) % *(const u16*)pRandomTable) + 4);
+        const void* pRangeAddress;
+        pRangeAddress = pRandomTable +
+                        rstride * ((hashA >> 16) % *(const u16*)pRandomTable);
+        pRangeAddress = static_cast<const void*>(pRangeAddress);
+        pRangeA = reinterpret_cast<const detail::CurveRandomRange*>(
+            static_cast<const u8*>(pRangeAddress) + 4);
         hashA = detail::NextCurveSeed(hashA);
     }
-    u16 rB = *(const u16*)pValuesB;
-    u32 hashB = detail::HashCurveSeed(seed, pHeader->randomSeed, rB, divH);
-    const detail::CurveRandomRange* pRangeB;
-    if ((pRecordB->mFlags & 2) == 0) {
-        pRangeB = (const detail::CurveRandomRange*)(pRanges + rB * rstride + 4);
+    rB = *(const u16*)pValuesB;
+    hashB = HashFloatComposite(seedPart, rB, divH);
+    if ((flagsB & 2) == 0) {
+        const void* pRangeAddress;
+        pRangeAddress = pRanges + rB * rstride;
+        pRangeAddress = static_cast<const void*>(pRangeAddress);
+        pRangeB = reinterpret_cast<const detail::CurveRandomRange*>(
+            static_cast<const u8*>(pRangeAddress) + 4);
     } else {
-        pRangeB = (const detail::CurveRandomRange*)(pRandomTable +
-                                            rstride * ((hashB >> 16) % *(const u16*)pRandomTable) + 4);
+        const void* pRangeAddress;
+        pRangeAddress = pRandomTable +
+                        rstride * ((hashB >> 16) % *(const u16*)pRandomTable);
+        pRangeAddress = static_cast<const void*>(pRangeAddress);
+        pRangeB = reinterpret_cast<const detail::CurveRandomRange*>(
+            static_cast<const u8*>(pRangeAddress) + 4);
         hashB = detail::NextCurveSeed(hashB);
     }
     for (u16 bit = 1; bit <= end; bit = (u16)(bit << 1)) {
         if ((mask & bit) != 0) {
+            f32 scaleA;
             f32 baseA = pRangeA->mBase;
-            f32 scaleA = pRangeA->mRange;
+            scaleA = pRangeA->mRange;
             pRangeA++;
+            f32 scaleB;
+            f32 baseB;
+            f32 b;
             f32 a = baseA + scaleA * (f32)(hashA >> 16);
             if ((pHeader->processFlag & 4) == 0) {
                 hashA = detail::NextCurveSeed(hashA);
             }
-            f32 baseB = pRangeB->mBase;
-            f32 scaleB = pRangeB->mRange;
+            baseB = pRangeB->mBase;
+            scaleB = pRangeB->mRange;
             pRangeB++;
-            f32 b = baseB + scaleB * (f32)(hashB >> 16);
+            b = baseB + scaleB * (f32)(hashB >> 16);
             if ((pHeader->processFlag & 4) == 0) {
                 hashB = detail::NextCurveSeed(hashB);
             }
-            *pTarget = detail::InterpolateCurveF32(t, a, b, *pInterpolation);
+            *pTarget = InterpolateFloatCurve(t, a, b, *pInterpolation);
         }
         pInterpolation++;
         pTarget++;

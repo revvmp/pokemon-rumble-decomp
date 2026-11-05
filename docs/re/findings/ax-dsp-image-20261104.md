@@ -26,9 +26,17 @@ Three real command-line roundtrip attempts failed during assembly:
 
 Disassembly exited zero in all three cases; assembly exited one. No output was accepted, repaired or linked. The diagnostic inputs and listings are under ignored `tools/local/dsp-tools/`.
 
+## Current-tool exact roundtrip
+
+The current Dolphin assembler, disassembler, instruction tables and label map at the pinned commit above were built as a private standalone inspector with MSVC 2022. Their instruction encoding implementations are unchanged. A local driver supplies binary input/output, and minimal host shims replace filesystem, logging and string helpers. `DSPCore.h` retains its original register and constant enums without the emulator state. The build uses Dolphin's pinned fmt commit `e424e3f2e607da02742f73db84873b8084fc714c`, `/std:c++latest`, `/utf-8` and header-only fmt. All fetched license notices remain in the ignored tool directory.
+
+The executable `tools/local/dsp-tools/dolphin-assembler/dsp-inspect.exe` has SHA-256 `22f7d1df9088188a391f81af3f26bfa4694c2980938069148564fc95456db7ab`. The actual disassemble, assemble and annotated-list commands each exit zero. Reassembly of the generated `ax-wpse-v1-modern.ds` reproduces all 8,192 bytes, with zero differences and the original image SHA-256. This establishes an exact tool roundtrip, not a source reconstruction. The generated listing remains private and is not a production input.
+
+The apparently unknown word `0x024F` at DSP address `0x0D04` is a command-dispatch table entry. At `0x0079`, the dispatcher loads table base `0x0D02`, adds a command bounded to 0 through 14, reads instruction memory and jumps through the result. The third table entry is therefore a handler address, not an unsupported instruction. Its `COMMAND_SUB_TO_LR` identity follows from the source-owned `AXCL.c` command enum and producer. Further handler and argument evidence is recorded in the separate DSP identity investigation.
+
 ## Remaining work and acceptance boundary
 
-A bounded primary-source search found the Dolphin AXWii implementation, SDK-side image declarations and older DSP tooling, but no readable source that rebuilds this revision. That search is not proof that such source does not exist. Dolphin's current DSPTool is another candidate for reliable instruction inspection; its [CLI implementation](https://github.com/dolphin-emu/dolphin/blob/66df2b4e18ae6169f9718b869da334022914e305/Source/DSPTool/DSPTool.cpp) provides assembly and disassembly operations.
+A bounded primary-source search found the Dolphin AXWii implementation, SDK-side image declarations and DSP tooling, but no readable source that rebuilds this revision. That search is not proof that such source does not exist. The successful current-tool roundtrip above provides reliable instruction inspection for the next reconstruction work. Original assembly-language provenance is still unresolved.
 
 Before accepting an assembly reconstruction, establish original-language provenance under [D-0015](../../DECISIONS.md#d-0015-assembly-source-only-where-the-original-was-assembly), recover readable routine/data identities and symbolic control flow, and validate the assembler itself against every word of this image. Generated disassembly and a copied opcode array are not source completion. Neither this investigation nor identifying its DSP family changes any progress numerator.
 
@@ -36,3 +44,4 @@ Before accepting an assembly reconstruction, establish original-language provena
 
 - A successful disassembler exit does not establish a working assembler roundtrip. This pinned old tool rejects three forms of its own output. Validate an exact roundtrip before using it in a reconstruction build.
 - Storage in a DOL data section does not make a coprocessor instruction stream an asset. Keep the DSP dependency visible in source-completion claims.
+- Linear disassembly decodes jump tables as instructions. The dispatcher's instruction-memory load proves that the reported unknown opcode at `0x0D04` is an address in the command table; classify reachable control flow before inventing an instruction encoding.

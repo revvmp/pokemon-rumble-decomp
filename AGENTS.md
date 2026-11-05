@@ -154,6 +154,8 @@ Keep entries concise and actionable. Distinguish confirmed findings from hypothe
 - **An overload family follows its first declaration.** Player deque allocation and front/end helpers retained the wrong order when only one tagged overload moved. Moving the whole demonstrated overload family restored natural emission without native section scaffolding. See [the deque evidence](docs/re/findings/cplayer-deque-order-tail.md).
 - **An unreferenced BSS gap can contain retained unused SDK storage.** The 808 bytes after IdleContext resolve to the reference source's typed IdleThread plus sixteen native alignment bytes. Check SDK declarations and native layout before calling an entire gap padding. See [storage evidence](docs/re/findings/anonymous-data-20261104.md).
 
+- **An eliminated virtual copy can still affect final scheduling.** F32's last two instructions tied on scheduler priority. An unchanged pointer return paired with a flag output changes their intermediate order and compiles away, reproducing the target. Trace the pre-allocation copy and final ready list before changing arithmetic; see [F32 scheduling evidence](docs/re/findings/animcurve-f32-final-schedule.md).
+
 ## Current project state
 
 | Current state | Value |

@@ -2,6 +2,8 @@
 
 ## 2026-11-04 native source-link continuation
 
+[F32](findings/animcurve-20261104-continuation.md#f32-executor-exact-isolated-function-and-integration) now reproduces all 4,044 bytes and 59 relocations. Normal ninja and frozen verification pass, leaving three unfinished CPU functions. [The final scheduling trace](findings/animcurve-f32-final-schedule.md) shows how an eliminated virtual pointer copy changes a final ready-list tie.
+
 [Rotate](findings/animcurve-rotate-20261104.md) now reproduces every instruction byte and all 58 relocations, leaving four unfinished CPU functions. [The system-message archive](findings/system-message-archive-20261104.md) now rebuilds from semantic JSON and PNG inputs, with ordinary source linkage and frozen main.dol verification passing. [The DSP image](findings/ax-dsp-image-20261104.md) remains an explicit coprocessor-code dependency; identifying its AXWii variant does not reconstruct it.
 
 [CDlgPiiSelector](findings/91-selector-tail.md), [CPlayerPii](findings/player-shadow-tail.md) and [NPpuVM](findings/vm-properties-tail-20261104.md) now pass normal complete source linkage. The loader is newly instruction-exact, leaving five real unfinished functions. [Native compiler alignment](findings/native-alignment-padding.md) replaces all standalone code-padding fallbacks without adding instruction credit. [SDK and data evidence](findings/anonymous-data-20261104.md) recovers the unused typed IdleThread and accounts for the remaining standalone data gaps. The frozen executable is unchanged.

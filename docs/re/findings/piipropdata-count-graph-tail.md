@@ -35,6 +35,14 @@ The subsequent source-only type lane used the same frozen target, source packet,
 
 These experiments do not provide a new candidate. The wrapper result is another local example of inline-depth stack-slot parity, not a way to change the cleanup receiver's register priority.
 
+The later `sort_pii_lifetime_pragmas.py` batch retests 25 compiler-exposed optimizer controls specifically on the strongest current constructor and Reset. Lifetime computation, pointer analysis, scalar-temporary classification and related controls are neutral; disabling propagation, common subexpressions, scalarization, prelinearization, arithmetic transformations, empty-loop removal or dead assignments/code regresses. This does not supersede [the earlier compiler-option survey](vm-properties-tail-20261104.md); it only confirms that the newer message-output baseline does not turn these particular controls into a solution.
+
+The explicit Runtime branch was also checked without changing its canonical status. `sort_pii_union_lifetime.py` starts with `lr_pii_simpleplacement_scope_0` and substitutes a directly constructed typed union. Omitted, empty, `throw()`, and supported destructor-annotation forms all retain 296/292-byte exception records, 40 bytes larger than the target. The ordinary typed union is not raw unowned storage in this compiler: its generated cleanup still destroys the nontrivial member. An empty written destructor body is not evidence of side-effect-free generated destruction. No annotation that contradicts that ownership is accepted.
+
+`sort_pii_storage_views.py` tries aligned byte/word storage, typed references, a typed pointer-to-array view and a zero-element typed-array member. The compiling forms keep the placement variant's object-relative accesses or introduce further differences; none restores the target frame-relative access pattern with the correct exception ownership. `sort_pii_storage_exceptions.py` scopes the exceptions pragma to the explicit Runtime helper, its explicit instantiation, or its local storage declaration. Those forms are neutral: the typed union still has the extra 40 EH bytes, while raw placement storage retains the original two register-byte differences and wrong addressing. All these packets are rejected private diagnostics.
+
+This lane moved to an independent effect-animation investigation after preserving the negative evidence. The ordinary message-output source remains the strongest Pii packet; the JPEG and VM lanes own further Pii work.
+
 ## Handoff
 
 The JPEG lane owns typed Runtime error construction and the strongest source packet. The layout lane independently investigates ordinary-throw return boundaries and cleanup-receiver identities. The coordinator owns canonical edits, complete builds, source-link trials, and frozen verification. This count lane leaves no candidate stronger than `jpeg_pii_erroroutput_0` and makes no matching claim.

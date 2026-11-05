@@ -2,7 +2,7 @@
 
 ## Current status
 
-Roadmap Phases 1 to 3 are complete and Phase 4 is active. The latest verified build matches the frozen main.dol exactly. It links 3,043,388 of 3,078,460 code bytes (98.86073%) from 894 Matching units; 4 real functions remain below 100%. PiiPropData and ef_animcurve remain original CPU-code fallbacks, and the DSP instruction image remains explicit. The system-message archive now builds from recovered editable assets. See the latest session below and [matching requirements](MATCHING.md).
+Roadmap Phases 1 to 3 are complete and Phase 4 is active. The latest verified build matches the frozen main.dol exactly. It links 3,043,388 of 3,078,460 code bytes (98.86073%) from 894 Matching units; 3 real functions remain below 100%. PiiPropData and ef_animcurve remain original CPU-code fallbacks, and the DSP instruction image remains explicit. The system-message archive builds from recovered editable assets. See the latest session below and [matching requirements](MATCHING.md).
 
 | Milestone | State | Evidence or prerequisite |
 | --- | --- | --- |
@@ -25,7 +25,15 @@ Main and CBattleRoyalBox subsequently passed full source-link verification, addi
 
 ## Latest function gains
 
-The real unmatched tail is now 4, down from the initial 120. AnimCurveExecuteRotate is newly exact, with all earlier exact functions preserved. Matched code is 3,067,276/3,078,460 bytes (99.63670%). The previously removed 3,792 native alignment bytes do not add matched or linked instruction credit.
+The real unmatched tail is now 3, down from the initial 120. AnimCurveExecuteF32 is newly exact, with all earlier exact functions preserved. Matched code is 3,071,320/3,078,460 bytes (99.76807%). The previously removed 3,792 native alignment bytes do not add matched or linked instruction credit.
+
+## 2026-11-04: Three-function continuation
+
+AnimCurveExecuteF32 now reproduces all 4,044 bytes and 59 relocations. Normal ninja exits zero, frozen main.dol verification passes, and the audit preserves every earlier exact function and all 900 native input aliases. The unit still uses its original fallback while U8 is unfinished. PiiPropData constructor and Reset are the other two unfinished CPU functions; source-linked coverage is unchanged.
+
+Read-only compiler tracing explains [the final F32 scheduling pair](re/findings/animcurve-f32-final-schedule.md): a virtual pointer copy disappears before final scheduling but changes a ready-list tie. The retained source control is listed under D-0016 and promoted to the codegen rules. The current Dolphin DSP inspector also reproduces the entire 8,192-byte DSP image through an exact disassemble/assemble roundtrip; its generated listing is private and earns no reconstruction credit. Original assembly provenance remains unresolved. See [DSP evidence](re/findings/ax-dsp-image-20261104.md).
+
+This checkpoint uses an incremental build. The five-function checkpoint remains the latest repeated complete clean-build proof. Full source and package completion are not claimed.
 
 ## 2026-11-04: Four functions and editable archive reconstruction
 

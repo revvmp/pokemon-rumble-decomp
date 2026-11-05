@@ -1,11 +1,11 @@
 # Remaining data inventory
 
-The accepted 2026-11-04 four-function checkpoint has 1,777,877 of 1,788,360 source-linked data bytes, or 99.41382 percent. Exactly three original fallback units remain in the normal final link. Two contain unfinished CPU functions and their associated data; the third contains the DSP instruction image. There are no remaining standalone alignment objects or unexplained anonymous storage ranges.
+The accepted 2026-11-04 three-function checkpoint has 1,777,877 of 1,788,360 source-linked data bytes, or 99.41382 percent. Exactly three original fallback units remain in the normal final link. Two contain unfinished CPU functions and their associated data; the third contains the DSP instruction image. There are no remaining standalone alignment objects or unexplained anonymous storage ranges.
 
 | Remaining category | Bytes | Meaning |
 | --- | ---: | --- |
 | PiiPropData data | 1723 | Metadata, literals and tables attached to the unit whose constructor and Reset remain unfinished |
-| ef_animcurve data | 568 | Exact retained tables and literals; unit remains a fallback until its two unfinished bodies are accepted |
+| ef_animcurve data | 568 | Exact retained tables and literals; unit remains a fallback until U8 is accepted |
 | DSP instruction image | 8192 | axDspSlave, executable DSP code; deliberately excluded from raw-byte source copying |
 | Total | 10483 | Explicit original-data dependencies |
 
