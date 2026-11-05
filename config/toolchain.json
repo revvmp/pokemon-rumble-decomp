@@ -44,20 +44,6 @@
     "name": "configure.py with vendored dtk-template tooling in tools/build",
     "upstream": "https://github.com/encounter/dtk-template",
     "upstream_commit": "95a941f755919ebe50c1725a4ce73524470e7a02",
-    "diff_tool": {
-      "name": "objdiff-cli",
-      "version": "3.8.2-rumble-data-mappings-2",
-      "manifest": "config/objdiff.json",
-      "sha256": "ee60619f592086703c25c122e9445a898e418da154e8f5300d4d5b4ff98b9c11",
-      "upstream": {
-        "name": "objdiff-cli",
-        "version": "3.8.2",
-        "source": "https://github.com/encounter/objdiff/releases/download/v3.8.2/objdiff-cli-windows-x86_64.exe",
-        "sha256": "36d229ac6ce74a26b47f42cf86ea8e808d8cd834a54aa62d7ed3f47b765d971b"
-      },
-      "build": "python tools/setup/acquire_objdiff.py",
-      "evidence": "docs/re/findings/exception-symbol-mapping-20261105.md"
-    },
     "sjiswrap": {
       "version": "1.2.2",
       "source": "https://github.com/encounter/sjiswrap/releases/download/v1.2.2/sjiswrap-windows-x86.exe",

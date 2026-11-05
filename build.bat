@@ -30,13 +30,13 @@ if not exist .venv\Scripts\ninja.exe (
 )
 
 echo [3/5] Configuring
-python configure.py
+python configure.py --no-progress
 if errorlevel 1 goto failed
 
 echo [4/5] Building
 if exist build\wpse-v1\main.dol del /q build\wpse-v1\main.dol
 if exist build\wpse-v1\main.dol goto failed
-.venv\Scripts\ninja
+.venv\Scripts\ninja build/wpse-v1/main.dol
 if errorlevel 1 goto failed
 
 echo [5/5] Verifying main.dol against the original
