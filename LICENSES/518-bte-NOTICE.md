@@ -1,7 +1,0 @@
-# BTE source provenance for issue 518
-
-The reconstruction in `src/RVL_SDK/bte/btm_discovery.c`, and the declarations it adds to `include/revolution/bte/` (`btm_api.h`, `btm_int.h`, `sdp_api.h`), adapts reference code and names from Petari commit `e0ab141914921726a595573dc48d3f13d0922efe` (`src/RVL_SDK/bte/`). Changes remove source comments, reduce headers to the declarations this unit uses, and rename include paths.
-
-Petari's `btm_discovery.c` carries no file-specific notice and has no bluedroid counterpart, so Petari's root CC0 license applies to it. The declarations added to the shared headers follow Petari's `btm_api.h`, `btm_int.h` and `sdp_api.h`, which carry the Broadcom notice: Copyright (C) 1999-2012 Broadcom Corporation, includes changes by muff1n1634, licensed under the Apache License, Version 2.0 (the License); you may not use these files except in compliance with the License. You may obtain a copy of the License at <http://www.apache.org/licenses/LICENSE-2.0>. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an AS IS BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
-
-The complete license is [preserved here](510-apache-2.0.txt). The original BTE NOTICE is reproduced in [the issue 510 notice](510-bte-NOTICE.md).
