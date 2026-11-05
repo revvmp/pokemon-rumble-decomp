@@ -2,7 +2,7 @@
 
 ## Current status
 
-Roadmap Phases 1 to 3 are complete and Phase 4 is active. The latest verified build matches the frozen main.dol exactly. It links 2,837,388 of 3,082,252 code bytes (92.05568%) from 887 Matching units; 9 real functions remain below 100%. Original split fallbacks still supply the remaining code and data. See the latest session below and [matching requirements](MATCHING.md).
+Roadmap Phases 1 to 3 are complete and Phase 4 is active. The latest verified build matches the frozen main.dol exactly. It links 2,837,388 of 3,082,252 code bytes (92.05568%) from 887 Matching units; 8 real functions remain below 100%. Original split fallbacks still supply the remaining code and data. See the latest session below and [matching requirements](MATCHING.md).
 
 | Milestone | State | Evidence or prerequisite |
 | --- | --- | --- |
@@ -25,7 +25,13 @@ Main and CBattleRoyalBox subsequently passed full source-link verification, addi
 
 ## Latest function gains
 
-The real unmatched tail is now 9, down from the initial 120. Matched code is 3,056,828/3,082,252 bytes (99.17515%). This checkpoint completes the collection Calc, CPii snapshot swap, filter Sort caller, three remote-memory functions, shadow-model setup, layout pane lookup, JPEG 4:1:1 converter, texture curve, particle calculation and archive-font analysis. Verified source-link coverage remains separate from function matching.
+The real unmatched tail is now 8, down from the initial 120. Matched code is 3,060,296/3,082,252 bytes (99.28767%). The latest gain is AnimCurveExecuteChild, with all 3,468 instruction bytes and 27 relocations exact. Verified source-link coverage remains separate from function matching.
+
+## 2026-11-04: Eight-function continuation
+
+AnimCurveExecuteChild passes the configured compiler and normal ninja report without changing any previously exact function. Native ninja exits zero and the frozen main.dol verifier passes. Its unit remains NonMatching until U8, F32 and Rotate are finished and the complete source link is accepted. Source-linked coverage is unchanged. The latest repeated clean-build proof is the nine-function checkpoint below.
+
+Read-only compiler tracing distinguishes the alternating integer-to-float conversion scratch selector from ordinary inline-depth stack-slot ordering. A dead conversion consumes one selector step before later optimization removes it. The retained source control and negative experiments are documented in [Child animation](re/findings/animcurve-child-20261104.md); the reusable lesson is recorded in AGENTS.md and the codegen rules.
 
 Several link failures were incorrect inferred identities: original vtable relocations prove swapped destructor names in CGameSession, errmsg and CNoticeDisplay. Correcting them removed unnecessary source-fragment experiments. Errmsg also required recovering its NErrMsg namespace from embedded type names, preserving two separately compiled float pools, and the evidenced16-byte start alignment of the following homebutton function. Frozen hashes remain unchanged.
 

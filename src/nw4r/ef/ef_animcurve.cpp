@@ -962,30 +962,190 @@ void CreateCurveChild(const ChildCurveKey* pKey, u16 seed,
 
 }
 
-void AnimCurveExecuteChild(u8* pCmdList, Particle* pParticle, u32 tick, u16 seed, u32 life) {
+static inline void CalcChildFrame(const AnimCurveHeader* pHeader, u32 tick, u32 life,
+                                u32& rLoop, bool& rEnd, u16& rFrame) {
+    u32 flag = pHeader->processFlag;
+    rLoop = 0;
+    rEnd = false;
+
+    if (!(flag & AnimCurveHeader::PROC_FLAG_INFLOOP) &&
+        pHeader->loopCount <= 1) {
+
+        if (!(flag & AnimCurveHeader::PROC_FLAG_FITTING)) {
+            if (tick >= pHeader->frameLength) {
+                rFrame = pHeader->frameLength;
+                return;
+            }
+            rFrame = tick;
+            return;
+        }
+
+        rFrame = pHeader->frameLength * tick / life;
+        return;
+    }
+
+    if (!(flag & AnimCurveHeader::PROC_FLAG_FITTING)) {
+        u32 frameLength = pHeader->frameLength;
+
+        if (frameLength <= 1 || !(flag & AnimCurveHeader::PROC_FLAG_TURN)) {
+            rLoop = tick / frameLength;
+
+            if (!(flag & AnimCurveHeader::PROC_FLAG_INFLOOP) &&
+                rLoop >= pHeader->loopCount) {
+                rLoop = static_cast<u8>(pHeader->loopCount - 1);
+                rFrame = frameLength;
+                return;
+            }
+
+            rFrame = tick - rLoop * frameLength;
+            return;
+        }
+
+        u8 loopCount;
+        u32 period = frameLength - 1;
+        rLoop = tick / period;
+
+        if (!(flag & AnimCurveHeader::PROC_FLAG_INFLOOP) &&
+            rLoop >= (loopCount = pHeader->loopCount)) {
+            u16 frame;
+            if (loopCount % 2 == 0) {
+                if (rLoop == loopCount &&
+                    tick - rLoop * period == 0) {
+                    rEnd = true;
+                }
+                frame = 0;
+            } else {
+                frame = static_cast<u16>(period);
+            }
+            rLoop = static_cast<u8>(loopCount - 1);
+            rFrame = frame;
+            return;
+        }
+
+        if (rLoop % 2 == 0) {
+            rFrame = tick - rLoop * period;
+            return;
+        }
+        rFrame = (period * (rLoop + 1) - 1) - (tick - 1);
+        return;
+    }
+
+    if (tick >= life) {
+        u16 frame;
+        if (!(flag & AnimCurveHeader::PROC_FLAG_TURN) ||
+            pHeader->loopCount % 2 != 0) {
+            frame = pHeader->frameLength;
+        } else {
+            frame = 0;
+        }
+        rLoop = static_cast<u8>(pHeader->loopCount - 1);
+        rFrame = frame;
+        return;
+    }
+
+    u32 frameLength = pHeader->frameLength;
+
+    if (frameLength <= 1 || !(flag & AnimCurveHeader::PROC_FLAG_TURN)) {
+        f32 scale = pHeader->loopCount *
+                    (static_cast<f32>(frameLength) / static_cast<f32>(life));
+
+        rLoop = tick * scale / frameLength;
+        rFrame = tick * scale - rLoop * frameLength;
+        return;
+    }
+
+    u8 loopCount;
+    u32 period = frameLength - 1;
+    loopCount = pHeader->loopCount;
+
+    f32 scale =
+        (1.0f + static_cast<f32>(static_cast<int>(period)) * loopCount) / life;
+    u32 pos = tick * scale;
+    rLoop = pos / period;
+
+    if (rLoop >= loopCount) {
+        u16 frame;
+        if (loopCount % 2 == 0) {
+            if (tick == life - 1) {
+                rEnd = true;
+            }
+            frame = 0;
+        } else {
+            frame = static_cast<u16>(period);
+        }
+        rLoop = static_cast<u8>(loopCount - 1);
+        rFrame = frame;
+        return;
+    }
+
+    if (rLoop % 2 == 0) {
+        rFrame = pos - rLoop * period;
+        return;
+    }
+    rFrame = period * (rLoop + 1) - pos;
+    return;
+}
+
+static inline void FindChildCurveKeyIndex(s32* pIndex, s32 frame, const u16* pKeys, u32 stride, s32& lo, s32 hi, int flag) {
+
+    lo = 0;
+    s32 mid = (lo + hi) / 2;
+
+    if (frame < detail::ReadCurveKeyFrame(pKeys, stride, lo) || (frame == detail::ReadCurveKeyFrame(pKeys, stride, lo) && flag != 0)) {
+        *pIndex = lo;
+        return;
+    }
+    if (detail::ReadCurveKeyFrame(pKeys, stride, hi) < frame || (frame == detail::ReadCurveKeyFrame(pKeys, stride, hi) && flag == 0)) {
+        *pIndex = hi;
+        return;
+    }
+    s32 key = detail::ReadCurveKeyFrame(pKeys, stride, mid);
+    while (lo < mid) {
+        if (frame == key) {
+            if (flag != 0) {
+                hi = mid;
+            } else {
+                lo = mid;
+            }
+        } else if (key < frame) {
+            lo = mid;
+        } else {
+            hi = mid;
+        }
+        mid = (lo + hi) / 2;
+        key = detail::ReadCurveKeyFrame(pKeys, stride, mid);
+    }
+    *pIndex = lo;
+}
+
+void AnimCurveExecuteChild(u8* pCommandList, Particle* pParticle, u32 tick, u16 seed, u32 life) {
+    u8* pCmdList = reinterpret_cast<u8*>(reinterpret_cast<u32>(pCommandList));
 
     const AnimCurveHeader* pHeader;
     const u8* pKeys;
     const u8* pRanges;
     const u8* pRandomTable;
     const u8* pNameTable;
+    u16 tickA;
     u32 divA;
+    u16 tickB;
     u32 divB;
     s32 idx;
-    u16 tickA;
-    u16 tickB;
-    bool finalA = false;
+    bool finalA;
     bool finalB;
     const detail::ChildCurveKey* pEntry;
 
     detail::SplitCurveResource(pCmdList, &pHeader, &pKeys, &pRanges, &pRandomTable, &pNameTable);
-    tickA = detail::CalcFrameStep(pHeader, tick, life, divA, finalA);
-    tickB = detail::CalcFrameStep(pHeader, tick + 1, life, divB, finalB);
+    CalcChildFrame(const_cast<AnimCurveHeader*>(pHeader), tick, life, divA, finalA, tickA);
+    f32 conversionPhase = static_cast<f32>(tick);
+    CalcChildFrame(const_cast<AnimCurveHeader*>(pHeader), tick + 1, life, divB, finalB, tickB);
 
+    s32 searchStart;
+    u32 secondFrame = tickB;
     const detail::ChildCurveKey* pKeyData = ((const detail::ChildCurveKeys*)pKeys)->mEntry;
     u32 div;
     if (divA == divB) {
-        if (tickA == tickB) {
+        if (tickA == secondFrame) {
             if (finalA == 0) {
                 return;
             }
@@ -993,7 +1153,7 @@ void AnimCurveExecuteChild(u8* pCmdList, Particle* pParticle, u32 tick, u16 seed
             tickB = 1;
         }
         if (tickA < tickB) {
-            detail::FindCurveKeyIndex(&idx, tickA, &pKeyData->mFrame, sizeof(detail::ChildCurveKey), 0,
+            FindChildCurveKeyIndex(&idx, tickA, &pKeyData->mFrame, sizeof(detail::ChildCurveKey), searchStart,
                         ((const detail::ChildCurveKeys*)pKeys)->mCount - 1, 1);
             for (pEntry = &pKeyData[idx]; idx < ((const detail::ChildCurveKeys*)pKeys)->mCount; pEntry++, idx++) {
                 if (pEntry->mFrame >= tickA) {
@@ -1004,7 +1164,7 @@ void AnimCurveExecuteChild(u8* pCmdList, Particle* pParticle, u32 tick, u16 seed
                 }
             }
         } else {
-            detail::FindCurveKeyIndex(&idx, tickA, &pKeyData->mFrame, sizeof(detail::ChildCurveKey), 0,
+            FindChildCurveKeyIndex(&idx, tickA, &pKeyData->mFrame, sizeof(detail::ChildCurveKey), searchStart,
                         ((const detail::ChildCurveKeys*)pKeys)->mCount - 1, 0);
             for (pEntry = &pKeyData[idx]; idx >= 0; pEntry--, idx--) {
                 if (tickA >= pEntry->mFrame) {
@@ -1020,7 +1180,7 @@ void AnimCurveExecuteChild(u8* pCmdList, Particle* pParticle, u32 tick, u16 seed
 
     if ((pHeader->processFlag & 0x40) != 0) {
         if ((divA & 1) == 0) {
-            detail::FindCurveKeyIndex(&idx, tickA, &pKeyData->mFrame, sizeof(detail::ChildCurveKey), 0,
+            FindChildCurveKeyIndex(&idx, tickA, &pKeyData->mFrame, sizeof(detail::ChildCurveKey), searchStart,
                         ((const detail::ChildCurveKeys*)pKeys)->mCount - 1, 1);
             for (pEntry = &pKeyData[idx]; idx < ((const detail::ChildCurveKeys*)pKeys)->mCount; pEntry++, idx++) {
                 if (pEntry->mFrame >= tickA) {
@@ -1031,7 +1191,7 @@ void AnimCurveExecuteChild(u8* pCmdList, Particle* pParticle, u32 tick, u16 seed
                 }
             }
         } else {
-            detail::FindCurveKeyIndex(&idx, tickA, &pKeyData->mFrame, sizeof(detail::ChildCurveKey), 0,
+            FindChildCurveKeyIndex(&idx, tickA, &pKeyData->mFrame, sizeof(detail::ChildCurveKey), searchStart,
                         ((const detail::ChildCurveKeys*)pKeys)->mCount - 1, 0);
             for (pEntry = &pKeyData[idx]; idx >= 0; pEntry--, idx--) {
                 if (tickA >= pEntry->mFrame) {
@@ -1083,7 +1243,7 @@ void AnimCurveExecuteChild(u8* pCmdList, Particle* pParticle, u32 tick, u16 seed
         return;
     }
 
-    detail::FindCurveKeyIndex(&idx, tickA, &pKeyData->mFrame, sizeof(detail::ChildCurveKey), 0,
+    FindChildCurveKeyIndex(&idx, tickA, &pKeyData->mFrame, sizeof(detail::ChildCurveKey), searchStart,
                 ((const detail::ChildCurveKeys*)pKeys)->mCount - 1, 1);
     for (pEntry = &pKeyData[idx]; idx < ((const detail::ChildCurveKeys*)pKeys)->mCount; pEntry++, idx++) {
         if (pEntry->mFrame >= tickA) {

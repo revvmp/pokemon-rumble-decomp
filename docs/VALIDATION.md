@@ -237,3 +237,9 @@ Two fully regenerated builds on2026-11-04 ran configure.py and native ninja from
 The native report has9 real unfinished functions, no previously exact regressions or missing exact functions,887 complete units of1,389,2,837,388 source-linked code bytes (92.05568%) and1,711,080 source-linked data bytes (95.65807%). All1,392 final-link aliases are byte-identical to the selected inputs. CModel consumes four raw compiler outputs, while its native partial link supplies only objdiff analysis; no original CModel object feeds the final executable.
 
 The real order_text_sections.py CLI rejects empty groups, duplicate members, an incorrect first member and invalid section names. Its successful grouped-input output passed the pinned native linker, elf2dol and frozen verifier before normal pipeline integration. Python syntax checks and git diff --check passed. These are workflow/CLI checks, not unit tests. Private logs and comparisons are retained under tools/local/tail-20261104/nine-clean-* and links/cmodel-production-preparer.
+
+## Eight-function continuation
+
+The configured compiler and normal ninja report accept the 3,468-byte AnimCurveExecuteChild body. Its independent audit compares every raw instruction, all 27 relocations and relocation-backed literals; the other seven functions in the unit remain unchanged. Ninja exits zero and the frozen main.dol verifier passes with the unchanged SHA-256 above. The original-address report audit records eight real unfinished functions, no previously exact regressions or missing exact functions, and 1,392 unchanged linker aliases.
+
+Matched code is 3,060,296/3,082,252 bytes (99.28767%). The animation unit remains NonMatching, so this incremental function gain does not change the selected final-link inputs or source-linked totals. The two clean builds above remain the reproducibility evidence for the current final-link pipeline. No original artifacts or expected hashes changed.

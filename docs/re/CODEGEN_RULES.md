@@ -14,6 +14,7 @@ Compiler behaviour of CodeWarrior Wii/1.1 (`-O4,p -inline auto -ipa file -str re
 - **Each inline level reverses its callee's objects, so only parity matters**, relative to the closest common inline ancestor. A named tag versus an unnamed one is a parity flip. [sprint-t1](findings/sprint-t1.md#the-slot-model)
 - **Extra or misplaced stack objects often mean an inline helper with by-value parameters.** [sprint-w10](findings/sprint-w10.md)
 - **A dead zero byte store at the frame bottom is a value-initialised empty tag.** Declare the tag as a local to remove it. [sprint-r1](findings/sprint-r1.md#rules) rule 12
+- **Integer-to-float scratch slots use a separate alternating selector.** In AnimCurveExecuteChild, two groups of eleven conversions start in opposite slots. An unused conversion between them advances the selector during instruction generation and is removed afterward, making both live groups exact. This is a traced Wii/1.1 mechanism, separate from inline-depth object ordering; the retained control is D-0016. [Trace and negative controls](findings/animcurve-child-20261104.md#the-conversion-slot-counter)
 
 ## Register allocation and scheduling
 
