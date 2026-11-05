@@ -208,6 +208,7 @@ ArchiveFontBase::ConstructOpAnalyzeGLGR(ConstructContext* pContext,
     BinaryBlockHeader* pBlockHeader =
         reinterpret_cast<BinaryBlockHeader*>(pFileTop + sizeof(BinaryFileHeader));
     const u32 dataSize = pContext->header.size + sizeof(BinaryFileHeader);
+    int numSheet;
     u8* pBlockEnd = reinterpret_cast<u8*>(pBlockHeader) + pContext->header.size;
 
     memcpy(pBlockHeader, &pContext->header, sizeof(BinaryBlockHeader));
@@ -217,14 +218,13 @@ ArchiveFontBase::ConstructOpAnalyzeGLGR(ConstructContext* pContext,
         return CONSTRUCT_ERROR;
     }
 
-    FontGlyphGroupsAcs gg(pFileTop);
-    const u16 numSheet = gg.GetNumSheet();
-    const int glyphsPerSheet = gg.GetGlyphsPerSheet();
+    FontGlyphGroupsAcs gg(pFileTop, numSheet);
+    const u16 glyphsPerSheet = gg.GetGlyphsPerSheet();
     const u32 numBlocks = reinterpret_cast<BinaryFileHeader*>(pFileTop)->dataBlocks;
-    const int sizeAdjustTable = (RoundUp)(numSheet * sizeof(u16), 4);
+    const u32 sizeAdjustTable = (RoundUp)(numSheet * sizeof(u16), 4);
 
     const u32 remain = pContext->GetRemain();
-    u16* pAdjustTable = static_cast<u16*>((RoundDown)(pFileTop + remain - sizeAdjustTable, 2));
+    u16* pAdjustTable = reinterpret_cast<u16*>((RoundDown)(reinterpret_cast<u32>(pFileTop) + remain - sizeAdjustTable, 2));
 
     if (remain < (pBlockEnd - pFileTop) + sizeAdjustTable) {
         return CONSTRUCT_ERROR;
@@ -263,7 +263,7 @@ ArchiveFontBase::ConstructOpAnalyzeGLGR(ConstructContext* pContext,
 
     u16* pDst = reinterpret_cast<u16*>(pContext->pCurrent);
     pContext->Advance(sizeAdjustTable);
-    memmove(pDst, pAdjustTable, ((pAdjustTable + numSheet) - pAdjustTable) * sizeof(u16));
+    memmove(pDst, pAdjustTable, ((pAdjustTable + static_cast<u16>(numSheet)) - pAdjustTable) * sizeof(u16));
 
     pContext->pGlyphIndexAdjustArray = pDst;
     pContext->numSheets = numSheet;

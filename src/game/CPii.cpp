@@ -1,4 +1,6 @@
+#define CPII_EMISSION_LAYOUT
 #include <algorithm>
+#include <game/BWorldObj.h>
 #include <game/CPii.h>
 #include <game/ScnMdlSimpleDataInline.h>
 
@@ -32,15 +34,8 @@ const f32 sizeScales[5] = {1.0f, 1.0f, 0.9f, 0.85f, 0.85f};
 }
 void SetSceneObjectEnabled(nw4r::g3d::ScnObj* pScnObj, bool enable);
 
-static std::tr1::shared_ptr<CFileData> LoadFileForMotion(const char* pPath, u32 flags)
-{
-    return CreateFileData(pPath, flags, false);
-}
-
-static std::tr1::shared_ptr<CFileData> LoadResourceFileForMotion(const char* pPath, u32 flags)
-{
-    return LoadFileForMotion(pPath, flags | 0x2000);
-}
+static std::tr1::shared_ptr<CFileData> LoadFileForMotion(const char* pName, u32 flags);
+static std::tr1::shared_ptr<CFileData> LoadResourceFileForMotion(const char* pName, u32 flags);
 
 CPii::CPii(std::tr1::shared_ptr<CPiiPersonalData> personalData, u32 type)
     : BModelObj(type | TYPE)
@@ -381,6 +376,16 @@ std::tr1::shared_ptr<CModel::CMotionProgram> CPii::ApplyMotionInfo(
     return rProgram;
 }
 
+static std::tr1::shared_ptr<CFileData> LoadResourceFileForMotion(const char* pPath, u32 flags)
+{
+    return LoadFileForMotion(pPath, flags | 0x2000);
+}
+
+static std::tr1::shared_ptr<CFileData> LoadFileForMotion(const char* pPath, u32 flags)
+{
+    return CreateFileData(pPath, flags, false);
+}
+
 std::tr1::shared_ptr<CModel::CMotionProgram> CPii::PlayMotion(int index, f32 frame, f32 rate)
 {
     const PiiMotionInfo& rInfo = GetMotionInfo(index);
@@ -539,7 +544,7 @@ void CPii::FaceHeadToward(BModelObj* pTarget, const char* pNodeName)
 nw4r::math::VEC3 CPii::GetPosition()
 {
     nw4r::math::VEC3 size = GetSize();
-    return nw4r::math::VEC3(mPosition.x, mPosition.y + 0.5f * size.y, mPosition.z);
+    return nw4r::math::VEC3(mPosition.x, mPosition.y + 1.3333334f * size.y, mPosition.z);
 }
 
 void CPii::Calc()
@@ -615,115 +620,15 @@ void CPii::OnLeaveWorld(BWorld* pWorld)
     }
 }
 
-CPiiBox::CPiiBox(int type, int capacity) : mType(type), mCapacity(capacity) {}
-
-CPiiBox::~CPiiBox() {}
-
-bool CPiiBox::AddPersonalData(std::tr1::shared_ptr<CPiiPersonalData> ppd)
-{
-    if (ppd) {
-        ppd->SetInTeam(false);
-        ppd->SetInWiiRemote(false);
-        switch (mType) {
-        case 1:
-            ppd->SetInTeam(true);
-            break;
-        case 2:
-            ppd->SetInWiiRemote(true);
-            break;
-        }
-    }
-    RemoveItem(ppd);
-    if (mPersonalDataList.size() + 1 > mCapacity) {
-        return false;
-    }
-    mPersonalDataList.push_front(ppd);
-    return true;
-}
-
-bool CPiiBox::RemovePersonalData(std::tr1::shared_ptr<CPiiPersonalData> ppd)
-{
-    return RemoveItem(ppd);
-}
-
-bool CPiiBox::RemoveItem(std::tr1::shared_ptr<CPiiPersonalData> ppd)
-{
-    typedef std::list<std::tr1::shared_ptr<CPiiPersonalData> >::iterator Iterator;
-    for (Iterator it = mPersonalDataList.begin(); it != mPersonalDataList.end(); ++it) {
-        if (it->get() == ppd.get()) {
-            mPersonalDataList.erase(it);
-            return true;
-        }
-    }
-    return false;
-}
-
-void CPiiBox::Clear()
-{
-    mPersonalDataList.clear();
-}
-
-void CPiiBox::RestoreAll()
-{
-    typedef std::list<std::tr1::shared_ptr<CPiiPersonalData> >::iterator Iterator;
-    for (Iterator it = mPersonalDataList.begin(); it != mPersonalDataList.end(); ++it) {
-        (*it)->FillUpHP();
+namespace std {
+namespace tr1 {
+template <typename A, typename B>
+function<void(A, B)>::~function() {
+    if (f_ == local()) {
+        f_->~base();
+    } else if (f_ != nullptr) {
+        delete f_;
     }
 }
-
-void CPiiBox::ShowAllSpecs()
-{
-    typedef std::list<std::tr1::shared_ptr<CPiiPersonalData> >::iterator Iterator;
-    for (Iterator it = mPersonalDataList.begin(); it != mPersonalDataList.end(); ++it) {
-        (*it)->SetSpecHidden(false);
-    }
 }
-
-void CPiiBox::ExportPersonalData(std::vector<SD_PiiPersonalData::Data>& rOut)
-{
-    typedef std::list<std::tr1::shared_ptr<CPiiPersonalData> >::iterator Iterator;
-    std::vector<SD_PiiPersonalData::Data> records;
-    records.reserve(mPersonalDataList.size());
-    for (Iterator it = mPersonalDataList.begin(); it != mPersonalDataList.end(); ++it) {
-        SD_PiiPersonalData::Data data;
-        (*it)->Export(data);
-        records.push_back(data);
-    }
-    std::swap(rOut, records);
-}
-
-std::tr1::shared_ptr<CPiiBox> CPiiBox::Create(const std::vector<SD_PiiPersonalData::Data>& rData, int type, int capacity, const COyaInfo* pOyaInfo)
-{
-    typedef std::list<std::tr1::shared_ptr<CPiiPersonalData> >::iterator Iterator;
-    std::tr1::shared_ptr<CPiiBox> box(new CPiiBox(type, capacity));
-    typedef std::reverse_iterator<std::vector<SD_PiiPersonalData::Data>::const_iterator> DataIterator;
-    for (DataIterator it = rData.rbegin(); it != rData.rend(); ++it) {
-        std::tr1::shared_ptr<CPiiPersonalData> ppd = CreatePiiPersonalData(pOyaInfo, *it);
-        if (!ppd) {
-            return std::tr1::shared_ptr<CPiiBox>();
-        }
-        box->AddPersonalData(ppd);
-    }
-    int serial = 1;
-    typedef std::reverse_iterator<Iterator> ListIterator;
-    for (ListIterator it(box->GetPersonalDataList().end()); it != ListIterator(box->GetPersonalDataList().begin()); ++it) {
-        if ((*it)->GetCreationTime() == 0) {
-            (*it)->SetCreationTime(serial);
-            ++serial;
-        }
-    }
-    return box;
-}
-
-void CPiiBox::ApplyEnvironment(bool enable, const std::tr1::shared_ptr<CPpuEnv>& rEnvironment)
-{
-    typedef std::list<std::tr1::shared_ptr<CPiiPersonalData> >::iterator Iterator;
-    for (Iterator it = mPersonalDataList.begin(); it != mPersonalDataList.end(); ++it) {
-        (*it)->ExecuteInitScript(enable, rEnvironment);
-    }
-}
-
-
-std::tr1::bad_function_call* CreateMissingMotionCallbackError() {
-    return new std::tr1::bad_function_call;
 }

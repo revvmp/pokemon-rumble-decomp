@@ -19,3 +19,23 @@ Combining scheduler model 604 with every discovered individual optimization swit
 A private C-shaped wrapper reproduces the same 21-instruction baseline schedule and allows the native C permuter to search this otherwise C++ member. The scratch wrapper uses the already evidenced player-member offset solely as a diagnostic type view and calls the original GetPlayerNo ABI; it is not reconstructed source and must never be substituted for the real class. The private scorer normalizes only the original local name-table label against the generated local constant label. Any zero-score result still requires porting into CPlayerPii::GetShadowName and full-unit objdiff and source-link verification. The active searches cover the normal and 604 scheduler models under `tools/local/session/dp61-GetShadowName*`; drivers and logs use `player61-` and direct compiler controls use `player-61-`.
 
 Further pointer-member const/restrict/reference views and inline/weak/noinline function attributes leave the getter unchanged. A diagnostic compiler-version sweep of the isolated C form found no exact result across GC3.0a3/3.0a5.2 and the installed Wii1.0 through1.7 family; no toolchain setting is changed. Final direct recompilation of the real CPlayerPii source still has only GetShadowName unmatched among real functions. The private array/header overlays have been removed.
+
+## Native named-output continuation, 2026-11-04
+
+After completing the ParticleManager and ArchiveFontBase tails, the next pass reproduced this function's 88.85714% baseline. The original 84-byte function remains in source. None of the following private controls produced an exact candidate.
+
+The coordinator's sixteen array-output helpers initially failed to compile because Wii/1.1 rejects `__declspec(noinline)` on the player-number getter. A declaration-only CPlayer header and late GetPlayerNo definition make those candidates compile, but their array helpers remain out of line while the final dont_inline state is on. Appending dont_inline off at the end changes the deferred inline decisions of this translation unit, including many previously exact weak functions. When the getter is left external under that diagnostic policy, return-by-value array helpers actually inline and reproduce the original 88.85714% schedule; output-table helpers grow to 100 bytes. This is a diagnostic, not a viable whole-unit change.
+
+Accepted always_inline function-attribute spellings did not override the final dont_inline state for these helpers. Moving the caller declaration under dont_inline off, or making the late getter definition strong, did not resolve this. These results are specific to this deferred-generation case; they do not establish that the compiler ignores those attributes generally.
+
+Additional bounded source probes found no improvement:
+
+- 64 typed enum/integer/pointer output forms with by-value or reference player inputs.
+- 48 combined array/player aggregates with typed alias analysis and enum index views.
+- 96 array-entry type, qualifier and aggregate representations.
+- Forty explicit copies from an early or late global table, with the player read at different copy positions.
+- Twelve equivalent member-call and member-pointer expressions.
+- All 164 combinations of the discovered 82 optimizer option names with on/off at the end of the translation unit; unsupported numeric-value forms fail compilation and are not retained.
+- Six private enum-return views of GetPlayerNo, with the ordinary array and aggregate diagnostic. The other real function comparisons remain unchanged for those six views, but the target function does not improve.
+
+The source baseline and full diff are under `tools/local/tail-20261104/game_CPlayerPii/pf_player_baseline/`. New drivers use `tools/local/tail-20261104/pf_player_*.py`. The corrected output-helper results and final-option results are recorded in `pf_player_output_results.json` and `pf_player_finalflag_results.json`. No shared header, symbol, configuration, or CPlayerPii implementation change is retained from this continuation.

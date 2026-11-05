@@ -2,6 +2,7 @@
 #define NW4R_EF_PARTICLE_MANAGER_FIELD_H
 
 #include <nw4r/ef/ef_res_animcurve.h>
+#include <nw4r/ef/ef_animcurveinternal.h>
 #include <nw4r/ef/ef_postfield.h>
 #include <nw4r/ef/ef_particle.h>
 #include <nw4r/ef/ef_util.h>
@@ -75,7 +76,7 @@ inline math::VEC3 CalcFieldPosition(bool emitterSpace,
         math::VEC3Transform(&position, pLocalToGlobal, pPosition);
         math::VEC3 origin(0.0f, 0.0f, 0.0f);
         math::VEC3Transform(&origin, pEmitterToGlobal, &origin);
-        position -= origin;
+        math::VEC3Sub(&position, &position, &origin);
     }
     return position;
 }
@@ -96,12 +97,7 @@ inline void CalcFieldRandom(math::VEC3* pOut, ParticleField* pField,
                             const math::VEC3* pVelocity,
                             const math::VEC3* pDirection,
                             const math::MTX34* pVelocityMtx) {
-    u32 random = seed * 0x3F81F635 + pHeader->randomSeed * 0x30A74193 +
-                 static_cast<u16>(tick) * 0x371097E7 + 0x4BF53;
-    u8* pRandom = reinterpret_cast<u8*>(&random);
-    pRandom[2] ^= pRandom[3];
-    pRandom[1] ^= pRandom[2];
-    pRandom[0] ^= pRandom[1];
+    u32 random = HashCurveSeed(seed, pHeader->randomSeed, static_cast<u16>(tick), 0);
     if (!(pHeader->processFlag & AnimCurveHeader::PROC_FLAG_TIMING)) {
         if (tick == 0 || tick % (pField->mParams.mRandom.mInterval + 1) != 0) {
             return;
@@ -129,15 +125,15 @@ inline void CalcFieldRandom(math::VEC3* pOut, ParticleField* pField,
     }
     if (pField->mFlags & 2) {
         pOut->x = static_cast<f32>(static_cast<s16>(random >> 16)) / 32768.0f;
-        random = random * 0x343FD + 0x269EC3;
+        random = NextCurveSeed(random);
         pOut->y = static_cast<f32>(static_cast<s16>(random >> 16)) / 32768.0f;
-        random = random * 0x343FD + 0x269EC3;
+        random = NextCurveSeed(random);
         pOut->z = static_cast<f32>(static_cast<s16>(random >> 16)) / 32768.0f;
-        random = random * 0x343FD + 0x269EC3;
+        random = NextCurveSeed(random);
         if ((pField->mFlags & 1) && !Normalize(pOut, pOut)) {
             pOut->y = 1.0f;
         }
-        *pOut *= pField->mPower;
+        math::VEC3Scale(pOut, pOut, pField->mPower);
     } else {
         math::VEC3 direction;
         if (pParticle->mTick == 0) {
@@ -154,10 +150,10 @@ inline void CalcFieldRandom(math::VEC3* pOut, ParticleField* pField,
         if (0.0f != pField->mParams.mRandom.mDiffusion) {
             f32 tilt = (static_cast<f32>(random >> 16) / 65535.0f) *
                        pField->mParams.mRandom.mDiffusion;
-            random = random * 0x343FD + 0x269EC3;
+            random = NextCurveSeed(random);
             f32 turn = 2.0f * (3.1415927f *
                        (static_cast<f32>(random >> 16) / 65535.0f));
-            random = random * 0x343FD + 0x269EC3;
+            random = NextCurveSeed(random);
             _PSSinCosRad(&pOut->x, tilt);
             pOut->z = pOut->x;
             f32 sinTurn;
@@ -166,9 +162,9 @@ inline void CalcFieldRandom(math::VEC3* pOut, ParticleField* pField,
             pOut->x *= sinTurn;
             pOut->z *= cosTurn;
             if (pField->mFlags & 1) {
-                *pOut *= pField->mPower;
+                math::VEC3Scale(pOut, pOut, pField->mPower);
             } else {
-                *pOut *= (static_cast<f32>(random >> 16) / 65535.0f) * pField->mPower;
+                math::VEC3Scale(pOut, pOut, (static_cast<f32>(random >> 16) / 65535.0f) * pField->mPower);
             }
         } else {
             pOut->x = 0.0f;
@@ -200,14 +196,14 @@ inline void CalcFieldSpin(math::VEC3* pOut, const ParticleField* pField,
     math::MTX34 rotation;
     math::MTX34RotAxisRad(&rotation, &axis, pField->mPower);
     math::VEC3Transform(pOut, &rotation, pPosition);
-    *pOut -= *pPosition;
+    math::VEC3Sub(pOut, pOut, pPosition);
 }
 
 inline void CalcFieldMagnet(math::VEC3* pOut, const ParticleField* pField,
                             const math::VEC3* pPosition) {
     math::VEC3Sub(pOut, reinterpret_cast<const math::VEC3*>(&pField->mParams.mPosition), pPosition);
     Normalize(pOut, pOut);
-    *pOut *= pField->mPower;
+    math::VEC3Scale(pOut, pOut, pField->mPower);
 }
 
 inline void CalcFieldNewton(math::VEC3* pOut, const ParticleField* pField,
@@ -215,10 +211,10 @@ inline void CalcFieldNewton(math::VEC3* pOut, const ParticleField* pField,
     math::VEC3Sub(pOut, reinterpret_cast<const math::VEC3*>(&pField->mParams.mNewton.mPosition), pPosition);
     f32 distanceSq = math::VEC3LenSq(pOut);
     Normalize(pOut, pOut);
-    *pOut *= pField->mPower;
+    math::VEC3Scale(pOut, pOut, pField->mPower);
     f32 fieldDistanceSq = pField->mParams.mNewton.mDistance * pField->mParams.mNewton.mDistance;
     if (distanceSq > fieldDistanceSq) {
-        *pOut *= fieldDistanceSq / distanceSq;
+        math::VEC3Scale(pOut, pOut, fieldDistanceSq / distanceSq);
     }
 }
 
@@ -244,7 +240,7 @@ inline void CalcFieldVortex(math::VEC3* pOut, ParticleField* pField,
     }
     Normalize(&radial, &radial);
     math::VEC3Cross(pOut, &radial, &axis);
-    *pOut *= power;
+    math::VEC3Scale(pOut, pOut, power);
 }
 
 }

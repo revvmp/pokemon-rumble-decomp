@@ -25,6 +25,9 @@ private:
 
 class ArcResourceLink {
 public:
+#if defined(CLAYOUT_EMISSION_LAYOUT)
+    ArcResourceLink() {}
+#endif
     bool Set(void* pFile, const char* pName);
     const char* GetResRootDir() const { return mResRootDir; }
     ARCHandle* GetArcHandle() { return &mArcHandle; }

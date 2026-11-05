@@ -1,6 +1,6 @@
 # Particle and archive-font native tail probes, 2026-11-04
 
-This isolated pass continues [ParticleManager Calc](329-particlemanager-tail.md) and [ArchiveFontBase GLGR](806-archive-font-registers.md). Neither unit is accepted from source. No shared header, source, configuration, original hash, or build output was changed by this investigation.
+This isolated pass completes [ParticleManager Calc](329-particlemanager-tail.md) and [ArchiveFontBase GLGR](806-archive-font-registers.md). Both source integrations passed the coordinator's normal production build and frozen-artifact verification. Experiments remained in private outputs until the coordinator installed each exact source/header pair.
 
 The coordinator owns configure, ninja and frozen-artifact verification. All comparisons below are direct native Wii/1.1 compiler experiments using the configured unit command and separate output paths. They are object-comparison evidence, not final-link evidence. The helper is `tools/local/tail-20261104/probe.py`.
 
@@ -44,6 +44,31 @@ The following additional bounded probes did not improve the recovered candidate:
 
 These are local negative results. They do not establish that the controls fail for other functions. Drivers use the prefix `tools/local/tail-20261104/pf_particle_`.
 
+## Exact ParticleManager functions
+
+The font constructor-output result suggested making the three post-field size loads into named caller outputs. Ninety-six ordinary int/u32 output-reference combinations retained 99.96706%. A further 168 enum-output combinations found the missing control: use a CurveOffset enum covering the complete u32 range, declare nameSize, rangeSize and randomSize in that order in the post-field case, write range and random sizes through references inside GetPostFieldNames, and write name size through a separate inline output helper after obtaining the names pointer. This keeps the three named values instead of anonymous expression temporaries.
+
+The resulting 99.992676% candidate differs only in the order of the two source registers of the final random-table addition. Returning the integer cursor plus randomSize, rather than randomSize plus the integer cursor, makes all 1,366 instructions of the 5,464-byte Calc function exact. The sixteen other owned functions remain exact.
+
+The readable final package, recompiled after formatting, is:
+
+- `tools/local/tail-20261104/nw4r_ef_ef_particlemanager/pf_ready/ef_particlemanager.cpp`.
+- The two existing `pf_include` headers listed above.
+- `tools/local/tail-20261104/pf_particle_exact.patch`, containing the complete source and header delta against the coordinator's current files.
+- `pf_ready/ef_particlemanager.o`, `compile.log`, `diff.json` and `data-audit.json` beside the source.
+
+The original .text inventory is 8,964 bytes and all seventeen real function comparisons are 100%. The original .ctors, .bss, .sbss and 72-byte .sdata2 also compare at 100%. The 72 target .data bytes and all their relocation targets/addends agree, including every switch-table entry and the ParticleManager vtable. The source object appends a 16-byte weak ReferencedObject vtable with no relocation references, which makes the raw .data section score 90%.
+
+The source object's .text extent is 9,156 bytes. Four pre-existing extra function emissions, also present in the initial source baseline, are absent from the owned original inventory: weak ReferencedObject SendClosing and DestroyFunc, plus RetireParticle and Draw_GetMtxPMtoEM. Object scores do not establish whether those extra emissions are discarded correctly. The coordinator must run the native source-link and frozen-artifact gate before source acceptance.
+
+The enum output references, mixed pointer/integer cursor step, and emitter-resource same-type assignments are D-0016 code-generation accommodations. Hoisting emitter scale, correcting matrix declaration order and using the existing random/vector helpers are ordinary source corrections. No object patch or inline assembly is involved.
+
+The coordinator's isolated ParticleManager source-link trial passed the frozen SHA. The first production build rejected the shared emitter-resource header controls: CEffect::Create and ef_emitter::CalcEmitter regressed from the frozen initial report and the DOL differed. The coordinator restricted those controls to ParticleManager with PARTICLE_MANAGER_EMISSION_LAYOUT and restored the original default accessor bodies. The particle-field header did not produce a reported regression.
+
+The scoped production build then passed frozen verification and restored both regressed functions. ParticleManager is accepted from source. This full-build result also confirms that the extra unreferenced helper functions and weak vtable are discarded correctly. At this checkpoint the coordinator's full native report had nineteen remaining real functions and 88.035164% source-linked code; those are historical checkpoint values, not a claim that the overall decompilation is finished.
+
+An earlier private audit appeared unchanged, but it compiled its default comparison after the coordinator had installed the candidate headers. It therefore compared the candidate header against itself, not against the pre-change header. Its output, `tools/local/tail-20261104/pf_ef_header_audit.json`, is not valid regression evidence. The production build results supersede that audit.
+
 ## ArchiveFontBase::ConstructOpAnalyzeGLGR
 
 The direct current-source baseline is 99.291664%. A new private representation control improves the comparison: declare the existing adjacent fields as full-width `u16 numSheet : 16` and `u16 numCWDH : 16`. This leaves the accessed offsets unchanged in the compiled candidate and changes the compiler's value representation. It is a D-0016 candidate, not evidence that the original declaration used bitfields.
@@ -72,10 +97,36 @@ Additional probes, all discarded, include:
 - 144 pointer-typed count storage forms, 72 mixed layout/metadata accessor views, and 144 cached-count member placement forms.
 - 48 accessor-factory and inline-depth forms.
 
-These controls do not justify retaining an artificial partial match. Neither canonical source nor canonical header was changed. Drivers use the prefix `tools/local/tail-20261104/pf_font_`.
+These controls did not justify retaining an artificial partial match. Neither canonical source nor canonical header was changed at this stage. Drivers use the prefix `tools/local/tail-20261104/pf_font_`.
+
+## Exact font object after constructor-output control
+
+The later candidate supersedes the bitfield experiment. No bitfields are needed. Add an overload `FontGlyphGroupsAcs(const void*, int&)` which performs the original constructor calculations, writes GetNumSheet to its output immediately after assigning mpData, then uses that output for mSizeSheetFlags and offsetSizeCWDH. The ordinary one-argument constructor is unchanged, so other callers keep their original inline body.
+
+ConstructOpAnalyzeGLGR declares the int count immediately before pBlockEnd, calls the new overload, uses u16 glyphsPerSheet and u32 sizeAdjustTable, uses the integer-address RoundDown form, and explicitly narrows the count to u16 in the final memmove expression. The count must be declared immediately before pBlockEnd: leaving it just before the accessor construction produces 99.958336%, differing only in the pBlockEnd register at 0xD4 and 0x1B8. Moving it earlier than the data-size declaration changes other saved-register choices.
+
+The exact isolated package is:
+
+- `tools/local/tail-20261104/nw4r_ut_ut_ArchiveFontBase/pf_blockend4/ut_ArchiveFontBase.cpp`.
+- `tools/local/tail-20261104/nw4r_ut_ut_ArchiveFontBase/pf_countoutinclude3/nw4r/ut/ut_ArchiveFontBase.h`.
+- `pf_blockend4/ut_ArchiveFontBase.o`, `compile.log` and `diff.json` beside that source.
+
+The direct native comparison reports all 25 real functions at 100%, including the 960-byte ConstructOpAnalyzeGLGR. The complete target .text extent is 5,432 bytes and compares at 100%; .data is 96 bytes and also compares at 100%. The gap symbols have no function score and are not counted as reconstructed functions.
+
+The coordinator installed this header/source pair and ran the isolated source-link gate on 2026-11-04. It passed the frozen SHA with zero differing bytes, and the native report retained all 25 exact functions. The subsequent Matching promotion and normal production build also passed the frozen SHA. This is the full-artifact acceptance evidence beyond object scoring; original hashes were not changed.
+
+The constructor-output API is an intentional D-0016 source accommodation after the documented ordinary-source attempts. The new int output preserves the named caller count instead of the constructor's anonymous cached-load temporary. Once that local survives, declaration order gives count and the earlier block-end pointer the same r24 without adding an instruction. The existing accessor still reloads sheet count in the loops, matching the target.
+
+Additional follow-up probes included 124 by-value aggregate addition controls and 48 by-value cursor-parameter forms for Particle, plus 108 by-value count forms, 48 pointer-wrapper forms, 180 compound-assignment/intrinsic forms, 216 enum-range/enum-size forms, and 120 constructor-input forms for Font. None improved the previous closest candidates. The constructor-input experiments did recover count r24 and glyph r31 but reordered layout arithmetic. A 144-candidate constructor-output sweep then found the 99.958336% precursor, and six count-declaration positions found the exact object.
+
+Scoped c9x_alias_by_type and c99_alias_by_type on/off controls did not change Particle, the Font baseline, the 99.791664% Font candidate or the constructor-input diagnostic. They do not explain the remaining Particle arithmetic allocation.
 
 ## Traps
 
 The local trace wrapper initially copied configured compiler flags including repository `-i` arguments, then passed an extra include to ra_trace.py. The tracer appends its include arguments after GAME_FLAGS. The repository header therefore won even though the probe runner correctly searched the private overlay first. This affected early trace interpretation, not native probe scores. The wrapper now removes the configured `-i` pairs before asking ra_trace.py to add the overlay first. The corrected trace must identify the private font-header path in its compiler diagnostic, and its final instruction stream must agree with the corresponding candidate diff. Both closest candidates were retraced after the correction.
 
 Full-width bitfield reads can change surviving virtual-register identity while preserving load instructions. This is a verified local code-generation control for this font function, not an ABI or original-source inference. It remains unaccepted until the function, all allocated sections, and the frozen final artifact compare exactly.
+
+A cached inline load can eliminate a caller's declared local, making declaration-order probes ineffective. The font constructor output restores a named int count; the particle enum output references restore named size values where int/u32 outputs did not. Trace the surviving nodes before permuting declarations. The final font solution needs no bitfield representation change.
+
+A live checkout is not a frozen comparison baseline during coordinated header integration. Here, the coordinator installed the candidate emitter header before the private auditor compiled its default comparison, hiding two real regressions. Use the preserved initial report or a complete original-header overlay from the pre-change revision. Do not treat an unchanged fresh-default comparison as evidence against the original build once shared files have changed.

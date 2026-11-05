@@ -2,6 +2,8 @@
 
 ## 2026-11-04 native source-link continuation
 
+The next accepted sources include [ParticleManager and ArchiveFontBase](findings/particle-font-native-tail-20261104.md), [both JPEG output formats](findings/tmc-jpeg-final-tail.md), [CShadowCamera and CSimpleGround](findings/20261104-game-small-tail.md), [CRemoteMemory](findings/20261104-remote-memory-finish.md), and [CPii and CPiiBox](findings/sort-tail-20261104.md). Each passes the complete frozen main executable comparison. Separate Camera/Ground and CPii/Box source files restore independently emitted literals and metadata. CPii's last link difference was a wrong height multiplier hidden by function scoring; the original word proves `1.3333334f`.
+
 [CUIMenu's complete source link](findings/cuimenu-native-sections.md) proves native compiler section grouping and explicit native linker order in the ordinary build. All 61 functions match, and the final frozen executable passes unchanged. The preparation step copies selected objects byte-for-byte to unique names; it does not rewrite instructions, relocations or reference data. [The CUIList cleanup correction](findings/337-cuilist-tail.md#f-337-7-natural-list-item-vector-cleanup) removes an unnecessary D-0016 stand-in using the later CUIMenu unwind consumer as identity evidence.
 
 

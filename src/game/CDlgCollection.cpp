@@ -117,38 +117,38 @@ public:
 
     unsigned GetModelCount() const { return mModels.size(); }
 
-    void Calc() {
+    void Calc(void*& pItem, u32& normalBit, u32& rareBit) {
         bool canInitialize = true;
         CPiiCollectionBox* pBox = IGameSession::GetInstance()->GetPiiCollectionBox();
         for (unsigned i = 0; i < mModels.size(); i++) {
-            Model* pItem = mModels[i].get();
-            if (canInitialize && !pItem->mReady) {
+            pItem = mModels[i].get();
+            if (canInitialize && !static_cast<Model*>(pItem)->mReady) {
                 bool even = !(i & 1);
-                u16 species = pItem->mSpecies;
+                u16 species = static_cast<Model*>(pItem)->mSpecies;
                 int type = pBox->GetCollectionType(species);
                 bool unknown = false;
                 if (type != 3 && type != 2) {
                     unknown = true;
                 }
-                pItem->mLayout.SetPaneVisible("UNKNOWN", unknown);
-                pItem->mLayout.SetPaneVisible("DEFEATED", type == 2);
-                pItem->mLayout.SetPaneVisible("GOT", type == 3);
-                pItem->mLayout.SetPaneVisible("RARE", false);
-                pItem->mLayout.SetPaneVisible("NAME", !unknown);
-                pItem->mLayout.SetPaneVisible("EVEN_BK", even);
-                pItem->mLayout.SetPaneVisible("ODD_BK", !even);
+                static_cast<Model*>(pItem)->mLayout.SetPaneVisible("UNKNOWN", unknown);
+                static_cast<Model*>(pItem)->mLayout.SetPaneVisible("DEFEATED", type == 2);
+                static_cast<Model*>(pItem)->mLayout.SetPaneVisible("GOT", type == 3);
+                static_cast<Model*>(pItem)->mLayout.SetPaneVisible("RARE", false);
+                static_cast<Model*>(pItem)->mLayout.SetPaneVisible("NAME", !unknown);
+                static_cast<Model*>(pItem)->mLayout.SetPaneVisible("EVEN_BK", even);
+                static_cast<Model*>(pItem)->mLayout.SetPaneVisible("ODD_BK", !even);
                 int normalRank = pBox->GetDefeatCount(species, 0);
-                pItem->mLayout.SetPaneVisible("N_SILVER", normalRank == 2);
-                pItem->mLayout.SetPaneVisible("N_GOLD", normalRank == 3);
-                pItem->mLayout.SetPaneVisible("N_BRONZE", normalRank == 1);
+                static_cast<Model*>(pItem)->mLayout.SetPaneVisible("N_SILVER", normalRank == 2);
+                static_cast<Model*>(pItem)->mLayout.SetPaneVisible("N_GOLD", normalRank == 3);
+                static_cast<Model*>(pItem)->mLayout.SetPaneVisible("N_BRONZE", normalRank == 1);
                 int hardRank = pBox->GetDefeatCount(species, 1);
-                pItem->mLayout.SetPaneVisible("H_SILVER", hardRank == 2);
-                pItem->mLayout.SetPaneVisible("H_GOLD", hardRank == 3);
-                pItem->mLayout.SetPaneVisible("H_BRONZE", hardRank == 1);
+                static_cast<Model*>(pItem)->mLayout.SetPaneVisible("H_SILVER", hardRank == 2);
+                static_cast<Model*>(pItem)->mLayout.SetPaneVisible("H_GOLD", hardRank == 3);
+                static_cast<Model*>(pItem)->mLayout.SetPaneVisible("H_BRONZE", hardRank == 1);
                 int easyRank = pBox->GetDefeatCount(species, 2);
-                pItem->mLayout.SetPaneVisible("E_SILVER", easyRank == 2);
-                pItem->mLayout.SetPaneVisible("E_GOLD", easyRank == 3);
-                pItem->mLayout.SetPaneVisible("E_BRONZE", easyRank == 1);
+                static_cast<Model*>(pItem)->mLayout.SetPaneVisible("E_SILVER", easyRank == 2);
+                static_cast<Model*>(pItem)->mLayout.SetPaneVisible("E_GOLD", easyRank == 3);
+                static_cast<Model*>(pItem)->mLayout.SetPaneVisible("E_BRONZE", easyRank == 1);
                 if (type == 3) {
                     bool rare = false;
                     u32 rareMask = pBox->GetRareColorMask(species);
@@ -163,8 +163,8 @@ public:
                             break;
                         }
                         const PiiSpeciesData* pSpecies = GetPiiSpeciesData(species, form);
-                        u32 normalBit = GetFormMask(normalMask, form);
-                        u32 rareBit = GetFormMask(rareMask, form);
+                        normalBit = static_cast<u32>(GetFormMask(normalMask, form));
+                        rareBit = static_cast<u32>(GetFormMask(rareMask, form));
                         for (int color = 0; color <= 1; color++) {
                             if (color == 0) {
                                 if (normalBit == 0) {
@@ -189,7 +189,7 @@ public:
                             }
                         }
                     }
-                    pItem->mLayout.SetPaneVisible("RARE", rare);
+                    static_cast<Model*>(pItem)->mLayout.SetPaneVisible("RARE", rare);
                 } else if (type == 2) {
                     const PiiSpeciesData* pSpecies = GetPiiSpeciesData(species, 0);
                     std::tr1::shared_ptr<CPiiPersonalData> personalData = CreatePiiPersonalData(
@@ -198,8 +198,8 @@ public:
                     mModels[i]->mTex.reset(new CPiiTex(personalData, 256, 256));
                     mModels[i]->mLayout.SetTexture("DEFEATED_TEX", mModels[i]->mTex->GetTexMap(), -1);
                 }
-                pItem->mLayout.SetText("NAME", GetPiiSpeciesData(species, 0)->GetName());
-                pItem->mLayout.SetVisible(true);
+                static_cast<Model*>(pItem)->mLayout.SetText("NAME", GetPiiSpeciesData(species, 0)->GetName());
+                static_cast<Model*>(pItem)->mLayout.SetVisible(true);
                 mModels[i]->mReady = true;
                 canInitialize = false;
             }
@@ -218,7 +218,7 @@ public:
                 }
                 mModels[i]->mTex->Calc();
             }
-            pItem->mLayout.Calc();
+            static_cast<Model*>(pItem)->mLayout.Calc();
         }
         mAnimFrame = (mAnimFrame + 1) % 60;
     }
@@ -388,7 +388,9 @@ public:
     void CalcMtxModels() { mItemModel->CalcMtx(); }
     void DrawModels() { mItemModel->Draw(); }
 
-    void CalcModels() { mItemModel->Calc(); }
+    void CalcModels(void*& pItem, u32& normalBit, u32& rareBit) {
+        mItemModel->Calc(pItem, normalBit, rareBit);
+    }
 
     int mPlayer;
     int mState;
@@ -425,19 +427,22 @@ public:
             return true;
     }
     virtual void Calc() {
-            CDlgCollectionImpl* pImpl = mImpl.get();
-            if (mImpl) {
-                pImpl->mUIManager->Calc();
-                pImpl->CalcModels();
-                if (pImpl->mMsgWin) {
-                    pImpl->mMsgWin->Calc();
-                }
-                pImpl->mFiber.Resume();
-                if (mImpl->mFiber.IsFinished()) {
-                    mImpl.reset();
-                    GetCurrentGameMap()->UnregisterDialog(shared_from_this());
-                }
+        u32 normalBit;
+        u32 rareBit;
+        void* pItem;
+        CDlgCollectionImpl* pImpl = mImpl.get();
+        if (mImpl) {
+            pImpl->mUIManager->Calc();
+            pImpl->CalcModels(pItem, normalBit, rareBit);
+            if (pImpl->mMsgWin) {
+                pImpl->mMsgWin->Calc();
             }
+            pImpl->mFiber.Resume();
+            if (mImpl->mFiber.IsFinished()) {
+                mImpl.reset();
+                GetCurrentGameMap()->UnregisterDialog(shared_from_this());
+            }
+        }
     }
     virtual void CalcMtx() {
             CDlgCollectionImpl* pImpl = mImpl.get();

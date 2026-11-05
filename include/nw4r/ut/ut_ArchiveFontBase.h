@@ -54,6 +54,29 @@ public:
         mpUseCWDHArray = reinterpret_cast<const u32*>(offsetUseCWDH + reinterpret_cast<u32>(mpFileTop));
         mpUseCMAPArray = reinterpret_cast<const u32*>(offsetUseCMAP + reinterpret_cast<u32>(mpFileTop));
     }
+    explicit FontGlyphGroupsAcs(const void* pBrfna, int& numSheet) {
+        mpFileTop = static_cast<const u8*>(pBrfna);
+        mpData = reinterpret_cast<const FontGlyphGroupsBlock*>(mpFileTop + sizeof(BinaryFileHeader));
+        numSheet = GetNumSheet();
+        mSizeSheetFlags = (numSheet + 31) / 32 * sizeof(u32);
+        mSizeCWDHFlags = (GetNumCWDH() + 31) / 32 * sizeof(u32);
+        mSizeCMAPFlags = (GetNumCMAP() + 31) / 32 * sizeof(u32);
+        const u32 offsetSizeSheets =
+            RoundUp(sizeof(BinaryFileHeader) + sizeof(BinaryBlockHeader) + sizeof(FontGlyphGroups) -
+                          sizeof(u16) + GetNumSet() * sizeof(u16),
+                      4);
+        const u32 offsetSizeCWDH = RoundUp(offsetSizeSheets + numSheet * sizeof(u32), 4);
+        const u32 offsetSizeCMAP = RoundUp(offsetSizeCWDH + GetNumCWDH() * sizeof(u32), 4);
+        const u32 offsetUseSheets = RoundUp(offsetSizeCMAP + GetNumCMAP() * sizeof(u32), 4);
+        const u32 offsetUseCWDH = RoundUp(offsetUseSheets + mSizeSheetFlags * GetNumSet(), 4);
+        const u32 offsetUseCMAP = RoundUp(offsetUseCWDH + mSizeCWDHFlags * GetNumSet(), 4);
+        mpSizeSheetsArray = reinterpret_cast<const u32*>(offsetSizeSheets + reinterpret_cast<u32>(mpFileTop));
+        mpSizeCWDHArray = reinterpret_cast<const u32*>(offsetSizeCWDH + reinterpret_cast<u32>(mpFileTop));
+        mpSizeCMAPArray = reinterpret_cast<const u32*>(offsetSizeCMAP + reinterpret_cast<u32>(mpFileTop));
+        mpUseSheetArray = reinterpret_cast<const u32*>(offsetUseSheets + reinterpret_cast<u32>(mpFileTop));
+        mpUseCWDHArray = reinterpret_cast<const u32*>(offsetUseCWDH + reinterpret_cast<u32>(mpFileTop));
+        mpUseCMAPArray = reinterpret_cast<const u32*>(offsetUseCMAP + reinterpret_cast<u32>(mpFileTop));
+    }
 
     u32 GetSheetSize() const { return mpData->body.sheetSize; }
     u16 GetGlyphsPerSheet() const { return mpData->body.glyphsPerSheet; }

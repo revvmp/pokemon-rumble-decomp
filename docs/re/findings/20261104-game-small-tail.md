@@ -1,10 +1,42 @@
 # Game small-tail continuation, 2026-11-04
 
-This pass owns `CPlayerPii.cpp`, `CMsgRes.cpp`, `CShadowCamera.cpp`, and `CDlgCollection.cpp`. Experiments use the configured native compiler directly and complete objdiff JSON in isolated `tools/local/tail-20261104/smallgame/` directories. Shared configuration, headers, full builds, and frozen-artifact verification remain with the coordinator.
+This pass initially owns `CPlayerPii.cpp`, `CMsgRes.cpp`, `CShadowCamera.cpp`, and `CDlgCollection.cpp`; the coordinator subsequently takes the remaining player-name work and authorizes the new `CSimpleGround.cpp` source. Experiments use the configured native compiler directly and complete objdiff JSON in isolated `tools/local/tail-20261104/smallgame/` directories. Shared configuration, headers, full builds, and frozen-artifact verification remain with the coordinator.
 
-## SetupShadowMaterial exact function
+## Final source shape and native link
 
-`SetupShadowMaterial` at `0x8010D140` now compares at 100%, retaining its 1,252-byte size. A fresh control reproduces the prior 99.8754% result. The complete unit moves from 15/17 to 16/17 exact real functions; every other function score and the matched function order are unchanged. `SetupShadowModel` remains 95.20192% at 416 bytes. This is function-comparison evidence, not completed source linkage for the unit.
+The coordinator's isolated native link of separately compiled Camera and Ground objects passes the frozen SHA-256 with zero differing bytes. Its artifacts are under `tools/local/tail-20261104/links/shadow-fragments/`. The final source uses the existing `nw4r::ut::Color` type and ordinary separate `CShadowCamera.cpp` and `CSimpleGround.cpp` translation units. All seventeen function instruction streams match.
+
+The true split is now integrated into the normal configuration. The coordinator reports `ninja` exit 0 followed by frozen-manifest verification PASS: `main.dol` SHA-256 is `ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da`. Both units are source-linked, with all eight Camera functions and all nine Ground functions exact. The corrected boundaries change the report denominator by twelve code-padding bytes and minus eleven data-padding bytes; the executable is unchanged. The configured unit count is 1,387.
+
+`SetupShadowMaterial` takes `nw4r::ut::Color` by value. Passing this type directly to `GXSetTevKColor` reproduces the target address scheduling; the custom trivial color wrapper described below is removed. The single inline `ApplyShadowMaterial` helper takes a `const nw4r::ut::Color&`, forwards the actual alpha field by `const bool&`, and obtains the camera index directly in the final call. The outer temporary conversion and inner by-value copy reproduce both original Color cleanup actions. The extra forwarding level and local GXColor copy from the interim implementation are removed.
+
+The final project-assigned local symbol at `0x8010D140` ends in `COffScreenTextureQ34nw4r2ut5Colorib`. The callee's eight-byte exception record is exactly `5008000000000000`. The caller's 32-byte record is exactly `280800000000017c00000010000000000200000c000000008200002800000000`, with `__dt__Q34nw4r2ut5ColorFv` relocations at record offsets `+0x14` and `+0x1C`. That destructor is already owned at `0x8005C9A0`. These checks distinguish the final source from the instruction-only interim signature.
+
+The retained D-0016 scheduling control is the local `void*` receiver identity before the post-matrix calculation. The typed Color parameter and separate source files replace the earlier artificial color-copy type and extra inline layer. The field-reference forwarding helper remains documented as a source control rather than a recovered original helper definition.
+
+### Source-file boundary
+
+Combining the two classes into one translation unit pins extra type-name data through Camera's OSReport literal pool. The first combined source link was 416 bytes too large. The original Camera data ends with `void (*)(void *) throw()`; its source section is 601 bytes with eight-byte alignment. Ground has no such live literal-pool anchor, allowing its unused CModel, CPpuEngine, and base-class type metadata to be discarded. Its retained data is 200 bytes: the 132-byte vtable, a padded 16-byte name, and the 52-byte base list. Camera's 601 bytes pad to 608, then Ground's 200 bytes reproduce the original combined 808-byte extent.
+
+The separate objects preserve every function body and all owned exception records, and the actual filenames with reviewed direct headers do so too. The exact proposed ownership ranges are:
+
+| Section | CShadowCamera.cpp | CSimpleGround.cpp |
+| --- | --- | --- |
+| extab | `0x80028E54`–`0x80028F5C` | `0x80028F5C`–`0x800290E8` |
+| extabindex | `0x8004BC9C`–`0x8004BCFC` | `0x8004BCFC`–`0x8004BD44` |
+| .text | `0x8010C490`–`0x8010D8D4` | `0x8010D8E0`–`0x8010DDD8` |
+| .rodata | none | `0x80354E20`–`0x80354E34` |
+| .data | `0x803ADA30`–`0x803ADC89` | `0x803ADC90`–`0x803ADD58` |
+| .sdata | `0x804B7358`–`0x804B7360` | `0x804B7360`–`0x804B7368` |
+| .sdata2 | `0x804BA0D8`–`0x804BA108` | none |
+
+Ends are exclusive. The gaps are ordinary alignment: twelve text bytes, seven data bytes, and four bytes after the twenty-byte `CModel::LoadParams` initializer. The former `lbl_803ADB90` extent included the last seven data-padding bytes, and `lbl_80354E20` included the last four rodata-padding bytes. Their proposed sizes are `0xF9` and `0x14`, respectively.
+
+Reproducible inputs and records are `colorparity_0/`, `color_accepted/`, `fragment_camera/`, `fragment_ground/`, `actual_CShadowCamera/`, `actual_CSimpleGround/`, `actual_camera_installed/`, and `actual_ground_installed/`. The focused runners are `smallgame_shadow_color_cleanup.py`, `smallgame_shadow_colortype.py`, `smallgame_shadow_color_copy.py`, `smallgame_shadow_color_parity.py`, `smallgame_shadow_fragments.py`, and `smallgame_shadow_actualsplit.py`. `smallgame_elf.py` reads ELF records without modifying object files.
+
+## Superseded first checkpoint: material instructions
+
+At the first checkpoint, `SetupShadowMaterial` at `0x8010D140` compares at 100%, retaining its 1,252-byte size. A fresh control reproduces the prior 99.8754% result. The complete unit moves from 15/17 to 16/17 exact real functions; every other function score and the matched function order are unchanged. At that point `SetupShadowModel` remains 95.20192% at 416 bytes. This is function-comparison evidence, not completed source linkage for the unit.
 
 Two local D-0016 controls resolve the five remaining instruction rows:
 
@@ -15,19 +47,51 @@ These are documented fake-match constructs, not recovered original source. Typed
 
 The first color experiment used the existing `nw4r::ut::Color`. It reproduced the same exact instructions but emitted an additional 64-byte weak destructor, 24 exception bytes, and 12 exception-index bytes. It was replaced by the trivial local copy type before acceptance. In the retained version, every object section has the same size as the control. Raw section comparison changes only `.text` and compiler-generated names in `.strtab`; `extab`, `extabindex`, all data sections, all relocation sections, and the symbol table are byte-identical to the control. The `.text` difference consists of eleven bytes in the five corrected instructions.
 
-Reproduction is `python tools/local/tail-20261104/smallgame_shadow_accept.py`. The final source SHA-256 at this checkpoint is `aa7db07872d1845d18e64bbb19896dcdc595211d86321b7317eefbedc22dcdf2`. `material_control_original/` and `material_accepted/` contain the full source snapshots, compiler logs, objects, and objdiff JSON. `material_acceptance.json` records the no-regression and section checks. The discovery runners are `smallgame_shadow_receiver.py` and `smallgame_shadow_trivialcolor.py`.
+The checkpoint runner is `tools/local/tail-20261104/smallgame_shadow_accept.py`. The compiled LF source snapshot SHA-256 at this checkpoint is `aa7db07872d1845d18e64bbb19896dcdc595211d86321b7317eefbedc22dcdf2`. `material_control_original/` and `material_accepted/` contain the full source snapshots, compiler logs, objects, and objdiff JSON. `material_acceptance.json` records the no-regression and section checks. The discovery runners are `smallgame_shadow_receiver.py` and `smallgame_shadow_trivialcolor.py`.
+
+## Superseded intermediate checkpoint: model instructions
+
+The subsequent candidate reproduces every instruction, register, branch, and frame offset of the 416-byte `SetupShadowModel` at `0x8010D630`. Against the saved pre-rename target object its score is 99.95192% solely because the call at `+0x178` still names the old reconstructed helper signature. The coordinator must rename that local symbol, regenerate the original split object, and verify the complete source link before accepting the unit.
+
+`SetupShadowMaterial` now accepts `const GXColor&` instead of `GXColor`; the pointer ABI in `r6` is unchanged, and its complete instruction comparison remains 100% under an explicit private objdiff name mapping. This parameter category is a source-model choice, not a recovered original mangled name. The project-assigned local name changes from the suffix `COffScreenTexture8_GXColorib` to `COffScreenTextureRC8_GXColorib` without changing address, size, or local scope. A read-only scan of all original DOL text sections finds exactly one direct branch to this helper: `bl` at `0x8010D7A8`, inside `SetupShadowModel`. The helper is static and has no vtable entry. The original file SHA-256 remains `ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da`.
+
+Three related source controls reproduce the caller:
+
+- `ApplyShadowMaterialCopy` takes the input color by reference and creates its own `GXColor` copy before reading the camera index. Passing that copy by reference to the out-of-line material helper preserves the target's color-copy, index-load, texture-multiply, and material-copy order.
+- Passing `mUseTextureAlpha` directly into the inline wrapper as a `const bool&` places its load at the target instruction. Calling the by-value getter loads it too early. No shared camera getter or header changes are needed.
+- One additional inline forwarding level reverses the final material/color frame-slot pair. Without it, the instruction stream is otherwise identical but those arguments use stack `+0xC` and `+0x8` in the opposite order. This forwarding level is a D-0016 control.
+
+The installed formatted source was directly compiled into `model_accepted/`; its compiled LF source SHA-256 is `bb95caef872828fa66ef52c86a2884ef172d082cfd4f4eee0bd44a433b045b44`. Its only nonexact mapped function is the caller's expected old-name relocation. Compared with the accepted first checkpoint, the object has no new functions or section-size growth apart from the two-character symbol-name extension in `.strtab`. Raw `extab`, `extabindex`, data sections, and every relocation section are byte-identical. Only `.text`, symbol name offsets in `.symtab`, and `.strtab` change. The `.text` difference is 22 bytes in the corrected model argument-preparation sequence.
+
+`smallgame_shadow_calltypes.py`, `smallgame_shadow_refcolor_frames.py`, `smallgame_shadow_refcolor_local.py`, and `smallgame_shadow_refcolor_depth.py` reproduce the discovery. `smallgame_shadow_mapped.py` uses an ordinary private objdiff project mapping; it does not alter target objects. `smallgame_shadow_callers.py` records the original branch audit in `callers.json`.
+
+## Collection instruction completion
+
+The final 2,284-byte `Calc__Q228@unnamed@CDlgCollection_cpp@14CDlgCollectionFv` now compares at 100%. All 113 real functions in the complete object are exact, and no previously exact function changes. This is isolated function-comparison evidence; source-link acceptance remains with the coordinator.
+
+The baseline had only a register swap: the model pointer used `r29` instead of `r26`, while the loop's byte offset used `r26` instead of `r29`. The form masks already had the required `r28` and `r27`. The allocation trace shows that simply lifting a typed model pointer into the outer virtual function is insufficient. Giving the outer local a `void*` type, passing it through the existing inline `CalcModels` and item-model `Calc` functions by reference, and casting only at member accesses preserves the outer named local. This puts the item pointer in `r26`, improving the result to 99.842384%, while leaving the two masks and byte offset in a three-register rotation.
+
+The accepted source also lifts `normalBit` and `rareBit` into the outer virtual function, in that order before `pItem`, and forwards mutable `u32&` references through the same inline calls. Each assignment retains an explicit `static_cast<u32>` around `GetFormMask`. Together these source controls reproduce the target order: byte offset `r29`, normal bit `r28`, rare bit `r27`, item pointer `r26`. Removing only the normal-bit cast gives 99.85989%; removing only the rare-bit cast gives 99.842384%. Initializing or explicitly recasting the opaque pointer is unnecessary and has been removed. These lifetime and cast controls are D-0016 fake-match constructs, not recovered original helper signatures.
+
+The installed source's LF SHA-256 is `6631c8d1b99e5a0b9e90810504b87c91943463da9270ce5654df3ea5d355bced`. Compared with the baseline, `.text` retains 35,668 bytes and changes exactly 57 bytes in the corrected instruction operands. Exception records, exception indexes, all data sections, all relocation sections, and the symbol table are byte-identical. Only compiler-generated names in `.strtab` differ in addition to `.text`.
+
+The baseline and improved traces are `smallgame/collection-trace.txt` and `smallgame/collection-opaqueouter-trace.txt`. Reproduction uses `smallgame_collection_opaqueouter.py`, `smallgame_collection_maskouter.py`, `smallgame_collection_accept.py`, and `smallgame_collection_simplify.py`. The installed candidate is `smallgame/CDlgCollection/collection_simplify_0/`, with complete compiler log, object, source snapshot, and objdiff JSON. All eleven register/restrict storage-qualifier controls were unchanged at the original 99.66725%.
 
 ## Remaining probes
 
-`CDlgCollection::Calc` remains 99.66725%. A Frida allocation trace confirms that the only instruction differences are the model pointer in `r29` instead of `r26` and the loop's byte offset in `r26` instead of `r29`. The target's normal and rare form-mask values already use the correct `r28` and `r27`. Lifting the model pointer into callers, explicit byte-offset loops, full-range enum offsets, model references, wrapper storage, inline accessors, and surviving pointer identities did not produce the target ordering. A same-type model-pointer reassignment moves several additional values and scores 99.45709%; the successful void-pointer control from shadow material does not transfer to this loop. `smallgame/collection-trace.txt` and the `smallgame_collection*.py` runners preserve the new evidence.
+Before the result above, explicit byte-offset loops, full-range enum offsets, model references, wrapper storage, inline accessors, and same-scope pointer identities did not produce the target ordering. A same-type model-pointer reassignment moved several additional values and scored 99.45709%. The successful void-pointer control required the outer named-local lifetime; placing it only inside the inlined item-model loop failed.
 
-`CMsgRes::ConvertEscape` remains 96.57971%. Its loop body is unchanged; locale-address and SJIS-result scheduling in the preheader remain different. Local locale accessor helpers, extra inline depth, integer/void identity forms, and scheduling-factor controls did not solve it. These complement the prior exhaustive whole-loop helper probes in [the CLayout continuation](329-clayout-final.md#cmsgres-follow-up).
+`CMsgRes::ConvertEscape` remains 96.57971%. Its loop body is unchanged; locale-address and SJIS-result scheduling in the preheader remain different. Local locale accessor helpers, extra inline depth, integer/void identity forms, scalar-reference and class flag lifetimes, and scheduling-factor controls did not solve it. These complement the prior exhaustive whole-loop helper probes in [the CLayout continuation](329-clayout-final.md#cmsgres-follow-up).
 
 `CPlayerPii::GetShadowName` remains 88.85714%. Additional scheduling-factor, aggressive load/store scheduling, and prologue-helper controls leave the existing 84-byte result unchanged. Prior array, aggregate, ABI-view, and compiler-family investigations remain in [the player tail findings](player-shadow-tail.md).
 
-`CShadowCamera::SetupShadowModel` still has the argument-copy/field-load scheduling described in [the shadow findings](207-cshadowcamera.md#post-window-lifetime-probes). Fresh private reference-return getter headers and a reference index local reproduce the existing 97.40385% diagnostic. The remaining material-copy store occurs too early, allowing the texture multiply to reuse `r0` instead of `r5`. Typed color construction, copy/reference parameter forms, and additional material/index temporaries do not close it. No getter or shared header changes are retained.
+Before the signature/lifetime result above, fresh private reference-return getter headers and a reference index local reproduced the existing 97.40385% model diagnostic in [the shadow findings](207-cshadowcamera.md#post-window-lifetime-probes). The material-copy store still occurred too early, allowing the texture multiply to reuse `r0` instead of `r5`. Typed color construction, extra material/index temporaries, deferred field-conversion wrappers, and thirty field-reference parameter orders did not close it. Those approaches are superseded by the header-free source now installed.
 
 ## Traps
 
 - An existing wrapper with an empty user-defined destructor can match all instructions while adding exception metadata and a weak function. Compare complete object sections before retaining a scheduling-only success. The trivial local color wrapper preserves the control's metadata in this case.
 - A pointer identity's static type and declaration position can affect scheduling even when typed-pointer identities are optimized away. The successful void-pointer control is local evidence; its direct transfer to collection failed.
+- A stubborn argument schedule can come from the private callee's reconstructed parameter category. A reference color parameter exposes the target's copy lifetime here; pointer ABI equivalence alone did not distinguish it from the former by-value declaration. Retain explicit call-site and metadata evidence when renaming such a project-assigned local symbol.
+- Exact instructions and unchanged interim metadata can still preserve an old reconstruction error. The target's two Color cleanup actions established the real class-copy lifetime and superseded the interim GXColor-reference signature.
+- Excess retained RTTI strings can reveal an incorrect source-file boundary. Separating Camera's live literal pool from Ground's otherwise-discardable type metadata restores the frozen executable without suppressing RTTI or inserting copied data.
+- An opaque pointer's scope matters as well as its type. Collection's direct inner-loop `void*` conversion failed, while an outer named `void*` forwarded by reference preserved the needed register. Explicit same-type casts on two outer scalar assignments then preserved their relative priority. These are measured controls for this inlined loop, not a general allocation rule.

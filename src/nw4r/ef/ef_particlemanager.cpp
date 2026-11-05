@@ -1,3 +1,4 @@
+#define PARTICLE_MANAGER_EMISSION_LAYOUT
 #include <nw4r/ef/drawstrategy/ef_drawstrategybuilder.h>
 #include <nw4r/ef/ef_drawinfo.h>
 #include <nw4r/ef/ef_drawstrategy.h>
@@ -17,6 +18,28 @@
 
 namespace nw4r {
 namespace ef {
+
+enum CurveOffset {
+    CURVE_OFFSET_MIN = 0,
+    CURVE_OFFSET_MAX = 0xFFFFFFFF
+};
+
+inline AnimCurveNameTable* GetPostFieldNames(AnimCurveHeader* pHeader,
+                                            CurveOffset& rangeSize,
+                                            CurveOffset& randomSize) {
+    u8* pCursor = reinterpret_cast<u8*>(pHeader);
+    pCursor += pHeader->keyTable;
+    pCursor = reinterpret_cast<u8*>(reinterpret_cast<u32>(pCursor) + sizeof(AnimCurveHeader));
+    rangeSize = static_cast<CurveOffset>(pHeader->rangeTable);
+    pCursor += rangeSize;
+    randomSize = static_cast<CurveOffset>(pHeader->randomTable);
+    return reinterpret_cast<AnimCurveNameTable*>(reinterpret_cast<u32>(pCursor) + randomSize);
+}
+
+inline void GetPostFieldNameSize(AnimCurveHeader* pHeader, CurveOffset& nameSize) {
+    nameSize = static_cast<CurveOffset>(pHeader->nameTable);
+}
+
 math::MTX34 ParticleManager::smDrawMtxPMtoEM;
 
 s32 ParticleManager::smMtxInvId = 0;
@@ -155,6 +178,8 @@ void ParticleManager::Calc() {
         (mtxEmToGlb._10 + mtxEmToGlb._11) + mtxEmToGlb._12,
         (mtxEmToGlb._20 + mtxEmToGlb._21) + mtxEmToGlb._22);
 
+    f32 emitterScale = 0.57735026f * math::VEC3Len(&axisSum);
+
     math::MTX34 mtxEmToLoc;
     math::MTX34Mult(&mtxEmToLoc, &mtxGlbToLoc, &mtxEmToGlb);
 
@@ -169,15 +194,15 @@ void ParticleManager::Calc() {
     math::MTX34 mtxLocToGlbNoTrans;
     math::MTX34Inv(&mtxLocToGlbNoTrans, &mtxGlbToLocNoTrans);
 
-    math::MTX34 mtxEmToLocNoTrans = mtxEmToLoc;
-    mtxEmToLocNoTrans._03 = 0.0f;
-    mtxEmToLocNoTrans._13 = 0.0f;
-    mtxEmToLocNoTrans._23 = 0.0f;
-
     math::MTX34 mtxLocToEmNoTrans = mtxLocToEm;
     mtxLocToEmNoTrans._03 = 0.0f;
     mtxLocToEmNoTrans._13 = 0.0f;
     mtxLocToEmNoTrans._23 = 0.0f;
+
+    math::MTX34 mtxEmToLocNoTrans = mtxEmToLoc;
+    mtxEmToLocNoTrans._03 = 0.0f;
+    mtxEmToLocNoTrans._13 = 0.0f;
+    mtxEmToLocNoTrans._23 = 0.0f;
 
     Particle* pNext;
 
@@ -216,10 +241,11 @@ void ParticleManager::Calc() {
         math::VEC3 addPos(0.0f, 0.0f, 0.0f);
         BOOL hasPostField = false;
         detail::ParticlePostFieldTransform postTransform;
+        u16 i;
         PostFieldInfo* pPostField;
         EmitterResource* pPostResource = nullptr;
 
-        for (u16 i = pIt->mTick == 0 ? 0 : mResource->NumPtclInitTrack();
+        for (i = pIt->mTick == 0 ? 0 : mResource->NumPtclInitTrack();
              i < mResource->NumPtclTrack(); i++) {
             u8* pTrack = mResource->GetPtclTrack(i);
             AnimCurveHeader* pHeader = reinterpret_cast<AnimCurveHeader*>(pTrack);
@@ -314,7 +340,7 @@ void ParticleManager::Calc() {
                         mManagerEM->CalcGlobalMtx(&emitterMtx);
                         math::VEC3 origin(emitterMtx._03, emitterMtx._13, emitterMtx._23);
                         math::VEC3Sub(&affect, &origin, &mManagerEM->mPrevGlobalTranslate);
-                        affect *= field.mPower;
+                        math::VEC3Scale(&affect, &affect, field.mPower);
                     }
                     break;
                 }
@@ -327,7 +353,7 @@ void ParticleManager::Calc() {
                     math::VEC3Transform(&affect, &mtxGlbToLocNoTrans, &affect);
                     break;
                 case 3:
-                    affect *= 0.57735026f * math::VEC3Len(&axisSum);
+                    affect *= emitterScale;
                     math::VEC3Transform(&affect, &mtxGlbToLocNoTrans, &affect);
                     break;
                 }
@@ -343,11 +369,14 @@ void ParticleManager::Calc() {
             }
             case detail::POST_FIELD_CURVE:
                 if (pHeader->infoTable != 0) {
-                    AnimCurveNameTable* pNames = reinterpret_cast<AnimCurveNameTable*>(
-                        pTrack + pHeader->keyTable + sizeof(AnimCurveHeader) +
-                        pHeader->rangeTable + pHeader->randomTable);
+                    CurveOffset nameSize;
+                    CurveOffset rangeSize;
+                    CurveOffset randomSize;
+                    AnimCurveNameTable* pNames =
+                        GetPostFieldNames(pHeader, rangeSize, randomSize);
+                    GetPostFieldNameSize(pHeader, nameSize);
                     pPostField = reinterpret_cast<PostFieldInfo*>(
-                        reinterpret_cast<u8*>(pNames) + pHeader->nameTable);
+                        reinterpret_cast<u8*>(pNames) + nameSize);
                     memcpy(&postTransform, pPostField, sizeof(postTransform));
                     if (pHeader->nameTable > 4) {
                         pPostResource = reinterpret_cast<EmitterResource*>(pNames->datas[pPostField->mEffectIndex].work);

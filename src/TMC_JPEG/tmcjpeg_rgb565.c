@@ -11,18 +11,18 @@ static s32 ConvertRGB565EdgeMCU411(TMCJPEGMCUBuffer* buffer, TMCJPEGEncoder* enc
 static s32 ConvertRGB565EdgeMCU422(TMCJPEGMCUBuffer* buffer, TMCJPEGEncoder* enc, s32 x, s32 y);
 static s32 ConvertRGB565EdgeMCU420(TMCJPEGMCUBuffer* buffer, TMCJPEGEncoder* enc, s32 x, s32 y);
 
-typedef struct TMCJPEGTileCount {
+typedef struct TMCJPEGValue {
     int value;
-} TMCJPEGTileCount;
+} TMCJPEGValue;
 
-static inline TMCJPEGTileCount MakeTileCount(int value)
+static inline TMCJPEGValue MakeValue(int value)
 {
-    TMCJPEGTileCount count;
-    count.value = value;
-    return count;
+    TMCJPEGValue result;
+    result.value = value;
+    return result;
 }
 
-static inline int AddTileCounts(TMCJPEGTileCount lhs, TMCJPEGTileCount rhs)
+static inline int AddValues(TMCJPEGValue lhs, TMCJPEGValue rhs)
 {
     return lhs.value + rhs.value;
 }
@@ -47,7 +47,7 @@ s32 TMCJPEGSetupRGB565(TMCJPEGState* state, TMCJPEGEncoder* enc)
     }
 
     enc->alignedWidth = (enc->width / 4 + (enc->width % 4 != 0)) * 4;
-    enc->alignedHeight = AddTileCounts(MakeTileCount(enc->height / 4), MakeTileCount(enc->height % 4 != 0)) * 4;
+    enc->alignedHeight = AddValues(MakeValue(enc->height / 4), MakeValue(enc->height % 4 != 0)) * 4;
     return 0;
 }
 

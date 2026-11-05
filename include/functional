@@ -255,6 +255,9 @@ private:
 };
 struct unused_argument;
 
+#if defined(CPII_EMISSION_LAYOUT)
+static
+#endif
 inline bool is_null(...) {
     return false;
 }
@@ -618,6 +621,9 @@ public:
             }
         }
     }
+#if defined(CPII_EMISSION_LAYOUT)
+    ~function();
+#else
     ~function() {
         if (f_ == local()) {
             f_->~base();
@@ -625,6 +631,7 @@ public:
             delete f_;
         }
     }
+#endif
 
     function& operator=(const function& r) {
         function tmp(r);

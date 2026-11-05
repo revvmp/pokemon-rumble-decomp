@@ -2,7 +2,7 @@
 
 ## Current status
 
-Roadmap Phases 1 to 3 are complete and Phase 4 is active. The latest verified build matches the frozen main.dol exactly. It links 2,699,304 of 3,082,232 code bytes (87.57628%) from 876 Matching units; 24 real functions remain below 100%. Original split fallbacks still supply the remaining code and data. See the latest session below and [matching requirements](MATCHING.md).
+Roadmap Phases 1 to 3 are complete and Phase 4 is active. The latest verified build matches the frozen main.dol exactly. It links 2,751,440 of 3,082,252 code bytes (89.2672%) from 884 Matching units; 12 real functions remain below 100%. Original split fallbacks still supply the remaining code and data. See the latest session below and [matching requirements](MATCHING.md).
 
 | Milestone | State | Evidence or prerequisite |
 | --- | --- | --- |
@@ -14,7 +14,7 @@ Roadmap Phases 1 to 3 are complete and Phase 4 is active. The latest verified bu
 | Toolchain identification | Identified per library | RVL_SDK Wii/1.0; MSL and Runtime Wii/1.1 or 1.3 with `-func_align 4`; NW4R Wii/1.0 or 1.1; F-0007 |
 | Reproducible game build | Achieved | Two clean builds byte-identical; F-0010 |
 | Exact executable match | Achieved for `main.dol` | Verified; remaining original split fallbacks are tracked separately |
-| Source reconstruction | Started | 876 Matching units of 1,385 current units; see ledger |
+| Source reconstruction | Started | 884 Matching units of 1,389 current units; see ledger |
 | Full release match | Pending | Boot loader, data contents, and WAD packaging outside current scope |
 
 ## Current continuation: source-link acceptance
@@ -25,9 +25,17 @@ Main and CBattleRoyalBox subsequently passed full source-link verification, addi
 
 ## Latest function gains
 
-The real unmatched tail is now 24, down 96 from its initial 120. Matched code is 3,035,104/3,082,232 bytes (98.47098%). The latest six exact functions are CLayout FindAnimation, CShadowCamera SetupShadowMaterial, both UIMenuItem sort variants in CPiiListFilterSort, and the RGBA8/RGB565 JPEG setup routines. Verified source-link coverage remains distinct from function matching.
+The real unmatched tail is now 12, down from the initial 120. Matched code is 3,054,792/3,082,252 bytes (99.10909%). This checkpoint completes the collection Calc, CPii snapshot swap, filter Sort caller, three remote-memory functions, shadow-model setup, layout pane lookup, JPEG 4:1:1 converter, texture curve, particle calculation and archive-font analysis. Verified source-link coverage remains separate from function matching.
 
 Several link failures were incorrect inferred identities: original vtable relocations prove swapped destructor names in CGameSession, errmsg and CNoticeDisplay. Correcting them removed unnecessary source-fragment experiments. Errmsg also required recovering its NErrMsg namespace from embedded type names, preserving two separately compiled float pools, and the evidenced16-byte start alignment of the following homebutton function. Frozen hashes remain unchanged.
+
+## 2026-11-04: Twelve-function checkpoint
+
+CShadowCamera, CSimpleGround, CPii, CPiiBox, CRemoteMemory, ArchiveFontBase, ParticleManager and RGBA8 now pass full source-link verification. The entire RVL_SDK category is matched and linked from source. Fresh native ninja exited zero, frozen main.dol verification passed, and the original-address audit found no previously exact function regressions or missing exact functions. All 1,389 native-link input aliases remain byte-identical to their selected objects. Linked data is 1,681,464/1,788,746 bytes (94.00239%).
+
+Separate Camera/Ground and CPii/Box source boundaries account for the new unit and alignment inventory; relative to the prior checkpoint the denominator gains 20 code-padding bytes and loses 23 data-padding bytes. No executable bytes or expected hashes changed. CPii's multiplier and CLayout's archive-root/motion literals were corrected from original relocation-backed data. CLayout has all 171 exact function bodies and exception records but remains NonMatching pending ten boolean-literal relocation bytes; CModel, CDlgPiiSelector and CDlgCollection also await final source-link acceptance.
+
+The shared-header audit caught and fixed two ParticleManager-related caller regressions that a comparison against an already edited checkout had missed. The reusable lesson is recorded in AGENTS.md and [the particle/font findings](re/findings/particle-font-native-tail-20261104.md#traps). This checkpoint uses an incremental production build; the preceding 24-function checkpoint has the latest repeated clean-build proof. See [validation](VALIDATION.md#twelve-function-checkpoint).
 
 ## Progress images
 

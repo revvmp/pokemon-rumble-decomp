@@ -13,21 +13,36 @@ static s32 ConvertRGBA8EdgeMCU411(TMCJPEGMCUBuffer* buffer, TMCJPEGEncoder* enc,
 static s32 ConvertRGBA8EdgeMCU422(TMCJPEGMCUBuffer* buffer, TMCJPEGEncoder* enc, s32 x, s32 y);
 static s32 ConvertRGBA8EdgeMCU420(TMCJPEGMCUBuffer* buffer, TMCJPEGEncoder* enc, s32 x, s32 y);
 
-typedef struct TMCJPEGTileCount {
+typedef struct TMCJPEGValue {
     int value;
-} TMCJPEGTileCount;
+} TMCJPEGValue;
 
-static inline TMCJPEGTileCount MakeTileCount(int value)
+static inline TMCJPEGValue MakeValue(int value)
 {
-    TMCJPEGTileCount count;
-    count.value = value;
-    return count;
+    TMCJPEGValue result;
+    result.value = value;
+    return result;
 }
 
-static inline int AddTileCounts(TMCJPEGTileCount lhs, TMCJPEGTileCount rhs)
+static inline int AddValues(TMCJPEGValue lhs, TMCJPEGValue rhs)
 {
     return lhs.value + rhs.value;
 }
+
+static inline int SumRGBA8Luma(TMCJPEGValue ar, TMCJPEGValue gb)
+{
+    return (ar.value & 0xFF) * 77 + (gb.value >> 8) * 150 + (gb.value & 0xFF) * 29;
+}
+
+static inline int AddValuesReversed(TMCJPEGValue rhs, TMCJPEGValue lhs)
+{
+    return lhs.value + rhs.value;
+}
+
+typedef enum TMCJPEGTexelValue {
+    TMCJPEG_TEXEL_ZERO = 0,
+    TMCJPEG_TEXEL_MAX = 0xFFFF
+} TMCJPEGTexelValue;
 
 s32 TMCJPEGSetupRGBA8(TMCJPEGState* state, TMCJPEGEncoder* enc)
 {
@@ -49,12 +64,15 @@ s32 TMCJPEGSetupRGBA8(TMCJPEGState* state, TMCJPEGEncoder* enc)
     }
 
     enc->alignedWidth = (enc->width / 4 + (enc->width % 4 != 0)) * 4;
-    enc->alignedHeight = AddTileCounts(MakeTileCount(enc->height / 4), MakeTileCount(enc->height % 4 != 0)) * 4;
+    enc->alignedHeight = AddValues(MakeValue(enc->height / 4), MakeValue(enc->height % 4 != 0)) * 4;
     return 0;
 }
 
 static s32 ConvertRGBA8MCU411(TMCJPEGMCUBuffer* buffer, TMCJPEGEncoder* enc, s32 x, s32 y)
 {
+    TMCJPEGValue redContribution;
+    TMCJPEGTexelValue secondGreen;
+    TMCJPEGTexelValue secondBlue;
     const u16* image = (const u16*)enc->source;
     u8* dstY = buffer->pixels;
     s32 r, g, b;
@@ -65,7 +83,8 @@ static s32 ConvertRGBA8MCU411(TMCJPEGMCUBuffer* buffer, TMCJPEGEncoder* enc, s32
     s32 xEnd;
     s32 height;
     s32 yEnd;
-    u16 ar, gb;
+    TMCJPEGTexelValue texel;
+    u16 gb;
     u32 tileStride = enc->alignedWidth / 4 * 2;
 
     width = 32 / enc->scale;
@@ -75,20 +94,29 @@ static s32 ConvertRGBA8MCU411(TMCJPEGMCUBuffer* buffer, TMCJPEGEncoder* enc, s32
 
     for (; y < yEnd; y++) {
         for (px = x; px < xEnd; px += 4) {
-            ar = RGBA8_AR(image, px, y, tileStride);
+            texel = RGBA8_AR(image, px, y, tileStride);
             gb = RGBA8_GB(image, px, y, tileStride);
-            r = ar & 0xFF;
+            r = texel & 0xFF;
             g = gb >> 8;
             b = gb & 0xFF;
             dstY[0] = (r * 77 + g * 150 + b * 29 + 128) >> 8;
             *dstCb++ = ((b - dstY[0]) * 144 + 128) >> 8;
             *dstCr++ = ((r - dstY[0]) * 183 + 128) >> 8;
 
-            dstY[1] = RGBA8_LUMA(image, px + 1, y, tileStride);
+            texel = image[(y & 3) * 4 + ((u32)((y >> 2) * tileStride) + ((px + 1) >> 2) * 2) * 16 + ((px + 1) & 3)];
+            texel &= 0xFF;
+            secondBlue = (TMCJPEGTexelValue)(RGBA8_GB(image, px + 1, y, tileStride) & 0xFF);
+            secondGreen = (TMCJPEGTexelValue)(RGBA8_GB(image, px + 1, y, tileStride) >> 8);
+            redContribution = MakeValue(texel * 77);
+            dstY[1] = (AddValues(MakeValue(AddValuesReversed(MakeValue(secondGreen * 150), redContribution)),
+                                 MakeValue(secondBlue * 29)) + 128) >> 8;
 
-            dstY[2] = RGBA8_LUMA(image, px + 2, y, tileStride);
+            texel = image[(y & 3) * 4 + ((u32)((y >> 2) * tileStride) + ((px + 2) >> 2) * 2 + 1) * 16 + ((px + 2) & 3)];
+            dstY[2] = (SumRGBA8Luma(MakeValue(RGBA8_AR(image, px + 2, y, tileStride)), MakeValue(texel)) + 128) >> 8;
 
-            dstY[3] = RGBA8_LUMA(image, px + 3, y, tileStride);
+            dstY[3] = ((image[(y & 3) * 4 + ((u32)((y >> 2) * tileStride) + ((px + 3) >> 2) * 2) * 16 + ((px + 3) & 3)] & 0xFF) * 77
+                       + (RGBA8_GB(image, px + 3, y, tileStride) >> 8) * 150
+                       + (RGBA8_GB(image, px + 3, y, tileStride) & 0xFF) * 29 + 128) >> 8;
 
             dstY += 4;
         }

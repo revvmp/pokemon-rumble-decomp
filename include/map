@@ -278,7 +278,7 @@ public:
     void destroy(node* pNode);
 
 private:
-#if defined(CFILEDATA_EMISSION_LAYOUT) || defined(BWORLD_EMISSION_LAYOUT)
+#if defined(CFILEDATA_EMISSION_LAYOUT) || defined(BWORLD_EMISSION_LAYOUT) || defined(CLAYOUT_EMISSION_LAYOUT)
     template <typename, typename> friend struct map_leaf_search;
 #endif
     struct anchor { anchor() : left_(nullptr) {} tree_node_base* left_; };
@@ -486,7 +486,11 @@ private:
     value_type& find_or_insert(const key_type& rKey) { return find_or_insert_impl(tree_, rKey); }
     template <typename Tree> static value_type& find_or_insert_impl(Tree& rTree, const key_type& rKey) { return rTree.find_or_insert(rKey); }
     typedef typename Metrowerks::select<Metrowerks::is_POD<T>::value || !Metrowerks::is_POD<Key>::value, map_base, tree_type>::type deferred_tree_type;
+#if defined(CLAYOUT_EMISSION_LAYOUT)
+    static value_type& find_or_insert_impl(deferred_tree_type& rTree, const key_type& rKey) { return rTree.find_or_insert(rKey); }
+#else
     static value_type& find_or_insert_impl(deferred_tree_type& rTree, const key_type& rKey);
+#endif
     native_iterator erase_impl(native_iterator position, Metrowerks::int2type<1>) { return iterator(tree_.erase_next(position)); }
     native_iterator erase_impl(native_iterator position, Metrowerks::int2type<0>) { return tree_.erase(position); }
     tree_type tree_;
@@ -499,8 +503,10 @@ typename map_base<Key, T, Compare, Allocator>::native_iterator map_base<Key, T, 
     return erase_impl(position, tag);
 }
 
+#if !defined(CLAYOUT_EMISSION_LAYOUT)
 template <typename Key, typename T, typename Compare, typename Allocator>
 typename map_base<Key, T, Compare, Allocator>::value_type& map_base<Key, T, Compare, Allocator>::find_or_insert_impl(deferred_tree_type& rTree, const key_type& rKey) { return rTree.find_or_insert(rKey); }
+#endif
 
 }
 

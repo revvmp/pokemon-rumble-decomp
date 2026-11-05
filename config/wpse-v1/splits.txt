@@ -423,13 +423,20 @@ game/CPauseMenu.cpp:
 	.sdata2     start:0x804B9FE0 end:0x804BA020
 
 game/CPii.cpp:
-	extab       start:0x800229AC end:0x80023AA0
-	extabindex  start:0x80049EC0 end:0x8004A190
-	.text       start:0x800DCA10 end:0x800E1AD0
-	.rodata     start:0x80352C60 end:0x80352CA0
-	.data       start:0x803A7F98 end:0x803A8A68
-	.sdata      start:0x804B6F70 end:0x804B7040
+	extab       start:0x800229AC end:0x800236E8
+	extabindex  start:0x80049EC0 end:0x8004A0DC
+	.text       start:0x800DCA10 end:0x800E01F8
+	.rodata     start:0x80352C60 end:0x80352C9C
+	.data       start:0x803A7F98 end:0x803A892E
+	.sdata      start:0x804B6F70 end:0x804B7028
 	.sdata2     start:0x804BA020 end:0x804BA058
+
+game/CPiiBox.cpp:
+	extab       start:0x800236E8 end:0x80023AA0
+	extabindex  start:0x8004A0DC end:0x8004A190
+	.text       start:0x800E0200 end:0x800E1AD0
+	.data       start:0x803A8930 end:0x803A8A62
+	.sdata      start:0x804B7028 end:0x804B7040
 
 game/CPiiCollectionBox.cpp:
 	extab       start:0x80023AA0 end:0x80023E58
@@ -546,13 +553,20 @@ game/CSaveManager.cpp:
 	.sbss       start:0x804B9070 end:0x804B9080
 
 game/CShadowCamera.cpp:
-	extab       start:0x80028E54 end:0x800290E8
-	extabindex  start:0x8004BC9C end:0x8004BD44
-	.text       start:0x8010C490 end:0x8010DDD8
-	.rodata     start:0x80354E20 end:0x80354E38
-	.data       start:0x803ADA30 end:0x803ADD58
-	.sdata      start:0x804B7358 end:0x804B7368
+	extab       start:0x80028E54 end:0x80028F5C
+	extabindex  start:0x8004BC9C end:0x8004BCFC
+	.text       start:0x8010C490 end:0x8010D8D4
+	.data       start:0x803ADA30 end:0x803ADC89
+	.sdata      start:0x804B7358 end:0x804B7360
 	.sdata2     start:0x804BA0D8 end:0x804BA108
+
+game/CSimpleGround.cpp:
+	extab       start:0x80028F5C end:0x800290E8
+	extabindex  start:0x8004BCFC end:0x8004BD44
+	.text       start:0x8010D8E0 end:0x8010DDD8
+	.rodata     start:0x80354E20 end:0x80354E34
+	.data       start:0x803ADC90 end:0x803ADD58
+	.sdata      start:0x804B7360 end:0x804B7368
 
 game/MapPiiTable.cpp:
 	extab       start:0x800290E8 end:0x800292DC

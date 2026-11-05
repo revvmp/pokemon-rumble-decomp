@@ -538,7 +538,7 @@ public:
     }
 
     pair<iterator, bool> insert_one(const value_type& rValue);
-#if defined(CGAMESESSION_EMISSION_LAYOUT)
+#if defined(CGAMESESSION_EMISSION_LAYOUT) || defined(CLAYOUT_EMISSION_LAYOUT)
     template <typename Key> pair<iterator, bool> insert_key(const Key& rKey);
 #else
     template <typename Key> pair<iterator, bool> insert_key(const Key& rKey) {
@@ -657,7 +657,7 @@ tree_imp<T, Compare, Allocator>::~tree_imp() {
 }
 
 
-#if (!defined(GAME_SCRIPTWORLDOBJ_SEPARATE_TEMPLATES) || defined(GAME_SCRIPTWORLDOBJ_MAIN)) && !defined(CGAMESESSION_EMISSION_LAYOUT)
+#if (!defined(GAME_SCRIPTWORLDOBJ_SEPARATE_TEMPLATES) || defined(GAME_SCRIPTWORLDOBJ_MAIN)) && !defined(CGAMESESSION_EMISSION_LAYOUT) && !defined(CLAYOUT_EMISSION_LAYOUT)
 template <typename T, typename Compare, typename Allocator>
 template <typename Key>
 tree_node_base* tree_imp<T, Compare, Allocator>::find_leaf(const Key& rKey, node*& rpPred, bool& rLeft, bool& rLeftmost) {

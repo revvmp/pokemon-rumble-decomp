@@ -211,3 +211,15 @@ This includes the new source data tables, native source-fragment paths, BWorld s
 ## 41-function continuation
 
 The current native build exits0 and the frozen main.dol verifier passes after BWorld, homebutton and TextWriterBase source linkage, the MSL floating constants and additional exact collection, layout, result and engine functions. Source-linked code is2,642,816/3,082,232bytes (85.743576%), and linked data is1,643,397bytes (91.870094%). The41-function tail and original-data/code fallbacks remain explicit. This is incremental acceptance; the latest repeated clean evidence is the50-function checkpoint above.
+
+## Twelve-function checkpoint
+
+The 2026-11-04 incremental production workflow ran configure.py and ninja, including the CPii/CPiiBox and Camera/Ground source splits and all affected shared-header consumers. Ninja exited0 and the formal frozen-manifest verifier returned PASS. No verification was accepted after the two intermediate split failures; their inferred metadata extents were corrected before rebuilding. The original-address checkpoint audit reports12 real mismatches, no previously exact regressions or missing exact functions, and1,389 byte-identical native-link input aliases. No unit tests were added.
+
+| Artifact | Bytes | SHA-256 |
+| --- | --- | --- |
+| main.dol | 4094880 | `ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da` |
+| main.elf | 6128856 | `42b95b929ed301e9781dd376dbfc48a3ee9f49e8070078c2522cd1a7bfee78d5` |
+| report.json | 4770865 | `be9edf274722607286a96c43eed069bde9f49dd7b0d7b9a6befcc18204cb0732` |
+
+Matched code is3,054,792/3,082,252 bytes; source-linked code is2,751,440 bytes; linked data is1,681,464/1,788,746 bytes. There are884 Matching units of1,389. Source coverage is not complete. This is an incremental checkpoint; the preceding section records the last two fully regenerated clean builds. The current scope remains only main.dol.

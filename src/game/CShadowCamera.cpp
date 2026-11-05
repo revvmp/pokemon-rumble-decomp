@@ -1,9 +1,4 @@
 #include <game/CShadowCamera.h>
-#include <game/CSimpleGround.h>
-#include <game/CFiber.h>
-#include <game/CPpuEngine.h>
-#include <game/FileList.h>
-#include <game/VideoTiming.h>
 #include <game/BWorld.h>
 #include <game/CModel.h>
 #include <game/MathUtil.h>
@@ -13,6 +8,7 @@
 #include <nw4r/g3d/g3d_scnroot.h>
 #include <nw4r/math/math_geometry.h>
 #include <nw4r/math/math_triangular.h>
+#include <nw4r/ut/ut_color.h>
 #include <revolution/gx/GXTexture.h>
 #include <revolution/os/OSCache.h>
 #include <revolution/os/OSError.h>
@@ -202,14 +198,9 @@ bool CShadowCamera::CalcLightProjection() {
     return true;
 }
 
-struct ShadowMaterialColor : public GXColor {
-    ShadowMaterialColor(const GXColor& rColor) {
-        *reinterpret_cast<u32*>(this) = *reinterpret_cast<const u32*>(&rColor);
-    }
-};
-
 static void SetupShadowMaterial(nw4r::g3d::ResMat mat, nw4r::g3d::ScnMdl::CopiedMatAccess& rAccess,
-                                const COffScreenTexture& rTexture, GXColor color, int cameraIndex, bool useTextureAlpha) {
+                                const COffScreenTexture& rTexture, nw4r::ut::Color color, int cameraIndex,
+                                bool useTextureAlpha) {
     u8 addedStages = useTextureAlpha ? 2 : 1;
 
     nw4r::g3d::ResGenMode genMode = rAccess.GetResGenMode(false);
@@ -248,7 +239,7 @@ static void SetupShadowMaterial(nw4r::g3d::ResMat mat, nw4r::g3d::ScnMdl::Copied
     genMode.GXSetNumTevStages(numStages);
     genMode.GXSetNumTexGens(texCoord + 1);
 
-    tevColor.GXSetTevKColor(GX_KCOLOR3, ShadowMaterialColor(color));
+    tevColor.GXSetTevKColor(GX_KCOLOR3, color);
     tevColor.DCStore(false);
 
     texCoordGen.GXSetTexCoordGen2(static_cast<GXTexCoordID>(texCoord), GX_TG_MTX3x4, GX_TG_POS, GX_FALSE, postMtx);
@@ -294,10 +285,10 @@ static void SetupShadowMaterial(nw4r::g3d::ResMat mat, nw4r::g3d::ScnMdl::Copied
 }
 
 static inline void ApplyShadowMaterial(CShadowCamera* pCamera, nw4r::g3d::ResMat mat,
-                                       nw4r::g3d::ScnMdl::CopiedMatAccess& rAccess, GXColor color) {
-    int index = pCamera->GetIndex();
-    SetupShadowMaterial(mat, rAccess, pCamera->GetTexture(pCamera->GetTextureLevels() - 1), color, index,
-                        pCamera->IsTextureAlpha());
+                                      nw4r::g3d::ScnMdl::CopiedMatAccess& rAccess, const nw4r::ut::Color& rColor,
+                                      const bool& rTextureAlpha) {
+    SetupShadowMaterial(mat, rAccess, pCamera->GetTexture(pCamera->GetTextureLevels() - 1), rColor,
+                        pCamera->GetIndex(), rTextureAlpha);
 }
 
 void CShadowCamera::SetupShadowModel(std::tr1::shared_ptr<CModel> model) {
@@ -323,7 +314,7 @@ void CShadowCamera::SetupShadowModel(std::tr1::shared_ptr<CModel> model) {
         }
 
         nw4r::g3d::ScnMdl::CopiedMatAccess access(pScnMdl, i);
-        ApplyShadowMaterial(this, mat, access, color);
+        ApplyShadowMaterial(this, mat, access, color, mUseTextureAlpha);
     }
 }
 
@@ -354,47 +345,4 @@ void CShadowCamera::SelectLight() {
     mLightSetIndex = 0;
     mLightIndex = 0;
     mAutoSelectLight = true;
-}
-
-CSimpleGround::CSimpleGround(u32 type) : BModelObj(type | TYPE), mReserved(0) {}
-
-CSimpleGround::~CSimpleGround() {}
-
-void CSimpleGround::Initialize(bool background) {}
-
-void CSimpleGround::LoadScript(const char* pName, int mode, const std::tr1::shared_ptr<CPpuEnv>& rEnvironment) {
-    mPpuEngine.reset(new CPpuEngine);
-    mPpuEngine->Load(this, pName, mode, rEnvironment);
-}
-
-void CSimpleGround::LoadModel(const char* pName, bool background) {
-    std::tr1::shared_ptr<CModel> model(new CModel);
-
-    void* pEntry;
-    std::tr1::shared_ptr<FileList> fileList = LoadFileList(&pEntry, pName, 0, background, nullptr);
-
-    CModel::LoadParams params = {nullptr, false, false, 0xD15, 1, nullptr};
-    params.mpFileNames = static_cast<const char**>(pEntry);
-    if (!model->Load(params, background)) {
-        TerminateFiber(1);
-        return;
-    }
-
-    model->GetScnObj()->SetPriorityDrawXlu(1);
-    ChangeModel(model, 1);
-    gFrameTimingReset = true;
-}
-
-void CSimpleGround::Calc() {
-    BModelObj::Calc();
-    if (mPpuEngine) {
-        mPpuEngine->Calc();
-    }
-}
-
-void CSimpleGround::OnLeaveWorld(BWorld* pWorld) {
-    BModelObj::OnLeaveWorld(pWorld);
-    if (mPpuEngine) {
-        mPpuEngine->Reset();
-    }
 }

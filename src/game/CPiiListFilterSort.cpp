@@ -228,6 +228,7 @@ void CPiiListFilterSort::Filter(std::tr1::shared_ptr<CUIList> pList, PiiItemVect
     }
 }
 
+#pragma c9x_alias_by_type on
 void CPiiListFilterSort::Sort(PiiItemVector& rItems, int player) {
     typedef bool (*Comparator)(const PiiItemPtr&, const PiiItemPtr&);
     Comparator comparators[7] = {CompareFavoriteFirst, CompareBPDescending, CompareBPAscending, CompareNewest, CompareOldest,
@@ -254,6 +255,7 @@ void CPiiListFilterSort::Sort(PiiItemVector& rItems, int player) {
         }
     }
 }
+#pragma c9x_alias_by_type reset
 #pragma dont_inline reset
 
 bool CPiiListFilterSort::ShowSortMenu(std::tr1::shared_ptr<CUIManager> pManager, int player, PiiItemVector& rItems,

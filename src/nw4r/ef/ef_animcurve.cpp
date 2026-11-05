@@ -738,13 +738,13 @@ void AnimCurveExecuteRotate(u8* pCmdList, f32* pTarget, u32 tick, u16 seed, u32 
     }
 }
 
-void AnimCurveExecuteTexture(u8* pCmdList, Particle* pParticle, u32 tick, u16 seed, u32 life) {
+void AnimCurveExecuteTexture(u8* pCommandList, Particle* pParticle, u32 tick, u16 seed, u32 life) {
+    u8* pCmdList = reinterpret_cast<u8*>(reinterpret_cast<u32>(pCommandList));
 
     u32 resDiv;
     s32 idx;
     detail::TextureCurveKey keyValue;
     u16 frame;
-    bool final;
     u32 ch;
     TextureData** pChannel;
 
@@ -753,7 +753,121 @@ void AnimCurveExecuteTexture(u8* pCmdList, Particle* pParticle, u32 tick, u16 se
     const u8* pRanges = pKeys + pHeader->keyTable;
     const u8* pRandomTable = pRanges + pHeader->rangeTable;
     const u8* pNameTable = pRandomTable + pHeader->randomTable;
-    frame = detail::CalcFrameStep(pHeader, tick, life, resDiv, final);
+    do {
+        u32 flag = pHeader->processFlag;
+        u32 fittingPeriod;
+        u32 infiniteFlag = flag & AnimCurveHeader::PROC_FLAG_INFLOOP;
+        resDiv = 0;
+
+        if (!infiniteFlag &&
+            pHeader->loopCount <= 1) {
+
+            if (!(flag & AnimCurveHeader::PROC_FLAG_FITTING)) {
+                if (tick >= pHeader->frameLength) {
+                    frame = pHeader->frameLength;
+                    break;
+                }
+                frame = tick;
+                break;
+            }
+
+            frame = pHeader->frameLength * tick / life;
+            break;
+        }
+
+        if (!(flag & AnimCurveHeader::PROC_FLAG_FITTING)) {
+            u32 frameLength = pHeader->frameLength;
+
+            if (frameLength <= 1 || !(flag & AnimCurveHeader::PROC_FLAG_TURN)) {
+                resDiv = tick / frameLength;
+
+                if (!infiniteFlag &&
+                    resDiv >= pHeader->loopCount) {
+                    resDiv = static_cast<u8>(pHeader->loopCount - 1);
+                    frame = frameLength;
+                    break;
+                }
+
+                frame = tick - resDiv * frameLength;
+                break;
+            }
+
+            u32 period = frameLength - 1;
+            resDiv = tick / period;
+
+            if (!infiniteFlag &&
+                resDiv >= pHeader->loopCount) {
+                u16 frameResult;
+                if (pHeader->loopCount % 2 == 0) {
+                    frameResult = 0;
+                } else {
+                    frameResult = static_cast<u16>(period);
+                }
+                resDiv = static_cast<u8>(pHeader->loopCount - 1);
+                frame = frameResult;
+                break;
+            }
+
+            if (resDiv % 2 == 0) {
+                frame = tick - resDiv * period;
+                break;
+            }
+            frame = period * (resDiv + 1) - tick;
+            break;
+        }
+
+        if (tick >= life) {
+            u16 frameResult;
+            if (!(flag & AnimCurveHeader::PROC_FLAG_TURN) ||
+                pHeader->loopCount % 2 != 0) {
+                frameResult = pHeader->frameLength;
+            } else {
+                frameResult = 0;
+            }
+            resDiv = static_cast<u8>(pHeader->loopCount - 1);
+            frame = frameResult;
+            break;
+        }
+
+        u32 frameLength = pHeader->frameLength;
+
+        if (frameLength <= 1 || !(flag & AnimCurveHeader::PROC_FLAG_TURN)) {
+            f32 scale = pHeader->loopCount *
+                        (static_cast<f32>(frameLength) / static_cast<f32>(life));
+
+            resDiv = tick * scale / frameLength;
+            frame = tick * scale - resDiv * frameLength;
+            break;
+        }
+
+        u8 loopCount;
+        fittingPeriod = frameLength - 1;
+        loopCount = pHeader->loopCount;
+
+        f32 scale =
+            (1.0f + static_cast<f32>(static_cast<int>(fittingPeriod)) * loopCount) / life;
+        u32 pos = tick * scale;
+        resDiv = pos / fittingPeriod;
+
+        if (resDiv >= loopCount) {
+            u16 frameResult;
+            if (loopCount % 2 == 0) {
+                frameResult = 0;
+            } else {
+                frameResult = static_cast<u16>(fittingPeriod);
+            }
+            resDiv = static_cast<u8>(loopCount - 1);
+            frame = frameResult;
+            break;
+        }
+
+        if (resDiv % 2 == 0) {
+            frame = pos - resDiv * fittingPeriod;
+            break;
+        }
+        frame = fittingPeriod * (resDiv + 1) - pos;
+        break;
+    } while (false);
 
     switch (pHeader->kindType) {
     case 'h':

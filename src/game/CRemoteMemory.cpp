@@ -58,7 +58,14 @@ OSAlarm sAlarms[5];
 u8* sThreadStack;
 bool sInitialized;
 
+void OnRetryAlarm(OSAlarm* pAlarm, OSContext* pContext);
+void OnPadConnection(long channel, long result);
+void OnRead(long channel, long result);
+void OnWrite(long channel, long result);
+void OnReadBack(long channel, long result);
+
 u32 FindValidBlock(RemoteDataBlock* pBlocks) {
+    pBlocks = static_cast<RemoteDataBlock*>(pBlocks);
     RemoteDataBlock* pSecond = &pBlocks[1];
     if (pBlocks->mGeneration != pSecond->mGeneration) {
         if (pBlocks->IsValid()) {
@@ -78,8 +85,32 @@ u32 FindValidBlock(RemoteDataBlock* pBlocks) {
     return 3;
 }
 
-void OnRetryAlarm(OSAlarm* pAlarm, OSContext*) {
-    OSSendMessage(&sMessageQueue, OSGetAlarmUserData(pAlarm), 0);
+struct RemoteBufferAddress {
+    u8* mpData;
+};
+
+inline RemoteBufferAddress MakeRemoteBufferAddress(void* pData) {
+    RemoteBufferAddress result = {static_cast<u8*>(pData)};
+    return result;
+}
+
+inline u8* GetRemoteBufferAddress(RemoteBufferAddress address) {
+    return address.mpData;
+}
+
+struct RemoteRetryDelay {
+    u32 mTicks;
+};
+
+inline RemoteRetryDelay MakeRemoteRetryDelay(u32 ticks) {
+    RemoteRetryDelay result = {ticks};
+    return result;
+}
+
+inline void ScheduleReadRetry(OSAlarm* const& pAlarm, const OSMessage& message, RemoteRetryDelay delay) {
+    OSCancelAlarm(pAlarm);
+    OSSetAlarmUserData(pAlarm, message);
+    OSSetAlarm(pAlarm, delay.mTicks, OnRetryAlarm);
 }
 
 inline void ScheduleRetry(OSAlarm* const& pAlarm, const OSMessage& message, const u32& delay) {
@@ -88,133 +119,73 @@ inline void ScheduleRetry(OSAlarm* const& pAlarm, const OSMessage& message, cons
     OSSetAlarm(pAlarm, delay, OnRetryAlarm);
 }
 
-void OnPadConnection(long channel, long result) {
-    sConnectionResults[channel] = result;
-    OSSendMessage(&sMessageQueue, reinterpret_cast<OSMessage>(static_cast<u16>(channel)), 0);
-}
-
-void OnRead(long channel, long result) {
-    sTransferResults[channel] = result;
-    OSSendMessage(&sMessageQueue, reinterpret_cast<OSMessage>(static_cast<u16>(channel) | 0x10000), 0);
-}
-
-void OnWrite(long channel, long result) {
-    sTransferResults[channel] = result;
-    OSSendMessage(&sMessageQueue, reinterpret_cast<OSMessage>(static_cast<u16>(channel) | 0x20000), 0);
-}
-
-void OnReadBack(long channel, long result) {
-    sTransferResults[channel] = result;
-    OSSendMessage(&sMessageQueue, reinterpret_cast<OSMessage>(static_cast<u16>(channel) | 0x30000), 0);
-}
-}
-
-void InitializeCalculationWorker() {
-    sThreadStack = static_cast<u8*>(GameMemory::AllocateMEM1(0x8000, 32));
-    OSInitMessageQueue(&sMessageQueue, sMessages, 16);
-    OSCreateThread(&sThread, CRemoteMemory::ThreadMain, nullptr, sThreadStack + 0x8000, 0x8000, 0, 0);
-    OSResumeThread(&sThread);
-    sInitialized = true;
-    memset(sAlarms, 0, sizeof(sAlarms));
-}
-
-void ShutdownCalculationWorker() {
-    OSSendMessage(&sMessageQueue, reinterpret_cast<OSMessage>(0x7ffff), 0);
-    void* pResult;
-    OSJoinThread(&sThread, &pResult);
-    GameMemory::Free(sThreadStack);
-    sThreadStack = nullptr;
-    sInitialized = false;
-}
-
-CRemoteMemory::CRemoteMemory(int channel, COyaInfo* pOyaInfo)
-    : mFlags(0), mpOyaInfo(pOyaInfo), mChannel(channel), mRemoteBox(2, 12) {
-    const int remoteChannel = mChannel;
-    sRemoteMemories[remoteChannel] = this;
-    mPersonalData.clear();
-    SetPadConnectionCallback(remoteChannel, OnPadConnection);
-}
-
-CRemoteMemory::~CRemoteMemory() {
-    const int channel = mChannel;
-    SetPadConnectionCallback(channel, nullptr);
-    sRemoteMemories[channel] = nullptr;
-}
-
-void CRemoteMemory::QueueAdd(const std::tr1::shared_ptr<CPiiPersonalData>& rPersonalData) {
-    mPersonalData.push_back(rPersonalData);
-}
-
-void CRemoteMemory::QueueRemove(const std::tr1::shared_ptr<CPiiPersonalData>& rPersonalData) {
-    for (std::list<std::tr1::shared_ptr<CPiiPersonalData> >::iterator it = mPersonalData.begin(); it != mPersonalData.end(); ++it) {
-        if (*it == rPersonalData) {
-            mPersonalData.erase(it);
-            return;
-        }
-    }
 }
 
 void YieldFiber();
 
-void CRemoteMemory::WaitUntilIdle(bool) {
-    for (;;) {
-        int frames = 0;
-        for (;;) {
-            if ((mFlags & FLAG_BUSY) == 0) {
-                return;
-            }
-            YieldFiber();
-            if (++frames > 300) {
-                break;
-            }
+namespace {
+
+union RemoteStateStorage {
+    u32 mBits;
+    CRemoteMemory::Flag mFlag;
+};
+
+inline CRemoteMemory::Flag GetRemoteMaskedState(u32 value) {
+    return static_cast<CRemoteMemory::Flag>(value);
+}
+
+inline void SetBeginRemoteState(u32& rFlags, CRemoteMemory::Flag state) {
+    u32 flags;
+    u32 stateMask;
+    CRemoteMemory::Flag masked;
+    stateMask = CRemoteMemory::FLAG_STATE_MASK;
+    flags = rFlags;
+    masked = GetRemoteMaskedState(flags & stateMask);
+    if (masked == state) {
+        rFlags = flags & ~CRemoteMemory::FLAG_BUSY;
+    } else {
+        volatile u32 busyMask = stateMask | CRemoteMemory::FLAG_BUSY;
+        volatile u32 writeMask = busyMask | CRemoteMemory::FLAG_WRITE_COMPLETE;
+        volatile u32 clearMask = writeMask | CRemoteMemory::FLAG_DATA_CHANGED;
+        rFlags = flags & ~clearMask;
+        RemoteStateStorage changedState;
+        if (state == (CRemoteMemory::FLAG_DISCONNECTED | CRemoteMemory::FLAG_FOREIGN_DATA) ||
+            state == (CRemoteMemory::FLAG_DISCONNECTED | CRemoteMemory::FLAG_INVALID_DATA)) {
+            changedState.mFlag = CRemoteMemory::FLAG_STATE_CHANGED;
+            changedState.mBits = static_cast<u32>(changedState.mFlag);
+            changedState.mBits = changedState.mFlag | state;
+        } else {
+            changedState.mFlag = CRemoteMemory::FLAG_STATE_CHANGED | state;
         }
+        volatile u32 changedFlags = changedState.mBits;
+        rFlags |= changedFlags;
     }
 }
 
-#pragma push
-#pragma opt_dead_assignments off
-#pragma opt_propagation off
-#pragma opt_common_subs off
-#pragma opt_strength_reduction off
-#pragma opt_scalarize off
-#pragma opt_lifetimes off
-#pragma opt_rebuildconditionals off
-#pragma opt_treetransformation off
-#pragma opt_generateconditionalassignments off
-CPiiBox* CRemoteMemory::GetPiiBox() {
-    if (!IsGameFlagSet(3)) {
-        return &sEmptyBox;
-    }
-    const u32 flags = mFlags;
-    if (MatchesFlags(flags, FLAG_HAS_DATA | FLAG_DATA_CHANGED, FLAG_HAS_DATA)) {
-        mRemoteBox.Clear();
-        RemoteDataBlock* pBlock = &sStoredData[mChannel][mActiveBlock];
-        for (int i = 0; i < 12; ++i) {
-            const SD_PiiPersonalData::Data& rData = pBlock->mPii[i];
-            if (rData.mSpecies != 0) {
-                const std::tr1::shared_ptr<CPiiPersonalData> personalData = CreatePiiPersonalData(mpOyaInfo, rData);
-                mRemoteBox.AddPersonalData(personalData);
-            }
+inline void SetFinishRemoteState(u32& rFlags, CRemoteMemory::Flag state) {
+    u32 stateMask = CRemoteMemory::FLAG_STATE_MASK;
+    if (GetRemoteMaskedState(rFlags & stateMask) == state) {
+        rFlags &= ~CRemoteMemory::FLAG_BUSY;
+    } else {
+        volatile u32 busyMask = stateMask | CRemoteMemory::FLAG_BUSY;
+        volatile u32 writeMask = busyMask | CRemoteMemory::FLAG_WRITE_COMPLETE;
+        volatile u32 clearMask = writeMask | CRemoteMemory::FLAG_DATA_CHANGED;
+        rFlags &= ~clearMask;
+        RemoteStateStorage changedState;
+        if (state == (CRemoteMemory::FLAG_DISCONNECTED | CRemoteMemory::FLAG_FOREIGN_DATA) ||
+            state == (CRemoteMemory::FLAG_DISCONNECTED | CRemoteMemory::FLAG_INVALID_DATA)) {
+            changedState.mFlag = CRemoteMemory::FLAG_STATE_CHANGED;
+            changedState.mBits = static_cast<u32>(changedState.mFlag);
+            changedState.mBits = changedState.mFlag | state;
+        } else {
+            changedState.mFlag = CRemoteMemory::FLAG_STATE_CHANGED | state;
         }
-        mRemoteBox.ApplyEnvironment(false, CreateScriptEnvironment());
-        const CPiiBox& rBox = mRemoteBox;
-        mPersonalData.assign(rBox.GetPersonalDataList().begin(), rBox.GetPersonalDataList().end());
-        mFlags |= FLAG_DATA_CHANGED;
-    } else if (MatchesFlags(flags, FLAG_DISCONNECTED | FLAG_DATA_CHANGED, FLAG_DISCONNECTED)) {
-        mRemoteBox.Clear();
-        mPersonalData.clear();
-        mFlags |= FLAG_DATA_CHANGED;
-    } else if ((flags >> 4) & 1) {
-        mRemoteBox.Clear();
-        for (PersonalDataList::const_iterator it = PersonalDataList::iterator(mPersonalData.begin()); it != mPersonalData.end(); ++it) {
-            mRemoteBox.AddPersonalData(*it);
-        }
-        mFlags = (mFlags & ~FLAG_WRITE_COMPLETE) | (FLAG_HAS_DATA | FLAG_DATA_CHANGED);
+        volatile u32 changedFlags = changedState.mBits;
+        rFlags |= changedFlags;
     }
-    return &mRemoteBox;
 }
 
-#pragma pop
+}
 
 inline void CRemoteMemory::SetState(Flag state) {
     u32 stateMask = FLAG_STATE_MASK;
@@ -227,39 +198,6 @@ inline void CRemoteMemory::SetState(Flag state) {
         mFlags &= ~c;
         volatile u32 d = FLAG_STATE_CHANGED | state;
         mFlags |= d;
-    }
-}
-
-void CRemoteMemory::Update() {
-    mFlags &= ~FLAG_STATE_CHANGED;
-    if ((mFlags & (FLAG_HAS_DATA | FLAG_DISCONNECTED)) != 0 && (mFlags & (FLAG_NO_CONTROLLER | FLAG_CONNECTION_CHANGED | FLAG_RETRY_PENDING)) == 0) {
-        return;
-    }
-    if (mFlags & FLAG_CONNECTION_CHANGED) {
-        mFlags &= ~(FLAG_TRANSFER_ERROR | FLAG_NO_CONTROLLER);
-    }
-    const int channel = mChannel;
-    u16* pTitle;
-    const s32 result = WPADGetGameTitleUtf16(channel, &pTitle);
-    const wchar_t* pGameTitle = GetMessageString(1, nullptr);
-    if (result != 0 || wcsncmp(reinterpret_cast<const wchar_t*>(pTitle), pGameTitle, 16) != 0) {
-        if (result == 0) {
-            SetState(FLAG_DISCONNECTED | FLAG_FOREIGN_DATA);
-        } else {
-            SetState(FLAG_DISCONNECTED);
-            if (result != -1) {
-                const BOOL enabled = OSDisableInterrupts();
-                if (mFlags & FLAG_CONNECTION_CHANGED) {
-                    mFlags = (mFlags | FLAG_RETRY_PENDING) & ~FLAG_CONNECTION_CHANGED;
-                }
-                OSRestoreInterrupts(enabled);
-            }
-        }
-    } else {
-        mFlags = (mFlags | FLAG_BUSY) & ~FLAG_NO_CONTROLLER;
-        mValidationRetries = 0;
-        mTransferRetries = 0;
-        BeginRead(channel);
     }
 }
 
@@ -370,6 +308,99 @@ void* CRemoteMemory::ThreadMain(void*) {
 }
 #pragma pop
 
+namespace {
+
+void OnRetryAlarm(OSAlarm* pAlarm, OSContext*) {
+    OSSendMessage(&sMessageQueue, OSGetAlarmUserData(pAlarm), 0);
+}
+
+void OnPadConnection(long channel, long result) {
+    sConnectionResults[channel] = result;
+    OSSendMessage(&sMessageQueue, reinterpret_cast<OSMessage>(static_cast<u16>(channel)), 0);
+}
+
+void OnRead(long channel, long result) {
+    sTransferResults[channel] = result;
+    OSSendMessage(&sMessageQueue, reinterpret_cast<OSMessage>(static_cast<u16>(channel) | 0x10000), 0);
+}
+
+void OnWrite(long channel, long result) {
+    sTransferResults[channel] = result;
+    OSSendMessage(&sMessageQueue, reinterpret_cast<OSMessage>(static_cast<u16>(channel) | 0x20000), 0);
+}
+
+void OnReadBack(long channel, long result) {
+    sTransferResults[channel] = result;
+    OSSendMessage(&sMessageQueue, reinterpret_cast<OSMessage>(static_cast<u16>(channel) | 0x30000), 0);
+}
+
+}
+
+void InitializeCalculationWorker() {
+    sThreadStack = static_cast<u8*>(GameMemory::AllocateMEM1(0x8000, 32));
+    OSInitMessageQueue(&sMessageQueue, sMessages, 16);
+    OSCreateThread(&sThread, CRemoteMemory::ThreadMain, nullptr, sThreadStack + 0x8000, 0x8000, 0, 0);
+    OSResumeThread(&sThread);
+    sInitialized = true;
+    memset(sAlarms, 0, sizeof(sAlarms));
+}
+
+void ShutdownCalculationWorker() {
+    OSSendMessage(&sMessageQueue, reinterpret_cast<OSMessage>(0x7ffff), 0);
+    void* pResult;
+    OSJoinThread(&sThread, &pResult);
+    GameMemory::Free(sThreadStack);
+    sThreadStack = nullptr;
+    sInitialized = false;
+}
+
+CRemoteMemory::CRemoteMemory(int channel, COyaInfo* pOyaInfo)
+    : mFlags(0), mpOyaInfo(pOyaInfo), mChannel(channel), mRemoteBox(2, 12) {
+    const int remoteChannel = mChannel;
+    sRemoteMemories[remoteChannel] = this;
+    mPersonalData.clear();
+    SetPadConnectionCallback(remoteChannel, OnPadConnection);
+}
+
+CRemoteMemory::~CRemoteMemory() {
+    const int channel = mChannel;
+    SetPadConnectionCallback(channel, nullptr);
+    sRemoteMemories[channel] = nullptr;
+}
+
+void CRemoteMemory::Update() {
+    mFlags &= ~FLAG_STATE_CHANGED;
+    if ((mFlags & (FLAG_HAS_DATA | FLAG_DISCONNECTED)) != 0 && (mFlags & (FLAG_NO_CONTROLLER | FLAG_CONNECTION_CHANGED | FLAG_RETRY_PENDING)) == 0) {
+        return;
+    }
+    if (mFlags & FLAG_CONNECTION_CHANGED) {
+        mFlags &= ~(FLAG_TRANSFER_ERROR | FLAG_NO_CONTROLLER);
+    }
+    const int channel = mChannel;
+    u16* pTitle;
+    const s32 result = WPADGetGameTitleUtf16(channel, &pTitle);
+    const wchar_t* pGameTitle = GetMessageString(1, nullptr);
+    if (result != 0 || wcsncmp(reinterpret_cast<const wchar_t*>(pTitle), pGameTitle, 16) != 0) {
+        if (result == 0) {
+            SetState(FLAG_DISCONNECTED | FLAG_FOREIGN_DATA);
+        } else {
+            SetState(FLAG_DISCONNECTED);
+            if (result != -1) {
+                const BOOL enabled = OSDisableInterrupts();
+                if (mFlags & FLAG_CONNECTION_CHANGED) {
+                    mFlags = (mFlags | FLAG_RETRY_PENDING) & ~FLAG_CONNECTION_CHANGED;
+                }
+                OSRestoreInterrupts(enabled);
+            }
+        }
+    } else {
+        mFlags = (mFlags | FLAG_BUSY) & ~FLAG_NO_CONTROLLER;
+        mValidationRetries = 0;
+        mTransferRetries = 0;
+        BeginRead(channel);
+    }
+}
+
 #pragma push
 #pragma opt_dead_assignments off
 #pragma opt_propagation off
@@ -382,12 +413,14 @@ void* CRemoteMemory::ThreadMain(void*) {
 #pragma opt_generateconditionalassignments off
 void CRemoteMemory::BeginRead(int channel) {
     CRemoteMemory* pRemote = sRemoteMemories[channel];
-    switch (WPADReadGameData(channel, sReadData[channel], sizeof(sReadData[channel]), 0, OnRead)) {
+    u16 offset = 0;
+    u16 size = sizeof(sReadData[channel]);
+    switch (WPADReadGameData(channel, sReadData[channel], size, offset, OnRead)) {
     case -2:
     case 0:
         break;
     case -5: {
-        pRemote->SetState(FLAG_DISCONNECTED | FLAG_FOREIGN_DATA);
+        SetBeginRemoteState(pRemote->mFlags, FLAG_DISCONNECTED | FLAG_FOREIGN_DATA);
         const BOOL enabled = OSDisableInterrupts();
         const u32 flags = pRemote->mFlags;
         if ((flags >> 6) & 1) {
@@ -397,7 +430,7 @@ void CRemoteMemory::BeginRead(int channel) {
         break;
     }
     case -6: {
-        pRemote->SetState(FLAG_DISCONNECTED | FLAG_INVALID_DATA);
+        SetBeginRemoteState(pRemote->mFlags, FLAG_DISCONNECTED | FLAG_INVALID_DATA);
         const BOOL enabled = OSDisableInterrupts();
         const u32 flags = pRemote->mFlags;
         if ((flags >> 6) & 1) {
@@ -407,7 +440,7 @@ void CRemoteMemory::BeginRead(int channel) {
         break;
     }
     case -1:
-        pRemote->SetState(FLAG_DISCONNECTED);
+        SetBeginRemoteState(pRemote->mFlags, FLAG_DISCONNECTED);
         pRemote->mFlags |= FLAG_NO_CONTROLLER;
         break;
     }
@@ -437,14 +470,14 @@ void CRemoteMemory::FinishRead(int channel, long result) {
                 BeginRead(channel);
             } else {
                 pRemote->mFlags &= ~(FLAG_CONNECTION_CHANGED | FLAG_RETRY_PENDING);
-                pRemote->SetState(FLAG_DISCONNECTED | FLAG_INVALID_DATA);
+                SetFinishRemoteState(pRemote->mFlags, FLAG_DISCONNECTED | FLAG_INVALID_DATA);
             }
         } else {
             bool changed = true;
             if ((pRemote->mFlags >> 1) & 1) {
                 changed = memcmp(&sReadData[channel][activeBlock], &sStoredData[channel][activeBlock], 540) != 0;
                 if (changed) {
-                    pRemote->mFlags = (pRemote->mFlags & ~FLAG_DATA_CHANGED) | FLAG_STATE_CHANGED;
+                    pRemote->mFlags = (pRemote->mFlags | FLAG_STATE_CHANGED) & ~FLAG_DATA_CHANGED;
                 }
             }
             if (changed) {
@@ -452,32 +485,90 @@ void CRemoteMemory::FinishRead(int channel, long result) {
                 pRemote->mActiveBlock = activeBlock;
             }
             pRemote->mFlags &= ~(FLAG_CONNECTION_CHANGED | FLAG_RETRY_PENDING);
-            pRemote->SetState(FLAG_HAS_DATA);
+            SetFinishRemoteState(pRemote->mFlags, FLAG_HAS_DATA);
         }
         break;
     }
     case -2:
     case -3:
         if (++pRemote->mTransferRetries < 3) {
-            ScheduleRetry(&sAlarms[channel + 1], reinterpret_cast<OSMessage>(static_cast<u16>(channel) | 0x40000), OS_MSEC_TO_TICKS(1000));
+            ScheduleReadRetry(&sAlarms[channel + 1], reinterpret_cast<OSMessage>(static_cast<u16>(channel) | 0x40000), MakeRemoteRetryDelay(OS_MSEC_TO_TICKS(1000)));
         } else {
             pRemote->mFlags &= ~(FLAG_CONNECTION_CHANGED | FLAG_RETRY_PENDING);
-            pRemote->SetState(FLAG_DISCONNECTED);
+            SetFinishRemoteState(pRemote->mFlags, FLAG_DISCONNECTED);
             pRemote->mFlags |= FLAG_TRANSFER_ERROR;
         }
         break;
     case -1:
-        pRemote->SetState(FLAG_DISCONNECTED);
+        SetFinishRemoteState(pRemote->mFlags, FLAG_DISCONNECTED);
         pRemote->mFlags |= FLAG_NO_CONTROLLER;
         break;
     case -6:
-        pRemote->SetState(FLAG_DISCONNECTED | FLAG_INVALID_DATA);
+        SetFinishRemoteState(pRemote->mFlags, FLAG_DISCONNECTED | FLAG_INVALID_DATA);
         break;
     case -4:
         break;
     }
 }
 #pragma pop
+
+#pragma push
+#pragma opt_dead_assignments off
+#pragma opt_propagation off
+#pragma opt_common_subs off
+#pragma opt_strength_reduction off
+#pragma opt_scalarize off
+#pragma opt_lifetimes off
+#pragma opt_rebuildconditionals off
+#pragma opt_treetransformation off
+#pragma opt_generateconditionalassignments off
+CPiiBox* CRemoteMemory::GetPiiBox() {
+    if (!IsGameFlagSet(3)) {
+        return &sEmptyBox;
+    }
+    const u32 flags = mFlags;
+    if (MatchesFlags(flags, FLAG_HAS_DATA | FLAG_DATA_CHANGED, FLAG_HAS_DATA)) {
+        mRemoteBox.Clear();
+        RemoteDataBlock* pBlock = &sStoredData[mChannel][mActiveBlock];
+        for (int i = 0; i < 12; ++i) {
+            const SD_PiiPersonalData::Data& rData = pBlock->mPii[i];
+            if (rData.mSpecies != 0) {
+                const std::tr1::shared_ptr<CPiiPersonalData> personalData = CreatePiiPersonalData(mpOyaInfo, rData);
+                mRemoteBox.AddPersonalData(personalData);
+            }
+        }
+        mRemoteBox.ApplyEnvironment(false, CreateScriptEnvironment());
+        const CPiiBox& rBox = mRemoteBox;
+        mPersonalData.assign(rBox.GetPersonalDataList().begin(), rBox.GetPersonalDataList().end());
+        mFlags |= FLAG_DATA_CHANGED;
+    } else if (MatchesFlags(flags, FLAG_DISCONNECTED | FLAG_DATA_CHANGED, FLAG_DISCONNECTED)) {
+        mRemoteBox.Clear();
+        mPersonalData.clear();
+        mFlags |= FLAG_DATA_CHANGED;
+    } else if ((flags >> 4) & 1) {
+        mRemoteBox.Clear();
+        for (PersonalDataList::const_iterator it = PersonalDataList::iterator(mPersonalData.begin()); it != mPersonalData.end(); ++it) {
+            mRemoteBox.AddPersonalData(*it);
+        }
+        mFlags = (mFlags & ~FLAG_WRITE_COMPLETE) | (FLAG_HAS_DATA | FLAG_DATA_CHANGED);
+    }
+    return &mRemoteBox;
+}
+
+#pragma pop
+
+void CRemoteMemory::QueueAdd(const std::tr1::shared_ptr<CPiiPersonalData>& rPersonalData) {
+    mPersonalData.push_back(rPersonalData);
+}
+
+void CRemoteMemory::QueueRemove(const std::tr1::shared_ptr<CPiiPersonalData>& rPersonalData) {
+    for (std::list<std::tr1::shared_ptr<CPiiPersonalData> >::iterator it = mPersonalData.begin(); it != mPersonalData.end(); ++it) {
+        if (*it == rPersonalData) {
+            mPersonalData.erase(it);
+            return;
+        }
+    }
+}
 
 #pragma push
 #pragma opt_dead_assignments off
@@ -551,6 +642,9 @@ void CRemoteMemory::PrepareWrite(int mode) {
 #pragma opt_treetransformation off
 #pragma opt_generateconditionalassignments off
 void CRemoteMemory::FinishWrite(int channel, long result) {
+    OSTime delay;
+    OSAlarm* pAlarm;
+    OSMessage message;
     CRemoteMemory* pRemote = sRemoteMemories[channel];
     bool complete = false;
     switch (result) {
@@ -582,9 +676,9 @@ void CRemoteMemory::FinishWrite(int channel, long result) {
     case -2:
     case -3:
         if (++pRemote->mTransferRetries < 3) {
-            OSTime delay = OS_MSEC_TO_TICKS(1000);
-            OSMessage message = reinterpret_cast<OSMessage>(static_cast<u16>(channel) | 0x60000);
-            OSAlarm* pAlarm = &sAlarms[channel + 1];
+            delay = OS_MSEC_TO_TICKS(1000);
+            message = reinterpret_cast<OSMessage>(static_cast<u16>(channel) | 0x60000);
+            pAlarm = &sAlarms[channel + 1];
             OSCancelAlarm(pAlarm);
             OSSetAlarmUserData(pAlarm, message);
             OSSetAlarm(pAlarm, delay, OnRetryAlarm);
@@ -607,10 +701,25 @@ void CRemoteMemory::FinishWrite(int channel, long result) {
         break;
     }
     if (complete) {
-        memcpy(reinterpret_cast<u8*>(sStoredData[channel]) + pRemote->mBlockOffset, sReadData[channel], 540);
+        memcpy(reinterpret_cast<u8*>(sStoredData[channel]) + pRemote->mBlockOffset, GetRemoteBufferAddress(MakeRemoteBufferAddress(sReadData[channel])), 540);
         pRemote->mActiveBlock = pRemote->mActiveBlock == 3 ? 0 : (pRemote->mActiveBlock + 1) & 1;
         pRemote->mFlags = (pRemote->mFlags & ~(FLAG_BUSY | FLAG_DISCONNECTED | FLAG_FOREIGN_DATA | FLAG_INVALID_DATA | FLAG_RETRY_PENDING)) |
                           FLAG_HAS_DATA | FLAG_DATA_CHANGED | FLAG_WRITE_COMPLETE;
     }
 }
 #pragma pop
+
+void CRemoteMemory::WaitUntilIdle(bool) {
+    for (;;) {
+        int frames = 0;
+        for (;;) {
+            if ((mFlags & FLAG_BUSY) == 0) {
+                return;
+            }
+            YieldFiber();
+            if (++frames > 300) {
+                break;
+            }
+        }
+    }
+}

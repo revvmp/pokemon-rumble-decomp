@@ -299,7 +299,13 @@ public:
     }
     u8* SkipParticleParameterDesc() {
         u8* pPtr = SkipEmitterDesc();
+#if defined(PARTICLE_MANAGER_EMISSION_LAYOUT)
+        u32 size = *reinterpret_cast<u32*>(pPtr);
+        size = static_cast<u32>(size);
+        pPtr += size + sizeof(u32);
+#else
         pPtr += *reinterpret_cast<u32*>(pPtr) + sizeof(u32);
+#endif
         return pPtr;
     }
 
@@ -348,7 +354,13 @@ public:
     }
 
     u8* GetPtclTrack(u16 idx) {
+#if defined(PARTICLE_MANAGER_EMISSION_LAYOUT)
+        u32 offset = idx * sizeof(u8*);
+        offset = static_cast<u32>(offset);
+        return *reinterpret_cast<u8**>(reinterpret_cast<u8*>(GetPtclTrackTbl()) + offset);
+#else
         return GetPtclTrackTbl()[idx];
+#endif
     }
     u8* GetEmitTrack(u16 idx) {
         return GetEmitTrackTbl()[idx];
