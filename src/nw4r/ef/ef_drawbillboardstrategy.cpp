@@ -13,7 +13,7 @@
 namespace nw4r {
 namespace ef {
 
-static u8 billboard_tex0_u8[] = {0x00, 0x01, 0x00, 0x00, 0x01, 0x00, 0x01, 0x01};
+static u8 billboard_tex0_u8[] ATTRIBUTE_ALIGN(32) = {0x00, 0x01, 0x00, 0x00, 0x01, 0x00, 0x01, 0x01};
 
 static inline void GXPosition(const math::VEC3& rPos) {
     GXPosition3f32(rPos.x, rPos.y, rPos.z);

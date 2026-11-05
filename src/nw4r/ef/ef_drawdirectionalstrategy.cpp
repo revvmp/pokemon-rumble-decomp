@@ -14,7 +14,7 @@
 namespace nw4r {
 namespace ef {
 
-static u8 directional_tex0_u8[] = {0x00, 0x01, 0x00, 0x00,
+static u8 directional_tex0_u8[] ATTRIBUTE_ALIGN(32) = {0x00, 0x01, 0x00, 0x00,
                                    0x01, 0x00, 0x01, 0x01};
 
 static inline void GXPosition(const math::VEC3& rPos) {

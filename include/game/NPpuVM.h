@@ -126,7 +126,7 @@ public:
     virtual void AddRef() {}
     virtual void Release() {}
 
-    bool Load(const char* pName, const void* pData, u32 size, int, int);
+    bool Load(const char* pName, const SHeader* pHeader, u32 size, int, int);
 
     int GetStackSize() const { return mStackSize; }
 
@@ -291,8 +291,8 @@ public:
     u32 Fetch() { return mCode->mCode[mPC++]; }
 
 private:
-    void OnLineBegin() {}
-    void OnLineEnd() {}
+    void OnLineBegin();
+    void OnLineEnd();
     void PushFrame(int baseIndex);
     void PopFrame();
     void PushReturn();

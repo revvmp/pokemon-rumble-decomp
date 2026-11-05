@@ -25,6 +25,9 @@ volatile BOOL RunQueueHint;
 volatile s32 Reschedule;
 static OSThread DefaultThread;
 OSContext IdleContext;
+#pragma force_active on
+static OSThread IdleThread;
+#pragma force_active reset
 
 #ifdef __MWERKS__
 OSThread* __OSCurrentThread : (OS_BASE_CACHED | OS_CURRENTTHREAD_ADDR);

@@ -7,6 +7,13 @@
 #include <string.h>
 #include <wchar.h>
 
+namespace NPpu {
+
+extern const bool sEngineInserted;
+extern const bool sEngineFound;
+
+}
+
 namespace std {
 
 template <> inline set<NPpu::CEngine*>::iterator set<NPpu::CEngine*>::find(NPpu::CEngine* const& rValue) {
@@ -15,6 +22,21 @@ template <> inline set<NPpu::CEngine*>::iterator set<NPpu::CEngine*>::find(NPpu:
 }
 
 namespace detail {
+
+template <> template <>
+inline pair<tree_imp<const void*, less<const void*>, allocator<const void*> >::iterator, bool>
+tree_imp<const void*, less<const void*>, allocator<const void*> >::insert_key<const void*>(const void* const& rKey) {
+    node* pPred;
+    bool leftmost;
+    bool left;
+    tree_node_base* pParent = find_leaf<const void*>(rKey, pPred, left, leftmost);
+    if (pPred == nullptr || comp()(pPred->value_, rKey)) {
+        return pair<iterator, bool>(iterator(insert_node_at(pParent, left, leftmost, rKey)),
+                                   *static_cast<const bool*>(static_cast<const void*>(&NPpu::sEngineInserted)));
+    }
+    return pair<iterator, bool>(iterator(pPred),
+                               *static_cast<const bool*>(static_cast<const void*>(&NPpu::sEngineFound)));
+}
 
 template <>
 inline tree_imp<const void*, less<const void*>, allocator<const void*> >::iterator
@@ -56,9 +78,7 @@ CCode::~CCode() {
     Clear();
 }
 
-bool CCode::Load(const char* pName, const void* pData, u32, int, int) {
-    const SHeader* pHeader = static_cast<const SHeader*>(pData);
-
+bool CCode::Load(const char* pName, const SHeader* pHeader, u32, int, int) {
     Clear();
     mName = pName;
 
@@ -77,17 +97,31 @@ bool CCode::Load(const char* pName, const void* pData, u32, int, int) {
         return false;
     }
 
-    u32 size = pHeader->mWStringCount * sizeof(const wchar_t*);
-    mStackSize = pHeader->mStackSize;
-    mCodeSize = pHeader->mCodeSize;
-    mStringCount = pHeader->mStringCount;
-    mWStringCount = pHeader->mWStringCount;
+    int wideCount;
+    int stringCount;
+    int codeSize;
+    enum HeaderCount {
+        MIN_HEADER_COUNT = -2147483647 - 1,
+        MAX_HEADER_COUNT = 2147483647
+    };
+    HeaderCount stackSize;
+    wideCount = pHeader->mWStringCount;
+    stackSize = static_cast<HeaderCount>(pHeader->mStackSize);
+    codeSize = pHeader->mCodeSize;
+    stringCount = pHeader->mStringCount;
+    u32 size = wideCount * sizeof(const wchar_t*);
+    mStackSize = stackSize;
+    mCodeSize = codeSize;
+    mStringCount = stringCount;
+    mWStringCount = wideCount;
     mCode = reinterpret_cast<const u32*>(pHeader + 1);
 
     if (size != 0) {
         mWStrings = static_cast<const wchar_t**>(malloc(size));
         if (pHeader->mWStringDataSize != 0) {
-            const wchar_t* p = reinterpret_cast<const wchar_t*>(static_cast<const u8*>(pData) + mCodeSize + sizeof(SHeader));
+            u32 address = mCodeSize;
+            address = static_cast<u32>(address + reinterpret_cast<u32>(pHeader));
+            const wchar_t* p = reinterpret_cast<const wchar_t*>(address + sizeof(SHeader));
             for (int i = 0; i < mWStringCount; i++) {
                 mWStrings[i] = p;
                 while (*p++ != L'\0') {}
@@ -99,7 +133,9 @@ bool CCode::Load(const char* pName, const void* pData, u32, int, int) {
     if (size != 0) {
         mStrings = static_cast<const char**>(malloc(size));
         if (pHeader->mStringDataSize != 0) {
-            const char* p = static_cast<const char*>(pData) + (mCodeSize + pHeader->mWStringDataSize) + sizeof(SHeader);
+            u32 address = mCodeSize + pHeader->mWStringDataSize;
+            address = static_cast<u32>(address + reinterpret_cast<u32>(pHeader));
+            const char* p = reinterpret_cast<const char*>(address + sizeof(SHeader));
             for (int i = 0; i < mStringCount; i++) {
                 mStrings[i] = p;
                 while (*p++ != '\0') {}
@@ -468,6 +504,10 @@ void CEngine::PushFrame(int baseIndex) {
     mFrames[mFrameCount].mBaseIndex = baseIndex;
     mFrames[mFrameCount++].mSavedBase = mBases[baseIndex];
 }
+
+void CEngine::OnLineEnd() {}
+
+void CEngine::OnLineBegin() {}
 
 void CEngine::PopFrame() {
     while (mHandlerCount > 0) {
@@ -1493,7 +1533,6 @@ int CEngine::Execute(int isCall) {
     }
 }
 
-
 #pragma pop
 bool CEngine::Unwind() {
     while (mHandlerCount > 0) {
@@ -1556,25 +1595,11 @@ const wchar_t* CEngine::ToWString(const CValue& rValue) const {
     return sBuffer;
 }
 
-inline std::wstring ToUnicode(const std::string& rString) {
-    s32 size;
-    ENCConvertStringSjisToUnicode(nullptr, &size, reinterpret_cast<const u8*>(rString.c_str()), nullptr);
-    wchar_t* pBuffer = static_cast<wchar_t*>(__alloca((size + 1) * sizeof(wchar_t)));
-    pBuffer[size] = L'\0';
-    ENCConvertStringSjisToUnicode(reinterpret_cast<u16*>(pBuffer), &size, reinterpret_cast<const u8*>(rString.c_str()), nullptr);
-    return std::wstring(pBuffer);
-}
+inline std::wstring ToUnicode(const std::string& rString);
 
 int CEngine::sNextID = 1;
 
-inline std::string ToSjis(const std::wstring& rString) {
-    s32 size;
-    ENCConvertStringUnicodeToSjis(nullptr, &size, reinterpret_cast<const u16*>(rString.c_str()), nullptr);
-    char* pBuffer = static_cast<char*>(__alloca(size + 1));
-    pBuffer[size] = '\0';
-    ENCConvertStringUnicodeToSjis(reinterpret_cast<u8*>(pBuffer), &size, reinterpret_cast<const u16*>(rString.c_str()), nullptr);
-    return std::string(pBuffer);
-}
+inline std::string ToSjis(const std::wstring& rString);
 
 std::string CEngine::ToStdString(const CValue& rValue) const {
     if (rValue.IsString()) {
@@ -1699,5 +1724,44 @@ void CEngine::CollectGarbage(int threshold, int) {
 }
 #pragma opt_lifetimes reset
 
+}
+
+namespace std {
+namespace detail {
+
+typedef pair<const void* const, unsigned long> CodeStringValue;
+typedef map_base_value_compare<const void*, unsigned long, less<const void*> > CodeStringCompare;
+typedef map_compact_tree<CodeStringValue, CodeStringCompare, allocator<CodeStringValue> > CodeStringTree;
+
+template tree_node_base* CodeStringTree::find_leaf(const CodeStringValue&, CodeStringTree::node*&, bool&, bool&);
+
+}
+}
+
+namespace NPpu {
+
+#pragma push
+#pragma c99 on
+inline std::wstring ToUnicode(const std::string& rString) {
+    s32 size;
+    ENCConvertStringSjisToUnicode(nullptr, &size, reinterpret_cast<const u8*>(rString.c_str()), nullptr);
+    wchar_t buffer[size + 1];
+    buffer[size] = L'\0';
+    ENCConvertStringSjisToUnicode(reinterpret_cast<u16*>(buffer), &size, reinterpret_cast<const u8*>(rString.c_str()), nullptr);
+    return std::wstring(buffer);
+}
+
+inline std::string ToSjis(const std::wstring& rString) {
+    s32 size;
+    ENCConvertStringUnicodeToSjis(nullptr, &size, reinterpret_cast<const u16*>(rString.c_str()), nullptr);
+    char buffer[size + 1];
+    buffer[size] = '\0';
+    ENCConvertStringUnicodeToSjis(reinterpret_cast<u8*>(buffer), &size, reinterpret_cast<const u16*>(rString.c_str()), nullptr);
+    return std::string(buffer);
+}
+#pragma pop
+
+__declspec(section ".sdata") const bool sEngineInserted = true;
+__declspec(section ".sdata") const bool sEngineFound = false;
 
 }

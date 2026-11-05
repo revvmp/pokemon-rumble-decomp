@@ -77,7 +77,7 @@ public:
         }
         mFile = file;
         mName = pName;
-        return NPpu::CCode::Load(mName.c_str(), mFile->GetData(), mFile->GetSize(), 0, 0);
+        return NPpu::CCode::Load(mName.c_str(), static_cast<const NPpu::CCode::SHeader*>(mFile->GetData()), mFile->GetSize(), 0, 0);
     }
 
 private:

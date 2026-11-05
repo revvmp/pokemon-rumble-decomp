@@ -38,6 +38,10 @@ template <typename T> inline T& move(T& x) {
     return x;
 }
 
+#if defined(GAME_DLGPIISELECTOR_EMISSION_LAYOUT)
+template <typename InputIterator, typename OutputIterator>
+OutputIterator __move_backward(InputIterator first, InputIterator last, OutputIterator result);
+#else
 template <typename InputIterator, typename OutputIterator>
 OutputIterator __move_backward(InputIterator first, InputIterator last, OutputIterator result) {
     while (last > first) {
@@ -45,11 +49,14 @@ OutputIterator __move_backward(InputIterator first, InputIterator last, OutputIt
     }
     return result;
 }
+#endif
 
+#if !defined(GAME_DLGPIISELECTOR_EMISSION_LAYOUT)
 template <typename InputIterator, typename OutputIterator>
 inline OutputIterator move_backward(InputIterator first, InputIterator last, OutputIterator result) {
     return __move_backward(first, last, result);
 }
+#endif
 
 template <typename T, typename Size, typename Value> inline void __fill_n(T* first, Size n, const Value& x) {
     for (; n > 0; --n, ++first) {

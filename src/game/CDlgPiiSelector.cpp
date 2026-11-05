@@ -1,19 +1,47 @@
+#pragma section code_type ".text.selector_prefix"
+#pragma section code_type ".text.selector_pointers"
+#pragma section code_type ".text.selector_pairs"
+#pragma section code_type ".text"
+class BWorld;
+class BWorldObj;
+static inline BWorld* GetSelectorObjectWorld(const BWorldObj* pObject);
 #define GAME_DLGPIISELECTOR_EMISSION_LAYOUT
 #define GAME_DLGPIISELECTOR_RANGE_TAG_REFERENCE
 #include <game/ICalcDraw.h>
+#include <game/IDlg.h>
 #include <memory>
+template <typename T> static const T& SelectorMinimum(const T& a, const T& b);
+template <typename T> static const T& SelectorMaximum(const T& a, const T& b);
+
+namespace std {
+template <typename InputIterator, typename OutputIterator>
+inline OutputIterator move_backward(InputIterator first, InputIterator last, OutputIterator result) {
+    return __move_backward(first, last, result);
+}
+}
+
+class CUIPiiListItem;
+typedef std::allocator<std::tr1::shared_ptr<CUIPiiListItem> > SelectorItemAllocator;
 #include <stdexcept>
+class CItem;
+typedef std::tr1::shared_ptr<CItem> SelectorPreviewItemPointer;
 #include <game/IDlgPiiSelector.h>
 
 #include <game/ButtonMessage.h>
 #include <game/CColorBtnTagProc.h>
 #include <game/CFiber.h>
-class CItem;
+enum { kSelectorWorldPointerSize = sizeof(std::tr1::shared_ptr<BWorldObj>) };
 enum { kSelectorCItemSize = sizeof(std::tr1::shared_ptr<CItem>) };
 class CUIManager;
 enum { kSelectorCUIManagerSize = sizeof(std::tr1::shared_ptr<CUIManager>) };
+class CPlayerPii;
+enum { kSelectorCPlayerPiiSize = sizeof(std::tr1::shared_ptr<CPlayerPii>) };
 class CPii;
 enum { kSelectorCPiiSize = sizeof(std::tr1::shared_ptr<CPii>) };
+template <typename T> static T Clamp(T value, T low, T high);
+template <typename T> T Lerp(const T& rFrom, const T& rTo, float t);
+enum { kSelectorCPiiWeakSize = sizeof(std::tr1::weak_ptr<CPii>) };
+enum { kSelectorCItemWeakSize = sizeof(std::tr1::weak_ptr<CItem>) };
 class BUILayout;
 enum { kSelectorBUILayoutSize = sizeof(std::tr1::shared_ptr<BUILayout>) };
 class CUIPiiSpec;
@@ -25,8 +53,9 @@ enum { kSelectorCUIPlayerIDSize = sizeof(std::tr1::shared_ptr<CUIPlayerID>) };
 
 #include <functional>
 class CPiiListFilterSort;
-enum { kSelectorSortCallbackSize = sizeof(std::tr1::function<void(const CPiiListFilterSort*)>) };
 #include <game/CLayout.h>
+enum { kSelectorPersonalVectorSize = sizeof(std::__vec_deleter<std::tr1::shared_ptr<CPiiPersonalData>, std::allocator<std::tr1::shared_ptr<CPiiPersonalData> > >) };
+
 #include <game/CNoticeDisplay.h>
 #include <game/ControllerTable.h>
 #include <game/CPiiListFilterSort.h>
@@ -66,16 +95,44 @@ enum { kSelectorSortCallbackSize = sizeof(std::tr1::function<void(const CPiiList
 #include <nw4r/math/math_types.h>
 #include <vector>
 
+namespace std {
+typedef tr1::shared_ptr<CPiiPersonalData> SelectorPersonalPointer;
+template <> SelectorPersonalPointer* __move_backward<SelectorPersonalPointer*, SelectorPersonalPointer*>(SelectorPersonalPointer*, SelectorPersonalPointer*, SelectorPersonalPointer*);
+template <typename T> struct SelectorMoveBackwardGeneration {
+    friend SelectorPersonalPointer* __move_backward<SelectorPersonalPointer*, SelectorPersonalPointer*>(SelectorPersonalPointer* first, SelectorPersonalPointer* last, SelectorPersonalPointer* result) {
+        while (last > first) {
+            *--result = *--last;
+        }
+        return result;
+    }
+};
+}
+
 u32 GetPokemonVoiceId(u16 species, u16 form);
 
 #pragma dont_inline on
-static const int& SelectorMinimum(const int& a, const int& b);
-
-template <>
-int Clamp<int>(int value, int low, int high) {
-    return SelectorMinimum(std::max(low, value), high);
+typedef std::tr1::shared_ptr<CUIPiiListItem> SelectorListItemPointer;
+typedef std::allocator<SelectorListItemPointer> SelectorListItemAllocator;
+namespace std {
+template <> __declspec(section ".text.selector_pointers") inline SelectorListItemPointer*& move<SelectorListItemPointer*>(SelectorListItemPointer*& x) { return x; }
+template <> __declspec(section ".text.selector_pointers") inline void swap<SelectorListItemPointer*>(SelectorListItemPointer*& a, SelectorListItemPointer*& b) {
+    SelectorListItemPointer* tmp = move(a);
+    a = move(b);
+    b = move(tmp);
+}
+}
+namespace Metrowerks {
+template <> __declspec(section ".text.selector_pairs") inline void swap<unsigned long, SelectorListItemAllocator>(compressed_pair<unsigned long, SelectorListItemAllocator>& rLeft, compressed_pair<unsigned long, SelectorListItemAllocator>& rRight) { rLeft.swap(rRight); }
 }
 
+namespace std {
+template <> __declspec(section ".text.selector_prefix") inline void vector<tr1::shared_ptr<CUIPiiListItem> >::swap(vector& r) { base::swap(r); }
+template <> inline bool vector<tr1::shared_ptr<CPiiPersonalData> >::iterator::operator!=(const iterator& rOther) const { return !(*this == rOther); }
+}
+
+static inline BWorld* GetSelectorObjectWorld(const BWorldObj* pObject) {
+    return pObject->mWorld;
+}
 
 namespace {
 
@@ -148,8 +205,13 @@ typedef std::vector<std::tr1::shared_ptr<CUIPiiListItem> > PiiItemVector;
 
 typedef std::vector<std::tr1::shared_ptr<CPiiPersonalData> > PiiPersonalDataVector;
 
-bool BuildItems(PiiItemVector& rItems, int player, PiiPersonalDataVector& rPiis) {
+__declspec(section ".text.selector_prefix") bool BuildItems(PiiItemVector& rItems, int player, PiiPersonalDataVector& rPiis) {
     const std::list<std::tr1::shared_ptr<CPiiPersonalData> >& rTeam = IGameSession::GetInstance()->GetTeamPiiBox()->GetPersonalDataList();
+    if (false) {
+        rItems.swap(rItems);
+        PiiPersonalDataVector::iterator* pIterator = nullptr;
+        *pIterator != *pIterator;
+    }
     rPiis.insert(rPiis.end(), rTeam.begin(), rTeam.end());
     IController* pController = IGameSession::GetInstance()->GetPlayer(player)->GetController();
     if (pController->GetType() == IController::TYPE_WII_REMOTE || pController->GetType() == IController::TYPE_NUNCHAKU ||
@@ -344,6 +406,12 @@ public:
     virtual ~CDataPerPlayer();
 };
 
+enum { kSelectorSortCallbackSize = sizeof(std::tr1::function<void(const CPiiListFilterSort*)>) };
+typedef std::tr1::detail::mem_fn_1<void, CDataPerPlayer, const CPiiListFilterSort*> SelectorSortMethod;
+typedef std::tr1::tuple<CDataPerPlayer*, std::tr1::placeholders::detail::ph<1> > SelectorBoundArguments;
+typedef std::tr1::detail::bound_func<void, SelectorSortMethod, SelectorBoundArguments> SelectorSortCallback;
+enum { kSelectorSortCallbackEmissionSize = sizeof(SelectorSortCallback) };
+
 inline void CDataPerPlayer::Setup(bool background) {
     std::tr1::shared_ptr<CLayout::FontMap> fonts = GetDefaultFontMap();
     const char* const* pArchives = gSharedLayoutArchives;
@@ -429,8 +497,6 @@ inline void CDataPerPlayer::Setup(bool background) {
     mOutsidePosition = static_cast<const nw4r::math::VEC2&>(pLayout->NormalizeViewPosition(nw4r::math::VEC2(position.x, position.y)));
     mFiber.Start(std::tr1::bind(&CDataPerPlayer::Run, this), 0x8000);
 }
-
-
 
 inline void CDataPerPlayer::OnSelectionChanged(BUI* pUI) {
     if (!mSilent) {
@@ -1073,7 +1139,7 @@ inline void CDataPerPlayer::FinishAccept() {
 inline void CDataPerPlayer::RemovePreviewPii() {
     std::tr1::shared_ptr<CPii> pii = mPreviewPii.lock();
     if (pii) {
-        BWorld* pWorld = pii->GetWorld();
+        BWorld* pWorld = GetSelectorObjectWorld(pii.operator->());
         if (pWorld != nullptr) {
             pWorld->RemoveObject(pii);
         }
@@ -1084,7 +1150,7 @@ inline void CDataPerPlayer::RemovePreviewPii() {
 inline void CDataPerPlayer::RemoveBall() {
     std::tr1::shared_ptr<CItem> ball = mBall.lock();
     if (ball) {
-        BWorld* pWorld = ball->GetWorld();
+        BWorld* pWorld = GetSelectorObjectWorld(ball.operator->());
         if (pWorld != nullptr) {
             pWorld->RemoveObject(ball);
         }
@@ -1095,7 +1161,7 @@ inline void CDataPerPlayer::RemoveBall() {
 inline void CDataPerPlayer::RemoveChangeCircle() {
     std::tr1::shared_ptr<CItem> circle = mChangeCircle.lock();
     if (circle) {
-        BWorld* pWorld = circle->GetWorld();
+        BWorld* pWorld = GetSelectorObjectWorld(circle.operator->());
         if (pWorld != nullptr) {
             pWorld->RemoveObject(circle);
         }
@@ -1396,8 +1462,8 @@ public:
             pPlayer->Leave();
             pPlayer->SetController(nullptr);
         }
-        mMultiPlayerData->mPlayerNum =
-            std::min(static_cast<int>(IGameSession::GetInstance()->GetTeamPiiBox()->GetPersonalDataList().size()), sMaxPlayerNum);
+        int playerCount = IGameSession::GetInstance()->GetTeamPiiBox()->GetPersonalDataList().size();
+        mMultiPlayerData->mPlayerNum = std::min(playerCount, sMaxPlayerNum);
         std::tr1::shared_ptr<CLayout::FontMap> fonts = GetDefaultFontMap();
         mMultiPlayerData->mLayout.Load(gSharedLayoutArchives, "dlgpiisel_confirm", fonts);
         CColorBtnTagProc::Attach(mMultiPlayerData->mLayout.SetText(
@@ -1706,6 +1772,10 @@ inline void CDlgPiiSelector::UpdateErrors(int connected) {
 }
 
 inline int CheckRemoteMemoryErrors() {
+    if (false) {
+        CRemoteMemory* pRemoteMemory = nullptr;
+        pRemoteMemory->HasFlag(0);
+    }
     for (int player = 0; player < 4; player++) {
         CRemoteMemory* pRemoteMemory = IGameSession::GetInstance()->GetRemoteMemory(player);
         if (pRemoteMemory != nullptr && pRemoteMemory->ConsumeFatalError()) {
@@ -1746,7 +1816,6 @@ inline void CDlgPiiSelector::SetInputLocked(bool locked) {
     }
 }
 
-
 }
 
 std::tr1::shared_ptr<IDlgPiiSelector> IDlgPiiSelector::Create(bool flag) {
@@ -1763,7 +1832,11 @@ unsigned long GetSelectorAllocationCount(const Metrowerks::number<unsigned long,
 }
 
 #pragma force_active on
-static const int& SelectorMinimum(const int& a, const int& b) {
+template <typename T> static const T& SelectorMaximum(const T& a, const T& b) {
+    return a < b ? b : a;
+}
+
+template <typename T> static const T& SelectorMinimum(const T& a, const T& b) {
     return b < a ? b : a;
 }
 #pragma force_active reset
@@ -1776,4 +1849,16 @@ inline BUI::Callback BUI::CCallbackListOwner::Add(const std::tr1::function<void(
         return callback;
     }
     return Callback();
+}
+
+enum { kSelectorMoveBackwardGeneration = sizeof(std::SelectorMoveBackwardGeneration<void>) };
+
+namespace std {
+template <> __declspec(section ".text.selector_prefix") void __vec_constructor<SelectorListItemPointer, SelectorListItemAllocator, false>::swap(__vec_constructor&);
+template <> __declspec(section ".text.selector_prefix") void __vec_deleter<SelectorListItemPointer, SelectorListItemAllocator>::swap(__vec_deleter&);
+template <> __declspec(section ".text.selector_prefix") void __vec_deleter<SelectorListItemPointer, SelectorListItemAllocator>::swap_storage(__vec_deleter&);
+}
+namespace Metrowerks {
+template <> __declspec(section ".text.selector_pairs") void compressed_pair<unsigned long, SelectorListItemAllocator>::swap(compressed_pair&);
+template <> __declspec(section ".text.selector_pairs") void detail::CompressedPairStorage<unsigned long, SelectorListItemAllocator, 2>::swap(CompressedPairStorage&);
 }

@@ -145,6 +145,12 @@ Keep entries concise and actionable. Distinguish confirmed findings from hypothe
 
 - **Register-masked comparisons can hide reversed arithmetic.** U8 animation interpolation retained the same fuzzy score with `2.0f - sum` and the correct `sum - 2.0f`. Trace noncommutative operands back to their loads and frozen literals before dismissing them as register allocation; see [the verified polynomial correction](docs/re/findings/animcurve-20261104-continuation.md).
 
+- **Native alignment can make an original padding object redundant.** The next source object regenerated all 470 original code-padding ranges without their fallback objects. Confirm zero content and actual compiler alignment, then prove omission through the native full link before using dtk `skip` or correcting the denominator. See [native alignment evidence](docs/re/findings/native-alignment-padding.md).
+- **Discarded vtables can leave retained neighboring metadata.** Selector's final 177 differences survived despite exact code, exception records and named metadata offsets. The duplicate IDlg vtable was discarded, but adjacent type names and base lists still depended on include order. See [selector acceptance](docs/re/findings/91-selector-tail.md#complete-native-source-link-2026-11-04).
+- **Explicit alloca and a variable-length array have different unwind actions.** NPpuVM's converters had identical instructions but differed in exception action 0x9E. The target requires compiler-managed VLA cleanup; the supported scoped C99 extension reproduces it. See [NPpuVM acceptance](docs/re/findings/vm-properties-tail-20261104.md#complete-nppuvm-source-link-acceptance).
+- **An overload family follows its first declaration.** Player deque allocation and front/end helpers retained the wrong order when only one tagged overload moved. Moving the whole demonstrated overload family restored natural emission without native section scaffolding. See [the deque evidence](docs/re/findings/cplayer-deque-order-tail.md).
+- **An unreferenced BSS gap can contain retained unused SDK storage.** The 808 bytes after IdleContext resolve to the reference source's typed IdleThread plus sixteen native alignment bytes. Check SDK declarations and native layout before calling an entire gap padding. See [storage evidence](docs/re/findings/anonymous-data-20261104.md).
+
 ## Current project state
 
 | Current state | Value |

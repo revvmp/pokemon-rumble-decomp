@@ -1,24 +1,23 @@
-# Remaining data inventory after typed-global integration
+# Remaining data inventory
 
-The accepted 2026-11-04 six-function checkpoint has 1,740,433 of 1,788,735 source-linked data bytes, or 97.29965 percent. The remaining 48,302 bytes are inventoried below from the normal build report. The prior nine-function inventory is retained in ignored `tools/local/tail-20261104/nine-data-inventory.json`; the changes below reflect the accepted layout, result and filter source links.
+The accepted 2026-11-04 five-function checkpoint has 1,766,389 of 1,788,360 source-linked data bytes, or 98.77145 percent. Exactly four original fallback units remain in the normal final link. Two contain unfinished CPU functions and their associated data; two contain the explicit archive and DSP dependencies below. There are no remaining standalone alignment objects or unexplained anonymous storage ranges.
 
 | Remaining category | Bytes | Meaning |
-| --- | --- | --- |
-| Data attached to source units not yet linked | 27455 | Metadata, literals, and tables belonging to five units still awaiting function or emission completion |
-| Embedded system-message U8 asset archive | 11488 | gSystemMessageArchive, asset data; can be handled through a proven asset reconstruction workflow |
-| DSP instruction image | 8192 | axDspSlave; executable DSP code, deliberately excluded from raw-byte source copying |
-| Source-evidenced alignment gaps | 112 | Two 28-byte gaps before 32-byte-aligned resource names, 24 bytes before the aligned NAND home-directory buffer, and 32 bytes before the 64-byte-aligned NAND logging buffer |
-| Other anonymous zero storage or alignment | 1048 | Automatic pad/gap labels alone do not prove original source intent; includes the 808-byte region below |
-| Controller-table alignment | 7 | Explicit separate native alignment unit, excluded from source credit |
+| --- | ---: | --- |
+| PiiPropData data | 1723 | Metadata, literals and tables attached to the unit whose constructor and Reset remain unfinished |
+| ef_animcurve data | 568 | Exact retained tables and literals; unit remains a fallback until its three unfinished bodies are accepted |
+| Embedded system-message U8 archive | 11488 | gSystemMessageArchive, an asset-format dependency awaiting a reproducible reconstruction workflow |
+| DSP instruction image | 8192 | axDspSlave, executable DSP code; deliberately excluded from raw-byte source copying |
+| Total | 21971 | Explicit original-data dependencies |
 
-The remaining named source-unit data blocks are CDlgPiiSelector (20260), CPlayerPii (3632), PiiPropData (1723), NPpuVM (1272), and ef_animcurve (568). Linking their real source is the main remaining route to data coverage; replacing their metadata independently would obscure that dependency. CLayout, CGameResult and CPiiListFilterSort now pass source linkage, alongside the earlier CModel, CDlgCollection, CRemoteMemory and CPii acceptances.
+CDlgPiiSelector, CPlayerPii and NPpuVM now link their complete data from source, following the earlier CLayout, CGameResult and CPiiListFilterSort acceptances. The private animation diagnostic reproduces every byte outside its three unfinished function bodies, including all 568 data bytes. This is a useful preflight and is not complete unit acceptance. See [the scoped diagnostic](animcurve-data-link-preflight.md).
 
 ## Embedded system-message archive
 
-Read-only inspection identifies `gSystemMessageArchive` at `.rodata:0x80363A80` as a U8 archive, with magic `55 AA 38 2D`, root offset 32, header size 271 and payload offset 320. Its 11,488 bytes have SHA-256 `e27d380bbad3aff2ef2d41cfdc5b77590390a68937fef6edc87502f2d1813161`. The eleven nodes include six files:
+Read-only inspection identifies gSystemMessageArchive at .rodata:0x80363A80 as a U8 archive, with magic 55 AA 38 2D, root offset 32, header size 271 and payload offset 320. Its 11,488 bytes have SHA-256 e27d380bbad3aff2ef2d41cfdc5b77590390a68937fef6edc87502f2d1813161. The eleven nodes include six files:
 
 | Path under arc | Offset | Bytes |
-| --- | --- | --- |
+| --- | --- | ---: |
 | anim/fatal_errmsg_begin.brlan | 0x140 | 368 |
 | anim/fatal_errmsg_button_a.brlan | 0x2C0 | 384 |
 | anim/fatal_errmsg_end.brlan | 0x440 | 364 |
@@ -26,14 +25,12 @@ Read-only inspection identifies `gSystemMessageArchive` at `.rodata:0x80363A80` 
 | timg/button_a.tpl | 0x23E0 | 2112 |
 | timg/window.tpl | 0x2C20 | 192 |
 
-The main initialization path passes this archive, `fatal_errmsg` and `fot_wanpaku_b.brfnt` to InitializeSystemMessages. This is asset-format evidence only: no reconstruction is accepted and the original-data dependency remains explicit. The separate 8,192-byte axDspSlave block is DSP executable code, not an image or layout asset, and must not be reclassified as ordinary source data.
+The main initialization path passes this archive, fatal_errmsg and fot_wanpaku_b.brfnt to InitializeSystemMessages. This is asset-format evidence: no archive reconstruction is accepted. The separate 8,192-byte axDspSlave block is DSP executable code, not an image or layout asset, and cannot be reclassified as ordinary source data.
 
-## Storage and alignment evidence
+## Resolved storage and alignment
 
-The symbol previously inferred as lbl_804B9028 is the one-byte std::tr1::placeholders::_1 object used by CPiiListFilterSort's preview callback bind expressions. Four native lbz references copy it into the bind argument, including 0x800E83D0. Its source owner now claims that byte through the existing static ph<1> declaration in include/tuple. The obsolete twelve-byte automatic unit is gone: one byte is source-owned and eleven bytes are native alignment excluded from the corrected denominator. Full frozen verification passes; see [placeholder acceptance](cpiilistfiltersort-source-link.md#placeholder-ownership-and-denominator-correction).
+The former 808-byte anonymous BSS region after IdleContext contains the unused SDK IdleThread, a complete 792-byte OSThread, followed by sixteen alignment bytes. A pinned independent SDK source declares and retains that exact typed object. The accepted compiler output places it at 0x80453018 and ends at 0x80453330; the following OSStateTM buffer supplies its own native alignment. The normal complete DOL verifies. See [declaration, provenance and positive/negative controls](anonymous-data-20261104.md).
 
-ArchiveFontBase::LOAD_GLYPH_ALL has now moved into the Matching ut_ArchiveFontData.cpp data-only owner. Its one-byte empty-string definition is unchanged; the existing base source compiles with zero function differences after the move. The maintainer reports native ninja exit 0 and frozen SHA PASS. The .sbss2 split is 0x804BBC08?0x804BBC0C, including three alignment bytes. The accepted checkpoint has 874 Matching units.
+Nineteen further automatic gaps total 352 bytes. Fourteen already follow naturally from accepted source alignment; five require restoring evidenced alignment attributes or an unused reference-source overload whose aligned work buffer is itself discarded. The last seven-byte ControllerTableAlignmentPadding unit is also supplied naturally by StageInfo's eight-byte section alignment. All accepted omission trials and the normal pipeline reproduce the unchanged frozen executable. These 375 bytes, including IdleThread's following gap, are excluded from the data denominator without adding source credit. Detailed ranges and source declarations are in [the anonymous-data audit](anonymous-data-20261104.md).
 
-The largest anonymous region is .bss 0x80453018?0x80453340, 808 bytes, between OSThread's IdleContext and OSStateTM buffers. There is no inferred object or current symbolic reference inside it. This is not enough evidence to claim an invented byte array as source reconstruction. Other anonymous regions are mostly short alignment-sized gaps; any removal from the denominator or source ownership correction requires native layout evidence and transparent accounting.
-
-Source-evidenced alignment ranges are .data 0x803C5744?0x803C5760 and 0x803C5924?0x803C5940 (NW4R_G3D_RESFILE_NAME_DEF uses ATTRIBUTE_ALIGN(32)), .bss 0x8046ECC8?0x8046ECE0 (s_homeDir is aligned(32)), and .bss 0x8046ED20?0x8046ED40 (NANDLogging s_message is aligned(64)). These gaps remain included in the inventory totals; no denominator change was made for this classification.
+The filter placeholder is separately resolved as the one-byte std::tr1::placeholders::_1 object at 0x804B9028, with its surrounding eleven alignment bytes excluded at the earlier six-function checkpoint. See [placeholder acceptance](cpiilistfiltersort-source-link.md#placeholder-ownership-and-denominator-correction). The code-alignment ledger independently accounts for 3,792 code-padding bytes and makes no claim about asset or DSP reconstruction.

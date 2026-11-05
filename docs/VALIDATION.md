@@ -255,3 +255,19 @@ The normal configure/ninja pipeline accepts both remaining shared-pointer refere
 | report.json | 4772116 | `2b3fcb9bf7d0d27facad11d23bff42a07f70664cfeb1e5af4e39f8808c13d9e9` |
 
 The report records six real unfinished functions, 3,062,496 matched code bytes (99.35904%), 2,950,792 source-linked code bytes (95.73494%), and 1,740,433/1,788,735 source-linked data bytes (97.29965%). There are 890 Matching units of 1,388. Correcting the filter placeholder to its one-byte source extent removes eleven alignment bytes from the data denominator and one automatic unit, while the native linker preserves the original executable layout. This is an incremental checkpoint; the nine-function checkpoint remains the latest repeated clean-build evidence. No unit tests, original-byte injection or expected-hash changes are involved.
+
+## Five-function checkpoint and repeated clean builds
+
+Two fully regenerated builds ran configure.py and native ninja from absent build/wpse-v1 directories. Each ninja invocation exited zero and each frozen verifier passed. Both clean builds produce identical main.dol, main.elf and report.json bytes, also identical to the preceding incremental build. The snapshots are five-before-clean and five-clean-one under the ignored current work directory; the second clean output is the normal build directory. No compiled objects were reused.
+
+| Artifact | Bytes | SHA-256 |
+| --- | ---: | --- |
+| main.dol | 4094880 | `ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da` |
+| main.elf | 6037064 | `6c650b471b89d96ffb19a539bef0298f4b4f2ac27d168a67c078e081b7c2173e` |
+| report.json | 4560207 | `1997a54cece3f3208933fc624cea1a8bc26d72e5df8bdea5a31e6cb37a83647b` |
+
+This checkpoint accepts Selector, Player and NPpuVM from source, the exact loader function, the typed IdleThread, and all independently proven native alignment corrections. The report has five real unfinished functions, 3,062,964/3,078,460 matched code bytes, 3,043,388 source-linked code bytes and 1,766,389/1,788,360 source-linked data bytes. There are 893 Matching units of 897, and all 900 final-link aliases are unchanged copies of their selected inputs. The original-address audit finds no regressions or missing exact functions.
+
+The real alignment CLI validates all 470 code ranges and 3,792 bytes against original and rebuilt DOLs, and rejects an empty ledger, overlapping duplicate ranges and a range containing original instructions. Separate native omission trials and normal builds validate all twenty data-alignment units plus the sixteen bytes after IdleThread. No instruction or source-data credit is awarded for removing padding from the denominators.
+
+Four explicit original fallback units remain: PiiPropData, ef_animcurve, the system-message archive and the DSP instruction image. A private animation preflight correctly fails frozen verification: its 263 differing bytes are confined to the three unfinished functions, with every other executable byte exact. That diagnostic is not accepted source coverage. No unit tests, output-byte patches or original-hash changes were used.

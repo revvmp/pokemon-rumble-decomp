@@ -31,6 +31,19 @@ namespace nw4r { namespace snd
 
 namespace nw4r { namespace snd {
 
+void SoundSystem::InitSoundSystem(s32 soundThreadPriority, s32 dvdThreadPriority) {
+    const int defaultWorkSize = DEFAULT_SOUND_THREAD_STACK_SIZE +
+                               DEFAULT_DVD_THREAD_STACK_SIZE +
+                               detail::AxVoiceManager::WORK_SIZE_MAX +
+                               detail::VoiceManager::WORK_SIZE_MAX +
+                               detail::ChannelManager::WORK_SIZE_MAX;
+    static u8 defaultSoundSystemWork[defaultWorkSize] ATTRIBUTE_ALIGN(32);
+    SoundSystemParam param;
+    param.soundThreadPriority = soundThreadPriority;
+    param.dvdThreadPriority = dvdThreadPriority;
+    InitSoundSystem(param, defaultSoundSystemWork, sizeof(defaultSoundSystemWork));
+}
+
 u32 SoundSystem::GetRequiredMemSize(SoundSystemParam const &param)
 {
 

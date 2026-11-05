@@ -31,6 +31,9 @@ public:
     u32 GetCount() const { return mPersonalDataList.size(); }
     int GetCapacity() const { return mCapacity; }
     const std::list<std::tr1::shared_ptr<CPiiPersonalData> >& GetPersonalDataList() const { return mPersonalDataList; }
+#if defined(GAME_DLGPIISELECTOR_EMISSION_LAYOUT)
+    __declspec(section ".text.selector_prefix")
+#endif
     std::list<std::tr1::shared_ptr<CPiiPersonalData> >& GetPersonalDataList() { return mPersonalDataList; }
 
 private:

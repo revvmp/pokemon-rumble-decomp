@@ -36,6 +36,8 @@ The allocator and scheduler are recovered in [sprint-ra](findings/sprint-ra.md).
 
 - **An enum-typed local can preserve a distinct value when ordinary integer locals collapse during optimization.** CPauseMenu's const area enum restores area-first extraction with mode-first bitfield insertion; BWorld's const state enum preserves a separate zero-load operand before OR. Both fixes retain all native instructions; integer-local controls did not. Use the actual enum when available, or cover the complete input range in a documented local type. This is a tested source control, not a guarantee for every register mismatch. [CPauseMenu tail](findings/167-cpausemenu-tail.md#leavestage-solved), [BWorld tail](findings/45-bworld-tail.md#2026-11-04-enum-zero-value-identity).
 
+- **The formal pointer type can affect alias scheduling even after the same local cast.** NPpuVM Load's inferred const-void formal reordered two allocation blocks. A concrete const SHeader formal restores their original order; a typed inline wrapper or restricted concrete formal does not. Header-only accesses, naming provenance and the sole caller support the corrected signature. Its cached stack count still needs a full-range signed enum. [Exact loader and negative controls](findings/vm-properties-tail-20261104.md#load-instruction-completion-and-input-type).
+
 ## Loads and constants
 
 - **A `const T&` or const pointer lets loads be cached across stores.** Non-const references, pointers and by-value class parameters reload after each store. In const member functions, loads from `this` may hoist above the prologue. Fix by making the parameter non-const or by-value, and rename the mangled symbol. [sprint-w1o](findings/sprint-w1o.md#rule-a-const-reference-lets-codewarrior-cache-loads-across-stores)
@@ -50,12 +52,18 @@ The allocator and scheduler are recovered in [sprint-ra](findings/sprint-ra.md).
 - A request made while another template is instantiated goes to a later round (rule 5). `inline` on an out-of-class template member can change code (rule 8).
 - String literals of inline functions become `@STRING@<function>@n` objects after the vtables (rule 3).
 - **Initialized const template statics can follow their first address-request order.** CLayout's four bool members emit newest-requested first when initialized inside the class, within the active metadata wave. Moving their initializers out of class emits them later. Discarded address requests and opaque typed reads reproduce the original pools without extra objects or instructions. [Full source-link evidence](findings/20261104-layout-remote-tail.md#complete-source-link-acceptance)
+- **Discarding a duplicate vtable does not discard every adjacent metadata object.** Selector's remaining type names and base lists preserve include-order effects after the vtable is gone. The final native data comparison exposed 177 bytes missed by checking retained named metadata offsets alone. [Selector source-link acceptance](findings/91-selector-tail.md#complete-native-source-link-2026-11-04)
+- **The first declaration of an overload family can control its native generation position.** Moving only the tagged deque allocation overload had no effect. Moving all four overloads after the buffer destructor reproduced the original Player tail; the complete front family similarly fixed its pair with end. All retained code and exception records stay exact. [Deque-family evidence](findings/cplayer-deque-order-tail.md)
 - **Unresolved: `tree_imp::find_leaf` position.** No source form reproduces the target slot in all six units. [sprint-f1](findings/sprint-f1.md#the-rule-that-is-still-missing)
 - Hypothesis: a lower-priority duplicate weak copy explains second `max<int>` and `DynamicCast` copies. [sprint-e1](findings/sprint-e1.md#open)
 
 ## Tooling traps
 
 - `name_callees.py` renames applied outside the unit being worked can break the link and the DOL; restrict applied `symbols.txt` changes to the unit's range. `permute_names.py` repairs permuted identical-clone names. [sprint-a13](findings/sprint-a13.md), [sprint-a17](findings/sprint-a17.md), [sprint-a14](findings/sprint-a14.md)
+
+## Variable-length stack arrays and unwind records
+
+NPpuVM's ToUnicode and ToSjis converters have identical instructions with explicit alloca or a typed variable-length array, but only the latter emits original exception action 0x9E. The pinned compiler accepts this C++ extension under scoped `#pragma c99 on`. The array lifetime belongs to the compiler's unwind model; matching stack instructions alone does not establish matching cleanup. [Complete source-link evidence](findings/vm-properties-tail-20261104.md#complete-nppuvm-source-link-acceptance).
 
 ## Same-type floating-point reassignment
 

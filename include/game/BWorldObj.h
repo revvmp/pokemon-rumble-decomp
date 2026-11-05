@@ -93,6 +93,9 @@ public:
 
 protected:
     friend class BWorld;
+#if defined(GAME_DLGPIISELECTOR_EMISSION_LAYOUT)
+    friend BWorld* GetSelectorObjectWorld(const BWorldObj* pObject);
+#endif
 
 
     u32 mState;

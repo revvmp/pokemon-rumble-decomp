@@ -59,7 +59,11 @@ template <typename T> inline T Min(T a, T b) {
 }
 
 template <typename T> T Clamp(T value, T low, T high) {
+#if defined(GAME_DLGPIISELECTOR_EMISSION_LAYOUT)
+    return SelectorMinimum(SelectorMaximum(low, value), high);
+#else
     return std::min(std::max(low, value), high);
+#endif
 }
 
 #endif

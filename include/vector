@@ -89,6 +89,9 @@ public:
     void allocate(size_type n, size_type capacity) { allocate(n, capacity, pod_type()); }
     void allocate(size_type n, size_type capacity, pod_type tag) { allocate(capacity, tag); }
     void allocate(size_type n, pod_type);
+#if defined(GAME_DLGPIISELECTOR_EMISSION_LAYOUT)
+    void assign_reallocate(size_type n, size_type capacity);
+#endif
 
     size_type recommend(size_type n);
     size_type recommend(size_type n, pod_type) { return recommend(n); }
@@ -206,6 +209,13 @@ public:
             ++size_;
         }
     }
+
+#if defined(GAME_DLGPIISELECTOR_EMISSION_LAYOUT)
+    void insert_prepare(helper& buffer, T* pos, size_type n);
+    T* insert_finish(helper& buffer, T* pos);
+    size_type move_range(size_type elemsAfter, size_type n, T* pEnd) { return move_range(elemsAfter, n, pEnd, pod_type()); }
+    size_type move_range(size_type elemsAfter, size_type n, T* pEnd, Metrowerks::int2type<false>);
+#endif
 
     void clear_moved() { clear_moved(pod_type()); }
     void clear_moved(Metrowerks::int2type<true>) { this->size_ = 0; }
@@ -564,7 +574,11 @@ protected:
         }
     }
 
+#if defined(GAME_DLGPIISELECTOR_EMISSION_LAYOUT)
+    using base::assign_reallocate;
+#else
     void assign_reallocate(size_type n, size_type capacity);
+#endif
 
     template <typename Iterator> void insert_range(T* pos, Iterator first, Iterator last, std::forward_iterator_tag) {
         size_type n = std::distance(first, last);
@@ -629,12 +643,30 @@ protected:
         return result;
     }
 
+#if defined(GAME_DLGPIISELECTOR_EMISSION_LAYOUT)
+    using base::insert_prepare;
+    using base::insert_finish;
+    using base::move_range;
+#else
     void insert_prepare(typename base::helper& buffer, T* pos, size_type n);
     T* insert_finish(typename base::helper& buffer, T* pos);
     size_type move_range(size_type elemsAfter, size_type n, T* pEnd) { return move_range(elemsAfter, n, pEnd, pod_type()); }
     size_type move_range(size_type elemsAfter, size_type n, T* pEnd, Metrowerks::int2type<false>);
+#endif
 };
 
+#if defined(GAME_DLGPIISELECTOR_EMISSION_LAYOUT)
+template <typename T, typename Allocator>
+void __vec_deleter<T, Allocator>::assign_reallocate(size_type n, size_type capacity) {
+    this->clear();
+    if (this->data_) {
+        this->alloc().deallocate(this->data_, this->cap());
+        this->data_ = nullptr;
+        this->cap() = 0;
+    }
+    this->allocate(n, capacity);
+}
+#else
 template <typename T, typename Allocator, bool IsPOD>
 void __vec_constructor<T, Allocator, IsPOD>::assign_reallocate(size_type n, size_type capacity) {
     base::clear();
@@ -645,13 +677,35 @@ void __vec_constructor<T, Allocator, IsPOD>::assign_reallocate(size_type n, size
     }
     base::allocate(n, capacity);
 }
+#endif
 
+#if defined(GAME_DLGPIISELECTOR_EMISSION_LAYOUT)
+template <typename T, typename Allocator>
+void __vec_deleter<T, Allocator>::insert_prepare(helper& buffer, T* pos, size_type n) {
+    buffer.allocate(this->size_ + n, recommend(this->size_ + n - this->cap()));
+    buffer.start_ = pos - begin();
+}
+#else
 template <typename T, typename Allocator, bool IsPOD>
 void __vec_constructor<T, Allocator, IsPOD>::insert_prepare(typename base::helper& buffer, T* pos, size_type n) {
     buffer.allocate(this->size_ + n, recommend(this->size_ + n - this->cap()));
     buffer.start_ = pos - begin();
 }
+#endif
 
+#if defined(GAME_DLGPIISELECTOR_EMISSION_LAYOUT)
+template <typename T, typename Allocator>
+T* __vec_deleter<T, Allocator>::insert_finish(helper& buffer, T* pos) {
+    size_type index = pos - begin();
+    buffer.move_construct_to_end(pos, end());
+    buffer.construct_at_front(begin(), pos);
+    clear_moved();
+    std::swap(this->cap(), buffer.cap());
+    std::swap(this->data_, buffer.data_);
+    std::swap(this->size_, buffer.size_);
+    return begin() + index;
+}
+#else
 template <typename T, typename Allocator, bool IsPOD>
 T* __vec_constructor<T, Allocator, IsPOD>::insert_finish(typename base::helper& buffer, T* pos) {
     size_type index = pos - begin();
@@ -663,7 +717,23 @@ T* __vec_constructor<T, Allocator, IsPOD>::insert_finish(typename base::helper& 
     std::swap(this->size_, buffer.size_);
     return begin() + index;
 }
+#endif
 
+#if defined(GAME_DLGPIISELECTOR_EMISSION_LAYOUT)
+template <typename T, typename Allocator>
+typename __vec_deleter<T, Allocator>::size_type __vec_deleter<T, Allocator>::move_range(size_type elemsAfter, size_type n, T* pEnd, Metrowerks::int2type<false>) {
+    size_type count = std::min(elemsAfter, n);
+    for (size_type i = 0; i < count; ++i, ++pEnd) {
+        this->alloc().construct(pEnd, std::move(pEnd[-n]));
+        ++this->size_;
+    }
+    pEnd -= n;
+    if (elemsAfter > n) {
+        std::move_backward(pEnd - elemsAfter, pEnd - n, pEnd);
+    }
+    return count;
+}
+#else
 template <typename T, typename Allocator, bool IsPOD>
 typename __vec_constructor<T, Allocator, IsPOD>::size_type __vec_constructor<T, Allocator, IsPOD>::move_range(size_type elemsAfter, size_type n, T* pEnd, Metrowerks::int2type<false>) {
     size_type count = std::min(elemsAfter, n);
@@ -677,6 +747,7 @@ typename __vec_constructor<T, Allocator, IsPOD>::size_type __vec_constructor<T, 
     }
     return count;
 }
+#endif
 
 template <typename T, typename Allocator> void __vec_deleter<T, Allocator>::allocate(size_type n, pod_type) {
     if (n > max_size()) {

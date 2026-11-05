@@ -1,4 +1,9 @@
 #pragma dont_inline on
+#define CPLAYERPII_EMISSION_LAYOUT
+
+#include <nw4r/math/math_types.h>
+#include <MSL_CPP/allocator.h>
+typedef std::allocator<nw4r::math::VEC3> HistoryAllocator;
 
 #include <game/CPlayerPii.h>
 #include <game/CHPBar.h>
@@ -72,3 +77,11 @@ bool CPlayerPii::IsVisible() const
     }
     return false;
 }
+
+enum { DEQUE_SWAP_GENERATION_SIZE = sizeof(std::DequeSwapGeneration<void*>) };
+
+enum { DEQUE_CONSTRUCT_GENERATION_SIZE = sizeof(std::DequeConstructGeneration<void*>) };
+
+enum { DEQUE_MINIMUM_GENERATION_SIZE = sizeof(std::DequeMinimumGeneration<void*>) };
+
+enum { DEQUE_DISTANCE_GENERATION_SIZE = sizeof(std::DequeDistanceGeneration<void*>) };

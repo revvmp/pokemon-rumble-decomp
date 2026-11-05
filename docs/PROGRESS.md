@@ -2,7 +2,7 @@
 
 ## Current status
 
-Roadmap Phases 1 to 3 are complete and Phase 4 is active. The latest verified build matches the frozen main.dol exactly. It links 2,950,792 of 3,082,252 code bytes (95.73494%) from 890 Matching units; 6 real functions remain below 100%. Original split fallbacks still supply the remaining code and data. See the latest session below and [matching requirements](MATCHING.md).
+Roadmap Phases 1 to 3 are complete and Phase 4 is active. The latest verified build matches the frozen main.dol exactly. It links 3,043,388 of 3,078,460 code bytes (98.86073%) from 893 Matching units; 5 real functions remain below 100%. Only PiiPropData and ef_animcurve still supply original CPU-code fallbacks. The embedded system-message archive and DSP instruction image remain explicit data dependencies. See the latest session below and [matching requirements](MATCHING.md).
 
 | Milestone | State | Evidence or prerequisite |
 | --- | --- | --- |
@@ -14,7 +14,7 @@ Roadmap Phases 1 to 3 are complete and Phase 4 is active. The latest verified bu
 | Toolchain identification | Identified per library | RVL_SDK Wii/1.0; MSL and Runtime Wii/1.1 or 1.3 with `-func_align 4`; NW4R Wii/1.0 or 1.1; F-0007 |
 | Reproducible game build | Achieved | Two clean builds byte-identical; F-0010 |
 | Exact executable match | Achieved for `main.dol` | Verified; remaining original split fallbacks are tracked separately |
-| Source reconstruction | Started | 890 Matching units of 1,388 current units; see ledger |
+| Source reconstruction | In progress | 893 Matching units of 897 current units; see ledger |
 | Full release match | Pending | Boot loader, data contents, and WAD packaging outside current scope |
 
 ## Current continuation: source-link acceptance
@@ -25,7 +25,17 @@ Main and CBattleRoyalBox subsequently passed full source-link verification, addi
 
 ## Latest function gains
 
-The real unmatched tail is now 6, down from the initial 120. Matched code is 3,062,496/3,082,252 bytes (99.35904%). Both remaining reference-comparator sorts are exact, preserving their already exact value variants and every previously exact function. Verified source-link coverage remains separate from function matching.
+The real unmatched tail is now 5, down from the initial 120. CCode::Load is newly exact, with all earlier exact functions preserved. Matched code is 3,062,964/3,078,460 bytes (99.49663%). Removing 3,792 independently proven native alignment bytes corrects the denominator without adding matched or linked instruction credit.
+
+## 2026-11-04: Five-function continuation
+
+CDlgPiiSelector, CPlayerPii and NPpuVM now pass the normal source-selected build and frozen main.dol comparison, adding 92,596 linked code bytes. Their accepted source includes 645, 254 and 63 real functions respectively, with complete native code, exception and data placement. The save-manager caller uses the same recovered deque identities so it does not retain duplicate old-name helpers. Linked data is 1,766,389/1,788,360 bytes (98.77144%).
+
+The typed SDK IdleThread recovers 792 bytes of previously anonymous storage. Native source alignment replaces all 470 standalone code-padding objects and twenty standalone data-padding objects. Its separate sixteen-byte following gap is also native alignment. These accounting corrections remove 3,792 code bytes and 375 data bytes from their denominators; they do not add reconstructed instructions or alter the frozen executable. See [code alignment](re/findings/native-alignment-padding.md) and [SDK/data evidence](re/findings/anonymous-data-20261104.md).
+
+Five bodies remain: PiiPropData constructor/Reset and AnimCurveExecuteU8/F32/Rotate. Their eight-agent investigations continue privately. An animation source-link diagnostic confirms that its current differences are confined to those three bodies, with every other executable byte exact; it is not acceptance. The current normal build passes the original-address regression audit and all 900 byte-identical final-link aliases. Clean-build validation is recorded in [validation](VALIDATION.md).
+
+New reusable evidence includes [typed VM input and VLA unwind actions](re/findings/vm-properties-tail-20261104.md), [selector metadata survival after vtable stripping](re/findings/91-selector-tail.md), and [deque overload-family emission](re/findings/cplayer-deque-order-tail.md). The remaining 21,971 data bytes are inventoried in [remaining data](re/findings/remaining-data-inventory.md); full source and package completion are not claimed.
 
 ## 2026-11-04: Six-function continuation
 
