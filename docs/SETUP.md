@@ -89,6 +89,8 @@ To merge an issue branch, run `python tools/collab/land.py --issue <n>` from its
 
 ### Verify
 
+Units with a `text_sections` option in `configure.py` use `tools/build/order_text_sections.py` automatically. It copies selected inputs without changing bytes into unique basenames and writes native final-link selectors under `build/<target>/main_link/`. This avoids the linker's basename collisions while preserving source/fallback ownership. The generated objdiff unit enables `combine_text_sections` for reporting. See [native section linking](re/findings/native-section-link.md); no extra manual build command is needed.
+
 ```powershell
 python tools/verify/verify.py verify --manifest config/targets/<target>.json --reference-dir orig/<target> --build-dir build/<target> --report build/<target>/verification.json
 ```

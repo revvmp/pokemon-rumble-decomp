@@ -13,6 +13,22 @@ static s32 ConvertRGBA8EdgeMCU411(TMCJPEGMCUBuffer* buffer, TMCJPEGEncoder* enc,
 static s32 ConvertRGBA8EdgeMCU422(TMCJPEGMCUBuffer* buffer, TMCJPEGEncoder* enc, s32 x, s32 y);
 static s32 ConvertRGBA8EdgeMCU420(TMCJPEGMCUBuffer* buffer, TMCJPEGEncoder* enc, s32 x, s32 y);
 
+typedef struct TMCJPEGTileCount {
+    int value;
+} TMCJPEGTileCount;
+
+static inline TMCJPEGTileCount MakeTileCount(int value)
+{
+    TMCJPEGTileCount count;
+    count.value = value;
+    return count;
+}
+
+static inline int AddTileCounts(TMCJPEGTileCount lhs, TMCJPEGTileCount rhs)
+{
+    return lhs.value + rhs.value;
+}
+
 s32 TMCJPEGSetupRGBA8(TMCJPEGState* state, TMCJPEGEncoder* enc)
 {
     switch (enc->sampling) {
@@ -33,7 +49,7 @@ s32 TMCJPEGSetupRGBA8(TMCJPEGState* state, TMCJPEGEncoder* enc)
     }
 
     enc->alignedWidth = (enc->width / 4 + (enc->width % 4 != 0)) * 4;
-    enc->alignedHeight = ((enc->height % 4 != 0) + enc->height / 4) * 4;
+    enc->alignedHeight = AddTileCounts(MakeTileCount(enc->height / 4), MakeTileCount(enc->height % 4 != 0)) * 4;
     return 0;
 }
 

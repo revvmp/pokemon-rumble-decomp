@@ -8,8 +8,6 @@
 #include <nw4r/lyt/lyt_pane.h>
 #include <algorithm>
 
-#include <game/CUIListLayoutStorage.h>
-
 IUIListItem::~IUIListItem() {}
 bool IUIListItem::IsSelectable() const { return true; }
 void IUIListItem::Update(CUIList*, CLayout*) {}
@@ -258,15 +256,6 @@ void CUIList::OnFocus(BUI*) {
     }
     UpdateSelection();
 }
-
-#pragma force_active on
-CLayoutVectorStorage::~CLayoutVectorStorage() {
-    if (mpData) {
-        Clear();
-        GetAllocator().deallocate(mpData, Capacity());
-    }
-}
-#pragma force_active reset
 
 inline BUI::Callback BUI::CCallbackListOwner::Add(const std::tr1::function<void(BUI*)>& rCallback) {
     if (rCallback) {

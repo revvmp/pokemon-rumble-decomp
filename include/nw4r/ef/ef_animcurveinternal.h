@@ -450,7 +450,7 @@ inline u8 InterpolateCurveU8(u32 tick, u8 start, u8 end, u8 type) {
             f32 c0 = ((type >> 3) & 1) == 0 ? 0.0f : 1.5f;
             f32 s0 = (f32)s;
             f32 d = t * (f32)(int)(e - s);
-            f32 u = t * (t * (2.0f - (c0 + c1)));
+            f32 u = t * (t * (c0 + c1 - 2.0f));
             f32 v = t * (3.0f + (-2.0f * c0 - c1));
             f32 r = s0 + d * (c0 + (u + v));
             if (r < 0.0f) {

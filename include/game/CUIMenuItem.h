@@ -11,6 +11,9 @@ public:
     virtual bool IsSelectable() const;
     virtual void Update(CUIList* pList, CLayout* pLayout);
     float GetWidth() const { return mWidth; }
+#if defined(CUIMENU_EMISSION_LAYOUT)
+    __declspec(section ".text.menu_prefix")
+#endif
     int GetKind() const { return mKind; }
 
 private:

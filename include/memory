@@ -93,7 +93,7 @@ template <typename T> class shared_ptr {
 public:
     typedef T element_type;
 
-#if defined(CBATTLEROYALBOX_EMISSION_LAYOUT) || defined(CGAMESESSION_EMISSION_LAYOUT)
+#if defined(CBATTLEROYALBOX_EMISSION_LAYOUT) || defined(CGAMESESSION_EMISSION_LAYOUT) || defined(CUIMENU_EMISSION_LAYOUT)
     shared_ptr();
 #else
     shared_ptr() : ptr_(nullptr), s_(nullptr) {}

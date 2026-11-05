@@ -1,3 +1,4 @@
+#define GAME_PII_SORT_PIVOT_STORAGE
 #include <game/CPiiListFilterSort.h>
 #include <game/CMsgRes.h>
 #include <game/CUIPiiListItem.h>

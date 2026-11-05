@@ -8,6 +8,9 @@ struct PaneRectangle {
     f32 top;
     f32 right;
     f32 bottom;
+#if defined(CUIMENU_EMISSION_LAYOUT)
+    __declspec(section ".text.menu_prefix")
+#endif
     f32 GetWidth() const { return right - left; }
     f32 GetHeight() const { return top - bottom; }
 };

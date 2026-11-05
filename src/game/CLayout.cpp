@@ -314,22 +314,73 @@ void CLayout::SetVisible(bool visible) {
     }
 }
 
+namespace {
+
+typedef std::map<std::string, nw4r::lyt::AnimTransform*> LayoutAnimationMap;
+typedef std::detail::map_base_value_compare<std::string, nw4r::lyt::AnimTransform*, std::less<std::string> > LayoutAnimationCompare;
+typedef std::detail::map_compact_tree<LayoutAnimationMap::value_type, LayoutAnimationCompare, std::allocator<LayoutAnimationMap::value_type> > LayoutAnimationTree;
+
+struct LayoutAnimationStorage {
+    unsigned long mSize;
+    std::detail::tree_node_base* mpRoot;
+    std::detail::tree_node_base* mpFirst;
+};
+
+inline std::pair<LayoutAnimationTree::iterator, bool> InsertLayoutAnimationBase(LayoutAnimationTree& rTree, const LayoutAnimationMap::value_type& rValue, std::detail::tree_node_base*& pCached) {
+    LayoutAnimationTree::node* pPredecessor;
+    bool left;
+    bool leftmost;
+    std::detail::tree_node_base* pParent = rTree.find_leaf(rValue, pPredecessor, left, leftmost);
+    pCached = pPredecessor;
+    if (pCached == nullptr || LayoutAnimationCompare()(static_cast<LayoutAnimationTree::node*>(pCached)->value_, rValue)) {
+        return std::pair<LayoutAnimationTree::iterator, bool>(LayoutAnimationTree::iterator(rTree.insert_node_at(pParent, left, leftmost, rValue)), true);
+    }
+    return std::pair<LayoutAnimationTree::iterator, bool>(LayoutAnimationTree::iterator(pCached), false);
+}
+
+inline std::pair<LayoutAnimationMap::iterator, bool> InsertLayoutAnimation(LayoutAnimationMap& rMap, const LayoutAnimationMap::value_type& rValue, std::detail::tree_node_base*& pCached) {
+    return InsertLayoutAnimationBase(reinterpret_cast<LayoutAnimationTree&>(rMap), rValue, pCached);
+}
+
+inline bool CompareLayoutAnimationNames(const std::string& rLeft, const std::string& rRight) {
+    return rLeft < rRight;
+}
+
+inline LayoutAnimationMap::iterator FindLayoutAnimation(LayoutAnimationMap& rMap, const std::string& rName, std::detail::tree_node_base*& pBest) {
+    LayoutAnimationTree& rTree = reinterpret_cast<LayoutAnimationTree&>(rMap);
+    pBest = rTree.end_node();
+    std::detail::tree_node_base* pNode = reinterpret_cast<LayoutAnimationStorage&>(rMap).mpRoot;
+    while (pNode != nullptr) {
+        if (!CompareLayoutAnimationNames(static_cast<LayoutAnimationTree::node*>(pNode)->value_.first, rName)) {
+            pBest = pNode;
+            pNode = pNode->left_;
+        } else {
+            pNode = pNode->right_;
+        }
+    }
+    LayoutAnimationTree::iterator it(pBest);
+    if (it == rTree.end() || rName < it->first) {
+        return rTree.end();
+    }
+    return it;
+}
+}
+
 nw4r::lyt::AnimTransform* CLayout::FindAnimation(const char* pName) {
     typedef std::map<std::string, nw4r::lyt::AnimTransform*> AnimationMap;
-    AnimationMap::iterator it = mAnimations.find(std::string(pName));
+    std::detail::tree_node_base* pLookupBest;
+    AnimationMap::iterator it = FindLayoutAnimation(mAnimations, std::string(pName), pLookupBest);
     if (it == mAnimations.end()) {
         void* pResource = mAccessor.GetResource('anim', pName, nullptr);
         if (pResource != nullptr) {
-            std::string animName(pName);
-            nw4r::lyt::AnimTransform* pAnim = mLayout->CreateAnimTransform(pResource, &mAccessor);
-            it = mAnimations.insert(AnimationMap::value_type(animName, pAnim)).first;
+            std::detail::tree_node_base* pInsertionNode;
+            it = InsertLayoutAnimation(mAnimations, AnimationMap::value_type(std::string(pName), mLayout->CreateAnimTransform(pResource, &mAccessor)), pInsertionNode).first;
         } else {
             std::string path = mName + pName + ".brlan";
             pResource = mAccessor.GetResource('anim', path.c_str(), nullptr);
             if (pResource != nullptr) {
-                std::string animName(pName);
-                nw4r::lyt::AnimTransform* pAnim = mLayout->CreateAnimTransform(pResource, &mAccessor);
-                it = mAnimations.insert(AnimationMap::value_type(animName, pAnim)).first;
+                std::detail::tree_node_base* pInsertionNode;
+                it = InsertLayoutAnimation(mAnimations, AnimationMap::value_type(std::string(pName), mLayout->CreateAnimTransform(pResource, &mAccessor)), pInsertionNode).first;
             } else {
                 return nullptr;
             }

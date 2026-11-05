@@ -22,7 +22,13 @@ public:
     void SetSelectedIndex(int index);
     int GetSelectedIndex();
     std::tr1::shared_ptr<IUIListItem> GetSelectedItem();
+#if defined(CUIMENU_EMISSION_LAYOUT)
+    __declspec(section ".text.menu_prefix")
+#endif
     std::tr1::shared_ptr<IUIListItem> GetItem(int index) { return GetItem(static_cast<unsigned long>(index)); }
+#if defined(CUIMENU_EMISSION_LAYOUT)
+    __declspec(section ".text.menu_prefix")
+#endif
     std::tr1::shared_ptr<IUIListItem> GetItem(unsigned long index) { return index < mItems.size() ? mItems[index] : std::tr1::shared_ptr<IUIListItem>(); }
     std::vector<std::tr1::shared_ptr<IUIListItem> >& GetItems() { return mItems; }
     CLayout* GetSelectedLayout();

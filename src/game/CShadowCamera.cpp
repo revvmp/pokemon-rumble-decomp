@@ -202,6 +202,12 @@ bool CShadowCamera::CalcLightProjection() {
     return true;
 }
 
+struct ShadowMaterialColor : public GXColor {
+    ShadowMaterialColor(const GXColor& rColor) {
+        *reinterpret_cast<u32*>(this) = *reinterpret_cast<const u32*>(&rColor);
+    }
+};
+
 static void SetupShadowMaterial(nw4r::g3d::ResMat mat, nw4r::g3d::ScnMdl::CopiedMatAccess& rAccess,
                                 const COffScreenTexture& rTexture, GXColor color, int cameraIndex, bool useTextureAlpha) {
     u8 addedStages = useTextureAlpha ? 2 : 1;
@@ -231,16 +237,18 @@ static void SetupShadowMaterial(nw4r::g3d::ResMat mat, nw4r::g3d::ScnMdl::Copied
     }
 
     GXTevStageID second = static_cast<GXTevStageID>(stage + 1);
+    void* pTexObj = &texObj;
+    pTexObj = static_cast<void*>(pTexObj);
     GXPTTexMtx postMtx = static_cast<GXPTTexMtx>(GX_PTTEXMTX0 + texCoord * 3);
     GXTexMapID map = static_cast<GXTexMapID>(texMap);
-    *texObj.GetTexObj(map) = rTexture.GetTexObj();
+    *static_cast<nw4r::g3d::ResTexObj*>(pTexObj)->GetTexObj(map) = rTexture.GetTexObj();
     texObj.Validate(map);
 
     u32 numStages = stage + addedStages;
     genMode.GXSetNumTevStages(numStages);
     genMode.GXSetNumTexGens(texCoord + 1);
 
-    tevColor.GXSetTevKColor(GX_KCOLOR3, color);
+    tevColor.GXSetTevKColor(GX_KCOLOR3, ShadowMaterialColor(color));
     tevColor.DCStore(false);
 
     texCoordGen.GXSetTexCoordGen2(static_cast<GXTexCoordID>(texCoord), GX_TG_MTX3x4, GX_TG_POS, GX_FALSE, postMtx);

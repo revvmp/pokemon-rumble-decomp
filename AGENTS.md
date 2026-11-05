@@ -133,6 +133,10 @@ Keep entries concise and actionable. Distinguish confirmed findings from hypothe
 
 - **Native linker file selectors use basenames.** An explicit full-path .text selector pulled both game and MetroTRK main.o into the first position. Byte-identical input copies with unique basenames restore the frozen full SHA; use this when experimenting with native final-link section order. See [native section linking](docs/re/findings/native-section-link.md).
 
+- **A locally unreferenced cleanup can have later consumers.** CUIMenu's original exception actions identify the CUIList cleanup at `0x801DC380` as list-item vector storage. Checking that later consumer removed an unnecessary stand-in class and reproduced the frozen SHA with the natural template. Inspect cross-unit unwind references before treating a cleanup as unused; see [the correction](docs/re/findings/337-cuilist-tail.md#f-337-7-natural-list-item-vector-cleanup).
+
+- **Register-masked comparisons can hide reversed arithmetic.** U8 animation interpolation retained the same fuzzy score with `2.0f - sum` and the correct `sum - 2.0f`. Trace noncommutative operands back to their loads and frozen literals before dismissing them as register allocation; see [the verified polynomial correction](docs/re/findings/animcurve-20261104-continuation.md).
+
 ## Current project state
 
 | Current state | Value |

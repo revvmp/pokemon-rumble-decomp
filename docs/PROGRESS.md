@@ -2,7 +2,7 @@
 
 ## Current status
 
-Roadmap Phases 1 to 3 are complete and Phase 4 is active. The latest verified build matches the frozen main.dol exactly. It links 2,684,408 of 3,082,232 code bytes (87.09299%) from 873 Matching units; 30 real functions remain below 100%. Original split fallbacks still supply the remaining code and data. See the latest session below and [matching requirements](MATCHING.md).
+Roadmap Phases 1 to 3 are complete and Phase 4 is active. The latest verified build matches the frozen main.dol exactly. It links 2,699,304 of 3,082,232 code bytes (87.57628%) from 876 Matching units; 24 real functions remain below 100%. Original split fallbacks still supply the remaining code and data. See the latest session below and [matching requirements](MATCHING.md).
 
 | Milestone | State | Evidence or prerequisite |
 | --- | --- | --- |
@@ -14,7 +14,7 @@ Roadmap Phases 1 to 3 are complete and Phase 4 is active. The latest verified bu
 | Toolchain identification | Identified per library | RVL_SDK Wii/1.0; MSL and Runtime Wii/1.1 or 1.3 with `-func_align 4`; NW4R Wii/1.0 or 1.1; F-0007 |
 | Reproducible game build | Achieved | Two clean builds byte-identical; F-0010 |
 | Exact executable match | Achieved for `main.dol` | Verified; remaining original split fallbacks are tracked separately |
-| Source reconstruction | Started | 873 Matching units of 1,385 current units; see ledger |
+| Source reconstruction | Started | 876 Matching units of 1,385 current units; see ledger |
 | Full release match | Pending | Boot loader, data contents, and WAD packaging outside current scope |
 
 ## Current continuation: source-link acceptance
@@ -25,7 +25,7 @@ Main and CBattleRoyalBox subsequently passed full source-link verification, addi
 
 ## Latest function gains
 
-The real unmatched tail is now 30, down 90 from its initial 120. Matched code is 3,029,036/3,082,232 bytes (98.27411%). Recent exact functions include PiiPropData assignment, both selector tag dispatch callers, CRemoteMemory ThreadMain, InitMsgResList, GetPaneRectangle, PhotoSave and CGameEnding. Verified source-link coverage remains distinct from function matching.
+The real unmatched tail is now 24, down 96 from its initial 120. Matched code is 3,035,104/3,082,232 bytes (98.47098%). The latest six exact functions are CLayout FindAnimation, CShadowCamera SetupShadowMaterial, both UIMenuItem sort variants in CPiiListFilterSort, and the RGBA8/RGB565 JPEG setup routines. Verified source-link coverage remains distinct from function matching.
 
 Several link failures were incorrect inferred identities: original vtable relocations prove swapped destructor names in CGameSession, errmsg and CNoticeDisplay. Correcting them removed unnecessary source-fragment experiments. Errmsg also required recovering its NErrMsg namespace from embedded type names, preserving two separately compiled float pools, and the evidenced16-byte start alignment of the following homebutton function. Frozen hashes remain unchanged.
 
@@ -58,6 +58,10 @@ Images use a single blue sequential ramp with separate light and dark steps sele
 The ledger is kept per area in [ledger](ledger/README.md). It records source ownership and evidence per unit. Current measured linked coverage is reported above; original split dependencies still count as fallback.
 
 ## Latest session
+
+2026-11-04 function checkpoint: six more real functions are exact without regressions. RGB565 now links all seven functions from source and passes the frozen executable verifier; it adds 3,084 linked code bytes. The other newly exact functions remain in NonMatching units until their remaining functions and complete source links are accepted. The U8 animation interpolation helper also corrects the proven reversed `(c0 + c1) - 2.0f` term; that semantic correction does not change its fuzzy score and does not count as another exact function. Original inputs and hashes are unchanged. Evidence: [JPEG](re/findings/tmc-jpeg-final-tail.md), [sort](re/findings/sort-tail-20261104.md), [layout](re/findings/20261104-layout-remote-tail.md), [shadow material](re/findings/20261104-game-small-tail.md), and [animation interpolation](re/findings/animcurve-20261104-continuation.md).
+
+2026-11-04 CUIMenu source-link acceptance: all 61 functions now come from source through the ordinary configure/ninja entry point. Native compiler sections and native linker selectors resolve the final adjacent function-order difference; all 1,385 uniquely named linker inputs are byte-identical copies of their selected inputs. Ninja exited 0 and frozen `main.dol` verification passed. Linked code increased by 11,812 bytes; linked data is 1,660,427/1,788,769 bytes (92.82512%). No previously exact real function regressed, and the unmatched count remains 30. The fresh starting report had 874 completed units, correcting the preceding prose count of 873. The CUIList cleanup at `0x801DC380` is now the natural list-item vector template destructor, replacing a documented stand-in. See [CUIMenu](re/findings/cuimenu-native-sections.md) and [cleanup identity](re/findings/337-cuilist-tail.md#f-337-7-natural-list-item-vector-cleanup). Two subsequent clean builds including all six function gains and RGB565 reproduce main.dol, main.elf and report.json byte-for-byte; both frozen verifications pass. See [validation](VALIDATION.md#24-function-checkpoint-and-native-section-linking).
 
 2026-11-04 data continuation: BModelObj, CMiniMap and CPauseMenu now pass full source-link verification. Camera, species/model names, motor patterns, post-effect, stage, motion and effect tables are ordinary typed C++ definitions with compiler relocations. MSL character maps and the AX compressor table are typed C arrays. The C locale pointer graph and seven typed BMG language resources also pass full source linkage. Fourteen new data units remove 82,960 bytes of fallback data. The report records 1,643,397 linked data bytes (91.870094%); data denominators can change when explicit splits separate alignment padding. New function gains are CMiniMap CalcView, both RGB565 MCU converters and both remaining Pause functions. BWorld Calc/CalcMtx and CLayout ReplaceMotions/DetachAttachedLayouts subsequently became exact; BWorld, homebutton and TextWriterBase subsequently passed full source-link acceptance. NPpuVM destructor, CGameResult Calc, the collection-item constructor and two more CLayout methods are exact. Fresh ninja and frozen main.dol verification pass, with no formerly exact real function regressing against the prior clean build. No new project-wide trap was established; local emission and field-type evidence is retained in the linked findings.
 

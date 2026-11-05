@@ -378,7 +378,7 @@ config.libs = [
             Object(Matching, "game/CResFont.cpp"),
             Object(Matching, "game/CRomFont.cpp"),
             Object(Matching, "game/CUIList.cpp"),
-            Object(NonMatching, "game/CUIMenu.cpp"),
+            Object(Matching, "game/CUIMenu.cpp", text_sections=[".text.menu_prefix", ".text.menu_notify", ".text"]),
             Object(Matching, "game/errmsg.cpp", partial_sources=[
                 "game/errmsg_main/errmsg.cpp",
             ]),
@@ -486,7 +486,7 @@ config.libs = [
             Object(Matching, "TMC_JPEG/tmcjpeg_quant.c"),
             Object(Matching, "TMC_JPEG/tmcjpeg_stream.c"),
             Object(NonMatching, "TMC_JPEG/tmcjpeg_rgba8.c"),
-            Object(NonMatching, "TMC_JPEG/tmcjpeg_rgb565.c"),
+            Object(Matching, "TMC_JPEG/tmcjpeg_rgb565.c"),
         ],
     ),
     library(

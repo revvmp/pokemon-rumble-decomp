@@ -129,6 +129,9 @@ void sort(TIt first, TIt last, TCompare compare) {
     static const int SHUFFLE_MAX = 5;
     static const int SELECTION_SORT_MIN = 20;
 
+#if defined(GAME_PII_SORT_PIVOT_STORAGE)
+    void* pPivot;
+#endif
     while (true) {
         long len = static_cast<long>(last - first);
         if (len <= 1) {
@@ -156,12 +159,25 @@ void sort(TIt first, TIt last, TCompare compare) {
             shuffle = SHUFFLE_MIN;
         }
 
+#if defined(GAME_PII_SORT_PIVOT_STORAGE)
+        pPivot = last.base() - 1;
+        TIt j = static_cast<typename TIt::value_type*>(pPivot);
+#else
         TIt j = last - 1;
+#endif
         __sort132<TCompare&, TIt>(m, i1, j, compare);
 
         m = first;
+#if defined(GAME_PII_SORT_PIVOT_STORAGE)
+        i1 = static_cast<typename TIt::value_type*>(pPivot);
+#else
         i1 = j;
+#endif
+#if defined(GAME_PII_SORT_PIVOT_STORAGE)
+        while (compare(*m, *static_cast<typename TIt::value_type*>(pPivot))) {
+#else
         while (compare(*m, *j)) {
+#endif
             ++m;
         }
 
@@ -171,18 +187,30 @@ void sort(TIt first, TIt last, TCompare compare) {
             if (m == i1) {
                 break;
             }
+#if defined(GAME_PII_SORT_PIVOT_STORAGE)
+        } while (!compare(*i1, *static_cast<typename TIt::value_type*>(pPivot)));
+#else
         } while (!compare(*i1, *j));
+#endif
 
         if (m < i1) {
             swap(*m, *i1);
             m++;
 
             while (true) {
+#if defined(GAME_PII_SORT_PIVOT_STORAGE)
+                while (compare(*m, *static_cast<typename TIt::value_type*>(pPivot))) {
+#else
                 while (compare(*m, *j)) {
+#endif
                     m++;
                 }
 
+#if defined(GAME_PII_SORT_PIVOT_STORAGE)
+                while (!compare(*--i1, *static_cast<typename TIt::value_type*>(pPivot))) {
+#else
                 while (!compare(*--i1, *j)) {
+#endif
                     ;
                 }
 
@@ -195,7 +223,11 @@ void sort(TIt first, TIt last, TCompare compare) {
         }
 
         if (m == first) {
+#if defined(GAME_PII_SORT_PIVOT_STORAGE)
+            swap(*m, *static_cast<typename TIt::value_type*>(pPivot));
+#else
             swap(*m, *j);
+#endif
             m++;
 
             i1 = last;

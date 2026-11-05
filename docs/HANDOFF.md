@@ -29,15 +29,17 @@ CDlgPiiSelector has all 645 functions exact and still needs ordering/data accept
 
 ## Next actions
 
+The current 2026-11-04 checkpoint links CUIMenu and RGB565 from source: 61/61 and 7/7 functions exact, ordinary configure/ninja and frozen main.dol verification pass. Linked code is 2,699,304/3,082,232 bytes (87.57628%), linked data is 1,660,427/1,788,769 bytes (92.82512%), and 876/1,385 units are complete. The preceding prose count of 873 was stale; the fresh baseline report had 874. Six newly exact functions reduce the real-function count to 24, with no regression against that baseline. The other gains are FindAnimation, SetupShadowMaterial, the two UIMenuItem sorts, and RGBA8 setup. See [CUIMenu acceptance](re/findings/cuimenu-native-sections.md) and [JPEG](re/findings/tmc-jpeg-final-tail.md). Two clean builds of this checkpoint reproduced main.dol, main.elf and report.json byte-for-byte; both frozen verifications passed. Full output directories were regenerated, with no reused compiled objects. See [validation](VALIDATION.md#24-function-checkpoint-and-native-section-linking).
+
 1. Read [codegen rules](re/CODEGEN_RULES.md) first. It now includes the compiler's recovered emission-order model (from `mwcceppc.exe` in IDA; [sprint-ida](re/findings/sprint-ida.md)) and its register allocator and scheduler ([sprint-ra](re/findings/sprint-ra.md)). Diagnose with `tools/re/regscan.py` and `tools/re/ra_trace.py` before editing.
 2. Fake matches are allowed after a documented honest attempt ([D-0016](DECISIONS.md#d-0016-documented-fake-matches-for-the-remaining-long-tail)); every remaining function has one in `re/findings/sprint-*.md`. Add a ledger row for each fake.
-3. Function-perfect units still needing source-link acceptance: CDlgPiiSelector, CUIMenu and CModel. Keep ordering/data experiments isolated until a full SHA verifies.
-4. Remaining clusters include CLayout two, NPpuVM two, ef_animcurve five, CPiiListFilterSort five, CRemoteMemory three. Read prior findings before repeating probes.
+3. Function-perfect units still needing source-link acceptance: CDlgPiiSelector and CModel. Keep ordering/data experiments isolated until a full SHA verifies. CUIMenu uses the optional `text_sections` object setting and the normal native final linker; do not replace it with object-byte rewriting.
+4. Remaining functions: CDlgCollection one, CGameResult one, CPii one, CPiiListFilterSort two, PiiPropData two, CPlayerPii one, CRemoteMemory three, CShadowCamera one, NPpuVM two, CLayout one, CMsgRes one, JPEG RGBA8 one, ef_animcurve five, ParticleManager one, ArchiveFontBase one. Read prior findings before repeating probes.
 5. decomp-permuter only parses C. The C++ text-level permuter (`cxxperm.py`, `minimize.py`) and the patched C harness are in ignored `tools/local/perm/`; setup is in [sprint-perm](re/findings/sprint-perm.md). Its third wave (fakes allowed, 51 functions at 97% or more) never completed.
 6. The ef draw strategies and CRemoteMemory match with per-function optimizer pragmas; the original was probably built with different file-level settings. Revisit when evidence appears. Ledger entries are candidates for honest rewrites.
 7. After the long tail, the owner wants a native Windows and WebAssembly port (a GX graphics layer such as Aurora, audio, input, file I/O, endianness). Not started.
 
-Sprint helper scripts are kept in ignored `tools/local/session/`: local landing with rebase, build and verify; checkpoint push with image refresh; issue closing by address range; and an IDA JSON-RPC client. Their paths point at this PC's worktrees.
+The earlier sprint's `tools/local/session/` and `tools/local/perm/` helpers are absent on this PC. Current isolated experiments and reusable local probe helpers are under ignored `tools/local/tail-20261104/`; do not assume old handoff scratch paths exist. The tracked native section preparer is `tools/build/order_text_sections.py`, invoked by ninja automatically.
 
 ## Available commands
 

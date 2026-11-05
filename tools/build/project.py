@@ -50,6 +50,7 @@ class Object:
             "extra_cflags": [],
             "extra_clang_flags": [],
             "partial_sources": [],
+            "text_sections": [],
             "lib": None,
             "mw_version": None,
             "progress_category": None,
@@ -665,6 +666,19 @@ def generate_build_ninja(
     )
     n.newline()
 
+    order_text_sections = config.tools_dir / "order_text_sections.py"
+    n.rule(
+        name="order_text_sections",
+        command=f'$python {order_text_sections} --specification "$specification" --template "$template" --output-dir "$output_dir"',
+        description="ORDER $output_dir",
+    )
+    n.rule(
+        name="link_ordered",
+        command=f'{wrapper_cmd}{mwld} $ldflags -o $out @"$link_rsp"',
+        description="LINK $out",
+    )
+    n.newline()
+
     n.comment("Generate DOL")
     n.rule(
         name="elf2dol",
@@ -811,9 +825,13 @@ def generate_build_ninja(
             self.ldscript: Optional[Path] = Path(config["ldscript"])
             self.entry = config["entry"]
             self.inputs: List[str] = []
+            self.text_sections: Dict[str, List[str]] = {}
 
-        def add(self, obj: Path) -> None:
-            self.inputs.append(serialize_path(obj))
+        def add(self, obj: Path, text_sections: Optional[List[str]] = None) -> None:
+            path = serialize_path(obj)
+            self.inputs.append(path)
+            if text_sections:
+                self.text_sections[path] = text_sections
 
         def output(self) -> Path:
             if self.module_id == 0:
@@ -828,10 +846,45 @@ def generate_build_ninja(
                 return build_path / self.name / f"{self.name}.plf"
 
         def write(self, n: ninja_syntax.Writer) -> None:
+            if self.text_sections and self.module_id != 0:
+                sys.exit("Ordered text input sections are only supported for the main executable")
             n.comment(f"Link {self.name}")
             if self.module_id == 0:
                 elf_path = build_path / f"{self.name}.elf"
-                elf_ldflags = f"$ldflags -lcf {serialize_path(self.ldscript)}"
+                link_script = self.ldscript
+                link_rule = "link"
+                link_implicit: List[Optional[Path]] = [self.ldscript, *mwld_implicit]
+                link_variables = {}
+                if self.text_sections:
+                    ordered_dir = build_path / f"{self.name}_link"
+                    specification = build_path / f"{self.name}_link.json"
+                    entries = [
+                        {"object": path, "text_sections": self.text_sections.get(path, [".text"])}
+                        for path in self.inputs
+                    ]
+                    specification_text = json.dumps(entries, indent=2) + "\n"
+                    if not specification.exists() or specification.read_text(encoding="utf-8") != specification_text:
+                        specification.write_text(specification_text, encoding="utf-8", newline="\n")
+                    link_script = ordered_dir / "ordered.lcf"
+                    response = ordered_dir / "inputs.rsp"
+                    aliases = [ordered_dir / f"unit_{index:04d}.o" for index in range(len(self.inputs))]
+                    n.build(
+                        outputs=[link_script, response],
+                        rule="order_text_sections",
+                        inputs=self.inputs,
+                        implicit=[self.ldscript, specification, order_text_sections],
+                        implicit_outputs=aliases,
+                        variables={
+                            "specification": specification,
+                            "template": self.ldscript,
+                            "output_dir": ordered_dir,
+                        },
+                        order_only="post-compile",
+                    )
+                    link_rule = "link_ordered"
+                    link_implicit.extend([link_script, response, *aliases])
+                    link_variables["link_rsp"] = response
+                elf_ldflags = f"$ldflags -lcf {serialize_path(link_script)}"
                 if config.generate_map:
                     elf_map = map_path(elf_path)
                     elf_ldflags += f" -map {serialize_path(elf_map)}"
@@ -839,14 +892,11 @@ def generate_build_ninja(
                     elf_map = None
                 n.build(
                     outputs=elf_path,
-                    rule="link",
+                    rule=link_rule,
                     inputs=self.inputs,
-                    implicit=[
-                        self.ldscript,
-                        *mwld_implicit,
-                    ],
+                    implicit=link_implicit,
                     implicit_outputs=elf_map,
-                    variables={"ldflags": elf_ldflags},
+                    variables={"ldflags": elf_ldflags, **link_variables},
                     order_only="post-compile",
                 )
             else:
@@ -1101,7 +1151,7 @@ def generate_build_ninja(
                 built_obj_path = asm_build(obj, obj.asm_path, obj.asm_obj_path)
 
             if link_built_obj and built_obj_path is not None:
-                link_step.add(built_obj_path)
+                link_step.add(built_obj_path, obj.options["text_sections"])
             elif obj_path is not None:
                 link_step.add(Path(obj_path))
 
@@ -1545,6 +1595,9 @@ def generate_objdiff_config(
         if obj is None:
             objdiff_config["units"].append(unit_config)
             return
+
+        if obj.options["text_sections"]:
+            unit_config["options"] = {"combine_text_sections": True}
 
         src_exists = obj.src_path is not None and obj.src_path.exists()
         if src_exists:

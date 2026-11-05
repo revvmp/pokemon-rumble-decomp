@@ -1,5 +1,10 @@
 # Symbols and interfaces
 
+## CUIList cleanup identity correction, 2026-11-04
+
+`0x801DC380`, size `0xC4`, is `std::__vec_deleter<std::tr1::shared_ptr<IUIListItem>, std::allocator<std::tr1::shared_ptr<IUIListItem> > >::~__vec_deleter()`. Naming confidence is high for the template identity: the later CUIMenu exception action at its `extab+0x354` references this address, and the natural compiled template reproduces all 196 bytes and the complete frozen executable. This supersedes the descriptive `CLayoutVectorStorage` stand-in, which has been removed. No class/member ABI changes are involved. See [F-337-7](findings/337-cuilist-tail.md#f-337-7-natural-list-item-vector-cleanup).
+
+
 ## CDisconMsg complete source interface (#58, #59)
 
 [F-58-6](findings/58-disconmsg.md#f-58-6-actual-source-unit-integration-and-rejected-retained-order) records the complete 24-byte anonymous CDisconMsg: IDisconMsg vptr at0, shared_ptr<CLayout> at4, shared_ptr<CFiber> at12 and signed suppression count at20. IDisconMsg inherits the five ICalcDraw slots and adds IsActive, CanShow and AdjustSuppressCount in that order. Factory0x8006FBF0 returns shared_ptr<IDisconMsg>. The private class/source spelling comes from native RTTI; method and member names describe proven behavior. All32 actual source functions and22 exception records are individually exact, but retained function/data ordering prevents source-selected acceptance. The seven tail helpers belong to #59; vtable destinations distinguish CFiber deleter destructor0x80070B60 from CLayout deleter destructor0x80070BA0 despite their identical bodies. Native vtable/RTTI chains also correct the prior function_base<void(*)()> aliases at0x80131600/0x803B5800/0x804B7900 to the Home Button enum callback implementation; the zero-argument base destructor/vtable/RTTI reside at0x800704A0/0x8039B6A8/0x804B5E28. No outside sizes, types or splits change.

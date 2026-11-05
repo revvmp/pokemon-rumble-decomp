@@ -1,5 +1,10 @@
 # Findings
 
+## 2026-11-04 native source-link continuation
+
+[CUIMenu's complete source link](findings/cuimenu-native-sections.md) proves native compiler section grouping and explicit native linker order in the ordinary build. All 61 functions match, and the final frozen executable passes unchanged. The preparation step copies selected objects byte-for-byte to unique names; it does not rewrite instructions, relocations or reference data. [The CUIList cleanup correction](findings/337-cuilist-tail.md#f-337-7-natural-list-item-vector-cleanup) removes an unnecessary D-0016 stand-in using the later CUIMenu unwind consumer as identity evidence.
+
+
 ## F-0001: WAD container metadata
 
 Python 3.14.0 inspection of the user-supplied WAD identified title ID `0001000157505345` (`WPSE`), region 1 (USA), TMD title version 1, seven contents, and boot index 6. Game name is user-supplied; authenticity, signatures, acquisition history, and retail revision naming are unverified.

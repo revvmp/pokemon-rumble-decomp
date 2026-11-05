@@ -1,5 +1,7 @@
 # F-337-6: CUIList local destructor reconstruction
 
+The stand-in class described below is superseded by [the cross-unit cleanup evidence](#f-337-7-natural-list-item-vector-cleanup). Its implementation and fake-match ledger entry have been removed.
+
 2026-11-04, baseline `d14a20ca1`, target `wpse-v1`, Wii/1.1 with configured game flags.
 
 The remaining function at `0x801DC380`, size `0xC4`, was previously inferred as a local copy of `std::vector<std::tr1::shared_ptr<CLayout>>::~vector`. That inferred name is not original-symbol evidence. The header's vector destructor emits two extra redundant null branches and scores 95.918365%. Explicit specialization, explicit instantiation, and per-instantiation optimizer pragmas did not remove those branches.
@@ -45,3 +47,17 @@ The unit contributes 31 matched functions and its `0x2600`-byte `.text` extent i
 ## Traps
 
 A local duplicate's inferred template name can imply the wrong destructor depth. Here the flat base destructor matches exactly while the outer vector destructor does not. Check the actual null-branch depth and the local relocation users before changing shared vector headers. `#pragma internal` around an explicit template destructor instantiation did not change its weak symbol binding, so it did not provide a distinct retained local copy.
+
+## F-337-7: Natural list-item vector cleanup
+
+The CUIMenu source-link trial identifies the original function at `0x801DC380` as `std::__vec_deleter<std::tr1::shared_ptr<IUIListItem>, std::allocator<std::tr1::shared_ptr<IUIListItem>>>::~__vec_deleter`. The original CUIMenu split has an `R_PPC_ADDR32` cleanup relocation at `extab+0x354` to this address, within the vector reserve cleanup. Its element type is established by the corresponding `vector<shared_ptr<IUIListItem>>::reserve` function and compiler-generated unwind action. The earlier CLayout interpretation considered only references inside CUIList and missed this later consumer.
+
+The first source-link trial retained both the forced `CLayoutVectorStorage` stand-in and the natural 196-byte list-item vector destructor. This added 208 aligned text bytes, 40 exception bytes, and one exception-index record. Removing the stand-in class and its forced definition lets the existing vector template supply the original function at its original position. No new destructor implementation, compiler option, padding, or original-byte dependency is needed.
+
+The main build now names the verified template at `0x801DC380`. `ninja` exits 0 and frozen `main.dol` verification passes with the natural destructor and the unchanged CUIMenu fallback. All 31 CUIList functions compare exactly. Evidence: `tools/local/tail-20261104/cleanup-build.log`, the generated report, and `build/wpse-v1/verification.json`. Original SHA-256 remains `ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da`.
+
+The separate CUIMenu candidate then links with identical data-section bytes and extents. Its remaining 186 differing bytes are confined to two swapped helper functions, their call relocations, and one exception-index byte. That candidate remains unaccepted pending correct helper placement.
+
+### Traps
+
+A cleanup unreferenced by its owning unit can still be used by a later unit's exception actions. Before preserving it with a stand-in type, inspect relocation users across the whole executable. The natural list-item storage destructor replaces the earlier documented fake without changing the executable.

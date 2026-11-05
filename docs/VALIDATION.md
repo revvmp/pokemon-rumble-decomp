@@ -1,5 +1,20 @@
 # Initialization validation
 
+## 24-function checkpoint and native section linking
+
+On 2026-11-04, two clean builds regenerated the entire `build/wpse-v1` directory through `python configure.py` and `.venv/Scripts/ninja`. Each ninja run exited 0, and each frozen-manifest `main.dol` verification passed. The prior output directories were moved to distinct ignored snapshots inside the workspace; no compiled object from a previous build was reused. Direct comparisons of all three artifacts are identical:
+
+| Artifact | Bytes | SHA-256 |
+| --- | --- | --- |
+| main.dol | 4,094,880 | `ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da` |
+| main.elf | 6,133,208 | `df1338553d32266691d07c304b36c8399ee0f4af0676085235a7e133cb6e5dee` |
+| report.json | 4,765,814 | `5614d3c23f9b7ca330d35cc64ecf19cdd3e407d13d71b4c83020889db01070c2` |
+
+This includes [CUIMenu's native section ordering](re/findings/cuimenu-native-sections.md), the natural CUIList cleanup identity, six newly exact functions, RGB565 source linkage and the corrected U8 interpolation term. All 1,385 native-link aliases equal their selected input objects byte-for-byte. The new preparation CLI rejects an invalid section list and a linker template missing the required empty `.text` section; both real CLI failure cases exited 1 without producing a linker command file.
+
+The report has 3,035,104/3,082,232 matched code bytes, 2,699,304 source-linked code bytes, 1,660,427/1,788,769 source-linked data bytes and 876 completed units. No previously exact real function regressed against the fresh starting report. Twenty-four real functions and documented original code/data fallbacks remain; this is a reproducible checkpoint, not full decompilation. Evidence snapshots and logs are under ignored `tools/local/tail-20261104/`, including `clean-repeat-comparison.json` and `linkprep_validation/results.json`. The README progress images were regenerated from this verified report.
+
+
 Validation ran with Python 3.14.0 on Windows. These results concern repository tooling only. They provide no evidence of an original game hash or reconstructed game match.
 
 ## Completed checks
