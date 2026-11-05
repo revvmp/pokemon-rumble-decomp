@@ -84,6 +84,9 @@ public:
         mpPlayPolicy = func;
     }
 
+#if defined(CMODEL_EMISSION_LAYOUT)
+    __declspec(section ".text.model_update")
+#endif
     static void SetBaseUpdateRate(f32 rate) {
         smBaseUpdateRate = rate;
     }

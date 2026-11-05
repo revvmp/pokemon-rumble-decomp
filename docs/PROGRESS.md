@@ -2,7 +2,7 @@
 
 ## Current status
 
-Roadmap Phases 1 to 3 are complete and Phase 4 is active. The latest verified build matches the frozen main.dol exactly. It links 2,751,440 of 3,082,252 code bytes (89.2672%) from 884 Matching units; 12 real functions remain below 100%. Original split fallbacks still supply the remaining code and data. See the latest session below and [matching requirements](MATCHING.md).
+Roadmap Phases 1 to 3 are complete and Phase 4 is active. The latest verified build matches the frozen main.dol exactly. It links 2,837,388 of 3,082,252 code bytes (92.05568%) from 887 Matching units; 9 real functions remain below 100%. Original split fallbacks still supply the remaining code and data. See the latest session below and [matching requirements](MATCHING.md).
 
 | Milestone | State | Evidence or prerequisite |
 | --- | --- | --- |
@@ -14,7 +14,7 @@ Roadmap Phases 1 to 3 are complete and Phase 4 is active. The latest verified bu
 | Toolchain identification | Identified per library | RVL_SDK Wii/1.0; MSL and Runtime Wii/1.1 or 1.3 with `-func_align 4`; NW4R Wii/1.0 or 1.1; F-0007 |
 | Reproducible game build | Achieved | Two clean builds byte-identical; F-0010 |
 | Exact executable match | Achieved for `main.dol` | Verified; remaining original split fallbacks are tracked separately |
-| Source reconstruction | Started | 884 Matching units of 1,389 current units; see ledger |
+| Source reconstruction | Started | 887 Matching units of 1,389 current units; see ledger |
 | Full release match | Pending | Boot loader, data contents, and WAD packaging outside current scope |
 
 ## Current continuation: source-link acceptance
@@ -25,9 +25,19 @@ Main and CBattleRoyalBox subsequently passed full source-link verification, addi
 
 ## Latest function gains
 
-The real unmatched tail is now 12, down from the initial 120. Matched code is 3,054,792/3,082,252 bytes (99.10909%). This checkpoint completes the collection Calc, CPii snapshot swap, filter Sort caller, three remote-memory functions, shadow-model setup, layout pane lookup, JPEG 4:1:1 converter, texture curve, particle calculation and archive-font analysis. Verified source-link coverage remains separate from function matching.
+The real unmatched tail is now 9, down from the initial 120. Matched code is 3,056,828/3,082,252 bytes (99.17515%). This checkpoint completes the collection Calc, CPii snapshot swap, filter Sort caller, three remote-memory functions, shadow-model setup, layout pane lookup, JPEG 4:1:1 converter, texture curve, particle calculation and archive-font analysis. Verified source-link coverage remains separate from function matching.
 
 Several link failures were incorrect inferred identities: original vtable relocations prove swapped destructor names in CGameSession, errmsg and CNoticeDisplay. Correcting them removed unnecessary source-fragment experiments. Errmsg also required recovering its NErrMsg namespace from embedded type names, preserving two separately compiled float pools, and the evidenced16-byte start alignment of the following homebutton function. Frozen hashes remain unchanged.
+
+## 2026-11-04: Nine-function continuation
+
+Two clean builds of this continuation reproduced main.dol, main.elf and report.json byte-for-byte, with native ninja and frozen-artifact verification passing each time. See [clean-build evidence](VALIDATION.md#nine-function-checkpoint-and-grouped-source-linking).
+
+CModel, CDlgCollection and CMsgRes now pass the normal source-selected build and frozen main.dol verification. CPlayerPii GetShadowName, NPpuVM CollectGarbage and CMsgRes ConvertEscape are newly exact, preserving every previously exact function by original address. Linked data is 1,711,080/1,788,746 bytes (95.65807%). The original hashes are unchanged.
+
+CModel uses four typed compiler outputs directly in the native final link, with explicit code-section order and original exception/data ownership order. Its native partial-link object remains the objdiff input. Every one of the 1,392 final-link aliases is byte-identical to its selected object; 1,389 progress units remain. The new preparer path passes real CLI rejection checks and the complete native build. See [CModel](re/findings/329-cmodel-emission.md), [Collection](re/findings/cdlgcollection-tail.md), and [native linking](re/findings/native-section-link.md#grouped-source-inputs).
+
+Only CPlayerPii, CLayout and CDlgPiiSelector remain function-perfect units awaiting source-link placement. The nine unfinished bodies are two reference-comparator sorts, two PiiPropData routines, NPpuVM Load and four effect-curve executors. Additional code/data fallbacks remain explicit; this is not full source completion.
 
 ## 2026-11-04: Twelve-function checkpoint
 

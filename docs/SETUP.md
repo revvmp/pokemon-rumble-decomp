@@ -91,6 +91,8 @@ To merge an issue branch, run `python tools/collab/land.py --issue <n>` from its
 
 Units with a `text_sections` option in `configure.py` use `tools/build/order_text_sections.py` automatically. It copies selected inputs without changing bytes into unique basenames and writes native final-link selectors under `build/<target>/main_link/`. This avoids the linker's basename collisions while preserving source/fallback ownership. The generated objdiff unit enables `combine_text_sections` for reporting. See [native section linking](re/findings/native-section-link.md); no extra manual build command is needed.
 
+An object with `partial_sources` can also specify `link_source_order`, naming every compiled source exactly once. Its native partial-link object remains the comparison input; the final executable consumes the individual compiler outputs in the declared order. The native section preparer groups their `.text` spans while retaining input order for exception records and data. CModel uses this to avoid the pinned final linker's failure on its partially linked custom-section object. The ordinary configure/ninja entry point handles both paths.
+
 ```powershell
 python tools/verify/verify.py verify --manifest config/targets/<target>.json --reference-dir orig/<target> --build-dir build/<target> --report build/<target>/verification.json
 ```

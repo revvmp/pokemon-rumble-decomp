@@ -16899,7 +16899,7 @@ __dt__Q43std3tr16detail68shared_ptr_holder<Q34nw4r3g3d12AnmObjVisRes,PFPQ34nw4r3
 __dt__Q210Metrowerks92move_ptr<Q26CModel14CMotionProgram,Q33std6detail41default_delete<Q26CModel14CMotionProgram>>Fv = .text:0x801BF4F0; // type:function size:0x8C
 __dt__Q210Metrowerks98move_ptr<Q26CModel17PartialAnmManager,Q33std6detail44default_delete<Q26CModel17PartialAnmManager>>Fv = .text:0x801BF580; // type:function size:0x5F0
 __dt__Q210Metrowerks92move_ptr<Q26CModel14TPartialAnm<0>,Q33std6detail41default_delete<Q26CModel14TPartialAnm<0>>>Fv = .text:0x801BFB70; // type:function size:0x74
-__dt__Q43std3tr16detail68shared_ptr_holder<Q34nw4r3g3d12AnmObjChrRes,PFPQ34nw4r3g3d6G3dObj_v>Fv = .text:0x801BFBF0; // type:function size:0x6C
+__dt__Q213ModelEmission64ResourceGuard<Q34nw4r3g3d12AnmObjChrRes,PFPQ34nw4r3g3d6G3dObj_v>Fv = .text:0x801BFBF0; // type:function size:0x6C
 destroy__Q23std78allocator<Q23std59pair<CUl,Q33std3tr137shared_ptr<Q26CModel14TPartialAnm<0>>>>FPQ23std59pair<CUl,Q33std3tr137shared_ptr<Q26CModel14TPartialAnm<0>>> = .text:0x801BFC60; // type:function size:0x60 scope:local
 CreateAnimObj<Q220@unnamed@CModel_cpp@13ShpAnimTraits,i>__6CModelFif_Q33std3tr137shared_ptr<Q34nw4r3g3d12AnmObjShpRes> = .text:0x801BFCC0; // type:function size:0x824
 CreateAnimObj<Q220@unnamed@CModel_cpp@16TexSrtAnimTraits,i>__6CModelFif_Q33std3tr140shared_ptr<Q34nw4r3g3d15AnmObjTexSrtRes> = .text:0x801C04F0; // type:function size:0x824

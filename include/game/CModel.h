@@ -52,6 +52,9 @@ public:
         void SetPlaybackState(u32 state) { mFlags = (mFlags & ~PLAYBACK_STATE_MASK) | state; }
         void Wait();
         u32 TestFlags(u32 mask) const;
+#if defined(CMODEL_EMISSION_LAYOUT)
+        __declspec(section ".text.model_update")
+#endif
         bool IsOneShotTexture() const { return !(mFlags & FLAG_LOOP_TEXTURE_ANIMATION); }
         u32 GetId() const { return mId; }
         bool IsStarted() const { return !(mFlags & FLAG_PENDING); }
@@ -114,8 +117,17 @@ public:
     public:
         BPartialAnm() : mFrame(0.0f) {}
         virtual ~BPartialAnm();
+#if defined(CMODEL_EMISSION_LAYOUT)
+        __declspec(section ".text.model_middle")
+#endif
         virtual bool SetMotion(CModel* pModel, const std::tr1::shared_ptr<CMotionProgram>& rMotion) = 0;
+#if defined(CMODEL_EMISSION_LAYOUT)
+        __declspec(section ".text.model_middle")
+#endif
         virtual bool QueueMotion(CModel* pModel, const std::tr1::shared_ptr<CMotionProgram>& rMotion) = 0;
+#if defined(CMODEL_EMISSION_LAYOUT)
+        __declspec(section ".text.model_middle")
+#endif
         virtual bool AppendMotion(CModel* pModel, const std::tr1::shared_ptr<CMotionProgram>& rMotion) = 0;
         void Reset() {
             mAnimObj.reset();
@@ -131,10 +143,24 @@ public:
     };
     template<bool Main> class TPartialAnm : public BPartialAnm {
     public:
+#if defined(CMODEL_THUNK_EMISSION_LAYOUT)
         virtual ~TPartialAnm();
+#endif
+#if defined(CMODEL_EMISSION_LAYOUT)
+        __declspec(section ".text.model_middle")
+#endif
         virtual bool SetMotion(CModel* pModel, const std::tr1::shared_ptr<CMotionProgram>& rMotion);
+#if defined(CMODEL_EMISSION_LAYOUT)
+        __declspec(section ".text.model_middle")
+#endif
         virtual bool QueueMotion(CModel* pModel, const std::tr1::shared_ptr<CMotionProgram>& rMotion);
+#if defined(CMODEL_EMISSION_LAYOUT)
+        __declspec(section ".text.model_middle")
+#endif
         virtual bool AppendMotion(CModel* pModel, const std::tr1::shared_ptr<CMotionProgram>& rMotion);
+#if defined(CMODEL_EMISSION_LAYOUT)
+        __declspec(section ".text.model_middle")
+#endif
         bool Update(CModel* pModel, f32 step);
         bool IsReplaceable() { return Main ? IsIdle() : mMotions.size() == 0; }
     };
@@ -178,12 +204,7 @@ public:
     std::tr1::shared_ptr<CMotionProgram> CreateMotion(int index, f32 frame, f32 rate, BPartialAnm** ppPartial);
     std::tr1::shared_ptr<CMotionProgram> SetupMotion(std::tr1::shared_ptr<CMotionProgram>& rProgram, f32 frame, f32 rate, BPartialAnm** ppPartial);
     BPartialAnm* GetPartialAnm(u32 nodeId);
-    void Unload() {
-        mAnimations.clear();
-        mPartialAnimations.reset();
-        mMainAnimation.Reset();
-        mModelData.Reset();
-    }
+    void Unload();
     void UpdateAnimations();
     nw4r::g3d::ResAnmVis FindVis(const char* pName) const;
     nw4r::g3d::ResAnmVis FindVis(int index) const;
@@ -211,13 +232,11 @@ public:
     bool mAimTargetPending;
     nw4r::math::AABB mBounds;
     virtual void ExecCallback_CALC_WORLD(nw4r::g3d::ScnObj::Timing timing, nw4r::g3d::ScnObj* pObject, u32 param, void* pInfo);
-    virtual void ExecCallback_CALC_MAT(nw4r::g3d::ScnObj::Timing timing, nw4r::g3d::ScnObj* pObject, u32 param, void* pInfo) {}
+    virtual void ExecCallback_CALC_MAT(nw4r::g3d::ScnObj::Timing timing, nw4r::g3d::ScnObj* pObject, u32 param, void* pInfo);
     virtual void ExecCallback_CALC_VIEW(nw4r::g3d::ScnObj::Timing timing, nw4r::g3d::ScnObj* pObject, u32 param, void* pInfo);
-    virtual void ExecCallback_DRAW_OPA(nw4r::g3d::ScnObj::Timing timing, nw4r::g3d::ScnObj* pObject, u32 param, void* pInfo) {}
-    virtual void ExecCallback_DRAW_XLU(nw4r::g3d::ScnObj::Timing timing, nw4r::g3d::ScnObj* pObject, u32 param, void* pInfo) {}
+    virtual void ExecCallback_DRAW_OPA(nw4r::g3d::ScnObj::Timing timing, nw4r::g3d::ScnObj* pObject, u32 param, void* pInfo);
+    virtual void ExecCallback_DRAW_XLU(nw4r::g3d::ScnObj::Timing timing, nw4r::g3d::ScnObj* pObject, u32 param, void* pInfo);
     virtual void ExecCallbackA(nw4r::g3d::ChrAnmResult* pResult, nw4r::g3d::ResMdl mdl, nw4r::g3d::FuncObjCalcWorld* pFuncObj);
-    virtual void ExecCallbackB(nw4r::g3d::WorldMtxManip* pManip, nw4r::g3d::ResMdl mdl, nw4r::g3d::FuncObjCalcWorld* pFuncObj) {}
-    virtual void ExecCallbackC(nw4r::math::MTX34* pMtxArray, nw4r::g3d::ResMdl mdl, nw4r::g3d::FuncObjCalcWorld* pFuncObj) {}
 
 };
 

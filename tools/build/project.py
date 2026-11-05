@@ -50,6 +50,7 @@ class Object:
             "extra_cflags": [],
             "extra_clang_flags": [],
             "partial_sources": [],
+            "link_source_order": [],
             "text_sections": [],
             "lib": None,
             "mw_version": None,
@@ -826,12 +827,16 @@ def generate_build_ninja(
             self.entry = config["entry"]
             self.inputs: List[str] = []
             self.text_sections: Dict[str, List[str]] = {}
+            self.source_groups: Dict[str, List[str]] = {}
 
-        def add(self, obj: Path, text_sections: Optional[List[str]] = None) -> None:
-            path = serialize_path(obj)
-            self.inputs.append(path)
+        def add(self, obj: Path, text_sections: Optional[List[str]] = None, sources: Optional[List[Path]] = None) -> None:
+            paths = [serialize_path(source) for source in sources] if sources else [serialize_path(obj)]
+            path = paths[0]
+            self.inputs.extend(paths)
             if text_sections:
                 self.text_sections[path] = text_sections
+            if sources:
+                self.source_groups[path] = paths
 
         def output(self) -> Path:
             if self.module_id == 0:
@@ -858,10 +863,16 @@ def generate_build_ninja(
                 if self.text_sections:
                     ordered_dir = build_path / f"{self.name}_link"
                     specification = build_path / f"{self.name}_link.json"
-                    entries = [
-                        {"object": path, "text_sections": self.text_sections.get(path, [".text"])}
-                        for path in self.inputs
-                    ]
+                    entries = []
+                    grouped = set()
+                    for path in self.inputs:
+                        if path in grouped:
+                            continue
+                        entry = {"object": path, "text_sections": self.text_sections.get(path, [".text"])}
+                        if path in self.source_groups:
+                            entry["objects"] = self.source_groups[path]
+                            grouped.update(self.source_groups[path])
+                        entries.append(entry)
                     specification_text = json.dumps(entries, indent=2) + "\n"
                     if not specification.exists() or specification.read_text(encoding="utf-8") != specification_text:
                         specification.write_text(specification_text, encoding="utf-8", newline="\n")
@@ -942,6 +953,7 @@ def generate_build_ninja(
         used_compiler_versions: Set[str] = set()
         source_inputs: List[Path] = []
         source_added: Set[Path] = set()
+        source_fragments: Dict[Path, List[Path]] = {}
 
         if config.precompiled_headers:
             for pch in config.precompiled_headers:
@@ -1042,6 +1054,15 @@ def generate_build_ninja(
                     order_only="pre-compile",
                 )
                 compile_outputs.append(compile_output)
+            source_order = obj.options["link_source_order"]
+            if source_order:
+                ordered_sources = [Path(obj.options["src_dir"]) / name for name in source_order]
+                if not partial_sources or not obj.options["text_sections"]:
+                    sys.exit(f"{obj.name}: link_source_order requires partial_sources and text_sections")
+                if len(set(ordered_sources)) != len(ordered_sources) or set(ordered_sources) != set(compile_sources):
+                    sys.exit(f"{obj.name}: link_source_order must name every compiled source exactly once")
+                outputs_by_source = dict(zip(compile_sources, compile_outputs))
+                source_fragments[obj.src_obj_path] = [outputs_by_source[source] for source in ordered_sources]
             if partial_sources:
                 n.build(
                     outputs=obj.src_obj_path,
@@ -1151,7 +1172,7 @@ def generate_build_ninja(
                 built_obj_path = asm_build(obj, obj.asm_path, obj.asm_obj_path)
 
             if link_built_obj and built_obj_path is not None:
-                link_step.add(built_obj_path, obj.options["text_sections"])
+                link_step.add(built_obj_path, obj.options["text_sections"], source_fragments.get(built_obj_path))
             elif obj_path is not None:
                 link_step.add(Path(obj_path))
 

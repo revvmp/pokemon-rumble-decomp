@@ -1,3 +1,38 @@
+#define CMODEL_EMISSION_LAYOUT
+
+#pragma section code_type ".text.model_prefix"
+#pragma section code_type ".text.model_copy"
+#pragma section code_type ".text.model_update"
+#pragma section code_type ".text.model_compare"
+#pragma section code_type ".text.model_reset"
+#pragma section code_type ".text.model_iterators"
+#pragma section code_type ".text.model_reserve"
+#pragma section code_type ".text.model_vis_assignment"
+#pragma section code_type ".text.model_push"
+#pragma section code_type ".text.model_post_push"
+#pragma section code_type ".text.model_root_bool"
+#pragma section code_type ".text.model_middle"
+#pragma section code_type ".text.model_owners"
+#pragma section code_type ".text.model_shared"
+#pragma section code_type ".text.model_moves"
+#pragma section code_type ".text.model_holder"
+#pragma section code_type ".text.model_allocator"
+#pragma section code_type ".text.model_creators"
+#pragma section code_type ".text.model_chr_deleter"
+#pragma section code_type ".text.model_partial"
+#pragma section code_type ".text.model_deleters"
+#pragma section code_type ".text.model_split"
+#pragma section code_type ".text.model_late_owners"
+#pragma section code_type ".text.model_late_holders"
+#pragma section code_type ".text.model_mat_deleter"
+#pragma section code_type ".text.model_tex_deleter"
+#pragma section code_type ".text.model_shp_deleter"
+#pragma section code_type ".text.model_buffers"
+#pragma section code_type ".text"
+#pragma section code_type ".text.model_prefix"
+#include <memory>
+namespace nw4r { namespace g3d { class AnmObj; } }
+enum { kModelAnimationPointerSize = sizeof(std::tr1::shared_ptr<nw4r::g3d::AnmObj>) };
 #include <game/CModel.h>
 #include <game/ScnMdlSimpleDataInline.h>
 #include <game/CFiber.h>
@@ -11,8 +46,21 @@
 #include <algorithm>
 #include <math.h>
 
+typedef std::tr1::shared_ptr<CModel::CMotionProgram> ModelMotionPointer;
+typedef std::list<ModelMotionPointer> ModelMotionList;
+typedef std::tr1::shared_ptr<CModel::TPartialAnm<false> > ModelPartialPointer;
+typedef std::pair<const u32, ModelPartialPointer> ModelMotionPair;
+typedef std::detail::tree_imp<ModelMotionPair, std::detail::map_member_compare<u32, ModelPartialPointer, std::less<u32> >, std::allocator<ModelMotionPair> > ModelMotionTree;
+
+template <class Tree> struct ModelInsertRequest {
+    typedef typename Tree::node* (Tree::*Function)(std::detail::tree_node_base*, bool, bool, const typename Tree::value_type&);
+};
+template <class Tree> typename ModelInsertRequest<Tree>::Function RequestModelInsert0() {
+    return &Tree::insert_node_at;
+}
 
 void CModel::CMotionProgram::Wait() {
+    RequestModelInsert0<ModelMotionTree>();
     while (!IsCompleted()) {
         YieldFiber();
     }
@@ -23,6 +71,8 @@ u32 CModel::CMotionProgram::TestFlags(u32 mask) const {
 }
 
 void NotifyMotionCallback(const std::tr1::shared_ptr<CModel::CMotionProgram>& rMotion, bool notify, CModel* pModel) {
+    bool requestListDestructor = false;
+    if (requestListDestructor) static_cast<ModelMotionList*>(nullptr)->~ModelMotionList();
     CModel::CMotionProgram* pMotion = rMotion.get();
     if (notify) {
         pMotion->mFlags |= CModel::CMotionProgram::FLAG_NOTIFY_CALLBACK;
@@ -35,10 +85,14 @@ void NotifyMotionCallback(const std::tr1::shared_ptr<CModel::CMotionProgram>& rM
 }
 
 CModel::BPartialAnm::~BPartialAnm() {
+    bool requestListFront = false;
+    if (requestListFront) mMotions.front();
     Reset();
 }
 
 bool CModel::BPartialAnm::CreateAnimObj(nw4r::g3d::ResMdl mdl) {
+    bool requestPlaybackFrame = false;
+    if (requestPlaybackFrame) static_cast<CMotionProgram*>(nullptr)->GetPlaybackFrame();
     if (mMotions.size() == 0) {
         mAnimObj.reset();
         return false;
@@ -85,6 +139,13 @@ void CModel::AddResourceFile(std::tr1::shared_ptr<CFileData> file) {
     }
     rFiles.push_back(file);
 }
+
+inline void CModel::Unload() {
+        mAnimations.clear();
+        mPartialAnimations.reset();
+        mMainAnimation.Reset();
+        mModelData.Reset();
+    }
 
 bool CModel::Load(const LoadParams& rParams, bool background) {
     Unload();
@@ -251,6 +312,15 @@ void CModel::SetRootScale(const std::tr1::shared_ptr<nw4r::g3d::AnmObjChrRootSca
 }
 
 std::tr1::shared_ptr<CModel::CMotionProgram> CModel::GetCurrentMotion() {
+    bool requestMapIterators = false;
+    if (requestMapIterators) {
+        ModelMotionTree::iterator it;
+        mPartialAnimations->mPartials.end();
+        (void)(it != it);
+        it.operator->();
+        mPartialAnimations->mPartials.begin();
+        ++it;
+    }
     if (mMainAnimation.mMotions.size() != 0) {
         return mMainAnimation.mMotions.front();
     }
@@ -404,6 +474,13 @@ CModel::BPartialAnm* CModel::GetPartialAnm(u32 nodeId) {
     return partial.get();
 }
 
+template std::detail::tree_node_base* ModelMotionTree::find_leaf<u32>(const u32&, ModelMotionTree::node*&, bool&, bool&);
+
+void RequestModelMotionPairDestructorEmission() {
+    bool requestPairDestructor = false;
+    if (requestPairDestructor) static_cast<ModelMotionPair*>(nullptr)->~ModelMotionPair();
+}
+
 std::tr1::shared_ptr<CModel::CMotionProgram> CModel::SetupMotion(std::tr1::shared_ptr<CMotionProgram>& rProgram, f32 frame, f32 rate, BPartialAnm** ppPartial) {
     nw4r::g3d::ResAnmChr resource = rProgram->mResource;
     if (!resource.IsValid()) {
@@ -431,7 +508,7 @@ std::tr1::shared_ptr<CModel::CMotionProgram> CModel::SetupMotion(std::tr1::share
     return rProgram;
 }
 
-std::tr1::shared_ptr<CModel::CMotionProgram> CModel::CreateMotion(const char* pName, f32 frame, f32 rate, BPartialAnm** ppPartial) {
+__declspec(section ".text.model_update") std::tr1::shared_ptr<CModel::CMotionProgram> CModel::CreateMotion(const char* pName, f32 frame, f32 rate, BPartialAnm** ppPartial) {
     if (pName == nullptr) {
         return std::tr1::shared_ptr<CMotionProgram>();
     }
@@ -444,7 +521,7 @@ std::tr1::shared_ptr<CModel::CMotionProgram> CModel::CreateMotion(const char* pN
     return SetupMotion(program, frame, rate, ppPartial);
 }
 
-std::tr1::shared_ptr<CModel::CMotionProgram> CModel::CreateMotion(int index, f32 frame, f32 rate, BPartialAnm** ppPartial) {
+__declspec(section ".text.model_update") std::tr1::shared_ptr<CModel::CMotionProgram> CModel::CreateMotion(int index, f32 frame, f32 rate, BPartialAnm** ppPartial) {
     std::tr1::shared_ptr<CMotionProgram> program(new CMotionProgram);
     program->mFlags = 0;
     nw4r::g3d::ResAnmChr resource = ChrAnimTraits::Find(mModelData.GetFiles(), index);
@@ -453,49 +530,15 @@ std::tr1::shared_ptr<CModel::CMotionProgram> CModel::CreateMotion(int index, f32
     return SetupMotion(program, frame, rate, ppPartial);
 }
 
-template <class Traits, class Key> std::tr1::shared_ptr<typename Traits::Obj> CModel::CreateAnimObj(Key key, f32 frame) {
-    typename Traits::Res resource = Traits::Find(mModelData.GetFiles(), key);
-    if (!resource.IsValid()) {
-        return std::tr1::shared_ptr<typename Traits::Obj>();
+namespace std { namespace tr1 {
+template <> template <> __declspec(section ".text.model_reset")  void shared_ptr<nw4r::g3d::AnmObjChrOverride>::reset<nw4r::g3d::AnmObjChrOverride, void (*)(nw4r::g3d::G3dObj*)>(nw4r::g3d::AnmObjChrOverride* p, void (*d)(nw4r::g3d::G3dObj*));
+} }
+__declspec(section ".text.model_update") void CModel::UpdateAnimations() {
+    bool requestAnimationComparison = false;
+    if (requestAnimationComparison) {
+        typedef std::vector<std::tr1::shared_ptr<nw4r::g3d::AnmObj> >::iterator AnimationIterator;
+        (void)(*static_cast<AnimationIterator*>(nullptr) != *static_cast<AnimationIterator*>(nullptr));
     }
-    nw4r::g3d::ResMdl mdl = GetResMdl();
-    std::tr1::shared_ptr<typename Traits::Obj> animObj(Traits::Obj::Construct(GetDefaultAllocator(), nullptr, resource, mdl, false), DestroyG3dObj);
-    animObj->SetFrame(frame);
-    if (!animObj->Bind(mdl)) {
-        return std::tr1::shared_ptr<typename Traits::Obj>();
-    }
-    mAnimations.push_back(animObj);
-    mModelData.GetModel()->SetAnmObj(animObj.get(), nw4r::g3d::ScnMdlSimple::ANMOBJTYPE_NOT_SPECIFIED);
-    return animObj;
-}
-
-nw4r::g3d::ResAnmVis CModel::FindVis(const char* pName) const {
-    nw4r::g3d::ResAnmVis resource;
-    const std::vector<std::tr1::shared_ptr<CFileData> >& rFiles = mModelData.GetFiles();
-    std::vector<std::tr1::shared_ptr<CFileData> >::const_iterator it = rFiles.begin();
-    for (; it != rFiles.end(); ++it) {
-        resource = nw4r::g3d::ResFile((*it)->GetData()).GetResAnmVis(pName);
-        if (resource.IsValid()) {
-            break;
-        }
-    }
-    return resource;
-}
-
-nw4r::g3d::ResAnmVis CModel::FindVis(int index) const {
-    nw4r::g3d::ResAnmVis resource;
-    const std::vector<std::tr1::shared_ptr<CFileData> >& rFiles = mModelData.GetFiles();
-    std::vector<std::tr1::shared_ptr<CFileData> >::const_iterator it = rFiles.begin();
-    for (; it != rFiles.end(); ++it) {
-        resource = nw4r::g3d::ResFile((*it)->GetData()).GetResAnmVis(index);
-        if (resource.IsValid()) {
-            break;
-        }
-    }
-    return resource;
-}
-
-void CModel::UpdateAnimations() {
     mAnimationControlsAim = false;
     bool overrideCreated = false;
     bool animationChanged = mAnimationChanged;
@@ -597,13 +640,47 @@ void CModel::UpdateAnimations() {
     }
 }
 
-void CModel::ExecCallback_CALC_WORLD(nw4r::g3d::ScnObj::Timing timing, nw4r::g3d::ScnObj* pObject, u32 param, void* pInfo) {
+#pragma section code_type ".text.model_update"
+namespace std { namespace tr1 {
+template <> template <> __declspec(section ".text.model_reset")  void shared_ptr<nw4r::g3d::AnmObjChrOverride>::reset<nw4r::g3d::AnmObjChrOverride, void (*)(nw4r::g3d::G3dObj*)>(nw4r::g3d::AnmObjChrOverride* p, void (*d)(nw4r::g3d::G3dObj*)) { shared_ptr(p, d).swap(*this); }
+} }
+namespace std {
+template <> __declspec(section ".text.model_reserve") void vector<tr1::shared_ptr<nw4r::g3d::AnmObj> >::reserve(unsigned long n) { base::reserve(n); }
+template <> __declspec(section ".text.model_push") void vector<tr1::shared_ptr<nw4r::g3d::AnmObj> >::push_back(const tr1::shared_ptr<nw4r::g3d::AnmObj>& x) { base::push_back(x); }
+}
+__declspec(section ".text.model_middle") nw4r::g3d::ResAnmVis CModel::FindVis(const char* pName) const {
+    nw4r::g3d::ResAnmVis resource;
+    const std::vector<std::tr1::shared_ptr<CFileData> >& rFiles = mModelData.GetFiles();
+    std::vector<std::tr1::shared_ptr<CFileData> >::const_iterator it = rFiles.begin();
+    for (; it != rFiles.end(); ++it) {
+        resource = nw4r::g3d::ResFile((*it)->GetData()).GetResAnmVis(pName);
+        if (resource.IsValid()) {
+            break;
+        }
+    }
+    return resource;
+}
+
+__declspec(section ".text.model_middle") nw4r::g3d::ResAnmVis CModel::FindVis(int index) const {
+    nw4r::g3d::ResAnmVis resource;
+    const std::vector<std::tr1::shared_ptr<CFileData> >& rFiles = mModelData.GetFiles();
+    std::vector<std::tr1::shared_ptr<CFileData> >::const_iterator it = rFiles.begin();
+    for (; it != rFiles.end(); ++it) {
+        resource = nw4r::g3d::ResFile((*it)->GetData()).GetResAnmVis(index);
+        if (resource.IsValid()) {
+            break;
+        }
+    }
+    return resource;
+}
+
+__declspec(section ".text.model_middle") void CModel::ExecCallback_CALC_WORLD(nw4r::g3d::ScnObj::Timing timing, nw4r::g3d::ScnObj* pObject, u32 param, void* pInfo) {
     if (timing == nw4r::g3d::ScnObj::CALLBACK_TIMING_A) {
         UpdateAnimations();
     }
 }
 
-void CModel::ExecCallbackA(nw4r::g3d::ChrAnmResult* pResult, nw4r::g3d::ResMdl mdl, nw4r::g3d::FuncObjCalcWorld* pFuncObj) {
+__declspec(section ".text.model_middle") void CModel::ExecCallbackA(nw4r::g3d::ChrAnmResult* pResult, nw4r::g3d::ResMdl mdl, nw4r::g3d::FuncObjCalcWorld* pFuncObj) {
     if (mAim.mpModel != nullptr) {
         if (mAnimationControlsAim) {
             nw4r::math::MTX34 rotTrans;
@@ -636,7 +713,7 @@ void CModel::ExecCallbackA(nw4r::g3d::ChrAnmResult* pResult, nw4r::g3d::ResMdl m
     }
 }
 
-void CModel::ExecCallback_CALC_VIEW(nw4r::g3d::ScnObj::Timing timing, nw4r::g3d::ScnObj* pObject, u32 param, void* pInfo) {
+__declspec(section ".text.model_middle") void CModel::ExecCallback_CALC_VIEW(nw4r::g3d::ScnObj::Timing timing, nw4r::g3d::ScnObj* pObject, u32 param, void* pInfo) {
     if (timing == nw4r::g3d::ScnObj::CALLBACK_TIMING_A && mAim.mpModel != nullptr && !mAnimationControlsAim) {
         if (!mWorldAimTarget) {
             mAim.AimAtMatrixOrigin(*static_cast<nw4r::math::MTX34*>(pInfo), static_cast<int>(ceil(static_cast<f32>(gFrameStep))));
@@ -646,7 +723,7 @@ void CModel::ExecCallback_CALC_VIEW(nw4r::g3d::ScnObj::Timing timing, nw4r::g3d:
     }
 }
 
-bool CModel::LoadBounds(nw4r::math::AABB* pBounds, const nw4r::g3d::ResMdl& rMdl) {
+__declspec(section ".text.model_middle") bool CModel::LoadBounds(nw4r::math::AABB* pBounds, const nw4r::g3d::ResMdl& rMdl) {
     bool loaded = false;
     nw4r::g3d::ResNode root = rMdl.GetResNode(0);
     if (root.IsValid()) {
@@ -689,6 +766,21 @@ bool CModel::LoadBounds(nw4r::math::AABB* pBounds, const nw4r::g3d::ResMdl& rMdl
     return loaded;
 }
 
+__declspec(section ".text.model_middle") void CModel::ExecCallback_DRAW_XLU(nw4r::g3d::ScnObj::Timing timing, nw4r::g3d::ScnObj* pObject, u32 param, void* pInfo) {}
+
+__declspec(section ".text.model_middle") void CModel::ExecCallback_DRAW_OPA(nw4r::g3d::ScnObj::Timing timing, nw4r::g3d::ScnObj* pObject, u32 param, void* pInfo) {}
+
+__declspec(section ".text.model_middle") void CModel::ExecCallback_CALC_MAT(nw4r::g3d::ScnObj::Timing timing, nw4r::g3d::ScnObj* pObject, u32 param, void* pInfo) {}
+
+void RequestModelCallbackEmission() {
+    bool requestCallbacks = false;
+    if (requestCallbacks) {
+        nw4r::g3d::ICalcWorldCallback* pCallback = nullptr;
+        pCallback->nw4r::g3d::ICalcWorldCallback::ExecCallbackC(nullptr, nw4r::g3d::ResMdl(), nullptr);
+        pCallback->nw4r::g3d::ICalcWorldCallback::ExecCallbackB(nullptr, nw4r::g3d::ResMdl(), nullptr);
+    }
+}
+
 template <> inline bool CModel::TPartialAnm<true>::IsReplaceable() {
     bool finished;
     bool replaceable = true;
@@ -706,7 +798,7 @@ template <> inline bool CModel::TPartialAnm<true>::IsReplaceable() {
     return replaceable;
 }
 
-template <bool Main> bool CModel::TPartialAnm<Main>::SetMotion(CModel* pModel, const std::tr1::shared_ptr<CMotionProgram>& rMotion) {
+template <bool Main> __declspec(section ".text.model_middle") bool CModel::TPartialAnm<Main>::SetMotion(CModel* pModel, const std::tr1::shared_ptr<CMotionProgram>& rMotion) {
     for (std::list<std::tr1::shared_ptr<CMotionProgram> >::iterator it = mMotions.begin(); it != mMotions.end(); ++it) {
         it->get()->SetPlaybackState(CMotionProgram::FLAG_STOPPED);
     }
@@ -728,7 +820,7 @@ template <bool Main> bool CModel::TPartialAnm<Main>::SetMotion(CModel* pModel, c
     return true;
 }
 
-template <bool Main> bool CModel::TPartialAnm<Main>::QueueMotion(CModel* pModel, const std::tr1::shared_ptr<CMotionProgram>& rMotion) {
+template <bool Main> __declspec(section ".text.model_middle") bool CModel::TPartialAnm<Main>::QueueMotion(CModel* pModel, const std::tr1::shared_ptr<CMotionProgram>& rMotion) {
     if (IsReplaceable()) {
         return SetMotion(pModel, rMotion);
     }
@@ -746,7 +838,7 @@ template <bool Main> bool CModel::TPartialAnm<Main>::QueueMotion(CModel* pModel,
     return true;
 }
 
-template <bool Main> bool CModel::TPartialAnm<Main>::AppendMotion(CModel* pModel, const std::tr1::shared_ptr<CMotionProgram>& rMotion) {
+template <bool Main> __declspec(section ".text.model_middle") bool CModel::TPartialAnm<Main>::AppendMotion(CModel* pModel, const std::tr1::shared_ptr<CMotionProgram>& rMotion) {
     if (IsReplaceable()) {
         return SetMotion(pModel, rMotion);
     }
@@ -754,7 +846,7 @@ template <bool Main> bool CModel::TPartialAnm<Main>::AppendMotion(CModel* pModel
     return true;
 }
 
-template <bool Main> bool CModel::TPartialAnm<Main>::Update(CModel* pModel, f32 step) {
+template <bool Main> __declspec(section ".text.model_middle") bool CModel::TPartialAnm<Main>::Update(CModel* pModel, f32 step) {
     if (IsReplaceable()) {
         mFrame += step;
         return true;
@@ -809,6 +901,58 @@ template <bool Main> bool CModel::TPartialAnm<Main>::Update(CModel* pModel, f32 
     }
 }
 
-template <bool Main> CModel::TPartialAnm<Main>::~TPartialAnm() {}
-
+template bool CModel::TPartialAnm<true>::SetMotion(CModel*, const std::tr1::shared_ptr<CMotionProgram>&);
 #pragma opt_optimizecontrolflow off
+template bool CModel::TPartialAnm<true>::QueueMotion(CModel*, const std::tr1::shared_ptr<CMotionProgram>&);
+template bool CModel::TPartialAnm<true>::AppendMotion(CModel*, const std::tr1::shared_ptr<CMotionProgram>&);
+template bool CModel::TPartialAnm<true>::Update(CModel*, f32);
+#pragma opt_optimizecontrolflow on
+template bool CModel::TPartialAnm<false>::SetMotion(CModel*, const std::tr1::shared_ptr<CMotionProgram>&);
+template bool CModel::TPartialAnm<false>::QueueMotion(CModel*, const std::tr1::shared_ptr<CMotionProgram>&);
+template bool CModel::TPartialAnm<false>::AppendMotion(CModel*, const std::tr1::shared_ptr<CMotionProgram>&);
+template bool CModel::TPartialAnm<false>::Update(CModel*, f32);
+template std::__vec_deleter<std::tr1::shared_ptr<nw4r::g3d::AnmObj>, std::allocator<std::tr1::shared_ptr<nw4r::g3d::AnmObj> > >::~__vec_deleter();
+
+template <class Traits, class Key> std::tr1::shared_ptr<typename Traits::Obj> CModel::CreateAnimObj(Key key, f32 frame) {
+    typename Traits::Res resource = Traits::Find(mModelData.GetFiles(), key);
+    if (!resource.IsValid()) {
+        return std::tr1::shared_ptr<typename Traits::Obj>();
+    }
+    nw4r::g3d::ResMdl mdl = GetResMdl();
+    std::tr1::shared_ptr<typename Traits::Obj> animObj(Traits::Obj::Construct(GetDefaultAllocator(), nullptr, resource, mdl, false), DestroyG3dObj);
+    animObj->SetFrame(frame);
+    if (!animObj->Bind(mdl)) {
+        return std::tr1::shared_ptr<typename Traits::Obj>();
+    }
+    mAnimations.push_back(animObj);
+    mModelData.GetModel()->SetAnmObj(animObj.get(), nw4r::g3d::ScnMdlSimple::ANMOBJTYPE_NOT_SPECIFIED);
+    return animObj;
+}
+
+#pragma section code_type ".text.model_creators"
+namespace std {
+template <> __declspec(section ".text.model_compare") bool vector<tr1::shared_ptr<nw4r::g3d::AnmObj> >::iterator::operator!=(const iterator&) const;
+template <> __declspec(section ".text.model_iterators")  vector<tr1::shared_ptr<nw4r::g3d::AnmObj> >::iterator vector<tr1::shared_ptr<nw4r::g3d::AnmObj> >::begin();
+template <> __declspec(section ".text.model_iterators")  vector<tr1::shared_ptr<nw4r::g3d::AnmObj> >::iterator::iterator(const iterator&);
+template <> __declspec(section ".text.model_iterators")  tr1::shared_ptr<nw4r::g3d::AnmObj>& vector<tr1::shared_ptr<nw4r::g3d::AnmObj> >::iterator::operator*() const;
+template <> __declspec(section ".text.model_iterators")  vector<tr1::shared_ptr<nw4r::g3d::AnmObj> >::iterator& vector<tr1::shared_ptr<nw4r::g3d::AnmObj> >::iterator::operator++();
+template <> __declspec(section ".text.model_iterators")  vector<tr1::shared_ptr<nw4r::g3d::AnmObj> >::iterator vector<tr1::shared_ptr<nw4r::g3d::AnmObj> >::end();
+
+namespace tr1 {
+template <> __declspec(section ".text.model_iterators") nw4r::g3d::AnmObjChrRes* shared_ptr<nw4r::g3d::AnmObjChrRes >::get() const;
+template <> __declspec(section ".text.model_post_push") nw4r::g3d::AnmObjVisRes* shared_ptr<nw4r::g3d::AnmObjVisRes >::get() const;
+template <> __declspec(section ".text.model_post_push") nw4r::g3d::AnmObjChrOverride* shared_ptr<nw4r::g3d::AnmObjChrOverride >::get() const;
+template <> __declspec(section ".text.model_iterators") nw4r::g3d::AnmObj* shared_ptr<nw4r::g3d::AnmObj >::operator->() const;
+template <> __declspec(section ".text.model_vis_assignment") nw4r::g3d::AnmObjVisRes* shared_ptr<nw4r::g3d::AnmObjVisRes >::operator->() const;
+template <> __declspec(section ".text.model_middle") nw4r::g3d::AnmObjChrRootScale* shared_ptr<nw4r::g3d::AnmObjChrRootScale >::operator->() const;
+namespace detail {
+template <> __declspec(section ".text.model_chr_deleter") shared_ptr_deleter<nw4r::g3d::AnmObjChrRes, void (*)(nw4r::g3d::G3dObj*) >::~shared_ptr_deleter();
+template <> __declspec(section ".text.model_deleters") shared_ptr_deleter<CModel::TPartialAnm<false>, std::detail::default_delete<CModel::TPartialAnm<false> > >::~shared_ptr_deleter();
+template <> __declspec(section ".text.model_deleters") shared_ptr_deleter<CModel::PartialAnmManager, std::detail::default_delete<CModel::PartialAnmManager > >::~shared_ptr_deleter();
+template <> __declspec(section ".text.model_deleters") shared_ptr_deleter<CModel::CMotionProgram, std::detail::default_delete<CModel::CMotionProgram > >::~shared_ptr_deleter();
+template <> __declspec(section ".text.model_deleters") shared_ptr_deleter<nw4r::g3d::AnmObjVisRes, void (*)(nw4r::g3d::G3dObj*) >::~shared_ptr_deleter();
+template <> __declspec(section ".text.model_deleters") shared_ptr_deleter<nw4r::g3d::AnmObjChrOverride, void (*)(nw4r::g3d::G3dObj*) >::~shared_ptr_deleter();
+}
+}
+}
+template <> __declspec(section ".text.model_partial") CModel::TPartialAnm<false>::~TPartialAnm();

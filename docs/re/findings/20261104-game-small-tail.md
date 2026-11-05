@@ -77,11 +77,44 @@ The installed source's LF SHA-256 is `6631c8d1b99e5a0b9e90810504b87c91943463da92
 
 The baseline and improved traces are `smallgame/collection-trace.txt` and `smallgame/collection-opaqueouter-trace.txt`. Reproduction uses `smallgame_collection_opaqueouter.py`, `smallgame_collection_maskouter.py`, `smallgame_collection_accept.py`, and `smallgame_collection_simplify.py`. The installed candidate is `smallgame/CDlgCollection/collection_simplify_0/`, with complete compiler log, object, source snapshot, and objdiff JSON. All eleven register/restrict storage-qualifier controls were unchanged at the original 99.66725%.
 
-## Remaining probes
+## Message escape instruction completion
+
+`CMsgRes::ConvertEscape` at `0x801EE530` now compares at 100%, retaining its 552-byte size. The complete object has all fourteen real functions exact; this function is the only score change. The installed source's LF SHA-256 is `af87c1ac08759e9cd6f6f79c9b6c9faaf29f59c273d649d61f6e570ef1024e32`.
+
+The coordinator's full source-link trial passes the frozen executable comparison with zero differing bytes. Its artifacts are in `tools/local/tail-20261104/links/cmsgres-complete/`; `main.dol` reproduces SHA-256 `ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da`. Normal `Matching` promotion remains the coordinator's integration step.
+
+The original reconstruction already matched the loop body and every register, but copied the source pointer to the destination before the target's SJIS-result shift and locale-address completion. Ordinary declaration-order, pointer-identity, boolean-type, locale-helper, and optimizer controls did not change that schedule. All tested Wii revisions from `0x4201_127` through 1.7 produced the same 96.57971% result. GC 3.0a3 and 3.0a5.2 regressed to 82.87681%. Private non-POD `FileHeader`, `BlockHeader`, and `DataBlock` declarations did not transfer the successful player-table alias control to this function.
+
+The successful D-0016 control retains an actual compiler `OR` operation whose two operands have identical pointer bits. A local union provides the pointer and `u32` views of `pSrc`; `pDst` receives the OR of those views after the SJIS flag calculation. PowerPC encodes this operation as the same register move required by the target. The union prevents the front end from replacing it with its earlier `MR` pseudo-operation. Delaying the end-pointer assignment until after that expression yields exactly the target order in the pre-allocation scheduler:
+
+```text
+lwz data
+subi encoding
+cntlzw comparison
+lis locale
+lwz size
+addi source
+srwi comparison
+addi locale
+or destination, source, source
+add end, data, size
+```
+
+This schedule shortens the destination's live range by one interference edge, from degree 36 to 35. With the original declaration positions, it falls below the allocator's 29-register simplify threshold and both pointers move from `r3`/`r4` to `r9`/`r10`. Declaring the existing `char c` before `pSrc` prevents its low-degree node from being removed before the pointer nodes are visited. Both pointers again wait for the later simplify pass and receive the target `r3` and `r4`; every remaining register and the final schedule then agree. This is a measured allocation control, not a recovered original declaration order.
+
+Compared with the control, the 4,732-byte `.text` changes sixteen bytes. The only changed relocation position is the low-half `_current_locale` reference, from section offset `0x106` to `0xFE`, reflecting the corrected address-completion instruction. Exception records, exception indexes, all data sections, every other relocation section, and the symbol table are byte-identical. Compiler-generated local names advance by two in `.strtab`; the indexed relocation targets and their storage are otherwise unchanged.
+
+The accepted source, object, compiler log, full objdiff JSON, and metadata audit are in `smallgame/CMsgRes/msg_accepted/`. `smallgame_msg_orcopy.py`, `smallgame_msg_ordelayed.py`, `smallgame_msg_orlocals.py`, and `smallgame_msg_accept.py` reproduce discovery and acceptance. `smallgame_msg_trace_ranks.py` adds read-only opcode-rank reporting to the existing Frida hook. The final complete trace is `smallgame/msg-accepted-trace.txt`.
+
+### Superseded helper diagnostic
+
+The earlier whole-loop helper reached 98.115944% and appeared to have only register differences. Fresh traces show that it has the same pre-allocation schedule as the baseline. Its apparent final scheduling success comes from the wrong end-pointer allocation to `r0`, which adds physical-register dependencies. Restoring the original named-local allocation also restores the scheduling failure. It is therefore not an independently solved schedule followed by a remaining register problem. The accepted OR control instead changes the actual pre-allocation schedule.
+
+## Earlier failed probes
 
 Before the result above, explicit byte-offset loops, full-range enum offsets, model references, wrapper storage, inline accessors, and same-scope pointer identities did not produce the target ordering. A same-type model-pointer reassignment moved several additional values and scored 99.45709%. The successful void-pointer control required the outer named-local lifetime; placing it only inside the inlined item-model loop failed.
 
-`CMsgRes::ConvertEscape` remains 96.57971%. Its loop body is unchanged; locale-address and SJIS-result scheduling in the preheader remain different. Local locale accessor helpers, extra inline depth, integer/void identity forms, scalar-reference and class flag lifetimes, and scheduling-factor controls did not solve it. These complement the prior exhaustive whole-loop helper probes in [the CLayout continuation](329-clayout-final.md#cmsgres-follow-up).
+Before the OR result above, local locale accessor helpers, extra inline depth, integer/void identity forms, scalar-reference and class flag lifetimes, and scheduling-factor controls did not solve `CMsgRes::ConvertEscape`. These complement the prior exhaustive whole-loop helper probes in [the CLayout continuation](329-clayout-final.md#cmsgres-follow-up). Explicit locale-component locals restore the target's single component load but retain the bad preheader schedule. Opaque cursor storage, standalone trail-state initialization helpers, volatile pointer views, zero dependencies, and direct `__cntlzw` spellings also failed. No rejected probe was installed.
 
 `CPlayerPii::GetShadowName` remains 88.85714%. Additional scheduling-factor, aggressive load/store scheduling, and prologue-helper controls leave the existing 84-byte result unchanged. Prior array, aggregate, ABI-view, and compiler-family investigations remain in [the player tail findings](player-shadow-tail.md).
 
@@ -95,3 +128,5 @@ Before the signature/lifetime result above, fresh private reference-return gette
 - Exact instructions and unchanged interim metadata can still preserve an old reconstruction error. The target's two Color cleanup actions established the real class-copy lifetime and superseded the interim GXColor-reference signature.
 - Excess retained RTTI strings can reveal an incorrect source-file boundary. Separating Camera's live literal pool from Ground's otherwise-discardable type metadata restores the frozen executable without suppressing RTTI or inserting copied data.
 - An opaque pointer's scope matters as well as its type. Collection's direct inner-loop `void*` conversion failed, while an outer named `void*` forwarded by reference preserved the needed register. Explicit same-type casts on two outer scalar assignments then preserved their relative priority. These are measured controls for this inlined loop, not a general allocation rule.
+- A register move can have a different compiler opcode. Message conversion retains `OR source, source` through a union representation view; the emitted bits equal `MR`, but its generation position changes the pre-allocation schedule. One named-local move then preserves the pointer nodes' simplify-pass priority. This is a source-only D-0016 mechanism.
+- A register-masked exact instruction stream can be a misleading scheduling milestone. The old message helper's wrong `r0` reuse supplied dependencies that disappeared when its registers were corrected. Compare pre-allocation schedules before treating final scheduling and register allocation as independent remaining tasks.

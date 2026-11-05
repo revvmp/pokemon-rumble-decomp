@@ -135,6 +135,8 @@ Keep entries concise and actionable. Distinguish confirmed findings from hypothe
 
 - **A live checkout is not a frozen header baseline.** A ParticleManager audit compiled its comparison after a shared-header edit and missed two regressions. Compare against the preserved pre-edit report or a complete original-header overlay; the scoped fix restored both affected callers. See [the shared-header audit](docs/re/findings/particle-font-native-tail-20261104.md#traps).
 
+- **A strong helper also owns its exception record.** Removing CModel helper exception records did not preserve the earlier weak copies; the DOL lost320 bytes. Keep the real records and arrange typed source ownership and native input order. The grouped-input build passes twice from clean outputs; see [CModel](docs/re/findings/329-cmodel-emission.md) and [validation](docs/VALIDATION.md#nine-function-checkpoint-and-grouped-source-linking).
+
 - **A locally unreferenced cleanup can have later consumers.** CUIMenu's original exception actions identify the CUIList cleanup at `0x801DC380` as list-item vector storage. Checking that later consumer removed an unnecessary stand-in class and reproduced the frozen SHA with the natural template. Inspect cross-unit unwind references before treating a cleanup as unused; see [the correction](docs/re/findings/337-cuilist-tail.md#f-337-7-natural-list-item-vector-cleanup).
 
 - **Register-masked comparisons can hide reversed arithmetic.** U8 animation interpolation retained the same fuzzy score with `2.0f - sum` and the correct `sum - 2.0f`. Trace noncommutative operands back to their loads and frozen literals before dismissing them as register allocation; see [the verified polynomial correction](docs/re/findings/animcurve-20261104-continuation.md).

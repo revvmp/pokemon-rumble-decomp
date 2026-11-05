@@ -1,6 +1,6 @@
 # CPlayerPii shadow-name tail
 
-The current baseline is 253/254 exact functions. GetShadowName remains 88.85714% with the same 84-byte instruction inventory. The target stores LR before the constant-table lwzu and loads mpPlayer immediately after that first table load; source moves lwzu before the LR store and mpPlayer after all four table loads.
+The native candidate now compares all 254 functions exactly. GetShadowName's 84 bytes were completed on 2026-11-04 with the two local source controls documented below; full source-link acceptance is pending the coordinator's frozen-artifact gate. The previous baseline was 253/254 exact functions, with GetShadowName at 88.85714%. The target stores LR before the constant-table lwzu and loads mpPlayer immediately after that first table load; the previous source moved lwzu before the LR store and mpPlayer after all four table loads.
 
 No candidate from this continuation was retained. Const-casting this, volatile player loads, integer pointer round trips, scalar table structures, external/static tables, register locals, and identity dependencies did not improve the baseline. Scoped common-subexpression, lifetime, scalarization, dead-assignment and pointer-analysis pragmas did not solve it; disabling scheduling changes other emitted weak helpers and worsens this function. Explicit per-element copies and union copies also did not match.
 
@@ -38,4 +38,28 @@ Additional bounded source probes found no improvement:
 - All 164 combinations of the discovered 82 optimizer option names with on/off at the end of the translation unit; unsupported numeric-value forms fail compilation and are not retained.
 - Six private enum-return views of GetPlayerNo, with the ordinary array and aggregate diagnostic. The other real function comparisons remain unchanged for those six views, but the target function does not improve.
 
-The source baseline and full diff are under `tools/local/tail-20261104/game_CPlayerPii/pf_player_baseline/`. New drivers use `tools/local/tail-20261104/pf_player_*.py`. The corrected output-helper results and final-option results are recorded in `pf_player_output_results.json` and `pf_player_finalflag_results.json`. No shared header, symbol, configuration, or CPlayerPii implementation change is retained from this continuation.
+The source baseline and full diff are under `tools/local/tail-20261104/game_CPlayerPii/pf_player_baseline/`. New drivers use `tools/local/tail-20261104/pf_player_*.py`. The corrected output-helper results and final-option results are recorded in `pf_player_output_results.json` and `pf_player_finalflag_results.json`. These families did not produce a retained change; the later exact source below supersedes that result.
+
+The remaining unsuccessful controls were 24 alignment forms, twelve inline-policy command combinations, 32 aggregate-copy forms, 32 reference-member aggregates, twelve union-lifetime forms, 36 global-struct table copies, 24 table-derived identity expressions, and 24 constructor-output variants. A reference-member aggregate reached 92.38095% at 88 bytes, but its extra stack store and early player load make it unsuitable. That score is not a retained improvement.
+
+## Exact local alias controls, 2026-11-04
+
+The 84-byte function is exact with two local types:
+
+- `ShadowNames` contains the four string pointers and declares an unused copy-assignment operator. This makes the class non-POD without emitting a helper or adding storage.
+- A local union contains `const CPlayerPii*` and a full-range unsigned enum. The function assigns `this` to the pointer member, converts that pointer to the enum member, and obtains `mpPlayer` through the converted address. Every union read uses the member most recently written; the conversion adds no machine instructions.
+
+The same native trace that captured colouring now records scheduler edges using the existing `sort_sched_hook.js`. In the old source, the LR stack store has no memory-alias dependency on the table loads or player load. The non-POD table introduces edges from that store to all four table loads. The enum union also introduces the edge from the LR store to the player load. The resulting final schedule is exactly `lis`, LR store, first table `lwzu`, player `lwz`, and the remaining table loads, followed by all four stack stores. Registers, branches, frame size, and function size match.
+
+Neither control alone is sufficient. The non-POD table by itself remains 79.85714% at 84 bytes; 56 direct alias-load forms with the original array did not beat the old baseline. Combining the controls produced an exact result on candidate 24 of the bounded table/alias family. The enum union is a source-only D-0016 control, and the copy-assignment declaration is deliberately unused. There is no assembly, object rewriting, shared-header change, or compiler-flag change.
+
+The first exact candidate had `c9x_alias_by_type on` left active after the function and regressed three deferred deque helpers. The alias pragma is unnecessary: removing it entirely keeps GetShadowName exact and restores all 253 other functions. The retained source has no new pragma. This is a measured deferred-generation trap for this translation unit, not evidence that every scoped optimizer setting behaves the same way.
+
+The readable candidate is `tools/local/tail-20261104/game_CPlayerPii/pf_player_ready/CPlayerPii.cpp`, installed in the owned source file. Its native `diff.json` compares all 254 real functions at 100%, and `scheduler.txt` records the exact dependencies and schedule. `data-audit.json` compares the candidate with the saved pre-change native object:
+
+- Every emitted function identity, address, and size is unchanged.
+- `.rodata` (16 bytes), `.data` (1354 bytes), `.sdata` (160 bytes), `extab` (1912 bytes), and `extabindex` (2088 bytes) retain identical bytes and relocation destinations.
+- The four name-table relocations still resolve to `.data` offsets 32, 56, 80, and 104, containing the original p1 through p4 resource names.
+- The sole text-relocation change moves the table's LO16 relocation four bytes later, with the now-correct `lwzu` instruction. Its destination is unchanged.
+
+The reference [mweppc alias implementation](https://github.com/doldecomp/mweppc/blob/919828d97d33d236da675824d43c5d57332afe74/src/compiler/optimizer/Alias.c) treats const non-POD class objects differently from const pointer arrays. That is useful context for the source-control hypothesis; the acceptance evidence here is the shipped Wii/1.1 compiler's measured graph and native object comparisons.

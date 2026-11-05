@@ -1,3 +1,4 @@
+#define NPPU_VM_GC_LAYOUT
 #include <game/NPpuVM.h>
 
 #include <revolution/enc.h>
@@ -1622,53 +1623,81 @@ const wchar_t* CEngine::AllocWString(const std::wstring& rString) {
 inline void CEngine::MarkValue(const CValue& rValue) {
     if (rValue.mType == CValue::TYPE_STRING_PTR) {
         std::map<const char*, SGCString<char>* >::iterator it = sStrings->find(rValue.GetStringPtr());
-        if (it != sStrings->end()) {
+        if (it != static_cast<const std::map<const char*, SGCString<char>* >*>(sStrings)->end()) {
             it->second->mMark = sGCMark;
         }
     } else if (rValue.mType == CValue::TYPE_WSTRING_PTR) {
         std::map<const wchar_t*, SGCString<wchar_t>* >::iterator it = sWStrings->find(rValue.GetWStringPtr());
-        if (it != sWStrings->end()) {
+        if (it != static_cast<const std::map<const wchar_t*, SGCString<wchar_t>* >*>(sWStrings)->end()) {
             it->second->mMark = sGCMark;
         }
     }
 }
 
+#pragma opt_lifetimes off
 void CEngine::CollectGarbage(int threshold, int) {
+    struct CharacterStringSweep : std::__red_black_tree<std::detail::tree_node_base*> {
+        typedef std::pair<const void* const, unsigned long> Value;
+        typedef std::detail::map_base_value_compare<const void*, unsigned long, std::less<const void*> > Compare;
+        typedef std::detail::map_compact_tree<Value, Compare, std::allocator<Value> > NativeTree;
+        struct TreeStorage {
+            u32 mCount;
+            std::detail::tree_node_base* mpRoot;
+            std::detail::tree_node_base* mpFront;
+        };
+        static void EraseImpl(NativeTree::iterator& position) {
+            std::detail::tree_node_base* pNode = position.node_;
+            TreeStorage* pTree = reinterpret_cast<TreeStorage*>(*reinterpret_cast<std::map<const char*, SGCString<char>* >* volatile*>(&sStrings));
+            if (pNode == pTree->mpFront) {
+                ++position;
+                pTree->mpFront = position.node_;
+            }
+            std::__red_black_tree<std::detail::tree_node_base*>::balance_erase(pNode, pTree->mpRoot);
+            ::operator delete(pNode);
+            --pTree->mCount;
+        }
+        static void Erase(std::map<const char*, SGCString<char>* >::iterator position) {
+            EraseImpl(position.mIterator);
+        }
+    };
+
     if (sGCAllocCount > threshold) {
         sGCAllocCount = 0;
         sGCMark++;
 
         CEnvironment* pEnv = nullptr;
         for (std::set<CEngine*>::iterator it = sInstances->begin(); it != sInstances->end(); ++it) {
-            CEngine* pEngine = *it;
+            CEngine* pEngine = reinterpret_cast<CEngine*>(reinterpret_cast<u32>(*it));
             pEnv = pEngine->mEnv;
             for (int i = 0; i < pEngine->mSP; i++) {
                 MarkValue(pEngine->mStack[i]);
             }
         }
-        for (int i = 0; i < pEnv->mGlobalCount; i++) {
+        for (unsigned int i = 0; i < pEnv->mGlobalCount; i++) {
             MarkValue(pEnv->mGlobals[i]);
         }
 
-        for (std::map<const char*, SGCString<char>* >::iterator it = sStrings->begin(); it != sStrings->end();) {
-            std::map<const char*, SGCString<char>* >::iterator current = it;
-            ++it;
-            SGCString<char>* pString = current->second;
+        std::map<const char*, SGCString<char>* >::iterator next;
+        for (std::map<const char*, SGCString<char>* >::iterator it = sStrings->begin(); (next = it) != sStrings->end(); it = next) {
+            ++next;
+            SGCString<char>* pString = it->second;
             if (pString->mMark != sGCMark) {
-                sStrings->erase(current);
+                CharacterStringSweep::Erase(it);
                 delete pString;
             }
         }
-        for (std::map<const wchar_t*, SGCString<wchar_t>* >::iterator it = sWStrings->begin(); it != sWStrings->end();) {
-            std::map<const wchar_t*, SGCString<wchar_t>* >::iterator current = it;
-            ++it;
-            SGCString<wchar_t>* pString = current->second;
+        std::map<const wchar_t*, SGCString<wchar_t>* >::iterator wideNext;
+        for (std::map<const wchar_t*, SGCString<wchar_t>* >::iterator it = sWStrings->begin(); (wideNext = it) != sWStrings->end(); it = wideNext) {
+            ++wideNext;
+            SGCString<wchar_t>* pString = it->second;
             if (pString->mMark != sGCMark) {
-                sWStrings->erase(current);
+                sWStrings->erase(it);
                 delete pString;
             }
         }
     }
 }
+#pragma opt_lifetimes reset
+
 
 }

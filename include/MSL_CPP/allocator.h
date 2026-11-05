@@ -27,6 +27,9 @@ public:
     size_type max_size() const { return numeric_limits<size_type>::max() / sizeof(T); }
     void deallocate(pointer pValue, size_type) { ::operator delete(pValue); }
     void construct(pointer pValue, const_reference rValue) { new (pValue) T(rValue); }
+#if defined(CMODEL_EMISSION_LAYOUT)
+    __declspec(section ".text.model_allocator")
+#endif
     void destroy(pointer pValue) { pValue->~T(); }
 };
 }

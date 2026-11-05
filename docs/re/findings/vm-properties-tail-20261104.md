@@ -45,8 +45,23 @@ No exact gain came from split declaration-order permutations, the available opt_
 
 The scoped c9x_alias_by_type control that completed another unit in this session leaves Load and both property functions unchanged and regresses the collector. It is not retained here.
 
+## Collector instruction completion after the remote-memory pass
+
+The later 2026-11-04 pass completes all 1,400 unrelocated bytes of CollectGarbage. Its exception record and cleanup relocation identities also agree. All 61 previously exact functions retain their scores, giving 62 of 63 target functions at 100%; Load remains at its tracked 88.051285% baseline in the ready package. The separate 94.871796% Load experiment is deliberately not included in this exact collector change.
+
+The new control changes the ordering of the two sweeps' allocations. A local CharacterStringSweep helper performs the character-map erase through the compact tree's proven three-word storage: count at zero, root at four, and first node at eight. Its outer method takes the original map iterator by value; an inner method takes the native iterator by mutable reference. The receiver is loaded through a volatile view of the existing sStrings global, preserving the target reload. Advancing the local erase position leaves the caller's iterator unchanged. Tree balancing, node deletion and count adjustment are unchanged; the stored pair consists only of a pointer and an unsigned integer and has no nontrivial destruction.
+
+This helper initially retains the same 99.87143% score as the prior best but moves all nine differing operands from the character sweep to the wide sweep. The character sweep is now exact. Keeping the wide erase's removed node as its concrete node pointer, rather than the base-node pointer, completes the wide sweep in this new coloring context. The same type change in the earlier context had not completed the function.
+
+The ready source defines NPPU_VM_GC_LAYOUT before its header. The private map overlay adds the three const-end accessors and switches the compact erase to a mutable iterator reference with a concrete node pointer only under that define. Other translation units retain their original header bodies. The source-local storage view, explicit helper levels, volatile receiver load, iterator lifetime control and scoped header layout are intentional D-0016 accommodations, not recovered original interfaces. No assembly, object patching or original-byte change is involved.
+
+The reviewed package is `tools/local/tail-20261104/game_NPpuVM/vm2_collector_ready/NPpuVM.cpp` with `vm2_collector_ready_include/map`. The native object, whole-unit comparison and raw-byte/exception audit are beside the source. `vm2_collector_ready.patch` contains the source and header delta; `vm2_collector_ready.py` reproduces the package and rejects raw-byte, exception-record or function regressions. The coordinator owns shared-header installation, normal-build checks and final source-link acceptance.
+
+Further rejected Load experiments include duplicated stores across equivalent conditions, comma and conditional expressions, dead pointer assignments, full-width header bitfields and integer/union views of the pointer-member stores. None improves the three adjacent scheduling differences. The by-value retry-delay control that completed CRemoteMemory also does not directly change the collector's original receiver/node pair; the local erase scope is the material difference.
+
 ## Traps
 
 - Reconstruct the actual vector size constructor when following the earlier property-data recipe. Specializing only its __vec_constructor backend changes inline parity and does not reproduce the recorded stack slots.
 - A higher percentage can trade register differences for wrong stack offsets, and unchanged percentages can conceal added instructions. Keep native size, opcode/branch alignment, stack operands and register operands separate when selecting a candidate.
 - The new void-pointer reassignment and aggregate-return controls are local compiler behaviors. Their successful use in another unit does not establish that they alter these surviving virtual registers.
+- An unchanged percentage can move the remaining mismatch to another region. The local character-erase helper preserves 99.87143% while making the character sweep exact and moving nine register differences to the wide sweep. A concrete node type then completes that new context. Compare the locations and operands before discarding an equal-score candidate.

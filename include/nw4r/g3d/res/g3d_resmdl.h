@@ -119,6 +119,9 @@ public:
 
 public:
     NW4R_G3D_RESOURCE_FUNC_DEF(ResMdl);
+#if defined(CMODEL_COPY_EMISSION_LAYOUT)
+    ResMdl(const ResMdl& rOther);
+#endif
 
     void Init();
     void Terminate();

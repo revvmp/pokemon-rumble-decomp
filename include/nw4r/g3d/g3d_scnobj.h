@@ -236,7 +236,11 @@ public:
 
 class IScnObjCallback {
 public:
+#if defined(CMODEL_THUNK_EMISSION_LAYOUT)
+    virtual ~IScnObjCallback();
+#else
     virtual ~IScnObjCallback() {}
+#endif
 
     virtual void
     ExecCallback_CALC_WORLD(ScnObj::Timing , ScnObj * , u32 , void * ) {

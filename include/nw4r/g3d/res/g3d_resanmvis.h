@@ -38,12 +38,18 @@ struct ResAnmVisData {
     ResAnmVisInfoData info;
 };
 
+#if defined(CMODEL_EMISSION_LAYOUT)
+#pragma section code_type ".text.model_vis_assignment"
+#endif
 class ResAnmVis : public ResCommon<ResAnmVisData> {
 public:
     static const u32 SIGNATURE = 'VIS0';
     static const int REVISION = 4;
 
 public:
+#if defined(CMODEL_EMISSION_LAYOUT)
+    __declspec(section ".text.model_update")
+#endif
     NW4R_G3D_RESOURCE_FUNC_DEF(ResAnmVis);
 
     u32 GetRevision() const {
@@ -78,5 +84,9 @@ public:
 
 }
 }
+
+#if defined(CMODEL_EMISSION_LAYOUT)
+#pragma section code_type ".text.model_prefix"
+#endif
 
 #endif

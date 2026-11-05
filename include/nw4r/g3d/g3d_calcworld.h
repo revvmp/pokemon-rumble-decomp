@@ -29,16 +29,36 @@ void CalcSkinning(math::MTX34 *pModelMtxArray, u32 *pModelMtxAttribArray, const 
 
 class ICalcWorldCallback {
 public:
+#if defined(CMODEL_THUNK_EMISSION_LAYOUT)
+    virtual ~ICalcWorldCallback();
+#else
     virtual ~ICalcWorldCallback() {};
+#endif
 
     virtual void ExecCallbackA(ChrAnmResult *pResult, ResMdl mdl,
                                FuncObjCalcWorld *pFuncObj) {};
 
+#if defined(CMODEL_EMISSION_LAYOUT)
+    __declspec(section ".text.model_middle")
+#endif
+#if defined(CMODEL_THUNK_EMISSION_LAYOUT)
+    virtual void ExecCallbackB(WorldMtxManip *pManip, ResMdl mdl,
+                               FuncObjCalcWorld *pFuncObj) ;
+#else
     virtual void ExecCallbackB(WorldMtxManip *pManip, ResMdl mdl,
                                FuncObjCalcWorld *pFuncObj) {};
+#endif
 
+#if defined(CMODEL_EMISSION_LAYOUT)
+    __declspec(section ".text.model_middle")
+#endif
+#if defined(CMODEL_THUNK_EMISSION_LAYOUT)
+    virtual void ExecCallbackC(math::MTX34 *pMtxArray, ResMdl mdl,
+                               FuncObjCalcWorld *pFuncObj) ;
+#else
     virtual void ExecCallbackC(math::MTX34 *pMtxArray, ResMdl mdl,
                                FuncObjCalcWorld *pFuncObj) {};
+#endif
 };
 
 class WorldMtxManip {

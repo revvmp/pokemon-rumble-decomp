@@ -2,7 +2,7 @@
 
 The three remaining functions are accepted as exact in the native build: root forced CModel.o regeneration, the native report showed all 158 functions exact, ninja exited zero, and frozen DOL verification passed with the unit still NonMatching. Initial native output was stale despite a later timestamp; four independent fresh compiles of the actual tracked source, including native relative paths and -MMD, established that the flags were not responsible.
 
-The current source-link candidate is scratch-only: tools/local/session/329-model-emission/pairmarker0.cpp with header overlay implicitdtor0.h at include/game/CModel.h. The direct runner is 329-model-emission.py; prepend the scratch include directory. audit-exacteh.o is the stable object snapshot. All 158 functions remain exact and all 156 nonempty target functions exist. Only four order inversions remain.
+The earlier source-link candidate was tools/local/session/329-model-emission/pairmarker0.cpp with header overlay implicitdtor0.h at include/game/CModel.h. That scratch directory was unavailable on the later native host. The direct runner is 329-model-emission.py; prepend the scratch include directory. audit-exacteh.o is the stable object snapshot. All 158 functions remain exact and all 156 nonempty target functions exist. At that stage, four order inversions remained.
 
 ## Recovered ordering
 
@@ -34,7 +34,7 @@ The initial six-section prototype remains scratch-only and is rejected. A late e
 
 ## Native reconstruction of the missing scratch candidate
 
-On 2026-11-04, the earlier scratch directory was unavailable on the current PC. `tools/local/tail-20261104/model_restore.py` reconstructs the documented source and private header views from the tracked source. Its `game_CModel/restored_requests/CModel.o` compares all 158 real functions exactly, with a 156-function common ordered sequence. The only displaced functions are the vector iterator inequality versus `shared_ptr<AnmObjChrOverride>::reset` at ordinals 59/60 and the ChrRes holder destructor versus the three move-pointer destructors at ordinals 120–123. The explicitly requested motion-pair destructor remains in an unused standalone requester, keeping all 104 original exception records and their cleanup relocations exact.
+On 2026-11-04, the earlier scratch directory was unavailable on the current PC. `tools/local/tail-20261104/model_restore.py` reconstructs the documented source and private header views from the tracked source. Its `game_CModel/restored_requests/CModel.o` compares all 158 real functions exactly, with a 156-function common ordered sequence. The only displaced functions are the vector iterator inequality versus `shared_ptr<AnmObjChrOverride>::reset` at ordinals 59/60 and the ChrRes holder destructor versus the three move-pointer destructors at ordinals 120â€“123. The explicitly requested motion-pair destructor remains in an unused standalone requester, keeping all 104 original exception records and their cleanup relocations exact.
 
 The coordinator's first ordinary native source-link trial succeeded but produced 32 extra code bytes and 32 extra data bytes. The trial exposed a structural source error that per-function comparison did not identify.
 
@@ -70,15 +70,15 @@ The independent data-emission investigation by `vm_properties_tail` removed the 
 
 The candidate `tools/local/tail-20261104/game_CModel/model_literal_helper_0_wait` retains all 158 function bodies under the two corrected inherited callback identities and all 104 original exception records. The coordinator's native `links/cmodel-delayed-literal` trial restored all 1,784 retained CModel data bytes, including the literal at original unit offset `0x4B4`. The whole linked `.data` section compared exactly. The remaining 1,928 differing DOL bytes were confined to code order and exception references. This request is D-0016 emission scaffolding, not a recovered original use of the member-function pointer.
 
-## Native section and source-fragment candidate
+## Superseded three-source section candidate
 
-A private three-source candidate now reproduces the full 158-function sequence using native compiler sections. Its main compiler input keeps ordinary template bodies for inlining and exception analysis, and its data sections are byte-for-byte and relocation-for-relocation identical to the delayed-literal candidate. Small typed source fragments provide strong implementations for the methods whose section attributes the compiler otherwise ignores. The source implementations are compiled normally; no object bytes, executable bytes, or relocation records are rewritten.
+A private three-source candidate reproduced the full 158-function sequence using native compiler sections. Its main compiler input keeps ordinary template bodies for inlining and exception analysis, and its data sections are byte-for-byte and relocation-for-relocation identical to the delayed-literal candidate. Small typed source fragments provide strong implementations for the methods whose section attributes the compiler otherwise ignores. The source implementations are compiled normally; no object bytes, executable bytes, or relocation records are rewritten.
 
 The main source is `game_CModel/clean_main/CModel.cpp`, the ownership/animation helper source is `clean_helpers/CModel.cpp`, and the resource-copy helper is `clean_copy/CModel.cpp`. The private, scoped header proposal is `clean_include`. Its scopes are `CMODEL_EMISSION_LAYOUT`, `CMODEL_HELPER_EMISSION_LAYOUT`, and `CMODEL_COPY_EMISSION_LAYOUT`. `CModelAnimationTraits.h` gives the formerly local traits the shared descriptive namespace `ModelAnimation`, and `CModelAnimationFactory.h` shares the unchanged factory body across the primary template and its explicit emission specializations. Eight function symbol names consequently change namespace; `fragment_join/aliases.json` lists those diagnostic correspondences together with the two inherited callback corrections.
 
 The compiled clean inputs have identical allocated-section bytes to the earlier `fragment_main`, `fragment_helpers`, and `fragment_copy` inputs. With their native code sections selected in target order, all 158 functions have the original order and all 104 exception records and cleanup relocations compare exactly. Objdiff's supported target-to-base symbol mappings pair every function; its only residual score difference is the eight renamed call relocations inside `UpdateAnimations`, which the function mapper does not also rename during relocation scoring. That remains a diagnostic result, not full-link acceptance.
 
-A plain native `-r` join produces the expected diagnostic object, but the final Wii/1.1 linker rejects that joined custom-section object with an internal error in `LK_symbol.c`, line 2693. The coordinator is therefore testing the three genuine compiled source objects directly in the final native link, using their unique CModel section names to interleave the code spans while preserving main-before-helper metadata ownership. No stale DOL from the failed link is evidence of acceptance. The unit remains NonMatching until a fresh native link and frozen-manifest verification pass.
+A plain native `-r` join produces the expected diagnostic object, but the final Wii/1.1 linker rejects that joined custom-section object with an internal error in `LK_symbol.c`, line 2693. The coordinator then tested the three genuine compiled source objects directly in the final native link, using their unique CModel section names to interleave the code spans while preserving main-before-helper metadata ownership. No stale DOL from the failed link is evidence of acceptance. The unit remains NonMatching until a fresh native link and frozen-manifest verification pass.
 
 ## Section-control traps confirmed by these probes
 
@@ -87,3 +87,43 @@ A plain native `-r` join produces the expected diagnostic object, but the final 
 - Explicitly defining `ResMdl`'s copy constructor in the main input changes trivial-copy analysis and alters `Load`, `UpdateAnimations`, and the eight factory bodies. The isolated resource-copy fragment provides the same copy implementation while the main input retains the original implicit copy semantics.
 - Late destructor declarations can change data even when every code body and unwind record remains exact. Three animation-control-block destructor declarations reversed the later vtable/RTTI wave. Leaving those declarations out of the main input and supplying their strong definitions in the helper restored the complete original data prefix.
 - The generic [Power Architecture Build Tools Reference](https://community.nxp.com/pwmxy87654/attachments/pwmxy87654/cw-development-tools/8896/1/Power%20Arch%20Build%20Tools%20Reference.pdf) documents an `OBJECT(function, file)` linker command. The tested Wii/1.1, 1.3, 1.5, 1.6, 1.7, and 0x4201_127 linkers do not implement it. Wii/1.1 treats `OBJECT` as an input filename, and the documented two-argument syntax fails at its comma. The generic manual cannot justify assuming that feature exists in this pinned Wii toolchain.
+
+
+## Complete isolated source link, 2026-11-04
+
+The final four-source candidate passed the frozen `wpse-v1` main-DOL manifest through the native final linker. The coordinator's `tools/local/tail-20261104/links/cmodel-resource-guard/verification.json` records linker success followed by `PASS`: all 4,094,880 bytes match, with SHA-256 `ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da`. The link uses genuine compiled C++ objects. No assembler, copied original executable content, object rewriting, or relaxed comparison is involved. The coordinator subsequently integrated the sources and ran the normal configure/ninja pipeline: it exited successfully, passed the same frozen SHA, retained all 158 exact function comparisons, and introduced no project regressions. All 1,392 native-link aliases compared byte-for-byte with their compiler inputs. Clean-build repeatability is recorded by the coordinator in the shared validation documents.
+
+The retained sources are `src/game/CModel.cpp`, `CModelOwnership.cpp`, `CModelResource.cpp`, and `CModelThunks.cpp`. Their final-link order is thunks, main, ownership, resource. Native code sections independently select the original function sequence. This leaves the retained exception records in their original input-object sequence. The plain native `-r` join remains suitable for objdiff analysis, but is not a final-link input because of the pinned linker's internal error described above.
+
+The cleaned files were compiled under those actual basenames with scoped header views. Every nonempty allocated section, including its relocation sequence, matches the corresponding passing trial object exactly. `CModel.cpp` retains its anonymous animation traits, so no trait namespace renames remain. `CModelThunks.cpp` uses the supported `#pragma RTTI off`; it does not require a special compiler command. The coordinator also exercised the production linker-preparation CLI with grouped raw inputs and obtained the same frozen SHA before integrating the normal build.
+
+### Early ownership and exception order
+
+Keeping all eight `CreateAnimObj` member-template bodies in the main compiler input avoids the extra local vector-error literal and RTTI strings retained by the superseded three-source candidate. That rejected candidate had exact function addresses but added 96 DOL bytes. Its individual exception records also matched, while their placement did not. Per-record equality therefore was not sufficient.
+
+The main input now supplies a typed Override `shared_ptr::reset` definition after `UpdateAnimations`. The animation-vector `reserve` and `push_back` declarations retain their wrapper signatures, and their identical typed wrapper bodies follow the reset definition. The FileData-vector `push_back` specialization remains inline in the header at the original request phase. This preserves all original caller instructions, all exception ranges, the vector cleanup order, and the complete main data emission. Scoped code sections place these early helpers at their original addresses. All 104 original exception records are reproduced, including their cleanup relocations.
+
+A rejected control disabled exceptions only for helper bodies whose instruction bytes remained identical. The native link removed their exception records instead of selecting the discarded weak main copies, shrinking the DOL by 320 bytes. `links/cmodel-helper-eh-ownership` is failure evidence, not a usable build. Exception ownership follows the selected function definition in this trial.
+
+### Synthetic resource guard
+
+The remaining ChrRes cleanup helper at `0x801BFBF0` required a separate template declaration phase. The original guard type spelling is unknown; the earlier `std::tr1::detail::shared_ptr_holder` name was an inferred reconstruction. Under D-0016, `ModelEmission::ResourceGuard<T, D>` is a synthetic source emission type, not a recovered original name.
+
+Its sole stored member is the same `Metrowerks::compressed_pair<T*, D&>`: a pointer and a deleter reference. Its constructor, `release`, and destructor perform the same operations as the inferred holder. A scoped type selection applies it only to the ChrRes custom-deleter constructor. Declaring this template before `move_ptr` places its 108-byte destructor after the three move-pointer destructors, as required by both code and exception-record order. It adds no RTTI, vtable, or retained data.
+
+The synthetic symbol is `__dt__Q213ModelEmission64ResourceGuard<Q34nw4r3g3d12AnmObjChrRes,PFPQ34nw4r3g3d6G3dObj_v>Fv`. After this explicit identity mapping, all 158 selected functions have their original addresses and sizes; all 104 exception records, cleanup relocations, and their retained sequence match. The native map confirms the guard destructor at `0x801BFBF0`.
+
+### Compiler-generated thunks and stripped requesters
+
+The thunk fragment contains inline copies of the real CModel destructor and callback-A implementation. The main input's strong definitions own those methods; the first fragment supplies only the compiler-generated adjusting thunks. Its scoped declaration views prevent it from taking ownership of inherited callbacks, shared-pointer/vector cleanup bodies, or partial-animation destructors. The main input still sees ordinary bodies for inlining and exception analysis.
+
+An unused requester originally constructed an empty `ResMdl`. This emitted a weak `ResMdl(void*)` body that stole a later unit's definition, adding 16 bytes at the end of CModel and shifting neighboring code. Accepting an existing `ResMdl` reference removed that unwanted request. The two inherited empty callbacks likewise had to be declarations in the thunk fragment so that the main input retained their earlier positions. The successful final map has no retained `RequestModel` helpers.
+
+All named-false requests, template-size seeds, the discarded tree member-pointer request, scoped header declaration placement, explicit typed ownership fragments, synthetic guard, and native section scaffolding are D-0016 controls. The source bodies remain typed C++; the B/C inheritance correction is separately supported by the original vtable evidence and is not a fake.
+
+### Final traps
+
+- Exact instructions and exact individual exception records can still yield the wrong exception-table order. Audit the retained record sequence after weak/strong definition selection.
+- An unused source requester can instantiate a weak body retained by another live caller. Check the full native map for accidental ownership, especially in a fragment placed before the main unit.
+- Disabling exception generation for a strong helper does not preserve its discarded weak counterpart's metadata in the tested native link.
+- A separate typed guard can control one cleanup emission phase without changing its pointer/deleter layout. Its synthetic identity must be documented and validated through the full frozen artifact, not presented as an original class-name recovery.

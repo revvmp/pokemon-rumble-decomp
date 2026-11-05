@@ -10,19 +10,25 @@ def prepare(specification, template, output_dir):
     selectors = []
     aliases = []
     output_dir.mkdir(parents=True, exist_ok=True)
-    for index, entry in enumerate(inputs):
+    for entry in inputs:
         source = Path(entry["object"])
+        sources = [Path(path) for path in entry.get("objects", [entry["object"]])]
+        if not sources or sources[0] != source or len(set(sources)) != len(sources):
+            raise ValueError(f"Invalid source object group for {source}: {sources}")
         sections = entry.get("text_sections", [".text"])
         if ".text" not in sections or len(sections) != len(set(sections)):
             raise ValueError(f"Invalid text section order for {source}: {sections}")
         if any(re.fullmatch(r"\.text(?:[.$][A-Za-z0-9_]+)*", section) is None for section in sections):
             raise ValueError(f"Invalid text section name for {source}: {sections}")
-        alias = output_dir / f"unit_{index:04d}.o"
-        if source.resolve() == alias.resolve():
-            raise ValueError(f"Link alias overlaps its source: {source}")
-        shutil.copyfile(source, alias)
-        aliases.append(alias)
-        selectors.extend(f'            "{alias.name}"({section})' for section in sections)
+        group = []
+        for source in sources:
+            alias = output_dir / f"unit_{len(aliases):04d}.o"
+            if source.resolve() == alias.resolve():
+                raise ValueError(f"Link alias overlaps its source: {source}")
+            shutil.copyfile(source, alias)
+            aliases.append(alias)
+            group.append(alias)
+        selectors.extend(f'            "{alias.name}"({section})' for section in sections for alias in group)
     original = template.read_text(encoding="utf-8")
     layout, count = re.subn(
         r"(?m)^(\s*\.text\s+ALIGN\([^)]*\):)\s*\{\s*\}",

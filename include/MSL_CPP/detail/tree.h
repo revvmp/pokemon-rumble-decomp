@@ -631,8 +631,14 @@ public:
     tree_node_base*& front() { return begin_node(); }
     tree_node_base* front() const { return const_cast<tree_imp*>(this)->begin_node(); }
 
+#if defined(CMODEL_EMISSION_LAYOUT)
+    __declspec(section ".text.model_middle")
+#endif
     node* insert_node_at(tree_node_base* pParent, bool left, bool leftmost, const value_type& rValue);
 
+#if defined(CMODEL_EMISSION_LAYOUT)
+    __declspec(section ".text.model_middle")
+#endif
     void destroy(node* pNode);
     void copy(const tree_imp& rOther);
     void copy_children(node* pDestination, node* pSource, bool left);

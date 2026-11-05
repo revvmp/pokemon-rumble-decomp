@@ -5,6 +5,9 @@
 #include <MSL_CPP/compressed_pair.h>
 #include <MSL_CPP/alloc_ptr.h>
 #include <MSL_CPP/allocator.h>
+#if defined(CMODEL_EMISSION_LAYOUT)
+#include <game/detail/CModelEmission.h>
+#endif
 namespace std {
 namespace tr1 {
 class bad_weak_ptr : public exception {
@@ -44,6 +47,9 @@ template <typename T, typename D = std::detail::default_delete<T> > class move_p
 public:
     template <typename Y>
     explicit move_ptr(Y* p, typename restrict_to<is_convertible<Y*, T*>::value, nat>::type = nat()) : ptr_(p) {}
+#if defined(CMODEL_EMISSION_LAYOUT)
+    __declspec(section ".text.model_moves")
+#endif
     ~move_ptr();
     T* get() const { return ptr_.first(); }
     T* release() {
@@ -75,6 +81,14 @@ namespace tr1 {
 
 namespace detail {
 struct unused_argument;
+#if defined(CMODEL_EMISSION_LAYOUT)
+template <class T, class D> struct model_holder_type {
+    typedef shared_ptr_holder<T, D> type;
+};
+template <class D> struct model_holder_type<nw4r::g3d::AnmObjChrRes, D> {
+    typedef ModelEmission::ResourceGuard<nw4r::g3d::AnmObjChrRes, D> type;
+};
+#endif
 }
 
 template <typename T> class shared_ptr;
@@ -112,6 +126,9 @@ public:
             s_->retain();
         }
     }
+#if defined(CMODEL_EMISSION_LAYOUT)
+    __declspec(section ".text.model_shared")
+#endif
     ~shared_ptr() throw();
 
     shared_ptr& operator=(const shared_ptr& r);
@@ -141,7 +158,11 @@ public:
     T* operator->() const { return ptr_; }
 #endif
     long use_count() const { return s_ ? s_->use_count() : 0; }
+#if defined(CMODEL_HELPER_EMISSION_LAYOUT)
+    operator int bool_type::*() const;
+#else
     operator int bool_type::*() const { return ptr_ ? &bool_type::dummy_ : nullptr; }
+#endif
     template <typename Y> bool operator<(const shared_ptr<Y>& r) const { return s_ < r.s_; }
 
 private:
@@ -171,7 +192,11 @@ shared_ptr<T>::shared_ptr(Y* p) : ptr_(p) {
 template <typename T>
 template <typename Y, typename D>
 shared_ptr<T>::shared_ptr(Y* p, D d) : ptr_(p) {
+#if defined(CMODEL_EMISSION_LAYOUT)
+    typename detail::model_holder_type<Y, D>::type holder(p, d);
+#else
     detail::shared_ptr_holder<Y, D> holder(p, d);
+#endif
     s_ = new detail::shared_ptr_deleter<Y, D>(p, d);
     holder.release();
     enable_from_this(p, p);
@@ -279,11 +304,13 @@ shared_ptr<T>::shared_ptr(const shared_ptr& r) : ptr_(r.ptr_), s_(r.s_) {
     }
 }
 
+#if !defined(CMODEL_THUNK_EMISSION_LAYOUT)
 template <typename T> shared_ptr<T>::~shared_ptr() throw() {
     if (s_) {
         s_->release();
     }
 }
+#endif
 
 template <typename T>
 shared_ptr<T>& shared_ptr<T>::operator=(const shared_ptr& r) {

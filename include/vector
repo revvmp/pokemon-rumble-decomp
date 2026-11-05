@@ -9,6 +9,11 @@
 #include <stdexcept>
 #include <string.h>
 
+#if defined(CMODEL_EMISSION_LAYOUT)
+class CFileData;
+namespace nw4r { namespace g3d { class AnmObj; } }
+#endif
+
 namespace std {
 
 template <typename Iterator>
@@ -67,6 +72,9 @@ public:
     const Allocator& alloc() const { return capacity_.second(); }
     size_type max_size() const { return alloc().max_size(); }
 
+#if defined(CMODEL_EMISSION_LAYOUT)
+    __declspec(section ".text.model_middle")
+#endif
     ~__vec_deleter();
 
     T* begin() { return this->data_; }
@@ -210,12 +218,14 @@ private:
     __vec_deleter& operator=(const __vec_deleter&);
 };
 
+#if !defined(CMODEL_THUNK_EMISSION_LAYOUT)
 template <typename T, typename Allocator> __vec_deleter<T, Allocator>::~__vec_deleter() {
     if (data_) {
         clear();
         alloc().deallocate(data_, cap());
     }
 }
+#endif
 
 template <typename T, typename Allocator>
 void __vec_deleter<T, Allocator>::erase_tail(size_type n, Metrowerks::int2type<false>) {
@@ -234,6 +244,9 @@ public:
     typedef typename base::pod_type pod_type;
 
     explicit __vec_split_buffer(Allocator& a) : base(a), start_(0) {}
+#if defined(CMODEL_EMISSION_LAYOUT)
+    __declspec(section ".text.model_split")
+#endif
     ~__vec_split_buffer();
 
     T* begin() { return this->data_ + start_; }
@@ -881,7 +894,7 @@ public:
     vector& operator=(const vector& x) { base::operator=(x); return *this; }
 #endif
     template <typename Iterator> vector(Iterator first, Iterator last) : base(first, last) {}
-#if defined(CGAMESESSION_EMISSION_LAYOUT)
+#if defined(CGAMESESSION_EMISSION_LAYOUT) || defined(CMODEL_THUNK_EMISSION_LAYOUT)
     ~vector();
 #else
     ~vector() {}
@@ -891,7 +904,11 @@ public:
 
     void clear() { base::clear(); }
 
+#if defined(CMODEL_EMISSION_LAYOUT)
+    void reserve(size_type n);
+#else
     void reserve(size_type n) { base::reserve(n); }
+#endif
     template <typename Iterator> void assign(Iterator first, Iterator last, typename Metrowerks::restrict_to<true>::type* = nullptr) {
 #if defined(GAME_DLGPIISELECTOR_RANGE_TAG_REFERENCE)
         Metrowerks::int2type<0> copyTag;
@@ -926,9 +943,13 @@ public:
     reverse_iterator<const_iterator> rend() const { return reverse_iterator<const_iterator>(begin()); }
     size_type size() const { return this->size_; }
     bool empty() const { return this->size_ == 0; }
+#if defined(CMODEL_EMISSION_LAYOUT)
+    void push_back(const T& x);
+#else
     void push_back(const T& x) {
         base::push_back(x);
     }
+#endif
     T& operator[](size_type i) { return base::operator[](i); }
     const T& operator[](size_type i) const { return reinterpret_cast<const T&>(this->data_[i]); }
 
@@ -936,6 +957,14 @@ private:
     iterator make_iterator(T* const& rPointer) { return iterator(rPointer); }
 };
 
+
+#if defined(CMODEL_EMISSION_LAYOUT)
+template <> inline void vector<tr1::shared_ptr<CFileData> >::push_back(const tr1::shared_ptr<CFileData>& x) { base::push_back(x); }
+template <> __declspec(section ".text.model_reserve")  void vector<tr1::shared_ptr<nw4r::g3d::AnmObj> >::reserve(unsigned long n);
+template <> __declspec(section ".text.model_push")  void vector<tr1::shared_ptr<nw4r::g3d::AnmObj> >::push_back(const tr1::shared_ptr<nw4r::g3d::AnmObj>& x);
+template <class T, class Allocator> inline void vector<T, Allocator>::reserve(size_type n) { base::reserve(n); }
+template <class T, class Allocator> inline void vector<T, Allocator>::push_back(const T& x) { base::push_back(x); }
+#endif
 
 template <typename T, typename Iterator> class __implicit_convert_iterator {
 public:

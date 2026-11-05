@@ -1,3 +1,5 @@
+#define CDLG_COLLECTION_EMISSION_LAYOUT
+
 #include <game/IDlgCollection.h>
 #include <game/MathUtil.h>
 
@@ -8,11 +10,11 @@
 #include <game/CPiiPersonalData.h>
 #include <game/CPiiTex.h>
 #include <game/CPlayer.h>
+#include <game/IDlgMsgWin.h>
+#include <game/IGameMap.h>
 #include <game/CUIList.h>
 #include <game/CUIManager.h>
 #include <game/IController.h>
-#include <game/IDlgMsgWin.h>
-#include <game/IGameMap.h>
 #include <game/IGameSession.h>
 #include <game/LayoutResources.h>
 #include <game/Message.h>
@@ -59,20 +61,6 @@ inline __vec_constructor<unsigned short, allocator<unsigned short>, false>::__ve
 }
 
 }
-
-inline BUI::Callback BUI::CCallbackListOwner::Add(const std::tr1::function<void(BUI*)>& rCallback) {
-    if (rCallback) {
-        Callback callback(new std::tr1::function<void(BUI*)>(rCallback));
-        if (mpList == nullptr) mpList = new CallbackList();
-        mpList->push_back(callback);
-        return callback;
-    }
-    return Callback();
-}
-
-
-
-
 
 
 namespace {
@@ -274,11 +262,36 @@ public:
     }
 };
 
+}
+
+namespace std {
+template <> inline __vec_split_buffer<std::tr1::shared_ptr<CDlgCollectionItemModel::Model>, allocator<std::tr1::shared_ptr<CDlgCollectionItemModel::Model> > >::~__vec_split_buffer() {
+    std::tr1::shared_ptr<CDlgCollectionItemModel::Model>* first = this->data_ + start_;
+    std::tr1::shared_ptr<CDlgCollectionItemModel::Model>* last = first + this->size_;
+    while (last > first) {
+        this->alloc().destroy(--last);
+    }
+    this->size_ = 0;
+}
+}
+
+namespace std {
+template <> inline __vec_split_buffer<std::tr1::shared_ptr<IUIListItem>, allocator<std::tr1::shared_ptr<IUIListItem> > >::~__vec_split_buffer() {
+    std::tr1::shared_ptr<IUIListItem>* first = this->data_ + start_;
+    std::tr1::shared_ptr<IUIListItem>* last = first + this->size_;
+    while (last > first) {
+        this->alloc().destroy(--last);
+    }
+    this->size_ = 0;
+}
+}
+
+namespace {
+
 class CDlgCollectionItem : public IUIListItem {
 public:
     CDlgCollectionItem(std::tr1::shared_ptr<CDlgCollectionItemModel> model, const std::vector<u16>& rSpecies)
         : mModel(model), mSpecies(rSpecies) {}
-    virtual ~CDlgCollectionItem() {}
     virtual bool IsSelectable() const { return true; }
     virtual void Update(CUIList* pList, CLayout* pLayout) { mModel->Update(pLayout, mSpecies); }
 
@@ -403,10 +416,23 @@ public:
     CFiber mFiber;
 };
 
+}
+
+inline BUI::Callback BUI::CCallbackListOwner::Add(const std::tr1::function<void(BUI*)>& rCallback) {
+    if (rCallback) {
+        Callback callback(new std::tr1::function<void(BUI*)>(rCallback));
+        if (mpList == nullptr) mpList = new CallbackList();
+        mpList->push_back(callback);
+        return callback;
+    }
+    return Callback();
+}
+
+namespace {
+
 class CDlgCollection : public IDlgCollection, public std::tr1::enable_shared_from_this<CDlgCollection> {
 public:
     CDlgCollection() {}
-    virtual ~CDlgCollection() {}
     virtual bool Close() {
             if (mImpl) {
                 mImpl->mState = 1;

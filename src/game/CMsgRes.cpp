@@ -153,12 +153,23 @@ void CMsgRes::ConvertEscape() {
         return;
     }
 
+    char c;
     char* pSrc = reinterpret_cast<char*>(mpData->mData);
-    char* pDst = pSrc;
+    char* pDst;
     int digit;
-    char* pEnd = reinterpret_cast<char*>(mpData) + mpData->mHeader.mSize;
+    char* pEnd;
     bool isTrailByte = false;
     bool isSjis = mpHeader->mEncoding == ENCODING_SJIS;
+
+    union EscapeAddress {
+        char* mPointer;
+        u32 mBits;
+    };
+    EscapeAddress address;
+    address.mPointer = pSrc;
+    pDst = reinterpret_cast<char*>(reinterpret_cast<u32>(pSrc) | address.mBits);
+
+    pEnd = reinterpret_cast<char*>(mpData) + mpData->mHeader.mSize;
 
     while (pSrc < pEnd) {
         if (isTrailByte) {
@@ -167,7 +178,7 @@ void CMsgRes::ConvertEscape() {
             continue;
         }
 
-        char c = *pSrc;
+        c = *pSrc;
         if (c == '\\') {
             signed char escape = pSrc[1];
             pSrc += 2;

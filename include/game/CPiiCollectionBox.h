@@ -9,7 +9,11 @@ class CPiiCollectionBox {
 public:
     CPiiCollectionBox();
     static std::tr1::shared_ptr<CPiiCollectionBox> Create(const std::vector<SD_PiiCollectionData::Data>& rData);
+#if defined(CDLG_COLLECTION_EMISSION_LAYOUT)
+    int GetCollectionType(u16 monsno) __attribute__((nothrow));
+#else
     int GetCollectionType(u16 monsno);
+#endif
     void SetCollectionBRR(u16 monsno, int type, int value);
     int GetDefeatCount(u16 monsno);
     std::vector<u16> GetManyDefeatedPii();

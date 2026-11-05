@@ -223,3 +223,17 @@ The 2026-11-04 incremental production workflow ran configure.py and ninja, inclu
 | report.json | 4770865 | `be9edf274722607286a96c43eed069bde9f49dd7b0d7b9a6befcc18204cb0732` |
 
 Matched code is3,054,792/3,082,252 bytes; source-linked code is2,751,440 bytes; linked data is1,681,464/1,788,746 bytes. There are884 Matching units of1,389. Source coverage is not complete. This is an incremental checkpoint; the preceding section records the last two fully regenerated clean builds. The current scope remains only main.dol.
+
+## Nine-function checkpoint and grouped source linking
+
+Two fully regenerated builds on2026-11-04 ran configure.py and native ninja from absent build/wpse-v1 directories. Each ninja run exited0, and each formal frozen main.dol verification passed. The prior output directories were moved to separate checked paths inside the workspace; no compiled objects were reused. The first clean build also reproduced the preceding incremental result. Both clean builds produce identical main.dol, main.elf and report.json bytes.
+
+| Artifact | Bytes | SHA-256 |
+| --- | --- | --- |
+| main.dol | 4094880 | `ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da` |
+| main.elf | 6117976 | `cab86e13f233a65ef2856707d774d4fde9ea9ab9af8038467b6130dba9ada386` |
+| report.json | 4771148 | `5ffe705d0e2b7fb63b9d46eb5469a0c4d846b328a9cd9037137fba1b30b3b0ab` |
+
+The native report has9 real unfinished functions, no previously exact regressions or missing exact functions,887 complete units of1,389,2,837,388 source-linked code bytes (92.05568%) and1,711,080 source-linked data bytes (95.65807%). All1,392 final-link aliases are byte-identical to the selected inputs. CModel consumes four raw compiler outputs, while its native partial link supplies only objdiff analysis; no original CModel object feeds the final executable.
+
+The real order_text_sections.py CLI rejects empty groups, duplicate members, an incorrect first member and invalid section names. Its successful grouped-input output passed the pinned native linker, elf2dol and frozen verifier before normal pipeline integration. Python syntax checks and git diff --check passed. These are workflow/CLI checks, not unit tests. Private logs and comparisons are retained under tools/local/tail-20261104/nine-clean-* and links/cmodel-production-preparer.

@@ -194,6 +194,22 @@ public:
     template <typename Key> iterator find(const Key& key) { return find_key(key); }
     template <typename Key> iterator find(Key* const& key) { return find_key(reinterpret_cast<const void* const&>(key)); }
     iterator end() { return iterator(end_node()); }
+#if defined(NPPU_VM_GC_LAYOUT)
+    iterator end() const { return iterator(end_node()); }
+#endif
+#if defined(NPPU_VM_GC_LAYOUT)
+    void erase(iterator& position) {
+        node* pNode = static_cast<node*>(position.node_);
+        if (pNode == front()) {
+            ++position;
+            front() = position.node_;
+        }
+        __red_black_tree<tree_node_base*>::balance_erase(pNode, root());
+        alloc_.first().destroy(&static_cast<node*>(pNode)->value_);
+        ::operator delete(pNode);
+        --sz();
+    }
+#else
     void erase(iterator position) {
         tree_node_base* pNode = position.node_;
         if (pNode == front()) {
@@ -206,6 +222,7 @@ public:
         ::operator delete(pNode);
         --sz();
     }
+#endif
     iterator erase_next(iterator position) {
         tree_node_base* pNode = position.node_;
         iterator next(position);
@@ -257,6 +274,9 @@ public:
         }
     }
     tree_node_base* end_node() { return reinterpret_cast<tree_node_base*>(&node_alloc_.second()); }
+#if defined(NPPU_VM_GC_LAYOUT)
+    tree_node_base* end_node() const { return reinterpret_cast<tree_node_base*>(const_cast<anchor*>(&node_alloc_.second())); }
+#endif
 #if defined(CFILEDATA_EMISSION_LAYOUT) || defined(BWORLD_EMISSION_LAYOUT)
     pair<iterator, bool> insert_one(const value_type& rValue);
 #else
@@ -554,6 +574,9 @@ public:
     ~map() {}
     iterator begin() { return iterator(mTree.begin()); }
     iterator end() { return iterator(mTree.end()); }
+#if defined(NPPU_VM_GC_LAYOUT)
+    iterator end() const { return iterator(mTree.end()); }
+#endif
     iterator find(const key_type& rKey) { return iterator(mTree.find(static_cast<const void*>(rKey))); }
     void erase(iterator position) { mTree.erase(position.mIterator); }
     size_type size() const { return mTree.size(); }

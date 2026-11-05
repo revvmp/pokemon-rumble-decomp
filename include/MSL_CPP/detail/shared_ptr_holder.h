@@ -14,6 +14,9 @@ template <> struct shared_ptr_reference<void> { typedef void type; };
 template <typename T, typename D> class shared_ptr_holder {
 public:
     shared_ptr_holder(T* pObject, D& rDeleter) : ptr_(pObject, rDeleter) {}
+#if defined(CMODEL_EMISSION_LAYOUT)
+    __declspec(section ".text.model_shared")
+#endif
     ~shared_ptr_holder();
     T* release() {
         T* p = ptr_.first();

@@ -42,8 +42,24 @@ void CPlayerPii::Calc()
 
 const char* CPlayerPii::GetShadowName() const
 {
-    const char* const names[4] = {"5:/misc.arc/p1.brres", "5:/misc.arc/p2.brres", "5:/misc.arc/p3.brres", "5:/misc.arc/p4.brres"};
-    return names[mpPlayer->GetPlayerNo()];
+    struct ShadowNames {
+        const char* mNames[4];
+        ShadowNames& operator=(const ShadowNames&);
+    };
+    enum ShadowAddress {
+        SHADOW_ADDRESS_MIN = 0,
+        SHADOW_ADDRESS_MAX = 0xFFFFFFFF
+    };
+    union {
+        const CPlayerPii* pObject;
+        ShadowAddress value;
+    } address;
+
+    address.pObject = this;
+    address.value = static_cast<ShadowAddress>(reinterpret_cast<u32>(address.pObject));
+    CPlayer* pPlayer = reinterpret_cast<const CPlayerPii*>(address.value)->mpPlayer;
+    const ShadowNames names = {{"5:/misc.arc/p1.brres", "5:/misc.arc/p2.brres", "5:/misc.arc/p3.brres", "5:/misc.arc/p4.brres"}};
+    return names.mNames[pPlayer->GetPlayerNo()];
 }
 
 bool CPlayerPii::IsVisible() const
