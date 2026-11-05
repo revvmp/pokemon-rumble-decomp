@@ -10,6 +10,4 @@ labels: kind:research
 
 ## Deliverable
 
-- A findings file in docs/re/findings and new kind:decomp issues where applicable
-
-Follow docs/COLLABORATION.md.
+- Findings and supporting evidence recorded in the issue, with follow-up issues where applicable

@@ -2,7 +2,7 @@
 
 A source reconstruction of Pokémon Rumble (WiiWare, USA, `WPSE`) that rebuilds the game's `main.dol` byte for byte.
 
-![Code progress](docs/images/progress-code.svg)
+![Code progress](images/progress-code.svg)
 
 All 13,462 CPU functions match, all 897 units link from source, and the embedded DSP/controller programs build from symbolic source. Two clean builds reproduce the original main.dol exactly.
 

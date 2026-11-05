@@ -7,7 +7,7 @@ import time
 from pathlib import Path
 
 
-IMAGE_DIR = "docs/images"
+IMAGE_DIR = "images"
 MESSAGE = "DOCS: refresh progress images"
 
 

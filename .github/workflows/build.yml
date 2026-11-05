@@ -67,15 +67,15 @@ jobs:
         run: |
           git fetch --quiet origin main
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
-          $moved = git diff --name-only $env:BUILT_SHA origin/main | Where-Object { $_ -notlike 'docs/images/*' }
+          $moved = git diff --name-only $env:BUILT_SHA origin/main | Where-Object { $_ -notlike 'images/*' }
           if ($moved) {
             Write-Output "main has newer code than this build; its own run refreshes the images."
             exit 0
           }
           git checkout --quiet -B progress-images origin/main
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
-          Copy-Item build/progress-images/*.svg docs/images/ -Force
-          git add docs/images
+          Copy-Item build/progress-images/*.svg images/ -Force
+          git add images
           git diff --cached --quiet
           if ($LASTEXITCODE -eq 0) {
             Write-Output "Progress images are already current."

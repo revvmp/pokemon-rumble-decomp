@@ -13,6 +13,10 @@ if errorlevel 1 (
     exit /b 1
 )
 
+echo Checking the local original
+python tools\setup\check_reference.py
+if errorlevel 1 goto failed
+
 echo [1/5] Downloading and checking pinned tools
 python tools\setup\acquire_tools.py
 if errorlevel 1 goto failed
@@ -30,6 +34,8 @@ python configure.py
 if errorlevel 1 goto failed
 
 echo [4/5] Building
+if exist build\wpse-v1\main.dol del /q build\wpse-v1\main.dol
+if exist build\wpse-v1\main.dol goto failed
 .venv\Scripts\ninja
 if errorlevel 1 goto failed
 
@@ -43,5 +49,5 @@ exit /b 0
 
 :failed
 echo.
-echo Build failed. See the messages above, and docs\SETUP.md for help.
+echo Build failed. See the messages above for details.
 exit /b 1

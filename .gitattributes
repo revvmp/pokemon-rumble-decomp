@@ -1,14 +1,10 @@
 config/**/*.txt text eol=lf
 config/**/*.sha1 text eol=lf
 tools/setup/*.patch.json text eol=lf
-docs/images/*.svg text eol=lf
+images/*.svg text eol=lf
 orig/wpse-v1/reconstructed/**/*.json text eol=lf
 orig/wpse-v1/reconstructed/**/*.png binary
 *.bat text eol=crlf
-docs/ledger/*.md merge=decomp-config
-docs/ledger/README.md merge
-docs/re/SYMBOLS.md merge=union
-docs/re/*.tsv text eol=lf
 config/**/symbols.txt merge=decomp-config
 config/**/splits.txt merge=decomp-config
 configure.py merge=decomp-config

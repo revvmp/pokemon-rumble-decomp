@@ -61,6 +61,13 @@ Pokemon.Rumble.USA.WiiWare.wad
 /docs/re/local/
 /.venv/
 
+# Local agent configuration
+/.agents/
+/.claude/
+/.codex/
+/AGENTS.md
+/CLAUDE.md
+
 # Python generated files
 __pycache__/
 *.py[cod]

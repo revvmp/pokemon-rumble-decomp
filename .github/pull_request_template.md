@@ -20,5 +20,5 @@ python tools/verify/verify.py verify --manifest config/targets/wpse-v1.json --re
 - [ ] Units marked `Matching` are 100% in objdiff
 - [ ] Only my claimed ranges changed in `splits.txt` and `symbols.txt`
 - [ ] No comments, docstrings, unit tests, or raw decompiler output
-- [ ] Ledger rows, symbols, and findings updated per docs/COLLABORATION.md
+- [ ] Supporting evidence and validation results included
 - [ ] No co-author trailers or tool attribution lines in commits or this description

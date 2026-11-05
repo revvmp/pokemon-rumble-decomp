@@ -13,6 +13,4 @@ labels: kind:decomp
 ## Done when
 
 - Units in this region are split, reconstructed, and marked `Matching`, and full verification passes
-- Ledger rows are added in docs/ledger
-
-Follow docs/COLLABORATION.md.
+- Matching evidence and validation results are recorded in the issue
