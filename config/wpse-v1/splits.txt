@@ -473,7 +473,7 @@ game/CPiiCollectionBox.cpp:
 	extab       start:0x80023AA0 end:0x80023E58
 	extabindex  start:0x8004A190 end:0x8004A274
 	.text       start:0x800E1AD0 end:0x800E5084
-	.data       start:0x803A8A68 end:0x803A8B6C
+	.data       start:0x803A8A68 end:0x803A8B6B
 	.sdata      start:0x804B7040 end:0x804B7058
 	.sdata2     start:0x804BA058 end:0x804BA05C
 
@@ -482,6 +482,7 @@ game/CPiiInfoWorldObjStat.cpp:
 	extabindex  start:0x8004A274 end:0x8004A2A4
 	.text       start:0x800E5084 end:0x800E5090 skip
 	.text       start:0x800E5090 end:0x800E5618
+	.data       start:0x803A8B6B end:0x803A8B70 align:1 skip
 	.data       start:0x803A8B70 end:0x803A8BC8
 	.sdata      start:0x804B7058 end:0x804B7090
 	.sdata2     start:0x804BA060 end:0x804BA070
@@ -681,8 +682,10 @@ game/CUIMenuSoundCallback.cpp:
 	extabindex  start:0x8004C4D0 end:0x8004C518
 	.text       start:0x8011D088 end:0x8011D090 skip
 	.text       start:0x8011D090 end:0x8011D7E0
-	.data       start:0x803AEF4C end:0x803AF390
-	.sdata      start:0x804B7574 end:0x804B7580
+	.data       start:0x803AEF4C end:0x803AEF50 align:1 skip
+	.data       start:0x803AEF50 end:0x803AF390
+	.sdata      start:0x804B7574 end:0x804B7578 align:1 skip
+	.sdata      start:0x804B7578 end:0x804B7580
 
 game/CUIPiiListItem.cpp:
 	extab       start:0x8002A924 end:0x8002A9E0
@@ -799,8 +802,8 @@ game/DCIM.cpp:
 	extabindex  start:0x8004C8E4 end:0x8004C908
 	.text       start:0x80125B08 end:0x80125B10 skip
 	.text       start:0x80125B10 end:0x8012623C
-	.data       start:0x803B45A8 end:0x803B45B4
-	.sdata      start:0x804B7828 end:0x804B783C
+	.data       start:0x803B45A8 end:0x803B45B2
+	.sdata      start:0x804B7828 end:0x804B783A
 
 game/Font.cpp:
 	extab       start:0x8002C2C0 end:0x8002C2F0
@@ -820,8 +823,10 @@ game/l10n_files.cpp:
 	.text       start:0x801263E8 end:0x801263F0 skip
 	.text       start:0x801263F0 end:0x8012B5E8
 	.ctors      start:0x803529EC end:0x803529F0
+	.data       start:0x803B45B2 end:0x803B45B8 align:1 skip
 	.data       start:0x803B45B8 end:0x803B4F80
 	.bss        start:0x803E90D8 end:0x803E90FC
+	.sdata      start:0x804B783A end:0x804B7840 align:1 skip
 	.sdata      start:0x804B7840 end:0x804B78A0
 	.sbss       start:0x804B90A0 end:0x804B90B8
 
@@ -1397,7 +1402,7 @@ game/new.cpp:
 	extab       start:0x80038488 end:0x8003850C
 	extabindex  start:0x80050820 end:0x80050838
 	.text       start:0x801B1450 end:0x801B15A0
-	.data       start:0x803BF3B8 end:0x803BF3CC
+	.data       start:0x803BF3B8 end:0x803BF3C9
 
 game/pad.cpp:
 	extab       start:0x8003850C end:0x80038AB0
@@ -1405,6 +1410,7 @@ game/pad.cpp:
 	.text       start:0x801B15A0 end:0x801B5308
 	.ctors      start:0x80352A18 end:0x80352A1C
 	.rodata     start:0x80366FC8 end:0x80366FD8
+	.data       start:0x803BF3C9 end:0x803BF3D0 align:1 skip
 	.data       start:0x803BF3D0 end:0x803BF570
 	.bss        start:0x803EA890 end:0x803EA8B0
 	.sdata      start:0x804B81F8 end:0x804B8220
@@ -3813,7 +3819,7 @@ RVL_SDK/dvd/dvdqueue.c:
 
 RVL_SDK/dvd/dvderror.c:
 	.text       start:0x802D6920 end:0x802D7338
-	.data       start:0x803D6C50 end:0x803D6C7C
+	.data       start:0x803D6C50 end:0x803D6C7B
 	.bss        start:0x80458F60 end:0x804591C0
 	.sbss       start:0x804B97B8 end:0x804B97C4
 
@@ -3824,6 +3830,7 @@ RVL_SDK/dvd/dvdidutils.c:
 RVL_SDK/dvd/dvdFatal.c:
 	.text       start:0x802D7430 end:0x802D7598
 	.rodata     start:0x80371670 end:0x803716A8
+	.data       start:0x803D6C7B end:0x803D6C80 align:1 skip
 	.data       start:0x803D6C80 end:0x803D7448
 	.sdata      start:0x804B8BA8 end:0x804B8BB0
 	.sbss       start:0x804B97C8 end:0x804B97CC

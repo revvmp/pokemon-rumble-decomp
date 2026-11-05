@@ -1,5 +1,7 @@
 # Main executable source-completion acceptance
 
+The later [2026-11-05 data acceptance](matched-data-completion-20261105.md) completes the separate Matched Data metric and repeats both clean builds. Its independent function audit corrects this historical record's real-function count: 13,462 is the raw report count, including one twelve-byte zero-alignment entry; 13,461 are real functions. The earlier measurements and hashes below remain checkpoint evidence.
+
 The matching reconstruction of `wpse-v1/main.dol` is complete under the project's documented D-0015/D-0016 controls and the two explicitly owner-approved D-0017 firmware exceptions. All 13,462 CPU functions are exact, and every selected final-link input comes from reconstructed source. Two full clean builds reproduce the frozen executable and all thirteen compared artifacts.
 
 ## Measured completion

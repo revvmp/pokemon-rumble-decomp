@@ -47,6 +47,7 @@ config.version = args.version
 config.build_dir = args.build_dir
 config.dtk_path = args.dtk
 config.objdiff_path = args.objdiff
+config.objdiff_symbol_mappings = Path("config") / config.version / "objdiff-mappings.json"
 config.binutils_path = args.binutils
 config.compilers_path = args.compilers
 config.sjiswrap_path = args.sjiswrap
@@ -80,7 +81,7 @@ if args.debug:
 if args.map:
     config.ldflags.append("-mapunused")
     config.ldflags.append("-listclosure")
-config.reconfig_deps = []
+config.reconfig_deps = [config.objdiff_symbol_mappings]
 config.scratch_preset_id = None
 config.linker_version = "Wii/1.1"
 

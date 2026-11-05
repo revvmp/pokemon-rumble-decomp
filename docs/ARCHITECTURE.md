@@ -6,6 +6,8 @@ This document defines the development and reconstruction architecture. It does n
 
 The project has five boundaries: immutable originals, investigation evidence, reconstructed source, reproducible builds, and acceptance verification. Outputs must not flow backward into the reference inputs.
 
+Object-data comparison uses audited identities in `config/wpse-v1/objdiff-mappings.json`, consumed by ordinary configure output. `config/objdiff.json` and the tracked patch recipe pin a reproducible comparator that honors those identities for relocations. Read-only data/exception audit tools establish mappings from addresses, ownership, bytes and relocations; they do not manufacture build objects or report credit. The final gate remains the unchanged frozen whole-file verifier. See [complete data acceptance](re/findings/matched-data-completion-20261105.md).
+
 ## Repository ownership
 
 | Path | Responsibility | Versioned content |

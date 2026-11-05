@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "files": [
+    {
+      "path": "objdiff-core/src/diff/data.rs",
+      "original_sha256": "c803623c19336444f79b81deff418ed1c30167651b74e228bd307a1f719d3b35",
+      "patched_sha256": "9a468a4ce94af8da220ce9470d526eaf572526b4875ebd355bb36c24bb125d64",
+      "edits": [
+        {
+          "start_line": 7,
+          "before": "    DataDiff, DataDiffKind, DataDiffRow, DataRelocationDiff, ObjectDiff, SectionDiff, SymbolDiff,\n",
+          "after": "    DataDiff, DataDiffKind, DataDiffRow, DataRelocationDiff, MappingConfig, ObjectDiff, SectionDiff, SymbolDiff,\n"
+        },
+        {
+          "start_line": 44,
+          "before": "",
+          "after": "    mappings: Option<&MappingConfig>,\n"
+        },
+        {
+          "start_line": 47,
+          "before": "",
+          "after": "    }\n\n    if let Some(expected) = mappings.and_then(|mapping| mapping.mappings.get(&left_reloc.symbol.name)) {\n        if expected == &right_reloc.symbol.name {\n            if left_reloc.relocation.addend != right_reloc.relocation.addend {\n                return false;\n            }\n            return match (left_reloc.symbol.section, right_reloc.symbol.section) {\n                (Some(left), Some(right)) => section_name_eq(left_obj, right_obj, left, right),\n                (None, None) => true,\n                _ => false,\n            };\n        }\n        let is_pool = right_reloc.symbol.kind == SymbolKind::Section\n            || (right_reloc.symbol.kind == SymbolKind::Unknown\n                && right_reloc.symbol.size == 0\n                && right_reloc.symbol.name.starts_with(\"...data.\"));\n        if !is_pool {\n            return false;\n        }\n        let mut targets = right_obj.symbols.iter().filter(|symbol| &symbol.name == expected);\n        let Some(target) = targets.next() else {\n            return false;\n        };\n        if targets.next().is_some()\n            || target.kind != SymbolKind::Object\n            || target.size == 0\n            || target.size != left_reloc.symbol.size\n            || left_reloc.relocation.addend < 0\n            || left_reloc.relocation.addend as u64 >= target.size\n        {\n            return false;\n        }\n        let (Some(left), Some(right), Some(mapped)) =\n            (left_reloc.symbol.section, right_reloc.symbol.section, target.section)\n        else {\n            return false;\n        };\n        if right != mapped || !section_name_eq(left_obj, right_obj, left, mapped) {\n            return false;\n        }\n        let expected_address = target.address.checked_add_signed(left_reloc.relocation.addend);\n        let actual_address = right_reloc.symbol.address.checked_add_signed(right_reloc.relocation.addend);\n        return expected_address.is_some() && expected_address == actual_address;\n"
+        },
+        {
+          "start_line": 159,
+          "before": "",
+          "after": "    mappings: Option<&MappingConfig>,\n"
+        },
+        {
+          "start_line": 180,
+          "before": "        if reloc_eq(left_obj, right_obj, left_reloc, right_reloc) {\n",
+          "after": "        if reloc_eq(left_obj, right_obj, left_reloc, right_reloc, mappings) {\n"
+        },
+        {
+          "start_line": 239,
+          "before": "",
+          "after": "    mappings: Option<&MappingConfig>,\n"
+        },
+        {
+          "start_line": 268,
+          "before": "",
+          "after": "        mappings,\n"
+        },
+        {
+          "start_line": 370,
+          "before": "",
+          "after": "    mappings: Option<&MappingConfig>,\n"
+        },
+        {
+          "start_line": 423,
+          "before": "",
+          "after": "        mappings,\n"
+        }
+      ]
+    },
+    {
+      "path": "objdiff-core/src/diff/mod.rs",
+      "original_sha256": "82f1b235f4f7a078d9e824643d57a14013b4d7bf75d06a157bef6cbdb704bea8",
+      "patched_sha256": "4c77f8bdca9423a1f143f021c552ab2d047fe3e267610a52f4e5d0091ecec548",
+      "edits": [
+        {
+          "start_line": 252,
+          "before": "",
+          "after": "                            Some(mapping_config),\n"
+        },
+        {
+          "start_line": 339,
+          "before": "",
+          "after": "                            Some(mapping_config),\n"
+        },
+        {
+          "start_line": 608,
+          "before": "                diff_data_symbol(left_obj, right_obj, left_symbol_idx, right_symbol_idx)\n",
+          "after": "                diff_data_symbol(left_obj, right_obj, left_symbol_idx, right_symbol_idx, None)\n"
+        },
+        {
+          "start_line": 869,
+          "before": "                        diff_data_symbol(in_obj, obj, in_symbol_idx, symbol_idx)\n",
+          "after": "                        diff_data_symbol(in_obj, obj, in_symbol_idx, symbol_idx, None)\n"
+        }
+      ]
+    }
+  ]
+}

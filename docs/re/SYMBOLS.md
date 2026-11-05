@@ -1,5 +1,11 @@
 # Symbols and interfaces
 
+## Complete object-data identity audit, 2026-11-05
+
+The final data audit corrects inferred object boundaries and names using final source ownership, exact original addresses, compiler extents, literal terminators, RTTI/vtable chains and exception consumers. `config/wpse-v1/objdiff-mappings.json` records explicit original-to-compiler identity where local names differ. No class member layout or ABI was changed by this audit. Identical destructor bodies are distinguished by their vtable and cleanup consumers, not by body bytes alone; [game identities](findings/game-data-identities-20261105.md), [BTE/HBM](findings/bte-data-matching-20261105.md), and [exception records](findings/exception-data-matching-20261105.md) record the addressable evidence and naming limits.
+
+Object extents, retained strings, storage sizes and alignment evidence are recorded in [game boundaries](findings/game-data-boundaries-20261105.md), [BSS](findings/game-bss-data-20261105.md), [small data](findings/game-sdata-20261105.md), [SDK](findings/sdk-data-matching-20261105.md), [NW4R](findings/nw4r-data-boundaries-20261105.md), [runtime](findings/runtime-data-matching-20261105.md), and [literal tails](findings/retained-literal-tails-20261105.md). The descriptive WUD diagnostic-array names are not recovered original declarations and remain disclosed under D-0016. Seven proven native gaps contain no retained data objects; only seventeen previously counted alignment bytes leave the denominator. [Final acceptance](findings/matched-data-completion-20261105.md) proves all data comparisons and the unchanged frozen artifact through two clean builds.
+
 ## CUIList cleanup identity correction, 2026-11-04
 
 `0x801DC380`, size `0xC4`, is `std::__vec_deleter<std::tr1::shared_ptr<IUIListItem>, std::allocator<std::tr1::shared_ptr<IUIListItem> > >::~__vec_deleter()`. Naming confidence is high for the template identity: the later CUIMenu exception action at its `extab+0x354` references this address, and the natural compiled template reproduces all 196 bytes and the complete frozen executable. This supersedes the descriptive `CLayoutVectorStorage` stand-in, which has been removed. No class/member ABI changes are involved. See [F-337-7](findings/337-cuilist-tail.md#f-337-7-natural-list-item-vector-cleanup).

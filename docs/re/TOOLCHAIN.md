@@ -27,7 +27,7 @@ Before implementing a build driver, establish compilation-unit boundaries, gener
 
 Pinned in `config/toolchain.json`, with sources and digests:
 - decomp-toolkit 1.8.4 x86 (F-0006)
-- objdiff-cli 3.8.2
+- objdiff-cli 3.8.2 with the pinned explicit data-relocation mapping correction in `config/objdiff.json`
 - GNU binutils 2.42-2
 - the CodeWarrior bundle `compilers_20251118.zip`
 - sjiswrap 1.2.2
@@ -47,3 +47,9 @@ Use these compilers per library (F-0007):
 ## Validated reference extraction tools
 
 `dtk.exe` 1.8.4 (commit a0c455e46cab58e1d2e0885623f85089ff0499db), SHA-256 a89f8a1ab07cde5af83218da4247dfd535ad17f2fdb69bf361a966eec7b8fe25, supports this WAD, U8 archives, NLZSS, and DOL analysis. User supplied; download provenance remains unverified. Python 3.14.0 runs `tools/reference/extract_reference.py` from the repository root. Supporting LZH8/Huff8 source comes from Plombo/vcromclaim commit 6e537af6d314c3d8a6c7353645c137572b37b4b6, cloned into ignored tools/local. F-0005 records source hashes and limitations; [extraction](EXTRACTION.md) records exact invocation and compatibility adaptations. These are analysis/extraction tools, not evidence of the original game's compiler.
+
+## Data comparator identity correction
+
+The 2026-11-05 Matched Data continuation found that upstream objdiff 3.8.2 paired explicitly mapped data symbols but ignored that mapping when comparing their relocation targets. Exact exception-index and RTTI pointers could therefore score below 100% solely because discarded compiler data moved the target inside its pre-link section. The corrected comparator preserves raw payload, relocation-type, target-identity and offset checks and leaves unmapped comparison and all code comparison unchanged. [The complete finding](findings/exception-symbol-mapping-20261105.md) and [independent review](findings/data-metric-tooling-20261105.md) record positive and corrupted-input CLI evidence.
+
+The current comparator's authoritative input/output fingerprints are in `config/objdiff.json`, with the normal build-tool selection in `config/toolchain.json`. `tools/setup/acquire_objdiff.py` acquires pinned upstream source and applies only the digest-checked tracked recipe; the upstream commented source and licenses stay ignored. Host rebuilding requires the pinned Windows MSVC Rust/Cargo 1.89.0 tools. Source, Cargo-cache and generated-target path remapping plus `/Brepro` make fresh source/output-directory builds byte-identical. Real online acquisition, cached offline verification and fresh offline rebuilding reproduce the pinned binary. The original release comparator remains separately available for raw diagnostic comparison.

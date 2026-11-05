@@ -99,6 +99,7 @@ Thumbs.db
 build.ninja
 .ninja_*
 objdiff.json
+!/config/objdiff.json
 compile_commands.json
 ctx.*
 *.ctx

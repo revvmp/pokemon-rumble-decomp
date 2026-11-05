@@ -2,7 +2,7 @@
 
 ## Prerequisites and references
 
-Use Windows x86-64 with Universal CRT, Git and Python 3.10 or newer. Windows 10/11 provide the required runtime. The verifier and generators use Python's standard library; the pinned native toolchain is acquired by the setup command. Visual Studio and an IDA installation are not required to build.
+Use Windows x86-64 with Universal CRT, Git and Python 3.10 or newer. Windows 10/11 provide the required runtime. The verifier and generators use Python's standard library; the pinned native toolchain is acquired by the setup command. An IDA installation is not required. A fresh build of the data comparator requires the pinned Rust/MSVC host tools described below; a verified cached comparator does not require recompiling that tool.
 
 Follow [reference identification](re/REFERENCE.md) before creating a target. Keep originals under `orig/<target>/`, outputs under `build/<target>/`, and local tool binaries under `tools/local/`. Never modify reference files to resolve a mismatch.
 
@@ -54,7 +54,8 @@ The manual equivalent follows.
 ```powershell
 New-Item -ItemType Directory -Force tools/local
 curl.exe -sSfL -o tools/local/dtk.exe https://github.com/encounter/decomp-toolkit/releases/download/v1.8.4/dtk-windows-x86.exe
-curl.exe -sSfL -o tools/local/objdiff-cli.exe https://github.com/encounter/objdiff/releases/download/v3.8.2/objdiff-cli-windows-x86_64.exe
+curl.exe -sSfL -o tools/local/objdiff-cli-upstream.exe https://github.com/encounter/objdiff/releases/download/v3.8.2/objdiff-cli-windows-x86_64.exe
+python tools/setup/acquire_objdiff.py
 curl.exe -sSfL -o tools/local/sjiswrap.exe https://github.com/encounter/sjiswrap/releases/download/v1.2.2/sjiswrap-windows-x86.exe
 curl.exe -sSfL -o tools/local/binutils.zip https://github.com/encounter/gc-wii-binutils/releases/download/2.42-2/windows-x86_64.zip
 curl.exe -sSfL -o tools/local/compilers.zip https://files.decomp.dev/compilers_20251118.zip
@@ -67,6 +68,20 @@ python -m venv .venv
 `configure.py` uses these local paths by default. Without them, the vendored build system downloads its pinned tags into `build/tools/`, including the x86-64 dtk, whose digest differs from the pinned x86 build (F-0006).
 
 PowerPC assembly units use the pinned binutils powerpc-eabi-as under [D-0015](DECISIONS.md#d-0015-assembly-source-only-where-the-original-was-assembly). The AX/OS DSP sources use the separately acquired Dolphin assembler; WUD Thumb sources use the same pinned Zig installation. The OS and WUD programs are the two explicit [D-0017 exceptions](DECISIONS.md#d-0017-two-owner-approved-embedded-firmware-assembly-exceptions). After manual acquisition of the CPU tools above, also run `python tools/setup/acquire_dsp_assembler.py`. The normal build.bat/setup command already includes this step.
+
+### Build the pinned data comparator
+
+The normal acquisition command includes `tools/setup/acquire_objdiff.py`. `config/objdiff.json` pins upstream objdiff v3.8.2, the minimal tracked data-relocation mapping correction, Cargo.lock, the host compiler binaries and the resulting executable. The upstream release executable is retained separately as `tools/local/objdiff-cli-upstream.exe` for diagnostics; the normal build uses the independently reproduced corrected `tools/local/objdiff-cli.exe`.
+
+To build this host tool from source, provide Rust/Cargo 1.89.0 for `x86_64-pc-windows-msvc` on PATH and the Microsoft C++ build tools. The measured environment is Visual Studio 2022 17.11.35312.102 with Visual C++ 14.41.34120. The helper checks exact Rust/Cargo version strings and executable hashes; the final output hash rejects a differing host result. It does not install Rust or Visual Studio. A verified existing comparator is sufficient for ordinary subsequent builds.
+
+```powershell
+python tools/setup/acquire_objdiff.py
+python tools/setup/acquire_objdiff.py --offline
+python tools/setup/acquire_objdiff.py --offline --rebuild
+```
+
+The last command deliberately compiles a fresh copy using the cached upstream archive and Cargo dependency cache. The first build needs network access to fetch missing locked dependencies. All downloaded source, licenses, build directories and receipts remain under ignored local tool storage; Cargo also maintains its normal user cache. The helper uses `cargo build --release --locked`, path remapping and deterministic PE linking, and publishes output only after every source, patch, dependency-lock and binary check succeeds. [Exception mapping evidence](re/findings/exception-symbol-mapping-20261105.md) records repeat-build proof and corruption rejection checks. This is a comparison-tool correction; no original executable hashes or compiled game bytes change.
 
 ### Build
 

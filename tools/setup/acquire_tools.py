@@ -23,9 +23,11 @@ def sha256(path):
 def pinned_tools(toolchain, local):
     driver = toolchain["build_driver"]
     dtk = toolchain["extraction_tools"][0]
+    diff_tool = driver["diff_tool"]
+    upstream_diff = diff_tool.get("upstream", diff_tool)
     return [
         {"name": "dtk", "url": dtk["source"], "sha256": dtk["sha256"], "target": local / "dtk.exe"},
-        {"name": "objdiff-cli", "url": driver["diff_tool"]["source"], "sha256": driver["diff_tool"]["sha256"], "target": local / "objdiff-cli.exe"},
+        {"name": "objdiff-cli upstream", "url": upstream_diff["source"], "sha256": upstream_diff["sha256"], "target": local / ("objdiff-cli-upstream.exe" if "manifest" in diff_tool else "objdiff-cli.exe")},
         {"name": "sjiswrap", "url": driver["sjiswrap"]["source"], "sha256": driver["sjiswrap"]["sha256"], "target": local / "sjiswrap.exe"},
         {"name": "binutils", "url": toolchain["assembler"]["source"], "sha256": toolchain["assembler"]["archive_sha256"], "target": local / "binutils.zip", "extract": local / "binutils"},
         {"name": "compilers", "url": toolchain["compiler"]["bundle"], "sha256": toolchain["compiler"]["bundle_sha256"], "target": local / "compilers.zip", "extract": local / "compilers"},
@@ -83,6 +85,14 @@ def main():
     try:
         for tool in pinned_tools(toolchain, args.local):
             acquire(tool, args.offline)
+        diff_tool = toolchain["build_driver"]["diff_tool"]
+        if "manifest" in diff_tool:
+            diff_command = [sys.executable, str(ROOT / "tools/setup/acquire_objdiff.py"), "--manifest", str(ROOT / diff_tool["manifest"]), "--local", str(args.local / "objdiff"), "--output", str(args.local / "objdiff-cli.exe")]
+            if args.offline:
+                diff_command.append("--offline")
+            subprocess.run(diff_command, check=True)
+            if sha256(args.local / "objdiff-cli.exe") != diff_tool["sha256"]:
+                raise RuntimeError("objdiff-cli digest differs from config/toolchain.json")
         for path, expected in extracted_checks(toolchain, args.local):
             actual = sha256(path) if path.exists() else "missing"
             if actual != expected:

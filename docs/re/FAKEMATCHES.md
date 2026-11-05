@@ -4,6 +4,7 @@ Functions matched with source that is probably not the original, under [D-0016](
 
 | Unit | Function | Fake construct | Honest attempts |
 | --- | --- | --- | --- |
+| RVL_SDK/wud/WUD.c | stripped callback diagnostic storage | Two named static char arrays under force_active preserve the original retained messages without the former discarded pointer table; original declaration spelling is unproven | [Plain/const array experiments and source-link evidence](findings/bte-data-matching-20261105.md#wud-source-fidelity-audit) |
 | TMC_JPEG/tmcjpeg_rgba8.c | TMCJPEGSetupRGBA8 | One-int TMCJPEGValue values returned by MakeValue and passed by value to AddValues preserve quotient/carry generation and final operand order under the existing C compiler flags | [Honest attempts and equivalence](findings/tmc-jpeg-final-tail.md#setup-operand-order-solved-with-c-values) |
 | TMC_JPEG/tmcjpeg_rgb565.c | TMCJPEGSetupRGB565 | Same by-value C helpers; all seven unit functions and the complete source link pass | [Native acceptance](findings/tmc-jpeg-final-tail.md#setup-operand-order-solved-with-c-values) |
 | TMC_JPEG/tmcjpeg_rgba8.c | ConvertRGBA8MCU411 | Bounded enum texel/channel values, unsigned row-product views, by-value sum helpers and a precomputed one-int red contribution preserve register priority | [All fourteen JPEG functions and full source link](findings/tmc-jpeg-final-tail.md#rgba8-411-values-and-register-priority) |

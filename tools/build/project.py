@@ -141,6 +141,7 @@ class ProjectConfig:
         self.ninja_path: Optional[Path] = None
         self.objdiff_tag: Optional[str] = None
         self.objdiff_path: Optional[Path] = None
+        self.objdiff_symbol_mappings: Optional[Path] = None
 
         self.non_matching: bool = False
         self.build_rels: bool = True
@@ -1515,7 +1516,28 @@ def generate_objdiff_config(
         return
 
     existing_units = {}
-    if Path("objdiff.json").is_file():
+    symbol_mappings = {}
+
+    def unique_mapping_keys(pairs):
+        result = {}
+        for key, value in pairs:
+            if key in result:
+                sys.exit(f"Duplicate objdiff symbol mapping key: {key}")
+            result[key] = value
+        return result
+
+    if config.objdiff_symbol_mappings is not None:
+        with config.objdiff_symbol_mappings.open(encoding="utf-8") as stream:
+            mapping_config = json.load(stream, object_pairs_hook=unique_mapping_keys)
+        if not isinstance(mapping_config, dict) or mapping_config.get("schema_version") != 1 or not isinstance(mapping_config.get("units"), dict):
+            sys.exit("Invalid objdiff symbol mapping configuration")
+        symbol_mappings = mapping_config["units"]
+        for name, mappings in symbol_mappings.items():
+            if not isinstance(mappings, dict) or any(not isinstance(key, str) or not isinstance(value, str) or not key or not value for key, value in mappings.items()):
+                sys.exit(f"Invalid objdiff symbol mappings for {name}")
+            if len(set(mappings.values())) != len(mappings):
+                sys.exit(f"Ambiguous objdiff symbol mappings for {name}")
+    if config.objdiff_symbol_mappings is None and Path("objdiff.json").is_file():
         with open("objdiff.json", "r", encoding="utf-8") as r:
             existing_config = json.load(r)
             existing_units = {unit["name"]: unit for unit in existing_config["units"]}
@@ -1611,6 +1633,8 @@ def generate_objdiff_config(
         existing_unit = existing_units.get(name)
         if existing_unit is not None:
             unit_config["symbol_mappings"] = existing_unit.get("symbol_mappings")
+        if name in symbol_mappings:
+            unit_config["symbol_mappings"] = symbol_mappings[name]
 
         obj = objects.get(obj_name)
         if obj is None:
@@ -1719,6 +1743,10 @@ def generate_objdiff_config(
             return [cleandict(v) for v in d]
         else:
             return d
+
+    unknown_units = set(symbol_mappings) - {unit["name"] for unit in objdiff_config["units"]}
+    if unknown_units:
+        sys.exit(f"Unknown objdiff symbol mapping units: {', '.join(sorted(unknown_units))}")
 
     with open("objdiff.json", "w", encoding="utf-8") as w:
 

@@ -30,6 +30,12 @@ Aim for the readability of the Super Mario Galaxy decompilation (Petari): source
 
 ## Session memory: traps and findings
 
+- **Mapped symbols can still have mismatched relocation identities.** Upstream objdiff paired data records but compared their pointers using obsolete pre-link offsets. The pinned correction honors verified identities and narrowly checked pooled destinations while retaining corrupted-input rejection and frozen full-file proof; see [data acceptance](docs/re/findings/matched-data-completion-20261105.md#comparator-correction).
+- **Deterministic host links can retain generated-source paths.** Fresh comparator builds differed despite `/Brepro` until Cargo target paths were remapped alongside source and registry paths. Use the pinned acquisition recipe; see [reproducibility evidence](docs/re/findings/exception-symbol-mapping-20261105.md#comparator-correction-and-reproducible-acquisition-revision-1).
+
+- **Source-selected data is not Matched Data.** A fully source-linked, byte-identical DOL still reported 69.663826% object-level matched data. Audit actual `matched_data`, retain the section denominator, and prove symbol identities and relocation targets before claiming 100%; see [the data audit](docs/re/findings/matched-data-inventory-20261105.md).
+- **Objdiff mappings have no section qualifier.** A placeholder name repeated in two sections applies the same mapping to both and can select the wrong symbol. Require uniqueness on both target and source sides; see [the duplicate-name proof](docs/re/findings/matched-data-inventory-20261105.md).
+
 - **A late register cycle can originate in another branch.** Rotate's timing flag opened r22 early and displaced 24 later hash operands. Trace the first opening of the discrepant register before changing already-correct arithmetic; see [the exact closure](docs/re/findings/animcurve-rotate-20261104.md#closing-the-integer-differences).
 - **Low inline cost does not override returned-object cleanup.** The compiler rejects length_error factories because their returned class has a destructor with side effects, even under always_inline at costs 4 and 120. Check eligibility before repeating budget experiments; see [the traced barrier](docs/re/findings/20261104-piipropdata-receiver-tail.md#throw-lowering-and-the-return-factory-barrier).
 

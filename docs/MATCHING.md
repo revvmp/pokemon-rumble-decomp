@@ -2,7 +2,7 @@
 
 ## Accepted main executable scope
 
-The 2026-11-04 main.dol reconstruction satisfies the gates below for the frozen executable scope, with D-0015/D-0016 controls and the two explicit D-0017 firmware exceptions disclosed. There are 13,462 exact CPU functions, 3,078,460 source-linked CPU bytes, 1,788,360 selected data bytes and 897/897 complete units. The embedded programs build from symbolic source. [Final acceptance](re/findings/main-source-completion-20261104.md) records two complete clean builds, exact hashes and the separate original-language/asset provenance limits. This is not a boot-loader or WAD package claim.
+The 2026-11-05 main.dol acceptance satisfies the gates below for the frozen executable scope, with D-0015/D-0016 controls and the two explicit D-0017 firmware exceptions disclosed. Matched and source-selected data are both 1,788,343/1,788,343 bytes (100%); matched and source-linked code are both 3,078,460/3,078,460 reported bytes. All 897 units are complete. The 13,462 exact report function entries include one twelve-byte zero-alignment entry, so 13,461 are real functions. Embedded programs build from symbolic source. [Data acceptance](re/findings/matched-data-completion-20261105.md) records two complete clean builds, exact hashes, the narrowly corrected data comparator and seventeen-byte native-alignment denominator correction. The earlier [source acceptance](re/findings/main-source-completion-20261104.md) preserves original-language and asset provenance limits. Boot-loader and WAD packaging remain outside this claim.
 
 ## Reference contract
 

@@ -1,5 +1,9 @@
 # Findings
 
+## 2026-11-05 complete object data matching
+
+Matched Data and source-selected data both reach 1,788,343/1,788,343 bytes (100%). Two clean builds reproduce all thirteen compared artifacts and the frozen DOL. Proven native alignment removes only seventeen previously counted bytes. Corrected identities, extents and relocation records, retained WUD diagnostics, and the pinned mapping-aware comparator establish the result. [Final acceptance](findings/matched-data-completion-20261105.md) consolidates the evidence from the [inventory](findings/matched-data-inventory-20261105.md), [game data](findings/game-data-boundaries-20261105.md), [game storage](findings/game-bss-data-20261105.md), [SDK](findings/sdk-data-matching-20261105.md), [BTE/HBM](findings/bte-data-matching-20261105.md), [NW4R](findings/nw4r-data-boundaries-20261105.md), [runtime](findings/runtime-data-matching-20261105.md), and [independent tooling audit](findings/data-metric-tooling-20261105.md).
+
 ## 2026-11-04 final main executable acceptance
 
 All main.dol CPU code, data units and identified embedded programs now build from source through the ordinary pipeline. Two complete clean builds and frozen direct comparison pass. The source-selection audit rejects original objects and confirms 902 unchanged compiler-input aliases. [Final acceptance](findings/main-source-completion-20261104.md) links the complete evidence, including [AX DSP](findings/ax-dsp-production-20261104.md), [OS DSP](findings/os-dsp-init-20261104.md), [WUD firmware](findings/embedded-code-audit-20261104.md), the owner-approved D-0017 exceptions and excluded release scope.

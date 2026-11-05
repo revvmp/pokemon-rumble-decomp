@@ -2210,10 +2210,10 @@ BOOL WUDStopSyncSimple(void)
 	return __wudStopSyncDevice();
 }
 
-const char* const gWudUnlinkedCallbackMessages[] = {
-    "WUDSetClearDeviceCallback\n",
-    "WUDStartSyncSpDevice()\n"
-};
+#pragma force_active on
+static char sWudClearDeviceCallbackMessage[] = "WUDSetClearDeviceCallback\n";
+static char sWudStartSyncSpDeviceMessage[] = "WUDStartSyncSpDevice()\n";
+#pragma force_active reset
 
 BOOL WUDStartClearDevice(void) {
     WUDCB* p = &_wcb;

@@ -1,5 +1,6 @@
 config/**/*.txt text eol=lf
 config/**/*.sha1 text eol=lf
+tools/setup/*.patch.json text eol=lf
 docs/images/*.svg text eol=lf
 orig/wpse-v1/reconstructed/**/*.json text eol=lf
 orig/wpse-v1/reconstructed/**/*.png binary
