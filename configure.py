@@ -85,8 +85,7 @@ config.reconfig_deps = [config.objdiff_symbol_mappings]
 config.scratch_preset_id = None
 config.linker_version = "Wii/1.1"
 
-system_message_source = Path("orig") / config.version / "reconstructed" / "system_message"
-system_message_manifest = system_message_source / "manifest.json"
+system_message_reference = Path("orig") / config.version / "main.dol"
 system_message_archive = config.build_dir / config.version / "assets" / "system_message.arc"
 system_message_include = config.build_dir / config.version / "include" / "system_message.inc"
 dsp_source = Path("src/RVL_SDK/ax/dsp/ax_dsp.ds")
@@ -105,7 +104,6 @@ wud_commands_include = config.build_dir / config.version / "include" / "wud_patc
 wud_depfile = config.build_dir / config.version / "firmware" / "wud_patch.d"
 firmware_tools = LOCAL_TOOLS / "dsp-assembler"
 firmware_tool_manifest = Path("config/dsp_assembler.json")
-config.reconfig_deps.append(system_message_manifest)
 config.custom_build_rules = [
     {
         "name": "wud_firmware",
@@ -125,7 +123,7 @@ config.custom_build_rules = [
     },
     {
         "name": "system_message_assets",
-        "command": '$python tools/assets/build_system_message.py "$in" "$archive" --c-include "$include"',
+        "command": '$python tools/assets/extract_system_message.py "$in" "$archive" --c-include "$include"',
         "description": "ASSET system_message.arc",
     },
 ]
@@ -175,10 +173,10 @@ config.custom_build_steps = {
         {
             "rule": "system_message_assets",
             "outputs": [system_message_archive, system_message_include],
-            "inputs": [system_message_manifest],
+            "inputs": [system_message_reference],
             "implicit": [
-                *sorted(Path("tools/assets").glob("*.py")),
-                *sorted(path for path in system_message_source.rglob("*") if path.is_file() and path.name not in ("manifest.json", "provenance.json")),
+                Path("tools/assets/extract_system_message.py"),
+                Path("config/targets/wpse-v1.json"),
             ],
             "variables": {
                 "archive": system_message_archive,

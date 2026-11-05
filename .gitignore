@@ -98,9 +98,10 @@ __pycache__/
 .DS_Store
 Thumbs.db
 
-# Track all original reference files
-!/orig/
-!/orig/**
+# Keep user-supplied game files local
+/orig/**
+!/orig/**/
+!/orig/**/.gitkeep
 
 # Build system outputs
 build.ninja
