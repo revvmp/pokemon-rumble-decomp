@@ -1,6 +1,6 @@
 # Toolchain investigation
 
-The original compiler, assembler, linker, runtime libraries, and packaging tools are unknown. Reference extraction tools are pinned below. No original toolchain version or flag is assumed.
+The accepted per-library CPU compilers and reproducible build tools are pinned below and in config/toolchain.json. DSP/Thumb reconstruction tools are separately pinned by config/dsp_assembler.json. Exact original linker provenance and package tooling remain qualified; matching output does not establish an unobserved original tool version.
 
 Investigate format metadata, compiler signatures, code generation, runtime/library patterns, section layout, relocation behavior, and link ordering. Treat resemblance as a hypothesis until comparison supports it. Record evidence in `FINDINGS.md` and accepted requirements in `config/toolchain.json`.
 
@@ -8,7 +8,7 @@ For every selected tool record its exact version, acquisition source, binary SHA
 
 ## Candidate tools
 
-Except for decomp-toolkit, now validated at 1.8.4 below, no tool below is selected or acquired. These are candidates from [prior art](PRIOR_ART.md) to evaluate against our own evidence; versions are those Petari pinned at the reviewed commit, not requirements.
+This historical candidate list records the initial [prior-art](PRIOR_ART.md) survey. The selected-toolchain section below and current configuration supersede these candidate versions.
 
 | Candidate | Purpose | Reference version |
 | --- | --- | --- |

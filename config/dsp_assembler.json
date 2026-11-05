@@ -1,0 +1,195 @@
+{
+  "schema_version": 1,
+  "name": "Dolphin DSP assembler standalone host",
+  "host": "windows-x86_64",
+  "dolphin_commit": "66df2b4e18ae6169f9718b869da334022914e305",
+  "fmt_commit": "e424e3f2e607da02742f73db84873b8084fc714c",
+  "compiler": {
+    "name": "Zig",
+    "version": "0.13.0",
+    "url": "https://ziglang.org/download/0.13.0/zig-windows-x86_64-0.13.0.zip",
+    "cache": "zig-windows-x86_64-0.13.0.zip",
+    "sha256": "d859994725ef9402381e557c60bb57497215682e355204d754ee3df75ee3c158",
+    "size": 79163968,
+    "root": "zig-windows-x86_64-0.13.0",
+    "executable": "zig.exe",
+    "executable_sha256": "2e44af5bbf7a72ef8cbdae370284687c95d65a19affa469d2ad0364d905b8e84",
+    "license": "LICENSE",
+    "license_sha256": "5c537d6853e005298a285d508cff9ac7192cea23576c840d485b2b586a7ff177"
+  },
+  "sources": [
+    {
+      "cache": "dolphin/Source/Core/Common/CommonTypes.h",
+      "url": "https://raw.githubusercontent.com/dolphin-emu/dolphin/66df2b4e18ae6169f9718b869da334022914e305/Source/Core/Common/CommonTypes.h",
+      "sha256": "b714ae37337b4f9cd6e1863073bdd92fda8648e606c91657b104fdc856199b94",
+      "size": 949,
+      "target": "Common/CommonTypes.h"
+    },
+    {
+      "cache": "dolphin/Source/Core/Core/DSP/DSPCommon.h",
+      "url": "https://raw.githubusercontent.com/dolphin-emu/dolphin/66df2b4e18ae6169f9718b869da334022914e305/Source/Core/Core/DSP/DSPCommon.h",
+      "sha256": "718910f117cf86ad6fc6b42fc0be42a93e773e9ca630ec1d7f95ec1ca4b03cd1",
+      "size": 201,
+      "target": "Core/DSP/DSPCommon.h"
+    },
+    {
+      "cache": "dolphin/Source/Core/Core/DSP/DSPCore.h",
+      "url": "https://raw.githubusercontent.com/dolphin-emu/dolphin/66df2b4e18ae6169f9718b869da334022914e305/Source/Core/Core/DSP/DSPCore.h",
+      "sha256": "5b5541d66c811e75bc2824d8e5c4ea5c9901d404c57fccaf003bfbbe03222a2e",
+      "size": 15488,
+      "target": "Core/DSP/DSPCore.h",
+      "transform": "dsp_core_enums"
+    },
+    {
+      "cache": "dolphin/COPYING",
+      "url": "https://raw.githubusercontent.com/dolphin-emu/dolphin/66df2b4e18ae6169f9718b869da334022914e305/COPYING",
+      "sha256": "695114256e306a5e1ca407bc6e2a11877b112328dbe990253b52f59726e01b4b",
+      "size": 494,
+      "target": "licenses/dolphin/COPYING"
+    },
+    {
+      "cache": "dolphin/LICENSES/GPL-2.0-or-later.txt",
+      "url": "https://raw.githubusercontent.com/dolphin-emu/dolphin/66df2b4e18ae6169f9718b869da334022914e305/LICENSES/GPL-2.0-or-later.txt",
+      "sha256": "aaf135472f81c5b4a0dca9367e5bb5e9750032b5bebe5442b36e4c0a47430df3",
+      "size": 17337,
+      "target": "licenses/dolphin/LICENSES/GPL-2.0-or-later.txt"
+    },
+    {
+      "cache": "dolphin/Source/Core/Core/DSP/DSPAssembler.cpp",
+      "url": "https://raw.githubusercontent.com/dolphin-emu/dolphin/66df2b4e18ae6169f9718b869da334022914e305/Source/Core/Core/DSP/DSPAssembler.cpp",
+      "sha256": "055fa2abd11f7a52e06cafbccf789669bcd9e58935056d9ed14e00920d45b3e1",
+      "size": 29003,
+      "target": "Core/DSP/DSPAssembler.cpp"
+    },
+    {
+      "cache": "dolphin/Source/Core/Core/DSP/DSPAssembler.h",
+      "url": "https://raw.githubusercontent.com/dolphin-emu/dolphin/66df2b4e18ae6169f9718b869da334022914e305/Source/Core/Core/DSP/DSPAssembler.h",
+      "sha256": "960a9974f7140398cf1f9f6942e20e15274b8b09f16b511cd48118d7f6ce1486",
+      "size": 3592,
+      "target": "Core/DSP/DSPAssembler.h"
+    },
+    {
+      "cache": "dolphin/Source/Core/Core/DSP/DSPDisassembler.cpp",
+      "url": "https://raw.githubusercontent.com/dolphin-emu/dolphin/66df2b4e18ae6169f9718b869da334022914e305/Source/Core/Core/DSP/DSPDisassembler.cpp",
+      "sha256": "6a3f354e59c21d627e10a6b46cdc2d355b4f86b33e09188df5babeb494cee4f3",
+      "size": 5780,
+      "target": "Core/DSP/DSPDisassembler.cpp"
+    },
+    {
+      "cache": "dolphin/Source/Core/Core/DSP/DSPDisassembler.h",
+      "url": "https://raw.githubusercontent.com/dolphin-emu/dolphin/66df2b4e18ae6169f9718b869da334022914e305/Source/Core/Core/DSP/DSPDisassembler.h",
+      "sha256": "d39dfc893b904cd7f242f6385c17bb69868c47ca6e88a47b4b3c970972a87962",
+      "size": 1159,
+      "target": "Core/DSP/DSPDisassembler.h"
+    },
+    {
+      "cache": "dolphin/Source/Core/Core/DSP/DSPTables.cpp",
+      "url": "https://raw.githubusercontent.com/dolphin-emu/dolphin/66df2b4e18ae6169f9718b869da334022914e305/Source/Core/Core/DSP/DSPTables.cpp",
+      "sha256": "57a38566576febf4140a70714c91503fe2e5c6d8af2d4c9b2428ec39dff3c081",
+      "size": 57196,
+      "target": "Core/DSP/DSPTables.cpp"
+    },
+    {
+      "cache": "dolphin/Source/Core/Core/DSP/DSPTables.h",
+      "url": "https://raw.githubusercontent.com/dolphin-emu/dolphin/66df2b4e18ae6169f9718b869da334022914e305/Source/Core/Core/DSP/DSPTables.h",
+      "sha256": "6e843bca7780ac95ea58ac813c5a1033c6be2a7ef4c58f2cb68b71dc3cc5b406",
+      "size": 3299,
+      "target": "Core/DSP/DSPTables.h"
+    },
+    {
+      "cache": "dolphin/Source/Core/Core/DSP/LabelMap.cpp",
+      "url": "https://raw.githubusercontent.com/dolphin-emu/dolphin/66df2b4e18ae6169f9718b869da334022914e305/Source/Core/Core/DSP/LabelMap.cpp",
+      "sha256": "549accdb2e0bb9e78a828574d08b14d3d66f24384a8a61d3bc0a4916e63286dd",
+      "size": 1936,
+      "target": "Core/DSP/LabelMap.cpp"
+    },
+    {
+      "cache": "dolphin/Source/Core/Core/DSP/LabelMap.h",
+      "url": "https://raw.githubusercontent.com/dolphin-emu/dolphin/66df2b4e18ae6169f9718b869da334022914e305/Source/Core/Core/DSP/LabelMap.h",
+      "sha256": "98324db1691544a88d25122cec3e05c0e733113bd171f61b37a4081221a6dc4f",
+      "size": 772,
+      "target": "Core/DSP/LabelMap.h"
+    },
+    {
+      "cache": "fmt/include/fmt/base.h",
+      "url": "https://raw.githubusercontent.com/fmtlib/fmt/e424e3f2e607da02742f73db84873b8084fc714c/include/fmt/base.h",
+      "sha256": "58e6d2780d070a42c552affe486e7b2a68fe30448685814108fda1f59b170839",
+      "size": 104564,
+      "target": "include/fmt/base.h"
+    },
+    {
+      "cache": "fmt/include/fmt/format.h",
+      "url": "https://raw.githubusercontent.com/fmtlib/fmt/e424e3f2e607da02742f73db84873b8084fc714c/include/fmt/format.h",
+      "sha256": "96f8e39bfa16ef13d63e287ff44fc103d1c7072b6ead142020c4c6ed3794d0d9",
+      "size": 162378,
+      "target": "include/fmt/format.h"
+    },
+    {
+      "cache": "fmt/include/fmt/format-inl.h",
+      "url": "https://raw.githubusercontent.com/fmtlib/fmt/e424e3f2e607da02742f73db84873b8084fc714c/include/fmt/format-inl.h",
+      "sha256": "3ae1f3fbc327b02953f67bb2fc8c90ddad8c4916532d50230c7b78dc48e2a2af",
+      "size": 81206,
+      "target": "include/fmt/format-inl.h"
+    },
+    {
+      "cache": "fmt/LICENSE",
+      "url": "https://raw.githubusercontent.com/fmtlib/fmt/e424e3f2e607da02742f73db84873b8084fc714c/LICENSE",
+      "sha256": "07580f2a3b35709ce703d523f447b242f6dfec7582a8c0df102c7fa2849375f8",
+      "size": 1431,
+      "target": "licenses/fmt/LICENSE"
+    }
+  ],
+  "host_sources": [
+    {
+      "path": "tools/dsp/host/main.cpp",
+      "target": "main.cpp",
+      "sha256": "d7bb711bce91f4b09e590508c4e3a0cc4378e1751944d9bd7ff5a98b08f4ed23",
+      "line_endings": "lf"
+    },
+    {
+      "path": "tools/dsp/host/Common/FileUtil.h",
+      "target": "Common/FileUtil.h",
+      "sha256": "98a9009603e48eff0045d126cdaef5f176da300df0f305020691d28d801129b4",
+      "line_endings": "lf"
+    },
+    {
+      "path": "tools/dsp/host/Common/StringUtil.h",
+      "target": "Common/StringUtil.h",
+      "sha256": "b4fa6fa33106f687cb589ef36f72d4da1a19a7e7f12b6cf0080bb2bf9ce67f73",
+      "line_endings": "lf"
+    },
+    {
+      "path": "tools/dsp/host/Common/Logging/Log.h",
+      "target": "Common/Logging/Log.h",
+      "sha256": "0ed18544e1407314304f3c509b92f68b919462f755cdf50cebdf50e470d7330a",
+      "line_endings": "lf"
+    }
+  ],
+  "arguments": [
+    "c++",
+    "-target",
+    "x86_64-windows-gnu",
+    "-std=c++23",
+    "-O2",
+    "-DFMT_HEADER_ONLY",
+    "-I.",
+    "-Iinclude",
+    "main.cpp",
+    "Core/DSP/DSPAssembler.cpp",
+    "Core/DSP/DSPDisassembler.cpp",
+    "Core/DSP/DSPTables.cpp",
+    "Core/DSP/LabelMap.cpp",
+    "-s",
+    "-o",
+    "dsp-inspect.exe"
+  ],
+  "binary": {
+    "build_name": "dsp-inspect.exe",
+    "install_name": "dsp-inspect.exe",
+    "size": 574464,
+    "sha256": "b9afa1a0a47628f6b15464394792707f8a1bc1ba7f27be064b18801d762d47fd"
+  },
+  "environment": {
+    "LINK": "/timestamp:0"
+  }
+}

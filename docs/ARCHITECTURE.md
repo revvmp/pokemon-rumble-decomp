@@ -58,6 +58,10 @@ Keep executable reconstruction separate from asset processing. Asset rules must 
 
 The embedded system-message archive is rebuilt from recovered JSON layout/animation records and PNG textures under `orig/wpse-v1/reconstructed/system_message/`. A dependency-tracked pre-compile rule runs `tools/assets/build_system_message.py`, producing an archive and generated initializer under the selected build directory. The ordinary Wii compiler builds `SystemMessageArchive.cpp` from that initializer. The encoder reads no original executable or split object. Its 11,488 bytes count as reconstructed asset data, not additional game instructions; [provenance and acceptance](re/findings/system-message-archive-20261104.md) distinguish recovered editable assets from original authoring files.
 
+## Embedded programs
+
+AX and OS DSP sources are assembled through tools/dsp/build_dsp.py; WUD Thumb sources and typed patch records build through tools/firmware/build_wud.py. Both generators publish dependency-tracked binaries and C includes under the configured build directory. The ordinary Wii C compiler retains host symbol types and storage. Native Zig assembly/link/section extraction supplies the controller program without instruction rewriting. config/dsp_assembler.json pins the shared portable tools, source receipts and host binary. D-0015 covers the AX original-language evidence; D-0017 records the owner's two narrow exceptions for OS/WUD. See [final acceptance](re/findings/main-source-completion-20261104.md).
+
 ## Reproducibility contract
 
 Pin tool identity with version, acquisition source, and binary SHA-256. Record host requirements, exact flags, environment variables, locale, working directory assumptions, link order, section alignment, padding, and packaging metadata as they become known. Do not use current timestamps, random ordering, or absolute machine paths in generated artifacts without an explicit reproducibility strategy.

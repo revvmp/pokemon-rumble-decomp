@@ -1,6 +1,6 @@
 # Project documentation
 
-The objective is a readable, reproducible source reconstruction of Pokémon Rumble with exact original artifact hashes and direct byte equality. This repository currently provides the development foundation, not a decompiled or matching game.
+The objective is a readable, reproducible source reconstruction of Pokémon Rumble with exact original artifact hashes and direct byte equality. The main.dol reconstruction is complete and reproducibly matches the original, with its two approved firmware-language exceptions and excluded package scope documented in [final acceptance](re/findings/main-source-completion-20261104.md).
 
 ## Reading order
 
@@ -17,4 +17,4 @@ The objective is a readable, reproducible source reconstruction of Pokémon Rumb
 
 All narrative documentation belongs here. Reverse engineering methods, observations, artifact inventories, symbol maps, toolchain investigations, and recovered game architecture belong in `docs/re/`. The root README and `AGENTS.md` are discovery entry points only. Executable tooling, build configuration, and reconstructed source live in their designated repository directories rather than among documentation.
 
-The [MIT license](../LICENSE) covers this project's original contributions. Original game files, extracted proprietary data, private keys, and proprietary tool binaries remain local and are not included in version control.
+The [MIT license](../LICENSE) covers this project's original contributions. Original reference files under orig/ are tracked by the owner's explicit instruction in this private repository. Tool binaries and private research outputs remain ignored; third-party file-level notices retain their own terms.

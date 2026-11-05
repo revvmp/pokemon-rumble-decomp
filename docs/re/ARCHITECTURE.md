@@ -1,6 +1,6 @@
 # Recovered game architecture
 
-The game's internal architecture is not yet established. No engine, subsystem, runtime library, or module boundary is assumed.
+The main executable now has matching source units and evidenced interfaces in src/, include/, config/wpse-v1/ and [symbols](SYMBOLS.md). Confirmed library/unit boundaries are recorded in F-0012 and the per-unit findings. A consolidated architectural overview remains separate from this completed byte-matching reconstruction; do not infer unrecorded design intent from descriptive names.
 
 ## Recovery sequence
 
@@ -18,4 +18,4 @@ Add a dependency diagram only after enough relationships are established to make
 
 ## Executable inventory evidence
 
-F-0003 identifies a main game DOL compressed inside content 1, with entry 0x80004050. Content 6 is the separately identified boot DOL, entry 0x81330000. The transfer between them has not been traced; no loader call graph or internal subsystem boundaries are established.
+F-0003 identifies a main game DOL compressed inside content 1, with entry 0x80004050. Content 6 is the separately identified boot DOL, entry 0x81330000; F-0009 establishes its NAND-loader role. Loader reconstruction remains outside the accepted main.dol scope. Confirmed main-unit boundaries and interfaces are recorded in the per-unit findings and symbols record.

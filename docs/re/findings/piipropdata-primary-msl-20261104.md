@@ -52,7 +52,7 @@ The recovered vector header was passed to the independent animation lane. It sup
 
 ## Production fidelity and retained data review
 
-The reviewed production packet is `game_PiiPropData/pf_pii_production` under the private tail workspace. Its three ordinary source files are `PiiPropData.cpp`, `PiiPropDataAccessors.cpp` and `PiiPropDataIterators.cpp`. Its primary-source recovery and remaining source controls have different evidential status:
+The reviewed production packet is `game_PiiPropData/pf_pii_production` under the private tail workspace. Its three ordinary source files are `PiiPropData.cpp`, `PiiPropDataAccessors.cpp` and `PiiPropDataIterators.cpp`. The [emission finding](piipropdata-emission-tail.md) records their exact ordering, rejected alternatives and final source scopes. Primary-source recovery and the remaining source controls have different evidential status:
 
 | Source feature | Evidence and status |
 | --- | --- |

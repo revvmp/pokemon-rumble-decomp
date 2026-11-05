@@ -1,5 +1,9 @@
 # Remaining data inventory
 
+## Final accepted inventory
+
+No original split fallback remains in main.dol. All 1,788,360 measured data bytes are source-selected. The AX DSP image is generated from 29 symbolic source files, the OS DSP bootstrap from its standalone symbolic source, and the WUD payload/install records from linked Thumb assembly and typed metadata. The latter two use the explicit D-0017 original-language exceptions. The semantic system-message archive retains its recovered JSON/PNG provenance. All full-artifact and clean-build gates pass; see [final acceptance](main-source-completion-20261104.md). Earlier entries below preserve the elimination history. Wider loader/content/package scope is not part of this completion claim.
+
 ## Zero-function checkpoint
 
 The current normal build selects 896 of 897 units and all CPU code from source. Source-linked data is 1,780,168/1,788,360 bytes (99.54192%); the only split fallback is the 8,192-byte AX DSP program. PiiPropData's 1,723 associated data bytes now pass source-link acceptance. The independently readable AX program is exact privately but still awaits production integration.

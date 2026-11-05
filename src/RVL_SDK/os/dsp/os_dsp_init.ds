@@ -1,0 +1,79 @@
+DSP_INSTRUCTION_ROM: equ 0x8000
+DSP_INSTRUCTION_ROM_WORDS: equ 0x1000
+DSP_DATA_RAM_WORDS: equ 0x1000
+DSP_DATA_ROM_WORDS: equ 0x0800
+DSP_NO_ADDRESS_WRAP: equ 0xffff
+DSP_MAIL_FULL: equ 0x8000
+OS_DSP_INIT_MAIL_HIGH: equ 0x0054
+OS_DSP_INIT_MAIL_LOW: equ 0x4348
+OS_DSP_INIT_IMAGE_WORDS: equ 64
+
+org 0
+
+OsDspInitVectors:
+    jmp OsDspInitializeMemory
+    jmp OsDspStackFault
+    jmp OsDspReservedException2
+    jmp OsDspRawReadOverflow
+    jmp OsDspRawWriteOverflow
+    jmp OsDspSampleReadOverflow
+    jmp OsDspReservedException6
+    jmp OsDspExternalInterrupt
+
+OsDspInitializeMemory:
+    sbclr #6
+    sbclr #3
+    sbclr #4
+    sbclr #5
+    lri $AR0, #DSP_INSTRUCTION_ROM
+    lri $WR0, #DSP_NO_ADDRESS_WRAP
+    lri $IX0, #DSP_INSTRUCTION_ROM_WORDS
+    bloop $IX0, OsDspTouchInstructionRomEnd
+    ilrri $AC0.M, @$AR0
+
+OsDspTouchInstructionRomEnd:
+    nop
+    clr $ACC0
+    mrr $AR0, $AC0.M
+    loop $IX0
+    srri @$AR0, $AC0.M
+    lri $IX0, #DSP_DATA_ROM_WORDS
+    bloop $IX0, OsDspTouchDataRomEnd
+    lrri $AC0.M, @$AR0
+
+OsDspTouchDataRomEnd:
+    nop
+
+OsDspWaitMailboxAvailable:
+    lr $AC0.M, @DMBH
+    andf $AC0.M, #DSP_MAIL_FULL
+    jlnz OsDspWaitMailboxAvailable
+    si @DMBH, #OS_DSP_INIT_MAIL_HIGH
+    si @DMBL, #OS_DSP_INIT_MAIL_LOW
+    halt
+
+OsDspStackFault:
+    rti
+
+OsDspReservedException2:
+    rti
+
+OsDspRawReadOverflow:
+    rti
+
+OsDspRawWriteOverflow:
+    rti
+
+OsDspSampleReadOverflow:
+    rti
+
+OsDspReservedException6:
+    rti
+
+OsDspExternalInterrupt:
+    rti
+
+OsDspReservedImageTail:
+org OS_DSP_INIT_IMAGE_WORDS
+
+OsDspInitImageEnd:

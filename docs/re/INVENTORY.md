@@ -1,6 +1,6 @@
 # Artifact and section inventory
 
-Target `wpse-v1` has a preserved package at `orig/wpse-v1/reference.wad` and frozen provenance manifest `config/targets/wpse-v1-package.json`. Seven declared contents are recorded in [F-0001](FINDINGS.md#f-0001-wad-container-metadata). All seven extracted contents under `orig/rumble-unidentified/extracted/` match declared sizes and SHA-1 values. Content 6 parses as a boot DOL; content 1 contains the NLZSS-compressed main game DOL. See [F-0002](FINDINGS.md#f-0002-user-extraction-validated). Full executable roles and section inventory remain pending.
+Target `wpse-v1` has a preserved package at `orig/wpse-v1/reference.wad` and frozen provenance manifest `config/targets/wpse-v1-package.json`. Seven declared contents are recorded in [F-0001](FINDINGS.md#f-0001-wad-container-metadata). All seven extracted contents under `orig/rumble-unidentified/extracted/` match declared sizes and SHA-1 values. Content 6 parses as a boot DOL; content 1 contains the NLZSS-compressed main game DOL. See [F-0002](FINDINGS.md#f-0002-user-extraction-validated). Executable roles and section layouts are recorded below and in F-0009; reconstruction acceptance remains scoped to main.dol.
 
 ## Artifact records
 
@@ -16,7 +16,7 @@ Reconcile every container entry and executable module against this inventory bef
 
 ## Main executable
 
-`orig/wpse-v1/main.dol` is a derived original, not reconstructed source. Size 4,094,880 bytes; SHA-256 `ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da`; entry 0x80004050. Ten nonempty on-disk sections have validated bounds. See [F-0003](FINDINGS.md#f-0003-main-game-dol-recovered-from-compressed-content-1) for command, raw section report, identification evidence, and limits. No executable acceptance manifest has been frozen yet.
+`orig/wpse-v1/main.dol` is a derived original, not reconstructed source. Size 4,094,880 bytes; SHA-256 `ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da`; entry 0x80004050. Ten nonempty on-disk sections have validated bounds. See [F-0003](FINDINGS.md#f-0003-main-game-dol-recovered-from-compressed-content-1) for command, raw section report, identification evidence, and limits. The executable acceptance manifest is frozen at config/targets/wpse-v1.json. The completed reconstruction passes its exact comparison; see [final acceptance](findings/main-source-completion-20261104.md).
 
 ## Asset containers
 

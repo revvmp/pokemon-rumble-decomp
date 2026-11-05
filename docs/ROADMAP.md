@@ -79,7 +79,7 @@ Gate: per milestone, progress numbers, ledger, and verification reports agree.
 
 ## Phase 6: Full executable and package
 
-Active. CPU code is complete for main.dol. Finish DSP-source integration and repeated clean verification before a broader executable-source claim. Boot-loader and package reconstruction remain outside the current acceptance manifest.
+The main.dol scope is complete: all source units and embedded programs build through the normal pipeline and two clean runs reproduce the frozen executable. D-0017 records the two approved firmware-language exceptions. Phase 6 remains active for the separate boot loader, other contents and WAD package, which are outside the current acceptance manifest. See [completion evidence](re/findings/main-source-completion-20261104.md).
 
 1. Eliminate all fallbacks in the claimed scope; list any that remain as blockers.
 2. Rebuild the loader content if it is in scope, then any compressed or archived payloads.

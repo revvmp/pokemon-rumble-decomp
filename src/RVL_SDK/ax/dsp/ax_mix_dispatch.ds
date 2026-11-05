@@ -1,0 +1,654 @@
+AxDspMixNone:
+    ret
+
+AxDspMixMainLeft:
+    lr $AR0, @AX_LEFT_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_L
+    lri $AR2, #AX_MAIN_L_BUFFER
+    mrr $AR3, $AR2
+    call AxDspMixMonoConstant
+    sr @AX_PB_DPOP_L, $AX0.L
+    ret
+
+AxDspMixMainRight:
+    lr $AR0, @AX_RIGHT_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_R
+    lri $AR2, #AX_MAIN_R_BUFFER
+    mrr $AR3, $AR2
+    call AxDspMixMonoConstant
+    sr @AX_PB_DPOP_R, $AX0.L
+    ret
+
+AxDspMixMainStereo:
+    lr $AR0, @AX_LEFT_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_L
+    lri $AR2, #AX_MAIN_L_BUFFER
+    mrr $AR3, $AR2
+    lr $IX0, @AX_RIGHT_SAMPLE_POINTER
+    lri $IX1, #AX_MAIN_R_BUFFER
+    call AxDspMixStereoConstant
+    sr @AX_PB_DPOP_L, $AX0.L
+    sr @AX_PB_DPOP_R, $AX1.H
+    ret
+
+AxDspMixMainStereoRamp:
+    lr $AR0, @AX_LEFT_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_L
+    lri $AR2, #AX_MAIN_L_BUFFER
+    lri $AR3, #AX_RAMP_BUFFER
+    lr $IX0, @AX_RIGHT_SAMPLE_POINTER
+    lri $IX1, #AX_MAIN_R_BUFFER
+    call AxDspMixStereoRamp
+    sr @AX_PB_DPOP_L, $AX0.L
+    sr @AX_PB_DPOP_R, $AX1.H
+    ret
+
+AxDspMixMainSurround:
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_S
+    lri $AR2, #AX_MAIN_S_BUFFER
+    mrr $AR3, $AR2
+    call AxDspMixMonoConstant
+    sr @AX_PB_DPOP_S, $AX0.L
+    ret
+
+AxDspMixMainLeftSurround:
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_S
+    lri $AR2, #AX_MAIN_S_BUFFER
+    mrr $AR3, $AR2
+    call AxDspMixMonoConstant
+    sr @AX_PB_DPOP_S, $AX0.L
+    jmp AxDspMixMainLeft
+
+AxDspMixMainRightSurround:
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_S
+    lri $AR2, #AX_MAIN_S_BUFFER
+    mrr $AR3, $AR2
+    call AxDspMixMonoConstant
+    sr @AX_PB_DPOP_S, $AX0.L
+    jmp AxDspMixMainRight
+
+AxDspMixMainStereoSurround:
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_S
+    lri $AR2, #AX_MAIN_S_BUFFER
+    mrr $AR3, $AR2
+    call AxDspMixMonoConstant
+    sr @AX_PB_DPOP_S, $AX0.L
+    jmp AxDspMixMainStereo
+
+AxDspMixMainStereoRampSurround:
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_S
+    lri $AR2, #AX_MAIN_S_BUFFER
+    mrr $AR3, $AR2
+    call AxDspMixMonoConstant
+    sr @AX_PB_DPOP_S, $AX0.L
+    jmp AxDspMixMainStereoRamp
+
+AxDspMixMainSurroundRamp:
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_S
+    lri $AR2, #AX_MAIN_S_BUFFER
+    lri $AR3, #AX_RAMP_BUFFER
+    call AxDspMixMonoRamp
+    sr @AX_PB_DPOP_S, $AX0.L
+    ret
+
+AxDspMixMainLeftSurroundRamp:
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_S
+    lri $AR2, #AX_MAIN_S_BUFFER
+    lri $AR3, #AX_RAMP_BUFFER
+    call AxDspMixMonoRamp
+    sr @AX_PB_DPOP_S, $AX0.L
+    jmp AxDspMixMainLeft
+
+AxDspMixMainRightSurroundRamp:
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_S
+    lri $AR2, #AX_MAIN_S_BUFFER
+    lri $AR3, #AX_RAMP_BUFFER
+    call AxDspMixMonoRamp
+    sr @AX_PB_DPOP_S, $AX0.L
+    jmp AxDspMixMainRight
+
+AxDspMixMainStereoSurroundRamp:
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_S
+    lri $AR2, #AX_MAIN_S_BUFFER
+    lri $AR3, #AX_RAMP_BUFFER
+    call AxDspMixMonoRamp
+    sr @AX_PB_DPOP_S, $AX0.L
+    jmp AxDspMixMainStereo
+
+AxDspMixMainStereoRampSurroundRamp:
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_S
+    lri $AR2, #AX_MAIN_S_BUFFER
+    lri $AR3, #AX_RAMP_BUFFER
+    call AxDspMixMonoRamp
+    sr @AX_PB_DPOP_S, $AX0.L
+    jmp AxDspMixMainStereoRamp
+
+warnpc 0x08e0
+
+AxDspMixAuxALeft:
+    lr $AR0, @AX_LEFT_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXA_L
+    lri $AR2, #AX_AUXA_L_BUFFER
+    mrr $AR3, $AR2
+    call AxDspMixMonoConstant
+    sr @AX_PB_DPOP_AUXA_L, $AX0.L
+    ret
+
+AxDspMixAuxARight:
+    lr $AR0, @AX_RIGHT_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXA_R
+    lri $AR2, #AX_AUXA_R_BUFFER
+    mrr $AR3, $AR2
+    call AxDspMixMonoConstant
+    sr @AX_PB_DPOP_AUXA_R, $AX0.L
+    ret
+
+AxDspMixAuxAStereo:
+    lr $AR0, @AX_LEFT_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXA_L
+    lri $AR2, #AX_AUXA_L_BUFFER
+    mrr $AR3, $AR2
+    lr $IX0, @AX_RIGHT_SAMPLE_POINTER
+    lri $IX1, #AX_AUXA_R_BUFFER
+    call AxDspMixStereoConstant
+    sr @AX_PB_DPOP_AUXA_L, $AX0.L
+    sr @AX_PB_DPOP_AUXA_R, $AX1.H
+    ret
+
+AxDspMixAuxAStereoRamp:
+    lr $AR0, @AX_LEFT_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXA_L
+    lri $AR2, #AX_AUXA_L_BUFFER
+    lri $AR3, #AX_RAMP_BUFFER
+    lr $IX0, @AX_RIGHT_SAMPLE_POINTER
+    lri $IX1, #AX_AUXA_R_BUFFER
+    call AxDspMixStereoRamp
+    sr @AX_PB_DPOP_AUXA_L, $AX0.L
+    sr @AX_PB_DPOP_AUXA_R, $AX1.H
+    ret
+
+AxDspMixAuxASurround:
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXA_S
+    lri $AR2, #AX_AUXA_S_BUFFER
+    mrr $AR3, $AR2
+    call AxDspMixMonoConstant
+    sr @AX_PB_DPOP_AUXA_S, $AX0.L
+    ret
+
+AxDspMixAuxALeftSurround:
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXA_S
+    lri $AR2, #AX_AUXA_S_BUFFER
+    mrr $AR3, $AR2
+    call AxDspMixMonoConstant
+    sr @AX_PB_DPOP_AUXA_S, $AX0.L
+    jmp AxDspMixAuxALeft
+
+AxDspMixAuxARightSurround:
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXA_S
+    lri $AR2, #AX_AUXA_S_BUFFER
+    mrr $AR3, $AR2
+    call AxDspMixMonoConstant
+    sr @AX_PB_DPOP_AUXA_S, $AX0.L
+    jmp AxDspMixAuxARight
+
+AxDspMixAuxAStereoSurround:
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXA_S
+    lri $AR2, #AX_AUXA_S_BUFFER
+    mrr $AR3, $AR2
+    call AxDspMixMonoConstant
+    sr @AX_PB_DPOP_AUXA_S, $AX0.L
+    jmp AxDspMixAuxAStereo
+
+AxDspMixAuxAStereoRampSurround:
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXA_S
+    lri $AR2, #AX_AUXA_S_BUFFER
+    mrr $AR3, $AR2
+    call AxDspMixMonoConstant
+    sr @AX_PB_DPOP_AUXA_S, $AX0.L
+    jmp AxDspMixAuxAStereoRamp
+
+AxDspMixAuxASurroundRamp:
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXA_S
+    lri $AR2, #AX_AUXA_S_BUFFER
+    lri $AR3, #AX_RAMP_BUFFER
+    call AxDspMixMonoRamp
+    sr @AX_PB_DPOP_AUXA_S, $AX0.L
+    ret
+
+AxDspMixAuxALeftSurroundRamp:
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXA_S
+    lri $AR2, #AX_AUXA_S_BUFFER
+    lri $AR3, #AX_RAMP_BUFFER
+    call AxDspMixMonoRamp
+    sr @AX_PB_DPOP_AUXA_S, $AX0.L
+    jmp AxDspMixAuxALeft
+
+AxDspMixAuxARightSurroundRamp:
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXA_S
+    lri $AR2, #AX_AUXA_S_BUFFER
+    lri $AR3, #AX_RAMP_BUFFER
+    call AxDspMixMonoRamp
+    sr @AX_PB_DPOP_AUXA_S, $AX0.L
+    jmp AxDspMixAuxARight
+
+AxDspMixAuxAStereoSurroundRamp:
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXA_S
+    lri $AR2, #AX_AUXA_S_BUFFER
+    lri $AR3, #AX_RAMP_BUFFER
+    call AxDspMixMonoRamp
+    sr @AX_PB_DPOP_AUXA_S, $AX0.L
+    jmp AxDspMixAuxAStereo
+
+AxDspMixAuxAStereoRampSurroundRamp:
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXA_S
+    lri $AR2, #AX_AUXA_S_BUFFER
+    lri $AR3, #AX_RAMP_BUFFER
+    call AxDspMixMonoRamp
+    sr @AX_PB_DPOP_AUXA_S, $AX0.L
+    jmp AxDspMixAuxAStereoRamp
+
+warnpc 0x09a2
+
+AxDspMixAuxBLeft:
+    lr $AR0, @AX_LEFT_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXB_L
+    lri $AR2, #AX_AUXB_L_BUFFER
+    mrr $AR3, $AR2
+    call AxDspMixMonoConstant
+    sr @AX_PB_DPOP_AUXB_L, $AX0.L
+    ret
+
+AxDspMixAuxBRight:
+    lr $AR0, @AX_RIGHT_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXB_R
+    lri $AR2, #AX_AUXB_R_BUFFER
+    mrr $AR3, $AR2
+    call AxDspMixMonoConstant
+    sr @AX_PB_DPOP_AUXB_R, $AX0.L
+    ret
+
+AxDspMixAuxBStereo:
+    lr $AR0, @AX_LEFT_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXB_L
+    lri $AR2, #AX_AUXB_L_BUFFER
+    mrr $AR3, $AR2
+    lr $IX0, @AX_RIGHT_SAMPLE_POINTER
+    lri $IX1, #AX_AUXB_R_BUFFER
+    call AxDspMixStereoConstant
+    sr @AX_PB_DPOP_AUXB_L, $AX0.L
+    sr @AX_PB_DPOP_AUXB_R, $AX1.H
+    ret
+
+AxDspMixAuxBStereoRamp:
+    lr $AR0, @AX_LEFT_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXB_L
+    lri $AR2, #AX_AUXB_L_BUFFER
+    lri $AR3, #AX_RAMP_BUFFER
+    lr $IX0, @AX_RIGHT_SAMPLE_POINTER
+    lri $IX1, #AX_AUXB_R_BUFFER
+    call AxDspMixStereoRamp
+    sr @AX_PB_DPOP_AUXB_L, $AX0.L
+    sr @AX_PB_DPOP_AUXB_R, $AX1.H
+    ret
+
+AxDspMixAuxBSurround:
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXB_S
+    lri $AR2, #AX_AUXB_S_BUFFER
+    mrr $AR3, $AR2
+    call AxDspMixMonoConstant
+    sr @AX_PB_DPOP_AUXB_S, $AX0.L
+    ret
+
+AxDspMixAuxBLeftSurround:
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXB_S
+    lri $AR2, #AX_AUXB_S_BUFFER
+    mrr $AR3, $AR2
+    call AxDspMixMonoConstant
+    sr @AX_PB_DPOP_AUXB_S, $AX0.L
+    jmp AxDspMixAuxBLeft
+
+AxDspMixAuxBRightSurround:
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXB_S
+    lri $AR2, #AX_AUXB_S_BUFFER
+    mrr $AR3, $AR2
+    call AxDspMixMonoConstant
+    sr @AX_PB_DPOP_AUXB_S, $AX0.L
+    jmp AxDspMixAuxBRight
+
+AxDspMixAuxBStereoSurround:
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXB_S
+    lri $AR2, #AX_AUXB_S_BUFFER
+    mrr $AR3, $AR2
+    call AxDspMixMonoConstant
+    sr @AX_PB_DPOP_AUXB_S, $AX0.L
+    jmp AxDspMixAuxBStereo
+
+AxDspMixAuxBStereoRampSurround:
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXB_S
+    lri $AR2, #AX_AUXB_S_BUFFER
+    mrr $AR3, $AR2
+    call AxDspMixMonoConstant
+    sr @AX_PB_DPOP_AUXB_S, $AX0.L
+    jmp AxDspMixAuxBStereoRamp
+
+AxDspMixAuxBSurroundRamp:
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXB_S
+    lri $AR2, #AX_AUXB_S_BUFFER
+    lri $AR3, #AX_RAMP_BUFFER
+    call AxDspMixMonoRamp
+    sr @AX_PB_DPOP_AUXB_S, $AX0.L
+    ret
+
+AxDspMixAuxBLeftSurroundRamp:
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXB_S
+    lri $AR2, #AX_AUXB_S_BUFFER
+    lri $AR3, #AX_RAMP_BUFFER
+    call AxDspMixMonoRamp
+    sr @AX_PB_DPOP_AUXB_S, $AX0.L
+    jmp AxDspMixAuxBLeft
+
+AxDspMixAuxBRightSurroundRamp:
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXB_S
+    lri $AR2, #AX_AUXB_S_BUFFER
+    lri $AR3, #AX_RAMP_BUFFER
+    call AxDspMixMonoRamp
+    sr @AX_PB_DPOP_AUXB_S, $AX0.L
+    jmp AxDspMixAuxBRight
+
+AxDspMixAuxBStereoSurroundRamp:
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXB_S
+    lri $AR2, #AX_AUXB_S_BUFFER
+    lri $AR3, #AX_RAMP_BUFFER
+    call AxDspMixMonoRamp
+    sr @AX_PB_DPOP_AUXB_S, $AX0.L
+    jmp AxDspMixAuxBStereo
+
+AxDspMixAuxBStereoRampSurroundRamp:
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXB_S
+    lri $AR2, #AX_AUXB_S_BUFFER
+    lri $AR3, #AX_RAMP_BUFFER
+    call AxDspMixMonoRamp
+    sr @AX_PB_DPOP_AUXB_S, $AX0.L
+    jmp AxDspMixAuxBStereoRamp
+
+warnpc 0x0a64
+
+AxDspMixAuxCLeft:
+    lr $AR0, @AX_LEFT_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXC_L
+    lri $AR2, #AX_AUXC_L_BUFFER
+    mrr $AR3, $AR2
+    call AxDspMixMonoConstant
+    sr @AX_PB_DPOP_AUXC_L, $AX0.L
+    ret
+
+AxDspMixAuxCRight:
+    lr $AR0, @AX_RIGHT_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXC_R
+    lri $AR2, #AX_AUXC_R_BUFFER
+    mrr $AR3, $AR2
+    call AxDspMixMonoConstant
+    sr @AX_PB_DPOP_AUXC_R, $AX0.L
+    ret
+
+AxDspMixAuxCStereo:
+    lr $AR0, @AX_LEFT_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXC_L
+    lri $AR2, #AX_AUXC_L_BUFFER
+    mrr $AR3, $AR2
+    lr $IX0, @AX_RIGHT_SAMPLE_POINTER
+    lri $IX1, #AX_AUXC_R_BUFFER
+    call AxDspMixStereoConstant
+    sr @AX_PB_DPOP_AUXC_L, $AX0.L
+    sr @AX_PB_DPOP_AUXC_R, $AX1.H
+    ret
+
+AxDspMixAuxCStereoRamp:
+    lr $AR0, @AX_LEFT_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXC_L
+    lri $AR2, #AX_AUXC_L_BUFFER
+    lri $AR3, #AX_RAMP_BUFFER
+    lr $IX0, @AX_RIGHT_SAMPLE_POINTER
+    lri $IX1, #AX_AUXC_R_BUFFER
+    call AxDspMixStereoRamp
+    sr @AX_PB_DPOP_AUXC_L, $AX0.L
+    sr @AX_PB_DPOP_AUXC_R, $AX1.H
+    ret
+
+AxDspMixAuxCSurround:
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXC_S
+    lri $AR2, #AX_AUXC_S_BUFFER
+    mrr $AR3, $AR2
+    call AxDspMixMonoConstant
+    sr @AX_PB_DPOP_AUXC_S, $AX0.L
+    ret
+
+AxDspMixAuxCLeftSurround:
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXC_S
+    lri $AR2, #AX_AUXC_S_BUFFER
+    mrr $AR3, $AR2
+    call AxDspMixMonoConstant
+    sr @AX_PB_DPOP_AUXC_S, $AX0.L
+    jmp AxDspMixAuxCLeft
+
+AxDspMixAuxCRightSurround:
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXC_S
+    lri $AR2, #AX_AUXC_S_BUFFER
+    mrr $AR3, $AR2
+    call AxDspMixMonoConstant
+    sr @AX_PB_DPOP_AUXC_S, $AX0.L
+    jmp AxDspMixAuxCRight
+
+AxDspMixAuxCStereoSurround:
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXC_S
+    lri $AR2, #AX_AUXC_S_BUFFER
+    mrr $AR3, $AR2
+    call AxDspMixMonoConstant
+    sr @AX_PB_DPOP_AUXC_S, $AX0.L
+    jmp AxDspMixAuxCStereo
+
+AxDspMixAuxCStereoRampSurround:
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXC_S
+    lri $AR2, #AX_AUXC_S_BUFFER
+    mrr $AR3, $AR2
+    call AxDspMixMonoConstant
+    sr @AX_PB_DPOP_AUXC_S, $AX0.L
+    jmp AxDspMixAuxCStereoRamp
+
+AxDspMixAuxCSurroundRamp:
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXC_S
+    lri $AR2, #AX_AUXC_S_BUFFER
+    lri $AR3, #AX_RAMP_BUFFER
+    call AxDspMixMonoRamp
+    sr @AX_PB_DPOP_AUXC_S, $AX0.L
+    ret
+
+AxDspMixAuxCLeftSurroundRamp:
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXC_S
+    lri $AR2, #AX_AUXC_S_BUFFER
+    lri $AR3, #AX_RAMP_BUFFER
+    call AxDspMixMonoRamp
+    sr @AX_PB_DPOP_AUXC_S, $AX0.L
+    jmp AxDspMixAuxCLeft
+
+AxDspMixAuxCRightSurroundRamp:
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXC_S
+    lri $AR2, #AX_AUXC_S_BUFFER
+    lri $AR3, #AX_RAMP_BUFFER
+    call AxDspMixMonoRamp
+    sr @AX_PB_DPOP_AUXC_S, $AX0.L
+    jmp AxDspMixAuxCRight
+
+AxDspMixAuxCStereoSurroundRamp:
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXC_S
+    lri $AR2, #AX_AUXC_S_BUFFER
+    lri $AR3, #AX_RAMP_BUFFER
+    call AxDspMixMonoRamp
+    sr @AX_PB_DPOP_AUXC_S, $AX0.L
+    jmp AxDspMixAuxCStereo
+
+AxDspMixAuxCStereoRampSurroundRamp:
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXC_S
+    lri $AR2, #AX_AUXC_S_BUFFER
+    lri $AR3, #AX_RAMP_BUFFER
+    call AxDspMixMonoRamp
+    sr @AX_PB_DPOP_AUXC_S, $AX0.L
+    jmp AxDspMixAuxCStereoRamp
+
+warnpc 0x0b26
+
+AxDspMixAuxCSharedInputLeft:
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXC_L
+    lri $AR2, #AX_AUXC_L_BUFFER
+    mrr $AR3, $AR2
+    call AxDspMixMonoConstant
+    sr @AX_PB_DPOP_AUXC_L, $AX0.L
+    ret
+
+AxDspMixAuxCSharedInputRight:
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXC_R
+    lri $AR2, #AX_AUXC_R_BUFFER
+    mrr $AR3, $AR2
+    call AxDspMixMonoConstant
+    sr @AX_PB_DPOP_AUXC_R, $AX0.L
+    ret
+
+AxDspMixAuxCSharedInputStereo:
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXC_L
+    lri $AR2, #AX_AUXC_L_BUFFER
+    mrr $AR3, $AR2
+    lr $IX0, @AX_COMMON_SAMPLE_POINTER
+    lri $IX1, #AX_AUXC_R_BUFFER
+    call AxDspMixStereoConstant
+    sr @AX_PB_DPOP_AUXC_L, $AX0.L
+    sr @AX_PB_DPOP_AUXC_R, $AX1.H
+    ret
+
+AxDspMixAuxCSharedInputStereoRamp:
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXC_L
+    lri $AR2, #AX_AUXC_L_BUFFER
+    lri $AR3, #AX_RAMP_BUFFER
+    lr $IX0, @AX_COMMON_SAMPLE_POINTER
+    lri $IX1, #AX_AUXC_R_BUFFER
+    call AxDspMixStereoRamp
+    sr @AX_PB_DPOP_AUXC_L, $AX0.L
+    sr @AX_PB_DPOP_AUXC_R, $AX1.H
+    ret
+
+AxDspMixAuxCSharedInputLeftSurround:
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXC_S
+    lri $AR2, #AX_AUXC_S_BUFFER
+    mrr $AR3, $AR2
+    call AxDspMixMonoConstant
+    sr @AX_PB_DPOP_AUXC_S, $AX0.L
+    jmp AxDspMixAuxCSharedInputLeft
+
+AxDspMixAuxCSharedInputRightSurround:
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXC_S
+    lri $AR2, #AX_AUXC_S_BUFFER
+    mrr $AR3, $AR2
+    call AxDspMixMonoConstant
+    sr @AX_PB_DPOP_AUXC_S, $AX0.L
+    jmp AxDspMixAuxCSharedInputRight
+
+AxDspMixAuxCSharedInputStereoSurround:
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXC_S
+    lri $AR2, #AX_AUXC_S_BUFFER
+    mrr $AR3, $AR2
+    call AxDspMixMonoConstant
+    sr @AX_PB_DPOP_AUXC_S, $AX0.L
+    jmp AxDspMixAuxCSharedInputStereo
+
+AxDspMixAuxCSharedInputStereoRampSurround:
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXC_S
+    lri $AR2, #AX_AUXC_S_BUFFER
+    mrr $AR3, $AR2
+    call AxDspMixMonoConstant
+    sr @AX_PB_DPOP_AUXC_S, $AX0.L
+    jmp AxDspMixAuxCSharedInputStereoRamp
+
+AxDspMixAuxCSharedInputLeftSurroundRamp:
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXC_S
+    lri $AR2, #AX_AUXC_S_BUFFER
+    lri $AR3, #AX_RAMP_BUFFER
+    call AxDspMixMonoRamp
+    sr @AX_PB_DPOP_AUXC_S, $AX0.L
+    jmp AxDspMixAuxCSharedInputLeft
+
+AxDspMixAuxCSharedInputRightSurroundRamp:
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXC_S
+    lri $AR2, #AX_AUXC_S_BUFFER
+    lri $AR3, #AX_RAMP_BUFFER
+    call AxDspMixMonoRamp
+    sr @AX_PB_DPOP_AUXC_S, $AX0.L
+    jmp AxDspMixAuxCSharedInputRight
+
+AxDspMixAuxCSharedInputStereoSurroundRamp:
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXC_S
+    lri $AR2, #AX_AUXC_S_BUFFER
+    lri $AR3, #AX_RAMP_BUFFER
+    call AxDspMixMonoRamp
+    sr @AX_PB_DPOP_AUXC_S, $AX0.L
+    jmp AxDspMixAuxCSharedInputStereo
+
+AxDspMixAuxCSharedInputStereoRampSurroundRamp:
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    lri $AR1, #AX_PB_MIX_AUXC_S
+    lri $AR2, #AX_AUXC_S_BUFFER
+    lri $AR3, #AX_RAMP_BUFFER
+    call AxDspMixMonoRamp
+    sr @AX_PB_DPOP_AUXC_S, $AX0.L
+    jmp AxDspMixAuxCSharedInputStereoRamp
+
+warnpc 0x0bcf

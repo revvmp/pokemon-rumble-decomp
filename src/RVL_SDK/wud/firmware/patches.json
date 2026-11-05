@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "linker_script": "wud_patch.ld",
+  "firmware": "BCM2045B3_002.003.014.0167",
+  "payload": {
+    "destination": 563568,
+    "source": "controller_patch.s"
+  },
+  "patches": [
+    {
+      "slot": 32,
+      "destination": 91580,
+      "source": "patch_compare.s"
+    },
+    {
+      "slot": 33,
+      "destination": 23172,
+      "source": "patch_connection_control.s"
+    },
+    {
+      "slot": 34,
+      "destination": 24832,
+      "source": "patch_device_state.s"
+    },
+    {
+      "slot": 35,
+      "destination": 106444,
+      "source": "patch_firmware_byte_state.s"
+    },
+    {
+      "slot": 36,
+      "destination": 90684,
+      "source": "patch_connection_limit.s"
+    },
+    {
+      "slot": 37,
+      "destination": 70148,
+      "source": "patch_connection_branch.s"
+    },
+    {
+      "slot": 38,
+      "destination": 12148,
+      "source": "patch_controller_reset.s"
+    }
+  ]
+}

@@ -8,6 +8,8 @@ The coordinator's modern Dolphin assembler roundtrip reproduces every byte. This
 
 The recovered names below describe proven roles. The command enum names are established host-side names; no original DSP spelling is claimed. Neither the private listing nor this inventory changes source-completion credit.
 
+The later complete reconstruction is now accepted: the coordinator installed the 29-file source tree, ran the normal configure/ninja workflow successfully, and verified the full DOL against its frozen manifest. [The staging inventory and production acceptance](ax-dsp-staging-20261104.md) record the exact source closure. The earlier private investigation and its evidence boundaries are retained below.
+
 ## Command dispatch
 
 At PC `0x006D`, `AR0` is initialized to DMEM `0x0C00`, the command buffer populated by DMA. PC `0x0071` consumes the next command word. PCs `0x0072` through `0x0077` reject values outside 0 through 14. PC `0x0079` loads table base `0x0D02`; `ILRR` at `0x007D` reads the selected word from instruction memory, and `JMPR` at `0x007F` transfers to that handler.
@@ -102,9 +104,11 @@ The [corresponding file metadata](https://github.com/bowsersbigbeanburrito/N/blo
 
 This is an archival metadata source, not an authenticated Nintendo publication. Its complete repository tree exposes the inventory files, not the assembly bodies or makefile contents. All AX file modification times in this inventory are May 12, 2018; they must not be presented as original authoring or SDK release dates. The inventory does not connect its `DSPCode.c` hash to this game's `4cc52064` image revision. It establishes specific AX-family assembly-source evidence for D-0015 review, with archive authenticity and exact revision left qualified. No proprietary assembly body was downloaded or reused. The pinned metadata downloads have SHA-256 `ee83bdca8b8196e85a4ce446882fdc3b19e87d6a1ccf6827768aa79d27f9aeed` for the tree and `82c38f26802d0313859cbd9a8510de022c0a1529c35e0346f386df9acf20a1a9` for the JSON.
 
+Two further package inventories in that same pinned archive corroborate the file layout: [RVL SDK 0.2](https://github.com/bowsersbigbeanburrito/N/blob/81da5adc12d863744af0906e21bc175c6ff80a8d/wiidump/RVL_SDK_0_2_package/RVL_SDK_directory_tree.txt) and [BOST SDK](https://github.com/bowsersbigbeanburrito/N/blob/81da5adc12d863744af0906e21bc175c6ff80a8d/wiidump/BOST/SDK_directory_tree.txt) both list those eight AX assembly filenames. The latter also lists CVS metadata directories beside them. These are distinct package inventories within one archive, not independent authenticated publications.
+
 The bounded search also inspected the public Petari and ogws trees. Petari supplies host AX sources but no AX DSP assembly; ogws supplies `DSPCode.c` as a byte array for a different image, with no original assembly filename or generator metadata in that file. It is not a reconstruction input. Current homebrew descriptions of the Macronix DSP16 toolchain do not establish Nintendo AX's source language independently of the SDK inventory.
 
-The fixed exception vectors, explicit accumulator/register mode changes, hardware-loop scheduling, and paired ALU/load/store instructions are consistent with the archival assembly layout. Those native features alone would not prove original language. No opcode array, generated listing, or new assembly unit was installed in production, and this investigation changes no source-completion numerator.
+The fixed exception vectors, explicit accumulator/register mode changes, hardware-loop scheduling, and paired ALU/load/store instructions are consistent with the archival assembly layout. Those native features alone would not prove original language. The coordinator subsequently accepted the combined target identity and concrete family-level archival evidence in [D-0015's AX application](../../DECISIONS.md#2026-11-04-application-to-ax-dsp), preserving the authenticity and exact-revision qualifications. No copied opcode array or generated listing is used as reconstruction source.
 
 ## Private readable runtime fragment
 
@@ -118,6 +122,37 @@ tools/local/dsp-tools/dolphin-assembler/dsp-inspect.exe assemble tools/local/tai
 
 Assembly exits zero. Direct comparison of DSP words `0x0010` through `0x0089` finds zero differing bytes across 244 bytes, with range SHA-256 `24f3f325b0d127e53a4ae82dc021f637fb2f7324d7b64a0a470753849f326fa8`. The source SHA-256 is `922889897c5145f6f7dbc48bae5ee895aac2cf9c1ebccb724074bc0a1dd3ee3d`; `runtime_research_comparison.json` records the partial comparison. The leading zero area emitted by `org 0x0010` is outside this comparison and does not reconstruct the exception vectors. This remains a private research result, without production linkage, full-image source coverage, or acceptance credit.
 
+### Runtime expansion
+
+The later private fragments `ax_runtime_vectors.ds`, `ax_runtime_head.ds`, `ax_runtime_isr.ds`, and `ax_runtime_task.ds` cover the complete assigned runtime ranges. They share `ax_symbols.inc` with the command, mixer, and DPL2 investigations. The final combined scaffold resolves code references through real labels in the owning fragments; only the standalone range-check wrapper binds the external command-table label numerically.
+
+`python tools/local/tail-20261104/smallgame/DSP/check_runtime.py` invokes the real private assembler, checks the sealed original image, and compares both owned ranges without normalization. Assembly and comparison exit zero:
+
+| DSP words | Bytes | Range SHA-256 |
+| --- | --- | --- |
+| `0x0000` through `0x0089` | 276 | `0967dcb970419a90154424e2b8bed155ece5c1b16b741fe553ecb262d23802b6` |
+| `0x0F3A` through `0x0FFF` | 396 | `38b3f63f26c0071dc4482ad9edaf1541f6f1221b7d23bbf220a84c39007572e1` |
+
+All 672 bytes agree. `runtime_combined_comparison.json` records the assembler exit, comparison results, and all input-source hashes. The unowned gap in this standalone output is excluded explicitly; its zero fill is not reconstructed code. The task fragment reserves the final twelve words through the declared 4,096-word image extent, preserving every transferred byte.
+
+The vector identities follow the pinned Dolphin DSP exception definitions. The stack-fault handler preserves the return-stack entry and reports it with tag `0xECC0`. Raw-read overflow clears `AXPB.state` only for non-looping voices. Sample-read overflow also redirects a stopped decoder to the silent sample. Looping ordinary voices restore the saved ADPCM predictor and both histories; streaming voices restore the predictor while preserving current histories. The `VOICE_TYPE_STREAM` value of 1 is independently established by the matched `AxVoice::VoiceType` enum and its direct parameter-block assignment.
+
+The task-transfer routine consumes the host's ten messages in order: current DRAM address/size/DSP address, next instruction-image address/size/DSP address, entry vector, and next DRAM address/size/DSP address. It starts the current context save, retains the next-task inputs in the ROM loader's registers, waits for the save DMA, and enters the ROM task loader. All task dispatch entries and internal branches use symbolic labels. These private range checks preceded the coordinator's separate D-0015 review and production acceptance.
+
+## Complete private assembly
+
+The runtime fragments now join the separately reviewed [command/voice source](ax-dsp-command-voice-20261104.md), [processing kernels](ax-dsp-processing-20261104.md), and [tables/DPL2 source](ax-dsp-tables-dpl2-20261104.md). `tools/local/tail-20261104/smallgame/DSP/ax_dsp_research.ds` includes the actual definitions from all four investigators. The full source closure contains 29 files. No diagnostic numeric external-function bindings participate.
+
+The actual `check_combined.py` invocation assembles that master with the pinned private inspector, checks its source closure, and compares the complete output directly against the sealed 8,192-byte image. It exits zero, emits no assembler diagnostics, and finds zero differing bytes. The resulting SHA-256 is `d6d5952c5e6c55705513d89e58ba12314db23d8758c4acfd2c75b81b7140c0ed`. `combined_comparison.json` records the assembler SHA-256 and every included source hash. The source audit finds no literal control-flow targets, numeric code-label `EQU` bindings, or numeric `CW` words. All 189 instruction-memory table words are symbolic references: 186 routine labels and three coefficient-data addresses.
+
+An independent investigator [reviewed the same closure](ax-dsp-source-review-20261104.md) and assembled it again, with the same complete byte identity. That review checked unresolved and duplicate symbols, table roles, branch targets, and Harvard-memory uses. Integration initially exposed two same-spelled internal AUX-return labels in distinct routines; assigning the DPL2 channel stages their own descriptive names resolved the collision without changing either fragment's bytes.
+
+A portable frozen copy is under `smallgame/DSP/complete_source/`, with entry `ax_dsp.ds`. Its master begins with `incdir "."` and the assembler runs from that directory. Body and include bytes are unchanged; only the master include-directory paths differ. The real portable invocation also exits zero without diagnostics and emits the same exact 8,192 bytes. `bundle_comparison.json` records its complete provenance/hash manifest; the master SHA-256 is `ad2628643ff82c2fc12277a22a28073780d39997f0b30b3ed148daeb71d985f7`. No original binary resides in that source directory.
+
+The independent review's optional readability refinements are available separately in `complete_source_refined/`: named main/remote depop counts, SRC history count, remaining remote-output count, and the ordinary stereo-output staging/size aliases. The two-file `readability-refinement.diff` changes names only. Actual reassembly exits zero without diagnostics and reproduces the same complete image; `readability-refinement-comparison.json` records its input hashes. The original portable bundle remains frozen for build-wrapper validation.
+
+These private results established a complete readable assembly candidate and exact assembler output. They did not by themselves accept the original-language evidence or the source link. The coordinator then completed those separate steps: the pinned production tool and generated word initializer replaced the AX fallback; normal configure and ninja exited zero, and frozen full-DOL verification passed. The 29 installed source files match [the accepted staging hashes](ax-dsp-staging-20261104.md). The separate [128-byte OS initializer](os-dsp-init-20261104.md) remains unaccepted and is not covered by AX's language evidence or source-link acceptance.
+
 ## Traps
 
 - An invalid opcode in a linear DSP listing can be an instruction-memory table word. Here, the checked command index and `ILRR` prove `0x024F` is an address. Classify through its reader before trying to repair the opcode decoder.
@@ -125,3 +160,5 @@ Assembly exits zero. Direct comparison of DSP words `0x0010` through `0x0089` fi
 - Code and data pointers can share a contiguous instruction-memory table region. The three SRC entries lead to routines, while the following three coefficient entries select DMEM ROM. Do not label every table word as code merely because `ILRR` reads it.
 - A newer or older AX command enum can silently shift handler identities. This image's checked command maximum is 14 and PROCESS itself consumes the parameter-block address; it does not use the older separate PB-address command.
 - A source-tree inventory can identify original-language inputs without proving an exact revision. Here the archive lists AX assembly files and content hashes, but does not expose their bodies or connect the generated image to this game. Preserve that distinction when using the evidence for D-0015 review.
+- An isolated assembly range can hide global label collisions. The two AUX-return implementations each assembled correctly with diagnostic external bindings, but their common internal names collided in the real combined source. Assemble the complete symbol graph before accepting the image.
+- This assembler resolves `INCLUDE` through the active `INCDIR`, relative to its working directory, rather than relative to the including file. `INCDIR` also persists after nested includes and across assembly passes. A portable master must reset it explicitly and preserve the real include closure in dependency tracking.

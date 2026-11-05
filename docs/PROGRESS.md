@@ -2,7 +2,7 @@
 
 ## Current status
 
-Roadmap Phases 1 to 5 are complete for the main executable; Phase 6 is active. All 13,462 CPU functions and all 3,078,460 CPU code bytes match and link from source. The normal build passes exact frozen main.dol verification, with 896 of 897 units source-selected. The separate AX DSP image remains the sole original split fallback. Embedded DSP source coverage and package scope are tracked separately; see the latest session and [matching requirements](MATCHING.md).
+The matching main.dol reconstruction is complete under the documented source-fidelity decisions. All 13,462 CPU functions, 3,078,460 CPU code bytes and 1,788,360 selected data bytes are complete; all 897 units and 902 raw linker inputs come from source. AX DSP, OS DSP initialization and the Bluetooth patch are generated from readable symbolic assembly. The latter two use the explicit owner-approved D-0017 exceptions. Two complete clean builds reproduce the frozen executable and generated artifacts. Phase 6 remains active only for the wider loader/content/package scope, which is not claimed here. See [final acceptance](re/findings/main-source-completion-20261104.md).
 
 | Milestone | State | Evidence or prerequisite |
 | --- | --- | --- |
@@ -13,11 +13,11 @@ Roadmap Phases 1 to 5 are complete for the main executable; Phase 6 is active. A
 | Artifact and section inventory | Complete for current scope | F-0005 extraction; both executables' sections in `re/INVENTORY.md`; boot loader role F-0009 |
 | Toolchain identification | Identified per library | RVL_SDK Wii/1.0; MSL and Runtime Wii/1.1 or 1.3 with `-func_align 4`; NW4R Wii/1.0 or 1.1; F-0007 |
 | Reproducible game build | Achieved | Two clean builds byte-identical; F-0010 |
-| Exact executable match | Achieved for `main.dol` | Verified; remaining original split fallbacks are tracked separately |
-| Source reconstruction | CPU code complete; DSP integration pending | 896 Matching units of 897 current units; see ledger |
+| Exact executable match | Achieved for `main.dol` | Frozen full-file verification passes; no original split fallback selected |
+| Source reconstruction | Complete for main.dol under D-0015/D-0016/D-0017 | 897/897 source-selected units; embedded programs generated from symbolic source |
 | Full release match | Pending | Boot loader, data contents, and WAD packaging outside current scope |
 
-## Current continuation: source-link acceptance
+## Earlier source-link acceptance
 
 CFileData and CDlgMsgWin now pass fresh ninja and frozen main.dol verification from source. This adds 77,940 linked code bytes without changing the 71-function tail. CDlgMsgWin required correcting its Dismiss literal from `off` to the evidenced `end`, which function scoring alone did not reject. The whole executable verifier caught the difference.
 
@@ -26,6 +26,16 @@ Main and CBattleRoyalBox subsequently passed full source-link verification, addi
 ## Latest function gains
 
 The real unmatched tail is now zero, down from the initial 120. PiiPropData constructor and Reset complete the CPU reconstruction. Matched and source-linked code are both 3,078,460/3,078,460 bytes (100%). Every prior exact function is preserved. The previously removed 3,792 native alignment bytes do not add instruction credit.
+
+## 2026-11-04: Main executable source completion
+
+The final source-selected build has zero unfinished CPU functions and zero original split objects. All 897 logical units, 902 raw compiler inputs, 3,078,460 CPU code bytes and 1,788,360 data bytes are source-selected. AXDSPCode adds the final 8,192 formerly fallback data bytes. The independent alias and original-address audits preserve every earlier exact function and every compiler-output byte.
+
+A separate embedded-code audit found the 128-byte OS DSP bootstrap and WUD controller patch inside already Matching C units. Their original authoring language remains unproven; the owner explicitly approved two narrow assembly exceptions in D-0017. Both now build from readable symbolic programs and typed transport records. Their ordinary PowerPC owner objects remain byte-identical, and no original binary or generated opcode array is an input to the firmware build rules. AX uses its separately evidenced D-0015 application.
+
+Two complete clean runs of build.bat pass acquisition, configure, ninja and frozen verification and reproduce every compared artifact. Tool acquisition, dependency discovery, edited-input rebuilding and relevant failure/rejection paths were exercised through actual CLIs and Ninja. The source and tool reviews found no remaining production blocker. [Final acceptance](re/findings/main-source-completion-20261104.md) and [validation](VALIDATION.md#main-source-completion-checkpoint) preserve the exact scope and hashes.
+
+New reusable lessons cover missing DSP includes despite assembler exit zero, deterministic host-link timestamps, and executable firmware hidden in source-selected CPU data. The original-language limits remain documented; boot-loader content 6, other contents, WAD packaging and the future platform port are outside this completed main.dol task.
 
 ## 2026-11-04: Complete CPU source linkage
 

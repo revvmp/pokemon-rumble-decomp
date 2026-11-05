@@ -58,7 +58,14 @@ The one synthetic identity mapping is:
 | --- | --- | --- |
 | `0x800F5000`, `0x7FC` | `PiiPropData::SpeciesMoves::operator=(const SpeciesMoves&)` | `AssignPropertyMoves<PiiPropData::SpeciesMoves>(SpeciesMoves&, const SpeciesMoves&)` |
 
-The full mangled mapping is saved in `pf_pii_production/symbol-map.json` and applied by the coordinator. The prior SpeciesMoves assignment spelling has no entry in `docs/re/reference-symbols.tsv`; it is a reconstructed identity, not an established original spelling. The replacement does not claim to recover a previously known template name.
+The coordinator applied the following full mangled mapping, also saved in `pf_pii_production/symbol-map.json`:
+
+```text
+__as__Q211PiiPropData12SpeciesMovesFRCQ211PiiPropData12SpeciesMoves
+AssignPropertyMoves<Q211PiiPropData12SpeciesMoves>__FRQ211PiiPropData12SpeciesMovesRCQ211PiiPropData12SpeciesMoves_RQ211PiiPropData12SpeciesMoves
+```
+
+The prior SpeciesMoves assignment spelling has no entry in `docs/re/reference-symbols.tsv`; it is a reconstructed identity, not an established original spelling. The replacement does not claim to recover a previously known template name.
 
 The observed ABI is unchanged: destination reference in `r3`, source reference in `r4`, and destination-reference result in `r3`. The 2,044-byte function, its relocations, and its exception record match after the identity mapping. The full passing native link proves that no second old-name body, unresolved caller, or changed retained reference remains in this executable.
 
@@ -71,6 +78,8 @@ The accessor fragment supplies 15 strong, trivial method definitions. The iterat
 The final header scopes are `GAME_PIIPROPDATA_COPY_LAYOUT` for the copy/initialization and allocation-tag declarations, `GAME_PIIPROPDATA_EMISSION_LAYOUT` for the main emission view, `GAME_PIIPROPDATA_ACCESSOR_LAYOUT` for accessor declarations, and `GAME_PIIPROPDATA_ITERATOR_LAYOUT` for the two copy declarations. The packet was built over the then-current shared vector header, retaining the previously accepted selector, model, and other unit controls. It does not replace that header with an older scratch snapshot.
 
 The literal-false iterator requests, delayed concrete definitions, explicit generation request, two-level assignment wrapper, native section placement, scoped declaration views, and strong accessor/copy fragments are D-0016 accommodations. They are not claimed as original source structure. The recovered MSL copy and initialization boundaries are supported separately by the primary-source evidence.
+
+An independent production-packet review confirmed the header scopes and the separation between recovered copy/initialization boundaries and the remaining allocation-tag/emission controls. Its `vm_pii_production_retained_data.json` audit repeated the literal, shuffle-seed, and native-owner comparisons against the production main object. The [primary MSL findings](piipropdata-primary-msl-20261104.md) record that review.
 
 ## Traps
 

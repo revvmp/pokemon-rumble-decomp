@@ -1,0 +1,111 @@
+org 0x0010
+
+AxDspInit:
+    sbset #2
+    sbset #3
+    sbclr #4
+    sbset #5
+    sbset #6
+    set16
+    clr15
+    m0
+    lri $CR, #0x00ff
+    lri $AC0.M, #AX_VOLUME_UNITY
+    sr @AX_PREVIOUS_MASTER_VOLUME, $AC0.M
+    lri $AC0.M, #AX_VOLUME_UNITY
+    sr @AX_PREVIOUS_AUXA_VOLUME, $AC0.M
+    sr @AX_PREVIOUS_AUXB_VOLUME, $AC0.M
+    sr @AX_PREVIOUS_AUXC_VOLUME, $AC0.M
+    clr $ACC0
+    sr @AX_SILENT_SAMPLE, $AC0.M
+    clr $ACC1
+    si @DMBH, #DSP_TASK_MAIL_TAG
+    si @DMBL, #DSP_TASK_MAIL_INIT
+    si @DIRQ, #DSP_REQUEST_IRQ
+
+AxDspWaitInitMailAcknowledged:
+    lrs $AC0.M, @DMBH
+    andf $AC0.M, #DSP_MAIL_FULL
+    jlnz AxDspWaitInitMailAcknowledged
+    jmp AxDspReceiveCommandList
+
+AxDspResume:
+    sbset #2
+    sbset #3
+    sbclr #4
+    sbset #5
+    sbset #6
+    set16
+    clr15
+    m0
+    lri $CR, #0x00ff
+    si @DMBH, #DSP_TASK_MAIL_TAG
+    si @DMBL, #DSP_TASK_MAIL_RESUME
+    si @DIRQ, #DSP_REQUEST_IRQ
+
+AxDspWaitResumeMailAcknowledged:
+    lrs $AC0.M, @DMBH
+    andf $AC0.M, #DSP_MAIL_FULL
+    jlnz AxDspWaitResumeMailAcknowledged
+
+AxDspReceiveCommandList:
+    set16
+    clr $ACC0
+    clr $ACC1
+    lri $AC1.M, #AX_COMMAND_MAIL_TAG
+
+AxDspWaitCommandListMail:
+    lrs $AC0.M, @CMBH
+    andcf $AC0.M, #DSP_MAIL_FULL
+    jlnz AxDspWaitCommandListMail
+    cmp
+    jnz AxDspWaitCommandListMail
+    lrs $AX1.H, @CMBL
+    clr $ACC0
+
+AxDspWaitCommandAddressMail:
+    lrs $AC0.M, @CMBH
+    andcf $AC0.M, #DSP_MAIL_FULL
+    jlnz AxDspWaitCommandAddressMail
+    lrs $AC1.M, @CMBL
+    andi $AC0.M, #DSP_MAIL_ADDRESS_MASK
+    srs @DSMAH, $AC0.M
+    srs @DSMAL, $AC1.M
+    si @DSPA, #AX_COMMAND_BUFFER
+    clr $ACC0
+    srs @DSCR, $AC0.M
+    mrr $AC1.M, $AX1.H
+    srs @DSBL, $AC1.M
+    call AxDspWaitDma
+    lri $AR0, #AX_COMMAND_BUFFER
+
+AxDspDispatchNextCommand:
+    set16
+    clr $ACC0
+
+AxDspReadNextCommand:
+    clr'l $ACC1 : $AC0.M, @$AR0
+    tst $ACC0
+    jl AxDspInvalidCommand
+    lris $AX0.H, #AX_COMMAND_END
+    cmpaxh $ACC0, $AX0.H
+    jg AxDspInvalidCommand
+    lri $AC1.M, #AxDspCommandTable
+    add $ACC0, $ACC1
+    mrr $AR3, $AC0.M
+    ilrr $AC0.M, @$AR3
+    mrr $AR3, $AC0.M
+    jmpr $AR3
+
+AxDspInvalidCommand:
+    si @DMBH, #AX_INVALID_COMMAND_MAIL_TAG
+    srs @DMBL, $AC0.M
+    halt
+
+AxDspWaitDma:
+    lrs $AC0.M, @DSCR
+    andf $AC0.M, #DSP_DMA_BUSY
+    jlnz AxDspWaitDma
+    ret
+
+warnpc 0x008a

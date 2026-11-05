@@ -30,6 +30,7 @@ parser.add_argument("--compilers", metavar="DIR", type=Path, default=local_tool(
 parser.add_argument("--dtk", metavar="BINARY", type=Path, default=local_tool("dtk.exe"))
 parser.add_argument("--objdiff", metavar="BINARY", type=Path, default=local_tool("objdiff-cli.exe"))
 parser.add_argument("--sjiswrap", metavar="EXE", type=Path, default=local_tool("sjiswrap.exe"))
+parser.add_argument("--dsp-assembler", metavar="EXE", type=Path, default=LOCAL_TOOLS / "dsp-assembler" / "dsp-inspect.exe")
 parser.add_argument("--ninja", metavar="BINARY", type=Path)
 parser.add_argument("--map", action="store_true")
 parser.add_argument("--debug", action="store_true")
@@ -87,8 +88,40 @@ system_message_source = Path("orig") / config.version / "reconstructed" / "syste
 system_message_manifest = system_message_source / "manifest.json"
 system_message_archive = config.build_dir / config.version / "assets" / "system_message.arc"
 system_message_include = config.build_dir / config.version / "include" / "system_message.inc"
+dsp_source = Path("src/RVL_SDK/ax/dsp/ax_dsp.ds")
+dsp_binary = config.build_dir / config.version / "dsp" / "ax_dsp.bin"
+dsp_include = config.build_dir / config.version / "include" / "ax_dsp.inc"
+dsp_depfile = config.build_dir / config.version / "dsp" / "ax_dsp.d"
+os_dsp_source = Path("src/RVL_SDK/os/dsp/os_dsp_init.ds")
+os_dsp_binary = config.build_dir / config.version / "dsp" / "os_dsp_init.bin"
+os_dsp_include = config.build_dir / config.version / "include" / "OSDspInit.inc"
+os_dsp_depfile = config.build_dir / config.version / "dsp" / "os_dsp_init.d"
+wud_manifest = Path("src/RVL_SDK/wud/firmware/patches.json")
+wud_binary = config.build_dir / config.version / "firmware" / "wud_patch.bin"
+wud_commands_binary = config.build_dir / config.version / "firmware" / "wud_patch_commands.bin"
+wud_include = config.build_dir / config.version / "include" / "wud_patch_data.inc"
+wud_commands_include = config.build_dir / config.version / "include" / "wud_patch_commands.inc"
+wud_depfile = config.build_dir / config.version / "firmware" / "wud_patch.d"
+firmware_tools = LOCAL_TOOLS / "dsp-assembler"
+firmware_tool_manifest = Path("config/dsp_assembler.json")
 config.reconfig_deps.append(system_message_manifest)
 config.custom_build_rules = [
+    {
+        "name": "wud_firmware",
+        "command": '$python tools/firmware/build_wud.py --manifest "$in" --tool-install "$tool_install" --tool-manifest "$tool_manifest" --binary "$binary" --commands-binary "$commands_binary" --c-include "$include" --commands-include "$commands_include" --depfile "$depfile"',
+        "description": "FIRMWARE wud_patch.bin",
+        "depfile": "$depfile",
+        "deps": "gcc",
+        "restat": True,
+    },
+    {
+        "name": "dsp_assembly",
+        "command": '$python tools/dsp/build_dsp.py --assembler "$assembler" --source "$in" --binary "$binary" --c-include "$include" --depfile "$depfile" --size "$size"',
+        "description": "DSP $binary",
+        "depfile": "$depfile",
+        "deps": "gcc",
+        "restat": True,
+    },
     {
         "name": "system_message_assets",
         "command": '$python tools/assets/build_system_message.py "$in" "$archive" --c-include "$include"',
@@ -97,6 +130,47 @@ config.custom_build_rules = [
 ]
 config.custom_build_steps = {
     "pre-compile": [
+        {
+            "rule": "wud_firmware",
+            "outputs": [wud_binary, wud_commands_binary, wud_include, wud_commands_include],
+            "inputs": [wud_manifest],
+            "implicit": [Path("tools/firmware/build_wud.py"), Path("tools/dsp/build_dsp.py"), firmware_tool_manifest, firmware_tools / "build.json"],
+            "variables": {
+                "tool_install": firmware_tools,
+                "tool_manifest": firmware_tool_manifest,
+                "binary": wud_binary,
+                "commands_binary": wud_commands_binary,
+                "include": wud_include,
+                "commands_include": wud_commands_include,
+                "depfile": wud_depfile,
+            },
+        },
+        {
+            "rule": "dsp_assembly",
+            "outputs": [dsp_binary, dsp_include],
+            "inputs": [dsp_source],
+            "implicit": [Path("tools/dsp/build_dsp.py"), args.dsp_assembler],
+            "variables": {
+                "assembler": args.dsp_assembler,
+                "binary": dsp_binary,
+                "include": dsp_include,
+                "depfile": dsp_depfile,
+                "size": "8192",
+            },
+        },
+        {
+            "rule": "dsp_assembly",
+            "outputs": [os_dsp_binary, os_dsp_include],
+            "inputs": [os_dsp_source],
+            "implicit": [Path("tools/dsp/build_dsp.py"), args.dsp_assembler],
+            "variables": {
+                "assembler": args.dsp_assembler,
+                "binary": os_dsp_binary,
+                "include": os_dsp_include,
+                "depfile": os_dsp_depfile,
+                "size": "128",
+            },
+        },
         {
             "rule": "system_message_assets",
             "outputs": [system_message_archive, system_message_include],
@@ -399,7 +473,7 @@ config.libs = [
             Object(Matching, "game/CPiiTex.cpp"),
             Object(Matching, "game/PiiTexCameraParams.cpp"),
             Object(Matching, "game/SystemMessageData.cpp"),
-            Object(Matching, "game/SystemMessageArchive.cpp", extra_cflags=[f"-i {system_message_include.parent}"]),
+            Object(Matching, "game/SystemMessageArchive.cpp", extra_cflags=[f'-i "{system_message_include.parent}"']),
             Object(Matching, "game/PiiMotionData.cpp"),
             Object(Matching, "game/EffectInfos.cpp"),
             Object(Matching, "game/PiiSpeciesTables.cpp"),
@@ -1010,7 +1084,7 @@ config.libs = [
             Object(Matching, "RVL_SDK/os/OSAlarm.c"),
             Object(Matching, "RVL_SDK/os/OSAlloc.c"),
             Object(Matching, "RVL_SDK/os/OSArena.c"),
-            Object(Matching, "RVL_SDK/os/OSAudioSystem.c"),
+            Object(Matching, "RVL_SDK/os/OSAudioSystem.c", extra_cflags=[f'-i "{os_dsp_include.parent}"']),
             Object(Matching, "RVL_SDK/os/OSCache.c"),
 
             Object(Matching, "RVL_SDK/os/OSContext.c"),
@@ -1087,6 +1161,7 @@ config.libs = [
             Object(Matching, "RVL_SDK/ax/AXCompressorTable.c"),
             Object(Matching, "RVL_SDK/ax/AXOut.c"),
             Object(Matching, "RVL_SDK/ax/AXDSPConfig.c"),
+            Object(Matching, "RVL_SDK/ax/AXDSPCode.c", extra_cflags=[f'-i "{dsp_include.parent}"']),
             Object(Matching, "RVL_SDK/ax/AXSPB.c"),
             Object(Matching, "RVL_SDK/ax/AXVPB.c"),
             Object(Matching, "RVL_SDK/ax/AXProf.c"),
@@ -1143,7 +1218,7 @@ config.libs = [
             Object(Matching, "RVL_SDK/kpad/KPAD.c"),
             Object(Matching, "RVL_SDK/euart/euart.c"),
             Object(Matching, "RVL_SDK/usb/usb.c"),
-            Object(Matching, "RVL_SDK/wud/WUD.c"),
+            Object(Matching, "RVL_SDK/wud/WUD.c", extra_cflags=[f'-i "{wud_include.parent}"']),
             Object(Matching, "RVL_SDK/wud/WUDHidHost.c"),
             Object(Matching, "RVL_SDK/wud/debug_msg.c"),
             Object(Matching, "RVL_SDK/bte/gki_buffer.c", cflags=[*cflags_base, "-ipa file"]),

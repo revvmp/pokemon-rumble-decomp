@@ -1,5 +1,5 @@
 {
-  "status": "split-build reproduces main.dol; per-library original compilers partially identified",
+  "status": "all-source main.dol build reproduces the frozen executable; per-library original compilers evidenced, firmware language exceptions documented",
   "host_environment": "Windows x86-64, Python 3.10 or newer, ninja 1.13.0 from PyPI in .venv",
   "extraction_tools": [
     {
@@ -31,6 +31,14 @@
     "version": "Wii/1.1",
     "sha256": "ad6746c6add523db1893c7351e27c535cf608d539313f8936b02df896bbc5a76",
     "status": "reproduces main.dol from split objects; original linker version not independently proven"
+  },
+  "dsp_assembler": {
+    "manifest": "config/dsp_assembler.json",
+    "local_path": "tools/local/dsp-assembler/dsp-inspect.exe",
+    "sha256": "b9afa1a0a47628f6b15464394792707f8a1bc1ba7f27be064b18801d762d47fd",
+    "host": "Windows x86-64 with Universal CRT",
+    "build": "python tools/setup/acquire_dsp_assembler.py",
+    "evidence": "docs/re/findings/ax-dsp-host-tool-20261104.md"
   },
   "build_driver": {
     "name": "configure.py with vendored dtk-template tooling in tools/build",

@@ -126,7 +126,9 @@ typedef struct WUDDiscResp {
 } WUDDiscResp;
 
 typedef struct WUDPatchCmd {
-    u8 data[13];
+    u8 slot;
+    u8 littleEndianAddress[4];
+    u8 thumbCode[8];
 } WUDPatchCmd;
 typedef struct WUDPatchList {
     u8 num;

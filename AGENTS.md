@@ -26,7 +26,7 @@ Aim for the readability of the Super Mario Galaxy decompilation (Petari): source
 - Give every class a header in `include/` with complete, correctly ordered members and exact types. Use original integer types where mangling or code generation requires them (`int` versus `s32`), `nullptr` in C++, `NULL` in C, and `f` suffixes on float literals.
 - Petari explains members with comments; this project does not allow comments. Achieve clarity through names, types, small functions, and enums instead, and record field offsets, sizes, evidence, and naming confidence in [symbols](docs/re/SYMBOLS.md).
 - Never paste raw decompiler output. Rewrite it into idiomatic source that a person could have written, then prove it matches.
-- Exception: after a documented honest attempt fails, a fake match is allowed under [D-0016](docs/DECISIONS.md#d-0016-documented-fake-matches-for-the-remaining-long-tail). List every one in [the fake-match ledger](docs/re/FAKEMATCHES.md).
+- Exception: after a documented honest attempt fails, a fake match is allowed under [D-0016](docs/DECISIONS.md#d-0016-documented-fake-matches-for-the-remaining-long-tail). List every one in [the fake-match ledger](docs/re/FAKEMATCHES.md). The owner separately approved symbolic assembly for exactly the OS DSP bootstrap and WUD controller patch under [D-0017](docs/DECISIONS.md#d-0017-two-owner-approved-embedded-firmware-assembly-exceptions); no broader original-language exception is implied.
 
 ## Session memory: traps and findings
 
@@ -158,6 +158,9 @@ Keep entries concise and actionable. Distinguish confirmed findings from hypothe
 
 - **A register-only residual can come from flattened library boundaries.** PiiPropData kept the same opcodes but swapped its count and exception receiver until the original MSL `init` and POD `std::copy` boundaries were restored together. Each alone regressed. Consult verified library structure before forcing registers; see [the primary-source evidence](docs/re/findings/piipropdata-primary-msl-tail.md).
 
+- **A Matching CPU unit can still contain executable firmware.** The final audit found the OS DSP bootstrap and Bluetooth patch inside data arrays of accepted C units. Both now build from symbolic source under the explicit D-0017 exceptions; inspect consumers and instruction sets separately from source-selection percentages. See [the audit](docs/re/findings/embedded-code-audit-20261104.md).
+- **The DSP assembler can succeed with a missing include.** Its raw driver emitted a partial image with exit zero. The build wrapper validates the complete include closure and size before publication; retain that gate. See [wrapper validation](docs/re/findings/ax-dsp-build-wrapper-20261104.md).
+
 ## Current project state
 
 | Current state | Value |
@@ -169,4 +172,4 @@ Keep entries concise and actionable. Distinguish confirmed findings from hypothe
 | Verification entry point | `python tools/verify/verify.py --help` |
 | Progress images | `python tools/progress/progress.py render --phases config/progress.json --output-dir docs/images` |
 | Extraction entry point | `python tools/reference/extract_reference.py`; see `docs/re/EXTRACTION.md` |
-| Next action | CPU code complete; finish DSP-source integration and repeated clean verification; see `docs/HANDOFF.md#next-actions` |
+| Next action | main.dol reconstruction accepted, including approved firmware exceptions; preserve exact build while choosing the next scope; see `docs/HANDOFF.md#next-actions` |

@@ -1,0 +1,102 @@
+org 0x0f95
+
+AxDspTaskMailTable:
+    cw AxDspResumeTask
+    cw AxDspSwitchTask
+    cw AxDspResetTask
+    cw AxDspContinueTask
+
+AxDspReceiveTaskCommand:
+    set16
+    clr $ACC0
+    clr $ACC1
+    call AxDspWaitMailHigh0
+    lrs $AC1.M, @CMBL
+    lri $AC0.M, #AxDspTaskMailTable
+    add $ACC0, $ACC1
+    mrr $AR3, $AC0.M
+    ilrr $AC1.M, @$AR3
+    mrr $AR3, $AC1.M
+    jmpr $AR3
+    halt
+
+AxDspResumeTask:
+    jmp AxDspResume
+    halt
+
+AxDspSwitchTask:
+    clr $ACC0
+    clr $ACC1
+    call AxDspWaitMailHigh0
+    lrs $AC0.L, @CMBL
+    call AxDspWaitMailHigh1
+    lrs $AC1.L, @CMBL
+    call AxDspWaitMailHigh1
+    lrs $AC1.M, @CMBL
+    srs @DSMAH, $AC0.M
+    srs @DSMAL, $AC0.L
+    si @DSCR, #DSP_DMA_WRITE
+    srs @DSPA, $AC1.M
+    srs @DSBL, $AC1.L
+
+AxDspReceiveTaskInstructionImage:
+    clr $ACC0
+    clr $ACC1
+    call AxDspWaitMailHigh0
+    lrs $AC0.L, @CMBL
+    mrr $IX0, $AC0.M
+    mrr $IX1, $AC0.L
+    call AxDspWaitMailHigh1
+    lrs $AC1.L, @CMBL
+    call AxDspWaitMailHigh1
+    lrs $AC1.M, @CMBL
+    mrr $IX2, $AC1.M
+    mrr $IX3, $AC1.L
+    clr $ACC0
+    call AxDspWaitMailHigh0
+    lrs $AC0.M, @CMBL
+    mrr $AR0, $AC0.M
+
+AxDspReceiveTaskDataImage:
+    clr $ACC1
+    call AxDspWaitMailHigh1
+    lrs $AX0.L, @CMBL
+    mrr $AX0.H, $AC1.M
+    call AxDspWaitMailHigh0
+    lrs $AX1.L, @CMBL
+    call AxDspWaitMailHigh0
+    lrs $AX1.H, @CMBL
+
+AxDspWaitContextSaved:
+    lrs $AC0.M, @DSCR
+    andf $AC0.M, #DSP_DMA_BUSY
+    jlnz AxDspWaitContextSaved
+    jmp DSP_ROM_SWITCH_TASK
+    halt
+
+AxDspResetTask:
+    jmp DSP_ROM_BOOT
+    halt
+
+AxDspContinueTask:
+    jmp AxDspReceiveCommandList
+    halt
+
+AxDspWaitMailHigh0:
+    lrs $AC0.M, @CMBH
+    andcf $AC0.M, #DSP_MAIL_FULL
+    jlnz AxDspWaitMailHigh0
+    ret
+
+AxDspWaitMailHigh1:
+    lrs $AC1.M, @CMBH
+    andcf $AC1.M, #DSP_MAIL_FULL
+    jlnz AxDspWaitMailHigh1
+    ret
+
+warnpc 0x0ff4
+
+AxDspReservedImageTail:
+org AX_PROGRAM_WORDS
+
+AxDspImageEnd:

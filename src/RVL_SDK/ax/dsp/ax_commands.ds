@@ -1,0 +1,1366 @@
+org 0x008a
+
+AxDspSetup:
+    clr $ACC0
+    clr'l $ACC1 : $AC0.M, @$AR0
+    set16'l : $AC1.M, @$AR0
+    srs @DSMAH, $AC0.M
+    srs @DSMAL, $AC1.M
+    si @DSPA, #AX_SCRATCH_BUFFER
+    si @DSCR, #DSP_DMA_READ
+    si @DSBL, #AX_STUDIO_BYTES
+    lri $AR1, #AX_SCRATCH_BUFFER
+    lri $AR2, #AX_MAIN_L_BUFFER
+    lri $AX1.H, #AX_FRAME_SAMPLES - 1
+    lri $AX0.H, #AX_CHANNEL_WORDS
+    clr $ACC0
+    clr $ACC1
+    set40
+    call AxDspWaitDma
+
+AxDspSetupMainL:
+    lrri $AC0.M, @$AR1
+    lrri $AC0.L, @$AR1
+    tst'l $ACC0 : $AC1.M, @$AR1
+    jnz AxDspSetupMainLRamp
+    loop $AX0.H
+    srri @$AR2, $AC0.M
+    jmp AxDspSetupMainR
+
+AxDspSetupMainLRamp:
+    asr16 $ACC1
+    srri @$AR2, $AC0.M
+    srri @$AR2, $AC0.L
+    bloop $AX1.H, AxDspSetupMainLRampEnd
+    add $ACC0, $ACC1
+    srri @$AR2, $AC0.M
+AxDspSetupMainLRampEnd:
+    srri @$AR2, $AC0.L
+
+AxDspSetupMainR:
+    lri $AR2, #AX_MAIN_R_BUFFER
+    lrri $AC0.M, @$AR1
+    lrri $AC0.L, @$AR1
+    tst'l $ACC0 : $AC1.M, @$AR1
+    jnz AxDspSetupMainRRamp
+    loop $AX0.H
+    srri @$AR2, $AC0.M
+    jmp AxDspSetupMainS
+
+AxDspSetupMainRRamp:
+    asr16 $ACC1
+    srri @$AR2, $AC0.M
+    srri @$AR2, $AC0.L
+    bloop $AX1.H, AxDspSetupMainRRampEnd
+    add $ACC0, $ACC1
+    srri @$AR2, $AC0.M
+AxDspSetupMainRRampEnd:
+    srri @$AR2, $AC0.L
+
+AxDspSetupMainS:
+    lri $AR2, #AX_MAIN_S_BUFFER
+    lrri $AC0.M, @$AR1
+    lrri $AC0.L, @$AR1
+    tst'l $ACC0 : $AC1.M, @$AR1
+    jnz AxDspSetupMainSRamp
+    loop $AX0.H
+    srri @$AR2, $AC0.M
+    jmp AxDspSetupAuxAL
+
+AxDspSetupMainSRamp:
+    asr16 $ACC1
+    srri @$AR2, $AC0.M
+    srri @$AR2, $AC0.L
+    bloop $AX1.H, AxDspSetupMainSRampEnd
+    add $ACC0, $ACC1
+    srri @$AR2, $AC0.M
+AxDspSetupMainSRampEnd:
+    srri @$AR2, $AC0.L
+
+AxDspSetupAuxAL:
+    lri $AR2, #AX_AUXA_L_BUFFER
+    lrri $AC0.M, @$AR1
+    lrri $AC0.L, @$AR1
+    tst'l $ACC0 : $AC1.M, @$AR1
+    jnz AxDspSetupAuxALRamp
+    loop $AX0.H
+    srri @$AR2, $AC0.M
+    jmp AxDspSetupAuxAR
+
+AxDspSetupAuxALRamp:
+    asr16 $ACC1
+    srri @$AR2, $AC0.M
+    srri @$AR2, $AC0.L
+    bloop $AX1.H, AxDspSetupAuxALRampEnd
+    add $ACC0, $ACC1
+    srri @$AR2, $AC0.M
+AxDspSetupAuxALRampEnd:
+    srri @$AR2, $AC0.L
+
+AxDspSetupAuxAR:
+    lri $AR2, #AX_AUXA_R_BUFFER
+    lrri $AC0.M, @$AR1
+    lrri $AC0.L, @$AR1
+    tst'l $ACC0 : $AC1.M, @$AR1
+    jnz AxDspSetupAuxARRamp
+    loop $AX0.H
+    srri @$AR2, $AC0.M
+    jmp AxDspSetupAuxAS
+
+AxDspSetupAuxARRamp:
+    asr16 $ACC1
+    srri @$AR2, $AC0.M
+    srri @$AR2, $AC0.L
+    bloop $AX1.H, AxDspSetupAuxARRampEnd
+    add $ACC0, $ACC1
+    srri @$AR2, $AC0.M
+AxDspSetupAuxARRampEnd:
+    srri @$AR2, $AC0.L
+
+AxDspSetupAuxAS:
+    lri $AR2, #AX_AUXA_S_BUFFER
+    lrri $AC0.M, @$AR1
+    lrri $AC0.L, @$AR1
+    tst'l $ACC0 : $AC1.M, @$AR1
+    jnz AxDspSetupAuxASRamp
+    loop $AX0.H
+    srri @$AR2, $AC0.M
+    jmp AxDspSetupAuxBL
+
+AxDspSetupAuxASRamp:
+    asr16 $ACC1
+    srri @$AR2, $AC0.M
+    srri @$AR2, $AC0.L
+    bloop $AX1.H, AxDspSetupAuxASRampEnd
+    add $ACC0, $ACC1
+    srri @$AR2, $AC0.M
+AxDspSetupAuxASRampEnd:
+    srri @$AR2, $AC0.L
+
+AxDspSetupAuxBL:
+    lri $AR2, #AX_AUXB_L_BUFFER
+    lrri $AC0.M, @$AR1
+    lrri $AC0.L, @$AR1
+    tst'l $ACC0 : $AC1.M, @$AR1
+    jnz AxDspSetupAuxBLRamp
+    loop $AX0.H
+    srri @$AR2, $AC0.M
+    jmp AxDspSetupAuxBR
+
+AxDspSetupAuxBLRamp:
+    asr16 $ACC1
+    srri @$AR2, $AC0.M
+    srri @$AR2, $AC0.L
+    bloop $AX1.H, AxDspSetupAuxBLRampEnd
+    add $ACC0, $ACC1
+    srri @$AR2, $AC0.M
+AxDspSetupAuxBLRampEnd:
+    srri @$AR2, $AC0.L
+
+AxDspSetupAuxBR:
+    lri $AR2, #AX_AUXB_R_BUFFER
+    lrri $AC0.M, @$AR1
+    lrri $AC0.L, @$AR1
+    tst'l $ACC0 : $AC1.M, @$AR1
+    jnz AxDspSetupAuxBRRamp
+    loop $AX0.H
+    srri @$AR2, $AC0.M
+    jmp AxDspSetupAuxBS
+
+AxDspSetupAuxBRRamp:
+    asr16 $ACC1
+    srri @$AR2, $AC0.M
+    srri @$AR2, $AC0.L
+    bloop $AX1.H, AxDspSetupAuxBRRampEnd
+    add $ACC0, $ACC1
+    srri @$AR2, $AC0.M
+AxDspSetupAuxBRRampEnd:
+    srri @$AR2, $AC0.L
+
+AxDspSetupAuxBS:
+    lri $AR2, #AX_AUXB_S_BUFFER
+    lrri $AC0.M, @$AR1
+    lrri $AC0.L, @$AR1
+    tst'l $ACC0 : $AC1.M, @$AR1
+    jnz AxDspSetupAuxBSRamp
+    loop $AX0.H
+    srri @$AR2, $AC0.M
+    jmp AxDspSetupAuxCL
+
+AxDspSetupAuxBSRamp:
+    asr16 $ACC1
+    srri @$AR2, $AC0.M
+    srri @$AR2, $AC0.L
+    bloop $AX1.H, AxDspSetupAuxBSRampEnd
+    add $ACC0, $ACC1
+    srri @$AR2, $AC0.M
+AxDspSetupAuxBSRampEnd:
+    srri @$AR2, $AC0.L
+
+AxDspSetupAuxCL:
+    lri $AR2, #AX_AUXC_L_BUFFER
+    lrri $AC0.M, @$AR1
+    lrri $AC0.L, @$AR1
+    tst'l $ACC0 : $AC1.M, @$AR1
+    jnz AxDspSetupAuxCLRamp
+    loop $AX0.H
+    srri @$AR2, $AC0.M
+    jmp AxDspSetupAuxCR
+
+AxDspSetupAuxCLRamp:
+    asr16 $ACC1
+    srri @$AR2, $AC0.M
+    srri @$AR2, $AC0.L
+    bloop $AX1.H, AxDspSetupAuxCLRampEnd
+    add $ACC0, $ACC1
+    srri @$AR2, $AC0.M
+AxDspSetupAuxCLRampEnd:
+    srri @$AR2, $AC0.L
+
+AxDspSetupAuxCR:
+    lri $AR2, #AX_AUXC_R_BUFFER
+    lrri $AC0.M, @$AR1
+    lrri $AC0.L, @$AR1
+    tst'l $ACC0 : $AC1.M, @$AR1
+    jnz AxDspSetupAuxCRRamp
+    loop $AX0.H
+    srri @$AR2, $AC0.M
+    jmp AxDspSetupAuxCS
+
+AxDspSetupAuxCRRamp:
+    asr16 $ACC1
+    srri @$AR2, $AC0.M
+    srri @$AR2, $AC0.L
+    bloop $AX1.H, AxDspSetupAuxCRRampEnd
+    add $ACC0, $ACC1
+    srri @$AR2, $AC0.M
+AxDspSetupAuxCRRampEnd:
+    srri @$AR2, $AC0.L
+
+AxDspSetupAuxCS:
+    lri $AR2, #AX_AUXC_S_BUFFER
+    lrri $AC0.M, @$AR1
+    lrri $AC0.L, @$AR1
+    tst'l $ACC0 : $AC1.M, @$AR1
+    jnz AxDspSetupAuxCSRamp
+    loop $AX0.H
+    srri @$AR2, $AC0.M
+    jmp AxDspSetupRemote
+
+AxDspSetupAuxCSRamp:
+    asr16 $ACC1
+    srri @$AR2, $AC0.M
+    srri @$AR2, $AC0.L
+    bloop $AX1.H, AxDspSetupAuxCSRampEnd
+    add $ACC0, $ACC1
+    srri @$AR2, $AC0.M
+AxDspSetupAuxCSRampEnd:
+    srri @$AR2, $AC0.L
+
+AxDspSetupRemote:
+    lri $AX1.H, #AX_REMOTE_FRAME_SAMPLES - 1
+    lri $AX0.H, #AX_REMOTE_CHANNEL_WORDS
+
+AxDspSetupRemoteMain0:
+    lri $AR2, #AX_REMOTE_MAIN0_BUFFER
+    lrri $AC0.M, @$AR1
+    lrri $AC0.L, @$AR1
+    tst'l $ACC0 : $AC1.M, @$AR1
+    jnz AxDspSetupRemoteMain0Ramp
+    loop $AX0.H
+    srri @$AR2, $AC0.M
+    jmp AxDspSetupRemoteAux0
+
+AxDspSetupRemoteMain0Ramp:
+    asr16 $ACC1
+    srri @$AR2, $AC0.M
+    srri @$AR2, $AC0.L
+    bloop $AX1.H, AxDspSetupRemoteMain0RampEnd
+    add $ACC0, $ACC1
+    srri @$AR2, $AC0.M
+AxDspSetupRemoteMain0RampEnd:
+    srri @$AR2, $AC0.L
+
+AxDspSetupRemoteAux0:
+    lri $AR2, #AX_REMOTE_AUX0_BUFFER
+    lrri $AC0.M, @$AR1
+    lrri $AC0.L, @$AR1
+    tst'l $ACC0 : $AC1.M, @$AR1
+    jnz AxDspSetupRemoteAux0Ramp
+    loop $AX0.H
+    srri @$AR2, $AC0.M
+    jmp AxDspSetupRemoteMain1
+
+AxDspSetupRemoteAux0Ramp:
+    asr16 $ACC1
+    srri @$AR2, $AC0.M
+    srri @$AR2, $AC0.L
+    bloop $AX1.H, AxDspSetupRemoteAux0RampEnd
+    add $ACC0, $ACC1
+    srri @$AR2, $AC0.M
+AxDspSetupRemoteAux0RampEnd:
+    srri @$AR2, $AC0.L
+
+AxDspSetupRemoteMain1:
+    lri $AR2, #AX_REMOTE_MAIN1_BUFFER
+    lrri $AC0.M, @$AR1
+    lrri $AC0.L, @$AR1
+    tst'l $ACC0 : $AC1.M, @$AR1
+    jnz AxDspSetupRemoteMain1Ramp
+    loop $AX0.H
+    srri @$AR2, $AC0.M
+    jmp AxDspSetupRemoteAux1
+
+AxDspSetupRemoteMain1Ramp:
+    asr16 $ACC1
+    srri @$AR2, $AC0.M
+    srri @$AR2, $AC0.L
+    bloop $AX1.H, AxDspSetupRemoteMain1RampEnd
+    add $ACC0, $ACC1
+    srri @$AR2, $AC0.M
+AxDspSetupRemoteMain1RampEnd:
+    srri @$AR2, $AC0.L
+
+AxDspSetupRemoteAux1:
+    lri $AR2, #AX_REMOTE_AUX1_BUFFER
+    lrri $AC0.M, @$AR1
+    lrri $AC0.L, @$AR1
+    tst'l $ACC0 : $AC1.M, @$AR1
+    jnz AxDspSetupRemoteAux1Ramp
+    loop $AX0.H
+    srri @$AR2, $AC0.M
+    jmp AxDspSetupRemoteMain2
+
+AxDspSetupRemoteAux1Ramp:
+    asr16 $ACC1
+    srri @$AR2, $AC0.M
+    srri @$AR2, $AC0.L
+    bloop $AX1.H, AxDspSetupRemoteAux1RampEnd
+    add $ACC0, $ACC1
+    srri @$AR2, $AC0.M
+AxDspSetupRemoteAux1RampEnd:
+    srri @$AR2, $AC0.L
+
+AxDspSetupRemoteMain2:
+    lri $AR2, #AX_REMOTE_MAIN2_BUFFER
+    lrri $AC0.M, @$AR1
+    lrri $AC0.L, @$AR1
+    tst'l $ACC0 : $AC1.M, @$AR1
+    jnz AxDspSetupRemoteMain2Ramp
+    loop $AX0.H
+    srri @$AR2, $AC0.M
+    jmp AxDspSetupRemoteAux2
+
+AxDspSetupRemoteMain2Ramp:
+    asr16 $ACC1
+    srri @$AR2, $AC0.M
+    srri @$AR2, $AC0.L
+    bloop $AX1.H, AxDspSetupRemoteMain2RampEnd
+    add $ACC0, $ACC1
+    srri @$AR2, $AC0.M
+AxDspSetupRemoteMain2RampEnd:
+    srri @$AR2, $AC0.L
+
+AxDspSetupRemoteAux2:
+    lri $AR2, #AX_REMOTE_AUX2_BUFFER
+    lrri $AC0.M, @$AR1
+    lrri $AC0.L, @$AR1
+    tst'l $ACC0 : $AC1.M, @$AR1
+    jnz AxDspSetupRemoteAux2Ramp
+    loop $AX0.H
+    srri @$AR2, $AC0.M
+    jmp AxDspSetupRemoteMain3
+
+AxDspSetupRemoteAux2Ramp:
+    asr16 $ACC1
+    srri @$AR2, $AC0.M
+    srri @$AR2, $AC0.L
+    bloop $AX1.H, AxDspSetupRemoteAux2RampEnd
+    add $ACC0, $ACC1
+    srri @$AR2, $AC0.M
+AxDspSetupRemoteAux2RampEnd:
+    srri @$AR2, $AC0.L
+
+AxDspSetupRemoteMain3:
+    lri $AR2, #AX_REMOTE_MAIN3_BUFFER
+    lrri $AC0.M, @$AR1
+    lrri $AC0.L, @$AR1
+    tst'l $ACC0 : $AC1.M, @$AR1
+    jnz AxDspSetupRemoteMain3Ramp
+    loop $AX0.H
+    srri @$AR2, $AC0.M
+    jmp AxDspSetupRemoteAux3
+
+AxDspSetupRemoteMain3Ramp:
+    asr16 $ACC1
+    srri @$AR2, $AC0.M
+    srri @$AR2, $AC0.L
+    bloop $AX1.H, AxDspSetupRemoteMain3RampEnd
+    add $ACC0, $ACC1
+    srri @$AR2, $AC0.M
+AxDspSetupRemoteMain3RampEnd:
+    srri @$AR2, $AC0.L
+
+AxDspSetupRemoteAux3:
+    lri $AR2, #AX_REMOTE_AUX3_BUFFER
+    lrri $AC0.M, @$AR1
+    lrri $AC0.L, @$AR1
+    tst'l $ACC0 : $AC1.M, @$AR1
+    jnz AxDspSetupRemoteAux3Ramp
+    loop $AX0.H
+    srri @$AR2, $AC0.M
+    jmp AxDspSetupComplete
+
+AxDspSetupRemoteAux3Ramp:
+    asr16 $ACC1
+    srri @$AR2, $AC0.M
+    srri @$AR2, $AC0.L
+    bloop $AX1.H, AxDspSetupRemoteAux3RampEnd
+    add $ACC0, $ACC1
+    srri @$AR2, $AC0.M
+AxDspSetupRemoteAux3RampEnd:
+    srri @$AR2, $AC0.L
+
+AxDspSetupComplete:
+    jmp AxDspDispatchNextCommand
+
+AxDspAddToLR:
+    clr $ACC0
+    clr'l $ACC1 : $AC0.M, @$AR0
+    set16'l : $AC0.L, @$AR0
+    srs @DSMAH, $AC0.M
+    srs @DSMAL, $AC0.L
+    si @DSPA, #AX_SCRATCH_BUFFER
+    si @DSCR, #DSP_DMA_READ
+    si @DSBL, #AX_CHANNEL_BYTES
+    mrr $IX2, $AR0
+    lri $AR0, #AX_MAIN_L_BUFFER
+    lri $AR3, #AX_MAIN_R_BUFFER
+    lri $AR1, #AX_SCRATCH_BUFFER
+    lri $IX0, #-1
+    mrr $IX3, $IX0
+    call AxDspWaitDma
+    set40
+    nx'ld : $AX0.H, $AX1.H, @$AR1
+    nx'ldm : $AX0.L, $AX1.L, @$AR1
+    movax $ACC0, $AX0
+    addax $ACC0, $AX1
+    lrri $AX1.H, @$AR0
+    movax'lsn $ACC1, $AX0 : $AX1.L, $AC0.M
+    addax's $ACC1, $AX1 : @$AR3, $AC0.L
+    bloopi #AX_FRAME_SAMPLES - 1, AxDspAddToLRLoopEnd
+    nx'ld : $AX0.H, $AX1.H, @$AR1
+    nx'ldm : $AX0.L, $AX1.L, @$AR1
+    movax's $ACC0, $AX0 : @$AR0, $AC1.M
+    addax's $ACC0, $AX1 : @$AR0, $AC1.L
+    lrri $AX1.H, @$AR0
+    movax'lsn $ACC1, $AX0 : $AX1.L, $AC0.M
+AxDspAddToLRLoopEnd:
+    addax's $ACC1, $AX1 : @$AR3, $AC0.L
+    srri @$AR0, $AC1.M
+    srri @$AR0, $AC1.L
+    mrr $AR0, $IX2
+    jmp AxDspDispatchNextCommand
+
+AxDspSubToLR:
+    clr $ACC0
+    clr'l $ACC1 : $AC0.M, @$AR0
+    set16'l : $AC0.L, @$AR0
+    srs @DSMAH, $AC0.M
+    srs @DSMAL, $AC0.L
+    si @DSPA, #AX_SCRATCH_BUFFER
+    si @DSCR, #DSP_DMA_READ
+    si @DSBL, #AX_CHANNEL_BYTES
+    mrr $IX2, $AR0
+    lri $AR0, #AX_MAIN_L_BUFFER
+    lri $AR3, #AX_MAIN_R_BUFFER
+    lri $AR1, #AX_SCRATCH_BUFFER
+    lri $IX0, #-1
+    mrr $IX3, $IX0
+    call AxDspWaitDma
+    set40
+    nx'ld : $AX0.H, $AX1.H, @$AR1
+    nx'ldm : $AX0.L, $AX1.L, @$AR1
+    movax $ACC0, $AX0
+    addax $ACC0, $AX1
+    lrri $AX1.H, @$AR0
+    movax'lsn $ACC1, $AX0 : $AX1.L, $AC0.M
+    neg $ACC1
+    addax's $ACC1, $AX1 : @$AR3, $AC0.L
+    bloopi #AX_FRAME_SAMPLES - 1, AxDspSubToLRLoopEnd
+    nx'ld : $AX0.H, $AX1.H, @$AR1
+    nx'ldm : $AX0.L, $AX1.L, @$AR1
+    movax's $ACC0, $AX0 : @$AR0, $AC1.M
+    addax's $ACC0, $AX1 : @$AR0, $AC1.L
+    lrri $AX1.H, @$AR0
+    movax'lsn $ACC1, $AX0 : $AX1.L, $AC0.M
+    neg $ACC1
+AxDspSubToLRLoopEnd:
+    addax's $ACC1, $AX1 : @$AR3, $AC0.L
+    srri @$AR0, $AC1.M
+    srri @$AR0, $AC1.L
+    mrr $AR0, $IX2
+    jmp AxDspDispatchNextCommand
+
+AxDspProcess:
+    clr $ACC0
+    clr'l $ACC1 : $AC0.M, @$AR0
+    set16'l : $AC0.L, @$AR0
+    sr @AX_COMMAND_CURSOR, $AR0
+
+AxDspLoadVoice:
+    srs @DSMAH, $AC0.M
+    srs @DSMAL, $AC0.L
+    si @DSPA, #AX_PB
+    si @DSCR, #DSP_DMA_READ
+    si @DSBL, #AX_PB_BYTES
+    call AxDspWaitDma
+    clr $ACC0
+    clr $ACC1
+    lr $AC0.M, @AX_PB_SRC_SELECT
+    lri $AC1.M, #AxDspSrcTable
+    add $ACC0, $ACC1
+    mrr $AR3, $AC0.M
+    ilrr $AC0.M, @$AR3
+    sr @AX_SRC_FUNCTION, $AC0.M
+    lr $AC0.M, @AX_PB_COEF_SELECT
+    lri $AC1.M, #AxDspCoefficientTable
+    add $ACC0, $ACC1
+    mrr $AR3, $AC0.M
+    ilrr $AC0.M, @$AR3
+    sr @AX_COEFFICIENT_BASE, $AC0.M
+    lri $AX0.H, #AX_MIX_SELECTOR_MASK
+    lr $AC0.M, @AX_PB_MIXER_CTRL_LO
+    lri $AC1.M, #AxDspMainMixTable
+    andr $AC0.M, $AX0.H
+    add $ACC0, $ACC1
+    mrr $AR3, $AC0.M
+    ilrr $AC0.M, @$AR3
+    sr @AX_MAIN_MIX_FUNCTION, $AC0.M
+    lr $AC0.M, @AX_PB_MIXER_CTRL_HI
+    lri $AC1.M, #AxDspAuxAMixTable
+    andr $AC0.M, $AX0.H
+    add $ACC0, $ACC1
+    mrr $AR3, $AC0.M
+    ilrr $AC0.M, @$AR3
+    sr @AX_AUXA_MIX_FUNCTION, $AC0.M
+    lr $AC0.M, @AX_PB_MIXER_CTRL_HI
+    lri $AC1.M, #AxDspAuxBMixTable
+    asr $ACC0, #-5
+    andr $AC0.M, $AX0.H
+    add $ACC0, $ACC1
+    mrr $AR3, $AC0.M
+    ilrr $AC0.M, @$AR3
+    sr @AX_AUXB_MIX_FUNCTION, $AC0.M
+    lr $AC0.M, @AX_PB_MIXER_CTRL_HI
+    lri $AC1.M, #AxDspAuxCMixTable
+    asr $ACC0, #-10
+    add $ACC0, $ACC1
+    mrr $AR3, $AC0.M
+    ilrr $AC0.M, @$AR3
+    sr @AX_AUXC_MIX_FUNCTION, $AC0.M
+    clr $ACC0
+    lr $AC0.M, @AX_PB_REMOTE_MIX_CTRL
+    lri $AX0.H, #AX_REMOTE_MIX_SELECTOR_MASK
+    lri $AX1.H, #AxDspRemoteMixTable
+    mrr $AC1.M, $AC0.M
+    andr $AC1.M, $AX0.H
+    addr $ACC1, $AX1.H
+    mrr $AR3, $AC1.M
+    ilrr $AC1.M, @$AR3
+    sr @AX_REMOTE_MAIN0_MIX_FUNCTION, $AC1.M
+    lsr $ACC0, #-2
+    mrr $AC1.M, $AC0.M
+    andr $AC1.M, $AX0.H
+    addr $ACC1, $AX1.H
+    mrr $AR3, $AC1.M
+    ilrr $AC1.M, @$AR3
+    sr @AX_REMOTE_AUX0_MIX_FUNCTION, $AC1.M
+    lsr $ACC0, #-2
+    mrr $AC1.M, $AC0.M
+    andr $AC1.M, $AX0.H
+    addr $ACC1, $AX1.H
+    mrr $AR3, $AC1.M
+    ilrr $AC1.M, @$AR3
+    sr @AX_REMOTE_MAIN1_MIX_FUNCTION, $AC1.M
+    lsr $ACC0, #-2
+    mrr $AC1.M, $AC0.M
+    andr $AC1.M, $AX0.H
+    addr $ACC1, $AX1.H
+    mrr $AR3, $AC1.M
+    ilrr $AC1.M, @$AR3
+    sr @AX_REMOTE_AUX1_MIX_FUNCTION, $AC1.M
+    lsr $ACC0, #-2
+    mrr $AC1.M, $AC0.M
+    andr $AC1.M, $AX0.H
+    addr $ACC1, $AX1.H
+    mrr $AR3, $AC1.M
+    ilrr $AC1.M, @$AR3
+    sr @AX_REMOTE_MAIN2_MIX_FUNCTION, $AC1.M
+    lsr $ACC0, #-2
+    mrr $AC1.M, $AC0.M
+    andr $AC1.M, $AX0.H
+    addr $ACC1, $AX1.H
+    mrr $AR3, $AC1.M
+    ilrr $AC1.M, @$AR3
+    sr @AX_REMOTE_AUX2_MIX_FUNCTION, $AC1.M
+    lsr $ACC0, #-2
+    mrr $AC1.M, $AC0.M
+    andr $AC1.M, $AX0.H
+    addr $ACC1, $AX1.H
+    mrr $AR3, $AC1.M
+    ilrr $AC1.M, @$AR3
+    sr @AX_REMOTE_MAIN3_MIX_FUNCTION, $AC1.M
+    lsr $ACC0, #-2
+    mrr $AC1.M, $AC0.M
+    andr $AC1.M, $AX0.H
+    addr $ACC1, $AX1.H
+    mrr $AR3, $AC1.M
+    ilrr $AC1.M, @$AR3
+    sr @AX_REMOTE_AUX3_MIX_FUNCTION, $AC1.M
+
+AxDspPrepareVoiceSamples:
+    clr $ACC0
+    lr $AC0.M, @AX_PB_ITD_FLAG
+    tst $ACC0
+    jz AxDspUseUndelayedVoiceSamples
+    clr $ACC1
+    lr $AC1.M, @AX_PB_ITD_SHIFT_L
+    addi $AC1.M, #AX_ITD_HISTORY
+    sr @AX_LEFT_SAMPLE_POINTER, $AC1.M
+    lr $AC1.M, @AX_PB_ITD_SHIFT_R
+    addi $AC1.M, #AX_ITD_HISTORY
+    sr @AX_RIGHT_SAMPLE_POINTER, $AC1.M
+    lri $AC1.M, #AX_SAMPLE_BUFFER
+    sr @AX_COMMON_SAMPLE_POINTER, $AC1.M
+    lr $AC0.M, @AX_PB_ITD_BUFFER_HI
+    srs @DSMAH, $AC0.M
+    lr $AC0.M, @AX_PB_ITD_BUFFER_LO
+    srs @DSMAL, $AC0.M
+    si @DSPA, #AX_ITD_HISTORY
+    si @DSCR, #DSP_DMA_READ
+    si @DSBL, #AX_ITD_HISTORY_BYTES
+    call AxDspWaitDma
+    jmp AxDspProcessVoiceSamples
+
+AxDspUseUndelayedVoiceSamples:
+    lri $AC1.M, #AX_SAMPLE_BUFFER
+    sr @AX_LEFT_SAMPLE_POINTER, $AC1.M
+    sr @AX_RIGHT_SAMPLE_POINTER, $AC1.M
+    sr @AX_COMMON_SAMPLE_POINTER, $AC1.M
+
+AxDspProcessVoiceSamples:
+    clr15
+    m0
+    clr $ACC0
+    lr $AC0.M, @AX_PB_STATE
+    cmpis $AC0.M, #AX_VOICE_RUN
+    jnz AxDspSaveVoice
+    lr $AR3, @AX_SRC_FUNCTION
+    callr $AR3
+    m2
+    clr $ACC0
+    clr $ACC1
+    lr $AC0.M, @AX_PB_VE_DELTA
+    lr $AC1.M, @AX_PB_VE_VOLUME
+    mrr $AX0.L, $AC1.M
+    add $ACC1, $ACC0
+    asl $ACC0, #1
+    set15'mv : $AX1.H, $AC0.M
+    mrr $AC0.M, $AX0.L
+    lri $AX0.L, #AX_VOLUME_UNITY
+    lri $AR0, #AX_SCRATCH_BUFFER
+    mulx's $AX0.L, $AX1.H : @$AR0, $AC0.M
+    bloopi #(AX_FRAME_SAMPLES / 2) - 1, AxDspEnvelopeRampEnd
+    mulxac's $AX0.L, $AX1.H, $ACC0 : @$AR0, $AC1.M
+AxDspEnvelopeRampEnd:
+    mulxac's $AX0.L, $AX1.H, $ACC1 : @$AR0, $AC0.M
+    mulxac's $AX0.L, $AX1.H, $ACC0 : @$AR0, $AC1.M
+    sr @AX_PB_VE_VOLUME, $AC0.M
+    set40
+    lri $AR0, #AX_SCRATCH_BUFFER
+    lr $AR1, @AX_COMMON_SAMPLE_POINTER
+    mrr $AR3, $AR1
+    lrri $AX0.H, @$AR1
+    lrri $AX1.L, @$AR0
+    mulx'l $AX0.H, $AX1.L : $AX0.H, @$AR1
+    lrri $AX1.L, @$AR0
+    bloopi #AX_FRAME_SAMPLES - 2, AxDspApplyEnvelopeEnd
+    mulxmv'l $AX0.H, $AX1.L, $ACC0 : $AX0.H, @$AR1
+AxDspApplyEnvelopeEnd:
+    nx'ls : $AX1.L, $AC0.M
+    mulxmv $AX0.H, $AX1.L, $ACC0
+    movp's $ACC0 : @$AR3, $AC0.M
+    srri @$AR3, $AC0.M
+
+AxDspFilterVoiceSamples:
+    lr $AC0.M, @AX_PB_LPF_ON
+    tst $ACC0
+    jz AxDspFilterVoiceBiquad
+    lr $AR0, @AX_COMMON_SAMPLE_POINTER
+    mrr $AR1, $AR0
+    lri $AR3, #AX_PB_LPF_HISTORY
+    call AxDspLowPass
+
+AxDspFilterVoiceBiquad:
+    lr $AC0.M, @AX_PB_BIQUAD_ON
+    tst $ACC0
+    jz AxDspMixVoice
+    lri $AR0, #AX_PB_BIQUAD_HISTORY
+    lr $AR1, @AX_COMMON_SAMPLE_POINTER
+    mrr $AR2, $AR1
+    call AxDspBiquad
+
+AxDspMixVoice:
+    lri $AR0, #AX_PB_DEPOP
+    clr $ACC0
+    loopi #AX_MAIN_DEPOP_CHANNELS
+    srri @$AR0, $AC0.M
+    lri $AR0, #AX_PB_REMOTE_MAIN0_DEPOP
+    loopi #AX_REMOTE_DEPOP_CHANNELS
+    srri @$AR0, $AC0.M
+    lr $AR3, @AX_MAIN_MIX_FUNCTION
+    callr $AR3
+    lr $AR3, @AX_AUXA_MIX_FUNCTION
+    callr $AR3
+    lr $AR3, @AX_AUXB_MIX_FUNCTION
+    callr $AR3
+    lr $AR3, @AX_AUXC_MIX_FUNCTION
+    callr $AR3
+    lr $AC0.M, @AX_PB_REMOTE
+    tst $ACC0
+    jz AxDspUpdateInterauralDelay
+    lr $AC0.M, @AX_PB_REMOTE_IIR
+    tst $ACC0
+    jz AxDspCopyRemoteVoiceSamples
+    lris $AX0.H, #AX_BIQUAD_ON
+    cmpaxh $ACC0, $AX0.H
+    jnz AxDspFilterRemoteLowPass
+    lri $AR0, #AX_PB_REMOTE_IIR_HISTORY
+    lr $AR1, @AX_COMMON_SAMPLE_POINTER
+    lri $AR2, #AX_REMOTE_FILTER_BUFFER
+    call AxDspBiquad
+    jmp AxDspResampleRemoteVoice
+
+AxDspFilterRemoteLowPass:
+    lri $AR0, #AX_REMOTE_FILTER_BUFFER
+    lr $AR1, @AX_COMMON_SAMPLE_POINTER
+    lri $AR3, #AX_PB_REMOTE_IIR_HISTORY
+    call AxDspLowPass
+    jmp AxDspResampleRemoteVoice
+
+AxDspCopyRemoteVoiceSamples:
+    lri $AR0, #AX_REMOTE_FILTER_BUFFER
+    lr $AR1, @AX_COMMON_SAMPLE_POINTER
+    bloopi #AX_FRAME_SAMPLES, AxDspCopyRemoteVoiceSamplesEnd
+    lrri $AC1.M, @$AR1
+AxDspCopyRemoteVoiceSamplesEnd:
+    srri @$AR0, $AC1.M
+
+AxDspResampleRemoteVoice:
+    lri $AR2, #AX_PB_REMOTE_SRC
+    clr15
+    clr $ACC0
+    lrri $AC0.L, @$AR2
+    lri $AX1.H, #AX_REMOTE_SRC_RATIO_HI
+    lri $AX1.L, #AX_REMOTE_SRC_RATIO_LO
+    lri $AR0, #AX_SCRATCH_BUFFER
+    bloopi #AX_SRC_HISTORY_SAMPLES, AxDspLoadRemoteSrcHistoryEnd
+    lrri $AC1.M, @$AR2
+AxDspLoadRemoteSrcHistoryEnd:
+    srri @$AR0, $AC1.M
+    lri $AR1, #AX_REMOTE_SAMPLE_BUFFER
+    lri $IX0, #AX_SCRATCH_BUFFER
+    lri $IX3, #AX_SRC_COEFFICIENTS_8KHZ
+    bloopi #AX_REMOTE_FRAME_SAMPLES, AxDspResampleRemoteVoiceEnd
+    addax $ACC0, $AX1
+    mrr $AR0, $AC0.M
+    addarn $AR0, $IX0
+    clr $ACC1
+    mrr $AC1.L, $AC0.L
+    lsr $ACC1, #-9
+    lsl $ACC1, #18
+    mrr $AR3, $AC1.M
+    addarn $AR3, $IX3
+    nx'ldax : $AX0, @$AR0
+    mul'ldax $AX0.L, $AX0.H : $AX0, @$AR0
+    mulmv'ldax $AX0.L, $AX0.H, $ACC1 : $AX0, @$AR0
+    mulac'ldax $AX0.L, $AX0.H, $ACC1 : $AX0, @$AR0
+    mulac $AX0.L, $AX0.H, $ACC1
+    addp $ACC1
+AxDspResampleRemoteVoiceEnd:
+    srri @$AR1, $AC1.M
+    dar $AR0
+    dar $AR2
+    lrrd $AC1.M, @$AR0
+    srrd @$AR2, $AC1.M
+    lrrd $AC1.M, @$AR0
+    srrd @$AR2, $AC1.M
+    lrrd $AC1.M, @$AR0
+    srrd @$AR2, $AC1.M
+    lrrd $AC1.M, @$AR0
+    srrd @$AR2, $AC1.M
+    srrd @$AR2, $AC0.L
+    set15
+
+AxDspMixRemoteVoice:
+    lri $AR1, #AX_PB_REMOTE_MAIN0_VOLUME
+    lri $AR2, #AX_REMOTE_MAIN0_BUFFER
+    lr $AR3, @AX_REMOTE_MAIN0_MIX_FUNCTION
+    callr $AR3
+    sr @AX_PB_REMOTE_MAIN0_DEPOP, $AX0.L
+    lri $AR1, #AX_PB_REMOTE_AUX0_VOLUME
+    lri $AR2, #AX_REMOTE_AUX0_BUFFER
+    lr $AR3, @AX_REMOTE_AUX0_MIX_FUNCTION
+    callr $AR3
+    sr @AX_PB_REMOTE_AUX0_DEPOP, $AX0.L
+    lri $AR1, #AX_PB_REMOTE_MAIN1_VOLUME
+    lri $AR2, #AX_REMOTE_MAIN1_BUFFER
+    lr $AR3, @AX_REMOTE_MAIN1_MIX_FUNCTION
+    callr $AR3
+    sr @AX_PB_REMOTE_MAIN1_DEPOP, $AX0.L
+    lri $AR1, #AX_PB_REMOTE_AUX1_VOLUME
+    lri $AR2, #AX_REMOTE_AUX1_BUFFER
+    lr $AR3, @AX_REMOTE_AUX1_MIX_FUNCTION
+    callr $AR3
+    sr @AX_PB_REMOTE_AUX1_DEPOP, $AX0.L
+    lri $AR1, #AX_PB_REMOTE_MAIN2_VOLUME
+    lri $AR2, #AX_REMOTE_MAIN2_BUFFER
+    lr $AR3, @AX_REMOTE_MAIN2_MIX_FUNCTION
+    callr $AR3
+    sr @AX_PB_REMOTE_MAIN2_DEPOP, $AX0.L
+    lri $AR1, #AX_PB_REMOTE_AUX2_VOLUME
+    lri $AR2, #AX_REMOTE_AUX2_BUFFER
+    lr $AR3, @AX_REMOTE_AUX2_MIX_FUNCTION
+    callr $AR3
+    sr @AX_PB_REMOTE_AUX2_DEPOP, $AX0.L
+    lri $AR1, #AX_PB_REMOTE_MAIN3_VOLUME
+    lri $AR2, #AX_REMOTE_MAIN3_BUFFER
+    lr $AR3, @AX_REMOTE_MAIN3_MIX_FUNCTION
+    callr $AR3
+    sr @AX_PB_REMOTE_MAIN3_DEPOP, $AX0.L
+    lri $AR1, #AX_PB_REMOTE_AUX3_VOLUME
+    lri $AR2, #AX_REMOTE_AUX3_BUFFER
+    lr $AR3, @AX_REMOTE_AUX3_MIX_FUNCTION
+    callr $AR3
+    sr @AX_PB_REMOTE_AUX3_DEPOP, $AX0.L
+
+AxDspUpdateInterauralDelay:
+    lr $AC0.M, @AX_PB_ITD_FLAG
+    tst $ACC0
+    jz AxDspSaveVoice
+    lr $AC0.M, @AX_PB_ITD_SHIFT_L
+    lr $AC1.M, @AX_PB_ITD_TARGET_L
+    cmp
+    jle AxDspIncreaseLeftDelay
+    decm $AC0.M
+    jmp AxDspStoreLeftDelay
+
+AxDspIncreaseLeftDelay:
+    jz AxDspStoreLeftDelay
+    incm $AC0.M
+AxDspStoreLeftDelay:
+    sr @AX_PB_ITD_SHIFT_L, $AC0.M
+    lr $AC0.M, @AX_PB_ITD_SHIFT_R
+    lr $AC1.M, @AX_PB_ITD_TARGET_R
+    cmp
+    jle AxDspIncreaseRightDelay
+    decm $AC0.M
+    jmp AxDspStoreRightDelay
+
+AxDspIncreaseRightDelay:
+    jz AxDspStoreRightDelay
+    incm $AC0.M
+AxDspStoreRightDelay:
+    sr @AX_PB_ITD_SHIFT_R, $AC0.M
+
+AxDspSaveVoice:
+    set16
+    clr $ACC0
+    lr $AC0.M, @AX_PB_ITD_FLAG
+    tst $ACC0
+    jz AxDspSaveParameterBlock
+    lr $AC0.M, @AX_PB_ITD_BUFFER_HI
+    lr $AC0.L, @AX_PB_ITD_BUFFER_LO
+    srs @DSMAH, $AC0.M
+    srs @DSMAL, $AC0.L
+    si @DSPA, #AX_ITD_NEXT_HISTORY
+    si @DSCR, #DSP_DMA_WRITE
+    si @DSBL, #AX_ITD_HISTORY_BYTES
+    call AxDspWaitDma
+
+AxDspSaveParameterBlock:
+    clr $ACC0
+    clr $ACC1
+    lr $AC0.M, @AX_PB_CURRENT_HI
+    lr $AC1.M, @AX_PB_CURRENT_LO
+    srs @DSMAH, $AC0.M
+    srs @DSMAL, $AC1.M
+    si @DSPA, #AX_PB
+    si @DSCR, #DSP_DMA_WRITE
+    si @DSBL, #AX_PB_BYTES
+    call AxDspWaitDma
+    clr $ACC0
+    lr $AC0.M, @AX_PB_NEXT_HI
+    lr $AC0.L, @AX_PB_NEXT_LO
+    tst $ACC0
+    jnz AxDspLoadVoice
+    lr $AR0, @AX_COMMAND_CURSOR
+    jmp AxDspDispatchNextCommand
+
+AxDspMixAuxA:
+    set16
+    lr $IX0, @AX_PREVIOUS_AUXA_VOLUME
+    lrri $IX1, @$AR0
+    sr @AX_PREVIOUS_AUXA_VOLUME, $IX1
+    lri $IX2, #AX_AUXA_L_BUFFER
+    clr $ACC0
+    clr'l $ACC1 : $AC0.M, @$AR0
+    lrri $AC0.L, @$AR0
+    srs @DSMAH, $AC0.M
+    srs @DSMAL, $AC0.L
+    mrr $AC0.M, $IX2
+    srs @DSPA, $AC0.M
+    si @DSCR, #DSP_DMA_WRITE
+    si @DSBL, #AX_AUX_BYTES
+    call AxDspWaitDma
+    call AxDspMixAuxReturn
+    jmp AxDspDispatchNextCommand
+
+AxDspMixAuxB:
+    set16
+    lr $IX0, @AX_PREVIOUS_AUXB_VOLUME
+    lrri $IX1, @$AR0
+    sr @AX_PREVIOUS_AUXB_VOLUME, $IX1
+    lri $IX2, #AX_AUXB_L_BUFFER
+    clr $ACC0
+    clr'l $ACC1 : $AC0.M, @$AR0
+    lrri $AC0.L, @$AR0
+    srs @DSMAH, $AC0.M
+    srs @DSMAL, $AC0.L
+    mrr $AC0.M, $IX2
+    srs @DSPA, $AC0.M
+    si @DSCR, #DSP_DMA_WRITE
+    si @DSBL, #AX_AUX_BYTES
+    call AxDspWaitDma
+    call AxDspMixAuxReturn
+    jmp AxDspDispatchNextCommand
+
+AxDspMixAuxC:
+    set16
+    lr $IX0, @AX_PREVIOUS_AUXC_VOLUME
+    lrri $IX1, @$AR0
+    sr @AX_PREVIOUS_AUXC_VOLUME, $IX1
+    lri $IX2, #AX_AUXC_L_BUFFER
+    clr $ACC0
+    clr'l $ACC1 : $AC0.M, @$AR0
+    lrri $AC0.L, @$AR0
+    srs @DSMAH, $AC0.M
+    srs @DSMAL, $AC0.L
+    mrr $AC0.M, $IX2
+    srs @DSPA, $AC0.M
+    si @DSCR, #DSP_DMA_WRITE
+    si @DSBL, #AX_AUX_BYTES
+    call AxDspWaitDma
+    call AxDspMixAuxReturn
+    jmp AxDspDispatchNextCommand
+
+AxDspMixAuxReturn:
+    m0
+    clr $ACC0
+    mrr $AC0.M, $IX0
+    mrr $AC1.M, $IX1
+    sub $ACC1, $ACC0
+    lri $AX0.H, #AX_FRAME_RECIPROCAL_CEIL
+    lri $AX1.H, #AX_FRAME_RECIPROCAL_FLOOR
+    lri $AR1, #AX_SCRATCH_BUFFER
+    mulc $AC1.M, $AX0.H
+    mulcac $AC1.M, $AX0.H, $ACC0
+    bloopi #(AX_FRAME_SAMPLES / 3) - 1, AxDspAuxVolumeRampEnd
+    mulcac's $AC1.M, $AX1.H, $ACC0 : @$AR1, $AC0.M
+    mulcac's $AC1.M, $AX0.H, $ACC0 : @$AR1, $AC0.M
+AxDspAuxVolumeRampEnd:
+    mulcac's $AC1.M, $AX0.H, $ACC0 : @$AR1, $AC0.M
+    mulcac's $AC1.M, $AX1.H, $ACC0 : @$AR1, $AC0.M
+    addp's $ACC0 : @$AR1, $AC0.M
+    srri @$AR1, $IX1
+    set16
+    lrri $AC1.M, @$AR0
+    lrri $AC1.L, @$AR0
+    srs @DSMAH, $AC1.M
+    srs @DSMAL, $AC1.L
+    clr $ACC1
+    mrr $AC1.L, $IX2
+    srs @DSPA, $AC1.L
+    si @DSCR, #DSP_DMA_READ
+    si @DSBL, #AX_AUX_BYTES
+    call AxDspWaitDma
+    sr @AX_COMMAND_CURSOR, $AR0
+    set40
+    set15
+    m2
+    lri $AR0, #AX_SCRATCH_BUFFER
+    lri $AR1, #AX_MAIN_L_BUFFER
+    mrr $AR2, $AR1
+    mrr $AR3, $IX2
+
+AxDspMixAuxReturnLeft:
+    nx'ld : $AX0.H, $AX1.H, @$AR1
+    nx'ld : $AX0.L, $AX1.L, @$AR0
+    mulx $AX0.L, $AX1.L
+    mulxmv $AX0.L, $AX1.H, $ACC0
+    asr16'l $ACC0 : $AX0.L, @$AR1
+    addp $ACC0
+    addax $ACC0, $AX0
+    bloopi #(AX_FRAME_SAMPLES / 2) - 1, AxDspMixAuxReturnLeftEnd
+    nx'ld : $AX0.H, $AX1.H, @$AR1
+    nx'ld : $AX0.L, $AX1.L, @$AR0
+    mulx $AX0.L, $AX1.L
+    mulxmv $AX0.L, $AX1.H, $ACC1
+    asr16'l $ACC1 : $AX0.L, @$AR1
+    addp's $ACC1 : @$AR2, $AC0.M
+    addax's $ACC1, $AX0 : @$AR2, $AC0.L
+    nx'ld : $AX0.H, $AX1.H, @$AR1
+    nx'ld : $AX0.L, $AX1.L, @$AR0
+    mulx $AX0.L, $AX1.L
+    mulxmv $AX0.L, $AX1.H, $ACC0
+    asr16'l $ACC0 : $AX0.L, @$AR1
+    addp's $ACC0 : @$AR2, $AC1.M
+AxDspMixAuxReturnLeftEnd:
+    addax's $ACC0, $AX0 : @$AR2, $AC1.L
+    nx'ld : $AX0.H, $AX1.H, @$AR1
+    nx'ld : $AX0.L, $AX1.L, @$AR0
+    mulx $AX0.L, $AX1.L
+    mulxmv $AX0.L, $AX1.H, $ACC1
+    asr16'l $ACC1 : $AX0.L, @$AR1
+    addp's $ACC1 : @$AR2, $AC0.M
+    addax's $ACC1, $AX0 : @$AR2, $AC0.L
+    srri @$AR2, $AC1.M
+    srri @$AR2, $AC1.L
+
+AxDspMixAuxReturnRight:
+    lri $AR0, #AX_SCRATCH_BUFFER
+    nx'ld : $AX0.H, $AX1.H, @$AR1
+    nx'ld : $AX0.L, $AX1.L, @$AR0
+    mulx $AX0.L, $AX1.L
+    mulxmv $AX0.L, $AX1.H, $ACC0
+    asr16'l $ACC0 : $AX0.L, @$AR1
+    addp $ACC0
+    addax $ACC0, $AX0
+    bloopi #(AX_FRAME_SAMPLES / 2) - 1, AxDspMixAuxReturnRightEnd
+    nx'ld : $AX0.H, $AX1.H, @$AR1
+    nx'ld : $AX0.L, $AX1.L, @$AR0
+    mulx $AX0.L, $AX1.L
+    mulxmv $AX0.L, $AX1.H, $ACC1
+    asr16'l $ACC1 : $AX0.L, @$AR1
+    addp's $ACC1 : @$AR2, $AC0.M
+    addax's $ACC1, $AX0 : @$AR2, $AC0.L
+    nx'ld : $AX0.H, $AX1.H, @$AR1
+    nx'ld : $AX0.L, $AX1.L, @$AR0
+    mulx $AX0.L, $AX1.L
+    mulxmv $AX0.L, $AX1.H, $ACC0
+    asr16'l $ACC0 : $AX0.L, @$AR1
+    addp's $ACC0 : @$AR2, $AC1.M
+AxDspMixAuxReturnRightEnd:
+    addax's $ACC0, $AX0 : @$AR2, $AC1.L
+    nx'ld : $AX0.H, $AX1.H, @$AR1
+    nx'ld : $AX0.L, $AX1.L, @$AR0
+    mulx $AX0.L, $AX1.L
+    mulxmv $AX0.L, $AX1.H, $ACC1
+    asr16'l $ACC1 : $AX0.L, @$AR1
+    addp's $ACC1 : @$AR2, $AC0.M
+    addax's $ACC1, $AX0 : @$AR2, $AC0.L
+    srri @$AR2, $AC1.M
+    srri @$AR2, $AC1.L
+
+AxDspMixAuxReturnSurround:
+    lri $AR0, #AX_SCRATCH_BUFFER
+    nx'ld : $AX0.H, $AX1.H, @$AR1
+    nx'ld : $AX0.L, $AX1.L, @$AR0
+    mulx $AX0.L, $AX1.L
+    mulxmv $AX0.L, $AX1.H, $ACC0
+    asr16'l $ACC0 : $AX0.L, @$AR1
+    addp $ACC0
+    addax $ACC0, $AX0
+    bloopi #(AX_FRAME_SAMPLES / 2) - 1, AxDspMixAuxReturnSurroundEnd
+    nx'ld : $AX0.H, $AX1.H, @$AR1
+    nx'ld : $AX0.L, $AX1.L, @$AR0
+    mulx $AX0.L, $AX1.L
+    mulxmv $AX0.L, $AX1.H, $ACC1
+    asr16'l $ACC1 : $AX0.L, @$AR1
+    addp's $ACC1 : @$AR2, $AC0.M
+    addax's $ACC1, $AX0 : @$AR2, $AC0.L
+    nx'ld : $AX0.H, $AX1.H, @$AR1
+    nx'ld : $AX0.L, $AX1.L, @$AR0
+    mulx $AX0.L, $AX1.L
+    mulxmv $AX0.L, $AX1.H, $ACC0
+    asr16'l $ACC0 : $AX0.L, @$AR1
+    addp's $ACC0 : @$AR2, $AC1.M
+AxDspMixAuxReturnSurroundEnd:
+    addax's $ACC0, $AX0 : @$AR2, $AC1.L
+    nx'ld : $AX0.H, $AX1.H, @$AR1
+    nx'ld : $AX0.L, $AX1.L, @$AR0
+    mulx $AX0.L, $AX1.L
+    mulxmv $AX0.L, $AX1.H, $ACC1
+    asr16'l $ACC1 : $AX0.L, @$AR1
+    addp's $ACC1 : @$AR2, $AC0.M
+    addax's $ACC1, $AX0 : @$AR2, $AC0.L
+    srri @$AR2, $AC1.M
+    srri @$AR2, $AC1.L
+    lr $AR0, @AX_COMMAND_CURSOR
+    ret
+
+AxDspCompressor:
+    set15
+    set40
+    m2
+    clr $ACC1
+    clr'l $ACC0 : $AC1.L, @$AR0
+    lri $AX0.L, #0
+    lri $AX1.L, #1
+    lri $AR1, #AX_MAIN_L_BUFFER
+    lrri $AC0.M, @$AR1
+    lrri $AC0.L, @$AR1
+    bloopi #AX_FRAME_SAMPLES, AxDspCompressorFindPeakEnd
+    abs $ACC0
+    cmp'l : $AC0.M, @$AR1
+    ifc
+    mrr $AX0.L, $AX1.L
+    lrri $AC0.L, @$AR1
+    abs $ACC0
+    cmp'l : $AC0.M, @$AR1
+    ifc
+    mrr $AX0.L, $AX1.L
+AxDspCompressorFindPeakEnd:
+    lrri $AC0.L, @$AR1
+    mrr $AC0.M, $AX0.L
+    tst $ACC0
+    jnz AxDspCompressorAttack
+    lr $AC0.M, @AX_COMPRESSOR_RELEASE
+    tst $ACC0
+    jnz AxDspCompressorRelease
+    lrri $AC0.L, @$AR0
+    lrri $AC0.L, @$AR0
+    lrri $AC0.L, @$AR0
+    jmp AxDspDispatchNextCommand
+
+AxDspCompressorRelease:
+    m0
+    decm $AC0.M
+    sr @AX_COMPRESSOR_RELEASE, $AC0.M
+    clrp
+    lri $AX1.L, #AX_FRAME_SAMPLES * 2
+    mrr $AX0.L, $AC0.M
+    mulx $AX0.L, $AX1.L
+    lrri $AC0.M, @$AR0
+    incm $AC0.M
+    mrr $AX0.L, $AC0.M
+    lrri $AC0.M, @$AR0
+    lrri $AC0.L, @$AR0
+    sr @AX_COMMAND_CURSOR, $AR0
+    mulxac $AX0.L, $AX1.L, $ACC0
+    addp $ACC0
+    srs @DSMAH, $AC0.M
+    srs @DSMAL, $AC0.L
+    si @DSPA, #AX_SCRATCH_BUFFER
+    si @DSCR, #DSP_DMA_READ
+    si @DSBL, #AX_FRAME_SAMPLES * 2
+    jmp AxDspCompressorApplyGain
+
+AxDspCompressorAttack:
+    m0
+    lr $AX0.L, @AX_COMPRESSOR_RELEASE
+    lri $AX1.L, #AX_FRAME_SAMPLES * 2
+    mulx $AX0.L, $AX1.L
+    lrri $AC0.M, @$AR0
+    sr @AX_COMPRESSOR_RELEASE, $AC0.M
+    lrri $AC0.M, @$AR0
+    lrri $AC0.L, @$AR0
+    sr @AX_COMMAND_CURSOR, $AR0
+    addp $ACC0
+    srs @DSMAH, $AC0.M
+    srs @DSMAL, $AC0.L
+    si @DSPA, #AX_SCRATCH_BUFFER
+    si @DSCR, #DSP_DMA_READ
+    si @DSBL, #AX_FRAME_SAMPLES * 2
+
+AxDspCompressorApplyGain:
+    call AxDspWaitDma
+    m2'l : $AX1.L, @$AR0
+    lri $AR3, #AX_SCRATCH_BUFFER
+    lri $AR0, #AX_MAIN_L_BUFFER
+    lri $AR1, #AX_MAIN_L_BUFFER
+    lrri $AX1.L, @$AR3
+    lrri $AX0.H, @$AR1
+    mulx'l $AX0.H, $AX1.L : $AX0.L, @$AR1
+    mulxmv'l $AX0.L, $AX1.L, $ACC0 : $AX1.L, @$AR3
+    lsl16'l $ACC0 : $AX0.H, @$AR1
+    mulxac'l $AX0.H, $AX1.L, $ACC0 : $AX0.L, @$AR1
+    asr16 $ACC0
+    bloopi #AX_FRAME_SAMPLES / 2, AxDspCompressorLeftEnd
+    mulxmv'sl $AX0.L, $AX1.L, $ACC1 : $AC0.M, $AX1.L
+    lsl16'l $ACC1 : $AX0.H, @$AR1
+    mulxac's $AX0.H, $AX1.L, $ACC1 : @$AR0, $AC0.L
+    asr16'l $ACC1 : $AX0.L, @$AR1
+    mulxmv'sl $AX0.L, $AX1.L, $ACC0 : $AC1.M, $AX1.L
+    lsl16'l $ACC0 : $AX0.H, @$AR1
+    mulxac's $AX0.H, $AX1.L, $ACC0 : @$AR0, $AC1.L
+AxDspCompressorLeftEnd:
+    asr16'l $ACC0 : $AX0.L, @$AR1
+    lri $AR3, #AX_SCRATCH_BUFFER
+    lri $AR0, #AX_MAIN_R_BUFFER
+    lri $AR1, #AX_MAIN_R_BUFFER
+    lrri $AX1.L, @$AR3
+    lrri $AX0.H, @$AR1
+    mulx'l $AX0.H, $AX1.L : $AX0.L, @$AR1
+    mulxmv'l $AX0.L, $AX1.L, $ACC0 : $AX1.L, @$AR3
+    lsl16'l $ACC0 : $AX0.H, @$AR1
+    mulxac'l $AX0.H, $AX1.L, $ACC0 : $AX0.L, @$AR1
+    asr16 $ACC0
+    bloopi #AX_FRAME_SAMPLES / 2, AxDspCompressorRightEnd
+    mulxmv'sl $AX0.L, $AX1.L, $ACC1 : $AC0.M, $AX1.L
+    lsl16'l $ACC1 : $AX0.H, @$AR1
+    mulxac's $AX0.H, $AX1.L, $ACC1 : @$AR0, $AC0.L
+    asr16'l $ACC1 : $AX0.L, @$AR1
+    mulxmv'sl $AX0.L, $AX1.L, $ACC0 : $AC1.M, $AX1.L
+    lsl16'l $ACC0 : $AX0.H, @$AR1
+    mulxac's $AX0.H, $AX1.L, $ACC0 : @$AR0, $AC1.L
+AxDspCompressorRightEnd:
+    asr16'l $ACC0 : $AX0.L, @$AR1
+    lr $AR0, @AX_COMMAND_CURSOR
+    jmp AxDspDispatchNextCommand
+
+AxDspOutput:
+    set16'l : $AX1.L, @$AR0
+    m0'l : $AC0.M, @$AR0
+    clr'l $ACC1 : $AC0.L, @$AR0
+    sr @AX_COMMAND_CURSOR, $AR0
+    srs @DSMAH, $AC0.M
+    srs @DSMAL, $AC0.L
+    si @DSPA, #AX_MAIN_S_BUFFER
+    si @DSCR, #DSP_DMA_WRITE
+    si @DSBL, #AX_CHANNEL_BYTES
+    clr $ACC0
+    lr $AC0.M, @AX_PREVIOUS_MASTER_VOLUME
+    mrr $AC1.M, $AX1.L
+    sub $ACC1, $ACC0
+    sr @AX_PREVIOUS_MASTER_VOLUME, $AX1.L
+    lri $AX0.H, #AX_FRAME_RECIPROCAL_CEIL
+    lri $AX1.H, #AX_FRAME_RECIPROCAL_FLOOR
+    lri $AR1, #AX_SCRATCH_BUFFER
+    mulc $AC1.M, $AX0.H
+    mulcac $AC1.M, $AX0.H, $ACC0
+    bloopi #(AX_FRAME_SAMPLES / 3) - 1, AxDspMasterVolumeRampEnd
+    mulcac's $AC1.M, $AX1.H, $ACC0 : @$AR1, $AC0.M
+    mulcac's $AC1.M, $AX0.H, $ACC0 : @$AR1, $AC0.M
+AxDspMasterVolumeRampEnd:
+    mulcac's $AC1.M, $AX0.H, $ACC0 : @$AR1, $AC0.M
+    mulcac's $AC1.M, $AX1.H, $ACC0 : @$AR1, $AC0.M
+    addp's $ACC0 : @$AR1, $AC0.M
+    srri @$AR1, $AX1.L
+    call AxDspWaitDma
+    set40
+    set15
+    m2
+    lri $AR0, #AX_SCRATCH_BUFFER
+    lri $AR1, #AX_OUTPUT_STEREO_BUFFER
+    lri $AR3, #AX_MAIN_L_BUFFER
+    lri $AR2, #AX_MAIN_R_BUFFER
+    lrri $AX0.L, @$AR0
+    lrri $AX1.H, @$AR2
+    lrri $AX1.L, @$AR2
+    mulx $AX0.L, $AX1.L
+    mulxmv $AX0.L, $AX1.H, $ACC0
+    asr16 $ACC0
+    addp'l $ACC0 : $AX1.H, @$AR3
+    lsl16'l $ACC0 : $AX1.L, @$AR3
+    bloopi #AX_FRAME_SAMPLES - 1, AxDspInterleaveOutputEnd
+    mulx's $AX0.L, $AX1.L : @$AR1, $AC0.M
+    mulxmv $AX0.L, $AX1.H, $ACC0
+    asr16'l $ACC0 : $AX0.L, @$AR0
+    addp'l $ACC0 : $AX1.H, @$AR2
+    lsl16'l $ACC0 : $AX1.L, @$AR2
+    mulx's $AX0.L, $AX1.L : @$AR1, $AC0.M
+    mulxmv $AX0.L, $AX1.H, $ACC0
+    asr16 $ACC0
+    addp'l $ACC0 : $AX1.H, @$AR3
+AxDspInterleaveOutputEnd:
+    lsl16'l $ACC0 : $AX1.L, @$AR3
+    mulx's $AX0.L, $AX1.L : @$AR1, $AC0.M
+    mulxmv $AX0.L, $AX1.H, $ACC0
+    asr16 $ACC0
+    addp $ACC0
+    lsl16 $ACC0
+    srri @$AR1, $AC0.M
+    set16
+    lr $AR0, @AX_COMMAND_CURSOR
+    lrri $AC0.M, @$AR0
+    lrri $AC0.L, @$AR0
+    srs @DSMAH, $AC0.M
+    srs @DSMAL, $AC0.L
+    si @DSPA, #AX_OUTPUT_STEREO_BUFFER
+    si @DSCR, #DSP_DMA_WRITE
+    si @DSBL, #AX_STEREO_OUTPUT_BYTES
+    call AxDspWaitDma
+
+AxDspNotifyOutputComplete:
+    si @DMBH, #DSP_TASK_MAIL_TAG
+    si @DMBL, #DSP_TASK_MAIL_SYNC
+    si @DIRQ, #DSP_REQUEST_IRQ
+
+AxDspWaitOutputAcknowledged:
+    lrs $AC0.M, @DMBH
+    andf $AC0.M, #DSP_MAIL_FULL
+    jlnz AxDspWaitOutputAcknowledged
+    jmp AxDspDispatchNextCommand
+
+AxDspEnd:
+    si @DMBH, #DSP_TASK_MAIL_TAG
+    si @DMBL, #DSP_TASK_MAIL_YIELD
+    si @DIRQ, #DSP_REQUEST_IRQ
+    jmp AxDspReceiveTaskCommand
+
+AxDspRestartCommandList:
+    jmp AxDspReceiveCommandList
+
+AxDspWmOutput:
+    clr15
+    m2
+    set40
+    lri $AR1, #AX_REMOTE_AUX0_BUFFER
+    lri $AR2, #AX_REMOTE_MAIN0_BUFFER
+    mrr $AC1.L, $AR1
+    bloopi #AX_REMOTE_FRAME_SAMPLES, AxDspPackFirstRemoteOutputEnd
+    lrri $AC0.M, @$AR2
+    lrri $AC0.L, @$AR2
+    lsl16 $ACC0
+AxDspPackFirstRemoteOutputEnd:
+    srri @$AR1, $AC0.M
+    lrri $AC0.M, @$AR0
+    lrri $AC0.L, @$AR0
+    srs @DSMAH, $AC0.M
+    srs @DSMAL, $AC0.L
+    srs @DSPA, $AC1.L
+    bloopi #AX_REMOTE_OUTPUT_COUNT - 1, AxDspTransferRemoteOutputsEnd
+    si @DSCR, #DSP_DMA_WRITE
+    si @DSBL, #AX_REMOTE_OUTPUT_BYTES
+    mrr $AC1.L, $AR1
+    bloopi #AX_REMOTE_FRAME_SAMPLES, AxDspPackNextRemoteOutputEnd
+    lrri $AC0.M, @$AR2
+    lrri $AC0.L, @$AR2
+    lsl16 $ACC0
+AxDspPackNextRemoteOutputEnd:
+    srri @$AR1, $AC0.M
+    call AxDspWaitDma
+    lrri $AC0.M, @$AR0
+    lrri $AC0.L, @$AR0
+    srs @DSMAH, $AC0.M
+    srs @DSMAL, $AC0.L
+AxDspTransferRemoteOutputsEnd:
+    srs @DSPA, $AC1.L
+    si @DSCR, #DSP_DMA_WRITE
+    si @DSBL, #AX_REMOTE_OUTPUT_BYTES
+    call AxDspWaitDma
+    jmp AxDspDispatchNextCommand
+
+warnpc 0x06a9

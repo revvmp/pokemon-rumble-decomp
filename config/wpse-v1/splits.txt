@@ -3907,6 +3907,9 @@ RVL_SDK/ax/AXCompressorTable.c:
 	.data       start:0x803D8608 end:0x803D8620 skip
 	.data       start:0x803D8620 end:0x803D95E0
 
+RVL_SDK/ax/AXDSPCode.c:
+	.data       start:0x803D95E0 end:0x803DB5E0
+
 RVL_SDK/ax/AXProf.c:
 	.text       start:0x802DD798 end:0x802DD7A0 skip
 	.text       start:0x802DD7A0 end:0x802DD7E0

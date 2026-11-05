@@ -1,5 +1,9 @@
 # Exact matching and completion
 
+## Accepted main executable scope
+
+The 2026-11-04 main.dol reconstruction satisfies the gates below for the frozen executable scope, with D-0015/D-0016 controls and the two explicit D-0017 firmware exceptions disclosed. There are 13,462 exact CPU functions, 3,078,460 source-linked CPU bytes, 1,788,360 selected data bytes and 897/897 complete units. The embedded programs build from symbolic source. [Final acceptance](re/findings/main-source-completion-20261104.md) records two complete clean builds, exact hashes and the separate original-language/asset provenance limits. This is not a boot-loader or WAD package claim.
+
 ## Reference contract
 
 Each acceptance artifact has a byte size and SHA-256 captured from an identified original. The verifier validates the reference and reconstruction against those values and directly compares both files. Changed originals, missing artifacts, unsealed manifests, and mismatched builds fail.
@@ -35,7 +39,7 @@ The 2026-11-04 five-function checkpoint measures 3,078,460 code bytes and 1,788,
 1. Release identity and provenance are documented and reference fingerprints frozen.
 2. All executable modules and data are inventoried, with section layouts and address mappings where applicable.
 3. Tool versions, binary digests, flags, linker order, and environment are pinned with reproducible acquisition and build commands.
-4. All executable code in the claimed scope is reconstructed from source. Assembly or binary fallbacks remain explicit blockers to a full source-decompilation claim.
+4. All executable code in the claimed scope is reconstructed from source. Undeclared assembly or binary fallbacks block completion. Original-assembly units follow D-0015; the two explicitly approved embedded-firmware language exceptions follow D-0017 and must remain disclosed. Source selection alone does not establish the provenance of an embedded instruction array.
 5. Asset reconstruction and local original-data dependencies are documented. No undisclosed original executable dependency remains.
 6. A clean build passes exact verification for every required artifact. Repeat a clean build when establishing reproducibility and after toolchain or determinism changes.
 7. A whole-game package claim requires exact final package bytes too. Unresolved metadata, signing, encryption, and container details remain blockers; they do not justify weakening the claim.

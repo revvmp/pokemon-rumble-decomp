@@ -1,5 +1,14 @@
 # Initialization validation
 
+## Main source-completion checkpoint
+
+Two final complete clean runs of build.bat exit zero and pass the frozen wpse-v1 main.dol manifest. All thirteen artifacts in [the final acceptance table](re/findings/main-source-completion-20261104.md#build-and-verification) match the preceding incremental build and each other exactly. The executable SHA-256 remains ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da. CPU and source-selected data coverage are complete across 897 logical units and 902 raw source-object inputs; all aliases preserve compiler bytes, all prior exact functions remain present/exact, and all native alignment ranges pass.
+
+The workflow includes the real pinned-tool acquisition, DSP/Thumb generation, normal native CPU compile/link, objdiff report and direct verifier. The DSP host assembler is independently reproducible from two fresh compiler/source/cache directories. Tool failures, malformed input, edited-source dependencies, missing includes, size/digest mismatches, path collisions, input mutation and locked-output recovery were exercised through actual CLIs/Ninja; detailed [DSP](re/findings/ax-dsp-build-wrapper-20261104.md), [host](re/findings/ax-dsp-host-tool-20261104.md) and [WUD](re/findings/wud-build-wrapper-validation-20261104.md) evidence records scope and counts. No unit tests were added.
+
+Source-language provenance is independently qualified: D-0017 is the owner's explicit exception for the OS DSP bootstrap and WUD patch. Raw objdiff matched-data remains 69.663826%; full linked data bytes pass unchanged artifact comparison. Wider loader/content/WAD scope and the future port are excluded. The private final receipts are firmware-clean-one.json and firmware-clean-two.json under tools/local/tail-20261104/.
+
+
 ## 24-function checkpoint and native section linking
 
 On 2026-11-04, two clean builds regenerated the entire `build/wpse-v1` directory through `python configure.py` and `.venv/Scripts/ninja`. Each ninja run exited 0, and each frozen-manifest `main.dol` verification passed. The prior output directories were moved to distinct ignored snapshots inside the workspace; no compiled object from a previous build was reused. Direct comparisons of all three artifacts are identical:

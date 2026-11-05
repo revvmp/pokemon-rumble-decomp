@@ -2,54 +2,25 @@
 
 ## Current position
 
-Target `wpse-v1` (WPSE, USA, TMD title version 1). Roadmap Phase 6 is active; the main executable's CPU source reconstruction is complete. Frozen manifests: package `config/targets/wpse-v1-package.json` and executable `config/targets/wpse-v1.json` (`main.dol`). Do not fingerprint either again.
+The matching main.dol reconstruction for `wpse-v1` is complete under D-0015/D-0016/D-0017. All 13,462 real CPU functions, 3,078,460 CPU code bytes and 1,788,360 selected data bytes are complete. All 897 logical units and 902 raw final-link inputs are source-selected; no original split fallback remains. Frozen main.dol is 4,094,880 bytes with SHA-256 `ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da`.
 
-State at checkpoint `7a7d20cea` (2026-10-22, end of the single-PC sprint; `main.dol` verified byte-identical):
+AX DSP, the OS DSP bootstrap and the Bluetooth controller patch now build from readable symbolic programs. Original language is unproven for the latter two, and the owner explicitly approved those exact assembly exceptions under D-0017. Their provenance limits remain part of acceptance. The semantic system-message archive builds from recovered JSON/PNG assets. The usual dtk workflow still reads the original for analysis/layout/comparison; no selected original object supplies executable output bytes.
 
-| Measure | Value |
-| --- | --- |
-| Code matched (functions at 100%) | 95.15%, 13,342 of 13,930 entries (467 are `pad_03_*` alignment entries, not code) |
-| Code linked from source (Matching units) | 68.66%, 819 of 1,387 units |
-| Real functions below 100% | 120, in about 50 units |
-| Units with every function at 100% but not linked | CBattleRoyalDisplay (FormatString emission slot), CEffect (extra `__bitvec_base` destructor from the `vector<bool>` header) |
-| Open GitHub issues | 64; each still lists its functions and links prior findings |
-| Fake matches (D-0016) | 22 rows in [the ledger](re/FAKEMATCHES.md) |
-
-The sprint committed from one PC straight to `main`. The owner explicitly requested main-branch work again on 2026-11-04; follow the workflow below.
+Two complete clean `build.bat` runs reproduce the final executable, ELF, report and generated assets/programs exactly. [Final acceptance](re/findings/main-source-completion-20261104.md) and [validation](VALIDATION.md#main-source-completion-checkpoint) record the hashes and audits. Boot-loader content 6, other content assets and WAD packaging are excluded by the frozen manifest. Roadmap Phases 1-5 are complete; Phase 6's broader package scope remains open.
 
 ## Main-branch workflow
 
-Use `main` by default. Do not split work into branches or worktrees unless the owner explicitly requests that. Parallel agents own distinct source files and use direct compiler commands with separate scratch inputs and outputs under ignored `tools/local/session/`. One coordinator owns the shared build, configuration updates, full verification, and checkpoints. Issue claim exclusions still apply; branch/PR/merge-loop instructions are superseded for this workflow.
-
-The initial 2026-11-04 worktrees were preserved when this instruction arrived. Their reviewed gains were transferred to main, and further experiments run from main snapshots. Do not blindly copy their files back over newer main changes.
-
-2026-11-04 verified continuation: 90 additional real functions match, leaving 30 of the original 120-function tail. Fresh ninja and frozen main.dol verification pass. Matched code is 3,029,036/3,082,232 bytes (98.27411%); linked code is 2,684,408 bytes (87.09299%), across 873 Matching units. Original fallbacks remain explicit. Recent source-link acceptances include CFileData, CDlgMsgWin, main, CBattleRoyalBox, ScriptWorldObj, SaveData, CGameSession, CGameEnding, Message, PhotoSave, errmsg, CNoticeDisplay CMoneyLifeDisplay, BModelObj, CMiniMap, CPauseMenu and fourteen typed data units. Two new clean builds at the preceding50-function checkpoint reproduce main.dol, main.elf and report.json exactly, including the source-fragment pipeline and gains accepted at that checkpoint; repeat clean verification after later changes.
-
-CDlgPiiSelector has all 645 functions exact and still needs ordering/data acceptance. BWorld, homebutton and TextWriterBase have since passed full source linkage. BUI, CDlgInfo and GameUtil now also pass full source linkage; CUIMenu has all61 functions exact with emission work pending. Current parallel ownership: selector source link, NPpuVM, CModel, CPii, sort templates and ParticleManager. The coordinator owns shared configuration, full builds, acceptance and checkpoints. Scratch inputs/scripts under tools/local/session are ignored; never overwrite newer main files wholesale.
+Work on main by the owner's instruction. Do not create branches or worktrees unless explicitly requested. Parallel agents own separate files and scratch outputs. One coordinator runs configure, ninja, full verification, shared configuration/header changes and checkpoints. Issue claim exclusions remain in force; use the repository skill for issue work, with this main-branch instruction superseding its branch/PR loop.
 
 ## Next actions
 
-Latest accepted continuation: zero unfinished CPU functions. All 13,462 real functions and all 3,078,460 CPU code bytes match and link from source. PiiPropData passes the normal configure/ninja/frozen-verifier pipeline with three native compiler inputs, 48 exact bodies and 26 exact exception records. All 902 aliases are exact and no prior exact function is missing or regressed. Source-selected data is 1,780,168/1,788,360 bytes; only AX DSP remains a split fallback.
+1. Preserve the accepted source and build. Run `build.bat`, or the configure/ninja/frozen-verifier commands below, after changes. Check ninja's exit status and avoid verifying stale output.
+2. Tool setup now also builds the pinned Dolphin DSP assembler with Zig. `config/dsp_assembler.json` pins its sources, licenses, compiler and binary. `tools/setup/acquire_tools.py --offline` verifies the installed tools. `tools/setup/acquire_dsp_assembler.py --rebuild` deliberately rebuilds the host tool from pinned inputs in a fresh directory.
+3. DSP generators use complete dependency records; the WUD generator also depends on the verified tool receipt. Generated binaries/includes remain under the chosen build directory and must not become tracked source inputs. Firmware sources are under the AX, OS and WUD SDK subdirectories.
+4. Any future source-fidelity cleanup must preserve exact full-artifact proof and maintain the D-0016 ledger. D-0017 authorizes only the two named embedded-firmware payloads. Do not generalize it to other compiled code.
+5. The owner previously expressed interest in a native Windows/WebAssembly port after the long tail. That port has not started and is a separate next scope. Boot-loader/package reconstruction is also separate; do not claim the WAD rebuilt.
 
-Immediate work: install the independently exact 29-file symbolic AX DSP program with its pinned portable assembler and dependency-tracked generator, then run two complete clean builds. Also resolve the separately discovered 128-byte OSAudioSystem DSPInitCode provenance before claiming every embedded program reconstructed. See [primary MSL recovery](re/findings/piipropdata-primary-msl-tail.md), [DSP evidence](re/findings/ax-dsp-identities-20261104.md) and [remaining data](re/findings/remaining-data-inventory.md). The paragraphs below preserve earlier checkpoints; they are superseded by this zero-function state.
-
-Two complete clean builds of the preceding three-function checkpoint b37f0dbb reproduce main.dol, main.elf, report.json, the generated system-message archive and its generated C include exactly. The current U8/animation source-selection gain passes incremental ninja and frozen verification. See [reproducibility evidence](VALIDATION.md#three-function-checkpoint).
-
-The current 2026-11-04 continuation has 2 real unfinished functions, 3,076,152/3,078,460 matched code bytes (99.92503%), 3,063,580 source-linked code bytes (99.51664%), and 1,778,445/1,788,360 source-linked data bytes (99.44558%). Native ninja exits zero and frozen main.dol verification passes. There are 895 Matching units of 897; all 900 raw final-link input aliases are exact. The original-address audit finds no regressions or missing exact functions. The entire animation-curve unit and all 194 NW4R units now link from source. The preceding F32 checkpoint was pushed as b37f0dbb.
-
-All standalone native alignment fallbacks are removed with full-link proof and explicit dtk skip ranges. IdleThread is recovered as a typed SDK object. Only PiiPropData and the DSP image remain original fallback units. The accepted archive encoder is tools/assets/build_system_message.py; its normal pre-compile rule writes only under the configured build directory. See [remaining inventory](re/findings/remaining-data-inventory.md), [archive acceptance](re/findings/system-message-archive-20261104.md) and [DSP investigation](re/findings/ax-dsp-image-20261104.md).
-
-1. Read [codegen rules](re/CODEGEN_RULES.md) first. It now includes the compiler's recovered emission-order model (from `mwcceppc.exe` in IDA; [sprint-ida](re/findings/sprint-ida.md)) and its register allocator and scheduler ([sprint-ra](re/findings/sprint-ra.md)). Diagnose with `tools/re/regscan.py` and `tools/re/ra_trace.py` before editing.
-2. Fake matches are allowed after a documented honest attempt ([D-0016](DECISIONS.md#d-0016-documented-fake-matches-for-the-remaining-long-tail)); every remaining function has one in `re/findings/sprint-*.md`. Add a ledger row for each fake.
-3. No function-perfect unit remains waiting for source-link acceptance. CDlgPiiSelector, CPlayerPii and NPpuVM now pass the ordinary build. Selector uses four native text sections; Player uses scoped deque emission controls and globally consistent iterator identities in its save-manager caller. CUIMenu and CModel retain their existing supported native section/group paths. No object bytes are rewritten.
-4. Remaining CPU functions: PiiPropData constructor/Reset. JPEG, VM and animcurve coordinate distinct count/object allocation controls; particle prepares native source linkage and retained exception/literal ownership. Small-game, selector, sort and layout investigate separate readable DSP regions and source-language evidence in private outputs. Root owns acceptance decisions, shared configuration/headers, full builds and checkpoints. DSP research is not yet accepted source credit.
-5. decomp-permuter only parses C. The C++ text-level permuter (`cxxperm.py`, `minimize.py`) and the patched C harness are in ignored `tools/local/perm/`; setup is in [sprint-perm](re/findings/sprint-perm.md). Its third wave (fakes allowed, 51 functions at 97% or more) never completed.
-6. The ef draw strategies and CRemoteMemory match with per-function optimizer pragmas; the original was probably built with different file-level settings. Revisit when evidence appears. Ledger entries are candidates for honest rewrites.
-7. After the long tail, the owner wants a native Windows and WebAssembly port (a GX graphics layer such as Aurora, audio, input, file I/O, endianness). Not started.
-
-The earlier sprint's `tools/local/session/` and `tools/local/perm/` helpers are absent on this PC. Current isolated experiments and reusable local probe helpers are under ignored `tools/local/tail-20261104/`; do not assume old handoff scratch paths exist. The tracked native section preparer is `tools/build/order_text_sections.py`, invoked by ninja automatically.
-
-## Available commands
+The final private diagnostic workspace is `tools/local/tail-20261104/`; reusable production tools are tracked in tools/. Older sprint scratch paths may be absent. The accepted source must build without private probe scripts, prebuilt scratch objects or a running IDA session.
 
 ## Repository skills
 

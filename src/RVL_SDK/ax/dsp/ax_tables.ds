@@ -1,0 +1,221 @@
+org 0x0d02
+
+AxDspCommandTable:
+    cw AxDspSetup
+    cw AxDspAddToLR
+    cw AxDspSubToLR
+    cw AxDspAddSubToLR
+    cw AxDspProcess
+    cw AxDspMixAuxA
+    cw AxDspMixAuxB
+    cw AxDspMixAuxC
+    cw AxDspUploadAuxAMixLRSC
+    cw AxDspUploadAuxBMixLRSC
+    cw AxDspCompressor
+    cw AxDspOutput
+    cw AxDspOutputDpl2
+    cw AxDspWmOutput
+    cw AxDspEnd
+
+AxDspMainMixTable:
+    cw AxDspMixNone
+    cw AxDspMixMainLeft
+    cw AxDspMixMainRight
+    cw AxDspMixMainStereo
+    cw AxDspMixMainStereoRamp
+    cw AxDspMixMainStereoRamp
+    cw AxDspMixMainStereoRamp
+    cw AxDspMixMainStereoRamp
+
+    cw AxDspMixMainSurround
+    cw AxDspMixMainLeftSurround
+    cw AxDspMixMainRightSurround
+    cw AxDspMixMainStereoSurround
+    cw AxDspMixMainStereoRampSurround
+    cw AxDspMixMainStereoRampSurround
+    cw AxDspMixMainStereoRampSurround
+    cw AxDspMixMainStereoRampSurround
+
+    cw AxDspMixMainSurroundRamp
+    cw AxDspMixMainLeftSurroundRamp
+    cw AxDspMixMainRightSurroundRamp
+    cw AxDspMixMainStereoSurroundRamp
+    cw AxDspMixMainStereoRampSurroundRamp
+    cw AxDspMixMainStereoRampSurroundRamp
+    cw AxDspMixMainStereoRampSurroundRamp
+    cw AxDspMixMainStereoRampSurroundRamp
+
+    cw AxDspMixMainSurroundRamp
+    cw AxDspMixMainLeftSurroundRamp
+    cw AxDspMixMainRightSurroundRamp
+    cw AxDspMixMainStereoSurroundRamp
+    cw AxDspMixMainStereoRampSurroundRamp
+    cw AxDspMixMainStereoRampSurroundRamp
+    cw AxDspMixMainStereoRampSurroundRamp
+    cw AxDspMixMainStereoRampSurroundRamp
+
+AxDspAuxAMixTable:
+    cw AxDspMixNone
+    cw AxDspMixAuxALeft
+    cw AxDspMixAuxARight
+    cw AxDspMixAuxAStereo
+    cw AxDspMixAuxAStereoRamp
+    cw AxDspMixAuxAStereoRamp
+    cw AxDspMixAuxAStereoRamp
+    cw AxDspMixAuxAStereoRamp
+
+    cw AxDspMixAuxASurround
+    cw AxDspMixAuxALeftSurround
+    cw AxDspMixAuxARightSurround
+    cw AxDspMixAuxAStereoSurround
+    cw AxDspMixAuxAStereoRampSurround
+    cw AxDspMixAuxAStereoRampSurround
+    cw AxDspMixAuxAStereoRampSurround
+    cw AxDspMixAuxAStereoRampSurround
+
+    cw AxDspMixAuxASurroundRamp
+    cw AxDspMixAuxALeftSurroundRamp
+    cw AxDspMixAuxARightSurroundRamp
+    cw AxDspMixAuxAStereoSurroundRamp
+    cw AxDspMixAuxAStereoRampSurroundRamp
+    cw AxDspMixAuxAStereoRampSurroundRamp
+    cw AxDspMixAuxAStereoRampSurroundRamp
+    cw AxDspMixAuxAStereoRampSurroundRamp
+
+    cw AxDspMixAuxASurroundRamp
+    cw AxDspMixAuxALeftSurroundRamp
+    cw AxDspMixAuxARightSurroundRamp
+    cw AxDspMixAuxAStereoSurroundRamp
+    cw AxDspMixAuxAStereoRampSurroundRamp
+    cw AxDspMixAuxAStereoRampSurroundRamp
+    cw AxDspMixAuxAStereoRampSurroundRamp
+    cw AxDspMixAuxAStereoRampSurroundRamp
+
+AxDspAuxBMixTable:
+    cw AxDspMixNone
+    cw AxDspMixAuxBLeft
+    cw AxDspMixAuxBRight
+    cw AxDspMixAuxBStereo
+    cw AxDspMixAuxBStereoRamp
+    cw AxDspMixAuxBStereoRamp
+    cw AxDspMixAuxBStereoRamp
+    cw AxDspMixAuxBStereoRamp
+
+    cw AxDspMixAuxBSurround
+    cw AxDspMixAuxBLeftSurround
+    cw AxDspMixAuxBRightSurround
+    cw AxDspMixAuxBStereoSurround
+    cw AxDspMixAuxBStereoRampSurround
+    cw AxDspMixAuxBStereoRampSurround
+    cw AxDspMixAuxBStereoRampSurround
+    cw AxDspMixAuxBStereoRampSurround
+
+    cw AxDspMixAuxBSurroundRamp
+    cw AxDspMixAuxBLeftSurroundRamp
+    cw AxDspMixAuxBRightSurroundRamp
+    cw AxDspMixAuxBStereoSurroundRamp
+    cw AxDspMixAuxBStereoRampSurroundRamp
+    cw AxDspMixAuxBStereoRampSurroundRamp
+    cw AxDspMixAuxBStereoRampSurroundRamp
+    cw AxDspMixAuxBStereoRampSurroundRamp
+
+    cw AxDspMixAuxBSurroundRamp
+    cw AxDspMixAuxBLeftSurroundRamp
+    cw AxDspMixAuxBRightSurroundRamp
+    cw AxDspMixAuxBStereoSurroundRamp
+    cw AxDspMixAuxBStereoRampSurroundRamp
+    cw AxDspMixAuxBStereoRampSurroundRamp
+    cw AxDspMixAuxBStereoRampSurroundRamp
+    cw AxDspMixAuxBStereoRampSurroundRamp
+
+AxDspAuxCMixTable:
+    cw AxDspMixNone
+    cw AxDspMixAuxCLeft
+    cw AxDspMixAuxCRight
+    cw AxDspMixAuxCStereo
+    cw AxDspMixAuxCStereoRamp
+    cw AxDspMixAuxCStereoRamp
+    cw AxDspMixAuxCStereoRamp
+    cw AxDspMixAuxCStereoRamp
+
+    cw AxDspMixAuxCSurround
+    cw AxDspMixAuxCLeftSurround
+    cw AxDspMixAuxCRightSurround
+    cw AxDspMixAuxCStereoSurround
+    cw AxDspMixAuxCStereoRampSurround
+    cw AxDspMixAuxCStereoRampSurround
+    cw AxDspMixAuxCStereoRampSurround
+    cw AxDspMixAuxCStereoRampSurround
+
+    cw AxDspMixAuxCSurroundRamp
+    cw AxDspMixAuxCLeftSurroundRamp
+    cw AxDspMixAuxCRightSurroundRamp
+    cw AxDspMixAuxCStereoSurroundRamp
+    cw AxDspMixAuxCStereoRampSurroundRamp
+    cw AxDspMixAuxCStereoRampSurroundRamp
+    cw AxDspMixAuxCStereoRampSurroundRamp
+    cw AxDspMixAuxCStereoRampSurroundRamp
+
+    cw AxDspMixAuxCSurroundRamp
+    cw AxDspMixAuxCLeftSurroundRamp
+    cw AxDspMixAuxCRightSurroundRamp
+    cw AxDspMixAuxCStereoSurroundRamp
+    cw AxDspMixAuxCStereoRampSurroundRamp
+    cw AxDspMixAuxCStereoRampSurroundRamp
+    cw AxDspMixAuxCStereoRampSurroundRamp
+    cw AxDspMixAuxCStereoRampSurroundRamp
+
+AxDspAuxCSharedInputMixTable:
+    cw AxDspMixNone
+    cw AxDspMixAuxCSharedInputLeft
+    cw AxDspMixAuxCSharedInputRight
+    cw AxDspMixAuxCSharedInputStereo
+    cw AxDspMixAuxCSharedInputStereoRamp
+    cw AxDspMixAuxCSharedInputStereoRamp
+    cw AxDspMixAuxCSharedInputStereoRamp
+    cw AxDspMixAuxCSharedInputStereoRamp
+
+    cw AxDspMixAuxCSurround
+    cw AxDspMixAuxCSharedInputLeftSurround
+    cw AxDspMixAuxCSharedInputRightSurround
+    cw AxDspMixAuxCSharedInputStereoSurround
+    cw AxDspMixAuxCSharedInputStereoRampSurround
+    cw AxDspMixAuxCSharedInputStereoRampSurround
+    cw AxDspMixAuxCSharedInputStereoRampSurround
+    cw AxDspMixAuxCSharedInputStereoRampSurround
+
+    cw AxDspMixAuxCSurroundRamp
+    cw AxDspMixAuxCSharedInputLeftSurroundRamp
+    cw AxDspMixAuxCSharedInputRightSurroundRamp
+    cw AxDspMixAuxCSharedInputStereoSurroundRamp
+    cw AxDspMixAuxCSharedInputStereoRampSurroundRamp
+    cw AxDspMixAuxCSharedInputStereoRampSurroundRamp
+    cw AxDspMixAuxCSharedInputStereoRampSurroundRamp
+    cw AxDspMixAuxCSharedInputStereoRampSurroundRamp
+
+    cw AxDspMixAuxCSurroundRamp
+    cw AxDspMixAuxCSharedInputLeftSurroundRamp
+    cw AxDspMixAuxCSharedInputRightSurroundRamp
+    cw AxDspMixAuxCSharedInputStereoSurroundRamp
+    cw AxDspMixAuxCSharedInputStereoRampSurroundRamp
+    cw AxDspMixAuxCSharedInputStereoRampSurroundRamp
+    cw AxDspMixAuxCSharedInputStereoRampSurroundRamp
+    cw AxDspMixAuxCSharedInputStereoRampSurroundRamp
+
+AxDspRemoteMixTable:
+    cw AxDspRemoteMixNone
+    cw AxDspRemoteMixConstant
+    cw AxDspRemoteMixRamp
+    cw AxDspRemoteMixRamp
+
+AxDspSrcTable:
+    cw AxDspSrcFourTap
+    cw AxDspSrcLinear
+    cw AxDspSrcBypass
+
+AxDspCoefficientTable:
+    cw AX_SRC_COEFFICIENTS_8KHZ
+    cw AX_SRC_COEFFICIENTS_12KHZ
+    cw AX_SRC_COEFFICIENTS_16KHZ
+
+warnpc 0x0dbb

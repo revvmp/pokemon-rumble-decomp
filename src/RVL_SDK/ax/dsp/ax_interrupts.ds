@@ -1,0 +1,100 @@
+org 0x0f3a
+
+AxDspStackFault:
+    set16
+    mrr $AC0.M, $ST0
+    mrr $ST0, $AC0.M
+    si @DMBH, #DSP_STACK_FAULT_MAIL_TAG
+    srs @DMBL, $AC0.M
+
+AxDspWaitStackFaultMailAcknowledged:
+    lrs $AC0.M, @DMBH
+    andf $AC0.M, #DSP_MAIL_FULL
+    jlnz AxDspWaitStackFaultMailAcknowledged
+    rti
+
+AxDspReservedException2:
+    nop
+    nop
+    nop
+    nop
+    rti
+
+AxDspRawReadOverflow:
+    set16
+    mrr $ST1, $AC0.L
+    mrr $ST1, $AC0.M
+    clr $ACC0
+    lr $AC0.M, @AX_PB_LOOP_FLAG
+    cmpis $AC0.M, #AX_VOICE_LOOP
+    jz AxDspRestoreRawReadAccumulator
+    lris $AC0.M, #AX_VOICE_STOP
+    sr @AX_PB_STATE, $AC0.M
+
+AxDspRestoreRawReadAccumulator:
+    mrr $AC0.M, $ST1
+    mrr $AC0.L, $ST1
+    rti
+
+AxDspRawWriteOverflow:
+    nop
+    nop
+    nop
+    nop
+    rti
+
+AxDspSampleReadOverflow:
+    set16
+    mrr $ST1, $AC0.L
+    mrr $ST1, $AC0.M
+    clr $ACC0
+    lr $AC0.M, @AX_PB_LOOP_FLAG
+    cmpis $AC0.M, #AX_VOICE_LOOP
+    jz AxDspLoopSample
+    lris $AC0.M, #AX_VOICE_STOP
+    sr @AX_PB_STATE, $AC0.M
+    lri $AR2, #AX_SILENT_SAMPLE
+    mrr $AC0.M, $ST1
+    mrr $AC0.L, $ST1
+    rti
+
+AxDspLoopSample:
+    lr $AC0.M, @AX_PB_TYPE
+    cmpis $AC0.M, #AX_VOICE_STREAM
+    jz AxDspLoopStreamingSample
+    lr $AC0.M, @AX_PB_LOOP_PRED_SCALE
+    srs @PRED_SCALE, $AC0.M
+    lr $AC0.M, @AX_PB_LOOP_YN1
+    srs @YN1, $AC0.M
+    lr $AC0.M, @AX_PB_LOOP_YN2
+    srs @YN2, $AC0.M
+    mrr $AC0.M, $ST1
+    mrr $AC0.L, $ST1
+    rti
+
+AxDspLoopStreamingSample:
+    lr $AC0.M, @AX_PB_LOOP_PRED_SCALE
+    srs @PRED_SCALE, $AC0.M
+    lrs $AC0.M, @YN1
+    srs @YN1, $AC0.M
+    lrs $AC0.M, @YN2
+    srs @YN2, $AC0.M
+    mrr $AC0.M, $ST1
+    mrr $AC0.L, $ST1
+    rti
+
+AxDspReservedException6:
+    nop
+    nop
+    nop
+    nop
+    rti
+
+AxDspExternalInterrupt:
+    nop
+    nop
+    nop
+    nop
+    rti
+
+warnpc 0x0f95

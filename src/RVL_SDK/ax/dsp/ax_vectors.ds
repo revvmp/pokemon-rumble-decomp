@@ -1,0 +1,14 @@
+org 0
+
+AxDspImage:
+    nop
+    nop
+    jmp AxDspStackFault
+    jmp AxDspReservedException2
+    jmp AxDspRawReadOverflow
+    jmp AxDspRawWriteOverflow
+    jmp AxDspSampleReadOverflow
+    jmp AxDspReservedException6
+    jmp AxDspExternalInterrupt
+
+warnpc 0x0010

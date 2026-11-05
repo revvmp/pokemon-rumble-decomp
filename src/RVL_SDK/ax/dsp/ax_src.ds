@@ -1,0 +1,180 @@
+AxDspSrcFourTap:
+    call AxDspLoadDecoderState
+    clr15
+    m2
+    set40
+    lrri $AX1.H, @$AR2
+    lrri $AX1.L, @$AR2
+    clr $ACC0
+    lrri $AC0.L, @$AR2
+    lri $AR0, #AX_SRC_HISTORY_BUFFER
+    lri $WR0, #AX_SRC_HISTORY_WRAP
+    include "include/ax_src_restore_history.inc"
+    lri $AR1, #AX_SAMPLE_BUFFER
+    lri $AR2, #ACDSAMP
+    lr $IX3, @AX_COEFFICIENT_BASE
+    addax $ACC0, $AX1
+    bloopi #AX_FRAME_SAMPLES, AxDspSrcFourTapStore
+AxDspSrcFourTapSamples:
+    clr'mv $ACC1 : $AX0.L, $AC0.M
+    mrr $AC1.L, $AC0.L
+    lsr $ACC1, #-9
+    lsl $ACC1, #18
+    mrr $AR3, $AC1.M
+    addarn $AR3, $IX3
+    bloop $AX0.L, AxDspSrcFourTapDecodeLast
+AxDspSrcFourTapDecode:
+    lrr $AX0.H, @$AR2
+    srri @$AR0, $AX0.H
+    subr $ACC0, $AX0.L
+AxDspSrcFourTapDecodeLast:
+    mrr $AX0.L, $AC1.L
+    addax'ldax $ACC0, $AX1 : $AX0, @$AR0
+    mul'ldax $AX0.L, $AX0.H : $AX0, @$AR0
+    mulmv'ldax $AX0.L, $AX0.H, $ACC1 : $AX0, @$AR0
+    mulac'ldax $AX0.L, $AX0.H, $ACC1 : $AX0, @$AR0
+    mulac $AX0.L, $AX0.H, $ACC1
+    addp $ACC1
+AxDspSrcFourTapStore:
+    srri @$AR1, $AC1.M
+    subax $ACC0, $AX1
+    include "include/ax_src_save_history.inc"
+    lri $WR0, #AX_NO_ADDRESS_WRAP
+    srrd @$AR2, $AC0.L
+    include "include/ax_src_save_decoder.inc"
+    set16
+    m0
+    ret
+
+warnpc 0x0769
+
+AxDspSrcLinear:
+    call AxDspLoadDecoderState
+    set15
+    m0
+    set40
+    lrri $AX1.H, @$AR2
+    lrri $IX1, @$AR2
+    clr $ACC0
+    lrri $AC0.L, @$AR2
+    lri $AR0, #AX_SRC_HISTORY_BUFFER
+    lri $WR0, #AX_SRC_HISTORY_WRAP
+    lri $IX0, #AX_SRC_HISTORY_WRAP
+    include "include/ax_src_restore_history.inc"
+    lri $AR1, #AX_SAMPLE_BUFFER
+    lri $AR2, #ACDSAMP
+    mrr $AX1.L, $IX1
+    addax $ACC0, $AX1
+    bloopi #AX_FRAME_SAMPLES, AxDspSrcLinearAdvanceAndStore
+AxDspSrcLinearSamples:
+    clr'mv $ACC1 : $AX0.L, $AC0.M
+    bloop $AX0.L, AxDspSrcLinearDecodeLast
+AxDspSrcLinearDecode:
+    lrr $AX0.H, @$AR2
+    srri @$AR0, $AX0.H
+    subr $ACC0, $AX0.L
+AxDspSrcLinearDecodeLast:
+    mrr $AX0.L, $AC1.M
+    neg $ACC0
+    tst'mv $ACC0 : $AX1.L, $AC0.L
+    jnz AxDspSrcLinearBlend
+    lrri $AC1.M, @$AR0
+    addarn $AR0, $IX0
+    jmp AxDspSrcLinearStore
+AxDspSrcLinearBlend:
+    neg'l $ACC0 : $AX0.H, @$AR0
+    mulx'mv $AX0.H, $AX1.L : $AX1.L, $AC0.L
+    lrrn $AX0.H, @$AR0
+    mulxmv $AX0.H, $AX1.L, $ACC1
+    addp $ACC1
+AxDspSrcLinearStore:
+    mrr $AX1.L, $IX1
+AxDspSrcLinearAdvanceAndStore:
+    addax's $ACC0, $AX1 : @$AR1, $AC1.M
+    subax $ACC0, $AX1
+    include "include/ax_src_save_history.inc"
+    lri $WR0, #AX_NO_ADDRESS_WRAP
+    srrd @$AR2, $AC0.L
+    include "include/ax_src_save_decoder.inc"
+    set16
+    clr15
+    ret
+
+warnpc 0x07be
+
+AxDspSrcBypass:
+    call AxDspLoadDecoderState
+    lri $AR0, #AX_SAMPLE_BUFFER
+    lri $AR2, #ACDSAMP
+    bloopi #AX_FRAME_SAMPLES, AxDspSrcBypassSettle
+AxDspSrcBypassSamples:
+    lrr $IX0, @$AR2
+    srri @$AR0, $IX0
+    nop
+AxDspSrcBypassSettle:
+    nop
+    include "include/ax_src_save_history.inc"
+    include "include/ax_src_save_decoder.inc"
+    ret
+
+warnpc 0x07e4
+
+AxDspLoadDecoderState:
+    lri $AR2, #AX_PB_FORMAT
+    lrri $AC0.M, @$AR2
+    srs @FORMAT, $AC0.M
+    lrri $AC0.M, @$AR2
+    srs @ACSAH, $AC0.M
+    lrri $AC0.M, @$AR2
+    srs @ACSAL, $AC0.M
+    lrri $AC0.M, @$AR2
+    srs @ACEAH, $AC0.M
+    lrri $AC0.M, @$AR2
+    srs @ACEAL, $AC0.M
+    lrri $AC0.M, @$AR2
+    srs @ACCAH, $AC0.M
+    lrri $AC0.M, @$AR2
+    srs @ACCAL, $AC0.M
+    lrri $AC0.M, @$AR2
+    srs @COEF_A1_0, $AC0.M
+    lrri $AC0.M, @$AR2
+    srs @COEF_A2_0, $AC0.M
+    lrri $AC0.M, @$AR2
+    srs @COEF_A1_1, $AC0.M
+    lrri $AC0.M, @$AR2
+    srs @COEF_A2_1, $AC0.M
+    lrri $AC0.M, @$AR2
+    srs @COEF_A1_2, $AC0.M
+    lrri $AC0.M, @$AR2
+    srs @COEF_A2_2, $AC0.M
+    lrri $AC0.M, @$AR2
+    srs @COEF_A1_3, $AC0.M
+    lrri $AC0.M, @$AR2
+    srs @COEF_A2_3, $AC0.M
+    lrri $AC0.M, @$AR2
+    srs @COEF_A1_4, $AC0.M
+    lrri $AC0.M, @$AR2
+    srs @COEF_A2_4, $AC0.M
+    lrri $AC0.M, @$AR2
+    srs @COEF_A1_5, $AC0.M
+    lrri $AC0.M, @$AR2
+    srs @COEF_A2_5, $AC0.M
+    lrri $AC0.M, @$AR2
+    srs @COEF_A1_6, $AC0.M
+    lrri $AC0.M, @$AR2
+    srs @COEF_A2_6, $AC0.M
+    lrri $AC0.M, @$AR2
+    srs @COEF_A1_7, $AC0.M
+    lrri $AC0.M, @$AR2
+    srs @COEF_A2_7, $AC0.M
+    lrri $AC0.M, @$AR2
+    srs @GAIN, $AC0.M
+    lrri $AC0.M, @$AR2
+    srs @PRED_SCALE, $AC0.M
+    lrri $AC0.M, @$AR2
+    srs @YN1, $AC0.M
+    lrri $AC0.M, @$AR2
+    srs @YN2, $AC0.M
+    ret
+
+warnpc 0x081d

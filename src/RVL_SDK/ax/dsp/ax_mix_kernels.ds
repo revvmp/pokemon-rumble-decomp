@@ -1,0 +1,177 @@
+AxDspMixMonoConstant:
+    include "include/ax_mix_constant_prime.inc"
+    bloopi #AX_FRAME_PAIR_LOOP_COUNT, AxDspMixMonoConstantLastPair
+    include "include/ax_mix_constant_pair.inc"
+AxDspMixMonoConstantLastPair:
+    lsl16'ls $ACC1 : $AX0.H, $AC0.M
+    include "include/ax_mix_left_depop.inc"
+    asr16 $ACC1
+    srri @$AR3, $AC1.M
+    clr's $ACC0 : @$AR3, $AC1.L
+    ret
+
+warnpc 0x0be9
+
+AxDspMixStereoConstant:
+    include "include/ax_mix_constant_prime.inc"
+    bloopi #AX_FRAME_PAIR_LOOP_COUNT, AxDspMixStereoConstantLeftLastPair
+    include "include/ax_mix_constant_pair.inc"
+AxDspMixStereoConstantLeftLastPair:
+    lsl16'ls $ACC1 : $AX0.H, $AC0.M
+    include "include/ax_mix_left_depop.inc"
+    asr16'ir $ACC1 : $AR1
+    srri @$AR3, $AC1.M
+    srri @$AR3, $AC1.L
+
+    mrr $AR0, $IX0
+    mrr $AR2, $IX1
+    mrr $AR3, $AR2
+    include "include/ax_mix_constant_prime.inc"
+    bloopi #AX_FRAME_PAIR_LOOP_COUNT, AxDspMixStereoConstantRightLastPair
+    include "include/ax_mix_constant_pair.inc"
+AxDspMixStereoConstantRightLastPair:
+    lsl16'ls $ACC1 : $AX0.H, $AC0.M
+    include "include/ax_mix_right_depop.inc"
+    asr16 $ACC1
+    srri @$AR3, $AC1.M
+    srri @$AR3, $AC1.L
+    ret
+
+warnpc 0x0c1f
+
+AxDspMixMonoRamp:
+    mrr $IX3, $AR3
+    set16
+    include "include/ax_volume_ramp_prime.inc"
+    bloopi #AX_FRAME_PAIR_LOOP_COUNT, AxDspMixMonoRampVolumeLastPair
+    include "include/ax_volume_ramp_pair.inc"
+AxDspMixMonoRampVolumeLastPair:
+    srri @$AR3, $AC0.M
+    include "include/ax_volume_ramp_commit.inc"
+
+    mrr $AR1, $IX3
+    mrr $AR3, $AR2
+    set40'l : $AX0.H, @$AR0
+    include "include/ax_mix_ramp_prime.inc"
+    bloopi #AX_FRAME_PAIR_LOOP_COUNT, AxDspMixMonoRampLastPair
+    include "include/ax_mix_ramp_pair.inc"
+AxDspMixMonoRampLastPair:
+    lrri $AX1.L, @$AR1
+    include "include/ax_mix_left_depop.inc"
+    asr16 $ACC1
+    srri @$AR3, $AC1.M
+    srri @$AR3, $AC1.L
+    ret
+
+warnpc 0x0c4f
+
+AxDspMixStereoRamp:
+    mrr $IX3, $AR3
+    set16
+    include "include/ax_volume_ramp_prime.inc"
+    bloopi #AX_FRAME_PAIR_LOOP_COUNT, AxDspMixStereoRampLeftVolumeLastPair
+    include "include/ax_volume_ramp_pair.inc"
+AxDspMixStereoRampLeftVolumeLastPair:
+    srri @$AR3, $AC0.M
+    include "include/ax_volume_ramp_commit.inc"
+
+    iar $AR1
+    include "include/ax_volume_ramp_prime.inc"
+    bloopi #AX_FRAME_PAIR_LOOP_COUNT, AxDspMixStereoRampRightVolumeLastPair
+    include "include/ax_volume_ramp_pair.inc"
+AxDspMixStereoRampRightVolumeLastPair:
+    srri @$AR3, $AC0.M
+    include "include/ax_volume_ramp_commit.inc"
+
+    mrr $AR1, $IX3
+    mrr $AR3, $AR2
+    set40'l : $AX0.H, @$AR0
+    include "include/ax_mix_ramp_prime.inc"
+    bloopi #AX_FRAME_PAIR_LOOP_COUNT, AxDspMixStereoRampLeftLastPair
+    include "include/ax_mix_ramp_pair.inc"
+AxDspMixStereoRampLeftLastPair:
+    lrri $AX1.L, @$AR1
+    include "include/ax_mix_left_depop.inc"
+    asr16'dr $ACC1 : $AR1
+    srri @$AR3, $AC1.M
+    srri @$AR3, $AC1.L
+
+    mrr $AR0, $IX0
+    mrr $AR2, $IX1
+    mrr $AR3, $AR2
+    lrri $AX0.H, @$AR0
+    include "include/ax_mix_ramp_prime.inc"
+    bloopi #AX_FRAME_PAIR_LOOP_COUNT, AxDspMixStereoRampRightLastPair
+    include "include/ax_mix_ramp_pair.inc"
+AxDspMixStereoRampRightLastPair:
+    lrri $AX1.L, @$AR1
+    include "include/ax_mix_right_depop.inc"
+    asr16 $ACC1
+    srri @$AR3, $AC1.M
+    srri @$AR3, $AC1.L
+    ret
+
+warnpc 0x0cae
+
+AxDspRemoteMixNone:
+    lri $AX0.L, #0
+    ret
+
+warnpc 0x0cb1
+
+AxDspRemoteMixConstant:
+    lri $AR0, #AX_REMOTE_SAMPLE_BUFFER
+    mrr $AR3, $AR2
+    lrri $AX1.L, @$AR1
+    lrri $AX0.H, @$AR0
+    mulx $AX0.H, $AX1.L
+    lrri $AC0.M, @$AR2
+    lrri $AC0.L, @$AR2
+    lsl16'l $ACC0 : $AX0.H, @$AR0
+    mulxac $AX0.H, $AX1.L, $ACC0
+    asr16'l $ACC0 : $AC1.M, @$AR2
+    lrri $AC1.L, @$AR2
+    lsl16'ls $ACC1 : $AX0.H, $AC0.M
+    bloopi #AX_REMOTE_FRAME_PAIR_LOOP_COUNT, AxDspRemoteMixConstantLastPair
+    include "include/ax_mix_constant_pair.inc"
+AxDspRemoteMixConstantLastPair:
+    lsl16'ls $ACC1 : $AX0.H, $AC0.M
+    include "include/ax_remote_mix_finish.inc"
+    ret
+
+warnpc 0x0cce
+
+AxDspRemoteMixRamp:
+    lri $AR0, #AX_REMOTE_SAMPLE_BUFFER
+    lri $AR3, #AX_RAMP_BUFFER
+    mrr $IX3, $AR3
+    set16
+    include "include/ax_volume_ramp_prime.inc"
+    bloopi #AX_REMOTE_FRAME_PAIR_LOOP_COUNT, AxDspRemoteMixRampVolumeLastPair
+    include "include/ax_volume_ramp_pair.inc"
+AxDspRemoteMixRampVolumeLastPair:
+    srri @$AR3, $AC0.M
+    include "include/ax_volume_ramp_commit.inc"
+
+    mrr $AR1, $IX3
+    mrr $AR3, $AR2
+    set40'l : $AX0.H, @$AR0
+    lrri $AX1.L, @$AR1
+    mulx $AX0.H, $AX1.L
+    lrri $AC0.M, @$AR2
+    lrri $AC0.L, @$AR2
+    lsl16'l $ACC0 : $AX0.H, @$AR0
+    lrri $AX1.L, @$AR1
+    mulxac $AX0.H, $AX1.L, $ACC0
+    asr16'l $ACC0 : $AC1.M, @$AR2
+    lrri $AC1.L, @$AR2
+    lsl16'ls $ACC1 : $AX0.H, $AC0.M
+    lrri $AX1.L, @$AR1
+    bloopi #AX_REMOTE_FRAME_PAIR_LOOP_COUNT, AxDspRemoteMixRampLastPair
+    include "include/ax_mix_ramp_pair.inc"
+AxDspRemoteMixRampLastPair:
+    lrri $AX1.L, @$AR1
+    include "include/ax_remote_mix_finish.inc"
+    ret
+
+warnpc 0x0d02

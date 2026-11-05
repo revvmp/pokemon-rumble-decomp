@@ -2,7 +2,7 @@
 
 ## Prerequisites and references
 
-Use Git and Python 3.10 or newer. The verifier uses only the Python standard library. The original compiler, linker, extractor, and build driver are not yet identified.
+Use Windows x86-64 with Universal CRT, Git and Python 3.10 or newer. Windows 10/11 provide the required runtime. The verifier and generators use Python's standard library; the pinned native toolchain is acquired by the setup command. Visual Studio and an IDA installation are not required to build.
 
 Follow [reference identification](re/REFERENCE.md) before creating a target. Keep originals under `orig/<target>/`, outputs under `build/<target>/`, and local tool binaries under `tools/local/`. Never modify reference files to resolve a mismatch.
 
@@ -41,7 +41,7 @@ An original package retained solely as provenance may have its own manifest. Do 
 
 All binaries go in ignored `tools/local/`. Sources and digests are pinned in `config/toolchain.json`; check each digest after download.
 
-The acquisition script downloads every pinned tool, rejects any digest mismatch, extracts the archives, and checks the extracted Wii/1.1 compiler and linker digests. It skips files whose digests already match, and `--offline` only verifies what is present:
+The acquisition script downloads pinned tools, rejects digest mismatches, and checks the extracted Wii/1.1 compiler and linker. It also builds the pinned Dolphin DSP assembler with portable Zig using config/dsp_assembler.json; Zig's native Thumb assembler/linker supplies the controller patch pipeline. Sources and license notices stay in ignored tools/local/. Matching cached inputs are reused, and --offline only verifies existing inputs/installations:
 
 ```powershell
 python tools/setup/acquire_tools.py
@@ -66,9 +66,11 @@ python -m venv .venv
 
 `configure.py` uses these local paths by default. Without them, the vendored build system downloads its pinned tags into `build/tools/`, including the x86-64 dtk, whose digest differs from the pinned x86 build (F-0006).
 
-Assembly-source units (`.s`, allowed only by [D-0015](DECISIONS.md#d-0015-assembly-source-only-where-the-original-was-assembly)) are assembled with the binutils `powerpc-eabi-as` above; no extra tool is needed.
+PowerPC assembly units use the pinned binutils powerpc-eabi-as under [D-0015](DECISIONS.md#d-0015-assembly-source-only-where-the-original-was-assembly). The AX/OS DSP sources use the separately acquired Dolphin assembler; WUD Thumb sources use the same pinned Zig installation. The OS and WUD programs are the two explicit [D-0017 exceptions](DECISIONS.md#d-0017-two-owner-approved-embedded-firmware-assembly-exceptions). After manual acquisition of the CPU tools above, also run `python tools/setup/acquire_dsp_assembler.py`. The normal build.bat/setup command already includes this step.
 
 ### Build
+
+The normal pipeline also generates AX DSP and OS initialization images, WUD controller records, and their C includes under the selected build directory. Their rules read symbolic source and typed metadata, never original executable bytes. The DSP rule follows every nested include; the controller rule depends on all assembly/linker/manifest files and the verified Zig installation receipt. No private probe or prebuilt scratch object is required. See [final build evidence](re/findings/main-source-completion-20261104.md).
 
 ```powershell
 python configure.py

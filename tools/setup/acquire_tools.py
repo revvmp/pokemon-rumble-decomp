@@ -2,6 +2,7 @@ import argparse
 import hashlib
 import json
 import shutil
+import subprocess
 import sys
 import urllib.request
 import zipfile
@@ -87,7 +88,14 @@ def main():
             if actual != expected:
                 raise RuntimeError(f"{path}: digest {actual} does not match pinned {expected}")
             print(f"{path.relative_to(args.local)}: digest verified")
-    except (OSError, RuntimeError, KeyError, zipfile.BadZipFile) as error:
+        dsp_command = [sys.executable, str(ROOT / "tools/setup/acquire_dsp_assembler.py"), "--manifest", str(ROOT / toolchain["dsp_assembler"]["manifest"]), "--local", str(args.local / "dsp-assembler")]
+        if args.offline:
+            dsp_command.append("--offline")
+        subprocess.run(dsp_command, check=True)
+        dsp_binary = args.local / "dsp-assembler" / "dsp-inspect.exe"
+        if sha256(dsp_binary) != toolchain["dsp_assembler"]["sha256"]:
+            raise RuntimeError(f"{dsp_binary}: digest differs from config/toolchain.json")
+    except (OSError, RuntimeError, KeyError, subprocess.CalledProcessError, zipfile.BadZipFile) as error:
         print(f"error: {error}", file=sys.stderr)
         return 1
     return 0

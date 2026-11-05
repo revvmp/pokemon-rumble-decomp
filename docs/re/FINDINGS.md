@@ -1,5 +1,9 @@
 # Findings
 
+## 2026-11-04 final main executable acceptance
+
+All main.dol CPU code, data units and identified embedded programs now build from source through the ordinary pipeline. Two complete clean builds and frozen direct comparison pass. The source-selection audit rejects original objects and confirms 902 unchanged compiler-input aliases. [Final acceptance](findings/main-source-completion-20261104.md) links the complete evidence, including [AX DSP](findings/ax-dsp-production-20261104.md), [OS DSP](findings/os-dsp-init-20261104.md), [WUD firmware](findings/embedded-code-audit-20261104.md), the owner-approved D-0017 exceptions and excluded release scope.
+
 ## 2026-11-04 complete CPU reconstruction
 
 The final PiiPropData constructor and Reset are exact after restoring [primary MSL library boundaries](findings/piipropdata-primary-msl-tail.md). All 48 unit bodies and 26 exception records pass independent raw audits, and the ordinary source-selected build passes frozen main.dol verification. All 13,462 CPU functions and 3,078,460 CPU code bytes are matched and source-linked. The AX DSP source/build integration remains separate; the existing 128-byte OS DSP bootstrap is also recorded explicitly in the [remaining inventory](findings/remaining-data-inventory.md).

@@ -93,6 +93,14 @@ Accepted with the repository owner's approval so that MetroTRK's hand-written ex
 - The unit follows the same acceptance rule as any other: 100% in objdiff and a full build plus `verify.py` PASS before it is marked `Matching`.
 - The first such unit is `src/MetroTRK/debugger/embedded/MetroTRK/Processor/ppc/Generic/__exception.s`. Its symbol is a function spanning the whole table so objdiff can compare it; dtk keeps the original label beside it.
 
+### 2026-11-04 application to AX DSP
+
+The independently reconstructed AX DSP program meets this decision's original-language boundary. The target is identified as RVL AXWii by its matched host configuration and command protocol, corroborated by Dolphin's image identity. Pinned archived SDK inventories explicitly name the AX DSP assembly inputs, includes, assembler and linker. That concrete family-level language evidence, together with the identified target, supports using symbolic assembly here. It does not authenticate the archive as an official publication or recover the exact original source revision. The [provenance record](re/findings/ax-dsp-identities-20261104.md#original-language-provenance) preserves these limits.
+
+The 29-file source tree uses actual routine labels, semantic state and parameter-block names, symbolic dispatch tables and shared processing kernels. An independent [source review](re/findings/ax-dsp-source-review-20261104.md) and [staging inventory](re/findings/ax-dsp-staging-20261104.md) establish readability and exact full-image assembly separately from the language evidence. This application does not authorize assembly recovery of compiled C/C++ or automatically cover other embedded firmware arrays.
+
+The PowerPC assembler cannot encode this processor. The normal build therefore uses a [separately pinned Dolphin DSP assembler](re/findings/ax-dsp-host-tool-20261104.md), built from pinned source with portable Zig. `tools/dsp/build_dsp.py` assembles source and emits a generated big-endian word initializer; the ordinary Wii compiler owns the host array in AXDSPCode.c. No original executable is an input to this rule. Native final-link acceptance remains mandatory; generated instruction bytes are outputs, never reconstruction inputs.
+
 ## D-0016: Documented fake matches for the remaining long tail
 
 Accepted by the repository owner on 2026-10-22 to finish the last functions. Honest reconstruction stays the default; a fake match is a last resort for a function whose register allocation, scheduling, or emission order no plausible source has reproduced.
@@ -101,6 +109,19 @@ Accepted by the repository owner on 2026-10-22 to finish the last functions. Hon
 - A fake match is source that compiles to the original bytes but is probably not what the developers wrote, such as an extra temporary, a reordered or redundant statement, a cast, a probe declaration, an explicit instantiation, `volatile`, or a per-function `#pragma`. It must still be C or C++ source; compiled code is never recovered as assembly (D-0015).
 - Source still carries no comments. Every fake match is listed in [the fake-match ledger](re/FAKEMATCHES.md) with its unit, function, the fake construct, and a link to the honest attempts, so it can be replaced with plausible source later.
 - The acceptance rule is unchanged: 100% in objdiff and a full build plus `verify.py` PASS before a unit is marked `Matching`. Progress reports count fake-matched functions as matched; the ledger is the record of which ones they are.
+
+## D-0017: Two owner-approved embedded-firmware assembly exceptions
+
+Accepted by the repository owner on 2026-11-04 with the explicit reply, "Approve these two assembly exceptions." The review disclosed that their original authoring language is unproven and that the Bluetooth reset helper may have been compiled from C. The concrete readable sources, byte comparisons and integration evidence were available before approval.
+
+This is a narrow exception to D-0015's original-language requirement for exactly two existing embedded payloads:
+
+- OSAudioSystem's 128-byte `DSPInitCode` bootstrap at PowerPC address `0x803C7770`, including its vector entries and reserved tail.
+- WUD's controller patch for `BCM2045B3_002.003.014.0167`: the 180-byte payload loaded at controller address `0x89970` and seven eight-byte replacement blocks. The host-side 188-byte download record and 92-byte install record include typed protocol fields as well as the generated instructions.
+
+The source must remain readable symbolic assembly with named routines, state, hardware fields and external firmware targets. Protocol metadata and literal pools remain explicitly typed or named. Machine-code arrays, original object imports, instruction patching and changed expected hashes are not accepted as reconstruction inputs. Pinned assembly/link tools, unchanged native compiler outputs, complete artifact verification and repeated clean builds remain required.
+
+The exception does not claim that these sources reproduce the original language or exact original source text. It does not apply to any other compiled CPU or firmware code. D-0015 and D-0016 remain unchanged outside these two listed payloads. [The OS evidence](re/findings/os-dsp-init-20261104.md) and [embedded-code audit](re/findings/embedded-code-audit-20261104.md) retain the provenance limits, source partition and exact comparisons.
 
 ## Future decisions
 

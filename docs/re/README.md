@@ -1,6 +1,6 @@
 # Reverse engineering records
 
-Game-specific reverse engineering has started with WAD metadata only; see [findings](FINDINGS.md). Use this directory for all reverse engineering documentation, including future subsystem notes and recovered interfaces.
+The main.dol matching reconstruction is complete; see [final acceptance](findings/main-source-completion-20261104.md) and [findings](FINDINGS.md). This directory contains source/ABI evidence, accepted reconstruction controls, tool provenance and the excluded release-scope inventory.
 
 | Document | Purpose |
 | --- | --- |
