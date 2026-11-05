@@ -243,3 +243,15 @@ The real order_text_sections.py CLI rejects empty groups, duplicate members, an 
 The configured compiler and normal ninja report accept the 3,468-byte AnimCurveExecuteChild body. Its independent audit compares every raw instruction, all 27 relocations and relocation-backed literals; the other seven functions in the unit remain unchanged. Ninja exits zero and the frozen main.dol verifier passes with the unchanged SHA-256 above. The original-address report audit records eight real unfinished functions, no previously exact regressions or missing exact functions, and 1,392 unchanged linker aliases.
 
 Matched code is 3,060,296/3,082,252 bytes (99.28767%). The animation unit remains NonMatching, so this incremental function gain does not change the selected final-link inputs or source-linked totals. The two clean builds above remain the reproducibility evidence for the current final-link pipeline. No original artifacts or expected hashes changed.
+
+## Six-function checkpoint and three source links
+
+The normal configure/ninja pipeline accepts both remaining shared-pointer reference sorts, then CLayout, CPiiListFilterSort and CGameResult from source. Each retained source-selection step ends with ninja exit zero and the formal frozen-artifact verifier reporting PASS. The original-address regression audit finds no previously exact regression or missing exact function. All 1,391 final-link aliases are unchanged copies of their selected objects.
+
+| Artifact | Bytes | SHA-256 |
+| --- | --- | --- |
+| main.dol | 4094880 | `ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da` |
+| main.elf | 6108856 | `7c29dfa1890888270e960a0dbf10979361e8f9ebe0c24ec8f3ef8fa46cfd2378` |
+| report.json | 4772116 | `2b3fcb9bf7d0d27facad11d23bff42a07f70664cfeb1e5af4e39f8808c13d9e9` |
+
+The report records six real unfinished functions, 3,062,496 matched code bytes (99.35904%), 2,950,792 source-linked code bytes (95.73494%), and 1,740,433/1,788,735 source-linked data bytes (97.29965%). There are 890 Matching units of 1,388. Correcting the filter placeholder to its one-byte source extent removes eleven alignment bytes from the data denominator and one automatic unit, while the native linker preserves the original executable layout. This is an incremental checkpoint; the nine-function checkpoint remains the latest repeated clean-build evidence. No unit tests, original-byte injection or expected-hash changes are involved.

@@ -1,3 +1,6 @@
+#define CGAME_RESULT_EMISSION_LAYOUT
+#define GAME_SHARED_PTR_SORT_STORAGE
+#include <string>
 #include <game/BUILayout.h>
 #include <game/BModelObj.h>
 #include <game/BWorld.h>
@@ -19,7 +22,7 @@
 #include <game/IGameResult.h>
 #include <game/IGameSession.h>
 #include <game/IPauseMenu.h>
-#include <game/IPostEffect.h>
+#include <game/IDlgMsgWin.h>
 #include <game/IUIInput.h>
 #include <game/LayoutResources.h>
 #include <game/MapDesc.h>
@@ -209,15 +212,14 @@ public:
     mStrongestBP = GetStrongestBP();
     mPiiSpec->SetVisible(mEntries.size() != 0);
     }
-    inline virtual ~CGameResult();
+    virtual BWorld* GetWorld() const { return mWorlds[0].get(); }
+    virtual const MapDesc& GetMapDesc() const { return *mpMapDesc; }
+    virtual IPauseMenu* GetPauseMenu() { return mPauseMenu.get(); }
     virtual void Calc();
     virtual void CalcMtx();
     virtual void CalcView();
     virtual void Draw();
     virtual void RunAction();
-    virtual const MapDesc& GetMapDesc() const { return *mpMapDesc; }
-    virtual BWorld* GetWorld() const { return mWorlds[0].get(); }
-    virtual IPauseMenu* GetPauseMenu() { return mPauseMenu.get(); }
 
 private:
     void CollectPiis();
@@ -229,7 +231,7 @@ private:
     std::tr1::shared_ptr<CUIManager> mUIManager;
     std::tr1::shared_ptr<BUILayout> mLayout;
     std::tr1::shared_ptr<CUIPiiSpec> mPiiSpec;
-    std::tr1::shared_ptr<IPostEffect> mPostEffect;
+    std::tr1::shared_ptr<IDlgMsgWin> mMessageWindow;
     std::tr1::shared_ptr<IPauseMenu> mPauseMenu;
     std::tr1::shared_ptr<BWorld> mWorlds[2];
     std::tr1::shared_ptr<BWorldCamera> mCameras[2];
@@ -238,21 +240,6 @@ private:
     int mStrongestBP;
     COffScreenTexture mCapture;
 };
-
-inline CGameResult::~CGameResult()
-{
-}
-
-}
-
-std::tr1::shared_ptr<IGameResult> IGameResult::Create(const MapDesc* pDesc, bool background)
-{
-    std::tr1::shared_ptr<CGameResult> pResult(new CGameResult(pDesc));
-    pResult->Load(background);
-    return pResult;
-}
-
-namespace {
 
 inline void CGameResult::CollectPiis()
 {
@@ -423,6 +410,17 @@ inline void CGameResult::UpdatePiiWindow()
     }
 }
 
+}
+
+std::tr1::shared_ptr<IGameResult> IGameResult::Create(const MapDesc* pDesc, bool background)
+{
+    std::tr1::shared_ptr<CGameResult> pResult(new CGameResult(pDesc));
+    pResult->Load(background);
+    return pResult;
+}
+
+namespace {
+
 enum {
     BUTTON_NEXT = 0x22,
     BUTTON_PREVIOUS = 0x8,
@@ -591,8 +589,8 @@ inline void CGameResult::Draw()
     mCapture.CopyFromEFB(true);
     mWorlds[0]->Draw();
     mUIManager->Draw();
-    if (mPostEffect) {
-        mPostEffect->Draw();
+    if (mMessageWindow) {
+        mMessageWindow->Draw();
     }
 }
 
@@ -600,8 +598,8 @@ inline void CGameResult::CalcView()
 {
     mWorlds[0]->CalcView();
     mWorlds[1]->CalcView();
-    if (mPostEffect) {
-        mPostEffect->CalcView();
+    if (mMessageWindow) {
+        mMessageWindow->CalcView();
     }
     mPauseMenu->CalcView();
 }
@@ -610,8 +608,8 @@ inline void CGameResult::CalcMtx()
 {
     mWorlds[0]->CalcMtx();
     mWorlds[1]->CalcMtx();
-    if (mPostEffect) {
-        mPostEffect->CalcMtx();
+    if (mMessageWindow) {
+        mMessageWindow->CalcMtx();
     }
     mPauseMenu->CalcMtx();
 }
@@ -688,8 +686,8 @@ inline void CGameResult::Calc()
     mWorlds[1]->Calc();
     UpdateMirrorCamera();
     mUIManager->Calc();
-    if (mPostEffect) {
-        mPostEffect->Calc();
+    if (mMessageWindow) {
+        mMessageWindow->Calc();
     }
 }
 

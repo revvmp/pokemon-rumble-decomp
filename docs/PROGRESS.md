@@ -2,7 +2,7 @@
 
 ## Current status
 
-Roadmap Phases 1 to 3 are complete and Phase 4 is active. The latest verified build matches the frozen main.dol exactly. It links 2,837,388 of 3,082,252 code bytes (92.05568%) from 887 Matching units; 8 real functions remain below 100%. Original split fallbacks still supply the remaining code and data. See the latest session below and [matching requirements](MATCHING.md).
+Roadmap Phases 1 to 3 are complete and Phase 4 is active. The latest verified build matches the frozen main.dol exactly. It links 2,950,792 of 3,082,252 code bytes (95.73494%) from 890 Matching units; 6 real functions remain below 100%. Original split fallbacks still supply the remaining code and data. See the latest session below and [matching requirements](MATCHING.md).
 
 | Milestone | State | Evidence or prerequisite |
 | --- | --- | --- |
@@ -14,7 +14,7 @@ Roadmap Phases 1 to 3 are complete and Phase 4 is active. The latest verified bu
 | Toolchain identification | Identified per library | RVL_SDK Wii/1.0; MSL and Runtime Wii/1.1 or 1.3 with `-func_align 4`; NW4R Wii/1.0 or 1.1; F-0007 |
 | Reproducible game build | Achieved | Two clean builds byte-identical; F-0010 |
 | Exact executable match | Achieved for `main.dol` | Verified; remaining original split fallbacks are tracked separately |
-| Source reconstruction | Started | 887 Matching units of 1,389 current units; see ledger |
+| Source reconstruction | Started | 890 Matching units of 1,388 current units; see ledger |
 | Full release match | Pending | Boot loader, data contents, and WAD packaging outside current scope |
 
 ## Current continuation: source-link acceptance
@@ -25,7 +25,15 @@ Main and CBattleRoyalBox subsequently passed full source-link verification, addi
 
 ## Latest function gains
 
-The real unmatched tail is now 8, down from the initial 120. Matched code is 3,060,296/3,082,252 bytes (99.28767%). The latest gain is AnimCurveExecuteChild, with all 3,468 instruction bytes and 27 relocations exact. Verified source-link coverage remains separate from function matching.
+The real unmatched tail is now 6, down from the initial 120. Matched code is 3,062,496/3,082,252 bytes (99.35904%). Both remaining reference-comparator sorts are exact, preserving their already exact value variants and every previously exact function. Verified source-link coverage remains separate from function matching.
+
+## 2026-11-04: Six-function continuation
+
+CLayout, CPiiListFilterSort and CGameResult now pass the normal source-selected build and frozen main.dol comparison. This adds 113,404 linked code bytes. Linked data is 1,740,433/1,788,735 bytes (97.29965%). The correctly owned one-byte filter placeholder replaces an automatic unit containing eleven alignment bytes, which dtk no longer counts as data; executable layout and hashes remain unchanged.
+
+The remaining bodies are PiiPropData constructor/Reset, NPpuVM Load, and the U8, F32 and Rotate animation executors. CDlgPiiSelector and CPlayerPii have exact bodies but still need source-link acceptance. All eight agents remain assigned to these five units. The current checkpoint passes incremental ninja, frozen verification, the original-address regression audit and all 1,391 byte-identical final-link aliases. Repeated clean-build evidence remains the nine-function checkpoint.
+
+New evidence includes [sort graph thresholds](re/findings/sort-tail-20261104.md#shared-pointer-sort-allocation-and-final-exact-control), [CLayout constant ownership](re/findings/20261104-layout-remote-tail.md#complete-source-link-acceptance), [filter enum and placeholder recovery](re/findings/cpiilistfiltersort-source-link.md), and [CGameResult member and cleanup identities](re/findings/123-cgameresult-unit.md#complete-source-link-acceptance). Reusable lessons are promoted to AGENTS.md and the codegen rules.
 
 ## 2026-11-04: Eight-function continuation
 

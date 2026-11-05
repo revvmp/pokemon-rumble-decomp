@@ -460,6 +460,10 @@ struct LayoutCompactMapStorage {
 
 template <typename T>
 struct LayoutAnimationInsertion {
+    __declspec(section ".sdata") static const bool sFound = false;
+    __declspec(section ".sdata") static const bool sInserted = true;
+    __declspec(section ".sdata") static const bool sPointerFound = false;
+    __declspec(section ".sdata") static const bool sPointerInserted = true;
     static std::pair<LayoutAnimationTree::iterator, bool> Insert(LayoutAnimationTree& rTree, const LayoutAnimationMap::value_type& rValue, std::detail::tree_node_base*& pCached);
 };
 
@@ -1214,15 +1218,19 @@ void CLayout::Render(const nw4r::math::VEC2& rSize) {
 namespace {
 template <typename T>
 std::pair<LayoutAnimationTree::iterator, bool> LayoutAnimationInsertion<T>::Insert(LayoutAnimationTree& rTree, const LayoutAnimationMap::value_type& rValue, std::detail::tree_node_base*& pCached) {
+    (void)&sFound;
+    (void)&sInserted;
+    (void)&sPointerFound;
+    (void)&sPointerInserted;
     LayoutAnimationTree::node* pPredecessor;
     bool left;
     bool leftmost;
     std::detail::tree_node_base* pParent = std::detail::map_leaf_search<LayoutAnimationTree, LayoutAnimationCompare>::find(&rTree, rValue, pPredecessor, left, leftmost);
     pCached = pPredecessor;
     if (pCached == nullptr || LayoutAnimationCompare()(static_cast<LayoutAnimationTree::node*>(pCached)->value_, rValue)) {
-        return std::pair<LayoutAnimationTree::iterator, bool>(LayoutAnimationTree::iterator(rTree.insert_node_at(pParent, left, leftmost, rValue)), true);
+        return std::pair<LayoutAnimationTree::iterator, bool>(LayoutAnimationTree::iterator(rTree.insert_node_at(pParent, left, leftmost, rValue)), *static_cast<const bool*>(static_cast<const void*>(&sInserted)));
     }
-    return std::pair<LayoutAnimationTree::iterator, bool>(LayoutAnimationTree::iterator(pCached), false);
+    return std::pair<LayoutAnimationTree::iterator, bool>(LayoutAnimationTree::iterator(pCached), *static_cast<const bool*>(static_cast<const void*>(&sFound)));
 }
 }
 
@@ -1264,9 +1272,16 @@ tree_imp<T, Compare, Allocator>::insert_key(const Key& rKey) {
     bool left;
     tree_node_base* pParent = find_leaf<Key>(rKey, pPred, left, leftmost);
     if (pPred == nullptr || comp()(pPred->value_, rKey)) {
-        return pair<iterator, bool>(iterator(insert_node_at(pParent, left, leftmost, rKey)), true);
+        return pair<iterator, bool>(iterator(insert_node_at(pParent, left, leftmost, rKey)), *static_cast<const bool*>(static_cast<const void*>(&LayoutAnimationInsertion<void>::sPointerInserted)));
     }
-    return pair<iterator, bool>(iterator(pPred), false);
+    return pair<iterator, bool>(iterator(pPred), *static_cast<const bool*>(static_cast<const void*>(&LayoutAnimationInsertion<void>::sPointerFound)));
 }
 }
+}
+
+namespace {
+template <typename T> const bool LayoutAnimationInsertion<T>::sFound;
+template <typename T> const bool LayoutAnimationInsertion<T>::sInserted;
+template <typename T> const bool LayoutAnimationInsertion<T>::sPointerFound;
+template <typename T> const bool LayoutAnimationInsertion<T>::sPointerInserted;
 }

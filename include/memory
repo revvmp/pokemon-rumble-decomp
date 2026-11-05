@@ -229,7 +229,7 @@ public:
         s_ = r.s_;
         r.s_ = s;
     }
-#if defined(GAME_DLGPIISELECTOR_EMISSION_LAYOUT)
+#if defined(GAME_DLGPIISELECTOR_EMISSION_LAYOUT) || defined(CGAME_RESULT_EMISSION_LAYOUT)
     void reset();
 #else
     void reset() { weak_ptr().swap(*this); }
@@ -324,7 +324,13 @@ void shared_ptr<T>::swap(shared_ptr& r) {
     ptr_ = r.ptr_;
     r.ptr_ = static_cast<element_type*>(temporary);
     temporary = s_;
+#if defined(GAME_SHARED_PTR_SORT_STORAGE)
+    detail::shared_ptr_deleter_common* pOtherState = r.s_;
+    pOtherState = static_cast<detail::shared_ptr_deleter_common*>(pOtherState);
+    s_ = pOtherState;
+#else
     s_ = r.s_;
+#endif
     r.s_ = static_cast<detail::shared_ptr_deleter_common*>(temporary);
 }
 
@@ -410,7 +416,7 @@ template<typename T> shared_ptr<T>::shared_ptr() : ptr_(nullptr), s_(nullptr) {}
 } }
 #endif
 
-#if defined(GAME_DLGPIISELECTOR_EMISSION_LAYOUT)
+#if defined(GAME_DLGPIISELECTOR_EMISSION_LAYOUT) || defined(CGAME_RESULT_EMISSION_LAYOUT)
 namespace std { namespace tr1 {
 template <typename T> void weak_ptr<T>::reset() { weak_ptr().swap(*this); }
 } }

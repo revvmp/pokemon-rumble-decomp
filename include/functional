@@ -410,12 +410,16 @@ public:
 
     operator int bool_type::*() const { return f_ != nullptr ? &bool_type::dummy_ : nullptr; }
 
+#if defined(GAME_PII_FILTER_EMISSION_LAYOUT)
+    R operator()(A argument) const;
+#else
     R operator()(A argument) const {
         if (f_ == nullptr) {
             throw bad_function_call();
         }
         return (*f_)(argument);
     }
+#endif
 
 private:
     static bool is_empty(...) { return false; }

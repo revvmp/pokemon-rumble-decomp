@@ -132,6 +132,9 @@ Keep entries concise and actionable. Distinguish confirmed findings from hypothe
 
 - **Function scoring can miss the value of a float literal.** CDlgInfo compared all75 functions exactly while its final DOL differed at a constant: the original bound extension was1024.0f, not1.0f. Compare retained data and frozen artifacts before accepting a source unit; see [CDlgInfo final tail](docs/re/findings/cdlginfo-tail.md).
 
+- **RTTI can prove an enum hidden by exact integer instructions.** CPiiListFilterSort's callback matched as int, but original type strings name FilterType twice. Correcting the callback and bind types restored retained metadata; inspect type strings before inventing padding. See [filter source acceptance](docs/re/findings/cpiilistfiltersort-source-link.md#recovered-enum-and-menu-layout).
+- **Template static constants can follow first address-request order.** CLayout's four bool fields emitted newest-requested first within the active metadata wave only with in-class initializers. Out-of-class initializers emitted later. Use the measured source control narrowly; see [CLayout acceptance](docs/re/findings/20261104-layout-remote-tail.md#complete-source-link-acceptance).
+
 - **Native linker file selectors use basenames.** An explicit full-path .text selector pulled both game and MetroTRK main.o into the first position. Byte-identical input copies with unique basenames restore the frozen full SHA; use this when experimenting with native final-link section order. See [native section linking](docs/re/findings/native-section-link.md).
 
 - **A live checkout is not a frozen header baseline.** A ParticleManager audit compiled its comparison after a shared-header edit and missed two regressions. Compare against the preserved pre-edit report or a complete original-header overlay; the scoped fix restored both affected callers. See [the shared-header audit](docs/re/findings/particle-font-native-tail-20261104.md#traps).

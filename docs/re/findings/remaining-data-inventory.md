@@ -1,18 +1,17 @@
 # Remaining data inventory after typed-global integration
 
-The accepted 2026-11-04 nine-function checkpoint has 1,711,080 of 1,788,746 source-linked data bytes, or 95.65807 percent. The subsequent Child function gain leaves these totals unchanged. The remaining 77,666 bytes are inventoried below from the normal build report; per-unit detail is retained in ignored `tools/local/tail-20261104/nine-data-inventory.json`.
+The accepted 2026-11-04 six-function checkpoint has 1,740,433 of 1,788,735 source-linked data bytes, or 97.29965 percent. The remaining 48,302 bytes are inventoried below from the normal build report. The prior nine-function inventory is retained in ignored `tools/local/tail-20261104/nine-data-inventory.json`; the changes below reflect the accepted layout, result and filter source links.
 
 | Remaining category | Bytes | Meaning |
 | --- | --- | --- |
-| Data attached to source units not yet linked | 56807 | Metadata, literals, and tables belonging to eight units still awaiting function or emission completion |
+| Data attached to source units not yet linked | 27455 | Metadata, literals, and tables belonging to five units still awaiting function or emission completion |
 | Embedded system-message U8 asset archive | 11488 | gSystemMessageArchive, asset data; can be handled through a proven asset reconstruction workflow |
 | DSP instruction image | 8192 | axDspSlave; executable DSP code, deliberately excluded from raw-byte source copying |
 | Source-evidenced alignment gaps | 112 | Two 28-byte gaps before 32-byte-aligned resource names, 24 bytes before the aligned NAND home-directory buffer, and 32 bytes before the 64-byte-aligned NAND logging buffer |
 | Other anonymous zero storage or alignment | 1048 | Automatic pad/gap labels alone do not prove original source intent; includes the 808-byte region below |
 | Controller-table alignment | 7 | Explicit separate native alignment unit, excluded from source credit |
-| Explicit placeholder auto unit | 12 | Includes alignment around the one-byte callback placeholder, described below |
 
-The remaining named source-unit data blocks are CDlgPiiSelector (20260), CLayout (12948), CGameResult (9652), CPiiListFilterSort (6752), CPlayerPii (3632), PiiPropData (1723), NPpuVM (1272), and ef_animcurve (568). Linking their real source is the main remaining route to data coverage; replacing their metadata independently would obscure that dependency. CModel, CDlgCollection, CRemoteMemory and CPii now pass source linkage.
+The remaining named source-unit data blocks are CDlgPiiSelector (20260), CPlayerPii (3632), PiiPropData (1723), NPpuVM (1272), and ef_animcurve (568). Linking their real source is the main remaining route to data coverage; replacing their metadata independently would obscure that dependency. CLayout, CGameResult and CPiiListFilterSort now pass source linkage, alongside the earlier CModel, CDlgCollection, CRemoteMemory and CPii acceptances.
 
 ## Embedded system-message archive
 
@@ -31,7 +30,7 @@ The main initialization path passes this archive, `fatal_errmsg` and `fot_wanpak
 
 ## Storage and alignment evidence
 
-The symbol inferred as lbl_804B9028 is the one-byte std::tr1::placeholders::_1 object used by CPiiListFilterSort's preview callback bind expressions. Four native lbz references copy it into the bind argument, including 0x800E83D0. The source includes the static ph<1> declaration from include/tuple. Its owner should gain the small-data split when that unit is source-linked; this identity was sent to the owning agent.
+The symbol previously inferred as lbl_804B9028 is the one-byte std::tr1::placeholders::_1 object used by CPiiListFilterSort's preview callback bind expressions. Four native lbz references copy it into the bind argument, including 0x800E83D0. Its source owner now claims that byte through the existing static ph<1> declaration in include/tuple. The obsolete twelve-byte automatic unit is gone: one byte is source-owned and eleven bytes are native alignment excluded from the corrected denominator. Full frozen verification passes; see [placeholder acceptance](cpiilistfiltersort-source-link.md#placeholder-ownership-and-denominator-correction).
 
 ArchiveFontBase::LOAD_GLYPH_ALL has now moved into the Matching ut_ArchiveFontData.cpp data-only owner. Its one-byte empty-string definition is unchanged; the existing base source compiles with zero function differences after the move. The maintainer reports native ninja exit 0 and frozen SHA PASS. The .sbss2 split is 0x804BBC08?0x804BBC0C, including three alignment bytes. The accepted checkpoint has 874 Matching units.
 

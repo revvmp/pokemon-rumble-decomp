@@ -1,3 +1,5 @@
+#define GAME_PII_FILTER_EMISSION_LAYOUT
+#define GAME_SHARED_PTR_SORT_STORAGE
 #define GAME_PII_SORT_PIVOT_STORAGE
 #include <game/CPiiListFilterSort.h>
 #include <game/CMsgRes.h>
@@ -6,8 +8,8 @@
 #include <game/IGameSession.h>
 #include <game/CPlayer.h>
 #include <game/COyaInfo.h>
-#include <game/CUIMenu.h>
 #include <game/CUIMenuItem.h>
+#include <game/CUIMenu.h>
 #include <game/IGameMap.h>
 #include <game/IPauseMenu.h>
 #include <game/LayoutResources.h>
@@ -39,38 +41,6 @@ int Compare(const T& rA, const T& rB) {
     return rB < rA;
 }
 
-bool CompareBPAscending(const PiiItemPtr& rA, const PiiItemPtr& rB) {
-    int bpA = rA->GetPPD()->GetBP();
-    int bpB = rB->GetPPD()->GetBP();
-    const CPiiPersonalData* pA = rA->GetPPD().get();
-    const CPiiPersonalData* pB = rB->GetPPD().get();
-    int result = CompareValue(bpA, bpB);
-    if (result != 0) {
-        return result < 0;
-    }
-    result = Compare(pA->GetCreationTime(), pB->GetCreationTime());
-    if (result != 0) {
-        return result < 0;
-    }
-    return pA->GetId() < pB->GetId();
-}
-
-bool CompareBPDescending(const PiiItemPtr& rA, const PiiItemPtr& rB) {
-    int bpA = rA->GetPPD()->GetBP();
-    int bpB = rB->GetPPD()->GetBP();
-    const CPiiPersonalData* pA = rA->GetPPD().get();
-    const CPiiPersonalData* pB = rB->GetPPD().get();
-    int result = CompareValue(bpA, bpB);
-    if (result != 0) {
-        return result > 0;
-    }
-    result = Compare(pA->GetCreationTime(), pB->GetCreationTime());
-    if (result != 0) {
-        return result > 0;
-    }
-    return pB->GetId() < pA->GetId();
-}
-
 inline int Reverse(int result) {
     return result != 0 ? -result : 0;
 }
@@ -99,6 +69,10 @@ inline int CompareSpeciesNames(const PiiSpeciesData* pA, const PiiSpeciesData* p
     return CompareCollation(pNameA, pNameB);
 }
 
+inline bool CompareItemBP(const PiiItemPtr& rA, const PiiItemPtr& rB) {
+    return CompareBPChain(rA->GetPPD().get(), rB->GetPPD().get());
+}
+
 bool CompareFavoriteFirst(const PiiItemPtr& rA, const PiiItemPtr& rB) {
     const CPiiPersonalData* pA = rA->GetPPD().get();
     const CPiiPersonalData* pB = rB->GetPPD().get();
@@ -118,28 +92,14 @@ bool CompareFavoriteFirst(const PiiItemPtr& rA, const PiiItemPtr& rB) {
     return pB->GetId() < pA->GetId();
 }
 
-bool CompareSpeciesName(const PiiItemPtr& rA, const PiiItemPtr& rB) {
-    const PiiSpeciesData* pSpeciesA = rA->GetPPD()->GetSpeciesData();
-    const PiiSpeciesData* pSpeciesB = rB->GetPPD()->GetSpeciesData();
-    int result = CompareSpeciesNames(pSpeciesA, pSpeciesB);
+bool CompareOldest(const PiiItemPtr& rA, const PiiItemPtr& rB) {
+    const CPiiPersonalData* pA = rA->GetPPD().get();
+    const CPiiPersonalData* pB = rB->GetPPD().get();
+    int result = Compare(pA->GetCreationTime(), pB->GetCreationTime());
     if (result != 0) {
         return result < 0;
     }
-    return CompareBPDescending(rA, rB);
-}
-
-inline bool CompareItemBP(const PiiItemPtr& rA, const PiiItemPtr& rB) {
-    return CompareBPChain(rA->GetPPD().get(), rB->GetPPD().get());
-}
-
-bool CompareSpeciesOrder(const PiiItemPtr& rA, const PiiItemPtr& rB) {
-    const PiiSpeciesData* pSpeciesA = rA->GetPPD()->GetSpeciesData();
-    const PiiSpeciesData* pSpeciesB = rB->GetPPD()->GetSpeciesData();
-    int result = Compare(pSpeciesA, pSpeciesB);
-    if (result != 0) {
-        return result < 0;
-    }
-    return CompareItemBP(rA, rB);
+    return pA->GetId() < pB->GetId();
 }
 
 bool CompareNewest(const PiiItemPtr& rA, const PiiItemPtr& rB) {
@@ -152,18 +112,65 @@ bool CompareNewest(const PiiItemPtr& rA, const PiiItemPtr& rB) {
     return pB->GetId() < pA->GetId();
 }
 
-bool CompareOldest(const PiiItemPtr& rA, const PiiItemPtr& rB) {
+bool CompareBPDescending(const PiiItemPtr& rA, const PiiItemPtr& rB) {
+    int bpA = rA->GetPPD()->GetBP();
+    int bpB = rB->GetPPD()->GetBP();
     const CPiiPersonalData* pA = rA->GetPPD().get();
     const CPiiPersonalData* pB = rB->GetPPD().get();
-    int result = Compare(pA->GetCreationTime(), pB->GetCreationTime());
+    int result = CompareValue(bpA, bpB);
+    if (result != 0) {
+        return result > 0;
+    }
+    result = Compare(pA->GetCreationTime(), pB->GetCreationTime());
+    if (result != 0) {
+        return result > 0;
+    }
+    return pB->GetId() < pA->GetId();
+}
+
+bool CompareBPAscending(const PiiItemPtr& rA, const PiiItemPtr& rB) {
+    int bpA = rA->GetPPD()->GetBP();
+    int bpB = rB->GetPPD()->GetBP();
+    const CPiiPersonalData* pA = rA->GetPPD().get();
+    const CPiiPersonalData* pB = rB->GetPPD().get();
+    int result = CompareValue(bpA, bpB);
+    if (result != 0) {
+        return result < 0;
+    }
+    result = Compare(pA->GetCreationTime(), pB->GetCreationTime());
     if (result != 0) {
         return result < 0;
     }
     return pA->GetId() < pB->GetId();
 }
 
-bool IsNameBefore(const wchar_t* const& rNameA, const wchar_t* const& rNameB) {
-    return CompareCollation(rNameA, rNameB) < 0;
+bool CompareSpeciesName(const PiiItemPtr& rA, const PiiItemPtr& rB) {
+    const PiiSpeciesData* pSpeciesA = rA->GetPPD()->GetSpeciesData();
+    const PiiSpeciesData* pSpeciesB = rB->GetPPD()->GetSpeciesData();
+    int result = CompareSpeciesNames(pSpeciesA, pSpeciesB);
+    if (result != 0) {
+        return result < 0;
+    }
+    return CompareBPDescending(rA, rB);
+}
+
+bool CompareSpeciesOrder(const PiiItemPtr& rA, const PiiItemPtr& rB) {
+    const PiiSpeciesData* pSpeciesA = rA->GetPPD()->GetSpeciesData();
+    const PiiSpeciesData* pSpeciesB = rB->GetPPD()->GetSpeciesData();
+    int result = Compare(pSpeciesA, pSpeciesB);
+    if (result != 0) {
+        return result < 0;
+    }
+    return CompareItemBP(rA, rB);
+}
+
+static void RequestPiiMaskAccessors() {
+    bool request = false;
+    if (request) {
+        CUIPiiListItem* pItem = nullptr;
+        pItem->GetSpeciesTypeMask();
+        pItem->GetMoveTypeMask();
+    }
 }
 
 CPiiListFilterSort::CPiiListFilterSort() : mFilterType(FILTER_NONE), mSortType(0), mPlayerIndex(-1) {}
@@ -478,7 +485,7 @@ bool CPiiListFilterSort::ShowTypeFilterMenu(bool bySpecies, std::tr1::shared_ptr
             }
         }
     }
-    UIMenuParam param = {nullptr, nullptr, 17, 1, 17, 0, nullptr, "menu"};
+    UIMenuParam param = {nullptr, nullptr, 17, 3, 6, 0, nullptr, "menu"};
     param.mTitle = GetMessageString(bySpecies ? 0x600B1 : 0x600B2, nullptr);
     param.mpItems = items;
     bool filterActive = mFilterType == FILTER_SPECIES_TYPE || mFilterType == FILTER_MOVE_TYPE;
@@ -487,7 +494,7 @@ bool CPiiListFilterSort::ShowTypeFilterMenu(bool bySpecies, std::tr1::shared_ptr
     CUIMenuSoundCallback callbacks(0);
     if (onChanged) {
         callbacks.mSelectionCallbacks.Add(
-            std::tr1::bind(&CPiiListFilterSort::PreviewTypeFilter, this, std::tr1::placeholders::_1, int(bySpecies ? FILTER_SPECIES_TYPE : FILTER_MOVE_TYPE), onChanged));
+            std::tr1::bind(&CPiiListFilterSort::PreviewTypeFilter, this, std::tr1::placeholders::_1, bySpecies ? FILTER_SPECIES_TYPE : FILTER_MOVE_TYPE, onChanged));
     }
     IController* pInput = IGameSession::GetInstance()->GetPlayer(player)->GetController();
     u32 choice = RunUIMenu(param, callbacks, pInput, pManager, GetDefaultFontMap(), true);
@@ -505,14 +512,14 @@ bool CPiiListFilterSort::ShowTypeFilterMenu(bool bySpecies, std::tr1::shared_ptr
     return false;
 }
 
-void CPiiListFilterSort::PreviewTypeFilter(BUI* pBui, int filterType, const std::tr1::function<void(const CPiiListFilterSort*)>& onChanged) {
+void CPiiListFilterSort::PreviewTypeFilter(BUI* pBui, FilterType filterType, const std::tr1::function<void(const CPiiListFilterSort*)>& onChanged) {
     CUIMenu* pList = dynamic_cast<CUIMenu*>(pBui);
     if (pList) {
         std::tr1::shared_ptr<IUIListItem> pItem = pList->GetSelectedItem();
         if (pItem) {
             std::tr1::shared_ptr<CUIMenuItem> pMenuItem = std::tr1::dynamic_pointer_cast<CUIMenuItem>(pItem);
             if (pMenuItem) {
-                int savedFilterType = mFilterType;
+                FilterType savedFilterType = mFilterType;
                 int savedTypeIndex = mTypeIndex;
                 mFilterType = filterType;
                 mTypeIndex = pMenuItem->GetKind();
@@ -524,6 +531,14 @@ void CPiiListFilterSort::PreviewTypeFilter(BUI* pBui, int filterType, const std:
             }
         }
     }
+}
+
+#pragma dont_inline on
+
+#pragma dont_inline reset
+
+bool IsNameBefore(const wchar_t* const& rNameA, const wchar_t* const& rNameB) {
+    return CompareCollation(rNameA, rNameB) < 0;
 }
 
 #pragma dont_inline on
@@ -583,7 +598,7 @@ void CPiiListFilterSort::PreviewPrefixFilter(BUI* pBui, const std::tr1::function
         if (pItem) {
             std::tr1::shared_ptr<CUIMenuItem> pMenuItem = std::tr1::dynamic_pointer_cast<CUIMenuItem>(pItem);
             if (pMenuItem) {
-                int savedFilterType = mFilterType;
+                FilterType savedFilterType = mFilterType;
                 int savedPrefix = mPrefix;
                 mFilterType = FILTER_PREFIX;
                 mPrefix = pMenuItem->GetKind();
@@ -635,7 +650,7 @@ void CPiiListFilterSort::PreviewOriginalTrainerFilter(BUI* pBui, const std::tr1:
         if (pItem) {
             std::tr1::shared_ptr<CUIMenuItem> pMenuItem = std::tr1::dynamic_pointer_cast<CUIMenuItem>(pItem);
             if (pMenuItem) {
-                int savedFilterType = mFilterType;
+                FilterType savedFilterType = mFilterType;
                 int savedInvert = mInvertOriginalTrainer;
                 mFilterType = FILTER_ORIGINAL_TRAINER;
                 mInvertOriginalTrainer = pMenuItem->GetKind();
@@ -702,3 +717,15 @@ void CPiiListFilterSort::PreviewSortType(BUI* pBui, const std::tr1::function<voi
 }
 
 #pragma dont_inline reset
+
+namespace std {
+namespace tr1 {
+template <typename R, typename A>
+R function<R(A)>::operator()(A argument) const {
+    if (f_ == nullptr) {
+        throw bad_function_call();
+    }
+    return (*f_)(argument);
+}
+}
+}

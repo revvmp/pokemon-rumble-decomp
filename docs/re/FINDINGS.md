@@ -2,6 +2,8 @@
 
 ## 2026-11-04 native source-link continuation
 
+[CLayout](findings/20261104-layout-remote-tail.md#complete-source-link-acceptance), [CPiiListFilterSort](findings/cpiilistfiltersort-source-link.md) and [CGameResult](findings/123-cgameresult-unit.md#complete-source-link-acceptance) now pass the normal complete source link. Both remaining reference-comparator sorts are exact after a traced control-block-load lifetime correction. The filter's original RTTI proves its callback enum, and its parameter block proves a 3-by-6 menu grid; function scoring had hidden both errors. Six unfinished functions remain.
+
 [AnimCurveExecuteChild](findings/animcurve-child-20261104.md) now reproduces all 3,468 function bytes and 27 relocations. Read-only tracing proves that integer-to-float conversion scratch slots alternate through a separate compiler selector; an unused conversion can advance it before its instructions disappear. The ordinary build and frozen verification pass, leaving eight unfinished functions. The animation unit remains NonMatching pending its other three functions and source-link acceptance.
 
 [CModel](findings/329-cmodel-emission.md), [CDlgCollection](findings/cdlgcollection-tail.md) and [CMsgRes](findings/20261104-game-small-tail.md) now pass the normal full source link. CModel's native input grouping preserves code, exception and data order independently without editing compiler output. Collection's final exception-range difference requires the proven nonthrowing accessor contract. [CPlayerPii GetShadowName](findings/player-shadow-tail.md) and [NPpuVM CollectGarbage](findings/vm-properties-tail-20261104.md) are newly exact function bodies; their unit-level acceptance remains separate.

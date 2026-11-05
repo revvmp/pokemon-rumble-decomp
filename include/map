@@ -181,6 +181,9 @@ public:
     };
     iterator begin() { return iterator(front()); }
     template <typename Key> tree_node_base* find_leaf(const Key& key, node*& rpPred, bool& rLeft, bool& rLeftmost);
+#if defined(CGAME_RESULT_EMISSION_LAYOUT)
+    template <typename Key> value_type& find_or_insert(const Key& key);
+#else
     template <typename Key> value_type& find_or_insert(const Key& key) {
         node* pPred;
         bool left;
@@ -191,6 +194,7 @@ public:
         }
         return pPred->value_;
     }
+#endif
     template <typename Key> iterator find(const Key& key) { return find_key(key); }
     template <typename Key> iterator find(Key* const& key) { return find_key(reinterpret_cast<const void* const&>(key)); }
     iterator end() { return iterator(end_node()); }
@@ -357,6 +361,21 @@ template <typename T, typename Compare, typename Allocator> map_compact_tree<T, 
             destroy(static_cast<node*>(root()));
         }
     }
+#endif
+
+#if defined(CGAME_RESULT_EMISSION_LAYOUT)
+template <typename T, typename Compare, typename Allocator>
+template <typename Key>
+typename map_compact_tree<T, Compare, Allocator>::value_type& map_compact_tree<T, Compare, Allocator>::find_or_insert(const Key& key) {
+    node* pPred;
+    bool left;
+    bool leftmost;
+    tree_node_base* pParent = find_leaf(key, pPred, left, leftmost);
+    if (pPred == nullptr || pPred->value_.first < key) {
+        return insert_node_at(pParent, left, leftmost, value_type(key, typename value_type::second_type()))->value_;
+    }
+    return pPred->value_;
+}
 #endif
 
 template <typename T, typename Compare, typename Allocator>

@@ -25,6 +25,7 @@ The allocator and scheduler are recovered in [sprint-ra](findings/sprint-ra.md).
 - **To colour a value after a named local, make it a named local declared later.** Use compound assignment to keep a result in that local's node (`outer *= outer`). [sprint-ra](findings/sprint-ra.md#rules) rule 4
 - **Named variables coalesce only with physical registers**; temporaries and `@` variables merge into the lowest number of a copy chain. sprint-ra rule 7.
 - **Mask register numbers before chasing a swap.** A parameter one interference short of K moves from the top to the bottom of the non-volatile registers; in homebutton the cause was an unrelated source difference. sprint-ra rules 5, 6.
+- **Measure working degree at the first simplifier visit.** The shared-pointer sort pivot starts with degree 37 but reaches 29 when visited, exactly the cutoff; its value-comparator variant reaches 28. Naming and reassigning the right control-block pointer removes three edges earlier, making both instances exact. Original degree alone misses the decisive threshold. [Graph snapshots and accepted control](findings/sort-tail-20261104.md#shared-pointer-sort-allocation-and-final-exact-control)
 - **Scheduling ties keep generation order.** The priority is deadline, then uncovered successors, then height, then (before allocation only) opcode rank. Register arguments are generated left to right. sprint-ra rule 9.
 - One definition reaching every use keeps one register; full reassignment starts a new live range. [sprint-r1](findings/sprint-r1.md#rules) rules 1, 6
 - `x + c` and `x += c` differ in operand order; the last operand of an `||` early return changes branch shape. Rules 2, 3.
@@ -48,6 +49,7 @@ The allocator and scheduler are recovered in [sprint-ra](findings/sprint-ra.md).
 - **Vtable-only inline functions come after all strong functions, in reverse class declaration order.** An implicit destructor is generated late; a user-declared one is strong at its definition. [sprint-e1](findings/sprint-e1.md#rules) rules 6, 7
 - A request made while another template is instantiated goes to a later round (rule 5). `inline` on an out-of-class template member can change code (rule 8).
 - String literals of inline functions become `@STRING@<function>@n` objects after the vtables (rule 3).
+- **Initialized const template statics can follow their first address-request order.** CLayout's four bool members emit newest-requested first when initialized inside the class, within the active metadata wave. Moving their initializers out of class emits them later. Discarded address requests and opaque typed reads reproduce the original pools without extra objects or instructions. [Full source-link evidence](findings/20261104-layout-remote-tail.md#complete-source-link-acceptance)
 - **Unresolved: `tree_imp::find_leaf` position.** No source form reproduces the target slot in all six units. [sprint-f1](findings/sprint-f1.md#the-rule-that-is-still-missing)
 - Hypothesis: a lower-priority duplicate weak copy explains second `max<int>` and `DynamicCast` copies. [sprint-e1](findings/sprint-e1.md#open)
 
