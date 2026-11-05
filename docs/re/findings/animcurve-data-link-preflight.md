@@ -50,3 +50,7 @@ An exhaustive byte comparison classifies all 263 differing bytes:
 There are zero differences outside those three bodies. DOL headers, every other function, padding, data, and metadata remain byte-identical. `difference-scope.json` records every differing byte and its owner; `pf_animcurve_link_audit.py` reproduces that classification.
 
 This snapshot has no additional data, literal, emission-order, or link-layout obstacle. Later function candidates still need their own final native source-link verification. In particular, the subsequent Rotate `rotate_flag_load_shapes_0_1` gain was reported after this diagnostic snapshot and is not included in its hash or byte counts. No canonical source, header, original hash, or build configuration was changed by this preflight.
+
+## Final source acceptance
+
+After Rotate and F32 acceptance, the coordinator repeated the native diagnostic with the final-size U8 candidate. All 36 differing bytes lay in 24 U8 instruction words; none lay outside that function. The final U8 candidate then removes those differences completely. The native replacement links, converts and passes frozen verification with zero differing DOL bytes. The ordinary build now selects the animation source object as Matching and passes the same verification. All eight functions, their relocation-backed literals and both retained data sections are exact. See [the final source evidence](animcurve-20261104-continuation.md) and [validation](../../VALIDATION.md#two-function-checkpoint-and-animation-source-acceptance).

@@ -1,15 +1,14 @@
 # Remaining data inventory
 
-The accepted 2026-11-04 three-function checkpoint has 1,777,877 of 1,788,360 source-linked data bytes, or 99.41382 percent. Exactly three original fallback units remain in the normal final link. Two contain unfinished CPU functions and their associated data; the third contains the DSP instruction image. There are no remaining standalone alignment objects or unexplained anonymous storage ranges.
+The accepted 2026-11-04 two-function checkpoint has 1,778,445 of 1,788,360 source-linked data bytes, or 99.44558 percent. Exactly two original fallback units remain in the normal final link: PiiPropData with its two unfinished CPU functions and associated data, and the DSP instruction image. There are no remaining standalone alignment objects or unexplained anonymous storage ranges.
 
 | Remaining category | Bytes | Meaning |
 | --- | ---: | --- |
 | PiiPropData data | 1723 | Metadata, literals and tables attached to the unit whose constructor and Reset remain unfinished |
-| ef_animcurve data | 568 | Exact retained tables and literals; unit remains a fallback until U8 is accepted |
 | DSP instruction image | 8192 | axDspSlave, executable DSP code; deliberately excluded from raw-byte source copying |
-| Total | 10483 | Explicit original-data dependencies |
+| Total | 9915 | Explicit original-data dependencies |
 
-CDlgPiiSelector, CPlayerPii and NPpuVM now link their complete data from source, following the earlier CLayout, CGameResult and CPiiListFilterSort acceptances. The private animation diagnostic reproduces every byte outside its three unfinished function bodies, including all 568 data bytes. This is a useful preflight and is not complete unit acceptance. See [the scoped diagnostic](animcurve-data-link-preflight.md).
+CDlgPiiSelector, CPlayerPii, NPpuVM and ef_animcurve now link their complete data from source, following the earlier CLayout, CGameResult and CPiiListFilterSort acceptances. All 568 animation table/literal bytes and every retained function pass the full native source-link comparison. See [animation acceptance](animcurve-20261104-continuation.md).
 
 ## Reconstructed system-message archive
 

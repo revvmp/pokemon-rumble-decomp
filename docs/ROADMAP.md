@@ -52,7 +52,7 @@ Gate: a clean build passes `tools/verify/verify.py verify` against the frozen DO
 
 ## Phase 4: Denominator and first source
 
-Active. The denominator is documented in [matching](MATCHING.md#counting-method) and the first unit is linked from source. Remaining: real library translation-unit splits, progress categories, and more reconstructed units.
+Done. The denominator, real translation-unit inventory and progress categories are documented; hundreds of source-selected units pass exact verification, including repeated clean builds. See [the current checkpoint](PROGRESS.md) and [matching](MATCHING.md#counting-method).
 
 Goal: measurable progress and the first reconstructed translation units.
 
@@ -64,6 +64,8 @@ Goal: measurable progress and the first reconstructed translation units.
 Gate: at least one translation unit is source-built and linked, the full DOL still verifies, and progress is reported against the documented denominator.
 
 ## Phase 5: Game code reconstruction
+
+Active. Two CPU functions remain unfinished; the ordinary source-selected build and reconstruction ledger record the accepted units. The DSP program remains an explicit separate dependency.
 
 Goal: grow source coverage across game code.
 

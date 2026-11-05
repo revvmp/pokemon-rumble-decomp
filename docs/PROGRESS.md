@@ -2,7 +2,7 @@
 
 ## Current status
 
-Roadmap Phases 1 to 3 are complete and Phase 4 is active. The latest verified build matches the frozen main.dol exactly. It links 3,043,388 of 3,078,460 code bytes (98.86073%) from 894 Matching units; 3 real functions remain below 100%. PiiPropData and ef_animcurve remain original CPU-code fallbacks, and the DSP instruction image remains explicit. The system-message archive builds from recovered editable assets. See the latest session below and [matching requirements](MATCHING.md).
+Roadmap Phases 1 to 4 are complete and Phase 5 is active. The latest verified build matches the frozen main.dol exactly. It links 3,063,580 of 3,078,460 code bytes (99.51664%) from 895 Matching units; 2 real functions remain below 100%. PiiPropData is the only original CPU-code fallback. The DSP instruction image remains explicit, while the system-message archive builds from recovered editable assets. See the latest session below and [matching requirements](MATCHING.md).
 
 | Milestone | State | Evidence or prerequisite |
 | --- | --- | --- |
@@ -14,7 +14,7 @@ Roadmap Phases 1 to 3 are complete and Phase 4 is active. The latest verified bu
 | Toolchain identification | Identified per library | RVL_SDK Wii/1.0; MSL and Runtime Wii/1.1 or 1.3 with `-func_align 4`; NW4R Wii/1.0 or 1.1; F-0007 |
 | Reproducible game build | Achieved | Two clean builds byte-identical; F-0010 |
 | Exact executable match | Achieved for `main.dol` | Verified; remaining original split fallbacks are tracked separately |
-| Source reconstruction | In progress | 894 Matching units of 897 current units; see ledger |
+| Source reconstruction | In progress | 895 Matching units of 897 current units; see ledger |
 | Full release match | Pending | Boot loader, data contents, and WAD packaging outside current scope |
 
 ## Current continuation: source-link acceptance
@@ -25,7 +25,15 @@ Main and CBattleRoyalBox subsequently passed full source-link verification, addi
 
 ## Latest function gains
 
-The real unmatched tail is now 3, down from the initial 120. AnimCurveExecuteF32 is newly exact, with all earlier exact functions preserved. Matched code is 3,071,320/3,078,460 bytes (99.76807%). The previously removed 3,792 native alignment bytes do not add matched or linked instruction credit.
+The real unmatched tail is now 2, down from the initial 120. AnimCurveExecuteU8 is newly exact, and the complete animation-curve unit now links from source. All earlier exact functions are preserved. Matched code is 3,076,152/3,078,460 bytes (99.92503%). The previously removed 3,792 native alignment bytes do not add matched or linked instruction credit.
+
+## 2026-11-04: Two functions and complete NW4R source linkage
+
+AnimCurveExecuteU8 reproduces all 4,832 bytes and 72 relocations. All eight animation-curve functions, retained tables and literals now match exactly. A native replacement trial has zero differing DOL bytes, and the normal source-selected build passes frozen verification after the old DOL is removed. This adds 20,192 source-linked code bytes and 568 data bytes. Every NW4R unit is now Matching: 194 units, 2,372 functions and 559,248 code bytes.
+
+PiiPropData constructor and Reset are the only unfinished CPU functions. Its source-link preparation separately checks exception-record and literal ownership. The original-address audit preserves all prior exact functions; all 900 native input aliases remain identical to their selected objects. Source-linked data is 1,778,445/1,788,360 bytes (99.44558%). Only PiiPropData and the 8,192-byte DSP program remain original fallback units.
+
+The roadmap display is corrected to Phase 5: Phase 4's documented-denominator, first-source-unit and exact-build gates have long been satisfied and are confirmed again by the current report and repeated clean builds. The preceding b37f0dbb checkpoint has the latest repeated complete clean-build evidence; this source-selection gain is incrementally verified. [U8 evidence](re/findings/animcurve-20261104-continuation.md), [source-link preflight](re/findings/animcurve-data-link-preflight.md), and [DSP identities](re/findings/ax-dsp-identities-20261104.md) retain the scope and remaining work. Full source and package completion are not claimed.
 
 ## 2026-11-04: Three-function continuation
 
@@ -33,7 +41,7 @@ AnimCurveExecuteF32 now reproduces all 4,044 bytes and 59 relocations. Normal ni
 
 Read-only compiler tracing explains [the final F32 scheduling pair](re/findings/animcurve-f32-final-schedule.md): a virtual pointer copy disappears before final scheduling but changes a ready-list tie. The retained source control is listed under D-0016 and promoted to the codegen rules. The current Dolphin DSP inspector also reproduces the entire 8,192-byte DSP image through an exact disassemble/assemble roundtrip; its generated listing is private and earns no reconstruction credit. Original assembly provenance remains unresolved. See [DSP evidence](re/findings/ax-dsp-image-20261104.md).
 
-This checkpoint uses an incremental build. The five-function checkpoint remains the latest repeated complete clean-build proof. Full source and package completion are not claimed.
+Two complete clean builds at b37f0dbb now reproduce main.dol, main.elf, report.json, the generated archive and generated C include exactly, with frozen verification passing both times. [Validation](VALIDATION.md#three-function-checkpoint) records the five hashes. Full source and package completion are not claimed.
 
 ## 2026-11-04: Four functions and editable archive reconstruction
 

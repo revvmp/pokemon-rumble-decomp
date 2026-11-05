@@ -282,4 +282,22 @@ This checkpoint is incrementally verified. The preceding five-function checkpoin
 
 ## Three-function checkpoint
 
-After integrating the independently audited F32 fragment, configure and native ninja exit zero. The previous main.dol was removed before building, and frozen verification passes against the newly linked output. All 4,044 F32 bytes and 59 normalized relocations are exact; the unit's seven other bodies are unchanged from its accepted control. The original-address audit reports no regression or missing exact function, and all 900 native input aliases equal their selected objects. Current matched code is 3,071,320/3,078,460 bytes, with 13,459 of 13,462 real functions exact. Source-linked code/data coverage and the three original fallback units are unchanged. This is incremental validation; the preceding five-function checkpoint retains the latest repeated complete clean-build proof.
+After integrating the independently audited F32 fragment, configure and native ninja exit zero. The previous main.dol was removed before building, and frozen verification passes against the newly linked output. All 4,044 F32 bytes and 59 normalized relocations are exact; the unit's seven other bodies are unchanged from its accepted control. The original-address audit reports no regression or missing exact function, and all 900 native input aliases equal their selected objects. Current matched code is 3,071,320/3,078,460 bytes, with 13,459 of 13,462 real functions exact. Source-linked code/data coverage and the three original fallback units are unchanged.
+
+After committing b37f0dbb, two complete clean target builds were performed. Before each build, the complete build/wpse-v1 directory was moved into an ignored checkpoint directory after verifying its resolved workspace path. Configure then regenerated the target and ninja rebuilt the entire pipeline, including semantic asset generation. Both builds exited zero and passed frozen verification. The first clean output equals the preceding incremental output, and the second equals the first, for every artifact below.
+
+| Artifact | Bytes | SHA-256 |
+| --- | ---: | --- |
+| main.dol | 4094880 | ad1a59896d3ade6b2ac35c24faa578fb3cdf8c2e2d3a9040ba8784cd033053da |
+| main.elf | 6037064 | 9c7ca1f8fdf45bd3aa635e42edda558edb0850fbc9856effdeebd4cb2aa32d7e |
+| report.json | 4560455 | e80c3e109f8aba8689267391e20af82bd22bd2743399089a971fc3e9271aad93 |
+| assets/system_message.arc | 11488 | e27d380bbad3aff2ef2d41cfdc5b77590390a68937fef6edc87502f2d1813161 |
+| include/system_message.inc | 68928 | fd3a483529c348ffc3eb9b27ee3d59f43268b17e8ae9417fa16f827bacbe76d5 |
+
+The final clean regression audit again reports no lost exact function and 900 unchanged final-link aliases. The native alignment audit verifies all 470 ranges, totaling 3,792 bytes. Private logs and preserved outputs are under tools/local/tail-20261104/three-clean-one.log, three-clean-two.log, three-before-clean/ and three-clean-one/; the normal build directory contains the second clean result.
+
+## Two-function checkpoint and animation source acceptance
+
+The final cleaned U8 implementation reproduces 4,832 bytes and 72 normalized relocations. All eight retained animation functions and all 568 data bytes match the original. A native replacement trial links and converts successfully, then passes frozen main.dol verification with zero differing bytes. After promoting ef_animcurve to Matching, configure and ninja exit zero; the previous DOL was removed before building, and verification passes on the fresh output. All 900 raw final-link aliases remain unchanged copies of their selected objects, and the original-address audit finds no exact-function regression or loss.
+
+The report records 13,460 of 13,462 real functions exact, 3,076,152 matched code bytes, 3,063,580 source-linked code bytes, 1,778,445 linked data bytes and 895 Matching units of 897. NW4R is fully source-selected: all 194 units, 2,372 functions and 559,248 code bytes. This checkpoint is incremental; b37f0dbb immediately before U8 integration retains the latest repeated clean-build proof above. Private acceptance is recorded under links/animcurve-source-acceptance; the ordinary build log is two-animcurve-build.log.

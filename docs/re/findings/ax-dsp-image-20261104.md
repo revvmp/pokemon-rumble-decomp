@@ -32,7 +32,7 @@ The current Dolphin assembler, disassembler, instruction tables and label map at
 
 The executable `tools/local/dsp-tools/dolphin-assembler/dsp-inspect.exe` has SHA-256 `22f7d1df9088188a391f81af3f26bfa4694c2980938069148564fc95456db7ab`. The actual disassemble, assemble and annotated-list commands each exit zero. Reassembly of the generated `ax-wpse-v1-modern.ds` reproduces all 8,192 bytes, with zero differences and the original image SHA-256. This establishes an exact tool roundtrip, not a source reconstruction. The generated listing remains private and is not a production input.
 
-The apparently unknown word `0x024F` at DSP address `0x0D04` is a command-dispatch table entry. At `0x0079`, the dispatcher loads table base `0x0D02`, adds a command bounded to 0 through 14, reads instruction memory and jumps through the result. The third table entry is therefore a handler address, not an unsupported instruction. Its `COMMAND_SUB_TO_LR` identity follows from the source-owned `AXCL.c` command enum and producer. Further handler and argument evidence is recorded in the separate DSP identity investigation.
+The apparently unknown word `0x024F` at DSP address `0x0D04` is a command-dispatch table entry. At `0x0079`, the dispatcher loads table base `0x0D02`, adds a command bounded to 0 through 14, reads instruction memory and jumps through the result. The third table entry is therefore a handler address, not an unsupported instruction. Its `COMMAND_SUB_TO_LR` identity follows from the source-owned `AXCL.c` command enum and producer. [The separate DSP identity investigation](ax-dsp-identities-20261104.md) records all fifteen handlers, their argument counts, and 378 bytes of proven instruction-memory lookup tables.
 
 ## Remaining work and acceptance boundary
 

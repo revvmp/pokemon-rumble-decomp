@@ -87,3 +87,7 @@ The DSP image remains an explicit executable-code dependency. Neither the PNG/TP
 - Repacking a container around original payloads proves only the container format. Here the U8-only proof was followed by independent layout, animation and image serialization before any asset-reconstruction claim.
 - Generated output paths can overwrite their own editable inputs even when outputs do not overlap each other. Gather resolved manifest, JSON and PNG input paths, compare all output paths before writing, and exercise the real CLI with input hashes checked afterward.
 - Assertions are insufficient for authoring-input validation because optimized Python removes them. Explicit exceptions keep the same rejection behavior under `python -O`.
+
+## Repeated clean-build confirmation
+
+Two complete clean target builds at b37f0dbb regenerate this archive and its C include from the installed semantic inputs. Both outputs reproduce their respective 11,488-byte and 68,928-byte hashes, and both complete executable builds pass frozen verification. The preceding incremental outputs are identical too. [Validation](../../VALIDATION.md#three-function-checkpoint) records all five compared artifacts.

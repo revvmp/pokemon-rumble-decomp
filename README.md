@@ -40,6 +40,6 @@ Work is split into GitHub issues, each owning a block of functions; see [workstr
 
 1. Install the [GitHub CLI](https://cli.github.com/) and sign in with `gh auth login`.
 2. Read [collaboration](docs/COLLABORATION.md).
-3. To work with an LLM agent such as Claude Code, open it in the repository and say "take an issue". It claims an unassigned issue, works in its own worktree, and merges its pull request once its local build verifies against the latest `main`. See root `AGENTS.md` for the rules agents follow.
+3. To work with an LLM agent such as Claude Code, open it in the repository and say "take an issue". It claims an unassigned issue and follows the current main-branch workflow: agents own separate files and scratch outputs while one coordinator runs the shared build and verification. See root `AGENTS.md` for the rules agents follow.
 
 Start with the [documentation index](docs/README.md) and [architecture](docs/ARCHITECTURE.md). All project documentation lives in `docs/`; reverse engineering documentation lives in `docs/re/`. No unit tests or code comments are permitted; see [project rules](docs/PROJECT_RULES.md) and [current progress](docs/PROGRESS.md).

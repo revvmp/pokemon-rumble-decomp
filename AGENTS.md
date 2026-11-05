@@ -160,7 +160,7 @@ Keep entries concise and actionable. Distinguish confirmed findings from hypothe
 
 | Current state | Value |
 | --- | --- |
-| Phase | Roadmap Phase 4: denominator and first source |
+| Phase | Roadmap Phase 5: game code reconstruction |
 | Active target | `wpse-v1` (USA, TMD title version 1) |
 | Original hashes | Package `config/targets/wpse-v1-package.json`; executable `config/targets/wpse-v1.json` |
 | Game build entry point | `python configure.py` then `.venv/Scripts/ninja`; see `docs/SETUP.md` |

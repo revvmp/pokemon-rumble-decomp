@@ -2,6 +2,8 @@
 
 ## 2026-11-04 native source-link continuation
 
+[The complete animation-curve unit](findings/animcurve-20261104-continuation.md) now passes native source linkage and frozen verification. All 194 NW4R units are source-selected; only PiiPropData constructor and Reset remain unfinished CPU functions. [DSP command/table identities](findings/ax-dsp-identities-20261104.md) clarify the separate 8,192-byte coprocessor-code dependency without claiming its reconstruction.
+
 [F32](findings/animcurve-20261104-continuation.md#f32-executor-exact-isolated-function-and-integration) now reproduces all 4,044 bytes and 59 relocations. Normal ninja and frozen verification pass, leaving three unfinished CPU functions. [The final scheduling trace](findings/animcurve-f32-final-schedule.md) shows how an eliminated virtual pointer copy changes a final ready-list tie.
 
 [Rotate](findings/animcurve-rotate-20261104.md) now reproduces every instruction byte and all 58 relocations, leaving four unfinished CPU functions. [The system-message archive](findings/system-message-archive-20261104.md) now rebuilds from semantic JSON and PNG inputs, with ordinary source linkage and frozen main.dol verification passing. [The DSP image](findings/ax-dsp-image-20261104.md) remains an explicit coprocessor-code dependency; identifying its AXWii variant does not reconstruct it.
